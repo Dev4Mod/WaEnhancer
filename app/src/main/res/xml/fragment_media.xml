@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <rikka.material.preference.MaterialSwitchPreference
+        app:key="downloadstatus"
+        app:summary="@string/statusdowload_sum"
+        app:title="@string/statusdowload" />
+
+    <rikka.material.preference.MaterialSwitchPreference
+        app:key="downloadviewonce"
+        app:summary="@string/downloadviewonce_sum"
+        app:title="@string/downloadviewonce" />
+
+    <rikka.material.preference.MaterialSwitchPreference
+        app:key="videoquality"
+        app:summary="@string/videoquality_sum"
+        app:title="@string/videoquality" />
+
+    <rikka.material.preference.MaterialSwitchPreference
+        app:key="imagequality"
+        app:summary="@string/imagequality_sum"
+        app:title="@string/imagequality" />
+
+</PreferenceScreen>

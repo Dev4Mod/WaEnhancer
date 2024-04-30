@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <PreferenceCategory
+        app:iconSpaceReserved="false"
+        app:title="General">
+
+        <rikka.material.preference.MaterialSwitchPreference
+            app:key="novotema"
+            app:summary="@string/novotema_sum"
+            app:title="@string/colors_title" />
+
+        <rikka.material.preference.MaterialSwitchPreference
+            app:key="changecolor"
+            app:summary="@string/colors_customization_sum"
+            app:title="@string/colors_customization" />
+
+        <com.jaredrummler.android.colorpicker.ColorPreferenceCompat
+            app:key="primary_color"
+            app:allowDividerBelow="false"
+            app:dependency="changecolor"
+            app:summary="@string/current_color_s"
+            app:title="@string/primary_color" />
+
+        <com.jaredrummler.android.colorpicker.ColorPreferenceCompat
+            app:key="secondary_color"
+            app:allowDividerBelow="false"
+            app:dependency="changecolor"
+            app:summary="@string/current_color_s"
+            app:title="@string/secondary_color" />
+
+        <com.jaredrummler.android.colorpicker.ColorPreferenceCompat
+            app:key="background_color"
+            app:allowDividerBelow="false"
+            app:dependency="changecolor"
+            app:summary="@string/current_color_s"
+            app:title="@string/background_color" />
+
+    </PreferenceCategory>
+
+    <PreferenceCategory
+        app:iconSpaceReserved="false"
+        app:title="Chat">
+
+        <rikka.material.preference.MaterialSwitchPreference
+            app:key="bubble_color"
+            app:title="Change Bubble Colors"
+            app:summary="Change Blubble Color from Chat" />
+
+        <com.jaredrummler.android.colorpicker.ColorPreferenceCompat
+            app:iconSpaceReserved="false"
+            app:key="bubble_left"
+            app:allowDividerAbove="false"
+            app:allowDividerBelow="false"
+            app:dependency="bubble_color"
+            app:summary="@string/current_color_s"
+            app:title="@string/bubble_left" />
+
+        <com.jaredrummler.android.colorpicker.ColorPreferenceCompat
+            app:iconSpaceReserved="false"
+            app:key="bubble_right"
+            app:allowDividerAbove="false"
+            app:allowDividerBelow="false"
+            app:dependency="bubble_color"
+            app:summary="@string/current_color_s"
+            app:title="@string/bubble_right" />
+    </PreferenceCategory>
+
+    <PreferenceCategory
+        app:iconSpaceReserved="false"
+        app:title="Home">
+
+        <rikka.material.preference.MaterialSwitchPreference
+            app:key="strokebuttons"
+            app:summary="@string/strokebuttons_sum"
+            app:title="@string/strokebuttons" />
+
+        <rikka.material.preference.MaterialSwitchPreference
+            app:key="menuwicon"
+            app:summary="@string/menuwicon_sum"
+            app:title="@string/menuwicon" />
+
+        <rikka.material.preference.MaterialSwitchPreference
+            app:key="outlinedicons"
+            app:summary="@string/outlinedicons_sum"
+            app:title="@string/outlinedicons" />
+
+        <rikka.material.preference.MaterialSwitchPreference
+            app:key="novaconfig"
+            app:summary="@string/novaconfig_sum"
+            app:title="@string/novaconfig" />
+
+    </PreferenceCategory>
+
+</PreferenceScreen>

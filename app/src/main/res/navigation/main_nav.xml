@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/mobile_navigation"
+    app:startDestination="@+id/navigation_home">
+
+    <fragment
+        android:id="@+id/navigation_home"
+        android:name="com.wmods.wppenhacer.ui.home.HomeFragment"
+        android:label="@string/title_home"
+        tools:layout="@layout/fragment_home" />
+
+    <fragment
+        android:id="@+id/navigation_chat"
+        android:name="com.wmods.wppenhacer.ui.general.GeneralFragment"
+        android:label="General"
+        />
+
+    <fragment
+        android:id="@+id/navigation_privacy"
+        android:name="com.wmods.wppenhacer.ui.privacy.PrivacyFragment"
+        android:label="Privacy"
+        />
+
+    <fragment
+        android:id="@+id/navigation_colors"
+        android:name="com.wmods.wppenhacer.ui.customization.CustomizationFragment"
+        android:label="Customization"
+        />
+</navigation>

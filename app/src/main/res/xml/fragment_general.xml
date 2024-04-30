@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:app="http://schemas.android.com/apk/res-auto">
+    <PreferenceCategory
+        app:title="General">
+
+        <rikka.material.preference.MaterialSwitchPreference
+            app:key="ampm"
+            app:title="@string/ampm" />
+
+        <rikka.material.preference.MaterialSwitchPreference
+            app:key="segundos"
+            app:summary="@string/segundosnahora_sum"
+            app:title="@string/segundosnahora" />
+
+        <EditTextPreference
+            app:iconSpaceReserved="false"
+            app:key="secondstotime"
+            app:title="@string/textonahora" />
+    </PreferenceCategory>
+
+    <PreferenceCategory
+        app:iconSpaceReserved="false"
+        app:title="Home Screen">
+
+        <rikka.material.preference.MaterialSwitchPreference
+            app:key="shownamehome"
+            app:summary="@string/showname_sum"
+            app:title="@string/showname" />
+
+        <rikka.material.preference.MaterialSwitchPreference
+            app:key="showbiohome"
+            app:summary="@string/showbio_sum"
+            app:title="@string/showbio" />
+
+        <rikka.material.preference.MaterialSwitchPreference
+            app:key="show_dndmode"
+            app:summary="@string/show_dnd_button_sum"
+            app:title="@string/show_dnd_button" />
+
+        <rikka.material.preference.MaterialSwitchPreference
+            app:key="separategroups"
+            app:summary="@string/separate_groups_sum"
+            app:title="@string/separate_groups" />
+
+        <rikka.material.preference.MaterialSwitchPreference
+            app:key="hidearchive"
+            app:summary="@string/hide_archived_chat_sum"
+            app:title="@string/hide_archived_chat" />
+
+        <rikka.material.preference.MaterialSwitchPreference
+            app:key="dotonline"
+            app:summary="@string/show_online_dot_in_conversation_list_sum"
+            app:title="@string/show_online_dot_in_conversation_list" />
+
+        <rikka.material.preference.MaterialSwitchPreference
+            app:key="removechannel_rec"
+            app:summary="@string/remove_channel_recomendations_sum"
+            app:title="@string/remove_channel_recomendations" />
+
+        <MultiSelectListPreference
+            app:entries="@array/tabshide_contents"
+            app:entryValues="@array/tabshide_values"
+            app:key="hidetabs"
+            app:summary="@string/hide_tabs_on_home_sum"
+            app:title="@string/hide_tabs_on_home" />
+
+        <rikka.material.preference.MaterialSwitchPreference
+            app:key="pinnedlimit"
+            app:summary="@string/disable_pinned_limit_sum"
+            app:title="@string/disable_pinned_limit" />
+
+        <rikka.material.preference.MaterialSwitchPreference
+            app:key="igstatus"
+            app:summary="@string/igstatus_on_home_screen_sum"
+            app:title="@string/igstatus_on_home_screen" />
+
+        <ListPreference
+            app:entries="@array/chatfilter_buttons"
+            app:entryValues="@array/chatfilter_values"
+            app:key="chatfilter"
+            app:summary="@string/novofiltro_sum"
+            app:title="@string/novofiltro" />
+
+    </PreferenceCategory>
+
+    <PreferenceCategory
+        app:iconSpaceReserved="false"
+        app:title="Chat">
+
+        <ListPreference
+            app:entries="@array/antirevoke_entries"
+            app:entryValues="@array/antirevoke_values"
+            app:iconSpaceReserved="false"
+            app:key="anti_revoke"
+            app:summary="Messages will not be deleted for you"
+            app:title="Anti-Revoke" />
+
+        <rikka.material.preference.MaterialSwitchPreference
+            app:key="hidetag"
+            app:summary="Forward messages without the tag"
+            app:title="Hide Tag" />
+
+        <rikka.material.preference.MaterialSwitchPreference
+            app:key="revokeallmessages"
+            app:summary="Remove the 24-hour limit on deleting a message for everyone"
+            app:title="'Delete for everyone' on all messages" />
+
+        <rikka.material.preference.MaterialSwitchPreference
+            app:key="removeseemore"
+            app:summary="@string/remove_see_more_button_"
+            app:title="@string/remove_see_more_button" />
+
+        <rikka.material.preference.MaterialSwitchPreference
+            app:key="antieditmessages"
+            app:summary="@string/show_edited_message_history_sum"
+            app:title="@string/show_edited_message_history" />
+    </PreferenceCategory>
+
+
+</PreferenceScreen>

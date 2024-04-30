@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="scope">
+        <item>com.whatsapp</item>
+        <item>com.whatsapp.w4b</item>
+    </string-array>
+    <string-array name="antirevoke_entries">
+        <item>Desativado</item>
+        <item>Texto</item>
+        <item>Icone</item>
+    </string-array>
+    <string-array name="antirevoke_values">
+        <item>0</item>
+        <item>1</item>
+        <item>2</item>
+    </string-array>
+    <string-array name="tabshide_contents">
+        <item>@string/updates</item>
+        <item>@string/communities</item>
+        <item>@string/calls</item>
+        <item>@string/tools</item>
+    </string-array>
+    <string-array name="tabshide_values">
+        <item>300</item>
+        <item>600</item>
+        <item>400</item>
+        <item>800</item>
+    </string-array>
+
+    <string-array name="chatfilter_buttons">
+        <item>@string/chatfilter_no_search</item>
+        <item>@string/chatfilter_search_icon</item>
+        <item>@string/chatfilter_search_bar</item>
+    </string-array>
+
+    <string-array name="chatfilter_values">
+        <item>0</item>
+        <item>1</item>
+        <item>2</item>
+    </string-array>
+
+    <string-array name="call_blocker_buttons">
+        <item>@string/call_blocker_buttons_no_block</item>
+        <item>@string/call_blocker_buttons_all_block</item>
+        <item>@string/call_blocker_buttons_only_unknown_block</item>
+    </string-array>
+    <string-array name="call_blocker_values">
+        <item>0</item>
+        <item>1</item>
+        <item>2</item>
+    </string-array>
+
+</resources>

@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <PreferenceCategory app:title="Chat">
+        <rikka.material.preference.MaterialSwitchPreference
+            app:key="freezelastseen"
+            app:summary="@string/freezelastseen_sum"
+            app:title="@string/freezelastseen" />
+
+        <rikka.material.preference.MaterialSwitchPreference
+            app:key="hideread"
+            app:summary="@string/hideread_sum"
+            app:title="@string/hideread" />
+
+        <rikka.material.preference.MaterialSwitchPreference
+            app:key="hideonceseen"
+            app:summary="@string/hide_once_view_seen_sum"
+            app:title="@string/hide_once_view_seen" />
+
+        <rikka.material.preference.MaterialSwitchPreference
+            app:key="hidereceipt"
+            app:summary="@string/hidereceipt_sum"
+            app:title="@string/hidereceipt" />
+
+        <rikka.material.preference.MaterialSwitchPreference
+            app:key="ghostmode_t"
+            app:summary="@string/ghostmode_sum"
+            app:title="@string/ghostmode" />
+
+        <rikka.material.preference.MaterialSwitchPreference
+            app:key="ghostmode_r"
+            app:summary="@string/ghostmode_sum_r"
+            app:title="@string/ghostmode_r" />
+
+        <rikka.material.preference.MaterialSwitchPreference
+            app:key="viewonce"
+            app:summary="@string/viewonce_sum"
+            app:title="@string/viewonce" />
+
+        <rikka.material.preference.MaterialSwitchPreference
+            app:key="blueonreply"
+            app:summary="@string/blueonreply_sum"
+            app:title="@string/blueonreply" />
+
+    </PreferenceCategory>
+
+    <PreferenceCategory
+        app:title="Status" >
+        <rikka.material.preference.MaterialSwitchPreference
+            app:key="hidestatusview"
+            app:summary="@string/hidestatusview_sum"
+            app:title="@string/hidestatusview" />
+    </PreferenceCategory>
+
+    <PreferenceCategory
+        app:title="Calls"
+        >
+        <ListPreference
+            app:entries="@array/call_blocker_buttons"
+            app:entryValues="@array/call_blocker_values"
+            app:summary="@string/call_blocker_sum"
+            app:key="call_privacy"
+            app:title="@string/call_blocker" />
+
+    </PreferenceCategory>
+
+
+</PreferenceScreen>
