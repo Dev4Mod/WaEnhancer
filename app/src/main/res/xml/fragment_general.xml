@@ -91,19 +91,27 @@
             app:entries="@array/antirevoke_entries"
             app:entryValues="@array/antirevoke_values"
             app:iconSpaceReserved="false"
-            app:key="anti_revoke"
-            app:summary="Messages will not be deleted for you"
-            app:title="Anti-Revoke" />
+            app:key="antirevoke"
+            app:summary="@string/antirevoke_sum"
+            app:title="@string/antirevoke" />
+
+        <ListPreference
+            app:entries="@array/antirevoke_entries"
+            app:entryValues="@array/antirevoke_values"
+            app:iconSpaceReserved="false"
+            app:key="antirevokestatus"
+            app:summary="@string/antirevokestatus_sum"
+            app:title="@string/antirevokestatus" />
 
         <rikka.material.preference.MaterialSwitchPreference
             app:key="hidetag"
-            app:summary="Forward messages without the tag"
-            app:title="Hide Tag" />
+            app:summary="@string/hidetag_sum"
+            app:title="@string/hidetag" />
 
         <rikka.material.preference.MaterialSwitchPreference
             app:key="revokeallmessages"
-            app:summary="Remove the 24-hour limit on deleting a message for everyone"
-            app:title="'Delete for everyone' on all messages" />
+            app:summary="@string/delete_for_everyone_all_messages_sum"
+            app:title="@string/delete_for_everyone_all_messages" />
 
         <rikka.material.preference.MaterialSwitchPreference
             app:key="removeseemore"
@@ -114,6 +122,12 @@
             app:key="antieditmessages"
             app:summary="@string/show_edited_message_history_sum"
             app:title="@string/show_edited_message_history" />
+
+        <rikka.material.preference.MaterialSwitchPreference
+            app:key="filterseen"
+            app:summary="Enable filter chats for unseen"
+            app:title="Enable filter chats for unseen" />
+
     </PreferenceCategory>
 
 

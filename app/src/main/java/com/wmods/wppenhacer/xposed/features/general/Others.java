@@ -62,8 +62,9 @@ public class Others extends Feature {
         var showDnd = prefs.getBoolean("show_dndmode", false);
         var removechannelRec = prefs.getBoolean("removechannel_rec", false);
         var separateGroups = prefs.getBoolean("separategroups", false);
+        var filterSeen = prefs.getBoolean("filterseen", false);
 
-        props.put(5171, true); // filtros de chat e grupos
+        props.put(5171, filterSeen); // filtros de chat e grupos
         props.put(4524, novoTema);
         props.put(4497, menuWIcons);
         props.put(4023, newSettings);
