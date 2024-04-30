@@ -17,23 +17,20 @@
 
         <com.jaredrummler.android.colorpicker.ColorPreferenceCompat
             app:key="primary_color"
-            app:allowDividerBelow="false"
+            app:cpv_showAlphaSlider="true"
             app:dependency="changecolor"
-            app:summary="@string/current_color_s"
             app:title="@string/primary_color" />
 
         <com.jaredrummler.android.colorpicker.ColorPreferenceCompat
             app:key="secondary_color"
-            app:allowDividerBelow="false"
+            app:cpv_showAlphaSlider="true"
             app:dependency="changecolor"
-            app:summary="@string/current_color_s"
             app:title="@string/secondary_color" />
 
         <com.jaredrummler.android.colorpicker.ColorPreferenceCompat
             app:key="background_color"
-            app:allowDividerBelow="false"
             app:dependency="changecolor"
-            app:summary="@string/current_color_s"
+            app:cpv_showAlphaSlider="true"
             app:title="@string/background_color" />
 
     </PreferenceCategory>
@@ -48,21 +45,15 @@
             app:summary="Change Blubble Color from Chat" />
 
         <com.jaredrummler.android.colorpicker.ColorPreferenceCompat
-            app:iconSpaceReserved="false"
             app:key="bubble_left"
-            app:allowDividerAbove="false"
-            app:allowDividerBelow="false"
+            app:cpv_showAlphaSlider="true"
             app:dependency="bubble_color"
-            app:summary="@string/current_color_s"
             app:title="@string/bubble_left" />
 
         <com.jaredrummler.android.colorpicker.ColorPreferenceCompat
-            app:iconSpaceReserved="false"
             app:key="bubble_right"
-            app:allowDividerAbove="false"
-            app:allowDividerBelow="false"
             app:dependency="bubble_color"
-            app:summary="@string/current_color_s"
+            app:cpv_showAlphaSlider="true"
             app:title="@string/bubble_right" />
     </PreferenceCategory>
 

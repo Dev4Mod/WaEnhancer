@@ -252,7 +252,6 @@ public class Unobfuscator {
         return UnobfuscatorCache.getInstance().getClass(classLoader, () -> {
             var messageClass = findFirstClassUsingStrings(classLoader, StringMatchType.Contains, "FMessage/getSenderUserJid/key.id");
             if (messageClass == null) throw new Exception("Message class not found");
-            UnobfuscatorCache.getInstance().saveClass("message", messageClass);
             return messageClass;
         });
     }
@@ -1051,7 +1050,10 @@ public class Unobfuscator {
         return UnobfuscatorCache.getInstance().getMethod(loader, () -> {
             var clazzMessage = loadThreadMessageClass(loader);
             var methodData = dexkit.findMethod(new FindMethod().searchInClass(List.of(dexkit.getClassData(clazzMessage))).matcher(new MethodMatcher().addUsingNumber(0x200000).returnType(String.class)));
-            if (methodData.isEmpty()) throw new RuntimeException("NewMessage method not found");
+            if (methodData.isEmpty()) {
+                methodData = dexkit.findMethod(new FindMethod().searchInClass(List.of(dexkit.getClassData(clazzMessage))).matcher(new MethodMatcher().addUsingString("video").returnType(String.class)));
+                if (methodData.isEmpty()) throw new RuntimeException("NewMessageWithMedia method not found");
+            }
             return methodData.get(0).getMethodInstance(loader);
         });
     }

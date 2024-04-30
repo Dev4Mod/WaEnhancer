@@ -7,25 +7,25 @@
 
     <fragment
         android:id="@+id/navigation_home"
-        android:name="com.wmods.wppenhacer.ui.home.HomeFragment"
+        android:name="com.wmods.wppenhacer.ui.fragments.HomeFragment"
         android:label="@string/title_home"
         tools:layout="@layout/fragment_home" />
 
     <fragment
         android:id="@+id/navigation_chat"
-        android:name="com.wmods.wppenhacer.ui.general.GeneralFragment"
+        android:name="com.wmods.wppenhacer.ui.fragments.GeneralFragment"
         android:label="General"
         />
 
     <fragment
         android:id="@+id/navigation_privacy"
-        android:name="com.wmods.wppenhacer.ui.privacy.PrivacyFragment"
+        android:name="com.wmods.wppenhacer.ui.fragments.PrivacyFragment"
         android:label="Privacy"
         />
 
     <fragment
         android:id="@+id/navigation_colors"
-        android:name="com.wmods.wppenhacer.ui.customization.CustomizationFragment"
+        android:name="com.wmods.wppenhacer.ui.fragments.CustomizationFragment"
         android:label="Customization"
         />
 </navigation>

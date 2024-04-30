@@ -1,15 +1,16 @@
-package com.wmods.wppenhacer.ui.customization;
+package com.wmods.wppenhacer.ui.fragments;
 
 import android.os.Bundle;
 
 import androidx.annotation.Nullable;
-import androidx.preference.PreferenceFragmentCompat;
 
 import com.wmods.wppenhacer.R;
+import com.wmods.wppenhacer.ui.fragments.base.BasePreFragment;
 
-public class CustomizationFragment extends PreferenceFragmentCompat {
+public class CustomizationFragment extends BasePreFragment {
     @Override
     public void onCreatePreferences(@Nullable Bundle savedInstanceState, @Nullable String rootKey) {
+        super.onCreatePreferences(savedInstanceState, rootKey);
         setPreferencesFromResource(R.xml.fragment_customization, rootKey);
     }
 }

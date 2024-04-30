@@ -30,12 +30,13 @@ public class App extends Application {
         AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES);
 
         var sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
+        sharedPreferences.edit().putBoolean("refresh", true).commit();
         try {
             Field f = sharedPreferences.getClass().getDeclaredField("mFile");
             f.setAccessible(true);
             File file = (File) f.get(sharedPreferences);
             executorService.execute(() -> {
-                while (file.canRead()) {
+                while (file != null && file.exists()) {
                     Utils.setWritePermissions(file);
                     try {
                         Thread.sleep(1000);

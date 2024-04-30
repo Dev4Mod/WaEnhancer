@@ -223,7 +223,7 @@ public class AntiRevoke extends Feature {
     private int antiRevoke(Object objMessage) {
         var messageKey = (String) XposedHelpers.getObjectField(objMessage, "A01");
         var stripJID = stripJID(getJidAuthor(objMessage));
-        var revokeboolean = stripJID.equals("status") ? prefs.getInt("antirevokestatus", 0) : prefs.getInt("antirevoke", 0);
+        var revokeboolean = stripJID.equals("status") ? Integer.parseInt(prefs.getString("antirevokestatus", "0")) : Integer.parseInt(prefs.getString("antirevoke", "0"));
         if (revokeboolean == 0) return revokeboolean;
 
         var messageRevokedList = getRevokedMessages(objMessage);

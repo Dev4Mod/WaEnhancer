@@ -1,4 +1,4 @@
-package com.wmods.wppenhacer.ui.base;
+package com.wmods.wppenhacer.ui.fragments.base;
 
 import android.view.View;
 import android.widget.Toast;

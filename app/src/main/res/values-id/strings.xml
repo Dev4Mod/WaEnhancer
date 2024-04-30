@@ -173,4 +173,12 @@ Anda perlu mengaktifkan dan mengatur ulang kembali</string>
     <string name="tools">Tools</string>
     <string name="title_home">Home</string>
     <string name="privacy">Privacy</string>
+    <string name="module_enabled">Module Enabled</string>
+    <string name="version_s">Version %s</string>
+    <string name="module_disabled">Module disabled</string>
+    <string name="whatsapp_in_background">WhatsApp in background</string>
+    <string name="whatsapp_is_not_running_or_has_not_been_activated_in_lsposed">Whatsapp is not running or has not been activated in Lsposed</string>
+    <string name="business_is_not_running_or_has_not_been_activated_in_lsposed">Business is not running or has not been activated in Lsposed</string>
+    <string name="restart_wpp">It is necessary to restart WhatsApp for the changes in Wa Enhancer to take effect. Do you want to restart?</string>
+    <string name="version_s_not_listed">Version %s not listed</string>
 </resources>

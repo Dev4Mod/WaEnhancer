@@ -16,12 +16,14 @@ import android.os.Bundle;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
 
 import com.wmods.wppenhacer.BuildConfig;
 import com.wmods.wppenhacer.xposed.features.customization.CustomToolbar;
 import com.wmods.wppenhacer.xposed.features.customization.BubbleColors;
 import com.wmods.wppenhacer.xposed.features.customization.CustomTheme;
+import com.wmods.wppenhacer.xposed.features.customization.HideTabs;
 import com.wmods.wppenhacer.xposed.features.customization.SeparateGroup;
 import com.wmods.wppenhacer.xposed.features.customization.IGStatus;
 import com.wmods.wppenhacer.xposed.features.customization.CustomTime;
@@ -85,6 +87,7 @@ public class MainFeatures {
                 XposedBridge.log(packageInfo.versionName);
                 plugins(loader, pref, packageInfo.versionName);
                 registerReceivers();
+                mApp.registerActivityLifecycleCallbacks(new WaCallback());
                 sendEnabledBroadcast(mApp);
 //                    XposedHelpers.setStaticIntField(XposedHelpers.findClass("com.whatsapp.util.Log", loader), "level", 5);
             }
@@ -112,6 +115,7 @@ public class MainFeatures {
     }
 
     private static void registerReceivers() {
+        // Reboot receiver
         BroadcastReceiver restartReceiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
@@ -121,9 +125,9 @@ public class MainFeatures {
                 }
             }
         };
-        var intentRestart = new IntentFilter(BuildConfig.APPLICATION_ID + ".WHATSAPP.RESTART");
-        ContextCompat.registerReceiver(mApp, restartReceiver, intentRestart, ContextCompat.RECEIVER_EXPORTED);
+        ContextCompat.registerReceiver(mApp, restartReceiver, new IntentFilter(BuildConfig.APPLICATION_ID + ".WHATSAPP.RESTART"), ContextCompat.RECEIVER_EXPORTED);
 
+        /// Wpp receiver
         BroadcastReceiver wppReceiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
@@ -131,6 +135,15 @@ public class MainFeatures {
             }
         };
         ContextCompat.registerReceiver(mApp, wppReceiver, new IntentFilter(BuildConfig.APPLICATION_ID + ".CHECK_WPP"), ContextCompat.RECEIVER_EXPORTED);
+
+        // Dialog receiver restart
+        BroadcastReceiver restartManualReceiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                context.getSharedPreferences("WaGlobal", Context.MODE_PRIVATE).edit().putBoolean("need_restart", true).commit();
+            }
+        };
+        ContextCompat.registerReceiver(mApp, restartManualReceiver, new IntentFilter(BuildConfig.APPLICATION_ID + ".MANUAL_RESTART"), ContextCompat.RECEIVER_EXPORTED);
     }
 
     private static void sendEnabledBroadcast(Context context) {
@@ -173,6 +186,7 @@ public class MainFeatures {
                 ShareLimit.class,
                 StatusDownload.class,
                 ViewOnce.class,
+                HideTabs.class
         };
 
         for (var classe : classes) {

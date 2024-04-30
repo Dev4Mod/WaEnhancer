@@ -312,7 +312,7 @@
                             android:text="Device Model" />
 
                         <com.google.android.material.textview.MaterialTextView
-                            android:id="@+id/framework_version"
+                            android:id="@+id/model_name"
                             style="@style/DeviceInfoDialogValue"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"

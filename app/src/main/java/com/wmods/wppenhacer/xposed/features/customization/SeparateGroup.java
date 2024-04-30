@@ -40,7 +40,7 @@ public class SeparateGroup extends Feature {
     public final int CALLS = 400;
     public final int COMMUNITY = 600;
     public final int GROUPS = 500;
-    public ArrayList<Integer> tabs = new ArrayList<>();
+    public static ArrayList<Integer> tabs = new ArrayList<>();
     public static HashMap<Integer, Object> tabInstances = new HashMap<>();
 
     public SeparateGroup(ClassLoader loader, XSharedPreferences preferences) {
@@ -54,6 +54,7 @@ public class SeparateGroup extends Feature {
 
         // Modifying tab list order
         hookTabList(home);
+
         if (!prefs.getBoolean("separategroups", false)) return;
         // Setting group icon
         hookTabIcon();
@@ -83,30 +84,20 @@ public class SeparateGroup extends Feature {
             @SuppressLint({"Recycle", "Range"})
             protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
                 var id = (int) getObjectField(param.thisObject, idField.getName());
-                if (id != 32 && id != 35 && id != 37) return;
+                if (id != 32 && id != 35 && id != 37 && id != 31) return;
 
                 var homeActivity = XposedHelpers.getObjectField(param.thisObject, "A00");
                 var a1 = XposedHelpers.getObjectField(homeActivity, pagerField.getName());
                 var chatCount = 0;
                 var groupCount = 0;
-                // Fiz ele pegar direto da database, esse metodo que dei hook, e chamado sempre q vc muda de tab, entra/sai de um chat ->
-                // ou quando a lista e atualizada, ent ele sempre vai atualizar
                 var db = MessageStore.database.getReadableDatabase();
-                // essa coluna que eu peguei, mostra a quantidade de mensagens n lidas (obvio ne).
-                // nao coloquei apenas > 0 pq quando vc marca um chat como nao lido, esse valor fica -1
-                // entao pra contar direitinho deixei != 0
                 var sql = "SELECT * FROM chat WHERE unseen_message_count != 0";
                 var cursor = db.rawQuery(sql, null);
                 while (cursor.moveToNext()) {
-                    // row da jid do chat
                     int jid = cursor.getInt(cursor.getColumnIndex("jid_row_id"));
                     int groupType = cursor.getInt(cursor.getColumnIndex("group_type"));
-                    // verifica se esta arquivado ou n
                     int archived = cursor.getInt(cursor.getColumnIndex("archived"));
-                    // se estiver arquivado, pula
                     if (archived != 0 || groupType != 0) continue;
-
-                    // aqui eu fiz pra verificar se e grupo ou n, ai ele pega as infos da jid de acordo com a row da jid ali de cima
                     var sql2 = "SELECT * FROM jid WHERE _id == ?";
                     var cursor1 = db.rawQuery(sql2, new String[]{String.valueOf(jid)});
                     if (!cursor1.moveToFirst()) continue;
@@ -121,7 +112,7 @@ public class SeparateGroup extends Feature {
                     var q = XposedHelpers.callMethod(a1, "A00", a1, tabs.indexOf(CHATS));
                     setObjectField(q, "A01", chatCount);
                 }
-                if (tabs.contains(GROUPS)) {
+                if (tabs.contains(GROUPS) && tabInstances.containsKey(GROUPS)) {
                     setObjectField(tabInstances.get(GROUPS), "A01", groupCount);
                 }
             }
@@ -309,66 +300,9 @@ public class SeparateGroup extends Feature {
                 }
             }
         });
-
-        var hidetabs = prefs.getStringSet("hidetabs", null);
-        if (hidetabs == null || hidetabs.isEmpty())
-            return;
-
-        var hideTabsList = new ArrayList<>(hidetabs);
-
-        var OnTabItemAddMethod = Unobfuscator.loadOnTabItemAddMethod(loader);
-
-        XposedBridge.hookMethod(OnTabItemAddMethod, new XC_MethodHook() {
-            @Override
-            protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-                var menu = (MenuItem) param.getResult();
-                var menuItemId = menu.getItemId();
-                if (hideTabsList.contains(String.valueOf(menuItemId))) {
-                    menu.setVisible(false);
-                }
-            }
-        });
-
-        var loadTabFrameClass = Unobfuscator.loadTabFrameClass(loader);
-        logDebug(loadTabFrameClass);
-
-        XposedBridge.hookAllMethods(FrameLayout.class, "onMeasure", new XC_MethodHook() {
-            @Override
-            protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-                if (!loadTabFrameClass.isInstance(param.thisObject)) return;
-                for (var item : hideTabsList) {
-                    View view;
-                    if ((view = ((View) param.thisObject).findViewById(Integer.parseInt(item))) != null) {
-                        view.setVisibility(View.GONE);
-                    }
-                }
-            }
-        });
-
-        var onMenuItemSelected = Unobfuscator.loadOnMenuItemSelected(loader);
-        var onMenuItemClick = Unobfuscator.loadOnMenuItemClickClass(loader);
-
-        XposedBridge.hookMethod(onMenuItemSelected, new XC_MethodHook() {
-            @Override
-            protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
-                if (!Unobfuscator.isCalledFromClass(home) && !Unobfuscator.isCalledFromClass(onMenuItemClick))
-                    return;
-                var index = (int) param.args[0];
-                param.args[0] = getNewTabIndex(hideTabsList, index);
-            }
-        });
     }
 
-    public int getNewTabIndex(List hidetabs, int index) {
-        var tabIsHidden = hidetabs.contains(String.valueOf(tabs.get(index)));
-        if (!tabIsHidden) return index;
-        var idAtual = XposedHelpers.getIntField(WppCore.getMainActivity(), "A03");
-        var indexAtual = tabs.indexOf(idAtual);
-        var newIndex = index > indexAtual ? index + 1 : index - 1;
-        if (newIndex < 0) return 0;
-        if (newIndex >= tabs.size()) return indexAtual;
-        return getNewTabIndex(hidetabs, newIndex);
-    }
+
 
 
     public static class ArrayListFilter extends ArrayList {
