@@ -17,11 +17,14 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.collection.ArraySet;
 
+import com.wmods.wppenhacer.R;
+import com.wmods.wppenhacer.xposed.core.ResId;
 import com.wmods.wppenhacer.xposed.core.Unobfuscator;
 import com.wmods.wppenhacer.xposed.core.Utils;
 import com.wmods.wppenhacer.xposed.core.WppCore;
 import com.wmods.wppenhacer.xposed.core.Feature;
 
+import java.io.File;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.Arrays;
@@ -102,6 +105,10 @@ public class SeenTick extends Feature {
             }
         });
 
+        // Send Seen functions
+
+        var ticktype = Integer.parseInt(prefs.getString("seentick", "0"));
+        if (ticktype == 0) return;
 
         var onCreateMenuConversationMethod = Unobfuscator.loadBlueOnReplayCreateMenuConversationMethod(loader);
         logDebug(Unobfuscator.getMethodDescriptor(onCreateMenuConversationMethod));
@@ -110,9 +117,10 @@ public class SeenTick extends Feature {
             protected void afterHookedMethod(MethodHookParam param) throws Throwable {
                 if (!prefs.getBoolean("hideread", false) || prefs.getBoolean("hidereceipt", false))
                     return;
+
                 var menu = (Menu) param.args[0];
-                var menuItem = menu.add(0, 0, 0, "Read Tick");
-                menuItem.setShowAsAction(2);
+                var menuItem = menu.add(0, 0, 0, ResId.string.send_blue_tick);
+                if (ticktype == 1) menuItem.setShowAsAction(2);
                 menuItem.setIcon(Utils.getID("ic_notif_mark_read", "drawable"));
                 menuItem.setOnMenuItemClickListener(item -> {
                     new Handler(Looper.getMainLooper()).post(() -> Toast.makeText(Utils.getApplication(), "Sending read blue tick..", Toast.LENGTH_SHORT).show());
@@ -143,40 +151,72 @@ public class SeenTick extends Feature {
             }
         });
 
+
+
         var viewButtonMethod = Unobfuscator.loadBlueOnReplayViewButtonMethod(loader);
         logDebug(Unobfuscator.getMethodDescriptor(viewButtonMethod));
-        XposedBridge.hookMethod(viewButtonMethod, new XC_MethodHook() {
-            @Override
-            protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-                if (!prefs.getBoolean("hidestatusview", false)) return;
-                var view = (View) param.getResult();
-                var contentView = (LinearLayout) view.findViewById(Utils.getID("bottom_sheet", "id"));
-                var infoBar = contentView.findViewById(Utils.getID("info", "id"));
-                var buttonImage = new ImageView(view.getContext());
-                LinearLayout.LayoutParams params = new LinearLayout.LayoutParams((int) Utils.dipToPixels(32), (int) Utils.dipToPixels(32));
-                params.gravity = Gravity.CENTER_VERTICAL;
-                params.setMargins(Utils.dipToPixels(5), Utils.dipToPixels(5), 0, 0);
-                buttonImage.setLayoutParams(params);
-                buttonImage.setImageResource(Utils.getID("ic_notif_mark_read", "drawable"));
-                GradientDrawable border = new GradientDrawable();
-                border.setShape(GradientDrawable.RECTANGLE);
-                border.setStroke(1, Color.WHITE);
-                border.setCornerRadius(20);
-                border.setColor(Color.parseColor("#80000000"));
-                buttonImage.setBackground(border);
-                view.getViewTreeObserver().addOnGlobalLayoutListener(() -> {
-                    if (infoBar.getVisibility() != View.VISIBLE) {
-                        if (contentView.getChildAt(0) == buttonImage) return;
-                        contentView.setOrientation(LinearLayout.HORIZONTAL);
-                        contentView.addView(buttonImage, 0);
-                    }
-                });
-                buttonImage.setOnClickListener(v -> {
-                    new Handler(Looper.getMainLooper()).post(() -> Toast.makeText(view.getContext(), "Sending read blue tick..", Toast.LENGTH_SHORT).show());
-                    sendBlueTickStatus(currentJid);
-                });
-            }
-        });
+
+        if (ticktype == 1) {
+            XposedBridge.hookMethod(viewButtonMethod, new XC_MethodHook() {
+                @Override
+                protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+                    if (!prefs.getBoolean("hidestatusview", false)) return;
+                    var view = (View) param.getResult();
+                    var contentView = (LinearLayout) view.findViewById(Utils.getID("bottom_sheet", "id"));
+                    var infoBar = contentView.findViewById(Utils.getID("info", "id"));
+                    var buttonImage = new ImageView(view.getContext());
+                    LinearLayout.LayoutParams params = new LinearLayout.LayoutParams((int) Utils.dipToPixels(32), (int) Utils.dipToPixels(32));
+                    params.gravity = Gravity.CENTER_VERTICAL;
+                    params.setMargins(Utils.dipToPixels(5), Utils.dipToPixels(5), 0, 0);
+                    buttonImage.setLayoutParams(params);
+                    buttonImage.setImageResource(Utils.getID("ic_notif_mark_read", "drawable"));
+                    GradientDrawable border = new GradientDrawable();
+                    border.setShape(GradientDrawable.RECTANGLE);
+                    border.setStroke(1, Color.WHITE);
+                    border.setCornerRadius(20);
+                    border.setColor(Color.parseColor("#80000000"));
+                    buttonImage.setBackground(border);
+                    view.getViewTreeObserver().addOnGlobalLayoutListener(() -> {
+                        if (infoBar.getVisibility() != View.VISIBLE) {
+                            if (contentView.getChildAt(0) == buttonImage) return;
+                            contentView.setOrientation(LinearLayout.HORIZONTAL);
+                            contentView.addView(buttonImage, 0);
+                        }
+                    });
+                    buttonImage.setOnClickListener(v -> {
+                        new Handler(Looper.getMainLooper()).post(() -> Toast.makeText(view.getContext(), "Sending read blue tick..", Toast.LENGTH_SHORT).show());
+                        sendBlueTickStatus(currentJid);
+                    });
+                }
+            });
+
+        } else {
+            var mediaClass = Unobfuscator.loadStatusDownloadMediaClass(loader);
+            logDebug("Media class: " + mediaClass.getName());
+            var menuStatusClass = Unobfuscator.loadMenuStatusClass(loader);
+            logDebug("MenuStatus class: " + menuStatusClass.getName());
+            var clazzSubMenu = Unobfuscator.loadStatusDownloadSubMenuClass(loader);
+            logDebug("SubMenu class: " + clazzSubMenu.getName());
+            var clazzMenu = Unobfuscator.loadStatusDownloadMenuClass(loader);
+            logDebug("Menu class: " + clazzMenu.getName());
+            var menuField = Unobfuscator.getFieldByType(clazzSubMenu, clazzMenu);
+            logDebug("Menu field: " + menuField.getName());
+            XposedHelpers.findAndHookMethod(menuStatusClass, "onClick", View.class, new XC_MethodHook() {
+                @Override
+                protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+                    Field subMenuField = Arrays.stream(param.thisObject.getClass().getDeclaredFields()).filter(f -> f.getType() == Object.class && clazzSubMenu.isInstance(XposedHelpers.getObjectField(param.thisObject, f.getName()))).findFirst().orElse(null);
+                    Object submenu = XposedHelpers.getObjectField(param.thisObject, subMenuField.getName());
+                    var menu = (Menu) XposedHelpers.getObjectField(submenu, menuField.getName());
+                    if (menu.findItem(ResId.string.send_blue_tick) != null) return;
+                    MenuItem item = menu.add(0, ResId.string.send_blue_tick, 0, ResId.string.send_blue_tick);
+                    item.setOnMenuItemClickListener(item1 -> {
+                        sendBlueTickStatus(currentJid);
+                        return true;
+                    });
+                }
+            });
+
+        }
 
         /// Add button to send View Once to Target
         var menuMethod = Unobfuscator.loadViewOnceDownloadMenuMethod(loader);
@@ -191,8 +231,8 @@ public class SeenTick extends Feature {
             protected void afterHookedMethod(MethodHookParam param) throws Throwable {
                 if (XposedHelpers.getIntField(param.thisObject, menuIntField.getName()) == 3) {
                     Menu menu = (Menu) param.args[0];
-                    MenuItem item = menu.add(0, 0, 0, "View Once").setIcon(Utils.getID("ic_notif_mark_read", "drawable"));
-                    item.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
+                    MenuItem item = menu.add(0, 0, 0, ResId.string.send_blue_tick).setIcon(Utils.getID("ic_notif_mark_read", "drawable"));
+                    if (ticktype == 1) item.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
                     item.setOnMenuItemClickListener(item1 -> {
                         var messageField = Unobfuscator.getFieldByExtendType(menuMethod.getDeclaringClass(), classThreadMessage);
                         var messageObject = XposedHelpers.getObjectField(param.thisObject, messageField.getName());

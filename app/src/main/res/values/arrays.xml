@@ -50,12 +50,25 @@
         <item>2</item>
     </string-array>
 
+    <string-array name="seentick_buttons">
+        <item>Disabled</item>
+        <item>Show Buttons in Screen</item>
+        <item>Show Buttons in tree dot menu</item>
+    </string-array>
+    <string-array name="seentick_values">
+        <item>0</item>
+        <item>1</item>
+        <item>2</item>
+    </string-array>
+
     <string-array name="supported_versions_wpp">
         <item>2.24.7.79</item>
         <item>2.24.8.81</item>
         <item>2.24.8.82</item>
         <item>2.24.8.85</item>
         <item>2.24.8.86</item>
+        <item>2.24.9.71</item>
+        <item>2.24.9.72</item>
     </string-array>
 
 </resources>

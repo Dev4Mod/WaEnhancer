@@ -42,6 +42,13 @@
             app:summary="@string/blueonreply_sum"
             app:title="@string/blueonreply" />
 
+        <ListPreference
+            app:key="seentick"
+            app:entries="@array/seentick_buttons"
+            app:entryValues="@array/seentick_values"
+            app:summary="@string/show_button_to_send_blue_tick_sum"
+            app:title="@string/show_button_to_send_blue_tick" />
+
     </PreferenceCategory>
 
     <PreferenceCategory

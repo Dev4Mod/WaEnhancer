@@ -17,6 +17,11 @@
         android:title="@string/privacy" />
 
     <item
+        android:id="@+id/navigation_media"
+        android:icon="@drawable/ic_media"
+        android:title="@string/media" />
+
+    <item
         android:id="@+id/navigation_colors"
         android:icon="@drawable/ic_dashboard_black_24dp"
         android:title="@string/perso" />

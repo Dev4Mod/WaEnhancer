@@ -24,6 +24,12 @@
         />
 
     <fragment
+        android:id="@+id/navigation_media"
+        android:name="com.wmods.wppenhacer.ui.fragments.MediaFragment"
+        android:label="Media"
+        />
+
+    <fragment
         android:id="@+id/navigation_colors"
         android:name="com.wmods.wppenhacer.ui.fragments.CustomizationFragment"
         android:label="Customization"

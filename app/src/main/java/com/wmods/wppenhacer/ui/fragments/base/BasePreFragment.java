@@ -11,7 +11,7 @@ import androidx.preference.PreferenceManager;
 import com.wmods.wppenhacer.App;
 import com.wmods.wppenhacer.BuildConfig;
 
-public class BasePreFragment extends PreferenceFragmentCompat implements  SharedPreferences.OnSharedPreferenceChangeListener {
+public abstract class BasePreFragment extends PreferenceFragmentCompat implements  SharedPreferences.OnSharedPreferenceChangeListener {
     @Override
     public void onCreatePreferences(@Nullable Bundle savedInstanceState, @Nullable String rootKey) {
         PreferenceManager.getDefaultSharedPreferences(requireContext()).registerOnSharedPreferenceChangeListener(this);

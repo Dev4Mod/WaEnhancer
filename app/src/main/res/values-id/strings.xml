@@ -181,4 +181,8 @@ Anda perlu mengaktifkan dan mengatur ulang kembali</string>
     <string name="business_is_not_running_or_has_not_been_activated_in_lsposed">Business is not running or has not been activated in Lsposed</string>
     <string name="restart_wpp">It is necessary to restart WhatsApp for the changes in Wa Enhancer to take effect. Do you want to restart?</string>
     <string name="version_s_not_listed">Version %s not listed</string>
+    <string name="media">Media</string>
+    <string name="show_button_to_send_blue_tick">Show Button to send blue tick</string>
+    <string name="show_button_to_send_blue_tick_sum">Show Button to send blue tick</string>
+    <string name="send_blue_tick">Send Blue Tick</string>
 </resources>
