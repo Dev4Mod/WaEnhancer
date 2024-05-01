@@ -39,6 +39,7 @@
 
         <rikka.material.preference.MaterialSwitchPreference
             app:key="blueonreply"
+            app:dependency="hideread"
             app:summary="@string/blueonreply_sum"
             app:title="@string/blueonreply" />
 

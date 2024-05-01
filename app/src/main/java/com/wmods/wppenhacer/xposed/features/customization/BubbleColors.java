@@ -24,6 +24,7 @@ public class BubbleColors extends Feature {
     @Override
     public void doHook() throws Exception {
 
+        if (!prefs.getBoolean("bubble_color", false)) return;
 
         var bubbleLeftColor = prefs.getInt("bubble_left", 0);
 
