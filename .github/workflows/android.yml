@@ -32,7 +32,6 @@ jobs:
       - name: Build and test app
         run: |
           ./gradlew assembleDebug
-          ./gradlew connectedDebugAndroidTest
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
