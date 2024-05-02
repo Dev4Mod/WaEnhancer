@@ -51,13 +51,13 @@ public class CustomTheme extends Feature {
         logDebug("customDrawable3: " + customDrawable3.getName());
 
 
-        var primaryColorInt = prefs.getInt("primary_color", 0xFF000000);
-        var secondaryColorInt = prefs.getInt("secondary_color", 0xFF000000);
-        var backgroundColorInt =  prefs.getInt("background_color", 0xFF000000);
+        var primaryColorInt = prefs.getInt("primary_color", 0);
+        var secondaryColorInt = prefs.getInt("secondary_color", 0);
+        var backgroundColorInt =  prefs.getInt("background_color", 0);
 
-        var primaryColor = String.format("#%08X",  primaryColorInt);
-        var secondaryColor = String.format("#%08X",  secondaryColorInt);
-        var backgroundColor = String.format("#%08X", backgroundColorInt);
+        var primaryColor = primaryColorInt == 0 ? "0" : String.format("#%08X",  primaryColorInt);
+        var secondaryColor = secondaryColorInt == 0 ? "0" : String.format("#%08X",  secondaryColorInt);
+        var backgroundColor = backgroundColorInt == 0 ? "0" : String.format("#%08X", backgroundColorInt);
 
         for (var c : colors.keySet()) {
             if (!primaryColor.equals("0")) {

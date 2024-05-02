@@ -3,6 +3,8 @@ package com.wmods.wppenhacer.xposed.features.customization;
 
 import android.graphics.PorterDuff;
 import android.graphics.PorterDuffColorFilter;
+import android.graphics.drawable.ColorDrawable;
+import android.graphics.drawable.Drawable;
 import android.graphics.drawable.NinePatchDrawable;
 
 import androidx.annotation.NonNull;
@@ -29,46 +31,44 @@ public class BubbleColors extends Feature {
 
         var bubbleRightColor = prefs.getInt("bubble_right", 0);
 
-        var balloon = DesignUtils.getDrawableByName(Unobfuscator.BUBBLE_COLORS_BALLOON_OUTGOING_NORMAL);
-        balloon.setColorFilter(new PorterDuffColorFilter(bubbleRightColor, PorterDuff.Mode.SRC_IN));
-        DesignUtils.setReplacementDrawable(Unobfuscator.BUBBLE_COLORS_BALLOON_OUTGOING_NORMAL, balloon);
+        // Right
 
-        var balloonExt = DesignUtils.getDrawableByName(Unobfuscator.BUBBLE_COLORS_BALLOON_OUTGOING_NORMAL_EXT);
-        balloonExt.setColorFilter(new PorterDuffColorFilter(bubbleRightColor, PorterDuff.Mode.SRC_IN));
-        DesignUtils.setReplacementDrawable(Unobfuscator.BUBBLE_COLORS_BALLOON_OUTGOING_NORMAL_EXT, balloonExt);
+        if (bubbleRightColor!= 0) {
 
-        var balloonFrame = DesignUtils.getDrawableByName("balloon_outgoing_frame");
-        balloonFrame.setColorFilter(new PorterDuffColorFilter(bubbleRightColor, PorterDuff.Mode.SRC_IN));
-        DesignUtils.setReplacementDrawable("balloon_outgoing_frame", balloonFrame);
+            replaceColor(Unobfuscator.BUBBLE_COLORS_BALLOON_OUTGOING_NORMAL, bubbleRightColor);
 
-        var balloonPressed = DesignUtils.getDrawableByName("balloon_outgoing_pressed");
-        balloonPressed.setColorFilter(new PorterDuffColorFilter(bubbleRightColor, PorterDuff.Mode.SRC_IN));
-        DesignUtils.setReplacementDrawable("balloon_outgoing_pressed", balloonPressed);
+            replaceColor(Unobfuscator.BUBBLE_COLORS_BALLOON_OUTGOING_NORMAL_EXT, bubbleRightColor);
 
-        var balloonSticker = DesignUtils.getDrawableByName("balloon_outgoing_normal_stkr");
-        balloonSticker.setColorFilter(new PorterDuffColorFilter(bubbleRightColor, PorterDuff.Mode.SRC_IN));
-        DesignUtils.setReplacementDrawable("balloon_outgoing_normal_stkr", balloonSticker);
+            replaceColor("balloon_outgoing_frame", bubbleRightColor);
 
+            replaceColor("balloon_outgoing_pressed", bubbleRightColor);
 
-        var balloonLeft = DesignUtils.getDrawableByName(Unobfuscator.BUBBLE_COLORS_BALLOON_INCOMING_NORMAL);
-        balloonLeft.setColorFilter(new PorterDuffColorFilter(bubbleLeftColor, PorterDuff.Mode.SRC_IN));
-        DesignUtils.setReplacementDrawable(Unobfuscator.BUBBLE_COLORS_BALLOON_INCOMING_NORMAL, balloonLeft);
+            replaceColor("balloon_outgoing_pressed_ext", bubbleRightColor);
 
-        var balloonExtLeft = DesignUtils.getDrawableByName(Unobfuscator.BUBBLE_COLORS_BALLOON_INCOMING_NORMAL_EXT);
-        balloonExtLeft.setColorFilter(new PorterDuffColorFilter(bubbleLeftColor, PorterDuff.Mode.SRC_IN));
-        DesignUtils.setReplacementDrawable(Unobfuscator.BUBBLE_COLORS_BALLOON_INCOMING_NORMAL_EXT, balloonExtLeft);
+            replaceColor("balloon_outgoing_normal_stkr", bubbleRightColor);
 
-        var balloonFrameLeft = DesignUtils.getDrawableByName("balloon_incoming_frame");
-        balloonFrameLeft.setColorFilter(new PorterDuffColorFilter(bubbleLeftColor, PorterDuff.Mode.SRC_IN));
-        DesignUtils.setReplacementDrawable("balloon_incoming_frame", balloonFrameLeft);
+            replaceColor("balloon_outgoing_normal_stkr_tinted", bubbleRightColor);
+        }
 
-        var balloonPressedLeft = DesignUtils.getDrawableByName("balloon_incoming_pressed");
-        balloonPressedLeft.setColorFilter(new PorterDuffColorFilter(bubbleLeftColor, PorterDuff.Mode.SRC_IN));
-        DesignUtils.setReplacementDrawable("balloon_incoming_pressed", balloonPressedLeft);
+        // Left
 
-        var balloonStickerLeft = DesignUtils.getDrawableByName("balloon_incoming_normal_stkr");
-        balloonStickerLeft.setColorFilter(new PorterDuffColorFilter(bubbleLeftColor, PorterDuff.Mode.SRC_IN));
-        DesignUtils.setReplacementDrawable("balloon_incoming_normal_stkr", balloonStickerLeft);
+        if (bubbleLeftColor != 0) {
+
+            replaceColor(Unobfuscator.BUBBLE_COLORS_BALLOON_INCOMING_NORMAL, bubbleLeftColor);
+
+            replaceColor(Unobfuscator.BUBBLE_COLORS_BALLOON_INCOMING_NORMAL_EXT, bubbleLeftColor);
+
+            replaceColor("balloon_incoming_frame", bubbleLeftColor);
+
+            replaceColor("balloon_incoming_pressed", bubbleLeftColor);
+
+            replaceColor("balloon_incoming_pressed_ext", bubbleLeftColor);
+
+            replaceColor("balloon_incoming_normal_stkr", bubbleLeftColor);
+
+            replaceColor("balloon_incoming_normal_stkr_tinted", bubbleLeftColor);
+
+        }
 
 
         var methods = Unobfuscator.loadNineDrawableMethods(loader);
@@ -79,14 +79,21 @@ public class BubbleColors extends Feature {
                     var draw = (NinePatchDrawable) param.getResult();
                     var right = (boolean) param.args[3];
                     if (right) {
+                        if (bubbleRightColor == 0) return;
                         draw.setColorFilter(new PorterDuffColorFilter(bubbleRightColor, PorterDuff.Mode.SRC_IN));
                     } else {
+                        if (bubbleLeftColor == 0) return;
                         draw.setColorFilter(new PorterDuffColorFilter(bubbleLeftColor, PorterDuff.Mode.SRC_IN));
                     }
                 }
             });
         }
+    }
 
+    private static void replaceColor(String drawableName, int color) {
+        var drawable = DesignUtils.getDrawableByName(drawableName);
+        drawable.setColorFilter(new PorterDuffColorFilter(color, PorterDuff.Mode.SRC_IN));
+        DesignUtils.setReplacementDrawable(drawableName, drawable);
     }
 
     @NonNull

@@ -20,18 +20,21 @@
             app:key="primary_color"
             app:cpv_showAlphaSlider="true"
             app:dependency="changecolor"
+            app:summary="Set color #00000000 to default color"
             app:title="@string/primary_color" />
 
         <com.jaredrummler.android.colorpicker.ColorPreferenceCompat
             app:key="secondary_color"
             app:cpv_showAlphaSlider="true"
             app:dependency="changecolor"
+            app:summary="Set color #00000000 to default color"
             app:title="@string/secondary_color" />
 
         <com.jaredrummler.android.colorpicker.ColorPreferenceCompat
             app:key="background_color"
             app:dependency="changecolor"
             app:cpv_showAlphaSlider="true"
+            app:summary="Set color #00000000 to default color"
             app:title="@string/background_color" />
 
     </PreferenceCategory>
@@ -49,12 +52,14 @@
             app:key="bubble_left"
             app:cpv_showAlphaSlider="true"
             app:dependency="bubble_color"
+            app:summary="Set color #00000000 to default color"
             app:title="@string/bubble_left" />
 
         <com.jaredrummler.android.colorpicker.ColorPreferenceCompat
             app:key="bubble_right"
             app:dependency="bubble_color"
             app:cpv_showAlphaSlider="true"
+            app:summary="Set color #00000000 to default color"
             app:title="@string/bubble_right" />
     </PreferenceCategory>
 
