@@ -32,15 +32,30 @@ public class HideTabs extends Feature {
         if (hidetabs == null || hidetabs.isEmpty())
             return;
 
-
-
         var home = XposedHelpers.findClass("com.whatsapp.HomeActivity", loader);
-
 
         var hideTabsList = new ArrayList<>(hidetabs);
 
-        var OnTabItemAddMethod = Unobfuscator.loadOnTabItemAddMethod(loader);
+        if (!prefs.getBoolean("igstatus", false)) {
 
+            var onCreateTabList = Unobfuscator.loadTabListMethod(loader);
+            logDebug(Unobfuscator.getMethodDescriptor(onCreateTabList));
+            var ListField = Unobfuscator.getFieldByType(home, List.class);
+            XposedBridge.hookMethod(onCreateTabList, new XC_MethodHook() {
+                @Override
+                protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+                    var list = (List) XposedHelpers.getStaticObjectField(home, ListField.getName());
+                    log(list);
+                    for (var item : hideTabsList) {
+                        list.remove(Integer.valueOf(item));
+                    }
+                }
+            });
+            return;
+        }
+
+
+        var OnTabItemAddMethod = Unobfuscator.loadOnTabItemAddMethod(loader);
         XposedBridge.hookMethod(OnTabItemAddMethod, new XC_MethodHook() {
             @Override
             protected void afterHookedMethod(MethodHookParam param) throws Throwable {
