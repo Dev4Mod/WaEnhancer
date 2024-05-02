@@ -14,6 +14,7 @@ import com.wmods.wppenhacer.xposed.core.WppCore;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import de.robv.android.xposed.XC_MethodHook;
 import de.robv.android.xposed.XSharedPreferences;
@@ -34,7 +35,7 @@ public class HideTabs extends Feature {
 
         var home = XposedHelpers.findClass("com.whatsapp.HomeActivity", loader);
 
-        var hideTabsList = new ArrayList<>(hidetabs);
+        var hideTabsList = hidetabs.stream().map(Integer::valueOf).collect(Collectors.toList());
 
         if (!prefs.getBoolean("igstatus", false)) {
 
@@ -43,15 +44,13 @@ public class HideTabs extends Feature {
             var ListField = Unobfuscator.getFieldByType(home, List.class);
             XposedBridge.hookMethod(onCreateTabList, new XC_MethodHook() {
                 @Override
+                @SuppressWarnings("unchecked")
                 protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-                    var list = (List) XposedHelpers.getStaticObjectField(home, ListField.getName());
+                    var list = (List<Integer>) XposedHelpers.getStaticObjectField(home, ListField.getName());
                     log(list);
-                    for (var item : hideTabsList) {
-                        list.remove(Integer.valueOf(item));
-                    }
+                    list.removeAll(hideTabsList);
                 }
             });
-            return;
         }
 
 
@@ -61,7 +60,7 @@ public class HideTabs extends Feature {
             protected void afterHookedMethod(MethodHookParam param) throws Throwable {
                 var menu = (MenuItem) param.getResult();
                 var menuItemId = menu.getItemId();
-                if (hideTabsList.contains(String.valueOf(menuItemId))) {
+                if (hideTabsList.contains(menuItemId)) {
                     menu.setVisible(false);
                 }
             }
@@ -74,9 +73,16 @@ public class HideTabs extends Feature {
             @Override
             protected void afterHookedMethod(MethodHookParam param) throws Throwable {
                 if (!loadTabFrameClass.isInstance(param.thisObject)) return;
+                if (tabs != null) {
+                    var arr = new ArrayList<>(tabs);
+                    arr.removeAll(hideTabsList);
+                    if (arr.size() == 1) {
+                        ((View) param.thisObject).setVisibility(View.GONE);
+                    }
+                }
                 for (var item : hideTabsList) {
                     View view;
-                    if ((view = ((View) param.thisObject).findViewById(Integer.parseInt(item))) != null) {
+                    if ((view = ((View) param.thisObject).findViewById(item)) != null) {
                         view.setVisibility(View.GONE);
                     }
                 }
@@ -105,7 +111,7 @@ public class HideTabs extends Feature {
 
     public int getNewTabIndex(List hidetabs, int index) {
         if (tabs == null) return index;
-        var tabIsHidden = hidetabs.contains(String.valueOf(tabs.get(index)));
+        var tabIsHidden = hidetabs.contains(tabs.get(index));
         if (!tabIsHidden) return index;
         var idAtual = XposedHelpers.getIntField(WppCore.getMainActivity(), "A03");
         var indexAtual = tabs.indexOf(idAtual);
