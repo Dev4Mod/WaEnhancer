@@ -13,7 +13,6 @@ import android.view.View;
 
 import androidx.annotation.NonNull;
 
-import com.wmods.wppenhacer.R;
 import com.wmods.wppenhacer.xposed.core.DesignUtils;
 import com.wmods.wppenhacer.xposed.core.ResId;
 import com.wmods.wppenhacer.xposed.core.Unobfuscator;
@@ -25,7 +24,6 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Objects;
-import java.util.Set;
 
 import de.robv.android.xposed.XC_MethodHook;
 import de.robv.android.xposed.XSharedPreferences;
@@ -34,7 +32,8 @@ import de.robv.android.xposed.XposedHelpers;
 
 public class Others extends Feature {
 
-    public static HashMap<Integer, Boolean> props = new HashMap<>();
+    public static HashMap<Integer, Boolean> propsBoolean = new HashMap<>();
+    public static HashMap<Integer, Integer> propsInteger = new HashMap<>();
 
     public Others(ClassLoader loader, XSharedPreferences preferences) {
         super(loader, preferences);
@@ -68,40 +67,51 @@ public class Others extends Feature {
         var filterSeen = prefs.getBoolean("filterseen", false);
         var fbstyle = prefs.getBoolean("fbstyle", false);
         var alertSticker = prefs.getBoolean("alertsticker", false);
+        var channels = prefs.getBoolean("channels", false);
+        var igstatus = prefs.getBoolean("igstatus", false);
 
-        props.put(5171, filterSeen); // filtros de chat e grupos
-        props.put(4524, novoTema);
-        props.put(4497, menuWIcons);
-        props.put(4023, newSettings);
-        props.put(8013, Objects.equals(filterChats, "2")); // lupa sera removida e sera adicionado uma barra no lugar.
-        props.put(5834, strokeButtons);
-        props.put(5509, outlinedIcons);
-        props.put(2358, false);
-        props.put(7516, fbstyle);
-//
-//        props.put(3289, false);
-//        props.put(4905, false);
-//        props.put(7558, false);
-//        props.put(1874, false);
-//        props.put(7724, false);
+        propsBoolean.put(5171, filterSeen); // filtros de chat e grupos
+        propsBoolean.put(4524, novoTema);
+        propsBoolean.put(4497, menuWIcons);
+        propsBoolean.put(4023, newSettings);
+        propsBoolean.put(8013, Objects.equals(filterChats, "2")); // lupa sera removida e sera adicionado uma barra no lugar.
+        propsBoolean.put(5834, strokeButtons);
+        propsBoolean.put(5509, outlinedIcons);
+        propsBoolean.put(2358, false);
+        propsBoolean.put(7516, fbstyle);
 
-        var methodProps = Unobfuscator.loadPropsMethod(loader);
-        logDebug(Unobfuscator.getMethodDescriptor(methodProps));
+        propsInteger.put(8522, fbstyle ? 1 : 0);
+        propsInteger.put(8521, fbstyle ? 1 : 0);
+        propsInteger.put(3877, channels ? igstatus ? 2 : 0 : 2);
+
+
+        var methodPropsBoolean = Unobfuscator.loadPropsBooleanMethod(loader);
+        logDebug(Unobfuscator.getMethodDescriptor(methodPropsBoolean));
 
         var dataUsageActivityClass = XposedHelpers.findClass("com.whatsapp.settings.SettingsDataUsageActivity", loader);
-
-        XposedBridge.hookMethod(methodProps, new XC_MethodHook() {
+        XposedBridge.hookMethod(methodPropsBoolean, new XC_MethodHook() {
             @Override
             protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
-                int i = (int) (param.args.length > 2 ? param.args[2] : param.args[1]);
-
-                var propValue = props.get(i);
+                int i = (int) param.args[param.args.length -1];
+                var propValue = propsBoolean.get(i);
                 if (propValue == null) return;
                 param.setResult(propValue);
                 // Fix Bug in Settings Data Usage
                 if (i == 4023 && propValue && Unobfuscator.isCalledFromClass(dataUsageActivityClass)) {
                     param.setResult(false);
                 }
+            }
+        });
+
+        var methodPropsInteger = Unobfuscator.loadPropsIntegerMethod(loader);
+
+        XposedBridge.hookMethod(methodPropsInteger, new XC_MethodHook() {
+            @Override
+            protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
+                int i = (int) param.args[param.args.length -1];
+                var propValue = propsInteger.get(i);
+                if (propValue == null) return;
+                param.setResult(propValue);
             }
         });
 
