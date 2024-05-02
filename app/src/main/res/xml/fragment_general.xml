@@ -52,10 +52,6 @@
             app:summary="@string/show_online_dot_in_conversation_list_sum"
             app:title="@string/show_online_dot_in_conversation_list" />
 
-        <rikka.material.preference.MaterialSwitchPreference
-            app:key="removechannel_rec"
-            app:summary="@string/remove_channel_recomendations_sum"
-            app:title="@string/remove_channel_recomendations" />
 
         <MultiSelectListPreference
             app:entries="@array/tabshide_contents"
@@ -97,6 +93,12 @@
             app:key="antirevokestatus"
             app:summary="@string/antirevokestatus_sum"
             app:title="@string/antirevokestatus" />
+
+        <rikka.material.preference.MaterialSwitchPreference
+            app:summary="@string/removeforwardlimit_sum"
+            app:key="removeforwardlimit"
+            app:title="@string/removeforwardlimit" />
+
 
         <rikka.material.preference.MaterialSwitchPreference
             app:key="hidetag"
