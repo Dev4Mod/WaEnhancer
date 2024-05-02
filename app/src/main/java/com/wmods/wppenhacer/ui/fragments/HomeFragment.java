@@ -37,11 +37,29 @@ public class HomeFragment extends BaseFragment {
             @Override
             public void onReceive(Context context, Intent intent) {
                 try {
-                    receiverBroadcastWpp(context, intent);
+                    if (MainFeatures.PACKAGE_WPP.equals(intent.getStringExtra("PKG")))
+                        receiverBroadcastWpp(context, intent);
+                    else
+                        receiverBroadcastBusiness(context, intent);
                 } catch (Exception e) {
                 }
             }
         }, intentFilter, ContextCompat.RECEIVER_EXPORTED);
+    }
+
+    private void receiverBroadcastBusiness(Context context, Intent intent) {
+        binding.statusTitle3.setText(R.string.business_in_background);
+        var version = intent.getStringExtra("VERSION");
+        var supported_list = Arrays.asList(context.getResources().getStringArray(R.array.supported_versions_wpp));
+        if (supported_list.contains(version)) {
+            binding.statusSummary3.setText(String.format(getString(R.string.version_s), version));
+            binding.status3.setCardBackgroundColor(context.getColor(rikka.material.R.color.material_green_500));
+        }else {
+            binding.statusSummary3.setText(String.format(getString(R.string.version_s_not_listed), version));
+            binding.status3.setCardBackgroundColor(context.getColor(rikka.material.R.color.material_yellow_500));
+        }
+        binding.statusSummary3.setVisibility(View.VISIBLE);
+        binding.statusIcon3.setImageResource(R.drawable.ic_round_check_circle_24);
     }
 
     private void receiverBroadcastWpp(Context context, Intent intent) {

@@ -183,4 +183,5 @@
     <string name="show_button_to_send_blue_tick">Show Button to send blue tick</string>
     <string name="show_button_to_send_blue_tick_sum">Show Button to send blue tick</string>
     <string name="send_blue_tick">Send Blue Tick</string>
+    <string name="business_in_background">Business in background</string>
 </resources>
