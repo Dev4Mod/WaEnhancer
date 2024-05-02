@@ -187,4 +187,9 @@
     <string name="sending_read_blue_tick">Sending read blue tick..</string>
     <string name="enable_facebook_style_for_status">Enable Facebook Style for Status</string>
     <string name="enable_facebook_style_for_status_sum">Change original Status Style to Facebook Style</string>
+    <string name="send">Send</string>
+    <string name="do_you_want_to_send_sticker">Do you want to send sticker?</string>
+    <string name="send_sticker">Send Sticker</string>
+    <string name="enable_filter_chats">Enable filter chats for type</string>
+    <string name="enable_filter_chats_sum">Show options to filter chats for groups, contacts and unseen messages</string>
 </resources>

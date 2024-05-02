@@ -1284,4 +1284,10 @@ public class Unobfuscator {
             throw new RuntimeException("SeeMore method 2 not found");
         });
     }
+
+    public static Method loadSendStickerMethod(ClassLoader loader) throws Exception {
+        var method = findFirstMethodUsingStrings(loader, StringMatchType.Contains, "StickerGridViewItem.StickerLocal");
+        if (method == null) throw new RuntimeException("SendSticker method not found");
+        return method;
+    }
 }

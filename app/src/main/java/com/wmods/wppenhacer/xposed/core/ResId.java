@@ -19,6 +19,9 @@ public class ResId {
         public static int restart_wpp;
         public static int send_blue_tick;
         public static int sending_read_blue_tick;
+        public static int send;
+        public static int send_sticker;
+        public static int do_you_want_to_send_sticker;
     }
 
 }

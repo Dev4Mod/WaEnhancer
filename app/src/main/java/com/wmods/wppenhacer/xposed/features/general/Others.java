@@ -9,9 +9,11 @@ import android.content.Context;
 import android.content.Intent;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 
 import androidx.annotation.NonNull;
 
+import com.wmods.wppenhacer.R;
 import com.wmods.wppenhacer.xposed.core.DesignUtils;
 import com.wmods.wppenhacer.xposed.core.ResId;
 import com.wmods.wppenhacer.xposed.core.Unobfuscator;
@@ -23,6 +25,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 
 import de.robv.android.xposed.XC_MethodHook;
 import de.robv.android.xposed.XSharedPreferences;
@@ -64,6 +67,7 @@ public class Others extends Feature {
         var separateGroups = prefs.getBoolean("separategroups", false);
         var filterSeen = prefs.getBoolean("filterseen", false);
         var fbstyle = prefs.getBoolean("fbstyle", false);
+        var alertSticker = prefs.getBoolean("alertsticker", false);
 
         props.put(5171, filterSeen); // filtros de chat e grupos
         props.put(4524, novoTema);
@@ -172,6 +176,44 @@ public class Others extends Feature {
                 }
             });
         }
+
+        if (alertSticker) {
+            var sendStickerMethod = Unobfuscator.loadSendStickerMethod(loader);
+            XposedBridge.hookMethod(sendStickerMethod, new XC_MethodHook() {
+                private Unhook unhooked;
+                private View mView;
+                private View.OnClickListener mCaptureOnClickListener;
+
+                @Override
+                protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
+                    unhooked = XposedHelpers.findAndHookMethod(View.class, "setOnClickListener", View.OnClickListener.class, new XC_MethodHook() {
+                        @Override
+                        protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
+                            mView = (View) param.thisObject;
+                            mCaptureOnClickListener = (View.OnClickListener) param.args[0];
+                            param.setResult(null);
+                        }
+                    });
+                }
+
+                @Override
+                protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+                    unhooked.unhook();
+                    if (mView != null && mCaptureOnClickListener != null) {
+                        mView.setOnClickListener((View v) -> {
+                            AlertDialog.Builder dialog = new AlertDialog.Builder(v.getContext());
+                            dialog.setTitle(ResId.string.send_sticker);
+                            dialog.setMessage(ResId.string.do_you_want_to_send_sticker);
+                            dialog.setPositiveButton(ResId.string.send, (dialog1, which) -> mCaptureOnClickListener.onClick(v));
+                            dialog.setNegativeButton(ResId.string.cancel, null);
+                            dialog.show();
+                        });
+                    }
+                }
+
+            });
+        }
+
     }
 
     private static void restartApp(Activity home) {

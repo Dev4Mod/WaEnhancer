@@ -122,8 +122,13 @@
 
         <rikka.material.preference.MaterialSwitchPreference
             app:key="filterseen"
-            app:summary="Enable filter chats for unseen"
-            app:title="Enable filter chats for unseen" />
+            app:summary="@string/enable_filter_chats_sum"
+            app:title="@string/enable_filter_chats" />
+
+        <rikka.material.preference.MaterialSwitchPreference
+            app:key="alertsticker"
+            app:summary="Show a dialog before sending the sticker"
+            app:title="Enable confirmation to send Sticker" />
 
     </PreferenceCategory>
 
