@@ -453,14 +453,19 @@ public class Unobfuscator {
         });
     }
 
-    public static Method loadMediaQualityVideoMethod(ClassLoader classLoader) throws Exception {
+    public static Method loadMediaQualityVideoMethod2(ClassLoader classLoader) throws Exception {
         return UnobfuscatorCache.getInstance().getMethod(classLoader, () -> {
-            var clazz = loadMediaQualityClass(classLoader);
-            return Arrays.stream(clazz.getDeclaredMethods()).filter(
-                    method1 -> method1.getParameterTypes().length == 3 &&
-                            method1.getParameterTypes()[2].equals(int.class)
-                            && method1.getReturnType().equals(Pair.class)
-            ).findFirst().orElse(null);
+            var method = findFirstMethodUsingStrings(classLoader, StringMatchType.Contains, "getCorrectedResolution");
+            if (method == null) throw new Exception("MediaQualityVideo method not found");
+            return method;
+        });
+    }
+
+    public static Class loadMediaQualityVideoLimitClass(ClassLoader classLoader) throws Exception {
+        return UnobfuscatorCache.getInstance().getClass(classLoader, () -> {
+            var clazz = findFirstClassUsingStrings(classLoader, StringMatchType.Contains, "videoLimitMb=");
+            if (clazz == null) throw new Exception("MediaQualityVideoLimit method not found");
+            return clazz;
         });
     }
 

@@ -3,6 +3,7 @@ package com.wmods.wppenhacer.xposed.features.general;
 import android.graphics.Bitmap;
 import android.graphics.RecordingCanvas;
 import android.os.Build;
+import android.util.ArraySet;
 import android.util.Pair;
 
 import androidx.annotation.NonNull;
@@ -11,6 +12,8 @@ import com.wmods.wppenhacer.xposed.core.Unobfuscator;
 import com.wmods.wppenhacer.xposed.core.Feature;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Map;
 
 import de.robv.android.xposed.XC_MethodHook;
 import de.robv.android.xposed.XC_MethodReplacement;
@@ -44,17 +47,55 @@ public class MediaQuality extends Feature {
             var bitrateMethod = Unobfuscator.loadMediaQualityBitrateMethod(loader);
             logDebug(Unobfuscator.getMethodDescriptor(bitrateMethod));
 
-            XposedBridge.hookMethod(bitrateMethod, XC_MethodReplacement.returnConstant((1600000)));
-
-            var videoMethod = Unobfuscator.loadMediaQualityVideoMethod(loader);
-            logDebug(Unobfuscator.getMethodDescriptor(videoMethod));
-
-            XposedBridge.hookMethod(videoMethod, new XC_MethodReplacement() {
+            XposedBridge.hookMethod(bitrateMethod, new XC_MethodHook() {
                 @Override
-                protected Object replaceHookedMethod(MethodHookParam param) {
-                    return new Pair<>(true, new ArrayList<>());
+                protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+                    param.setResult(96 * 1000 * 1000);
                 }
             });
+
+            var videoMethod = Unobfuscator.loadMediaQualityVideoMethod2(loader);
+            logDebug(Unobfuscator.getMethodDescriptor(videoMethod));
+
+            XposedBridge.hookMethod(videoMethod, new XC_MethodHook() {
+                @Override
+                protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+                    log(param.args[1]);
+                    if ((int) param.args[1] == 3) {
+                        var resizeVideo = param.getResult();
+                        var originalVieo = param.args[0];
+                        if (prefs.getBoolean("video_real_resolution", false)) {
+                            XposedHelpers.setIntField(resizeVideo, "A09", XposedHelpers.getIntField(originalVieo, "A03"));
+                            XposedHelpers.setIntField(resizeVideo, "A07", XposedHelpers.getIntField(originalVieo, "A05"));
+                        }
+                        if (prefs.getBoolean("video_maxfps", false)) {
+                            XposedHelpers.setIntField(resizeVideo, "A05", 60);
+                        }
+                        log(resizeVideo);
+                    }
+                }
+            });
+
+            var videoLimitClass = Unobfuscator.loadMediaQualityVideoLimitClass(loader);
+            logDebug(videoLimitClass);
+            XposedHelpers.findAndHookConstructor(videoLimitClass, int.class, int.class, int.class, new XC_MethodHook() {
+                @Override
+                protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
+                    super.beforeHookedMethod(param);
+                    if (prefs.getBoolean("video_size_limit", false)) {
+                        param.args[0] = 90;
+                    }
+                    param.args[1] = 8000;  // 4K Resolution
+                    param.args[2] = 96 * 1000 * 1000; // 96 Mbps
+                }
+
+                @Override
+                protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+                    super.afterHookedMethod(param);
+                    log(param.thisObject);
+                }
+            });
+
 
         }
 
