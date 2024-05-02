@@ -184,7 +184,7 @@ public class SeenTick extends Feature {
                         }
                     });
                     buttonImage.setOnClickListener(v -> {
-                        new Handler(Looper.getMainLooper()).post(() -> Toast.makeText(view.getContext(), "Sending read blue tick..", Toast.LENGTH_SHORT).show());
+                        new Handler(Looper.getMainLooper()).post(() -> Toast.makeText(view.getContext(), ResId.string.sending_read_blue_tick, Toast.LENGTH_SHORT).show());
                         sendBlueTickStatus(currentJid);
                     });
                 }
@@ -211,6 +211,7 @@ public class SeenTick extends Feature {
                     MenuItem item = menu.add(0, ResId.string.send_blue_tick, 0, ResId.string.send_blue_tick);
                     item.setOnMenuItemClickListener(item1 -> {
                         sendBlueTickStatus(currentJid);
+                        Toast.makeText(Utils.getApplication(), ResId.string.sending_read_blue_tick, Toast.LENGTH_SHORT).show();
                         return true;
                     });
                 }
@@ -237,7 +238,7 @@ public class SeenTick extends Feature {
                         var messageField = Unobfuscator.getFieldByExtendType(menuMethod.getDeclaringClass(), classThreadMessage);
                         var messageObject = XposedHelpers.getObjectField(param.thisObject, messageField.getName());
                         sendBlueTickMedia(messageObject);
-                        Toast.makeText(Utils.getApplication(), "Sending read blue tick..", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(Utils.getApplication(), ResId.string.sending_read_blue_tick, Toast.LENGTH_SHORT).show();
                         return true;
                     });
                 }

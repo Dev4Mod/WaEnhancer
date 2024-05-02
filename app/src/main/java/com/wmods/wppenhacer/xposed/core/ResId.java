@@ -18,6 +18,7 @@ public class ResId {
         public static int restart_whatsapp;
         public static int restart_wpp;
         public static int send_blue_tick;
+        public static int sending_read_blue_tick;
     }
 
 }
