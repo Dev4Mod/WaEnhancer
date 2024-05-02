@@ -105,10 +105,10 @@ public class DesignUtils {
 
     public static int getUnSeenColor() {
         var primaryColor = mPrefs.getInt("primary_color", 0);
-        if (primaryColor == 0) {
+        if (primaryColor == 0 || !mPrefs.getBoolean("changecolor", false)) {
             return 0xFF25d366;
         }
-        return Utils.parseNegativeColor(primaryColor);
+        return primaryColor;
     }
 
     public static int getPrimarySurfaceColor(Context context) {

@@ -51,9 +51,9 @@ public class CustomTheme extends Feature {
         logDebug("customDrawable3: " + customDrawable3.getName());
 
 
-        var primaryColorInt = Utils.parseNegativeColor(prefs.getInt("primary_color", 0));
-        var secondaryColorInt =  Utils.parseNegativeColor(prefs.getInt("secondary_color", 0));
-        var backgroundColorInt =  Utils.parseNegativeColor(prefs.getInt("background_color", 0));
+        var primaryColorInt = prefs.getInt("primary_color", 0);
+        var secondaryColorInt = prefs.getInt("secondary_color", 0);
+        var backgroundColorInt =  prefs.getInt("background_color", 0);
 
         var primaryColor = String.format("#%08X",  primaryColorInt);
         var secondaryColor = String.format("#%08X",  secondaryColorInt);

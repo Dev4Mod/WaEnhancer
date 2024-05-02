@@ -77,9 +77,6 @@ public class Utils {
         }
     }
 
-    public static int parseNegativeColor(int negativeColor) {
-        return 0xFFFFFFFF + negativeColor;
-    }
 
     public static void setWritePermissions(File file) {
         try {
