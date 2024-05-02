@@ -78,6 +78,12 @@ public class Others extends Feature {
         props.put(5509, outlinedIcons);
         props.put(2358, false);
         props.put(7516, fbstyle);
+//
+//        props.put(3289, false);
+//        props.put(4905, false);
+//        props.put(7558, false);
+//        props.put(1874, false);
+//        props.put(7724, false);
 
         var methodProps = Unobfuscator.loadPropsMethod(loader);
         logDebug(Unobfuscator.getMethodDescriptor(methodProps));
@@ -181,17 +187,22 @@ public class Others extends Feature {
             var sendStickerMethod = Unobfuscator.loadSendStickerMethod(loader);
             XposedBridge.hookMethod(sendStickerMethod, new XC_MethodHook() {
                 private Unhook unhooked;
-                private View mView;
-                private View.OnClickListener mCaptureOnClickListener;
-
                 @Override
                 protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
                     unhooked = XposedHelpers.findAndHookMethod(View.class, "setOnClickListener", View.OnClickListener.class, new XC_MethodHook() {
                         @Override
                         protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
-                            mView = (View) param.thisObject;
-                            mCaptureOnClickListener = (View.OnClickListener) param.args[0];
-                            param.setResult(null);
+                            View.OnClickListener mCaptureOnClickListener = (View.OnClickListener) param.args[0];
+                            if (mCaptureOnClickListener == null) return;
+                            param.args[0] = (View.OnClickListener) view -> {
+                                log("sendSticker");
+                                AlertDialog.Builder dialog = new AlertDialog.Builder(view.getContext());
+                                dialog.setTitle(ResId.string.send_sticker);
+                                dialog.setMessage(ResId.string.do_you_want_to_send_sticker);
+                                dialog.setPositiveButton(ResId.string.send, (dialog1, which) -> mCaptureOnClickListener.onClick(view));
+                                dialog.setNegativeButton(ResId.string.cancel, null);
+                                dialog.show();
+                            };
                         }
                     });
                 }
@@ -199,16 +210,6 @@ public class Others extends Feature {
                 @Override
                 protected void afterHookedMethod(MethodHookParam param) throws Throwable {
                     unhooked.unhook();
-                    if (mView != null && mCaptureOnClickListener != null) {
-                        mView.setOnClickListener((View v) -> {
-                            AlertDialog.Builder dialog = new AlertDialog.Builder(v.getContext());
-                            dialog.setTitle(ResId.string.send_sticker);
-                            dialog.setMessage(ResId.string.do_you_want_to_send_sticker);
-                            dialog.setPositiveButton(ResId.string.send, (dialog1, which) -> mCaptureOnClickListener.onClick(v));
-                            dialog.setNegativeButton(ResId.string.cancel, null);
-                            dialog.show();
-                        });
-                    }
                 }
 
             });
