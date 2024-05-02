@@ -63,6 +63,7 @@ public class Others extends Feature {
         var removechannelRec = prefs.getBoolean("removechannel_rec", false);
         var separateGroups = prefs.getBoolean("separategroups", false);
         var filterSeen = prefs.getBoolean("filterseen", false);
+        var fbstyle = prefs.getBoolean("fbstyle", false);
 
         props.put(5171, filterSeen); // filtros de chat e grupos
         props.put(4524, novoTema);
@@ -72,6 +73,7 @@ public class Others extends Feature {
         props.put(5834, strokeButtons);
         props.put(5509, outlinedIcons);
         props.put(2358, false);
+        props.put(7516, fbstyle);
 
         var methodProps = Unobfuscator.loadPropsMethod(loader);
         logDebug(Unobfuscator.getMethodDescriptor(methodProps));

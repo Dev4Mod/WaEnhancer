@@ -11,6 +11,16 @@
             app:title="@string/colors_title" />
 
         <rikka.material.preference.MaterialSwitchPreference
+            app:key="igstatus"
+            app:summary="@string/igstatus_on_home_screen_sum"
+            app:title="@string/igstatus_on_home_screen" />
+
+        <rikka.material.preference.MaterialSwitchPreference
+            app:key="fbstyle"
+            app:summary="@string/enable_facebook_style_for_status_sum"
+            app:title="@string/enable_facebook_style_for_status" />
+
+        <rikka.material.preference.MaterialSwitchPreference
             app:key="changecolor"
             app:summary="@string/colors_customization_sum"
             app:title="@string/colors_customization" />

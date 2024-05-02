@@ -69,11 +69,6 @@
             app:summary="@string/disable_pinned_limit_sum"
             app:title="@string/disable_pinned_limit" />
 
-        <rikka.material.preference.MaterialSwitchPreference
-            app:key="igstatus"
-            app:summary="@string/igstatus_on_home_screen_sum"
-            app:title="@string/igstatus_on_home_screen" />
-
         <ListPreference
             app:entries="@array/chatfilter_buttons"
             app:entryValues="@array/chatfilter_values"

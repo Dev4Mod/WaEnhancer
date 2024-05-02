@@ -180,4 +180,6 @@
     <string name="send_blue_tick">Send Blue Tick</string>
     <string name="business_in_background">Business in background</string>
     <string name="sending_read_blue_tick">Sending read blue tick..</string>
+    <string name="enable_facebook_style_for_status">Enable Facebook Style for Status</string>
+    <string name="enable_facebook_style_for_status_sum">Change original Status Style to Facebook Style</string>
 </resources>
