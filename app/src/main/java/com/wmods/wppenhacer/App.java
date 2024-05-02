@@ -30,7 +30,7 @@ public class App extends Application {
         AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES);
 
         var sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
-        sharedPreferences.edit().putBoolean("refresh", true).commit();
+        sharedPreferences.edit().putLong("lastUpdateTime", System.currentTimeMillis()).commit();
         try {
             Field f = sharedPreferences.getClass().getDeclaredField("mFile");
             f.setAccessible(true);

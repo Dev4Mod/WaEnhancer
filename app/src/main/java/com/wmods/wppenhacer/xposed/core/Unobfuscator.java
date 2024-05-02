@@ -32,6 +32,7 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Calendar;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -401,13 +402,11 @@ public class Unobfuscator {
         return UnobfuscatorCache.getInstance().getMethod(classLoader, () -> {
             Class<?> cls = findFirstClassUsingStrings(classLoader, StringMatchType.Contains, "aBhHKm");
             if (cls == null) throw new Exception("TimeToSeconds class not found");
-            Method result = Arrays.stream(cls.getMethods()).filter(
-                    m -> m.getParameterTypes().length == 2 &&
-                            m.getParameterTypes()[1].equals(long.class) &&
-                            m.getReturnType().equals(String.class)
-            ).findFirst().orElse(null);
-            if (result == null) throw new Exception("TimeToSeconds method not found");
-            return result;
+            var clsData = dexkit.getClassData(cls);
+            var method = XposedHelpers.findMethodBestMatch(Calendar.class,"setTimeInMillis", long.class);
+            var result = clsData.findMethod(new FindMethod().matcher(new MethodMatcher().addInvoke(DexSignUtil.getMethodDescriptor(method)).returnType(String.class).paramCount(2)));
+            if (result.isEmpty()) throw new Exception("TimeToSeconds method not found");
+            return result.get(0).getMethodInstance(classLoader);
         });
     }
 
