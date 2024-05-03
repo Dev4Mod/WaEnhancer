@@ -63,13 +63,29 @@ public class MediaQuality extends Feature {
                     log(param.args[1]);
                     if ((int) param.args[1] == 3) {
                         var resizeVideo = param.getResult();
+                        log(resizeVideo);
                         var originalVieo = param.args[0];
                         if (prefs.getBoolean("video_real_resolution", false)) {
-                            XposedHelpers.setIntField(resizeVideo, "A09", XposedHelpers.getIntField(originalVieo, "A03"));
-                            XposedHelpers.setIntField(resizeVideo, "A07", XposedHelpers.getIntField(originalVieo, "A05"));
+
+                            var widthDest = XposedHelpers.getIntField(resizeVideo, "A06");
+                            var heightDest = XposedHelpers.getIntField(resizeVideo, "A04");
+                            var landscapeDest = widthDest > heightDest;
+
+                            var widthDest2 = XposedHelpers.getIntField(resizeVideo, "A09");
+                            var heightDest2 = XposedHelpers.getIntField(resizeVideo, "A07");
+                            var landscapeDest2 = widthDest2 > heightDest2 ;
+
+                            var widthSrc = XposedHelpers.getIntField(originalVieo, "A05");
+                            var heightSrc = XposedHelpers.getIntField(originalVieo, "A03");
+                            var rotation = (landscapeDest2 != landscapeDest);
+
+
+                            XposedHelpers.setIntField(resizeVideo, "A09", rotation ? heightSrc :  widthSrc );
+                            XposedHelpers.setIntField(resizeVideo, "A07", rotation ? widthSrc : heightSrc);
+
                         }
                         if (prefs.getBoolean("video_maxfps", false)) {
-                            XposedHelpers.setIntField(resizeVideo, "A05", 60);
+                            XposedHelpers.setIntField(resizeVideo, "A01", 60);
                         }
                         log(resizeVideo);
                     }
