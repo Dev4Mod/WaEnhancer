@@ -77,6 +77,11 @@
             app:summary="@string/novofiltro_sum"
             app:title="@string/novofiltro" />
 
+        <rikka.material.preference.MaterialSwitchPreference
+            app:key="metaai"
+            app:summary="Disable meta ai only for those who have it enabled by default"
+            app:title="Disable Meta AI functions" />
+
     </PreferenceCategory>
 
     <PreferenceCategory

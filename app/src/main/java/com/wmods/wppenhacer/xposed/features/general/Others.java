@@ -19,6 +19,8 @@ import com.wmods.wppenhacer.xposed.core.Unobfuscator;
 import com.wmods.wppenhacer.xposed.core.Utils;
 import com.wmods.wppenhacer.xposed.core.Feature;
 
+import org.json.JSONObject;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -26,6 +28,7 @@ import java.util.List;
 import java.util.Objects;
 
 import de.robv.android.xposed.XC_MethodHook;
+import de.robv.android.xposed.XC_MethodReplacement;
 import de.robv.android.xposed.XSharedPreferences;
 import de.robv.android.xposed.XposedBridge;
 import de.robv.android.xposed.XposedHelpers;
@@ -69,6 +72,7 @@ public class Others extends Feature {
         var alertSticker = prefs.getBoolean("alertsticker", false);
         var channels = prefs.getBoolean("channels", false);
         var igstatus = prefs.getBoolean("igstatus", false);
+        var metaai = prefs.getBoolean("metaai", false);
 
         propsBoolean.put(5171, filterSeen); // filtros de chat e grupos
         propsBoolean.put(4524, novoTema);
@@ -79,6 +83,11 @@ public class Others extends Feature {
         propsBoolean.put(5509, outlinedIcons);
         propsBoolean.put(2358, false);
         propsBoolean.put(7516, fbstyle);
+        if (metaai) {
+            propsBoolean.put(8025, false);
+            propsBoolean.put(6251, false);
+            propsBoolean.put(7639, false);
+        }
 
         propsInteger.put(8522, fbstyle ? 1 : 0);
         propsInteger.put(8521, fbstyle ? 1 : 0);
@@ -91,15 +100,19 @@ public class Others extends Feature {
         var dataUsageActivityClass = XposedHelpers.findClass("com.whatsapp.settings.SettingsDataUsageActivity", loader);
         XposedBridge.hookMethod(methodPropsBoolean, new XC_MethodHook() {
             @Override
-            protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
-                int i = (int) param.args[param.args.length -1];
+            protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+                int i = (int) param.args[param.args.length - 1];
+
                 var propValue = propsBoolean.get(i);
-                if (propValue == null) return;
-                param.setResult(propValue);
-                // Fix Bug in Settings Data Usage
-                if (i == 4023 && propValue && Unobfuscator.isCalledFromClass(dataUsageActivityClass)) {
-                    param.setResult(false);
+                if (propValue != null) {
+                    param.setResult(propValue);
+                    // Fix Bug in Settings Data Usage
+                    if (i == 4023 && propValue && Unobfuscator.isCalledFromClass(dataUsageActivityClass)) {
+                        param.setResult(false);
+                    }
                 }
+//                if ((boolean)param.getResult())
+//                    log("i: " + i + " propValue: " + param.getResult());
             }
         });
 
@@ -108,7 +121,7 @@ public class Others extends Feature {
         XposedBridge.hookMethod(methodPropsInteger, new XC_MethodHook() {
             @Override
             protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
-                int i = (int) param.args[param.args.length -1];
+                int i = (int) param.args[param.args.length - 1];
                 var propValue = propsInteger.get(i);
                 if (propValue == null) return;
                 param.setResult(propValue);
@@ -197,6 +210,7 @@ public class Others extends Feature {
             var sendStickerMethod = Unobfuscator.loadSendStickerMethod(loader);
             XposedBridge.hookMethod(sendStickerMethod, new XC_MethodHook() {
                 private Unhook unhooked;
+
                 @Override
                 protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
                     unhooked = XposedHelpers.findAndHookMethod(View.class, "setOnClickListener", View.OnClickListener.class, new XC_MethodHook() {
@@ -224,6 +238,7 @@ public class Others extends Feature {
 
             });
         }
+
 
     }
 

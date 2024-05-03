@@ -67,6 +67,7 @@ public class Utils {
 
 
     public static void debugFields(Object thisObject) {
+        XposedBridge.log(thisObject.getClass().getName());
         for (var field : thisObject.getClass().getDeclaredFields()) {
             try {
                 field.setAccessible(true);
