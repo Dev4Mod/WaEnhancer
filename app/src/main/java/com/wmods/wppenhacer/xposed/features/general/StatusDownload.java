@@ -161,7 +161,7 @@ public class StatusDownload extends Feature {
 
     @NonNull
     private static String getStatusFolderPath(SharedPreferences sharedPreferences, boolean isVideo, boolean isImage, boolean isAudio) {
-        String folderPath = sharedPreferences.getString("localdownload", Environment.getExternalStorageDirectory().getAbsolutePath());
+        String folderPath = sharedPreferences.getString("localdownload", Environment.getExternalStorageDirectory().getAbsolutePath()+"/Download");
         if (isVideo) {
             folderPath += "/WhatsApp/Wa Enhancer/Status Videos/";
         } else if (isImage) {

@@ -39,7 +39,7 @@ public class MediaFragment extends BasePreFragment {
             mContract.launch(null);
             return true;
         });
-        localPref.setSummary(mPrefs.getString("localdownload", Environment.getExternalStorageDirectory().getPath()));
+        localPref.setSummary(mPrefs.getString("localdownload", Environment.getExternalStorageDirectory().getPath()+"/Download"));
     }
 
 

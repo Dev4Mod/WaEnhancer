@@ -121,7 +121,7 @@ public class ViewOnce extends Feature {
     }
 
     public static String getDestination(SharedPreferences prefs, File file) {
-        var folderPath = prefs.getString("localdownload", Environment.getExternalStorageDirectory().getAbsolutePath()) + "/WhatsApp/Wa Enhancer/View Once/";
+        var folderPath = prefs.getString("localdownload", Environment.getExternalStorageDirectory().getAbsolutePath()+"/Download") + "/WhatsApp/Wa Enhancer/View Once/";
         var filePath = new File(folderPath);
         if (!filePath.exists()) filePath.mkdirs();
         return filePath.getAbsolutePath() + "/" + file.getName();
