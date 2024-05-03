@@ -12,8 +12,20 @@ android {
         targetSdk = 34
         versionCode = 1
         versionName = "1.0.0"
+        multiDexEnabled = true
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+
+        signingConfigs.create("config") {
+            val androidStoreFile = project.findProperty("androidStoreFile") as String?
+            if (!androidStoreFile.isNullOrEmpty()) {
+                storeFile = rootProject.file(androidStoreFile)
+                storePassword = project.property("androidStorePassword") as String
+                keyAlias = project.property("androidKeyAlias") as String
+                keyPassword = project.property("androidKeyPassword") as String
+            }
+        }
+
     }
 
     packaging {
