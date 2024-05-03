@@ -5,6 +5,19 @@
     <PreferenceCategory android:title="Image">
 
         <rikka.material.preference.MaterialSwitchPreference
+            app:key="imagequality"
+            app:summary="@string/imagequality_sum"
+            app:title="@string/imagequality" />
+
+    </PreferenceCategory>
+
+    <PreferenceCategory app:title="@string/download_title">
+
+        <Preference
+            app:key="localdownload"
+            app:title="@string/local_download" />
+
+        <rikka.material.preference.MaterialSwitchPreference
             app:key="downloadstatus"
             app:summary="@string/statusdowload_sum"
             app:title="@string/statusdowload" />
@@ -13,11 +26,6 @@
             app:key="downloadviewonce"
             app:summary="@string/downloadviewonce_sum"
             app:title="@string/downloadviewonce" />
-
-        <rikka.material.preference.MaterialSwitchPreference
-            app:key="imagequality"
-            app:summary="@string/imagequality_sum"
-            app:title="@string/imagequality" />
 
     </PreferenceCategory>
 
@@ -31,20 +39,20 @@
         <rikka.material.preference.MaterialSwitchPreference
             app:dependency="videoquality"
             app:key="video_size_limit"
-            app:summary="Increase Video size limit to 90MB"
-            app:title="Increase Video Size Limit" />
+            app:summary="@string/increase_video_size_limit_sum"
+            app:title="@string/increase_video_size_limit" />
 
         <rikka.material.preference.MaterialSwitchPreference
             app:dependency="videoquality"
             app:key="video_real_resolution"
-            app:summary="Send Video in Real Resolution for for status, group and chats"
-            app:title="Send Video in Real Resolution" />
+            app:summary="@string/send_video_in_real_resolution_sum"
+            app:title="@string/send_video_in_real_resolution" />
 
         <rikka.material.preference.MaterialSwitchPreference
             app:dependency="videoquality"
             app:key="video_maxfps"
-            app:summary="Send Video in 60 fps for status, group and chats"
-            app:title="Send Video in 60fps" />
+            app:summary="@string/send_video_in_60fps_sum"
+            app:title="@string/send_video_in_60fps" />
 
     </PreferenceCategory>
 

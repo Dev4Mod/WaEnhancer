@@ -4,6 +4,7 @@ package com.wmods.wppenhacer.xposed.features.general;
 import static com.wmods.wppenhacer.xposed.features.general.StatusDownload.getMimeTypeFromExtension;
 
 import android.annotation.SuppressLint;
+import android.content.SharedPreferences;
 import android.media.MediaScannerConnection;
 import android.os.Environment;
 import android.view.Menu;
@@ -97,8 +98,8 @@ public class ViewOnce extends Feature {
                             if (message != null) {
                                 var fileData = XposedHelpers.getObjectField(message, "A01");
                                 var file = (File) XposedHelpers.getObjectField(fileData, fileField.getName());
-                                if (copyFile(file)) {
-                                    Toast.makeText(Utils.getApplication(), Utils.getApplication().getString(ResId.string.saved_to) + getDestination(file), Toast.LENGTH_SHORT).show();
+                                if (copyFile(prefs,file)) {
+                                    Toast.makeText(Utils.getApplication(), Utils.getApplication().getString(ResId.string.saved_to) + getDestination(prefs,file), Toast.LENGTH_SHORT).show();
                                 } else {
                                     Toast.makeText(Utils.getApplication(), Utils.getApplication().getString(ResId.string.error_when_saving_try_again), Toast.LENGTH_SHORT).show();
                                 }
@@ -119,17 +120,17 @@ public class ViewOnce extends Feature {
         return "View Once";
     }
 
-    public static String getDestination(File file) {
-        var folderPath = Environment.getExternalStorageDirectory() + "/Pictures/WhatsApp/MdgWa ViewOnce/";
+    public static String getDestination(SharedPreferences prefs, File file) {
+        var folderPath = prefs.getString("localdownload", Environment.getExternalStorageDirectory().getAbsolutePath()) + "/WhatsApp/Wa Enhancer/View Once/";
         var filePath = new File(folderPath);
         if (!filePath.exists()) filePath.mkdirs();
         return filePath.getAbsolutePath() + "/" + file.getName();
     }
 
-    private static boolean copyFile(File p) {
+    private static boolean copyFile(SharedPreferences pref,File p) {
         if (p == null) return false;
 
-        var destination = getDestination(p);
+        var destination = getDestination(pref,p);
 
         try (FileInputStream in = new FileInputStream(p);
              FileOutputStream out = new FileOutputStream(destination)) {

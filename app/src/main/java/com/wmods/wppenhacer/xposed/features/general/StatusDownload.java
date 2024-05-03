@@ -1,5 +1,6 @@
 package com.wmods.wppenhacer.xposed.features.general;
 
+import android.content.SharedPreferences;
 import android.media.MediaScannerConnection;
 import android.os.Environment;
 import android.view.Menu;
@@ -20,6 +21,7 @@ import java.io.IOException;
 import java.lang.reflect.Field;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Set;
 
 import de.robv.android.xposed.XC_MethodHook;
 import de.robv.android.xposed.XSharedPreferences;
@@ -64,8 +66,8 @@ public class StatusDownload extends Feature {
                 var menu = (Menu) XposedHelpers.getObjectField(submenu, menuField.getName());
                 if (menu.findItem(ResId.string.download) != null) return;
                 menu.add(0, ResId.string.download, 0, ResId.string.download).setOnMenuItemClickListener(item -> {
-                    if (copyFile(file)) {
-                        Toast.makeText(Utils.getApplication(), Utils.getApplication().getString(ResId.string.saved_to) + getPathDestination(file), Toast.LENGTH_SHORT).show();
+                    if (copyFile(prefs, file)) {
+                        Toast.makeText(Utils.getApplication(), Utils.getApplication().getString(ResId.string.saved_to) + getPathDestination(prefs, file), Toast.LENGTH_SHORT).show();
                     } else {
                         Toast.makeText(Utils.getApplication(), Utils.getApplication().getString(ResId.string.error_when_saving_try_again), Toast.LENGTH_SHORT).show();
                     }
@@ -93,10 +95,10 @@ public class StatusDownload extends Feature {
         return "Download Status";
     }
 
-    private static boolean copyFile(File file) {
+    private static boolean copyFile(SharedPreferences prefs, File file) {
         if (file == null || !file.exists()) return false;
 
-        var destination = getPathDestination(file);
+        var destination = getPathDestination(prefs, file);
 
         try (FileInputStream in = new FileInputStream(file);
              FileOutputStream out = new FileOutputStream(destination)) {
@@ -127,46 +129,27 @@ public class StatusDownload extends Feature {
     }
 
     @NonNull
-    private static String getPathDestination(@NonNull File f) {
+    private static String getPathDestination(SharedPreferences sharedPreferences, @NonNull File f) {
         var filePath = f.getAbsolutePath();
         var isVideo = false;
         var isImage = false;
         var isAudio = false;
 
-        String[] videoFormats = {
-                "3gp", "mp4", "mkv", "avi", "wmv", "flv", "mov", "webm", "ts", "m4v", "divx", "xvid", "mpg", "mpeg", "mpg2", "ogv", "vob", "f4v", "asf"
-        };
+        Set<String> videoFormats = Set.of("3gp", "mp4", "mkv", "avi", "wmv", "flv", "mov", "webm", "ts", "m4v", "divx", "xvid", "mpg", "mpeg", "mpg2", "ogv", "vob", "f4v", "asf");
+        Set<String> imageFormats = Set.of("jpeg", "jpg", "png", "gif", "bmp", "webp", "heif", "tiff", "raw", "svg", "eps", "ai");
+        Set<String> audioFormats = Set.of("mp3", "wav", "ogg", "m4a", "aac", "flac", "amr", "wma", "opus", "mid", "xmf", "rtttl", "rtx", "ota", "imy", "mpga", "ac3", "ec3", "eac3");
 
-        String[] imageFormats = {
-                "jpeg", "jpg", "png", "gif", "bmp", "webp", "heif", "tiff", "raw", "svg", "eps", "ai"
-        };
+        String extension = filePath.substring(filePath.lastIndexOf(".") + 1).toLowerCase();
 
-        String[] audioFormats = {
-                "mp3", "wav", "ogg", "m4a", "aac", "flac", "amr", "wma", "opus", "mid", "xmf", "rtttl", "rtx", "ota", "imy", "mpga", "ac3", "ec3", "eac3"
-        };
-
-        for (String format : videoFormats) {
-            if (filePath.toLowerCase().endsWith("." + format)) {
-                isVideo = true;
-                break;
-            }
+        if (videoFormats.contains(extension)) {
+            isVideo = true;
+        } else if (imageFormats.contains(extension)) {
+            isImage = true;
+        } else if (audioFormats.contains(extension)) {
+            isAudio = true;
         }
 
-        for (String format : imageFormats) {
-            if (filePath.toLowerCase().endsWith("." + format)) {
-                isImage = true;
-                break;
-            }
-        }
-
-        for (String format : audioFormats) {
-            if (filePath.toLowerCase().endsWith("." + format)) {
-                isAudio = true;
-                break;
-            }
-        }
-
-        String folderPath = getStatusFolderPath(isVideo, isImage, isAudio);
+        String folderPath = getStatusFolderPath(sharedPreferences, isVideo, isImage, isAudio);
 
         var mediaPath = new File(folderPath);
 
@@ -177,77 +160,29 @@ public class StatusDownload extends Feature {
     }
 
     @NonNull
-    private static String getStatusFolderPath(boolean isVideo, boolean isImage, boolean isAudio) {
-        String folderPath = Environment.getExternalStorageDirectory().getAbsolutePath();
+    private static String getStatusFolderPath(SharedPreferences sharedPreferences, boolean isVideo, boolean isImage, boolean isAudio) {
+        String folderPath = sharedPreferences.getString("localdownload", Environment.getExternalStorageDirectory().getAbsolutePath());
         if (isVideo) {
-            folderPath += "/Movies/WhatsApp/MdgWa Status/Status Videos/";
+            folderPath += "/WhatsApp/Wa Enhancer/Status Videos/";
         } else if (isImage) {
-            folderPath += "/Pictures/WhatsApp/MdgWa Status/Status Images/";
+            folderPath += "/WhatsApp/Wa Enhancer/Status Images/";
         } else if (isAudio) {
-            folderPath += "/Music/WhatsApp/MdgWa Status/Status Sounds/";
+            folderPath += "/WhatsApp/Wa Enhancer/Status Sounds/";
         } else {
-            folderPath += "/Downloads/WhatsApp/MdgWa Status/Status Media/";
+            folderPath += "/WhatsApp/Wa Enhancer/Status Media/";
         }
         return folderPath;
     }
 
     public static String getMimeTypeFromExtension(String extension) {
-        switch (extension) {
-            case "3gp":
-            case "mp4":
-            case "mkv":
-            case "avi":
-            case "wmv":
-            case "flv":
-            case "mov":
-            case "webm":
-            case "ts":
-            case "m4v":
-            case "divx":
-            case "xvid":
-            case "mpg":
-            case "mpeg":
-            case "mpg2":
-            case "ogv":
-            case "vob":
-            case "f4v":
-            case "asf":
-                return "video/*";
-            case "jpeg":
-            case "jpg":
-            case "png":
-            case "gif":
-            case "bmp":
-            case "webp":
-            case "heif":
-            case "tiff":
-            case "raw":
-            case "svg":
-            case "eps":
-            case "ai":
-                return "image/*";
-            case "mp3":
-            case "wav":
-            case "ogg":
-            case "m4a":
-            case "aac":
-            case "flac":
-            case "amr":
-            case "wma":
-            case "opus":
-            case "mid":
-            case "xmf":
-            case "rtttl":
-            case "rtx":
-            case "ota":
-            case "imy":
-            case "mpga":
-            case "ac3":
-            case "ec3":
-            case "eac3":
-                return "audio/*";
-            default:
-                return "*/*";
-        }
+        return switch (extension) {
+            case "3gp", "mp4", "mkv", "avi", "wmv", "flv", "mov", "webm", "ts", "m4v", "divx", "xvid", "mpg", "mpeg", "mpg2", "ogv", "vob", "f4v", "asf" ->
+                    "video/*";
+            case "jpeg", "jpg", "png", "gif", "bmp", "webp", "heif", "tiff", "raw", "svg", "eps", "ai" ->
+                    "image/*";
+            case "mp3", "wav", "ogg", "m4a", "aac", "flac", "amr", "wma", "opus", "mid", "xmf", "rtttl", "rtx", "ota", "imy", "mpga", "ac3", "ec3", "eac3" ->
+                    "audio/*";
+            default -> "*/*";
+        };
     }
 }
