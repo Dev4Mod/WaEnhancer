@@ -40,6 +40,9 @@ android {
     }
 
     buildTypes {
+        all {
+            signingConfig = if (signingConfigs["config"].storeFile != null) signingConfigs["config"] else signingConfigs["debug"]
+        }
         release {
             isMinifyEnabled = false
             proguardFiles(
