@@ -4,7 +4,7 @@
 
     <PreferenceCategory
         app:iconSpaceReserved="false"
-        app:title="General">
+        app:title="@string/general">
 
         <rikka.material.preference.MaterialSwitchPreference
             app:key="novotema"
@@ -20,46 +20,46 @@
             app:key="primary_color"
             app:cpv_showAlphaSlider="true"
             app:dependency="changecolor"
-            app:summary="Set color #00000000 to default color"
+            app:summary="@string/default_color"
             app:title="@string/primary_color" />
 
         <com.jaredrummler.android.colorpicker.ColorPreferenceCompat
             app:key="secondary_color"
             app:cpv_showAlphaSlider="true"
             app:dependency="changecolor"
-            app:summary="Set color #00000000 to default color"
+            app:summary="@string/default_color"
             app:title="@string/secondary_color" />
 
         <com.jaredrummler.android.colorpicker.ColorPreferenceCompat
             app:key="background_color"
             app:dependency="changecolor"
             app:cpv_showAlphaSlider="true"
-            app:summary="Set color #00000000 to default color"
+            app:summary="@string/default_color"
             app:title="@string/background_color" />
 
     </PreferenceCategory>
 
     <PreferenceCategory
         app:iconSpaceReserved="false"
-        app:title="Chat">
+        app:title="@string/chat">
 
         <rikka.material.preference.MaterialSwitchPreference
             app:key="bubble_color"
-            app:title="Change Bubble Colors"
-            app:summary="Change Blubble Color from Chat" />
+            app:title="@string/change_bubble_colors"
+            app:summary="@string/change_blubble_color_sum" />
 
         <com.jaredrummler.android.colorpicker.ColorPreferenceCompat
             app:key="bubble_left"
             app:cpv_showAlphaSlider="true"
             app:dependency="bubble_color"
-            app:summary="Set color #00000000 to default color"
+            app:summary="@string/default_color"
             app:title="@string/bubble_left" />
 
         <com.jaredrummler.android.colorpicker.ColorPreferenceCompat
             app:key="bubble_right"
             app:dependency="bubble_color"
             app:cpv_showAlphaSlider="true"
-            app:summary="Set color #00000000 to default color"
+            app:summary="@string/default_color"
             app:title="@string/bubble_right" />
     </PreferenceCategory>
 

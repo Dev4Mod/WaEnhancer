@@ -1,40 +1,80 @@
+<div align="center">
+
 # Wa Enhancer
 
-## Description
-Add and leave your WhatsApp the way you want
+Wa Enhancer is an Xposed module that enhances your Whatsapp experience.<br/><br/>
+Please note that this project is currently in development, so bugs and crashes may occur. If you encounter any issues report them in our group or create an [issues](https://github.com/Dev4Mod/WaEnhancer/issues) here.
+</div>
 
-## Features
-|-------------------------| ------------- |
-| New WhatsApp theme      | ✅ |
-| New settings style      | ✅ |
-| Filter chats            | ✅ |
-| Buttons stroke          | ✅ |
-| Menu icons              | ✅ |
-| Outlined icons          | ✅ |
-| Show name and bio       | ✅ |
-| AM:PM Time Format       | ✅ |
-| Seconds in time         | ✅ |
-| Change color global     | ✅ |
-| Separe chats and groups | ✅ |
-| Show dot online in Home | ✅ |
-| Anti revoke message | ✅ |
-| Anti revoke status | ✅ |
-| Download status | ✅|
-| Download view once | ✅ |
-| Videos in high resolution | ✅ |
-| Images in high resolution | ✅ |
-| Send blue tick on reply | ✅ |
-| Hide forwarding tag  | ✅ |
-| Remove forward limit | ✅ |
-| Freeze last seen     | ✅ |
-| Hide status view     | ✅ |
-| Hide message view    | ✅ |
-| Hide receipt         | ✅ |
-| Hide typing          | ✅ |
-| Hide recording       | ✅ |
-| Disable view once    | ✅ |
-| Hide archived chats  | ✅ |
-| Remove Pinned Limit  | ✅ |
+
+## Main Features
+<details closed>
+  <summary>Privacy</summary>
+
+- `Hide Forwarded Tag`
+- `Remove Forward Limit`
+- `Disable Pinned Chats Limit`
+- `Freeze Last Seen`
+- `Hide Status View`
+- `Hide Blue Ticks`
+- `Hide View Once and Audio Seen`
+- `Hide Delivered`
+- `Hide Typing`
+- `Hide Recording Audio`
+- `Disable View Once`
+- `Send Blue Ticks upon Reply`
+- `Delete for everyone on all messages`
+- `Show Edited Message History`
+- `Remove See More Button`
+- `Anti Revoke Status`
+- `Anti Revoke Message`
+</details>
+
+<details closed>
+  <summary>Home Screen</summary>
+
+- `Show Name`
+- `Show Bio`
+- `Show DND Button`
+- `Separate Groups`
+- `Hide Archived Chats`
+- `Show Online Dot in Conversation List`
+- `Remove Channel Recommendations`
+- `Hide Tabs on Home`
+- `Enable IGStatus on Home Screen`
+- `Filter Chats`
+</details>  
+
+<details closed>
+  <summary>General</summary>
+
+- `Time in 12-Hour Format`
+- `Seconds on Timestamp`
+- `Buttons Stroke`
+- `Menu Icons`
+- `Outlined Icons`
+- `New Settings Style`
+ </details>
+
+
+ <details closed>
+  <summary>Media</summary>
+
+- `Download Status`
+- `Download View Once`
+- `HD Quality Videos`
+- `HD Quality Images`
+- `Send videos in 60fps`
+- `Send videos in original resolution`
+ </details>
+
+## Use
+ <details closed>
+  <summary>Colors</summary>
+
+- `New WhatsApp theme`
+- `Customize your colors`
+ </details>
 
 ## Installation
 1. Ensure that your device is rooted.

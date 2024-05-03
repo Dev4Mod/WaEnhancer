@@ -87,14 +87,14 @@ public class HomeFragment extends BaseFragment {
             Intent intent = new Intent(BuildConfig.APPLICATION_ID + ".WHATSAPP.RESTART");
             intent.putExtra("PKG", MainFeatures.PACKAGE_WPP);
             requireActivity().sendBroadcast(intent);
-            disabledWpp(requireActivity());
+            disableWpp(requireActivity());
         });
 
         binding.rebootBtn2.setOnClickListener(view -> {
             Intent intent = new Intent(BuildConfig.APPLICATION_ID + ".WHATSAPP.RESTART");
             intent.putExtra("PKG", MainFeatures.PACKAGE_BUSINESS);
             requireActivity().sendBroadcast(intent);
-            disabledWpp(requireActivity());
+            disableBusiness(requireActivity());
         });
 
 
@@ -113,7 +113,7 @@ public class HomeFragment extends BaseFragment {
             binding.status.setCardBackgroundColor(activity.getColor(rikka.material.R.color.material_red_500));
             binding.statusSummary.setVisibility(View.GONE);
         }
-        disabledWpp(activity);
+        disableWpp(activity);
         disableBusiness(activity);
         checkWpp(activity);
         binding.deviceName.setText(Build.MANUFACTURER);
@@ -130,7 +130,7 @@ public class HomeFragment extends BaseFragment {
         binding.statusSummary3.setVisibility(View.GONE);
     }
 
-    private void disabledWpp(FragmentActivity activity) {
+    private void disableWpp(FragmentActivity activity) {
         binding.statusIcon2.setImageResource(R.drawable.ic_round_error_outline_24);
         binding.statusTitle2.setText(R.string.whatsapp_is_not_running_or_has_not_been_activated_in_lsposed);
         binding.status2.setCardBackgroundColor(activity.getColor(rikka.material.R.color.material_red_500));

@@ -51,9 +51,9 @@
     </string-array>
 
     <string-array name="seentick_buttons">
-        <item>Disabled</item>
-        <item>Show Buttons in Screen</item>
-        <item>Show Buttons in tree dot menu</item>
+        <item>@string/antirevoke_buttons_desable</item>
+        <item>@string/seentick_screen</item>
+        <item>@string/seentick_menu</item>
     </string-array>
     <string-array name="seentick_values">
         <item>0</item>
@@ -70,5 +70,4 @@
         <item>2.24.9.71</item>
         <item>2.24.9.72</item>
     </string-array>
-
 </resources>

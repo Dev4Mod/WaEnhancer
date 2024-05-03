@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PreferenceScreen xmlns:app="http://schemas.android.com/apk/res-auto">
 
-    <PreferenceCategory app:title="Chat">
+    <PreferenceCategory app:title="@string/chat">
         <rikka.material.preference.MaterialSwitchPreference
             app:key="freezelastseen"
             app:summary="@string/freezelastseen_sum"
@@ -53,7 +53,7 @@
     </PreferenceCategory>
 
     <PreferenceCategory
-        app:title="Status" >
+        app:title="@string/status" >
         <rikka.material.preference.MaterialSwitchPreference
             app:key="hidestatusview"
             app:summary="@string/hidestatusview_sum"
@@ -61,7 +61,7 @@
     </PreferenceCategory>
 
     <PreferenceCategory
-        app:title="Calls"
+        app:title="@string/calls"
         >
         <ListPreference
             app:entries="@array/call_blocker_buttons"

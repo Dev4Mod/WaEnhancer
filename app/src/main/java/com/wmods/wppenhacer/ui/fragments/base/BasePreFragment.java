@@ -20,7 +20,7 @@ import com.wmods.wppenhacer.BuildConfig;
 import rikka.material.preference.MaterialSwitchPreference;
 
 public abstract class BasePreFragment extends PreferenceFragmentCompat implements SharedPreferences.OnSharedPreferenceChangeListener {
-    private SharedPreferences mPrefs;
+    protected SharedPreferences mPrefs;
 
     @Override
     public void onCreatePreferences(@Nullable Bundle savedInstanceState, @Nullable String rootKey) {

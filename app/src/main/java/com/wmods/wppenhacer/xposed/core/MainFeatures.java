@@ -70,6 +70,7 @@ public class MainFeatures {
             XposedBridge.log("Can't init dexkit");
             return;
         }
+        Feature.DEBUG = pref.getBoolean("enablelogs", true);
 
         XposedHelpers.findAndHookMethod(Instrumentation.class, "callApplicationOnCreate", Application.class, new XC_MethodHook() {
             @SuppressWarnings("deprecation")
@@ -89,7 +90,8 @@ public class MainFeatures {
                 registerReceivers();
                 mApp.registerActivityLifecycleCallbacks(new WaCallback());
                 sendEnabledBroadcast(mApp);
-//                    XposedHelpers.setStaticIntField(XposedHelpers.findClass("com.whatsapp.util.Log", loader), "level", 5);
+                if (Feature.DEBUG)
+                    XposedHelpers.setStaticIntField(XposedHelpers.findClass("com.whatsapp.util.Log", loader), "level", 5);
             }
         });
 

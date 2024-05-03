@@ -12,6 +12,7 @@ public abstract class Feature {
 
     public final ClassLoader loader;
     public final XSharedPreferences prefs;
+    public static boolean DEBUG = false;
 
     public Feature(@NonNull ClassLoader loader, @NonNull XSharedPreferences preferences) {
         this.loader = loader;
@@ -24,7 +25,7 @@ public abstract class Feature {
     public abstract String getPluginName();
 
     public void logDebug(Object object) {
-        if (!BuildConfig.DEBUG) return;
+        if (!DEBUG) return;
         log(object);
     }
 

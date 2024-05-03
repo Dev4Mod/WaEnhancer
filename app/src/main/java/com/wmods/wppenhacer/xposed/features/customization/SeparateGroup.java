@@ -90,30 +90,32 @@ public class SeparateGroup extends Feature {
                 var a1 = XposedHelpers.getObjectField(homeActivity, pagerField.getName());
                 var chatCount = 0;
                 var groupCount = 0;
-                var db = MessageStore.database.getReadableDatabase();
-                var sql = "SELECT * FROM chat WHERE unseen_message_count != 0";
-                var cursor = db.rawQuery(sql, null);
-                while (cursor.moveToNext()) {
-                    int jid = cursor.getInt(cursor.getColumnIndex("jid_row_id"));
-                    int groupType = cursor.getInt(cursor.getColumnIndex("group_type"));
-                    int archived = cursor.getInt(cursor.getColumnIndex("archived"));
-                    if (archived != 0 || groupType != 0) continue;
-                    var sql2 = "SELECT * FROM jid WHERE _id == ?";
-                    var cursor1 = db.rawQuery(sql2, new String[]{String.valueOf(jid)});
-                    if (!cursor1.moveToFirst()) continue;
-                    var server = cursor1.getString(cursor1.getColumnIndex("server"));
-                    if (server.equals("g.us")) {
-                        groupCount++;
-                    } else {
-                        chatCount++;
+                synchronized (SeparateGroup.class) {
+                    var db = MessageStore.database.getReadableDatabase();
+                    var sql = "SELECT * FROM chat WHERE unseen_message_count != 0";
+                    var cursor = db.rawQuery(sql, null);
+                    while (cursor.moveToNext()) {
+                        int jid = cursor.getInt(cursor.getColumnIndex("jid_row_id"));
+                        int groupType = cursor.getInt(cursor.getColumnIndex("group_type"));
+                        int archived = cursor.getInt(cursor.getColumnIndex("archived"));
+                        if (archived != 0 || groupType != 0) continue;
+                        var sql2 = "SELECT * FROM jid WHERE _id == ?";
+                        var cursor1 = db.rawQuery(sql2, new String[]{String.valueOf(jid)});
+                        if (!cursor1.moveToFirst()) continue;
+                        var server = cursor1.getString(cursor1.getColumnIndex("server"));
+                        if (server.equals("g.us")) {
+                            groupCount++;
+                        } else {
+                            chatCount++;
+                        }
                     }
-                }
-                if (tabs.contains(CHATS)) {
-                    var q = XposedHelpers.callMethod(a1, "A00", a1, tabs.indexOf(CHATS));
-                    setObjectField(q, "A01", chatCount);
-                }
-                if (tabs.contains(GROUPS) && tabInstances.containsKey(GROUPS)) {
-                    setObjectField(tabInstances.get(GROUPS), "A01", groupCount);
+                    if (tabs.contains(CHATS)) {
+                        var q = XposedHelpers.callMethod(a1, "A00", a1, tabs.indexOf(CHATS));
+                        setObjectField(q, "A01", chatCount);
+                    }
+                    if (tabs.contains(GROUPS) && tabInstances.containsKey(GROUPS)) {
+                        setObjectField(tabInstances.get(GROUPS), "A01", groupCount);
+                    }
                 }
             }
         });

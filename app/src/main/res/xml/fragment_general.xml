@@ -4,6 +4,11 @@
         app:title="General">
 
         <rikka.material.preference.MaterialSwitchPreference
+            app:key="enablelogs"
+            app:defaultValue="true"
+            app:title="@string/verbose_logs" />
+
+        <rikka.material.preference.MaterialSwitchPreference
             app:key="ampm"
             app:title="@string/ampm" />
 
@@ -127,8 +132,8 @@
 
         <rikka.material.preference.MaterialSwitchPreference
             app:key="alertsticker"
-            app:summary="Show a dialog before sending the sticker"
-            app:title="Enable confirmation to send Sticker" />
+            app:summary="@string/enable_confirmation_to_send_sticker_sum"
+            app:title="@string/enable_confirmation_to_send_sticker" />
 
     </PreferenceCategory>
 

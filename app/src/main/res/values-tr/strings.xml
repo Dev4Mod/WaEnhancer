@@ -189,4 +189,14 @@
     <string name="enable_filter_chats_sum">Show options to filter chats for groups, contacts and unseen messages</string>
     <string name="disable_channels">Disable Channels</string>
     <string name="disable_channels_sum">Disable Channels from Status tab (NOTE: Disable IGStatus to work!)</string>
+    <string name="chat">Chat</string>
+    <string name="change_bubble_colors">Change Bubble Colors</string>
+    <string name="change_blubble_color_sum">Change Blubble Color from Chat</string>
+    <string name="default_color">Set color #00000000 to default color</string>
+    <string name="enable_confirmation_to_send_sticker">Enable confirmation to send Sticker</string>
+    <string name="enable_confirmation_to_send_sticker_sum">Show a dialog before sending the sticker</string>
+    <string name="local_download">Local Download</string>
+    <string name="increase_video_size_limit">Increase Video Size Limit</string>
+    <string name="increase_video_size_limit_sum">Increase Video size limit to 90MB</string>
+    <string name="send_video_in_real_resolution">Send Video in Real Resolution</string>
 </resources>
