@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PreferenceScreen xmlns:app="http://schemas.android.com/apk/res-auto">
     <PreferenceCategory
-        app:title="General">
+        app:title="@string/general">
 
         <rikka.material.preference.MaterialSwitchPreference
             app:key="enablelogs"
@@ -79,14 +79,14 @@
 
         <rikka.material.preference.MaterialSwitchPreference
             app:key="metaai"
-            app:summary="Disable meta ai only for those who have it enabled by default"
-            app:title="Disable Meta AI functions" />
+            app:summary="@string/disable_metaai_sum"
+            app:title="@string/disable_metaai" />
 
     </PreferenceCategory>
 
     <PreferenceCategory
         app:iconSpaceReserved="false"
-        app:title="@string/chat">
+        app:title="@string/conversation">
 
         <ListPreference
             app:entries="@array/antirevoke_entries"
