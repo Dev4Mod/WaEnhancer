@@ -118,7 +118,7 @@
     <string name="hide_once_view_seen">Verstecke \"Gesehen\" von Einmalige Ansicht und Audio</string>
     <string name="hide_once_view_seen_sum">Bestätigung deaktivieren, dass Einmal Ansicht Medien bzw. Sprachnachrichten gesehen bzw. gehört worden sind</string>
     <string name="call_blocker">Anrufe blockieren</string>
-    <string name="call_blocker_sum">Blockiere WhatsApp Anrufe basierend auf dem Privatsphäre Typ</string>
+    <string name="call_blocker_sum">Blockiere WhatsApp Anrufe basierend auf den Einstellungen der Privatsphäre</string>
     <string name="show_online_dot_in_conversation_list">Optische online Anzeige</string>
     <string name="show_online_dot_in_conversation_list_sum">Zeigt einen grünen Online-Punkt auf dem Startbildschirm (NOTE: Onlineanzeige muss für jeden in den WhatsApp\'s Privatsphäre-Einstellungen aktiviert sein)</string>
     <string name="show_dnd_button">Zeige DND Button</string>
@@ -158,7 +158,7 @@
     <string name="igstatus_on_home_screen">Aktiviere IGStatus auf dem Startbildschirm</string>
     <string name="igstatus_on_home_screen_sum">Instagram Status-Stil im Startbildschirm anzeigen</string>
     <string name="chatfilter_no_search">Keine Suche</string>
-    <string name="chatfilter_search_icon">Symbol \"Suchen\"</string>
+    <string name="chatfilter_search_icon">Symbol \"Suche\"</string>
     <string name="chatfilter_search_bar">Suchleiste</string>
     <string name="remove_channel_recomendations">Kanalempfehlungen entfernen</string>
     <string name="remove_channel_recomendations_sum">Kanalempfehlungen vom Tab-Status entfernen</string>
@@ -167,7 +167,7 @@
     <string name="tools">Extras</string>
     <string name="title_home">Startseite</string>
     <string name="privacy">Privatsphäre</string>
-    <string name="module_enabled">Aktivierte Module</string>
+    <string name="module_enabled">Modul aktiviert</string>
     <string name="version_s">Version %s</string>
     <string name="module_disabled">Deaktivierte Module</string>
     <string name="whatsapp_in_background">WhatsApp im Hintergrund</string>
@@ -208,11 +208,11 @@
     <string name="seentick_menu">Zeige Schaltfläche im 3-Punkt-Menü</string>
     <string name="seentick_screen">Schaltflächen im Bildschirm anzeigen</string>
     <string name="verbose_logs">Ausführliche Protokolle für Debugger aktivieren</string>
-    <string name="phone_call">Telefonanruf</string>
-    <string name="whatsapp_call">WhatsApp Anruf</string>
-    <string name="home_screen">Home Screen</string>
-    <string name="selection_of_call_type">Enable selection of call type</string>
-    <string name="selection_of_call_type_sum">show an option to select whether you want a call via phone or WhatsApp</string>
-    <string name="yes">Yes</string>
-    <string name="no">No</string>
+    <string name="phone_call">Telefon</string>
+    <string name="whatsapp_call">WhatsApp</string>
+    <string name="home_screen">Startseite</string>
+    <string name="selection_of_call_type">Anruf über</string>
+    <string name="selection_of_call_type_sum">Zeigt eine Option zum Auswählen zwischen Telefon- oder WhatsApp-Anruf an</string>
+    <string name="yes">Ja</string>
+    <string name="no">Nein</string>
 </resources>
