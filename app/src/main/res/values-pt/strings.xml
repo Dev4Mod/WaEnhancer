@@ -208,4 +208,11 @@
     <string name="seentick_menu">Mostrar botão no menu de 3 pontos</string>
     <string name="seentick_screen">Mostrar botões na tela</string>
     <string name="verbose_logs">Habilitar Logs detalhados para o Depurador</string>
+    <string name="phone_call">Chamada telefônica</string>
+    <string name="whatsapp_call">Chamada do Whatsapp</string>
+    <string name="home_screen">Tela inicial</string>
+    <string name="selection_of_call_type">Ativar seleção do tipo de chamada</string>
+    <string name="selection_of_call_type_sum">Exibir a opção de selecionar se deseja uma chamada via telefone ou WhatsApp</string>
+    <string name="yes">Sim</string>
+    <string name="no">Não</string>
 </resources>

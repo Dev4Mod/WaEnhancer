@@ -2,7 +2,7 @@
 <resources>
     <string name="app_desc">Ein LSPosed-Modul um WhatsApp zu personalisieren</string>
     <string name="antirevoke">Gelöschte Nachrichten anzeigen</string>
-    <string name="antirevoke_sum">Nachrichten werden für dich nicht gelöscht</string>
+    <string name="antirevoke_sum">Nachrichten werden für Sie nicht gelöscht</string>
     <string name="ghostmode">Schreiben verbergen</string>
     <string name="ghostmode_sum">Benutzer können nicht sehen, dass Sie gerade etwas schreiben</string>
     <string name="ghostmode_r">Sprachnachrichten aufnehmen verbergen</string>
@@ -69,8 +69,8 @@
     <string name="novaconfig">Neuer Einstellungsstil</string>
     <string name="novaconfig_sum">Aktiviere den neuen Einstellungsstil, mit Profilfoto auf der Symbolleiste des Homescreens</string>
     <string name="novahome_sum">Aktiviere den neuen Home-Stil, mit der unteren Navigation</string>
-    <string name="novofiltro">Suchen</string>
-    <string name="novofiltro_sum">Aktiviere Filterchats, die sich auf dem Startbildschirm befinden, um Kontakte, Unternehmen und andere zu filtern</string>
+    <string name="novofiltro">Suche</string>
+    <string name="novofiltro_sum">Aktivieren sie die Suche auf dem Startbildschirm, um nach Kontakten, Bildern, Nachrichten usw. zu suchen</string>
     <string name="menuwicon">Menüsymbole</string>
     <string name="menuwicon_sum">Symbole neben Menüoptionen in der gesamten App hinzufügen</string>
     <string name="strokebuttons">Schaltflächen Strich</string>
@@ -180,13 +180,13 @@
     <string name="show_button_to_send_blue_tick_sum">Schaltfläche zum Senden von blauem Häkchen anzeigen</string>
     <string name="send_blue_tick">Blue Tick senden</string>
     <string name="business_in_background">Whatsapp Business im Hintergrund</string>
-    <string name="sending_read_blue_tick">Sending read blue tick..</string>
+    <string name="sending_read_blue_tick">Blaue Häkchen senden (gesehen/gelesen)</string>
     <string name="enable_facebook_style_for_status">Facebook-Stil für Status aktivieren</string>
     <string name="enable_facebook_style_for_status_sum">Ändere den ursprünglichen Status Stil zu Facebook Stil</string>
     <string name="send">Absenden</string>
     <string name="do_you_want_to_send_sticker">Wollen Sie Sticker senden?</string>
     <string name="send_sticker">Sticker senden</string>
-    <string name="enable_filter_chats">Enable filter chats for type</string>
+    <string name="enable_filter_chats">Chats nach Typ filtern</string>
     <string name="enable_filter_chats_sum">Optionen zum Filtern von Chats nach Gruppen, Kontakten und ungesehenen Nachrichten anzeigen</string>
     <string name="disable_channels">Kanäle deaktivieren</string>
     <string name="disable_channels_sum">Kanäle vom Tab Status deaktivieren (Beachte: IGStatus deaktivieren, damit es funktioniert!)</string>
@@ -208,4 +208,11 @@
     <string name="seentick_menu">Zeige Schaltfläche im 3-Punkt-Menü</string>
     <string name="seentick_screen">Schaltflächen im Bildschirm anzeigen</string>
     <string name="verbose_logs">Ausführliche Protokolle für Debugger aktivieren</string>
+    <string name="phone_call">Telefonanruf</string>
+    <string name="whatsapp_call">WhatsApp Anruf</string>
+    <string name="home_screen">Home Screen</string>
+    <string name="selection_of_call_type">Enable selection of call type</string>
+    <string name="selection_of_call_type_sum">show an option to select whether you want a call via phone or WhatsApp</string>
+    <string name="yes">Yes</string>
+    <string name="no">No</string>
 </resources>

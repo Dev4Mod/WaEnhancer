@@ -14,12 +14,11 @@ import android.view.View;
 import androidx.annotation.NonNull;
 
 import com.wmods.wppenhacer.xposed.core.DesignUtils;
+import com.wmods.wppenhacer.xposed.core.Feature;
 import com.wmods.wppenhacer.xposed.core.ResId;
 import com.wmods.wppenhacer.xposed.core.Unobfuscator;
 import com.wmods.wppenhacer.xposed.core.Utils;
-import com.wmods.wppenhacer.xposed.core.Feature;
-
-import org.json.JSONObject;
+import com.wmods.wppenhacer.xposed.core.components.AlertDialogWpp;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -28,7 +27,6 @@ import java.util.List;
 import java.util.Objects;
 
 import de.robv.android.xposed.XC_MethodHook;
-import de.robv.android.xposed.XC_MethodReplacement;
 import de.robv.android.xposed.XSharedPreferences;
 import de.robv.android.xposed.XposedBridge;
 import de.robv.android.xposed.XposedHelpers;
@@ -219,12 +217,12 @@ public class Others extends Feature {
                             View.OnClickListener mCaptureOnClickListener = (View.OnClickListener) param.args[0];
                             if (mCaptureOnClickListener == null) return;
                             param.args[0] = (View.OnClickListener) view -> {
-                                log("sendSticker");
-                                AlertDialog.Builder dialog = new AlertDialog.Builder(view.getContext());
-                                dialog.setTitle(ResId.string.send_sticker);
-                                dialog.setMessage(ResId.string.do_you_want_to_send_sticker);
-                                dialog.setPositiveButton(ResId.string.send, (dialog1, which) -> mCaptureOnClickListener.onClick(view));
-                                dialog.setNegativeButton(ResId.string.cancel, null);
+                                var context = view.getContext();
+                                var dialog = new AlertDialogWpp(view.getContext());
+                                dialog.setTitle(context.getString(ResId.string.send_sticker));
+                                dialog.setMessage(context.getString(ResId.string.do_you_want_to_send_sticker));
+                                dialog.setPositiveButton(context.getString(ResId.string.send), (dialog1, which) -> mCaptureOnClickListener.onClick(view));
+                                dialog.setNegativeButton(context.getString(ResId.string.cancel), null);
                                 dialog.show();
                             };
                         }
@@ -238,8 +236,6 @@ public class Others extends Feature {
 
             });
         }
-
-
     }
 
     private static void restartApp(Activity home) {

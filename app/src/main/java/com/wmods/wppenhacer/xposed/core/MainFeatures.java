@@ -16,10 +16,10 @@ import android.os.Bundle;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
 
 import com.wmods.wppenhacer.BuildConfig;
+import com.wmods.wppenhacer.xposed.core.components.AlertDialogWpp;
 import com.wmods.wppenhacer.xposed.features.customization.CustomToolbar;
 import com.wmods.wppenhacer.xposed.features.customization.BubbleColors;
 import com.wmods.wppenhacer.xposed.features.customization.CustomTheme;
@@ -28,6 +28,7 @@ import com.wmods.wppenhacer.xposed.features.customization.SeparateGroup;
 import com.wmods.wppenhacer.xposed.features.customization.IGStatus;
 import com.wmods.wppenhacer.xposed.features.customization.CustomTime;
 import com.wmods.wppenhacer.xposed.features.customization.DotOnline;
+import com.wmods.wppenhacer.xposed.features.general.CallType;
 import com.wmods.wppenhacer.xposed.features.general.ShowEditMessage;
 import com.wmods.wppenhacer.xposed.features.general.AntiRevoke;
 import com.wmods.wppenhacer.xposed.features.general.SeenTick;
@@ -81,6 +82,7 @@ public class MainFeatures {
                 UnobfuscatorCache.init(mApp, pref);
                 WppDatabase.Initialize(loader, pref);
                 WppCore.Initialize(loader);
+                initComponents(loader, pref);
 
                 PackageManager packageManager = mApp.getPackageManager();
                 pref.registerOnSharedPreferenceChangeListener((sharedPreferences, s) -> pref.reload());
@@ -100,7 +102,7 @@ public class MainFeatures {
             protected void afterHookedMethod(MethodHookParam param) throws Throwable {
                 super.afterHookedMethod(param);
                 if (!list.isEmpty()) {
-                    new AlertDialog.Builder((Activity) param.thisObject)
+                    new AlertDialogWpp((Activity) param.thisObject)
                             .setTitle("Error detected")
                             .setMessage("The following options aren't working:\n\n" + String.join("\n", list.stream().map(ErrorItem::getPluginName).toArray(String[]::new)))
                             .setPositiveButton("Copy to clipboard", (dialog, which) -> {
@@ -114,6 +116,10 @@ public class MainFeatures {
                 }
             }
         });
+    }
+
+    private static void initComponents(ClassLoader loader, XSharedPreferences pref) {
+        AlertDialogWpp.initDialog(loader);
     }
 
     private static void registerReceivers() {
@@ -188,7 +194,8 @@ public class MainFeatures {
                 ShareLimit.class,
                 StatusDownload.class,
                 ViewOnce.class,
-                HideTabs.class
+                HideTabs.class,
+                CallType.class
         };
 
         for (var classe : classes) {

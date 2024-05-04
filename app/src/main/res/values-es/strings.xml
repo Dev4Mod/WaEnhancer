@@ -208,4 +208,11 @@
     <string name="seentick_menu">Show button in 3 dot menu</string>
     <string name="seentick_screen">Show Buttons in Screen</string>
     <string name="verbose_logs">Enable Verbose Logs for Debugger</string>
+    <string name="phone_call">Phone Call</string>
+    <string name="whatsapp_call">Whatsapp Call</string>
+    <string name="home_screen">Home Screen</string>
+    <string name="selection_of_call_type">Enable selection of call type</string>
+    <string name="selection_of_call_type_sum">show an option to select whether you want a call via phone or WhatsApp</string>
+    <string name="yes">Yes</string>
+    <string name="no">No</string>
 </resources>

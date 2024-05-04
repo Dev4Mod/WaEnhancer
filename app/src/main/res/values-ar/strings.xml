@@ -1,45 +1,45 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_desc">وحدة معزز واتApp</string>
-    <string name="antirevoke">رسائل مكافحة الحذف</string>
-    <string name="antirevoke_sum">عند التنشيط، لن يتم حذف الرسائل نيابةً عنك.</string>
-    <string name="ghostmode">إخفاء الكتابة</string>
-    <string name="ghostmode_sum">عندما يكون نشطًا، لا يستطيع الشخص رؤية أنك تكتب</string>
-    <string name="ghostmode_r">إخفاء تسجيل الصوت...</string>
-    <string name="ghostmode_sum_r">عندما يكون نشطًا، لا يستطيع الشخص رؤية أنك تقوم بتسجيل الصوت</string>
-    <string name="hidetag">إخفاء علامة إعادة التوجيه</string>
-    <string name="hidetag_sum">عندما يكون نشطًا، فإنه يسمح لك بإعادة توجيه الرسائل بدون علامة إعادة التوجيه.</string>
-    <string name="hidestatusview">إخفاء عرض الحالة</string>
-    <string name="hidestatusview_sum">عندما يكون نشطًا، فإنه يسمح لك بعرض الحالات دون أن يعلم الشخص أنك شاهدتها.</string>
-    <string name="hideread">إخفاء عرض الرسائل</string>
-    <string name="hideread_sum">عندما يكون نشطًا، فإنه يسمح لك بقراءة الرسائل دون أن يعلم الشخص أنك قرأتها.</string>
-    <string name="danger">ملاحظة</string>
-    <string name="reboot">عندما تغير شيئًا ما على هذه الشاشة، أعد تشغيل WhatsApp!</string>
-    <string name="reboot_module">وحدة إعادة التشغيل</string>
-    <string name="funcoes">الوظائف</string>
-    <string name="perso">التخصيص</string>
+    <string name="app_desc">وحدة لتخصيص واتساب الخاص بك.</string>
+    <string name="antirevoke">منع حذف الرسائل</string>
+    <string name="antirevoke_sum">عند التنشيط، لن يتم حذف الرسائل </string>
+    <string name="ghostmode">إخفاء جارية الكتابة</string>
+    <string name="ghostmode_sum">عندما يكون نشطًا، لا يستطيع الشخص رؤية أنك تكتب </string>
+    <string name="ghostmode_r">إخفاء تسجيل الصوت</string>
+    <string name="ghostmode_sum_r">عندما يكون نشطًا، لا يستطيع الشخص رؤية أنك تسجل الصوت </string>
+    <string name="hidetag">إخفاء علامة إعادة التوجيه </string>
+    <string name="hidetag_sum">عندما يكون نشطًا، فإنه يسمح لك بإعادة توجيه الرسائل دون علامة إعادة التوجيه</string>
+    <string name="hidestatusview">إخفاء عرض الحالة </string>
+    <string name="hidestatusview_sum">عرض الحالات دون معرفة المستخدمين</string>
+    <string name="hideread">إخفاء العلامات الزرقاء</string>
+    <string name="hideread_sum">عندما يكون نشطًا، فإنه يسمح لك بقراءة الرسائل دون أن يعلم الشخص أنك قرأتها</string>
+    <string name="danger">ملاحظة </string>
+    <string name="reboot">عندما تغير شيئًا ما على هذه الشاشة، أعد تشغيل واتساب</string>
+    <string name="reboot_module">إعادة تشغيل الوحدة🔄</string>
+    <string name="funcoes">الوظائف </string>
+    <string name="perso">التخصيص </string>
     <string name="segundosnahora">الثواني في الوقت المناسب</string>
     <string name="segundosnahora_sum">ضع الثواني بجوار الأوقات</string>
     <string name="textonahora">أضف نصًا بجوار الجدول الزمني</string>
-    <string name="no_active">If you\'re on this screen, it means that you don\'t have the module active yet, don\'t have LSPosed installed, or don\'t have any WhatsApp APK patched by LSPatch.</string>
+    <string name="no_active">إذا كنت على هذه الشاشة، فهذا يعني أنه لم يتم تنشيط الوحدة بعد، ولم يتم تثبيت LSPosed، وليس لديك WhatsApp APK مصحح بواسطة LSPatch.\n\nالرجاء إصلاحه، وإعادة تشغيل الوحدة، والمحاولة مرة أخرى</string>
     <string name="viewonce">تعطيل العرض مرة واحدة</string>
     <string name="viewonce_sum">عندما يكون نشطًا، فإنه يسمح لك بفتح رسائل العرض مرة واحدة عدة مرات كما تريد.</string>
     <string name="novotema">موضوع واتساب الجديد</string>
     <string name="novotema_sum">عند تفعيله، يغير اللون وموضوع الأيقونة إلى موضوع واتساب الجديد</string>
-    <string name="antirevokestatus">حالة مكافحة الحذف</string>
+    <string name="antirevokestatus">عدم حذف الحالات</string>
     <string name="antirevokestatus_sum">عند التنشيط، لن يتم مسح الحالات لك.</string>
-    <string name="hidereceipt">إخفاء الإيصال</string>
+    <string name="hidereceipt">إخفاء تم التسليم</string>
     <string name="hidereceipt_sum">لا تخبر المستخدمين أنك تلقيت الرسائل</string>
     <string name="outros">أخرى</string>
-    <string name="antirevoke_title">مكافحة الإبطال</string>
+    <string name="antirevoke_title">مكافحة الإلغاء</string>
     <string name="privacy_title">الخصوصية</string>
     <string name="settings_title">"الإعدادات"</string>
     <string name="autoreboot">إعادة التشغيل التلقائي</string>
     <string name="autoreboot_sum">يحتاج هذا الخيار إلى الوصول إلى الجذر! عند التمكين، سيتم إعادة تشغيل WhatsApp تلقائيًا لحفظ جميع التغييرات التي تم إجراؤها هنا</string>
-    <string name="xposedinit_error">خطأ في بدء Xposed</string>
+    <string name="xposedinit_error">خطأ في بدء ls posed</string>
     <string name="ampm">الوقت بتنسيق 12 ساعة </string>
     <string name="media_settings">إعدادات الوسائط</string>
-    <string name="statusdowload">حالة التنزيل</string>
+    <string name="statusdowload">حالة التحميل</string>
     <string name="statusdowload_sum">إنشاء زر لتنزيل حالات الأشخاص</string>
     <string name="videoquality">إرسال مقاطع الفيديو بجودة HD</string>
     <string name="videoquality_sum">إرسال مقاطع الفيديو بجودة HD</string>
@@ -59,18 +59,18 @@
     <string name="whatsapp_version_error">إصدار WhatsApp هذا غير مدعوم من قبل وحدتنا، يرجى الانتقال إلى إصدار واتساب المطلوب</string>
     <string name="whatsapp_not_installed">لم يتم تثبيت واتساب! التثبيت والمحاولة مرة أخرى</string>
     <string name="restart_whatsapp">إعادة تشغيل whatsapp</string>
-    <string name="media_title">الوسائط</string>
+    <string name="media_title">الوسائط </string>
     <string name="general">عام</string>
-    <string name="novahome">نمط المنزل الجديد</string>
-    <string name="conversation">المحادثة</string>
+    <string name="novahome">نمط الصفحة الرئيسية الجديد</string>
+    <string name="conversation">شاشة المحادثة</string>
     <string name="primary_color">اللون الأساسي</string>
     <string name="background_color">لون الخلفية </string>
     <string name="secondary_color">اللون الثانوي</string>
-    <string name="novaconfig">Please fix it, restart the module, and try again</string>
-    <string name="novaconfig_sum">تمكين نمط الإعدادات الجديد، باستخدام ملف تعريف الصورة في شريط أدوات الصفحة الرئيسية</string>
-    <string name="novahome_sum">تمكين نمط المنزل الجديد، من خلال التنقل السفلي</string>
+    <string name="novaconfig">نمط الإعدادات الجديدة</string>
+    <string name="novaconfig_sum">تمكين نمط الإعدادات الجديدة، مع صورة الملف الشخصي على شريط أدوات الشاشة الرئيسية</string>
+    <string name="novahome_sum">تمكين النمط الرئيسي الجديد، مع التنقل أسفل</string>
     <string name="novofiltro">تصفية الدردشات</string>
-    <string name="novofiltro_sum">تمكين مرشح الدردشات الأصلي، الموجود أعلى الشاشة الرئيسية، وتصفية جهات الاتصال والأعمال وغيرها</string>
+    <string name="novofiltro_sum">تمكين محادثة الفلتر الأصلية الموجودة في الجزء العلوي من الشاشة الرئيسية، للتصفية حسب جهات الاتصال، المجموعات، غير المقروءة وغيرها</string>
     <string name="menuwicon">أيقونات القائمة</string>
     <string name="menuwicon_sum">إضافة أيقونات على خيارات القائمة على طول التطبيق</string>
     <string name="strokebuttons">تحديد الأزرار</string>
@@ -87,13 +87,13 @@
     <string name="showname_sum">أظهر اسم حسابك أعلى الشاشة الرئيسية، مع استبدال \"WhatsApp\" باسمك.</string>
     <string name="showbio_sum">اعرض سيرتك الذاتية أسفل عنوان شريط الأدوات</string>
     <string name="showbio">اعرض السيرة الذاتية</string>
-    <string name="reset_preferences">إعادة تعيين التفضيلات</string>
+    <string name="reset_preferences">إعادة ضبط الإعدادات الإفتراضية</string>
     <string name="reset_preferences_sum">انقر هنا لإعادة ضبط جميع إعدادات الوحدة المحفوظة</string>
-    <string name="reset_preferences_message">سيؤدي هذا الإجراء إلى إعادة تعيين جميع التفضيلات المحفوظة في الوحدة، وستحتاج إلى تمكين جميع الأزرار مرة أخرى </string>
+    <string name="reset_preferences_message">سيؤدي هذا الإجراء إلى إعادة تعيين جميع الإعدادات المحفوظة في الوحدة، وستحتاج إلى تمكين جميع الأزرار مرة أخرى </string>
     <string name="reset">إعادة تعيين</string>
     <string name="bubble_left">فقاعة اليسار</string>
-    <string name="bubble_right">فقاعة الحق</string>
-    <string name="general_summary">تم تنفيذ التخصيصات محليًا بواسطة Whatsapp</string>
+    <string name="bubble_right">فقاعة اليمين</string>
+    <string name="general_summary">التخصيصات المنفذة محلياً بواسطة WhatsApp</string>
     <string name="home_summary">تخصيص الشاشة الرئيسية حسب رغبتك</string>
     <string name="conversation_summary">تغيير بعض الأشياء في شاشة المحادثة، مثل البالونات والدخول وغيرها</string>
     <string name="privacy_summary">إخفاء تأكيد القراءة وإخفاء الإيصال وآخر ظهور والمزيد</string>
@@ -104,39 +104,39 @@
     <string name="lspatch_not_found">لم يتم العثور على LSPatch</string>
     <string name="loading">تحميل</string>
     <string name="module_not_enabled_text">تم تعطيل الوحدة في LSPosed</string>
-    <string name="module_not_setted_text">الوحدة ممكّنة، لكن النطاق فارغ</string>
+    <string name="module_not_setted_text">تم تمكين الوحدة، ولكن النطاق فارغ</string>
     <string name="imagequality">إرسال الصورة بجودة HD</string>
     <string name="imagequality_sum">إرسال الصور بجودة HD</string>
     <string name="downloadviewonce">تحميل عرض مرة واحدة</string>
-    <string name="downloadviewonce_sum">قم بإنشاء عرض بمجرد زر التنزيل</string>
+    <string name="downloadviewonce_sum">إظهار زر لتنزيل العرض مرة واحدة</string>
     <string name="separate_groups">مجموعات منفصلة</string>
     <string name="separate_groups_sum">قم بفصل دردشاتك حسب: المجموعات، الدردشات الخاصة، الحالة، المكالمات، المجتمعات</string>
     <string name="blueonreply">أرسل علامة زرقاء عند الرد</string>
-    <string name="blueonreply_sum">أرسل العلامة الزرقاء عند الرد على الرسالة</string>
-    <string name="hide_archived_chat">Hide archived chat</string>
-    <string name="hide_archived_chat_sum">Hide Archived chat and enable Toolbar on long click to access chat</string>
-    <string name="hide_once_view_seen">Hide Once View and Audio Seen</string>
-    <string name="hide_once_view_seen_sum">hide that once view and audio has been seen</string>
-    <string name="call_blocker">Call Blocker</string>
+    <string name="blueonreply_sum">إرسال علامات الصح الزرقاء بعد الرد على رسالة(ملاحظة: يجب أن يكون خِيار \"إخفاء العلامات الزرقاء\" نشطًا)</string>
+    <string name="hide_archived_chat">إخفاء المحادثة المؤرشفة</string>
+    <string name="hide_archived_chat_sum">إخفاء الدردشات المؤرشفة\;  يمكنك مشاهدتها بواسطة الضغط على عنوان WhatsApp على الشاشة الرئيسية</string>
+    <string name="hide_once_view_seen">إخفاء العرض مرة واحدة ورؤية الصوت</string>
+    <string name="hide_once_view_seen_sum">إخفاء هذا العرض تم مشاهدة واحدة من الوسائط والصوت</string>
+    <string name="call_blocker">حظر المكالمات</string>
     <string name="call_blocker_sum">حظر مكالمات WhatsApp استناداً إلى نوع الخصوصية</string>
-    <string name="show_online_dot_in_conversation_list">Show online dot in Conversation List</string>
-    <string name="show_online_dot_in_conversation_list_sum">Show a green online dot on the home screen (NOTE: you need to activate show online for everyone in the Whatsapp configuration menu)</string>
-    <string name="show_dnd_button">إظهار زر الطائرة</string>
-    <string name="show_dnd_button_sum">Enable button to DND Mode in Toolbar</string>
+    <string name="show_online_dot_in_conversation_list">إظهار نقطة الإنترنت في قائمة المحادثات</string>
+    <string name="show_online_dot_in_conversation_list_sum">إظهار نقطة خضراء عبر الإنترنت على الشاشة الرئيسية (ملاحظة: يجب تنشيط العرض عبر الإنترنت للجميع في قائمة إعدادات الخصوصية في WhatsApp)</string>
+    <string name="show_dnd_button">إظهار أيقونة وضع الطيران</string>
+    <string name="show_dnd_button_sum">إظهار زر وضع الطيران على شريط أدوات الشاشة الرئيسية</string>
     <string name="dev4mod">(مساهم)Dev4Mod</string>
-    <string name="disable_pinned_limit">Disable Pinned Limit</string>
-    <string name="disable_pinned_limit_sum">Disable pinned limit of 3 chats</string>
-    <string name="delete_for_everyone_all_messages">Delete for everyone all messages</string>
-    <string name="delete_for_everyone_all_messages_sum">Remove the 24-hour limit to be able to delete the message for everyone.</string>
+    <string name="disable_pinned_limit">تعطيل حد الدردشة المثبتة</string>
+    <string name="disable_pinned_limit_sum">تعطيل حد 3 دردشة مثبتة</string>
+    <string name="delete_for_everyone_all_messages">\"حذف للجميع\" على جميع الرسائل</string>
+    <string name="delete_for_everyone_all_messages_sum">إزالة حد الـ 24 ساعة لحذف رسالة للجميع</string>
     <string name="antirevoke_buttons_desable">غير قادر</string>
     <string name="antirevoke_buttons_show_text">إظهار النص</string>
     <string name="antirevoke_buttons_show_icon">إظهار الأيقونة</string>
     <string name="call_blocker_buttons_no_block">إلغاء الحظر</string>
     <string name="call_blocker_buttons_all_block">حظر جميع المكالمات</string>
     <string name="call_blocker_buttons_only_unknown_block">حظر الأرقام غير المعروفة فقط</string>
-    <string name="show_edited_message_history">Show edited message history</string>
-    <string name="show_edited_message_history_sum">Display edited message history upon clicking on \'edited\' in the message</string>
-    <string name="dnd_message">When Do Not Disturb mode is on, you won\'t be able to send or receive messages.</string>
+    <string name="show_edited_message_history">إظهار محفوظات الرسائل المعدلة</string>
+    <string name="show_edited_message_history_sum">إظهار سجل الرسائل المعدلة عند النقر فوق \'تعديل\' على الرسالة</string>
+    <string name="dnd_message">عند تشغيل وضع عدم الطيران لن تتمكن من إرسال أو استقبال الرسائل</string>
     <string name="dnd_mode_title">وضع الطائرة</string>
     <string name="activate">تفعيل</string>
     <string name="cancel">إلغاء</string>
@@ -146,16 +146,16 @@
     <string name="number_with_country_code">رَقْم مع رمز البلد</string>
     <string name="message">رسالة</string>
     <string name="download">تحميل</string>
-    <string name="reboot_whatsapp">(Reboot WhatsApp)</string>
+    <string name="reboot_whatsapp">(إعادة تشغيل WhatsApp)</string>
     <string name="error_when_saving_try_again">خطأ عند الحفظ، حاول مرة أخرى</string>
     <string name="saved_to">"تم الحفظ في "</string>
     <string name="hide_tabs_on_home">إخفاء علامات التبويب على الصفحة الرئيسة</string>
-    <string name="hide_tabs_on_home_sum">Allows hiding tabs on the home page such as updates, communities, calls.</string>
+    <string name="hide_tabs_on_home_sum">إخفاء علامات التبويب على الشاشة الرئيسية مثل التحديثات والمجتمعات والمكالمات</string>
     <string name="communities">المجتمعات</string>
     <string name="calls">"المكالمات "</string>
     <string name="updates">التحديثات</string>
     <string name="about">حول</string>
-    <string name="igstatus_on_home_screen">تفعيل ستايل الستوري مثل انستجرام</string>
+    <string name="igstatus_on_home_screen">تفعيل ستايل الستوري مثل انستجرام على الشاشة الرئيسية </string>
     <string name="igstatus_on_home_screen_sum">إظهار نمط حالة Instagram في الشاشة الرئيسية</string>
     <string name="chatfilter_no_search">لا يوجد بحث</string>
     <string name="chatfilter_search_icon">أيقونة البحث</string>
@@ -167,16 +167,16 @@
     <string name="tools">أدوات</string>
     <string name="title_home">الصفحة الرئيسية</string>
     <string name="privacy">الخصوصية</string>
-    <string name="module_enabled">تم تمكين الوحدة</string>
+    <string name="module_enabled">تم تمكين الوحدة✔️</string>
     <string name="version_s">الإصدار</string>
-    <string name="module_disabled">الوحدة معطلة</string>
+    <string name="module_disabled">الوحدة معطلة🚫</string>
     <string name="whatsapp_in_background">WhatsApp في الخلفية</string>
     <string name="whatsapp_is_not_running_or_has_not_been_activated_in_lsposed">لا يعمل Whatsapp أو لم يتم تفعيله في Lsposed</string>
     <string name="business_is_not_running_or_has_not_been_activated_in_lsposed">واتساب أعمال لا يعمل أو لم يتم تفعيل أداة Lsposed </string>
     <string name="restart_wpp">من الضروري إعادة تشغيل WhatsApp لتفعيل التغييرات في Wa Encer . هل تريد إعادة التشغيل؟</string>
-    <string name="version_s_not_listed">الإصدار غير مدعوم</string>
+    <string name="version_s_not_listed">الإصدار غير مدعوم❌️</string>
     <string name="media">الوسائط</string>
-    <string name="show_button_to_send_blue_tick">إظهار الزر لإرسال علامة زرقاء</string>
+    <string name="show_button_to_send_blue_tick">إظهار الزر لإرسال علامة زرقاء🔵</string>
     <string name="show_button_to_send_blue_tick_sum">إظهار الزر لإرسال علامة زرقاء</string>
     <string name="send_blue_tick">إرسال القالب الأزرق</string>
     <string name="business_in_background">واتساب أعمال في الخلفية</string>
@@ -207,5 +207,12 @@
     <string name="download_title">تنزيل</string>
     <string name="seentick_menu">إظهار الزر في قائمة النِّقَاط الثلاث</string>
     <string name="seentick_screen">إظهار الأزرار في الشاشة</string>
-    <string name="verbose_logs">تمكين سجلات Verbose للمصحح</string>
+    <string name="verbose_logs">تمكين السجلات المطولة لمصحح الأخطاء </string>
+    <string name="phone_call">Phone Call</string>
+    <string name="whatsapp_call">Whatsapp Call</string>
+    <string name="home_screen">Home Screen</string>
+    <string name="selection_of_call_type">Enable selection of call type</string>
+    <string name="selection_of_call_type_sum">show an option to select whether you want a call via phone or WhatsApp</string>
+    <string name="yes">Yes</string>
+    <string name="no">No</string>
 </resources>

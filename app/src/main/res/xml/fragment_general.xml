@@ -25,7 +25,7 @@
 
     <PreferenceCategory
         app:iconSpaceReserved="false"
-        app:title="Home Screen">
+        app:title="@string/home_screen">
 
         <rikka.material.preference.MaterialSwitchPreference
             app:key="shownamehome"
@@ -86,7 +86,7 @@
 
     <PreferenceCategory
         app:iconSpaceReserved="false"
-        app:title="Chat">
+        app:title="@string/chat">
 
         <ListPreference
             app:entries="@array/antirevoke_entries"
@@ -139,6 +139,11 @@
             app:key="alertsticker"
             app:summary="@string/enable_confirmation_to_send_sticker_sum"
             app:title="@string/enable_confirmation_to_send_sticker" />
+
+        <rikka.material.preference.MaterialSwitchPreference
+            app:key="calltype"
+            app:summary="@string/selection_of_call_type_sum"
+            app:title="@string/selection_of_call_type" />
 
     </PreferenceCategory>
 

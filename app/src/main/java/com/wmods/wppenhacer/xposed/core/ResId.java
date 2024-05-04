@@ -22,6 +22,10 @@ public class ResId {
         public static int send;
         public static int send_sticker;
         public static int do_you_want_to_send_sticker;
+        public static int whatsapp_call;
+        public static int phone_call;
+        public static int yes;
+        public static int no;
     }
 
 }

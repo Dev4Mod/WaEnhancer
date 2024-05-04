@@ -8,9 +8,11 @@ import android.content.res.XResources;
 import android.graphics.BlendMode;
 import android.graphics.BlendModeColorFilter;
 import android.graphics.Color;
+import android.graphics.Paint;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.ShapeDrawable;
+import android.graphics.drawable.shapes.RectShape;
 import android.graphics.drawable.shapes.RoundRectShape;
 import android.os.Build;
 
@@ -72,6 +74,19 @@ public class DesignUtils {
                 var border = Utils.dipToPixels(16.0f);
                 ShapeDrawable shapeDrawable = new ShapeDrawable(new RoundRectShape(new float[]{border, border, border, border, border, border, border, border}, null, null));
                 shapeDrawable.getPaint().setColor(0x28FFFFFF);
+                return shapeDrawable;
+            }
+            case "stroke_border" -> {
+                ShapeDrawable shapeDrawable = new ShapeDrawable(new RectShape());
+                Paint paint = shapeDrawable.getPaint();
+                paint.setColor(Color.TRANSPARENT);
+                paint.setStyle(Paint.Style.STROKE);
+                paint.setStrokeWidth(Utils.dipToPixels(2));
+                paint.setColor(DesignUtils.getPrimaryTextColor(Utils.getApplication()));
+                float radius = Utils.dipToPixels(2.0f);
+                float[] outerRadii = new float[] { radius, radius, radius, radius, radius, radius, radius, radius };
+                RoundRectShape roundRectShape = new RoundRectShape(outerRadii, null, null);
+                shapeDrawable.setShape(roundRectShape);
                 return shapeDrawable;
             }
         }

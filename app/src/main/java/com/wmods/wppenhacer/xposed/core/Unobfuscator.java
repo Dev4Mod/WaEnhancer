@@ -1,5 +1,6 @@
 package com.wmods.wppenhacer.xposed.core;
 
+import android.content.Context;
 import android.graphics.drawable.NinePatchDrawable;
 import android.util.Pair;
 import android.view.LayoutInflater;
@@ -9,6 +10,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
 import android.widget.TextView;
+
+import com.wmods.wppenhacer.xposed.utils.ReflectionUtils;
 
 import org.luckypray.dexkit.DexKitBridge;
 import org.luckypray.dexkit.query.FindClass;
@@ -403,7 +406,7 @@ public class Unobfuscator {
             Class<?> cls = findFirstClassUsingStrings(classLoader, StringMatchType.Contains, "aBhHKm");
             if (cls == null) throw new Exception("TimeToSeconds class not found");
             var clsData = dexkit.getClassData(cls);
-            var method = XposedHelpers.findMethodBestMatch(Calendar.class,"setTimeInMillis", long.class);
+            var method = XposedHelpers.findMethodBestMatch(Calendar.class, "setTimeInMillis", long.class);
             var result = clsData.findMethod(new FindMethod().matcher(new MethodMatcher().addInvoke(DexSignUtil.getMethodDescriptor(method)).returnType(String.class).paramCount(2)));
             if (result.isEmpty()) throw new Exception("TimeToSeconds method not found");
             return result.get(0).getMethodInstance(classLoader);
@@ -1072,7 +1075,8 @@ public class Unobfuscator {
             var methodData = dexkit.findMethod(new FindMethod().searchInClass(List.of(dexkit.getClassData(clazzMessage))).matcher(new MethodMatcher().addUsingNumber(0x200000).returnType(String.class)));
             if (methodData.isEmpty()) {
                 methodData = dexkit.findMethod(new FindMethod().searchInClass(List.of(dexkit.getClassData(clazzMessage))).matcher(new MethodMatcher().addUsingString("video").returnType(String.class)));
-                if (methodData.isEmpty()) throw new RuntimeException("NewMessageWithMedia method not found");
+                if (methodData.isEmpty())
+                    throw new RuntimeException("NewMessageWithMedia method not found");
             }
             return methodData.get(0).getMethodInstance(loader);
         });
@@ -1316,5 +1320,19 @@ public class Unobfuscator {
         var method = dexkit.findMethod(new FindMethod().matcher(new MethodMatcher().name("setDateWrapperBackground")));
         if (method.isEmpty()) throw new RuntimeException("Stk method not found");
         return method.get(0).getMethodInstance(loader);
+    }
+
+    public static Method loadMaterialAlertDialog(ClassLoader loader) throws Exception {
+        var callConfirmationFragment = XposedHelpers.findClass("com.whatsapp.calling.fragment.CallConfirmationFragment", loader);
+        var method = ReflectionUtils.findMethodUsingFilter(callConfirmationFragment, m -> m.getParameterCount() == 1 && m.getParameterTypes()[0].equals(android.os.Bundle.class));
+        var methodData = dexkit.getMethodData(method);
+        var invokes = methodData.getInvokes();
+        for (var invoke : invokes) {
+            if (invoke.isMethod() && Modifier.isStatic(invoke.getModifiers()) && invoke.getParamCount() == 1 && invoke.getParamTypes().get(0).getName().equals(Context.class.getName())) {
+                return invoke.getMethodInstance(loader);
+            }
+        }
+        throw new RuntimeException("MaterialAlertDialog not found");
+
     }
 }

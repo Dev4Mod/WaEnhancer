@@ -11,6 +11,7 @@ import androidx.annotation.Nullable;
 
 import com.wmods.wppenhacer.MainActivity;
 import com.wmods.wppenhacer.R;
+import com.wmods.wppenhacer.xposed.core.components.AlertDialogWpp;
 
 public class WaCallback implements Application.ActivityLifecycleCallbacks {
     @Override
@@ -28,13 +29,12 @@ public class WaCallback implements Application.ActivityLifecycleCallbacks {
         var prefs = activity.getSharedPreferences("WaGlobal", Context.MODE_PRIVATE);
         if (prefs.getBoolean("need_restart", false)) {
             prefs.edit().putBoolean("need_restart", false).commit();
-            new AlertDialog.Builder(activity).
-                    setMessage(ResId.string.restart_wpp).
-                    setPositiveButton("Yes", (dialog, which) -> {
+            new AlertDialogWpp(activity).
+                    setMessage(activity.getString(ResId.string.restart_wpp)).
+                    setPositiveButton(activity.getString(ResId.string.yes), (dialog, which) -> {
                         Utils.doRestart(activity);
                     })
-                    .setNegativeButton("No", null)
-                    .setCancelable(false)
+                    .setNegativeButton(activity.getString(ResId.string.no), null)
                     .show();
         }
     }

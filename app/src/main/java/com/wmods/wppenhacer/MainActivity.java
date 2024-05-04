@@ -32,7 +32,7 @@ public class MainActivity extends AppCompatActivity {
         getTheme().applyStyle(R.style.ThemeOverlay, true);
         super.onCreate(savedInstanceState);
         getSupportActionBar().setDisplayShowHomeEnabled(true);
-        getSupportActionBar().setIcon(R.drawable.launcher);
+        getSupportActionBar().setIcon(R.mipmap.launcher);
         binding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
         NavHostFragment navHostFragment = (NavHostFragment) getSupportFragmentManager().findFragmentById(R.id.nav_host_fragment_activity_main);

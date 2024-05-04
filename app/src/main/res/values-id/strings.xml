@@ -1,19 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_desc">Modul LSPosed untuk menyesuaikan WhatsApp Anda</string>
-    <string name="antirevoke">Anti Tarik Pesan</string>
+    <string name="antirevoke">Anti Hapus Pesan</string>
     <string name="antirevoke_sum">Pesan tidak akan dihapus untuk Anda</string>
     <string name="ghostmode">Sembunyikan mengetik</string>
     <string name="ghostmode_sum">Orang lain tidak akan mengetahui bahwa Anda sedang mengetik</string>
     <string name="ghostmode_r">Sembunyikan merekam audio</string>
     <string name="ghostmode_sum_r">Orang lain tidak akan mengetahui bahwa Anda sedang merekam audio</string>
-    <string name="hidetag">Sembunyikan tag \"diteruskan\"</string>
-    <string name="hidetag_sum">Anda dapat meneruskan pesan tanpa tag \"diteruskan\"</string>
+    <string name="hidetag">Sembunyikan tandai \"diteruskan\"</string>
+    <string name="hidetag_sum">Anda dapat meneruskan pesan tanpa tandai \"diteruskan\"</string>
     <string name="hidestatusview">Sembunyikan lihat status</string>
     <string name="hidestatusview_sum">Orang lain tidak akan mengetahui bahwa Anda telah melihat statusnya</string>
     <string name="hideread">Sembunyikan centang biru</string>
     <string name="hideread_sum">Orang lain tidak akan mengetahui bahwa Anda telah membaca pesannya</string>
-    <string name="danger">Melihat</string>
+    <string name="danger">Perhatian</string>
     <string name="reboot">Setiap kali Anda mengubah sesuatu di layar ini, mulai ulang WhatsApp!</string>
     <string name="reboot_module">Mulai ulang modul</string>
     <string name="funcoes">Fungsi</string>
@@ -33,14 +33,14 @@
 (PERHATIAN: Dapat menyebabkan keterlambatan dalam menerima pesan)</string>
     <string name="outros">Lainnya</string>
     <string name="antirevoke_title">Anti Tarik Pesan</string>
-    <string name="privacy_title">Privasi</string>
-    <string name="settings_title">"Pengaturan"</string>
+    <string name="privacy_title">Setelan Privasi</string>
+    <string name="settings_title">"Setelan"</string>
     <string name="autoreboot">Mulai ulang otomatis</string>
     <string name="autoreboot_sum">Opsi ini memerlukan akses root!
 Saat diaktifkan, WhatsApp akan mulai ulang otomatis untuk menyimpan semua perubahan yang dilakukan di sini</string>
     <string name="xposedinit_error">Kesalahan saat memulai LSPosed</string>
     <string name="ampm">Waktu dalam format 12 jam</string>
-    <string name="media_settings">Pengaturan Media</string>
+    <string name="media_settings">Setelan Media</string>
     <string name="statusdowload">Unduh Status</string>
     <string name="statusdowload_sum">Tampilkan tombol untuk mengunduh status</string>
     <string name="videoquality">Video Kualitas HD</string>
@@ -64,7 +64,7 @@ Saat diaktifkan, WhatsApp akan mulai ulang otomatis untuk menyimpan semua peruba
     <string name="media_title">Media</string>
     <string name="general">Umum</string>
     <string name="novahome">Gaya beranda baru</string>
-    <string name="conversation">Percakapan</string>
+    <string name="conversation">Layar Percakapan</string>
     <string name="primary_color">Warna primer</string>
     <string name="background_color">Warna latar belakang</string>
     <string name="secondary_color">Warna sekunder</string>
@@ -142,7 +142,7 @@ Anda perlu mengaktifkan dan mengatur ulang kembali</string>
     <string name="call_blocker_buttons_only_unknown_block">Blokir nomor tak dikenal</string>
     <string name="show_edited_message_history">Tampilkan pesan yang diedit</string>
     <string name="show_edited_message_history_sum">Tampilkan riwayat pesan yang diedit ketika mengklik \"Diedit\" pada pesan</string>
-    <string name="dnd_message">Saat mode Pesawat (Offline) aktif, Anda tidak akan dapat mengirim atau menerima pesan.</string>
+    <string name="dnd_message">Saat mode Pesawat (Offline) diaktifkan, Anda tidak akan dapat mengirim atau menerima pesan.</string>
     <string name="dnd_mode_title">Mode Pesawat (Offline)</string>
     <string name="activate">Aktifkan</string>
     <string name="cancel">Batal</string>
@@ -205,7 +205,7 @@ Apakah Anda ingin mulai ulang WhatsApp?</string>
     <string name="default_color">Atur warna #00000000 ke warna default</string>
     <string name="enable_confirmation_to_send_sticker">Konfirmasi sebelum mengirim stiker</string>
     <string name="enable_confirmation_to_send_sticker_sum">Tampilkan dialog sebelum mengirim stiker</string>
-    <string name="local_download">Unduh lokal</string>
+    <string name="local_download">Lokasi unduhan</string>
     <string name="increase_video_size_limit">Tingkatkan Batas Ukuran Video</string>
     <string name="increase_video_size_limit_sum">Tingkatkan batas ukuran video menjadi 90MB</string>
     <string name="send_video_in_real_resolution">Kirim Video Resolusi Asli</string>
@@ -213,8 +213,15 @@ Apakah Anda ingin mulai ulang WhatsApp?</string>
     <string name="send_video_in_60fps">Kirim Video 60fps</string>
     <string name="send_video_in_60fps_sum">Kirim video dalam 60fps untuk status, grup, dan obrolan</string>
     <string name="status">Status</string>
-    <string name="download_title">Unduh</string>
+    <string name="download_title">Unduhan</string>
     <string name="seentick_menu">Tampilkan tombol di menu</string>
     <string name="seentick_screen">Tampilkan tombol di layar</string>
     <string name="verbose_logs">Aktifkan log verbose untuk debugger</string>
+    <string name="phone_call">Phone Call</string>
+    <string name="whatsapp_call">Whatsapp Call</string>
+    <string name="home_screen">Home Screen</string>
+    <string name="selection_of_call_type">Enable selection of call type</string>
+    <string name="selection_of_call_type_sum">show an option to select whether you want a call via phone or WhatsApp</string>
+    <string name="yes">Yes</string>
+    <string name="no">No</string>
 </resources>
