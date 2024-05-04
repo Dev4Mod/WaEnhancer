@@ -27,7 +27,7 @@ public class WppCore {
     private static Field convChatField;
     private static Field chatJidField;
 
-    private static HashSet<ObjectOnChangeListener> listenerChat = new HashSet<>();
+    private static final HashSet<ObjectOnChangeListener> listenerChat = new HashSet<>();
     private static Object mContactManager;
 
     public interface ObjectOnChangeListener {

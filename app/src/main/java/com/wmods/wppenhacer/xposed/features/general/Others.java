@@ -4,7 +4,6 @@ import static de.robv.android.xposed.XposedHelpers.findClass;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
-import android.app.AlertDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.view.Menu;
@@ -128,6 +127,7 @@ public class Others extends Feature {
 
         var homeActivity = findClass("com.whatsapp.HomeActivity", loader);
         XposedHelpers.findAndHookMethod(homeActivity, "onCreateOptionsMenu", Menu.class, new XC_MethodHook() {
+            @SuppressLint("ApplySharedPref")
             @Override
             protected void afterHookedMethod(MethodHookParam param) throws Throwable {
                 Menu menu = (Menu) param.args[0];
@@ -247,7 +247,7 @@ public class Others extends Feature {
         Runtime.getRuntime().exit(0);
     }
 
-    @SuppressLint({"DiscouragedApi", "UseCompatLoadingForDrawables"})
+    @SuppressLint({"DiscouragedApi", "UseCompatLoadingForDrawables", "ApplySharedPref"})
     private static void InsertDNDOption(Menu menu, Activity home) {
         var shared = Utils.getApplication().getSharedPreferences(Utils.getApplication().getPackageName() + "_mdgwa_preferences", Context.MODE_PRIVATE);
         var dndmode = shared.getBoolean("dndmode", false);

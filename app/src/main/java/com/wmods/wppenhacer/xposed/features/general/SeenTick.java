@@ -165,7 +165,7 @@ public class SeenTick extends Feature {
                     var contentView = (LinearLayout) view.findViewById(Utils.getID("bottom_sheet", "id"));
                     var infoBar = contentView.findViewById(Utils.getID("info", "id"));
                     var buttonImage = new ImageView(view.getContext());
-                    LinearLayout.LayoutParams params = new LinearLayout.LayoutParams((int) Utils.dipToPixels(32), (int) Utils.dipToPixels(32));
+                    LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(Utils.dipToPixels(32), Utils.dipToPixels(32));
                     params.gravity = Gravity.CENTER_VERTICAL;
                     params.setMargins(Utils.dipToPixels(5), Utils.dipToPixels(5), 0, 0);
                     buttonImage.setLayoutParams(params);

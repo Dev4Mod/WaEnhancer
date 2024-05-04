@@ -82,7 +82,7 @@ public class CallType extends Feature {
                             break;
                     }
                 });
-                newDialog = (Dialog) mAlertDialog.create();
+                newDialog = mAlertDialog.create();
                 param.setResult(newDialog);
             }
         });

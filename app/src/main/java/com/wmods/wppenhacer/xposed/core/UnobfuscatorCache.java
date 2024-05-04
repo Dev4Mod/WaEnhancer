@@ -140,7 +140,6 @@ public class UnobfuscatorCache {
             saveClass(methodName, result);
             return result;
         }
-        ;
         return XposedHelpers.findClass(value, loader);
     }
 
