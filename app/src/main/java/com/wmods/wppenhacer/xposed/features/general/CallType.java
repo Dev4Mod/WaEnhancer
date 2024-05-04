@@ -1,5 +1,6 @@
 package com.wmods.wppenhacer.xposed.features.general;
 
+import android.annotation.SuppressLint;
 import android.app.Dialog;
 import android.content.Intent;
 import android.net.Uri;
@@ -9,6 +10,7 @@ import androidx.annotation.NonNull;
 
 import com.wmods.wppenhacer.xposed.core.Feature;
 import com.wmods.wppenhacer.xposed.core.ResId;
+import com.wmods.wppenhacer.xposed.core.Unobfuscator;
 import com.wmods.wppenhacer.xposed.core.UnobfuscatorCache;
 import com.wmods.wppenhacer.xposed.core.WppCore;
 import com.wmods.wppenhacer.xposed.core.components.AlertDialogWpp;
@@ -26,10 +28,22 @@ public class CallType extends Feature {
         super(loader, preferences);
     }
 
+    @SuppressLint("ApplySharedPref")
     @Override
     public void doHook() throws Throwable {
 
         if (!prefs.getBoolean("calltype", false)) return;
+
+        var intPreferences = Unobfuscator.loadGetIntPreferences(loader);
+        XposedBridge.hookMethod(intPreferences, new XC_MethodHook() {
+            @Override
+            protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
+                if (param.args[1] == "call_confirmation_dialog_count") {
+                    param.setResult(1);
+                }
+            }
+        });
+
 
         var callConfirmationFragment = XposedHelpers.findClass("com.whatsapp.calling.fragment.CallConfirmationFragment", loader);
         var method = ReflectionUtils.findMethodUsingFilter(callConfirmationFragment, m -> m.getParameterCount() == 1 && m.getParameterTypes()[0].equals(android.os.Bundle.class));
@@ -49,7 +63,7 @@ public class CallType extends Feature {
                         }
                     }
                 });
-                hookBundleBoolean = XposedHelpers.findAndHookMethod(BaseBundle.class, "getBoolean", String.class,  new XC_MethodHook() {
+                hookBundleBoolean = XposedHelpers.findAndHookMethod(BaseBundle.class, "getBoolean", String.class, new XC_MethodHook() {
                     @Override
                     protected void afterHookedMethod(MethodHookParam param) throws Throwable {
                         if (param.args[0] == "is_video_call") {

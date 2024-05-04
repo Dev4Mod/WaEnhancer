@@ -1,7 +1,7 @@
 package com.wmods.wppenhacer.xposed.core;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
-import android.app.AlertDialog;
 import android.app.Application;
 import android.content.Context;
 import android.os.Bundle;
@@ -9,8 +9,6 @@ import android.os.Bundle;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-import com.wmods.wppenhacer.MainActivity;
-import com.wmods.wppenhacer.R;
 import com.wmods.wppenhacer.xposed.core.components.AlertDialogWpp;
 
 public class WaCallback implements Application.ActivityLifecycleCallbacks {
@@ -24,18 +22,22 @@ public class WaCallback implements Application.ActivityLifecycleCallbacks {
 
     }
 
+    @SuppressLint("ApplySharedPref")
     @Override
     public void onActivityResumed(@NonNull Activity activity) {
         var prefs = activity.getSharedPreferences("WaGlobal", Context.MODE_PRIVATE);
         if (prefs.getBoolean("need_restart", false)) {
             prefs.edit().putBoolean("need_restart", false).commit();
-            new AlertDialogWpp(activity).
-                    setMessage(activity.getString(ResId.string.restart_wpp)).
-                    setPositiveButton(activity.getString(ResId.string.yes), (dialog, which) -> {
-                        Utils.doRestart(activity);
-                    })
-                    .setNegativeButton(activity.getString(ResId.string.no), null)
-                    .show();
+            try {
+                new AlertDialogWpp(activity).
+                        setMessage(activity.getString(ResId.string.restart_wpp)).
+                        setPositiveButton(activity.getString(ResId.string.yes), (dialog, which) -> {
+                            Utils.doRestart(activity);
+                        })
+                        .setNegativeButton(activity.getString(ResId.string.no), null)
+                        .show();
+            }catch (Exception ignored) {
+            }
         }
     }
 

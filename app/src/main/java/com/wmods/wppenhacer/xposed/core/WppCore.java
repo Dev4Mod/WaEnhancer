@@ -3,6 +3,7 @@ package com.wmods.wppenhacer.xposed.core;
 import android.app.Activity;
 import android.app.Dialog;
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.graphics.drawable.Drawable;
 
 import java.io.File;
@@ -169,8 +170,13 @@ public class WppCore {
         return mainPrefs.getString("registration_jid", "");
     }
 
+    public static SharedPreferences getMainPrefs() {
+        return Utils.getApplication().getSharedPreferences(Utils.getApplication().getPackageName() + "_preferences_light", Context.MODE_PRIVATE);
+    }
+
+
     public static String getMyBio() {
-        var mainPrefs = Utils.getApplication().getSharedPreferences(Utils.getApplication().getPackageName() + "_preferences_light", Context.MODE_PRIVATE);
+        var mainPrefs = getMainPrefs();
         return mainPrefs.getString("my_current_status", "");
     }
 

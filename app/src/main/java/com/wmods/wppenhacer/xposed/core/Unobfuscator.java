@@ -1,8 +1,8 @@
 package com.wmods.wppenhacer.xposed.core;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.graphics.drawable.NinePatchDrawable;
-import android.util.Pair;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -1311,28 +1311,35 @@ public class Unobfuscator {
     }
 
     public static Method loadSendStickerMethod(ClassLoader loader) throws Exception {
-        var method = findFirstMethodUsingStrings(loader, StringMatchType.Contains, "StickerGridViewItem.StickerLocal");
-        if (method == null) throw new RuntimeException("SendSticker method not found");
-        return method;
-    }
+        return UnobfuscatorCache.getInstance().getMethod(loader, () -> {
+            var method = findFirstMethodUsingStrings(loader, StringMatchType.Contains, "StickerGridViewItem.StickerLocal");
+            if (method == null) throw new RuntimeException("SendSticker method not found");
+            return method;
+        });
 
-    public static Method loadStkMethod(ClassLoader loader) throws Exception {
-        var method = dexkit.findMethod(new FindMethod().matcher(new MethodMatcher().name("setDateWrapperBackground")));
-        if (method.isEmpty()) throw new RuntimeException("Stk method not found");
-        return method.get(0).getMethodInstance(loader);
     }
 
     public static Method loadMaterialAlertDialog(ClassLoader loader) throws Exception {
-        var callConfirmationFragment = XposedHelpers.findClass("com.whatsapp.calling.fragment.CallConfirmationFragment", loader);
-        var method = ReflectionUtils.findMethodUsingFilter(callConfirmationFragment, m -> m.getParameterCount() == 1 && m.getParameterTypes()[0].equals(android.os.Bundle.class));
-        var methodData = dexkit.getMethodData(method);
-        var invokes = methodData.getInvokes();
-        for (var invoke : invokes) {
-            if (invoke.isMethod() && Modifier.isStatic(invoke.getModifiers()) && invoke.getParamCount() == 1 && invoke.getParamTypes().get(0).getName().equals(Context.class.getName())) {
-                return invoke.getMethodInstance(loader);
+        return UnobfuscatorCache.getInstance().getMethod(loader, () -> {
+            var callConfirmationFragment = XposedHelpers.findClass("com.whatsapp.calling.fragment.CallConfirmationFragment", loader);
+            var method = ReflectionUtils.findMethodUsingFilter(callConfirmationFragment, m -> m.getParameterCount() == 1 && m.getParameterTypes()[0].equals(android.os.Bundle.class));
+            var methodData = dexkit.getMethodData(method);
+            var invokes = methodData.getInvokes();
+            for (var invoke : invokes) {
+                if (invoke.isMethod() && Modifier.isStatic(invoke.getModifiers()) && invoke.getParamCount() == 1 && invoke.getParamTypes().get(0).getName().equals(Context.class.getName())) {
+                    return invoke.getMethodInstance(loader);
+                }
             }
-        }
-        throw new RuntimeException("MaterialAlertDialog not found");
+            throw new RuntimeException("MaterialAlertDialog not found");
+        });
+    }
 
+    public static Method loadGetIntPreferences(ClassLoader loader) throws Exception {
+        return UnobfuscatorCache.getInstance().getMethod(loader, () -> {
+            var methodList = dexkit.findMethod(new FindMethod().matcher(new MethodMatcher().paramCount(2).addParamType(SharedPreferences.class).addParamType(String.class).modifiers(Modifier.STATIC | Modifier.PUBLIC).returnType(int.class)));
+            if (methodList.isEmpty())
+                throw new RuntimeException("CallConfirmationLimit method not found");
+            return methodList.get(0).getMethodInstance(loader);
+        });
     }
 }
