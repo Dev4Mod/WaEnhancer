@@ -89,7 +89,7 @@
                             android:layout_marginStart="24dp"
                             android:layout_toEndOf="@id/status_icon"
                             android:fontFamily="sans-serif-medium"
-                            android:text="Modulo está ativado"
+                            android:text="@string/module_enabled"
                             android:textAppearance="?textAppearanceTitleMedium"
                             android:textColor="?colorOnPrimary"
                             android:textSize="16sp" />
@@ -100,7 +100,7 @@
                             android:layout_height="wrap_content"
                             android:layout_below="@id/status_title"
                             android:layout_alignStart="@id/status_title"
-                            android:text="Versão 1.0.0"
+                            android:text=""
                             android:textAppearance="?textAppearanceBodyMedium"
                             android:textColor="?colorOnPrimary" />
                     </RelativeLayout>
@@ -143,7 +143,7 @@
                             android:layout_toStartOf="@+id/reboot_btn"
                             android:layout_toEndOf="@id/status_icon2"
                             android:fontFamily="sans-serif-medium"
-                            android:text="Whatsapp em execução"
+                            android:text="@string/whatsapp_in_background"
                             android:textAppearance="?textAppearanceTitleMedium"
                             android:textColor="?colorOnPrimary"
                             android:textSize="16sp" />
@@ -154,7 +154,7 @@
                             android:layout_height="wrap_content"
                             android:layout_below="@id/status_title2"
                             android:layout_alignStart="@id/status_title2"
-                            android:text="Versão 2.24.7.79"
+                            android:text=""
                             android:textAppearance="?textAppearanceBodyMedium"
                             android:textColor="?colorOnPrimary" />
 
@@ -207,7 +207,7 @@
                             android:layout_toStartOf="@+id/reboot_btn2"
                             android:layout_toEndOf="@id/status_icon3"
                             android:fontFamily="sans-serif-medium"
-                            android:text="Whatsapp em execução"
+                            android:text="@string/business_in_background"
                             android:textAppearance="?textAppearanceTitleMedium"
                             android:textColor="?colorOnPrimary"
                             android:textSize="16sp" />
@@ -218,7 +218,7 @@
                             android:layout_height="wrap_content"
                             android:layout_below="@id/status_title3"
                             android:layout_alignStart="@id/status_title3"
-                            android:text="Versão 2.24.7.79"
+                            android:text=""
                             android:textAppearance="?textAppearanceBodyMedium"
                             android:textColor="?colorOnPrimary" />
 
@@ -290,59 +290,59 @@
                             style="@style/DeviceInfoDialogValue"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:text="33" />
+                            android:text="" />
 
                         <com.google.android.material.textview.MaterialTextView
                             style="@style/DeviceInfoDialogLabel"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:text="Device Name" />
+                            android:text="@string/device_name" />
 
                         <com.google.android.material.textview.MaterialTextView
                             android:id="@+id/device_name"
                             style="@style/DeviceInfoDialogValue"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:text="Asus" />
+                            android:text="" />
 
                         <com.google.android.material.textview.MaterialTextView
                             style="@style/DeviceInfoDialogLabel"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:text="Device Model" />
+                            android:text="@string/device_model" />
 
                         <com.google.android.material.textview.MaterialTextView
                             android:id="@+id/model_name"
                             style="@style/DeviceInfoDialogValue"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:text="ROG 6" />
+                            android:text="" />
 
                         <com.google.android.material.textview.MaterialTextView
                             style="@style/DeviceInfoDialogLabel"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:text="Whatsapp Supported List:" />
+                            android:text="@string/list_wpp" />
 
                         <com.google.android.material.textview.MaterialTextView
                             android:id="@+id/list_wpp"
                             style="@style/DeviceInfoDialogValue"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:text="24.7.7.79"
+                            android:text=""
                             android:gravity="center_vertical" />
 
                         <com.google.android.material.textview.MaterialTextView
                             style="@style/DeviceInfoDialogLabel"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:text="Business Supported List:" />
+                            android:text="@string/list_business" />
 
                         <com.google.android.material.textview.MaterialTextView
                             android:id="@+id/list_business"
                             style="@style/DeviceInfoDialogValue"
                             android:layout_width="match_parent"
-                            android:text="2.7.79.9"
+                            android:text=""
                             android:layout_height="wrap_content" />
 
                     </LinearLayout>
