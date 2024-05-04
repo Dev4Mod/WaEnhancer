@@ -7,8 +7,8 @@
     <string name="ghostmode_sum">Orang lain tidak akan mengetahui bahwa Anda sedang mengetik</string>
     <string name="ghostmode_r">Sembunyikan merekam audio</string>
     <string name="ghostmode_sum_r">Orang lain tidak akan mengetahui bahwa Anda sedang merekam audio</string>
-    <string name="hidetag">Sembunyikan tandai \"diteruskan\"</string>
-    <string name="hidetag_sum">Anda dapat meneruskan pesan tanpa tandai \"diteruskan\"</string>
+    <string name="hidetag">Sembunyikan tandai \"Diteruskan\"</string>
+    <string name="hidetag_sum">Anda dapat meneruskan pesan tanpa tandai \"Diteruskan\"</string>
     <string name="hidestatusview">Sembunyikan lihat status</string>
     <string name="hidestatusview_sum">Orang lain tidak akan mengetahui bahwa Anda telah melihat statusnya</string>
     <string name="hideread">Sembunyikan centang biru</string>
@@ -71,8 +71,8 @@ Saat diaktifkan, WhatsApp akan mulai ulang otomatis untuk menyimpan semua peruba
     <string name="novaconfig">Gaya pengaturan baru</string>
     <string name="novaconfig_sum">Aktifkan gaya pengaturan baru dengan foto profil di toolbar layar beranda</string>
     <string name="novahome_sum">Aktifkan gaya beranda baru dengan navigasi bawah</string>
-    <string name="novofiltro">Filter obrolan</string>
-    <string name="novofiltro_sum">Aktifkan filter asli obrolan, yang terletak di bagian atas layar beranda, memfilter kontak, bisnis, dan lainny</string>
+    <string name="novofiltro">Fungsi pencarian</string>
+    <string name="novofiltro_sum">Pilih antara ikon pencarian, bilah pencarian, atau tanpa pencarian</string>
     <string name="menuwicon">Ikon menu</string>
     <string name="menuwicon_sum">Tambahkan ikon pada opsi menu diaplikasi</string>
     <string name="strokebuttons">Tombol guratan</string>
@@ -83,7 +83,7 @@ Saat diaktifkan, WhatsApp akan mulai ulang otomatis untuk menyimpan semua peruba
     <string name="freezelastseen_sum">Waktu terakhir Anda terlihat akan dibekukan.
 (CATATAN: Anda tidak akan melihat pembaruan kehadiran apa pun dari pengguna lain, seperti mengetik, merekam, online)</string>
     <string name="removeforwardlimit_sum">Hapus batas penerusan pesan untuk 5 obrolan (normal) dan 1 obrolan (berkali-kali)</string>
-    <string name="removeforwardlimit">Hapus batas \"diteruskan\"</string>
+    <string name="removeforwardlimit">Hapus batas \"Diteruskan\"</string>
     <string name="forward">Teruskan</string>
     <string name="home">Layar Beranda</string>
     <string name="showname">Tampilkan nama</string>
@@ -126,7 +126,7 @@ Anda perlu mengaktifkan dan mengatur ulang kembali</string>
     <string name="call_blocker_sum">Blokir panggilan WhatsApp berdasarkan jenis privasi</string>
     <string name="show_online_dot_in_conversation_list">Tampilkan titik online</string>
     <string name="show_online_dot_in_conversation_list_sum">Tampilkan titik online berwarna hijau di layar beranda.
-(CATATAN: Harus mengaktifkan tampilkan online untuk semua orang di menu pengaturan privasi WhatsApp)</string>
+(CATATAN: Harus mengaktifkan \"Terakhir dilihat dan online\" untuk semua orang di menu setelan privasi WhatsApp)</string>
     <string name="show_dnd_button">Tampilkan tombol DND</string>
     <string name="show_dnd_button_sum">Tampilkan tombol mode DND di toolbar layar beranda</string>
     <string name="dev4mod">Dev4Mod (Penyumbang)</string>
@@ -158,7 +158,7 @@ Anda perlu mengaktifkan dan mengatur ulang kembali</string>
     <string name="hide_tabs_on_home">Sembunyikan tab di beranda</string>
     <string name="hide_tabs_on_home_sum">Sembunyikan tab di layar beranda seperti Pembaruan, Komunitas, Panggilan.</string>
     <string name="communities">Komunitas</string>
-    <string name="calls">"Panggilan "</string>
+    <string name="calls">Panggilan</string>
     <string name="updates">Pembaruan</string>
     <string name="about">Tentang</string>
     <string name="igstatus_on_home_screen">Aktifkan IGStatus di layar beranda</string>
@@ -195,7 +195,7 @@ Apakah Anda ingin mulai ulang WhatsApp?</string>
     <string name="do_you_want_to_send_sticker">Apakah Anda ingin mengirim stiker?</string>
     <string name="send_sticker">Kirim Stiker</string>
     <string name="enable_filter_chats">Aktifkan filter obrolan</string>
-    <string name="enable_filter_chats_sum">Tampilkan opsi untuk memfilter obrolan seperti: grup, kontak, dan pesan belum dibaca</string>
+    <string name="enable_filter_chats_sum">Tampilkan opsi filter obrolan dilayar beranda\n\"(Semua, Belum dibaca, Kontak, Grup)\"</string>
     <string name="disable_channels">Nonaktifkan saluran</string>
     <string name="disable_channels_sum">Nonaktifkan saluran dari tab Status.
 (CATATAN: Nonaktifkan IGStatus agar berfungsi!)</string>
@@ -224,4 +224,12 @@ Apakah Anda ingin mulai ulang WhatsApp?</string>
     <string name="selection_of_call_type_sum">Tampilkan opsi untuk memilih panggilan melalui telepon atau WhatsApp</string>
     <string name="yes">Ya</string>
     <string name="no">Tidak</string>
+    <string name="device_model">Model perangkat</string>
+    <string name="device_name">Nama perangkat</string>
+    <string name="disable_metaai">Nonaktifkan fungsi meta ai</string>
+    <string name="disable_metaai_sum">Nonaktifkan fungsi meta ai hanya bagi mereka yang diaktifkan secara default</string>
+    <string name="list_business">Versi WhatsApp Bisnis yang didukung:</string>
+    <string name="list_wpp">Versi WhatsApp yang didukung:</string>
+    <string name="title_image">Gambar</string>
+    <string name="title_video">Video</string>
 </resources>
