@@ -73,8 +73,8 @@
     <string name="novaconfig">New Settings Style</string>
     <string name="novaconfig_sum">Enable the new settings style, with profile photo on home screen toolbar</string>
     <string name="novahome_sum">Enable the new home style, with bottom navigation</string>
-    <string name="novofiltro">Filter Chats</string>
-    <string name="novofiltro_sum">Enable native filter chats located on the top of home screen, to filter by contacts, groups, unread and others</string>
+    <string name="novofiltro">Search Functions</string>
+    <string name="novofiltro_sum">Choose between Search Icon, Search Bar, or No Search</string>
     <string name="menuwicon">Menu Icons</string>
     <string name="menuwicon_sum">Add icons next to menu options across the app</string>
     <string name="strokebuttons">Buttons Stroke</string>
