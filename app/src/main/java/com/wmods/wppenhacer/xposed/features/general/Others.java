@@ -258,15 +258,15 @@ public class Others extends Feature {
         item.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
         item.setOnMenuItemClickListener(menuItem -> {
             if (!dndmode) {
-                new AlertDialog.Builder(home)
-                        .setTitle(ResId.string.dnd_mode_title)
-                        .setMessage(ResId.string.dnd_message)
-                        .setPositiveButton(ResId.string.activate, (dialog, which) -> {
+                new AlertDialogWpp(home)
+                        .setTitle(home.getString(ResId.string.dnd_mode_title))
+                        .setMessage(home.getString(ResId.string.dnd_message))
+                        .setPositiveButton(home.getString(ResId.string.activate), (dialog, which) -> {
                             shared.edit().putBoolean("dndmode", true).commit();
                             XposedBridge.log(String.valueOf(shared.getBoolean("dndmode", false)));
                             restartApp(home);
                         })
-                        .setNegativeButton(ResId.string.cancel, (dialog, which) -> dialog.dismiss())
+                        .setNegativeButton(home.getString(ResId.string.cancel), (dialog, which) -> dialog.dismiss())
                         .create().show();
                 return true;
             }
