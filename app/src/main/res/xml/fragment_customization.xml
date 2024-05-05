@@ -41,7 +41,7 @@
 
     <PreferenceCategory
         app:iconSpaceReserved="false"
-        app:title="@string/chat">
+        app:title="@string/conversation">
 
         <rikka.material.preference.MaterialSwitchPreference
             app:key="bubble_color"
@@ -65,7 +65,7 @@
 
     <PreferenceCategory
         app:iconSpaceReserved="false"
-        app:title="Home">
+        app:title="@string/home_screen">
 
         <rikka.material.preference.MaterialSwitchPreference
             app:key="strokebuttons"
@@ -90,7 +90,7 @@
     </PreferenceCategory>
 
     <PreferenceCategory
-        android:title="Status">
+        android:title="@string/status">
         <rikka.material.preference.MaterialSwitchPreference
             app:key="removechannel_rec"
             app:summary="@string/remove_channel_recomendations_sum"

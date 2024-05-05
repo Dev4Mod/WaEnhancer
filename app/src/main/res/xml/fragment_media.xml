@@ -2,7 +2,7 @@
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
-    <PreferenceCategory android:title="Image">
+    <PreferenceCategory android:title="@string/title_image">
 
         <rikka.material.preference.MaterialSwitchPreference
             app:key="imagequality"
@@ -29,7 +29,7 @@
 
     </PreferenceCategory>
 
-    <PreferenceCategory android:title="Video">
+    <PreferenceCategory android:title="@string/title_video">
 
         <rikka.material.preference.MaterialSwitchPreference
             app:key="videoquality"
