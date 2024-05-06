@@ -6,9 +6,14 @@ import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 
@@ -220,7 +225,28 @@ public class Others extends Feature {
                                 var context = view.getContext();
                                 var dialog = new AlertDialogWpp(view.getContext());
                                 dialog.setTitle(context.getString(ResId.string.send_sticker));
-                                dialog.setMessage(context.getString(ResId.string.do_you_want_to_send_sticker));
+
+                                var stickerView = (ImageView)((ViewGroup)view).getChildAt(0);
+                                LinearLayout linearLayout = new LinearLayout(context);
+                                linearLayout.setOrientation(LinearLayout.VERTICAL);
+                                linearLayout.setGravity(Gravity.CENTER_HORIZONTAL);
+                                var padding = Utils.dipToPixels(16);
+                                linearLayout.setPadding(padding, padding, padding, padding);
+                                var image = new ImageView(context);
+                                var size = Utils.dipToPixels(72);
+                                var params = new LinearLayout.LayoutParams(size, size);
+                                params.bottomMargin = padding;
+                                image.setLayoutParams(params);
+                                image.setImageDrawable(stickerView.getDrawable());
+                                linearLayout.addView(image);
+
+                                TextView text = new TextView(context);
+                                text.setText(context.getString(ResId.string.do_you_want_to_send_sticker));
+                                text.setTextAlignment(View.TEXT_ALIGNMENT_CENTER);
+                                linearLayout.addView(text);
+
+
+                                dialog.setView(linearLayout);
                                 dialog.setPositiveButton(context.getString(ResId.string.send), (dialog1, which) -> mCaptureOnClickListener.onClick(view));
                                 dialog.setNegativeButton(context.getString(ResId.string.cancel), null);
                                 dialog.show();
