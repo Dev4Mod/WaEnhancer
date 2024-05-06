@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_desc">Ein LSPosed-Modul um WhatsApp zu personalisieren</string>
+    <string name="app_desc">WhatsApp Enhancer Module</string>
     <string name="antirevoke">Gelöschte Nachrichten anzeigen</string>
     <string name="antirevoke_sum">Nachrichten werden für Sie nicht gelöscht</string>
     <string name="ghostmode">Schreiben verbergen</string>
@@ -8,7 +8,7 @@
     <string name="ghostmode_r">Sprachnachrichten aufnehmen verbergen</string>
     <string name="ghostmode_sum_r">Benutzer können nicht sehen, dass Sie eine Sprachnachricht aufnehmen</string>
     <string name="hidetag">Verstecke \'Weitergeleitet\' Tag</string>
-    <string name="hidetag_sum">Nachrichten werden ohne Tag weitergeleitet</string>
+    <string name="hidetag_sum">Nachrichten werden ohne Tag \"weitergeleitet\"</string>
     <string name="hidestatusview">Verberge Statusansicht</string>
     <string name="hidestatusview_sum">Status der Kontakte ansehen, ohne das jene darüber Kenntnis erlangen</string>
     <string name="hideread">Lesebestätigung deaktivieren</string>
@@ -33,7 +33,7 @@
     <string name="outros">Andere</string>
     <string name="antirevoke_title">Anti-Widerruf</string>
     <string name="privacy_title">Privatsphäre</string>
-    <string name="settings_title">"Einstellungen"</string>
+    <string name="settings_title">Einstellungen</string>
     <string name="autoreboot">Auto-Neustart</string>
     <string name="autoreboot_sum">Wenn aktiviert, wird sich WhatsApp nach jeder Änderung automatisch neustarten</string>
     <string name="xposedinit_error">Fehler beim Starten von LSPosed</string>
@@ -69,8 +69,8 @@
     <string name="novaconfig">Neuer Einstellungsstil</string>
     <string name="novaconfig_sum">Aktiviere den neuen Einstellungsstil, mit Profilfoto auf der Symbolleiste des Homescreens</string>
     <string name="novahome_sum">Aktiviere den neuen Home-Stil, mit der unteren Navigation</string>
-    <string name="novofiltro">Suche</string>
-    <string name="novofiltro_sum">Aktivieren sie die Suche auf dem Startbildschirm, um nach Kontakten, Bildern, Nachrichten usw. zu suchen</string>
+    <string name="novofiltro">Suchfunktion</string>
+    <string name="novofiltro_sum">Wählen Sie zwischen Suchsymbol, Suchleiste oder ohne Suche</string>
     <string name="menuwicon">Menüsymbole</string>
     <string name="menuwicon_sum">Symbole neben Menüoptionen in der gesamten App hinzufügen</string>
     <string name="strokebuttons">Schaltflächen Strich</string>
@@ -89,7 +89,7 @@
     <string name="showbio">Bio anzeigen</string>
     <string name="reset_preferences">Einstellungen zurücksetzen</string>
     <string name="reset_preferences_sum">Tippen Sie hier, um alle Einstellungen zurückzusetzen, die Sie in diesem Modul gesetzt haben</string>
-    <string name="reset_preferences_message">Diese Aktion wird alle gespeicherten Einstellungen im Modul zurücksetzen</string>
+    <string name="reset_preferences_message">Diese Aktion wird alle gespeicherten Einstellungen im Modul\nzurücksetzen (Hinweis: Sie müssen alle Schaltflächen erneut umschalten)</string>
     <string name="reset">Zurücksetzen</string>
     <string name="bubble_left">Linke Bubble</string>
     <string name="bubble_right">Rechte Bubble</string>
@@ -109,10 +109,10 @@
     <string name="imagequality_sum">Bilder in HD senden</string>
     <string name="downloadviewonce">Download \'Einmalige Ansicht\'</string>
     <string name="downloadviewonce_sum">Schaltfläche anzeigen, um einmalige Ansicht herunterzuladen</string>
-    <string name="separate_groups">Gruppen sind separat</string>
+    <string name="separate_groups">Registerkarten</string>
     <string name="separate_groups_sum">Trennen Sie Ihre Chats nach Gruppen, privaten Chats, Status, Anrufe, Gemeinschaften</string>
-    <string name="blueonreply">Sende blaue Haken nach Antwort</string>
-    <string name="blueonreply_sum">Sende blaue Haken erst nach Beantwortung einer Nachricht</string>
+    <string name="blueonreply">Sendet blaue Häkchen erst nach Antwort</string>
+    <string name="blueonreply_sum">Sende blaue Häkchen erst nach Beantwortung einer Nachricht\n(NOTE: \"Lesebestätigung deaktivieren\" muss aktiv sein)</string>
     <string name="hide_archived_chat">Archivierte Chats ausblenden</string>
     <string name="hide_archived_chat_sum">Archivierte Chats ausblenden und durch Drücken von WhatsApp Titel auf dem Startbildschirm anzeigen</string>
     <string name="hide_once_view_seen">Verstecke \"Gesehen\" von Einmalige Ansicht und Audio</string>
@@ -120,7 +120,7 @@
     <string name="call_blocker">Anrufe blockieren</string>
     <string name="call_blocker_sum">Blockiere WhatsApp Anrufe basierend auf den Einstellungen der Privatsphäre</string>
     <string name="show_online_dot_in_conversation_list">Optische online Anzeige</string>
-    <string name="show_online_dot_in_conversation_list_sum">Zeigt einen grünen Online-Punkt auf dem Startbildschirm (NOTE: Onlineanzeige muss für jeden in den WhatsApp\'s Privatsphäre-Einstellungen aktiviert sein)</string>
+    <string name="show_online_dot_in_conversation_list_sum">Zeigt einen grünen Online-Punkt auf dem Startbildschirm (NOTE: Onlineanzeige muss für jeden in den WhatsApp Privatsphäre-Einstellungen aktiviert sein)</string>
     <string name="show_dnd_button">Zeige DND Button</string>
     <string name="show_dnd_button_sum">Schaltfläche für DND auf der Symbolleiste anzeigen</string>
     <string name="dev4mod">Dev4Mod (Entwickler)</string>
@@ -152,7 +152,7 @@
     <string name="hide_tabs_on_home">Registerkarten</string>
     <string name="hide_tabs_on_home_sum">Ausblenden von Aktuelles, Chats, Gruppen oder Anrufe.</string>
     <string name="communities">Gruppen</string>
-    <string name="calls">"Aufrufe "</string>
+    <string name="calls">Aufrufe</string>
     <string name="updates">Aktualisierungen</string>
     <string name="about">Über</string>
     <string name="igstatus_on_home_screen">Aktiviere IGStatus auf dem Startbildschirm</string>
@@ -163,7 +163,7 @@
     <string name="remove_channel_recomendations">Kanalempfehlungen entfernen</string>
     <string name="remove_channel_recomendations_sum">Kanalempfehlungen vom Tab-Status entfernen</string>
     <string name="remove_see_more_button">Entferne \"Mehr anzeigen\"</string>
-    <string name="remove_see_more_button_">\'Mehr anzeigen\'-Button deaktivieren und alle langen Nachrichten anzeigen</string>
+    <string name="remove_see_more_button_">\"Mehr anzeigen\"-Button deaktivieren und alle Nachrichten komplett anzeigen</string>
     <string name="tools">Extras</string>
     <string name="title_home">Startseite</string>
     <string name="privacy">Privatsphäre</string>
@@ -176,11 +176,11 @@
     <string name="restart_wpp">Es ist notwendig, WhatsApp neu zu starten, damit die Änderungen in Wa Enhancer wirksam werden. Möchten Sie neu starten?</string>
     <string name="version_s_not_listed">Version %s nicht aufgeführt</string>
     <string name="media">Medien</string>
-    <string name="show_button_to_send_blue_tick">Schaltfläche zum Senden von blauem Häkchen anzeigen</string>
-    <string name="show_button_to_send_blue_tick_sum">Schaltfläche zum Senden von blauem Häkchen anzeigen</string>
-    <string name="send_blue_tick">Blue Tick senden</string>
+    <string name="show_button_to_send_blue_tick">Schaltfläche zum Senden von blauen Häkchen</string>
+    <string name="show_button_to_send_blue_tick_sum">Schaltfläche anzeigen, um blaues Häkchen zu senden (als gelesen markieren)</string>
+    <string name="send_blue_tick">Als Lesen/Gesehen markieren</string>
     <string name="business_in_background">Whatsapp Business im Hintergrund</string>
-    <string name="sending_read_blue_tick">Blaue Häkchen senden (gesehen/gelesen)</string>
+    <string name="sending_read_blue_tick">Sende blaue Häkchen (als gelesen/angesehen)</string>
     <string name="enable_facebook_style_for_status">Facebook-Stil für Status aktivieren</string>
     <string name="enable_facebook_style_for_status_sum">Ändere den ursprünglichen Status Stil zu Facebook Stil</string>
     <string name="send">Absenden</string>
@@ -192,27 +192,35 @@
     <string name="disable_channels_sum">Kanäle vom Tab Status deaktivieren (Beachte: IGStatus deaktivieren, damit es funktioniert!)</string>
     <string name="chat">Chat</string>
     <string name="change_bubble_colors">Bubble Farben ändern</string>
-    <string name="change_blubble_color_sum">Blubble Farbe im Chat ändern</string>
+    <string name="change_blubble_color_sum">Bubble Farbe auf dem Konversationsbildschirm ändern</string>
     <string name="default_color">Farbe #00000000 als Standardfarbe setzen</string>
-    <string name="enable_confirmation_to_send_sticker">Aktiviere Bestätigung, um Sticker zu senden</string>
+    <string name="enable_confirmation_to_send_sticker">Bestätigung vor dem Senden des Stickers</string>
     <string name="enable_confirmation_to_send_sticker_sum">Dialog vor dem Senden des Stickers anzeigen</string>
     <string name="local_download">Lokaler Download</string>
     <string name="increase_video_size_limit">Limit für Videogröße erhöhen</string>
     <string name="increase_video_size_limit_sum">Videogrößenlimit auf 90MB erhöhen</string>
-    <string name="send_video_in_real_resolution">Video in Originalauflösung senden</string>
+    <string name="send_video_in_real_resolution">Videos in Originalauflösung senden</string>
     <string name="send_video_in_real_resolution_sum">Senden Sie Videos in Originalauflösung für Status, Gruppe und Chats</string>
-    <string name="send_video_in_60fps">Video in 60 fps senden</string>
-    <string name="send_video_in_60fps_sum">Sende Video in 60 fps für Status, Gruppe und Chats</string>
+    <string name="send_video_in_60fps">Videos in 60 fps senden</string>
+    <string name="send_video_in_60fps_sum">Sende Videos in 60 fps für Status, Gruppe und Chats</string>
     <string name="status">Status</string>
     <string name="download_title">Herunterladen</string>
     <string name="seentick_menu">Zeige Schaltfläche im 3-Punkt-Menü</string>
-    <string name="seentick_screen">Schaltflächen im Bildschirm anzeigen</string>
+    <string name="seentick_screen">Schaltfläche im Bildschirm anzeigen</string>
     <string name="verbose_logs">Ausführliche Protokolle für Debugger aktivieren</string>
     <string name="phone_call">Telefon</string>
     <string name="whatsapp_call">WhatsApp</string>
     <string name="home_screen">Startseite</string>
-    <string name="selection_of_call_type">Anruf über</string>
-    <string name="selection_of_call_type_sum">Zeigt eine Option zum Auswählen zwischen Telefon- oder WhatsApp-Anruf an</string>
+    <string name="selection_of_call_type">Anruf über WhatsApp oder Telefon</string>
+    <string name="selection_of_call_type_sum">Zeigt vor dem Telefonat eine Option an, ob der Anruf über das Telefon oder WhatsApp geführt werden soll</string>
     <string name="yes">Ja</string>
     <string name="no">Nein</string>
+    <string name="device_model">Gerätemodell</string>
+    <string name="device_name">Hersteller</string>
+    <string name="disable_metaai">Meta Ai Funktionen deaktivieren</string>
+    <string name="disable_metaai_sum">Meta ai nur für diejenigen deaktivieren, die es standardmäßig aktiviert haben</string>
+    <string name="list_business">Unterstützte Business Versionen von WhatsApp:</string>
+    <string name="list_wpp">Unterstützte Versionen von WhatsApp:</string>
+    <string name="title_image">Bild</string>
+    <string name="title_video">Video</string>
 </resources>
