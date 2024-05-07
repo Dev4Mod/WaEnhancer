@@ -4,7 +4,7 @@ import android.webkit.MimeTypeMap;
 
 public class MimeTypeUtils {
     public static String getMimeTypeFromExtension(String url) {
-        String type = null;
+        String type = "";
         String extension = MimeTypeMap.getFileExtensionFromUrl(url);
         if (extension != null) {
             type = MimeTypeMap.getSingleton().getMimeTypeFromExtension(extension);
