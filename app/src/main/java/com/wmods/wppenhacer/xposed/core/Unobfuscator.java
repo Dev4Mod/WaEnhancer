@@ -1116,7 +1116,7 @@ public class Unobfuscator {
                     return field.getFieldInstance(loader);
                 }
             }
-            throw new RuntimeException("GetEditMessage method not found");
+            throw new RuntimeException("SetEditMessage method not found");
         });
     }
 
