@@ -8,17 +8,19 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.provider.DocumentsContract;
 import android.provider.MediaStore;
+import android.util.Log;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.Nullable;
+import androidx.preference.Preference;
 
 import com.wmods.wppenhacer.R;
 import com.wmods.wppenhacer.ui.fragments.base.BasePreFragment;
 
 public class MediaFragment extends BasePreFragment {
 
-
+    private final String TAG = "MediaFragment";
     private ActivityResultLauncher<Uri> mContract;
 
     @Override
