@@ -1,5 +1,6 @@
 package com.wmods.wppenhacer.ui.fragments;
 
+import android.annotation.SuppressLint;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -47,6 +48,7 @@ public class HomeFragment extends BaseFragment {
         }, intentFilter, ContextCompat.RECEIVER_EXPORTED);
     }
 
+    @SuppressLint("StringFormatInvalid")
     private void receiverBroadcastBusiness(Context context, Intent intent) {
         binding.statusTitle3.setText(R.string.business_in_background);
         var version = intent.getStringExtra("VERSION");

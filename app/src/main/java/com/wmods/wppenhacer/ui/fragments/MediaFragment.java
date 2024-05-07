@@ -15,6 +15,7 @@ import androidx.annotation.Nullable;
 
 import com.wmods.wppenhacer.R;
 import com.wmods.wppenhacer.ui.fragments.base.BasePreFragment;
+import com.wmods.wppenhacer.utils.RealPathUtil;
 
 public class MediaFragment extends BasePreFragment {
 
@@ -26,7 +27,8 @@ public class MediaFragment extends BasePreFragment {
         super.onCreate(savedInstanceState);
         mContract = registerForActivityResult(new ActivityResultContracts.OpenDocumentTree(), result -> {
             findPreference("localdownload").setSummary(getPathFromContentUri(result));
-            mPrefs.edit().putString("localdownload", getPathFromContentUri(result)).apply();
+            var realPath  = RealPathUtil.getRealPathFromURI_API19(getContext(), result);
+            mPrefs.edit().putString("localdownload", realPath).apply();
         });
     }
 
