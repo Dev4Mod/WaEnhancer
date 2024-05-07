@@ -159,7 +159,9 @@ public class ShowEditMessage extends Feature {
             int dip = Utils.dipToPixels(20);
             linearLayout.setPadding(dip, dip, dip, 0);
             Drawable bg = DesignUtils.createDrawable("rc_dialog_bg");
-            bg.setTint(DesignUtils.getPrimarySurfaceColor(ctx));
+            if (bg != null) {
+                bg.setTint(DesignUtils.getPrimarySurfaceColor(ctx));
+            }
             linearLayout.setBackground(bg);
 
             // Title View
@@ -204,8 +206,10 @@ public class ShowEditMessage extends Feature {
             linearLayout.addView(okButton);
             nestedScrollView0.addView(linearLayout);
             dialog.setContentView(nestedScrollView0);
-            dialog.getWindow().setBackgroundDrawable(new ColorDrawable(0x00000000));
-            dialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN);
+            if (dialog.getWindow() != null) {
+                dialog.getWindow().setBackgroundDrawable(new ColorDrawable(0x00000000));
+                dialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN);
+            }
             dialog.setCanceledOnTouchOutside(true);
             dialog.show();
         });

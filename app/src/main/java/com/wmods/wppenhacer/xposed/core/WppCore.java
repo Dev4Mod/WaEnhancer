@@ -6,6 +6,8 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.graphics.drawable.Drawable;
 
+import androidx.annotation.Nullable;
+
 import java.io.File;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
@@ -105,11 +107,14 @@ public class WppCore {
         return mContactManager;
     }
 
+    @Nullable
     public static String getContactName(Object userJid) {
         try {
             var contact = getContactMethod.invoke(mContactManager, userJid);
-            var stringField = Arrays.stream(contact.getClass().getDeclaredFields()).filter(f -> f.getType().equals(String.class)).toArray(Field[]::new);
-            return (String) stringField[3].get(contact);
+            if (contact != null) {
+                var stringField = Arrays.stream(contact.getClass().getDeclaredFields()).filter(f -> f.getType().equals(String.class)).toArray(Field[]::new);
+                return (String) stringField[3].get(contact);
+            }
         } catch (Exception e) {
             XposedBridge.log(e);
         }

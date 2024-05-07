@@ -110,9 +110,9 @@ public class DrawableColors {
         } else if (drawable instanceof InsetDrawable insetDrawable) {
             color = getInsetDrawableColor(insetDrawable);
         }
-        if (colors.get(IColors.toString(color)) == null) {
+//        if (colors.get(IColors.toString(color)) == null) {
 //            XposedBridge.log("(getColor) Color: " + IColors.toString(color) + " / Class: " + drawable.getClass());
-        }
+//        }
         return color;
     }
 
