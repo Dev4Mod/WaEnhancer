@@ -1,8 +1,6 @@
 package com.wmods.wppenhacer.xposed.features.general;
 
 
-import static com.wmods.wppenhacer.xposed.features.general.StatusDownload.getMimeTypeFromExtension;
-
 import android.annotation.SuppressLint;
 import android.content.SharedPreferences;
 import android.media.MediaScannerConnection;
@@ -17,6 +15,7 @@ import com.wmods.wppenhacer.xposed.core.ResId;
 import com.wmods.wppenhacer.xposed.core.Unobfuscator;
 import com.wmods.wppenhacer.xposed.core.Utils;
 import com.wmods.wppenhacer.xposed.core.Feature;
+import com.wmods.wppenhacer.xposed.utils.MimeTypeUtils;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -141,12 +140,9 @@ public class ViewOnce extends Feature {
                     in.close();
                     out.close();
 
-                    String[] parts = destination.split("\\.");
-                    String ext = parts[parts.length - 1].toLowerCase();
-
                     MediaScannerConnection.scanFile(Utils.getApplication(),
                             new String[]{destination},
-                            new String[]{getMimeTypeFromExtension(ext)},
+                            new String[]{MimeTypeUtils.getMimeTypeFromExtension(p.getAbsolutePath())},
                             (path, uri) -> {
                             });
 
