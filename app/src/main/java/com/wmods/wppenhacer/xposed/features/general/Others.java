@@ -130,22 +130,22 @@ public class Others extends Feature {
             }
         });
 
-        var homeActivity = findClass("com.whatsapp.HomeActivity", loader);
-        XposedHelpers.findAndHookMethod(homeActivity, "onCreateOptionsMenu", Menu.class, new XC_MethodHook() {
+        XposedHelpers.findAndHookMethod("com.whatsapp.HomeActivity",loader, "onCreateOptionsMenu", Menu.class, new XC_MethodHook() {
             @SuppressLint("ApplySharedPref")
             @Override
             protected void afterHookedMethod(MethodHookParam param) throws Throwable {
                 Menu menu = (Menu) param.args[0];
                 Activity home = (Activity) param.thisObject;
-                @SuppressLint({"UseCompatLoadingForDrawables", "DiscouragedApi"})
-                var iconDraw = DesignUtils.getDrawableByName("vec_account_switcher");
-                iconDraw.setTint(0xff8696a0);
-                var itemMenu = menu.add(0, 0, 0, ResId.string.restart_whatsapp).setIcon(iconDraw).setOnMenuItemClickListener(item -> {
-                    restartApp(home);
-                    return true;
-                });
-                if (newSettings) {
-                    itemMenu.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
+                if (prefs.getBoolean("restartbutton", true)) {
+                    var iconDraw = DesignUtils.getDrawableByName("vec_account_switcher");
+                    iconDraw.setTint(0xff8696a0);
+                    var itemMenu = menu.add(0, 0, 0, ResId.string.restart_whatsapp).setIcon(iconDraw).setOnMenuItemClickListener(item -> {
+                        restartApp(home);
+                        return true;
+                    });
+                    if (newSettings) {
+                        itemMenu.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
+                    }
                 }
                 if (showDnd) {
                     InsertDNDOption(menu, home);

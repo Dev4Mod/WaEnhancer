@@ -37,6 +37,18 @@
             app:summary="@string/default_color"
             app:title="@string/background_color" />
 
+        <MultiSelectListPreference
+            app:entries="@array/tabshide_contents"
+            app:entryValues="@array/tabshide_values"
+            app:key="hidetabs"
+            app:summary="@string/hide_tabs_on_home_sum"
+            app:title="@string/hide_tabs_on_home" />
+
+        <rikka.material.preference.MaterialSwitchPreference
+            app:key="igstatus"
+            app:summary="@string/igstatus_on_home_screen_sum"
+            app:title="@string/igstatus_on_home_screen" />
+
     </PreferenceCategory>
 
     <PreferenceCategory
@@ -95,11 +107,6 @@
             app:key="removechannel_rec"
             app:summary="@string/remove_channel_recomendations_sum"
             app:title="@string/remove_channel_recomendations" />
-
-        <rikka.material.preference.MaterialSwitchPreference
-            app:key="igstatus"
-            app:summary="@string/igstatus_on_home_screen_sum"
-            app:title="@string/igstatus_on_home_screen" />
 
         <rikka.material.preference.MaterialSwitchPreference
             app:key="fbstyle"

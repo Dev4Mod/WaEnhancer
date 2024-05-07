@@ -183,8 +183,9 @@ public class MainFeatures {
                 GhostMode.class,
                 HideArchive.class,
                 HideReceipt.class,
-                HideTagForward.class,
                 HideSeen.class,
+                HideTagForward.class,
+                HideTabs.class,
                 IGStatus.class,
                 MediaQuality.class,
                 NewChat.class,
@@ -194,7 +195,6 @@ public class MainFeatures {
                 ShareLimit.class,
                 StatusDownload.class,
                 ViewOnce.class,
-                HideTabs.class,
                 CallType.class
         };
 

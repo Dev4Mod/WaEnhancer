@@ -20,6 +20,7 @@ public class CallPrivacy extends Feature {
         super(loader, preferences);
     }
 
+    /** @noinspection unchecked*/
     @Override
     public void doHook() throws Throwable {
 
@@ -31,7 +32,6 @@ public class CallPrivacy extends Feature {
             @Override
             protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
                 Object callinfo = ((Message) param.args[0]).obj;
-                logDebug("callinfo: " + callinfo);
                 Class<?> callInfoClass = XposedHelpers.findClass("com.whatsapp.voipcalling.CallInfo", loader);
                 if (callinfo == null || !callInfoClass.isInstance(callinfo)) return;
                 if ((boolean) XposedHelpers.callMethod(callinfo, "isCaller")) return;

@@ -35,11 +35,11 @@ import de.robv.android.xposed.XposedHelpers;
 
 public class SeparateGroup extends Feature {
 
-    public final int CHATS = 200;
-    public final int STATUS = 300;
-    public final int CALLS = 400;
-    public final int COMMUNITY = 600;
-    public final int GROUPS = 500;
+    public static final int CHATS = 200;
+    public static final int STATUS = 300;
+    public static final int CALLS = 400;
+    public static final int COMMUNITY = 600;
+    public static final int GROUPS = 500;
     public static ArrayList<Integer> tabs = new ArrayList<>();
     public static HashMap<Integer, Object> tabInstances = new HashMap<>();
 
