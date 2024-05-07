@@ -13,6 +13,7 @@ import com.wmods.wppenhacer.xposed.core.ResId;
 import com.wmods.wppenhacer.xposed.core.Unobfuscator;
 import com.wmods.wppenhacer.xposed.core.Utils;
 import com.wmods.wppenhacer.xposed.core.Feature;
+import com.wmods.wppenhacer.xposed.utils.MimeTypeUtils;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -21,7 +22,6 @@ import java.io.IOException;
 import java.lang.reflect.Field;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Set;
 
 import de.robv.android.xposed.XC_MethodHook;
 import de.robv.android.xposed.XSharedPreferences;
@@ -95,7 +95,7 @@ public class StatusDownload extends Feature {
         return "Download Status";
     }
 
-    private static boolean copyFile(SharedPreferences prefs, File file) {
+    private boolean copyFile(SharedPreferences prefs, File file) {
         if (file == null || !file.exists()) return false;
 
         var destination = getPathDestination(prefs, file);
@@ -109,12 +109,9 @@ public class StatusDownload extends Feature {
                     in.close();
                     out.close();
 
-                    String[] parts = destination.split("\\.");
-                    String ext = parts[parts.length - 1].toLowerCase();
-
                     MediaScannerConnection.scanFile(Utils.getApplication(),
                             new String[]{destination},
-                            new String[]{getMimeTypeFromExtension(ext)},
+                            new String[]{MimeTypeUtils.getMimeTypeFromExtension(file.getAbsolutePath())},
                             (path, uri) -> {
                             });
 
@@ -129,60 +126,28 @@ public class StatusDownload extends Feature {
     }
 
     @NonNull
-    private static String getPathDestination(SharedPreferences sharedPreferences, @NonNull File f) {
-        var filePath = f.getAbsolutePath();
-        var isVideo = false;
-        var isImage = false;
-        var isAudio = false;
+    private String getPathDestination(SharedPreferences sharedPreferences, @NonNull File f) {
+        var fileName = f.getName().toLowerCase();
 
-        Set<String> videoFormats = Set.of("3gp", "mp4", "mkv", "avi", "wmv", "flv", "mov", "webm", "ts", "m4v", "divx", "xvid", "mpg", "mpeg", "mpg2", "ogv", "vob", "f4v", "asf");
-        Set<String> imageFormats = Set.of("jpeg", "jpg", "png", "gif", "bmp", "webp", "heif", "tiff", "raw", "svg", "eps", "ai");
-        Set<String> audioFormats = Set.of("mp3", "wav", "ogg", "m4a", "aac", "flac", "amr", "wma", "opus", "mid", "xmf", "rtttl", "rtx", "ota", "imy", "mpga", "ac3", "ec3", "eac3");
-
-        String extension = filePath.substring(filePath.lastIndexOf(".") + 1).toLowerCase();
-
-        if (videoFormats.contains(extension)) {
-            isVideo = true;
-        } else if (imageFormats.contains(extension)) {
-            isImage = true;
-        } else if (audioFormats.contains(extension)) {
-            isAudio = true;
-        }
-
-        String folderPath = getStatusFolderPath(sharedPreferences, isVideo, isImage, isAudio);
-
-        var mediaPath = new File(folderPath);
-
+        var mediaPath = getStatusFolderPath(sharedPreferences, MimeTypeUtils.getMimeTypeFromExtension(fileName));
         if (!mediaPath.exists())
             mediaPath.mkdirs();
 
-        return mediaPath.getAbsolutePath() + "/" + f.getName();
+        return mediaPath + "/" + f.getName();
     }
 
     @NonNull
-    private static String getStatusFolderPath(SharedPreferences sharedPreferences, boolean isVideo, boolean isImage, boolean isAudio) {
-        String folderPath = sharedPreferences.getString("localdownload", Environment.getExternalStorageDirectory().getAbsolutePath()+"/Download");
-        if (isVideo) {
+    private File getStatusFolderPath(SharedPreferences sharedPreferences, @NonNull String mimeType) {
+        String folderPath = sharedPreferences.getString("localdownload", Environment.getExternalStorageDirectory().getAbsolutePath() + "/Download");
+        if (mimeType.contains("video")) {
             folderPath += "/WhatsApp/Wa Enhancer/Status Videos/";
-        } else if (isImage) {
+        } else if (mimeType.contains("image")) {
             folderPath += "/WhatsApp/Wa Enhancer/Status Images/";
-        } else if (isAudio) {
+        } else if (mimeType.contains("audio")) {
             folderPath += "/WhatsApp/Wa Enhancer/Status Sounds/";
         } else {
             folderPath += "/WhatsApp/Wa Enhancer/Status Media/";
         }
-        return folderPath;
-    }
-
-    public static String getMimeTypeFromExtension(String extension) {
-        return switch (extension) {
-            case "3gp", "mp4", "mkv", "avi", "wmv", "flv", "mov", "webm", "ts", "m4v", "divx", "xvid", "mpg", "mpeg", "mpg2", "ogv", "vob", "f4v", "asf" ->
-                    "video/*";
-            case "jpeg", "jpg", "png", "gif", "bmp", "webp", "heif", "tiff", "raw", "svg", "eps", "ai" ->
-                    "image/*";
-            case "mp3", "wav", "ogg", "m4a", "aac", "flac", "amr", "wma", "opus", "mid", "xmf", "rtttl", "rtx", "ota", "imy", "mpga", "ac3", "ec3", "eac3" ->
-                    "audio/*";
-            default -> "*/*";
-        };
+        return new File(folderPath);
     }
 }
