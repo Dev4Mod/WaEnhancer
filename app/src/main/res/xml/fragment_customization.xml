@@ -49,6 +49,11 @@
             app:summary="@string/igstatus_on_home_screen_sum"
             app:title="@string/igstatus_on_home_screen" />
 
+        <rikka.material.preference.MaterialSwitchPreference
+            app:key="topnav"
+            app:summary="@string/enable_top_navigation_sum"
+            app:title="@string/enable_top_navigation" />
+
     </PreferenceCategory>
 
     <PreferenceCategory

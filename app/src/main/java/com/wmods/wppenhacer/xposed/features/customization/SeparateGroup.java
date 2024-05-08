@@ -156,6 +156,7 @@ public class SeparateGroup extends Feature {
                 if (superClass != null && superClass == iconTabMethod.getDeclaringClass()) {
                     var field1 = superClass.getDeclaredField(iconField.getName()).get(param.thisObject);
                     var field2 = getObjectField(field1, iconFrameField.getName());
+                    if (field2 == null) return;
                     var menu = (Menu) getObjectField(field2, iconMenuField.getName());
                     if (menu == null) return;
                     // add Icon to menu

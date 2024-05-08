@@ -73,6 +73,7 @@ public class Others extends Feature {
         var channels = prefs.getBoolean("channels", false);
         var igstatus = prefs.getBoolean("igstatus", false);
         var metaai = prefs.getBoolean("metaai", false);
+        var topnav = prefs.getBoolean("topnav", false);
 
         propsBoolean.put(5171, filterSeen); // filtros de chat e grupos
         propsBoolean.put(4524, novoTema);
@@ -83,6 +84,8 @@ public class Others extends Feature {
         propsBoolean.put(5509, outlinedIcons);
         propsBoolean.put(2358, false);
         propsBoolean.put(7516, fbstyle);
+        propsBoolean.put(3289, !topnav);
+        propsBoolean.put(4656, !topnav);
         if (metaai) {
             propsBoolean.put(8025, false);
             propsBoolean.put(6251, false);
