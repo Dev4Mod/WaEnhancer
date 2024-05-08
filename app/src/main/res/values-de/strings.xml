@@ -223,10 +223,16 @@
     <string name="list_wpp">Unterstützte Versionen von WhatsApp:</string>
     <string name="title_image">Bild</string>
     <string name="title_video">Video</string>
-    <string name="enable_new_chat_button">Enable New Chat Button</string>
-    <string name="enable_new_chat_button_sum">Add button in Home Screen to start new chat</string>
-    <string name="enable_restart_button">Enable Restart Button</string>
-    <string name="enable_restart_button_sum">Add button in Home Screen to Restart App</string>
-    <string name="toast_on_delete">Show toast notification on delete message</string>
-    <string name="toast_on_delete_sum">Show toast notification if any contact deletes any message</string>
+    <string name="enable_new_chat_button">Neuen Chat-Button aktivieren</string>
+    <string name="enable_new_chat_button_sum">Schaltfläche im Startbildschirm hinzufügen, um einen neuen Chat zu starten</string>
+    <string name="enable_restart_button">Neustart-Schaltfläche aktivieren</string>
+    <string name="enable_restart_button_sum">Schaltfläche im Startbildschirm hinzufügen, um einen neuen Chat zu starten</string>
+    <string name="toast_on_delete">Zeige Toast-Benachrichtigung beim Löschen der Nachricht</string>
+    <string name="toast_on_delete_sum">Zeige Toast-Benachrichtigung, wenn ein Kontakt eine Nachricht löscht</string>
+    <string name="enable_top_navigation">Top Navigation aktivieren</string>
+    <string name="enable_top_navigation_sum">Aktiviere die alte Navigationsleiste (oben auf den Tabs)</string>
+    <string name="hideread_group">Blaue Häkchen in Gruppen ausblenden</string>
+    <string name="hideread_group_sum">Nachrichten innerhalb des Chat-Bildschirms anzeigen, ohne das Kontakte informiert werden</string>
+    <string name="time_limit_on_status_video">Zeitlimit für Statusvideo erhöhen</string>
+    <string name="time_limit_on_status_video_sum">Zeitlimit für Statusvideos von 30 Sekunden auf 1 Minute erhöhen (für alle)</string>
 </resources>

@@ -224,10 +224,16 @@
     <string name="list_wpp">Versi WhatsApp yang Didukung:</string>
     <string name="title_image">Gambar</string>
     <string name="title_video">Video</string>
-    <string name="enable_new_chat_button">Enable New Chat Button</string>
-    <string name="enable_new_chat_button_sum">Add button in Home Screen to start new chat</string>
-    <string name="enable_restart_button">Enable Restart Button</string>
-    <string name="enable_restart_button_sum">Add button in Home Screen to Restart App</string>
-    <string name="toast_on_delete">Show toast notification on delete message</string>
-    <string name="toast_on_delete_sum">Show toast notification if any contact deletes any message</string>
+    <string name="enable_new_chat_button">Tampilkan Tombol Obrolan Baru</string>
+    <string name="enable_new_chat_button_sum">Tampilkan tombol di layar beranda untuk memulai obrolan baru</string>
+    <string name="enable_restart_button">Tampilkan Tombol Mulai Ulang</string>
+    <string name="enable_restart_button_sum">Tampilkan tombol di layar beranda untuk memulai ulang aplikasi</string>
+    <string name="toast_on_delete">Tampilkan Notifikasi Mengambang Saat Pesan Dihapus</string>
+    <string name="toast_on_delete_sum">Tampilkan notifikasi mengambang jika ada kontak yang menghapus pesan</string>
+    <string name="enable_top_navigation">Aktifkan Navigasi Atas</string>
+    <string name="enable_top_navigation_sum">Aktifkan bilah navigasi lama (tab di bagian atas)</string>
+    <string name="hideread_group">Hide Blue Tick in Groups</string>
+    <string name="hideread_group_sum">View messages in groups screen without users knowing</string>
+    <string name="time_limit_on_status_video">Increase time limit on status video</string>
+    <string name="time_limit_on_status_video_sum">Increase time limit on status videos from 30 seconds to 1 minute (for everyone)</string>
 </resources>

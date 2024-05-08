@@ -229,4 +229,10 @@
     <string name="enable_restart_button_sum">Adicione o botão na Tela inicial para reiniciar o aplicativo</string>
     <string name="toast_on_delete">Mostrar notificação toast ao excluir mensagem</string>
     <string name="toast_on_delete_sum">Mostrar notificação toast se qualquer contato excluir qualquer mensagem</string>
+    <string name="enable_top_navigation">Habilitar Navegação Superior</string>
+    <string name="enable_top_navigation_sum">Ativar a antiga barra de navegação (na parte superior das abas)</string>
+    <string name="hideread_group">Esconder o Marcador Azul nos Grupos</string>
+    <string name="hideread_group_sum">Visualizar mensagens na tela de grupos sem que os usuários saibam</string>
+    <string name="time_limit_on_status_video">Aumentar tempo limite no vídeo de status</string>
+    <string name="time_limit_on_status_video_sum">Aumente o limite de tempo dos vídeos de status de 30 segundos para 1 minuto (para todos)</string>
 </resources>

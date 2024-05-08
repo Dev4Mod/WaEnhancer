@@ -223,10 +223,16 @@
     <string name="list_wpp">WhatsApp Desteklenenler Listesi:</string>
     <string name="title_image">Resim</string>
     <string name="title_video">Video</string>
-    <string name="enable_new_chat_button">Enable New Chat Button</string>
-    <string name="enable_new_chat_button_sum">Add button in Home Screen to start new chat</string>
-    <string name="enable_restart_button">Enable Restart Button</string>
-    <string name="enable_restart_button_sum">Add button in Home Screen to Restart App</string>
-    <string name="toast_on_delete">Show toast notification on delete message</string>
-    <string name="toast_on_delete_sum">Show toast notification if any contact deletes any message</string>
+    <string name="enable_new_chat_button">Yeni Sohbet Düğmesini Etkinleştir</string>
+    <string name="enable_new_chat_button_sum">Yeni sohbet başlatmak için Ana Ekrana düğme ekle</string>
+    <string name="enable_restart_button">Yeniden Başlat Düğmesini Etkinleştir</string>
+    <string name="enable_restart_button_sum">Uygulamayı Yeniden Başlatmak için Ana Ekrana Düğme Ekle</string>
+    <string name="toast_on_delete">Mesaj silindiğinde tost bildirimini göster</string>
+    <string name="toast_on_delete_sum">Herhangi bir kişi herhangi bir mesajı sildiğinde tost bildirimini göster</string>
+    <string name="enable_top_navigation">Üst Gezinti Çubuğunu Etkinleştir</string>
+    <string name="enable_top_navigation_sum">Eski gezinti çubuğunu etkinleştir (sekmelerin en üstünde)</string>
+    <string name="hideread_group">Hide Blue Tick in Groups</string>
+    <string name="hideread_group_sum">View messages in groups screen without users knowing</string>
+    <string name="time_limit_on_status_video">Increase time limit on status video</string>
+    <string name="time_limit_on_status_video_sum">Increase time limit on status videos from 30 seconds to 1 minute (for everyone)</string>
 </resources>

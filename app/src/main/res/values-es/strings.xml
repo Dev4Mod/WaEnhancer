@@ -223,10 +223,16 @@
     <string name="list_wpp">Lista de WhatsApp Soportados:</string>
     <string name="title_image">Imagen</string>
     <string name="title_video">Video</string>
-    <string name="enable_new_chat_button">Enable New Chat Button</string>
-    <string name="enable_new_chat_button_sum">Add button in Home Screen to start new chat</string>
-    <string name="enable_restart_button">Enable Restart Button</string>
-    <string name="enable_restart_button_sum">Add button in Home Screen to Restart App</string>
-    <string name="toast_on_delete">Show toast notification on delete message</string>
-    <string name="toast_on_delete_sum">Show toast notification if any contact deletes any message</string>
+    <string name="enable_new_chat_button">Activar nuevo botón de chat</string>
+    <string name="enable_new_chat_button_sum">Añadir botón en la pantalla de inicio para iniciar un nuevo chat</string>
+    <string name="enable_restart_button">Activar botón de reinicio</string>
+    <string name="enable_restart_button_sum">Añadir botón en la pantalla de inicio para reiniciar la aplicación</string>
+    <string name="toast_on_delete">Mostrar notificación cuando eliminan un mensaje</string>
+    <string name="toast_on_delete_sum">Mostrar notificación si algún contacto borra cualquier mensaje</string>
+    <string name="enable_top_navigation">Habilitar navegación arriba</string>
+    <string name="enable_top_navigation_sum">Activar la antigua barra de navegación (arriba de las pestañas)</string>
+    <string name="hideread_group">Ocultar Tick azul (leído) en grupos</string>
+    <string name="hideread_group_sum">Ver los mensajes de los grupos sin que los demás usuarios se den cuenta que lo haz leído</string>
+    <string name="time_limit_on_status_video">Aumenta el límite de tiempo en el vídeo de estado</string>
+    <string name="time_limit_on_status_video_sum">Aumenta el límite de tiempo en los vídeos de estado de 30 segundos a 1 minuto (para todos)</string>
 </resources>
