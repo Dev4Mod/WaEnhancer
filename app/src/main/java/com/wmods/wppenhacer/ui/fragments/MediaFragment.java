@@ -3,6 +3,7 @@ package com.wmods.wppenhacer.ui.fragments;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
+import android.util.Log;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
@@ -26,7 +27,7 @@ public class MediaFragment extends BasePreFragment {
             var realPath  = RealPathUtil.getRealPathFromURI_API19(getContext(), result);
             Preference preference = findPreference("localdownload");
             if (preference != null) {
-                preference.setSummary(getPathFromContentUri(result));
+                preference.setSummary(realPath);
             }
             mPrefs.edit().putString("localdownload", realPath).apply();
         });
