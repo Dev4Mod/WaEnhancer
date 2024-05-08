@@ -1293,6 +1293,15 @@ public class Unobfuscator {
         });
     }
 
+    public static Class loadOnMenuItemClickClass2(ClassLoader loader) throws Exception {
+        return UnobfuscatorCache.getInstance().getClass(loader, () -> {
+            var clazz = findFirstClassUsingStrings(loader, StringMatchType.Contains, "flash_call_retry_dialog");
+            if (clazz == null) throw new RuntimeException("OnMenuItemClick class not found");
+            return clazz;
+        });
+    }
+
+
     public static Class loadRemoveChannelRecClass(ClassLoader loader) throws Exception {
         return UnobfuscatorCache.getInstance().getClass(loader, () -> {
             var clazz = findFirstClassUsingStrings(loader, StringMatchType.Contains, "RecommendedNewslettersListDataItem(recommendedNewsletters=");

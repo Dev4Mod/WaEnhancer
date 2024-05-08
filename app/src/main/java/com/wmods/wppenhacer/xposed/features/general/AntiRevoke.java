@@ -224,6 +224,7 @@ public class AntiRevoke extends Feature {
         }
     }
 
+    @SuppressLint("ResourceType")
     private int antiRevoke(Object objMessage) {
         var messageKey = (String) XposedHelpers.getObjectField(objMessage, "A01");
         var stripJID = stripJID(getJidAuthor(objMessage));
@@ -243,6 +244,7 @@ public class AntiRevoke extends Feature {
                                 if (mConversation.hasWindowFocus()) {
                                     mConversation.startActivity(mConversation.getIntent());
                                     mConversation.overridePendingTransition(0, 0);
+                                    mConversation.getWindow().getDecorView().findViewById(android.R.id.content).postInvalidate();
                                 } else {
                                     mConversation.recreate();
                                 }
