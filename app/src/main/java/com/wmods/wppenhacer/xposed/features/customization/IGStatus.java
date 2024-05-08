@@ -118,7 +118,6 @@ public class IGStatus extends Feature {
         XposedBridge.hookMethod(onMenuItemSelected, new XC_MethodHook() {
             @Override
             protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
-                log(new Exception());
                 if (!Unobfuscator.isCalledFromClass(clazz) && !Unobfuscator.isCalledFromClass(onMenuItemClick2) && !Unobfuscator.isCalledFromClass(onMenuItemClick))
                     return;
                 var index = (int) param.args[0];
