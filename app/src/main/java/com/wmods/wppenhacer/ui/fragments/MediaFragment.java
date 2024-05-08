@@ -24,7 +24,7 @@ public class MediaFragment extends BasePreFragment {
         mContract = registerForActivityResult(new ActivityResultContracts.OpenDocumentTree(), result -> {
             if (result == null) return;
             var realPath  = RealPathUtil.getRealPathFromURI_API19(getContext(), result);
-            Preference preference = findPreference("localdownload")
+            Preference preference = findPreference("localdownload");
             if (preference != null) {
                 preference.setSummary(getPathFromContentUri(result));
             }
