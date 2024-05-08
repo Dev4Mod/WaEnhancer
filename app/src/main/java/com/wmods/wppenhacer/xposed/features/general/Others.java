@@ -1,7 +1,5 @@
 package com.wmods.wppenhacer.xposed.features.general;
 
-import static de.robv.android.xposed.XposedHelpers.findClass;
-
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;

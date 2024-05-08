@@ -49,6 +49,7 @@ import java.util.stream.Collectors;
 import de.robv.android.xposed.XposedBridge;
 import de.robv.android.xposed.XposedHelpers;
 
+/** @noinspection SimplifyOptionalCallChains*/
 public class Unobfuscator {
 
     private static DexKitBridge dexkit;
@@ -57,7 +58,7 @@ public class Unobfuscator {
     public static final String BUBBLE_COLORS_BALLOON_INCOMING_NORMAL_EXT = "balloon_incoming_normal_ext";
     public static final String BUBBLE_COLORS_BALLOON_OUTGOING_NORMAL = "balloon_outgoing_normal";
     public static final String BUBBLE_COLORS_BALLOON_OUTGOING_NORMAL_EXT = "balloon_outgoing_normal_ext";
-    public static final HashMap<String, Object> cache = new HashMap();
+    public static final HashMap cache = new HashMap();
 
     static {
         System.loadLibrary("dexkit");
@@ -606,6 +607,7 @@ public class Unobfuscator {
     }
 
 
+
     public static Method loadViewOnceDownloadMenuMethod(ClassLoader classLoader) throws Exception {
         return UnobfuscatorCache.getInstance().getMethod(classLoader, () -> {
             var clazz = XposedHelpers.findClass("com.whatsapp.mediaview.MediaViewFragment", classLoader);
@@ -717,13 +719,13 @@ public class Unobfuscator {
         });
     }
 
-    public static Method loadPropsStringMethod(ClassLoader loader) throws Exception {
-        return UnobfuscatorCache.getInstance().getMethod(loader, () -> {
-            var method = findFirstMethodUsingStrings(loader, StringMatchType.Contains, "Unknown StringField");
-            if (method == null) throw new Exception("Props method not found");
-            return method;
-        });
-    }
+//    public static Method loadPropsStringMethod(ClassLoader loader) throws Exception {
+//        return UnobfuscatorCache.getInstance().getMethod(loader, () -> {
+//            var method = findFirstMethodUsingStrings(loader, StringMatchType.Contains, "Unknown StringField");
+//            if (method == null) throw new Exception("Props method not found");
+//            return method;
+//        });
+//    }
 
 
     private static ClassData loadAntiRevokeImplClass() throws Exception {
@@ -1063,7 +1065,7 @@ public class Unobfuscator {
     public static Method loadNewMessageMethod(ClassLoader loader) throws Exception {
         return UnobfuscatorCache.getInstance().getMethod(loader, () -> {
             var clazzMessage = loadThreadMessageClass(loader);
-            var methodData = dexkit.findMethod(new FindMethod().searchInClass(List.of(dexkit.getClassData(clazzMessage))).matcher(new MethodMatcher().addUsingString("\n").returnType(String.class)));
+            var methodData = dexkit.findMethod(new FindMethod().searchInClass(List.of(Objects.requireNonNull(dexkit.getClassData(clazzMessage)))).matcher(new MethodMatcher().addUsingString("\n").returnType(String.class)));
             if (methodData.isEmpty()) throw new RuntimeException("NewMessage method not found");
             return methodData.get(0).getMethodInstance(loader);
         });
@@ -1072,9 +1074,9 @@ public class Unobfuscator {
     public static Method loadNewMessageWithMediaMethod(ClassLoader loader) throws Exception {
         return UnobfuscatorCache.getInstance().getMethod(loader, () -> {
             var clazzMessage = loadThreadMessageClass(loader);
-            var methodData = dexkit.findMethod(new FindMethod().searchInClass(List.of(dexkit.getClassData(clazzMessage))).matcher(new MethodMatcher().addUsingNumber(0x200000).returnType(String.class)));
+            var methodData = dexkit.findMethod(new FindMethod().searchInClass(List.of(Objects.requireNonNull(dexkit.getClassData(clazzMessage)))).matcher(new MethodMatcher().addUsingNumber(0x200000).returnType(String.class)));
             if (methodData.isEmpty()) {
-                methodData = dexkit.findMethod(new FindMethod().searchInClass(List.of(dexkit.getClassData(clazzMessage))).matcher(new MethodMatcher().addUsingString("video").returnType(String.class)));
+                methodData = dexkit.findMethod(new FindMethod().searchInClass(List.of(Objects.requireNonNull(dexkit.getClassData(clazzMessage)))).matcher(new MethodMatcher().addUsingString("video").returnType(String.class)));
                 if (methodData.isEmpty())
                     throw new RuntimeException("NewMessageWithMedia method not found");
             }
@@ -1093,10 +1095,11 @@ public class Unobfuscator {
     public static Method loadGetEditMessageMethod(ClassLoader loader) throws Exception {
         return UnobfuscatorCache.getInstance().getMethod(loader, () -> {
             var method = findFirstMethodUsingStrings(loader, StringMatchType.Contains, "MessageEditInfoStore/insertEditInfo/missing");
+            if (method == null) throw new RuntimeException("GetEditMessage method not found");
             var methodData = dexkit.getMethodData(DexSignUtil.getMethodDescriptor(method));
             var invokes = methodData.getInvokes();
             for (var invoke : invokes) {
-                if (invoke.getParamTypes().isEmpty() && invoke.getDeclaredClass().equals(methodData.getParamTypes().get(0))) {
+                if (invoke.getParamTypes().isEmpty() && Objects.equals(invoke.getDeclaredClass(), methodData.getParamTypes().get(0))) {
                     return invoke.getMethodInstance(loader);
                 }
             }

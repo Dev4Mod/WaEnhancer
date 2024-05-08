@@ -42,7 +42,7 @@ public class HomeFragment extends BaseFragment {
                         receiverBroadcastWpp(context, intent);
                     else
                         receiverBroadcastBusiness(context, intent);
-                } catch (Exception e) {
+                } catch (Exception ignored) {
                 }
             }
         }, intentFilter, ContextCompat.RECEIVER_EXPORTED);
