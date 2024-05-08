@@ -12,6 +12,8 @@ import android.widget.AdapterView;
 import android.widget.ListAdapter;
 import android.widget.Scroller;
 
+import androidx.annotation.NonNull;
+
 import java.util.LinkedList;
 import java.util.Queue;
 
@@ -289,18 +291,18 @@ public class HorizontalListView extends AdapterView<ListAdapter> {
     private final GestureDetector.OnGestureListener mOnGesture = new GestureDetector.SimpleOnGestureListener() {
 
         @Override
-        public boolean onDown(MotionEvent e) {
+        public boolean onDown(@NonNull MotionEvent e) {
             return HorizontalListView.this.onDown(e);
         }
 
         @Override
-        public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX,
+        public boolean onFling(MotionEvent e1, @NonNull MotionEvent e2, float velocityX,
                                float velocityY) {
             return HorizontalListView.this.onFling(e1, e2, velocityX, velocityY);
         }
 
         @Override
-        public boolean onScroll(MotionEvent e1, MotionEvent e2,
+        public boolean onScroll(MotionEvent e1, @NonNull MotionEvent e2,
                                 float distanceX, float distanceY) {
 
             getParent().requestDisallowInterceptTouchEvent(true);
@@ -314,7 +316,7 @@ public class HorizontalListView extends AdapterView<ListAdapter> {
         }
 
         @Override
-        public boolean onSingleTapConfirmed(MotionEvent e) {
+        public boolean onSingleTapConfirmed(@NonNull MotionEvent e) {
             XposedBridge.log("onSingleTapConfirmed");
             Rect viewRect = new Rect();
             for (int i = 0; i < getChildCount(); i++) {
@@ -346,7 +348,7 @@ public class HorizontalListView extends AdapterView<ListAdapter> {
         }
 
         @Override
-        public void onLongPress(MotionEvent e) {
+        public void onLongPress(@NonNull MotionEvent e) {
             Rect viewRect = new Rect();
             int childCount = getChildCount();
             for (int i = 0; i < childCount; i++) {

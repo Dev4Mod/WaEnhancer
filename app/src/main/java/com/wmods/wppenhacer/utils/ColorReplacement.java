@@ -49,9 +49,9 @@ public class ColorReplacement {
                             view.setColorFilter(IColors.parseColor(sColorSub + newColor));
                     }
                 }
-            } else {
-//                XposedBridge.log("Image replacement: " + colorFilter.getClass().getName());
-            }
+            }/* else {
+                XposedBridge.log("Image replacement: " + colorFilter.getClass().getName());
+            }*/
         }
     }
 

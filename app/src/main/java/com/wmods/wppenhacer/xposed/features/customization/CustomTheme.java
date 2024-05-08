@@ -72,8 +72,7 @@ public class CustomTheme extends Feature {
             if (!backgroundColor.equals("0")) {
                 switch (c) {
                     case "0b141a" -> colors.put(c, backgroundColor.substring(3));
-                    case "#ff0b141a" -> colors.put(c, backgroundColor);
-                    case "#ff111b21" -> colors.put(c, backgroundColor);
+                    case "#ff0b141a", "#ff111b21" -> colors.put(c, backgroundColor);
                 }
             }
 

@@ -5,6 +5,7 @@ import android.app.Activity;
 import android.app.Application;
 import android.content.Context;
 import android.os.Bundle;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -31,7 +32,8 @@ public class WaCallback implements Application.ActivityLifecycleCallbacks {
                 new AlertDialogWpp(activity).
                         setMessage(activity.getString(ResId.string.restart_wpp)).
                         setPositiveButton(activity.getString(ResId.string.yes), (dialog, which) -> {
-                            Utils.doRestart(activity);
+                            if (!Utils.doRestart(activity))
+                                Toast.makeText(activity, "Unable to rebooting activity", Toast.LENGTH_SHORT).show();
                         })
                         .setNegativeButton(activity.getString(ResId.string.no), null)
                         .show();

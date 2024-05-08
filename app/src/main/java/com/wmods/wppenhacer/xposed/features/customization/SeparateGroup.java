@@ -285,10 +285,13 @@ public class SeparateGroup extends Feature {
         return editableChatList;
     }
 
-    private void hookTabList(Class<?> home) throws Exception {
+    private void hookTabList(@NonNull Class<?> home) throws Exception {
         var onCreateTabList = Unobfuscator.loadTabListMethod(loader);
         logDebug(Unobfuscator.getMethodDescriptor(onCreateTabList));
         var fieldTabsList = Arrays.stream(home.getDeclaredFields()).filter(f -> f.getType().equals(List.class)).findFirst().orElse(null);
+        if (fieldTabsList == null) {
+            throw new NullPointerException("fieldTabList is NULL!");
+        }
         fieldTabsList.setAccessible(true);
 
         XposedBridge.hookMethod(onCreateTabList, new XC_MethodHook() {

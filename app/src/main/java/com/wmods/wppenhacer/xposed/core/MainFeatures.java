@@ -128,8 +128,10 @@ public class MainFeatures {
             @Override
             public void onReceive(Context context, Intent intent) {
                 if (context.getPackageName().equals(intent.getStringExtra("PKG"))) {
-                    Toast.makeText(context, "Rebooting " + context.getPackageManager().getApplicationLabel(context.getApplicationInfo()) + "...", Toast.LENGTH_SHORT).show();
-                    Utils.doRestart(context);
+                    var appName = context.getPackageManager().getApplicationLabel(context.getApplicationInfo());
+                    Toast.makeText(context, "Rebooting " +  appName + "...", Toast.LENGTH_SHORT).show();
+                    if (!Utils.doRestart(context))
+                        Toast.makeText(context, "Unable to rebooting " + appName, Toast.LENGTH_SHORT).show();
                 }
             }
         };

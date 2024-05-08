@@ -13,6 +13,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
 import de.robv.android.xposed.XSharedPreferences;
@@ -161,7 +162,9 @@ public class UnobfuscatorCache {
     }
 
     private String getKeyName() {
-        return Arrays.stream(Thread.currentThread().getStackTrace()).filter(stackTraceElement -> stackTraceElement.getClassName().equals(Unobfuscator.class.getName())).findFirst().get().getMethodName();
+        AtomicReference<String> keyName = new AtomicReference<>("");
+        Arrays.stream(Thread.currentThread().getStackTrace()).filter(stackTraceElement -> stackTraceElement.getClassName().equals(Unobfuscator.class.getName())).findFirst().ifPresent(stackTraceElement -> keyName.set(stackTraceElement.getMethodName()));
+        return keyName.get();
     }
 
     public Constructor getConstructor(ClassLoader loader, FunctionCall functionCall) throws Exception {
