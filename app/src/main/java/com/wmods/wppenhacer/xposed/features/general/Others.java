@@ -86,6 +86,7 @@ public class Others extends Feature {
         propsBoolean.put(7516, fbstyle);
         propsBoolean.put(3289, !topnav);
         propsBoolean.put(4656, !topnav);
+
         if (metaai) {
             propsBoolean.put(8025, false);
             propsBoolean.put(6251, false);
