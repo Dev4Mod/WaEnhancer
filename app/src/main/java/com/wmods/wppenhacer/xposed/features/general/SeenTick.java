@@ -17,19 +17,19 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.collection.ArraySet;
 
-import com.wmods.wppenhacer.R;
 import com.wmods.wppenhacer.xposed.core.ResId;
 import com.wmods.wppenhacer.xposed.core.Unobfuscator;
 import com.wmods.wppenhacer.xposed.core.Utils;
 import com.wmods.wppenhacer.xposed.core.WppCore;
 import com.wmods.wppenhacer.xposed.core.Feature;
+import com.wmods.wppenhacer.xposed.core.db.MessageStore;
 
-import java.io.File;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 import de.robv.android.xposed.XC_MethodHook;
 import de.robv.android.xposed.XSharedPreferences;
@@ -38,7 +38,7 @@ import de.robv.android.xposed.XposedHelpers;
 
 public class SeenTick extends Feature {
 
-    private static final ArraySet<String> messages = new ArraySet<>();
+    private static final ArraySet<MessageInfo> messages = new ArraySet<>();
     private static Object mWaJobManager;
     private static Field fieldMessageKey;
     private static Class<?> mSendReadClass;
@@ -83,9 +83,9 @@ public class SeenTick extends Feature {
             protected void afterHookedMethod(MethodHookParam param) {
                 var objMessage = param.args[2];
                 var fieldMessageDetails = XposedHelpers.getObjectField(objMessage, fieldMessageKey.getName());
-                var messageKey = (String) XposedHelpers.getObjectField(fieldMessageDetails, "A01");
+                String messageKey = (String) XposedHelpers.getObjectField(fieldMessageDetails, "A01");
                 if (XposedHelpers.getBooleanField(fieldMessageDetails, "A02")) return;
-                messages.add(messageKey);
+                messages.add(new MessageInfo(objMessage, messageKey));
             }
         });
 
@@ -94,7 +94,7 @@ public class SeenTick extends Feature {
             protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
                 if (!messageSendClass.isInstance(param.thisObject)) return;
                 if (!prefs.getBoolean("blueonreply", false)) return;
-                new Handler(Looper.getMainLooper()).post(() -> sendBlueTickMsg((String) XposedHelpers.getObjectField(messageSendClass.cast(param.thisObject), "jid")));
+                new Handler(Looper.getMainLooper()).post(() -> sendBlueTick((String) XposedHelpers.getObjectField(messageSendClass.cast(param.thisObject), "jid")));
             }
         });
 
@@ -115,7 +115,7 @@ public class SeenTick extends Feature {
         XposedBridge.hookMethod(onCreateMenuConversationMethod, new XC_MethodHook() {
             @Override
             protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-                if (!prefs.getBoolean("hideread", false) || prefs.getBoolean("hidereceipt", false))
+                if (!prefs.getBoolean("hideread", false))
                     return;
 
                 var menu = (Menu) param.args[0];
@@ -124,7 +124,7 @@ public class SeenTick extends Feature {
                 menuItem.setIcon(Utils.getID("ic_notif_mark_read", "drawable"));
                 menuItem.setOnMenuItemClickListener(item -> {
                     new Handler(Looper.getMainLooper()).post(() -> Toast.makeText(Utils.getApplication(), "Sending read blue tick..", Toast.LENGTH_SHORT).show());
-                    sendBlueTickMsg(currentJid);
+                    sendBlueTick(currentJid);
                     return true;
                 });
             }
@@ -146,7 +146,7 @@ public class SeenTick extends Feature {
                 var userJid = XposedHelpers.callMethod(message, userJidMethod.getName());
                 var jid = WppCore.getRawString(userJid);
                 messages.clear();
-                messages.add(messageKey);
+                messages.add(new MessageInfo(message, messageKey));
                 currentJid = jid;
             }
         });
@@ -237,7 +237,7 @@ public class SeenTick extends Feature {
                     item.setOnMenuItemClickListener(item1 -> {
                         var messageField = Unobfuscator.getFieldByExtendType(menuMethod.getDeclaringClass(), classThreadMessage);
                         var messageObject = XposedHelpers.getObjectField(param.thisObject, messageField.getName());
-                        sendBlueTickMedia(messageObject);
+                        sendBlueTickMedia(messageObject,true);
                         Toast.makeText(Utils.getApplication(), ResId.string.sending_read_blue_tick, Toast.LENGTH_SHORT).show();
                         return true;
                     });
@@ -247,13 +247,31 @@ public class SeenTick extends Feature {
         });
     }
 
+
+    private void sendBlueTick(String currentJid) {
+        logDebug("messages: " + Arrays.toString(messages.toArray(new MessageInfo[0])));
+        if (messages.isEmpty() || currentJid == null || currentJid.contains(Utils.getMyNumber()))
+            return;
+        var messagekeys = messages.stream().map(item->item.messageKey).collect(Collectors.toList());
+        var listAudios = MessageStore.getAudioListByMessageList(messagekeys);
+        logDebug("listAudios: " + listAudios);
+        for (var messageKey : listAudios) {
+            var mInfo = messages.stream().filter(messageInfo -> messageInfo.messageKey.equals(messageKey)).findAny();
+            if (mInfo.isPresent()) {
+                messages.remove(mInfo.get());
+                sendBlueTickMedia(mInfo.get().fMessage,false);
+            }
+        }
+        sendBlueTickMsg(currentJid);
+    }
+
     private void sendBlueTickMsg(String currentJid) {
-        logDebug("messages: " + Arrays.toString(messages.toArray(new String[0])));
+        logDebug("messages: " + Arrays.toString(messages.toArray(new MessageInfo[0])));
         if (messages.isEmpty() || currentJid == null || currentJid.contains(Utils.getMyNumber()))
             return;
         try {
             logDebug("Blue on Reply: " + currentJid);
-            var arr_s = messages.toArray(new String[0]);
+            var arr_s = messages.stream().map(item->item.messageKey).toArray(String[]::new);
             var userJid = WppCore.createUserJid(currentJid);
             var sendJob = XposedHelpers.newInstance(mSendReadClass, userJid, null, null, null, arr_s, -1, 0L, false);
             WaJobManagerMethod.invoke(mWaJobManager, sendJob);
@@ -264,11 +282,11 @@ public class SeenTick extends Feature {
     }
 
     private void sendBlueTickStatus(String currentJid) {
-        logDebug("messages: " + Arrays.toString(messages.toArray(new String[0])));
+        logDebug("messages: " + Arrays.toString(messages.toArray(new MessageInfo[0])));
         if (messages.isEmpty() || currentJid == null || currentJid.equals("status_me")) return;
         try {
             logDebug("sendBlue: " + currentJid);
-            var arr_s = messages.toArray(new String[0]);
+            var arr_s = messages.stream().map(item->item.messageKey).toArray(String[]::new);
             var userJidSender = WppCore.createUserJid("status@broadcast");
             var userJid = WppCore.createUserJid(currentJid);
             var sendJob = XposedHelpers.newInstance(mSendReadClass, userJidSender, userJid, null, null, arr_s, -1, 0L, false);
@@ -279,13 +297,13 @@ public class SeenTick extends Feature {
         }
     }
 
-    private void sendBlueTickMedia(Object messageObject) {
+    private void sendBlueTickMedia(Object messageObject, boolean clear) {
         try {
             logDebug("sendBlue: " + WppCore.getCurrentRawJID());
             var sendPlayerClass = XposedHelpers.findClass("com.whatsapp.jobqueue.job.SendPlayedReceiptJob", loader);
             var sendJob = XposedHelpers.newInstance(sendPlayerClass, messageObject);
             WaJobManagerMethod.invoke(mWaJobManager, sendJob);
-            messages.clear();
+            if (clear) messages.clear();
         } catch (Throwable e) {
             XposedBridge.log("Error: " + e.getMessage());
         }
@@ -295,6 +313,23 @@ public class SeenTick extends Feature {
     @Override
     public String getPluginName() {
         return "Blue Tick";
+    }
+
+
+    static class MessageInfo {
+        public String messageKey;
+        public Object fMessage;
+
+        public MessageInfo(Object fMessage, String messageKey) {
+            this.messageKey = messageKey;
+            this.fMessage = fMessage;
+        }
+
+        @NonNull
+        @Override
+        public String toString() {
+            return messageKey;
+        }
     }
 
 

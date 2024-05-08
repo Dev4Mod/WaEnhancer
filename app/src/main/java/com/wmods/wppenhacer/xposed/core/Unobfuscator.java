@@ -177,6 +177,17 @@ public class Unobfuscator {
         });
     }
 
+    public static Method loadReceiptMethod2(ClassLoader classLoader) throws Exception {
+        return UnobfuscatorCache.getInstance().getMethod(classLoader, () -> {
+            var method = loadReceiptMethod(classLoader);
+            if (method == null) throw new Exception("Receipt method not found");
+            var classData = dexkit.getClassData(method.getDeclaringClass());
+            var methodResult = classData.findMethod(new FindMethod().matcher(new MethodMatcher().addUsingString("sender")));
+            if (methodResult.isEmpty()) throw new Exception("Receipt method not found");
+            return methodResult.get(0).getMethodInstance(classLoader);
+        });
+    }
+
     // TODO: Classes and Methods for HideForward
 
     public static Method loadForwardTagMethod(ClassLoader classLoader) throws Exception {
@@ -470,14 +481,6 @@ public class Unobfuscator {
             var clazz = findFirstClassUsingStrings(classLoader, StringMatchType.Contains, "videoLimitMb=");
             if (clazz == null) throw new Exception("MediaQualityVideoLimit method not found");
             return clazz;
-        });
-    }
-
-    public static Method loadMediaQualityImageMethod(ClassLoader classLoader) throws Exception {
-        return UnobfuscatorCache.getInstance().getMethod(classLoader, () -> {
-            var method = findFirstMethodUsingStrings(classLoader, StringMatchType.Contains, "Unknown IntField");
-            if (method == null) throw new Exception("MediaQualityImage method not found");
-            return method;
         });
     }
 
