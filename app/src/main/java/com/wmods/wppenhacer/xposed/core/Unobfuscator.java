@@ -1342,4 +1342,12 @@ public class Unobfuscator {
             return methodList.get(0).getMethodInstance(loader);
         });
     }
+
+    public static Class<?> loadWorkManagerClass(ClassLoader loader) throws Exception {
+        return UnobfuscatorCache.getInstance().getClass(loader, () -> {
+           var clazz = findFirstClassUsingStrings(loader, StringMatchType.Contains, "work-manager/configuration/created");
+           if (clazz == null) throw new RuntimeException("WorkManager class not found");
+           return clazz;
+        });
+    }
 }

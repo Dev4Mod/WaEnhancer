@@ -26,8 +26,9 @@ public class MediaFragment extends BasePreFragment {
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         mContract = registerForActivityResult(new ActivityResultContracts.OpenDocumentTree(), result -> {
-            findPreference("localdownload").setSummary(getPathFromContentUri(result));
+            if (result == null) return;
             var realPath  = RealPathUtil.getRealPathFromURI_API19(getContext(), result);
+            findPreference("localdownload").setSummary(realPath);
             mPrefs.edit().putString("localdownload", realPath).apply();
         });
     }
@@ -42,17 +43,6 @@ public class MediaFragment extends BasePreFragment {
             return true;
         });
         localPref.setSummary(mPrefs.getString("localdownload", Environment.getExternalStorageDirectory().getPath()+"/Download"));
-    }
-
-
-    public String getPathFromContentUri(Uri uri) {
-        if (!"com.android.externalstorage.documents".equals(uri.getAuthority()))
-            return uri.toString();
-        String[] pathsections = uri.getPath().split(":");
-        var path = pathsections[pathsections.length - 1];
-        if (path.startsWith("/tree"))
-            path = "";
-        return Environment.getExternalStorageDirectory().getPath() + "/" + path;
     }
 
 }

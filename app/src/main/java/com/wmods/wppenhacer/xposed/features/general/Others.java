@@ -100,6 +100,7 @@ public class Others extends Feature {
         logDebug(Unobfuscator.getMethodDescriptor(methodPropsBoolean));
 
         var dataUsageActivityClass = XposedHelpers.findClass("com.whatsapp.settings.SettingsDataUsageActivity", loader);
+        var workManagerClass = Unobfuscator.loadWorkManagerClass(loader);
         XposedBridge.hookMethod(methodPropsBoolean, new XC_MethodHook() {
             @Override
             protected void afterHookedMethod(MethodHookParam param) throws Throwable {
@@ -107,14 +108,19 @@ public class Others extends Feature {
 
                 var propValue = propsBoolean.get(i);
                 if (propValue != null) {
-                    param.setResult(propValue);
                     // Fix Bug in Settings Data Usage
-                    if (i == 4023 && propValue && Unobfuscator.isCalledFromClass(dataUsageActivityClass)) {
-                        param.setResult(false);
+                    switch (i) {
+                        case 4023:
+                            if (Unobfuscator.isCalledFromClass(dataUsageActivityClass))
+                                return;
+                            break;
+                        case 3877:
+                            if (!Unobfuscator.isCalledFromClass(workManagerClass))
+                                return;
+                            break;
                     }
+                    param.setResult(propValue);
                 }
-//                if ((boolean)param.getResult())
-//                    log("i: " + i + " propValue: " + param.getResult());
             }
         });
 
@@ -130,7 +136,7 @@ public class Others extends Feature {
             }
         });
 
-        XposedHelpers.findAndHookMethod("com.whatsapp.HomeActivity",loader, "onCreateOptionsMenu", Menu.class, new XC_MethodHook() {
+        XposedHelpers.findAndHookMethod("com.whatsapp.HomeActivity", loader, "onCreateOptionsMenu", Menu.class, new XC_MethodHook() {
             @SuppressLint("ApplySharedPref")
             @Override
             protected void afterHookedMethod(MethodHookParam param) throws Throwable {
@@ -226,7 +232,7 @@ public class Others extends Feature {
                                 var dialog = new AlertDialogWpp(view.getContext());
                                 dialog.setTitle(context.getString(ResId.string.send_sticker));
 
-                                var stickerView = (ImageView)((ViewGroup)view).getChildAt(0);
+                                var stickerView = (ImageView) ((ViewGroup) view).getChildAt(0);
                                 LinearLayout linearLayout = new LinearLayout(context);
                                 linearLayout.setOrientation(LinearLayout.VERTICAL);
                                 linearLayout.setGravity(Gravity.CENTER_HORIZONTAL);
