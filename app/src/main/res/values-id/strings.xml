@@ -232,8 +232,8 @@
     <string name="toast_on_delete_sum">Tampilkan notifikasi mengambang jika ada kontak yang menghapus pesan</string>
     <string name="enable_top_navigation">Aktifkan Navigasi Atas</string>
     <string name="enable_top_navigation_sum">Aktifkan bilah navigasi lama (tab di bagian atas)</string>
-    <string name="hideread_group">Hide Blue Tick in Groups</string>
-    <string name="hideread_group_sum">View messages in groups screen without users knowing</string>
-    <string name="time_limit_on_status_video">Increase time limit on status video</string>
-    <string name="time_limit_on_status_video_sum">Increase time limit on status videos from 30 seconds to 1 minute (for everyone)</string>
+    <string name="hideread_group">Sembunyikan Centang Biru di Grup</string>
+    <string name="hideread_group_sum">Pengirim pesan tidak akan mengetahui bahwa Anda telah membaca pesannya di grup</string>
+    <string name="time_limit_on_status_video">Tingkatkan Batas Waktu pada Status Video</string>
+    <string name="time_limit_on_status_video_sum">Tingkatkan batas waktu status video dari 30 detik menjadi 1 menit (untuk semua orang)</string>
 </resources>

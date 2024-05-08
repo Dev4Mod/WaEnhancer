@@ -152,8 +152,8 @@
     <string name="hide_tabs_on_home">Registerkarten</string>
     <string name="hide_tabs_on_home_sum">Ausblenden von Aktuelles, Chats, Gruppen oder Anrufe.</string>
     <string name="communities">Gruppen</string>
-    <string name="calls">Aufrufe</string>
-    <string name="updates">Aktualisierungen</string>
+    <string name="calls">Anrufe</string>
+    <string name="updates">Aktuelles</string>
     <string name="about">Über</string>
     <string name="igstatus_on_home_screen">Aktiviere IGStatus auf dem Startbildschirm</string>
     <string name="igstatus_on_home_screen_sum">Instagram Status-Stil im Startbildschirm anzeigen</string>
@@ -163,7 +163,7 @@
     <string name="remove_channel_recomendations">Kanalempfehlungen entfernen</string>
     <string name="remove_channel_recomendations_sum">Kanalempfehlungen vom Tab-Status entfernen</string>
     <string name="remove_see_more_button">Entferne \"Mehr anzeigen\"</string>
-    <string name="remove_see_more_button_">\"Mehr anzeigen\"-Button deaktivieren und alle Nachrichten komplett anzeigen</string>
+    <string name="remove_see_more_button_">\"Mehr anzeigen\" wird deaktiviert und alle Nachrichten komplett angezeigt</string>
     <string name="tools">Extras</string>
     <string name="title_home">Startseite</string>
     <string name="privacy">Privatsphäre</string>
