@@ -24,14 +24,18 @@ public class Utils {
         return MainFeatures.mApp;
     }
 
-    public static void doRestart(Context context) {
+    public static boolean doRestart(Context context) {
         PackageManager packageManager = context.getPackageManager();
         Intent intent = packageManager.getLaunchIntentForPackage(context.getPackageName());
+        if (intent == null)
+            return false;
+        
         ComponentName componentName = intent.getComponent();
         Intent mainIntent = Intent.makeRestartActivityTask(componentName);
         mainIntent.setPackage(context.getPackageName());
         context.startActivity(mainIntent);
         Runtime.getRuntime().exit(0);
+        return true;
     }
 
     @SuppressLint("DiscouragedApi")
