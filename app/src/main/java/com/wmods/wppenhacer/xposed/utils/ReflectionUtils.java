@@ -31,5 +31,17 @@ public class ReflectionUtils {
         return null;
     }
 
+    public static boolean isOverridden(Method method) {
+        try {
+            Class<?> superclass = method.getDeclaringClass().getSuperclass();
+            if (superclass == null) return false;
+            Method parentMethod = superclass.getMethod(method.getName(), method.getParameterTypes());
+            return !parentMethod.equals(method);
+
+        } catch (NoSuchMethodException e) {
+            return false;
+        }
+    }
+
 
 }

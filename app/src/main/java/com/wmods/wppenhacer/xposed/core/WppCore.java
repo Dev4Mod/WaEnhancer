@@ -1,5 +1,6 @@
 package com.wmods.wppenhacer.xposed.core;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.Dialog;
 import android.content.Context;
@@ -30,6 +31,8 @@ public class WppCore {
 
     private static final HashSet<ObjectOnChangeListener> listenerChat = new HashSet<>();
     private static Object mContactManager;
+    private static SharedPreferences privPrefs;
+
 
     public interface ObjectOnChangeListener {
         void onChange(Object object, String type);
@@ -39,6 +42,8 @@ public class WppCore {
 
     public static void Initialize(ClassLoader loader) {
         try {
+
+            privPrefs = Utils.getApplication().getSharedPreferences("WaGlobal", Context.MODE_PRIVATE);
 
             // init Main activity
             XposedBridge.hookAllMethods(XposedHelpers.findClass("com.whatsapp.HomeActivity", loader), "onCreate", new XC_MethodHook() {
@@ -198,6 +203,30 @@ public class WppCore {
 
     public static Activity getCurrenConversation() {
         return mConversation;
+    }
+
+    @SuppressLint("ApplySharedPref")
+    public static void setPrivString(String key, String value) {
+        privPrefs.edit().putString(key, value).commit();
+    }
+
+    public static String getPrivString(String key, String defaultValue) {
+        return privPrefs.getString(key, defaultValue);
+    }
+
+    public static void removePrivKey(String s) {
+        if (s != null && privPrefs.contains(s))
+            privPrefs.edit().remove(s).commit();
+    }
+
+
+    @SuppressLint("ApplySharedPref")
+    public static void setPrivBoolean(String key, boolean value) {
+        privPrefs.edit().putBoolean(key, value).commit();
+    }
+
+    public static boolean getPrivBoolean(String key, boolean defaultValue) {
+        return privPrefs.getBoolean(key, defaultValue);
     }
 
     public static void addListenerChat(ObjectOnChangeListener listener) {

@@ -148,7 +148,7 @@ public class MainFeatures {
         BroadcastReceiver restartManualReceiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
-                context.getSharedPreferences("WaGlobal", Context.MODE_PRIVATE).edit().putBoolean("need_restart", true).commit();
+                WppCore.setPrivBoolean("need_restart", true);
             }
         };
         ContextCompat.registerReceiver(mApp, restartManualReceiver, new IntentFilter(BuildConfig.APPLICATION_ID + ".MANUAL_RESTART"), ContextCompat.RECEIVER_EXPORTED);

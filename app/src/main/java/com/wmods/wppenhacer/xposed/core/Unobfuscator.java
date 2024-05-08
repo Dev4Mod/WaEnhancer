@@ -49,7 +49,9 @@ import java.util.stream.Collectors;
 import de.robv.android.xposed.XposedBridge;
 import de.robv.android.xposed.XposedHelpers;
 
-/** @noinspection SimplifyOptionalCallChains*/
+/**
+ * @noinspection SimplifyOptionalCallChains
+ */
 public class Unobfuscator {
 
     private static DexKitBridge dexkit;
@@ -221,6 +223,15 @@ public class Unobfuscator {
             Method method = Arrays.stream(receiptsClass.getMethods()).filter(m -> m.getParameterTypes().length > 0 && m.getParameterTypes()[0].equals(Collection.class) && m.getReturnType().equals(HashMap.class)).findFirst().orElse(null);
             if (method == null) throw new Exception("HideViewOpenChat method not found");
             return method;
+        });
+    }
+
+    public static Method loadHideViewSendReadJob(ClassLoader classLoader) throws Exception {
+        return UnobfuscatorCache.getInstance().getMethod(classLoader, () -> {
+            var classData = dexkit.getClassData(XposedHelpers.findClass("com.whatsapp.jobqueue.job.SendReadReceiptJob", classLoader));
+            var methodResult = classData.findMethod(new FindMethod().matcher(new MethodMatcher().addUsingString("receipt", StringMatchType.Equals)));
+            if (methodResult.isEmpty()) throw new Exception("HideViewSendReadJob method not found");
+            return methodResult.get(0).getMethodInstance(classLoader);
         });
     }
 
@@ -608,7 +619,6 @@ public class Unobfuscator {
         if (method == null) throw new Exception("ViewOnce class not found");
         return method;
     }
-
 
 
     public static Method loadViewOnceDownloadMenuMethod(ClassLoader classLoader) throws Exception {
@@ -1351,9 +1361,9 @@ public class Unobfuscator {
 
     public static Class<?> loadWorkManagerClass(ClassLoader loader) throws Exception {
         return UnobfuscatorCache.getInstance().getClass(loader, () -> {
-           var clazz = findFirstClassUsingStrings(loader, StringMatchType.Contains, "work-manager/configuration/created");
-           if (clazz == null) throw new RuntimeException("WorkManager class not found");
-           return clazz;
+            var clazz = findFirstClassUsingStrings(loader, StringMatchType.Contains, "work-manager/configuration/created");
+            if (clazz == null) throw new RuntimeException("WorkManager class not found");
+            return clazz;
         });
     }
 }

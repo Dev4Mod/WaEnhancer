@@ -20,6 +20,7 @@ import com.wmods.wppenhacer.xposed.core.Feature;
 import com.wmods.wppenhacer.xposed.core.ResId;
 import com.wmods.wppenhacer.xposed.core.Unobfuscator;
 import com.wmods.wppenhacer.xposed.core.Utils;
+import com.wmods.wppenhacer.xposed.core.WppCore;
 import com.wmods.wppenhacer.xposed.core.components.AlertDialogWpp;
 
 import java.util.ArrayList;
@@ -283,8 +284,7 @@ public class Others extends Feature {
 
     @SuppressLint({"DiscouragedApi", "UseCompatLoadingForDrawables", "ApplySharedPref"})
     private static void InsertDNDOption(Menu menu, Activity home) {
-        var shared = Utils.getApplication().getSharedPreferences(Utils.getApplication().getPackageName() + "_mdgwa_preferences", Context.MODE_PRIVATE);
-        var dndmode = shared.getBoolean("dndmode", false);
+        var dndmode = WppCore.getPrivBoolean("dndmode", false);
         int iconDraw;
         iconDraw = Utils.getID(dndmode ? "ic_location_nearby_disabled" : "ic_location_nearby", "drawable");
         var item = menu.add(0, 0, 0, "Dnd Mode " + dndmode);
@@ -296,15 +296,14 @@ public class Others extends Feature {
                         .setTitle(home.getString(ResId.string.dnd_mode_title))
                         .setMessage(home.getString(ResId.string.dnd_message))
                         .setPositiveButton(home.getString(ResId.string.activate), (dialog, which) -> {
-                            shared.edit().putBoolean("dndmode", true).commit();
-                            XposedBridge.log(String.valueOf(shared.getBoolean("dndmode", false)));
+                            WppCore.setPrivBoolean("dndmode", true);
                             restartApp(home);
                         })
                         .setNegativeButton(home.getString(ResId.string.cancel), (dialog, which) -> dialog.dismiss())
                         .create().show();
                 return true;
             }
-            shared.edit().putBoolean("dndmode", false).commit();
+            WppCore.setPrivBoolean("dndmode", false);
             restartApp(home);
             return true;
         });

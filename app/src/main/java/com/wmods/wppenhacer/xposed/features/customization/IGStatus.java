@@ -56,6 +56,7 @@ public class IGStatus extends Feature {
                 mStatusContainer = new IGStatusView(homeActivity);
                 var layoutParams = new FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT, Utils.dipToPixels(105));
                 layoutParams.gravity = Gravity.TOP;
+
                 if (Objects.equals(prefs.getString("chatfilter", null), "2") && prefs.getBoolean("topnav", false)) {
                     layoutParams.topMargin = Utils.dipToPixels(168);
                 } else if (prefs.getBoolean("topnav", false)) {

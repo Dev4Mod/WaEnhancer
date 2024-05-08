@@ -273,6 +273,7 @@ public class SeenTick extends Feature {
             logDebug("Blue on Reply: " + currentJid);
             var arr_s = messages.stream().map(item->item.messageKey).toArray(String[]::new);
             var userJid = WppCore.createUserJid(currentJid);
+            WppCore.setPrivBoolean(arr_s[0]+"_rpass",true);
             var sendJob = XposedHelpers.newInstance(mSendReadClass, userJid, null, null, null, arr_s, -1, 0L, false);
             WaJobManagerMethod.invoke(mWaJobManager, sendJob);
             messages.clear();
@@ -289,6 +290,7 @@ public class SeenTick extends Feature {
             var arr_s = messages.stream().map(item->item.messageKey).toArray(String[]::new);
             var userJidSender = WppCore.createUserJid("status@broadcast");
             var userJid = WppCore.createUserJid(currentJid);
+            WppCore.setPrivBoolean(arr_s[0]+"_rpass",true);
             var sendJob = XposedHelpers.newInstance(mSendReadClass, userJidSender, userJid, null, null, arr_s, -1, 0L, false);
             WaJobManagerMethod.invoke(mWaJobManager, sendJob);
             messages.clear();

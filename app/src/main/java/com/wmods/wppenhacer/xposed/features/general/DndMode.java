@@ -7,6 +7,7 @@ import androidx.annotation.NonNull;
 import com.wmods.wppenhacer.xposed.core.Unobfuscator;
 import com.wmods.wppenhacer.xposed.core.Utils;
 import com.wmods.wppenhacer.xposed.core.Feature;
+import com.wmods.wppenhacer.xposed.core.WppCore;
 
 import de.robv.android.xposed.XC_MethodReplacement;
 import de.robv.android.xposed.XSharedPreferences;
@@ -19,8 +20,7 @@ public class DndMode extends Feature {
 
     @Override
     public void doHook() throws Exception {
-        var shared = Utils.getApplication().getSharedPreferences(Utils.getApplication().getPackageName() + "_mdgwa_preferences", Context.MODE_PRIVATE);
-        if (!shared.getBoolean("dndmode", false)) return;
+        if (!WppCore.getPrivBoolean("dndmode",false)) return;
         var dndMethod = Unobfuscator.loadDndModeMethod(loader);
         logDebug(Unobfuscator.getMethodDescriptor(dndMethod));
         XposedBridge.hookMethod(dndMethod, XC_MethodReplacement.DO_NOTHING);
