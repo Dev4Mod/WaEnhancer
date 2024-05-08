@@ -11,7 +11,7 @@
     <string name="hidetag_sum">Inoltra i messaggi senza il tag \'Inoltrato\'</string>
     <string name="hidestatusview">Nascondi Visualizzazione Stato</string>
     <string name="hidestatusview_sum">Visualizza gli stati senza farlo sapere</string>
-    <string name="hideread">Nascondi Visualizzazione Messaggio</string>
+    <string name="hideread">Nascondi Spunte Blu</string>
     <string name="hideread_sum">Visualizza i messaggi nella schermata chat senza che gli altri lo sappiano</string>
     <string name="danger">Avviso</string>
     <string name="reboot">Ogni volta che cambi qualcosa in questa schermata, riavvia WhatsApp!</string>
@@ -112,7 +112,7 @@
     <string name="separate_groups">Gruppi Separati</string>
     <string name="separate_groups_sum">Separa le tue chat per: Gruppi, Chat Private, Stato, Chiamate, Comunità</string>
     <string name="blueonreply">Invia spunta blu dopo la risposta</string>
-    <string name="blueonreply_sum">Invia spunte blu dopo aver risposto a un messaggio</string>
+    <string name="blueonreply_sum">Invia spunte blu dopo aver risposto a un messaggio\n(NOTA: deve essere attivo \"Nascondi Spunte Blu\")</string>
     <string name="hide_archived_chat">Nascondi Chat Archiviate</string>
     <string name="hide_archived_chat_sum">Nascondi le chat archiviate, visualizzale tenendo premuto il titolo WhatsApp nella schermata iniziale</string>
     <string name="hide_once_view_seen">Nascondi Visualizza una Volta e Audio Ascoltato</string>
@@ -223,4 +223,10 @@
     <string name="list_wpp">Elenco versioni WhatsApp Supportate:</string>
     <string name="title_image">Immagine</string>
     <string name="title_video">Video</string>
+    <string name="enable_new_chat_button">Enable New Chat Button</string>
+    <string name="enable_new_chat_button_sum">Add button in Home Screen to start new chat</string>
+    <string name="enable_restart_button">Enable Restart Button</string>
+    <string name="enable_restart_button_sum">Add button in Home Screen to Restart App</string>
+    <string name="toast_on_delete">Show toast notification on delete message</string>
+    <string name="toast_on_delete_sum">Show toast notification if any contact deletes any message</string>
 </resources>
