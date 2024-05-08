@@ -1,14 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_desc">WhatsApp Enhancer Module</string>
+    <string name="app_desc">Um módulo Xposed para personalizar seu WhatsApp</string>
     <string name="antirevoke">Anti-Deletar Mensagens</string>
     <string name="antirevoke_sum">Quando ativo, as mensagens não serão apagados para você.</string>
     <string name="ghostmode">Ocultar digitando</string>
     <string name="ghostmode_sum">Quando ativo, a pessoa não pode ver que você está gravando áudio</string>
     <string name="ghostmode_r">Ocultar gravando audio...</string>
     <string name="ghostmode_sum_r">Quando ativo, a pessoa não pode ver que você está gravando áudio</string>
-    <string name="hidetag">Hide \"Forwarded\" Tag</string>
-    <string name="hidetag_sum">Forward messages without the tag \"Forwarded\"</string>
+    <string name="hidetag">Ocultar etiqueta de encaminhamento</string>
+    <string name="hidetag_sum">Quando ativo, permite encaminhar mensagens sem a tag de encaminhamento</string>
     <string name="hidestatusview">Ocultar Visualização de Status</string>
     <string name="hidestatusview_sum">Quando ativo, permite ver os status sem a pessoa saber que você assistiu.</string>
     <string name="hideread">Ocultar Visualizacao de Mensagens</string>
@@ -21,7 +21,7 @@
     <string name="segundosnahora">Segundos no Horário</string>
     <string name="segundosnahora_sum">Colocar segundos ao lado dos horários</string>
     <string name="textonahora">Adiciona um texto ao lado dos horários</string>
-    <string name="no_active">If you are on this screen, it means that you do not have the module active yet, do not have LSPosed installed, nor have a WhatsApp APK patched by LSPatch.\n\nPlease fix it! Restart the module and try again</string>
+    <string name="no_active">Se você está nesta tela, significa que você ainda não tem o módulo ativo não tem LSPosed instalado, nem um WhatsApp APK corrigido por LSPatch.\n\nPor favor, corrija-o! Reinicie o módulo e tente novamente</string>
     <string name="viewonce">Desativar Visualização Única</string>
     <string name="viewonce_sum">Quando ativo, permite ver mensagens de visualização única quantas vezes quiser.</string>
     <string name="novotema">Novo tema do WhatsApp</string>
@@ -33,7 +33,7 @@
     <string name="outros">Outros</string>
     <string name="antirevoke_title">Anti-Deletar</string>
     <string name="privacy_title">Privacidade</string>
-    <string name="settings_title">Settings</string>
+    <string name="settings_title">Configurações</string>
     <string name="autoreboot">Reinício automático</string>
     <string name="autoreboot_sum">Esta opção necessita acesso root! Quando ativo, o WhatsApp irá reiniciar automaticamente para salvar as alteraçoes</string>
     <string name="xposedinit_error">Erro ao iniciar o Xposed</string>
@@ -120,7 +120,7 @@
     <string name="call_blocker">Bloqueio de Chamadas</string>
     <string name="call_blocker_sum">Bloqueie chamadas do WhatsApp com base no tipo de privacidade</string>
     <string name="show_online_dot_in_conversation_list">Mostrar ponto de online na lista de conversas</string>
-    <string name="show_online_dot_in_conversation_list_sum">Show a green online dot on home screen\n(NOTE: Must activate show online for everyone in WhatsApp\'s Privacy Settings menu)</string>
+    <string name="show_online_dot_in_conversation_list_sum">Mostre um ponto online verde na tela inicial\n(NÃO: Precisa ativar o programa online para todos no menu Configurações de Privacidade do WhatsApp)</string>
     <string name="show_dnd_button">Mostrar Botão Não perturbe</string>
     <string name="show_dnd_button_sum">Mostrar botão para o Modo Não Perturbe na barra superior da tela inicial</string>
     <string name="dev4mod">Dev4Mod (Contributor)</string>
@@ -128,14 +128,14 @@
     <string name="disable_pinned_limit_sum">Desativar o limite de 3 conversas fixadas</string>
     <string name="delete_for_everyone_all_messages">Habilita excluir para todos em todas as mensagens</string>
     <string name="delete_for_everyone_all_messages_sum">Remover o limite de 24 horas para excluir uma mensagem para todos</string>
-    <string name="antirevoke_buttons_desable">Disabled</string>
+    <string name="antirevoke_buttons_desable">Desativado</string>
     <string name="antirevoke_buttons_show_text">Mostrar Texto</string>
     <string name="antirevoke_buttons_show_icon">Exibir Ícone</string>
     <string name="call_blocker_buttons_no_block">Sem Bloqueio</string>
     <string name="call_blocker_buttons_all_block">Bloquear todas as chamadas</string>
     <string name="call_blocker_buttons_only_unknown_block">Bloquear apenas números desconhecidos</string>
     <string name="show_edited_message_history">Mostrar histórico de mensagens editadas</string>
-    <string name="show_edited_message_history_sum">Show edited message history when clicking \"Edited\" on a message</string>
+    <string name="show_edited_message_history_sum">Exibir o histórico de mensagens editadas ao clicar em \'editada\' na mensagem</string>
     <string name="dnd_message">Quando o modo Não perturbe estiver ativado, você não poderá enviar ou receber mensagens.</string>
     <string name="dnd_mode_title">Modo Não perturbe</string>
     <string name="activate">Ativar</string>
@@ -152,7 +152,7 @@
     <string name="hide_tabs_on_home">Ocultar abas na tela inicial</string>
     <string name="hide_tabs_on_home_sum">Permite ocultar abas na página inicial, como atualizações, comunidades, chamadas.</string>
     <string name="communities">Comunidades</string>
-    <string name="calls">Calls</string>
+    <string name="calls">Chamadas</string>
     <string name="updates">Atualizações</string>
     <string name="about">Sobre</string>
     <string name="igstatus_on_home_screen">Mostrar o IGStatus na Tela Inicial</string>
@@ -162,8 +162,8 @@
     <string name="chatfilter_search_bar">Barra de pesquisa</string>
     <string name="remove_channel_recomendations">Remover Recomendações de Canal</string>
     <string name="remove_channel_recomendations_sum">Remover Recomendações do Canal da aba de Status</string>
-    <string name="remove_see_more_button">Remove \"See More\" Button</string>
-    <string name="remove_see_more_button_">Disable \"See More\" button and show all long message</string>
+    <string name="remove_see_more_button">Remover botão \'Ver Mais\'</string>
+    <string name="remove_see_more_button_">Desativar o botão \'Ver Mais\' e mostrar toda a mensagem</string>
     <string name="tools">Ferramentas</string>
     <string name="title_home">Página inicial</string>
     <string name="privacy">Privacidade</string>
@@ -173,14 +173,14 @@
     <string name="whatsapp_in_background">WhatsApp em segundo plano</string>
     <string name="whatsapp_is_not_running_or_has_not_been_activated_in_lsposed">O Whatsapp não está em execução ou não foi ativado no Lsposed</string>
     <string name="business_is_not_running_or_has_not_been_activated_in_lsposed">O Business não está funcionando ou não foi ativado em Lsposed</string>
-    <string name="restart_wpp">It is necessary to restart WhatsApp for the changes in Wa Enhancer to take effect.\n\nDo you want to restart?</string>
+    <string name="restart_wpp">É necessário reiniciar o WhatsApp para que as alterações no Wa Enhancer tenham efeito.\n\n Deseja reiniciar?</string>
     <string name="version_s_not_listed">Versão %s não listada</string>
     <string name="media">Mídia</string>
     <string name="show_button_to_send_blue_tick">Exibir botão para enviar marcas azuis</string>
-    <string name="show_button_to_send_blue_tick_sum">Show Button to send blue tick (mark as read/viewed)</string>
-    <string name="send_blue_tick">Mark as Read/Viewed</string>
+    <string name="show_button_to_send_blue_tick_sum">Exibir botão para enviar marcas azuis (marcar como lido/visualizado)</string>
+    <string name="send_blue_tick">Marcar como Leitura/Visualizado</string>
     <string name="business_in_background">Business em segundo plano</string>
-    <string name="sending_read_blue_tick">Sending blue tick (mark as read/viewed)</string>
+    <string name="sending_read_blue_tick">Enviando sinal azul (marque como lido/visualizado)</string>
     <string name="enable_facebook_style_for_status">Habilitar estilo do Facebook para Status</string>
     <string name="enable_facebook_style_for_status_sum">Alterar estilo original de status para o estilo do Facebook</string>
     <string name="send">Enviar</string>
@@ -189,12 +189,12 @@
     <string name="enable_filter_chats">Ativar filtro de conversas para o tipo</string>
     <string name="enable_filter_chats_sum">Mostrar opções para filtrar chats para grupos, contatos e mensagens não vistas</string>
     <string name="disable_channels">Desativar canais</string>
-    <string name="disable_channels_sum">Disable Channels from Status tab\n(NOTE: Disable IGStatus to work!)</string>
+    <string name="disable_channels_sum">Desativar canais da aba de Status\n(NÃO: Desativar IGStatus para funcionar!)</string>
     <string name="chat">Bate-papo</string>
     <string name="change_bubble_colors">Trocar cores de bolha</string>
-    <string name="change_blubble_color_sum">Change Bubble Color on Conversation Screen</string>
+    <string name="change_blubble_color_sum">Mudar cor do Bubble na tela da conversa</string>
     <string name="default_color">Definir cor #00000000 para cor padrão</string>
-    <string name="enable_confirmation_to_send_sticker">Confirmation Before Sending Sticker</string>
+    <string name="enable_confirmation_to_send_sticker">Confirmação antes de enviar Sticker</string>
     <string name="enable_confirmation_to_send_sticker_sum">Mostrar diálogo antes de enviar o sticker</string>
     <string name="local_download">Local para downloads das midias</string>
     <string name="increase_video_size_limit">Aumentar limite de tamanho de vídeo</string>
@@ -205,8 +205,8 @@
     <string name="send_video_in_60fps_sum">Envie vídeos em 60 fps para status, grupos e pate-papo</string>
     <string name="status">Status</string>
     <string name="download_title">Downloads</string>
-    <string name="seentick_menu">Show Button in 3 dot Menu</string>
-    <string name="seentick_screen">Show Button in Screen</string>
+    <string name="seentick_menu">Mostrar botão no menu de 3 pontos</string>
+    <string name="seentick_screen">Mostrar botões na tela</string>
     <string name="verbose_logs">Habilitar Logs detalhados para o Depurador</string>
     <string name="phone_call">Chamada telefônica</string>
     <string name="whatsapp_call">Chamada do Whatsapp</string>
@@ -223,4 +223,10 @@
     <string name="list_wpp">Lista de WhatsApp Suportados:</string>
     <string name="title_image">Imagem</string>
     <string name="title_video">Vídeo</string>
+    <string name="enable_new_chat_button">Habilitar botão Novo Bate-Papo</string>
+    <string name="enable_new_chat_button_sum">Adicione o botão na Tela inicial para iniciar um novo bate-papo</string>
+    <string name="enable_restart_button">Ativar botão reiniciar</string>
+    <string name="enable_restart_button_sum">Adicione o botão na Tela inicial para reiniciar o aplicativo</string>
+    <string name="toast_on_delete">Mostrar notificação toast ao excluir mensagem</string>
+    <string name="toast_on_delete_sum">Mostrar notificação toast se qualquer contato excluir qualquer mensagem</string>
 </resources>

@@ -223,4 +223,10 @@
     <string name="list_wpp">Lista de WhatsApp Soportados:</string>
     <string name="title_image">Imagen</string>
     <string name="title_video">Video</string>
+    <string name="enable_new_chat_button">Enable New Chat Button</string>
+    <string name="enable_new_chat_button_sum">Add button in Home Screen to start new chat</string>
+    <string name="enable_restart_button">Enable Restart Button</string>
+    <string name="enable_restart_button_sum">Add button in Home Screen to Restart App</string>
+    <string name="toast_on_delete">Show toast notification on delete message</string>
+    <string name="toast_on_delete_sum">Show toast notification if any contact deletes any message</string>
 </resources>

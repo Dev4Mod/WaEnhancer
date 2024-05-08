@@ -20,9 +20,8 @@ import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 
 import com.wmods.wppenhacer.utils.IColors;
-import com.wmods.wppenhacer.xposed.core.Unobfuscator;
-import com.wmods.wppenhacer.xposed.core.Utils;
 import com.wmods.wppenhacer.xposed.core.Feature;
+import com.wmods.wppenhacer.xposed.core.Unobfuscator;
 
 import org.xmlpull.v1.XmlPullParser;
 

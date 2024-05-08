@@ -11,7 +11,12 @@ import android.graphics.PorterDuffColorFilter;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
+import android.os.Handler;
+import android.os.Looper;
+import android.text.TextUtils;
+import android.view.Gravity;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 
@@ -107,7 +112,6 @@ public class AntiRevoke extends Feature {
                     log("Could not find TextView");
                     return;
                 }
-                @SuppressLint("DiscouragedApi")
                 int dateId = Utils.getID("date", "id");
                 for (Field textView : textViews) {
                     TextView textView1 = (TextView) XposedHelpers.getObjectField(objView, textView.getName());
@@ -231,6 +235,7 @@ public class AntiRevoke extends Feature {
             try {
                 AsyncTask.THREAD_POOL_EXECUTOR.execute(() -> {
                     saveRevokedMessage(stripJID, messageKey, objMessage);
+                    showToast(getJidAuthor(objMessage));
                     try {
                         var mConversation = WppCore.getCurrenConversation();
                         if (mConversation != null && WppCore.stripJID(WppCore.getCurrentRawJID()).equals(stripJID)) {
@@ -252,6 +257,21 @@ public class AntiRevoke extends Feature {
             }
         }
         return revokeboolean;
+    }
+
+    private void showToast(String jidAuthor) {
+        if (prefs.getBoolean("toastdeleted", false)) return;
+
+        String name = WppCore.getContactName(WppCore.createUserJid(jidAuthor));
+        if (TextUtils.isEmpty(name)){
+            name = stripJID(jidAuthor);
+        }
+        String message = name + " -> " + UnobfuscatorCache.getInstance().getString("messagedeleted");
+        new Handler(Utils.getApplication().getMainLooper()).post(()->{
+            var toast = Toast.makeText(Utils.getApplication(),message, Toast.LENGTH_LONG);
+            toast.setGravity(Gravity.BOTTOM, 0, 0);
+            toast.show();
+        });
     }
 
 }

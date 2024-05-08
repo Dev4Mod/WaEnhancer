@@ -4,7 +4,6 @@ import static de.robv.android.xposed.XposedHelpers.findAndHookMethod;
 import static de.robv.android.xposed.XposedHelpers.findClass;
 
 import android.app.Activity;
-import android.app.AlertDialog;
 import android.content.Intent;
 import android.net.Uri;
 import android.text.InputType;
@@ -13,13 +12,13 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.EditText;
 import android.widget.LinearLayout;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 
+import com.wmods.wppenhacer.xposed.core.Feature;
 import com.wmods.wppenhacer.xposed.core.ResId;
 import com.wmods.wppenhacer.xposed.core.Utils;
-import com.wmods.wppenhacer.xposed.core.Feature;
+import com.wmods.wppenhacer.xposed.core.components.AlertDialogWpp;
 
 import de.robv.android.xposed.XC_MethodHook;
 import de.robv.android.xposed.XSharedPreferences;
@@ -33,6 +32,8 @@ public class NewChat extends Feature {
     public void doHook() {
         var homeActivity = findClass("com.whatsapp.HomeActivity", loader);
         var newSettings = prefs.getBoolean("novaconfig", false);
+        if (!prefs.getBoolean("newchat", true))return;
+
         findAndHookMethod(homeActivity, "onCreateOptionsMenu", Menu.class, new XC_MethodHook() {
             @Override
             protected void afterHookedMethod(MethodHookParam param) throws Throwable {
@@ -55,21 +56,19 @@ public class NewChat extends Feature {
                     edt.setTransformationMethod(null);
                     edt.setHint(ResId.string.number_with_country_code);
                     view.addView(edt);
-                    new AlertDialog.Builder(home)
-                            .setTitle(ResId.string.new_chat)
+                    new AlertDialogWpp(home)
+                            .setTitle(home.getString(ResId.string.new_chat))
                             .setView(view)
-                            .setPositiveButton(ResId.string.message, (dialog, which) -> {
+                            .setPositiveButton(home.getString(ResId.string.message), (dialog, which) -> {
                                 var number = edt.getText().toString();
                                 var numberFomatted = number.replaceAll("[+\\-()/\\s]", "");
-                                Toast.makeText(home, numberFomatted, Toast.LENGTH_SHORT).show();
-                                    var intent = new Intent(Intent.ACTION_VIEW);
-                                    intent.setData(Uri.parse("https://wa.me/" + numberFomatted));
-                                    intent.setPackage(Utils.getApplication().getPackageName());
-                                    home.startActivity(intent);
+                                var intent = new Intent(Intent.ACTION_VIEW);
+                                intent.setData(Uri.parse("https://wa.me/" + numberFomatted));
+                                intent.setPackage(Utils.getApplication().getPackageName());
+                                home.startActivity(intent);
                             })
-                            .setNegativeButton(ResId.string.cancel,null)
-                            .setCancelable(false)
-                            .create().show();
+                            .setNegativeButton(home.getString(ResId.string.cancel), null)
+                            .show();
                     return true;
                 });
 

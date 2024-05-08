@@ -26,9 +26,8 @@ public class WaCallback implements Application.ActivityLifecycleCallbacks {
     @SuppressLint("ApplySharedPref")
     @Override
     public void onActivityResumed(@NonNull Activity activity) {
-        var prefs = activity.getSharedPreferences("WaGlobal", Context.MODE_PRIVATE);
-        if (prefs.getBoolean("need_restart", false)) {
-            prefs.edit().putBoolean("need_restart", false).commit();
+        if (WppCore.getPrivBoolean("need_restart", false)) {
+            WppCore.setPrivBoolean("need_restart", false);
             try {
                 new AlertDialogWpp(activity).
                         setMessage(activity.getString(ResId.string.restart_wpp)).

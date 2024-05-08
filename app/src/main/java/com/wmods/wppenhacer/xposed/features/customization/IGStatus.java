@@ -42,7 +42,8 @@ public class IGStatus extends Feature {
     @Override
     public void doHook() throws Throwable {
 
-        if (!prefs.getBoolean("igstatus", false) || Utils.getApplication().getPackageName().equals("com.whatsapp.w4b")) return;
+        if (!prefs.getBoolean("igstatus", false) || Utils.getApplication().getPackageName().equals("com.whatsapp.w4b"))
+            return;
 
         var clazz = XposedHelpers.findClass("com.whatsapp.HomeActivity", loader);
 
@@ -55,7 +56,17 @@ public class IGStatus extends Feature {
                 mStatusContainer = new IGStatusView(homeActivity);
                 var layoutParams = new FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT, Utils.dipToPixels(105));
                 layoutParams.gravity = Gravity.TOP;
-                layoutParams.topMargin = Objects.equals(prefs.getString("chatfilter", null), "2") ? Utils.dipToPixels(112) : Utils.dipToPixels(56);
+
+                if (Objects.equals(prefs.getString("chatfilter", null), "2") && prefs.getBoolean("topnav", false)) {
+                    layoutParams.topMargin = Utils.dipToPixels(168);
+                } else if (prefs.getBoolean("topnav", false)) {
+                    layoutParams.topMargin = Utils.dipToPixels(112);
+                } else if (Objects.equals(prefs.getString("chatfilter", null), "2")) {
+                    layoutParams.topMargin = Utils.dipToPixels(112);
+                } else {
+                    layoutParams.topMargin = Utils.dipToPixels(56);
+                }
+
                 mStatusContainer.setLayoutParams(layoutParams);
                 mStatusContainer.setBackgroundColor(Color.TRANSPARENT);
                 var mainContainer = homeActivity.findViewById(Utils.getID("main_container", "id"));
@@ -106,12 +117,13 @@ public class IGStatus extends Feature {
         XposedBridge.hookMethod(onMenuItemSelected, new XC_MethodHook() {
             @Override
             protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
-                if (!Unobfuscator.isCalledFromClass(clazz) && !Unobfuscator.isCalledFromClass(onMenuItemClick)) return;
+                if (!Unobfuscator.isCalledFromClass(clazz) && !Unobfuscator.isCalledFromClass(onMenuItemClick))
+                    return;
                 var index = (int) param.args[0];
                 WppCore.getMainActivity().runOnUiThread(() -> {
                     XposedHelpers.setObjectField(WppCore.getMainActivity(), "A02", 0);
                     var visible = View.GONE;
-                    if (index == 0 || (index == 1 && separateGroups)) {
+                    if (index == SeparateGroup.tabs.indexOf(SeparateGroup.CHATS) || (separateGroups && index == SeparateGroup.tabs.indexOf(SeparateGroup.GROUPS))) {
                         visible = View.VISIBLE;
                     }
                     if (mStatusContainer.getVisibility() != visible)

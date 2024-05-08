@@ -1,7 +1,5 @@
 package com.wmods.wppenhacer.xposed.features.general;
 
-import static de.robv.android.xposed.XposedHelpers.findClass;
-
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
@@ -22,6 +20,7 @@ import com.wmods.wppenhacer.xposed.core.Feature;
 import com.wmods.wppenhacer.xposed.core.ResId;
 import com.wmods.wppenhacer.xposed.core.Unobfuscator;
 import com.wmods.wppenhacer.xposed.core.Utils;
+import com.wmods.wppenhacer.xposed.core.WppCore;
 import com.wmods.wppenhacer.xposed.core.components.AlertDialogWpp;
 
 import java.util.ArrayList;
@@ -75,6 +74,7 @@ public class Others extends Feature {
         var channels = prefs.getBoolean("channels", false);
         var igstatus = prefs.getBoolean("igstatus", false);
         var metaai = prefs.getBoolean("metaai", false);
+        var topnav = prefs.getBoolean("topnav", false);
 
         propsBoolean.put(5171, filterSeen); // filtros de chat e grupos
         propsBoolean.put(4524, novoTema);
@@ -85,6 +85,9 @@ public class Others extends Feature {
         propsBoolean.put(5509, outlinedIcons);
         propsBoolean.put(2358, false);
         propsBoolean.put(7516, fbstyle);
+        propsBoolean.put(3289, !topnav);
+        propsBoolean.put(4656, !topnav);
+
         if (metaai) {
             propsBoolean.put(8025, false);
             propsBoolean.put(6251, false);
@@ -100,6 +103,7 @@ public class Others extends Feature {
         logDebug(Unobfuscator.getMethodDescriptor(methodPropsBoolean));
 
         var dataUsageActivityClass = XposedHelpers.findClass("com.whatsapp.settings.SettingsDataUsageActivity", loader);
+        var workManagerClass = Unobfuscator.loadWorkManagerClass(loader);
         XposedBridge.hookMethod(methodPropsBoolean, new XC_MethodHook() {
             @Override
             protected void afterHookedMethod(MethodHookParam param) throws Throwable {
@@ -107,14 +111,19 @@ public class Others extends Feature {
 
                 var propValue = propsBoolean.get(i);
                 if (propValue != null) {
-                    param.setResult(propValue);
                     // Fix Bug in Settings Data Usage
-                    if (i == 4023 && propValue && Unobfuscator.isCalledFromClass(dataUsageActivityClass)) {
-                        param.setResult(false);
+                    switch (i) {
+                        case 4023:
+                            if (Unobfuscator.isCalledFromClass(dataUsageActivityClass))
+                                return;
+                            break;
+                        case 3877:
+                            if (!Unobfuscator.isCalledFromClass(workManagerClass))
+                                return;
+                            break;
                     }
+                    param.setResult(propValue);
                 }
-//                if ((boolean)param.getResult())
-//                    log("i: " + i + " propValue: " + param.getResult());
             }
         });
 
@@ -130,22 +139,22 @@ public class Others extends Feature {
             }
         });
 
-        var homeActivity = findClass("com.whatsapp.HomeActivity", loader);
-        XposedHelpers.findAndHookMethod(homeActivity, "onCreateOptionsMenu", Menu.class, new XC_MethodHook() {
+        XposedHelpers.findAndHookMethod("com.whatsapp.HomeActivity", loader, "onCreateOptionsMenu", Menu.class, new XC_MethodHook() {
             @SuppressLint("ApplySharedPref")
             @Override
             protected void afterHookedMethod(MethodHookParam param) throws Throwable {
                 Menu menu = (Menu) param.args[0];
                 Activity home = (Activity) param.thisObject;
-                @SuppressLint({"UseCompatLoadingForDrawables", "DiscouragedApi"})
-                var iconDraw = DesignUtils.getDrawableByName("vec_account_switcher");
-                iconDraw.setTint(0xff8696a0);
-                var itemMenu = menu.add(0, 0, 0, ResId.string.restart_whatsapp).setIcon(iconDraw).setOnMenuItemClickListener(item -> {
-                    restartApp(home);
-                    return true;
-                });
-                if (newSettings) {
-                    itemMenu.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
+                if (prefs.getBoolean("restartbutton", true)) {
+                    var iconDraw = DesignUtils.getDrawableByName("vec_account_switcher");
+                    iconDraw.setTint(0xff8696a0);
+                    var itemMenu = menu.add(0, 0, 0, ResId.string.restart_whatsapp).setIcon(iconDraw).setOnMenuItemClickListener(item -> {
+                        restartApp(home);
+                        return true;
+                    });
+                    if (newSettings) {
+                        itemMenu.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
+                    }
                 }
                 if (showDnd) {
                     InsertDNDOption(menu, home);
@@ -226,7 +235,7 @@ public class Others extends Feature {
                                 var dialog = new AlertDialogWpp(view.getContext());
                                 dialog.setTitle(context.getString(ResId.string.send_sticker));
 
-                                var stickerView = (ImageView)((ViewGroup)view).getChildAt(0);
+                                var stickerView = (ImageView) ((ViewGroup) view).getChildAt(0);
                                 LinearLayout linearLayout = new LinearLayout(context);
                                 linearLayout.setOrientation(LinearLayout.VERTICAL);
                                 linearLayout.setGravity(Gravity.CENTER_HORIZONTAL);
@@ -275,8 +284,7 @@ public class Others extends Feature {
 
     @SuppressLint({"DiscouragedApi", "UseCompatLoadingForDrawables", "ApplySharedPref"})
     private static void InsertDNDOption(Menu menu, Activity home) {
-        var shared = Utils.getApplication().getSharedPreferences(Utils.getApplication().getPackageName() + "_mdgwa_preferences", Context.MODE_PRIVATE);
-        var dndmode = shared.getBoolean("dndmode", false);
+        var dndmode = WppCore.getPrivBoolean("dndmode", false);
         int iconDraw;
         iconDraw = Utils.getID(dndmode ? "ic_location_nearby_disabled" : "ic_location_nearby", "drawable");
         var item = menu.add(0, 0, 0, "Dnd Mode " + dndmode);
@@ -288,15 +296,14 @@ public class Others extends Feature {
                         .setTitle(home.getString(ResId.string.dnd_mode_title))
                         .setMessage(home.getString(ResId.string.dnd_message))
                         .setPositiveButton(home.getString(ResId.string.activate), (dialog, which) -> {
-                            shared.edit().putBoolean("dndmode", true).commit();
-                            XposedBridge.log(String.valueOf(shared.getBoolean("dndmode", false)));
+                            WppCore.setPrivBoolean("dndmode", true);
                             restartApp(home);
                         })
                         .setNegativeButton(home.getString(ResId.string.cancel), (dialog, which) -> dialog.dismiss())
                         .create().show();
                 return true;
             }
-            shared.edit().putBoolean("dndmode", false).commit();
+            WppCore.setPrivBoolean("dndmode", false);
             restartApp(home);
             return true;
         });

@@ -227,4 +227,14 @@
     <string name="list_wpp">WhatsApp Supported List:</string>
     <string name="title_image">Image</string>
     <string name="title_video">Video</string>
+    <string name="enable_new_chat_button">Enable New Chat Button</string>
+    <string name="enable_new_chat_button_sum">Add button in Home Screen to start new chat</string>
+    <string name="enable_restart_button">Enable Restart Button</string>
+    <string name="enable_restart_button_sum">Add button in Home Screen to Restart App</string>
+    <string name="toast_on_delete">Show toast notification on delete message</string>
+    <string name="toast_on_delete_sum">Show toast notification if any contact deletes any message</string>
+    <string name="enable_top_navigation">Enable Top Navigation</string>
+    <string name="enable_top_navigation_sum">Activate the old navigation bar (at the top of the tabs)</string>
+    <string name="hideread_group">Hide Blue Tick in Groups</string>
+    <string name="hideread_group_sum">View messages in groups screen without users knowing</string>
 </resources>

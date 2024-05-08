@@ -1,14 +1,8 @@
 package com.wmods.wppenhacer.ui.fragments;
 
-import android.content.ContentUris;
-import android.content.Context;
-import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
-import android.provider.DocumentsContract;
-import android.provider.MediaStore;
-import android.util.Log;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
@@ -17,6 +11,7 @@ import androidx.preference.Preference;
 
 import com.wmods.wppenhacer.R;
 import com.wmods.wppenhacer.ui.fragments.base.BasePreFragment;
+import com.wmods.wppenhacer.utils.RealPathUtil;
 
 public class MediaFragment extends BasePreFragment {
 
@@ -27,11 +22,13 @@ public class MediaFragment extends BasePreFragment {
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         mContract = registerForActivityResult(new ActivityResultContracts.OpenDocumentTree(), result -> {
-            Preference preference = findPreference("localdownload");
+            if (result == null) return;
+            var realPath  = RealPathUtil.getRealPathFromURI_API19(getContext(), result);
+            Preference preference = findPreference("localdownload")
             if (preference != null) {
                 preference.setSummary(getPathFromContentUri(result));
             }
-            mPrefs.edit().putString("localdownload", getPathFromContentUri(result)).apply();
+            mPrefs.edit().putString("localdownload", realPath).apply();
         });
     }
 
@@ -50,21 +47,4 @@ public class MediaFragment extends BasePreFragment {
         });
         localPref.setSummary(mPrefs.getString("localdownload", Environment.getExternalStorageDirectory().getPath()+"/Download"));
     }
-
-
-    public String getPathFromContentUri(Uri uri) {
-        if (!"com.android.externalstorage.documents".equals(uri.getAuthority()))
-            return uri.toString();
-
-        String path = "";
-        String uriPath = uri.getPath();
-        if (uriPath != null) {
-            var pathSections = uriPath.split(":");
-            path = pathSections[pathSections.length - 1];
-            if (path.startsWith("/tree"))
-                path = "";
-        }
-        return Environment.getExternalStorageDirectory().getPath() + "/" + path;
-    }
-
 }

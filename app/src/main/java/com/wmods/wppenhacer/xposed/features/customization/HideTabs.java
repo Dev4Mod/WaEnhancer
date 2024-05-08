@@ -2,6 +2,7 @@ package com.wmods.wppenhacer.xposed.features.customization;
 
 import static com.wmods.wppenhacer.xposed.features.customization.SeparateGroup.tabs;
 
+import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.FrameLayout;
@@ -37,31 +38,30 @@ public class HideTabs extends Feature {
 
         var hideTabsList = hidetabs.stream().map(Integer::valueOf).collect(Collectors.toList());
 
-        if (!prefs.getBoolean("igstatus", false)) {
-
-            var onCreateTabList = Unobfuscator.loadTabListMethod(loader);
-            logDebug(Unobfuscator.getMethodDescriptor(onCreateTabList));
-            var ListField = Unobfuscator.getFieldByType(home, List.class);
-            XposedBridge.hookMethod(onCreateTabList, new XC_MethodHook() {
-                @Override
-                @SuppressWarnings("unchecked")
-                protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-                    var list = (List<Integer>) XposedHelpers.getStaticObjectField(home, ListField.getName());
-                    log(list);
-                    list.removeAll(hideTabsList);
+        var onCreateTabList = Unobfuscator.loadTabListMethod(loader);
+        logDebug(Unobfuscator.getMethodDescriptor(onCreateTabList));
+        var ListField = Unobfuscator.getFieldByType(home, List.class);
+        XposedBridge.hookMethod(onCreateTabList, new XC_MethodHook() {
+            @Override
+            @SuppressWarnings("unchecked")
+            protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+                var list = (List<Integer>) XposedHelpers.getStaticObjectField(home, ListField.getName());
+                for (var item : hideTabsList) {
+                    if (item != SeparateGroup.STATUS) {
+                        list.remove(item);
+                    }
                 }
-            });
-        }
-
+            }
+        });
 
         var OnTabItemAddMethod = Unobfuscator.loadOnTabItemAddMethod(loader);
         XposedBridge.hookMethod(OnTabItemAddMethod, new XC_MethodHook() {
             @Override
             protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-                var menu = (MenuItem) param.getResult();
-                var menuItemId = menu.getItemId();
+                var menuItem = (MenuItem) param.getResult();
+                var menuItemId = menuItem.getItemId();
                 if (hideTabsList.contains(menuItemId)) {
-                    menu.setVisible(false);
+                    menuItem.setVisible(false);
                 }
             }
         });

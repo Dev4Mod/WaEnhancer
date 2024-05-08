@@ -13,6 +13,11 @@
             app:title="@string/hideread" />
 
         <rikka.material.preference.MaterialSwitchPreference
+            app:key="hideread_group"
+            app:summary="@string/hideread_group_sum"
+            app:title="@string/hideread_group" />
+
+        <rikka.material.preference.MaterialSwitchPreference
             app:key="hideonceseen"
             app:summary="@string/hide_once_view_seen_sum"
             app:title="@string/hide_once_view_seen" />

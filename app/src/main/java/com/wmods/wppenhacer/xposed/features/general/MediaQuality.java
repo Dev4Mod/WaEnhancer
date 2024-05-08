@@ -73,14 +73,14 @@ public class MediaQuality extends Feature {
 
                             var widthDest2 = XposedHelpers.getIntField(resizeVideo, "A09");
                             var heightDest2 = XposedHelpers.getIntField(resizeVideo, "A07");
-                            var landscapeDest2 = widthDest2 > heightDest2 ;
+                            var landscapeDest2 = widthDest2 > heightDest2;
 
                             var widthSrc = XposedHelpers.getIntField(originalVieo, "A05");
                             var heightSrc = XposedHelpers.getIntField(originalVieo, "A03");
                             var rotation = (landscapeDest2 != landscapeDest);
 
 
-                            XposedHelpers.setIntField(resizeVideo, "A09", rotation ? heightSrc :  widthSrc );
+                            XposedHelpers.setIntField(resizeVideo, "A09", rotation ? heightSrc : widthSrc);
                             XposedHelpers.setIntField(resizeVideo, "A07", rotation ? widthSrc : heightSrc);
 
                         }
@@ -117,17 +117,18 @@ public class MediaQuality extends Feature {
 
         if (imageQuality) {
             // 6Ex
-            var mediaQualityImageMethod = Unobfuscator.loadMediaQualityImageMethod(loader);
+            var mediaQualityImageMethod = Unobfuscator.loadPropsIntegerMethod(loader);
             logDebug(Unobfuscator.getMethodDescriptor(mediaQualityImageMethod));
             XposedBridge.hookMethod(mediaQualityImageMethod, new XC_MethodHook() {
                 @Override
-                protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
+                protected void afterHookedMethod(MethodHookParam param) throws Throwable {
                     int p1 = (int) (param.args.length > 2 ? param.args[2] : param.args[1]);
-                    int[] props = {1573, 1575, 1578, 1574, 1576, 1577};
+                    int[] props = {1573, 1575, 1578, 1574, 1576, 1577, 2654};
                     int max = 10000;
                     int min = 1000;
                     for (int index = 0; index < props.length; index++) {
                         if (props[index] == p1) {
+                            log(p1 + "->" + param.getResult());
                             if (index <= 2) {
                                 param.setResult(min);
                             } else {
@@ -135,6 +136,12 @@ public class MediaQuality extends Feature {
                             }
                         }
                     }
+                    if (p1 == 3657){
+                        log(p1 + "->" + param.getResult());
+                        param.setResult(100);
+                    }
+
+
                 }
             });
             // Prevent crashes in Media preview

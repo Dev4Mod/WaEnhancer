@@ -49,6 +49,9 @@ import java.util.stream.Collectors;
 import de.robv.android.xposed.XposedBridge;
 import de.robv.android.xposed.XposedHelpers;
 
+/**
+ * @noinspection SimplifyOptionalCallChains
+ */
 public class Unobfuscator {
 
     private static DexKitBridge dexkit;
@@ -57,7 +60,7 @@ public class Unobfuscator {
     public static final String BUBBLE_COLORS_BALLOON_INCOMING_NORMAL_EXT = "balloon_incoming_normal_ext";
     public static final String BUBBLE_COLORS_BALLOON_OUTGOING_NORMAL = "balloon_outgoing_normal";
     public static final String BUBBLE_COLORS_BALLOON_OUTGOING_NORMAL_EXT = "balloon_outgoing_normal_ext";
-    public static final HashMap<String, Object> cache = new HashMap();
+    public static final HashMap cache = new HashMap();
 
     static {
         System.loadLibrary("dexkit");
@@ -176,6 +179,17 @@ public class Unobfuscator {
         });
     }
 
+    public static Method loadReceiptMethod2(ClassLoader classLoader) throws Exception {
+        return UnobfuscatorCache.getInstance().getMethod(classLoader, () -> {
+            var method = loadReceiptMethod(classLoader);
+            if (method == null) throw new Exception("Receipt method not found");
+            var classData = dexkit.getClassData(method.getDeclaringClass());
+            var methodResult = classData.findMethod(new FindMethod().matcher(new MethodMatcher().addUsingString("sender")));
+            if (methodResult.isEmpty()) throw new Exception("Receipt method not found");
+            return methodResult.get(0).getMethodInstance(classLoader);
+        });
+    }
+
     // TODO: Classes and Methods for HideForward
 
     public static Method loadForwardTagMethod(ClassLoader classLoader) throws Exception {
@@ -209,6 +223,15 @@ public class Unobfuscator {
             Method method = Arrays.stream(receiptsClass.getMethods()).filter(m -> m.getParameterTypes().length > 0 && m.getParameterTypes()[0].equals(Collection.class) && m.getReturnType().equals(HashMap.class)).findFirst().orElse(null);
             if (method == null) throw new Exception("HideViewOpenChat method not found");
             return method;
+        });
+    }
+
+    public static Method loadHideViewSendReadJob(ClassLoader classLoader) throws Exception {
+        return UnobfuscatorCache.getInstance().getMethod(classLoader, () -> {
+            var classData = dexkit.getClassData(XposedHelpers.findClass("com.whatsapp.jobqueue.job.SendReadReceiptJob", classLoader));
+            var methodResult = classData.findMethod(new FindMethod().matcher(new MethodMatcher().addUsingString("receipt", StringMatchType.Equals)));
+            if (methodResult.isEmpty()) throw new Exception("HideViewSendReadJob method not found");
+            return methodResult.get(0).getMethodInstance(classLoader);
         });
     }
 
@@ -472,14 +495,6 @@ public class Unobfuscator {
         });
     }
 
-    public static Method loadMediaQualityImageMethod(ClassLoader classLoader) throws Exception {
-        return UnobfuscatorCache.getInstance().getMethod(classLoader, () -> {
-            var method = findFirstMethodUsingStrings(classLoader, StringMatchType.Contains, "Unknown IntField");
-            if (method == null) throw new Exception("MediaQualityImage method not found");
-            return method;
-        });
-    }
-
     // TODO: Classes and methods to ShareLimit
 
     private static MethodData loadShareLimitMethodData() throws Exception {
@@ -717,13 +732,13 @@ public class Unobfuscator {
         });
     }
 
-    public static Method loadPropsStringMethod(ClassLoader loader) throws Exception {
-        return UnobfuscatorCache.getInstance().getMethod(loader, () -> {
-            var method = findFirstMethodUsingStrings(loader, StringMatchType.Contains, "Unknown StringField");
-            if (method == null) throw new Exception("Props method not found");
-            return method;
-        });
-    }
+//    public static Method loadPropsStringMethod(ClassLoader loader) throws Exception {
+//        return UnobfuscatorCache.getInstance().getMethod(loader, () -> {
+//            var method = findFirstMethodUsingStrings(loader, StringMatchType.Contains, "Unknown StringField");
+//            if (method == null) throw new Exception("Props method not found");
+//            return method;
+//        });
+//    }
 
 
     private static ClassData loadAntiRevokeImplClass() throws Exception {
@@ -1063,7 +1078,7 @@ public class Unobfuscator {
     public static Method loadNewMessageMethod(ClassLoader loader) throws Exception {
         return UnobfuscatorCache.getInstance().getMethod(loader, () -> {
             var clazzMessage = loadThreadMessageClass(loader);
-            var methodData = dexkit.findMethod(new FindMethod().searchInClass(List.of(dexkit.getClassData(clazzMessage))).matcher(new MethodMatcher().addUsingString("\n").returnType(String.class)));
+            var methodData = dexkit.findMethod(new FindMethod().searchInClass(List.of(Objects.requireNonNull(dexkit.getClassData(clazzMessage)))).matcher(new MethodMatcher().addUsingString("\n").returnType(String.class)));
             if (methodData.isEmpty()) throw new RuntimeException("NewMessage method not found");
             return methodData.get(0).getMethodInstance(loader);
         });
@@ -1072,9 +1087,9 @@ public class Unobfuscator {
     public static Method loadNewMessageWithMediaMethod(ClassLoader loader) throws Exception {
         return UnobfuscatorCache.getInstance().getMethod(loader, () -> {
             var clazzMessage = loadThreadMessageClass(loader);
-            var methodData = dexkit.findMethod(new FindMethod().searchInClass(List.of(dexkit.getClassData(clazzMessage))).matcher(new MethodMatcher().addUsingNumber(0x200000).returnType(String.class)));
+            var methodData = dexkit.findMethod(new FindMethod().searchInClass(List.of(Objects.requireNonNull(dexkit.getClassData(clazzMessage)))).matcher(new MethodMatcher().addUsingNumber(0x200000).returnType(String.class)));
             if (methodData.isEmpty()) {
-                methodData = dexkit.findMethod(new FindMethod().searchInClass(List.of(dexkit.getClassData(clazzMessage))).matcher(new MethodMatcher().addUsingString("video").returnType(String.class)));
+                methodData = dexkit.findMethod(new FindMethod().searchInClass(List.of(Objects.requireNonNull(dexkit.getClassData(clazzMessage)))).matcher(new MethodMatcher().addUsingString("video").returnType(String.class)));
                 if (methodData.isEmpty())
                     throw new RuntimeException("NewMessageWithMedia method not found");
             }
@@ -1093,10 +1108,11 @@ public class Unobfuscator {
     public static Method loadGetEditMessageMethod(ClassLoader loader) throws Exception {
         return UnobfuscatorCache.getInstance().getMethod(loader, () -> {
             var method = findFirstMethodUsingStrings(loader, StringMatchType.Contains, "MessageEditInfoStore/insertEditInfo/missing");
+            if (method == null) throw new RuntimeException("GetEditMessage method not found");
             var methodData = dexkit.getMethodData(DexSignUtil.getMethodDescriptor(method));
             var invokes = methodData.getInvokes();
             for (var invoke : invokes) {
-                if (invoke.getParamTypes().isEmpty() && invoke.getDeclaredClass().equals(methodData.getParamTypes().get(0))) {
+                if (invoke.getParamTypes().isEmpty() && Objects.equals(invoke.getDeclaredClass(), methodData.getParamTypes().get(0))) {
                     return invoke.getMethodInstance(loader);
                 }
             }
@@ -1340,6 +1356,14 @@ public class Unobfuscator {
             if (methodList.isEmpty())
                 throw new RuntimeException("CallConfirmationLimit method not found");
             return methodList.get(0).getMethodInstance(loader);
+        });
+    }
+
+    public static Class<?> loadWorkManagerClass(ClassLoader loader) throws Exception {
+        return UnobfuscatorCache.getInstance().getClass(loader, () -> {
+            var clazz = findFirstClassUsingStrings(loader, StringMatchType.Contains, "work-manager/configuration/created");
+            if (clazz == null) throw new RuntimeException("WorkManager class not found");
+            return clazz;
         });
     }
 }

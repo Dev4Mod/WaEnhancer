@@ -4,13 +4,19 @@ import androidx.annotation.NonNull;
 
 import com.wmods.wppenhacer.xposed.core.Unobfuscator;
 import com.wmods.wppenhacer.xposed.core.Feature;
+import com.wmods.wppenhacer.xposed.core.WppCore;
+import com.wmods.wppenhacer.xposed.utils.ReflectionUtils;
 
+import java.lang.reflect.Array;
 import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
+import java.util.Arrays;
 import java.util.HashMap;
 
 import de.robv.android.xposed.XC_MethodHook;
 import de.robv.android.xposed.XSharedPreferences;
 import de.robv.android.xposed.XposedBridge;
+import de.robv.android.xposed.XposedHelpers;
 
 public class HideSeen extends Feature {
 
@@ -21,14 +27,26 @@ public class HideSeen extends Feature {
     @Override
     public void doHook() throws Exception {
 
-        Method hideViewOpenChatMethod = Unobfuscator.loadHideViewOpenChatMethod(loader);
-        logDebug(Unobfuscator.getMethodDescriptor(hideViewOpenChatMethod));
-
-        XposedBridge.hookMethod(hideViewOpenChatMethod, new XC_MethodHook() {
+        Method SendReadReceiptJobMethod = Unobfuscator.loadHideViewSendReadJob(loader);
+        log(Unobfuscator.getMethodDescriptor(SendReadReceiptJobMethod));
+        XposedBridge.hookMethod(SendReadReceiptJobMethod, new XC_MethodHook() {
             @Override
             protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
-                if (prefs.getBoolean("hideread", false))
-                    param.setResult(new HashMap<>());
+                var srj = param.thisObject;
+                var messageIds = XposedHelpers.getObjectField(srj, "messageIds");
+                var firstmessage = (String) Array.get(messageIds, 0);
+                if (firstmessage != null && WppCore.getPrivBoolean(firstmessage + "_rpass", false)) {
+                    WppCore.removePrivKey(firstmessage + "_rpass");
+                    return;
+                }
+                var jid = (String) XposedHelpers.getObjectField(srj, "jid");
+                if (jid.contains("@g.us") && !prefs.getBoolean("hideread_group", false)) {
+                    return;
+                }
+                if (prefs.getBoolean("hideread", false)) {
+                    param.setResult(null);
+                }
+
             }
         });
 

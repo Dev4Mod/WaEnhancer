@@ -57,14 +57,6 @@
             app:summary="@string/show_online_dot_in_conversation_list_sum"
             app:title="@string/show_online_dot_in_conversation_list" />
 
-
-        <MultiSelectListPreference
-            app:entries="@array/tabshide_contents"
-            app:entryValues="@array/tabshide_values"
-            app:key="hidetabs"
-            app:summary="@string/hide_tabs_on_home_sum"
-            app:title="@string/hide_tabs_on_home" />
-
         <rikka.material.preference.MaterialSwitchPreference
             app:key="pinnedlimit"
             app:summary="@string/disable_pinned_limit_sum"
@@ -82,6 +74,18 @@
             app:summary="@string/disable_metaai_sum"
             app:title="@string/disable_metaai" />
 
+        <rikka.material.preference.MaterialSwitchPreference
+            app:key="newchat"
+            app:defaultValue="true"
+            app:summary="@string/enable_new_chat_button_sum"
+            app:title="@string/enable_new_chat_button" />
+
+        <rikka.material.preference.MaterialSwitchPreference
+            app:key="restartbutton"
+            app:defaultValue="true"
+            app:summary="@string/enable_restart_button_sum"
+            app:title="@string/enable_restart_button" />
+
     </PreferenceCategory>
 
     <PreferenceCategory
@@ -95,6 +99,11 @@
             app:key="antirevoke"
             app:summary="@string/antirevoke_sum"
             app:title="@string/antirevoke" />
+
+        <rikka.material.preference.MaterialSwitchPreference
+            app:key="toastdeleted"
+            app:title="@string/toast_on_delete_sum"
+            app:summary="@string/toast_on_delete" />
 
         <ListPreference
             app:entries="@array/antirevoke_entries"

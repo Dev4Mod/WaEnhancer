@@ -169,17 +169,17 @@
     <string name="privacy">Privatsphäre</string>
     <string name="module_enabled">Modul aktiviert</string>
     <string name="version_s">Version %s</string>
-    <string name="module_disabled">Deaktivierte Module</string>
-    <string name="whatsapp_in_background">WhatsApp im Hintergrund</string>
+    <string name="module_disabled">Modul deaktiviert</string>
+    <string name="whatsapp_in_background">WhatsApp ist aktiv</string>
     <string name="whatsapp_is_not_running_or_has_not_been_activated_in_lsposed">Whatsapp läuft nicht oder wurde nicht in Lsposed aktiviert</string>
     <string name="business_is_not_running_or_has_not_been_activated_in_lsposed">Whatsapp Business läuft nicht oder wurde in Lsposed nicht aktiviert</string>
     <string name="restart_wpp">Es ist notwendig, WhatsApp neu zu starten, damit die Änderungen in Wa Enhancer wirksam werden. Möchten Sie neu starten?</string>
-    <string name="version_s_not_listed">Version %s nicht aufgeführt</string>
+    <string name="version_s_not_listed">Version %s wird nicht unterstützt</string>
     <string name="media">Medien</string>
     <string name="show_button_to_send_blue_tick">Schaltfläche zum Senden von blauen Häkchen</string>
-    <string name="show_button_to_send_blue_tick_sum">Schaltfläche anzeigen, um blaues Häkchen zu senden (als gelesen markieren)</string>
+    <string name="show_button_to_send_blue_tick_sum">Optionen: Deaktiviert, 3-Punkte-Menü, Symbol</string>
     <string name="send_blue_tick">Als Lesen/Gesehen markieren</string>
-    <string name="business_in_background">Whatsapp Business im Hintergrund</string>
+    <string name="business_in_background">Whatsapp Business ist aktiv</string>
     <string name="sending_read_blue_tick">Sende blaue Häkchen (als gelesen/angesehen)</string>
     <string name="enable_facebook_style_for_status">Facebook-Stil für Status aktivieren</string>
     <string name="enable_facebook_style_for_status_sum">Ändere den ursprünglichen Status Stil zu Facebook Stil</string>
@@ -223,4 +223,10 @@
     <string name="list_wpp">Unterstützte Versionen von WhatsApp:</string>
     <string name="title_image">Bild</string>
     <string name="title_video">Video</string>
+    <string name="enable_new_chat_button">Enable New Chat Button</string>
+    <string name="enable_new_chat_button_sum">Add button in Home Screen to start new chat</string>
+    <string name="enable_restart_button">Enable Restart Button</string>
+    <string name="enable_restart_button_sum">Add button in Home Screen to Restart App</string>
+    <string name="toast_on_delete">Show toast notification on delete message</string>
+    <string name="toast_on_delete_sum">Show toast notification if any contact deletes any message</string>
 </resources>
