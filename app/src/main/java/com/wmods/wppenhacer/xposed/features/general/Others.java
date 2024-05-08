@@ -75,6 +75,7 @@ public class Others extends Feature {
         var igstatus = prefs.getBoolean("igstatus", false);
         var metaai = prefs.getBoolean("metaai", false);
         var topnav = prefs.getBoolean("topnav", false);
+        var videotime = prefs.getBoolean("videotime", false);
 
         propsBoolean.put(5171, filterSeen); // filtros de chat e grupos
         propsBoolean.put(4524, novoTema);
@@ -97,7 +98,7 @@ public class Others extends Feature {
         propsInteger.put(8522, fbstyle ? 1 : 0);
         propsInteger.put(8521, fbstyle ? 1 : 0);
         propsInteger.put(3877, channels ? igstatus ? 2 : 0 : 2);
-
+        propsInteger.put(6728, videotime ? 60 : 30);
 
         var methodPropsBoolean = Unobfuscator.loadPropsBooleanMethod(loader);
         logDebug(Unobfuscator.getMethodDescriptor(methodPropsBoolean));

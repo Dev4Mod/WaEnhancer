@@ -54,6 +54,11 @@
             app:summary="@string/send_video_in_60fps_sum"
             app:title="@string/send_video_in_60fps" />
 
+        <rikka.material.preference.MaterialSwitchPreference
+            app:key="videotime"
+            app:summary="@string/time_limit_on_status_video_sum"
+            app:title="@string/time_limit_on_status_video" />
+
     </PreferenceCategory>
 
 
