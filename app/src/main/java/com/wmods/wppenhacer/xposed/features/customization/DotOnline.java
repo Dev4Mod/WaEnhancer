@@ -12,6 +12,7 @@ import android.view.Gravity;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.TextView; // Added for displaying last seen time
 
 import androidx.annotation.NonNull;
 
@@ -58,12 +59,20 @@ public class DotOnline extends Feature {
                 imageView.setForegroundGravity(Gravity.CENTER_VERTICAL);
                 ShapeDrawable shapeDrawable = new ShapeDrawable(new OvalShape());
                 shapeDrawable.getPaint().setColor(Color.GREEN);
-                // Definir o tamanho do círculo
+                // Define the size of the circle
                 shapeDrawable.setIntrinsicHeight(20);
                 shapeDrawable.setIntrinsicWidth(20);
                 imageView.setImageDrawable(shapeDrawable);
                 imageView.setVisibility(View.GONE);
                 bottomLayout.addView(imageView);
+
+                // Add TextView to show last seen time
+                TextView lastSeenText = new TextView(context);
+                lastSeenText.setId(0x7FFF0002);
+                lastSeenText.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.MATCH_PARENT));
+                lastSeenText.setGravity(Gravity.CENTER_VERTICAL);
+                lastSeenText.setVisibility(View.GONE);
+                bottomLayout.addView(lastSeenText);
             }
         });
 
@@ -99,7 +108,9 @@ public class DotOnline extends Feature {
                 var object = param.args[0];
                 var view = (View) views.get(viewHolder);
                 var csDot = (ImageView) view.findViewById(0x7FFF0001);
+                var lastSeenText = (TextView) view.findViewById(0x7FFF0002); // Get the TextView for last seen time
                 csDot.setVisibility(View.GONE);
+                lastSeenText.setVisibility(View.GONE); // Hide last seen time initially
                 var jidFiled = Unobfuscator.getFieldByExtendType(object.getClass(), XposedHelpers.findClass("com.whatsapp.jid.Jid", loader));
                 var jidObject = jidFiled.get(object);
                 var jid = WppCore.getRawString(jidObject);
@@ -112,6 +123,11 @@ public class DotOnline extends Feature {
                         var status = (String) getStatusUser.invoke(mStatusUser, object);
                         if (!TextUtils.isEmpty(status) && status.trim().equals(UnobfuscatorCache.getInstance().getString("online"))) {
                             csDot.setVisibility(View.VISIBLE);
+                        } else if (!TextUtils.isEmpty(status) ) {
+                            // If not online, show last seen time
+                         // Logic to get last seen time goes here
+                            lastSeenText.setText(status);
+                            lastSeenText.setVisibility(View.VISIBLE);
                         }
                     } catch (Exception e) {
                         logDebug(e);
