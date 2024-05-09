@@ -14,10 +14,10 @@ import androidx.annotation.NonNull;
 
 import com.wmods.wppenhacer.adapter.IGStatusAdapter;
 import com.wmods.wppenhacer.views.IGStatusView;
+import com.wmods.wppenhacer.xposed.core.Feature;
 import com.wmods.wppenhacer.xposed.core.Unobfuscator;
 import com.wmods.wppenhacer.xposed.core.Utils;
 import com.wmods.wppenhacer.xposed.core.WppCore;
-import com.wmods.wppenhacer.xposed.core.Feature;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -170,8 +170,8 @@ public class IGStatus extends Feature {
         var onGetInvokeField = Unobfuscator.loadGetInvokeField(loader);
         logDebug(Unobfuscator.getFieldDescriptor(onGetInvokeField));
         XposedBridge.hookMethod(onUpdateStatusChanged, new XC_MethodHook() {
-            private Unhook unhook;
 
+            /** @noinspection SimplifyStreamApiCallChains*/
             @Override
             protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
                 var object = onGetInvokeField.get(param.args[0]);

@@ -16,6 +16,7 @@ import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.FragmentActivity;
 
+import com.wmods.wppenhacer.App;
 import com.wmods.wppenhacer.BuildConfig;
 import com.wmods.wppenhacer.MainActivity;
 import com.wmods.wppenhacer.R;
@@ -56,7 +57,7 @@ public class HomeFragment extends BaseFragment {
         if (supported_list.contains(version)) {
             binding.statusSummary3.setText(String.format(getString(R.string.version_s), version));
             binding.status3.setCardBackgroundColor(context.getColor(rikka.material.R.color.material_green_500));
-        }else {
+        } else {
             binding.statusSummary3.setText(String.format(getString(R.string.version_s_not_listed), version));
             binding.status3.setCardBackgroundColor(context.getColor(rikka.material.R.color.material_yellow_500));
         }
@@ -71,7 +72,7 @@ public class HomeFragment extends BaseFragment {
         if (supported_list.contains(version)) {
             binding.statusSummary1.setText(String.format(getString(R.string.version_s), version));
             binding.status2.setCardBackgroundColor(context.getColor(rikka.material.R.color.material_green_500));
-        }else {
+        } else {
             binding.statusSummary1.setText(String.format(getString(R.string.version_s_not_listed), version));
             binding.status2.setCardBackgroundColor(context.getColor(rikka.material.R.color.material_yellow_500));
         }
@@ -115,14 +116,32 @@ public class HomeFragment extends BaseFragment {
             binding.status.setCardBackgroundColor(activity.getColor(rikka.material.R.color.material_red_500));
             binding.statusSummary.setVisibility(View.GONE);
         }
-        disableWpp(activity);
-        disableBusiness(activity);
+        if (isInstalled(MainFeatures.PACKAGE_WPP)) {
+            disableWpp(activity);
+        } else {
+            binding.status2.setVisibility(View.GONE);
+        }
+
+        if (isInstalled(MainFeatures.PACKAGE_BUSINESS)) {
+            disableBusiness(activity);
+        } else {
+            binding.status3.setVisibility(View.GONE);
+        }
         checkWpp(activity);
         binding.deviceName.setText(Build.MANUFACTURER);
         binding.sdk.setText(String.valueOf(Build.VERSION.SDK_INT));
         binding.modelName.setText(Build.DEVICE);
         binding.listWpp.setText(Arrays.toString(activity.getResources().getStringArray(R.array.supported_versions_wpp)));
         binding.listBusiness.setText(Arrays.toString(activity.getResources().getStringArray(R.array.supported_versions_wpp)));
+    }
+
+    private boolean isInstalled(String packageWpp) {
+        try {
+            App.getInstance().getPackageManager().getPackageInfo(packageWpp, 0);
+            return true;
+        } catch (Exception ignored) {
+        }
+        return false;
     }
 
     private void disableBusiness(FragmentActivity activity) {

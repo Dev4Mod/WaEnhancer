@@ -40,10 +40,9 @@ public class HideSeen extends Feature {
                     return;
                 }
                 var jid = (String) XposedHelpers.getObjectField(srj, "jid");
-                if (jid.contains("@g.us") && !prefs.getBoolean("hideread_group", false)) {
-                    return;
-                }
-                if (prefs.getBoolean("hideread", false)) {
+                if (jid.contains("@g.us") && prefs.getBoolean("hideread_group", false)) {
+                    param.setResult(null);
+                } else if (prefs.getBoolean("hideread", false)) {
                     param.setResult(null);
                 }
 
