@@ -231,6 +231,7 @@ public class Others extends Feature {
                         protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
                             View.OnClickListener mCaptureOnClickListener = (View.OnClickListener) param.args[0];
                             if (mCaptureOnClickListener == null) return;
+                            if (!(param.thisObject instanceof ViewGroup)) return;
                             param.args[0] = (View.OnClickListener) view -> {
                                 var context = view.getContext();
                                 var dialog = new AlertDialogWpp(view.getContext());
