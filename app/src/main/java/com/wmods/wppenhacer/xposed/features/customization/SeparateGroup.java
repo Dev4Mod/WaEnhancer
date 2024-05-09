@@ -2,22 +2,18 @@ package com.wmods.wppenhacer.xposed.features.customization;
 
 import static de.robv.android.xposed.XposedHelpers.callMethod;
 import static de.robv.android.xposed.XposedHelpers.getObjectField;
-import static de.robv.android.xposed.XposedHelpers.setObjectField;
 
 import android.annotation.SuppressLint;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
 import android.widget.BaseAdapter;
-import android.widget.FrameLayout;
 
 import androidx.annotation.NonNull;
 
+import com.wmods.wppenhacer.xposed.core.Feature;
 import com.wmods.wppenhacer.xposed.core.Unobfuscator;
 import com.wmods.wppenhacer.xposed.core.UnobfuscatorCache;
 import com.wmods.wppenhacer.xposed.core.Utils;
-import com.wmods.wppenhacer.xposed.core.WppCore;
-import com.wmods.wppenhacer.xposed.core.Feature;
 import com.wmods.wppenhacer.xposed.core.db.MessageStore;
 
 import java.util.ArrayList;
@@ -26,7 +22,6 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Objects;
-import java.util.stream.Collectors;
 
 import de.robv.android.xposed.XC_MethodHook;
 import de.robv.android.xposed.XSharedPreferences;
@@ -76,49 +71,6 @@ public class SeparateGroup extends Feature {
 
         var runMethod = Unobfuscator.loadTabCountMethod(loader);
         logDebug(Unobfuscator.getMethodDescriptor(runMethod));
-        var idField = Unobfuscator.getFieldByType(runMethod.getDeclaringClass(), int.class);
-        var pagerField = Unobfuscator.loadTabCountField(loader);
-
-        XposedBridge.hookMethod(runMethod, new XC_MethodHook() {
-            @Override
-            @SuppressLint({"Recycle", "Range"})
-            protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
-                var id = (int) getObjectField(param.thisObject, idField.getName());
-                if (id != 32 && id != 35 && id != 37 && id != 31) return;
-
-                var homeActivity = XposedHelpers.getObjectField(param.thisObject, "A00");
-                var a1 = XposedHelpers.getObjectField(homeActivity, pagerField.getName());
-                var chatCount = 0;
-                var groupCount = 0;
-                synchronized (SeparateGroup.class) {
-                    var db = MessageStore.database.getReadableDatabase();
-                    var sql = "SELECT * FROM chat WHERE unseen_message_count != 0";
-                    var cursor = db.rawQuery(sql, null);
-                    while (cursor.moveToNext()) {
-                        int jid = cursor.getInt(cursor.getColumnIndex("jid_row_id"));
-                        int groupType = cursor.getInt(cursor.getColumnIndex("group_type"));
-                        int archived = cursor.getInt(cursor.getColumnIndex("archived"));
-                        if (archived != 0 || groupType != 0) continue;
-                        var sql2 = "SELECT * FROM jid WHERE _id == ?";
-                        var cursor1 = db.rawQuery(sql2, new String[]{String.valueOf(jid)});
-                        if (!cursor1.moveToFirst()) continue;
-                        var server = cursor1.getString(cursor1.getColumnIndex("server"));
-                        if (server.equals("g.us")) {
-                            groupCount++;
-                        } else {
-                            chatCount++;
-                        }
-                    }
-                    if (tabs.contains(CHATS)) {
-                        var q = XposedHelpers.callMethod(a1, "A00", a1, tabs.indexOf(CHATS));
-                        setObjectField(q, "A01", chatCount);
-                    }
-                    if (tabs.contains(GROUPS) && tabInstances.containsKey(GROUPS)) {
-                        setObjectField(tabInstances.get(GROUPS), "A01", groupCount);
-                    }
-                }
-            }
-        });
 
         var enableCountMethod = Unobfuscator.loadEnableCountTabMethod(loader);
         var constructor1 = Unobfuscator.loadEnableCountTabConstructor1(loader);
@@ -129,17 +81,47 @@ public class SeparateGroup extends Feature {
         logDebug(Unobfuscator.getMethodDescriptor(enableCountMethod));
         XposedBridge.hookMethod(enableCountMethod, new XC_MethodHook() {
             @Override
+            @SuppressLint({"Range","Recycle"})
             protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
                 var indexTab = (int) param.args[2];
                 if (indexTab == tabs.indexOf(CHATS)) {
-                    var groupCount = XposedHelpers.getIntField(tabInstances.get(GROUPS), "A01");
+
+                    var chatCount = 0;
+                    var groupCount = 0;
+                    synchronized (SeparateGroup.class) {
+                        var db = MessageStore.database.getReadableDatabase();
+                        var sql = "SELECT * FROM chat WHERE unseen_message_count != 0";
+                        var cursor = db.rawQuery(sql, null);
+                        while (cursor.moveToNext()) {
+                            int jid = cursor.getInt(cursor.getColumnIndex("jid_row_id"));
+                            int groupType = cursor.getInt(cursor.getColumnIndex("group_type"));
+                            int archived = cursor.getInt(cursor.getColumnIndex("archived"));
+                            if (archived != 0 || groupType != 0) continue;
+                            var sql2 = "SELECT * FROM jid WHERE _id == ?";
+                            var cursor1 = db.rawQuery(sql2, new String[]{String.valueOf(jid)});
+                            if (!cursor1.moveToFirst()) continue;
+                            var server = cursor1.getString(cursor1.getColumnIndex("server"));
+                            if (server.equals("g.us")) {
+                                groupCount++;
+                            } else {
+                                chatCount++;
+                            }
+                        }
+                }
+                if (tabs.contains(CHATS) && tabInstances.containsKey(CHATS)) {
+                    var instance12 = chatCount <= 0 ? constructor3.newInstance() : constructor2.newInstance(chatCount);
+                    var instance22 = constructor1.newInstance(instance12);
+                    param.args[1] = instance22;
+                }
+                if (tabs.contains(GROUPS) && tabInstances.containsKey(GROUPS)) {
                     var instance2 = groupCount <= 0 ? constructor3.newInstance() : constructor2.newInstance(groupCount);
                     var instance1 = constructor1.newInstance(instance2);
                     enableCountMethod.invoke(param.thisObject, param.args[0], instance1, tabs.indexOf(GROUPS));
                 }
             }
-        });
-    }
+        }
+    });
+}
 
     private void hookTabIcon() throws Exception {
         var iconTabMethod = Unobfuscator.loadIconTabMethod(loader);
@@ -309,51 +291,49 @@ public class SeparateGroup extends Feature {
     }
 
 
+public static class ArrayListFilter extends ArrayList {
+
+    private final boolean isGroup;
+
+    public ArrayListFilter(boolean isGroup) {
+        this.isGroup = isGroup;
+    }
 
 
-    public static class ArrayListFilter extends ArrayList {
-
-        private final boolean isGroup;
-
-        public ArrayListFilter(boolean isGroup) {
-            this.isGroup = isGroup;
-        }
-
-
-        @Override
-        public void add(int index, Object element) {
-            if (checkGroup(element)) {
-                super.add(index, element);
-            }
-        }
-
-        @Override
-        public boolean add(Object object) {
-            if (checkGroup(object)) {
-                return super.add(object);
-            }
-            return true;
-        }
-
-        @Override
-        public boolean addAll(@NonNull Collection c) {
-            for (var chat : c) {
-                if (checkGroup(chat)) {
-                    super.add(chat);
-                }
-            }
-            return true;
-        }
-
-        private boolean checkGroup(Object chat) {
-            var requiredServer = isGroup ? "g.us" : "s.whatsapp.net";
-            var jid = getObjectField(chat, "A00");
-            if (XposedHelpers.findMethodExactIfExists(jid.getClass(), "getServer") != null) {
-                var server = (String) callMethod(jid, "getServer");
-                return server.equals(requiredServer);
-            }
-            return true;
+    @Override
+    public void add(int index, Object element) {
+        if (checkGroup(element)) {
+            super.add(index, element);
         }
     }
+
+    @Override
+    public boolean add(Object object) {
+        if (checkGroup(object)) {
+            return super.add(object);
+        }
+        return true;
+    }
+
+    @Override
+    public boolean addAll(@NonNull Collection c) {
+        for (var chat : c) {
+            if (checkGroup(chat)) {
+                super.add(chat);
+            }
+        }
+        return true;
+    }
+
+    private boolean checkGroup(Object chat) {
+        var requiredServer = isGroup ? "g.us" : "s.whatsapp.net";
+        var jid = getObjectField(chat, "A00");
+        if (XposedHelpers.findMethodExactIfExists(jid.getClass(), "getServer") != null) {
+            var server = (String) callMethod(jid, "getServer");
+            return server.equals(requiredServer);
+        }
+        return true;
+    }
+}
 
 }
