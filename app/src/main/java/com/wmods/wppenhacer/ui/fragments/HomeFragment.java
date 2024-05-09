@@ -53,7 +53,7 @@ public class HomeFragment extends BaseFragment {
     private void receiverBroadcastBusiness(Context context, Intent intent) {
         binding.statusTitle3.setText(R.string.business_in_background);
         var version = intent.getStringExtra("VERSION");
-        var supported_list = Arrays.asList(context.getResources().getStringArray(R.array.supported_versions_wpp));
+        var supported_list = Arrays.asList(context.getResources().getStringArray(R.array.supported_versions_business));
         if (supported_list.contains(version)) {
             binding.statusSummary3.setText(String.format(getString(R.string.version_s), version));
             binding.status3.setCardBackgroundColor(context.getColor(rikka.material.R.color.material_green_500));
@@ -132,7 +132,7 @@ public class HomeFragment extends BaseFragment {
         binding.sdk.setText(String.valueOf(Build.VERSION.SDK_INT));
         binding.modelName.setText(Build.DEVICE);
         binding.listWpp.setText(Arrays.toString(activity.getResources().getStringArray(R.array.supported_versions_wpp)));
-        binding.listBusiness.setText(Arrays.toString(activity.getResources().getStringArray(R.array.supported_versions_wpp)));
+        binding.listBusiness.setText(Arrays.toString(activity.getResources().getStringArray(R.array.supported_versions_business)));
     }
 
     private boolean isInstalled(String packageWpp) {
