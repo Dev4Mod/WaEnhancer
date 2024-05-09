@@ -62,12 +62,13 @@
     </string-array>
 
     <string-array name="supported_versions_wpp">
-        <item>2.24.7.79</item>
-        <item>2.24.8.81</item>
-        <item>2.24.8.82</item>
         <item>2.24.8.85</item>
         <item>2.24.8.86</item>
         <item>2.24.9.71</item>
         <item>2.24.9.72</item>
+        <item>2.24.9.76</item>
+        <item>2.24.9.77</item>
+        <item>2.24.9.78</item>
+        <item>2.24.9.79</item>
     </string-array>
 </resources>
