@@ -220,8 +220,8 @@
     <string name="device_name">Nama Perangkat</string>
     <string name="disable_metaai">Nonaktifkan Fungsi Meta Ai</string>
     <string name="disable_metaai_sum">Nonaktifkan fungsi meta ai hanya bagi mereka yang diaktifkan secara default</string>
-    <string name="list_business">Versi WhatsApp Bisnis yang Didukung:</string>
-    <string name="list_wpp">Versi WhatsApp yang Didukung:</string>
+    <string name="list_business">Versi WhatsApp Bisnis yang Didukung</string>
+    <string name="list_wpp">Versi WhatsApp yang Didukung</string>
     <string name="title_image">Gambar</string>
     <string name="title_video">Video</string>
     <string name="enable_new_chat_button">Tampilkan Tombol Obrolan Baru</string>

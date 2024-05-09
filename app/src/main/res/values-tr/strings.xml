@@ -231,8 +231,8 @@
     <string name="toast_on_delete_sum">Herhangi bir kişi herhangi bir mesajı sildiğinde tost bildirimini göster</string>
     <string name="enable_top_navigation">Üst Gezinti Çubuğunu Etkinleştir</string>
     <string name="enable_top_navigation_sum">Eski gezinti çubuğunu etkinleştir (sekmelerin en üstünde)</string>
-    <string name="hideread_group">Hide Blue Tick in Groups</string>
-    <string name="hideread_group_sum">View messages in groups screen without users knowing</string>
-    <string name="time_limit_on_status_video">Increase time limit on status video</string>
-    <string name="time_limit_on_status_video_sum">Increase time limit on status videos from 30 seconds to 1 minute (for everyone)</string>
+    <string name="hideread_group">Gruplarda Mavi Tiki Gizle</string>
+    <string name="hideread_group_sum">Kullanıcıların haberi olmadan konuşma ekranındaki mesajları görüntüle</string>
+    <string name="time_limit_on_status_video">Durum videosundaki süre sınırını artır</string>
+    <string name="time_limit_on_status_video_sum">Durum videolarındaki süre sınırını 30 saniyeden 1 dakikaya çıkar (herkes için)</string>
 </resources>
