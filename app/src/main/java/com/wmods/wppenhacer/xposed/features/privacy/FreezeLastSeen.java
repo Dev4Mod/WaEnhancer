@@ -4,6 +4,7 @@ import androidx.annotation.NonNull;
 
 import com.wmods.wppenhacer.xposed.core.Unobfuscator;
 import com.wmods.wppenhacer.xposed.core.Feature;
+import com.wmods.wppenhacer.xposed.core.WppCore;
 
 import de.robv.android.xposed.XC_MethodHook;
 import de.robv.android.xposed.XSharedPreferences;
@@ -21,7 +22,7 @@ public class FreezeLastSeen extends Feature {
             XposedBridge.hookMethod(method, new XC_MethodHook() {
                 @Override
                 protected void beforeHookedMethod(MethodHookParam param) {
-                    if (prefs.getBoolean("freezelastseen", false))
+                    if (WppCore.getPrivBoolean("freezelastseen", false))
                         param.setResult(null);
                 }
             });
