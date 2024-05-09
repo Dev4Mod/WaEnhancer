@@ -97,8 +97,7 @@ public class IGStatus extends Feature {
                     return;
                 var view = (ViewGroup) param.getResult();
                 if (view == null) return;
-                @SuppressLint("ResourceType")
-                var mainView = (ListView) view.findViewById(0x0102000a);
+                var mainView = (ListView) view.findViewById(android.R.id.list);
                 mainView.setNestedScrollingEnabled(true);
                 var paddingView = new View(WppCore.getMainActivity());
                 paddingView.setClickable(true);

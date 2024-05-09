@@ -43,7 +43,6 @@ import de.robv.android.xposed.XposedHelpers;
 public class AntiRevoke extends Feature {
 
     private static final HashMap<String, HashSet<String>> messageRevokedMap = new HashMap<>();
-    private static SharedPreferences mShared;
     private static Field fieldMessageKey;
     private static Field getFieldIdMessage;
 
@@ -53,8 +52,6 @@ public class AntiRevoke extends Feature {
 
     @Override
     public void doHook() throws Exception {
-        mShared = Utils.getApplication().getSharedPreferences(Utils.getApplication().getPackageName() + "_mdgwa_preferences", Context.MODE_PRIVATE);
-        migrateMessages();
 
         var antiRevokeMessageMethod = Unobfuscator.loadAntiRevokeMessageMethod(loader);
         logDebug(Unobfuscator.getMethodDescriptor(antiRevokeMessageMethod));
@@ -207,25 +204,10 @@ public class AntiRevoke extends Feature {
         }
     }
 
-    private void migrateMessages() {
-        Map<String, ?> map = mShared.getAll();
-        for (Map.Entry<String, ?> entry : map.entrySet()) {
-            String key = entry.getKey();
-            if (key == null || !key.contains("revoked")) continue;
-            var jid = key.replace("_revoked", "");
-            var msg = (String) entry.getValue();
-            var messages = Utils.StringToStringArray(msg);
-            if (messages != null) {
-                for (var message : messages) {
-                    DelMessageStore.getInstance(Utils.getApplication()).insertMessage(jid, message);
-                }
-            }
-            mShared.edit().remove(key).apply();
-        }
-    }
 
     @SuppressLint("ResourceType")
     private int antiRevoke(Object objMessage) {
+        showToast(getJidAuthor(objMessage));
         var messageKey = (String) XposedHelpers.getObjectField(objMessage, "A01");
         var stripJID = stripJID(getJidAuthor(objMessage));
         var revokeboolean = stripJID.equals("status") ? Integer.parseInt(prefs.getString("antirevokestatus", "0")) : Integer.parseInt(prefs.getString("antirevoke", "0"));
@@ -236,7 +218,6 @@ public class AntiRevoke extends Feature {
             try {
                 AsyncTask.THREAD_POOL_EXECUTOR.execute(() -> {
                     saveRevokedMessage(stripJID, messageKey, objMessage);
-                    showToast(getJidAuthor(objMessage));
                     try {
                         var mConversation = WppCore.getCurrenConversation();
                         if (mConversation != null && WppCore.stripJID(WppCore.getCurrentRawJID()).equals(stripJID)) {
@@ -262,7 +243,7 @@ public class AntiRevoke extends Feature {
     }
 
     private void showToast(String jidAuthor) {
-        if (prefs.getBoolean("toastdeleted", false)) return;
+        if (!prefs.getBoolean("toastdeleted", false)) return;
 
         String name = WppCore.getContactName(WppCore.createUserJid(jidAuthor));
         if (TextUtils.isEmpty(name)){
