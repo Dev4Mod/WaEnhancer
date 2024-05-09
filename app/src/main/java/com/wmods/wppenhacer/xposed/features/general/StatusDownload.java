@@ -29,12 +29,11 @@ import de.robv.android.xposed.XposedBridge;
 import de.robv.android.xposed.XposedHelpers;
 
 public class StatusDownload extends Feature {
-    private Object messageObj;
+    private static Object messageObj;
 
     public StatusDownload(ClassLoader loader, XSharedPreferences preferences) {
         super(loader, preferences);
     }
-
 
     public void doHook() throws Exception {
         if (!prefs.getBoolean("downloadstatus", false)) return;

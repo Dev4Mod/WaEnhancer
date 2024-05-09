@@ -137,7 +137,6 @@ public class MediaQuality extends Feature {
                         }
                     }
                     if (p1 == 3657){
-                        log(p1 + "->" + param.getResult());
                         param.setResult(100);
                     }
 
