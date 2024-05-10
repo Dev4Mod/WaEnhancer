@@ -51,7 +51,12 @@ public abstract class BasePreFragment extends PreferenceFragmentCompat implement
             if (bool) fbstyle.setChecked(false);
             fbstyle.setEnabled(!bool);
         }
-
+        var showFreeze = (MaterialSwitchPreference) findPreference("show_freezeLastSeen");
+        if (showFreeze != null) {
+            var bool = mPrefs.getBoolean("freezelastseen", false);
+            if (bool) showFreeze.setChecked(false);
+            showFreeze.setEnabled(!bool);
+        }
     }
 
     @Override

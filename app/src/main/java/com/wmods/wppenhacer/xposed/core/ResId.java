@@ -2,6 +2,12 @@ package com.wmods.wppenhacer.xposed.core;
 
 public class ResId {
 
+    public static class drawable {
+
+        public static int eye_disabled;
+        public static int eye_enabled;
+    }
+
     public static class string {
         public static int edited_history;
         public static int dnd_message;

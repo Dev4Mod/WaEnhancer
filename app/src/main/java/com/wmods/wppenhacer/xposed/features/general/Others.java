@@ -3,7 +3,6 @@ package com.wmods.wppenhacer.xposed.features.general;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
-import android.content.Intent;
 import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -151,7 +150,7 @@ public class Others extends Feature {
                     var iconDraw = DesignUtils.getDrawableByName("vec_account_switcher");
                     iconDraw.setTint(0xff8696a0);
                     var itemMenu = menu.add(0, 0, 0, ResId.string.restart_whatsapp).setIcon(iconDraw).setOnMenuItemClickListener(item -> {
-                        restartApp(home);
+                        Utils.doRestart(home);
                         return true;
                     });
                     if (newSettings) {
@@ -279,14 +278,14 @@ public class Others extends Feature {
         }
     }
 
-    private static void restartApp(Activity home) {
-        Intent intent = Utils.getApplication().getPackageManager().getLaunchIntentForPackage(Utils.getApplication().getPackageName());
-        if (intent != null) {
-            home.finishAffinity();
-            Utils.getApplication().startActivity(intent);
-        }
-        Runtime.getRuntime().exit(0);
-    }
+//    private static void restartApp(Activity home) {
+//        Intent intent = Utils.getApplication().getPackageManager().getLaunchIntentForPackage(Utils.getApplication().getPackageName());
+//        if (intent != null) {
+//            home.finishAffinity();
+//            Utils.getApplication().startActivity(intent);
+//        }
+//        Runtime.getRuntime().exit(0);
+//    }
 
     @SuppressLint({"DiscouragedApi", "UseCompatLoadingForDrawables", "ApplySharedPref"})
     private static void InsertDNDOption(Menu menu, Activity home) {
@@ -303,37 +302,39 @@ public class Others extends Feature {
                         .setMessage(home.getString(ResId.string.dnd_message))
                         .setPositiveButton(home.getString(ResId.string.activate), (dialog, which) -> {
                             WppCore.setPrivBoolean("dndmode", true);
-                            restartApp(home);
+                            Utils.doRestart(home);
                         })
                         .setNegativeButton(home.getString(ResId.string.cancel), (dialog, which) -> dialog.dismiss())
                         .create().show();
                 return true;
             }
             WppCore.setPrivBoolean("dndmode", false);
-            restartApp(home);
+            Utils.doRestart(home);
             return true;
         });
     }
 
     @SuppressLint({"DiscouragedApi", "UseCompatLoadingForDrawables", "ApplySharedPref"})
 private static void InsertFreezeLastSeenOption(Menu menu, Activity home) {
-    final boolean[] freezelastseen = {WppCore.getPrivBoolean("freezelastseen", false)};
-    int iconDraw = Utils.getID("ic_status_receipts_disabled_shadow", "drawable");
-    MenuItem item = menu.add(0, 0, 0, "Freeze Last Seen " + freezelastseen[0]);
-    item.setIcon(iconDraw);
+    final boolean freezelastseen = WppCore.getPrivBoolean("freezelastseen", false);
+    MenuItem item = menu.add(0, 0, 0, "Freeze Last Seen");
+    item.setIcon(freezelastseen ? ResId.drawable.eye_disabled : ResId.drawable.eye_enabled);
     item.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
     item.setOnMenuItemClickListener(menuItem -> {
-        new AlertDialogWpp(home)
-                .setTitle(home.getString(ResId.string.freezelastseen_title))
-                .setMessage(home.getString(ResId.string.freezelastseen_message))
-                .setPositiveButton(home.getString(ResId.string.activate), (dialog, which) -> {
-                    freezelastseen[0] = !freezelastseen[0]; // Toggle the value
-                    WppCore.setPrivBoolean("freezelastseen", freezelastseen[0]);
-                    item.setTitle("Freeze Last Seen " + freezelastseen[0]);
-                    restartApp(home);
-                })
-                .setNegativeButton(home.getString(ResId.string.cancel), (dialog, which) -> dialog.dismiss())
-                .create().show();
+        if (!freezelastseen) {
+            new AlertDialogWpp(home)
+                    .setTitle(home.getString(ResId.string.freezelastseen_title))
+                    .setMessage(home.getString(ResId.string.freezelastseen_message))
+                    .setPositiveButton(home.getString(ResId.string.activate), (dialog, which) -> {
+                        WppCore.setPrivBoolean("freezelastseen", true);
+                        Utils.doRestart(home);
+                    })
+                    .setNegativeButton(home.getString(ResId.string.cancel), (dialog, which) -> dialog.dismiss())
+                    .create().show();
+            return true;
+        }
+        WppCore.setPrivBoolean("freezelastseen", false);
+        Utils.doRestart(home);
         return true;
     });
 }

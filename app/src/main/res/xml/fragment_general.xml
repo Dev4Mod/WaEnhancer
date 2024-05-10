@@ -43,6 +43,25 @@
             app:title="@string/show_dnd_button" />
 
         <rikka.material.preference.MaterialSwitchPreference
+            app:key="newchat"
+            app:defaultValue="true"
+            app:summary="@string/enable_new_chat_button_sum"
+            app:title="@string/enable_new_chat_button" />
+
+        <rikka.material.preference.MaterialSwitchPreference
+            app:key="restartbutton"
+            app:defaultValue="true"
+            app:summary="@string/enable_restart_button_sum"
+            app:title="@string/enable_restart_button" />
+
+        <rikka.material.preference.MaterialSwitchPreference
+            app:key="show_freezeLastSeen"
+            app:defaultValue="true"
+            app:summary="@string/show_freezeLastSeen_sum"
+            app:title="@string/show_freezeLastSeen_button" />
+
+
+        <rikka.material.preference.MaterialSwitchPreference
             app:key="separategroups"
             app:summary="@string/separate_groups_sum"
             app:title="@string/separate_groups" />
@@ -74,23 +93,7 @@
             app:summary="@string/disable_metaai_sum"
             app:title="@string/disable_metaai" />
 
-        <rikka.material.preference.MaterialSwitchPreference
-            app:key="newchat"
-            app:defaultValue="true"
-            app:summary="@string/enable_new_chat_button_sum"
-            app:title="@string/enable_new_chat_button" />
 
-        <rikka.material.preference.MaterialSwitchPreference
-            app:key="restartbutton"
-            app:defaultValue="true"
-            app:summary="@string/enable_restart_button_sum"
-            app:title="@string/enable_restart_button" />
-
-        <rikka.material.preference.MaterialSwitchPreference
-            app:key="show_freezeLastSeen"
-            app:defaultValue="true"
-            app:summary="@string/show_freezeLastSeen_sum"
-            app:title="@string/show_freezeLastSeen_button" />
 
     </PreferenceCategory>
 

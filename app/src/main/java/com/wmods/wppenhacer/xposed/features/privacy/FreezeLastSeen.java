@@ -17,15 +17,15 @@ public class FreezeLastSeen extends Feature {
 
     @Override
     public void doHook() throws Exception {
-            var method = Unobfuscator.loadFreezeSeenMethod(loader);
-            logDebug(Unobfuscator.getMethodDescriptor(method));
-            XposedBridge.hookMethod(method, new XC_MethodHook() {
-                @Override
-                protected void beforeHookedMethod(MethodHookParam param) {
-                    if (WppCore.getPrivBoolean("freezelastseen", false))
-                        param.setResult(null);
-                }
-            });
+        if (!WppCore.getPrivBoolean("freezelastseen", false) && !prefs.getBoolean("freezelastseen", false)) return;
+        var method = Unobfuscator.loadFreezeSeenMethod(loader);
+        logDebug(Unobfuscator.getMethodDescriptor(method));
+        XposedBridge.hookMethod(method, new XC_MethodHook() {
+            @Override
+            protected void beforeHookedMethod(MethodHookParam param) {
+                param.setResult(null);
+            }
+        });
     }
 
     @NonNull
