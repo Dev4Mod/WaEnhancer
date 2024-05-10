@@ -66,6 +66,7 @@ public class Others extends Feature {
         var strokeButtons = prefs.getBoolean("strokebuttons", false);
         var outlinedIcons = prefs.getBoolean("outlinedicons", false);
         var showDnd = prefs.getBoolean("show_dndmode", false);
+        var showFreezeLastSeen = prefs.getBoolean("show_freezeLastSeen", false);
         var removechannelRec = prefs.getBoolean("removechannel_rec", false);
         var separateGroups = prefs.getBoolean("separategroups", false);
         var filterSeen = prefs.getBoolean("filterseen", false);
@@ -156,6 +157,9 @@ public class Others extends Feature {
                     if (newSettings) {
                         itemMenu.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
                     }
+                }
+                if (showFreezeLastSeen) {
+                    InsertFreezeLastSeenOption(menu, home);
                 }
                 if (showDnd) {
                     InsertDNDOption(menu, home);
@@ -310,6 +314,29 @@ public class Others extends Feature {
             return true;
         });
     }
+
+    @SuppressLint({"DiscouragedApi", "UseCompatLoadingForDrawables", "ApplySharedPref"})
+private static void InsertFreezeLastSeenOption(Menu menu, Activity home) {
+    final boolean[] freezelastseen = {WppCore.getPrivBoolean("freezelastseen", false)};
+    int iconDraw = Utils.getID("ic_status_receipts_disabled_shadow", "drawable");
+    MenuItem item = menu.add(0, 0, 0, "Freeze Last Seen " + freezelastseen[0]);
+    item.setIcon(iconDraw);
+    item.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
+    item.setOnMenuItemClickListener(menuItem -> {
+        new AlertDialogWpp(home)
+                .setTitle(home.getString(ResId.string.freezelastseen_title))
+                .setMessage(home.getString(ResId.string.freezelastseen_message))
+                .setPositiveButton(home.getString(ResId.string.activate), (dialog, which) -> {
+                    freezelastseen[0] = !freezelastseen[0]; // Toggle the value
+                    WppCore.setPrivBoolean("freezelastseen", freezelastseen[0]);
+                    item.setTitle("Freeze Last Seen " + freezelastseen[0]);
+                    restartApp(home);
+                })
+                .setNegativeButton(home.getString(ResId.string.cancel), (dialog, which) -> dialog.dismiss())
+                .create().show();
+        return true;
+    });
+}
 
     @NonNull
     @Override
