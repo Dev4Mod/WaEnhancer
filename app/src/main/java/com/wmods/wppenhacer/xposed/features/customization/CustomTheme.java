@@ -5,8 +5,10 @@ import static com.wmods.wppenhacer.utils.DrawableColors.replaceColor;
 import static com.wmods.wppenhacer.utils.IColors.colors;
 import static de.robv.android.xposed.XposedHelpers.findAndHookMethod;
 
+import android.Manifest;
 import android.app.Activity;
 import android.app.Notification;
+import android.content.pm.PackageManager;
 import android.content.res.ColorStateList;
 import android.graphics.Paint;
 import android.graphics.drawable.ColorDrawable;
@@ -18,12 +20,16 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
+import androidx.core.content.ContextCompat;
 
 import com.wmods.wppenhacer.utils.IColors;
+import com.wmods.wppenhacer.views.WallpaperView;
 import com.wmods.wppenhacer.xposed.core.Feature;
 import com.wmods.wppenhacer.xposed.core.Unobfuscator;
 
 import org.xmlpull.v1.XmlPullParser;
+
+import java.util.ArrayList;
 
 import de.robv.android.xposed.XC_MethodHook;
 import de.robv.android.xposed.XSharedPreferences;
@@ -40,6 +46,25 @@ public class CustomTheme extends Feature {
 
     @Override
     public void doHook() throws Exception {
+        hookWallpaper();
+        hookColors();
+    }
+
+    private void hookWallpaper() {
+        if (!prefs.getBoolean("wallpaper", false)) return;
+        var clazz = XposedHelpers.findClass("com.whatsapp.HomeActivity", loader);
+        XposedHelpers.findAndHookMethod(clazz.getSuperclass(), "onCreate", Bundle.class, new XC_MethodHook() {
+            @Override
+            protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+                var activity = (Activity) param.thisObject;
+                if (ContextCompat.checkSelfPermission(activity, Manifest.permission.READ_MEDIA_IMAGES) == PackageManager.PERMISSION_GRANTED || ContextCompat.checkSelfPermission(activity, Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
+                    injectWallpaper(activity.findViewById(android.R.id.content));
+                }
+            }
+        });
+    }
+
+    private void hookColors() throws Exception {
         if (!prefs.getBoolean("changecolor", false)) return;
 
         var customDrawable1 = Unobfuscator.loadExpandableWidgetClass(loader);
@@ -52,10 +77,10 @@ public class CustomTheme extends Feature {
 
         var primaryColorInt = prefs.getInt("primary_color", 0);
         var secondaryColorInt = prefs.getInt("secondary_color", 0);
-        var backgroundColorInt =  prefs.getInt("background_color", 0);
+        var backgroundColorInt = prefs.getInt("background_color", 0);
 
-        var primaryColor = primaryColorInt == 0 ? "0" : String.format("#%08X",  primaryColorInt);
-        var secondaryColor = secondaryColorInt == 0 ? "0" : String.format("#%08X",  secondaryColorInt);
+        var primaryColor = primaryColorInt == 0 ? "0" : String.format("#%08X", primaryColorInt);
+        var secondaryColor = secondaryColorInt == 0 ? "0" : String.format("#%08X", secondaryColorInt);
         var backgroundColor = backgroundColorInt == 0 ? "0" : String.format("#%08X", backgroundColorInt);
 
         for (var c : colors.keySet()) {
@@ -94,6 +119,9 @@ public class CustomTheme extends Feature {
             }
         });
 
+
+
+
         var intBgHook = new IntBgColorHook();
         findAndHookMethod(Paint.class.getName(), loader, "setColor", int.class, intBgHook);
         findAndHookMethod(View.class.getName(), loader, "setBackgroundColor", int.class, intBgHook);
@@ -129,7 +157,21 @@ public class CustomTheme extends Feature {
                 super.beforeHookedMethod(param);
             }
         });
+    }
 
+    private void injectWallpaper(View view) {
+        var content = (ViewGroup) view;
+        var rootView = (ViewGroup)content.getChildAt(0);
+        var views = new ArrayList<View>();
+        while (rootView.getChildCount() > 0) {
+            views.add(rootView.getChildAt(0));
+            rootView.removeView(rootView.getChildAt(0));
+        }
+        var frameLayout = new WallpaperView(rootView.getContext(),prefs);
+        for (var v : views) {
+            frameLayout.addView(v);
+        }
+        rootView.addView(frameLayout);
     }
 
     @NonNull

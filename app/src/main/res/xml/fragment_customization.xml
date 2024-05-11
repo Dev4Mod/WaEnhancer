@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<PreferenceScreen xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:android="http://schemas.android.com/apk/res/android">
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <PreferenceCategory
         app:iconSpaceReserved="false"
@@ -17,23 +17,23 @@
             app:title="@string/colors_customization" />
 
         <com.jaredrummler.android.colorpicker.ColorPreferenceCompat
-            app:key="primary_color"
             app:cpv_showAlphaSlider="true"
             app:dependency="changecolor"
+            app:key="primary_color"
             app:summary="@string/default_color"
             app:title="@string/primary_color" />
 
         <com.jaredrummler.android.colorpicker.ColorPreferenceCompat
-            app:key="secondary_color"
             app:cpv_showAlphaSlider="true"
             app:dependency="changecolor"
+            app:key="secondary_color"
             app:summary="@string/default_color"
             app:title="@string/secondary_color" />
 
         <com.jaredrummler.android.colorpicker.ColorPreferenceCompat
-            app:key="background_color"
-            app:dependency="changecolor"
             app:cpv_showAlphaSlider="true"
+            app:dependency="changecolor"
+            app:key="background_color"
             app:summary="@string/default_color"
             app:title="@string/background_color" />
 
@@ -54,6 +54,28 @@
             app:summary="@string/enable_top_navigation_sum"
             app:title="@string/enable_top_navigation" />
 
+        <rikka.material.preference.MaterialSwitchPreference
+            app:key="wallpaper"
+            app:summary="@string/wallpaper_in_home_screen_sum"
+            app:title="@string/wallpaper_in_home_screen" />
+
+
+        <com.wmods.wppenhacer.preference.FileSelectPreference
+            android:entryValues="@array/image_picker"
+            app:key="wallpaper_file"
+            app:dependency="wallpaper"
+            android:summary="@string/wallpaper_not_selected"
+            app:title="@string/select_wallpaper" />
+
+        <SeekBarPreference
+            app:dependency="wallpaper"
+            app:key="wallpaper_alpha"
+            android:defaultValue="20"
+            android:max="100"
+            app:min="0"
+            app:showSeekBarValue="true"
+            app:title="@string/wallpaper_transparency" />
+
     </PreferenceCategory>
 
     <PreferenceCategory
@@ -62,20 +84,20 @@
 
         <rikka.material.preference.MaterialSwitchPreference
             app:key="bubble_color"
-            app:title="@string/change_bubble_colors"
-            app:summary="@string/change_blubble_color_sum" />
+            app:summary="@string/change_blubble_color_sum"
+            app:title="@string/change_bubble_colors" />
 
         <com.jaredrummler.android.colorpicker.ColorPreferenceCompat
-            app:key="bubble_left"
             app:cpv_showAlphaSlider="true"
             app:dependency="bubble_color"
+            app:key="bubble_left"
             app:summary="@string/default_color"
             app:title="@string/bubble_left" />
 
         <com.jaredrummler.android.colorpicker.ColorPreferenceCompat
-            app:key="bubble_right"
-            app:dependency="bubble_color"
             app:cpv_showAlphaSlider="true"
+            app:dependency="bubble_color"
+            app:key="bubble_right"
             app:summary="@string/default_color"
             app:title="@string/bubble_right" />
     </PreferenceCategory>
@@ -106,8 +128,7 @@
 
     </PreferenceCategory>
 
-    <PreferenceCategory
-        android:title="@string/status">
+    <PreferenceCategory android:title="@string/status">
         <rikka.material.preference.MaterialSwitchPreference
             app:key="removechannel_rec"
             app:summary="@string/remove_channel_recomendations_sum"

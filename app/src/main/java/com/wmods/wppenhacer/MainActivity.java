@@ -1,25 +1,17 @@
 package com.wmods.wppenhacer;
 
-import android.content.res.Resources;
-import android.graphics.Color;
-import android.graphics.drawable.ColorDrawable;
+import android.Manifest;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
-import android.view.Window;
 
-import com.google.android.material.bottomnavigation.BottomNavigationView;
-
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.app.AppCompatDelegate;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 import androidx.navigation.NavController;
-import androidx.navigation.Navigation;
 import androidx.navigation.fragment.NavHostFragment;
-import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
 
 import com.wmods.wppenhacer.databinding.ActivityMainBinding;
-
-import rikka.material.app.MaterialActivity;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -42,11 +34,14 @@ public class MainActivity extends AppCompatActivity {
         NavController navController = navHostFragment.getNavController();
         var nav = binding.navView;
         NavigationUI.setupWithNavController(nav, navController);
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_MEDIA_IMAGES) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.READ_MEDIA_IMAGES}, 0);
+        }
+        FilePicker.registerFilePicker(this);
     }
 
     public static boolean isXposedEnabled() {
         return false;
     }
-
 
 }
