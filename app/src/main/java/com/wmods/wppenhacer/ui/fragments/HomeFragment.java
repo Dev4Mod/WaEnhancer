@@ -10,21 +10,29 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.FragmentActivity;
+import androidx.preference.PreferenceManager;
 
 import com.wmods.wppenhacer.App;
 import com.wmods.wppenhacer.BuildConfig;
+import com.wmods.wppenhacer.FilePicker;
 import com.wmods.wppenhacer.MainActivity;
 import com.wmods.wppenhacer.R;
 import com.wmods.wppenhacer.databinding.FragmentHomeBinding;
 import com.wmods.wppenhacer.ui.fragments.base.BaseFragment;
 import com.wmods.wppenhacer.xposed.core.MainFeatures;
 
+import org.json.JSONObject;
+
 import java.util.Arrays;
+import java.util.HashSet;
+
+import rikka.core.util.IOUtils;
 
 public class HomeFragment extends BaseFragment {
 
@@ -33,6 +41,7 @@ public class HomeFragment extends BaseFragment {
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         var intentFilter = new IntentFilter(BuildConfig.APPLICATION_ID + ".RECEIVER_WPP");
         ContextCompat.registerReceiver(requireContext(), new BroadcastReceiver() {
 
@@ -69,6 +78,7 @@ public class HomeFragment extends BaseFragment {
         binding.statusTitle2.setText(R.string.whatsapp_in_background);
         var version = intent.getStringExtra("VERSION");
         var supported_list = Arrays.asList(context.getResources().getStringArray(R.array.supported_versions_wpp));
+
         if (supported_list.contains(version)) {
             binding.statusSummary1.setText(String.format(getString(R.string.version_s), version));
             binding.status2.setCardBackgroundColor(context.getColor(rikka.material.R.color.material_green_500));
@@ -100,8 +110,67 @@ public class HomeFragment extends BaseFragment {
             disableBusiness(requireActivity());
         });
 
+        binding.exportBtn.setOnClickListener(view -> saveConfigs(this.getContext()));
+        binding.importBtn.setOnClickListener(view -> importConfigs(this.getContext()));
 
         return binding.getRoot();
+    }
+
+    private void saveConfigs(Context context) {
+        FilePicker.setOnUriPickedListener((uri) -> {
+            try {
+                try (var output = context.getContentResolver().openOutputStream(uri)) {
+                    var prefs = PreferenceManager.getDefaultSharedPreferences(context);
+                    var entries = prefs.getAll();
+                    var JSOjsonObject = new JSONObject();
+                    for (var entry : entries.entrySet()) {
+                        JSOjsonObject.put(entry.getKey(), entry.getValue());
+                    }
+                    output.write(JSOjsonObject.toString().getBytes());
+                }
+                Toast.makeText(context, context.getString(R.string.configs_saved), Toast.LENGTH_SHORT).show();
+            } catch (Exception e) {
+                Toast.makeText(context, e.getMessage(), Toast.LENGTH_SHORT).show();
+            }
+        });
+        FilePicker.fileSalve.launch("wpp_enhacer_config.json");
+    }
+
+    private void importConfigs(Context context) {
+        FilePicker.setOnUriPickedListener((uri) -> {
+            try {
+                try (var input = context.getContentResolver().openInputStream(uri)) {
+                    var data = IOUtils.toString(input);
+                    var prefs = PreferenceManager.getDefaultSharedPreferences(context);
+                    var jsonObject = new JSONObject(data);
+                    prefs.getAll().forEach((key, value) -> prefs.edit().remove(key).apply());
+                    var key = jsonObject.keys();
+                    while (key.hasNext()) {
+                        var keyName = key.next();
+                        var value = jsonObject.get(keyName);
+                        if (value instanceof String stringValue) {
+                            if (stringValue.startsWith("[") && stringValue.endsWith("]")) {
+                                if (stringValue.length() > 2) {
+                                    prefs.edit().putStringSet(keyName, new HashSet<>(Arrays.asList(stringValue.substring(1, stringValue.length() - 1).split(",")))).apply();
+                                }
+                            } else {
+                                prefs.edit().putString(keyName, value.toString()).apply();
+                            }
+                        } else if (value instanceof Boolean) {
+                            prefs.edit().putBoolean(keyName, (boolean) value).apply();
+                        } else if (value instanceof Integer) {
+                            prefs.edit().putInt(keyName, (int) value).apply();
+                        } else if (value instanceof Long) {
+                            prefs.edit().putLong(keyName, (long) value).apply();
+                        }
+                    }
+                }
+                Toast.makeText(context, context.getString(R.string.configs_imported), Toast.LENGTH_SHORT).show();
+            } catch (Exception e) {
+                Toast.makeText(context, e.getMessage(), Toast.LENGTH_SHORT).show();
+            }
+        });
+        FilePicker.fileCapture.launch(new String[]{"application/json"});
     }
 
     private void checkStateWpp(FragmentActivity activity) {
