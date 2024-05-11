@@ -57,7 +57,7 @@ public class DotOnline extends Feature {
                 var content = (LinearLayout) view.findViewById(Utils.getID("conversations_row_content", "id"));
                 var linearLayout = new LinearLayout(context);
                 linearLayout.setGravity(Gravity.END | Gravity.TOP);
-                content.addView(linearLayout);
+                content.addView(linearLayout,2);
 
                 // Add TextView to show last seen time
                 TextView lastSeenText = new TextView(context);
@@ -65,7 +65,7 @@ public class DotOnline extends Feature {
                 lastSeenText.setTextSize(10f);
                 lastSeenText.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.MATCH_PARENT));
                 lastSeenText.setGravity(Gravity.CENTER_VERTICAL);
-                lastSeenText.setVisibility(View.GONE);
+                lastSeenText.setVisibility(View.INVISIBLE);
                 linearLayout.addView(lastSeenText);
 
                 var contactView = (FrameLayout) view.findViewById(Utils.getID("contact_selector", "id"));
@@ -134,7 +134,7 @@ public class DotOnline extends Feature {
                 var csDot = (ImageView) view.findViewById(0x7FFF0001);
                 var lastSeenText = (TextView) view.findViewById(0x7FFF0002); // Get the TextView for last seen time
                 csDot.setVisibility(View.GONE);
-                lastSeenText.setVisibility(View.GONE); // Hide last seen time initially
+                lastSeenText.setVisibility(View.INVISIBLE); // Hide last seen time initially
                 var jidFiled = Unobfuscator.getFieldByExtendType(object.getClass(), XposedHelpers.findClass("com.whatsapp.jid.Jid", loader));
                 var jidObject = jidFiled.get(object);
                 var jid = WppCore.getRawString(jidObject);
@@ -147,8 +147,8 @@ public class DotOnline extends Feature {
                         var status = (String) getStatusUser.invoke(mStatusUser, object);
                         if (!TextUtils.isEmpty(status) && status.trim().equals(UnobfuscatorCache.getInstance().getString("online"))) {
                             csDot.setVisibility(View.VISIBLE);
-                        } else if (!TextUtils.isEmpty(status) ) {
-                            // If not online, show last seen time
+                        }
+                        if (!TextUtils.isEmpty(status) ) {
                          // Logic to get last seen time goes here
                             lastSeenText.setText(status);
                             lastSeenText.setVisibility(View.VISIBLE);
