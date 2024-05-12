@@ -1,65 +1,55 @@
 <?xml version="1.0" encoding="utf-8"?>
-<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+<PreferenceScreen
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
-
-    <PreferenceCategory android:title="@string/title_image">
-
+    <PreferenceCategory
+        app:iconSpaceReserved="false"
+        app:title="@string/title_image">
         <rikka.material.preference.MaterialSwitchPreference
             app:key="imagequality"
             app:summary="@string/imagequality_sum"
             app:title="@string/imagequality" />
-
     </PreferenceCategory>
-
-    <PreferenceCategory app:title="@string/download_title">
-
+    <PreferenceCategory
+        app:iconSpaceReserved="false"
+        app:title="@string/download_title">
         <Preference
             app:key="localdownload"
             app:title="@string/local_download" />
-
         <rikka.material.preference.MaterialSwitchPreference
             app:key="downloadstatus"
             app:summary="@string/statusdowload_sum"
             app:title="@string/statusdowload" />
-
         <rikka.material.preference.MaterialSwitchPreference
             app:key="downloadviewonce"
             app:summary="@string/downloadviewonce_sum"
             app:title="@string/downloadviewonce" />
-
     </PreferenceCategory>
-
-    <PreferenceCategory android:title="@string/title_video">
-
+    <PreferenceCategory
+        app:iconSpaceReserved="false"
+        app:title="@string/title_video">
         <rikka.material.preference.MaterialSwitchPreference
             app:key="videoquality"
             app:summary="@string/videoquality_sum"
             app:title="@string/videoquality" />
-
         <rikka.material.preference.MaterialSwitchPreference
             app:dependency="videoquality"
             app:key="video_size_limit"
             app:summary="@string/increase_video_size_limit_sum"
             app:title="@string/increase_video_size_limit" />
-
         <rikka.material.preference.MaterialSwitchPreference
             app:dependency="videoquality"
             app:key="video_real_resolution"
             app:summary="@string/send_video_in_real_resolution_sum"
             app:title="@string/send_video_in_real_resolution" />
-
         <rikka.material.preference.MaterialSwitchPreference
             app:dependency="videoquality"
             app:key="video_maxfps"
             app:summary="@string/send_video_in_60fps_sum"
             app:title="@string/send_video_in_60fps" />
-
         <rikka.material.preference.MaterialSwitchPreference
             app:key="videotime"
             app:summary="@string/time_limit_on_status_video_sum"
             app:title="@string/time_limit_on_status_video" />
-
     </PreferenceCategory>
-
-
 </PreferenceScreen>
