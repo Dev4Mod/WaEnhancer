@@ -1,400 +1,322 @@
-<!--
-  ~ This file is part of LSPosed.
-  ~
-  ~ LSPosed is free software: you can redistribute it and/or modify
-  ~ it under the terms of the GNU General Public License as published by
-  ~ the Free Software Foundation, either version 3 of the License, or
-  ~ (at your option) any later version.
-  ~
-  ~ LSPosed is distributed in the hope that it will be useful,
-  ~ but WITHOUT ANY WARRANTY; without even the implied warranty of
-  ~ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-  ~ GNU General Public License for more details.
-  ~
-  ~ You should have received a copy of the GNU General Public License
-  ~ along with LSPosed.  If not, see <https://www.gnu.org/licenses/>.
-  ~
-  ~ Copyright (C) 2020 EdXposed Contributors
-  ~ Copyright (C) 2021 LSPosed Contributors
-  -->
-
-<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/fragment_container"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.coordinatorlayout.widget.CoordinatorLayout
+    android:id="@id/fragment_container"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
     app:consumeSystemWindowsInsets="@integer/internal_fragment_insets"
     app:edgeToEdge="true"
-    app:fitsSystemWindowsInsets="@integer/internal_fragment_insets">
-
+    app:fitsSystemWindowsInsets="@integer/internal_fragment_insets"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
     <FrameLayout
-        android:layout_width="match_parent"
+        android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         app:fitsSystemWindowsInsets="@integer/internal_fragment_bottom_insets"
-        app:layout_behavior="@string/appbar_scrolling_view_behavior"
-        tools:ignore="MissingPrefix">
-
+        app:layout_behavior="@string/appbar_scrolling_view_behavior">
         <rikka.widget.borderview.BorderNestedScrollView
-            android:id="@+id/nestedScrollView"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
+            android:id="@id/nestedScrollView"
             android:scrollbars="none"
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
             app:borderBottomVisibility="never"
             app:borderTopDrawable="@null"
             app:borderTopVisibility="whenTop">
-
             <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:animateLayoutChanges="true"
+                android:orientation="vertical"
                 android:clipChildren="false"
                 android:clipToPadding="false"
-                android:orientation="vertical"
+                android:layout_width="fill_parent"
+                android:layout_height="fill_parent"
+                android:animateLayoutChanges="true"
                 android:paddingHorizontal="@dimen/m3_appbar_expanded_title_margin_horizontal"
-                android:paddingVertical="?dialogPreferredPadding"
-                tools:context=".ui.activity.MainActivity">
-
+                android:paddingVertical="?dialogPreferredPadding">
                 <com.google.android.material.card.MaterialCardView
-                    android:id="@+id/status"
-                    style="@style/Widget.Material3.CardView.Elevated"
-                    android:layout_width="match_parent"
+                    android:id="@id/status"
+                    android:layout_width="fill_parent"
                     android:layout_height="wrap_content"
-                    android:outlineAmbientShadowColor="?colorPrimary"
-                    android:outlineSpotShadowColor="?colorPrimary"
                     android:stateListAnimator="@null"
+                    android:outlineSpotShadowColor="?colorPrimary"
+                    android:outlineAmbientShadowColor="?colorPrimary"
                     app:cardBackgroundColor="?colorPrimary"
                     app:cardElevation="@dimen/home_primary_elevation"
                     app:cardPreventCornerOverlap="false"
-                    tools:targetApi="p">
-
+                    style="@style/Widget.Material3.CardView.Elevated">
                     <RelativeLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:padding="?dialogPreferredPadding">
-
-                        <ImageView
-                            android:id="@+id/status_icon"
-                            android:layout_width="24dp"
-                            android:layout_height="24dp"
-                            android:layout_centerVertical="true"
-                            android:tint="?colorOnPrimary"
-                            app:srcCompat="@drawable/ic_round_check_circle_24"
-                            tools:ignore="ContentDescription" />
-
-                        <com.google.android.material.textview.MaterialTextView
-                            android:id="@+id/status_title"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_marginStart="24dp"
-                            android:layout_toEndOf="@id/status_icon"
-                            android:fontFamily="sans-serif-medium"
-                            android:text="@string/module_enabled"
-                            android:textAppearance="?textAppearanceTitleMedium"
-                            android:textColor="?colorOnPrimary"
-                            android:textSize="16sp" />
-
-                        <com.google.android.material.textview.MaterialTextView
-                            android:id="@+id/status_summary"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_below="@id/status_title"
-                            android:layout_alignStart="@id/status_title"
-                            android:text=""
-                            android:textAppearance="?textAppearanceBodyMedium"
-                            android:textColor="?colorOnPrimary" />
-                    </RelativeLayout>
-                </com.google.android.material.card.MaterialCardView>
-
-                <com.google.android.material.card.MaterialCardView
-                    android:id="@+id/status2"
-                    style="@style/Widget.Material3.CardView.Elevated"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="16dp"
-                    android:outlineAmbientShadowColor="?colorPrimary"
-                    android:outlineSpotShadowColor="?colorPrimary"
-                    android:stateListAnimator="@null"
-                    app:cardBackgroundColor="?colorPrimary"
-                    app:cardElevation="@dimen/home_primary_elevation"
-                    app:cardPreventCornerOverlap="false"
-                    tools:targetApi="p">
-
-                    <RelativeLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:padding="?dialogPreferredPadding">
-
-                        <ImageView
-                            android:id="@+id/status_icon2"
-                            android:layout_width="24dp"
-                            android:layout_height="24dp"
-                            android:layout_centerVertical="true"
-                            android:tint="?colorOnPrimary"
-                            app:srcCompat="@drawable/ic_round_check_circle_24"
-                            tools:ignore="ContentDescription" />
-
-                        <com.google.android.material.textview.MaterialTextView
-                            android:id="@+id/status_title2"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_marginStart="24dp"
-                            android:layout_marginEnd="20dp"
-                            android:layout_toStartOf="@+id/reboot_btn"
-                            android:layout_toEndOf="@id/status_icon2"
-                            android:fontFamily="sans-serif-medium"
-                            android:text="@string/whatsapp_in_background"
-                            android:textAppearance="?textAppearanceTitleMedium"
-                            android:textColor="?colorOnPrimary"
-                            android:textSize="16sp" />
-
-                        <com.google.android.material.textview.MaterialTextView
-                            android:id="@+id/status_summary1"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_below="@id/status_title2"
-                            android:layout_alignStart="@id/status_title2"
-                            android:text=""
-                            android:textAppearance="?textAppearanceBodyMedium"
-                            android:textColor="?colorOnPrimary" />
-
-                        <ImageView
-                            android:id="@+id/reboot_btn"
-                            android:layout_width="24dp"
-                            android:layout_height="24dp"
-                            android:layout_centerVertical="true"
-                            android:layout_alignParentEnd="true"
-                            android:src="@drawable/ic_reload"
-                            android:textAlignment="center" />
-
-                    </RelativeLayout>
-                </com.google.android.material.card.MaterialCardView>
-
-                <com.google.android.material.card.MaterialCardView
-                    android:id="@+id/status3"
-                    style="@style/Widget.Material3.CardView.Elevated"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="16dp"
-                    android:outlineAmbientShadowColor="?colorPrimary"
-                    android:outlineSpotShadowColor="?colorPrimary"
-                    android:stateListAnimator="@null"
-                    app:cardBackgroundColor="?colorPrimary"
-                    app:cardElevation="@dimen/home_primary_elevation"
-                    app:cardPreventCornerOverlap="false"
-                    tools:targetApi="p">
-
-                    <RelativeLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:padding="?dialogPreferredPadding">
-
-                        <ImageView
-                            android:id="@+id/status_icon3"
-                            android:layout_width="24dp"
-                            android:layout_height="24dp"
-                            android:layout_centerVertical="true"
-                            android:tint="?colorOnPrimary"
-                            app:srcCompat="@drawable/ic_round_check_circle_24"
-                            tools:ignore="ContentDescription" />
-
-                        <com.google.android.material.textview.MaterialTextView
-                            android:id="@+id/status_title3"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_marginStart="24dp"
-                            android:layout_marginEnd="20dp"
-                            android:layout_toStartOf="@+id/reboot_btn2"
-                            android:layout_toEndOf="@id/status_icon3"
-                            android:fontFamily="sans-serif-medium"
-                            android:text="@string/business_in_background"
-                            android:textAppearance="?textAppearanceTitleMedium"
-                            android:textColor="?colorOnPrimary"
-                            android:textSize="16sp" />
-
-                        <com.google.android.material.textview.MaterialTextView
-                            android:id="@+id/status_summary3"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_below="@id/status_title3"
-                            android:layout_alignStart="@id/status_title3"
-                            android:text=""
-                            android:textAppearance="?textAppearanceBodyMedium"
-                            android:textColor="?colorOnPrimary" />
-
-                        <ImageView
-                            android:id="@+id/reboot_btn2"
-                            android:layout_width="24dp"
-                            android:layout_height="24dp"
-                            android:layout_centerVertical="true"
-                            android:layout_alignParentEnd="true"
-                            android:src="@drawable/ic_reload"
-                            android:textAlignment="center" />
-
-                    </RelativeLayout>
-                </com.google.android.material.card.MaterialCardView>
-
-
-                <com.google.android.material.card.MaterialCardView
-                    android:id="@+id/developer_warning_card"
-                    style="@style/Widget.Material3.CardView.Outlined"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="16dp"
-                    android:visibility="gone"
-                    app:cardBackgroundColor="?colorSecondaryContainer">
-
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="vertical"
-                        android:padding="?dialogPreferredPadding">
-
-                        <com.google.android.material.textview.MaterialTextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="string/developer_warning_title"
-                            android:textAppearance="?textAppearanceTitleMedium"
-                            android:textColor="?colorOnSecondaryContainer" />
-
-                        <com.google.android.material.textview.MaterialTextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="string/developer_warning_summary"
-                            android:textAppearance="?textAppearanceBodyMedium"
-                            android:textColor="?colorOnSecondaryContainer" />
-
-                    </LinearLayout>
-                </com.google.android.material.card.MaterialCardView>
-
-                <com.google.android.material.card.MaterialCardView
-                    android:id="@+id/info_card"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="16dp">
-
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="vertical"
-                        android:padding="?dialogPreferredPadding">
-
-                        <com.google.android.material.textview.MaterialTextView
-                            style="@style/DeviceInfoDialogLabel"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:text="Android SDK" />
-
-                        <com.google.android.material.textview.MaterialTextView
-                            android:id="@+id/sdk"
-                            style="@style/DeviceInfoDialogValue"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:text="" />
-
-                        <com.google.android.material.textview.MaterialTextView
-                            style="@style/DeviceInfoDialogLabel"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:text="@string/device_name" />
-
-                        <com.google.android.material.textview.MaterialTextView
-                            android:id="@+id/device_name"
-                            style="@style/DeviceInfoDialogValue"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:text="" />
-
-                        <com.google.android.material.textview.MaterialTextView
-                            style="@style/DeviceInfoDialogLabel"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:text="@string/device_model" />
-
-                        <com.google.android.material.textview.MaterialTextView
-                            android:id="@+id/model_name"
-                            style="@style/DeviceInfoDialogValue"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:text="" />
-
-                        <com.google.android.material.textview.MaterialTextView
-                            style="@style/DeviceInfoDialogLabel"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:text="@string/list_wpp" />
-
-                        <com.google.android.material.textview.MaterialTextView
-                            android:id="@+id/list_wpp"
-                            style="@style/DeviceInfoDialogValue"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:text=""
-                            android:gravity="center_vertical" />
-
-                        <com.google.android.material.textview.MaterialTextView
-                            style="@style/DeviceInfoDialogLabel"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:text="@string/list_business" />
-
-                        <com.google.android.material.textview.MaterialTextView
-                            android:id="@+id/list_business"
-                            style="@style/DeviceInfoDialogValue"
-                            android:layout_width="match_parent"
-                            android:text=""
-                            android:layout_height="wrap_content" />
-
-                    </LinearLayout>
-
-                </com.google.android.material.card.MaterialCardView>
-
-                <com.google.android.material.card.MaterialCardView
-                    android:layout_width="match_parent"
-                    android:layout_marginTop="16dp"
-                    android:layout_height="wrap_content">
-
-                    <LinearLayout
                         android:padding="?dialogPreferredPadding"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="center_horizontal"
-                        android:orientation="vertical">
-
+                        android:layout_width="fill_parent"
+                        android:layout_height="wrap_content">
+                        <ImageView
+                            android:id="@id/status_icon"
+                            android:layout_width="24.0dip"
+                            android:layout_height="24.0dip"
+                            android:tint="?colorOnPrimary"
+                            android:layout_centerVertical="true"
+                            app:srcCompat="@drawable/ic_round_check_circle_24" />
                         <com.google.android.material.textview.MaterialTextView
-                            style="@style/DeviceInfoDialogLabel"
-                            android:layout_width="match_parent"
+                            android:textAppearance="?textAppearanceTitleMedium"
+                            android:textSize="16.0sp"
+                            android:textColor="?colorOnPrimary"
+                            android:id="@id/status_title"
+                            android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
+                            android:text="@string/module_enabled"
+                            android:fontFamily="sans-serif-medium"
+                            android:layout_marginStart="24.0dip"
+                            android:layout_toEndOf="@id/status_icon" />
+                        <com.google.android.material.textview.MaterialTextView
+                            android:textAppearance="?textAppearanceBodyMedium"
+                            android:textColor="?colorOnPrimary"
+                            android:id="@id/status_summary"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text=""
+                            android:layout_below="@id/status_title"
+                            android:layout_alignStart="@id/status_title" />
+                    </RelativeLayout>
+                </com.google.android.material.card.MaterialCardView>
+                <com.google.android.material.card.MaterialCardView
+                    android:id="@id/status2"
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="16.0dip"
+                    android:stateListAnimator="@null"
+                    android:outlineSpotShadowColor="?colorPrimary"
+                    android:outlineAmbientShadowColor="?colorPrimary"
+                    app:cardBackgroundColor="?colorPrimary"
+                    app:cardElevation="@dimen/home_primary_elevation"
+                    app:cardPreventCornerOverlap="false"
+                    style="@style/Widget.Material3.CardView.Elevated">
+                    <RelativeLayout
+                        android:padding="?dialogPreferredPadding"
+                        android:layout_width="fill_parent"
+                        android:layout_height="wrap_content">
+                        <ImageView
+                            android:id="@id/status_icon2"
+                            android:layout_width="24.0dip"
+                            android:layout_height="24.0dip"
+                            android:tint="?colorOnPrimary"
+                            android:layout_centerVertical="true"
+                            app:srcCompat="@drawable/ic_round_check_circle_24" />
+                        <com.google.android.material.textview.MaterialTextView
+                            android:textAppearance="?textAppearanceTitleMedium"
+                            android:textSize="16.0sp"
+                            android:textColor="?colorOnPrimary"
+                            android:id="@id/status_title2"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/whatsapp_in_background"
+                            android:fontFamily="sans-serif-medium"
+                            android:layout_marginStart="24.0dip"
+                            android:layout_marginEnd="20.0dip"
+                            android:layout_toStartOf="@id/reboot_btn"
+                            android:layout_toEndOf="@id/status_icon2" />
+                        <com.google.android.material.textview.MaterialTextView
+                            android:textAppearance="?textAppearanceBodyMedium"
+                            android:textColor="?colorOnPrimary"
+                            android:id="@id/status_summary1"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text=""
+                            android:layout_below="@id/status_title2"
+                            android:layout_alignStart="@id/status_title2" />
+                        <ImageView
+                            android:id="@id/reboot_btn"
+                            android:layout_width="24.0dip"
+                            android:layout_height="24.0dip"
+                            android:src="@drawable/ic_reload"
+                            android:layout_centerVertical="true"
                             android:textAlignment="center"
-                            android:text="@string/backup_settings" />
-
-                        <LinearLayout
-                            android:layout_width="match_parent"
+                            android:layout_alignParentEnd="true" />
+                    </RelativeLayout>
+                </com.google.android.material.card.MaterialCardView>
+                <com.google.android.material.card.MaterialCardView
+                    android:id="@id/status3"
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="16.0dip"
+                    android:stateListAnimator="@null"
+                    android:outlineSpotShadowColor="?colorPrimary"
+                    android:outlineAmbientShadowColor="?colorPrimary"
+                    app:cardBackgroundColor="?colorPrimary"
+                    app:cardElevation="@dimen/home_primary_elevation"
+                    app:cardPreventCornerOverlap="false"
+                    style="@style/Widget.Material3.CardView.Elevated">
+                    <RelativeLayout
+                        android:padding="?dialogPreferredPadding"
+                        android:layout_width="fill_parent"
+                        android:layout_height="wrap_content">
+                        <ImageView
+                            android:id="@id/status_icon3"
+                            android:layout_width="24.0dip"
+                            android:layout_height="24.0dip"
+                            android:tint="?colorOnPrimary"
+                            android:layout_centerVertical="true"
+                            app:srcCompat="@drawable/ic_round_check_circle_24" />
+                        <com.google.android.material.textview.MaterialTextView
+                            android:textAppearance="?textAppearanceTitleMedium"
+                            android:textSize="16.0sp"
+                            android:textColor="?colorOnPrimary"
+                            android:id="@id/status_title3"
+                            android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_marginTop="8dp"
-                            android:orientation="horizontal">
-
+                            android:text="@string/business_in_background"
+                            android:fontFamily="sans-serif-medium"
+                            android:layout_marginStart="24.0dip"
+                            android:layout_marginEnd="20.0dip"
+                            android:layout_toStartOf="@id/reboot_btn2"
+                            android:layout_toEndOf="@id/status_icon3" />
+                        <com.google.android.material.textview.MaterialTextView
+                            android:textAppearance="?textAppearanceBodyMedium"
+                            android:textColor="?colorOnPrimary"
+                            android:id="@id/status_summary3"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text=""
+                            android:layout_below="@id/status_title3"
+                            android:layout_alignStart="@id/status_title3" />
+                        <ImageView
+                            android:id="@id/reboot_btn2"
+                            android:layout_width="24.0dip"
+                            android:layout_height="24.0dip"
+                            android:src="@drawable/ic_reload"
+                            android:layout_centerVertical="true"
+                            android:textAlignment="center"
+                            android:layout_alignParentEnd="true" />
+                    </RelativeLayout>
+                </com.google.android.material.card.MaterialCardView>
+                <com.google.android.material.card.MaterialCardView
+                    android:id="@id/developer_warning_card"
+                    android:visibility="gone"
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="16.0dip"
+                    app:cardBackgroundColor="?colorSecondaryContainer"
+                    style="@style/Widget.Material3.CardView.Outlined">
+                    <LinearLayout
+                        android:orientation="vertical"
+                        android:padding="?dialogPreferredPadding"
+                        android:layout_width="fill_parent"
+                        android:layout_height="wrap_content">
+                        <com.google.android.material.textview.MaterialTextView
+                            android:textAppearance="?textAppearanceTitleMedium"
+                            android:textColor="?colorOnSecondaryContainer"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="" />
+                        <com.google.android.material.textview.MaterialTextView
+                            android:textAppearance="?textAppearanceBodyMedium"
+                            android:textColor="?colorOnSecondaryContainer"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="" />
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
+                <com.google.android.material.card.MaterialCardView
+                    android:id="@id/info_card"
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="16.0dip">
+                    <LinearLayout
+                        android:orientation="vertical"
+                        android:padding="?dialogPreferredPadding"
+                        android:layout_width="fill_parent"
+                        android:layout_height="wrap_content">
+                        <com.google.android.material.textview.MaterialTextView
+                            android:layout_width="fill_parent"
+                            android:layout_height="wrap_content"
+                            android:text="@string/android_version"
+                            style="@style/DeviceInfoDialogLabel" />
+                        <com.google.android.material.textview.MaterialTextView
+                            android:id="@id/sdk"
+                            android:layout_width="fill_parent"
+                            android:layout_height="wrap_content"
+                            android:text=""
+                            style="@style/DeviceInfoDialogValue" />
+                        <com.google.android.material.textview.MaterialTextView
+                            android:layout_width="fill_parent"
+                            android:layout_height="wrap_content"
+                            android:text="@string/device_name"
+                            style="@style/DeviceInfoDialogLabel" />
+                        <com.google.android.material.textview.MaterialTextView
+                            android:id="@id/device_name"
+                            android:layout_width="fill_parent"
+                            android:layout_height="wrap_content"
+                            android:text=""
+                            style="@style/DeviceInfoDialogValue" />
+                        <com.google.android.material.textview.MaterialTextView
+                            android:layout_width="fill_parent"
+                            android:layout_height="wrap_content"
+                            android:text="@string/device_model"
+                            style="@style/DeviceInfoDialogLabel" />
+                        <com.google.android.material.textview.MaterialTextView
+                            android:id="@id/model_name"
+                            android:layout_width="fill_parent"
+                            android:layout_height="wrap_content"
+                            android:text=""
+                            style="@style/DeviceInfoDialogValue" />
+                        <com.google.android.material.textview.MaterialTextView
+                            android:layout_width="fill_parent"
+                            android:layout_height="wrap_content"
+                            android:text="@string/list_wpp"
+                            style="@style/DeviceInfoDialogLabel" />
+                        <com.google.android.material.textview.MaterialTextView
+                            android:gravity="center_vertical"
+                            android:id="@id/list_wpp"
+                            android:layout_width="fill_parent"
+                            android:layout_height="wrap_content"
+                            android:text=""
+                            style="@style/DeviceInfoDialogValue" />
+                        <com.google.android.material.textview.MaterialTextView
+                            android:layout_width="fill_parent"
+                            android:layout_height="wrap_content"
+                            android:text="@string/list_business"
+                            style="@style/DeviceInfoDialogLabel" />
+                        <com.google.android.material.textview.MaterialTextView
+                            android:id="@id/list_business"
+                            android:layout_width="fill_parent"
+                            android:layout_height="wrap_content"
+                            android:text=""
+                            style="@style/DeviceInfoDialogValue" />
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
+                <com.google.android.material.card.MaterialCardView
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="16.0dip">
+                    <LinearLayout
+                        android:layout_gravity="center_horizontal"
+                        android:orientation="vertical"
+                        android:padding="?dialogPreferredPadding"
+                        android:layout_width="fill_parent"
+                        android:layout_height="wrap_content">
+                        <com.google.android.material.textview.MaterialTextView
+                            android:layout_width="fill_parent"
+                            android:layout_height="wrap_content"
+                            android:text="@string/backup_settings"
+                            android:textAlignment="center"
+                            style="@style/DeviceInfoDialogLabel" />
+                        <LinearLayout
+                            android:orientation="horizontal"
+                            android:layout_width="fill_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="8.0dip">
                             <com.google.android.material.button.MaterialButton
+                                android:id="@id/importBtn"
                                 android:layout_width="wrap_content"
-                                android:id="@+id/importBtn"
                                 android:layout_height="wrap_content"
-                                android:layout_marginRight="8dp"
-                                android:layout_weight="1"
-                                android:text="@string/import_settings" />
-
+                                android:layout_marginRight="8.0dip"
+                                android:text="@string/import_settings"
+                                android:layout_weight="1.0" />
                             <com.google.android.material.button.MaterialButton
-                                android:id="@+id/exportBtn"
+                                android:id="@id/exportBtn"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:layout_weight="1"
-                                android:layout_marginLeft="8dp"
-                                android:text="@string/export_settings" />
+                                android:layout_marginLeft="8.0dip"
+                                android:text="@string/export_settings"
+                                android:layout_weight="1.0" />
                         </LinearLayout>
                     </LinearLayout>
-
                 </com.google.android.material.card.MaterialCardView>
-
-
             </LinearLayout>
         </rikka.widget.borderview.BorderNestedScrollView>
     </FrameLayout>
