@@ -1,106 +1,89 @@
 <?xml version="1.0" encoding="utf-8"?>
-<PreferenceScreen xmlns:app="http://schemas.android.com/apk/res-auto">
+<PreferenceScreen
+    xmlns:app="http://schemas.android.com/apk/res-auto">
     <PreferenceCategory
+        app:iconSpaceReserved="false"
         app:title="@string/general">
-
         <rikka.material.preference.MaterialSwitchPreference
-            app:key="enablelogs"
             app:defaultValue="true"
+            app:key="enablelogs"
             app:title="@string/verbose_logs" />
-
         <rikka.material.preference.MaterialSwitchPreference
             app:key="ampm"
             app:title="@string/ampm" />
-
         <rikka.material.preference.MaterialSwitchPreference
             app:key="segundos"
             app:summary="@string/segundosnahora_sum"
             app:title="@string/segundosnahora" />
-
         <EditTextPreference
             app:iconSpaceReserved="false"
             app:key="secondstotime"
             app:title="@string/textonahora" />
     </PreferenceCategory>
-
     <PreferenceCategory
         app:iconSpaceReserved="false"
         app:title="@string/home_screen">
-
         <rikka.material.preference.MaterialSwitchPreference
             app:key="shownamehome"
             app:summary="@string/showname_sum"
             app:title="@string/showname" />
-
         <rikka.material.preference.MaterialSwitchPreference
             app:key="showbiohome"
             app:summary="@string/showbio_sum"
             app:title="@string/showbio" />
-
         <rikka.material.preference.MaterialSwitchPreference
             app:key="show_dndmode"
             app:summary="@string/show_dnd_button_sum"
             app:title="@string/show_dnd_button" />
-
         <rikka.material.preference.MaterialSwitchPreference
-            app:key="newchat"
             app:defaultValue="true"
+            app:key="newchat"
             app:summary="@string/enable_new_chat_button_sum"
             app:title="@string/enable_new_chat_button" />
-
         <rikka.material.preference.MaterialSwitchPreference
-            app:key="restartbutton"
             app:defaultValue="true"
+            app:key="restartbutton"
             app:summary="@string/enable_restart_button_sum"
             app:title="@string/enable_restart_button" />
-
         <rikka.material.preference.MaterialSwitchPreference
-            app:key="show_freezeLastSeen"
             app:defaultValue="true"
+            app:key="show_freezeLastSeen"
             app:summary="@string/show_freezeLastSeen_sum"
             app:title="@string/show_freezeLastSeen_button" />
-
-
         <rikka.material.preference.MaterialSwitchPreference
             app:key="separategroups"
             app:summary="@string/separate_groups_sum"
             app:title="@string/separate_groups" />
-
         <rikka.material.preference.MaterialSwitchPreference
             app:key="hidearchive"
             app:summary="@string/hide_archived_chat_sum"
             app:title="@string/hide_archived_chat" />
-
         <rikka.material.preference.MaterialSwitchPreference
             app:key="dotonline"
             app:summary="@string/show_online_dot_in_conversation_list_sum"
             app:title="@string/show_online_dot_in_conversation_list" />
-
         <rikka.material.preference.MaterialSwitchPreference
-            app:key="pinnedlimit"
-            app:summary="@string/disable_pinned_limit_sum"
-            app:title="@string/disable_pinned_limit" />
-
+            app:key="filterseen"
+            app:summary="@string/enable_filter_chats_sum"
+            app:title="@string/enable_filter_chats" />
+        <rikka.material.preference.MaterialSwitchPreference
+            app:key="metaai"
+            app:summary="@string/disable_metaai_sum"
+            app:title="@string/disable_metaai" />
         <ListPreference
             app:entries="@array/chatfilter_buttons"
             app:entryValues="@array/chatfilter_values"
             app:key="chatfilter"
             app:summary="@string/novofiltro_sum"
             app:title="@string/novofiltro" />
-
-        <rikka.material.preference.MaterialSwitchPreference
-            app:key="metaai"
-            app:summary="@string/disable_metaai_sum"
-            app:title="@string/disable_metaai" />
-
-
-
     </PreferenceCategory>
-
     <PreferenceCategory
         app:iconSpaceReserved="false"
         app:title="@string/conversation">
-
+        <rikka.material.preference.MaterialSwitchPreference
+            app:key="toastdeleted"
+            app:summary="@string/toast_on_delete_sum"
+            app:title="@string/toast_on_delete" />
         <ListPreference
             app:entries="@array/antirevoke_entries"
             app:entryValues="@array/antirevoke_values"
@@ -108,12 +91,6 @@
             app:key="antirevoke"
             app:summary="@string/antirevoke_sum"
             app:title="@string/antirevoke" />
-
-        <rikka.material.preference.MaterialSwitchPreference
-            app:key="toastdeleted"
-            app:title="@string/toast_on_delete_sum"
-            app:summary="@string/toast_on_delete" />
-
         <ListPreference
             app:entries="@array/antirevoke_entries"
             app:entryValues="@array/antirevoke_values"
@@ -121,49 +98,37 @@
             app:key="antirevokestatus"
             app:summary="@string/antirevokestatus_sum"
             app:title="@string/antirevokestatus" />
-
         <rikka.material.preference.MaterialSwitchPreference
-            app:summary="@string/removeforwardlimit_sum"
+            app:key="pinnedlimit"
+            app:summary="@string/disable_pinned_limit_sum"
+            app:title="@string/disable_pinned_limit" />
+        <rikka.material.preference.MaterialSwitchPreference
             app:key="removeforwardlimit"
+            app:summary="@string/removeforwardlimit_sum"
             app:title="@string/removeforwardlimit" />
-
-
         <rikka.material.preference.MaterialSwitchPreference
             app:key="hidetag"
             app:summary="@string/hidetag_sum"
             app:title="@string/hidetag" />
-
         <rikka.material.preference.MaterialSwitchPreference
             app:key="revokeallmessages"
             app:summary="@string/delete_for_everyone_all_messages_sum"
             app:title="@string/delete_for_everyone_all_messages" />
-
         <rikka.material.preference.MaterialSwitchPreference
             app:key="removeseemore"
             app:summary="@string/remove_see_more_button_"
             app:title="@string/remove_see_more_button" />
-
         <rikka.material.preference.MaterialSwitchPreference
             app:key="antieditmessages"
             app:summary="@string/show_edited_message_history_sum"
             app:title="@string/show_edited_message_history" />
-
-        <rikka.material.preference.MaterialSwitchPreference
-            app:key="filterseen"
-            app:summary="@string/enable_filter_chats_sum"
-            app:title="@string/enable_filter_chats" />
-
         <rikka.material.preference.MaterialSwitchPreference
             app:key="alertsticker"
             app:summary="@string/enable_confirmation_to_send_sticker_sum"
             app:title="@string/enable_confirmation_to_send_sticker" />
-
         <rikka.material.preference.MaterialSwitchPreference
             app:key="calltype"
             app:summary="@string/selection_of_call_type_sum"
             app:title="@string/selection_of_call_type" />
-
     </PreferenceCategory>
-
-
 </PreferenceScreen>
