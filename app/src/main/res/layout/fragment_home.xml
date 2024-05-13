@@ -211,7 +211,7 @@
                             android:text="@string/device_name"
                             style="@style/DeviceInfoDialogLabel" />
                         <com.google.android.material.textview.MaterialTextView
-                            android:id="@id/device_name"
+                            android:id="@+id/device_name"
                             android:layout_width="fill_parent"
                             android:layout_height="wrap_content"
                             android:text=""
