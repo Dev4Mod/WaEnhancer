@@ -150,6 +150,12 @@ public class Unobfuscator {
         return false;
     }
 
+    public static boolean isCalledFromString(String contains) {
+        var trace = Thread.currentThread().getStackTrace();
+        var text = Arrays.toString(trace);
+        return text.contains(contains);
+    }
+
 
     // TODO: Classes and Methods for FreezeSeen
     public static Method loadFreezeSeenMethod(ClassLoader classLoader) throws Exception {

@@ -7,6 +7,12 @@
         <package android:name="com.whatsapp.w4b" />
     </queries>
 
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"
+        android:maxSdkVersion="32"
+        tools:ignore="SelectedPhotoAccess" />
+    <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" />
+
+
     <application
         android:name=".App"
         android:allowBackup="true"
