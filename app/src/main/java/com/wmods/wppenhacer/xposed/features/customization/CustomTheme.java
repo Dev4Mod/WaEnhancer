@@ -175,14 +175,14 @@ public class CustomTheme extends Feature {
         findAndHookMethod(LayoutInflater.class.getName(), loader, "inflate", int.class, ViewGroup.class, boolean.class, inflaterHook);
         findAndHookMethod(LayoutInflater.class.getName(), loader, "inflate", XmlPullParser.class, ViewGroup.class, boolean.class, inflaterHook);
 
-        findAndHookMethod(View.class.getName(), loader, "setBackground", Drawable.class, new XC_MethodHook() {
-            @Override
-            protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
-                var colors = getAlpha();
-                var drawable = (Drawable) param.args[0];
-                replaceColor(drawable, colors);
-            }
-        });
+//        findAndHookMethod(View.class.getName(), loader, "setBackground", Drawable.class, new XC_MethodHook() {
+//            @Override
+//            protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
+//                var colors = getAlpha();
+//                var drawable = (Drawable) param.args[0];
+//                replaceColor(drawable, colors);
+//            }
+//        });
     }
 
     private HashMap<String, String> getAlpha() {
@@ -211,8 +211,6 @@ public class CustomTheme extends Feature {
             frameLayout.addView(v);
         }
         rootView.addView(frameLayout);
-
-
     }
 
     @NonNull
