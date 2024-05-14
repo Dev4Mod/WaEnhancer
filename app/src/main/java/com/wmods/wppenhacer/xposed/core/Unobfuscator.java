@@ -205,6 +205,17 @@ public class Unobfuscator {
         });
     }
 
+    public static Method loadReceiptMethod3(ClassLoader classLoader) throws Exception {
+        return UnobfuscatorCache.getInstance().getMethod(classLoader, () -> {
+            var method = loadReceiptMethod(classLoader);
+            var classList = dexkit.findClass(new FindClass().matcher(new ClassMatcher().addUsingString("callCreatorJid")));
+            if (classList.isEmpty()) throw new Exception("Receipt method not found");
+            var methodDataList = dexkit.findMethod(new FindMethod().searchInClass(classList).matcher(new MethodMatcher().addInvoke(DexSignUtil.getMethodDescriptor(method))));
+            if (methodDataList.isEmpty()) throw new Exception("Receipt method not found");
+            return methodDataList.get(0).getMethodInstance(classLoader);
+        });
+    }
+
     // TODO: Classes and Methods for HideForward
 
     public static Method loadForwardTagMethod(ClassLoader classLoader) throws Exception {

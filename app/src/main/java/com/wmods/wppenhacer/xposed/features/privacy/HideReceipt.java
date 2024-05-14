@@ -20,12 +20,13 @@ public class HideReceipt extends Feature {
     public void doHook() throws Exception {
         var method = Unobfuscator.loadReceiptMethod(loader);
         var method2 = Unobfuscator.loadReceiptMethod2(loader);
+        var method3 = Unobfuscator.loadReceiptMethod3(loader);
         logDebug(Unobfuscator.getMethodDescriptor(method));
         XposedBridge.hookMethod(method, new XC_MethodHook() {
             @Override
             protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
                 if (!prefs.getBoolean("hidereceipt", false)) return;
-                if (!Unobfuscator.isCalledFromMethod(method2)) return;
+                if (!Unobfuscator.isCalledFromMethod(method2) && !Unobfuscator.isCalledFromMethod(method3)) return;
                 var jid = WppCore.getRawString(param.args[0]);
                 if ((jid == null || jid.contains("@lid")) && param.args[4] != "sender") {
                     param.args[4] = "inactive";
