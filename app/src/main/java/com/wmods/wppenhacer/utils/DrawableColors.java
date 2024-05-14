@@ -54,8 +54,10 @@ public class DrawableColors {
                 for (var i = 0; i < gradientColors.length; i++) {
                     var gradientColor = IColors.toString(gradientColors[i]);
                     var newColor = colors.get(gradientColor);
-                    XposedBridge.log(new Exception());
-                    XposedBridge.log(gradientColor + " -> " + newColor);
+                    if (newColor != null && newColor.contains("121212")){
+                        XposedBridge.log(new Throwable());
+                    }
+
                     if (newColor != null) {
                         gradientColors[i] = IColors.parseColor(newColor);
                     } else {
@@ -75,8 +77,9 @@ public class DrawableColors {
             var color = getNinePatchDrawableColor(ninePatchDrawable);
             var sColor = IColors.toString(color);
             var newColor = colors.get(sColor);
-            XposedBridge.log(sColor + " -> " + newColor);
-            XposedBridge.log(new Exception());
+            if (newColor != null && newColor.contains("121212")){
+                XposedBridge.log(new Throwable());
+            }
             if (newColor != null) {
                 ninePatchDrawable.setTintList(ColorStateList.valueOf(parseColor(newColor)));
             }
@@ -85,8 +88,9 @@ public class DrawableColors {
             var color = getColor(drawable);
             var sColor = IColors.toString(color);
             var newColor = colors.get(sColor);
-            XposedBridge.log(sColor + " -> " + newColor);
-            XposedBridge.log(new Exception());
+            if (newColor != null && newColor.contains("121212")){
+                XposedBridge.log(new Throwable());
+            }
             if (newColor != null) {
                 drawable.setColorFilter(new PorterDuffColorFilter(parseColor(newColor), PorterDuff.Mode.SRC_IN));
             } else {

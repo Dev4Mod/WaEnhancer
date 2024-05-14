@@ -21,6 +21,7 @@ public class IColors {
         colors.put("#ff00a884", "#ff00a884");
         colors.put("#21c063", "#21c063");
         colors.put("#ff21c063", "#ff21c063");
+        colors.put("#ff000000", "#ff000000");
 
         // Secondary
         colors.put("#ff202c33", "#ff202c33");

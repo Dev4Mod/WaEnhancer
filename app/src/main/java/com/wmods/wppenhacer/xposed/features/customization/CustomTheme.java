@@ -1,36 +1,34 @@
 package com.wmods.wppenhacer.xposed.features.customization;
 
-import static com.wmods.wppenhacer.utils.ColorReplacement.replaceColors;
-import static com.wmods.wppenhacer.utils.DrawableColors.replaceColor;
 import static de.robv.android.xposed.XposedHelpers.findAndHookMethod;
 
 import android.Manifest;
 import android.app.Activity;
-import android.app.Dialog;
 import android.app.Notification;
 import android.content.pm.PackageManager;
 import android.content.res.ColorStateList;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Paint;
+import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.GradientDrawable;
 import android.os.Bundle;
-import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.Window;
 
 import androidx.annotation.NonNull;
 import androidx.core.content.ContextCompat;
 
 import com.wmods.wppenhacer.utils.IColors;
-import com.wmods.wppenhacer.views.WallpaperView;
 import com.wmods.wppenhacer.xposed.core.Feature;
 import com.wmods.wppenhacer.xposed.core.Unobfuscator;
 
-import org.xmlpull.v1.XmlPullParser;
-
-import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
+import java.util.Objects;
 
 import de.robv.android.xposed.XC_MethodHook;
 import de.robv.android.xposed.XSharedPreferences;
@@ -80,24 +78,28 @@ public class CustomTheme extends Feature {
         var secondaryColorInt = prefs.getInt("secondary_color", 0);
         var backgroundColorInt = prefs.getInt("background_color", 0);
 
-        var primaryColor = primaryColorInt == 0 ? "0" : String.format("#%08X", primaryColorInt);
-        var secondaryColor = secondaryColorInt == 0 ? "0" : String.format("#%08X", secondaryColorInt);
-        var backgroundColor = backgroundColorInt == 0 ? "0" : String.format("#%08X", backgroundColorInt);
+        var primaryColor = primaryColorInt == 0 ? "0" : String.format("#%08x", primaryColorInt);
+        var secondaryColor = secondaryColorInt == 0 ? "0" : String.format("#%08x", secondaryColorInt);
+        var backgroundColor = backgroundColorInt == 0 ? "0" : String.format("#%08x", backgroundColorInt);
 
         if (prefs.getBoolean("changecolor", false)) {
             for (var c : IColors.colors.keySet()) {
                 if (!primaryColor.equals("0")) {
                     switch (c) {
-                        case "00a884", "1da457", "21c063", "d9fdd3" -> IColors.colors.put(c, primaryColor.substring(3));
-                        case "#ff00a884", "#ff1da457", "#ff21c063", "#ff1daa61" -> IColors.colors.put(c, primaryColor);
-                        case "#ff103529" -> IColors.colors.put(c, "#66" + primaryColor.substring(3));
+                        case "00a884", "1da457", "21c063", "d9fdd3" ->
+                                IColors.colors.put(c, primaryColor.substring(3));
+                        case "#ff00a884", "#ff1da457", "#ff21c063", "#ff1daa61" ->
+                                IColors.colors.put(c, primaryColor);
+                        case "#ff103529" ->
+                                IColors.colors.put(c, "#66" + primaryColor.substring(3));
                     }
                 }
 
                 if (!backgroundColor.equals("0")) {
                     switch (c) {
-                        case "0b141a" -> IColors.colors.put(c, backgroundColor.substring(3));
-                        case "#ff0b141a", "#ff111b21" -> IColors.colors.put(c, backgroundColor);
+//                        case "0b141a" -> IColors.colors.put(c, backgroundColor.substring(3));
+                        case "#ff0b141a", "#ff111b21", "#ff000000" ->
+                                IColors.colors.put(c, backgroundColor);
                     }
                 }
 
@@ -109,28 +111,30 @@ public class CustomTheme extends Feature {
             }
         }
 
-        var mAlpha = (100 - prefs.getInt("wallpaper_alpha", 30)) / 100f;
-        var hexAlpha = Integer.toHexString((int) (mAlpha * 255)).toUpperCase();
-        var bg1 = IColors.colors.get("#ff0b141a");
-        var bg2 = IColors.colors.get("#ff111b21");
-        var nBg1 = "#" + hexAlpha + bg1.substring(3);
-        var nBg2 = "#" + hexAlpha + bg2.substring(3);
+        var mAlpha = (100 - prefs.getInt("wallpaper_alpha", 30)) / 100.0f;
+        var hexAlpha = Integer.toHexString((int) Math.floor(mAlpha * 255f)).toLowerCase();
+        hexAlpha = hexAlpha.length() == 1 ? "0" + hexAlpha : hexAlpha;
+        var bgColors = List.of("#ff0b141a", "#ff111b21", "#ff000000");
         newColors = new HashMap<>(IColors.colors);
-        newColors.put("#ff0b141a", nBg1);
-        newColors.put("#ff111b21", nBg2);
-        IColors.colors.put(nBg1, bg1);
-        IColors.colors.put(nBg2, bg2);
+        for (var color : bgColors) {
+            var bgColor = IColors.colors.get(color);
+            var alphaBgColor = "#" + hexAlpha + bgColor.substring(3);
+            newColors.put(color, alphaBgColor);
+            IColors.colors.put(alphaBgColor, bgColor);
+            if (Objects.equals(hexAlpha, "00")) {
+                IColors.colors.put(alphaBgColor.substring(3), bgColor);
+            }
+        }
         isWallpaper = prefs.getBoolean("wallpaper", false);
 
 //        findAndHookMethod(Activity.class.getName(), loader, "onCreate", Bundle.class, new XC_MethodHook() {
 //            @Override
 //            protected void afterHookedMethod(MethodHookParam param) throws Throwable {
 //                super.afterHookedMethod(param);
-//                enableAlpha();
+//                var colors = getAlpha();
 //                var activity = (Activity) param.thisObject;
 //                var view = activity.findViewById(android.R.id.content).getRootView();
-//                replaceColors(view);
-//                disableAlpha();
+//                replaceColors(view,colors);
 //            }
 //        });
 
@@ -155,29 +159,29 @@ public class CustomTheme extends Feature {
 
         findAndHookMethod(customDrawable3, "setTintList", ColorStateList.class, colorStateListHook);
 
-        var inflaterHook = (XC_MethodHook) new LayoutInflaterHook();
-        findAndHookMethod(LayoutInflater.class.getName(), loader, "inflate", int.class, ViewGroup.class, inflaterHook);
-        findAndHookMethod(LayoutInflater.class.getName(), loader, "inflate", XmlPullParser.class, ViewGroup.class, inflaterHook);
-        findAndHookMethod(LayoutInflater.class.getName(), loader, "inflate", int.class, ViewGroup.class, boolean.class, inflaterHook);
-        findAndHookMethod(LayoutInflater.class.getName(), loader, "inflate", XmlPullParser.class, ViewGroup.class, boolean.class, inflaterHook);
+//        var inflaterHook = (XC_MethodHook) new LayoutInflaterHook();
+//        findAndHookMethod(LayoutInflater.class.getName(), loader, "inflate", int.class, ViewGroup.class, inflaterHook);
+//        findAndHookMethod(LayoutInflater.class.getName(), loader, "inflate", XmlPullParser.class, ViewGroup.class, inflaterHook);
+//        findAndHookMethod(LayoutInflater.class.getName(), loader, "inflate", int.class, ViewGroup.class, boolean.class, inflaterHook);
+//        findAndHookMethod(LayoutInflater.class.getName(), loader, "inflate", XmlPullParser.class, ViewGroup.class, boolean.class, inflaterHook);
 
-        findAndHookMethod(View.class.getName(), loader, "setBackground", Drawable.class, new XC_MethodHook() {
-            @Override
-            protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
-                var colors = getAlpha();
-                var drawable = (Drawable) param.args[0];
-                replaceColor(drawable, colors);
-            }
-        });
+//        findAndHookMethod(View.class.getName(), loader, "setBackground", Drawable.class, new XC_MethodHook() {
+//            @Override
+//            protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
+//                var colors = getAlpha();
+//                var drawable = (Drawable) param.args[0];
+//                replaceColor(drawable, colors);
+//            }
+//        });
     }
 
     private HashMap<String, String> getAlpha() {
         if (!isWallpaper) return IColors.colors;
-        if (!Unobfuscator.isCalledFromString("HomeActivity.onCreate") && !Unobfuscator.isCalledFromString("Pager"))
-            return IColors.colors;
-        if (Unobfuscator.isCalledFromClass(Dialog.class)) return IColors.colors;
+//        if (!Unobfuscator.isCalledFromString("HomeActivity.onCreate")) return IColors.colors;
+        if (Unobfuscator.isCalledFromClass(Window.class)) return IColors.colors;
         if (Unobfuscator.isCalledFromString("setStatusBarColor")) return IColors.colors;
         if (Unobfuscator.isCalledFromString("WDSToolbar")) return IColors.colors;
+        if (Unobfuscator.isCalledFromString("WDSFab")) return IColors.colors;
         if (Unobfuscator.isCalledFromString("onPreparePanel")) return IColors.colors;
         if (Unobfuscator.isCalledFromString("onCreateOptionsMenu")) return IColors.colors;
         if (Unobfuscator.isCalledFromString("onLongClick")) return IColors.colors;
@@ -186,17 +190,14 @@ public class CustomTheme extends Feature {
 
     private void injectWallpaper(View view) {
         var content = (ViewGroup) view;
-        var rootView = (ViewGroup) content.getChildAt(0);
-        var views = new ArrayList<View>();
-        while (rootView.getChildCount() > 0) {
-            views.add(rootView.getChildAt(0));
-            rootView.removeView(rootView.getChildAt(0));
+        var context = content.getContext();
+        try {
+            Bitmap bitmap = BitmapFactory.decodeFile(prefs.getString("wallpaper_file", ""));
+            Drawable drawable = new BitmapDrawable(context.getResources(), bitmap);
+            content.setBackground(drawable);
+        } catch (Exception e) {
+            log(e.toString());
         }
-        var frameLayout = new WallpaperView(rootView.getContext(), prefs);
-        for (var v : views) {
-            frameLayout.addView(v);
-        }
-        rootView.addView(frameLayout);
     }
 
     @NonNull
@@ -205,15 +206,15 @@ public class CustomTheme extends Feature {
         return "Change Colors";
     }
 
-    public class LayoutInflaterHook extends XC_MethodHook {
-        @Override
-        protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-            var colors = getAlpha();
-            var view = (View) param.getResult();
-            if (view == null) return;
-            replaceColors(view, colors);
-        }
-    }
+//    public class LayoutInflaterHook extends XC_MethodHook {
+//        @Override
+//        protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+//            var colors = getAlpha();
+//            var view = (View) param.getResult();
+//            if (view == null) return;
+//            replaceColors(view, colors);
+//        }
+//    }
 
     public class ColorStateListHook extends XC_MethodHook {
         @Override
