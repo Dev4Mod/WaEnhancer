@@ -31,6 +31,7 @@ import org.json.JSONObject;
 
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.stream.Collectors;
 
 import rikka.core.util.IOUtils;
 
@@ -151,7 +152,8 @@ public class HomeFragment extends BaseFragment {
                         if (value instanceof String stringValue) {
                             if (stringValue.startsWith("[") && stringValue.endsWith("]")) {
                                 if (stringValue.length() > 2) {
-                                    prefs.edit().putStringSet(keyName, new HashSet<>(Arrays.asList(stringValue.substring(1, stringValue.length() - 1).split(",")))).apply();
+                                    var arr = Arrays.stream(stringValue.substring(1, stringValue.length() - 1).split(",")).map(String::trim).collect(Collectors.toList());
+                                    prefs.edit().putStringSet(keyName, new HashSet<>(arr)).apply();
                                 }
                             } else {
                                 prefs.edit().putString(keyName, value.toString()).apply();
