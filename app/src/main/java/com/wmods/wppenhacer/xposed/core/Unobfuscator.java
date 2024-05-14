@@ -156,6 +156,15 @@ public class Unobfuscator {
         return text.contains(contains);
     }
 
+    public static boolean isCalledFromStrings(String... contains) {
+        var trace = Thread.currentThread().getStackTrace();
+        var text = Arrays.toString(trace);
+        for (String s : contains) {
+            if (text.contains(s)) return true;
+        }
+        return false;
+    }
+
 
     // TODO: Classes and Methods for FreezeSeen
     public static Method loadFreezeSeenMethod(ClassLoader classLoader) throws Exception {

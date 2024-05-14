@@ -77,9 +77,6 @@ public class DrawableColors {
             var color = getNinePatchDrawableColor(ninePatchDrawable);
             var sColor = IColors.toString(color);
             var newColor = colors.get(sColor);
-            if (newColor != null && newColor.contains("121212")){
-                XposedBridge.log(new Throwable());
-            }
             if (newColor != null) {
                 ninePatchDrawable.setTintList(ColorStateList.valueOf(parseColor(newColor)));
             }
@@ -88,9 +85,6 @@ public class DrawableColors {
             var color = getColor(drawable);
             var sColor = IColors.toString(color);
             var newColor = colors.get(sColor);
-            if (newColor != null && newColor.contains("121212")){
-                XposedBridge.log(new Throwable());
-            }
             if (newColor != null) {
                 drawable.setColorFilter(new PorterDuffColorFilter(parseColor(newColor), PorterDuff.Mode.SRC_IN));
             } else {

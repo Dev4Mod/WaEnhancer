@@ -41,9 +41,4 @@ public class WallpaperView extends FrameLayout {
         }
     }
 
-    @Override
-    public void addView(View child) {
-        super.addView(child);
-    }
-
 }
