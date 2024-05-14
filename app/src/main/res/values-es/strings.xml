@@ -57,7 +57,7 @@
     <string name="required_version_s">Versión requerida: %s</string>
     <string name="installed_version_s">Versión instalada: %s</string>
     <string name="whatsapp_version_error">Esta versión de WhatsApp no es compatible con nuestro módulo, vaya a la versión requerida de WhatsApp</string>
-    <string name="whatsapp_not_installed">¡WhatsApp no ​​está instalado! Instalalo e intente nuevamente</string>
+    <string name="whatsapp_not_installed">¡WhatsApp no ​​está instalado! Instalelo e intente nuevamente</string>
     <string name="restart_whatsapp">Reiniciar whatsapp</string>
     <string name="media_title">Multimedia</string>
     <string name="general">General</string>
@@ -171,7 +171,7 @@
     <string name="version_s">Versión %s</string>
     <string name="module_disabled">Módulo Desactivado</string>
     <string name="whatsapp_in_background">WhatsApp en segundo plano</string>
-    <string name="whatsapp_is_not_running_or_has_not_been_activated_in_lsposed">WhatsApp no ​​funciona o no se ha activado en Lsposed</string>
+    <string name="whatsapp_is_not_running_or_has_not_been_activated_in_lsposed">WhatsApp no ​​está abierto o no se ha activado en Lsposed</string>
     <string name="business_is_not_running_or_has_not_been_activated_in_lsposed">Business no está funcionando o no se ha activado en Lsposed</string>
     <string name="restart_wpp">Es necesario reiniciar WhatsApp para que los cambios en Wa Enhancer surtan efecto.\n\n¿Quieres reiniciar?</string>
     <string name="version_s_not_listed">Versión %s no listada</string>
@@ -218,13 +218,13 @@
     <string name="device_model">Modelo Del Dispositivo</string>
     <string name="device_name">Nombre Del Dispositivo</string>
     <string name="disable_metaai">Deshabilitar las funciones Meta Ai</string>
-    <string name="disable_metaai_sum">Deshabilite meta Ai solo para aquellos que lo tengan habilitado de forma predeterminada</string>
-    <string name="list_business">Lista De Wa. Business Soportadas:</string>
-    <string name="list_wpp">Lista de WhatsApp Soportados:</string>
+    <string name="disable_metaai_sum">Deshabilite Meta Ai solo para aquellos que lo tengan habilitado de forma predeterminada</string>
+    <string name="list_business">WhatsApp Business compatibles:</string>
+    <string name="list_wpp">WhatsApp compatibles:</string>
     <string name="title_image">Imagen</string>
     <string name="title_video">Video</string>
-    <string name="enable_new_chat_button">Activar nuevo botón de chat</string>
-    <string name="enable_new_chat_button_sum">Añadir botón en la pantalla de inicio para iniciar un nuevo chat</string>
+    <string name="enable_new_chat_button">Activar botón de nuevo chat</string>
+    <string name="enable_new_chat_button_sum">Añadir botón en la pantalla de inicio para iniciar un nuevo chat sin guardar el número</string>
     <string name="enable_restart_button">Activar botón de reinicio</string>
     <string name="enable_restart_button_sum">Añadir botón en la pantalla de inicio para reiniciar la aplicación</string>
     <string name="toast_on_delete">Mostrar notificación cuando eliminan un mensaje</string>
@@ -235,4 +235,18 @@
     <string name="hideread_group_sum">Ver los mensajes de los grupos sin que los demás usuarios se den cuenta que lo haz leído</string>
     <string name="time_limit_on_status_video">Aumenta el límite de tiempo en el vídeo de estado</string>
     <string name="time_limit_on_status_video_sum">Aumenta el límite de tiempo en los vídeos de estado de 30 segundos a 1 minuto (para todos)</string>
+    <string name="show_freezeLastSeen_button">Mostrar botón para congelar la última vez</string>
+    <string name="show_freezeLastSeen_sum">Mostrar botón para congelar la última vez en la barra de herramientas de la pantalla de inicio    </string>
+    <string name="freezelastseen_message">Cuando la última vez que se congela esté encendida, no podrás ver a otros en línea o tiempo en línea por última vez</string>
+    <string name="freezelastseen_title">Congelar última vez</string>
+    <string name="wallpaper_transparency">Transparencia del fondo de pantalla</string>
+    <string name="select_wallpaper">Seleccionar Fondo de Pantalla</string>
+    <string name="wallpaper_not_selected">Fondo de pantalla no seleccionado</string>
+    <string name="wallpaper_in_home_screen">Activar fondo en la pantalla de inicio</string>
+    <string name="wallpaper_in_home_screen_sum">Mostrar el fondo seleccionado en la pantalla de inicio con transparencia</string>
+    <string name="configs_imported">Configuraciones importadas</string>
+    <string name="configs_saved">Configuraciones guardadas</string>
+    <string name="backup_settings">Ajustes de la copia de seguridad</string>
+    <string name="import_settings">Importar</string>
+    <string name="export_settings">Exportar</string>
 </resources>

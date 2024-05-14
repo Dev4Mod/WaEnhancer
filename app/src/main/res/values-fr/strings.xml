@@ -235,4 +235,18 @@
     <string name="hideread_group_sum">View messages in groups screen without users knowing</string>
     <string name="time_limit_on_status_video">Increase time limit on status video</string>
     <string name="time_limit_on_status_video_sum">Increase time limit on status videos from 30 seconds to 1 minute (for everyone)</string>
+    <string name="show_freezeLastSeen_button">Show Freeze Last Seen Button</string>
+    <string name="show_freezeLastSeen_sum">Show button for Freezing Last Seen on home screen toolbar    </string>
+    <string name="freezelastseen_message">When Freeze Last Seen is on, you will be unable to see others last seen time or online</string>
+    <string name="freezelastseen_title">Freeze Last Seen</string>
+    <string name="wallpaper_transparency">Wallpaper Transparency</string>
+    <string name="select_wallpaper">Select Wallpaper</string>
+    <string name="wallpaper_not_selected">Wallpaper not selected</string>
+    <string name="wallpaper_in_home_screen">Enable Wallpaper in home screen</string>
+    <string name="wallpaper_in_home_screen_sum">Show selected wallpaper in home screen with transparency</string>
+    <string name="configs_imported">Configs imported</string>
+    <string name="configs_saved">Configs saved</string>
+    <string name="backup_settings">Backup Settings</string>
+    <string name="import_settings">Import</string>
+    <string name="export_settings">Export</string>
 </resources>
