@@ -84,7 +84,7 @@ public class CustomTheme extends Feature {
         var secondaryColor = secondaryColorInt == 0 ? "0" : String.format("#%08X", secondaryColorInt);
         var backgroundColor = backgroundColorInt == 0 ? "0" : String.format("#%08X", backgroundColorInt);
 
-        if (!prefs.getBoolean("changecolor", false)) {
+        if (prefs.getBoolean("changecolor", false)) {
             for (var c : IColors.colors.keySet()) {
                 if (!primaryColor.equals("0")) {
                     switch (c) {
