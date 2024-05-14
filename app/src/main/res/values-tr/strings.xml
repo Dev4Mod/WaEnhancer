@@ -235,4 +235,18 @@
     <string name="hideread_group_sum">Kullanıcıların haberi olmadan konuşma ekranındaki mesajları görüntüle</string>
     <string name="time_limit_on_status_video">Durum videosundaki süre sınırını artır</string>
     <string name="time_limit_on_status_video_sum">Durum videolarındaki süre sınırını 30 saniyeden 1 dakikaya çıkar (herkes için)</string>
+    <string name="show_freezeLastSeen_button">Son Görülmeyi Dondur Düğmesini Göster</string>
+    <string name="show_freezeLastSeen_sum">Ana ekrandaki araç çubuğunda Son Görülmeyi Dondur düğmesini göster    </string>
+    <string name="freezelastseen_message">Son Görülmeyi Dondur açık olduğunda, başkalarının son görülme zamanını veya çevrimiçi olduğunu göremezsiniz</string>
+    <string name="freezelastseen_title">Son Görülmeyi Dondur</string>
+    <string name="wallpaper_transparency">Duvar Kağıdı Şeffaflığı</string>
+    <string name="select_wallpaper">Duvar Kağıdı Seç</string>
+    <string name="wallpaper_not_selected">Duvar kağıdı seçili değil</string>
+    <string name="wallpaper_in_home_screen">Ana ekranda Duvar Kağıdını Etkinleştir</string>
+    <string name="wallpaper_in_home_screen_sum">Seçili duvar kağıdını ana ekranda şeffaflıkla göster</string>
+    <string name="configs_imported">Yapılandırmalar içe aktarıldı</string>
+    <string name="configs_saved">Yapılandırmalar kaydedildi</string>
+    <string name="backup_settings">Yedekleme Ayarları</string>
+    <string name="import_settings">İçe Aktar</string>
+    <string name="export_settings">Dışa Aktar</string>
 </resources>

@@ -2,11 +2,11 @@ package com.wmods.wppenhacer.xposed.features.customization;
 
 import static com.wmods.wppenhacer.utils.ColorReplacement.replaceColors;
 import static com.wmods.wppenhacer.utils.DrawableColors.replaceColor;
-import static com.wmods.wppenhacer.utils.IColors.colors;
 import static de.robv.android.xposed.XposedHelpers.findAndHookMethod;
 
 import android.Manifest;
 import android.app.Activity;
+import android.app.Dialog;
 import android.app.Notification;
 import android.content.pm.PackageManager;
 import android.content.res.ColorStateList;
@@ -30,6 +30,7 @@ import com.wmods.wppenhacer.xposed.core.Unobfuscator;
 import org.xmlpull.v1.XmlPullParser;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 
 import de.robv.android.xposed.XC_MethodHook;
 import de.robv.android.xposed.XSharedPreferences;
@@ -38,6 +39,8 @@ import de.robv.android.xposed.XposedHelpers;
 public class CustomTheme extends Feature {
 
     public static ClassLoader classLoader;
+    private HashMap<String, String> newColors;
+    private boolean isWallpaper;
 
     public CustomTheme(ClassLoader loader, XSharedPreferences preferences) {
         super(loader, preferences);
@@ -65,8 +68,6 @@ public class CustomTheme extends Feature {
     }
 
     private void hookColors() throws Exception {
-        if (!prefs.getBoolean("changecolor", false)) return;
-
         var customDrawable1 = Unobfuscator.loadExpandableWidgetClass(loader);
         logDebug("customDrawable1: " + customDrawable1.getName());
         var customDrawable2 = Unobfuscator.loadMaterialShapeDrawableClass(loader);
@@ -83,44 +84,55 @@ public class CustomTheme extends Feature {
         var secondaryColor = secondaryColorInt == 0 ? "0" : String.format("#%08X", secondaryColorInt);
         var backgroundColor = backgroundColorInt == 0 ? "0" : String.format("#%08X", backgroundColorInt);
 
-        for (var c : colors.keySet()) {
-            if (!primaryColor.equals("0")) {
-                switch (c) {
-                    case "00a884", "1da457", "21c063", "d9fdd3" ->
-                            colors.put(c, primaryColor.substring(3));
-                    case "#ff00a884", "#ff1da457", "#ff21c063", "#ff1daa61" ->
-                            colors.put(c, primaryColor);
-                    case "#ff103529" -> colors.put(c, "#66" + primaryColor.substring(3));
+        if (prefs.getBoolean("changecolor", false)) {
+            for (var c : IColors.colors.keySet()) {
+                if (!primaryColor.equals("0")) {
+                    switch (c) {
+                        case "00a884", "1da457", "21c063", "d9fdd3" -> IColors.colors.put(c, primaryColor.substring(3));
+                        case "#ff00a884", "#ff1da457", "#ff21c063", "#ff1daa61" -> IColors.colors.put(c, primaryColor);
+                        case "#ff103529" -> IColors.colors.put(c, "#66" + primaryColor.substring(3));
+                    }
+                }
+
+                if (!backgroundColor.equals("0")) {
+                    switch (c) {
+                        case "0b141a" -> IColors.colors.put(c, backgroundColor.substring(3));
+                        case "#ff0b141a", "#ff111b21" -> IColors.colors.put(c, backgroundColor);
+                    }
+                }
+
+                if (!secondaryColor.equals("0")) {
+                    if (c.equals("#ff202c33")) {
+                        IColors.colors.put(c, secondaryColor);
+                    }
                 }
             }
-
-            if (!backgroundColor.equals("0")) {
-                switch (c) {
-                    case "0b141a" -> colors.put(c, backgroundColor.substring(3));
-                    case "#ff0b141a", "#ff111b21" -> colors.put(c, backgroundColor);
-                }
-            }
-
-            if (!secondaryColor.equals("0")) {
-                if (c.equals("#ff202c33")) {
-                    colors.put(c, secondaryColor);
-                }
-            }
-
         }
 
-        findAndHookMethod(Activity.class.getName(), loader, "onCreate", Bundle.class, new XC_MethodHook() {
-            @Override
-            protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-                super.afterHookedMethod(param);
-                var activity = (Activity) param.thisObject;
-                var view = activity.findViewById(android.R.id.content).getRootView();
-                replaceColors(view);
-            }
-        });
+        var mAlpha = (100 - prefs.getInt("wallpaper_alpha", 30)) / 100f;
+        var hexAlpha = Integer.toHexString((int) (mAlpha * 255)).toUpperCase();
+        var bg1 = IColors.colors.get("#ff0b141a");
+        var bg2 = IColors.colors.get("#ff111b21");
+        var nBg1 = "#" + hexAlpha + bg1.substring(3);
+        var nBg2 = "#" + hexAlpha + bg2.substring(3);
+        newColors = new HashMap<>(IColors.colors);
+        newColors.put("#ff0b141a", nBg1);
+        newColors.put("#ff111b21", nBg2);
+        IColors.colors.put(nBg1, bg1);
+        IColors.colors.put(nBg2, bg2);
+        isWallpaper = prefs.getBoolean("wallpaper", false);
 
-
-
+//        findAndHookMethod(Activity.class.getName(), loader, "onCreate", Bundle.class, new XC_MethodHook() {
+//            @Override
+//            protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+//                super.afterHookedMethod(param);
+//                enableAlpha();
+//                var activity = (Activity) param.thisObject;
+//                var view = activity.findViewById(android.R.id.content).getRootView();
+//                replaceColors(view);
+//                disableAlpha();
+//            }
+//        });
 
         var intBgHook = new IntBgColorHook();
         findAndHookMethod(Paint.class.getName(), loader, "setColor", int.class, intBgHook);
@@ -152,22 +164,35 @@ public class CustomTheme extends Feature {
         findAndHookMethod(View.class.getName(), loader, "setBackground", Drawable.class, new XC_MethodHook() {
             @Override
             protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
+                var colors = getAlpha();
                 var drawable = (Drawable) param.args[0];
-                replaceColor(drawable);
-                super.beforeHookedMethod(param);
+                replaceColor(drawable, colors);
             }
         });
     }
 
+    private HashMap<String, String> getAlpha() {
+        if (!isWallpaper) return IColors.colors;
+        if (!Unobfuscator.isCalledFromString("HomeActivity.onCreate") && !Unobfuscator.isCalledFromString("Pager"))
+            return IColors.colors;
+        if (Unobfuscator.isCalledFromClass(Dialog.class)) return IColors.colors;
+        if (Unobfuscator.isCalledFromString("setStatusBarColor")) return IColors.colors;
+        if (Unobfuscator.isCalledFromString("WDSToolbar")) return IColors.colors;
+        if (Unobfuscator.isCalledFromString("onPreparePanel")) return IColors.colors;
+        if (Unobfuscator.isCalledFromString("onCreateOptionsMenu")) return IColors.colors;
+        if (Unobfuscator.isCalledFromString("onLongClick")) return IColors.colors;
+        return newColors;
+    }
+
     private void injectWallpaper(View view) {
         var content = (ViewGroup) view;
-        var rootView = (ViewGroup)content.getChildAt(0);
+        var rootView = (ViewGroup) content.getChildAt(0);
         var views = new ArrayList<View>();
         while (rootView.getChildCount() > 0) {
             views.add(rootView.getChildAt(0));
             rootView.removeView(rootView.getChildAt(0));
         }
-        var frameLayout = new WallpaperView(rootView.getContext(),prefs);
+        var frameLayout = new WallpaperView(rootView.getContext(), prefs);
         for (var v : views) {
             frameLayout.addView(v);
         }
@@ -180,24 +205,23 @@ public class CustomTheme extends Feature {
         return "Change Colors";
     }
 
-    public static class LayoutInflaterHook extends XC_MethodHook {
+    public class LayoutInflaterHook extends XC_MethodHook {
         @Override
         protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-            super.afterHookedMethod(param);
+            var colors = getAlpha();
             var view = (View) param.getResult();
             if (view == null) return;
-            replaceColors(view);
+            replaceColors(view, colors);
         }
     }
 
-    public static class ColorStateListHook extends XC_MethodHook {
+    public class ColorStateListHook extends XC_MethodHook {
         @Override
         protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
+            var colors = getAlpha();
             var colorStateList = param.args[0];
             if (colorStateList != null) {
                 var mColors = (int[]) XposedHelpers.getObjectField(colorStateList, "mColors");
-
-//            XposedBridge.log("mColors: " + Arrays.toString(mColors));
                 for (int i = 0; i < mColors.length; i++) {
                     var sColor = IColors.toString(mColors[i]);
                     var newColor = colors.get(sColor);
@@ -216,18 +240,16 @@ public class CustomTheme extends Feature {
                 XposedHelpers.setObjectField(colorStateList, "mColors", mColors);
                 param.args[0] = colorStateList;
             }
-
-            super.beforeHookedMethod(param);
         }
     }
 
-    public static class IntBgColorHook extends XC_MethodHook {
+    public class IntBgColorHook extends XC_MethodHook {
         @Override
         protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
+            var colors = getAlpha();
             var color = (int) param.args[0];
             var sColor = IColors.toString(color);
             var newColor = colors.get(sColor);
-//            XposedBridge.log("-> New Color: " + newColor);
             if (newColor != null && newColor.length() == 9) {
                 param.args[0] = IColors.parseColor(newColor);
             } else {
@@ -239,7 +261,6 @@ public class CustomTheme extends Feature {
                     }
                 }
             }
-            super.beforeHookedMethod(param);
         }
     }
 }

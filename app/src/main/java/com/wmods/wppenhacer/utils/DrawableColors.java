@@ -1,6 +1,5 @@
 package com.wmods.wppenhacer.utils;
 
-import static com.wmods.wppenhacer.utils.IColors.colors;
 import static com.wmods.wppenhacer.utils.IColors.parseColor;
 import static com.wmods.wppenhacer.xposed.features.customization.CustomTheme.classLoader;
 
@@ -19,23 +18,26 @@ import android.graphics.drawable.RippleDrawable;
 import android.graphics.drawable.ShapeDrawable;
 import android.graphics.drawable.StateListDrawable;
 
+import java.util.HashMap;
+
+import de.robv.android.xposed.XposedBridge;
 import de.robv.android.xposed.XposedHelpers;
 
 public class DrawableColors {
 
-    public static void replaceColor(Drawable drawable) {
+    public static void replaceColor(Drawable drawable, HashMap<String, String> colors) {
         if (drawable instanceof StateListDrawable stateListDrawable) {
             var count = StateListDrawableCompact.getStateCount(stateListDrawable);
             for (int i = 0; i < count; i++) {
                 var stateDrawable = StateListDrawableCompact.getStateDrawable(stateListDrawable, i);
                 if (stateDrawable != null)
-                    replaceColor(stateDrawable);
+                    replaceColor(stateDrawable, colors);
             }
         } else if (drawable instanceof DrawableContainer drawableContainer) {
             var containerState = drawableContainer.getConstantState();
             var drawables = (Drawable[]) XposedHelpers.getObjectField(containerState, "mDrawables");
             for (var drawable1 : drawables) {
-                replaceColor(drawable1);
+                replaceColor(drawable1, colors);
             }
         } else if (drawable instanceof LayerDrawable layerDrawable) {
             var layerState = layerDrawable.getConstantState();
@@ -43,7 +45,7 @@ public class DrawableColors {
             for (var childDrawable : mChildren) {
                 if (childDrawable != null) {
                     var drawable1 = (Drawable) XposedHelpers.getObjectField(childDrawable, "mDrawable");
-                    replaceColor(drawable1);
+                    replaceColor(drawable1, colors);
                 }
             }
         } else if (drawable instanceof GradientDrawable gradientDrawable) {
@@ -52,6 +54,8 @@ public class DrawableColors {
                 for (var i = 0; i < gradientColors.length; i++) {
                     var gradientColor = IColors.toString(gradientColors[i]);
                     var newColor = colors.get(gradientColor);
+                    XposedBridge.log(new Exception());
+                    XposedBridge.log(gradientColor + " -> " + newColor);
                     if (newColor != null) {
                         gradientColors[i] = IColors.parseColor(newColor);
                     } else {
@@ -66,11 +70,13 @@ public class DrawableColors {
                 gradientDrawable.setColors(gradientColors);
             }
         } else if (drawable instanceof InsetDrawable insetDrawable) {
-            replaceColor(insetDrawable.getDrawable());
+            replaceColor(insetDrawable.getDrawable(), colors);
         } else if (drawable instanceof NinePatchDrawable ninePatchDrawable) {
             var color = getNinePatchDrawableColor(ninePatchDrawable);
             var sColor = IColors.toString(color);
             var newColor = colors.get(sColor);
+            XposedBridge.log(sColor + " -> " + newColor);
+            XposedBridge.log(new Exception());
             if (newColor != null) {
                 ninePatchDrawable.setTintList(ColorStateList.valueOf(parseColor(newColor)));
             }
@@ -79,6 +85,8 @@ public class DrawableColors {
             var color = getColor(drawable);
             var sColor = IColors.toString(color);
             var newColor = colors.get(sColor);
+            XposedBridge.log(sColor + " -> " + newColor);
+            XposedBridge.log(new Exception());
             if (newColor != null) {
                 drawable.setColorFilter(new PorterDuffColorFilter(parseColor(newColor), PorterDuff.Mode.SRC_IN));
             } else {
@@ -121,7 +129,7 @@ public class DrawableColors {
         return getColor(mDrawable);
     }
 
-    private static int getNinePatchDrawableColor(NinePatchDrawable ninePatchDrawable) {
+    public static int getNinePatchDrawableColor(NinePatchDrawable ninePatchDrawable) {
         var state = ninePatchDrawable.getConstantState();
         var ninePatch = (NinePatch) XposedHelpers.getObjectField(state, "mNinePatch");
         var bitmap = ninePatch.getBitmap();

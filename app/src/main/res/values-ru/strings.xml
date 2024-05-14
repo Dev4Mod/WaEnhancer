@@ -121,8 +121,8 @@
     <string name="call_blocker_sum">Блокировать звонки WhatsApp на основе типа конфиденциальности</string>
     <string name="show_online_dot_in_conversation_list">Показывать онлайн-точку в списке разговоров</string>
     <string name="show_online_dot_in_conversation_list_sum">Показывать зеленую точку онлайн на главном экране (ПРИМЕЧАНИЕ: необходимо активировать онлайн для всех в меню настроек конфиденциальности WhatsApp)</string>
-    <string name="show_dnd_button">Показать кнопку DND</string>
-    <string name="show_dnd_button_sum">Показывать кнопку для режима DND на панели главного экрана</string>
+    <string name="show_dnd_button">Показать кнопку \"Не беспокоить\"</string>
+    <string name="show_dnd_button_sum">Показывать кнопку для режима \"Не беспокоить\" на панели главного экрана</string>
     <string name="dev4mod">Dev4mod (участник)</string>
     <string name="disable_pinned_limit">Отключить лимит закрепленных чатов</string>
     <string name="disable_pinned_limit_sum">Отключить ограничение на 3 закрепленных чата</string>
@@ -235,4 +235,18 @@
     <string name="hideread_group_sum">Просмотр сообщений на экране групп без уведомления пользователей</string>
     <string name="time_limit_on_status_video">Увеличить ограничение по статусу видео</string>
     <string name="time_limit_on_status_video_sum">Увеличить лимит времени на видео статуса от 30 секунд до 1 минуты (для всех)</string>
+    <string name="show_freezeLastSeen_button">Показать кнопку \"Скрыть последнее посещение\"</string>
+    <string name="show_freezeLastSeen_sum">Показывать кнопку для режима \"Скрыть последнее посещение\"    </string>
+    <string name="freezelastseen_message">Когда \"Скрыть последнее посещение\" включено, вы не сможете увидеть время других в сети или онлайн</string>
+    <string name="freezelastseen_title">Скрыть последнее посещение</string>
+    <string name="wallpaper_transparency">Прозрачность обоев</string>
+    <string name="select_wallpaper">Выбрать обои</string>
+    <string name="wallpaper_not_selected">Обои не выбраны</string>
+    <string name="wallpaper_in_home_screen">Включить обои на домашнем экране</string>
+    <string name="wallpaper_in_home_screen_sum">Показывать выбранные обои на главном экране с прозрачностью</string>
+    <string name="configs_imported">Настройки восстановлены</string>
+    <string name="configs_saved">Конфигурация сохранена</string>
+    <string name="backup_settings">Резервное копирование настроек</string>
+    <string name="import_settings">Восстановить</string>
+    <string name="export_settings">Сохранить</string>
 </resources>

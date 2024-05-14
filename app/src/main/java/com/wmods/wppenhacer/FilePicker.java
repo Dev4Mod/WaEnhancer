@@ -1,7 +1,6 @@
 package com.wmods.wppenhacer;
 
 import android.net.Uri;
-import android.util.Log;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
@@ -34,7 +33,11 @@ public class FilePicker {
         }
 
         if (mOnFilePickedListener != null) {
-            var realPath = RealPathUtil.getRealFilePath(mActivity, uri);
+            String realPath = null;
+            try {
+                realPath = RealPathUtil.getRealFilePath(mActivity, uri);
+            }catch (Exception ignored) {
+            }
             if (realPath == null) return;
             mOnFilePickedListener.onFilePicked(new File(realPath));
             mOnFilePickedListener = null;

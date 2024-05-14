@@ -235,4 +235,18 @@
     <string name="hideread_group_sum">Visualizza i messaggi nella schermata dei gruppi senza che gli utenti lo sappiano</string>
     <string name="time_limit_on_status_video">Aumenta il limite di tempo per il video di stato</string>
     <string name="time_limit_on_status_video_sum">Aumenta il limite di tempo per i video di stato da 30 secondi a 1 minuto (per tutti)</string>
+    <string name="show_freezeLastSeen_button">Mostra il Pulsante Congela Ultimo Accesso</string>
+    <string name="show_freezeLastSeen_sum">Mostra il pulsante per congelare l\'ultimo accesso sulla barra degli strumenti della schermata iniziale    </string>
+    <string name="freezelastseen_message">Quando Congela Ultimo Accesso è attivo, non sarai in grado di vedere l\'ora dell\'ultimo accesso o quando gli altri sono online</string>
+    <string name="freezelastseen_title">Congela Ultimo Accesso</string>
+    <string name="wallpaper_transparency">Trasparenza Sfondo</string>
+    <string name="select_wallpaper">Seleziona Sfondo</string>
+    <string name="wallpaper_not_selected">Sfondo non selezionato</string>
+    <string name="wallpaper_in_home_screen">Abilita Sfondo nella schermata principale</string>
+    <string name="wallpaper_in_home_screen_sum">Mostra sfondo selezionato con trasparenza nella schermata principale</string>
+    <string name="configs_imported">Configurazioni importate</string>
+    <string name="configs_saved">Configurazioni salvate</string>
+    <string name="backup_settings">Impostazioni di Backup</string>
+    <string name="import_settings">Importa</string>
+    <string name="export_settings">Esporta</string>
 </resources>

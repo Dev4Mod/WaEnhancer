@@ -1,11 +1,11 @@
 package com.wmods.wppenhacer.utils;
 
-import static de.robv.android.xposed.XposedHelpers.callMethod;
-import static de.robv.android.xposed.XposedHelpers.findClass;
 import static com.wmods.wppenhacer.utils.DrawableColors.replaceColor;
-import static com.wmods.wppenhacer.utils.IColors.colors;
 import static com.wmods.wppenhacer.utils.IColors.parseColor;
 import static com.wmods.wppenhacer.xposed.features.customization.CustomTheme.classLoader;
+import static de.robv.android.xposed.XposedHelpers.callMethod;
+import static de.robv.android.xposed.XposedHelpers.findClass;
+
 import android.graphics.PorterDuffColorFilter;
 import android.view.View;
 import android.view.ViewGroup;
@@ -13,26 +13,28 @@ import android.view.ViewStub;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import java.util.HashMap;
+
 import de.robv.android.xposed.XposedHelpers;
 
 public class ColorReplacement {
-    public static void replaceColors(View view) {
+    public static void replaceColors(View view, HashMap<String, String> colors) {
         if (view instanceof ImageView imageView) {
-            Image.replace(imageView);
+            Image.replace(imageView,colors);
         } else if (view instanceof TextView textView) {
-            Text.replace(textView);
+            Text.replace(textView,colors);
         } else if (view instanceof ViewGroup viewGroup) {
-            Group.replace(viewGroup);
+            Group.replace(viewGroup,colors);
         } else if (view instanceof ViewStub viewStub) {
-            replaceColor(viewStub.getBackground());
+            replaceColor(viewStub.getBackground(), colors);
         } else if (view.getClass().equals(findClass("com.whatsapp.CircularProgressBar", classLoader))) {
-            CircularProgressBar.replace(view);
+            CircularProgressBar.replace(view,colors);
         }
     }
 
     public static class Image {
-        static void replace(ImageView view) {
-            replaceColor(view.getBackground());
+        static void replace(ImageView view, HashMap<String, String> colors) {
+            replaceColor(view.getBackground(), colors);
             var colorFilter = view.getColorFilter();
             if (colorFilter == null) return;
             if (colorFilter instanceof PorterDuffColorFilter filter) {
@@ -56,7 +58,7 @@ public class ColorReplacement {
     }
 
     public static class CircularProgressBar {
-        static void replace(Object view) {
+        static void replace(Object view, HashMap<String, String> colors) {
             var progressColor = (int) callMethod(view, "getProgressBarColor");
             var progressBackgroundColor = (int) callMethod(view, "getProgressBarBackgroundColor");
 
@@ -78,8 +80,8 @@ public class ColorReplacement {
     }
 
     public static class Text {
-        static void replace(TextView view) {
-            replaceColor(view.getBackground());
+        static void replace(TextView view, HashMap<String, String> colors) {
+            replaceColor(view.getBackground(), colors);
             var color = view.getCurrentTextColor();
             var sColor = IColors.toString(color);
             var newColor = colors.get(sColor);
@@ -98,20 +100,14 @@ public class ColorReplacement {
     }
 
     public static class Group {
-        static void replace(ViewGroup view) {
+        static void replace(ViewGroup view, HashMap<String, String> colors) {
             var bg = view.getBackground();
             var count = view.getChildCount();
             for (int i = 0; i < count; i++) {
                 var child = view.getChildAt(i);
-                replaceColors(child);
+                replaceColors(child, colors);
             }
-            replaceColor(bg);
-        }
-    }
-
-    public static class Stub {
-        static void replace(ViewStub view) {
-            replaceColor(view.getBackground());
+            replaceColor(bg, colors);
         }
     }
 }

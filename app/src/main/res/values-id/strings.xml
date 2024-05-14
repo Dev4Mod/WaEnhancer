@@ -8,7 +8,7 @@
     <string name="ghostmode_r">Sembunyikan merekam audio...</string>
     <string name="ghostmode_sum_r">Orang lain tidak akan mengetahui bahwa Anda sedang merekam audio</string>
     <string name="hidetag">Sembunyikan Tanda Pesan \"Diteruskan\"</string>
-    <string name="hidetag_sum">Anda dapat meneruskan pesan, tanpa tanda pesan \"Diteruskan\"</string>
+    <string name="hidetag_sum">Anda dapat meneruskan pesan tanpa tanda pesan \"Diteruskan\"</string>
     <string name="hidestatusview">Sembunyikan Lihat Status</string>
     <string name="hidestatusview_sum">Orang lain tidak akan mengetahui bahwa Anda telah melihat statusnya</string>
     <string name="hideread">Sembunyikan Centang Biru</string>
@@ -18,10 +18,12 @@
     <string name="reboot_module">Mulai ulang modul</string>
     <string name="funcoes">Fungsi</string>
     <string name="perso">Kustomisasi</string>
-    <string name="segundosnahora">Detik Dalam Waktu</string>
+    <string name="segundosnahora">Detik dalam Waktu</string>
     <string name="segundosnahora_sum">Tampilkan detik di samping waktu apapun di aplikasi WhatsApp</string>
     <string name="textonahora">Tambahkan teks disebelah waktu pesan</string>
-    <string name="no_active">Jika Anda berada di layar ini, berarti Anda belum menginstal LSPosed atau tidak memiliki APK WhatsApp apa pun yang dipatch oleh LSPatch.\n\nSilahkan perbaiki! Mulai ulang modul dan coba lagi</string>
+    <string name="no_active">Jika Anda berada di layar ini, berarti Anda belum menginstal LSPosed atau tidak memiliki APK WhatsApp apa pun yang dipatch oleh LSPatch.
+
+Silahkan perbaiki! Mulai ulang modul dan coba lagi</string>
     <string name="viewonce">Nonaktifkan Batas Sekali Lihat</string>
     <string name="viewonce_sum">Anda dapat membuka pesan \"lihat sekali\" berkali-kali</string>
     <string name="novotema">Tema WhatsApp Baru</string>
@@ -70,15 +72,16 @@
     <string name="novaconfig_sum">Aktifkan gaya setelan baru dengan foto profil di layar beranda</string>
     <string name="novahome_sum">Aktifkan gaya beranda baru dengan navigasi bawah</string>
     <string name="novofiltro">Fungsi Pencarian</string>
-    <string name="novofiltro_sum">Pilih antara ikon pencarian, bilah pencarian atau tanpa pencarian</string>
+    <string name="novofiltro_sum">Pilih antara ikon pencarian, bilah pencarian, atau tanpa pencarian</string>
     <string name="menuwicon">Ikon Menu</string>
     <string name="menuwicon_sum">Tambahkan ikon pada opsi menu di aplikasi WhatsApp</string>
     <string name="strokebuttons">Tombol Guratan</string>
     <string name="strokebuttons_sum">Buat guratan di sekitar tombol di WhatsApp</string>
     <string name="outlinedicons">Ikon Kerangka</string>
     <string name="outlinedicons_sum">Gaya ikon kerangka baru</string>
-    <string name="freezelastseen">Bekukan \"Terakhir dilihat dan online\"</string>
-    <string name="freezelastseen_sum">Waktu \"Terakhir dilihat dan online\" Anda akan dibekukan\n(PERHATIAN: Anda tidak akan melihat pembaruan kehadiran apa pun dari pengguna lain seperti: mengetik, merekam, online)</string>
+    <string name="freezelastseen">Bekukan \"terakhir dilihat dan online\"</string>
+    <string name="freezelastseen_sum">Waktu \"terakhir dilihat dan online\" Anda akan dibekukan
+(PERHATIAN: Anda tidak dapat melihat pembaruan kehadiran apa pun dari orang lain seperti: mengetik, merekam, terakhir dilihat dan online)</string>
     <string name="removeforwardlimit_sum">Hapus batas penerusan pesan untuk 5 obrolan (normal) dan 1 obrolan (berkali-kali)</string>
     <string name="removeforwardlimit">Hapus Batas \"Diteruskan\"</string>
     <string name="forward">Teruskan</string>
@@ -89,7 +92,8 @@
     <string name="showbio">Tampilkan Bio</string>
     <string name="reset_preferences">Setel ulang preferensi</string>
     <string name="reset_preferences_sum">Ketuk di sini untuk mengatur ulang semua pengaturan yang disimpan</string>
-    <string name="reset_preferences_message">Tindakan ini akan mengatur ulang semua preferensi yang tersimpan.\n(Anda perlu mengaktifkan dan mengatur ulang kembali)</string>
+    <string name="reset_preferences_message">Tindakan ini akan mengatur ulang semua preferensi yang tersimpan.
+Anda perlu mengaktifkan dan mengatur ulang kembali</string>
     <string name="reset">Setel ulang</string>
     <string name="bubble_left">Gelembung Kiri</string>
     <string name="bubble_right">Gelembung Kanan</string>
@@ -121,7 +125,8 @@
     <string name="call_blocker">Blokir Panggilan</string>
     <string name="call_blocker_sum">Blokir panggilan WhatsApp berdasarkan jenis privasi</string>
     <string name="show_online_dot_in_conversation_list">Tampilkan Titik Online</string>
-    <string name="show_online_dot_in_conversation_list_sum">Tampilkan titik online berwarna hijau di layar beranda\n(CATATAN: Harus mengaktifkan \"Terakhir dilihat dan online\" untuk semua orang di menu setelan privasi WhatsApp)</string>
+    <string name="show_online_dot_in_conversation_list_sum">Tampilkan titik online berwarna hijau di layar beranda
+(CATATAN: Harus mengaktifkan \"Terakhir dilihat dan online\" untuk semua orang di menu setelan privasi WhatsApp)</string>
     <string name="show_dnd_button">Tampilkan Tombol DND</string>
     <string name="show_dnd_button_sum">Tampilkan tombol mode DND di toolbar layar beranda</string>
     <string name="dev4mod">Dev4Mod (Penyumbang)</string>
@@ -135,7 +140,7 @@
     <string name="call_blocker_buttons_no_block">Tidak ada</string>
     <string name="call_blocker_buttons_all_block">Blokir semua panggilan</string>
     <string name="call_blocker_buttons_only_unknown_block">Blokir nomor tak dikenal</string>
-    <string name="show_edited_message_history">Tampilkan Pesan yang Diedit</string>
+    <string name="show_edited_message_history">Tampilkan Riwayat Pesan yang Diedit</string>
     <string name="show_edited_message_history_sum">Tampilkan riwayat pesan yang diedit ketika mengklik \"Diedit\" pada pesan</string>
     <string name="dnd_message">Saat mode Pesawat (Offline) diaktifkan, Anda tidak akan dapat mengirim atau menerima pesan</string>
     <string name="dnd_mode_title">Mode Pesawat (Offline)</string>
@@ -174,14 +179,16 @@
     <string name="whatsapp_in_background">WhatsApp berjalan dilatar belakang</string>
     <string name="whatsapp_is_not_running_or_has_not_been_activated_in_lsposed">WhatsApp tidak berjalan atau belum diaktifkan di LSPosed</string>
     <string name="business_is_not_running_or_has_not_been_activated_in_lsposed">WhatsApp Bisnis tidak berjalan atau belum diaktifkan di LSPosed</string>
-    <string name="restart_wpp">WhatsApp harus dimulai ulang agar perubahan di Wa Enhancer dapat diterapkan.\n\nApakah Anda ingin mulai ulang WhatsApp?</string>
+    <string name="restart_wpp">WhatsApp harus dimulai ulang agar perubahan di Wa Enhancer dapat diterapkan.
+
+Apakah Anda ingin mulai ulang WhatsApp?</string>
     <string name="version_s_not_listed">Versi %s tidak terdaftar</string>
     <string name="media">Media</string>
     <string name="show_button_to_send_blue_tick">Tampilkan Tombol Centang Biru</string>
-    <string name="show_button_to_send_blue_tick_sum">Tampilkan tombol centang biru (tandai dibaca/dilihat)</string>
-    <string name="send_blue_tick">Tandai dibaca/dilihat</string>
+    <string name="show_button_to_send_blue_tick_sum">Tampilkan tombol centang biru (dibaca/dilihat untuk pesan dan status)</string>
+    <string name="send_blue_tick">Tandai dilihat/dibaca</string>
     <string name="business_in_background">WhatsApp Bisnis berjalan dilatar belakang</string>
-    <string name="sending_read_blue_tick">Mengirim centang biru (dibaca/dilihat)</string>
+    <string name="sending_read_blue_tick">Mengirim centang biru (dilihat/dibaca)</string>
     <string name="enable_facebook_style_for_status">Aktifkan Gaya Status Facebook</string>
     <string name="enable_facebook_style_for_status_sum">Ubah gaya status asli menjadi gaya status Facebook</string>
     <string name="send">Kirim</string>
@@ -190,7 +197,8 @@
     <string name="enable_filter_chats">Aktifkan Filter Obrolan</string>
     <string name="enable_filter_chats_sum">Tampilkan opsi untuk memfilter obrolan seperti grup, kontak dan pesan belum dibaca</string>
     <string name="disable_channels">Nonaktifkan Saluran</string>
-    <string name="disable_channels_sum">Nonaktifkan saluran dari tab Status\n(CATATAN: Nonaktifkan IGStatus agar berfungsi!)</string>
+    <string name="disable_channels_sum">Nonaktifkan saluran dari tab Status
+(CATATAN: Nonaktifkan IGStatus agar berfungsi!)</string>
     <string name="chat">Obrolan</string>
     <string name="change_bubble_colors">Ubah Warna Gelembung</string>
     <string name="change_blubble_color_sum">Ubah warna gelembung di layar percakapan</string>
@@ -228,12 +236,26 @@
     <string name="enable_new_chat_button_sum">Tampilkan tombol di layar beranda untuk memulai obrolan baru</string>
     <string name="enable_restart_button">Tampilkan Tombol Mulai Ulang</string>
     <string name="enable_restart_button_sum">Tampilkan tombol di layar beranda untuk memulai ulang aplikasi</string>
-    <string name="toast_on_delete">Tampilkan Notifikasi Mengambang Saat Pesan Dihapus</string>
-    <string name="toast_on_delete_sum">Tampilkan notifikasi mengambang jika ada kontak yang menghapus pesan</string>
+    <string name="toast_on_delete">Tampilkan Notifikasi Saat Pesan Dihapus</string>
+    <string name="toast_on_delete_sum">Tampilkan notifikasi mengambang jika ada pesan yang dihapus</string>
     <string name="enable_top_navigation">Aktifkan Navigasi Atas</string>
     <string name="enable_top_navigation_sum">Aktifkan bilah navigasi lama (tab di bagian atas)</string>
     <string name="hideread_group">Sembunyikan Centang Biru di Grup</string>
     <string name="hideread_group_sum">Pengirim pesan tidak akan mengetahui bahwa Anda telah membaca pesannya di grup</string>
-    <string name="time_limit_on_status_video">Tingkatkan Batas Waktu pada Status Video</string>
+    <string name="time_limit_on_status_video">Tingkatkan Batas Waktu Status Video</string>
     <string name="time_limit_on_status_video_sum">Tingkatkan batas waktu status video dari 30 detik menjadi 1 menit (untuk semua orang)</string>
+    <string name="show_freezeLastSeen_button">Tampilkan Tombol Bekukan \"terakhir dilihat dan online\"</string>
+    <string name="show_freezeLastSeen_sum">Tampilkan tombol untuk membekukan \"terakhir dilihat dan online\" di toolbar layar beranda</string>
+    <string name="freezelastseen_message">PERHATIAN!!!\n\nSaat Anda mengaktifkan bekukan \"terakhir dilihat dan online\", Anda tidak dapat melihat pembaruan kehadiran apa pun dari orang lain seperti: mengetik, merekam, terakhir dilihat dan online</string>
+    <string name="freezelastseen_title">Bekukan \"terakhir dilihat dan online\"</string>
+    <string name="wallpaper_transparency">Transparansi Wallpaper</string>
+    <string name="select_wallpaper">Pilih Wallpaper</string>
+    <string name="wallpaper_not_selected">Wallpaper tidak dipilih</string>
+    <string name="wallpaper_in_home_screen">Aktifkan Wallpaper di Layar Beranda</string>
+    <string name="wallpaper_in_home_screen_sum">Tampilkan wallpaper yang dipilih di layar beranda dengan transparansi</string>
+    <string name="configs_imported">Konfigurasi diimpor</string>
+    <string name="configs_saved">Konfigurasi disimpan</string>
+    <string name="backup_settings">Cadangkan Setelan</string>
+    <string name="import_settings">Cadangkan</string>
+    <string name="export_settings">Pulihkan</string>
 </resources>

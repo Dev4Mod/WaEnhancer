@@ -3,9 +3,12 @@ package com.wmods.wppenhacer.utils;
 import android.graphics.Color;
 
 import java.util.HashMap;
+import java.util.HashSet;
 
 public class IColors {
     public static HashMap<String, String> colors = new HashMap<>();
+
+    public static HashSet<Integer> exceptionsIdAlpha = new HashSet<>();
 
     static {
         // Primary color
