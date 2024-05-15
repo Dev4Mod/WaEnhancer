@@ -93,7 +93,7 @@ public class DotOnline extends Feature {
                 shapeDrawable.setIntrinsicHeight(20);
                 shapeDrawable.setIntrinsicWidth(20);
                 imageView.setImageDrawable(shapeDrawable);
-                imageView.setVisibility(View.VISIBLE);
+                imageView.setVisibility(View.INVISIBLE);
                 relativeLayout.addView(imageView);
 
 
