@@ -3,6 +3,7 @@ package com.wmods.wppenhacer.xposed.features.general;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
+import android.util.Pair;
 import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -27,6 +28,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.IntStream;
 
 import de.robv.android.xposed.XC_MethodHook;
 import de.robv.android.xposed.XSharedPreferences;
@@ -198,13 +200,14 @@ public class Others extends Feature {
             XposedBridge.hookAllConstructors(filterAdaperClass, new XC_MethodHook() {
                 @Override
                 protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
-                    if (param.args.length == 3 && param.args[2] instanceof List list) {
-                        var newList = new ArrayList<Object>(list);
+                    var argResult = IntStream.range(0, param.args.length).mapToObj(i -> new Pair<>(i, param.args[i])).filter(p -> p.second instanceof List).findFirst().orElse(null);
+                    if (argResult != null) {
+                        var newList = new ArrayList<Object>((List)argResult.second);
                         newList.removeIf(item -> {
                             var name = XposedHelpers.getObjectField(item, "A01");
                             return name == null || name == "CONTACTS_FILTER" || name == "GROUP_FILTER";
                         });
-                        param.args[2] = newList;
+                        param.args[argResult.first] = newList;
                     }
                 }
             });
@@ -214,7 +217,8 @@ public class Others extends Feature {
                 @Override
                 protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
                     var index = (int) param.args[0];
-                    var list = (List) XposedHelpers.getObjectField(param.thisObject, "A01");
+                    var field = Unobfuscator.getFieldByType(methodSetFilter.getDeclaringClass(), List.class);
+                    var list = (List) field.get(param.thisObject);
                     if (list == null || index >= list.size()) {
                         param.setResult(null);
                     }
