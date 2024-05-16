@@ -34,6 +34,11 @@ public class ResId {
         public static int phone_call;
         public static int yes;
         public static int no;
+        public static int version_error;
+        public static int copy_to_clipboard;
+        public static int copied_to_clipboard;
+        public static int error_detected;
+        public static int rebooting;
     }
 
 }

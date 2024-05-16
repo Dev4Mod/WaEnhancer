@@ -29,7 +29,6 @@ public class Utils {
         Intent intent = packageManager.getLaunchIntentForPackage(context.getPackageName());
         if (intent == null)
             return false;
-        
         ComponentName componentName = intent.getComponent();
         Intent mainIntent = Intent.makeRestartActivityTask(componentName);
         mainIntent.setPackage(context.getPackageName());

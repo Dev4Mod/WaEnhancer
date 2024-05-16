@@ -19,6 +19,7 @@ import androidx.annotation.NonNull;
 import androidx.core.content.ContextCompat;
 
 import com.wmods.wppenhacer.BuildConfig;
+import com.wmods.wppenhacer.R;
 import com.wmods.wppenhacer.xposed.core.components.AlertDialogWpp;
 import com.wmods.wppenhacer.xposed.features.customization.CustomToolbar;
 import com.wmods.wppenhacer.xposed.features.customization.BubbleColors;
@@ -102,14 +103,15 @@ public class MainFeatures {
             protected void afterHookedMethod(MethodHookParam param) throws Throwable {
                 super.afterHookedMethod(param);
                 if (!list.isEmpty()) {
-                    new AlertDialogWpp((Activity) param.thisObject)
-                            .setTitle("Error detected")
-                            .setMessage("The following options aren't working:\n\n" + String.join("\n", list.stream().map(ErrorItem::getPluginName).toArray(String[]::new)))
-                            .setPositiveButton("Copy to clipboard", (dialog, which) -> {
+                    var activity = (Activity) param.thisObject;
+                    new AlertDialogWpp(activity)
+                            .setTitle(activity.getString(ResId.string.error_detected))
+                            .setMessage(activity.getString(ResId.string.version_error) + String.join("\n", list.stream().map(ErrorItem::getPluginName).toArray(String[]::new)))
+                            .setPositiveButton(activity.getString(ResId.string.copy_to_clipboard), (dialog, which) -> {
                                 var clipboard = (ClipboardManager) mApp.getSystemService(Context.CLIPBOARD_SERVICE);
                                 ClipData clip = ClipData.newPlainText("text", String.join("\n", list.stream().map(ErrorItem::toString).toArray(String[]::new)));
                                 clipboard.setPrimaryClip(clip);
-                                Toast.makeText(mApp, "Copied to clipboard", Toast.LENGTH_SHORT).show();
+                                Toast.makeText(mApp, ResId.string.copied_to_clipboard, Toast.LENGTH_SHORT).show();
                                 dialog.dismiss();
                             })
                             .show();
@@ -129,7 +131,7 @@ public class MainFeatures {
             public void onReceive(Context context, Intent intent) {
                 if (context.getPackageName().equals(intent.getStringExtra("PKG"))) {
                     var appName = context.getPackageManager().getApplicationLabel(context.getApplicationInfo());
-                    Toast.makeText(context, "Rebooting " +  appName + "...", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(context, context.getString(ResId.string.rebooting) + " " +  appName + "...", Toast.LENGTH_SHORT).show();
                     if (!Utils.doRestart(context))
                         Toast.makeText(context, "Unable to rebooting " + appName, Toast.LENGTH_SHORT).show();
                 }
