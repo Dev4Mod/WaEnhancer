@@ -42,10 +42,12 @@ public class ViewOnce extends Feature {
         var viewOnceStoreMethod = Unobfuscator.loadViewOnceStoreMethod(loader);
         logDebug(Unobfuscator.getMethodDescriptor(viewOnceStoreMethod));
         var messageKeyField = Unobfuscator.loadMessageKeyField(loader);
+
         XposedBridge.hookMethod(viewOnceStoreMethod, new XC_MethodHook() {
             @Override
             protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
                 if (!prefs.getBoolean("viewonce", false)) return;
+                isFromMe = false;
                 var messageObject = param.args[0];
                 if (messageObject == null) return;
                 var messageKey = messageKeyField.get(messageObject);
