@@ -853,7 +853,11 @@ public class Unobfuscator {
     public static Field loadMessageKeyField(ClassLoader loader) throws Exception {
         return UnobfuscatorCache.getInstance().getField(loader, () -> {
             var GroupJidClass = XposedHelpers.findClass("com.whatsapp.jid.GroupJid", loader);
+            var UserJidClass = XposedHelpers.findClass("com.whatsapp.jid.UserJid", loader);
             var keyMessageList = dexkit.findClass(new FindClass().matcher(new ClassMatcher().addUsingString("Key").addMethod(new MethodMatcher().returnType(GroupJidClass))));
+            if (keyMessageList.isEmpty()){
+                keyMessageList = dexkit.findClass(new FindClass().matcher(new ClassMatcher().addUsingString("Key[id=").addMethod(new MethodMatcher().returnType(UserJidClass))));
+            }
             if (keyMessageList.isEmpty()) throw new Exception("MessageKey class not found");
             Class<?> keyMessageClass = keyMessageList.get(0).getInstance(loader);
             var classMessage = loadThreadMessageClass(loader);
