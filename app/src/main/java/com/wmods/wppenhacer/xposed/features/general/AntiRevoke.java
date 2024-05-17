@@ -17,19 +17,23 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 
+import com.wmods.wppenhacer.R;
 import com.wmods.wppenhacer.xposed.core.DesignUtils;
 import com.wmods.wppenhacer.xposed.core.Feature;
+import com.wmods.wppenhacer.xposed.core.ResId;
 import com.wmods.wppenhacer.xposed.core.Unobfuscator;
 import com.wmods.wppenhacer.xposed.core.UnobfuscatorCache;
 import com.wmods.wppenhacer.xposed.core.Utils;
 import com.wmods.wppenhacer.xposed.core.WppCore;
 import com.wmods.wppenhacer.xposed.core.db.DelMessageStore;
 import com.wmods.wppenhacer.xposed.core.db.MessageStore;
+import com.wmods.wppenhacer.xposed.utils.ReflectionUtils;
 
 import java.lang.reflect.Field;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Objects;
 
 import de.robv.android.xposed.XC_MethodHook;
 import de.robv.android.xposed.XSharedPreferences;
@@ -203,7 +207,7 @@ public class AntiRevoke extends Feature {
 
     @SuppressLint("ResourceType")
     private int antiRevoke(Object objMessage) {
-        showToast(getJidAuthor(objMessage));
+        showToast(objMessage);
         var messageKey = (String) XposedHelpers.getObjectField(objMessage, "A01");
         var stripJID = stripJID(getJidAuthor(objMessage));
         var revokeboolean = stripJID.equals("status") ? Integer.parseInt(prefs.getString("antirevokestatus", "0")) : Integer.parseInt(prefs.getString("antirevoke", "0"));
@@ -238,16 +242,24 @@ public class AntiRevoke extends Feature {
         return revokeboolean;
     }
 
-    private void showToast(String jidAuthor) {
+    private void showToast(Object fMessage) {
         if (!prefs.getBoolean("toastdeleted", false)) return;
+        var jidAuthor = getJidAuthor(fMessage);
 
+        var messageSuffix = Utils.getApplication().getString(ResId.string.deleted_message);
+        if (Objects.equals(stripJID(jidAuthor), "status")) {
+            messageSuffix = Utils.getApplication().getString(ResId.string.deleted_status);
+            var getUserJid = ReflectionUtils.findMethodUsingFilter(fieldMessageKey.getDeclaringClass(), method -> method.getReturnType().equals(XposedHelpers.findClass("com.whatsapp.jid.UserJid", loader)));
+            jidAuthor = WppCore.getRawString(ReflectionUtils.callMethod(getUserJid, fMessage));
+        }
+        if (TextUtils.isEmpty(jidAuthor)) return;
         String name = WppCore.getContactName(WppCore.createUserJid(jidAuthor));
-        if (TextUtils.isEmpty(name)){
+        if (TextUtils.isEmpty(name)) {
             name = stripJID(jidAuthor);
         }
-        String message = name + " -> " + UnobfuscatorCache.getInstance().getString("messagedeleted");
-        new Handler(Utils.getApplication().getMainLooper()).post(()->{
-            var toast = Toast.makeText(Utils.getApplication(),message, Toast.LENGTH_LONG);
+        String message = name + " " + messageSuffix;
+        new Handler(Utils.getApplication().getMainLooper()).post(() -> {
+            var toast = Toast.makeText(Utils.getApplication(), message, Toast.LENGTH_LONG);
             toast.setGravity(Gravity.BOTTOM, 0, 0);
             toast.show();
         });

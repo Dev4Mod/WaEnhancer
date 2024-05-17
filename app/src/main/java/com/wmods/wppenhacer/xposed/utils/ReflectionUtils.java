@@ -49,4 +49,12 @@ public class ReflectionUtils {
     public static List<Field> getFieldsByExtendType(Class<?> cls, Class<?> type) {
         return Arrays.stream(cls.getFields()).filter(f -> type.isAssignableFrom(f.getType())).collect(Collectors.toList());
     }
+
+    public static Object callMethod(Method getUserJid, Object fMessage, Object... args) {
+        try {
+            return getUserJid.invoke(fMessage, args);
+        } catch (Exception e) {
+            return null;
+        }
+    }
 }

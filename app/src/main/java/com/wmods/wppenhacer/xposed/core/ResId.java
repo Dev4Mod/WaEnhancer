@@ -39,6 +39,8 @@ public class ResId {
         public static int copied_to_clipboard;
         public static int error_detected;
         public static int rebooting;
+        public static int deleted_status;
+        public static int deleted_message;
     }
 
 }

@@ -81,6 +81,17 @@ public class Utils {
         }
     }
 
+    public static void debugFields(Class<?> cls, Object thisObject) {
+        XposedBridge.log("DEBUG FIELDS: Class "+ cls.getName());
+        for (var field : cls.getDeclaredFields()) {
+            try {
+                field.setAccessible(true);
+                XposedBridge.log( "FIELD: " + field.getName() + " -> VALUE: " + field.get(thisObject));
+            } catch (Exception ignored) {
+            }
+        }
+    }
+
 
     public static void setWritePermissions(File file) {
         try {
