@@ -1113,6 +1113,15 @@ public class Unobfuscator {
         });
     }
 
+    public static Class<?> loadChatLimitEditClass(ClassLoader loader) throws Exception {
+        return UnobfuscatorCache.getInstance().getClass(loader, () -> {
+          var clazzList = dexkit.findClass(new FindClass().matcher(new ClassMatcher().addMethod(new MethodMatcher().addUsingNumber(5884).addUsingNumber(2890))));
+          if (clazzList.isEmpty()) throw new RuntimeException("ChatLimitEdit class not found");
+          return clazzList.get(0).getInstance(loader);
+        });
+    }
+
+
 //    public static Method loadOriginalMessageMethod(ClassLoader loader) throws Exception {
 //        return UnobfuscatorCache.getInstance().getMethod(loader, () -> {
 //            var method = findFirstMethodUsingStrings(loader, StringMatchType.Contains, "fmessage-clone-comparison-failed");

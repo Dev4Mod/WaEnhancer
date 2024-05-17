@@ -99,13 +99,18 @@ public class Others extends Feature {
             propsBoolean.put(8025, false);
             propsBoolean.put(6251, false);
             propsBoolean.put(7639, false);
+
         }
 
         propsInteger.put(8522, fbstyle ? 1 : 0);
         propsInteger.put(8521, fbstyle ? 1 : 0);
         propsInteger.put(3877, channels ? igstatus ? 2 : 0 : 2);
         propsInteger.put(6728, videotime ? 60 : 30);
-
+        if (prefs.getBoolean("editallmessages", false)) {
+            propsInteger.put(2983, Integer.MAX_VALUE);
+            propsInteger.put(3272, Integer.MAX_VALUE);
+            propsBoolean.put(5968, true);
+        }
 
         var methodPropsBoolean = Unobfuscator.loadPropsBooleanMethod(loader);
         logDebug(Unobfuscator.getMethodDescriptor(methodPropsBoolean));

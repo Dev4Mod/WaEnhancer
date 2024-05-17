@@ -19,6 +19,7 @@ public class ChatLimit extends Feature {
 
         var chatLimitDeleteMethod = Unobfuscator.loadChatLimitDeleteMethod(loader);
         var chatLimitDelete2Method = Unobfuscator.loadChatLimitDelete2Method(loader);
+//        var chatLimitEditClass = Unobfuscator.loadChatLimitEditClass(loader);
 
         XposedBridge.hookMethod(chatLimitDeleteMethod, new XC_MethodHook() {
             @Override

@@ -1,1 +1,2 @@
 * Add button to download photo profile
+* Add function to disable limit to edit message
