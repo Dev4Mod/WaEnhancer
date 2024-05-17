@@ -1,0 +1,3 @@
+* Update translations
+* Improve compatibility with latest versions WhatsApp
+* Improve toast on revoke message/status
