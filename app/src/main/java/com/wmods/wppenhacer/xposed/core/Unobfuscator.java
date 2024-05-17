@@ -849,9 +849,9 @@ public class Unobfuscator {
     public static Field loadMessageKeyField(ClassLoader loader) throws Exception {
         return UnobfuscatorCache.getInstance().getField(loader, () -> {
             var GroupJid = XposedHelpers.findClass("com.whatsapp.jid.GroupJid", loader).getField("Companion");
-            var keyMessageList = dexkit.findClass(new FindClass().matcher(new ClassMatcher().addUsingString("Key").addUsingString("remote_jid=").addUsingString("from_me").addMethod(new MethodMatcher().addUsingField(DexSignUtil.getFieldDescriptor(GroupJid)))));
+            var keyMessageList = dexkit.findClass(new FindClass().matcher(new ClassMatcher().addUsingString("Key[").addUsingString("remote_jid=").addUsingString("from_me").addMethod(new MethodMatcher().addUsingField(DexSignUtil.getFieldDescriptor(GroupJid)))));
             if (keyMessageList.isEmpty()) {
-                keyMessageList = dexkit.findClass(new FindClass().matcher(new ClassMatcher().addUsingString("Key").addUsingString("from_me").addMethod(new MethodMatcher().addUsingField(DexSignUtil.getFieldDescriptor(GroupJid)))));
+                keyMessageList = dexkit.findClass(new FindClass().matcher(new ClassMatcher().addUsingString("Key(").addUsingString("isFromMe").addMethod(new MethodMatcher().addUsingField(DexSignUtil.getFieldDescriptor(GroupJid)))));
             }
             if (keyMessageList.isEmpty()) throw new Exception("MessageKey class not found");
             Class<?> keyMessageClass = keyMessageList.get(0).getInstance(loader);
