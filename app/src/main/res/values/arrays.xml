@@ -70,6 +70,8 @@
         <item>2.24.9.77</item>
         <item>2.24.9.78</item>
         <item>2.24.9.79</item>
+        <item>2.24.10.74</item>
+        <item>2.24.10.75</item>
     </string-array>
 
     <string-array name="supported_versions_business">

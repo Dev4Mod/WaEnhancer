@@ -827,22 +827,38 @@ public class Unobfuscator {
         });
     }
 
+//    public static Field loadMessageKeyField(ClassLoader loader) throws Exception {
+//        return UnobfuscatorCache.getInstance().getField(loader, () -> {
+//            Class<?> classExtendJid = loadAntiRevokeChatJidField(loader).getType();
+//            ClassDataList classes = dexkit.findClass(
+//                    new FindClass().matcher(
+//                            new ClassMatcher().
+//                                    addUsingString("remote_jid=")
+//                                    .addField(new FieldMatcher().type(classExtendJid))
+//                    )
+//            );
+//            if (classes.isEmpty()) throw new Exception("AntiRevokeMessageKey class not found");
+//            Class<?> messageKey = classes.get(0).getInstance(loader);
+//            var classMessage = loadThreadMessageClass(loader);
+//            var field = Arrays.stream(classMessage.getFields()).filter(f -> f.getType() == messageKey && Modifier.isFinal(f.getModifiers())).findFirst().orElse(null);
+//            if (field == null) throw new Exception("AntiRevokeMessageKey field not found");
+//            return field;
+//        });
+//    }
+
     public static Field loadMessageKeyField(ClassLoader loader) throws Exception {
         return UnobfuscatorCache.getInstance().getField(loader, () -> {
-            Class<?> classExtendJid = loadAntiRevokeChatJidField(loader).getType();
-            ClassDataList classes = dexkit.findClass(
-                    new FindClass().matcher(
-                            new ClassMatcher().
-                                    addUsingString("remote_jid=")
-                                    .addField(new FieldMatcher().type(classExtendJid))
-                    )
-            );
-            if (classes.isEmpty()) throw new Exception("AntiRevokeMessageKey class not found");
-            Class<?> messageKey = classes.get(0).getInstance(loader);
+            var GroupJid = XposedHelpers.findClass("com.whatsapp.jid.GroupJid", loader).getField("Companion");
+            var keyMessageList = dexkit.findClass(new FindClass().matcher(new ClassMatcher().addUsingString("Key").addUsingString("remote_jid=").addUsingString("from_me").addMethod(new MethodMatcher().addUsingField(DexSignUtil.getFieldDescriptor(GroupJid)))));
+            if (keyMessageList.isEmpty()) {
+                keyMessageList = dexkit.findClass(new FindClass().matcher(new ClassMatcher().addUsingString("Key").addUsingString("from_me").addMethod(new MethodMatcher().addUsingField(DexSignUtil.getFieldDescriptor(GroupJid)))));
+            }
+            if (keyMessageList.isEmpty()) throw new Exception("MessageKey class not found");
+            Class<?> keyMessageClass = keyMessageList.get(0).getInstance(loader);
             var classMessage = loadThreadMessageClass(loader);
-            var field = Arrays.stream(classMessage.getFields()).filter(f -> f.getType() == messageKey && Modifier.isFinal(f.getModifiers())).findFirst().orElse(null);
-            if (field == null) throw new Exception("AntiRevokeMessageKey field not found");
-            return field;
+            var fields = ReflectionUtils.getFieldsByExtendType(classMessage, keyMessageClass);
+            if (fields.isEmpty()) throw new Exception("MessageKey field not found");
+            return fields.get(fields.size() - 1);
         });
     }
 
@@ -1104,7 +1120,12 @@ public class Unobfuscator {
     public static Method loadNewMessageMethod(ClassLoader loader) throws Exception {
         return UnobfuscatorCache.getInstance().getMethod(loader, () -> {
             var clazzMessage = loadThreadMessageClass(loader);
-            var methodData = dexkit.findMethod(new FindMethod().searchInClass(List.of(Objects.requireNonNull(dexkit.getClassData(clazzMessage)))).matcher(new MethodMatcher().addUsingString("\n").returnType(String.class)));
+            var clazzData = Objects.requireNonNull(dexkit.getClassData(clazzMessage));
+            var methodData = clazzData.findMethod(new FindMethod().matcher(new MethodMatcher().addUsingString("\n").returnType(String.class)));
+            if (methodData.isEmpty()) {
+                var field = clazzMessage.getDeclaredField("A02");
+                methodData = clazzData.findMethod(new FindMethod().matcher(new MethodMatcher().addUsingField(DexSignUtil.getFieldDescriptor(field)).returnType(String.class)));
+            }
             if (methodData.isEmpty()) throw new RuntimeException("NewMessage method not found");
             return methodData.get(0).getMethodInstance(loader);
         });

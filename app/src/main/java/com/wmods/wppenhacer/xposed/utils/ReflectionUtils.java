@@ -1,7 +1,9 @@
 package com.wmods.wppenhacer.xposed.utils;
 
+import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.Arrays;
+import java.util.List;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
@@ -44,4 +46,7 @@ public class ReflectionUtils {
     }
 
 
+    public static List<Field> getFieldsByExtendType(Class<?> cls, Class<?> type) {
+        return Arrays.stream(cls.getFields()).filter(f -> type.isAssignableFrom(f.getType())).collect(Collectors.toList());
+    }
 }

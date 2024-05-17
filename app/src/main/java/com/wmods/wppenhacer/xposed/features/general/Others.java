@@ -3,6 +3,7 @@ package com.wmods.wppenhacer.xposed.features.general;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
+import android.graphics.Typeface;
 import android.util.Pair;
 import android.view.Gravity;
 import android.view.Menu;
@@ -60,6 +61,7 @@ public class Others extends Feature {
 //                param.setResult(date);
 //            }
 //        });
+
         var novoTema = prefs.getBoolean("novotema", false);
         var menuWIcons = prefs.getBoolean("menuwicon", false);
         var newSettings = prefs.getBoolean("novaconfig", false);
@@ -102,6 +104,8 @@ public class Others extends Feature {
         propsInteger.put(3877, channels ? igstatus ? 2 : 0 : 2);
         propsInteger.put(6728, videotime ? 60 : 30);
 
+
+
         var methodPropsBoolean = Unobfuscator.loadPropsBooleanMethod(loader);
         logDebug(Unobfuscator.getMethodDescriptor(methodPropsBoolean));
 
@@ -120,6 +124,7 @@ public class Others extends Feature {
                             if (Unobfuscator.isCalledFromClass(dataUsageActivityClass))
                                 return;
                             break;
+                            // Fix bug in work manager
                         case 3877:
                             if (!Unobfuscator.isCalledFromClass(workManagerClass))
                                 return;
@@ -202,7 +207,7 @@ public class Others extends Feature {
                 protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
                     var argResult = IntStream.range(0, param.args.length).mapToObj(i -> new Pair<>(i, param.args[i])).filter(p -> p.second instanceof List).findFirst().orElse(null);
                     if (argResult != null) {
-                        var newList = new ArrayList<Object>((List)argResult.second);
+                        var newList = new ArrayList<Object>((List) argResult.second);
                         newList.removeIf(item -> {
                             var name = XposedHelpers.getObjectField(item, "A01");
                             return name == null || name == "CONTACTS_FILTER" || name == "GROUP_FILTER";
@@ -319,29 +324,29 @@ public class Others extends Feature {
     }
 
     @SuppressLint({"DiscouragedApi", "UseCompatLoadingForDrawables", "ApplySharedPref"})
-private static void InsertFreezeLastSeenOption(Menu menu, Activity home) {
-    final boolean freezelastseen = WppCore.getPrivBoolean("freezelastseen", false);
-    MenuItem item = menu.add(0, 0, 0, "Freeze Last Seen");
-    item.setIcon(freezelastseen ? ResId.drawable.eye_disabled : ResId.drawable.eye_enabled);
-    item.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
-    item.setOnMenuItemClickListener(menuItem -> {
-        if (!freezelastseen) {
-            new AlertDialogWpp(home)
-                    .setTitle(home.getString(ResId.string.freezelastseen_title))
-                    .setMessage(home.getString(ResId.string.freezelastseen_message))
-                    .setPositiveButton(home.getString(ResId.string.activate), (dialog, which) -> {
-                        WppCore.setPrivBoolean("freezelastseen", true);
-                        Utils.doRestart(home);
-                    })
-                    .setNegativeButton(home.getString(ResId.string.cancel), (dialog, which) -> dialog.dismiss())
-                    .create().show();
+    private static void InsertFreezeLastSeenOption(Menu menu, Activity home) {
+        final boolean freezelastseen = WppCore.getPrivBoolean("freezelastseen", false);
+        MenuItem item = menu.add(0, 0, 0, "Freeze Last Seen");
+        item.setIcon(freezelastseen ? ResId.drawable.eye_disabled : ResId.drawable.eye_enabled);
+        item.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
+        item.setOnMenuItemClickListener(menuItem -> {
+            if (!freezelastseen) {
+                new AlertDialogWpp(home)
+                        .setTitle(home.getString(ResId.string.freezelastseen_title))
+                        .setMessage(home.getString(ResId.string.freezelastseen_message))
+                        .setPositiveButton(home.getString(ResId.string.activate), (dialog, which) -> {
+                            WppCore.setPrivBoolean("freezelastseen", true);
+                            Utils.doRestart(home);
+                        })
+                        .setNegativeButton(home.getString(ResId.string.cancel), (dialog, which) -> dialog.dismiss())
+                        .create().show();
+                return true;
+            }
+            WppCore.setPrivBoolean("freezelastseen", false);
+            Utils.doRestart(home);
             return true;
-        }
-        WppCore.setPrivBoolean("freezelastseen", false);
-        Utils.doRestart(home);
-        return true;
-    });
-}
+        });
+    }
 
     @NonNull
     @Override
