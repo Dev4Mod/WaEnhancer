@@ -1,1 +1,1 @@
-* Fix support to WhatsApp Business
+* Add button to download photo profile

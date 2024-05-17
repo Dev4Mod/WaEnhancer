@@ -18,7 +18,6 @@ import org.luckypray.dexkit.query.FindClass;
 import org.luckypray.dexkit.query.FindMethod;
 import org.luckypray.dexkit.query.enums.StringMatchType;
 import org.luckypray.dexkit.query.matchers.ClassMatcher;
-import org.luckypray.dexkit.query.matchers.FieldMatcher;
 import org.luckypray.dexkit.query.matchers.MethodMatcher;
 import org.luckypray.dexkit.query.matchers.base.OpCodesMatcher;
 import org.luckypray.dexkit.result.ClassData;
@@ -257,7 +256,7 @@ public class Unobfuscator {
         return UnobfuscatorCache.getInstance().getMethod(classLoader, () -> {
             var classData = dexkit.getClassData(XposedHelpers.findClass("com.whatsapp.jobqueue.job.SendReadReceiptJob", classLoader));
             var methodResult = classData.findMethod(new FindMethod().matcher(new MethodMatcher().addUsingString("receipt", StringMatchType.Equals)));
-            if (methodResult.isEmpty()){
+            if (methodResult.isEmpty()) {
                 methodResult = classData.getSuperClass().findMethod(new FindMethod().matcher(new MethodMatcher().addUsingString("receipt", StringMatchType.Equals)));
             }
             if (methodResult.isEmpty()) throw new Exception("HideViewSendReadJob method not found");
@@ -855,7 +854,7 @@ public class Unobfuscator {
             var GroupJidClass = XposedHelpers.findClass("com.whatsapp.jid.GroupJid", loader);
             var UserJidClass = XposedHelpers.findClass("com.whatsapp.jid.UserJid", loader);
             var keyMessageList = dexkit.findClass(new FindClass().matcher(new ClassMatcher().addUsingString("Key").addMethod(new MethodMatcher().returnType(GroupJidClass))));
-            if (keyMessageList.isEmpty()){
+            if (keyMessageList.isEmpty()) {
                 keyMessageList = dexkit.findClass(new FindClass().matcher(new ClassMatcher().addUsingString("Key[id=").addMethod(new MethodMatcher().returnType(UserJidClass))));
             }
             if (keyMessageList.isEmpty()) throw new Exception("MessageKey class not found");
@@ -1423,5 +1422,13 @@ public class Unobfuscator {
             if (clazz == null) throw new RuntimeException("WorkManager class not found");
             return clazz;
         });
+    }
+
+    public static Field loadProfileInfoField(ClassLoader loader) throws Exception {
+        var clazz = findFirstClassUsingStrings(loader, StringMatchType.Contains, "[obfuscated]@%s");
+        if (clazz == null) throw new RuntimeException("ProfileInfo class not found");
+        var fieldList = ReflectionUtils.getFieldsByExtendType(clazz, XposedHelpers.findClass("com.whatsapp.jid.Jid", loader));
+        if (fieldList.isEmpty()) throw new RuntimeException("ProfileInfo field not found");
+        return fieldList.get(0);
     }
 }

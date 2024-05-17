@@ -62,4 +62,12 @@ public class ReflectionUtils {
             return null;
         }
     }
+
+    public static Object getField(Field loadProfileInfoField, Object thisObject) {
+        try {
+            return loadProfileInfoField.get(thisObject);
+        } catch (Exception e) {
+            return null;
+        }
+    }
 }

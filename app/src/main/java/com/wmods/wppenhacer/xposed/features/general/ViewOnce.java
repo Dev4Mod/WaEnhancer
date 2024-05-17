@@ -2,25 +2,18 @@ package com.wmods.wppenhacer.xposed.features.general;
 
 
 import android.annotation.SuppressLint;
-import android.content.SharedPreferences;
-import android.media.MediaScannerConnection;
-import android.os.Environment;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 
+import com.wmods.wppenhacer.xposed.core.Feature;
 import com.wmods.wppenhacer.xposed.core.ResId;
 import com.wmods.wppenhacer.xposed.core.Unobfuscator;
 import com.wmods.wppenhacer.xposed.core.Utils;
-import com.wmods.wppenhacer.xposed.core.Feature;
-import com.wmods.wppenhacer.xposed.utils.MimeTypeUtils;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
 
 import de.robv.android.xposed.XC_MethodHook;
 import de.robv.android.xposed.XSharedPreferences;
@@ -99,8 +92,9 @@ public class ViewOnce extends Feature {
                             if (message != null) {
                                 var fileData = XposedHelpers.getObjectField(message, "A01");
                                 var file = (File) XposedHelpers.getObjectField(fileData, fileField.getName());
-                                if (copyFile(prefs,file)) {
-                                    Toast.makeText(Utils.getApplication(), Utils.getApplication().getString(ResId.string.saved_to) + getDestination(prefs,file), Toast.LENGTH_SHORT).show();
+                                var dest = Utils.getDestination(prefs, file, "View Once");
+                                if (Utils.copyFile(file,new File(dest))) {
+                                    Toast.makeText(Utils.getApplication(), Utils.getApplication().getString(ResId.string.saved_to) + dest, Toast.LENGTH_SHORT).show();
                                 } else {
                                     Toast.makeText(Utils.getApplication(), Utils.getApplication().getString(ResId.string.error_when_saving_try_again), Toast.LENGTH_SHORT).show();
                                 }
@@ -121,40 +115,6 @@ public class ViewOnce extends Feature {
         return "View Once";
     }
 
-    public static String getDestination(SharedPreferences prefs, File file) {
-        var folderPath = prefs.getString("localdownload", Environment.getExternalStorageDirectory().getAbsolutePath()+"/Download") + "/WhatsApp/Wa Enhancer/View Once/";
-        var filePath = new File(folderPath);
-        if (!filePath.exists()) filePath.mkdirs();
-        return filePath.getAbsolutePath() + "/" + file.getName();
-    }
 
-    private static boolean copyFile(SharedPreferences pref,File p) {
-        if (p == null) return false;
 
-        var destination = getDestination(pref,p);
-
-        try (FileInputStream in = new FileInputStream(p);
-             FileOutputStream out = new FileOutputStream(destination)) {
-            byte[] bArr = new byte[1024];
-            while (true) {
-                int read = in.read(bArr);
-                if (read <= 0) {
-                    in.close();
-                    out.close();
-
-                    MediaScannerConnection.scanFile(Utils.getApplication(),
-                            new String[]{destination},
-                            new String[]{MimeTypeUtils.getMimeTypeFromExtension(p.getAbsolutePath())},
-                            (path, uri) -> {
-                            });
-
-                    return true;
-                }
-                out.write(bArr, 0, read);
-            }
-        } catch (IOException e) {
-            XposedBridge.log(e.getMessage());
-            return false;
-        }
-    }
 }

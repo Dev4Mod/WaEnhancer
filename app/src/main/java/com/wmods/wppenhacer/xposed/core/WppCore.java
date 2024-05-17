@@ -158,15 +158,18 @@ public class WppCore {
     }
 
 
-    public static Drawable getContactPhoto(String jid) {
+    public static Drawable getContactPhotoDrawable(String jid) {
+        var file = getContactPhotoFile(jid);
+        if (file == null) return null;
+        return Drawable.createFromPath(file.getAbsolutePath());
+    }
+
+    public static File getContactPhotoFile(String jid) {
         String datafolder = Utils.getApplication().getCacheDir().getParent() + "/";
-        File file = new File(datafolder + "files" + "/" + "Avatars" + "/" + jid + ".j");
-
+        File file = new File(datafolder + "/cache/" + "Profile Pictures" + "/" + stripJID(jid) + ".jpg");
         if (!file.exists())
-            file = new File(datafolder + "/cache/" + "Profile Pictures" + "/" + stripJID(jid) + ".jpg");
-
-        if (file.exists()) return Drawable.createFromPath(file.getAbsolutePath());
-
+            file = new File(datafolder + "files" + "/" + "Avatars" + "/" + jid + ".j");
+        if (file.exists()) return file;
         return null;
     }
 

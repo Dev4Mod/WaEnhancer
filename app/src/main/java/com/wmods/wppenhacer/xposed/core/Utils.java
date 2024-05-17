@@ -5,13 +5,19 @@ import android.app.Application;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
-import android.os.Handler;
-import android.os.Looper;
+import android.media.MediaScannerConnection;
+import android.os.Environment;
 import android.util.DisplayMetrics;
 import android.util.TypedValue;
 
+import com.wmods.wppenhacer.xposed.utils.MimeTypeUtils;
+
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
@@ -82,11 +88,11 @@ public class Utils {
     }
 
     public static void debugFields(Class<?> cls, Object thisObject) {
-        XposedBridge.log("DEBUG FIELDS: Class "+ cls.getName());
+        XposedBridge.log("DEBUG FIELDS: Class " + cls.getName());
         for (var field : cls.getDeclaredFields()) {
             try {
                 field.setAccessible(true);
-                XposedBridge.log( "FIELD: " + field.getName() + " -> VALUE: " + field.get(thisObject));
+                XposedBridge.log("FIELD: " + field.getName() + " -> VALUE: " + field.get(thisObject));
             } catch (Exception ignored) {
             }
         }
@@ -100,6 +106,40 @@ public class Utils {
             file.setExecutable(true, false);
         } catch (Exception e) {
             e.printStackTrace();
+        }
+    }
+
+    public static String getDestination(SharedPreferences prefs, File file, String name) {
+        var folderPath = prefs.getString("localdownload", Environment.getExternalStorageDirectory().getAbsolutePath() + "/Download") + "/WhatsApp/Wa Enhancer/" + name + "/";
+        var filePath = new File(folderPath);
+        if (!filePath.exists()) filePath.mkdirs();
+        return filePath.getAbsolutePath() + "/" + (file == null ? "" : file.getName());
+    }
+
+    public static boolean copyFile(File srcFile, File destFile) {
+        if (srcFile == null || !srcFile.exists()) return false;
+
+        try (FileInputStream in = new FileInputStream(srcFile);
+             FileOutputStream out = new FileOutputStream(destFile)) {
+            byte[] bArr = new byte[1024];
+            while (true) {
+                int read = in.read(bArr);
+                if (read <= 0) {
+                    in.close();
+                    out.close();
+                    MediaScannerConnection.scanFile(Utils.getApplication(),
+                            new String[]{destFile.getAbsolutePath()},
+                            new String[]{MimeTypeUtils.getMimeTypeFromExtension(srcFile.getAbsolutePath())},
+                            (path, uri) -> {
+                            });
+
+                    return true;
+                }
+                out.write(bArr, 0, read);
+            }
+        } catch (IOException e) {
+            XposedBridge.log(e.getMessage());
+            return false;
         }
     }
 }

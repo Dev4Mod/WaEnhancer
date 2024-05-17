@@ -62,7 +62,7 @@ public class IGStatusAdapter extends ArrayAdapter {
             var contactName = WppCore.getContactName(userJid);
             jid = WppCore.getRawString(userJid);
             igStatusContactName.setText(contactName);
-            var profile = WppCore.getContactPhoto(jid);
+            var profile = WppCore.getContactPhotoDrawable(jid);
             if (profile == null) profile = DesignUtils.getDrawableByName("avatar_contact");
             igStatusContactPhoto.setImageDrawable(profile);
             var countUnseen = XposedHelpers.getIntField(statusInfo, "A01");

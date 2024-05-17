@@ -3,7 +3,6 @@ package com.wmods.wppenhacer.xposed.features.general;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
-import android.graphics.Typeface;
 import android.util.Pair;
 import android.view.Gravity;
 import android.view.Menu;
@@ -13,6 +12,7 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 
@@ -23,7 +23,9 @@ import com.wmods.wppenhacer.xposed.core.Unobfuscator;
 import com.wmods.wppenhacer.xposed.core.Utils;
 import com.wmods.wppenhacer.xposed.core.WppCore;
 import com.wmods.wppenhacer.xposed.core.components.AlertDialogWpp;
+import com.wmods.wppenhacer.xposed.utils.ReflectionUtils;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -105,7 +107,6 @@ public class Others extends Feature {
         propsInteger.put(6728, videotime ? 60 : 30);
 
 
-
         var methodPropsBoolean = Unobfuscator.loadPropsBooleanMethod(loader);
         logDebug(Unobfuscator.getMethodDescriptor(methodPropsBoolean));
 
@@ -124,7 +125,7 @@ public class Others extends Feature {
                             if (Unobfuscator.isCalledFromClass(dataUsageActivityClass))
                                 return;
                             break;
-                            // Fix bug in work manager
+                        // Fix bug in work manager
                         case 3877:
                             if (!Unobfuscator.isCalledFromClass(workManagerClass))
                                 return;
@@ -285,6 +286,37 @@ public class Others extends Feature {
 
             });
         }
+
+        var loadProfileInfoField = Unobfuscator.loadProfileInfoField(loader);
+        XposedHelpers.findAndHookMethod("com.whatsapp.profile.ViewProfilePhoto", loader, "onCreateOptionsMenu", android.view.Menu.class, new XC_MethodHook() {
+            @Override
+            protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+                var menu = (Menu) param.args[0];
+                var activity = (Activity) param.thisObject;
+                var item = menu.add(0, 0, 0, "Save");
+                item.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
+                var icon = DesignUtils.getDrawableByName("ic_settings_export");
+                icon.setTint(DesignUtils.getPrimaryTextColor(activity));
+                item.setIcon(icon);
+                item.setOnMenuItemClickListener(menuItem -> {
+                    var subCls = param.thisObject.getClass().getSuperclass();
+                    var field = Unobfuscator.getFieldByType(subCls, loadProfileInfoField.getDeclaringClass());
+                    var jidObj = ReflectionUtils.getField(loadProfileInfoField, ReflectionUtils.getField(field, param.thisObject));
+                    var jid = WppCore.stripJID(WppCore.getRawString(jidObj));
+                    var file = WppCore.getContactPhotoFile(jid);
+                    var destPath = Utils.getDestination(prefs, file, "Profile Photo");
+                    destPath = destPath.endsWith(".jpg") ? destPath : destPath + "pg";
+                    if (Utils.copyFile(file, new File(destPath))) {
+                        Toast.makeText(Utils.getApplication(), Utils.getApplication().getString(ResId.string.saved_to) + destPath, Toast.LENGTH_SHORT).show();
+                    } else {
+                        Toast.makeText(Utils.getApplication(), Utils.getApplication().getString(ResId.string.error_when_saving_try_again), Toast.LENGTH_SHORT).show();
+                    }
+                    return true;
+                });
+            }
+        });
+
+
     }
 
 //    private static void restartApp(Activity home) {
