@@ -187,7 +187,7 @@
     <string name="do_you_want_to_send_sticker">Wollen Sie Sticker senden?</string>
     <string name="send_sticker">Sticker senden</string>
     <string name="enable_filter_chats">Chats nach Typ filtern</string>
-    <string name="enable_filter_chats_sum">Optionen zum Filtern von Chats nach Gruppen, Kontakten und ungesehenen Nachrichten anzeigen</string>
+    <string name="enable_filter_chats_sum">Option zum Filtern nach \"Alle, Gruppen, Kontakten und Ungelesen\" anzeigen</string>
     <string name="disable_channels">Kanäle deaktivieren</string>
     <string name="disable_channels_sum">Kanäle vom Tab Status deaktivieren (Beachte: IGStatus deaktivieren, damit es funktioniert!)</string>
     <string name="chat">Chat</string>
@@ -246,7 +246,14 @@
     <string name="wallpaper_in_home_screen_sum">Ausgewähltes Hintergrundbild im Startbildschirm mit Transparenz anzeigen</string>
     <string name="configs_imported">Konfigurationen importiert</string>
     <string name="configs_saved">Konfiguration gespeichert</string>
-    <string name="backup_settings">Backup Settings</string>
+    <string name="backup_settings">Einstellungen sichern</string>
     <string name="import_settings">Importieren</string>
     <string name="export_settings">Exportieren</string>
+    <string name="version_error">The version of Whatsapp you are using is not compatible and is throwing an error in the following features:\n\n</string>
+    <string name="copy_to_clipboard">Copy to clipboard</string>
+    <string name="copied_to_clipboard">Copied to clipboard</string>
+    <string name="error_detected">Error detected</string>
+    <string name="rebooting">Rebooting</string>
+    <string name="deleted_message">deleted a message</string>
+    <string name="deleted_status">deleted a status</string>
 </resources>

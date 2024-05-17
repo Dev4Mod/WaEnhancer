@@ -249,4 +249,11 @@
     <string name="backup_settings">Backup Settings</string>
     <string name="import_settings">Import</string>
     <string name="export_settings">Export</string>
+    <string name="version_error">The version of Whatsapp you are using is not compatible and is throwing an error in the following features:\n\n</string>
+    <string name="copy_to_clipboard">Copy to clipboard</string>
+    <string name="copied_to_clipboard">Copied to clipboard</string>
+    <string name="error_detected">Error detected</string>
+    <string name="rebooting">Rebooting</string>
+    <string name="deleted_message">deleted a message</string>
+    <string name="deleted_status">deleted a status</string>
 </resources>

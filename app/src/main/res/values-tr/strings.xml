@@ -28,7 +28,7 @@
     <string name="novotema_sum">Renk ve simge temasını yeni WhatsApp temasıyla değiştir</string>
     <string name="antirevokestatus">Durumların Silinmesini Engelle</string>
     <string name="antirevokestatus_sum">Kullanıcıların o zamandan beri sildiği durumları görüntüle</string>
-    <string name="hidereceipt">Teslim Edilenleri Gizle</string>
+    <string name="hidereceipt">İletildi İbaresini Gizle</string>
     <string name="hidereceipt_sum">Kullanıcılar mesajlarının size iletildiğini bilmeyecektir\n(DİKKAT: Mesajların alınmasında gecikmeye neden olabilir)</string>
     <string name="outros">Diğerleri</string>
     <string name="antirevoke_title">Silinme Karşıtı</string>
@@ -249,4 +249,11 @@
     <string name="backup_settings">Yedekleme Ayarları</string>
     <string name="import_settings">İçe Aktar</string>
     <string name="export_settings">Dışa Aktar</string>
+    <string name="version_error">The version of Whatsapp you are using is not compatible and is throwing an error in the following features:\n\n</string>
+    <string name="copy_to_clipboard">Copy to clipboard</string>
+    <string name="copied_to_clipboard">Copied to clipboard</string>
+    <string name="error_detected">Error detected</string>
+    <string name="rebooting">Rebooting</string>
+    <string name="deleted_message">deleted a message</string>
+    <string name="deleted_status">deleted a status</string>
 </resources>
