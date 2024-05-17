@@ -125,6 +125,7 @@ public class Unobfuscator {
     }
 
     public static String getMethodDescriptor(Method method) {
+        if (method == null) return null;
         return method.getDeclaringClass().getName() + "->" + method.getName() + "(" + Arrays.stream(method.getParameterTypes()).map(Class::getName).collect(Collectors.joining(",")) + ")";
     }
 
@@ -256,6 +257,9 @@ public class Unobfuscator {
         return UnobfuscatorCache.getInstance().getMethod(classLoader, () -> {
             var classData = dexkit.getClassData(XposedHelpers.findClass("com.whatsapp.jobqueue.job.SendReadReceiptJob", classLoader));
             var methodResult = classData.findMethod(new FindMethod().matcher(new MethodMatcher().addUsingString("receipt", StringMatchType.Equals)));
+            if (methodResult.isEmpty()){
+                methodResult = classData.getSuperClass().findMethod(new FindMethod().matcher(new MethodMatcher().addUsingString("receipt", StringMatchType.Equals)));
+            }
             if (methodResult.isEmpty()) throw new Exception("HideViewSendReadJob method not found");
             return methodResult.get(0).getMethodInstance(classLoader);
         });
@@ -848,11 +852,8 @@ public class Unobfuscator {
 
     public static Field loadMessageKeyField(ClassLoader loader) throws Exception {
         return UnobfuscatorCache.getInstance().getField(loader, () -> {
-            var GroupJid = XposedHelpers.findClass("com.whatsapp.jid.GroupJid", loader).getField("Companion");
-            var keyMessageList = dexkit.findClass(new FindClass().matcher(new ClassMatcher().addUsingString("Key[").addUsingString("remote_jid=").addUsingString("from_me").addMethod(new MethodMatcher().addUsingField(DexSignUtil.getFieldDescriptor(GroupJid)))));
-            if (keyMessageList.isEmpty()) {
-                keyMessageList = dexkit.findClass(new FindClass().matcher(new ClassMatcher().addUsingString("Key(").addUsingString("isFromMe").addMethod(new MethodMatcher().addUsingField(DexSignUtil.getFieldDescriptor(GroupJid)))));
-            }
+            var GroupJidClass = XposedHelpers.findClass("com.whatsapp.jid.GroupJid", loader);
+            var keyMessageList = dexkit.findClass(new FindClass().matcher(new ClassMatcher().addUsingString("Key").addMethod(new MethodMatcher().returnType(GroupJidClass))));
             if (keyMessageList.isEmpty()) throw new Exception("MessageKey class not found");
             Class<?> keyMessageClass = keyMessageList.get(0).getInstance(loader);
             var classMessage = loadThreadMessageClass(loader);
@@ -1132,16 +1133,13 @@ public class Unobfuscator {
     }
 
     public static Method loadNewMessageWithMediaMethod(ClassLoader loader) throws Exception {
-        return UnobfuscatorCache.getInstance().getMethod(loader, () -> {
-            var clazzMessage = loadThreadMessageClass(loader);
-            var methodData = dexkit.findMethod(new FindMethod().searchInClass(List.of(Objects.requireNonNull(dexkit.getClassData(clazzMessage)))).matcher(new MethodMatcher().addUsingNumber(0x200000).returnType(String.class)));
-            if (methodData.isEmpty()) {
-                methodData = dexkit.findMethod(new FindMethod().searchInClass(List.of(Objects.requireNonNull(dexkit.getClassData(clazzMessage)))).matcher(new MethodMatcher().addUsingString("video").returnType(String.class)));
-                if (methodData.isEmpty())
-                    throw new RuntimeException("NewMessageWithMedia method not found");
-            }
-            return methodData.get(0).getMethodInstance(loader);
-        });
+        var clazzMessage = Objects.requireNonNull(dexkit.getClassData(loadThreadMessageClass(loader)));
+        var methodData = clazzMessage.findMethod(new FindMethod().matcher(new MethodMatcher().addUsingNumber(0x200000).returnType(String.class)));
+        if (methodData.isEmpty()) {
+            methodData = clazzMessage.findMethod(new FindMethod().matcher(new MethodMatcher().addUsingString("video").returnType(String.class)));
+            if (methodData.isEmpty()) return null;
+        }
+        return methodData.get(0).getMethodInstance(loader);
     }
 
     public static Method loadMessageEditMethod(ClassLoader loader) throws Exception {

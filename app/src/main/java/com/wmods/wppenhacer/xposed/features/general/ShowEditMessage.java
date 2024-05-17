@@ -21,13 +21,14 @@ import androidx.core.widget.NestedScrollView;
 import com.wmods.wppenhacer.adapter.MessageAdapter;
 import com.wmods.wppenhacer.views.NoScrollListView;
 import com.wmods.wppenhacer.xposed.core.DesignUtils;
+import com.wmods.wppenhacer.xposed.core.Feature;
 import com.wmods.wppenhacer.xposed.core.ResId;
 import com.wmods.wppenhacer.xposed.core.Unobfuscator;
 import com.wmods.wppenhacer.xposed.core.Utils;
 import com.wmods.wppenhacer.xposed.core.WppCore;
-import com.wmods.wppenhacer.xposed.core.Feature;
 import com.wmods.wppenhacer.xposed.core.db.MessageHistory;
 import com.wmods.wppenhacer.xposed.core.db.MessageStore;
+import com.wmods.wppenhacer.xposed.utils.ReflectionUtils;
 
 import java.util.ArrayList;
 
@@ -97,7 +98,16 @@ public class ShowEditMessage extends Feature {
                 if (timestamp == 0L) return;
                 long id = getFieldIdMessage.getLong(param.args[0]);
                 String newMessage = (String) newMessageMethod.invoke(param.args[0]);
-                if (newMessage == null){
+                if (newMessage == null) {
+                    if (newMessageWithMediaMethod == null) {
+                        var methods = ReflectionUtils.findAllMethodUsingFilter(param.args[0].getClass(), method -> method.getReturnType() == String.class && ReflectionUtils.isOverridden(method));
+                        for (var method : methods) {
+                            newMessage = (String) method.invoke(param.args[0]);
+                            if (newMessage != null) break;
+                        }
+                    }
+                    if (newMessage == null) return;
+                } else {
                     newMessage = (String) newMessageWithMediaMethod.invoke(param.args[0]);
                 }
                 try {

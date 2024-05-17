@@ -50,6 +50,11 @@ public class ReflectionUtils {
         return Arrays.stream(cls.getFields()).filter(f -> type.isAssignableFrom(f.getType())).collect(Collectors.toList());
     }
 
+    public static List<Field> getFieldsByType(Class<?> cls, Class<?> type) {
+        return Arrays.stream(cls.getFields()).filter(f -> type == f.getType()).collect(Collectors.toList());
+    }
+
+
     public static Object callMethod(Method getUserJid, Object fMessage, Object... args) {
         try {
             return getUserJid.invoke(fMessage, args);

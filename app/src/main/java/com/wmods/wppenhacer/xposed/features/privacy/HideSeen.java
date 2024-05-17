@@ -2,16 +2,12 @@ package com.wmods.wppenhacer.xposed.features.privacy;
 
 import androidx.annotation.NonNull;
 
-import com.wmods.wppenhacer.xposed.core.Unobfuscator;
 import com.wmods.wppenhacer.xposed.core.Feature;
+import com.wmods.wppenhacer.xposed.core.Unobfuscator;
 import com.wmods.wppenhacer.xposed.core.WppCore;
-import com.wmods.wppenhacer.xposed.utils.ReflectionUtils;
 
 import java.lang.reflect.Array;
 import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
-import java.util.Arrays;
-import java.util.HashMap;
 
 import de.robv.android.xposed.XC_MethodHook;
 import de.robv.android.xposed.XSharedPreferences;
@@ -32,7 +28,8 @@ public class HideSeen extends Feature {
         XposedBridge.hookMethod(SendReadReceiptJobMethod, new XC_MethodHook() {
             @Override
             protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
-                var srj = param.thisObject;
+                var sendJob = XposedHelpers.findClass("com.whatsapp.jobqueue.job.SendReadReceiptJob", loader);
+                var srj =  sendJob.cast(param.thisObject);
                 var messageIds = XposedHelpers.getObjectField(srj, "messageIds");
                 var firstmessage = (String) Array.get(messageIds, 0);
                 if (firstmessage != null && WppCore.getPrivBoolean(firstmessage + "_rpass", false)) {
