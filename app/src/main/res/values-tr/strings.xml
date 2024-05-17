@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_desc">WhatApp Enhancer Modülü</string>
+    <string name="app_desc">WhatsApp Geliştirici Modülü</string>
     <string name="antirevoke">Mesajların Silinmesini Engelle</string>
     <string name="antirevoke_sum">Mesajlar sizin için silinmeyecek</string>
     <string name="ghostmode">Yazmayı Gizle</string>
@@ -249,11 +249,11 @@
     <string name="backup_settings">Yedekleme Ayarları</string>
     <string name="import_settings">İçe Aktar</string>
     <string name="export_settings">Dışa Aktar</string>
-    <string name="version_error">The version of Whatsapp you are using is not compatible and is throwing an error in the following features:\n\n</string>
-    <string name="copy_to_clipboard">Copy to clipboard</string>
-    <string name="copied_to_clipboard">Copied to clipboard</string>
-    <string name="error_detected">Error detected</string>
-    <string name="rebooting">Rebooting</string>
-    <string name="deleted_message">deleted a message</string>
-    <string name="deleted_status">deleted a status</string>
+    <string name="version_error">Kullandığınız whatsapp sürümü uyumlu değil ve aşağıdaki özelliklerde hata veriyor:\n\n</string>
+    <string name="copy_to_clipboard">Panoya kopyala</string>
+    <string name="copied_to_clipboard">Panoya kopyalandı</string>
+    <string name="error_detected">Hata algılandı</string>
+    <string name="rebooting">Yeniden başlatılıyor</string>
+    <string name="deleted_message">bir mesajı sildi</string>
+    <string name="deleted_status">bir durumu sildi</string>
 </resources>

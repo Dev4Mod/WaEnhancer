@@ -178,9 +178,9 @@
     <string name="media">Medien</string>
     <string name="show_button_to_send_blue_tick">Schaltfläche zum Senden von blauen Häkchen</string>
     <string name="show_button_to_send_blue_tick_sum">Optionen: Deaktiviert, 3-Punkte-Menü, Symbol</string>
-    <string name="send_blue_tick">Als Lesen/Gesehen markieren</string>
+    <string name="send_blue_tick">Als Gelesen/Gesehen markieren</string>
     <string name="business_in_background">Whatsapp Business ist aktiv</string>
-    <string name="sending_read_blue_tick">Sende blaue Häkchen (als gelesen/angesehen)</string>
+    <string name="sending_read_blue_tick">Sende blaue Häkchen (gelesen/angesehen)</string>
     <string name="enable_facebook_style_for_status">Facebook-Stil für Status aktivieren</string>
     <string name="enable_facebook_style_for_status_sum">Ändere den ursprünglichen Status Stil zu Facebook Stil</string>
     <string name="send">Absenden</string>
@@ -246,14 +246,14 @@
     <string name="wallpaper_in_home_screen_sum">Ausgewähltes Hintergrundbild im Startbildschirm mit Transparenz anzeigen</string>
     <string name="configs_imported">Konfigurationen importiert</string>
     <string name="configs_saved">Konfiguration gespeichert</string>
-    <string name="backup_settings">Einstellungen sichern</string>
+    <string name="backup_settings">Einstellungen</string>
     <string name="import_settings">Importieren</string>
     <string name="export_settings">Exportieren</string>
-    <string name="version_error">The version of Whatsapp you are using is not compatible and is throwing an error in the following features:\n\n</string>
-    <string name="copy_to_clipboard">Copy to clipboard</string>
-    <string name="copied_to_clipboard">Copied to clipboard</string>
-    <string name="error_detected">Error detected</string>
-    <string name="rebooting">Rebooting</string>
-    <string name="deleted_message">deleted a message</string>
-    <string name="deleted_status">deleted a status</string>
+    <string name="version_error">Die Version von WhatsApp ist nicht kompatibel und zeigt einen Fehler in den folgenden Funktionen:\n\n</string>
+    <string name="copy_to_clipboard">In die Zwischenablage kopieren</string>
+    <string name="copied_to_clipboard">In die Zwischenablage kopiert</string>
+    <string name="error_detected">Fehler festgestellt</string>
+    <string name="rebooting">Wird neugestartet...</string>
+    <string name="deleted_message">Lösche eine Nachricht</string>
+    <string name="deleted_status">Status gelöscht</string>
 </resources>

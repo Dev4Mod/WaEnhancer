@@ -258,11 +258,11 @@ Apakah Anda ingin mulai ulang WhatsApp?</string>
     <string name="backup_settings">Cadangkan Setelan</string>
     <string name="import_settings">Cadangkan</string>
     <string name="export_settings">Pulihkan</string>
-    <string name="version_error">The version of Whatsapp you are using is not compatible and is throwing an error in the following features:\n\n</string>
-    <string name="copy_to_clipboard">Copy to clipboard</string>
-    <string name="copied_to_clipboard">Copied to clipboard</string>
-    <string name="error_detected">Error detected</string>
-    <string name="rebooting">Rebooting</string>
-    <string name="deleted_message">deleted a message</string>
-    <string name="deleted_status">deleted a status</string>
+    <string name="version_error">Versi Whatsapp yang Anda gunakan tidak kompatibel dan menimbulkan kesalahan pada fitur-fitur berikut:\n\n</string>
+    <string name="copy_to_clipboard">Menyalin ke papan klip</string>
+    <string name="copied_to_clipboard">Disalin ke papan klip</string>
+    <string name="error_detected">Kesalahan terdeteksi</string>
+    <string name="rebooting">Menyalakan ulang</string>
+    <string name="deleted_message">menghapus pesan</string>
+    <string name="deleted_status">menghapus status</string>
 </resources>
