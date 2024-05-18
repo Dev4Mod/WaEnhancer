@@ -2,8 +2,8 @@ package com.wmods.wppenhacer.xposed.features.general;
 
 import androidx.annotation.NonNull;
 
-import com.wmods.wppenhacer.xposed.core.Unobfuscator;
 import com.wmods.wppenhacer.xposed.core.Feature;
+import com.wmods.wppenhacer.xposed.core.Unobfuscator;
 
 import de.robv.android.xposed.XC_MethodHook;
 import de.robv.android.xposed.XSharedPreferences;
@@ -20,6 +20,11 @@ public class ChatLimit extends Feature {
         var chatLimitDeleteMethod = Unobfuscator.loadChatLimitDeleteMethod(loader);
         var chatLimitDelete2Method = Unobfuscator.loadChatLimitDelete2Method(loader);
 //        var chatLimitEditClass = Unobfuscator.loadChatLimitEditClass(loader);
+
+//        if (prefs.getBoolean("editallmessages", false)) {
+//            Others.propsInteger.put(2983, Integer.MAX_VALUE);
+//            Others.propsInteger.put(3272, Integer.MAX_VALUE);
+//        }
 
         XposedBridge.hookMethod(chatLimitDeleteMethod, new XC_MethodHook() {
             @Override

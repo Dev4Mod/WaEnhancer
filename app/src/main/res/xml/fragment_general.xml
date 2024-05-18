@@ -138,10 +138,10 @@
             app:summary="@string/delete_for_everyone_all_messages_sum"
             app:title="@string/delete_for_everyone_all_messages" />
 
-        <rikka.material.preference.MaterialSwitchPreference
-            app:key="editallmessages"
-            app:summary="@string/remove_limit_edit_message_sum"
-            app:title="@string/remove_limit_edit_message" />
+<!--        <rikka.material.preference.MaterialSwitchPreference-->
+<!--            app:key="editallmessages"-->
+<!--            app:summary="@string/remove_limit_edit_message_sum"-->
+<!--            app:title="@string/remove_limit_edit_message" />-->
 
         <rikka.material.preference.MaterialSwitchPreference
             app:key="removeseemore"
