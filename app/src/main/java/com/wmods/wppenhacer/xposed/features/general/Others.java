@@ -157,7 +157,8 @@ public class Others extends Feature {
                 var field = ReflectionUtils.getFieldByType(param.thisObject.getClass(), grpcheckAdmin.getDeclaringClass());
                 var grpParticipants = field.get(param.thisObject);
                 var jidGrp = jidFactory.invoke(null, chatCurrentJid);
-                if ((boolean) grpcheckAdmin.invoke(grpParticipants, jidGrp, userJid)) {
+                var result = ReflectionUtils.callMethod(grpcheckAdmin, grpParticipants, jidGrp, userJid);
+                if ((boolean) result) {
                     var view = (View) param.thisObject;
                     var context = view.getContext();
                     if (view.findViewById(0x7fff0001) != null) return;
