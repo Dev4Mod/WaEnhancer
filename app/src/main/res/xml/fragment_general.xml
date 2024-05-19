@@ -81,6 +81,8 @@
             app:summary="@string/disable_pinned_limit_sum"
             app:title="@string/disable_pinned_limit" />
 
+
+
         <ListPreference
             app:entries="@array/chatfilter_buttons"
             app:entryValues="@array/chatfilter_values"
@@ -92,8 +94,6 @@
             app:key="metaai"
             app:summary="@string/disable_metaai_sum"
             app:title="@string/disable_metaai" />
-
-
 
     </PreferenceCategory>
 

@@ -94,6 +94,11 @@
             app:showSeekBarValue="true"
             app:title="Navigation Transparency" />
 
+        <rikka.material.preference.MaterialSwitchPreference
+            app:key="admin_grp"
+            app:summary="@string/show_admin_group_icon_sum"
+            app:title="@string/show_admin_group_icon" />
+
     </PreferenceCategory>
 
     <PreferenceCategory

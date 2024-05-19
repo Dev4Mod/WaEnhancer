@@ -41,7 +41,6 @@ public class WppCore {
 
     }
 
-
     public static void Initialize(ClassLoader loader) {
         try {
 
@@ -139,6 +138,11 @@ public class WppCore {
     public static String getRawString(Object userjid) {
         if (userjid == null) return null;
         return (String) XposedHelpers.callMethod(userjid, "getRawString");
+    }
+
+    public static boolean isGroup(String str) {
+        if (str == null) return false;
+        return str.contains("-") || str.contains("@g.us") || (!str.contains("@") && str.length() > 16);
     }
 
     public static String getCurrentRawJID() {

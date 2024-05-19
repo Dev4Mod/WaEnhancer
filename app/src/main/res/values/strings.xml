@@ -262,4 +262,8 @@
     <string name="deleted_status">deleted a status</string>
     <string name="remove_limit_edit_message">Remove Limit To Edit message</string>
     <string name="remove_limit_edit_message_sum">Removes the 15 minute limit for editing a message</string>
+    <string name="disable_audio_sensor">Disable Audio Sensor</string>
+    <string name="disable_audio_sensor_sum">Disable audio switching with the proximity sensor</string>
+    <string name="show_admin_group_icon">Show Admin Group Icon</string>
+    <string name="show_admin_group_icon_sum">add an icon next to the name of the user who is the group admin</string>
 </resources>

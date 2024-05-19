@@ -6,6 +6,8 @@ public class ResId {
 
         public static int eye_disabled;
         public static int eye_enabled;
+        public static int admin;
+
     }
 
     public static class string {

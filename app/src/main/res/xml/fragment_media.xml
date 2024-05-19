@@ -61,5 +61,14 @@
 
     </PreferenceCategory>
 
+    <PreferenceCategory
+        app:title="Audio">
+        <rikka.material.preference.MaterialSwitchPreference
+            app:key="proximity_audios"
+            app:summary="@string/disable_audio_sensor_sum"
+            app:title="@string/disable_audio_sensor" />
+
+    </PreferenceCategory>
+
 
 </PreferenceScreen>

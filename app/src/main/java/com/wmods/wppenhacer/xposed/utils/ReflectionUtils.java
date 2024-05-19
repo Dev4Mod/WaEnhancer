@@ -54,6 +54,13 @@ public class ReflectionUtils {
         return Arrays.stream(cls.getFields()).filter(f -> type == f.getType()).collect(Collectors.toList());
     }
 
+    public static Field getFieldByExtendType(Class<?> cls, Class<?> type) {
+        return Arrays.stream(cls.getFields()).filter(f -> type.isAssignableFrom(f.getType())).findFirst().orElse(null);
+    }
+
+    public static Field getFieldByType(Class<?> cls, Class<?> type) {
+        return Arrays.stream(cls.getFields()).filter(f -> type == f.getType()).findFirst().orElse(null);
+    }
 
     public static Object callMethod(Method getUserJid, Object fMessage, Object... args) {
         try {

@@ -1440,4 +1440,32 @@ public class Unobfuscator {
         if (fieldList.isEmpty()) throw new RuntimeException("ProfileInfo field not found");
         return fieldList.get(0);
     }
+
+    public static Method loadProximitySensorMethod(ClassLoader loader) throws Exception {
+        return UnobfuscatorCache.getInstance().getMethod(loader, () -> {
+            var method = findFirstMethodUsingStrings(loader, StringMatchType.Contains, "messageaudioplayer/onearproximity");
+            if (method == null) throw new RuntimeException("ProximitySensor method not found");
+            return method;
+        });
+    }
+
+    public static Method loadGroupAdminMethod(ClassLoader loader) throws Exception {
+        var method = findFirstMethodUsingStrings(loader, StringMatchType.Contains, "P Message");
+        if (method == null) throw new RuntimeException("GroupAdmin method not found");
+        return method;
+    }
+
+    public static Method loadJidFactory(ClassLoader loader) throws Exception {
+        var method = findFirstMethodUsingStrings(loader, StringMatchType.Contains, "lid_me","status_me","s.whatsapp.net");
+        if (method == null) throw new RuntimeException("JidFactory method not found");
+        return method;
+    }
+
+    public static Method loadGroupCheckAdminMethod(ClassLoader loader) throws Exception {
+        var clazz = findFirstClassUsingStrings(loader, StringMatchType.Contains, "[LidGroup]GroupParticipantsManager");
+        var userJidClass = XposedHelpers.findClass("com.whatsapp.jid.UserJid", loader);
+        var method = ReflectionUtils.findMethodUsingFilter(clazz, m -> m.getParameterCount() == 2 && m.getParameterTypes()[1].equals(userJidClass) && m.getReturnType().equals(boolean.class));
+        if (method == null) throw new RuntimeException("GroupCheckAdmin method not found");
+        return method;
+    }
 }
