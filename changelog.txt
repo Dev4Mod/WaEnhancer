@@ -1,2 +1,2 @@
-* Improve Wallpaper inject
-* Remove function "Disable limit edit message"
+* Fix download button for photo profile
+* Fix bug in Show Edit Message
