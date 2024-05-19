@@ -105,10 +105,10 @@ public class ShowEditMessage extends Feature {
                             newMessage = (String) method.invoke(param.args[0]);
                             if (newMessage != null) break;
                         }
+                    }else {
+                        newMessage = (String) newMessageWithMediaMethod.invoke(param.args[0]);
                     }
                     if (newMessage == null) return;
-                } else {
-                    newMessage = (String) newMessageWithMediaMethod.invoke(param.args[0]);
                 }
                 try {
                     MessageHistory.getInstance(Utils.getApplication()).insertMessage(id, newMessage, timestamp);
@@ -229,7 +229,7 @@ public class ShowEditMessage extends Feature {
     @NonNull
     @Override
     public String getPluginName() {
-        return "Anti Edit Message";
+        return "Show Edit Message";
     }
 
 }
