@@ -3,6 +3,7 @@ package com.wmods.wppenhacer.xposed.features.general;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
+import android.graphics.Color;
 import android.util.Pair;
 import android.view.Gravity;
 import android.view.Menu;
@@ -292,11 +293,10 @@ public class Others extends Feature {
             @Override
             protected void afterHookedMethod(MethodHookParam param) throws Throwable {
                 var menu = (Menu) param.args[0];
-                var activity = (Activity) param.thisObject;
                 var item = menu.add(0, 0, 0, "Save");
                 item.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
-                var icon = DesignUtils.getDrawableByName("ic_settings_export");
-                icon.setTint(DesignUtils.getPrimaryTextColor(activity));
+                var icon = DesignUtils.getDrawableByName("ic_action_download_wds");
+                icon.setTint(Color.WHITE);
                 item.setIcon(icon);
                 item.setOnMenuItemClickListener(menuItem -> {
                     var subCls = param.thisObject.getClass().getSuperclass();
