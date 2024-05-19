@@ -46,9 +46,9 @@ public class WallpaperView extends FrameLayout {
 
     @Override
     public void addView(View child) {
-        if (child != bgView){
-            child.setAlpha(mAlpha);
-        }
+//        if (child != bgView){
+//            child.setAlpha(mAlpha);
+//        }
         super.addView(child);
     }
 }

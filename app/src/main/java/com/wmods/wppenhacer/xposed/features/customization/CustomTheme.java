@@ -9,10 +9,7 @@ import android.app.Activity;
 import android.app.Notification;
 import android.content.pm.PackageManager;
 import android.content.res.ColorStateList;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.Paint;
-import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.GradientDrawable;
@@ -20,33 +17,34 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.Window;
+import android.widget.FrameLayout;
 
 import androidx.annotation.NonNull;
 import androidx.core.content.ContextCompat;
 
 import com.wmods.wppenhacer.utils.IColors;
 import com.wmods.wppenhacer.views.WallpaperView;
-import com.wmods.wppenhacer.xposed.core.DesignUtils;
 import com.wmods.wppenhacer.xposed.core.Feature;
 import com.wmods.wppenhacer.xposed.core.Unobfuscator;
-import com.wmods.wppenhacer.xposed.features.general.ShowEditMessage;
+import com.wmods.wppenhacer.xposed.core.Utils;
+import com.wmods.wppenhacer.xposed.utils.ReflectionUtils;
 
 import org.xmlpull.v1.XmlPullParser;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Objects;
 
 import de.robv.android.xposed.XC_MethodHook;
 import de.robv.android.xposed.XSharedPreferences;
-import de.robv.android.xposed.XposedBridge;
 import de.robv.android.xposed.XposedHelpers;
 
 public class CustomTheme extends Feature {
 
     public static ClassLoader classLoader;
+    private HashMap<String, String> wallAlpha;
+    private HashMap<String, String> navAlpha;
+    private HashMap<String, String> toolbarAlpha;
 
     public CustomTheme(ClassLoader loader, XSharedPreferences preferences) {
         super(loader, preferences);
@@ -55,12 +53,13 @@ public class CustomTheme extends Feature {
 
     @Override
     public void doHook() throws Exception {
-        hookWallpaper();
         hookColors();
+        hookWallpaper();
     }
 
-    private void hookWallpaper() {
+    private void hookWallpaper() throws Exception {
         if (!prefs.getBoolean("wallpaper", false)) return;
+
         var clazz = XposedHelpers.findClass("com.whatsapp.HomeActivity", loader);
         XposedHelpers.findAndHookMethod(clazz.getSuperclass(), "onCreate", Bundle.class, new XC_MethodHook() {
             @Override
@@ -71,6 +70,35 @@ public class CustomTheme extends Feature {
                 }
             }
         });
+
+        XposedHelpers.findAndHookMethod("androidx.viewpager.widget.ViewPager", classLoader, "onMeasure", int.class, int.class, new XC_MethodHook() {
+            @Override
+            protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+                var viewGroup = (ViewGroup) param.thisObject;
+                replaceColors(viewGroup, wallAlpha);
+            }
+        });
+
+
+        var loadTabFrameClass = Unobfuscator.loadTabFrameClass(loader);
+        XposedHelpers.findAndHookMethod(FrameLayout.class, "onMeasure", int.class, int.class, new XC_MethodHook() {
+            @Override
+            protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+                if (!loadTabFrameClass.isInstance(param.thisObject)) return;
+                var viewGroup = (ViewGroup) param.thisObject;
+                var background = viewGroup.getBackground();
+                var colorfilters = XposedHelpers.getObjectField(background, "A01");
+                var fields = ReflectionUtils.getFieldsByType(colorfilters.getClass(), ColorStateList.class);
+                var colorStateList =(ColorStateList) fields.get(0).get(colorfilters);
+                if (colorStateList == null) return;
+                var color = IColors.toString(colorStateList.getDefaultColor());
+                var newColor = navAlpha.get(color);
+                if (newColor != null) {
+                    background.setTint(IColors.parseColor(newColor));
+                }
+            }
+        });
+
     }
 
     private void hookColors() throws Exception {
@@ -80,7 +108,6 @@ public class CustomTheme extends Feature {
         logDebug("customDrawable2: " + customDrawable2.getName());
         var customDrawable3 = Unobfuscator.loadCustomDrawableClass(loader);
         logDebug("customDrawable3: " + customDrawable3.getName());
-
 
         var primaryColorInt = prefs.getInt("primary_color", 0);
         var secondaryColorInt = prefs.getInt("secondary_color", 0);
@@ -118,6 +145,16 @@ public class CustomTheme extends Feature {
                 }
             }
         }
+
+        wallAlpha = new HashMap<>(IColors.colors);
+        replaceTransparency(wallAlpha,(100 - prefs.getInt("wallpaper_alpha", 30)) / 100.0f);
+
+        navAlpha = new HashMap<>(IColors.colors);
+        replaceTransparency(navAlpha,(100 - prefs.getInt("wallpaper_alpha_navigation", 30)) / 100.0f);
+
+        toolbarAlpha = new HashMap<>(IColors.colors);
+        replaceTransparency(toolbarAlpha,(100 - prefs.getInt("wallpaper_alpha_toolbar", 30)) / 100.0f);
+
 
         findAndHookMethod(Activity.class.getName(), loader, "onCreate", Bundle.class, new XC_MethodHook() {
             @Override
@@ -167,9 +204,22 @@ public class CustomTheme extends Feature {
         });
     }
 
+    private void replaceTransparency(HashMap<String, String> wallpaperColors, float mAlpha) {
+        var hexAlpha = Integer.toHexString((int) Math.ceil(mAlpha * 255));
+        hexAlpha = hexAlpha.length() == 1 ? "0" + hexAlpha : hexAlpha;
+        for (var c : List.of("#ff0b141a", "#ff111b21", "#ff000000")) {
+            var oldColor = wallpaperColors.get(c);
+            var newColor = "#" + hexAlpha + oldColor.substring(3);
+            wallpaperColors.put(c, newColor);
+            wallpaperColors.put(oldColor, newColor);
+        }
+    }
+
     private void injectWallpaper(View view) {
         var content = (ViewGroup) view;
         var rootView = (ViewGroup) content.getChildAt(0);
+        replaceColors(rootView, toolbarAlpha);
+
         var views = new ArrayList<View>();
         while (rootView.getChildCount() > 0) {
             views.add(rootView.getChildAt(0));

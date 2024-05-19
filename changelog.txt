@@ -1,3 +1,2 @@
-* Add button to download photo profile
-* Add function to disable limit to edit message
-* Update translations
+* Improve Wallpaper inject
+* Remove function "Disable limit edit message"

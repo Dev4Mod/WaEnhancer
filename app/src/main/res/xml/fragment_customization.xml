@@ -70,11 +70,29 @@
         <SeekBarPreference
             app:dependency="wallpaper"
             app:key="wallpaper_alpha"
-            android:defaultValue="20"
+            android:defaultValue="60"
             android:max="100"
             app:min="0"
             app:showSeekBarValue="true"
             app:title="@string/wallpaper_transparency" />
+
+        <SeekBarPreference
+            app:dependency="wallpaper"
+            app:key="wallpaper_alpha_toolbar"
+            android:defaultValue="75"
+            android:max="100"
+            app:min="0"
+            app:showSeekBarValue="true"
+            app:title="Toolbar Transparency" />
+
+        <SeekBarPreference
+            app:dependency="wallpaper"
+            app:key="wallpaper_alpha_navigation"
+            android:defaultValue="15"
+            android:max="100"
+            app:min="0"
+            app:showSeekBarValue="true"
+            app:title="Navigation Transparency" />
 
     </PreferenceCategory>
 
