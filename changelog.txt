@@ -1,2 +1,1 @@
-* Fix download button for photo profile
-* Fix bug in Show Edit Message
+* Add function to show admin icon in groups
