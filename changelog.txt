@@ -1,1 +1,1 @@
-* Add function to show admin icon in groups
+* Fix Critical bug in admin icon
