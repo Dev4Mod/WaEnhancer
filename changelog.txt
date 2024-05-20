@@ -1,2 +1,3 @@
-* Reduce module size
-* Fix colors again
+* Add function to show toast on contact online
+* Cleanup code
+* Fix bug in Show Edit Message

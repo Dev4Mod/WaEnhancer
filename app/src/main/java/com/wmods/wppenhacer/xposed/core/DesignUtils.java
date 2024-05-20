@@ -112,7 +112,7 @@ public class DesignUtils {
     }
 
     public static int getPrimarySurfaceColor() {
-        return mPrefs.getBoolean("changecolor", false) ? IColors.parseColor(IColors.colors.get("#ffffffff")) : DesignUtils.isNightMode() ? 0xff121212: 0xfffffffe;
+        return mPrefs.getBoolean("changecolor", false) ? IColors.parseColor(IColors.colors.get("#ff0b141a")) : DesignUtils.isNightMode() ? 0xff121212: 0xfffffffe;
     }
 
     public static void setReplacementDrawable(String name, Drawable replacement) {
