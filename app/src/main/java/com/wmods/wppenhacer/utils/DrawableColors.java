@@ -19,12 +19,10 @@ import android.graphics.drawable.RippleDrawable;
 import android.graphics.drawable.ShapeDrawable;
 import android.graphics.drawable.StateListDrawable;
 
-import com.wmods.wppenhacer.xposed.features.customization.SeparateGroup;
+import com.wmods.wppenhacer.xposed.core.DesignUtils;
 
 import java.util.HashMap;
-import java.util.HashSet;
 
-import de.robv.android.xposed.XposedBridge;
 import de.robv.android.xposed.XposedHelpers;
 
 public class DrawableColors {
@@ -32,6 +30,9 @@ public class DrawableColors {
     private static HashMap<Bitmap,Integer> ninePatchs = new HashMap<>();
 
     public static void replaceColor(Drawable drawable, HashMap<String, String> colors) {
+        if (DesignUtils.isNightMode()){
+            colors.remove("#ffffffff");
+        }
         if (drawable instanceof StateListDrawable stateListDrawable) {
             var count = StateListDrawableCompact.getStateCount(stateListDrawable);
             for (int i = 0; i < count; i++) {
