@@ -59,7 +59,7 @@ public class HideSeen extends Feature {
             @Override
             protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
                 if (!Unobfuscator.isCalledFromMethod(hideViewInChatMethod)) return;
-                if (param.args[0] == null || !param.args[4].equals("read")) return;
+                if (param.args[4] == null || !param.args[4].equals("read")) return;
                 var jid = WppCore.getCurrentRawJID();
                 if (WppCore.isGroup(jid)) {
                     if (prefs.getBoolean("hideread_group", false))
