@@ -1476,4 +1476,10 @@ public class Unobfuscator {
            return results.get(0).getConstructorInstance(loader);
         });
     }
+
+    public static Method loadCheckOnlineMethod(ClassLoader loader) throws Exception {
+        var method = findFirstMethodUsingStrings(loader, StringMatchType.Contains, "app/xmpp/recv/handle_available");
+        if (method == null) throw new RuntimeException("CheckOnline method not found");
+        return method;
+    }
 }
