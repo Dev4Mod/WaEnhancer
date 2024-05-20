@@ -161,24 +161,24 @@ public class Others extends Feature {
 
                 var view = (View) param.thisObject;
                 var context = view.getContext();
-                LinearLayout view1;
-                if ((view1 = view.findViewById(0x7fff0001)) == null) {
+                ImageView iconAdmin;
+                if ((iconAdmin = view.findViewById(0x7fff0010)) == null) {
                     var nameGroup = (LinearLayout) view.findViewById(Utils.getID("name_in_group", "id"));
-                    view1 = new LinearLayout(context);
+                    var view1 = new LinearLayout(context);
                     view1.setOrientation(LinearLayout.HORIZONTAL);
                     view1.setGravity(Gravity.CENTER_VERTICAL);
                     var nametv = nameGroup.getChildAt(0);
-                    var iconAdmin = new ImageView(context);
+                    iconAdmin = new ImageView(context);
                     var size = Utils.dipToPixels(16);
                     iconAdmin.setLayoutParams(new LinearLayout.LayoutParams(size, size));
                     iconAdmin.setImageResource(ResId.drawable.admin);
-                    view1.setId(0x7fff0001);
+                    iconAdmin.setId(0x7fff0010);
                     nameGroup.removeView(nametv);
                     view1.addView(nametv);
                     view1.addView(iconAdmin);
                     nameGroup.addView(view1, 0);
                 }
-                view1.setVisibility(result ? View.VISIBLE : View.GONE);
+                iconAdmin.setVisibility(result ? View.VISIBLE : View.GONE);
             }
         };
         XposedBridge.hookMethod(grpAdmin1, hooked);
