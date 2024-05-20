@@ -4,6 +4,9 @@ import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
 import android.graphics.Color;
+import android.os.BaseBundle;
+import android.os.Message;
+import android.text.TextUtils;
 import android.util.Pair;
 import android.view.Gravity;
 import android.view.Menu;
@@ -17,7 +20,6 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 
-import com.wmods.wppenhacer.R;
 import com.wmods.wppenhacer.xposed.core.DesignUtils;
 import com.wmods.wppenhacer.xposed.core.Feature;
 import com.wmods.wppenhacer.xposed.core.ResId;
@@ -33,7 +35,6 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Objects;
-import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.IntStream;
 
 import de.robv.android.xposed.XC_MethodHook;
@@ -88,6 +89,7 @@ public class Others extends Feature {
         var videotime = prefs.getBoolean("videotime", false);
         var proximity = prefs.getBoolean("proximity_audios", false);
         var adminGrp = prefs.getBoolean("admin_grp", false);
+        var showOnline = prefs.getBoolean("showonline", false);
 
         propsBoolean.put(5171, filterSeen); // filtros de chat e grupos
         propsBoolean.put(4524, novoTema);
@@ -138,6 +140,28 @@ public class Others extends Feature {
         if (adminGrp) {
             addgrpAdminIcon();
         }
+
+        if (showOnline) {
+            showOnline();
+        }
+
+    }
+
+    private void showOnline() throws Exception {
+        var checkOnlineMethod = Unobfuscator.loadCheckOnlineMethod(loader);
+        XposedBridge.hookMethod(checkOnlineMethod, new XC_MethodHook() {
+            @Override
+            protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
+                var message = (Message) param.args[0];
+                if (message.arg1 != 5) return;
+                BaseBundle baseBundle = (BaseBundle) message.obj;
+                var jid = baseBundle.getString("jid");
+                if (WppCore.isGroup(jid)) return;
+                var name = WppCore.getContactName(WppCore.createUserJid(jid));
+                name = TextUtils.isEmpty(name) ? WppCore.stripJID(jid) : name;
+                Utils.showToast(String.format(Utils.getApplication().getString(ResId.string.toast_online), name), Toast.LENGTH_SHORT);
+            }
+        });
     }
 
     private void addgrpAdminIcon() throws Exception {

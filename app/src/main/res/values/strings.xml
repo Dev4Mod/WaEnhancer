@@ -270,4 +270,7 @@
     <string name="navigation_transparency">Navigation Transparency</string>
     <string name="show_online_last_seen_in_conversation_list">Show Online/Last seen in Conversation List</string>
     <string name="show_online_last_seen_in_conversation_list_sum">Show a text online or last seen on home screen\n(NOTE: Must activate show online for everyone in WhatsApp\'s Privacy Settings menu)</string>
+    <string name="toast_online">%s is online</string>
+    <string name="show_toast_on_contact_online">Show toast on contact online</string>
+    <string name="show_toast_on_contact_online_sum">Show a toast when a contact is online</string>
 </resources>

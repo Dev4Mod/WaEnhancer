@@ -119,6 +119,11 @@
             app:title="@string/toast_on_delete_sum"
             app:summary="@string/toast_on_delete" />
 
+        <rikka.material.preference.MaterialSwitchPreference
+            app:key="showonline"
+            app:summary="@string/show_toast_on_contact_online_sum"
+            app:title="@string/show_toast_on_contact_online" />
+
         <ListPreference
             app:entries="@array/antirevoke_entries"
             app:entryValues="@array/antirevoke_values"
