@@ -1468,4 +1468,12 @@ public class Unobfuscator {
         if (methods == null || methods.length == 0) throw new RuntimeException("GroupCheckAdmin method not found");
         return methods[methods.length - 1];
     }
+
+    public static Constructor loadStartPrefsConfig(ClassLoader loader) throws Exception {
+        return UnobfuscatorCache.getInstance().getConstructor(loader, () -> {
+           var results = dexkit.findMethod(new FindMethod().matcher(new MethodMatcher().addUsingString("startup_migrated_version")));
+           if (results.isEmpty()) throw new RuntimeException("StartPrefsConfig constructor not found");
+           return results.get(0).getConstructorInstance(loader);
+        });
+    }
 }

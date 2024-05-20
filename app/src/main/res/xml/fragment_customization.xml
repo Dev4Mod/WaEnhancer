@@ -83,7 +83,7 @@
             android:max="100"
             app:min="0"
             app:showSeekBarValue="true"
-            app:title="Toolbar Transparency" />
+            app:title="@string/toolbar_transparency" />
 
         <SeekBarPreference
             app:dependency="wallpaper"
@@ -92,7 +92,7 @@
             android:max="100"
             app:min="0"
             app:showSeekBarValue="true"
-            app:title="Navigation Transparency" />
+            app:title="@string/navigation_transparency" />
 
         <rikka.material.preference.MaterialSwitchPreference
             app:key="admin_grp"

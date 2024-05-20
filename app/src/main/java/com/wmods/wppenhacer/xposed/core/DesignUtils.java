@@ -10,6 +10,7 @@ import android.graphics.BlendModeColorFilter;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.PorterDuff;
+import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.ShapeDrawable;
 import android.graphics.drawable.shapes.RectShape;
@@ -19,6 +20,7 @@ import android.os.Build;
 import androidx.annotation.NonNull;
 
 import com.wmods.wppenhacer.WppXposed;
+import com.wmods.wppenhacer.utils.IColors;
 
 import de.robv.android.xposed.XposedBridge;
 import de.robv.android.xposed.XposedHelpers;
@@ -57,10 +59,12 @@ public class DesignUtils {
         return coloredDrawable;
     }
 
+    @NonNull
     public static Drawable createDrawable(String type) {
         switch (type) {
             case "rc_dialog_bg" -> {
-                var shapeDrawable = new ShapeDrawable();
+                var border = Utils.dipToPixels(12.0f);
+                var shapeDrawable = new ShapeDrawable(new RoundRectShape(new float[]{border, border, border, border, 0, 0, 0, 0}, null, null));
                 shapeDrawable.getPaint().setColor(Color.BLACK);
                 return shapeDrawable;
             }
@@ -84,39 +88,20 @@ public class DesignUtils {
                 paint.setStrokeWidth(Utils.dipToPixels(2));
                 paint.setColor(DesignUtils.getPrimaryTextColor(Utils.getApplication()));
                 float radius = Utils.dipToPixels(2.0f);
-                float[] outerRadii = new float[] { radius, radius, radius, radius, radius, radius, radius, radius };
+                float[] outerRadii = new float[]{radius, radius, radius, radius, radius, radius, radius, radius};
                 RoundRectShape roundRectShape = new RoundRectShape(outerRadii, null, null);
                 shapeDrawable.setShape(roundRectShape);
                 return shapeDrawable;
             }
         }
-        return null;
+        return new ColorDrawable(Color.BLACK);
     }
 
     // Colors
     public static int getPrimaryTextColor(Context context) {
-        try {
-            var resourceId = (int) XposedHelpers.callMethod(context, "getThemeResId");
-            @SuppressLint("ResourceType")
-            TypedArray values = context.getTheme().obtainStyledAttributes(resourceId, new int[]{android.R.attr.textColorPrimary});
-            return values.getColor(0, 0);
-        } catch (Exception e) {
-            XposedBridge.log("Error while getting colors: " + e);
-        }
-        return 0;
+        return DesignUtils.isNightMode() ? 0xfffffffe : 0xff000001;
     }
 
-    public static int getPrimaryColor(Context context) {
-        try {
-            var resourceId = (int) XposedHelpers.callMethod(context, "getThemeResId");
-            @SuppressLint("ResourceType")
-            TypedArray values = context.getTheme().obtainStyledAttributes(resourceId, new int[]{android.R.attr.colorPrimary});
-            return values.getColor(0, 0);
-        } catch (Exception e) {
-            XposedBridge.log("Error while getting colors: " + e);
-        }
-        return 0;
-    }
 
     public static int getUnSeenColor() {
         var primaryColor = mPrefs.getInt("primary_color", 0);
@@ -126,16 +111,8 @@ public class DesignUtils {
         return primaryColor;
     }
 
-    public static int getPrimarySurfaceColor(Context context) {
-        try {
-            var resourceId = (int) XposedHelpers.callMethod(context, "getThemeResId");
-            @SuppressLint("ResourceType")
-            TypedArray values = context.getTheme().obtainStyledAttributes(resourceId, new int[]{android.R.attr.windowBackground});
-            return values.getColor(0, 0);
-        } catch (Exception e) {
-            XposedBridge.log("Error while getting colors: " + e);
-        }
-        return 0;
+    public static int getPrimarySurfaceColor() {
+        return mPrefs.getBoolean("changecolor", false) ? IColors.parseColor(IColors.colors.get("#ffffffff")) : DesignUtils.isNightMode() ? 0xff121212: 0xfffffffe;
     }
 
     public static void setReplacementDrawable(String name, Drawable replacement) {
@@ -147,6 +124,15 @@ public class DesignUtils {
             }
         });
     }
+
+    public static boolean isNightMode() {
+        return WppCore.getDefaultTheme() == -1 ? isNightModeBySystem() : WppCore.getDefaultTheme() == 2;
+    }
+
+    public static boolean isNightModeBySystem() {
+        return (Utils.getApplication().getResources().getConfiguration().uiMode & 48) == 32;
+    }
+
 
     public static void setPrefs(SharedPreferences mPrefs) {
         DesignUtils.mPrefs = mPrefs;

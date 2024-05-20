@@ -3,9 +3,12 @@ package com.wmods.wppenhacer.xposed.features.general;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
+import android.graphics.Color;
+import android.graphics.PorterDuff;
 import android.graphics.Typeface;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
+import android.graphics.drawable.ShapeDrawable;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
@@ -168,10 +171,8 @@ public class ShowEditMessage extends Feature {
             linearLayout.setLayoutParams(layoutParams);
             int dip = Utils.dipToPixels(20);
             linearLayout.setPadding(dip, dip, dip, 0);
-            Drawable bg = DesignUtils.createDrawable("rc_dialog_bg");
-            if (bg != null) {
-                bg.setTint(DesignUtils.getPrimarySurfaceColor(ctx));
-            }
+            var bg = (ShapeDrawable)DesignUtils.createDrawable("rc_dialog_bg");
+            bg.getPaint().setColor(DesignUtils.getPrimarySurfaceColor());
             linearLayout.setBackground(bg);
 
             // Title View
@@ -217,7 +218,10 @@ public class ShowEditMessage extends Feature {
             nestedScrollView0.addView(linearLayout);
             dialog.setContentView(nestedScrollView0);
             if (dialog.getWindow() != null) {
-                dialog.getWindow().setBackgroundDrawable(new ColorDrawable(0x00000000));
+                dialog.getWindow().setBackgroundDrawable(null);
+                dialog.getWindow().setDimAmount(0);
+                var view = dialog.getWindow().getDecorView();
+                view.findViewById(Utils.getID("design_bottom_sheet", "id")).setBackgroundColor(Color.TRANSPARENT);
                 dialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN);
             }
             dialog.setCanceledOnTouchOutside(true);

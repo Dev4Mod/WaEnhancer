@@ -133,7 +133,7 @@ public class CustomTheme extends Feature {
                 if (!backgroundColor.equals("0")) {
                     switch (c) {
                         case "0b141a" -> IColors.colors.put(c, backgroundColor.substring(3));
-                        case "#ff0b141a", "#ff111b21", "#ff000000" ->
+                        case "#ff0b141a", "#ff111b21", "#ff000000", "#ffffffff" ->
                                 IColors.colors.put(c, backgroundColor);
                     }
                 }
@@ -207,7 +207,7 @@ public class CustomTheme extends Feature {
     private void replaceTransparency(HashMap<String, String> wallpaperColors, float mAlpha) {
         var hexAlpha = Integer.toHexString((int) Math.ceil(mAlpha * 255));
         hexAlpha = hexAlpha.length() == 1 ? "0" + hexAlpha : hexAlpha;
-        for (var c : List.of("#ff0b141a", "#ff111b21", "#ff000000")) {
+        for (var c : List.of("#ff0b141a", "#ff111b21", "#ff000000","#ffffffff","#ff1b8755")) {
             var oldColor = wallpaperColors.get(c);
             var newColor = "#" + hexAlpha + oldColor.substring(3);
             wallpaperColors.put(c, newColor);
@@ -218,7 +218,8 @@ public class CustomTheme extends Feature {
     private void injectWallpaper(View view) {
         var content = (ViewGroup) view;
         var rootView = (ViewGroup) content.getChildAt(0);
-        replaceColors(rootView, toolbarAlpha);
+        var header = (ViewGroup) rootView.findViewById(Utils.getID("header", "id"));
+        replaceColors(header, toolbarAlpha);
 
         var views = new ArrayList<View>();
         while (rootView.getChildCount() > 0) {

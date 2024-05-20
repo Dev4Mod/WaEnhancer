@@ -9,6 +9,8 @@ import android.graphics.drawable.Drawable;
 
 import androidx.annotation.Nullable;
 
+import com.wmods.wppenhacer.xposed.utils.ReflectionUtils;
+
 import java.io.File;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
@@ -34,6 +36,7 @@ public class WppCore {
     private static final HashSet<ObjectOnChangeListener> listenerChat = new HashSet<>();
     private static Object mContactManager;
     private static SharedPreferences privPrefs;
+    private static Object mStartUpConfig;
 
 
     public interface ObjectOnChangeListener {
@@ -102,6 +105,16 @@ public class WppCore {
                     }
                 }
             });
+
+            // StartUpPrefs
+            var startPrefsConfig = Unobfuscator.loadStartPrefsConfig(loader);
+            XposedBridge.hookMethod(startPrefsConfig, new XC_MethodHook() {
+                @Override
+                protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
+                    mStartUpConfig = param.thisObject;
+                }
+            });
+            
         } catch (Exception e) {
             XposedBridge.log(e);
         }
@@ -183,7 +196,7 @@ public class WppCore {
     }
 
     public static String getMyNumber() {
-        var mainPrefs = Utils.getApplication().getSharedPreferences(Utils.getApplication().getPackageName() + "_preferences_light", Context.MODE_PRIVATE);
+        var mainPrefs = getMainPrefs();
         return mainPrefs.getString("registration_jid", "");
     }
 
@@ -231,6 +244,18 @@ public class WppCore {
             privPrefs.edit().remove(s).commit();
     }
 
+
+    public static int getDefaultTheme() {
+        if (mStartUpConfig != null){
+            var result = ReflectionUtils.findMethodUsingFilterIfExists(mStartUpConfig.getClass(), (method) -> method.getParameterCount() == 0 && method.getReturnType() == int.class);
+            if (result != null){
+                var value = ReflectionUtils.callMethod(result, mStartUpConfig);
+                if (value != null) return (int)value;
+            }
+        }
+        var startup_prefs = Utils.getApplication().getSharedPreferences("startup_prefs", Context.MODE_PRIVATE);
+        return startup_prefs.getInt("night_mode", 0);
+    }
 
     @SuppressLint("ApplySharedPref")
     public static void setPrivBoolean(String key, boolean value) {

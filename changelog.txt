@@ -1,3 +1,4 @@
 * Fix bug in admin icon
 * Fix bug in hide seen on groups
 * Separate dot online and text last seen
+* Fix several color bugs
