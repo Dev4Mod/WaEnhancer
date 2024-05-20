@@ -90,6 +90,7 @@ public class Others extends Feature {
         var proximity = prefs.getBoolean("proximity_audios", false);
         var adminGrp = prefs.getBoolean("admin_grp", false);
         var showOnline = prefs.getBoolean("showonline", false);
+        var floatingMenu = prefs.getBoolean("floatingmenu", false);
 
         propsBoolean.put(5171, filterSeen); // filtros de chat e grupos
         propsBoolean.put(4524, novoTema);
@@ -102,6 +103,7 @@ public class Others extends Feature {
         propsBoolean.put(7516, fbstyle);
         propsBoolean.put(3289, !topnav);
         propsBoolean.put(4656, !topnav);
+        propsBoolean.put(2889, floatingMenu);
 
         if (metaai) {
             propsBoolean.put(8025, false);

@@ -13,6 +13,9 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
@@ -41,9 +44,19 @@ public class UnobfuscatorCache {
                 mShared.edit().putLong("version", currentVersion).commit();
                 mShared.edit().putLong("updateTime", lastUpdateTime).commit();
             }
+            initCacheStrings();
         } catch (Exception e) {
-            throw new RuntimeException("Can't initialize UnobfuscatorCache: "+e.getMessage(), e);
+            throw new RuntimeException("Can't initialize UnobfuscatorCache: " + e.getMessage(), e);
         }
+
+    }
+
+    private void initCacheStrings() {
+        getOfuscateIDString("mystatus");
+        getOfuscateIDString("online");
+        getOfuscateIDString("groups");
+        getOfuscateIDString("messagedeleted");
+        getOfuscateIDString("selectcalltype");
     }
 
     public static UnobfuscatorCache getInstance() {
@@ -55,38 +68,60 @@ public class UnobfuscatorCache {
     }
 
     private void initializeReverseResourceMap() {
+        ExecutorService executor = Executors.newFixedThreadPool(4); // Create a thread pool with 4 threads
+
         try {
-            var configuration =   new Configuration(mApp.getResources().getConfiguration());
+            var configuration = new Configuration(mApp.getResources().getConfiguration());
             configuration.setLocale(Locale.ENGLISH);
             var context = Utils.getApplication().createConfigurationContext(configuration);
             Resources resources = context.getResources();
-            for (int i = 0x7f120000; i < 0x7f12ffff; i++) {
-                try {
-                    String resourceString = resources.getString(i);
-                    reverseResourceMap.put(resourceString.toLowerCase().replaceAll("\\s", ""), String.valueOf(i));
-                } catch (Resources.NotFoundException ignored) {
-                }
+
+            int startId = 0x7f120000;
+            int endId = 0x7f12ffff;
+            int numThreads = 4; // Number of threads for parallel processing
+
+            int chunkSize = (endId - startId + 1) / numThreads;
+            CountDownLatch latch = new CountDownLatch(numThreads);
+
+            for (int t = 0; t < numThreads; t++) {
+                int threadStartId = startId + t * chunkSize;
+                int threadEndId = t == numThreads - 1 ? endId : threadStartId + chunkSize - 1;
+
+                executor.submit(() -> {
+                    try {
+                        for (int i = threadStartId; i <= threadEndId; i++) {
+                            try {
+                                String resourceString = resources.getString(i);
+                                reverseResourceMap.put(resourceString.toLowerCase().replaceAll("\\s", ""), String.valueOf(i));
+                            } catch (Resources.NotFoundException ignored) {
+                            }
+                        }
+                    } finally {
+                        latch.countDown();
+                    }
+                });
             }
+            latch.await(); // Wait for all threads to finish
         } catch (Exception e) {
             XposedBridge.log(e);
+        } finally {
+            executor.shutdown();
         }
     }
 
     private String getMapIdString(String search) {
         if (reverseResourceMap.isEmpty()) {
-            XposedBridge.log("Initialize reverse resource map for: " + search);
             initializeReverseResourceMap();
         }
         search = search.toLowerCase().replaceAll("\\s", "");
         return reverseResourceMap.get(search);
     }
 
-    public int getOfuscateIdString(String search) {
+    public int getOfuscateIDString(String search) {
         search = search.toLowerCase().replaceAll("\\s", "");
         var id = mShared.getString(search, null);
         if (id == null) {
             id = getMapIdString(search);
-            XposedBridge.log("Get ofuscate id string: " + search + " -> " + id);
             if (id != null) {
                 mShared.edit().putString(search, id).commit();
             }
@@ -95,7 +130,7 @@ public class UnobfuscatorCache {
     }
 
     public String getString(String search) {
-        var id = getOfuscateIdString(search);
+        var id = getOfuscateIDString(search);
         return id == -1 ? "" : mApp.getResources().getString(id);
     }
 

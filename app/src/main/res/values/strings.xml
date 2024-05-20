@@ -273,4 +273,6 @@
     <string name="toast_online">%s is online</string>
     <string name="show_toast_on_contact_online">Show toast on contact online</string>
     <string name="show_toast_on_contact_online_sum">Show a toast when a contact is online</string>
+    <string name="new_context_menu_ui">New Context Menu UI</string>
+    <string name="new_context_menu_ui_sum">The new iOS-style message context menu will be enabled.</string>
 </resources>
