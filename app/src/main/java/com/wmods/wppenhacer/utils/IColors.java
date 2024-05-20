@@ -8,7 +8,6 @@ import java.util.HashSet;
 public class IColors {
     public static HashMap<String, String> colors = new HashMap<>();
 
-    public static HashSet<Integer> exceptionsIdAlpha = new HashSet<>();
 
     static {
         // Primary color
@@ -22,8 +21,7 @@ public class IColors {
         colors.put("#21c063", "#21c063");
         colors.put("#ff21c063", "#ff21c063");
         colors.put("#ff000000", "#ff000000");
-        colors.put("#0b141a", "#ff000000");
-
+//        colors.put("#0b141a", "#ff0b141a");
 
         colors.put("#ffffffff", "#ffffffff"); // background color in light theme
         colors.put("#ff1b8755", "#ff1b8755"); // background toolbar color in light theme

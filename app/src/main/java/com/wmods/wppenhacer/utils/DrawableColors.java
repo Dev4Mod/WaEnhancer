@@ -4,6 +4,7 @@ import static com.wmods.wppenhacer.utils.IColors.parseColor;
 import static com.wmods.wppenhacer.xposed.features.customization.CustomTheme.classLoader;
 
 import android.content.res.ColorStateList;
+import android.graphics.Bitmap;
 import android.graphics.NinePatch;
 import android.graphics.PorterDuff;
 import android.graphics.PorterDuffColorFilter;
@@ -18,12 +19,17 @@ import android.graphics.drawable.RippleDrawable;
 import android.graphics.drawable.ShapeDrawable;
 import android.graphics.drawable.StateListDrawable;
 
+import com.wmods.wppenhacer.xposed.features.customization.SeparateGroup;
+
 import java.util.HashMap;
+import java.util.HashSet;
 
 import de.robv.android.xposed.XposedBridge;
 import de.robv.android.xposed.XposedHelpers;
 
 public class DrawableColors {
+
+    private static HashMap<Bitmap,Integer> ninePatchs = new HashMap<>();
 
     public static void replaceColor(Drawable drawable, HashMap<String, String> colors) {
         if (drawable instanceof StateListDrawable stateListDrawable) {
@@ -54,10 +60,6 @@ public class DrawableColors {
                 for (var i = 0; i < gradientColors.length; i++) {
                     var gradientColor = IColors.toString(gradientColors[i]);
                     var newColor = colors.get(gradientColor);
-                    if (newColor != null && newColor.contains("121212")){
-                        XposedBridge.log(new Throwable());
-                    }
-
                     if (newColor != null) {
                         gradientColors[i] = IColors.parseColor(newColor);
                     } else {
@@ -131,12 +133,30 @@ public class DrawableColors {
         var state = ninePatchDrawable.getConstantState();
         var ninePatch = (NinePatch) XposedHelpers.getObjectField(state, "mNinePatch");
         var bitmap = ninePatch.getBitmap();
+        var corSalva = ninePatchs.get(bitmap);
+        if (corSalva != null) return corSalva;
 
-        var width = bitmap.getWidth();
-        var height = bitmap.getHeight();
+        //        return bitmap.getPixel(width / 2, Math.min(5, height));
+        HashMap<Integer, Integer> contagemCores = new HashMap<>();
+        int corMaisFrequente = 0;
+        int contagemMaxima = 0;
 
-        //        XposedBridge.log("--> Bitmap color: " + IColors.toString(color.toArgb()));
-        return bitmap.getPixel(width / 2, height / 2);
+        for (int x = 0; x < bitmap.getWidth(); x++) {
+            for (int y = 0; y < bitmap.getHeight(); y++) {
+                int cor = bitmap.getPixel(x, y);
+                // Atualiza a contagem da cor no mapa
+                int contagemAtual = contagemCores.getOrDefault(cor, 0) + 1;
+                contagemCores.put(cor, contagemAtual);
+
+                // Verifica se essa cor se tornou a mais frequente até agora
+                if (contagemAtual > contagemMaxima) {
+                    corMaisFrequente = cor;
+                    contagemMaxima = contagemAtual;
+                }
+            }
+        }
+        ninePatchs.put(bitmap, corMaisFrequente);
+        return corMaisFrequente;
     }
 
     private static int getRippleDrawableColor(RippleDrawable rippleDrawable) {

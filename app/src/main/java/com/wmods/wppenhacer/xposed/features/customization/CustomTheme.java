@@ -113,9 +113,9 @@ public class CustomTheme extends Feature {
         var secondaryColorInt = prefs.getInt("secondary_color", 0);
         var backgroundColorInt = prefs.getInt("background_color", 0);
 
-        var primaryColor = primaryColorInt == 0 ? "0" : String.format("#%08x", primaryColorInt);
-        var secondaryColor = secondaryColorInt == 0 ? "0" : String.format("#%08x", secondaryColorInt);
-        var backgroundColor = backgroundColorInt == 0 ? "0" : String.format("#%08x", backgroundColorInt);
+        var primaryColor = primaryColorInt == 0 ? "0" : IColors.toString(primaryColorInt);
+        var secondaryColor = secondaryColorInt == 0 ? "0" : IColors.toString(secondaryColorInt);
+        var backgroundColor = backgroundColorInt == 0 ? "0" : IColors.toString(backgroundColorInt);
 
         if (prefs.getBoolean("changecolor", false)) {
             for (var c : IColors.colors.keySet()) {
@@ -146,14 +146,16 @@ public class CustomTheme extends Feature {
             }
         }
 
-        wallAlpha = new HashMap<>(IColors.colors);
-        replaceTransparency(wallAlpha,(100 - prefs.getInt("wallpaper_alpha", 30)) / 100.0f);
+        if (prefs.getBoolean("wallpaper", false)) {
+            wallAlpha = new HashMap<>(IColors.colors);
+            replaceTransparency(wallAlpha, (100 - prefs.getInt("wallpaper_alpha", 30)) / 100.0f);
 
-        navAlpha = new HashMap<>(IColors.colors);
-        replaceTransparency(navAlpha,(100 - prefs.getInt("wallpaper_alpha_navigation", 30)) / 100.0f);
+            navAlpha = new HashMap<>(IColors.colors);
+            replaceTransparency(navAlpha, (100 - prefs.getInt("wallpaper_alpha_navigation", 30)) / 100.0f);
 
-        toolbarAlpha = new HashMap<>(IColors.colors);
-        replaceTransparency(toolbarAlpha,(100 - prefs.getInt("wallpaper_alpha_toolbar", 30)) / 100.0f);
+            toolbarAlpha = new HashMap<>(IColors.colors);
+            replaceTransparency(toolbarAlpha, (100 - prefs.getInt("wallpaper_alpha_toolbar", 30)) / 100.0f);
+        }
 
 
         findAndHookMethod(Activity.class.getName(), loader, "onCreate", Bundle.class, new XC_MethodHook() {
