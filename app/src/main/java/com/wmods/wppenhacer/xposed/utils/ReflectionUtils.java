@@ -77,4 +77,11 @@ public class ReflectionUtils {
             return null;
         }
     }
+
+    public static int findIndexOfType(Object[] args, Class<?> type) {
+        for (int i = 0; i < args.length; i++) {
+            if (args[i] != null && type.isAssignableFrom(args[i].getClass())) return i;
+        }
+        return -1;
+    }
 }

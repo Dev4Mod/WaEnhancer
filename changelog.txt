@@ -1,1 +1,2 @@
-* Fix Critical bug in admin icon
+* Fix bug in admin icon
+* Fix bug in hide seen on groups

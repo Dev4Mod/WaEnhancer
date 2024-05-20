@@ -5,6 +5,7 @@ import androidx.annotation.NonNull;
 import com.wmods.wppenhacer.xposed.core.Feature;
 import com.wmods.wppenhacer.xposed.core.Unobfuscator;
 import com.wmods.wppenhacer.xposed.core.WppCore;
+import com.wmods.wppenhacer.xposed.utils.ReflectionUtils;
 
 import java.lang.reflect.Array;
 import java.lang.reflect.Method;
@@ -29,7 +30,7 @@ public class HideSeen extends Feature {
             @Override
             protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
                 var sendJob = XposedHelpers.findClass("com.whatsapp.jobqueue.job.SendReadReceiptJob", loader);
-                var srj =  sendJob.cast(param.thisObject);
+                var srj = sendJob.cast(param.thisObject);
                 var messageIds = XposedHelpers.getObjectField(srj, "messageIds");
                 var firstmessage = (String) Array.get(messageIds, 0);
                 if (firstmessage != null && WppCore.getPrivBoolean(firstmessage + "_rpass", false)) {
@@ -37,8 +38,10 @@ public class HideSeen extends Feature {
                     return;
                 }
                 var jid = (String) XposedHelpers.getObjectField(srj, "jid");
-                if (jid.contains("@g.us") && prefs.getBoolean("hideread_group", false)) {
-                    param.setResult(null);
+
+                if (WppCore.isGroup(jid)) {
+                    if (prefs.getBoolean("hideread_group", false))
+                        param.setResult(null);
                 } else if (prefs.getBoolean("hideread", false)) {
                     param.setResult(null);
                 }
@@ -55,12 +58,14 @@ public class HideSeen extends Feature {
         XposedBridge.hookMethod(hideViewMethod, new XC_MethodHook() {
             @Override
             protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
-                if (prefs.getBoolean("hideread", false)) {
-                    if (Unobfuscator.isCalledFromMethod(hideViewInChatMethod)) {
-                        if (param.args[4] != null && param.args[4].equals("read")) {
-                            param.args[4] = null;
-                        }
-                    }
+                if (!Unobfuscator.isCalledFromMethod(hideViewInChatMethod)) return;
+                if (param.args[0] == null || !param.args[4].equals("read")) return;
+                var jid = WppCore.getCurrentRawJID();
+                if (WppCore.isGroup(jid)) {
+                    if (prefs.getBoolean("hideread_group", false))
+                        param.args[4] = null;
+                } else if (prefs.getBoolean("hideread", false)) {
+                    param.args[4] = null;
                 }
             }
         });

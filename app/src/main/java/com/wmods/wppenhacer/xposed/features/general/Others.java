@@ -157,26 +157,28 @@ public class Others extends Feature {
                 var field = ReflectionUtils.getFieldByType(param.thisObject.getClass(), grpcheckAdmin.getDeclaringClass());
                 var grpParticipants = field.get(param.thisObject);
                 var jidGrp = jidFactory.invoke(null, chatCurrentJid);
-                var result = ReflectionUtils.callMethod(grpcheckAdmin, grpParticipants, jidGrp, userJid);
-                if ((boolean) result) {
-                    var view = (View) param.thisObject;
-                    var context = view.getContext();
-                    if (view.findViewById(0x7fff0001) != null) return;
-                    var nameGroup = (LinearLayout) view.findViewById(Utils.getID("name_in_group","id"));
-                    var newLinear = new LinearLayout(context);
-                    newLinear.setOrientation(LinearLayout.HORIZONTAL);
-                    newLinear.setGravity(Gravity.CENTER_VERTICAL);
+                var result = (boolean) ReflectionUtils.callMethod(grpcheckAdmin, grpParticipants, jidGrp, userJid);
+
+                var view = (View) param.thisObject;
+                var context = view.getContext();
+                LinearLayout view1;
+                if ((view1 = view.findViewById(0x7fff0001)) == null) {
+                    var nameGroup = (LinearLayout) view.findViewById(Utils.getID("name_in_group", "id"));
+                    view1 = new LinearLayout(context);
+                    view1.setOrientation(LinearLayout.HORIZONTAL);
+                    view1.setGravity(Gravity.CENTER_VERTICAL);
                     var nametv = nameGroup.getChildAt(0);
                     var iconAdmin = new ImageView(context);
                     var size = Utils.dipToPixels(16);
-                    iconAdmin.setLayoutParams(new LinearLayout.LayoutParams(size,size));
+                    iconAdmin.setLayoutParams(new LinearLayout.LayoutParams(size, size));
                     iconAdmin.setImageResource(ResId.drawable.admin);
-                    iconAdmin.setId(0x7fff0001);
+                    view1.setId(0x7fff0001);
                     nameGroup.removeView(nametv);
-                    newLinear.addView(nametv);
-                    newLinear.addView(iconAdmin);
-                    nameGroup.addView(newLinear, 0);
+                    view1.addView(nametv);
+                    view1.addView(iconAdmin);
+                    nameGroup.addView(view1, 0);
                 }
+                view1.setVisibility(result ? View.VISIBLE : View.GONE);
             }
         };
         XposedBridge.hookMethod(grpAdmin1, hooked);
