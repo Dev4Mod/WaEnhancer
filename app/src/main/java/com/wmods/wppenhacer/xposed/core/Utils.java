@@ -9,8 +9,11 @@ import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.media.MediaScannerConnection;
 import android.os.Environment;
+import android.os.Handler;
+import android.os.Looper;
 import android.util.DisplayMetrics;
 import android.util.TypedValue;
+import android.widget.Toast;
 
 import com.wmods.wppenhacer.xposed.utils.MimeTypeUtils;
 
@@ -141,5 +144,9 @@ public class Utils {
             XposedBridge.log(e.getMessage());
             return false;
         }
+    }
+
+    public static void showToast(String s, int len) {
+        new Handler(Looper.getMainLooper()).post(() -> Toast.makeText(Utils.getApplication(), s, len).show());
     }
 }

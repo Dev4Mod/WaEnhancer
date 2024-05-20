@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
+@SuppressWarnings("unused")
 public class ReflectionUtils {
 
     public static Method findMethodUsingFilter(Class<?> clazz, Predicate<Method> predicate) {
@@ -17,6 +18,7 @@ public class ReflectionUtils {
         throw new RuntimeException("Method not found");
     }
 
+    /** @noinspection SimplifyStreamApiCallChains*/
     public static Method[] findAllMethodUsingFilter(Class<?> clazz, Predicate<Method> predicate) {
         do {
             var results = Arrays.stream(clazz.getDeclaredMethods()).filter(predicate).collect(Collectors.toList());
@@ -83,5 +85,20 @@ public class ReflectionUtils {
             if (args[i] != null && type.isAssignableFrom(args[i].getClass())) return i;
         }
         return -1;
+    }
+
+    public static boolean isCalledFromString(String contains) {
+        var trace = Thread.currentThread().getStackTrace();
+        var text = Arrays.toString(trace);
+        return text.contains(contains);
+    }
+
+    public static boolean isCalledFromStrings(String... contains) {
+        var trace = Thread.currentThread().getStackTrace();
+        var text = Arrays.toString(trace);
+        for (String s : contains) {
+            if (text.contains(s)) return true;
+        }
+        return false;
     }
 }

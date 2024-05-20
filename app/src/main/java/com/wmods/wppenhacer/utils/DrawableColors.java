@@ -27,7 +27,7 @@ import de.robv.android.xposed.XposedHelpers;
 
 public class DrawableColors {
 
-    private static HashMap<Bitmap,Integer> ninePatchs = new HashMap<>();
+    private static final HashMap<Bitmap,Integer> ninePatchs = new HashMap<>();
 
     public static void replaceColor(Drawable drawable, HashMap<String, String> colors) {
         if (DesignUtils.isNightMode()){

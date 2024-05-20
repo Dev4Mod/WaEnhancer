@@ -108,7 +108,7 @@
     <string name="imagequality">Envie imagens em qualidade HD</string>
     <string name="imagequality_sum">Envie imagens em qualidade original</string>
     <string name="downloadviewonce">Baixar Visualizao Única</string>
-    <string name="downloadviewonce_sum">Criar um botão de download de visualização unica</string>
+    <string name="downloadviewonce_sum">Criar um botão de download de visualização única</string>
     <string name="separate_groups">Grupos separados</string>
     <string name="separate_groups_sum">Separe seus chats por: grupos, chats privados, status, chamadas, comunidades</string>
     <string name="blueonreply">Enviar marca azul na resposta</string>

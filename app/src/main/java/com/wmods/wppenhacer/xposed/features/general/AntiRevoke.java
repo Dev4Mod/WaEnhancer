@@ -1,6 +1,5 @@
 package com.wmods.wppenhacer.xposed.features.general;
 
-import android.annotation.SuppressLint;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.Color;
@@ -9,15 +8,12 @@ import android.graphics.PorterDuffColorFilter;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
-import android.os.Handler;
 import android.text.TextUtils;
-import android.view.Gravity;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 
-import com.wmods.wppenhacer.R;
 import com.wmods.wppenhacer.xposed.core.DesignUtils;
 import com.wmods.wppenhacer.xposed.core.Feature;
 import com.wmods.wppenhacer.xposed.core.ResId;
@@ -205,7 +201,6 @@ public class AntiRevoke extends Feature {
     }
 
 
-    @SuppressLint("ResourceType")
     private int antiRevoke(Object objMessage) {
         showToast(objMessage);
         var messageKey = (String) XposedHelpers.getObjectField(objMessage, "A01");
@@ -258,11 +253,7 @@ public class AntiRevoke extends Feature {
             name = stripJID(jidAuthor);
         }
         String message = name + " " + messageSuffix;
-        new Handler(Utils.getApplication().getMainLooper()).post(() -> {
-            var toast = Toast.makeText(Utils.getApplication(), message, Toast.LENGTH_LONG);
-            toast.setGravity(Gravity.BOTTOM, 0, 0);
-            toast.show();
-        });
+        Utils.showToast(message, Toast.LENGTH_SHORT);
     }
 
 }

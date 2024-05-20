@@ -35,7 +35,6 @@ import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -48,9 +47,7 @@ import java.util.stream.Collectors;
 import de.robv.android.xposed.XposedBridge;
 import de.robv.android.xposed.XposedHelpers;
 
-/**
- * @noinspection SimplifyOptionalCallChains
- */
+/** @noinspection ALL*/
 public class Unobfuscator {
 
     private static DexKitBridge dexkit;
@@ -150,20 +147,7 @@ public class Unobfuscator {
         return false;
     }
 
-    public static boolean isCalledFromString(String contains) {
-        var trace = Thread.currentThread().getStackTrace();
-        var text = Arrays.toString(trace);
-        return text.contains(contains);
-    }
 
-    public static boolean isCalledFromStrings(String... contains) {
-        var trace = Thread.currentThread().getStackTrace();
-        var text = Arrays.toString(trace);
-        for (String s : contains) {
-            if (text.contains(s)) return true;
-        }
-        return false;
-    }
 
 
     // TODO: Classes and Methods for FreezeSeen
@@ -199,6 +183,7 @@ public class Unobfuscator {
             var method = loadReceiptMethod(classLoader);
             if (method == null) throw new Exception("Receipt method not found");
             var classData = dexkit.getClassData(method.getDeclaringClass());
+            if (classData == null) throw new Exception("Receipt method not found");
             var methodResult = classData.findMethod(new FindMethod().matcher(new MethodMatcher().addUsingString("sender")));
             if (methodResult.isEmpty()) throw new Exception("Receipt method not found");
             return methodResult.get(0).getMethodInstance(classLoader);
@@ -243,14 +228,14 @@ public class Unobfuscator {
 
 
     // TODO: Classes and Methods for HideView
-    public static Method loadHideViewOpenChatMethod(ClassLoader classLoader) throws Exception {
-        return UnobfuscatorCache.getInstance().getMethod(classLoader, () -> {
-            Class<?> receiptsClass = loadReadReceiptsClass(classLoader);
-            Method method = Arrays.stream(receiptsClass.getMethods()).filter(m -> m.getParameterTypes().length > 0 && m.getParameterTypes()[0].equals(Collection.class) && m.getReturnType().equals(HashMap.class)).findFirst().orElse(null);
-            if (method == null) throw new Exception("HideViewOpenChat method not found");
-            return method;
-        });
-    }
+//    public static Method loadHideViewOpenChatMethod(ClassLoader classLoader) throws Exception {
+//        return UnobfuscatorCache.getInstance().getMethod(classLoader, () -> {
+//            Class<?> receiptsClass = loadReadReceiptsClass(classLoader);
+//            Method method = Arrays.stream(receiptsClass.getMethods()).filter(m -> m.getParameterTypes().length > 0 && m.getParameterTypes()[0].equals(Collection.class) && m.getReturnType().equals(HashMap.class)).findFirst().orElse(null);
+//            if (method == null) throw new Exception("HideViewOpenChat method not found");
+//            return method;
+//        });
+//    }
 
     public static Method loadHideViewSendReadJob(ClassLoader classLoader) throws Exception {
         return UnobfuscatorCache.getInstance().getMethod(classLoader, () -> {
@@ -412,13 +397,13 @@ public class Unobfuscator {
         });
     }
 
-    public static Field loadTabCountField(ClassLoader classLoader) throws Exception {
-        return UnobfuscatorCache.getInstance().getField(classLoader, () -> {
-            Class<?> homeActivity = XposedHelpers.findClass("com.whatsapp.HomeActivity", classLoader);
-            Class<?> pager = loadGetTabMethod(classLoader).getDeclaringClass();
-            return getFieldByExtendType(homeActivity, pager);
-        });
-    }
+//    public static Field loadTabCountField(ClassLoader classLoader) throws Exception {
+//        return UnobfuscatorCache.getInstance().getField(classLoader, () -> {
+//            Class<?> homeActivity = XposedHelpers.findClass("com.whatsapp.HomeActivity", classLoader);
+//            Class<?> pager = loadGetTabMethod(classLoader).getDeclaringClass();
+//            return getFieldByExtendType(homeActivity, pager);
+//        });
+//    }
 
     public static Method loadEnableCountTabMethod(ClassLoader classLoader) throws Exception {
         return UnobfuscatorCache.getInstance().getMethod(classLoader, () -> {
@@ -1113,13 +1098,13 @@ public class Unobfuscator {
         });
     }
 
-    public static Class<?> loadChatLimitEditClass(ClassLoader loader) throws Exception {
-        return UnobfuscatorCache.getInstance().getClass(loader, () -> {
-          var clazzList = dexkit.findClass(new FindClass().matcher(new ClassMatcher().addMethod(new MethodMatcher().addUsingNumber(5884).addUsingNumber(2890))));
-          if (clazzList.isEmpty()) throw new RuntimeException("ChatLimitEdit class not found");
-          return clazzList.get(0).getInstance(loader);
-        });
-    }
+//    public static Class<?> loadChatLimitEditClass(ClassLoader loader) throws Exception {
+//        return UnobfuscatorCache.getInstance().getClass(loader, () -> {
+//          var clazzList = dexkit.findClass(new FindClass().matcher(new ClassMatcher().addMethod(new MethodMatcher().addUsingNumber(5884).addUsingNumber(2890))));
+//          if (clazzList.isEmpty()) throw new RuntimeException("ChatLimitEdit class not found");
+//          return clazzList.get(0).getInstance(loader);
+//        });
+//    }
 
 
 //    public static Method loadOriginalMessageMethod(ClassLoader loader) throws Exception {
@@ -1167,6 +1152,7 @@ public class Unobfuscator {
             var method = findFirstMethodUsingStrings(loader, StringMatchType.Contains, "MessageEditInfoStore/insertEditInfo/missing");
             if (method == null) throw new RuntimeException("GetEditMessage method not found");
             var methodData = dexkit.getMethodData(DexSignUtil.getMethodDescriptor(method));
+            if (methodData == null) throw new RuntimeException("GetEditMessage method not found");
             var invokes = methodData.getInvokes();
             for (var invoke : invokes) {
                 if (invoke.getParamTypes().isEmpty() && Objects.equals(invoke.getDeclaredClass(), methodData.getParamTypes().get(0))) {
