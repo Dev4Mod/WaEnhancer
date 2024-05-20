@@ -1,1 +1,2 @@
-* Fix bug in admin icon
+* Reduce module size
+* Fix colors again

@@ -24,7 +24,7 @@ public class IColors {
 //        colors.put("#0b141a", "#ff0b141a");
 
         colors.put("#ffffffff", "#ffffffff"); // background color in light theme
-        colors.put("#ff1b8755", "#ffffffff"); // background toolbar color in light theme
+        colors.put("#ff1b8755", "#ff1b8755"); // background toolbar color in light theme
 
         // Secondary
         colors.put("#ff202c33", "#ff202c33");

@@ -34,6 +34,7 @@ import org.xmlpull.v1.XmlPullParser;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Objects;
 
 import de.robv.android.xposed.XC_MethodHook;
 import de.robv.android.xposed.XSharedPreferences;
@@ -133,7 +134,7 @@ public class CustomTheme extends Feature {
                 if (!backgroundColor.equals("0")) {
                     switch (c) {
                         case "0b141a" -> IColors.colors.put(c, backgroundColor.substring(3));
-                        case "#ff0b141a", "#ff111b21", "#ff000000", "#ffffffff" ->
+                        case "#ff0b141a", "#ff111b21", "#ff000000" ->
                                 IColors.colors.put(c, backgroundColor);
                     }
                 }
@@ -147,6 +148,7 @@ public class CustomTheme extends Feature {
         }
 
         if (prefs.getBoolean("wallpaper", false)) {
+
             wallAlpha = new HashMap<>(IColors.colors);
             replaceTransparency(wallAlpha, (100 - prefs.getInt("wallpaper_alpha", 30)) / 100.0f);
 
@@ -154,6 +156,12 @@ public class CustomTheme extends Feature {
             replaceTransparency(navAlpha, (100 - prefs.getInt("wallpaper_alpha_navigation", 30)) / 100.0f);
 
             toolbarAlpha = new HashMap<>(IColors.colors);
+
+            // Corrigir cor verde na barra de ferramentas
+            var colorOrig = "#ff1b8755";
+            var color= toolbarAlpha.get(colorOrig);
+            if (Objects.equals(colorOrig, color)) toolbarAlpha.put(colorOrig, "#ffffffff");
+
             replaceTransparency(toolbarAlpha, (100 - prefs.getInt("wallpaper_alpha_toolbar", 30)) / 100.0f);
         }
 

@@ -47,7 +47,7 @@
     <string name="videoquality_sum">Send videos in HD quality, by default</string>
     <string name="colors_title">Colors</string>
     <string name="colors_customization">Customize your colors</string>
-    <string name="colors_customization_sum">Change all colors in your WhatsApp, try it now!</string>
+    <string name="colors_customization_sum">Change all colors in your WhatsApp (Working only in Dark Theme)</string>
     <string name="current_color_s">Current color: %s</string>
     <string name="apply_button">Apply</string>
     <string name="invalid_color">Invalid Color</string>

@@ -48,6 +48,11 @@ android {
     buildTypes {
         all {
             signingConfig = if (signingConfigs["config"].storeFile != null) signingConfigs["config"] else signingConfigs["debug"]
+            isMinifyEnabled = true
+            proguardFiles(
+                getDefaultProguardFile("proguard-android-optimize.txt"),
+                "proguard-rules.pro"
+            )
         }
         release {
             isMinifyEnabled = false
@@ -73,30 +78,20 @@ dependencies {
     compileOnly(libs.libxposed.legacy)
 
     implementation(libs.androidx.activity)
-    implementation(libs.androidx.browser)
     implementation(libs.androidx.constraintlayout)
-    implementation(libs.androidx.core)
     implementation(libs.androidx.fragment)
     implementation(libs.androidx.navigation.fragment)
     implementation(libs.androidx.navigation.ui)
-//    implementation(libs.androidx.preference)
-//    implementation(libs.androidx.recyclerview)
-//    implementation(libs.androidx.swiperefreshlayout)
     implementation(libs.rikkax.appcompat)
     implementation(libs.rikkax.core)
-//    implementation(libs.rikkax.insets)
     implementation(libs.rikkax.material)
     implementation(libs.rikkax.material.preference)
     implementation(libs.rikkax.preference)
-//    implementation(libs.rikkax.recyclerview)
     implementation(libs.rikkax.widget.borderview)
-//    implementation(libs.rikkax.widget.mainswitchbar)
-//    implementation(libs.rikkax.layoutinflater)
 
-
-    testImplementation(libs.junit)
-    androidTestImplementation(libs.ext.junit)
-    androidTestImplementation(libs.espresso.core)
+//    testImplementation(libs.junit)
+//    androidTestImplementation(libs.ext.junit)
+//    androidTestImplementation(libs.espresso.core)
 
 }
 
