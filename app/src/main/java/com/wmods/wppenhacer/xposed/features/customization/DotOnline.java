@@ -43,7 +43,9 @@ public class DotOnline extends Feature {
 
     @Override
     public void doHook() throws Throwable {
-        if (!prefs.getBoolean("dotonline", false)) return;
+        var showOnlineText = prefs.getBoolean("showonlinetext", false);
+        var showOnlineIcon = prefs.getBoolean("dotonline", false);
+        if (!showOnlineText && !showOnlineIcon) return;
 
         var classViewHolder = XposedHelpers.findClass("com.whatsapp.conversationslist.ViewHolder", loader);
         XposedBridge.hookAllConstructors(classViewHolder, new XC_MethodHook() {
@@ -55,48 +57,50 @@ public class DotOnline extends Feature {
                 views.remove(param.thisObject);
                 views.put(param.thisObject, view);
                 var content = (LinearLayout) view.findViewById(Utils.getID("conversations_row_content", "id"));
-                var linearLayout = new LinearLayout(context);
-                linearLayout.setGravity(Gravity.END | Gravity.TOP);
-                content.addView(linearLayout,2);
 
-                // Add TextView to show last seen time
-                TextView lastSeenText = new TextView(context);
-                lastSeenText.setId(0x7FFF0002);
-                lastSeenText.setTextSize(10f);
-                lastSeenText.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.MATCH_PARENT));
-                lastSeenText.setGravity(Gravity.CENTER_VERTICAL);
-                lastSeenText.setVisibility(View.INVISIBLE);
-                linearLayout.addView(lastSeenText);
+                if (showOnlineText) {
+                    var linearLayout = new LinearLayout(context);
+                    linearLayout.setGravity(Gravity.END | Gravity.TOP);
+                    content.addView(linearLayout);
 
-                var contactView = (FrameLayout) view.findViewById(Utils.getID("contact_selector", "id"));
-                var photoView = (ImageView) contactView.getChildAt(0);
-                contactView.removeView(photoView);
+                    // Add TextView to show last seen time
+                    TextView lastSeenText = new TextView(context);
+                    lastSeenText.setId(0x7FFF0002);
+                    lastSeenText.setTextSize(10f);
+                    lastSeenText.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.MATCH_PARENT));
+                    lastSeenText.setGravity(Gravity.CENTER_VERTICAL);
+                    lastSeenText.setVisibility(View.INVISIBLE);
+                    linearLayout.addView(lastSeenText);
+                }
+                if (showOnlineIcon) {
+                    var contactView = (FrameLayout) view.findViewById(Utils.getID("contact_selector", "id"));
+                    var photoView = (ImageView) contactView.getChildAt(0);
+                    contactView.removeView(photoView);
 
-                var relativeLayout = new RelativeLayout(context);
-                relativeLayout.setId(0x7FFF0003);
-                var params = new RelativeLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
-                params.addRule(RelativeLayout.CENTER_IN_PARENT);
-                photoView.setLayoutParams(params);
-                relativeLayout.addView(photoView);
-                contactView.addView(relativeLayout);
+                    var relativeLayout = new RelativeLayout(context);
+                    relativeLayout.setId(0x7FFF0003);
+                    var params = new RelativeLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+                    params.addRule(RelativeLayout.CENTER_IN_PARENT);
+                    photoView.setLayoutParams(params);
+                    relativeLayout.addView(photoView);
+                    contactView.addView(relativeLayout);
 
-                var imageView = new ImageView(context);
-                imageView.setId(0x7FFF0001);
-                var params2 = new RelativeLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
-                params2.addRule(RelativeLayout.ALIGN_TOP, photoView.getId());
-                params2.addRule(RelativeLayout.ALIGN_RIGHT, photoView.getId());
-                params2.topMargin = Utils.dipToPixels(5);
-                imageView.setLayoutParams(params2);
-                ShapeDrawable shapeDrawable = new ShapeDrawable(new OvalShape());
-                shapeDrawable.getPaint().setColor(Color.GREEN);
-                // Define the size of the circle
-                shapeDrawable.setIntrinsicHeight(20);
-                shapeDrawable.setIntrinsicWidth(20);
-                imageView.setImageDrawable(shapeDrawable);
-                imageView.setVisibility(View.INVISIBLE);
-                relativeLayout.addView(imageView);
-
-
+                    var imageView = new ImageView(context);
+                    imageView.setId(0x7FFF0001);
+                    var params2 = new RelativeLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+                    params2.addRule(RelativeLayout.ALIGN_TOP, photoView.getId());
+                    params2.addRule(RelativeLayout.ALIGN_RIGHT, photoView.getId());
+                    params2.topMargin = Utils.dipToPixels(5);
+                    imageView.setLayoutParams(params2);
+                    ShapeDrawable shapeDrawable = new ShapeDrawable(new OvalShape());
+                    shapeDrawable.getPaint().setColor(Color.GREEN);
+                    // Define the size of the circle
+                    shapeDrawable.setIntrinsicHeight(20);
+                    shapeDrawable.setIntrinsicWidth(20);
+                    imageView.setImageDrawable(shapeDrawable);
+                    imageView.setVisibility(View.INVISIBLE);
+                    relativeLayout.addView(imageView);
+                }
             }
         });
 
@@ -131,14 +135,18 @@ public class DotOnline extends Feature {
                 var viewHolder = field1.get(field1.getDeclaringClass().cast(param.thisObject));
                 var object = param.args[0];
                 var view = (View) views.get(viewHolder);
-                var csDot = (ImageView) view.findViewById(0x7FFF0001);
-                var lastSeenText = (TextView) view.findViewById(0x7FFF0002); // Get the TextView for last seen time
-                csDot.setVisibility(View.GONE);
-                lastSeenText.setVisibility(View.INVISIBLE); // Hide last seen time initially
+                ImageView csDot = showOnlineIcon ? view.findViewById(0x7FFF0003).findViewById(0x7FFF0001) : null;
+                if (showOnlineIcon) {
+                    csDot.setVisibility(View.INVISIBLE);
+                }
+                TextView lastSeenText = showOnlineText ? view.findViewById(0x7FFF0002) : null;
+                if (showOnlineText) {
+                    lastSeenText.setVisibility(View.INVISIBLE); // Hide last seen time initially
+                }
                 var jidFiled = Unobfuscator.getFieldByExtendType(object.getClass(), XposedHelpers.findClass("com.whatsapp.jid.Jid", loader));
                 var jidObject = jidFiled.get(object);
                 var jid = WppCore.getRawString(jidObject);
-                if (jid.contains("@g.us")) return;
+                if (WppCore.isGroup(jid)) return;
                 new Handler(Looper.getMainLooper()).post(() -> {
                     try {
                         var clazz = sendPresenceMethod.getParameterTypes()[1];
@@ -146,12 +154,15 @@ public class DotOnline extends Feature {
                         sendPresenceMethod.invoke(null, jidObject, instance, mInstancePresence);
                         var status = (String) getStatusUser.invoke(mStatusUser, object);
                         if (!TextUtils.isEmpty(status) && status.trim().equals(UnobfuscatorCache.getInstance().getString("online"))) {
-                            csDot.setVisibility(View.VISIBLE);
+                            if (csDot != null) {
+                                csDot.setVisibility(View.VISIBLE);
+                            }
                         }
-                        if (!TextUtils.isEmpty(status) ) {
-                         // Logic to get last seen time goes here
-                            lastSeenText.setText(status);
-                            lastSeenText.setVisibility(View.VISIBLE);
+                        if (!TextUtils.isEmpty(status)) {
+                            if (lastSeenText != null) {
+                                lastSeenText.setText(status);
+                                lastSeenText.setVisibility(View.VISIBLE);
+                            }
                         }
                     } catch (Exception e) {
                         logDebug(e);

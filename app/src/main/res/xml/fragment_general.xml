@@ -77,6 +77,11 @@
             app:title="@string/show_online_dot_in_conversation_list" />
 
         <rikka.material.preference.MaterialSwitchPreference
+            app:key="showonlinetext"
+            app:summary="@string/show_online_last_seen_in_conversation_list_sum"
+            app:title="@string/show_online_last_seen_in_conversation_list" />
+
+        <rikka.material.preference.MaterialSwitchPreference
             app:key="pinnedlimit"
             app:summary="@string/disable_pinned_limit_sum"
             app:title="@string/disable_pinned_limit" />
