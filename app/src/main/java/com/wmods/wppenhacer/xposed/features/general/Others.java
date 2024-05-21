@@ -13,6 +13,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -91,6 +92,7 @@ public class Others extends Feature {
         var adminGrp = prefs.getBoolean("admin_grp", false);
         var showOnline = prefs.getBoolean("showonline", false);
         var floatingMenu = prefs.getBoolean("floatingmenu", false);
+        var filter_itens = prefs.getString("filter_itens", null);
 
         propsBoolean.put(5171, filterSeen); // filtros de chat e grupos
         propsBoolean.put(4524, novoTema);
@@ -147,6 +149,47 @@ public class Others extends Feature {
             showOnline();
         }
 
+        if (filter_itens != null) {
+            filterItens(filter_itens);
+        }
+
+    }
+
+    private void filterItens(String filterItens) {
+        var itens = filterItens.split("\n");
+        var idsFilter = new ArrayList<Integer>();
+        for (String item : itens) {
+            var id = Utils.getID(item, "id");
+            if (id > 0) {
+                idsFilter.add(id);
+            }
+        }
+
+        XposedHelpers.findAndHookMethod(Activity.class, "onPrepareOptionsMenu", Menu.class, new XC_MethodHook() {
+            @Override
+            protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+                var menu = (Menu) param.args[0];
+                for (Integer id : idsFilter) {
+                    var menuItem = menu.findItem(id);
+                    if (menuItem != null) {
+                        menuItem.setVisible(false);
+                    }
+                }
+            }
+        });
+
+        XposedHelpers.findAndHookMethod(FrameLayout.class, "onMeasure", int.class, int.class, new XC_MethodHook() {
+            @Override
+            protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
+                var view = (View) param.thisObject;
+                for (Integer id : idsFilter) {
+                    var viewById = view.findViewById(id);
+                    if (viewById != null) {
+                        viewById.setVisibility(View.GONE);
+                    }
+                }
+            }
+        });
     }
 
     private void showOnline() throws Exception {
