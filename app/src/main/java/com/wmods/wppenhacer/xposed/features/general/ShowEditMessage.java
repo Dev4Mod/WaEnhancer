@@ -4,11 +4,7 @@ import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
 import android.graphics.Color;
-import android.graphics.PorterDuff;
 import android.graphics.Typeface;
-import android.graphics.drawable.ColorDrawable;
-import android.graphics.drawable.Drawable;
-import android.graphics.drawable.ShapeDrawable;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
@@ -171,8 +167,7 @@ public class ShowEditMessage extends Feature {
             linearLayout.setLayoutParams(layoutParams);
             int dip = Utils.dipToPixels(20);
             linearLayout.setPadding(dip, dip, dip, 0);
-            var bg = (ShapeDrawable)DesignUtils.createDrawable("rc_dialog_bg");
-            bg.getPaint().setColor(DesignUtils.getPrimarySurfaceColor());
+            var bg = DesignUtils.createDrawable("rc_dialog_bg", DesignUtils.getPrimarySurfaceColor());
             linearLayout.setBackground(bg);
 
             // Title View
@@ -182,7 +177,7 @@ public class ShowEditMessage extends Feature {
             layoutParams1.setMargins(0, 0, 0, Utils.dipToPixels(10));
             titleView.setLayoutParams(layoutParams1);
             titleView.setTextSize(16.0f);
-            titleView.setTextColor(DesignUtils.getPrimaryTextColor(ctx));
+            titleView.setTextColor(DesignUtils.getPrimaryTextColor());
             titleView.setTypeface(null, Typeface.BOLD);
             titleView.setText(ResId.string.edited_history);
 
@@ -197,8 +192,8 @@ public class ShowEditMessage extends Feature {
             LinearLayout.LayoutParams layoutParams4 = new LinearLayout.LayoutParams(Utils.dipToPixels(70), Utils.dipToPixels(8));
             layoutParams4.gravity = 17;
             layoutParams4.setMargins(0, Utils.dipToPixels(5), 0, Utils.dipToPixels(5));
-            var bg2 = DesignUtils.createDrawable("rc_dotline_dialog");
-            imageView0.setBackground(DesignUtils.alphaDrawable(bg2, DesignUtils.getPrimaryTextColor(ctx), 33));
+            var bg2 = DesignUtils.createDrawable("rc_dotline_dialog",Color.BLACK);
+            imageView0.setBackground(DesignUtils.alphaDrawable(bg2, DesignUtils.getPrimaryTextColor(), 33));
             imageView0.setLayoutParams(layoutParams4);
             // Button View
             Button okButton = new Button(ctx);
@@ -207,8 +202,8 @@ public class ShowEditMessage extends Feature {
             layoutParams3.gravity = 80;
             okButton.setLayoutParams(layoutParams3);
             okButton.setGravity(17);
-            var drawable = DesignUtils.createDrawable("selector_bg");
-            okButton.setBackground(DesignUtils.alphaDrawable(drawable, DesignUtils.getPrimaryTextColor(ctx), 25));
+            var drawable = DesignUtils.createDrawable("selector_bg", Color.BLACK);
+            okButton.setBackground(DesignUtils.alphaDrawable(drawable, DesignUtils.getPrimaryTextColor(), 25));
             okButton.setText("OK");
             okButton.setOnClickListener((View view) -> dialog.dismiss());
             linearLayout.addView(imageView0);

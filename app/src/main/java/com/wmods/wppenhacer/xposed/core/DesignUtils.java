@@ -3,7 +3,6 @@ package com.wmods.wppenhacer.xposed.core;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.SharedPreferences;
-import android.content.res.TypedArray;
 import android.content.res.XResources;
 import android.graphics.BlendMode;
 import android.graphics.BlendModeColorFilter;
@@ -21,9 +20,6 @@ import androidx.annotation.NonNull;
 
 import com.wmods.wppenhacer.WppXposed;
 import com.wmods.wppenhacer.utils.IColors;
-
-import de.robv.android.xposed.XposedBridge;
-import de.robv.android.xposed.XposedHelpers;
 
 public class DesignUtils {
 
@@ -60,24 +56,24 @@ public class DesignUtils {
     }
 
     @NonNull
-    public static Drawable createDrawable(String type) {
+    public static Drawable createDrawable(String type, int color) {
         switch (type) {
             case "rc_dialog_bg" -> {
                 var border = Utils.dipToPixels(12.0f);
                 var shapeDrawable = new ShapeDrawable(new RoundRectShape(new float[]{border, border, border, border, 0, 0, 0, 0}, null, null));
-                shapeDrawable.getPaint().setColor(Color.BLACK);
+                shapeDrawable.getPaint().setColor(color);
                 return shapeDrawable;
             }
             case "selector_bg" -> {
                 var border = Utils.dipToPixels(18.0f);
                 ShapeDrawable selectorBg = new ShapeDrawable(new RoundRectShape(new float[]{border, border, border, border, border, border, border, border}, null, null));
-                selectorBg.getPaint().setColor(Color.BLACK);
+                selectorBg.getPaint().setColor(color);
                 return selectorBg;
             }
             case "rc_dotline_dialog" -> {
                 var border = Utils.dipToPixels(16.0f);
                 ShapeDrawable shapeDrawable = new ShapeDrawable(new RoundRectShape(new float[]{border, border, border, border, border, border, border, border}, null, null));
-                shapeDrawable.getPaint().setColor(0x28FFFFFF);
+                shapeDrawable.getPaint().setColor(color);
                 return shapeDrawable;
             }
             case "stroke_border" -> {
@@ -86,7 +82,7 @@ public class DesignUtils {
                 paint.setColor(Color.TRANSPARENT);
                 paint.setStyle(Paint.Style.STROKE);
                 paint.setStrokeWidth(Utils.dipToPixels(2));
-                paint.setColor(DesignUtils.getPrimaryTextColor(Utils.getApplication()));
+                paint.setColor(color);
                 float radius = Utils.dipToPixels(2.0f);
                 float[] outerRadii = new float[]{radius, radius, radius, radius, radius, radius, radius, radius};
                 RoundRectShape roundRectShape = new RoundRectShape(outerRadii, null, null);
@@ -98,7 +94,7 @@ public class DesignUtils {
     }
 
     // Colors
-    public static int getPrimaryTextColor(Context context) {
+    public static int getPrimaryTextColor() {
         return DesignUtils.isNightMode() ? 0xfffffffe : 0xff000001;
     }
 
@@ -112,7 +108,11 @@ public class DesignUtils {
     }
 
     public static int getPrimarySurfaceColor() {
-        return mPrefs.getBoolean("changecolor", false) ? IColors.parseColor(IColors.colors.get("#ff0b141a")) : DesignUtils.isNightMode() ? 0xff121212: 0xfffffffe;
+        var backgroundColor = mPrefs.getInt("background_color", 0);
+        if (backgroundColor == 0 || !mPrefs.getBoolean("changecolor", false)) {
+            return DesignUtils.isNightMode() ? 0xff121212: 0xfffffffe;
+        }
+        return backgroundColor;
     }
 
     public static void setReplacementDrawable(String name, Drawable replacement) {

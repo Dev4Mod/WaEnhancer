@@ -92,14 +92,14 @@ public class CustomToolbar extends Feature {
             mTitle.setText(showName ? name : "WhatsApp");
             mTitle.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.MATCH_PARENT, 1f));
             mTitle.setTextSize(20f);
-            mTitle.setTextColor(DesignUtils.getPrimaryTextColor(homeActivity));
+            mTitle.setTextColor(DesignUtils.getPrimaryTextColor());
             parent.addView(mTitle);
             if (showBio) {
                 var mSubtitle = new TextView(homeActivity);
                 mSubtitle.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.MATCH_PARENT));
                 mSubtitle.setText(bio);
                 mSubtitle.setTextSize(12f);
-                mSubtitle.setTextColor(DesignUtils.getPrimaryTextColor(homeActivity));
+                mSubtitle.setTextColor(DesignUtils.getPrimaryTextColor());
                 mSubtitle.setMarqueeRepeatLimit(-1);
                 mSubtitle.setEllipsize(TextUtils.TruncateAt.MARQUEE);
                 mSubtitle.setSingleLine();
