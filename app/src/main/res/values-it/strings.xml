@@ -45,7 +45,7 @@
     <string name="videoquality_sum">Invia video in qualità HD, per impostazione predefinita</string>
     <string name="colors_title">Colori</string>
     <string name="colors_customization">Personalizza i tuoi colori</string>
-    <string name="colors_customization_sum">Cambia tutti i colori nel tuo WhatsApp, provalo ora!</string>
+    <string name="colors_customization_sum">Cambia tutti i colori nel tuo WhatsApp (Funziona solo con il Tema Scuro)</string>
     <string name="current_color_s">Colore corrente: %s</string>
     <string name="apply_button">Applica</string>
     <string name="invalid_color">Colore non valido</string>
@@ -256,4 +256,14 @@
     <string name="rebooting">Riavvio</string>
     <string name="deleted_message">ha eliminato un messaggio</string>
     <string name="deleted_status">ha eliminato uno stato</string>
+    <string name="remove_limit_edit_message">Rimuovi Limite per Modificare un Messaggio</string>
+    <string name="remove_limit_edit_message_sum">Rimuove il limite di 15 minuti per la modifica di un messaggio</string>
+    <string name="disable_audio_sensor">Disabilita Sensore Audio</string>
+    <string name="disable_audio_sensor_sum">Disabilita la commutazione audio con il sensore di prossimità</string>
+    <string name="show_admin_group_icon">Mostra Icona Amministratore Gruppo</string>
+    <string name="show_admin_group_icon_sum">Aggiungi un\'icona accanto al nome dell\'utente amministratore del gruppo</string>
+    <string name="toolbar_transparency">Trasparenza Barra Strumenti</string>
+    <string name="navigation_transparency">Trasparenza Barra Navigazione</string>
+    <string name="show_online_last_seen_in_conversation_list">Mostra Online/Ultimo Visto nell\'Elenco Conversazioni</string>
+    <string name="show_online_last_seen_in_conversation_list_sum">Mostra un testo online o visto l\'ultima volta nella schermata iniziale\n(NOTA: è necessario attivare la visualizzazione online per tutti nel menu Impostazioni privacy di WhatsApp)</string>
 </resources>

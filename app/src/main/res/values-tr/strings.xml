@@ -45,7 +45,7 @@
     <string name="videoquality_sum">Varsayılan olarak videoları HD kalitesinde gönder</string>
     <string name="colors_title">Renkler</string>
     <string name="colors_customization">Renkleri Özelleştir</string>
-    <string name="colors_customization_sum">WhatsApp\'ınızdaki tüm renkleri değiştirin, şimdi deneyin!</string>
+    <string name="colors_customization_sum">Change all colors in your WhatsApp (Working only in Dark Theme)</string>
     <string name="current_color_s">Mevcut renk: %s</string>
     <string name="apply_button">Uygula</string>
     <string name="invalid_color">Geçersiz Renk</string>
@@ -256,4 +256,14 @@
     <string name="rebooting">Yeniden başlatılıyor</string>
     <string name="deleted_message">bir mesajı sildi</string>
     <string name="deleted_status">bir durumu sildi</string>
+    <string name="remove_limit_edit_message">Remove Limit To Edit message</string>
+    <string name="remove_limit_edit_message_sum">Removes the 15 minute limit for editing a message</string>
+    <string name="disable_audio_sensor">Disable Audio Sensor</string>
+    <string name="disable_audio_sensor_sum">Disable audio switching with the proximity sensor</string>
+    <string name="show_admin_group_icon">Show Admin Group Icon</string>
+    <string name="show_admin_group_icon_sum">add an icon next to the name of the user who is the group admin</string>
+    <string name="toolbar_transparency">Toolbar Transparency</string>
+    <string name="navigation_transparency">Navigation Transparency</string>
+    <string name="show_online_last_seen_in_conversation_list">Show Online/Last seen in Conversation List</string>
+    <string name="show_online_last_seen_in_conversation_list_sum">Show a text online or last seen on home screen\n(NOTE: Must activate show online for everyone in WhatsApp\'s Privacy Settings menu)</string>
 </resources>

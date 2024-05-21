@@ -1,4 +1,2 @@
-* Add function to show toast on contact online
-* Cleanup code
-* Fix bug in Show Edit Message
-* Add function to New Context Menu UI
+* Add function to Hide itens by ID in Customization
+* Update Translations (Crowdin)

@@ -48,7 +48,7 @@
     <string name="videoquality_sum">إرسال مقاطع الفيديو بجودة HD</string>
     <string name="colors_title">الألوان</string>
     <string name="colors_customization">خصص ألوانك</string>
-    <string name="colors_customization_sum">غير كل الألوان في الواتساب الخاص بك، جرب ذلك الآن!</string>
+    <string name="colors_customization_sum">تغيير كل الألوان في واتساب الخاص بك (يعمل فقط في السمة الداكنة)</string>
     <string name="current_color_s">اللون الحالي: %s</string>
     <string name="apply_button">تطبيق</string>
     <string name="invalid_color">لون خاطئ</string>
@@ -259,4 +259,14 @@
     <string name="rebooting">إعادة التشغيل</string>
     <string name="deleted_message">تم حذف رسالة</string>
     <string name="deleted_status">تم حذف حالة</string>
+    <string name="remove_limit_edit_message">إزالة الحد الأقصى لتحرير الرسالة</string>
+    <string name="remove_limit_edit_message_sum">إزالة حد 15 دقيقة لتعديل رسالة</string>
+    <string name="disable_audio_sensor">تعطيل مستشعر الصوت</string>
+    <string name="disable_audio_sensor_sum">تعطيل التبديل الصوتي مع مستشعر القرب</string>
+    <string name="show_admin_group_icon">إظهار أيقونة مشرف المجموعة</string>
+    <string name="show_admin_group_icon_sum">إضافة أيقونة بجوار اسم المستخدم الذي هو مشرف المجموعة</string>
+    <string name="toolbar_transparency">شفافية شريط الأدوات</string>
+    <string name="navigation_transparency">شفافية التنقل</string>
+    <string name="show_online_last_seen_in_conversation_list">إظهار متصل الآن/آخر ظهور في قائمة المحادثات</string>
+    <string name="show_online_last_seen_in_conversation_list_sum">إظهار نقطة خضراء متصل الآن على الشاشة الرئيسية (ملاحظة: يجب تنشيط العرض عبر الإنترنت للجميع في قائمة إعدادات الخصوصية في واتساب)</string>
 </resources>

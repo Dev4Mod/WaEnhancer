@@ -45,7 +45,7 @@
     <string name="videoquality_sum">Sende Videos standardmäßig in HD-Qualität</string>
     <string name="colors_title">Farbgebung</string>
     <string name="colors_customization">Farben anpassen</string>
-    <string name="colors_customization_sum">Ändern Sie alle Farben in WhatsApp, versuchen Sie es jetzt!</string>
+    <string name="colors_customization_sum">Ändern sie alle Farben von WhatsApp (Nur Dark-Theme)</string>
     <string name="current_color_s">Aktuelle Farbe: %s</string>
     <string name="apply_button">Anwenden</string>
     <string name="invalid_color">Ungültige Farbe</string>
@@ -224,7 +224,7 @@
     <string name="title_image">Bild</string>
     <string name="title_video">Video</string>
     <string name="enable_new_chat_button">Neuen Chat-Button aktivieren</string>
-    <string name="enable_new_chat_button_sum">Schaltfläche im Startbildschirm hinzufügen, um einen neuen Chat zu starten</string>
+    <string name="enable_new_chat_button_sum">Schaltfläche im Startbildschirm hinzufügen, um einen neuen Chat mit unbekannter Nummer zu starten</string>
     <string name="enable_restart_button">Aktivierung der Neustart-Schaltfläche</string>
     <string name="enable_restart_button_sum">Schaltfläche im Startbildschirm zum Neustart von WhatsApp hinzufügen</string>
     <string name="toast_on_delete">Zeige Toast-Benachrichtigung beim Löschen der Nachricht</string>
@@ -256,4 +256,14 @@
     <string name="rebooting">Wird neugestartet...</string>
     <string name="deleted_message">Lösche eine Nachricht</string>
     <string name="deleted_status">Status gelöscht</string>
+    <string name="remove_limit_edit_message">Limit der Bearbeitungszeit von Nachrichten entfernen</string>
+    <string name="remove_limit_edit_message_sum">Entfernt das 15-Minuten-Limit für das Bearbeiten einer Nachricht</string>
+    <string name="disable_audio_sensor">Audio-Sensor deaktivieren</string>
+    <string name="disable_audio_sensor_sum">Audio-Umschalten mit Näherungssensor deaktivieren</string>
+    <string name="show_admin_group_icon">Admin-Gruppensymbol anzeigen</string>
+    <string name="show_admin_group_icon_sum">Füge ein Icon neben dem Namen des Benutzers hinzu, welcher ein Gruppenadmin ist</string>
+    <string name="toolbar_transparency">Symbolleisten-Transparenz</string>
+    <string name="navigation_transparency">Navigationstransparenz</string>
+    <string name="show_online_last_seen_in_conversation_list">Online/Zuletzt gesehen in der Konversationsliste anzeigen</string>
+    <string name="show_online_last_seen_in_conversation_list_sum">Zeigt einen grünen Online-Punkt auf dem Startbildschirm (NOTE: Onlineanzeige muss für jeden in den WhatsApp Privatsphäre-Einstellungen aktiviert sein)</string>
 </resources>
