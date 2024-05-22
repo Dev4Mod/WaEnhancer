@@ -29,6 +29,7 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
 import cz.vutbr.web.css.CSSFactory;
@@ -300,24 +301,25 @@ public class CustomView extends Feature {
         return "Custom View";
     }
 
-    public class DrawableCache {
-        private LoadingCache<String, Drawable> drawableCache;
+    public static class DrawableCache {
+        private final LoadingCache<String, Drawable> drawableCache;
 
         public DrawableCache() {
             drawableCache = CacheBuilder.newBuilder()
                     .maximumSize(100)
                     .expireAfterWrite(30, TimeUnit.MINUTES)
                     .build(new CacheLoader<>() {
+                        @NonNull
                         @Override
-                        public Drawable load(String key) throws Exception {
-                            return loadDrawableFromFile(key);
+                        public Drawable load(@NonNull String key) throws Exception {
+                            return Objects.requireNonNull(loadDrawableFromFile(key));
                         }
                     });
         }
 
         private Drawable loadDrawableFromFile(String filePath) {
             File file = new File(filePath);
-            if (!file.exists()) return null;
+            if (!file.exists()) return new ColorDrawable(0);
             return Drawable.createFromPath(file.getAbsolutePath());
         }
 
@@ -325,9 +327,9 @@ public class CustomView extends Feature {
             return drawableCache.getUnchecked(key);
         }
 
-        public void invalidateCache() {
-            drawableCache.invalidateAll();
-        }
+//        public void invalidateCache() {
+//            drawableCache.invalidateAll();
+//        }
     }
 
 }
