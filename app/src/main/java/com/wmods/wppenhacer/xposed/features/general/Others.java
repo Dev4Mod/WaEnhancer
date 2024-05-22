@@ -13,7 +13,6 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -164,29 +163,13 @@ public class Others extends Feature {
                 idsFilter.add(id);
             }
         }
-
-        XposedHelpers.findAndHookMethod(Activity.class, "onPrepareOptionsMenu", Menu.class, new XC_MethodHook() {
+        XposedHelpers.findAndHookMethod(View.class, "invalidate", boolean.class, new XC_MethodHook() {
             @Override
             protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-                var menu = (Menu) param.args[0];
-                for (Integer id : idsFilter) {
-                    var menuItem = menu.findItem(id);
-                    if (menuItem != null) {
-                        menuItem.setVisible(false);
-                    }
-                }
-            }
-        });
-
-        XposedHelpers.findAndHookMethod(FrameLayout.class, "onMeasure", int.class, int.class, new XC_MethodHook() {
-            @Override
-            protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
                 var view = (View) param.thisObject;
-                for (Integer id : idsFilter) {
-                    var viewById = view.findViewById(id);
-                    if (viewById != null) {
-                        viewById.setVisibility(View.GONE);
-                    }
+                var id = view.getId();
+                if (id > 0 && idsFilter.contains(id) && view.getVisibility() == View.VISIBLE) {
+                    view.setVisibility(View.GONE);
                 }
             }
         });
