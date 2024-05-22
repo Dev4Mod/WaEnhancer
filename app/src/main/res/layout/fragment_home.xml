@@ -283,7 +283,7 @@
                             style="@style/DeviceInfoDialogLabel"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:text="Android SDK" />
+                            android:text="@string/android_version" />
 
                         <com.google.android.material.textview.MaterialTextView
                             android:id="@+id/sdk"
