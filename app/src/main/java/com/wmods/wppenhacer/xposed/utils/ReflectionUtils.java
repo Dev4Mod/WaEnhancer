@@ -7,6 +7,8 @@ import java.util.List;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
+import de.robv.android.xposed.XposedHelpers;
+
 @SuppressWarnings("unused")
 public class ReflectionUtils {
 
@@ -18,7 +20,9 @@ public class ReflectionUtils {
         throw new RuntimeException("Method not found");
     }
 
-    /** @noinspection SimplifyStreamApiCallChains*/
+    /**
+     * @noinspection SimplifyStreamApiCallChains
+     */
     public static Method[] findAllMethodUsingFilter(Class<?> clazz, Predicate<Method> predicate) {
         do {
             var results = Arrays.stream(clazz.getDeclaredMethods()).filter(predicate).collect(Collectors.toList());
@@ -98,6 +102,26 @@ public class ReflectionUtils {
         var text = Arrays.toString(trace);
         for (String s : contains) {
             if (text.contains(s)) return true;
+        }
+        return false;
+    }
+
+    public static boolean isClassSimpleNameString(Class<?> aClass, String s) {
+        try {
+            Class<?> search = XposedHelpers.findClassIfExists("android.view." + s, aClass.getClassLoader());
+            if (search != null)
+                search = XposedHelpers.findClassIfExists("android.widget." + s, aClass.getClassLoader());
+            Class<?> cls = aClass;
+            do {
+                if (search != null) {
+                    if (cls.getName().equals(search.getName())) return true;
+                    if (cls.getName().startsWith("android.widget.") || cls.getName().startsWith("android.view."))
+                        return false;
+                } else {
+                    if (cls.getSimpleName().contains(s)) return true;
+                }
+            } while ((cls = cls.getSuperclass()) != null);
+        } catch (Exception ignored) {
         }
         return false;
     }

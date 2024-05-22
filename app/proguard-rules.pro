@@ -24,3 +24,7 @@
      *;
 }
 -keepclasseswithmembernames class com.wmods.**
+
+-keepclasseswithmembers class cz.vutbr.** {
+     *;
+}

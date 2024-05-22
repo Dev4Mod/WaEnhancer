@@ -1,2 +1,2 @@
-* Add function to Hide itens by ID in Customization
-* Update Translations (Crowdin)
+* Improve Hide filter
+* Add Custom Theme using CSS (Advanced User)

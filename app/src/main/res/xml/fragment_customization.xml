@@ -101,8 +101,13 @@
 
         <EditTextPreference
             app:key="filter_itens"
-            android:summary="Filter items by id name"
-            app:title="Filter Itens By ID" />
+            android:summary="@string/filter_itens_by_id_sum"
+            app:title="@string/filter_itens_by_id" />
+
+        <EditTextPreference
+            app:key="css_theme"
+            android:summary="@string/ustom_theme_css_sum"
+            app:title="@string/custom_theme_css" />
 
     </PreferenceCategory>
 

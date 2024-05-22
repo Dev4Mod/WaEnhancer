@@ -1,7 +1,6 @@
 package com.wmods.wppenhacer.xposed.core;
 
 import android.app.Activity;
-import android.app.AlertDialog;
 import android.app.Application;
 import android.app.Instrumentation;
 import android.content.BroadcastReceiver;
@@ -19,36 +18,36 @@ import androidx.annotation.NonNull;
 import androidx.core.content.ContextCompat;
 
 import com.wmods.wppenhacer.BuildConfig;
-import com.wmods.wppenhacer.R;
 import com.wmods.wppenhacer.xposed.core.components.AlertDialogWpp;
-import com.wmods.wppenhacer.xposed.features.customization.CustomToolbar;
 import com.wmods.wppenhacer.xposed.features.customization.BubbleColors;
 import com.wmods.wppenhacer.xposed.features.customization.CustomTheme;
-import com.wmods.wppenhacer.xposed.features.customization.HideTabs;
-import com.wmods.wppenhacer.xposed.features.customization.SeparateGroup;
-import com.wmods.wppenhacer.xposed.features.customization.IGStatus;
 import com.wmods.wppenhacer.xposed.features.customization.CustomTime;
+import com.wmods.wppenhacer.xposed.features.customization.CustomToolbar;
+import com.wmods.wppenhacer.xposed.features.customization.CustomView;
 import com.wmods.wppenhacer.xposed.features.customization.DotOnline;
-import com.wmods.wppenhacer.xposed.features.general.CallType;
-import com.wmods.wppenhacer.xposed.features.general.ShowEditMessage;
+import com.wmods.wppenhacer.xposed.features.customization.HideTabs;
+import com.wmods.wppenhacer.xposed.features.customization.IGStatus;
+import com.wmods.wppenhacer.xposed.features.customization.SeparateGroup;
 import com.wmods.wppenhacer.xposed.features.general.AntiRevoke;
-import com.wmods.wppenhacer.xposed.features.general.SeenTick;
 import com.wmods.wppenhacer.xposed.features.general.CallPrivacy;
+import com.wmods.wppenhacer.xposed.features.general.CallType;
 import com.wmods.wppenhacer.xposed.features.general.ChatLimit;
 import com.wmods.wppenhacer.xposed.features.general.DndMode;
 import com.wmods.wppenhacer.xposed.features.general.MediaQuality;
 import com.wmods.wppenhacer.xposed.features.general.NewChat;
 import com.wmods.wppenhacer.xposed.features.general.Others;
 import com.wmods.wppenhacer.xposed.features.general.PinnedLimit;
+import com.wmods.wppenhacer.xposed.features.general.SeenTick;
 import com.wmods.wppenhacer.xposed.features.general.ShareLimit;
+import com.wmods.wppenhacer.xposed.features.general.ShowEditMessage;
 import com.wmods.wppenhacer.xposed.features.general.StatusDownload;
 import com.wmods.wppenhacer.xposed.features.general.ViewOnce;
 import com.wmods.wppenhacer.xposed.features.privacy.FreezeLastSeen;
 import com.wmods.wppenhacer.xposed.features.privacy.GhostMode;
 import com.wmods.wppenhacer.xposed.features.privacy.HideArchive;
 import com.wmods.wppenhacer.xposed.features.privacy.HideReceipt;
-import com.wmods.wppenhacer.xposed.features.privacy.HideTagForward;
 import com.wmods.wppenhacer.xposed.features.privacy.HideSeen;
+import com.wmods.wppenhacer.xposed.features.privacy.HideTagForward;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -175,6 +174,7 @@ public class MainFeatures {
                 ShowEditMessage.class,
                 AntiRevoke.class,
                 CustomToolbar.class,
+                CustomView.class,
                 SeenTick.class,
                 BubbleColors.class,
                 CallPrivacy.class,

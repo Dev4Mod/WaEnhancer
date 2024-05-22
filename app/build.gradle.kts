@@ -31,7 +31,6 @@ android {
             abiFilters.add("arm64-v8a")
         }
 
-
     }
 
     packaging {
@@ -88,7 +87,8 @@ dependencies {
     implementation(libs.rikkax.material.preference)
     implementation(libs.rikkax.preference)
     implementation(libs.rikkax.widget.borderview)
-
+    implementation("net.sf.cssbox:jstyleparser:4.0.0")
+    implementation("com.google.guava:guava:33.2.0-android")
 //    testImplementation(libs.junit)
 //    androidTestImplementation(libs.ext.junit)
 //    androidTestImplementation(libs.espresso.core)
