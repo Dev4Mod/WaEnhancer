@@ -1,2 +1,3 @@
 * Improve Hide filter
 * Add Custom Theme using CSS (Advanced User)
+* Update translations

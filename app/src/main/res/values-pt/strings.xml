@@ -45,7 +45,7 @@
     <string name="videoquality_sum">Envie vídeos em qualidade HD</string>
     <string name="colors_title">Cores</string>
     <string name="colors_customization">Alterar cores</string>
-    <string name="colors_customization_sum">Change all colors in your WhatsApp (Working only in Dark Theme)</string>
+    <string name="colors_customization_sum">Alterar as cores do WhatsApp (funcionando apenas no tema escuro)</string>
     <string name="current_color_s">Cor atual: %s</string>
     <string name="apply_button">Aplicar</string>
     <string name="invalid_color">Cor inválida</string>
@@ -237,7 +237,8 @@
     <string name="time_limit_on_status_video_sum">Aumente o limite de tempo dos vídeos de status de 30 segundos para 1 minuto (para todos)</string>
     <string name="show_freezeLastSeen_button">Mostrar Botão de Congelamento Último Visto</string>
     <string name="show_freezeLastSeen_sum">Mostrar botão para o Modo Não Perturbe na barra superior da tela inicial    </string>
-    <string name="freezelastseen_message">Quando o congelamento do Último visto estiver ativado, você não poderá ver as outras pessoas na última vez ou online</string>
+    <string name="freezelastseen_message">Congela a hora e data do visto por último.
+Nota: você não verá o visto por último de outra pessoa e o status de digitando/gravando áudio</string>
     <string name="freezelastseen_title">Congelar visto por último</string>
     <string name="wallpaper_transparency">Transparência do Wallpaper</string>
     <string name="select_wallpaper">Escolha o papel de parede</string>
@@ -256,14 +257,14 @@
     <string name="rebooting">Reiniciando</string>
     <string name="deleted_message">excluiu uma mensagem.</string>
     <string name="deleted_status">excluiu um status</string>
-    <string name="remove_limit_edit_message">Remove Limit To Edit message</string>
-    <string name="remove_limit_edit_message_sum">Removes the 15 minute limit for editing a message</string>
-    <string name="disable_audio_sensor">Disable Audio Sensor</string>
-    <string name="disable_audio_sensor_sum">Disable audio switching with the proximity sensor</string>
-    <string name="show_admin_group_icon">Show Admin Group Icon</string>
-    <string name="show_admin_group_icon_sum">add an icon next to the name of the user who is the group admin</string>
-    <string name="toolbar_transparency">Toolbar Transparency</string>
-    <string name="navigation_transparency">Navigation Transparency</string>
-    <string name="show_online_last_seen_in_conversation_list">Show Online/Last seen in Conversation List</string>
-    <string name="show_online_last_seen_in_conversation_list_sum">Show a text online or last seen on home screen\n(NOTE: Must activate show online for everyone in WhatsApp\'s Privacy Settings menu)</string>
+    <string name="remove_limit_edit_message">Remover limite de tempo para editar mensagem</string>
+    <string name="remove_limit_edit_message_sum">Remove o limite de 15 minutos para edição de uma mensagem</string>
+    <string name="disable_audio_sensor">Desative o sensor de proximidade</string>
+    <string name="disable_audio_sensor_sum">Desative a sensor de proximidade para que o som da mensagem de áudio não possa ser reproduzido no alto-falante interno</string>
+    <string name="show_admin_group_icon">Mostrar o ícone de administrador do grupo</string>
+    <string name="show_admin_group_icon_sum">Adicione um ícone ao lado do nome do administrador do grupo</string>
+    <string name="toolbar_transparency">Transparência da barra de tarefas</string>
+    <string name="navigation_transparency">Transparência da barra de navegação</string>
+    <string name="show_online_last_seen_in_conversation_list">Mostrar Online/Visto pela última vez na guia de conversas</string>
+    <string name="show_online_last_seen_in_conversation_list_sum">Mostrar um texto online ou visto pela última vez na tela inicial. \n(Nota: é necessário ativar a exibição online para todos no menu Configurações de privacidade do WhatsApp)</string>
 </resources>

@@ -110,7 +110,7 @@
     <string name="downloadviewonce">Скачать Посмотреть один раз</string>
     <string name="downloadviewonce_sum">Кнопка «Создать представление после загрузки»</string>
     <string name="separate_groups">Отдельные группы</string>
-    <string name="separate_groups_sum">Разделяйте чаты по: группам, приватным чатам, статусу, звонкам, сообществам.</string>
+    <string name="separate_groups_sum">Разделяйте чаты по: Группам, Приватным Чатам, Статусу, Звонкам, Сообществам.</string>
     <string name="blueonreply">Отправить синюю галочку в ответ</string>
     <string name="blueonreply_sum">Отправляет синюю галочку при ответе на сообщение</string>
     <string name="hide_archived_chat">Скрыть архивные чаты</string>
@@ -119,7 +119,7 @@
     <string name="hide_once_view_seen_sum">Скрыть этот просмотр одного изображения и аудио</string>
     <string name="call_blocker">Блокировать вызовы</string>
     <string name="call_blocker_sum">Блокировать звонки WhatsApp на основе типа конфиденциальности</string>
-    <string name="show_online_dot_in_conversation_list">Показывать онлайн-точку в списке разговоров</string>
+    <string name="show_online_dot_in_conversation_list">Показать онлайн точку в списке разговоров</string>
     <string name="show_online_dot_in_conversation_list_sum">Показывать зеленую точку онлайн на главном экране (ПРИМЕЧАНИЕ: необходимо активировать онлайн для всех в меню настроек конфиденциальности WhatsApp)</string>
     <string name="show_dnd_button">Показать кнопку \"Не беспокоить\"</string>
     <string name="show_dnd_button_sum">Показывать кнопку для режима \"Не беспокоить\" на панели главного экрана</string>
@@ -257,13 +257,13 @@
     <string name="deleted_message">сообщение удалено</string>
     <string name="deleted_status">Статус удалён</string>
     <string name="remove_limit_edit_message">Удалить ограничение для редактирования сообщения</string>
-    <string name="remove_limit_edit_message_sum">Удаляет 15-минутный лимит для редактирования сообщения</string>
-    <string name="disable_audio_sensor">Отключить аудио сенсор</string>
+    <string name="remove_limit_edit_message_sum">Удаляет 15 минутный лимит для редактирования сообщения</string>
+    <string name="disable_audio_sensor">Отключить Аудио Сенсор</string>
     <string name="disable_audio_sensor_sum">Отключить переключение звука с помощью датчика приближения</string>
-    <string name="show_admin_group_icon">Показывать значок группы администратора</string>
+    <string name="show_admin_group_icon">Показывать значок администратора группы</string>
     <string name="show_admin_group_icon_sum">добавить значок рядом с именем пользователя, который является администратором группы</string>
     <string name="toolbar_transparency">Прозрачность обоев</string>
     <string name="navigation_transparency">Прозрачность навигации</string>
-    <string name="show_online_last_seen_in_conversation_list">Показывать онлайн-точку в списке разговоров</string>
-    <string name="show_online_last_seen_in_conversation_list_sum">Показывать зеленую точку онлайн на главном экране (ПРИМЕЧАНИЕ: необходимо активировать онлайн для всех в меню настроек конфиденциальности WhatsApp)</string>
+    <string name="show_online_last_seen_in_conversation_list">Показать Онлайн/Последнее посещение в Переписке</string>
+    <string name="show_online_last_seen_in_conversation_list_sum">Показать текст онлайн или последнее посещение на главном экране\n(ПРИМЕЧАНИЕ: необходимо активировать показ онлайн для всех в меню настроек конфиденциальности WhatsApp)</string>
 </resources>

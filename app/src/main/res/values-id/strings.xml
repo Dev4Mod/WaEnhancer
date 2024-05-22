@@ -47,7 +47,7 @@ Silahkan perbaiki! Mulai ulang modul dan coba lagi</string>
     <string name="videoquality_sum">Kirim video dalam kualitas HD</string>
     <string name="colors_title">Warna</string>
     <string name="colors_customization">Ubah Warna WhatsApp Anda</string>
-    <string name="colors_customization_sum">Change all colors in your WhatsApp (Working only in Dark Theme)</string>
+    <string name="colors_customization_sum">Ubah semua warna di Whatsapp Anda (Hanya berfungsi di Tema Gelap)</string>
     <string name="current_color_s">Warna saat ini: %s</string>
     <string name="apply_button">Terapkan</string>
     <string name="invalid_color">Warna tidak valid</string>
@@ -265,14 +265,14 @@ Apakah Anda ingin mulai ulang WhatsApp?</string>
     <string name="rebooting">Menyalakan ulang</string>
     <string name="deleted_message">menghapus pesan</string>
     <string name="deleted_status">menghapus status</string>
-    <string name="remove_limit_edit_message">Remove Limit To Edit message</string>
-    <string name="remove_limit_edit_message_sum">Removes the 15 minute limit for editing a message</string>
-    <string name="disable_audio_sensor">Disable Audio Sensor</string>
-    <string name="disable_audio_sensor_sum">Disable audio switching with the proximity sensor</string>
-    <string name="show_admin_group_icon">Show Admin Group Icon</string>
-    <string name="show_admin_group_icon_sum">add an icon next to the name of the user who is the group admin</string>
-    <string name="toolbar_transparency">Toolbar Transparency</string>
-    <string name="navigation_transparency">Navigation Transparency</string>
-    <string name="show_online_last_seen_in_conversation_list">Show Online/Last seen in Conversation List</string>
-    <string name="show_online_last_seen_in_conversation_list_sum">Show a text online or last seen on home screen\n(NOTE: Must activate show online for everyone in WhatsApp\'s Privacy Settings menu)</string>
+    <string name="remove_limit_edit_message">Hapus Batas Mengedit Pesan</string>
+    <string name="remove_limit_edit_message_sum">Hapus batas 15 menit untuk mengedit pesan</string>
+    <string name="disable_audio_sensor">Nonaktifkan Sensor Audio</string>
+    <string name="disable_audio_sensor_sum">Nonaktifkan peralihan audio dengan sensor jarak</string>
+    <string name="show_admin_group_icon">Tampilkan Ikon Admin Grup</string>
+    <string name="show_admin_group_icon_sum">Tampilkan ikon admin di samping nama pengguna yang merupakan admin grup</string>
+    <string name="toolbar_transparency">Transparansi Toolbar</string>
+    <string name="navigation_transparency">Transparansi Navigasi</string>
+    <string name="show_online_last_seen_in_conversation_list">Tampilkan \"terakhir dilihat dan online\"</string>
+    <string name="show_online_last_seen_in_conversation_list_sum">Tampilkan \"terakhir dilihat dan online\" di layar beranda\n(CATATAN: Harus mengaktifkan \"Terakhir dilihat dan online\" untuk semua orang di menu setelan privasi WhatsApp)</string>
 </resources>
