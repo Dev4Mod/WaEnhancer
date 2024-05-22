@@ -2,7 +2,9 @@
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
-    <PreferenceCategory android:title="@string/title_image">
+    <PreferenceCategory
+        app:iconSpaceReserved="false"
+        app:title="@string/title_image">
 
         <rikka.material.preference.MaterialSwitchPreference
             app:key="imagequality"
@@ -11,7 +13,9 @@
 
     </PreferenceCategory>
 
-    <PreferenceCategory app:title="@string/download_title">
+    <PreferenceCategory
+        app:iconSpaceReserved="false"
+        app:title="@string/download_title">
 
         <Preference
             app:key="localdownload"
@@ -29,7 +33,9 @@
 
     </PreferenceCategory>
 
-    <PreferenceCategory android:title="@string/title_video">
+    <PreferenceCategory
+        app:iconSpaceReserved="false"
+        app:title="@string/title_video">
 
         <rikka.material.preference.MaterialSwitchPreference
             app:key="videoquality"
@@ -62,7 +68,8 @@
     </PreferenceCategory>
 
     <PreferenceCategory
-        app:title="Audio">
+        app:iconSpaceReserved="false"
+        app:title="@string/title_audio">
         <rikka.material.preference.MaterialSwitchPreference
             app:key="proximity_audios"
             app:summary="@string/disable_audio_sensor_sum"
