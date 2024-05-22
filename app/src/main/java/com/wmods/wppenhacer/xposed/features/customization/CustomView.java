@@ -9,7 +9,6 @@ import android.graphics.drawable.Drawable;
 import android.text.TextUtils;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.ViewTreeObserver;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
@@ -67,24 +66,12 @@ public class CustomView extends Feature {
             protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
                 var view = (ViewGroup) param.thisObject;
                 if (view.getId() == android.R.id.content && (view.getTag() == null || view.getTag() != "attachCSS")) {
-                    var onAttach = new ViewTreeObserver.OnWindowAttachListener() {
-                        @Override
-                        public void onWindowAttached() {
-                            setCssRule(view, cssFactory);
-                        }
-
-                        @Override
-                        public void onWindowDetached() {
-
-                        }
-                    };
-                    view.getViewTreeObserver().addOnWindowAttachListener(onAttach);
+                    view.getViewTreeObserver().addOnGlobalLayoutListener(() -> setCssRule(view, cssFactory));
                     setCssRule(view, cssFactory);
                     view.setTag("attachCSS");
                 }
             }
         });
-
 
     }
 
@@ -171,6 +158,10 @@ public class CustomView extends Feature {
                                 }
                             }
                             case "background" -> {
+                                if (declaration.get(0) instanceof TermColor uri){
+                                    view.setBackground(new ColorDrawable(uri.getValue().getRGB()));
+                                    continue;
+                                }
                                 var value = declaration.get(0).toString().trim();
                                 switch (value) {
                                     case "none" -> view.setBackground(null);
@@ -250,16 +241,21 @@ public class CustomView extends Feature {
         var selectorItem = selector.get(position);
         if (selectorItem.getIDName() != null) {
             var name = selectorItem.getIDName().trim();
-//            log("Search ID:" + selectorItem + " in " + currentView);
-            var id = Utils.getID(name, "id");
+            int id = 0;
+            if (name.contains("android_")) {
+                try {
+                    id = android.R.id.class.getField(name.substring(8)).getInt(null);
+                } catch (NoSuchFieldException | IllegalAccessException ignored) {
+                }
+            } else {
+                id = Utils.getID(name, "id");
+            }
             if (id <= 0) return;
             var view = currentView.findViewById(id);
             if (view == null) return;
             if (selector.size() == position + 1) {
-//                log("Found: " + view);
                 resultViews.add(view);
             } else {
-//                log("Capture: " + view);
                 captureSelector(view, selector, position + 1, resultViews);
             }
         } else {
@@ -283,10 +279,20 @@ public class CustomView extends Feature {
                     } else {
                         captureSelector(itemView, selector, position + 1, resultViews);
                     }
+                } else if (isWidgetString(name[0]) && itemView instanceof ViewGroup viewGroup1) {
+                    for (int j = 0; j < viewGroup1.getChildCount(); j++) {
+                        var childView = viewGroup1.getChildAt(j);
+                        captureSelector(childView, selector, position, resultViews);
+                    }
                 }
             }
         }
     }
+
+    private boolean isWidgetString(String view) {
+        return XposedHelpers.findClassIfExists("android.widget." + view, null) != null;
+    }
+
 
     @NonNull
     @Override
