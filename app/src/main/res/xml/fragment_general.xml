@@ -148,6 +148,11 @@
             app:summary="@string/delete_for_everyone_all_messages_sum"
             app:title="@string/delete_for_everyone_all_messages" />
 
+        <rikka.material.preference.MaterialSwitchPreference
+            app:key="antidisappearing"
+            app:summary="@string/antidisappearing_sum"
+            app:title="@string/antidisappearing" />
+
 <!--        <rikka.material.preference.MaterialSwitchPreference-->
 <!--            app:key="editallmessages"-->
 <!--            app:summary="@string/remove_limit_edit_message_sum"-->

@@ -19,6 +19,8 @@ public class ChatLimit extends Feature {
 
         var chatLimitDeleteMethod = Unobfuscator.loadChatLimitDeleteMethod(loader);
         var chatLimitDelete2Method = Unobfuscator.loadChatLimitDelete2Method(loader);
+        var EphemeralUpdateRunnable = Unobfuscator.loadEphemeralUpdateRunnable(loader);
+
 //        var chatLimitEditClass = Unobfuscator.loadChatLimitEditClass(loader);
 
 //        if (prefs.getBoolean("editallmessages", false)) {
@@ -29,9 +31,11 @@ public class ChatLimit extends Feature {
         XposedBridge.hookMethod(chatLimitDeleteMethod, new XC_MethodHook() {
             @Override
             protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-                if (Unobfuscator.isCalledFromMethod(chatLimitDelete2Method)) {
-                    if (prefs.getBoolean("revokeallmessages", false))
+                if (Unobfuscator.isCalledFromMethod(chatLimitDelete2Method) && prefs.getBoolean("revokeallmessages", false)) {
                         param.setResult(0L);
+                }
+                else if (Unobfuscator.isCalledFromClass(EphemeralUpdateRunnable.getDeclaringClass()) && prefs.getBoolean("antidisappearing", false)) {
+                    param.setResult(0);
                 }
             }
         });
@@ -40,7 +44,7 @@ public class ChatLimit extends Feature {
         XposedBridge.hookMethod(seeMoreMethod, new XC_MethodHook() {
             @Override
             protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
-                if (!prefs.getBoolean("removeseemore", false))return;
+                if (!prefs.getBoolean("removeseemore", false)) return;
                 param.args[0] = 0;
             }
         });
