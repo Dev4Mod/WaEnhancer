@@ -2,13 +2,16 @@ package com.wmods.wppenhacer.xposed.features.customization;
 
 import static com.wmods.wppenhacer.utils.ColorReplacement.replaceColors;
 
+import android.content.res.ColorStateList;
 import android.graphics.Bitmap;
+import android.graphics.PorterDuff;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.text.TextUtils;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewTreeObserver;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
@@ -34,9 +37,8 @@ import java.util.concurrent.TimeUnit;
 
 import cz.vutbr.web.css.CSSFactory;
 import cz.vutbr.web.css.CombinedSelector;
-import cz.vutbr.web.css.RuleBlock;
+import cz.vutbr.web.css.Declaration;
 import cz.vutbr.web.css.RuleSet;
-import cz.vutbr.web.css.StyleSheet;
 import cz.vutbr.web.css.TermColor;
 import cz.vutbr.web.css.TermFloatValue;
 import cz.vutbr.web.css.TermLength;
@@ -49,6 +51,7 @@ import de.robv.android.xposed.XposedHelpers;
 public class CustomView extends Feature {
 
     private DrawableCache cacheImages;
+    private HashMap<Integer, ArrayList<RuleItem>> IdObjects;
 
     public CustomView(@NonNull ClassLoader loader, @NonNull XSharedPreferences preferences) {
         super(loader, preferences);
@@ -58,181 +61,279 @@ public class CustomView extends Feature {
     public void doHook() throws Throwable {
         cacheImages = new DrawableCache();
         var filter_itens = prefs.getString("css_theme", null);
-
         if (TextUtils.isEmpty(filter_itens)) return;
-
-        var cssFactory = CSSFactory.parseString(filter_itens, new URL("https://base.url/"));
+        var sheet = CSSFactory.parseString(filter_itens, new URL("https://base.url/"));
+        IdObjects = new HashMap<>();
+        for (var selector : sheet) {
+            var ruleSet = (RuleSet) selector;
+            for (var selectorItem : ruleSet.getSelectors()) {
+                var name = selectorItem.get(0).getIDName().trim();
+                int id = 0;
+                if (name.contains("android_")) {
+                    try {
+                        id = android.R.id.class.getField(name.substring(8)).getInt(null);
+                    } catch (NoSuchFieldException | IllegalAccessException ignored) {
+                    }
+                } else {
+                    id = Utils.getID(name, "id");
+                }
+                if (id <= 0) continue;
+                var rule = IdObjects.computeIfAbsent(id, k -> new ArrayList<>());
+                rule.add(new RuleItem(selectorItem, ruleSet));
+            }
+        }
         XposedHelpers.findAndHookMethod(FrameLayout.class, "onMeasure", int.class, int.class, new XC_MethodHook() {
             @Override
             protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
-                var view = (ViewGroup) param.thisObject;
-                if (view.getId() == android.R.id.content && (view.getTag() == null || view.getTag() != "attachCSS")) {
-                    view.getViewTreeObserver().addOnGlobalLayoutListener(() -> setCssRule(view, cssFactory));
-                    setCssRule(view, cssFactory);
-                    view.setTag("attachCSS");
+                var currentView = (ViewGroup) param.thisObject;
+                if (currentView.getId() == android.R.id.content && (currentView.getTag() == null || currentView.getTag() != "attachCSS")) {
+                    currentView.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+                        @Override
+                        public void onGlobalLayout() {
+                            currentView.getViewTreeObserver().removeOnGlobalLayoutListener(this);
+                            registerCssRules(currentView);
+                            currentView.getViewTreeObserver().addOnGlobalLayoutListener(this);
+                        }
+                    });
+                    currentView.setTag("attachCSS");
                 }
             }
         });
 
     }
 
-    private void setCssRule(Object object, StyleSheet sheet) {
-        for (RuleBlock<?> rule : sheet) {
-            var currentView = (View) object;
-            var ruleSet = (RuleSet) rule;
-            for (var selector : ruleSet.getSelectors()) {
-                var resultViews = new ArrayList<View>();
-                captureSelector(currentView, selector, 0, resultViews);
-                if (ruleSet.getSelectors().length == 0 || ruleSet.isEmpty() || resultViews.isEmpty())
-                    continue;
-                for (var view : resultViews) {
-                    for (var declaration : ruleSet) {
-                        var property = declaration.getProperty();
-                        switch (property) {
-                            case "background-color" -> {
-                                if (declaration.size() != 2) continue;
-                                var color = (TermColor) declaration.get(0);
-                                var colorNew = (TermColor) declaration.get(1);
-                                var colorValue = IColors.toString(color.getValue().getRGB());
-                                var colorNewValue = IColors.toString(colorNew.getValue().getRGB());
-                                HashMap<String, String> colors = new HashMap<>();
-                                colors.put(colorValue, colorNewValue);
-                                replaceColors(view, colors);
+    private void registerCssRules(ViewGroup currenView) {
+        for (var id : IdObjects.keySet()) {
+            var findView = currenView.findViewById(id);
+            if (findView == null) continue;
+            var rulesItens = IdObjects.get(id);
+            if (rulesItens == null) continue;
+            setCssRule(findView, rulesItens);
+        }
+    }
+
+    private void setCssRule(View currentView, ArrayList<RuleItem> ruleItens) {
+        for (var ruleItem : ruleItens) {
+            var resultViews = new ArrayList<View>();
+            captureSelector(currentView, ruleItem.selector, 0, resultViews);
+            if (ruleItem.rule.getSelectors().length == 0 || ruleItem.rule.isEmpty() || resultViews.isEmpty())
+                return;
+            for (var view : resultViews) {
+                for (var declaration : ruleItem.rule) {
+                    var property = declaration.getProperty();
+                    switch (property) {
+                        case "background-color" -> {
+                            if (declaration.size() != 2) continue;
+                            var color = (TermColor) declaration.get(0);
+                            var colorNew = (TermColor) declaration.get(1);
+                            var colorValue = IColors.toString(color.getValue().getRGB());
+                            var colorNewValue = IColors.toString(colorNew.getValue().getRGB());
+                            HashMap<String, String> colors = new HashMap<>();
+                            colors.put(colorValue, colorNewValue);
+                            replaceColors(view, colors);
+                            if (view instanceof ImageView imageView) {
+                                var drawable = imageView.getDrawable();
+                                if (drawable == null) continue;
+                                drawable.setTint(colorNew.getValue().getRGB());
+                            }
+                        }
+                        case "display" -> {
+                            var value = declaration.get(0).toString();
+                            switch (value) {
+                                case "none" -> view.setVisibility(View.GONE);
+                                case "block" -> view.setVisibility(View.VISIBLE);
+                                case "invisible" -> view.setVisibility(View.INVISIBLE);
+                            }
+                        }
+                        case "font-size" -> {
+                            if (!(view instanceof TextView textView)) return;
+                            var value = (TermLength) declaration.get(0);
+                            textView.setTextSize(getRealValue(value, 0));
+                        }
+                        case "color" -> {
+                            if (!(view instanceof TextView textView)) return;
+                            var value = (TermColor) declaration.get(0);
+                            textView.setTextColor(value.getValue().getRGB());
+                        }
+                        case "alpha" -> {
+                            var value = (TermFloatValue) declaration.get(0);
+                            view.setAlpha(value.getValue());
+                        }
+                        case "background-image" -> {
+                            var uri = (TermURI) declaration.get(0);
+                            if (!new File(uri.getValue()).exists()) continue;
+                            var draw = cacheImages.getDrawable(uri.getValue());
+                            if (view instanceof ImageView imageView) {
+                                imageView.setImageDrawable(draw);
+                            } else {
+                                view.setBackground(draw);
+                            }
+                        }
+                        case "background-size" -> {
+                            if (declaration.get(0) instanceof TermLength width) {
+                                var height = (TermLength) declaration.get(1);
                                 if (view instanceof ImageView imageView) {
-                                    var drawable = imageView.getDrawable();
-                                    if (drawable == null) continue;
-                                    drawable.setTint(colorNew.getValue().getRGB());
-                                }
-                            }
-                            case "display" -> {
-                                var value = declaration.get(0).toString();
-                                switch (value) {
-                                    case "none" -> view.setVisibility(View.GONE);
-                                    case "block" -> view.setVisibility(View.VISIBLE);
-                                    case "invisible" -> view.setVisibility(View.INVISIBLE);
-                                }
-                            }
-                            case "font-size" -> {
-                                if (!(view instanceof TextView textView)) return;
-                                var value = (TermLength) declaration.get(0);
-                                textView.setTextSize(getRealValue(value));
-                            }
-                            case "alpha" -> {
-                                var value = (TermFloatValue) declaration.get(0);
-                                view.setAlpha(value.getValue());
-                            }
-                            case "background-image" -> {
-                                var uri = (TermURI) declaration.get(0);
-                                if (!new File(uri.getValue()).exists()) continue;
-                                var draw = cacheImages.getDrawable(uri.getValue());
-                                if (view instanceof ImageView imageView) {
-                                    imageView.setImageDrawable(draw);
-                                } else {
-                                    view.setBackground(draw);
-                                }
-                            }
-                            case "background-size" -> {
-                                if (declaration.get(0) instanceof TermLength width) {
-                                    var height = (TermLength) declaration.get(1);
-                                    if (view instanceof ImageView imageView) {
-                                        var drawable = imageView.getDrawable();
-                                        if (drawable == null) continue;
-                                        Bitmap bitmap = ((BitmapDrawable) drawable).getBitmap();
-                                        Bitmap resizedBitmap = Bitmap.createScaledBitmap(bitmap, getRealValue(width), getRealValue(height), false);
-                                        drawable = new BitmapDrawable(view.getContext().getResources(), resizedBitmap);
-                                        imageView.setImageDrawable(drawable);
-                                    } else {
-                                        var drawable = view.getBackground();
-                                        if (drawable == null) continue;
-                                        Bitmap bitmap = ((BitmapDrawable) drawable).getBitmap();
-                                        Bitmap resizedBitmap = Bitmap.createScaledBitmap(bitmap, getRealValue(width), getRealValue(height), false);
-                                        drawable = new BitmapDrawable(view.getContext().getResources(), resizedBitmap);
-                                        view.setBackground(drawable);
-                                    }
-                                } else {
-                                    var value = declaration.get(0).toString().trim();
-                                    if (value.equals("cover")) {
-                                        if (view instanceof ImageView imageView) {
-                                            imageView.setScaleType(ImageView.ScaleType.CENTER_CROP);
+                                    if (width.isPercentage() || height.isPercentage()) {
+                                        if (width.getValue() == 100 || height.getValue() == 100) {
+                                            imageView.setScaleType(ImageView.ScaleType.FIT_CENTER);
+                                            continue;
                                         }
                                     }
+                                    var drawable = imageView.getDrawable();
+                                    if (drawable == null) continue;
+                                    Bitmap bitmap = ((BitmapDrawable) drawable).getBitmap();
+                                    Bitmap resizedBitmap = Bitmap.createScaledBitmap(bitmap, getRealValue(width, imageView.getWidth()), getRealValue(height, imageView.getHeight()), false);
+                                    drawable = new BitmapDrawable(view.getContext().getResources(), resizedBitmap);
+                                    imageView.setImageDrawable(drawable);
+                                } else {
+                                    var drawable = view.getBackground();
+                                    if (drawable == null) continue;
+                                    Bitmap bitmap = ((BitmapDrawable) drawable).getBitmap();
+                                    Bitmap resizedBitmap = Bitmap.createScaledBitmap(bitmap, getRealValue(width, 0), getRealValue(height, 0), false);
+                                    drawable = new BitmapDrawable(view.getContext().getResources(), resizedBitmap);
+                                    view.setBackground(drawable);
+                                }
+                            } else {
+                                var value = declaration.get(0).toString().trim();
+                                if (value.equals("cover")) {
+                                    if (view instanceof ImageView imageView) {
+                                        imageView.setScaleType(ImageView.ScaleType.CENTER_CROP);
+                                    }
                                 }
                             }
-                            case "background" -> {
-                                if (declaration.get(0) instanceof TermColor uri){
-                                    view.setBackground(new ColorDrawable(uri.getValue().getRGB()));
-                                    continue;
+                        }
+                        case "background" -> {
+                            if (declaration.get(0) instanceof TermColor uri) {
+                                view.setBackground(new ColorDrawable(uri.getValue().getRGB()));
+                                continue;
+                            }
+                            var value = declaration.get(0).toString().trim();
+                            switch (value) {
+                                case "none" -> view.setBackground(null);
+                                case "transparent" -> view.setBackgroundColor(0);
+                            }
+                        }
+                        case "foreground" -> {
+                            var value = declaration.get(0).toString().trim();
+                            switch (value) {
+                                case "none" -> view.setForeground(null);
+                                case "transparent" -> view.setForeground(new ColorDrawable(0));
+                            }
+                        }
+                        case "width" -> {
+                            var value = (TermLength) declaration.get(0);
+                            view.getLayoutParams().width = getRealValue(value, 0);
+                            view.requestLayout();
+                        }
+                        case "height" -> {
+                            var value = (TermLength) declaration.get(0);
+                            view.getLayoutParams().height = getRealValue(value, 0)
+                            ;
+                        }
+                        case "left" -> {
+                            var value = (TermLength) declaration.get(0);
+                            var layoutParams = view.getLayoutParams();
+                            if (layoutParams instanceof RelativeLayout.LayoutParams rParams) {
+                                rParams.addRule(RelativeLayout.ALIGN_LEFT, getRealValue(value, 0));
+                            } else if (layoutParams instanceof FrameLayout.LayoutParams fParams) {
+                                fParams.leftMargin = getRealValue(value, 0);
+                            }
+                        }
+                        case "right" -> {
+                            var value = (TermLength) declaration.get(0);
+                            var layoutParams = view.getLayoutParams();
+                            if (layoutParams instanceof RelativeLayout.LayoutParams rParams) {
+                                rParams.addRule(RelativeLayout.ALIGN_RIGHT, getRealValue(value, 0));
+                            } else if (layoutParams instanceof FrameLayout.LayoutParams fParams) {
+                                fParams.rightMargin = getRealValue(value, 0);
+                            }
+                        }
+                        case "top" -> {
+                            var value = (TermLength) declaration.get(0);
+                            var layoutParams = view.getLayoutParams();
+                            if (layoutParams instanceof RelativeLayout.LayoutParams rParams) {
+                                rParams.addRule(RelativeLayout.ALIGN_TOP, getRealValue(value, 0));
+                            } else if (layoutParams instanceof FrameLayout.LayoutParams fParams) {
+                                fParams.topMargin = getRealValue(value, 0);
+                            }
+                        }
+                        case "bottom" -> {
+                            var value = (TermLength) declaration.get(0);
+                            var layoutParams = view.getLayoutParams();
+                            if (layoutParams instanceof RelativeLayout.LayoutParams rParams) {
+                                rParams.addRule(RelativeLayout.ALIGN_BOTTOM, getRealValue(value, 0));
+                            } else if (layoutParams instanceof FrameLayout.LayoutParams fParams) {
+                                fParams.bottomMargin = getRealValue(value, 0);
+                            }
+                        }
+                        case "color-filter" -> {
+                            if (!(view instanceof ImageView imageView)) continue;
+                            var mode = declaration.get(0).toString().trim();
+                            if (mode.equals("none")) {
+                                imageView.clearColorFilter();
+                                continue;
+                            }
+                            var color = (TermColor) declaration.get(1);
+                            try {
+                                var pMode = PorterDuff.Mode.valueOf(mode);
+                                imageView.setColorFilter(color.getValue().getRGB(), pMode);
+                            } catch (Exception ignored) {
+                            }
+                        }
+                        case "color-tint" -> {
+                            if (!(view instanceof ImageView imageView)) continue;
+                            if (declaration.get(0) instanceof TermColor color) {
+                                if (declaration.size() == 1) {
+                                    imageView.setImageTintList(ColorStateList.valueOf(color.getValue().getRGB()));
+                                } else if (declaration.size() == 3) {
+                                    ColorStateList themeColorStateList = getColorStateList(declaration);
+                                    imageView.setImageTintList(themeColorStateList);
                                 }
+                            } else {
                                 var value = declaration.get(0).toString().trim();
                                 switch (value) {
-                                    case "none" -> view.setBackground(null);
-                                    case "transparent" -> view.setBackgroundColor(0);
-                                }
-                            }
-                            case "foreground" -> {
-                                var value = declaration.get(0).toString().trim();
-                                switch (value) {
-                                    case "none" -> view.setForeground(null);
-                                    case "transparent" -> view.setForeground(new ColorDrawable(0));
-                                }
-                            }
-                            case "width" -> {
-                                var value = (TermLength) declaration.get(0);
-                                view.getLayoutParams().width = getRealValue(value);
-                                view.requestLayout();
-                            }
-                            case "height" -> {
-                                var value = (TermLength) declaration.get(0);
-                                view.getLayoutParams().height = getRealValue(value)
-                                ;
-                            }
-                            case "left" -> {
-                                var value = (TermLength) declaration.get(0);
-                                var layoutParams = view.getLayoutParams();
-                                if (layoutParams instanceof RelativeLayout.LayoutParams rParams) {
-                                    rParams.addRule(RelativeLayout.ALIGN_LEFT, getRealValue(value));
-                                } else if (layoutParams instanceof FrameLayout.LayoutParams fParams) {
-                                    fParams.leftMargin = getRealValue(value);
-                                }
-                            }
-                            case "right" -> {
-                                var value = (TermLength) declaration.get(0);
-                                var layoutParams = view.getLayoutParams();
-                                if (layoutParams instanceof RelativeLayout.LayoutParams rParams) {
-                                    rParams.addRule(RelativeLayout.ALIGN_RIGHT, getRealValue(value));
-                                } else if (layoutParams instanceof FrameLayout.LayoutParams fParams) {
-                                    fParams.rightMargin = getRealValue(value);
-                                }
-                            }
-                            case "top" -> {
-                                var value = (TermLength) declaration.get(0);
-                                var layoutParams = view.getLayoutParams();
-                                if (layoutParams instanceof RelativeLayout.LayoutParams rParams) {
-                                    rParams.addRule(RelativeLayout.ALIGN_TOP, getRealValue(value));
-                                } else if (layoutParams instanceof FrameLayout.LayoutParams fParams) {
-                                    fParams.topMargin = getRealValue(value);
-                                }
-                            }
-                            case "bottom" -> {
-                                var value = (TermLength) declaration.get(0);
-                                var layoutParams = view.getLayoutParams();
-                                if (layoutParams instanceof RelativeLayout.LayoutParams rParams) {
-                                    rParams.addRule(RelativeLayout.ALIGN_BOTTOM, getRealValue(value));
-                                } else if (layoutParams instanceof FrameLayout.LayoutParams fParams) {
-                                    fParams.bottomMargin = getRealValue(value);
+                                    case "none" -> imageView.setImageTintList(null);
+                                    case "transparent" ->
+                                            imageView.setImageTintList(ColorStateList.valueOf(0));
                                 }
                             }
                         }
                     }
                 }
             }
+            currentView.invalidate();
         }
-
     }
 
-    private int getRealValue(TermLength value) {
+    @NonNull
+    private static ColorStateList getColorStateList(Declaration declaration) {
+        var defaultFontColor = ((TermColor) declaration.get(0)).getValue().getRGB();
+        var pressedFontColor = ((TermColor) declaration.get(1)).getValue().getRGB();
+        var disabledFontColor = ((TermColor) declaration.get(2)).getValue().getRGB();
+
+        return new ColorStateList(
+                new int[][]{
+                        new int[]{android.R.attr.state_pressed},
+                        new int[]{android.R.attr.state_enabled},
+                        new int[]{android.R.attr.state_focused, android.R.attr.state_pressed},
+                        new int[]{-android.R.attr.state_enabled},
+                        new int[]{} // this should be empty to make default color as we want
+                },
+                new int[]{
+                        pressedFontColor,
+                        defaultFontColor,
+                        pressedFontColor,
+                        disabledFontColor,
+                        defaultFontColor
+                }
+        );
+    }
+
+    private int getRealValue(TermLength value, int size) {
         if (value.getUnit() == TermNumeric.Unit.px) {
             return Utils.dipToPixels(value.getValue().intValue());
+        } else if (value.isPercentage()) {
+            return size * value.getValue().intValue() / 100;
         }
         return value.getValue().intValue();
     }
@@ -252,7 +353,7 @@ public class CustomView extends Feature {
                 id = Utils.getID(name, "id");
             }
             if (id <= 0) return;
-            var view = currentView.findViewById(id);
+            View view = currentView.getId() == id ? currentView : currentView.findViewById(id);
             if (view == null) return;
             if (selector.size() == position + 1) {
                 resultViews.add(view);
@@ -330,6 +431,16 @@ public class CustomView extends Feature {
 //        public void invalidateCache() {
 //            drawableCache.invalidateAll();
 //        }
+    }
+
+    public static class RuleItem {
+        public CombinedSelector selector;
+        public RuleSet rule;
+
+        public RuleItem(CombinedSelector selectorItem, RuleSet ruleSet) {
+            selector = selectorItem;
+            rule = ruleSet;
+        }
     }
 
 }
