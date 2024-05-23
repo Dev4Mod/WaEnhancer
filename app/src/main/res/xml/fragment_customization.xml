@@ -37,13 +37,6 @@
             app:summary="@string/default_color"
             app:title="@string/background_color" />
 
-        <MultiSelectListPreference
-            app:entries="@array/tabshide_contents"
-            app:entryValues="@array/tabshide_values"
-            app:key="hidetabs"
-            app:summary="@string/hide_tabs_on_home_sum"
-            app:title="@string/hide_tabs_on_home" />
-
         <rikka.material.preference.MaterialSwitchPreference
             app:key="igstatus"
             app:summary="@string/igstatus_on_home_screen_sum"
@@ -94,10 +87,12 @@
             app:showSeekBarValue="true"
             app:title="@string/navigation_transparency" />
 
-        <rikka.material.preference.MaterialSwitchPreference
-            app:key="admin_grp"
-            app:summary="@string/show_admin_group_icon_sum"
-            app:title="@string/show_admin_group_icon" />
+        <MultiSelectListPreference
+            app:entries="@array/tabshide_contents"
+            app:entryValues="@array/tabshide_values"
+            app:key="hidetabs"
+            app:summary="@string/hide_tabs_on_home_sum"
+            app:title="@string/hide_tabs_on_home" />
 
         <EditTextPreference
             app:key="filter_itens"
@@ -106,7 +101,7 @@
 
         <EditTextPreference
             app:key="css_theme"
-            android:summary="@string/ustom_theme_css_sum"
+            android:summary="@string/custom_theme_css_sum"
             app:title="@string/custom_theme_css" />
 
     </PreferenceCategory>
@@ -114,6 +109,11 @@
     <PreferenceCategory
         app:iconSpaceReserved="false"
         app:title="@string/conversation">
+
+        <rikka.material.preference.MaterialSwitchPreference
+            app:key="admin_grp"
+            app:summary="@string/show_admin_group_icon_sum"
+            app:title="@string/show_admin_group_icon" />
 
         <rikka.material.preference.MaterialSwitchPreference
             app:key="floatingmenu"
@@ -166,7 +166,9 @@
 
     </PreferenceCategory>
 
-    <PreferenceCategory android:title="@string/status">
+    <PreferenceCategory
+        app:iconSpaceReserved="false"
+        app:title="@string/status">
         <rikka.material.preference.MaterialSwitchPreference
             app:key="removechannel_rec"
             app:summary="@string/remove_channel_recomendations_sum"

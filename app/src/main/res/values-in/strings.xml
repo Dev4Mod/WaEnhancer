@@ -21,9 +21,7 @@
     <string name="segundosnahora">Detik dalam Waktu</string>
     <string name="segundosnahora_sum">Tampilkan detik di samping waktu apapun di aplikasi WhatsApp</string>
     <string name="textonahora">Tambahkan teks disebelah waktu pesan</string>
-    <string name="no_active">Jika Anda berada di layar ini, berarti Anda belum menginstal LSPosed atau tidak memiliki APK WhatsApp apa pun yang dipatch oleh LSPatch.
-
-Silahkan perbaiki! Mulai ulang modul dan coba lagi</string>
+    <string name="no_active">Jika Anda berada di layar ini, berarti Anda belum menginstal LSPosed atau tidak memiliki APK WhatsApp apa pun yang dipatch oleh LSPatch.\n\nSilahkan perbaiki! Mulai ulang modul dan coba lagi</string>
     <string name="viewonce">Nonaktifkan Batas Sekali Lihat</string>
     <string name="viewonce_sum">Anda dapat membuka pesan \"lihat sekali\" berkali-kali</string>
     <string name="novotema">Tema WhatsApp Baru</string>
@@ -47,7 +45,7 @@ Silahkan perbaiki! Mulai ulang modul dan coba lagi</string>
     <string name="videoquality_sum">Kirim video dalam kualitas HD</string>
     <string name="colors_title">Warna</string>
     <string name="colors_customization">Ubah Warna WhatsApp Anda</string>
-    <string name="colors_customization_sum">Change all colors in your WhatsApp (Working only in Dark Theme)</string>
+    <string name="colors_customization_sum">Ubah semua warna di Whatsapp Anda (Hanya berfungsi di Tema Gelap)</string>
     <string name="current_color_s">Warna saat ini: %s</string>
     <string name="apply_button">Terapkan</string>
     <string name="invalid_color">Warna tidak valid</string>
@@ -80,8 +78,7 @@ Silahkan perbaiki! Mulai ulang modul dan coba lagi</string>
     <string name="outlinedicons">Ikon Kerangka</string>
     <string name="outlinedicons_sum">Gaya ikon kerangka baru</string>
     <string name="freezelastseen">Bekukan \"terakhir dilihat dan online\"</string>
-    <string name="freezelastseen_sum">Waktu \"terakhir dilihat dan online\" Anda akan dibekukan
-(PERHATIAN: Anda tidak dapat melihat pembaruan kehadiran apa pun dari orang lain seperti: mengetik, merekam, terakhir dilihat dan online)</string>
+    <string name="freezelastseen_sum">Waktu \"terakhir dilihat dan online\" Anda akan dibekukan\n(PERHATIAN: Anda tidak dapat melihat pembaruan kehadiran apa pun dari orang lain seperti: mengetik, merekam, terakhir dilihat dan online)</string>
     <string name="removeforwardlimit_sum">Hapus batas penerusan pesan untuk 5 obrolan (normal) dan 1 obrolan (berkali-kali)</string>
     <string name="removeforwardlimit">Hapus Batas \"Diteruskan\"</string>
     <string name="forward">Teruskan</string>
@@ -92,8 +89,7 @@ Silahkan perbaiki! Mulai ulang modul dan coba lagi</string>
     <string name="showbio">Tampilkan Bio</string>
     <string name="reset_preferences">Setel ulang preferensi</string>
     <string name="reset_preferences_sum">Ketuk di sini untuk mengatur ulang semua pengaturan yang disimpan</string>
-    <string name="reset_preferences_message">Tindakan ini akan mengatur ulang semua preferensi yang tersimpan.
-Anda perlu mengaktifkan dan mengatur ulang kembali</string>
+    <string name="reset_preferences_message">Tindakan ini akan mengatur ulang semua preferensi yang tersimpan\nAnda perlu mengaktifkan dan mengatur ulang kembali</string>
     <string name="reset">Setel ulang</string>
     <string name="bubble_left">Gelembung Kiri</string>
     <string name="bubble_right">Gelembung Kanan</string>
@@ -125,8 +121,7 @@ Anda perlu mengaktifkan dan mengatur ulang kembali</string>
     <string name="call_blocker">Blokir Panggilan</string>
     <string name="call_blocker_sum">Blokir panggilan WhatsApp berdasarkan jenis privasi</string>
     <string name="show_online_dot_in_conversation_list">Tampilkan Titik Online</string>
-    <string name="show_online_dot_in_conversation_list_sum">Tampilkan titik online berwarna hijau di layar beranda
-(CATATAN: Harus mengaktifkan \"Terakhir dilihat dan online\" untuk semua orang di menu setelan privasi WhatsApp)</string>
+    <string name="show_online_dot_in_conversation_list_sum">Tampilkan titik online berwarna hijau di layar beranda\n(CATATAN: Harus mengaktifkan \"Terakhir dilihat dan online\" untuk semua orang di menu setelan privasi WhatsApp)</string>
     <string name="show_dnd_button">Tampilkan Tombol DND</string>
     <string name="show_dnd_button_sum">Tampilkan tombol mode DND di toolbar layar beranda</string>
     <string name="dev4mod">Dev4Mod (Penyumbang)</string>
@@ -179,9 +174,7 @@ Anda perlu mengaktifkan dan mengatur ulang kembali</string>
     <string name="whatsapp_in_background">WhatsApp berjalan dilatar belakang</string>
     <string name="whatsapp_is_not_running_or_has_not_been_activated_in_lsposed">WhatsApp tidak berjalan atau belum diaktifkan di LSPosed</string>
     <string name="business_is_not_running_or_has_not_been_activated_in_lsposed">WhatsApp Bisnis tidak berjalan atau belum diaktifkan di LSPosed</string>
-    <string name="restart_wpp">WhatsApp harus dimulai ulang agar perubahan di Wa Enhancer dapat diterapkan.
-
-Apakah Anda ingin mulai ulang WhatsApp?</string>
+    <string name="restart_wpp">WhatsApp harus dimulai ulang agar perubahan di Wa Enhancer dapat diterapkan\n\nApakah Anda ingin mulai ulang WhatsApp?</string>
     <string name="version_s_not_listed">Versi %s tidak terdaftar</string>
     <string name="media">Media</string>
     <string name="show_button_to_send_blue_tick">Tampilkan Tombol Centang Biru</string>
@@ -197,8 +190,7 @@ Apakah Anda ingin mulai ulang WhatsApp?</string>
     <string name="enable_filter_chats">Aktifkan Filter Obrolan</string>
     <string name="enable_filter_chats_sum">Tampilkan opsi untuk memfilter obrolan seperti grup, kontak dan pesan belum dibaca</string>
     <string name="disable_channels">Nonaktifkan Saluran</string>
-    <string name="disable_channels_sum">Nonaktifkan saluran dari tab Status
-(CATATAN: Nonaktifkan IGStatus agar berfungsi!)</string>
+    <string name="disable_channels_sum">Nonaktifkan saluran dari tab Status\n(CATATAN: Nonaktifkan IGStatus agar berfungsi!)</string>
     <string name="chat">Obrolan</string>
     <string name="change_bubble_colors">Ubah Warna Gelembung</string>
     <string name="change_blubble_color_sum">Ubah warna gelembung di layar percakapan</string>
@@ -265,14 +257,25 @@ Apakah Anda ingin mulai ulang WhatsApp?</string>
     <string name="rebooting">Menyalakan ulang</string>
     <string name="deleted_message">menghapus pesan</string>
     <string name="deleted_status">menghapus status</string>
-    <string name="remove_limit_edit_message">Remove Limit To Edit message</string>
-    <string name="remove_limit_edit_message_sum">Removes the 15 minute limit for editing a message</string>
-    <string name="disable_audio_sensor">Disable Audio Sensor</string>
-    <string name="disable_audio_sensor_sum">Disable audio switching with the proximity sensor</string>
-    <string name="show_admin_group_icon">Show Admin Group Icon</string>
-    <string name="show_admin_group_icon_sum">add an icon next to the name of the user who is the group admin</string>
-    <string name="toolbar_transparency">Toolbar Transparency</string>
-    <string name="navigation_transparency">Navigation Transparency</string>
-    <string name="show_online_last_seen_in_conversation_list">Show Online/Last seen in Conversation List</string>
-    <string name="show_online_last_seen_in_conversation_list_sum">Show a text online or last seen on home screen\n(NOTE: Must activate show online for everyone in WhatsApp\'s Privacy Settings menu)</string>
+    <string name="remove_limit_edit_message">Hapus Batas Mengedit Pesan</string>
+    <string name="remove_limit_edit_message_sum">Hapus batas 15 menit untuk mengedit pesan</string>
+    <string name="disable_audio_sensor">Nonaktifkan Sensor Audio</string>
+    <string name="disable_audio_sensor_sum">Nonaktifkan peralihan audio dengan sensor jarak</string>
+    <string name="show_admin_group_icon">Tampilkan Ikon Admin Grup</string>
+    <string name="show_admin_group_icon_sum">Tampilkan ikon admin di samping nama pengguna yang merupakan admin grup</string>
+    <string name="toolbar_transparency">Transparansi Toolbar</string>
+    <string name="navigation_transparency">Transparansi Navigasi</string>
+    <string name="show_online_last_seen_in_conversation_list">Tampilkan \"terakhir dilihat dan online\"</string>
+    <string name="show_online_last_seen_in_conversation_list_sum">Tampilkan \"terakhir dilihat dan online\" di layar beranda\n(CATATAN: Harus mengaktifkan \"Terakhir dilihat dan online\" untuk semua orang di menu setelan privasi WhatsApp)</string>
+    <string name="toast_online">%s online</string>
+    <string name="show_toast_on_contact_online">Toast Kontak Online</string>
+    <string name="show_toast_on_contact_online_sum">Tampilkan notifikasi mengambang ketika kontak sedang online</string>
+    <string name="new_context_menu_ui">Menu UI Konteks Baru</string>
+    <string name="new_context_menu_ui_sum">Aktifkan menu konteks pesan bergaya iOS baru</string>
+    <string name="filter_itens_by_id">Filter Item Berdasarkan ID</string>
+    <string name="filter_itens_by_id_sum">Filter item berdasarkan nama ID</string>
+    <string name="custom_theme_css">Tema Khusus CSS</string>
+    <string name="custom_theme_css_sum">Sesuaikan WhatsApp Anda menggunakan gaya CSS</string>
+    <string name="title_audio">Audio</string>
+    <string name="android_version">Versi Android</string>
 </resources>

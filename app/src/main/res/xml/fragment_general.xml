@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PreferenceScreen xmlns:app="http://schemas.android.com/apk/res-auto">
     <PreferenceCategory
+        app:iconSpaceReserved="false"
         app:title="@string/general">
 
         <rikka.material.preference.MaterialSwitchPreference
@@ -60,7 +61,6 @@
             app:summary="@string/show_freezeLastSeen_sum"
             app:title="@string/show_freezeLastSeen_button" />
 
-
         <rikka.material.preference.MaterialSwitchPreference
             app:key="separategroups"
             app:summary="@string/separate_groups_sum"
@@ -82,11 +82,14 @@
             app:title="@string/show_online_last_seen_in_conversation_list" />
 
         <rikka.material.preference.MaterialSwitchPreference
-            app:key="pinnedlimit"
-            app:summary="@string/disable_pinned_limit_sum"
-            app:title="@string/disable_pinned_limit" />
+            app:key="filterseen"
+            app:summary="@string/enable_filter_chats_sum"
+            app:title="@string/enable_filter_chats" />
 
-
+        <rikka.material.preference.MaterialSwitchPreference
+            app:key="metaai"
+            app:summary="@string/disable_metaai_sum"
+            app:title="@string/disable_metaai" />
 
         <ListPreference
             app:entries="@array/chatfilter_buttons"
@@ -95,29 +98,16 @@
             app:summary="@string/novofiltro_sum"
             app:title="@string/novofiltro" />
 
-        <rikka.material.preference.MaterialSwitchPreference
-            app:key="metaai"
-            app:summary="@string/disable_metaai_sum"
-            app:title="@string/disable_metaai" />
-
     </PreferenceCategory>
 
     <PreferenceCategory
         app:iconSpaceReserved="false"
         app:title="@string/conversation">
 
-        <ListPreference
-            app:entries="@array/antirevoke_entries"
-            app:entryValues="@array/antirevoke_values"
-            app:iconSpaceReserved="false"
-            app:key="antirevoke"
-            app:summary="@string/antirevoke_sum"
-            app:title="@string/antirevoke" />
-
         <rikka.material.preference.MaterialSwitchPreference
             app:key="toastdeleted"
-            app:title="@string/toast_on_delete_sum"
-            app:summary="@string/toast_on_delete" />
+            app:title="@string/toast_on_delete"
+            app:summary="@string/toast_on_delete_sum" />
 
         <rikka.material.preference.MaterialSwitchPreference
             app:key="showonline"
@@ -128,15 +118,27 @@
             app:entries="@array/antirevoke_entries"
             app:entryValues="@array/antirevoke_values"
             app:iconSpaceReserved="false"
+            app:key="antirevoke"
+            app:summary="@string/antirevoke_sum"
+            app:title="@string/antirevoke" />
+
+        <ListPreference
+            app:entries="@array/antirevoke_entries"
+            app:entryValues="@array/antirevoke_values"
+            app:iconSpaceReserved="false"
             app:key="antirevokestatus"
             app:summary="@string/antirevokestatus_sum"
             app:title="@string/antirevokestatus" />
 
         <rikka.material.preference.MaterialSwitchPreference
+            app:key="pinnedlimit"
+            app:summary="@string/disable_pinned_limit_sum"
+            app:title="@string/disable_pinned_limit" />
+
+        <rikka.material.preference.MaterialSwitchPreference
             app:summary="@string/removeforwardlimit_sum"
             app:key="removeforwardlimit"
             app:title="@string/removeforwardlimit" />
-
 
         <rikka.material.preference.MaterialSwitchPreference
             app:key="hidetag"
@@ -162,11 +164,6 @@
             app:key="antieditmessages"
             app:summary="@string/show_edited_message_history_sum"
             app:title="@string/show_edited_message_history" />
-
-        <rikka.material.preference.MaterialSwitchPreference
-            app:key="filterseen"
-            app:summary="@string/enable_filter_chats_sum"
-            app:title="@string/enable_filter_chats" />
 
         <rikka.material.preference.MaterialSwitchPreference
             app:key="alertsticker"
