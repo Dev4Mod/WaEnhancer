@@ -266,4 +266,15 @@
     <string name="navigation_transparency">Navigation Transparency</string>
     <string name="show_online_last_seen_in_conversation_list">Show Online/Last seen in Conversation List</string>
     <string name="show_online_last_seen_in_conversation_list_sum">Show a text online or last seen on home screen\n(NOTE: Must activate show online for everyone in WhatsApp\'s Privacy Settings menu)</string>
+    <string name="toast_online">%s is online</string>
+    <string name="show_toast_on_contact_online">Show toast on contact online</string>
+    <string name="show_toast_on_contact_online_sum">Show a toast when a contact is online</string>
+    <string name="new_context_menu_ui">New Context Menu UI</string>
+    <string name="new_context_menu_ui_sum">The new iOS-style message context menu will be enabled.</string>
+    <string name="filter_itens_by_id">Filter Itens By ID</string>
+    <string name="filter_itens_by_id_sum">Filter items by id name</string>
+    <string name="custom_theme_css">Custom Theme CSS</string>
+    <string name="ustom_theme_css_sum">Customize your WhatsApp using CSS styles</string>
+    <string name="antidisappearing">Anti Disappearing Messages</string>
+    <string name="antidisappearing_sum">If Disappearing Messages is Enabled. Messages will not delete from your side</string>
 </resources>

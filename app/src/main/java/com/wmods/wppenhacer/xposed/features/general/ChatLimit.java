@@ -35,7 +35,7 @@ public class ChatLimit extends Feature {
                         param.setResult(0L);
                 }
                 else if (Unobfuscator.isCalledFromClass(EphemeralUpdateRunnable.getDeclaringClass()) && prefs.getBoolean("antidisappearing", false)) {
-                    param.setResult(0);
+                    param.setResult(0L);
                 }
             }
         });
