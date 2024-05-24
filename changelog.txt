@@ -1,3 +1,1 @@
-* Improve CSS Theme: added "color","color-filter","color-tint"
-* Add function Anti Disappearing Messages
-* Update translations
+* Improve CSS theme performance
