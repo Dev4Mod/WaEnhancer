@@ -276,7 +276,7 @@
     <string name="custom_theme_css">Tema Personalizzato CSS</string>
     <string name="ustom_theme_css_sum">Personalizza il tuo WhatsApp utilizzando gli stili CSS</string>
     <string name="antidisappearing">Anti Scomparsa Messaggi</string>
-    <string name="antidisappearing_sum">Se l\'anti scomparsa dei messaggi è abilitato, i messaggi non verranno eliminati dalla tua parte</string>
+    <string name="antidisappearing_sum">Se la Scomparsa dei Messaggi è Abilitato, i messaggi non verranno eliminati dalla tua parte</string>
     <string name="title_audio">Audio</string>
     <string name="android_version">Versione Android</string>
 </resources>
