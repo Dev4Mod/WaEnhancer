@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_desc">Módulo LSPosed para modificar WhatsApp</string>
+    <string name="app_desc">Módulo de potenciador de WhatsApp</string>
     <string name="antirevoke">Evitar la eliminación de mensajes</string>
     <string name="antirevoke_sum">Actívelo para impedir que los demás eliminen los mensajes</string>
     <string name="ghostmode">Ocultar acción \"escribiendo\"</string>
@@ -174,7 +174,7 @@
     <string name="whatsapp_is_not_running_or_has_not_been_activated_in_lsposed">WhatsApp no ​​está abierto o no se ha activado en Lsposed</string>
     <string name="business_is_not_running_or_has_not_been_activated_in_lsposed">Business no está funcionando o no se ha activado en Lsposed</string>
     <string name="restart_wpp">Es necesario reiniciar WhatsApp para que los cambios en Wa Enhancer surtan efecto.\n\n¿Quieres reiniciar?</string>
-    <string name="version_s_not_listed">Versión %s no listada</string>
+    <string name="version_s_not_listed">Versión %s no compatible, utilize una versión mencionada abajo</string>
     <string name="media">Multimedia</string>
     <string name="show_button_to_send_blue_tick">Mostrar botón para enviar marca azul</string>
     <string name="show_button_to_send_blue_tick_sum">Mostrar botón para enviar marca azul (marcar como leído/visto)</string>
@@ -266,15 +266,18 @@
     <string name="navigation_transparency">Transparencia de la Navegación</string>
     <string name="show_online_last_seen_in_conversation_list">Mostrar en línea/Última vez en la lista de conversaciones</string>
     <string name="show_online_last_seen_in_conversation_list_sum">Mostrar un texto del En Línea o Última Vez en la pantalla de inicio\n(NOTA: Debe activar el en línea para todos en el menú de configuración de privacidad de WhatsApp)</string>
-    <string name="toast_online">%s is online</string>
-    <string name="show_toast_on_contact_online">Show toast on contact online</string>
-    <string name="show_toast_on_contact_online_sum">Show a toast when a contact is online</string>
-    <string name="new_context_menu_ui">New Context Menu UI</string>
-    <string name="new_context_menu_ui_sum">The new iOS-style message context menu will be enabled.</string>
-    <string name="filter_itens_by_id">Filter Itens By ID</string>
-    <string name="filter_itens_by_id_sum">Filter items by id name</string>
-    <string name="custom_theme_css">Custom Theme CSS</string>
-    <string name="ustom_theme_css_sum">Customize your WhatsApp using CSS styles</string>
-    <string name="antidisappearing">Anti Disappearing Messages</string>
-    <string name="antidisappearing_sum">If Disappearing Messages is Enabled. Messages will not delete from your side</string>
+    <string name="toast_online">%s en linea</string>
+    <string name="show_toast_on_contact_online">Mostrar una notificación del contacto en línea </string>
+    <string name="show_toast_on_contact_online_sum">Mostrar una notificación cuando un contacto está en linea</string>
+    <string name="new_context_menu_ui">Nueva interfaz de menú contextual</string>
+    <string name="new_context_menu_ui_sum">Se habilitará el nuevo menú contextual de mensajes de estilo iOS.</string>
+    <string name="filter_itens_by_id">Filtrar Items por ID</string>
+    <string name="filter_itens_by_id_sum">Filtrar elementos por nombre id</string>
+    <string name="custom_theme_css">Tema personalizado de CSS</string>
+    <string name="custom_theme_css_sum">Personaliza tu WhatsApp usando estilos CSS</string>
+    <string name="antidisappearing">Anti Desaparición de mensajes Temporales</string>
+    <string name="antidisappearing_sum">Si los mensajes temporales están activados. Los mensajes no se eliminarán de tu chat</string>
+    <string name="title_audio">Audio</string>
+    <string name="android_version">Versión de Android</string>
+    <string name="message_removed_on">This message was removed on %s.</string>
 </resources>
