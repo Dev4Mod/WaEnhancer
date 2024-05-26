@@ -44,6 +44,7 @@ public class ResId {
         public static int deleted_status;
         public static int deleted_message;
         public static int toast_online;
+        public static int message_removed_on;
     }
 
 }

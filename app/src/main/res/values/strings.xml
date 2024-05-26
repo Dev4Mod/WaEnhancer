@@ -283,4 +283,5 @@
     <string name="antidisappearing_sum">If Disappearing Messages is Enabled. Messages will not delete from your side</string>
     <string name="title_audio">Audio</string>
     <string name="android_version">Android Version</string>
+    <string name="message_removed_on">This message was removed on %s.</string>
 </resources>
