@@ -6,6 +6,7 @@ import android.view.WindowManager;
 
 import androidx.annotation.NonNull;
 
+import com.wmods.wppenhacer.xposed.AntiUpdater;
 import com.wmods.wppenhacer.xposed.core.MainFeatures;
 import com.wmods.wppenhacer.xposed.core.ResId;
 
@@ -46,9 +47,10 @@ public class WppXposed implements IXposedHookLoadPackage, IXposedHookInitPackage
             XposedHelpers.findAndHookMethod(MainActivity.class.getName(), lpparam.classLoader, "isXposedEnabled", XC_MethodReplacement.returnConstant(true));
             return;
         }
-
         XposedBridge.log("[•] This package: " + lpparam.packageName);
-        if (!packageName.equals(MainFeatures.PACKAGE_WPP) && !packageName.equals(MainFeatures.PACKAGE_BUSINESS)) return;
+        AntiUpdater.hookSession(pref);
+        if (!packageName.equals(MainFeatures.PACKAGE_WPP) && !packageName.equals(MainFeatures.PACKAGE_BUSINESS))
+            return;
         MainFeatures.start(classLoader, getPref(), sourceDir);
         disableSecureFlag();
     }
@@ -56,7 +58,9 @@ public class WppXposed implements IXposedHookLoadPackage, IXposedHookInitPackage
     @Override
     public void handleInitPackageResources(XC_InitPackageResources.InitPackageResourcesParam resparam) throws Throwable {
         var packageName = resparam.packageName;
-        if (!packageName.equals(MainFeatures.PACKAGE_WPP) && !packageName.equals(MainFeatures.PACKAGE_BUSINESS)) return;
+
+        if (!packageName.equals(MainFeatures.PACKAGE_WPP) && !packageName.equals(MainFeatures.PACKAGE_BUSINESS))
+            return;
         XModuleResources modRes = XModuleResources.createInstance(MODULE_PATH, resparam.res);
 
         for (var field : ResId.string.class.getFields()) {

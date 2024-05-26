@@ -1,1 +1,3 @@
-* Improve CSS theme performance
+* Add Anti Updater
+* Add the possibility of seeing the date the message was deleted (NOTE: it will not be shown for messages before this addition)
+* Fix bug in Anti Disappearing Messages (Temporary messages will not be deleted for you)

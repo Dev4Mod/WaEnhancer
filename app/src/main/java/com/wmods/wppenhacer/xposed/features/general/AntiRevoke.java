@@ -26,9 +26,12 @@ import com.wmods.wppenhacer.xposed.core.db.MessageStore;
 import com.wmods.wppenhacer.xposed.utils.ReflectionUtils;
 
 import java.lang.reflect.Field;
+import java.text.DateFormat;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Locale;
 import java.util.Objects;
 
 import de.robv.android.xposed.XC_MethodHook;
@@ -52,7 +55,7 @@ public class AntiRevoke extends Feature {
         var antiRevokeMessageMethod = Unobfuscator.loadAntiRevokeMessageMethod(loader);
         logDebug(Unobfuscator.getMethodDescriptor(antiRevokeMessageMethod));
 
-        var classThreadMessage = Unobfuscator.loadThreadMessageClass(loader);
+        var classThreadMessage = Unobfuscator.loadFMessageClass(loader);
         logDebug("Class: " + classThreadMessage);
 
         fieldMessageKey = Unobfuscator.loadMessageKeyField(loader);
@@ -138,7 +141,7 @@ public class AntiRevoke extends Feature {
     private static void saveRevokedMessage(String authorJid, String messageKey, Object objMessage) {
         HashSet<String> messages = getRevokedMessages(objMessage);
         messages.add(messageKey);
-        DelMessageStore.getInstance(Utils.getApplication()).insertMessage(authorJid, messageKey);
+        DelMessageStore.getInstance(Utils.getApplication()).insertMessage(authorJid, messageKey, System.currentTimeMillis());
     }
 
     private static HashSet<String> getRevokedMessages(Object objMessage) {
@@ -175,8 +178,16 @@ public class AntiRevoke extends Feature {
         var messageKey = (String) XposedHelpers.getObjectField(fieldMessageDetails, "A01");
         var messageRevokedList = getRevokedMessages(objMessage);
         var id = XposedHelpers.getLongField(objMessage, getFieldIdMessage.getName());
-        String keyOrig;
+        String keyOrig = null;
         if (messageRevokedList.contains(messageKey) || ((keyOrig = MessageStore.getOriginalMessageKey(id)) != null && messageRevokedList.contains(keyOrig))) {
+            var timestamp = DelMessageStore.getInstance(Utils.getApplication()).getTimestampByMessageId(keyOrig == null ? messageKey : keyOrig);
+            if (timestamp > 0) {
+                Locale locale = Utils.getApplication().getResources().getConfiguration().getLocales().get(0);
+                DateFormat dateFormat = DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.SHORT, locale);
+                var date = dateFormat.format(new Date(timestamp));
+                dateTextView.getPaint().setUnderlineText(true);
+                dateTextView.setOnClickListener(v -> Utils.showToast(String.format(Utils.getApplication().getString(ResId.string.message_removed_on), date),Toast.LENGTH_LONG));
+            }
             var antirevokeValue = Integer.parseInt(prefs.getString(antirevokeType, "0"));
             if (antirevokeValue == 1) {
                 // Text

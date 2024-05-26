@@ -14,7 +14,7 @@ public class DelMessageStore extends SQLiteOpenHelper {
     private static DelMessageStore mInstance;
 
     private DelMessageStore(@NonNull Context context) {
-        super(context, "delmessages.db", null, 1);
+        super(context, "delmessages.db", null, 2);
     }
 
     public static DelMessageStore getInstance(Context ctx) {
@@ -26,11 +26,12 @@ public class DelMessageStore extends SQLiteOpenHelper {
         return mInstance;
     }
 
-    public void insertMessage(String jid, String msgid) {
+    public void insertMessage(String jid, String msgid,long timestamp) {
         SQLiteDatabase dbWrite = this.getWritableDatabase();
         ContentValues values = new ContentValues();
         values.put("jid", jid);
         values.put("msgid", msgid);
+        values.put("timestamp", timestamp);
         dbWrite.insert("delmessages", null, values);
     }
 
@@ -50,6 +51,16 @@ public class DelMessageStore extends SQLiteOpenHelper {
         return messages;
     }
 
+    public long getTimestampByMessageId(String msgid) {
+        SQLiteDatabase dbReader = this.getReadableDatabase();
+        Cursor query = dbReader.query("delmessages", new String[]{"timestamp"}, "msgid=?", new String[]{msgid}, null, null, null);
+        if (!query.moveToFirst()) {
+            query.close();
+            return 0;
+        }
+        return query.getLong(query.getColumnIndexOrThrow("timestamp"));
+    }
+
 
     @Override
     public void onCreate(SQLiteDatabase sqLiteDatabase) {
@@ -58,8 +69,9 @@ public class DelMessageStore extends SQLiteOpenHelper {
 
 
     @Override
-    public void onUpgrade(SQLiteDatabase sqLiteDatabase, int i, int i1) {
-        sqLiteDatabase.execSQL("DROP TABLE IF EXISTS delmessages");
-        sqLiteDatabase.execSQL("CREATE TABLE IF NOT EXISTS delmessages (_id INTEGER PRIMARY KEY AUTOINCREMENT,jid TEXT, msgid TEXT)");
+    public void onUpgrade(SQLiteDatabase sqLiteDatabase, int oldVersion, int newVersion) {
+        if (oldVersion < 2) {
+            sqLiteDatabase.execSQL("ALTER TABLE delmessages ADD COLUMN timestamp INTEGER DEFAULT 0;");
+        }
     }
 }

@@ -224,7 +224,7 @@ public class SeenTick extends Feature {
         logDebug(Unobfuscator.getMethodDescriptor(menuMethod));
         var menuIntField = Unobfuscator.loadViewOnceDownloadMenuField(loader);
         logDebug(Unobfuscator.getFieldDescriptor(menuIntField));
-        var classThreadMessage = Unobfuscator.loadThreadMessageClass(loader);
+        var classThreadMessage = Unobfuscator.loadFMessageClass(loader);
 
         XposedBridge.hookMethod(menuMethod, new XC_MethodHook() {
             @Override

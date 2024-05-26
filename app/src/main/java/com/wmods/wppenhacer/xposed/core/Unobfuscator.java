@@ -1,5 +1,6 @@
 package com.wmods.wppenhacer.xposed.core;
 
+import android.content.ContentValues;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.graphics.drawable.NinePatchDrawable;
@@ -205,7 +206,7 @@ public class Unobfuscator {
 
     public static Method loadForwardTagMethod(ClassLoader classLoader) throws Exception {
         return UnobfuscatorCache.getInstance().getMethod(classLoader, () -> {
-            Class<?> messageInfoClass = loadThreadMessageClass(classLoader);
+            Class<?> messageInfoClass = loadFMessageClass(classLoader);
             var methodList = dexkit.findMethod(new FindMethod().matcher(new MethodMatcher().addUsingString("chatInfo/incrementUnseenImportantMessageCount")));
             if (methodList.isEmpty()) throw new Exception("ForwardTag method support not found");
             var invokes = methodList.get(0).getInvokes();
@@ -279,7 +280,7 @@ public class Unobfuscator {
 
     public static Method loadHideViewJidMethod(ClassLoader classLoader) throws Exception {
         return UnobfuscatorCache.getInstance().getMethod(classLoader, () -> {
-            Class<?> messageInfoClass = loadThreadMessageClass(classLoader);
+            Class<?> messageInfoClass = loadFMessageClass(classLoader);
             var called = dexkit.findMethod(new FindMethod().matcher(new MethodMatcher().addUsingString("statusmanager/markstatusasseen/sending status"))).get(0);
             var result = dexkit.findMethod(new FindMethod().matcher(new MethodMatcher().paramCount(1)
                     .addParamType(messageInfoClass.getName()).returnType(void.class)
@@ -289,7 +290,7 @@ public class Unobfuscator {
         });
     }
 
-    public static Class<?> loadThreadMessageClass(ClassLoader classLoader) throws Exception {
+    public static Class<?> loadFMessageClass(ClassLoader classLoader) throws Exception {
         return UnobfuscatorCache.getInstance().getClass(classLoader, () -> {
             var messageClass = findFirstClassUsingStrings(classLoader, StringMatchType.Contains, "FMessage/getSenderUserJid/key.id");
             if (messageClass == null) throw new Exception("Message class not found");
@@ -844,7 +845,7 @@ public class Unobfuscator {
             }
             if (keyMessageList.isEmpty()) throw new Exception("MessageKey class not found");
             Class<?> keyMessageClass = keyMessageList.get(0).getInstance(loader);
-            var classMessage = loadThreadMessageClass(loader);
+            var classMessage = loadFMessageClass(loader);
             var fields = ReflectionUtils.getFieldsByExtendType(classMessage, keyMessageClass);
             if (fields.isEmpty()) throw new Exception("MessageKey field not found");
             return fields.get(fields.size() - 1);
@@ -1117,7 +1118,7 @@ public class Unobfuscator {
 
     public static Method loadNewMessageMethod(ClassLoader loader) throws Exception {
         return UnobfuscatorCache.getInstance().getMethod(loader, () -> {
-            var clazzMessage = loadThreadMessageClass(loader);
+            var clazzMessage = loadFMessageClass(loader);
             var clazzData = Objects.requireNonNull(dexkit.getClassData(clazzMessage));
             var methodData = clazzData.findMethod(new FindMethod().matcher(new MethodMatcher().addUsingString("\n").returnType(String.class)));
             if (methodData.isEmpty()) {
@@ -1130,7 +1131,7 @@ public class Unobfuscator {
     }
 
     public static Method loadNewMessageWithMediaMethod(ClassLoader loader) throws Exception {
-        var clazzMessage = Objects.requireNonNull(dexkit.getClassData(loadThreadMessageClass(loader)));
+        var clazzMessage = Objects.requireNonNull(dexkit.getClassData(loadFMessageClass(loader)));
         var methodData = clazzMessage.findMethod(new FindMethod().matcher(new MethodMatcher().addUsingNumber(0x200000).returnType(String.class)));
         if (methodData.isEmpty()) {
             methodData = clazzMessage.findMethod(new FindMethod().matcher(new MethodMatcher().addUsingString("video").returnType(String.class)));
@@ -1166,7 +1167,7 @@ public class Unobfuscator {
     public static Field loadSetEditMessageField(ClassLoader loader) throws Exception {
         return UnobfuscatorCache.getInstance().getField(loader, () -> {
             var method = findFirstMethodUsingStrings(loader, StringMatchType.Contains, "CoreMessageStore/updateCheckoutMessageWithTransactionInfo");
-            var classData = dexkit.getClassData(loadThreadMessageClass(loader));
+            var classData = dexkit.getClassData(loadFMessageClass(loader));
             var methodData = dexkit.getMethodData(DexSignUtil.getMethodDescriptor(method));
             var usingFields = methodData.getUsingFields();
             for (var f : usingFields) {
@@ -1475,5 +1476,25 @@ public class Unobfuscator {
            if (method == null) throw new RuntimeException("EphemeralUpdateRunnable method not found");
            return method;
         });
+    }
+
+    public static Method loadEphemeralInsertdb(ClassLoader loader) throws Exception {
+        var method = dexkit.findMethod(new FindMethod().matcher(new MethodMatcher().addUsingString("expire_timestamp").addUsingString("ephemeral_initiated_by_me").addUsingString("ephemeral_trigger").returnType(ContentValues.class)));
+        if (method.isEmpty()) throw new RuntimeException("FieldExpireTime method not found");
+        var methodData = method.get(0);
+        return methodData.getMethodInstance(loader);
+    }
+
+    public static Field loadFieldExpireTime(ClassLoader loader) throws Exception {
+        var methodData = dexkit.getMethodData(loadEphemeralInsertdb(loader));
+        var fields = methodData.getUsingFields();
+        var fmessageClass = loadFMessageClass(loader);
+        for (var usingFieldData : fields) {
+            var field = usingFieldData.getField().getFieldInstance(loader);
+            if (field.getType().equals(Long.class) && field.getDeclaringClass().equals(fmessageClass)) {
+                return field;
+            }
+        }
+        throw new RuntimeException("FieldExpireTime method not found");
     }
 }
