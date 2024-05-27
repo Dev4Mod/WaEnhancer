@@ -74,9 +74,7 @@ public class CustomView extends Feature {
             protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
                 var activity = (Activity) param.thisObject;
                 var content = (ViewGroup) activity.findViewById(android.R.id.content);
-                content.getViewTreeObserver().addOnGlobalLayoutListener(() -> {
-                    mThreadService.execute(() -> registerCssRules(activity, content, sheet));
-                });
+                content.getViewTreeObserver().addOnGlobalLayoutListener(() -> mThreadService.execute(() -> registerCssRules(activity, content, sheet)));
             }
         });
     }

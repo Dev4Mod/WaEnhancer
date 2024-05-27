@@ -29,6 +29,7 @@ public class WppCore {
     private static Class<?> mGenJidClass;
     private static Method mGenJidMethod;
     private static Class bottomDialog;
+    @SuppressLint("StaticFieldLeak")
     private static Activity mConversation;
     private static Field convChatField;
     private static Field chatJidField;
