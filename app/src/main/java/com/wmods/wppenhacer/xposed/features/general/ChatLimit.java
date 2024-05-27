@@ -28,19 +28,13 @@ public class ChatLimit extends Feature {
 
         var chatLimitDeleteMethod = Unobfuscator.loadChatLimitDeleteMethod(loader);
         var chatLimitDelete2Method = Unobfuscator.loadChatLimitDelete2Method(loader);
-//        var EphemeralUpdateRunnable = Unobfuscator.loadEphemeralUpdateRunnable(loader);
         var epUpdateMethod = Unobfuscator.loadEphemeralInsertdb(loader);
-        var fieldExpireTime = Unobfuscator.loadFieldExpireTime(loader);
-        var chat = Unobfuscator.loadFMessageClass(loader);
-        var userJid = XposedHelpers.findClass("com.whatsapp.jid.UserJid", loader);
-        var getUserJid = ReflectionUtils.findMethodUsingFilter(chat, m -> m.getReturnType().equals(userJid));
 
         XposedHelpers.findAndHookMethod("com.whatsapp.HomeActivity", loader, "onCreate", Bundle.class, new XC_MethodHook() {
             @Override
             protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-                var db = MessageStore.database.getWritableDatabase();
                 if (antiDisappearing) {
-                    db.execSQL("UPDATE message_ephemeral SET expire_timestamp = 2553512370000");
+                    MessageStore.executeSQL("UPDATE message_ephemeral SET expire_timestamp = 2553512370000");
                 }
             }
         });
@@ -55,15 +49,6 @@ public class ChatLimit extends Feature {
             }
         });
 
-        XposedBridge.hookMethod(getUserJid, new XC_MethodHook() {
-            @Override
-            protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-                var expireTime = (Long) fieldExpireTime.get(param.thisObject);
-                if (expireTime != null && antiDisappearing) {
-                    fieldExpireTime.set(param.thisObject, 2553512370000L);
-                }
-            }
-        });
 
 //        var chatLimitEditClass = Unobfuscator.loadChatLimitEditClass(loader);
 
