@@ -19,15 +19,14 @@ public class GhostMode extends Feature {
 
     @Override
     public void doHook() throws Throwable {
-
+        var ghostmode_t = prefs.getBoolean("ghostmode_t", false);
+        var ghostmode_r = prefs.getBoolean("ghostmode_r", false);
         Method method = Unobfuscator.loadGhostModeMethod(loader);
         logDebug(Unobfuscator.getMethodDescriptor(method));
         XposedBridge.hookMethod(method, new XC_MethodHook() {
             @Override
             protected void beforeHookedMethod(MethodHookParam param) {
                 var p1 = (int) param.args[2];
-                var ghostmode_t = prefs.getBoolean("ghostmode_t", false);
-                var ghostmode_r = prefs.getBoolean("ghostmode_r", false);
                 if ((p1 == 1 && ghostmode_r) || (p1 == 0 && ghostmode_t)) {
                     param.setResult(null);
                 }

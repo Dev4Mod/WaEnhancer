@@ -91,6 +91,10 @@ public class MessageStore {
         return list;
     }
 
+    public synchronized static void executeSQL(String sql) {
+        database.getWritableDatabase().execSQL(sql);
+    }
+
 
     public static void setDatabase(SQLiteOpenHelper database) {
         MessageStore.database = database;

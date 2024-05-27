@@ -208,6 +208,8 @@ public class AntiRevoke extends Feature {
             if (dateText.contains(revokeNotice)) {
                 dateTextView.setText(dateText.replace(revokeNotice, ""));
             }
+            dateTextView.getPaint().setUnderlineText(false);
+            dateTextView.setOnClickListener(null);
         }
     }
 

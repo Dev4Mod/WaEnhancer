@@ -110,7 +110,7 @@ public class ShowEditMessage extends Feature {
                     if (newMessage == null) return;
                 }
                 try {
-                    MessageHistory.getInstance(Utils.getApplication()).insertMessage(id, newMessage, timestamp);
+                    MessageHistory.getInstance().insertMessage(id, newMessage, timestamp);
                 } catch (Exception e) {
                     logDebug(e);
                 }
@@ -130,7 +130,7 @@ public class ShowEditMessage extends Feature {
                             var messageObj = XposedHelpers.callMethod(param.thisObject, "getFMessage");
                             long id = getFieldIdMessage.getLong(messageObj);
                             var msg = new MessageHistory.MessageItem(id, MessageStore.getMessageById(id), 0);
-                            var messages = MessageHistory.getInstance(Utils.getApplication()).getMessages(id);
+                            var messages = MessageHistory.getInstance().getMessages(id);
                             if (messages == null) {
                                 messages = new ArrayList<>();
                             } else {
