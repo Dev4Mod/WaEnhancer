@@ -26,6 +26,11 @@ public class HideSeen extends Feature {
         Method SendReadReceiptJobMethod = Unobfuscator.loadHideViewSendReadJob(loader);
         var sendJob = XposedHelpers.findClass("com.whatsapp.jobqueue.job.SendReadReceiptJob", loader);
         log(Unobfuscator.getMethodDescriptor(SendReadReceiptJobMethod));
+
+        var hideread = prefs.getBoolean("hideread", false);
+        var hideread_group = prefs.getBoolean("hideread_group", false);
+        var hidestatusview = prefs.getBoolean("hidestatusview", false);
+
         XposedBridge.hookMethod(SendReadReceiptJobMethod, new XC_MethodHook() {
             @Override
             protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
@@ -37,11 +42,15 @@ public class HideSeen extends Feature {
                     return;
                 }
                 var jid = (String) XposedHelpers.getObjectField(srj, "jid");
+                if (jid == null) return;
 
                 if (WppCore.isGroup(jid)) {
-                    if (prefs.getBoolean("hideread_group", false))
+                    if (hideread_group)
                         param.setResult(null);
-                } else if (prefs.getBoolean("hideread", false)) {
+                } else if (jid.startsWith("status")) {
+                    if (hidestatusview)
+                        param.setResult(null);
+                } else if (hideread) {
                     param.setResult(null);
                 }
 
@@ -79,15 +88,6 @@ public class HideSeen extends Feature {
             }
         });
 
-//        var methodHideViewJid = Unobfuscator.loadHideViewJidMethod(loader);
-//        logDebug(Unobfuscator.getMethodDescriptor(methodHideViewJid));
-//        XposedBridge.hookMethod(methodHideViewJid, new XC_MethodHook() {
-//            @Override
-//            protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
-//                if (prefs.getBoolean("hidestatusview", false))
-//                    param.setResult(null);
-//            }
-//        });
 
     }
 
