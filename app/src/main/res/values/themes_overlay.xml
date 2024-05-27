@@ -21,7 +21,7 @@
 
 
     <style name="ThemeOverlay">
-        <item name="colorPrimary">#4FAF50</item>
+        <item name="colorPrimary">#FFFFFF</item>
         <item name="dialogPreferenceStyle">@null</item>
         <item name="allowDividerAbove">false</item>
         <item name="allowDividerBelow">false</item>

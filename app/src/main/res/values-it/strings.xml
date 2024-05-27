@@ -267,8 +267,8 @@
     <string name="show_online_last_seen_in_conversation_list">Mostra Online/Ultimo Visto nell\'Elenco Conversazioni</string>
     <string name="show_online_last_seen_in_conversation_list_sum">Mostra un testo online o visto l\'ultima volta nella schermata iniziale\n(NOTA: è necessario attivare la visualizzazione online per tutti nel menu Impostazioni privacy di WhatsApp)</string>
     <string name="toast_online">%s è online</string>
-    <string name="show_toast_on_contact_online">Mostra toast al contatto online</string>
-    <string name="show_toast_on_contact_online_sum">Mostra una notifica toast quando un contatto è online</string>
+    <string name="show_toast_on_contact_online">Mostra Toast al Contatto Online</string>
+    <string name="show_toast_on_contact_online_sum">Mostra una notifica Toast quando un contatto è online</string>
     <string name="new_context_menu_ui">Nuova UI Menu Contestuale</string>
     <string name="new_context_menu_ui_sum">Verrà abilitato il nuovo menu contestuale del messaggio in stile iOS.</string>
     <string name="filter_itens_by_id">Filtra Elementi Per ID</string>
@@ -279,5 +279,5 @@
     <string name="antidisappearing_sum">Se la Scomparsa dei Messaggi è Abilitato, i messaggi non verranno eliminati dalla tua parte</string>
     <string name="title_audio">Audio</string>
     <string name="android_version">Versione Android</string>
-    <string name="message_removed_on">This message was removed on %s.</string>
+    <string name="message_removed_on">Questo messaggio è stato rimosso il %s.</string>
 </resources>
