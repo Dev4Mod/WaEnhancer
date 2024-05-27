@@ -98,7 +98,7 @@ public class CustomTheme extends Feature {
                     if (newColor != null) {
                         background.setTint(IColors.parseColor(newColor));
                     }
-                } catch (Exception ignored) {
+                } catch (Throwable ignored) {
                 }
             }
         });
