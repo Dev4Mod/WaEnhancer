@@ -98,7 +98,7 @@ public class CustomTheme extends Feature {
                     if (newColor != null) {
                         background.setTint(IColors.parseColor(newColor));
                     }
-                } catch (Exception ignored) {
+                } catch (Throwable ignored) {
                 }
             }
         });
@@ -222,6 +222,7 @@ public class CustomTheme extends Feature {
         hexAlpha = hexAlpha.length() == 1 ? "0" + hexAlpha : hexAlpha;
         for (var c : List.of("#ff0b141a", "#ff111b21", "#ff000000", "#ffffffff", "#ff1b8755")) {
             var oldColor = wallpaperColors.get(c);
+            if (oldColor == null) continue;
             var newColor = "#" + hexAlpha + oldColor.substring(3);
             wallpaperColors.put(c, newColor);
             wallpaperColors.put(oldColor, newColor);
@@ -252,7 +253,7 @@ public class CustomTheme extends Feature {
         return "Change Colors";
     }
 
-    public class LayoutInflaterHook extends XC_MethodHook {
+    public static class LayoutInflaterHook extends XC_MethodHook {
         @Override
         protected void afterHookedMethod(MethodHookParam param) throws Throwable {
             var colors = IColors.colors;
@@ -262,7 +263,7 @@ public class CustomTheme extends Feature {
         }
     }
 
-    public class ColorStateListHook extends XC_MethodHook {
+    public static class ColorStateListHook extends XC_MethodHook {
         @Override
         protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
             var colors = IColors.colors;
@@ -290,7 +291,7 @@ public class CustomTheme extends Feature {
         }
     }
 
-    public class IntBgColorHook extends XC_MethodHook {
+    public static class IntBgColorHook extends XC_MethodHook {
         @Override
         protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
             var colors = IColors.colors;

@@ -1,2 +1,5 @@
-* Increase Pinned limit in chat to 60 (To the recipient, only the last three messages will be pinned)
-* Add function to disable default Emojis (NOTE: Whatsapp emojis will disappear from the selector, use the keyboard to insert)
+* Fix bug in Hide seen to Status
+* Fix bug multiples warnings in log xposed
+* Improve performance in Custom CSS using Executors
+* Fix bug in remove status tab (hide only with IGStatus enabled)
+* Fix logic in Freeze Last Seen

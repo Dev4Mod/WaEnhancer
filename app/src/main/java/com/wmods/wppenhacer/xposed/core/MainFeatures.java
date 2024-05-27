@@ -212,6 +212,7 @@ public class MainFeatures {
                 var error = new ErrorItem();
                 error.setPluginName(classe.getSimpleName());
                 error.setWhatsAppVersion(versionWpp);
+                error.setModuleVersion(BuildConfig.VERSION_NAME);
                 error.setError(e.getMessage() + ": " + Arrays.toString(Arrays.stream(e.getStackTrace()).filter(s -> !s.getClassName().startsWith("android") && !s.getClassName().startsWith("com.android")).map(StackTraceElement::toString).toArray()));
                 list.add(error);
             }
@@ -223,11 +224,13 @@ public class MainFeatures {
         private String pluginName;
         private String whatsAppVersion;
         private String error;
+        private String moduleVersion;
 
         @NonNull
         @Override
         public String toString() {
             return "pluginName='" + getPluginName() + '\'' +
+                    "\nmoduleVersion='" + getModuleVersion() + '\'' +
                     "\nwhatsAppVersion='" + getWhatsAppVersion() + '\'' +
                     "\nerror='" + getError() + '\'';
         }
@@ -254,6 +257,14 @@ public class MainFeatures {
 
         public void setPluginName(String pluginName) {
             this.pluginName = pluginName;
+        }
+
+        public String getModuleVersion() {
+            return moduleVersion;
+        }
+
+        public void setModuleVersion(String moduleVersion) {
+            this.moduleVersion = moduleVersion;
         }
     }
 }
