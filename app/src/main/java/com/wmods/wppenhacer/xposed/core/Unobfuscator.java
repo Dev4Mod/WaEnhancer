@@ -48,7 +48,6 @@ import java.util.stream.Collectors;
 import de.robv.android.xposed.XposedBridge;
 import de.robv.android.xposed.XposedHelpers;
 
-/** @noinspection ALL*/
 public class Unobfuscator {
 
     private static DexKitBridge dexkit;
@@ -57,7 +56,7 @@ public class Unobfuscator {
     public static final String BUBBLE_COLORS_BALLOON_INCOMING_NORMAL_EXT = "balloon_incoming_normal_ext";
     public static final String BUBBLE_COLORS_BALLOON_OUTGOING_NORMAL = "balloon_outgoing_normal";
     public static final String BUBBLE_COLORS_BALLOON_OUTGOING_NORMAL_EXT = "balloon_outgoing_normal_ext";
-    public static final HashMap cache = new HashMap();
+    public static final HashMap<String, Object> cache = new HashMap<>();
 
     static {
         System.loadLibrary("dexkit");
@@ -229,14 +228,6 @@ public class Unobfuscator {
 
 
     // TODO: Classes and Methods for HideView
-//    public static Method loadHideViewOpenChatMethod(ClassLoader classLoader) throws Exception {
-//        return UnobfuscatorCache.getInstance().getMethod(classLoader, () -> {
-//            Class<?> receiptsClass = loadReadReceiptsClass(classLoader);
-//            Method method = Arrays.stream(receiptsClass.getMethods()).filter(m -> m.getParameterTypes().length > 0 && m.getParameterTypes()[0].equals(Collection.class) && m.getReturnType().equals(HashMap.class)).findFirst().orElse(null);
-//            if (method == null) throw new Exception("HideViewOpenChat method not found");
-//            return method;
-//        });
-//    }
 
     public static Method loadHideViewSendReadJob(ClassLoader classLoader) throws Exception {
         return UnobfuscatorCache.getInstance().getMethod(classLoader, () -> {
@@ -274,22 +265,6 @@ public class Unobfuscator {
         });
     }
 
-    public static Class<?> loadReadReceiptsClass(ClassLoader classLoader) throws Exception {
-        return UnobfuscatorCache.getInstance().getClass(classLoader, () -> findFirstClassUsingStrings(classLoader, StringMatchType.Contains, "acknowledgeMessageSilent"));
-    }
-
-    public static Method loadHideViewJidMethod(ClassLoader classLoader) throws Exception {
-        return UnobfuscatorCache.getInstance().getMethod(classLoader, () -> {
-            Class<?> messageInfoClass = loadFMessageClass(classLoader);
-            var called = dexkit.findMethod(new FindMethod().matcher(new MethodMatcher().addUsingString("statusmanager/markstatusasseen/sending status"))).get(0);
-            var result = dexkit.findMethod(new FindMethod().matcher(new MethodMatcher().paramCount(1)
-                    .addParamType(messageInfoClass.getName()).returnType(void.class)
-                    .modifiers(Modifier.PUBLIC).addCall(called.getDescriptor())));
-            if (result.isEmpty()) throw new Exception("HideViewJid method not found");
-            return result.get(0).getMethodInstance(classLoader);
-        });
-    }
-
     public static Class<?> loadFMessageClass(ClassLoader classLoader) throws Exception {
         return UnobfuscatorCache.getInstance().getClass(classLoader, () -> {
             var messageClass = findFirstClassUsingStrings(classLoader, StringMatchType.Contains, "FMessage/getSenderUserJid/key.id");
@@ -297,9 +272,6 @@ public class Unobfuscator {
             return messageClass;
         });
     }
-
-    // TODO: Classes and Methods for BubbleColors
-
 
     // TODO: Classes and Methods for XChatFilter
 
@@ -636,6 +608,7 @@ public class Unobfuscator {
     }
 
 
+    /** @noinspection SimplifyOptionalCallChains*/
     public static Method loadViewOnceDownloadMenuMethod(ClassLoader classLoader) throws Exception {
         return UnobfuscatorCache.getInstance().getMethod(classLoader, () -> {
             var clazz = XposedHelpers.findClass("com.whatsapp.mediaview.MediaViewFragment", classLoader);
@@ -680,6 +653,7 @@ public class Unobfuscator {
         });
     }
 
+    /** @noinspection SimplifyOptionalCallChains*/
     public static Method loadViewOnceDownloadMenuCallMethod(ClassLoader loader) throws Exception {
         return UnobfuscatorCache.getInstance().getMethod(loader, () -> {
             var clazz = XposedHelpers.findClass("com.whatsapp.mediaview.MediaViewFragment", loader);
@@ -1172,6 +1146,7 @@ public class Unobfuscator {
         });
     }
 
+    /** @noinspection DataFlowIssue*/
     public static Field loadSetEditMessageField(ClassLoader loader) throws Exception {
         return UnobfuscatorCache.getInstance().getField(loader, () -> {
             var method = findFirstMethodUsingStrings(loader, StringMatchType.Contains, "CoreMessageStore/updateCheckoutMessageWithTransactionInfo");
@@ -1188,6 +1163,7 @@ public class Unobfuscator {
         });
     }
 
+    /** @noinspection DataFlowIssue*/
     public static Method loadEditMessageShowMethod(ClassLoader loader) throws Exception {
         return UnobfuscatorCache.getInstance().getMethod(loader, () -> {
             var clazz = findFirstClassUsingStrings(loader, StringMatchType.Contains, "newsletter_reaction_sheet");
@@ -1202,6 +1178,7 @@ public class Unobfuscator {
         });
     }
 
+    /** @noinspection DataFlowIssue*/
     public static Field loadEditMessageViewField(ClassLoader loader) throws Exception {
         return UnobfuscatorCache.getInstance().getField(loader, () -> {
             var method = loadEditMessageShowMethod(loader);
@@ -1217,6 +1194,7 @@ public class Unobfuscator {
         });
     }
 
+    /** @noinspection DataFlowIssue*/
     public static Class loadDialogViewClass(ClassLoader loader) throws Exception {
         return UnobfuscatorCache.getInstance().getClass(loader, () -> {
             var id = Utils.getID("touch_outside", "id");
@@ -1264,6 +1242,7 @@ public class Unobfuscator {
         });
     }
 
+    /** @noinspection SimplifyStreamApiCallChains*/
     public static Method loadOnMenuItemSelected(ClassLoader loader) throws Exception {
         return UnobfuscatorCache.getInstance().getMethod(loader, () -> {
             var aClass = XposedHelpers.findClass("androidx.viewpager.widget.ViewPager", loader);
@@ -1291,6 +1270,7 @@ public class Unobfuscator {
         });
     }
 
+    /** @noinspection DataFlowIssue*/
     public static Field loadGetInvokeField(ClassLoader loader) throws Exception {
         return UnobfuscatorCache.getInstance().getField(loader, () -> {
             var method = loadOnUpdateStatusChanged(loader);
@@ -1478,14 +1458,6 @@ public class Unobfuscator {
         return method;
     }
 
-    public static Method loadEphemeralUpdateRunnable(ClassLoader loader) throws Exception {
-        return UnobfuscatorCache.getInstance().getMethod(loader,()->{
-           var method = findFirstMethodUsingStrings(loader, StringMatchType.Contains,"EphemeralUpdateRunnable/run");
-           if (method == null) throw new RuntimeException("EphemeralUpdateRunnable method not found");
-           return method;
-        });
-    }
-
     public static Method loadEphemeralInsertdb(ClassLoader loader) throws Exception {
         var method = dexkit.findMethod(new FindMethod().matcher(new MethodMatcher().addUsingString("expire_timestamp").addUsingString("ephemeral_initiated_by_me").addUsingString("ephemeral_trigger").returnType(ContentValues.class)));
         if (method.isEmpty()) throw new RuntimeException("FieldExpireTime method not found");
@@ -1493,18 +1465,18 @@ public class Unobfuscator {
         return methodData.getMethodInstance(loader);
     }
 
-    public static Field loadFieldExpireTime(ClassLoader loader) throws Exception {
-        var methodData = dexkit.getMethodData(loadEphemeralInsertdb(loader));
-        var fields = methodData.getUsingFields();
-        var fmessageClass = loadFMessageClass(loader);
-        for (var usingFieldData : fields) {
-            var field = usingFieldData.getField().getFieldInstance(loader);
-            if (field.getType().equals(Long.class) && field.getDeclaringClass().equals(fmessageClass)) {
-                return field;
-            }
-        }
-        throw new RuntimeException("FieldExpireTime method not found");
-    }
+//    public static Field loadFieldExpireTime(ClassLoader loader) throws Exception {
+//        var methodData = dexkit.getMethodData(loadEphemeralInsertdb(loader));
+//        var fields = methodData.getUsingFields();
+//        var fmessageClass = loadFMessageClass(loader);
+//        for (var usingFieldData : fields) {
+//            var field = usingFieldData.getField().getFieldInstance(loader);
+//            if (field.getType().equals(Long.class) && field.getDeclaringClass().equals(fmessageClass)) {
+//                return field;
+//            }
+//        }
+//        throw new RuntimeException("FieldExpireTime method not found");
+//    }
 
     public static Method loadDefEmojiClass(ClassLoader loader) throws Exception {
         return UnobfuscatorCache.getInstance().getMethod(loader, () -> {
