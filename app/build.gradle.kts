@@ -1,6 +1,20 @@
+import java.util.Locale
+
 plugins {
     alias(libs.plugins.androidApplication)
 }
+
+fun getGitHashCommit(): String {
+    return try {
+        val processBuilder = ProcessBuilder("git", "rev-parse", "--short", "HEAD")
+        val process = processBuilder.start()
+        process.inputStream.bufferedReader().readText().trim()
+    } catch (e: Exception) {
+        "unknown"
+    }
+}
+
+val gitHash: String = getGitHashCommit().uppercase(Locale.getDefault())
 
 android {
     namespace = "com.wmods.wppenhacer"
@@ -11,7 +25,7 @@ android {
         minSdk = 28
         targetSdk = 34
         versionCode = 1
-        versionName = "1.0.0"
+        versionName = "1.1.0-DEV ($gitHash)"
         multiDexEnabled = true
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
@@ -47,11 +61,11 @@ android {
     buildTypes {
         all {
             signingConfig = if (signingConfigs["config"].storeFile != null) signingConfigs["config"] else signingConfigs["debug"]
-//            isMinifyEnabled = true
-//            proguardFiles(
-//                getDefaultProguardFile("proguard-android-optimize.txt"),
-//                "proguard-rules.pro"
-//            )
+            isMinifyEnabled = true
+            proguardFiles(
+                getDefaultProguardFile("proguard-android-optimize.txt"),
+                "proguard-rules.pro"
+            )
         }
         release {
             isMinifyEnabled = false
@@ -87,8 +101,8 @@ dependencies {
     implementation(libs.rikkax.material.preference)
     implementation(libs.rikkax.preference)
     implementation(libs.rikkax.widget.borderview)
-    implementation("net.sf.cssbox:jstyleparser:4.0.0")
-    implementation("com.google.guava:guava:33.2.0-android")
+    implementation(libs.jstyleparser)
+    implementation(libs.guava)
 //    testImplementation(libs.junit)
 //    androidTestImplementation(libs.ext.junit)
 //    androidTestImplementation(libs.espresso.core)

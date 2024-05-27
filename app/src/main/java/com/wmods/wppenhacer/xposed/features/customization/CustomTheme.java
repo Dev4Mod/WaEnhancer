@@ -88,14 +88,17 @@ public class CustomTheme extends Feature {
                 if (!loadTabFrameClass.isInstance(param.thisObject)) return;
                 var viewGroup = (ViewGroup) param.thisObject;
                 var background = viewGroup.getBackground();
-                var colorfilters = XposedHelpers.getObjectField(background, "A01");
-                var fields = ReflectionUtils.getFieldsByType(colorfilters.getClass(), ColorStateList.class);
-                var colorStateList =(ColorStateList) fields.get(0).get(colorfilters);
-                if (colorStateList == null) return;
-                var color = IColors.toString(colorStateList.getDefaultColor());
-                var newColor = navAlpha.get(color);
-                if (newColor != null) {
-                    background.setTint(IColors.parseColor(newColor));
+                try {
+                    var colorfilters = XposedHelpers.getObjectField(background, "A01");
+                    var fields = ReflectionUtils.getFieldsByType(colorfilters.getClass(), ColorStateList.class);
+                    var colorStateList = (ColorStateList) fields.get(0).get(colorfilters);
+                    if (colorStateList == null) return;
+                    var color = IColors.toString(colorStateList.getDefaultColor());
+                    var newColor = navAlpha.get(color);
+                    if (newColor != null) {
+                        background.setTint(IColors.parseColor(newColor));
+                    }
+                } catch (Exception ignored) {
                 }
             }
         });
@@ -159,7 +162,7 @@ public class CustomTheme extends Feature {
 
             // Corrigir cor verde na barra de ferramentas
             var colorOrig = "#ff1b8755";
-            var color= toolbarAlpha.get(colorOrig);
+            var color = toolbarAlpha.get(colorOrig);
             if (Objects.equals(colorOrig, color)) toolbarAlpha.put(colorOrig, "#ffffffff");
 
             replaceTransparency(toolbarAlpha, (100 - prefs.getInt("wallpaper_alpha_toolbar", 30)) / 100.0f);
@@ -217,7 +220,7 @@ public class CustomTheme extends Feature {
     private void replaceTransparency(HashMap<String, String> wallpaperColors, float mAlpha) {
         var hexAlpha = Integer.toHexString((int) Math.ceil(mAlpha * 255));
         hexAlpha = hexAlpha.length() == 1 ? "0" + hexAlpha : hexAlpha;
-        for (var c : List.of("#ff0b141a", "#ff111b21", "#ff000000","#ffffffff","#ff1b8755")) {
+        for (var c : List.of("#ff0b141a", "#ff111b21", "#ff000000", "#ffffffff", "#ff1b8755")) {
             var oldColor = wallpaperColors.get(c);
             var newColor = "#" + hexAlpha + oldColor.substring(3);
             wallpaperColors.put(c, newColor);

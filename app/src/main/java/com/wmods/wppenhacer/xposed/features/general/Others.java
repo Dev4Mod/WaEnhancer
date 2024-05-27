@@ -30,6 +30,7 @@ import com.wmods.wppenhacer.xposed.core.components.AlertDialogWpp;
 import com.wmods.wppenhacer.xposed.utils.ReflectionUtils;
 
 import java.io.File;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -92,6 +93,7 @@ public class Others extends Feature {
         var showOnline = prefs.getBoolean("showonline", false);
         var floatingMenu = prefs.getBoolean("floatingmenu", false);
         var filter_itens = prefs.getString("filter_itens", null);
+        var disable_defemojis = prefs.getBoolean("disable_defemojis", false);
 
         propsBoolean.put(5171, filterSeen); // filtros de chat e grupos
         propsBoolean.put(4524, novoTema);
@@ -152,6 +154,15 @@ public class Others extends Feature {
             filterItens(filter_itens);
         }
 
+        if (disable_defemojis) {
+            disable_defEmojis();
+        }
+
+    }
+
+    private void disable_defEmojis() throws Exception {
+        var defEmojiClass = Unobfuscator.loadDefEmojiClass(loader);
+        XposedBridge.hookMethod(defEmojiClass, XC_MethodReplacement.returnConstant(null));
     }
 
     private void filterItens(String filterItens) {

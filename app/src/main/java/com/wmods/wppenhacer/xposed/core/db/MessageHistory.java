@@ -6,6 +6,8 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
+import com.wmods.wppenhacer.xposed.core.Utils;
+
 import java.util.ArrayList;
 
 public class MessageHistory extends SQLiteOpenHelper {
@@ -16,10 +18,10 @@ public class MessageHistory extends SQLiteOpenHelper {
         super(context, "MessageHistory.db", null, 1);
     }
 
-    public static MessageHistory getInstance(Context ctx) {
+    public static MessageHistory getInstance() {
         synchronized(MessageHistory.class) {
             if(mInstance == null) {
-                mInstance = new MessageHistory(ctx);
+                mInstance = new MessageHistory(Utils.getApplication());
                 mInstance.dbWrite = mInstance.getWritableDatabase();
             }
         }

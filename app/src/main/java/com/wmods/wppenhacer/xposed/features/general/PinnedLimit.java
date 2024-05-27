@@ -29,10 +29,11 @@ public class PinnedLimit extends Feature {
     public void doHook() throws Throwable {
         var pinnedLimitMethod = Unobfuscator.loadPinnedLimitMethod(loader);
         logDebug(Unobfuscator.getMethodDescriptor(pinnedLimitMethod));
-//        var pinnedLimit2Method = Unobfuscator.loadPinnedLimit2Method(loader);
-//        logDebug(Unobfuscator.getMethodDescriptor(pinnedLimit2Method));
         var pinnedSetMethod = Unobfuscator.loadPinnedHashSetMethod(loader);
+        var pinnedInChatMethod = Unobfuscator.loadPinnedInChatMethod(loader);
 
+        // increase pinned limit in chat to 60
+        XposedBridge.hookMethod(pinnedInChatMethod, XC_MethodReplacement.returnConstant(60));
 
         // isso cria um LinkedHashSet modificado para retorna 0 caso a lista de fixados seja inferior a 60.
         XposedBridge.hookMethod(pinnedSetMethod, new XC_MethodHook() {

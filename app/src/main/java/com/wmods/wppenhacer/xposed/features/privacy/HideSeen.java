@@ -24,11 +24,11 @@ public class HideSeen extends Feature {
     public void doHook() throws Exception {
 
         Method SendReadReceiptJobMethod = Unobfuscator.loadHideViewSendReadJob(loader);
+        var sendJob = XposedHelpers.findClass("com.whatsapp.jobqueue.job.SendReadReceiptJob", loader);
         log(Unobfuscator.getMethodDescriptor(SendReadReceiptJobMethod));
         XposedBridge.hookMethod(SendReadReceiptJobMethod, new XC_MethodHook() {
             @Override
             protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
-                var sendJob = XposedHelpers.findClass("com.whatsapp.jobqueue.job.SendReadReceiptJob", loader);
                 var srj = sendJob.cast(param.thisObject);
                 var messageIds = XposedHelpers.getObjectField(srj, "messageIds");
                 var firstmessage = (String) Array.get(messageIds, 0);
@@ -79,15 +79,15 @@ public class HideSeen extends Feature {
             }
         });
 
-        var methodHideViewJid = Unobfuscator.loadHideViewJidMethod(loader);
-        logDebug(Unobfuscator.getMethodDescriptor(methodHideViewJid));
-        XposedBridge.hookMethod(methodHideViewJid, new XC_MethodHook() {
-            @Override
-            protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
-                if (prefs.getBoolean("hidestatusview", false))
-                    param.setResult(null);
-            }
-        });
+//        var methodHideViewJid = Unobfuscator.loadHideViewJidMethod(loader);
+//        logDebug(Unobfuscator.getMethodDescriptor(methodHideViewJid));
+//        XposedBridge.hookMethod(methodHideViewJid, new XC_MethodHook() {
+//            @Override
+//            protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
+//                if (prefs.getBoolean("hidestatusview", false))
+//                    param.setResult(null);
+//            }
+//        });
 
     }
 

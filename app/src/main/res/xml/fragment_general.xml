@@ -180,6 +180,11 @@
             app:summary="@string/selection_of_call_type_sum"
             app:title="@string/selection_of_call_type" />
 
+        <rikka.material.preference.MaterialSwitchPreference
+            app:key="disable_defemojis"
+            app:summary="@string/disable_default_emojis_sum"
+            app:title="@string/disable_default_emojis" />
+
     </PreferenceCategory>
 
 

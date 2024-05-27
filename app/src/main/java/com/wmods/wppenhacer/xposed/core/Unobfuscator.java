@@ -1049,6 +1049,14 @@ public class Unobfuscator {
         });
     }
 
+    public static Method loadPinnedInChatMethod(ClassLoader loader) throws Exception {
+        return UnobfuscatorCache.getInstance().getMethod(loader, () -> {
+            var method = dexkit.findMethod(new FindMethod().matcher(new MethodMatcher().addUsingNumber(3732).returnType(int.class)));
+            if (method.isEmpty()) throw new RuntimeException("PinnedInChat method not found");
+            return method.get(0).getMethodInstance(loader);
+        });
+    }
+
     public static Method loadBlueOnReplayCreateMenuConversationMethod(ClassLoader loader) throws Exception {
         return UnobfuscatorCache.getInstance().getMethod(loader, () -> {
             var conversationClass = XposedHelpers.findClass("com.whatsapp.Conversation", loader);
@@ -1496,5 +1504,13 @@ public class Unobfuscator {
             }
         }
         throw new RuntimeException("FieldExpireTime method not found");
+    }
+
+    public static Method loadDefEmojiClass(ClassLoader loader) throws Exception {
+        return UnobfuscatorCache.getInstance().getMethod(loader, () -> {
+            var method = findFirstMethodUsingStrings(loader, StringMatchType.Contains, "emojis.oba");
+            if (method == null) throw new RuntimeException("DefEmoji class not found");
+            return method;
+        });
     }
 }
