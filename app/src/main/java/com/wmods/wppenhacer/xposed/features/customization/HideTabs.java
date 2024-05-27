@@ -31,6 +31,7 @@ public class HideTabs extends Feature {
     public void doHook() throws Throwable {
 
         var hidetabs = prefs.getStringSet("hidetabs", null);
+        var igstatus = prefs.getBoolean("igstatus", false);
         if (hidetabs == null || hidetabs.isEmpty())
             return;
 
@@ -47,12 +48,14 @@ public class HideTabs extends Feature {
             protected void afterHookedMethod(MethodHookParam param) throws Throwable {
                 var list = (List<Integer>) XposedHelpers.getStaticObjectField(home, ListField.getName());
                 for (var item : hideTabsList) {
-                    if (item != SeparateGroup.STATUS) {
+                    if (item != SeparateGroup.STATUS || !igstatus) {
                         list.remove(item);
                     }
                 }
             }
         });
+
+        if (!igstatus) return;
 
         var OnTabItemAddMethod = Unobfuscator.loadOnTabItemAddMethod(loader);
         XposedBridge.hookMethod(OnTabItemAddMethod, new XC_MethodHook() {
