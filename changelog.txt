@@ -1,1 +1,2 @@
 * Increase Pinned limit in chat to 60 (To the recipient, only the last three messages will be pinned)
+* Add function to disable default Emojis (NOTE: Whatsapp emojis will disappear from the selector, use the keyboard to insert)
