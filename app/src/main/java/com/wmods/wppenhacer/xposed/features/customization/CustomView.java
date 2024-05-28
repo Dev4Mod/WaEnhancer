@@ -5,10 +5,15 @@ import static com.wmods.wppenhacer.utils.ColorReplacement.replaceColors;
 import android.app.Activity;
 import android.content.res.ColorStateList;
 import android.graphics.Bitmap;
+import android.graphics.Canvas;
+import android.graphics.LinearGradient;
 import android.graphics.PorterDuff;
+import android.graphics.Shader;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
+import android.graphics.drawable.ShapeDrawable;
+import android.graphics.drawable.shapes.RectShape;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.View;
@@ -28,6 +33,8 @@ import com.wmods.wppenhacer.xposed.core.Utils;
 import com.wmods.wppenhacer.xposed.utils.ReflectionUtils;
 
 import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -42,18 +49,22 @@ import cz.vutbr.web.css.CombinedSelector;
 import cz.vutbr.web.css.Declaration;
 import cz.vutbr.web.css.RuleSet;
 import cz.vutbr.web.css.StyleSheet;
+import cz.vutbr.web.css.Term;
 import cz.vutbr.web.css.TermColor;
 import cz.vutbr.web.css.TermFloatValue;
+import cz.vutbr.web.css.TermFunction;
 import cz.vutbr.web.css.TermLength;
 import cz.vutbr.web.css.TermNumeric;
 import cz.vutbr.web.css.TermURI;
 import de.robv.android.xposed.XC_MethodHook;
 import de.robv.android.xposed.XSharedPreferences;
+import de.robv.android.xposed.XposedBridge;
 import de.robv.android.xposed.XposedHelpers;
 
 public class CustomView extends Feature {
 
     private DrawableCache cacheImages;
+    private HashMap<String, Drawable> chacheDrawables;
     private ExecutorService mThreadService;
 
     public CustomView(@NonNull ClassLoader loader, @NonNull XSharedPreferences preferences) {
@@ -64,8 +75,8 @@ public class CustomView extends Feature {
     public void doHook() throws Throwable {
         var filter_itens = prefs.getString("css_theme", null);
         if (TextUtils.isEmpty(filter_itens)) return;
-
         cacheImages = new DrawableCache();
+        chacheDrawables = new HashMap<>();
         mThreadService = Executors.newFixedThreadPool(8);
 
         var sheet = CSSFactory.parseString(filter_itens, new URL("https://base.url/"));
@@ -188,7 +199,7 @@ public class CustomView extends Feature {
                         var height = (TermLength) declaration.get(1);
                         if (view instanceof ImageView imageView) {
                             if (width.isPercentage() || height.isPercentage()) {
-                                if (width.getValue() == 100 || height.getValue() == 100) {
+                                if (width.getValue().intValue() == 100 || height.getValue().intValue() == 100) {
                                     imageView.setScaleType(ImageView.ScaleType.FIT_CENTER);
                                     continue;
                                 }
@@ -216,6 +227,14 @@ public class CustomView extends Feature {
                         if (value.equals("cover")) {
                             if (view instanceof ImageView imageView) {
                                 imageView.setScaleType(ImageView.ScaleType.CENTER_CROP);
+                            } else {
+                                var drawable = view.getBackground();
+                                if (!(drawable instanceof BitmapDrawable)) continue;
+                                Bitmap bitmap = ((BitmapDrawable) drawable).getBitmap();
+                                if (bitmap.getWidth() == view.getWidth() && bitmap.getHeight() == view.getHeight())
+                                    continue;
+                                drawable = new BitmapDrawable(view.getContext().getResources(), Bitmap.createScaledBitmap(bitmap, view.getWidth(), view.getHeight(), false));
+                                view.setBackground(drawable);
                             }
                         }
                     }
@@ -237,7 +256,10 @@ public class CustomView extends Feature {
                     var value = declaration.get(0).toString().trim();
                     if (value.equals("none")) {
                         view.setBackground(null);
+                    } else {
+                        setBackgroundModel(view, declaration.get(0));
                     }
+
                 }
                 case "foreground" -> {
                     if (declaration.get(0) instanceof TermColor color) {
@@ -303,40 +325,78 @@ public class CustomView extends Feature {
                     }
                 }
                 case "color-filter" -> {
-                    if (!(view instanceof ImageView imageView)) continue;
                     var mode = declaration.get(0).toString().trim();
                     if (mode.equals("none")) {
-                        imageView.clearColorFilter();
-                        continue;
-                    }
-                    var color = (TermColor) declaration.get(1);
-                    try {
-                        var pMode = PorterDuff.Mode.valueOf(mode);
-                        imageView.setColorFilter(color.getValue().getRGB(), pMode);
-                    } catch (Exception ignored) {
+                        if (view instanceof ImageView imageView) {
+                            imageView.clearColorFilter();
+                        } else {
+                            var drawable = view.getBackground();
+                            if (drawable != null) {
+                                drawable.clearColorFilter();
+                            }
+                        }
+                    } else {
+                        if (!(declaration.get(1) instanceof TermColor color)) continue;
+                        try {
+                            var pMode = PorterDuff.Mode.valueOf(mode);
+                            if (view instanceof ImageView imageView) {
+                                imageView.setColorFilter(color.getValue().getRGB(), pMode);
+                            } else {
+                                var drawable = view.getBackground();
+                                if (drawable != null) {
+                                    drawable.setColorFilter(color.getValue().getRGB(), pMode);
+                                }
+                            }
+                        } catch (IllegalArgumentException ignored) {
+                            // Log the exception if needed
+                        }
                     }
                 }
                 case "color-tint" -> {
-                    if (!(view instanceof ImageView imageView)) continue;
                     if (declaration.get(0) instanceof TermColor color) {
-                        if (declaration.size() == 1) {
-                            imageView.setImageTintList(ColorStateList.valueOf(color.getValue().getRGB()));
-                        } else if (declaration.size() == 3) {
-                            ColorStateList themeColorStateList = getColorStateList(declaration);
-                            imageView.setImageTintList(themeColorStateList);
+                        if (view instanceof ImageView imageView) {
+                            ColorStateList colorStateList = declaration.size() == 1 ? ColorStateList.valueOf(color.getValue().getRGB()) : getColorStateList(declaration);
+                            imageView.setImageTintList(colorStateList);
+                        } else {
+                            var drawable = view.getBackground();
+                            if (drawable != null) {
+                                ColorStateList colorStateList = declaration.size() == 1 ? ColorStateList.valueOf(color.getValue().getRGB()) : getColorStateList(declaration);
+                                drawable.setTintList(colorStateList);
+                            }
                         }
                     } else {
                         var value = declaration.get(0).toString().trim();
-                        switch (value) {
-                            case "none" -> imageView.setImageTintList(null);
-                            case "transparent" ->
-                                    imageView.setImageTintList(ColorStateList.valueOf(0));
+                        if (value.equals("none")) {
+                            if (view instanceof ImageView imageView) {
+                                imageView.setImageTintList(null);
+                            } else {
+                                var drawable = view.getBackground();
+                                if (drawable != null) {
+                                    drawable.setTintList(null);
+                                }
+                            }
                         }
                     }
                 }
             }
         }
     }
+
+    private void setBackgroundModel(View view, Term<?> value) {
+        if (value instanceof TermFunction.LinearGradient gradient) {
+            try {
+                var gradientDrawable = chacheDrawables.get(value.toString());
+                if (gradientDrawable == null) {
+                    gradientDrawable = GradientDrawableParser.parseGradient(gradient, view.getWidth(), view.getHeight());
+                    chacheDrawables.put(value.toString(), gradientDrawable);
+                }
+                view.setBackground(gradientDrawable);
+            } catch (Exception e) {
+                log("Error parsing gradient: " + e.getMessage());
+            }
+        }
+    }
+
 
     @NonNull
     private static ColorStateList getColorStateList(Declaration declaration) {
@@ -463,9 +523,6 @@ public class CustomView extends Feature {
             return drawableCache.getUnchecked(key);
         }
 
-//        public void invalidateCache() {
-//            drawableCache.invalidateAll();
-//        }
     }
 
     public static class RuleItem {
@@ -476,6 +533,51 @@ public class CustomView extends Feature {
             this.selector = selectorItem;
             this.rule = ruleSet;
         }
+    }
+
+    public static class GradientDrawableParser {
+
+        public static BitmapDrawable parseGradient(TermFunction.LinearGradient cssGradient, int width, int height) {
+
+            int[] colors = new int[cssGradient.getColorStops().size()];
+            float[] positions = new float[cssGradient.getColorStops().size()];
+            float angle = cssGradient.getAngle().getValue();
+
+            for (int i = cssGradient.getColorStops().size() - 1; i >= 0; i--) {
+                colors[i] = cssGradient.getColorStops().get(i).getColor().getValue().getRGB();
+                positions[i] = cssGradient.getColorStops().get(i).getLength().getValue() / 100f;
+            }
+
+            // Create LinearGradient with the extracted parameters
+            LinearGradient linearGradient = createLinearGradient(angle, colors, positions, width, height);
+            // Create ShapeDrawable and set the shader
+            ShapeDrawable shapeDrawable = new ShapeDrawable(new RectShape());
+            shapeDrawable.setIntrinsicWidth(width);
+            shapeDrawable.setIntrinsicHeight(height);
+            shapeDrawable.getPaint().setShader(linearGradient);
+            Bitmap bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
+            shapeDrawable.setBounds(0, 0, width, height);
+            shapeDrawable.draw(new Canvas(bitmap));
+            return new BitmapDrawable(Utils.getApplication().getResources(), bitmap);
+        }
+
+        private static LinearGradient createLinearGradient(float angle, int[] colors, float[] positions, int width, int height) {
+            float x0, y0, x1, y1;
+            double radians = Math.toRadians(angle);
+
+            // Calculate the start and end points based on the angle and dimensions
+            x0 = (float) (0.5 * width + 0.5 * width * Math.cos(radians - Math.PI / 2));
+            y0 = (float) (0.5 * height + 0.5 * height * Math.sin(radians - Math.PI / 2));
+            x1 = (float) (0.5 * width + 0.5 * width * Math.cos(radians + Math.PI / 2));
+            y1 = (float) (0.5 * height + 0.5 * height * Math.sin(radians + Math.PI / 2));
+
+            return new LinearGradient(
+                    x0, y0, x1, y1,
+                    colors, positions,
+                    Shader.TileMode.CLAMP);
+        }
+
+
     }
 
 }
