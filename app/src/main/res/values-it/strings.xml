@@ -236,7 +236,7 @@
     <string name="time_limit_on_status_video">Aumenta il limite di tempo per il video di stato</string>
     <string name="time_limit_on_status_video_sum">Aumenta il limite di tempo per i video di stato da 30 secondi a 1 minuto (per tutti)</string>
     <string name="show_freezeLastSeen_button">Mostra il Pulsante Congela Ultimo Accesso</string>
-    <string name="show_freezeLastSeen_sum">Mostra pulsante per Congelare l'Ultimo Accesso sulla barra degli strumenti della schermata iniziale</string>
+    <string name="show_freezeLastSeen_sum">Mostra pulsante per Congelare l\'Ultimo Accesso sulla barra degli strumenti della schermata iniziale</string>
     <string name="freezelastseen_message">Quando Congela Ultimo Accesso è attivo, non sarai in grado di vedere l\'ora dell\'ultimo accesso o quando gli altri sono online</string>
     <string name="freezelastseen_title">Congela Ultimo Accesso</string>
     <string name="wallpaper_transparency">Trasparenza Sfondo</string>
