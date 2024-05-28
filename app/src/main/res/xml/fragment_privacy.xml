@@ -26,11 +26,6 @@
             app:title="@string/hideread_group" />
 
         <rikka.material.preference.MaterialSwitchPreference
-            app:key="hideonceseen"
-            app:summary="@string/hide_once_view_seen_sum"
-            app:title="@string/hide_once_view_seen" />
-
-        <rikka.material.preference.MaterialSwitchPreference
             app:key="hidereceipt"
             app:summary="@string/hidereceipt_sum"
             app:title="@string/hidereceipt" />
@@ -44,6 +39,11 @@
             app:key="ghostmode_r"
             app:summary="@string/ghostmode_sum_r"
             app:title="@string/ghostmode_r" />
+
+        <rikka.material.preference.MaterialSwitchPreference
+            app:key="hideonceseen"
+            app:summary="@string/hide_once_view_seen_sum"
+            app:title="@string/hide_once_view_seen" />
 
         <rikka.material.preference.MaterialSwitchPreference
             app:key="viewonce"
