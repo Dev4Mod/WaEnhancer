@@ -54,8 +54,6 @@ public class HideTabs extends Feature {
             }
         });
 
-        if (!igstatus) return;
-
         var OnTabItemAddMethod = Unobfuscator.loadOnTabItemAddMethod(loader);
         XposedBridge.hookMethod(OnTabItemAddMethod, new XC_MethodHook() {
             @Override
