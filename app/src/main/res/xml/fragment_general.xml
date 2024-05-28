@@ -9,6 +9,13 @@
             app:defaultValue="true"
             app:title="@string/verbose_logs" />
 
+        <ListPreference
+            app:entries="@array/thememode_entries"
+            app:entryValues="@array/thememode_values"
+            app:key="thememode"
+            app:summary="@string/theme_mode_sum"
+            app:title="@string/theme_mode" />
+
         <rikka.material.preference.MaterialSwitchPreference
             app:key="ampm"
             app:title="@string/ampm" />

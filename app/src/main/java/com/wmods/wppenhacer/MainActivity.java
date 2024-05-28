@@ -25,6 +25,7 @@ public class MainActivity extends AppCompatActivity {
         setTheme(R.style.AppTheme);
         getTheme().applyStyle(rikka.material.preference.R.style.ThemeOverlay_Rikka_Material3_Preference, true);
         getTheme().applyStyle(R.style.ThemeOverlay, true);
+        getTheme().applyStyle(R.style.ThemeOverlay_MaterialGreen, true);
         super.onCreate(savedInstanceState);
         if (getSupportActionBar() != null) {
             getSupportActionBar().setDisplayShowHomeEnabled(true);

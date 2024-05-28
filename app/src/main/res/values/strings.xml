@@ -286,4 +286,6 @@
     <string name="message_removed_on">This message was removed on %s.</string>
     <string name="disable_default_emojis">Disable Default Emojis</string>
     <string name="disable_default_emojis_sum">Disables Whatsapp\'s default emojis and uses system emojis (NOTE: Whatsapp emojis will disappear from the selector, use the keyboard to insert).</string>
+    <string name="theme_mode">Theme Mode for Wa Enhancer</string>
+    <string name="theme_mode_sum">Force a theme mode in the Wa Enhancer</string>
 </resources>

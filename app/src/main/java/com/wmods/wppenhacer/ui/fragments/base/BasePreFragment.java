@@ -10,6 +10,7 @@ import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.preference.ListPreference;
 import androidx.preference.Preference;
 import androidx.preference.PreferenceFragmentCompat;
 import androidx.preference.PreferenceManager;
@@ -56,6 +57,11 @@ public abstract class BasePreFragment extends PreferenceFragmentCompat implement
             var bool = mPrefs.getBoolean("freezelastseen", false);
             if (bool) showFreeze.setChecked(false);
             showFreeze.setEnabled(!bool);
+        }
+        var thememode = (ListPreference) findPreference("thememode");
+        if (thememode != null) {
+            var mode = Integer.parseInt(mPrefs.getString("thememode", "0"));
+            App.setThemeMode(mode);
         }
     }
 

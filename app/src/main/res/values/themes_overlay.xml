@@ -18,16 +18,7 @@
   -->
 <resources>
 
-
-
-    <style name="ThemeOverlay">
-        <item name="colorPrimary">#4FAF50</item>
-        <item name="dialogPreferenceStyle">@null</item>
-        <item name="allowDividerAbove">false</item>
-        <item name="allowDividerBelow">false</item>
-        <item name="colorSurface">@android:color/black</item>
-        <item name="android:colorBackground">@android:color/black</item>
-    </style>
+    <style name="ThemeOverlay" />
 
     <style name="ThemeOverlay.Black">
         <item name="colorSurface">@android:color/black</item>

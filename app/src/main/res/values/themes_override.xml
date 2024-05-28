@@ -60,6 +60,7 @@
         <item name="colorWarning">@color/material_orange_700</item>
         <item name="colorInactive" tools:ignore="PrivateResource">@color/material_grey_600</item>
 
+        <item name="navigationBarDividerColor">@android:color/transparent</item>
     </style>
 
     <style name="Base" parent="Theme.Material3.Dark" tools:override="true">
@@ -74,5 +75,7 @@
         <item name="colorAlert">@color/material_red_A100</item>
         <item name="colorSafe">@color/material_green_A100</item>
         <item name="colorWarning">@color/material_orange_A100</item>
+
+        <item name="navigationBarDividerColor">@android:color/transparent</item>
     </style>
 </resources>

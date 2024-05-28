@@ -27,6 +27,18 @@
         <item>700</item>
     </string-array>
 
+    <string-array name="thememode_entries">
+        <item>Auto</item>
+        <item>Dark</item>
+        <item>Light</item>
+    </string-array>
+
+    <string-array name="thememode_values">
+        <item>0</item>
+        <item>1</item>
+        <item>2</item>
+    </string-array>
+
     <string-array name="chatfilter_buttons">
         <item>@string/chatfilter_no_search</item>
         <item>@string/chatfilter_search_icon</item>
@@ -38,6 +50,7 @@
         <item>1</item>
         <item>2</item>
     </string-array>
+
 
     <string-array name="call_blocker_buttons">
         <item>@string/call_blocker_buttons_no_block</item>

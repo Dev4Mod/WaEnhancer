@@ -1,4 +1,4 @@
-<resources xmlns:tools="http://schemas.android.com/tools">
+<resources>
 
     <style name="Base.AppTheme.Light" parent="Theme.Material3.DynamicColors.Light.Rikka">
         <item name="android:windowLightStatusBar">true</item>
@@ -12,8 +12,6 @@
         <item name="android:colorAccent">?colorPrimary</item>
         <!-- Preference switch -->
         <item name="android:colorControlActivated">?colorPrimary</item>
-
-        <item name="preferenceTheme">@style/PreferenceThemeOverlay.Rikka.Material3</item>
     </style>
 
     <style name="Theme.Light" parent="Base.AppTheme.Light" />
@@ -34,7 +32,6 @@
         <item name="background">?colorOnSecondary</item>
         <item name="contentInsetStart">5dp</item>
     </style>
-
 
     <style name="Theme" parent="Base.AppTheme" />
 
