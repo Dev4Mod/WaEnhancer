@@ -174,7 +174,7 @@
     <string name="whatsapp_is_not_running_or_has_not_been_activated_in_lsposed">O Whatsapp não está em execução ou não foi ativado no Lsposed</string>
     <string name="business_is_not_running_or_has_not_been_activated_in_lsposed">O Business não está funcionando ou não foi ativado em Lsposed</string>
     <string name="restart_wpp">É necessário reiniciar o WhatsApp para que as alterações no Wa Enhancer tenham efeito.\n\n Deseja reiniciar?</string>
-    <string name="version_s_not_listed">Versão %s não listada</string>
+    <string name="version_s_not_listed">Version %s not listed in supported versions!\nPlease use supported WhatsApp version!</string>
     <string name="media">Mídia</string>
     <string name="show_button_to_send_blue_tick">Exibir botão para enviar marcas azuis</string>
     <string name="show_button_to_send_blue_tick_sum">Exibir botão para enviar marcas azuis (marcar como lido/visualizado)</string>
@@ -200,7 +200,7 @@
     <string name="increase_video_size_limit">Aumentar limite de tamanho de vídeo</string>
     <string name="increase_video_size_limit_sum">Aumentar o limite de tamanho de vídeo para 90MB</string>
     <string name="send_video_in_real_resolution">Enviar Vídeo em Resolução Real</string>
-    <string name="send_video_in_real_resolution_sum">Envie Vídeo em Resolução Real para status, grupos e bate-papos</string>
+    <string name="send_video_in_real_resolution_sum">Send Video in Real Resolution for status, group and chats</string>
     <string name="send_video_in_60fps">Enviar vídeo em 60fps</string>
     <string name="send_video_in_60fps_sum">Envie vídeos em 60 fps para status, grupos e pate-papo</string>
     <string name="status">Status</string>
@@ -236,7 +236,7 @@
     <string name="time_limit_on_status_video">Aumentar tempo limite no vídeo de status</string>
     <string name="time_limit_on_status_video_sum">Aumente o limite de tempo dos vídeos de status de 30 segundos para 1 minuto (para todos)</string>
     <string name="show_freezeLastSeen_button">Mostrar botão de Congelar visto por último</string>
-    <string name="show_freezeLastSeen_sum">Mostra um botão para congelar o visto por último na barra superior da tela inicial.</string>
+    <string name="show_freezeLastSeen_sum">Show button for Freezing Last Seen on home screen toolbar</string>
     <string name="freezelastseen_message">Congela a hora e data do visto por último.\nNOTA: As informações das outras pessoas não serão exibidas para você, como digitando e visto por último.</string>
     <string name="freezelastseen_title">Congelar visto por último</string>
     <string name="wallpaper_transparency">Transparência do Wallpaper</string>
@@ -258,10 +258,10 @@
     <string name="deleted_status">excluiu um status</string>
     <string name="remove_limit_edit_message">Remover limite de tempo para editar mensagem</string>
     <string name="remove_limit_edit_message_sum">Remove o limite de 15 minutos para edição de uma mensagem</string>
-    <string name="disable_audio_sensor">Desativar o sensor de proximidade</string>
+    <string name="disable_audio_sensor">Desativar sensor de proximidade</string>
     <string name="disable_audio_sensor_sum">Desative o sensor de proximidade para que a mensagem de áudio não seja reproduzida pelo alto-falante auricular.</string>
     <string name="show_admin_group_icon">Mostrar o ícone de administrador do grupo</string>
-    <string name="show_admin_group_icon_sum">Adicione um ícone ao lado do nome do administrador do grupo</string>
+    <string name="show_admin_group_icon_sum">Show an admin icon next to the name of the user who is the group admin</string>
     <string name="toolbar_transparency">Transparência da barra superior</string>
     <string name="navigation_transparency">Transparência da barra de navegação</string>
     <string name="show_online_last_seen_in_conversation_list">Mostrar Online/Visto pela última vez na guia de conversas</string>
@@ -276,8 +276,12 @@
     <string name="custom_theme_css">Tema personalizado CSS</string>
     <string name="custom_theme_css_sum">Personalize seu WhatsApp usando código CSS.</string>
     <string name="antidisappearing">Anti-deletar mensagens temporárias</string>
-    <string name="antidisappearing_sum">Quando ativo, impede que as mensagens temporárias desapareçam para você.</string>
+    <string name="antidisappearing_sum">Temporary messages will not be deleted for you</string>
     <string name="title_audio">Áudio</string>
     <string name="android_version">Versão do Android</string>
-    <string name="message_removed_on">This message was removed on %s.</string>
+    <string name="message_removed_on">Mensagem apagada em %s</string>
+    <string name="disable_default_emojis">Disable Default Emojis</string>
+    <string name="theme_mode">Theme Mode for Wa Enhancer</string>
+    <string name="theme_mode_sum">Force a theme mode in the Wa Enhancer</string>
+    <string name="disable_default_emojis_sum">Disables Whatsapp\'s default emojis and uses system emojis\n(NOTE: Whatsapp emojis will disappear from the selector, use the keyboard to insert).</string>
 </resources>

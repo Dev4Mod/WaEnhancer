@@ -3,7 +3,6 @@ package com.wmods.wppenhacer;
 import android.app.Application;
 import android.os.Handler;
 import android.os.Looper;
-import android.util.Log;
 
 import androidx.appcompat.app.AppCompatDelegate;
 import androidx.preference.PreferenceManager;
@@ -15,8 +14,6 @@ import java.lang.reflect.Field;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-import de.robv.android.xposed.XposedHelpers;
-
 public class App extends Application {
 
     private static App instance;
@@ -27,25 +24,23 @@ public class App extends Application {
     public void onCreate() {
         super.onCreate();
         instance = this;
-        AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES);
-
         var sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
         sharedPreferences.edit().putLong("lastUpdateTime", System.currentTimeMillis()).commit();
-        try {
-            Field f = sharedPreferences.getClass().getDeclaredField("mFile");
-            f.setAccessible(true);
-            File file = (File) f.get(sharedPreferences);
-            executorService.execute(() -> {
-                while (file != null && file.exists()) {
-                    Utils.setWritePermissions(file);
-                    try {
-                        Thread.sleep(1000);
-                    } catch (InterruptedException e) {
-                    }
-                }
-            });
-        } catch (Exception e) {
-            e.printStackTrace();
+        var mode = Integer.parseInt(sharedPreferences.getString("thememode", "0"));
+        setThemeMode(mode);
+    }
+
+    public static void setThemeMode(int mode) {
+        switch (mode) {
+            case 0:
+                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM);
+                break;
+            case 1:
+                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES);
+                break;
+            case 2:
+                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
+                break;
         }
     }
 

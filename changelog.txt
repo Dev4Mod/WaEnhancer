@@ -1,5 +1,2 @@
-* Fix bug in Hide seen to Status
-* Fix bug multiples warnings in log xposed
-* Improve performance in Custom CSS using Executors
-* Fix bug in remove status tab (hide only with IGStatus enabled)
-* Fix logic in Freeze Last Seen
+[WA ENHANCER]
+* Fix critical bug in Material Dialog

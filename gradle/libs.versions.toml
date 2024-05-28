@@ -26,7 +26,9 @@ rikkax-material = { module = "dev.rikka.rikkax.material:material", version = "2.
 rikkax-material-preference = { module = "dev.rikka.rikkax.material:material-preference", version = "2.0.0" }
 rikkax-preference = { module = "dev.rikka.rikkax.material:material-preference", version = "2.0.0" }
 rikkax-widget-borderview = { module = "dev.rikka.rikkax.widget:borderview", version = "1.1.0" }
+material = { module = "com.google.android.material:material", version = "1.10.0" }
 
 [plugins]
 androidApplication = { id = "com.android.application", version.ref = "agp" }
+materialthemebuilder = { id = "dev.rikka.tools.materialthemebuilder", version = "1.4.1" }
 

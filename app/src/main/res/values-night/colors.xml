@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="primary_text_material_inverse">@color/abc_primary_text_material_light</color>
+    <color name="primary_text_material">@color/abc_primary_text_material_dark</color>
+
+    <color name="ic_launcher_foreground">#F06292</color>
+    <color name="ic_launcher_background">#E1F5FE</color>
+</resources>

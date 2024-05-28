@@ -1,10 +1,14 @@
 package com.wmods.wppenhacer;
 
+import android.annotation.SuppressLint;
+import android.content.ContextWrapper;
 import android.content.res.XModuleResources;
 import android.view.Window;
 import android.view.WindowManager;
 
 import androidx.annotation.NonNull;
+import androidx.preference.Preference;
+import androidx.preference.PreferenceManager;
 
 import com.wmods.wppenhacer.xposed.AntiUpdater;
 import com.wmods.wppenhacer.xposed.core.MainFeatures;
@@ -37,6 +41,7 @@ public class WppXposed implements IXposedHookLoadPackage, IXposedHookInitPackage
         return pref;
     }
 
+    @SuppressLint("WorldReadableFiles")
     @Override
     public void handleLoadPackage(XC_LoadPackage.LoadPackageParam lpparam) throws Throwable {
         var packageName = lpparam.packageName;
@@ -45,6 +50,7 @@ public class WppXposed implements IXposedHookLoadPackage, IXposedHookInitPackage
 
         if (packageName.equals(BuildConfig.APPLICATION_ID)) {
             XposedHelpers.findAndHookMethod(MainActivity.class.getName(), lpparam.classLoader, "isXposedEnabled", XC_MethodReplacement.returnConstant(true));
+            XposedHelpers.findAndHookMethod(PreferenceManager.class.getName(), lpparam.classLoader, "getDefaultSharedPreferencesMode", XC_MethodReplacement.returnConstant(ContextWrapper.MODE_WORLD_READABLE));
             return;
         }
         XposedBridge.log("[•] This package: " + lpparam.packageName);

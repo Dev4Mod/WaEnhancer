@@ -2,6 +2,7 @@ import java.util.Locale
 
 plugins {
     alias(libs.plugins.androidApplication)
+    alias(libs.plugins.materialthemebuilder)
 }
 
 fun getGitHashCommit(): String {
@@ -61,11 +62,11 @@ android {
     buildTypes {
         all {
             signingConfig = if (signingConfigs["config"].storeFile != null) signingConfigs["config"] else signingConfigs["debug"]
-            isMinifyEnabled = true
-            proguardFiles(
-                getDefaultProguardFile("proguard-android-optimize.txt"),
-                "proguard-rules.pro"
-            )
+//            isMinifyEnabled = true
+//            proguardFiles(
+//                getDefaultProguardFile("proguard-android-optimize.txt"),
+//                "proguard-rules.pro"
+//            )
         }
         release {
             isMinifyEnabled = false
@@ -83,6 +84,24 @@ android {
         viewBinding = true
         buildConfig = true
     }
+
+    materialThemeBuilder {
+        themes {
+            for ((name, color) in listOf(
+                "Green" to "4FAF50"
+            )) {
+                create("Material$name") {
+                    lightThemeFormat = "ThemeOverlay.Light.%s"
+                    darkThemeFormat = "ThemeOverlay.Dark.%s"
+                    primaryColor = "#$color"
+                }
+            }
+        }
+        // Add Material Design 3 color tokens (such as palettePrimary100) in generated theme
+        // rikka.material >= 2.0.0 provides such attributes
+        generatePalette = true
+    }
+
 }
 
 dependencies {
@@ -97,6 +116,7 @@ dependencies {
     implementation(libs.androidx.navigation.ui)
     implementation(libs.rikkax.appcompat)
     implementation(libs.rikkax.core)
+    implementation(libs.material)
     implementation(libs.rikkax.material)
     implementation(libs.rikkax.material.preference)
     implementation(libs.rikkax.preference)
