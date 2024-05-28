@@ -18,7 +18,9 @@
   -->
 <resources>
 
-    <style name="ThemeOverlay" />
+    <style name="ThemeOverlay">
+        <item name="dialogPreferenceStyle">@null</item>
+    </style>
 
     <style name="ThemeOverlay.Black">
         <item name="colorSurface">@android:color/black</item>

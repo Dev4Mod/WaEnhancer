@@ -1,11 +1,2 @@
-[CUSTOM CSS]
-* Fix support to cover in background
-* Add support to color-filter in drawable images
-* Add support to color-tint in drawable images
-* Add support to linear-gradient in background
-[HIDE TABS]
-* Fix bug in hide tabs
 [WA ENHANCER]
-* Add Theme mode for Wa Enhancer
-* Fix bugs in theme
-* Update translations
+* Fix critical bug in Material Dialog
