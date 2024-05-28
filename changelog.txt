@@ -1,5 +1,11 @@
-* Fix bug in Hide seen to Status
-* Fix bug multiples warnings in log xposed
-* Improve performance in Custom CSS using Executors
-* Fix bug in remove status tab (hide only with IGStatus enabled)
-* Fix logic in Freeze Last Seen
+[CUSTOM CSS]
+* Fix support to cover in background
+* Add support to color-filter in drawable images
+* Add support to color-tint in drawable images
+* Add support to linear-gradient in background
+[HIDE TABS]
+* Fix bug in hide tabs
+[WA ENHANCER]
+* Add Theme mode for Wa Enhancer
+* Fix bugs in theme
+* Update translations
