@@ -112,14 +112,14 @@
         app:title="@string/conversation">
 
         <rikka.material.preference.MaterialSwitchPreference
-            app:key="toastdeleted"
-            app:title="@string/toast_on_delete"
-            app:summary="@string/toast_on_delete_sum" />
-
-        <rikka.material.preference.MaterialSwitchPreference
             app:key="showonline"
             app:summary="@string/show_toast_on_contact_online_sum"
             app:title="@string/show_toast_on_contact_online" />
+
+        <rikka.material.preference.MaterialSwitchPreference
+            app:key="toastdeleted"
+            app:title="@string/toast_on_delete"
+            app:summary="@string/toast_on_delete_sum" />
 
         <ListPreference
             app:entries="@array/antirevoke_entries"
@@ -136,6 +136,11 @@
             app:key="antirevokestatus"
             app:summary="@string/antirevokestatus_sum"
             app:title="@string/antirevokestatus" />
+
+        <rikka.material.preference.MaterialSwitchPreference
+            app:key="antidisappearing"
+            app:summary="@string/antidisappearing_sum"
+            app:title="@string/antidisappearing" />
 
         <rikka.material.preference.MaterialSwitchPreference
             app:key="pinnedlimit"
@@ -156,11 +161,6 @@
             app:key="revokeallmessages"
             app:summary="@string/delete_for_everyone_all_messages_sum"
             app:title="@string/delete_for_everyone_all_messages" />
-
-        <rikka.material.preference.MaterialSwitchPreference
-            app:key="antidisappearing"
-            app:summary="@string/antidisappearing_sum"
-            app:title="@string/antidisappearing" />
 
 <!--        <rikka.material.preference.MaterialSwitchPreference-->
 <!--            app:key="editallmessages"-->
