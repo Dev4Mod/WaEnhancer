@@ -112,8 +112,7 @@
     <string name="separate_groups">Grup Terpisah</string>
     <string name="separate_groups_sum">Pisahkan obrolan Anda berdasarkan: Chat, Grup, Status, Komunitas, Panggilan</string>
     <string name="blueonreply">Centang Biru Setelah Membalas</string>
-    <string name="blueonreply_sum">Kontak hanya akan melihat tanda centang biru setelah Anda membalas pesan.
-(CATATAN: Harus mengaktifkan \"Sembunyikan centang biru\")</string>
+    <string name="blueonreply_sum">Kontak hanya akan melihat tanda centang biru setelah Anda membalas pesan.\n(CATATAN: Harus mengaktifkan \"Sembunyikan centang biru\")</string>
     <string name="hide_archived_chat">Sembunyikan Obrolan yang Diarsipkan</string>
     <string name="hide_archived_chat_sum">Sembunyikan obrolan yang diarsipkan, klik dan tahan pada judul \"WhatsApp\" di layar beranda untuk mengakses obrolan</string>
     <string name="hide_once_view_seen">Sembunyikan Lihat Sekali dan Pesan Suara</string>
@@ -175,7 +174,7 @@
     <string name="whatsapp_is_not_running_or_has_not_been_activated_in_lsposed">WhatsApp tidak berjalan atau belum diaktifkan di LSPosed</string>
     <string name="business_is_not_running_or_has_not_been_activated_in_lsposed">WhatsApp Bisnis tidak berjalan atau belum diaktifkan di LSPosed</string>
     <string name="restart_wpp">WhatsApp harus dimulai ulang agar perubahan di Wa Enhancer dapat diterapkan\n\nApakah Anda ingin mulai ulang WhatsApp?</string>
-    <string name="version_s_not_listed">Versi %s tidak terdaftar</string>
+    <string name="version_s_not_listed">Versi %s tidak terdaftar dalam versi yang didukung!\nHarap gunakan versi WhatsApp yang didukung!</string>
     <string name="media">Media</string>
     <string name="show_button_to_send_blue_tick">Tampilkan Tombol Centang Biru</string>
     <string name="show_button_to_send_blue_tick_sum">Tampilkan tombol centang biru (dibaca/dilihat untuk pesan dan status)</string>
@@ -212,7 +211,7 @@
     <string name="phone_call">Panggilan Telepon</string>
     <string name="whatsapp_call">Panggilan WhatsApp</string>
     <string name="home_screen">Layar Beranda</string>
-    <string name="selection_of_call_type">Aktifkan Pemilihan Jenis Panggilan</string>
+    <string name="selection_of_call_type">Pemilihan Jenis Panggilan</string>
     <string name="selection_of_call_type_sum">Tampilkan opsi untuk memilih panggilan melalui telepon atau WhatsApp</string>
     <string name="yes">Ya</string>
     <string name="no">Tidak</string>
@@ -228,8 +227,8 @@
     <string name="enable_new_chat_button_sum">Tampilkan tombol di layar beranda untuk memulai obrolan baru</string>
     <string name="enable_restart_button">Tampilkan Tombol Mulai Ulang</string>
     <string name="enable_restart_button_sum">Tampilkan tombol di layar beranda untuk memulai ulang aplikasi</string>
-    <string name="toast_on_delete">Tampilkan Notifikasi Saat Pesan Dihapus</string>
-    <string name="toast_on_delete_sum">Tampilkan notifikasi mengambang jika ada pesan yang dihapus</string>
+    <string name="toast_on_delete">Notifikasi Saat Pesan/Status Dihapus</string>
+    <string name="toast_on_delete_sum">Tampilkan notifikasi mengambang jika ada pesan/status yang dihapus</string>
     <string name="enable_top_navigation">Aktifkan Navigasi Atas</string>
     <string name="enable_top_navigation_sum">Aktifkan bilah navigasi lama (tab di bagian atas)</string>
     <string name="hideread_group">Sembunyikan Centang Biru di Grup</string>
@@ -261,21 +260,26 @@
     <string name="remove_limit_edit_message_sum">Hapus batas 15 menit untuk mengedit pesan</string>
     <string name="disable_audio_sensor">Nonaktifkan Sensor Audio</string>
     <string name="disable_audio_sensor_sum">Nonaktifkan peralihan audio dengan sensor jarak</string>
-    <string name="show_admin_group_icon">Tampilkan Ikon Admin Grup</string>
+    <string name="show_admin_group_icon">Ikon Admin Grup</string>
     <string name="show_admin_group_icon_sum">Tampilkan ikon admin di samping nama pengguna yang merupakan admin grup</string>
     <string name="toolbar_transparency">Transparansi Toolbar</string>
     <string name="navigation_transparency">Transparansi Navigasi</string>
     <string name="show_online_last_seen_in_conversation_list">Tampilkan \"terakhir dilihat dan online\"</string>
     <string name="show_online_last_seen_in_conversation_list_sum">Tampilkan \"terakhir dilihat dan online\" di layar beranda\n(CATATAN: Harus mengaktifkan \"Terakhir dilihat dan online\" untuk semua orang di menu setelan privasi WhatsApp)</string>
     <string name="toast_online">%s online</string>
-    <string name="show_toast_on_contact_online">Toast Kontak Online</string>
+    <string name="show_toast_on_contact_online">Notifikasi Kontak Online</string>
     <string name="show_toast_on_contact_online_sum">Tampilkan notifikasi mengambang ketika kontak sedang online</string>
     <string name="new_context_menu_ui">Menu UI Konteks Baru</string>
-    <string name="new_context_menu_ui_sum">Aktifkan menu konteks pesan bergaya iOS baru</string>
+    <string name="new_context_menu_ui_sum">Aktifkan menu konteks pesan baru bergaya iOS</string>
     <string name="filter_itens_by_id">Filter Item Berdasarkan ID</string>
     <string name="filter_itens_by_id_sum">Filter item berdasarkan nama ID</string>
     <string name="custom_theme_css">Tema Khusus CSS</string>
     <string name="custom_theme_css_sum">Sesuaikan WhatsApp Anda menggunakan gaya CSS</string>
+    <string name="antidisappearing">Anti Hapus Pesan Sementara</string>
+    <string name="antidisappearing_sum">Pesan sementara tidak akan dihapus untuk Anda</string>
     <string name="title_audio">Audio</string>
     <string name="android_version">Versi Android</string>
+    <string name="message_removed_on">Pesan ini dihapus pada %s</string>
+    <string name="disable_default_emojis">Nonaktifkan Emoji Bawaan</string>
+    <string name="disable_default_emojis_sum">Nonaktifkan emoji bawaan WhatsApp dan gunakan emoji sistem\n(CATATAN: Emoji WhatsApp akan hilang dari pilihan, gunakan keyboard untuk menyisipkan)</string>
 </resources>
