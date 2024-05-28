@@ -278,4 +278,7 @@
     <string name="custom_theme_css_sum">Sesuaikan WhatsApp Anda menggunakan gaya CSS</string>
     <string name="title_audio">Audio</string>
     <string name="android_version">Versi Android</string>
+    <string name="message_removed_on">Pesan ini dihapus pada %s</string>
+    <string name="disable_default_emojis">Nonaktifkan Emoji Bawaan</string>
+    <string name="disable_default_emojis_sum">Nonaktifkan emoji bawaan WhatsApp dan gunakan emoji sistem\n(CATATAN: Emoji WhatsApp akan hilang dari pilihan, gunakan keyboard untuk menyisipkan)</string>
 </resources>
