@@ -213,15 +213,14 @@ public class Others extends Feature {
             protected void afterHookedMethod(MethodHookParam param) throws Throwable {
                 var fMessage = XposedHelpers.callMethod(param.thisObject, "getFMessage");
                 var userJidClass = XposedHelpers.findClass("com.whatsapp.jid.UserJid", loader);
-                var methodResult = ReflectionUtils.findMethodUsingFilter(fMessage.getClass(), method -> method.getReturnType() == userJidClass);
+                var methodResult = ReflectionUtils.findMethodUsingFilter(fMessage.getClass(), method -> method.getReturnType() == userJidClass && method.getParameterCount() == 0);
                 var userJid = ReflectionUtils.callMethod(methodResult, fMessage);
                 var chatCurrentJid = WppCore.getCurrentRawJID();
                 if (!WppCore.isGroup(chatCurrentJid)) return;
                 var field = ReflectionUtils.getFieldByType(param.thisObject.getClass(), grpcheckAdmin.getDeclaringClass());
                 var grpParticipants = field.get(param.thisObject);
                 var jidGrp = jidFactory.invoke(null, chatCurrentJid);
-                var result = (boolean) ReflectionUtils.callMethod(grpcheckAdmin, grpParticipants, jidGrp, userJid);
-
+                var result = ReflectionUtils.callMethod(grpcheckAdmin, grpParticipants, jidGrp, userJid);
                 var view = (View) param.thisObject;
                 var context = view.getContext();
                 ImageView iconAdmin;
@@ -241,7 +240,7 @@ public class Others extends Feature {
                     view1.addView(iconAdmin);
                     nameGroup.addView(view1, 0);
                 }
-                iconAdmin.setVisibility(result ? View.VISIBLE : View.GONE);
+                iconAdmin.setVisibility(result != null && (boolean) result ? View.VISIBLE : View.GONE);
             }
         };
         XposedBridge.hookMethod(grpAdmin1, hooked);
