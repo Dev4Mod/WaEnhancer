@@ -20,6 +20,8 @@
 
     <style name="ThemeOverlay">
         <item name="dialogPreferenceStyle">@null</item>
+        <item name="allowDividerAbove">false</item>
+        <item name="allowDividerBelow">false</item>
     </style>
 
     <style name="ThemeOverlay.Black">
