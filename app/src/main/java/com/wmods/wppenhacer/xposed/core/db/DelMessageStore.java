@@ -14,7 +14,7 @@ public class DelMessageStore extends SQLiteOpenHelper {
     private static DelMessageStore mInstance;
 
     private DelMessageStore(@NonNull Context context) {
-        super(context, "delmessages.db", null, 2);
+        super(context, "delmessages.db", null, 3);
     }
 
     public static DelMessageStore getInstance(Context ctx) {
@@ -64,13 +64,13 @@ public class DelMessageStore extends SQLiteOpenHelper {
 
     @Override
     public void onCreate(SQLiteDatabase sqLiteDatabase) {
-        sqLiteDatabase.execSQL("CREATE TABLE IF NOT EXISTS delmessages (_id INTEGER PRIMARY KEY AUTOINCREMENT, jid TEXT, msgid TEXT, UNIQUE(jid, msgid))");
+        sqLiteDatabase.execSQL("CREATE TABLE IF NOT EXISTS delmessages (_id INTEGER PRIMARY KEY AUTOINCREMENT, jid TEXT, msgid TEXT, timestamp INTEGER DEFAULT 0, UNIQUE(jid, msgid))");
     }
 
 
     @Override
     public void onUpgrade(SQLiteDatabase sqLiteDatabase, int oldVersion, int newVersion) {
-        if (oldVersion < 2) {
+        if (oldVersion < 3) {
             sqLiteDatabase.execSQL("ALTER TABLE delmessages ADD COLUMN timestamp INTEGER DEFAULT 0;");
         }
     }
