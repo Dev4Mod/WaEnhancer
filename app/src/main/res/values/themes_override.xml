@@ -68,7 +68,7 @@
         <item name="android:ambientShadowAlpha">@dimen/ambient_shadow_alpha</item>
         <item name="android:spotShadowAlpha">@dimen/spot_shadow_alpha</item>
 
-        <item name="colorPrimary">@color/primary_dark</item>
+        <item name="colorPrimary">#FFFFFF</item>
         <item name="colorPrimaryVariant">@color/primary_dark_dark</item>
         <item name="swipeRefreshLayoutProgressSpinnerBackgroundColor">?cardBackground</item>
 
