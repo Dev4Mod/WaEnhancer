@@ -23,6 +23,7 @@ import com.wmods.wppenhacer.xposed.core.Utils;
 import com.wmods.wppenhacer.xposed.core.WppCore;
 import com.wmods.wppenhacer.xposed.core.Feature;
 import com.wmods.wppenhacer.xposed.core.db.MessageStore;
+import com.wmods.wppenhacer.xposed.utils.ReflectionUtils;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
@@ -73,7 +74,6 @@ public class SeenTick extends Feature {
             var jid = WppCore.getCurrentRawJID();
             if (!Objects.equals(jid, currentJid)) {
                 currentJid = jid;
-                XposedBridge.log("Changed Start");
                 messages.clear();
             }
         });
@@ -139,11 +139,11 @@ public class SeenTick extends Feature {
                 var position = (int) param.args[1];
                 var list = (List<?>) XposedHelpers.getObjectField(param.args[0], fieldList.getName());
                 var message = list.get(position);
-                var messageKeyObject = XposedHelpers.getObjectField(message, fieldMessageKey.getName());
+                var messageKeyObject = fieldMessageKey.get(message);
                 var messageKey = (String) XposedHelpers.getObjectField(messageKeyObject, "A01");
                 var userJidClass = XposedHelpers.findClass("com.whatsapp.jid.UserJid", loader);
-                var userJidMethod = Arrays.stream(fieldMessageKey.getDeclaringClass().getDeclaredMethods()).filter(m -> m.getReturnType().equals(userJidClass)).findFirst().orElse(null);
-                var userJid = XposedHelpers.callMethod(message, userJidMethod.getName());
+                var userJidMethod = ReflectionUtils.findMethodUsingFilter(fieldMessageKey.getDeclaringClass(), me -> me.getReturnType().equals(userJidClass) && me.getParameterCount() == 0);
+                var userJid = userJidMethod.invoke(message);
                 var jid = WppCore.getRawString(userJid);
                 messages.clear();
                 messages.add(new MessageInfo(message, messageKey));
