@@ -1,2 +1,2 @@
-[WA ENHANCER]
-* Fix critical bug in Material Dialog
+[ANTIREVOKE MESSAGES]
+* Fix critical bug in database
