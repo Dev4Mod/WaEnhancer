@@ -21,9 +21,9 @@
         <!-- Preference title -->
         <item name="android:textAppearanceListItem">?textAppearanceSubtitle1</item>
         <!-- Preference category title -->
-        <item name="android:colorAccent">@color/white</item>
+        <item name="android:colorAccent">?colorPrimary</item>
         <!-- Preference switch -->
-        <item name="android:colorControlActivated">@color/white</item>
+        <item name="android:colorControlActivated">?colorPrimary</item>
 
         <item name="actionBarStyle">@style/MyActionBar</item>
     </style>
