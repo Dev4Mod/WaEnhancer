@@ -76,11 +76,14 @@ public class AntiRevoke extends Feature {
 
         XposedBridge.hookMethod(antiRevokeMessageMethod, new XC_MethodHook() {
             @Override
-            protected void beforeHookedMethod(MethodHookParam param) {
+            protected void beforeHookedMethod(MethodHookParam param) throws Exception {
                 var objMessage = classThreadMessage.cast(param.args[0]);
-                var fieldMessageDetails = XposedHelpers.getObjectField(objMessage, fieldMessageKey.getName());
+                var fieldMessageDetails = fieldMessageKey.get(objMessage);
+                log(fieldMessageDetails);
+                Utils.debugFields(classThreadMessage, objMessage);
                 var fieldIsFromMe = XposedHelpers.getBooleanField(fieldMessageDetails, "A02");
-                if (!fieldIsFromMe) {
+                var type = XposedHelpers.getIntField(objMessage, "A01");
+                if (!fieldIsFromMe && type != 8) {
                     if (antiRevoke(objMessage) != 0)
                         param.setResult(true);
                 }
