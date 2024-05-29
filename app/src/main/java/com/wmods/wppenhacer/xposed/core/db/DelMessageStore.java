@@ -70,7 +70,7 @@ public class DelMessageStore extends SQLiteOpenHelper {
 
     @Override
     public void onUpgrade(SQLiteDatabase sqLiteDatabase, int oldVersion, int newVersion) {
-        if (oldVersion < 3) {
+        if (oldVersion < 2) {
             sqLiteDatabase.execSQL("ALTER TABLE delmessages ADD COLUMN timestamp INTEGER DEFAULT 0;");
         }
     }

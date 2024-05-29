@@ -1,4 +1,2 @@
-[SHOW HISTORY EDITED]
-* Fix bug in database
-[CSS CUSTOM]
-* Fix minor bugs
+[ANTIREVOKE MESSAGES]
+* Fix critical bug in database
