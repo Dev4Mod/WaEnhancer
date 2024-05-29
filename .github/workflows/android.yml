@@ -36,7 +36,7 @@ jobs:
 
       - name: Build and test app
         run: |
-          ./gradlew assembleDebug
+          ./gradlew assembleDebug -Pminify=true
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v4

@@ -1,2 +1,6 @@
-[ANTIREVOKE MESSAGES]
-* Fix critical bug in database
+[WHATSAPP]
+* Add Support to Whatsapp 2.24.10.85
+
+[ANTI REVOKE]
+* fix error when deleting messages from other people in group as admin
+

@@ -82,7 +82,9 @@ public class AntiRevoke extends Feature {
                 log(fieldMessageDetails);
                 Utils.debugFields(classThreadMessage, objMessage);
                 var fieldIsFromMe = XposedHelpers.getBooleanField(fieldMessageDetails, "A02");
-                var type = XposedHelpers.getIntField(objMessage, "A01");
+                var typeField = classThreadMessage.getDeclaredField("A01");
+                typeField.setAccessible(true);
+                var type = typeField.getInt(objMessage); // delete user message in group as admin (8)
                 if (!fieldIsFromMe && type != 8) {
                     if (antiRevoke(objMessage) != 0)
                         param.setResult(true);

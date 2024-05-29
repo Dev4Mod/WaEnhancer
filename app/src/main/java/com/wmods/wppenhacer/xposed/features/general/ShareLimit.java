@@ -27,7 +27,7 @@ public class ShareLimit extends Feature {
                     @Override
                     protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
                         if (prefs.getBoolean("removeforwardlimit", false)) {
-                            XposedHelpers.setBooleanField(param.thisObject, shareLimitField.getName(), true);
+                            shareLimitField.set(param.thisObject, true);
                         }
                     }
                 });

@@ -74,7 +74,6 @@ public class SeenTick extends Feature {
             var jid = WppCore.getCurrentRawJID();
             if (!Objects.equals(jid, currentJid)) {
                 currentJid = jid;
-                XposedBridge.log("Changed Start");
                 messages.clear();
             }
         });
