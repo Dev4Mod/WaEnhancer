@@ -1,2 +1,4 @@
-[WA ENHANCER]
-* Fix critical bug in Material Dialog
+[SHOW HISTORY EDITED]
+* Fix bug in database
+[CSS CUSTOM]
+* Fix minor bugs

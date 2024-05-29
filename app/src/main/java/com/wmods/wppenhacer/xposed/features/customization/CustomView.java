@@ -33,8 +33,6 @@ import com.wmods.wppenhacer.xposed.core.Utils;
 import com.wmods.wppenhacer.xposed.utils.ReflectionUtils;
 
 import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -58,7 +56,6 @@ import cz.vutbr.web.css.TermNumeric;
 import cz.vutbr.web.css.TermURI;
 import de.robv.android.xposed.XC_MethodHook;
 import de.robv.android.xposed.XSharedPreferences;
-import de.robv.android.xposed.XposedBridge;
 import de.robv.android.xposed.XposedHelpers;
 
 public class CustomView extends Feature {
@@ -84,8 +81,8 @@ public class CustomView extends Feature {
             @Override
             protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
                 var activity = (Activity) param.thisObject;
-                var content = (ViewGroup) activity.findViewById(android.R.id.content);
-                content.getViewTreeObserver().addOnGlobalLayoutListener(() -> mThreadService.execute(() -> registerCssRules(activity, content, sheet)));
+                View rootView = activity.getWindow().getDecorView().getRootView();
+                rootView.getViewTreeObserver().addOnGlobalLayoutListener(() -> mThreadService.execute(() -> registerCssRules(activity, (ViewGroup)rootView, sheet)));
             }
         });
     }
@@ -183,7 +180,7 @@ public class CustomView extends Feature {
                     view.setAlpha(value.getValue());
                 }
                 case "background-image" -> {
-                    var uri = (TermURI) declaration.get(0);
+                    if (!(declaration.get(0) instanceof TermURI uri))continue;
                     if (!new File(uri.getValue()).exists()) continue;
                     var draw = cacheImages.getDrawable(uri.getValue());
                     if (view instanceof ImageView imageView) {
