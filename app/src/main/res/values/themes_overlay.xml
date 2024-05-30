@@ -20,8 +20,6 @@
 
     <style name="ThemeOverlay">
         <item name="dialogPreferenceStyle">@null</item>
-        <item name="android:colorAccent">@color/ic_launcher_foreground</item>
-        <item name="android:colorControlActivated">@color/ic_launcher_foreground</item>
     </style>
 
     <style name="ThemeOverlay.Black">
