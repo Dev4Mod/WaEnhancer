@@ -23,7 +23,7 @@
         <!-- Preference category title -->
         <item name="android:colorAccent">?colorPrimary</item>
         <!-- Preference switch -->
-        <item name="android:colorControlActivated">?colorPrimary</item>
+        <item name="android:colorControlActivated">@color/ic_launcher_foreground</item>
 
         <item name="actionBarStyle">@style/MyActionBar</item>
     </style>
