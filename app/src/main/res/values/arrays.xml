@@ -26,32 +26,26 @@
         <item>400</item>
         <item>700</item>
     </string-array>
-
     <string-array name="thememode_entries">
-        <item>Auto</item>
-        <item>Dark</item>
-        <item>Light</item>
+        <item>@string/follow_system</item>
+        <item>@string/dark_theme_on</item>
+        <item>@string/dark_theme_off</item>
     </string-array>
-
     <string-array name="thememode_values">
         <item>0</item>
         <item>1</item>
         <item>2</item>
     </string-array>
-
     <string-array name="chatfilter_buttons">
         <item>@string/chatfilter_no_search</item>
         <item>@string/chatfilter_search_icon</item>
         <item>@string/chatfilter_search_bar</item>
     </string-array>
-
     <string-array name="chatfilter_values">
         <item>0</item>
         <item>1</item>
         <item>2</item>
     </string-array>
-
-
     <string-array name="call_blocker_buttons">
         <item>@string/call_blocker_buttons_no_block</item>
         <item>@string/call_blocker_buttons_all_block</item>
@@ -62,7 +56,6 @@
         <item>1</item>
         <item>2</item>
     </string-array>
-
     <string-array name="seentick_buttons">
         <item>@string/antirevoke_buttons_desable</item>
         <item>@string/seentick_screen</item>
@@ -73,7 +66,6 @@
         <item>1</item>
         <item>2</item>
     </string-array>
-
     <string-array name="supported_versions_wpp">
         <item>2.24.8.85</item>
         <item>2.24.8.86</item>
@@ -87,13 +79,10 @@
         <item>2.24.10.75</item>
         <item>2.24.10.85</item>
     </string-array>
-
     <string-array name="supported_versions_business">
         <item>2.24.9.80</item>
     </string-array>
-
     <string-array name="image_picker">
         <item>image/*</item>
     </string-array>
-
 </resources>
