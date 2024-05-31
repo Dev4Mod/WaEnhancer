@@ -148,8 +148,6 @@ public class Unobfuscator {
     }
 
 
-
-
     // TODO: Classes and Methods for FreezeSeen
     public static Method loadFreezeSeenMethod(ClassLoader classLoader) throws Exception {
         return UnobfuscatorCache.getInstance().getMethod(classLoader, () -> UnobfuscatorCache.getInstance().getMethod(classLoader, () -> findFirstMethodUsingStrings(classLoader, StringMatchType.Contains, "presencestatemanager/setAvailable/new-state")));
@@ -608,7 +606,9 @@ public class Unobfuscator {
     }
 
 
-    /** @noinspection SimplifyOptionalCallChains*/
+    /**
+     * @noinspection SimplifyOptionalCallChains
+     */
     public static Method loadViewOnceDownloadMenuMethod(ClassLoader classLoader) throws Exception {
         return UnobfuscatorCache.getInstance().getMethod(classLoader, () -> {
             var clazz = XposedHelpers.findClass("com.whatsapp.mediaview.MediaViewFragment", classLoader);
@@ -653,7 +653,9 @@ public class Unobfuscator {
         });
     }
 
-    /** @noinspection SimplifyOptionalCallChains*/
+    /**
+     * @noinspection SimplifyOptionalCallChains
+     */
     public static Method loadViewOnceDownloadMenuCallMethod(ClassLoader loader) throws Exception {
         return UnobfuscatorCache.getInstance().getMethod(loader, () -> {
             var clazz = XposedHelpers.findClass("com.whatsapp.mediaview.MediaViewFragment", loader);
@@ -1146,7 +1148,9 @@ public class Unobfuscator {
         });
     }
 
-    /** @noinspection DataFlowIssue*/
+    /**
+     * @noinspection DataFlowIssue
+     */
     public static Field loadSetEditMessageField(ClassLoader loader) throws Exception {
         return UnobfuscatorCache.getInstance().getField(loader, () -> {
             var method = findFirstMethodUsingStrings(loader, StringMatchType.Contains, "CoreMessageStore/updateCheckoutMessageWithTransactionInfo");
@@ -1163,7 +1167,9 @@ public class Unobfuscator {
         });
     }
 
-    /** @noinspection DataFlowIssue*/
+    /**
+     * @noinspection DataFlowIssue
+     */
     public static Method loadEditMessageShowMethod(ClassLoader loader) throws Exception {
         return UnobfuscatorCache.getInstance().getMethod(loader, () -> {
             var clazz = findFirstClassUsingStrings(loader, StringMatchType.Contains, "newsletter_reaction_sheet");
@@ -1178,7 +1184,9 @@ public class Unobfuscator {
         });
     }
 
-    /** @noinspection DataFlowIssue*/
+    /**
+     * @noinspection DataFlowIssue
+     */
     public static Field loadEditMessageViewField(ClassLoader loader) throws Exception {
         return UnobfuscatorCache.getInstance().getField(loader, () -> {
             var method = loadEditMessageShowMethod(loader);
@@ -1194,7 +1202,9 @@ public class Unobfuscator {
         });
     }
 
-    /** @noinspection DataFlowIssue*/
+    /**
+     * @noinspection DataFlowIssue
+     */
     public static Class loadDialogViewClass(ClassLoader loader) throws Exception {
         return UnobfuscatorCache.getInstance().getClass(loader, () -> {
             var id = Utils.getID("touch_outside", "id");
@@ -1242,7 +1252,9 @@ public class Unobfuscator {
         });
     }
 
-    /** @noinspection SimplifyStreamApiCallChains*/
+    /**
+     * @noinspection SimplifyStreamApiCallChains
+     */
     public static Method loadOnMenuItemSelected(ClassLoader loader) throws Exception {
         return UnobfuscatorCache.getInstance().getMethod(loader, () -> {
             var aClass = XposedHelpers.findClass("androidx.viewpager.widget.ViewPager", loader);
@@ -1270,7 +1282,9 @@ public class Unobfuscator {
         });
     }
 
-    /** @noinspection DataFlowIssue*/
+    /**
+     * @noinspection DataFlowIssue
+     */
     public static Field loadGetInvokeField(ClassLoader loader) throws Exception {
         return UnobfuscatorCache.getInstance().getField(loader, () -> {
             var method = loadOnUpdateStatusChanged(loader);
@@ -1431,7 +1445,7 @@ public class Unobfuscator {
     }
 
     public static Method loadJidFactory(ClassLoader loader) throws Exception {
-        var method = findFirstMethodUsingStrings(loader, StringMatchType.Contains, "lid_me","status_me","s.whatsapp.net");
+         var method = findFirstMethodUsingStrings(loader, StringMatchType.Contains, "lid_me", "status_me", "s.whatsapp.net");
         if (method == null) throw new RuntimeException("JidFactory method not found");
         return method;
     }
@@ -1440,15 +1454,17 @@ public class Unobfuscator {
         var clazz = findFirstClassUsingStrings(loader, StringMatchType.Contains, "[LidGroup]GroupParticipantsManager");
         var userJidClass = XposedHelpers.findClass("com.whatsapp.jid.UserJid", loader);
         var methods = ReflectionUtils.findAllMethodUsingFilter(clazz, m -> m.getParameterCount() == 2 && m.getParameterTypes()[1].equals(userJidClass) && m.getReturnType().equals(boolean.class));
-        if (methods == null || methods.length == 0) throw new RuntimeException("GroupCheckAdmin method not found");
+        if (methods == null || methods.length == 0)
+            throw new RuntimeException("GroupCheckAdmin method not found");
         return methods[methods.length - 1];
     }
 
     public static Constructor loadStartPrefsConfig(ClassLoader loader) throws Exception {
         return UnobfuscatorCache.getInstance().getConstructor(loader, () -> {
-           var results = dexkit.findMethod(new FindMethod().matcher(new MethodMatcher().addUsingString("startup_migrated_version")));
-           if (results.isEmpty()) throw new RuntimeException("StartPrefsConfig constructor not found");
-           return results.get(0).getConstructorInstance(loader);
+            var results = dexkit.findMethod(new FindMethod().matcher(new MethodMatcher().addUsingString("startup_migrated_version")));
+            if (results.isEmpty())
+                throw new RuntimeException("StartPrefsConfig constructor not found");
+            return results.get(0).getConstructorInstance(loader);
         });
     }
 
@@ -1464,19 +1480,6 @@ public class Unobfuscator {
         var methodData = method.get(0);
         return methodData.getMethodInstance(loader);
     }
-
-//    public static Field loadFieldExpireTime(ClassLoader loader) throws Exception {
-//        var methodData = dexkit.getMethodData(loadEphemeralInsertdb(loader));
-//        var fields = methodData.getUsingFields();
-//        var fmessageClass = loadFMessageClass(loader);
-//        for (var usingFieldData : fields) {
-//            var field = usingFieldData.getField().getFieldInstance(loader);
-//            if (field.getType().equals(Long.class) && field.getDeclaringClass().equals(fmessageClass)) {
-//                return field;
-//            }
-//        }
-//        throw new RuntimeException("FieldExpireTime method not found");
-//    }
 
     public static Method loadDefEmojiClass(ClassLoader loader) throws Exception {
         return UnobfuscatorCache.getInstance().getMethod(loader, () -> {
