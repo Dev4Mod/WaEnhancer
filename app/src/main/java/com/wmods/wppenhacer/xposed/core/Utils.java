@@ -101,6 +101,18 @@ public class Utils {
         }
     }
 
+    public static void debugMethods(Class<?> cls, Object thisObject) {
+        XposedBridge.log("DEBUG METHODS: Class " + cls.getName());
+        for (var method : cls.getDeclaredMethods()) {
+            if (method.getParameterCount() > 0) continue;
+            try {
+                method.setAccessible(true);
+                XposedBridge.log("METHOD: " + method.getName() + " -> VALUE: " + method.invoke(thisObject));
+            } catch (Exception ignored) {
+            }
+        }
+    }
+
 
     public static void setWritePermissions(File file) {
         try {
@@ -149,4 +161,6 @@ public class Utils {
     public static void showToast(String s, int len) {
         new Handler(Looper.getMainLooper()).post(() -> Toast.makeText(Utils.getApplication(), s, len).show());
     }
+
+
 }
