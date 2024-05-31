@@ -1,6 +1,5 @@
-[WHATSAPP]
-* Add Support to Whatsapp 2.24.10.85
+[WA ENHANCER]
+* Add Support to swipe tabs.
 
 [ANTI REVOKE]
-* fix error when deleting messages from other people in group as admin
-
+* Fix bug anti revoke in groups

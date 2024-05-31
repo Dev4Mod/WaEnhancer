@@ -26,6 +26,7 @@ import com.wmods.wppenhacer.xposed.core.db.MessageStore;
 import com.wmods.wppenhacer.xposed.utils.ReflectionUtils;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
 import java.text.DateFormat;
 import java.util.Arrays;
 import java.util.Date;
@@ -79,15 +80,17 @@ public class AntiRevoke extends Feature {
             protected void beforeHookedMethod(MethodHookParam param) throws Exception {
                 var objMessage = classThreadMessage.cast(param.args[0]);
                 var fieldMessageDetails = fieldMessageKey.get(objMessage);
-                log(fieldMessageDetails);
-                Utils.debugFields(classThreadMessage, objMessage);
-                var fieldIsFromMe = XposedHelpers.getBooleanField(fieldMessageDetails, "A02");
-                var typeField = classThreadMessage.getDeclaredField("A01");
-                typeField.setAccessible(true);
-                var type = typeField.getInt(objMessage); // delete user message in group as admin (8)
-                if (!fieldIsFromMe && type != 8) {
-                    if (antiRevoke(objMessage) != 0)
+                var deviceJidMethod = ReflectionUtils.findMethodUsingFilter(fieldMessageKey.getDeclaringClass(), method -> method.getReturnType().equals(XposedHelpers.findClass("com.whatsapp.jid.DeviceJid", loader)));
+                var deviceJid = ReflectionUtils.callMethod(deviceJidMethod, objMessage);
+                var isFromMe = XposedHelpers.getBooleanField(fieldMessageDetails, "A02");
+                var userJid = XposedHelpers.getObjectField(fieldMessageDetails, "A00");
+                var rawString = WppCore.getRawString(userJid);
+                if (WppCore.isGroup(rawString)) {
+                    if (deviceJid != null && antiRevoke(objMessage) != 0) {
                         param.setResult(true);
+                    }
+                } else if (!isFromMe && antiRevoke(objMessage) != 0) {
+                    param.setResult(true);
                 }
             }
         });
@@ -191,7 +194,7 @@ public class AntiRevoke extends Feature {
                 DateFormat dateFormat = DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.SHORT, locale);
                 var date = dateFormat.format(new Date(timestamp));
                 dateTextView.getPaint().setUnderlineText(true);
-                dateTextView.setOnClickListener(v -> Utils.showToast(String.format(Utils.getApplication().getString(ResId.string.message_removed_on), date),Toast.LENGTH_LONG));
+                dateTextView.setOnClickListener(v -> Utils.showToast(String.format(Utils.getApplication().getString(ResId.string.message_removed_on), date), Toast.LENGTH_LONG));
             }
             var antirevokeValue = Integer.parseInt(prefs.getString(antirevokeType, "0"));
             if (antirevokeValue == 1) {
