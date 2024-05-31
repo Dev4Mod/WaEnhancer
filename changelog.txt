@@ -1,5 +1,5 @@
 [WA ENHANCER]
-* Add Support to swipe tabs.
+* Add support to swipe tabs.
 
 [ANTI REVOKE]
 * Fix bug anti revoke in groups
