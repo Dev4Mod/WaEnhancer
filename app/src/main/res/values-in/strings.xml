@@ -247,8 +247,8 @@
     <string name="configs_imported">Konfigurasi diimpor</string>
     <string name="configs_saved">Konfigurasi disimpan</string>
     <string name="backup_settings">Cadangkan Setelan</string>
-    <string name="import_settings">Cadangkan</string>
-    <string name="export_settings">Pulihkan</string>
+    <string name="import_settings">Pulihkan</string>
+    <string name="export_settings">Cadangkan</string>
     <string name="version_error">Versi Whatsapp yang Anda gunakan tidak kompatibel dan menimbulkan kesalahan pada fitur-fitur berikut:\n\n</string>
     <string name="copy_to_clipboard">Menyalin ke papan klip</string>
     <string name="copied_to_clipboard">Disalin ke papan klip</string>
@@ -282,4 +282,6 @@
     <string name="message_removed_on">Pesan ini dihapus pada %s</string>
     <string name="disable_default_emojis">Nonaktifkan Emoji Bawaan</string>
     <string name="disable_default_emojis_sum">Nonaktifkan emoji bawaan WhatsApp dan gunakan emoji sistem\n(CATATAN: Emoji WhatsApp akan hilang dari pilihan, gunakan keyboard untuk menyisipkan)</string>
+    <string name="theme_mode">Tema Gelap Wa Enhancer</string>
+    <string name="theme_mode_sum">Pilih tema Wa Enhancer</string>
 </resources>
