@@ -1,5 +1,5 @@
-[FUNCTIONS]
-* Add Preview Image button
-
-[WA ENHANCER]
-* Update translations
+[PREVIEW MEDIA]
+* Fix bug in color icon
+* Add support to Zoom in Media
+* Remove icon in post of channels (not working)
+* Add toogle function in Media tab

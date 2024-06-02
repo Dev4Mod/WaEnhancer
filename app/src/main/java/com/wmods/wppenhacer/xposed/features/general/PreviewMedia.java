@@ -1,8 +1,10 @@
 package com.wmods.wppenhacer.xposed.features.general;
 
+import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.database.Cursor;
+import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.view.Gravity;
 import android.view.View;
@@ -20,6 +22,7 @@ import com.wmods.wppenhacer.xposed.core.Feature;
 import com.wmods.wppenhacer.xposed.core.ResId;
 import com.wmods.wppenhacer.xposed.core.Unobfuscator;
 import com.wmods.wppenhacer.xposed.core.Utils;
+import com.wmods.wppenhacer.xposed.core.WppCore;
 import com.wmods.wppenhacer.xposed.core.db.MessageStore;
 import com.wmods.wppenhacer.xposed.utils.HKDF;
 import com.wmods.wppenhacer.xposed.utils.ReflectionUtils;
@@ -48,9 +51,9 @@ import okio.Okio;
 
 public class PreviewMedia extends Feature {
 
-    private static String HTML_LOADING = "<!DOCTYPE html><html><head> <meta charset=\"UTF-8\"> <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\"> <title>Loading</title> <style> body { display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; background-color: #f0f0f0; font-family: Arial, sans-serif; } .loader { display: flex; align-items: center; } .spinner { width: 40px; height: 40px; border: 4px solid rgba(0, 0, 0, 0.1); border-top: 4px solid #000; border-radius: 50%; animation: spin 1s linear infinite; } @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } } .text { margin-left: 10px; font-size: 18px; } </style></head><body> <div class=\"loader\"> <div class=\"spinner\"></div> <div class=\"text\">$loading</div> </div></body></html>";
-    private static String HTML_VIDEO = "<!DOCTYPE html><html><head> <meta charset=\"UTF-8\"> <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\"> <title>Player de Vídeo</title> <style> body { display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; background-color: #f0f0f0; font-family: Arial, sans-serif; } .video-container { text-align: center; } video { width: 100%; height: auto; } </style></head><body> <div class=\"video-container\"> <video controls> <source src=\"$url\" type=\"video/mp4\"> Browser not supported. </video> </div></body></html>";
-    private static String HTML_IMAGE = "<!DOCTYPE html><html><head> <meta charset=\"UTF-8\"> <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\"> <title>Image</title> <style> body { display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; background-color: #f0f0f0; font-family: Arial, sans-serif; } .full-screen-image { width: 100%; height: auto;} </style></head><body> <img src=\"$url\" class=\"full-screen-image\"></body></html>";
+    private static final String HTML_LOADING = "<!DOCTYPE html><html><head> <meta charset=\"UTF-8\"> <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\"> <title>Loading</title> <style> body { display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; background-color: #f0f0f0; font-family: Arial, sans-serif; } .loader { display: flex; align-items: center; } .spinner { width: 40px; height: 40px; border: 4px solid rgba(0, 0, 0, 0.1); border-top: 4px solid #000; border-radius: 50%; animation: spin 1s linear infinite; } @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } } .text { margin-left: 10px; font-size: 18px; } </style></head><body> <div class=\"loader\"> <div class=\"spinner\"></div> <div class=\"text\">$loading</div> </div></body></html>";
+    private static final String HTML_VIDEO = "<!DOCTYPE html><html><head> <meta charset=\"UTF-8\"> <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\"> <title>Player de Vídeo</title> <style> body { display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; background-color: #f0f0f0; font-family: Arial, sans-serif; } .video-container { text-align: center; } video { width: 100%; height: auto; } </style></head><body> <div class=\"video-container\"> <video controls> <source src=\"$url\" type=\"video/mp4\"> Browser not supported. </video> </div></body></html>";
+    private static final String HTML_IMAGE = "<!DOCTYPE html><html><head> <meta charset=\"UTF-8\"> <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\"> <title>Image</title> <style> body { display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; background-color: #f0f0f0; font-family: Arial, sans-serif; } .full-screen-image { width: 100%; height: auto;} </style></head><body> <img src=\"$url\" class=\"full-screen-image\"></body></html>";
     private File filePath;
     private AlertDialog dialog;
 
@@ -60,12 +63,17 @@ public class PreviewMedia extends Feature {
 
     @Override
     public void doHook() throws Throwable {
+
+        if (!prefs.getBoolean("media_preview", true)) return;
+
         var getFieldIdMessage = Unobfuscator.loadSetEditMessageField(loader);
         var videoViewContainerClass = Unobfuscator.loadVideoViewContainerClass(loader);
         XposedBridge.hookAllConstructors(videoViewContainerClass, new XC_MethodHook() {
             @Override
             protected void afterHookedMethod(MethodHookParam param) throws Throwable {
                 if (param.args.length < 2) return;
+                var userJid = WppCore.getCurrentRawJID();
+                if (userJid != null && userJid.contains("@newsletter")) return;
                 var view = (View) param.thisObject;
                 var context = view.getContext();
                 var surface = (ViewGroup) view.findViewById(Utils.getID("invisible_press_surface", "id"));
@@ -78,7 +86,9 @@ public class PreviewMedia extends Feature {
                 var layoutParams = new LinearLayout.LayoutParams(Utils.dipToPixels(42), Utils.dipToPixels(32));
                 layoutParams.gravity = Gravity.CENTER;
                 prevBtn.setLayoutParams(layoutParams);
-                prevBtn.setImageResource(ResId.drawable.preview_eye);
+                var drawable = context.getDrawable(ResId.drawable.preview_eye);
+                drawable.setTint(Color.WHITE);
+                prevBtn.setImageDrawable(drawable);
                 prevBtn.setPadding(Utils.dipToPixels(4), Utils.dipToPixels(4), Utils.dipToPixels(4), Utils.dipToPixels(4));
                 prevBtn.setBackground(DesignUtils.getDrawableByName("download_background"));
                 prevBtn.setScaleType(ImageView.ScaleType.FIT_CENTER);
@@ -98,6 +108,9 @@ public class PreviewMedia extends Feature {
                 if (param.args.length < 2) return;
                 var view = (View) param.thisObject;
                 var context = view.getContext();
+                var userJid = WppCore.getCurrentRawJID();
+                if (userJid != null && userJid.contains("@newsletter")) return;
+
                 ViewGroup mediaContainer = view.findViewById(Utils.getID("media_container", "id"));
                 ViewGroup controlFrame = view.findViewById(Utils.getID("control_frame", "id"));
 
@@ -116,7 +129,9 @@ public class PreviewMedia extends Feature {
                 var layoutParams2 = new LinearLayout.LayoutParams(Utils.dipToPixels(42), Utils.dipToPixels(32));
                 layoutParams2.gravity = Gravity.CENTER;
                 prevBtn.setLayoutParams(layoutParams2);
-                prevBtn.setImageResource(ResId.drawable.preview_eye);
+                var drawable = context.getDrawable(ResId.drawable.preview_eye);
+                drawable.setTint(Color.WHITE);
+                prevBtn.setImageDrawable(drawable);
                 prevBtn.setPadding(Utils.dipToPixels(4), Utils.dipToPixels(4), Utils.dipToPixels(4), Utils.dipToPixels(4));
                 prevBtn.setBackground(DesignUtils.getDrawableByName("download_background"));
                 prevBtn.setScaleType(ImageView.ScaleType.FIT_CENTER);
@@ -138,6 +153,7 @@ public class PreviewMedia extends Feature {
 
     }
 
+    @SuppressLint("SetJavaScriptEnabled")
     private void startPlayer(long id, Context context) {
         var executor = Executors.newSingleThreadExecutor();
         try {
@@ -152,6 +168,10 @@ public class PreviewMedia extends Feature {
                 FrameLayout frameLayout = new FrameLayout(context);
                 var webView = new WebView(context);
                 webView.getSettings().setAllowFileAccess(true);
+                webView.getSettings().setSupportZoom(true);
+                webView.getSettings().setBuiltInZoomControls(true);
+                webView.getSettings().setDisplayZoomControls(false);
+                webView.getSettings().setJavaScriptEnabled(true);
                 webView.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
                 webView.loadDataWithBaseURL(null, HTML_LOADING.replace("$loading", context.getString(ResId.string.loading)), "text/html", "UTF-8", null);
                 frameLayout.addView(webView);
@@ -165,13 +185,7 @@ public class PreviewMedia extends Feature {
                 });
                 dialog = alertDialog.create();
                 dialog.show();
-                executor.execute(() -> {
-                    try {
-                        decodeMedia(url, media_key, mine_type, executor, webView);
-                    } catch (Exception e) {
-                        throw new RuntimeException(e);
-                    }
-                });
+                executor.execute(() -> decodeMedia(url, media_key, mine_type, executor, webView));
             }
         } catch (Exception e) {
             logDebug(e);
@@ -183,25 +197,33 @@ public class PreviewMedia extends Feature {
         }
     }
 
-    private void decodeMedia(String url, String mediaKey, String mineType, ExecutorService executor, WebView webView) throws Exception {
-        String s = mineType.startsWith("image") ? ".jpg" : ".mp4";
-        filePath = new File(Utils.getApplication().getCacheDir(), "mediapreview" + s);
-        byte[] arr_b = new OkHttpClient.Builder().addInterceptor((chain) -> chain.proceed(chain.request().newBuilder().addHeader("User-Agent", "Chrome/117.0.5938.150").build())).build().newCall(new Request.Builder().url(url).build()).execute().body().source().readByteArray();
-        if (filePath.exists()) {
-            filePath.delete();
-        }
-        byte[] arr_b1 = decryptFile(arr_b, mediaKey, mineType);
-        BufferedSink bufferedSink0 = Okio.buffer(Okio.sink(filePath));
-        bufferedSink0.write(arr_b1);
-        bufferedSink0.close();
-        executor.shutdown();
-        webView.post(() -> {
-            if (mineType.contains("image")) {
-                webView.loadDataWithBaseURL(null, HTML_IMAGE.replace("$url", "file://" + filePath.getAbsolutePath()), "text/html", "UTF-8", null);
-            } else {
-                webView.loadDataWithBaseURL(null, HTML_VIDEO.replace("$url", "file://" + filePath.getAbsolutePath()), "text/html", "UTF-8", null);
+    private void decodeMedia(String url, String mediaKey, String mineType, ExecutorService executor, WebView webView) {
+        try {
+            String s = mineType.startsWith("image") ? ".jpg" : ".mp4";
+            filePath = new File(Utils.getApplication().getCacheDir(), "mediapreview" + s);
+            byte[] arr_b = new OkHttpClient.Builder().addInterceptor((chain) -> chain.proceed(chain.request().newBuilder().addHeader("User-Agent", "Chrome/117.0.5938.150").build())).build().newCall(new Request.Builder().url(url).build()).execute().body().source().readByteArray();
+            if (filePath.exists()) {
+                filePath.delete();
             }
-        });
+            byte[] arr_b1 = decryptFile(arr_b, mediaKey, mineType);
+            BufferedSink bufferedSink0 = Okio.buffer(Okio.sink(filePath));
+            bufferedSink0.write(arr_b1);
+            bufferedSink0.close();
+            executor.shutdown();
+            webView.post(() -> {
+                if (mineType.contains("image")) {
+                    webView.loadDataWithBaseURL(null, HTML_IMAGE.replace("$url", "file://" + filePath.getAbsolutePath()), "text/html", "UTF-8", null);
+                } else {
+                    webView.loadDataWithBaseURL(null, HTML_VIDEO.replace("$url", "file://" + filePath.getAbsolutePath()), "text/html", "UTF-8", null);
+                }
+            });
+        } catch (Exception e) {
+            Utils.showToast(e.getMessage(), Toast.LENGTH_LONG);
+            if (dialog != null && dialog.isShowing())
+                dialog.dismiss();
+            if (!executor.isShutdown())
+                executor.shutdownNow();
+        }
     }
 
     static HashMap<String, byte[]> keys = new HashMap<>();
