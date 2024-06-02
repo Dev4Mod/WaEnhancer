@@ -37,7 +37,7 @@ import com.wmods.wppenhacer.xposed.features.general.MediaQuality;
 import com.wmods.wppenhacer.xposed.features.general.NewChat;
 import com.wmods.wppenhacer.xposed.features.general.Others;
 import com.wmods.wppenhacer.xposed.features.general.PinnedLimit;
-import com.wmods.wppenhacer.xposed.features.general.PreviewMedia;
+import com.wmods.wppenhacer.xposed.features.general.MediaPreview;
 import com.wmods.wppenhacer.xposed.features.general.SeenTick;
 import com.wmods.wppenhacer.xposed.features.general.ShareLimit;
 import com.wmods.wppenhacer.xposed.features.general.ShowEditMessage;
@@ -201,7 +201,7 @@ public class MainFeatures {
                 StatusDownload.class,
                 ViewOnce.class,
                 CallType.class,
-                PreviewMedia.class
+                MediaPreview.class
         };
 
         for (var classe : classes) {
