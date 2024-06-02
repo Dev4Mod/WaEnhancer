@@ -3,3 +3,6 @@
 * Add support for zooming media
 * Remove icon in channel posts (not working)
 * Add toggle function in Media tab (Wa Enhancer)
+
+[WA ENHANCER]
+* Update translations

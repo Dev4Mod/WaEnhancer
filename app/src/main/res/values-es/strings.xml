@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_desc">Módulo LSPosed para modificar WhatsApp</string>
-    <string name="antirevoke">Evitar la eliminación de mensajes</string>
+    <string name="antirevoke">Anti-Eliminar Mensajes</string>
     <string name="antirevoke_sum">Actívelo para impedir que los demás eliminen los mensajes</string>
     <string name="ghostmode">Ocultar acción \"escribiendo\"</string>
     <string name="ghostmode_sum">Actívelo para ocultar el estado de \"escribiendo\"</string>
@@ -50,7 +50,7 @@
     <string name="apply_button">Aplicar </string>
     <string name="invalid_color">Color no válido </string>
     <string name="social_media_title">Ajustes de Multimedia</string>
-    <string name="telegram_group">Grupo en Telegram</string>
+    <string name="telegram_group">Grupo de Telegram</string>
     <string name="telegram_channel">Canal en Telegram</string>
     <string name="itsmadruga">ItsMadruga (Desarrollador)</string>
     <string name="darker935">Darker935 (Contribuidor) </string>
@@ -272,7 +272,7 @@
     <string name="new_context_menu_ui">Nueva interfaz de menú contextual</string>
     <string name="new_context_menu_ui_sum">Se habilitará el nuevo menú contextual de mensajes de estilo iOS.</string>
     <string name="filter_itens_by_id">Filtrar Items por ID</string>
-    <string name="filter_itens_by_id_sum">Filtrar elementos por nombre id</string>
+    <string name="filter_itens_by_id_sum">Filtrar items por nombre id</string>
     <string name="custom_theme_css">Tema personalizado de CSS</string>
     <string name="custom_theme_css_sum">Personaliza tu WhatsApp usando estilos CSS</string>
     <string name="antidisappearing">Anti Desaparición de mensajes Temporales</string>
