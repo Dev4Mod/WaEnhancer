@@ -1,5 +1,5 @@
-[WA ENHANCER]
-* Add support to swipe tabs.
+[FUNCTIONS]
+* Add Preview Image button
 
-[ANTI REVOKE]
-* Fix bug anti revoke in groups
+[WA ENHANCER]
+* Update translations
