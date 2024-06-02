@@ -159,6 +159,8 @@ public class Others extends Feature {
 
     }
 
+
+
     private void disable_defEmojis() throws Exception {
         var defEmojiClass = Unobfuscator.loadDefEmojiClass(loader);
         XposedBridge.hookMethod(defEmojiClass, XC_MethodReplacement.returnConstant(null));

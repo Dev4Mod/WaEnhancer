@@ -1488,4 +1488,20 @@ public class Unobfuscator {
             return method;
         });
     }
+
+    public static Class loadVideoViewContainerClass(ClassLoader loader) throws Exception {
+        return UnobfuscatorCache.getInstance().getClass(loader, () -> {
+            var clazz = findFirstClassUsingStrings(loader, StringMatchType.Contains, "frame_visibility_serial_worker");
+            if (clazz == null) throw new RuntimeException("VideoViewContainer class not found");
+            return clazz;
+        });
+    }
+
+    public static Class loadImageVewContainerClass(ClassLoader loader) throws Exception {
+        return UnobfuscatorCache.getInstance().getClass(loader, () -> {
+            var clazzList = dexkit.findClass(new FindClass().matcher(new ClassMatcher().addUsingString("viewmessage/ no file").addMethod(new MethodMatcher().addUsingNumber(Utils.getID("hd_invisible_touch","id")).addUsingNumber(Utils.getID("control_btn","id")))));
+            if (clazzList.isEmpty()) throw new RuntimeException("ImageViewContainer class not found");
+            return clazzList.get(0).getInstance(loader);
+        });
+    }
 }

@@ -8,6 +8,7 @@ public class ResId {
         public static int eye_enabled;
         public static int admin;
 
+        public static int preview_eye;
     }
 
     public static class string {
@@ -45,6 +46,7 @@ public class ResId {
         public static int deleted_message;
         public static int toast_online;
         public static int message_removed_on;
+        public static int loading;
     }
 
 }
