@@ -182,7 +182,7 @@ Anda perlu mengaktifkan dan mengatur ulang kembali</string>
     <string name="restart_wpp">WhatsApp harus dimulai ulang agar perubahan di Wa Enhancer dapat diterapkan.
 
 Apakah Anda ingin mulai ulang WhatsApp?</string>
-    <string name="version_s_not_listed">Version %s not listed in supported versions!\nPlease use supported WhatsApp version!</string>
+    <string name="version_s_not_listed">Versi %s tidak terdaftar dalam versi yang didukung!\nHarap gunakan versi Whatsapp yang didukung!</string>
     <string name="media">Media</string>
     <string name="show_button_to_send_blue_tick">Tampilkan Tombol Centang Biru</string>
     <string name="show_button_to_send_blue_tick_sum">Tampilkan tombol centang biru (dibaca/dilihat untuk pesan dan status)</string>
@@ -209,7 +209,7 @@ Apakah Anda ingin mulai ulang WhatsApp?</string>
     <string name="increase_video_size_limit">Tingkatkan Batas Ukuran Video</string>
     <string name="increase_video_size_limit_sum">Tingkatkan batas ukuran video menjadi 90MB</string>
     <string name="send_video_in_real_resolution">Kirim Video Resolusi Asli</string>
-    <string name="send_video_in_real_resolution_sum">Send Video in Real Resolution for status, group and chats</string>
+    <string name="send_video_in_real_resolution_sum">Kirim video dalam resolusi asli untuk status, grup dan obrolan</string>
     <string name="send_video_in_60fps">Kirim Video 60fps</string>
     <string name="send_video_in_60fps_sum">Mirim video dalam 60fps untuk status, grup dan obrolan</string>
     <string name="status">Status</string>
@@ -245,7 +245,7 @@ Apakah Anda ingin mulai ulang WhatsApp?</string>
     <string name="time_limit_on_status_video">Tingkatkan Batas Waktu Status Video</string>
     <string name="time_limit_on_status_video_sum">Tingkatkan batas waktu status video dari 30 detik menjadi 1 menit (untuk semua orang)</string>
     <string name="show_freezeLastSeen_button">Tampilkan Tombol Bekukan \"terakhir dilihat dan online\"</string>
-    <string name="show_freezeLastSeen_sum">Show button for Freezing Last Seen on home screen toolbar</string>
+    <string name="show_freezeLastSeen_sum">Tampilkan tombol untuk membekukan \"terakhir dilihat dan online\" di toolbar layar beranda</string>
     <string name="freezelastseen_message">PERHATIAN!!!\n\nSaat Anda mengaktifkan bekukan \"terakhir dilihat dan online\", Anda tidak dapat melihat pembaruan kehadiran apa pun dari orang lain seperti: mengetik, merekam, terakhir dilihat dan online</string>
     <string name="freezelastseen_title">Bekukan \"terakhir dilihat dan online\"</string>
     <string name="wallpaper_transparency">Transparansi Wallpaper</string>
@@ -256,8 +256,8 @@ Apakah Anda ingin mulai ulang WhatsApp?</string>
     <string name="configs_imported">Konfigurasi diimpor</string>
     <string name="configs_saved">Konfigurasi disimpan</string>
     <string name="backup_settings">Cadangkan Setelan</string>
-    <string name="import_settings">Cadangkan</string>
-    <string name="export_settings">Pulihkan</string>
+    <string name="import_settings">Pulihkan</string>
+    <string name="export_settings">Cadangkan</string>
     <string name="version_error">Versi Whatsapp yang Anda gunakan tidak kompatibel dan menimbulkan kesalahan pada fitur-fitur berikut:\n\n</string>
     <string name="copy_to_clipboard">Menyalin ke papan klip</string>
     <string name="copied_to_clipboard">Disalin ke papan klip</string>
@@ -270,7 +270,7 @@ Apakah Anda ingin mulai ulang WhatsApp?</string>
     <string name="disable_audio_sensor">Nonaktifkan Sensor Audio</string>
     <string name="disable_audio_sensor_sum">Nonaktifkan peralihan audio dengan sensor jarak</string>
     <string name="show_admin_group_icon"> Ikon Admin Grup</string>
-    <string name="show_admin_group_icon_sum">Show an admin icon next to the name of the user who is the group admin</string>
+    <string name="show_admin_group_icon_sum">Tampilkan ikon admin di samping nama pengguna yang merupakan admin grup</string>
     <string name="toolbar_transparency">Transparansi Toolbar</string>
     <string name="navigation_transparency">Transparansi Navigasi</string>
     <string name="show_online_last_seen_in_conversation_list">Tampilkan \"terakhir dilihat dan online\"</string>
@@ -285,12 +285,12 @@ Apakah Anda ingin mulai ulang WhatsApp?</string>
     <string name="custom_theme_css">Tema Khusus CSS</string>
     <string name="custom_theme_css_sum">Sesuaikan WhatsApp Anda menggunakan gaya CSS</string>
     <string name="antidisappearing">Anti Hapus Pesan Sementara</string>
-    <string name="antidisappearing_sum">Temporary messages will not be deleted for you</string>
+    <string name="antidisappearing_sum">Pesan sementara tidak akan dihapus untuk Anda</string>
     <string name="title_audio">Audio</string>
     <string name="android_version">Versi Android</string>
     <string name="message_removed_on">Pesan ini dihapus pada %s</string>
-    <string name="disable_default_emojis">Disable Default Emojis</string>
-    <string name="theme_mode">Theme Mode for Wa Enhancer</string>
-    <string name="theme_mode_sum">Force a theme mode in the Wa Enhancer</string>
-    <string name="disable_default_emojis_sum">Disables Whatsapp\'s default emojis and uses system emojis\n(NOTE: Whatsapp emojis will disappear from the selector, use the keyboard to insert).</string>
+    <string name="disable_default_emojis">Nonaktifkan Emoji Bawaan</string>
+    <string name="theme_mode">Tema Wa Enhancer</string>
+    <string name="theme_mode_sum">Pilih tema Wa Enhancer</string>
+    <string name="disable_default_emojis_sum">Nonaktifkan emoji bawaan WhatsApp dan gunakan emoji sistem\n(CATATAN: Emoji WhatsApp akan hilang dari pilihan, gunakan keyboard untuk menyisipkan)</string>
 </resources>
