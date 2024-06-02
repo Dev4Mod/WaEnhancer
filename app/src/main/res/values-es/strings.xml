@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_desc">Módulo de potenciador de WhatsApp</string>
-    <string name="antirevoke">Evitar la eliminación de mensajes</string>
+    <string name="app_desc">Módulo LSPosed para modificar WhatsApp</string>
+    <string name="antirevoke">Anti-Eliminar Mensajes</string>
     <string name="antirevoke_sum">Actívelo para impedir que los demás eliminen los mensajes</string>
     <string name="ghostmode">Ocultar acción \"escribiendo\"</string>
     <string name="ghostmode_sum">Actívelo para ocultar el estado de \"escribiendo\"</string>
@@ -50,7 +50,7 @@
     <string name="apply_button">Aplicar </string>
     <string name="invalid_color">Color no válido </string>
     <string name="social_media_title">Ajustes de Multimedia</string>
-    <string name="telegram_group">Grupo en Telegram</string>
+    <string name="telegram_group">Grupo de Telegram</string>
     <string name="telegram_channel">Canal en Telegram</string>
     <string name="itsmadruga">ItsMadruga (Desarrollador)</string>
     <string name="darker935">Darker935 (Contribuidor) </string>
@@ -173,8 +173,8 @@
     <string name="whatsapp_in_background">WhatsApp en segundo plano</string>
     <string name="whatsapp_is_not_running_or_has_not_been_activated_in_lsposed">WhatsApp no ​​está abierto o no se ha activado en Lsposed</string>
     <string name="business_is_not_running_or_has_not_been_activated_in_lsposed">Business no está funcionando o no se ha activado en Lsposed</string>
-    <string name="restart_wpp">Es necesario reiniciar WhatsApp para que los cambios en Wa Enhancer surtan efecto.\n\n¿Quieres reiniciar?</string>
-    <string name="version_s_not_listed">Version %s not listed in supported versions!\nPlease use supported WhatsApp version!</string>
+    <string name="restart_wpp">Es necesario reiniciar WhatsApp para que los cambios de Wa Enhancer surtan efecto.\n\n¿Quieres reiniciar?</string>
+    <string name="version_s_not_listed">¡La versión %s no aparece en las versiones compatibles!\n¡Por favor, usa la versión de WhatsApp compatible!</string>
     <string name="media">Multimedia</string>
     <string name="show_button_to_send_blue_tick">Mostrar botón para enviar marca azul</string>
     <string name="show_button_to_send_blue_tick_sum">Mostrar botón para enviar marca azul (marcar como leído/visto)</string>
@@ -200,7 +200,7 @@
     <string name="increase_video_size_limit">Aumentar el límite de tamaño del video</string>
     <string name="increase_video_size_limit_sum">Aumentar el límite de tamaño de video a 90 Mb</string>
     <string name="send_video_in_real_resolution">Enviar vídeo en resolución real</string>
-    <string name="send_video_in_real_resolution_sum">Send Video in Real Resolution for status, group and chats</string>
+    <string name="send_video_in_real_resolution_sum">Enviar vídeo en resolución real para el estado, grupo y chats</string>
     <string name="send_video_in_60fps">Enviar vídeo en 60 fps</string>
     <string name="send_video_in_60fps_sum">Envía vídeo en 60 fps para estado, grupo y chats</string>
     <string name="status">Estados</string>
@@ -215,7 +215,7 @@
     <string name="selection_of_call_type_sum">Mostrar una opción para seleccionar si desea una llamada por teléfono o WhatsApp</string>
     <string name="yes">Si</string>
     <string name="no">No</string>
-    <string name="device_model">Modelo Del Dispositivo</string>
+    <string name="device_model">Modelo del Dispositivo</string>
     <string name="device_name">Nombre Del Dispositivo</string>
     <string name="disable_metaai">Deshabilitar las funciones Meta Ai</string>
     <string name="disable_metaai_sum">Deshabilite Meta Ai solo para aquellos que lo tengan habilitado de forma predeterminada</string>
@@ -236,7 +236,7 @@
     <string name="time_limit_on_status_video">Aumenta el límite de tiempo en el vídeo de estado</string>
     <string name="time_limit_on_status_video_sum">Aumenta el límite de tiempo en los vídeos de estado de 30 segundos a 1 minuto (para todos)</string>
     <string name="show_freezeLastSeen_button">Mostrar botón para congelar la última vez</string>
-    <string name="show_freezeLastSeen_sum">Show button for Freezing Last Seen on home screen toolbar</string>
+    <string name="show_freezeLastSeen_sum">Mostrar botón para congelar la Ultima vez en la barra de herramientas de la pantalla de inicio</string>
     <string name="freezelastseen_message">Cuando la última vez que se congela esté encendida, no podrás ver a otros en línea o tiempo en línea por última vez</string>
     <string name="freezelastseen_title">Congelar última vez</string>
     <string name="wallpaper_transparency">Transparencia del fondo de pantalla</string>
@@ -261,7 +261,7 @@
     <string name="disable_audio_sensor">Desactivar sensor de audio</string>
     <string name="disable_audio_sensor_sum">Desactivar el cambio de audio con el sensor de proximidad</string>
     <string name="show_admin_group_icon">Mostrar icono de Admin en el grupo</string>
-    <string name="show_admin_group_icon_sum">Show an admin icon next to the name of the user who is the group admin</string>
+    <string name="show_admin_group_icon_sum">Mostrar un icono de administrador junto al nombre del usuario que es el administrador del grupo</string>
     <string name="toolbar_transparency">Transparencia de la barra de herramientas</string>
     <string name="navigation_transparency">Transparencia de la Navegación</string>
     <string name="show_online_last_seen_in_conversation_list">Mostrar en línea/Última vez en la lista de conversaciones</string>
@@ -272,16 +272,16 @@
     <string name="new_context_menu_ui">Nueva interfaz de menú contextual</string>
     <string name="new_context_menu_ui_sum">Se habilitará el nuevo menú contextual de mensajes de estilo iOS.</string>
     <string name="filter_itens_by_id">Filtrar Items por ID</string>
-    <string name="filter_itens_by_id_sum">Filtrar elementos por nombre id</string>
+    <string name="filter_itens_by_id_sum">Filtrar items por nombre id</string>
     <string name="custom_theme_css">Tema personalizado de CSS</string>
     <string name="custom_theme_css_sum">Personaliza tu WhatsApp usando estilos CSS</string>
     <string name="antidisappearing">Anti Desaparición de mensajes Temporales</string>
-    <string name="antidisappearing_sum">Temporary messages will not be deleted for you</string>
+    <string name="antidisappearing_sum">Los mensajes temporales no serán borrados para usted</string>
     <string name="title_audio">Audio</string>
-    <string name="android_version">Versión de Android</string>
-    <string name="message_removed_on">Este mensaje fue eliminado en %s.</string>
-    <string name="disable_default_emojis">Disable Default Emojis</string>
-    <string name="theme_mode">Theme Mode for Wa Enhancer</string>
-    <string name="theme_mode_sum">Force a theme mode in the Wa Enhancer</string>
-    <string name="disable_default_emojis_sum">Disables Whatsapp\'s default emojis and uses system emojis\n(NOTE: Whatsapp emojis will disappear from the selector, use the keyboard to insert).</string>
+    <string name="android_version">Versión de Android (SDK)</string>
+    <string name="message_removed_on">Este mensaje fue eliminado el %s.</string>
+    <string name="disable_default_emojis">Desactivar Emojis por Defecto</string>
+    <string name="theme_mode">Tema de la interfaz de Wa Enhancer</string>
+    <string name="theme_mode_sum">Forzar color de la interfaz en Wa Enhancer</string>
+    <string name="disable_default_emojis_sum">Desactiva los emojis predeterminados de Whatsapp y usa emojis del sistema\n(NOTA: Los emojis de Whatsapp desaparecerán del selector, usa el teclado para insertar).</string>
 </resources>

@@ -174,7 +174,7 @@
     <string name="whatsapp_is_not_running_or_has_not_been_activated_in_lsposed">Whatsapp läuft nicht oder wurde nicht in Lsposed aktiviert</string>
     <string name="business_is_not_running_or_has_not_been_activated_in_lsposed">Whatsapp Business läuft nicht oder wurde in Lsposed nicht aktiviert</string>
     <string name="restart_wpp">Es ist notwendig, WhatsApp neu zu starten, damit die Änderungen in Wa Enhancer wirksam werden. Möchten Sie neu starten?</string>
-    <string name="version_s_not_listed">Version %s not listed in supported versions!\nPlease use supported WhatsApp version!</string>
+    <string name="version_s_not_listed">Version %s nicht in unterstützten Versionen aufgelistet!\nBitte verwenden Sie die unterstützte WhatsApp Version!</string>
     <string name="media">Medien</string>
     <string name="show_button_to_send_blue_tick">Schaltfläche zum Senden von blauen Häkchen</string>
     <string name="show_button_to_send_blue_tick_sum">Optionen: Deaktiviert, 3-Punkte-Menü, Symbol</string>
@@ -200,7 +200,7 @@
     <string name="increase_video_size_limit">Limit für Videogröße erhöhen</string>
     <string name="increase_video_size_limit_sum">Videogrößenlimit auf 90MB erhöhen</string>
     <string name="send_video_in_real_resolution">Videos in Originalauflösung senden</string>
-    <string name="send_video_in_real_resolution_sum">Send Video in Real Resolution for status, group and chats</string>
+    <string name="send_video_in_real_resolution_sum">Senden Sie Videos in Originalauflösung für Status, Gruppen oder Chats</string>
     <string name="send_video_in_60fps">Videos in 60 fps senden</string>
     <string name="send_video_in_60fps_sum">Sende Videos in 60 fps für Status, Gruppe und Chats</string>
     <string name="status">Status</string>
@@ -236,7 +236,7 @@
     <string name="time_limit_on_status_video">Zeitlimit für Statusvideo erhöhen</string>
     <string name="time_limit_on_status_video_sum">Zeitlimit für Statusvideos von 30 Sekunden auf 1 Minute erhöhen (für alle)</string>
     <string name="show_freezeLastSeen_button">Einfrierender zuletzt gesehener Button anzeigen</string>
-    <string name="show_freezeLastSeen_sum">Show button for Freezing Last Seen on home screen toolbar</string>
+    <string name="show_freezeLastSeen_sum">Schaltfläche zum Einfrieren von \"Zuletzt gesehen\" auf der Symbolleiste anzeigen</string>
     <string name="freezelastseen_message">Wenn das Einfrieren von \"Zuletzt gesehen\" aktiv ist, wirst du nicht in der Lage sein, andere zu sehen, die zuletzt gesehen wurden oder online sind</string>
     <string name="freezelastseen_title">Friere \"Zuletzt gesehen\" ein</string>
     <string name="wallpaper_transparency">Hintergrundbildtransparenz</string>
@@ -261,7 +261,7 @@
     <string name="disable_audio_sensor">Audio-Sensor deaktivieren</string>
     <string name="disable_audio_sensor_sum">Audio-Umschalten mit Näherungssensor deaktivieren</string>
     <string name="show_admin_group_icon">Admin-Gruppensymbol anzeigen</string>
-    <string name="show_admin_group_icon_sum">Show an admin icon next to the name of the user who is the group admin</string>
+    <string name="show_admin_group_icon_sum">Füge ein Icon neben dem Namen des Benutzers hinzu, welcher ein Gruppenadmin ist</string>
     <string name="toolbar_transparency">Symbolleisten-Transparenz</string>
     <string name="navigation_transparency">Navigationstransparenz</string>
     <string name="show_online_last_seen_in_conversation_list">Online/Zuletzt gesehen in der Konversationsliste anzeigen</string>
@@ -276,12 +276,12 @@
     <string name="custom_theme_css">Benutzerdefiniertes CSS Thema</string>
     <string name="custom_theme_css_sum">Passen Sie Ihre WhatsApp mithilfe von CSS-Stilen an</string>
     <string name="antidisappearing">Gegen verschwindende Nachrichten</string>
-    <string name="antidisappearing_sum">Temporary messages will not be deleted for you</string>
+    <string name="antidisappearing_sum">Temporäre Nachrichten werden nicht für Sie gelöscht</string>
     <string name="title_audio">Ton</string>
     <string name="android_version">Android Version</string>
     <string name="message_removed_on">Diese Nachricht wurde am %s entfernt.</string>
-    <string name="disable_default_emojis">Disable Default Emojis</string>
-    <string name="theme_mode">Theme Mode for Wa Enhancer</string>
-    <string name="theme_mode_sum">Force a theme mode in the Wa Enhancer</string>
-    <string name="disable_default_emojis_sum">Disables Whatsapp\'s default emojis and uses system emojis\n(NOTE: Whatsapp emojis will disappear from the selector, use the keyboard to insert).</string>
+    <string name="disable_default_emojis">Standard Emojis deaktivieren</string>
+    <string name="theme_mode">Theme-Modus für Wa Enhancer</string>
+    <string name="theme_mode_sum">Erzwinge einen Theme-Modus im Wa Enhancer</string>
+    <string name="disable_default_emojis_sum">Deaktiviert die Standard Emojis von Whatsapp und verwendet das System Emojis\n(NOTE: Whatsapp Emojis verschwindet aus dem Selektor, verwenden Sie die Tastatur zum Einfügen).</string>
 </resources>

@@ -128,6 +128,7 @@ dependencies {
     implementation(libs.rikkax.widget.borderview)
     implementation(libs.jstyleparser)
     implementation(libs.guava)
+    implementation("com.squareup.okhttp3:okhttp:4.12.0")
 //    testImplementation(libs.junit)
 //    androidTestImplementation(libs.ext.junit)
 //    androidTestImplementation(libs.espresso.core)

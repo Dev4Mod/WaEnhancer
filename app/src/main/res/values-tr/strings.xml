@@ -11,7 +11,7 @@
     <string name="hidetag_sum">İletileri \"İletildi\" etiketi olmadan ilet</string>
     <string name="hidestatusview">Durum Görünümünü Gizle</string>
     <string name="hidestatusview_sum">Kullanıcıların haberi olmadan durumları görüntüle</string>
-    <string name="hideread">Mavi Tikleri İşaretlerini Gizle</string>
+    <string name="hideread">Mavi Tik İşaretlerini Gizle</string>
     <string name="hideread_sum">Kullanıcıların haberi olmadan konuşma ekranındaki mesajları görüntüle</string>
     <string name="danger">Uyarı</string>
     <string name="reboot">Bu ekranda bir şey değiştirdiğinizde WhatsApp\'ı yeniden başlatın!</string>
@@ -170,16 +170,16 @@
     <string name="module_enabled">Modül Etkin</string>
     <string name="version_s">Sürüm %s</string>
     <string name="module_disabled">Modül devre dışı</string>
-    <string name="whatsapp_in_background">WhatsApp arka planda</string>
+    <string name="whatsapp_in_background">WhatsApp Çalışıyor</string>
     <string name="whatsapp_is_not_running_or_has_not_been_activated_in_lsposed">Whatsapp çalışmıyor veya Lsposed\'ta etkinleştirilmedi</string>
     <string name="business_is_not_running_or_has_not_been_activated_in_lsposed">Business çalışmıyor veya Lsposed\'ta etkinleştirilmedi</string>
     <string name="restart_wpp">Wa Enhancer\'daki değişikliklerin etkili olması için WhatsApp\'ı yeniden başlatmak gerekir.\n\nYeniden başlatmak istiyor musunuz?</string>
-    <string name="version_s_not_listed">Version %s not listed in supported versions!\nPlease use supported WhatsApp version!</string>
+    <string name="version_s_not_listed">Sürüm %s desteklenen sürümler arasında listelenmemiş!\nLütfen desteklenen WhatsApp sürümünü kullanın!</string>
     <string name="media">Medya</string>
     <string name="show_button_to_send_blue_tick">Mavi tik göndermek için düğmeyi Göster</string>
     <string name="show_button_to_send_blue_tick_sum">Mavi onay işareti göndermek için düğmeyi göster (okundu/görüldü olarak işaretle)</string>
     <string name="send_blue_tick">Okundu/Görüldü olarak işaretle</string>
-    <string name="business_in_background">Arka planda business</string>
+    <string name="business_in_background">Business Çalışıyor</string>
     <string name="sending_read_blue_tick">Mavi tik gönderiliyor (okundu/görüldü olarak işaretle)</string>
     <string name="enable_facebook_style_for_status">Durum için Facebook Stilini Etkinleştir</string>
     <string name="enable_facebook_style_for_status_sum">Orijinal Durum Stilini Facebook Stili olarak değiştir</string>
@@ -200,7 +200,7 @@
     <string name="increase_video_size_limit">Video Boyutu Sınırını Artır</string>
     <string name="increase_video_size_limit_sum">Video boyutu sınırını 90 Mb\'a çıkar</string>
     <string name="send_video_in_real_resolution">Videoyu Gerçek Çözünürlükte Gönder</string>
-    <string name="send_video_in_real_resolution_sum">Send Video in Real Resolution for status, group and chats</string>
+    <string name="send_video_in_real_resolution_sum">Durum, Grup ve Sohbetler için Gerçek Çözünürlükte Video Gönder</string>
     <string name="send_video_in_60fps">60 fps\'de Video Gönder</string>
     <string name="send_video_in_60fps_sum">Durum, grup ve sohbetler için 60 fps\'de Video gönder</string>
     <string name="status">Durum</string>
@@ -236,7 +236,7 @@
     <string name="time_limit_on_status_video">Durum videosundaki süre sınırını artır</string>
     <string name="time_limit_on_status_video_sum">Durum videolarındaki süre sınırını 30 saniyeden 1 dakikaya çıkar (herkes için)</string>
     <string name="show_freezeLastSeen_button">Son Görülmeyi Dondur Düğmesini Göster</string>
-    <string name="show_freezeLastSeen_sum">Show button for Freezing Last Seen on home screen toolbar</string>
+    <string name="show_freezeLastSeen_sum">Ana ekrandaki araç çubuğunda Son Görülmeyi Dondur düğmesini göster</string>
     <string name="freezelastseen_message">Son Görülmeyi Dondur açık olduğunda, başkalarının son görülme zamanını veya çevrimiçi olduğunu göremezsiniz</string>
     <string name="freezelastseen_title">Son Görülmeyi Dondur</string>
     <string name="wallpaper_transparency">Duvar Kağıdı Şeffaflığı</string>
@@ -261,7 +261,7 @@
     <string name="disable_audio_sensor">Ses Sensörünü Devre Dışı Bırak</string>
     <string name="disable_audio_sensor_sum">Yakınlık sensörü ile ses geçişini devre dışı bırak</string>
     <string name="show_admin_group_icon">Yönetici Grubu Simgesini Göster</string>
-    <string name="show_admin_group_icon_sum">Show an admin icon next to the name of the user who is the group admin</string>
+    <string name="show_admin_group_icon_sum">Grup yöneticisi olan kullanıcının adının yanına bir simge ekle</string>
     <string name="toolbar_transparency">Araç Çubuğu Şeffaflığı</string>
     <string name="navigation_transparency">Gezinme Şeffaflığı</string>
     <string name="show_online_last_seen_in_conversation_list">Sohbet Listesinde Çevrimiçi/Son görülmeyi göster</string>
@@ -276,12 +276,12 @@
     <string name="custom_theme_css">Özel CSS Teması</string>
     <string name="custom_theme_css_sum">CSS stillerini kullanarak WhatsApp\'ınızı özelleştirin</string>
     <string name="antidisappearing">Anti Kaybolan Mesajlar</string>
-    <string name="antidisappearing_sum">Temporary messages will not be deleted for you</string>
+    <string name="antidisappearing_sum">Geçici mesajlar sizin için silinmeyecek</string>
     <string name="title_audio">Ses</string>
     <string name="android_version">Android Sürümü</string>
     <string name="message_removed_on">Bu mesaj %s tarihinde kaldırıldı.</string>
-    <string name="disable_default_emojis">Disable Default Emojis</string>
-    <string name="theme_mode">Theme Mode for Wa Enhancer</string>
-    <string name="theme_mode_sum">Force a theme mode in the Wa Enhancer</string>
-    <string name="disable_default_emojis_sum">Disables Whatsapp\'s default emojis and uses system emojis\n(NOTE: Whatsapp emojis will disappear from the selector, use the keyboard to insert).</string>
+    <string name="disable_default_emojis">Varsayılan Emojileri Devre Dışı Bırak</string>
+    <string name="theme_mode">Wa Enhancer için Tema Modu</string>
+    <string name="theme_mode_sum">Wa Enhancer\'da bir tema modunu zorla</string>
+    <string name="disable_default_emojis_sum">Whatsapp\'ın varsayılan emojilerini devre dışı bırakır ve sistem emojilerini kullanır\n(NOT: Whatsapp emojileri seçiciden kaybolacaktır, eklemek için klavyeyi kullanın).</string>
 </resources>

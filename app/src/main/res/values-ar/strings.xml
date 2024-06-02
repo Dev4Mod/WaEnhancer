@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_desc">وحدة تخصيص واتساب</string>
+    <string name="app_desc">أداة تخصيص الواتساب</string>
     <string name="antirevoke">منع حذف الرسائل</string>
     <string name="antirevoke_sum">لن يتم حذف الرسائل بالنسبة لك</string>
     <string name="ghostmode">إخفاء جارية الكتابة</string>
@@ -177,7 +177,7 @@
     <string name="whatsapp_is_not_running_or_has_not_been_activated_in_lsposed">لا يعمل Whatsapp أو لم يتم تفعيله في Lsposed</string>
     <string name="business_is_not_running_or_has_not_been_activated_in_lsposed">واتساب أعمال لا يعمل أو لم يتم تفعيل أداة Lsposed </string>
     <string name="restart_wpp">من الضروري إعادة تشغيل WhatsApp لتفعيل التغييرات في Wa Encer. هل تريد إعادة التشغيل؟</string>
-    <string name="version_s_not_listed">Version %s not listed in supported versions!\nPlease use supported WhatsApp version!</string>
+    <string name="version_s_not_listed">الإصدار %s غير مدرج في الإصدارات المدعومة!\nالرجاء استخدام إصدار WhatsApp المدعوم!</string>
     <string name="media">الوسائط</string>
     <string name="show_button_to_send_blue_tick">إظهار الزر لإرسال علامة زرقاء🔵</string>
     <string name="show_button_to_send_blue_tick_sum">إظهار أيقونة لإرسال علامة زرقاء (ضع علامة كمقروء/مشاهدة)</string>
@@ -203,7 +203,7 @@
     <string name="increase_video_size_limit">زيادة حجم الفيديو</string>
     <string name="increase_video_size_limit_sum">زيادة الحد الأقصى لحجم الفيديو إلى 90 ميغابايت</string>
     <string name="send_video_in_real_resolution">إرسال الفيديو بدقة حقيقية</string>
-    <string name="send_video_in_real_resolution_sum">Send Video in Real Resolution for status, group and chats</string>
+    <string name="send_video_in_real_resolution_sum">إرسال الفيديو بالدقة الحقيقية للحالة والمجموعة والمحادثات</string>
     <string name="send_video_in_60fps">إرسال الفيديو إلى 60fps</string>
     <string name="send_video_in_60fps_sum">إرسال الفيديو إلى 60 fps للحالة، المجموعة والمحادثة</string>
     <string name="status">الحالة</string>
@@ -239,7 +239,7 @@
     <string name="time_limit_on_status_video">زيادة الحد الزمني لفيديو الحالة</string>
     <string name="time_limit_on_status_video_sum">زيادة الحد الزمني على فيديوهات الحالة من 30 ثانية إلى 1 دقيقة (لكل شخص)</string>
     <string name="show_freezeLastSeen_button">إظهار أيقونة تجميد آخر ظهور</string>
-    <string name="show_freezeLastSeen_sum">Show button for Freezing Last Seen on home screen toolbar</string>
+    <string name="show_freezeLastSeen_sum">إظهار أيقونة تجميد آخر ظهور على شريط أدوات الشاشة الرئيسية</string>
     <string name="freezelastseen_message">عند تشغيل ميزة تجميد آخر ظهور، لن تتمكن من رؤية وقت آخر ظهور للآخرين أو متصل الآن</string>
     <string name="freezelastseen_title">تجميد آخر ظهور</string>
     <string name="wallpaper_transparency">شفافية الخلفية</string>
@@ -264,7 +264,7 @@
     <string name="disable_audio_sensor">تعطيل مستشعر الصوت</string>
     <string name="disable_audio_sensor_sum">تعطيل التبديل الصوتي مع مستشعر القرب</string>
     <string name="show_admin_group_icon">إظهار أيقونة مشرف المجموعة</string>
-    <string name="show_admin_group_icon_sum">Show an admin icon next to the name of the user who is the group admin</string>
+    <string name="show_admin_group_icon_sum">إظهار رمز المشرف بجوار اسم المستخدم(مشرف المجموعة)</string>
     <string name="toolbar_transparency">شفافية شريط الأدوات</string>
     <string name="navigation_transparency">شفافية التنقل</string>
     <string name="show_online_last_seen_in_conversation_list">إظهار متصل الآن/آخر ظهور في قائمة المحادثات</string>
@@ -279,12 +279,12 @@
     <string name="custom_theme_css">موضوع مخصص CSS</string>
     <string name="custom_theme_css_sum">تخصيص واتساب باستخدام أنماط CSS</string>
     <string name="antidisappearing">الرسائل المؤقتة</string>
-    <string name="antidisappearing_sum">Temporary messages will not be deleted for you</string>
+    <string name="antidisappearing_sum">لن يتم حذف الرسائل المؤقتة بالنسبة لك</string>
     <string name="title_audio">الصوت</string>
     <string name="android_version">إصدار أندرويد</string>
     <string name="message_removed_on">تمت إزالة هذه الرسالة على %s.</string>
-    <string name="disable_default_emojis">Disable Default Emojis</string>
-    <string name="theme_mode">Theme Mode for Wa Enhancer</string>
-    <string name="theme_mode_sum">Force a theme mode in the Wa Enhancer</string>
-    <string name="disable_default_emojis_sum">Disables Whatsapp\'s default emojis and uses system emojis\n(NOTE: Whatsapp emojis will disappear from the selector, use the keyboard to insert).</string>
+    <string name="disable_default_emojis">تعطيل الرموز التعبيرية الافتراضية</string>
+    <string name="theme_mode">وضع السمة Wa Enhancer</string>
+    <string name="theme_mode_sum">تحديد سمة Wa Enhancer</string>
+    <string name="disable_default_emojis_sum">تعطيل الرموز التعبيرية الافتراضية لواتساب واستخدام الرموز التعبيرية للنظام \n(ملاحظة: ستختفي الرموز التعبيرية لواتساب من المحدد، استخدم لوحة المفاتيح لإدراجها).</string>
 </resources>
