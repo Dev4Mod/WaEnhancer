@@ -237,8 +237,6 @@
     <string name="enable_top_navigation_sum">Activate the old navigation bar (at the top of the tabs)</string>
     <string name="hideread_group">Hide Blue Tick in Groups</string>
     <string name="hideread_group_sum">View messages in groups screen without users knowing</string>
-    <string name="time_limit_on_status_video">Increase time limit on status video</string>
-    <string name="time_limit_on_status_video_sum">Increase time limit on status videos from 30 seconds to 1 minute (for everyone)</string>
     <string name="show_freezeLastSeen_button">Show Freeze Last Seen Button</string>
     <string name="show_freezeLastSeen_sum">Show button for Freezing Last Seen on home screen toolbar</string>
     <string name="freezelastseen_message">When Freeze Last Seen is on, you will be unable to see others last seen time or online</string>

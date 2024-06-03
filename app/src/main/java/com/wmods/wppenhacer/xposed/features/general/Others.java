@@ -86,7 +86,6 @@ public class Others extends Feature {
         var igstatus = prefs.getBoolean("igstatus", false);
         var metaai = prefs.getBoolean("metaai", false);
         var topnav = prefs.getBoolean("topnav", false);
-        var videotime = prefs.getBoolean("videotime", false);
         var proximity = prefs.getBoolean("proximity_audios", false);
         var adminGrp = prefs.getBoolean("admin_grp", false);
         var showOnline = prefs.getBoolean("showonline", false);
@@ -117,7 +116,6 @@ public class Others extends Feature {
         propsInteger.put(8522, fbstyle ? 1 : 0);
         propsInteger.put(8521, fbstyle ? 1 : 0);
         propsInteger.put(3877, channels ? igstatus ? 2 : 0 : 2);
-        propsInteger.put(6728, videotime ? 60 : 30);
 
 
         hookProps();
@@ -157,8 +155,8 @@ public class Others extends Feature {
             disable_defEmojis();
         }
 
-    }
 
+    }
 
 
     private void disable_defEmojis() throws Exception {
