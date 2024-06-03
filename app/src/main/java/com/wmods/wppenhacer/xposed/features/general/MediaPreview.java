@@ -151,7 +151,9 @@ public class MediaPreview extends Feature {
 
     }
 
-    /** @noinspection ResultOfMethodCallIgnored*/
+    /**
+     * @noinspection ResultOfMethodCallIgnored
+     */
     @SuppressLint("SetJavaScriptEnabled")
     private void startPlayer(long id, Context context) {
         var executor = Executors.newSingleThreadExecutor();
@@ -196,7 +198,9 @@ public class MediaPreview extends Feature {
         }
     }
 
-    /** @noinspection ResultOfMethodCallIgnored*/
+    /**
+     * @noinspection ResultOfMethodCallIgnored
+     */
     private void decodeMedia(String url, String mediaKey, String mineType, ExecutorService executor, WebView webView) {
         try {
             String s = mineType.startsWith("image") ? ".jpg" : ".mp4";
@@ -210,7 +214,6 @@ public class MediaPreview extends Feature {
             BufferedSink bufferedSink0 = Okio.buffer(Okio.sink(filePath));
             bufferedSink0.write(arr_b1);
             bufferedSink0.close();
-            executor.shutdown();
             webView.post(() -> {
                 if (mineType.contains("image")) {
                     webView.loadDataWithBaseURL(null, HTML_IMAGE.replace("$url", "file://" + filePath.getAbsolutePath()), "text/html", "UTF-8", null);
@@ -222,6 +225,7 @@ public class MediaPreview extends Feature {
             Utils.showToast(e.getMessage(), Toast.LENGTH_LONG);
             if (dialog != null && dialog.isShowing())
                 dialog.dismiss();
+        } finally {
             if (!executor.isShutdown())
                 executor.shutdownNow();
         }
