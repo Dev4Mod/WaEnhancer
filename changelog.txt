@@ -1,8 +1,2 @@
-[CUSTOM COLORS]
-* Fix bug in count message color
-
-[VIDEO STATUS 60S]
-* Removed (The sending of videos in the status for a maximum of 60 seconds is now definitive)
-
-[IMAGE QUALITY]
-* Improvements have been made to the image compression algorithm (Supposedly should solve the problem of low quality in statuses).
+* Add new UI Group Filters
+* Update translations

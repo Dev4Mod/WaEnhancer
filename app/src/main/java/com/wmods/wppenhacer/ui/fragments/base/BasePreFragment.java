@@ -63,6 +63,14 @@ public abstract class BasePreFragment extends PreferenceFragmentCompat implement
             var mode = Integer.parseInt(mPrefs.getString("thememode", "0"));
             App.setThemeMode(mode);
         }
+        var filtergroups = (MaterialSwitchPreference) findPreference("filtergroups");
+
+        if (filtergroups != null) {
+            var bool = mPrefs.getBoolean("separategroups", false);
+            if (bool) filtergroups.setChecked(false);
+            filtergroups.setEnabled(!bool);
+        }
+
     }
 
     @Override

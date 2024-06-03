@@ -1445,7 +1445,7 @@ public class Unobfuscator {
     }
 
     public static Method loadJidFactory(ClassLoader loader) throws Exception {
-         var method = findFirstMethodUsingStrings(loader, StringMatchType.Contains, "lid_me", "status_me", "s.whatsapp.net");
+        var method = findFirstMethodUsingStrings(loader, StringMatchType.Contains, "lid_me", "status_me", "s.whatsapp.net");
         if (method == null) throw new RuntimeException("JidFactory method not found");
         return method;
     }
@@ -1499,8 +1499,9 @@ public class Unobfuscator {
 
     public static Class loadImageVewContainerClass(ClassLoader loader) throws Exception {
         return UnobfuscatorCache.getInstance().getClass(loader, () -> {
-            var clazzList = dexkit.findClass(new FindClass().matcher(new ClassMatcher().addUsingString("viewmessage/ no file").addMethod(new MethodMatcher().addUsingNumber(Utils.getID("hd_invisible_touch","id")).addUsingNumber(Utils.getID("control_btn","id")))));
-            if (clazzList.isEmpty()) throw new RuntimeException("ImageViewContainer class not found");
+            var clazzList = dexkit.findClass(new FindClass().matcher(new ClassMatcher().addUsingString("viewmessage/ no file").addMethod(new MethodMatcher().addUsingNumber(Utils.getID("hd_invisible_touch", "id")).addUsingNumber(Utils.getID("control_btn", "id")))));
+            if (clazzList.isEmpty())
+                throw new RuntimeException("ImageViewContainer class not found");
             return clazzList.get(0).getInstance(loader);
         });
     }
@@ -1510,6 +1511,28 @@ public class Unobfuscator {
             var clazz = findFirstClassUsingStrings(loader, StringMatchType.Contains, "{maxKb=");
             if (clazz == null) throw new RuntimeException("MediaQualityProcessor class not found");
             return clazz;
+        });
+    }
+
+    public static Method getFilterInitMethod(ClassLoader loader) throws Exception {
+        return UnobfuscatorCache.getInstance().getMethod(loader, () -> {
+            var filterAdaperClass = Unobfuscator.loadFilterAdaperClass(loader);
+            var constructor = filterAdaperClass.getConstructors()[0];
+            var methods = dexkit.findMethod(new FindMethod().matcher(new MethodMatcher().addInvoke(DexSignUtil.getMethodDescriptor(constructor))));
+            if (methods.isEmpty()) throw new RuntimeException("FilterInit method not found");
+            var cFrag = XposedHelpers.findClass("com.whatsapp.conversationslist.ConversationsFragment", loader);
+            var method = methods.stream().filter(m -> m.getParamCount() == 1 && m.getParamTypes().get(0).getName().equals(cFrag.getName())).findFirst().orElse(null);
+            if (method == null) throw new RuntimeException("FilterInit method not found 2");
+            return method.getMethodInstance(loader);
+        });
+    }
+
+    public static Class getFilterView(ClassLoader loader) throws Exception {
+        return UnobfuscatorCache.getInstance().getClass(loader, () -> {
+            var id = Utils.getID("filter_and_locked_chats_container", "id");
+            var results = dexkit.findClass(new FindClass().matcher(new ClassMatcher().addMethod(new MethodMatcher().addUsingNumber(id))));
+            if (results.isEmpty()) throw new RuntimeException("FilterView class not found");
+            return results.get(0).getInstance(loader);
         });
     }
 }
