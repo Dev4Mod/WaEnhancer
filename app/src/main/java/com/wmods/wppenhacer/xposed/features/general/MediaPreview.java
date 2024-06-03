@@ -5,7 +5,6 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.database.Cursor;
 import android.graphics.Color;
-import android.graphics.drawable.Drawable;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
@@ -28,11 +27,10 @@ import com.wmods.wppenhacer.xposed.utils.HKDF;
 import com.wmods.wppenhacer.xposed.utils.ReflectionUtils;
 
 import java.io.File;
-import java.lang.reflect.Array;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Locale;
+import java.util.Objects;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -49,7 +47,7 @@ import okhttp3.Request;
 import okio.BufferedSink;
 import okio.Okio;
 
-public class PreviewMedia extends Feature {
+public class MediaPreview extends Feature {
 
     private static final String HTML_LOADING = "<!DOCTYPE html><html><head> <meta charset=\"UTF-8\"> <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\"> <title>Loading</title> <style> body { display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; background-color: #f0f0f0; font-family: Arial, sans-serif; } .loader { display: flex; align-items: center; } .spinner { width: 40px; height: 40px; border: 4px solid rgba(0, 0, 0, 0.1); border-top: 4px solid #000; border-radius: 50%; animation: spin 1s linear infinite; } @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } } .text { margin-left: 10px; font-size: 18px; } </style></head><body> <div class=\"loader\"> <div class=\"spinner\"></div> <div class=\"text\">$loading</div> </div></body></html>";
     private static final String HTML_VIDEO = "<!DOCTYPE html><html><head> <meta charset=\"UTF-8\"> <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\"> <title>Player de Vídeo</title> <style> body { display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; background-color: #f0f0f0; font-family: Arial, sans-serif; } .video-container { text-align: center; } video { width: 100%; height: auto; } </style></head><body> <div class=\"video-container\"> <video controls> <source src=\"$url\" type=\"video/mp4\"> Browser not supported. </video> </div></body></html>";
@@ -57,7 +55,7 @@ public class PreviewMedia extends Feature {
     private File filePath;
     private AlertDialog dialog;
 
-    public PreviewMedia(@NonNull ClassLoader loader, @NonNull XSharedPreferences preferences) {
+    public MediaPreview(@NonNull ClassLoader loader, @NonNull XSharedPreferences preferences) {
         super(loader, preferences);
     }
 
@@ -153,6 +151,9 @@ public class PreviewMedia extends Feature {
 
     }
 
+    /**
+     * @noinspection ResultOfMethodCallIgnored
+     */
     @SuppressLint("SetJavaScriptEnabled")
     private void startPlayer(long id, Context context) {
         var executor = Executors.newSingleThreadExecutor();
@@ -197,19 +198,22 @@ public class PreviewMedia extends Feature {
         }
     }
 
+    /**
+     * @noinspection ResultOfMethodCallIgnored
+     */
     private void decodeMedia(String url, String mediaKey, String mineType, ExecutorService executor, WebView webView) {
         try {
             String s = mineType.startsWith("image") ? ".jpg" : ".mp4";
             filePath = new File(Utils.getApplication().getCacheDir(), "mediapreview" + s);
-            byte[] arr_b = new OkHttpClient.Builder().addInterceptor((chain) -> chain.proceed(chain.request().newBuilder().addHeader("User-Agent", "Chrome/117.0.5938.150").build())).build().newCall(new Request.Builder().url(url).build()).execute().body().source().readByteArray();
+            byte[] arr_b = Objects.requireNonNull(new OkHttpClient.Builder().addInterceptor((chain) -> chain.proceed(chain.request().newBuilder().addHeader("User-Agent", "Chrome/117.0.5938.150").build())).build().newCall(new Request.Builder().url(url).build()).execute().body()).source().readByteArray();
             if (filePath.exists()) {
                 filePath.delete();
             }
             byte[] arr_b1 = decryptFile(arr_b, mediaKey, mineType);
+            assert arr_b1 != null;
             BufferedSink bufferedSink0 = Okio.buffer(Okio.sink(filePath));
             bufferedSink0.write(arr_b1);
             bufferedSink0.close();
-            executor.shutdown();
             webView.post(() -> {
                 if (mineType.contains("image")) {
                     webView.loadDataWithBaseURL(null, HTML_IMAGE.replace("$url", "file://" + filePath.getAbsolutePath()), "text/html", "UTF-8", null);
@@ -221,6 +225,7 @@ public class PreviewMedia extends Feature {
             Utils.showToast(e.getMessage(), Toast.LENGTH_LONG);
             if (dialog != null && dialog.isShowing())
                 dialog.dismiss();
+        } finally {
             if (!executor.isShutdown())
                 executor.shutdownNow();
         }
@@ -266,6 +271,6 @@ public class PreviewMedia extends Feature {
     @NonNull
     @Override
     public String getPluginName() {
-        return "Preview Media";
+        return "Media Preview";
     }
 }

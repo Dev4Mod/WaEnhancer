@@ -18,12 +18,14 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.core.content.ContextCompat;
 
 import com.wmods.wppenhacer.utils.IColors;
 import com.wmods.wppenhacer.views.WallpaperView;
+import com.wmods.wppenhacer.xposed.core.DesignUtils;
 import com.wmods.wppenhacer.xposed.core.Feature;
 import com.wmods.wppenhacer.xposed.core.Unobfuscator;
 import com.wmods.wppenhacer.xposed.core.Utils;
@@ -38,6 +40,7 @@ import java.util.Objects;
 
 import de.robv.android.xposed.XC_MethodHook;
 import de.robv.android.xposed.XSharedPreferences;
+import de.robv.android.xposed.XposedBridge;
 import de.robv.android.xposed.XposedHelpers;
 
 public class CustomTheme extends Feature {
@@ -181,6 +184,7 @@ public class CustomTheme extends Feature {
         });
 
         var intBgHook = new IntBgColorHook();
+        findAndHookMethod(TextView.class.getName(), loader, "setTextColor", int.class, intBgHook);
         findAndHookMethod(Paint.class.getName(), loader, "setColor", int.class, intBgHook);
         findAndHookMethod(View.class.getName(), loader, "setBackgroundColor", int.class, intBgHook);
         findAndHookMethod(GradientDrawable.class.getName(), loader, "setColor", int.class, intBgHook);
@@ -297,6 +301,13 @@ public class CustomTheme extends Feature {
             var colors = IColors.colors;
             var color = (int) param.args[0];
             var sColor = IColors.toString(color);
+            if (param.thisObject instanceof TextView textView) {
+                var id = Utils.getID("conversations_row_message_count", "id");
+                if (textView.getId() == id) {
+                    param.args[0] = IColors.parseColor("#ff" + sColor.substring(sColor.length() == 9 ? 3 : 1));
+                    return;
+                }
+            }
             var newColor = colors.get(sColor);
             if (newColor != null && newColor.length() == 9) {
                 param.args[0] = IColors.parseColor(newColor);
