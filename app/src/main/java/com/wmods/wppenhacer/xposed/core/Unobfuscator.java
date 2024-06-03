@@ -1504,4 +1504,12 @@ public class Unobfuscator {
             return clazzList.get(0).getInstance(loader);
         });
     }
+
+    public static Class loadMediaQualityProcessor(ClassLoader loader) throws Exception {
+        return UnobfuscatorCache.getInstance().getClass(loader, () -> {
+            var clazz = findFirstClassUsingStrings(loader, StringMatchType.Contains, "{maxKb=");
+            if (clazz == null) throw new RuntimeException("MediaQualityProcessor class not found");
+            return clazz;
+        });
+    }
 }
