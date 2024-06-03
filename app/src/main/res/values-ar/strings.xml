@@ -284,7 +284,10 @@
     <string name="android_version">إصدار أندرويد</string>
     <string name="message_removed_on">تمت إزالة هذه الرسالة على %s.</string>
     <string name="disable_default_emojis">تعطيل الرموز التعبيرية الافتراضية</string>
-    <string name="theme_mode">وضع السمة Wa Enhancer</string>
+    <string name="theme_mode">Dark Theme Wa Enhancer</string>
     <string name="theme_mode_sum">تحديد سمة Wa Enhancer</string>
     <string name="disable_default_emojis_sum">تعطيل الرموز التعبيرية الافتراضية لواتساب واستخدام الرموز التعبيرية للنظام \n(ملاحظة: ستختفي الرموز التعبيرية لواتساب من المحدد، استخدم لوحة المفاتيح لإدراجها).</string>
+    <string name="other">Other</string>
+    <string name="enable_media_preview">Enable Media Preview</string>
+    <string name="enable_media_preview_sum">Add a button to preview media in a temporary file (without downloading it permanently)</string>
 </resources>

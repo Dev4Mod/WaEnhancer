@@ -281,7 +281,10 @@
     <string name="android_version">Versão do Android</string>
     <string name="message_removed_on">Mensagem apagada em %s</string>
     <string name="disable_default_emojis">Desativar Emojis padrão</string>
-    <string name="theme_mode">Tema Wa Enhancer</string>
+    <string name="theme_mode">Dark Theme Wa Enhancer</string>
     <string name="theme_mode_sum">Selecione o tema para o Wa Enhancer.</string>
     <string name="disable_default_emojis_sum">Desative os emojis padrão do Whatsapp e use emojis do sistema\n(NOTA: os emojis do Whatsapp desaparecerão do seletor, use o teclado para inserir).</string>
+    <string name="other">Other</string>
+    <string name="enable_media_preview">Enable Media Preview</string>
+    <string name="enable_media_preview_sum">Add a button to preview media in a temporary file (without downloading it permanently)</string>
 </resources>

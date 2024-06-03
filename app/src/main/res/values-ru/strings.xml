@@ -281,7 +281,10 @@
     <string name="android_version">Версия Android</string>
     <string name="message_removed_on">Это сообщение было удалено %s.</string>
     <string name="disable_default_emojis">Отключить смайлики по умолчанию</string>
-    <string name="theme_mode">Режим темы для Wa Enhancer</string>
+    <string name="theme_mode">Темная тема Wa Enhancer</string>
     <string name="theme_mode_sum">Принудительный режим темы в Wa Enhancer</string>
     <string name="disable_default_emojis_sum">Отключает смайлики по умолчанию WhatsApp и использует системные смайлики\n(Примечание: Emojis WhatsApp исчезнет из селектора, используйте клавиатуру для вставки).</string>
+    <string name="other">Другое</string>
+    <string name="enable_media_preview">Включить предпросмотр мультимедиа</string>
+    <string name="enable_media_preview_sum">Добавить кнопку для просмотра мультимедиа как временный файл (без скачивания)</string>
 </resources>

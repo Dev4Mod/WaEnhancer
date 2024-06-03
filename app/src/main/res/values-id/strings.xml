@@ -290,7 +290,10 @@ Apakah Anda ingin mulai ulang WhatsApp?</string>
     <string name="android_version">Versi Android</string>
     <string name="message_removed_on">Pesan ini dihapus pada %s</string>
     <string name="disable_default_emojis">Nonaktifkan Emoji Bawaan</string>
-    <string name="theme_mode">Tema Wa Enhancer</string>
+    <string name="theme_mode">Tema Gelap Wa Enhancer</string>
     <string name="theme_mode_sum">Pilih tema Wa Enhancer</string>
     <string name="disable_default_emojis_sum">Nonaktifkan emoji bawaan WhatsApp dan gunakan emoji sistem\n(CATATAN: Emoji WhatsApp akan hilang dari pilihan, gunakan keyboard untuk menyisipkan)</string>
+    <string name="other">Lainnya</string>
+    <string name="enable_media_preview">Pratinjau Media</string>
+    <string name="enable_media_preview_sum">Tambahkan tombol untuk melihat pratinjau media dalam file sementara (tanpa mengunduhnya secara permanen)</string>
 </resources>

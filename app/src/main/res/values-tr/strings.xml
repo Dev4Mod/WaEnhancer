@@ -281,7 +281,10 @@
     <string name="android_version">Android Sürümü</string>
     <string name="message_removed_on">Bu mesaj %s tarihinde kaldırıldı.</string>
     <string name="disable_default_emojis">Varsayılan Emojileri Devre Dışı Bırak</string>
-    <string name="theme_mode">Wa Enhancer için Tema Modu</string>
+    <string name="theme_mode">Wa Enhancer Karanlık Tema</string>
     <string name="theme_mode_sum">Wa Enhancer\'da bir tema modunu zorla</string>
     <string name="disable_default_emojis_sum">Whatsapp\'ın varsayılan emojilerini devre dışı bırakır ve sistem emojilerini kullanır\n(NOT: Whatsapp emojileri seçiciden kaybolacaktır, eklemek için klavyeyi kullanın).</string>
+    <string name="other">Diğer</string>
+    <string name="enable_media_preview">Medya Önizlemesini Etkinleştir</string>
+    <string name="enable_media_preview_sum">Medyayı geçici bir dosyada önizlemek için bir düğme ekle (kalıcı olarak indirmeden)</string>
 </resources>
