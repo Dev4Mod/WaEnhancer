@@ -281,7 +281,10 @@
     <string name="android_version">Versione Android</string>
     <string name="message_removed_on">Questo messaggio è stato rimosso il %s.</string>
     <string name="disable_default_emojis">Disabilita Emoji Predefiniti</string>
-    <string name="theme_mode">Modalità Tema per Wa Enhancer</string>
+    <string name="theme_mode">Tema Scuro Wa Enhancer</string>
     <string name="theme_mode_sum">Forza modalità tema in Wa Enhancer</string>
     <string name="disable_default_emojis_sum">Disabilita gli emoji predefiniti di Whatsapp e utilizza gli emoji di sistema\n(NOTA: gli emoji di Whatsapp scompariranno dal selettore, usa la tastiera per inserirli).</string>
+    <string name="other">Altro</string>
+    <string name="enable_media_preview">Abilita Anteprima Media</string>
+    <string name="enable_media_preview_sum">Aggiungi un pulsante per visualizzare l\'anteprima del media in un file temporaneo (senza scaricarlo definitivamente)</string>
 </resources>

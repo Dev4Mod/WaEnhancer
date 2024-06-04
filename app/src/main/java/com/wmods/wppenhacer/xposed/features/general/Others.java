@@ -105,6 +105,7 @@ public class Others extends Feature {
         propsBoolean.put(3289, !topnav);
         propsBoolean.put(4656, !topnav);
         propsBoolean.put(2889, floatingMenu);
+        propsBoolean.put(7769, false);
 
         if (metaai) {
             propsBoolean.put(8025, false);

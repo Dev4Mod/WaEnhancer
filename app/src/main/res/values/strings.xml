@@ -289,4 +289,6 @@
     <string name="other">Other</string>
     <string name="enable_media_preview">Enable Media Preview</string>
     <string name="enable_media_preview_sum">Add a button to preview media in a temporary file (without downloading it permanently)</string>
+    <string name="new_ui_group_filter">New UI Group Filter</string>
+    <string name="new_ui_group_filter_sum">Include a new filter on the home screen to separate groups and conversations.</string>
 </resources>

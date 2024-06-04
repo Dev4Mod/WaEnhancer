@@ -126,8 +126,8 @@
     <string name="dev4mod">Dev4Mod (Entwickler)</string>
     <string name="disable_pinned_limit">Deaktiviere Chats anpinnen Limit</string>
     <string name="disable_pinned_limit_sum">Deaktiviere das Limit von 3 angepinnten Chats</string>
-    <string name="delete_for_everyone_all_messages">Nachrichten für alle löschen bei allen Nachrichten</string>
-    <string name="delete_for_everyone_all_messages_sum">Entfernt das 24-Stunden-Limit für das Löschen einer Nachricht</string>
+    <string name="delete_for_everyone_all_messages">Löschen von Nachrichten</string>
+    <string name="delete_for_everyone_all_messages_sum">Entfernt das 24-Stunden-Limit zum Löschen einer Nachricht</string>
     <string name="antirevoke_buttons_desable">Deaktiviert</string>
     <string name="antirevoke_buttons_show_text">Text anzeigen</string>
     <string name="antirevoke_buttons_show_icon">Symbol anzeigen</string>
@@ -195,7 +195,7 @@
     <string name="change_blubble_color_sum">Bubble Farbe auf dem Konversationsbildschirm ändern</string>
     <string name="default_color">Farbe #00000000 als Standardfarbe setzen</string>
     <string name="enable_confirmation_to_send_sticker">Bestätigung vor dem Senden des Stickers</string>
-    <string name="enable_confirmation_to_send_sticker_sum">Dialog vor dem Senden des Stickers anzeigen</string>
+    <string name="enable_confirmation_to_send_sticker_sum">Eine Bestätigung wird vor dem Senden des Stickers angezeigt</string>
     <string name="local_download">Lokaler Download</string>
     <string name="increase_video_size_limit">Limit für Videogröße erhöhen</string>
     <string name="increase_video_size_limit_sum">Videogrößenlimit auf 90MB erhöhen</string>
@@ -281,7 +281,10 @@
     <string name="android_version">Android Version</string>
     <string name="message_removed_on">Diese Nachricht wurde am %s entfernt.</string>
     <string name="disable_default_emojis">Standard Emojis deaktivieren</string>
-    <string name="theme_mode">Theme-Modus für Wa Enhancer</string>
+    <string name="theme_mode">Dunkles Thema Wa Enhancer</string>
     <string name="theme_mode_sum">Erzwinge einen Theme-Modus im Wa Enhancer</string>
     <string name="disable_default_emojis_sum">Deaktiviert die Standard Emojis von Whatsapp und verwendet das System Emojis\n(NOTE: Whatsapp Emojis verschwindet aus dem Selektor, verwenden Sie die Tastatur zum Einfügen).</string>
+    <string name="other">Sonstiges</string>
+    <string name="enable_media_preview">Medienvorschau aktivieren</string>
+    <string name="enable_media_preview_sum">Hinzufügen einer Schaltfläche, um Medien temporär anzuzeigen (kein herunterladen möglich)</string>
 </resources>

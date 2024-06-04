@@ -74,6 +74,11 @@
             app:title="@string/separate_groups" />
 
         <rikka.material.preference.MaterialSwitchPreference
+            app:key="filtergroups"
+            app:summary="@string/new_ui_group_filter_sum"
+            app:title="@string/new_ui_group_filter" />
+
+        <rikka.material.preference.MaterialSwitchPreference
             app:key="hidearchive"
             app:summary="@string/hide_archived_chat_sum"
             app:title="@string/hide_archived_chat" />

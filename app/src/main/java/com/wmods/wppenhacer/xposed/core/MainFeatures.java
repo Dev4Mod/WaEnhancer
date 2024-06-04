@@ -28,6 +28,7 @@ import com.wmods.wppenhacer.xposed.features.customization.DotOnline;
 import com.wmods.wppenhacer.xposed.features.customization.HideTabs;
 import com.wmods.wppenhacer.xposed.features.customization.IGStatus;
 import com.wmods.wppenhacer.xposed.features.customization.SeparateGroup;
+import com.wmods.wppenhacer.xposed.features.customization.FilterGroups;
 import com.wmods.wppenhacer.xposed.features.general.AntiRevoke;
 import com.wmods.wppenhacer.xposed.features.general.CallPrivacy;
 import com.wmods.wppenhacer.xposed.features.general.CallType;
@@ -201,7 +202,8 @@ public class MainFeatures {
                 StatusDownload.class,
                 ViewOnce.class,
                 CallType.class,
-                MediaPreview.class
+                MediaPreview.class,
+                FilterGroups.class
         };
 
         for (var classe : classes) {
