@@ -33,6 +33,7 @@ import java.util.Locale;
 import java.util.Objects;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.atomic.AtomicReference;
 
 import javax.crypto.Cipher;
 import javax.crypto.spec.IvParameterSpec;
@@ -55,6 +56,22 @@ public class MediaPreview extends Feature {
     private File filePath;
     private AlertDialog dialog;
 
+    static HashMap<String, byte[]> MEDIA_KEYS = new HashMap<>();
+
+    static {
+        MEDIA_KEYS.put("image", "WhatsApp Image Keys".getBytes());
+        MEDIA_KEYS.put("video", "WhatsApp Video Keys".getBytes());
+        MEDIA_KEYS.put("audio", "WhatsApp Audio Keys".getBytes());
+        MEDIA_KEYS.put("document", "WhatsApp Document Keys".getBytes());
+        MEDIA_KEYS.put("image/webp", "WhatsApp Image Keys".getBytes());
+        MEDIA_KEYS.put("image/jpeg", "WhatsApp Image Keys".getBytes());
+        MEDIA_KEYS.put("image/png", "WhatsApp Image Keys".getBytes());
+        MEDIA_KEYS.put("video/mp4", "WhatsApp Video Keys".getBytes());
+        MEDIA_KEYS.put("audio/aac", "WhatsApp Audio Keys".getBytes());
+        MEDIA_KEYS.put("audio/ogg", "WhatsApp Audio Keys".getBytes());
+        MEDIA_KEYS.put("audio/wav", "WhatsApp Audio Keys".getBytes());
+    }
+
     public MediaPreview(@NonNull ClassLoader loader, @NonNull XSharedPreferences preferences) {
         super(loader, preferences);
     }
@@ -70,8 +87,7 @@ public class MediaPreview extends Feature {
             @Override
             protected void afterHookedMethod(MethodHookParam param) throws Throwable {
                 if (param.args.length < 2) return;
-                var userJid = WppCore.getCurrentRawJID();
-                if (userJid != null && userJid.contains("@newsletter")) return;
+
                 var view = (View) param.thisObject;
                 var context = view.getContext();
                 var surface = (ViewGroup) view.findViewById(Utils.getID("invisible_press_surface", "id"));
@@ -94,7 +110,8 @@ public class MediaPreview extends Feature {
                 prevBtn.setOnClickListener((v) -> {
                     var objmessage = XposedHelpers.callMethod(param.thisObject, "getFMessage");
                     var id = (long) ReflectionUtils.getField(getFieldIdMessage, objmessage);
-                    startPlayer(id, context);
+                    var userJid = WppCore.getCurrentRawJID();
+                    startPlayer(id, context, userJid != null && userJid.contains("@newsletter"));
                 });
             }
         });
@@ -106,8 +123,7 @@ public class MediaPreview extends Feature {
                 if (param.args.length < 2) return;
                 var view = (View) param.thisObject;
                 var context = view.getContext();
-                var userJid = WppCore.getCurrentRawJID();
-                if (userJid != null && userJid.contains("@newsletter")) return;
+
 
                 ViewGroup mediaContainer = view.findViewById(Utils.getID("media_container", "id"));
                 ViewGroup controlFrame = view.findViewById(Utils.getID("control_frame", "id"));
@@ -142,7 +158,8 @@ public class MediaPreview extends Feature {
                 prevBtn.setOnClickListener((v) -> {
                     var objmessage = XposedHelpers.callMethod(param.thisObject, "getFMessage");
                     var id = (long) ReflectionUtils.getField(getFieldIdMessage, objmessage);
-                    startPlayer(id, context);
+                    var userJid = WppCore.getCurrentRawJID();
+                    startPlayer(id, context, userJid != null && userJid.contains("@newsletter"));
                 });
 
             }
@@ -155,16 +172,20 @@ public class MediaPreview extends Feature {
      * @noinspection ResultOfMethodCallIgnored
      */
     @SuppressLint("SetJavaScriptEnabled")
-    private void startPlayer(long id, Context context) {
+    private void startPlayer(long id, Context context, boolean isNewsletter) {
         var executor = Executors.newSingleThreadExecutor();
         try {
-            Cursor cursor0 = MessageStore.database.getReadableDatabase().rawQuery(String.format(Locale.ENGLISH, "SELECT message_url,mime_type,hex(media_key) FROM message_media WHERE message_row_id =\"%d\"", id), null);
+            Cursor cursor0 = MessageStore.database.getReadableDatabase().rawQuery(String.format(Locale.ENGLISH, "SELECT message_url,mime_type,hex(media_key),direct_path FROM message_media WHERE message_row_id =\"%d\"", id), null);
             if (cursor0 != null && cursor0.getCount() > 0) {
                 cursor0.moveToFirst();
-                String url = cursor0.getString(0);
+                AtomicReference<String> url = new AtomicReference<>(cursor0.getString(0));
                 String mine_type = cursor0.getString(1);
                 String media_key = cursor0.getString(2);
+                String direct_path = cursor0.getString(3);
                 cursor0.close();
+                if (isNewsletter) {
+                    url.set("https://mmg.whatsapp.net" + direct_path);
+                }
                 var alertDialog = new AlertDialog.Builder(context);
                 FrameLayout frameLayout = new FrameLayout(context);
                 var webView = new WebView(context);
@@ -186,7 +207,7 @@ public class MediaPreview extends Feature {
                 });
                 dialog = alertDialog.create();
                 dialog.show();
-                executor.execute(() -> decodeMedia(url, media_key, mine_type, executor, webView));
+                executor.execute(() -> decodeMedia(url.get(), media_key, mine_type, executor, webView, isNewsletter));
             }
         } catch (Exception e) {
             logDebug(e);
@@ -199,73 +220,89 @@ public class MediaPreview extends Feature {
     }
 
     /**
-     * @noinspection ResultOfMethodCallIgnored
+     * Decodifica a mídia.
+     *
+     * @param url          A URL da mídia.
+     * @param mediaKey     A chave de mídia.
+     * @param mimeType     O tipo MIME da mídia.
+     * @param executor    O executor de tarefas.
+     * @param webView     A visualização da web.
+     * @param isNewsletter Indica se a mensagem é de um boletim informativo.
      */
-    private void decodeMedia(String url, String mediaKey, String mineType, ExecutorService executor, WebView webView) {
+    private void decodeMedia(String url, String mediaKey, String mimeType, ExecutorService executor, WebView webView, boolean isNewsletter) {
         try {
-            String s = mineType.startsWith("image") ? ".jpg" : ".mp4";
-            filePath = new File(Utils.getApplication().getCacheDir(), "mediapreview" + s);
-            byte[] arr_b = Objects.requireNonNull(new OkHttpClient.Builder().addInterceptor((chain) -> chain.proceed(chain.request().newBuilder().addHeader("User-Agent", "Chrome/117.0.5938.150").build())).build().newCall(new Request.Builder().url(url).build()).execute().body()).source().readByteArray();
+            String fileExtension = mimeType.startsWith("image") ? ".jpg" : ".mp4";
+            filePath = new File(Utils.getApplication().getCacheDir(), "mediapreview" + fileExtension);
+
+            byte[] encryptedData = Objects.requireNonNull(new OkHttpClient.Builder()
+                    .addInterceptor(chain -> chain.proceed(chain.request().newBuilder()
+                            .addHeader("User-Agent", "Chrome/117.0.5938.150")
+                            .build()))
+                    .build()
+                    .newCall(new Request.Builder().url(url).build())
+                    .execute()
+                    .body()).source().readByteArray();
+
             if (filePath.exists()) {
+                //noinspection ResultOfMethodCallIgnored
                 filePath.delete();
             }
-            byte[] arr_b1 = decryptFile(arr_b, mediaKey, mineType);
-            assert arr_b1 != null;
-            BufferedSink bufferedSink0 = Okio.buffer(Okio.sink(filePath));
-            bufferedSink0.write(arr_b1);
-            bufferedSink0.close();
+
+            byte[] decryptedData = isNewsletter ? encryptedData : decryptMedia(encryptedData, mediaKey, mimeType);
+            assert decryptedData != null;
+
+            try (BufferedSink bufferedSink = Okio.buffer(Okio.sink(filePath))) {
+                bufferedSink.write(decryptedData);
+            }
+
             webView.post(() -> {
-                if (mineType.contains("image")) {
-                    webView.loadDataWithBaseURL(null, HTML_IMAGE.replace("$url", "file://" + filePath.getAbsolutePath()), "text/html", "UTF-8", null);
+                String fileUrl = "file://" + filePath.getAbsolutePath();
+                if (mimeType.contains("image")) {
+                    webView.loadDataWithBaseURL(null, HTML_IMAGE.replace("$url", fileUrl), "text/html", "UTF-8", null);
                 } else {
-                    webView.loadDataWithBaseURL(null, HTML_VIDEO.replace("$url", "file://" + filePath.getAbsolutePath()), "text/html", "UTF-8", null);
+                    webView.loadDataWithBaseURL(null, HTML_VIDEO.replace("$url", fileUrl), "text/html", "UTF-8", null);
                 }
             });
         } catch (Exception e) {
             Utils.showToast(e.getMessage(), Toast.LENGTH_LONG);
-            if (dialog != null && dialog.isShowing())
+            if (dialog != null && dialog.isShowing()) {
                 dialog.dismiss();
+            }
         } finally {
-            if (!executor.isShutdown())
+            if (!executor.isShutdown()) {
                 executor.shutdownNow();
+            }
         }
     }
 
-    static HashMap<String, byte[]> keys = new HashMap<>();
 
-    static {
-        keys.put("image", "WhatsApp Image Keys".getBytes());
-        keys.put("video", "WhatsApp Video Keys".getBytes());
-        keys.put("audio", "WhatsApp Audio Keys".getBytes());
-        keys.put("document", "WhatsApp Document Keys".getBytes());
-        keys.put("image/webp", "WhatsApp Image Keys".getBytes());
-        keys.put("image/jpeg", "WhatsApp Image Keys".getBytes());
-        keys.put("image/png", "WhatsApp Image Keys".getBytes());
-        keys.put("video/mp4", "WhatsApp Video Keys".getBytes());
-        keys.put("audio/aac", "WhatsApp Audio Keys".getBytes());
-        keys.put("audio/ogg", "WhatsApp Audio Keys".getBytes());
-        keys.put("audio/wav", "WhatsApp Audio Keys".getBytes());
-    }
-
-
-    private byte[] decryptFile(byte[] arr_b, String mediaKey, String mineType) throws Exception {
-        int v = mediaKey.length();
-        byte[] arr_b1 = new byte[v / 2];
-        for (int v1 = 0; v1 < v; v1 += 2) {
-            arr_b1[v1 / 2] = (byte) (Character.digit(mediaKey.charAt(v1 + 1), 16) + (Character.digit(mediaKey.charAt(v1), 16) << 4));
+    /**
+     * Descriptografa a mídia.
+     *
+     * @param encryptedData Os dados criptografados.
+     * @param mediaKey      A chave de mídia.
+     * @param mimeType      O tipo MIME da mídia.
+     * @return Os dados descriptografados.
+     * @throws Exception Se ocorrer um erro durante a descriptografia.
+     */
+    private byte[] decryptMedia(byte[] encryptedData, String mediaKey, String mimeType) throws Exception {
+        if (mediaKey.length() % 2 != 0 || mediaKey.length() != 64) {
+            throw new IllegalArgumentException("Invalid media key.");
         }
-        if (v / 2 != 0x20) {
-            return null;
+
+        byte[] keyBytes = new byte[32];
+        for (int i = 0; i < 64; i += 2) {
+            keyBytes[i / 2] = (byte) ((Character.digit(mediaKey.charAt(i), 16) << 4) + Character.digit(mediaKey.charAt(i + 1), 16));
         }
-        byte[] arr_b2 = keys.get(mineType);
-        byte[] arr_b3 = HKDF.createFor(3).deriveSecrets(arr_b1, arr_b2, 0x70);
-        byte[] arr_b4 = Arrays.copyOfRange(arr_b3, 0, 16);
-        byte[] arr_b5 = Arrays.copyOfRange(arr_b3, 16, 0x30);
-        byte[] arr_b6 = Arrays.copyOfRange(arr_b, 0, arr_b.length - 10);
-        SecretKeySpec secretKeySpec0 = new SecretKeySpec(arr_b5, "AES");
-        Cipher cipher0 = Cipher.getInstance("AES/CBC/PKCS5Padding");
-        cipher0.init(2, secretKeySpec0, new IvParameterSpec(arr_b4));
-        return cipher0.doFinal(arr_b6);
+
+        byte[] typeKey = MEDIA_KEYS.getOrDefault(mimeType, MEDIA_KEYS.get("document"));
+        byte[] derivedKey = HKDF.createFor(3).deriveSecrets(keyBytes, typeKey, 112);
+        byte[] iv = Arrays.copyOfRange(derivedKey, 0, 16);
+        byte[] aesKey = Arrays.copyOfRange(derivedKey, 16, 48);
+
+        Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5Padding");
+        cipher.init(Cipher.DECRYPT_MODE, new SecretKeySpec(aesKey, "AES"), new IvParameterSpec(iv));
+        return cipher.doFinal(Arrays.copyOfRange(encryptedData, 0, encryptedData.length - 10));
     }
 
     @NonNull

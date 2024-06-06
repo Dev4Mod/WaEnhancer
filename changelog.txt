@@ -1,2 +1,11 @@
-* Add new UI Group Filters
-* Update translations
+[MEDIA PREVIEW]
+* Add support in Channels
+
+[TOOLBAR BUTTONS]
+* Hide in three dots if the new UI Settings function is disabled.
+
+[WHATSAPP]
+* Add support to Whatsapp 2.24.11.79~80
+
+[ANTI REVOKE]
+* Upgrade database

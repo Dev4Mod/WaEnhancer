@@ -68,7 +68,8 @@ public class UnobfuscatorCache {
     }
 
     private void initializeReverseResourceMap() {
-        ExecutorService executor = Executors.newFixedThreadPool(4); // Create a thread pool with 4 threads
+        int numThreads = Runtime.getRuntime().availableProcessors();
+        ExecutorService executor = Executors.newFixedThreadPool(numThreads); // Create a thread pool with 4 threads
 
         try {
             var configuration = new Configuration(mApp.getResources().getConfiguration());
@@ -78,7 +79,6 @@ public class UnobfuscatorCache {
 
             int startId = 0x7f120000;
             int endId = 0x7f12ffff;
-            int numThreads = 4; // Number of threads for parallel processing
 
             int chunkSize = (endId - startId + 1) / numThreads;
             CountDownLatch latch = new CountDownLatch(numThreads);

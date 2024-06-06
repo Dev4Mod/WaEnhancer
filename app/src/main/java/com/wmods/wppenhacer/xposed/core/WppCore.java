@@ -6,6 +6,7 @@ import android.app.Dialog;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.graphics.drawable.Drawable;
+import android.view.Menu;
 
 import androidx.annotation.Nullable;
 
@@ -15,8 +16,11 @@ import java.io.File;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 
 import de.robv.android.xposed.XC_MethodHook;
 import de.robv.android.xposed.XposedBridge;
@@ -35,9 +39,15 @@ public class WppCore {
     private static Field chatJidField;
 
     private static final HashSet<ObjectOnChangeListener> listenerChat = new HashSet<>();
+    private static final HashMap<Class, List<OnMenuCreate>> listenerMenu = new HashMap<>();
     private static Object mContactManager;
     private static SharedPreferences privPrefs;
     private static Object mStartUpConfig;
+
+    public static void addMenuItem(Class<?> aClass, OnMenuCreate listener) {
+        var list = listenerMenu.computeIfAbsent(aClass, k -> new ArrayList<>());
+        list.add(listener);
+    }
 
 
     public interface ObjectOnChangeListener {
@@ -45,9 +55,7 @@ public class WppCore {
 
     }
 
-    public static void Initialize(ClassLoader loader) {
-        try {
-
+    public static void Initialize(ClassLoader loader) throws Exception {
             privPrefs = Utils.getApplication().getSharedPreferences("WaGlobal", Context.MODE_PRIVATE);
 
             // init Main activity
@@ -62,6 +70,28 @@ public class WppCore {
                 @Override
                 protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
                     mainActivity = param.thisObject;
+                }
+            });
+
+            XposedHelpers.findAndHookMethod(Activity.class, "onCreateOptionsMenu", Menu.class, new XC_MethodHook() {
+                @Override
+                protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
+                    for (Class<?> aClass : listenerMenu.keySet()) {
+                        if (!aClass.isInstance(param.thisObject)) return;
+                        for (OnMenuCreate listener : listenerMenu.get(aClass)) {
+                            listener.onBeforeCreate((Activity) param.thisObject, (Menu) param.args[0]);
+                        }
+                    }
+                }
+
+                @Override
+                protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+                    for (Class<?> aClass : listenerMenu.keySet()) {
+                        if (!aClass.isInstance(param.thisObject)) return;
+                        for (OnMenuCreate listener : listenerMenu.get(aClass)) {
+                            listener.onAfterCreate((Activity) param.thisObject, (Menu) param.args[0]);
+                        }
+                    }
                 }
             });
 
@@ -115,10 +145,18 @@ public class WppCore {
                     mStartUpConfig = param.thisObject;
                 }
             });
-            
-        } catch (Exception e) {
-            XposedBridge.log(e);
+    }
+
+    public static int getDefaultTheme() {
+        if (mStartUpConfig != null) {
+            var result = ReflectionUtils.findMethodUsingFilterIfExists(mStartUpConfig.getClass(), (method) -> method.getParameterCount() == 0 && method.getReturnType() == int.class);
+            if (result != null) {
+                var value = ReflectionUtils.callMethod(result, mStartUpConfig);
+                if (value != null) return (int) value;
+            }
         }
+        var startup_prefs = Utils.getApplication().getSharedPreferences("startup_prefs", Context.MODE_PRIVATE);
+        return startup_prefs.getInt("night_mode", 0);
     }
 
     public static Object getContactManager() {
@@ -245,17 +283,16 @@ public class WppCore {
             privPrefs.edit().remove(s).commit();
     }
 
+    public abstract static class OnMenuCreate {
 
-    public static int getDefaultTheme() {
-        if (mStartUpConfig != null){
-            var result = ReflectionUtils.findMethodUsingFilterIfExists(mStartUpConfig.getClass(), (method) -> method.getParameterCount() == 0 && method.getReturnType() == int.class);
-            if (result != null){
-                var value = ReflectionUtils.callMethod(result, mStartUpConfig);
-                if (value != null) return (int)value;
-            }
+        public void onBeforeCreate(Activity activity, Menu menu) {
+
         }
-        var startup_prefs = Utils.getApplication().getSharedPreferences("startup_prefs", Context.MODE_PRIVATE);
-        return startup_prefs.getInt("night_mode", 0);
+
+        public void onAfterCreate(Activity activity, Menu menu) {
+
+        }
+
     }
 
     @SuppressLint("ApplySharedPref")

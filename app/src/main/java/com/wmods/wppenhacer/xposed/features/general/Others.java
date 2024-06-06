@@ -2,7 +2,6 @@ package com.wmods.wppenhacer.xposed.features.general;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
-import android.content.Context;
 import android.graphics.Color;
 import android.os.BaseBundle;
 import android.os.Message;
@@ -121,6 +120,7 @@ public class Others extends Feature {
 
         hookProps();
         hookViewProfile();
+
         hookMenuOptions(newSettings, showFreezeLastSeen, showDnd, filterChats);
 
         if (removechannelRec) {
@@ -375,45 +375,32 @@ public class Others extends Feature {
         });
     }
 
-    private void hookMenuOptions(boolean newSettings, boolean showFreezeLastSeen, boolean showDnd, String filterChats) {
-        XposedHelpers.findAndHookMethod("com.whatsapp.HomeActivity", loader, "onCreateOptionsMenu", Menu.class, new XC_MethodHook() {
-            @SuppressLint("ApplySharedPref")
-            @Override
-            protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-                Menu menu = (Menu) param.args[0];
-                Activity home = (Activity) param.thisObject;
-                if (prefs.getBoolean("restartbutton", true)) {
-                    var iconDraw = DesignUtils.getDrawableByName("vec_account_switcher");
-                    iconDraw.setTint(0xff8696a0);
-                    var itemMenu = menu.add(0, 0, 0, ResId.string.restart_whatsapp).setIcon(iconDraw).setOnMenuItemClickListener(item -> {
-                        Utils.doRestart(home);
-                        return true;
-                    });
-                    if (newSettings) {
-                        itemMenu.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
-                    }
-                }
-                if (showFreezeLastSeen) {
-                    InsertFreezeLastSeenOption(menu, home);
-                }
-                if (showDnd) {
-                    InsertDNDOption(menu, home);
-                } else {
-                    Utils.getApplication().getSharedPreferences(Utils.getApplication().getPackageName() + "_mdgwa_preferences", Context.MODE_PRIVATE).edit().putBoolean("dndmode", false).commit();
-                }
+    @SuppressLint({"DiscouragedApi", "UseCompatLoadingForDrawables", "ApplySharedPref"})
+    private static void InsertDNDOption(Menu menu, Activity home, boolean newSettings) {
+        var dndmode = WppCore.getPrivBoolean("dndmode", false);
+        int iconDraw;
+        iconDraw = Utils.getID(dndmode ? "ic_location_nearby_disabled" : "ic_location_nearby", "drawable");
+        var item = menu.add(0, 0, 0, "Dnd Mode " + dndmode);
+        item.setIcon(iconDraw);
+        if (newSettings) {
+            item.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
+        }
+        item.setOnMenuItemClickListener(menuItem -> {
+            if (!dndmode) {
+                new AlertDialogWpp(home)
+                        .setTitle(home.getString(ResId.string.dnd_mode_title))
+                        .setMessage(home.getString(ResId.string.dnd_message))
+                        .setPositiveButton(home.getString(ResId.string.activate), (dialog, which) -> {
+                            WppCore.setPrivBoolean("dndmode", true);
+                            Utils.doRestart(home);
+                        })
+                        .setNegativeButton(home.getString(ResId.string.cancel), (dialog, which) -> dialog.dismiss())
+                        .create().show();
+                return true;
             }
-        });
-
-
-        XposedHelpers.findAndHookMethod("com.whatsapp.HomeActivity", loader, "onPrepareOptionsMenu", Menu.class, new XC_MethodHook() {
-            @Override
-            protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-                var menu = (Menu) param.args[0];
-                var item = menu.findItem(Utils.getID("menuitem_search", "id"));
-                if (item != null) {
-                    item.setVisible(Objects.equals(filterChats, "1"));
-                }
-            }
+            WppCore.setPrivBoolean("dndmode", false);
+            Utils.doRestart(home);
+            return true;
         });
     }
 
@@ -469,38 +456,13 @@ public class Others extends Feature {
 //    }
 
     @SuppressLint({"DiscouragedApi", "UseCompatLoadingForDrawables", "ApplySharedPref"})
-    private static void InsertDNDOption(Menu menu, Activity home) {
-        var dndmode = WppCore.getPrivBoolean("dndmode", false);
-        int iconDraw;
-        iconDraw = Utils.getID(dndmode ? "ic_location_nearby_disabled" : "ic_location_nearby", "drawable");
-        var item = menu.add(0, 0, 0, "Dnd Mode " + dndmode);
-        item.setIcon(iconDraw);
-        item.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
-        item.setOnMenuItemClickListener(menuItem -> {
-            if (!dndmode) {
-                new AlertDialogWpp(home)
-                        .setTitle(home.getString(ResId.string.dnd_mode_title))
-                        .setMessage(home.getString(ResId.string.dnd_message))
-                        .setPositiveButton(home.getString(ResId.string.activate), (dialog, which) -> {
-                            WppCore.setPrivBoolean("dndmode", true);
-                            Utils.doRestart(home);
-                        })
-                        .setNegativeButton(home.getString(ResId.string.cancel), (dialog, which) -> dialog.dismiss())
-                        .create().show();
-                return true;
-            }
-            WppCore.setPrivBoolean("dndmode", false);
-            Utils.doRestart(home);
-            return true;
-        });
-    }
-
-    @SuppressLint({"DiscouragedApi", "UseCompatLoadingForDrawables", "ApplySharedPref"})
-    private static void InsertFreezeLastSeenOption(Menu menu, Activity home) {
+    private static void InsertFreezeLastSeenOption(Menu menu, Activity home, boolean newSettings) {
         final boolean freezelastseen = WppCore.getPrivBoolean("freezelastseen", false);
         MenuItem item = menu.add(0, 0, 0, "Freeze Last Seen");
         item.setIcon(freezelastseen ? ResId.drawable.eye_disabled : ResId.drawable.eye_enabled);
-        item.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
+        if (newSettings) {
+            item.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
+        }
         item.setOnMenuItemClickListener(menuItem -> {
             if (!freezelastseen) {
                 new AlertDialogWpp(home)
@@ -517,6 +479,50 @@ public class Others extends Feature {
             WppCore.setPrivBoolean("freezelastseen", false);
             Utils.doRestart(home);
             return true;
+        });
+    }
+
+    private void hookMenuOptions(boolean newSettings, boolean showFreezeLastSeen, boolean showDnd, String filterChats) {
+        var homecls = XposedHelpers.findClass("com.whatsapp.HomeActivity", loader);
+        WppCore.addMenuItem(homecls, new WppCore.OnMenuCreate() {
+            @Override
+            public void onAfterCreate(Activity activity, Menu menu) {
+                if (prefs.getBoolean("restartbutton", true)) {
+                    var iconDraw = DesignUtils.getDrawableByName("vec_account_switcher");
+                    iconDraw.setTint(0xff8696a0);
+                    var itemMenu = menu.add(0, 0, 0, ResId.string.restart_whatsapp).setIcon(iconDraw).setOnMenuItemClickListener(item -> {
+                        Utils.doRestart(activity);
+                        return true;
+                    });
+                    if (newSettings) {
+                        itemMenu.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
+                    }
+                }
+                if (showFreezeLastSeen) {
+                    InsertFreezeLastSeenOption(menu, activity, newSettings);
+                }
+                if (showDnd) {
+                    InsertDNDOption(menu, activity, newSettings);
+                } else {
+                    var dndmode = WppCore.getPrivBoolean("dndmode", false);
+                    if (dndmode) {
+                        WppCore.setPrivBoolean("dndmode", false);
+                        Utils.doRestart(activity);
+                    }
+                }
+            }
+        });
+
+
+        XposedHelpers.findAndHookMethod("com.whatsapp.HomeActivity", loader, "onPrepareOptionsMenu", Menu.class, new XC_MethodHook() {
+            @Override
+            protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+                var menu = (Menu) param.args[0];
+                var item = menu.findItem(Utils.getID("menuitem_search", "id"));
+                if (item != null) {
+                    item.setVisible(Objects.equals(filterChats, "1"));
+                }
+            }
         });
     }
 

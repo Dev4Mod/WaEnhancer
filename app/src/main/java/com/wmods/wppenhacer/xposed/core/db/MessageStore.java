@@ -4,7 +4,6 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteOpenHelper;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import de.robv.android.xposed.XposedBridge;
@@ -92,7 +91,11 @@ public class MessageStore {
     }
 
     public synchronized static void executeSQL(String sql) {
-        database.getWritableDatabase().execSQL(sql);
+        try {
+            database.getWritableDatabase().execSQL(sql);
+        } catch (Exception e) {
+            XposedBridge.log(e);
+        }
     }
 
 
