@@ -55,9 +55,7 @@ public class WppCore {
 
     }
 
-    public static void Initialize(ClassLoader loader) {
-        try {
-
+    public static void Initialize(ClassLoader loader) throws Exception {
             privPrefs = Utils.getApplication().getSharedPreferences("WaGlobal", Context.MODE_PRIVATE);
 
             // init Main activity
@@ -147,10 +145,6 @@ public class WppCore {
                     mStartUpConfig = param.thisObject;
                 }
             });
-
-        } catch (Exception e) {
-            XposedBridge.log(e);
-        }
     }
 
     public static int getDefaultTheme() {

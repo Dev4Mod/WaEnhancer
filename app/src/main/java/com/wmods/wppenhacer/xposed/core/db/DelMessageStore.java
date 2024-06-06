@@ -14,7 +14,7 @@ public class DelMessageStore extends SQLiteOpenHelper {
     private static DelMessageStore mInstance;
 
     private DelMessageStore(@NonNull Context context) {
-        super(context, "delmessages.db", null, 3);
+        super(context, "delmessages.db", null, 4);
     }
 
     public static DelMessageStore getInstance(Context ctx) {
@@ -26,52 +26,77 @@ public class DelMessageStore extends SQLiteOpenHelper {
         return mInstance;
     }
 
-    public void insertMessage(String jid, String msgid,long timestamp) {
-        SQLiteDatabase dbWrite = this.getWritableDatabase();
-        ContentValues values = new ContentValues();
-        values.put("jid", jid);
-        values.put("msgid", msgid);
-        values.put("timestamp", timestamp);
-        dbWrite.insert("delmessages", null, values);
+    @Override
+    public void onUpgrade(SQLiteDatabase sqLiteDatabase, int oldVersion, int newVersion) {
+        if (oldVersion < 4) {
+            if (!checkColumnExists(sqLiteDatabase, "delmessages", "timestamp")) {
+                sqLiteDatabase.execSQL("ALTER TABLE delmessages ADD COLUMN timestamp INTEGER DEFAULT 0;");
+            }
+        }
     }
 
+    public void insertMessage(String jid, String msgid, long timestamp) {
+        SQLiteDatabase dbWrite = this.getWritableDatabase();
+        try {
+            ContentValues values = new ContentValues();
+            values.put("jid", jid);
+            values.put("msgid", msgid);
+            values.put("timestamp", timestamp);
+            dbWrite.insert("delmessages", null, values);
+        } finally {
+            dbWrite.close();
+        }
+    }
 
     public HashSet<String> getMessagesByJid(String jid) {
         SQLiteDatabase dbReader = this.getReadableDatabase();
         Cursor query = dbReader.query("delmessages", new String[]{"_id", "jid", "msgid"}, "jid=?", new String[]{jid}, null, null, null);
-        if (!query.moveToFirst()) {
+        HashSet<String> messages = new HashSet<>();
+        try {
+            if (query.moveToFirst()) {
+                do {
+                    messages.add(query.getString(query.getColumnIndexOrThrow("msgid")));
+                } while (query.moveToNext());
+            }
+        } finally {
             query.close();
-            return null;
+            dbReader.close();
         }
-        var messages = new HashSet<String>();
-        do {
-            messages.add(query.getString(query.getColumnIndexOrThrow("msgid")));
-        } while (query.moveToNext());
-        query.close();
         return messages;
     }
-
-    public long getTimestampByMessageId(String msgid) {
-        SQLiteDatabase dbReader = this.getReadableDatabase();
-        Cursor query = dbReader.query("delmessages", new String[]{"timestamp"}, "msgid=?", new String[]{msgid}, null, null, null);
-        if (!query.moveToFirst()) {
-            query.close();
-            return 0;
-        }
-        return query.getLong(query.getColumnIndexOrThrow("timestamp"));
-    }
-
 
     @Override
     public void onCreate(SQLiteDatabase sqLiteDatabase) {
         sqLiteDatabase.execSQL("CREATE TABLE IF NOT EXISTS delmessages (_id INTEGER PRIMARY KEY AUTOINCREMENT, jid TEXT, msgid TEXT, timestamp INTEGER DEFAULT 0, UNIQUE(jid, msgid))");
     }
 
-
-    @Override
-    public void onUpgrade(SQLiteDatabase sqLiteDatabase, int oldVersion, int newVersion) {
-        if (oldVersion < 2) {
-            sqLiteDatabase.execSQL("ALTER TABLE delmessages ADD COLUMN timestamp INTEGER DEFAULT 0;");
+    public long getTimestampByMessageId(String msgid) {
+        SQLiteDatabase dbReader = this.getReadableDatabase();
+        Cursor query = dbReader.query("delmessages", new String[]{"timestamp"}, "msgid=?", new String[]{msgid}, null, null, null);
+        try {
+            if (query.moveToFirst()) {
+                return query.getLong(query.getColumnIndexOrThrow("timestamp"));
+            }
+            return 0;
+        } finally {
+            query.close();
+            dbReader.close();
         }
+    }
+
+    private boolean checkColumnExists(SQLiteDatabase db, String tableName, String columnName) {
+        try (Cursor cursor = db.rawQuery("PRAGMA table_info(" + tableName + ")", null)) {
+            if (cursor != null) {
+                int nameIndex = cursor.getColumnIndex("name");
+                while (cursor.moveToNext()) {
+                    String currentColumnName = cursor.getString(nameIndex);
+                    if (columnName.equals(currentColumnName)) {
+                        return true;
+                    }
+                }
+            }
+        } catch (Exception ignored) {
+        }
+        return false;
     }
 }

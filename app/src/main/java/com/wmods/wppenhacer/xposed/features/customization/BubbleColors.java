@@ -3,15 +3,13 @@ package com.wmods.wppenhacer.xposed.features.customization;
 
 import android.graphics.PorterDuff;
 import android.graphics.PorterDuffColorFilter;
-import android.graphics.drawable.ColorDrawable;
-import android.graphics.drawable.Drawable;
 import android.graphics.drawable.NinePatchDrawable;
 
 import androidx.annotation.NonNull;
 
 import com.wmods.wppenhacer.xposed.core.DesignUtils;
-import com.wmods.wppenhacer.xposed.core.Unobfuscator;
 import com.wmods.wppenhacer.xposed.core.Feature;
+import com.wmods.wppenhacer.xposed.core.Unobfuscator;
 
 import de.robv.android.xposed.XC_MethodHook;
 import de.robv.android.xposed.XSharedPreferences;
@@ -91,9 +89,12 @@ public class BubbleColors extends Feature {
     }
 
     private static void replaceColor(String drawableName, int color) {
-        var drawable = DesignUtils.getDrawableByName(drawableName);
-        drawable.setColorFilter(new PorterDuffColorFilter(color, PorterDuff.Mode.SRC_IN));
-        DesignUtils.setReplacementDrawable(drawableName, drawable);
+        try {
+            var drawable = DesignUtils.getDrawableByName(drawableName);
+            drawable.setColorFilter(new PorterDuffColorFilter(color, PorterDuff.Mode.SRC_IN));
+            DesignUtils.setReplacementDrawable(drawableName, drawable);
+        } catch (Exception ignored) {
+        }
     }
 
     @NonNull

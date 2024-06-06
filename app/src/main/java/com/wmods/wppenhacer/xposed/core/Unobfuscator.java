@@ -940,17 +940,12 @@ public class Unobfuscator {
 
     public static Method loadGetContactInfoMethod(ClassLoader loader) throws Exception {
         return UnobfuscatorCache.getInstance().getMethod(loader, () -> {
-            Class<?> class1 = findFirstClassUsingStrings(loader, StringMatchType.Contains, "contactmanager/permission problem:");
-            if (class1 == null) throw new Exception("GetContactInfo method not found");
-            var methods = class1.getMethods();
-            for (int i = 0; i < methods.length; i++) {
-                var method = methods[i];
-                if (method.getParameterCount() == 2 && method.getParameterTypes()[1] == boolean.class) {
-                    if (methods[i - 1].getParameterCount() == 1)
-                        return methods[i - 1];
-                }
-            }
-            throw new Exception("GetContactInfo 2 method not found");
+            Class<?> class1 = findFirstClassUsingStrings(loader, StringMatchType.Contains, "GET_CONTACTS_BY_JID_PATTERN");
+            if (class1 == null) throw new Exception("ContactManager class not found");
+            var jidClass = XposedHelpers.findClass("com.whatsapp.jid.Jid", loader);
+            var result = ReflectionUtils.findMethodUsingFilter(class1, m -> m.getParameterCount() == 2 && jidClass.isAssignableFrom(m.getParameterTypes()[0]) && m.getParameterTypes()[1] == boolean.class && m.getReturnType() != void.class);
+            if (result == null) throw new Exception("GetContactInfo method not found");
+            return result;
         });
     }
 

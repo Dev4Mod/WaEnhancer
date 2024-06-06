@@ -25,20 +25,20 @@ import com.wmods.wppenhacer.xposed.features.customization.CustomTime;
 import com.wmods.wppenhacer.xposed.features.customization.CustomToolbar;
 import com.wmods.wppenhacer.xposed.features.customization.CustomView;
 import com.wmods.wppenhacer.xposed.features.customization.DotOnline;
+import com.wmods.wppenhacer.xposed.features.customization.FilterGroups;
 import com.wmods.wppenhacer.xposed.features.customization.HideTabs;
 import com.wmods.wppenhacer.xposed.features.customization.IGStatus;
 import com.wmods.wppenhacer.xposed.features.customization.SeparateGroup;
-import com.wmods.wppenhacer.xposed.features.customization.FilterGroups;
 import com.wmods.wppenhacer.xposed.features.general.AntiRevoke;
 import com.wmods.wppenhacer.xposed.features.general.CallPrivacy;
 import com.wmods.wppenhacer.xposed.features.general.CallType;
 import com.wmods.wppenhacer.xposed.features.general.ChatLimit;
 import com.wmods.wppenhacer.xposed.features.general.DndMode;
+import com.wmods.wppenhacer.xposed.features.general.MediaPreview;
 import com.wmods.wppenhacer.xposed.features.general.MediaQuality;
 import com.wmods.wppenhacer.xposed.features.general.NewChat;
 import com.wmods.wppenhacer.xposed.features.general.Others;
 import com.wmods.wppenhacer.xposed.features.general.PinnedLimit;
-import com.wmods.wppenhacer.xposed.features.general.MediaPreview;
 import com.wmods.wppenhacer.xposed.features.general.SeenTick;
 import com.wmods.wppenhacer.xposed.features.general.ShareLimit;
 import com.wmods.wppenhacer.xposed.features.general.ShowEditMessage;
@@ -79,23 +79,31 @@ public class MainFeatures {
             @SuppressWarnings("deprecation")
             protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
                 mApp = (Application) param.args[0];
-
-                DesignUtils.setPrefs(pref);
-                UnobfuscatorCache.init(mApp, pref);
-                WppDatabase.Initialize(loader, pref);
-                WppCore.Initialize(loader);
-                initComponents(loader, pref);
-
                 PackageManager packageManager = mApp.getPackageManager();
                 pref.registerOnSharedPreferenceChangeListener((sharedPreferences, s) -> pref.reload());
                 PackageInfo packageInfo = packageManager.getPackageInfo(mApp.getPackageName(), 0);
                 XposedBridge.log(packageInfo.versionName);
-                plugins(loader, pref, packageInfo.versionName);
-                registerReceivers();
-                mApp.registerActivityLifecycleCallbacks(new WaCallback());
-                sendEnabledBroadcast(mApp);
-                if (Feature.DEBUG)
-                    XposedHelpers.setStaticIntField(XposedHelpers.findClass("com.whatsapp.util.Log", loader), "level", 5);
+                try {
+                    DesignUtils.setPrefs(pref);
+                    UnobfuscatorCache.init(mApp, pref);
+                    WppDatabase.Initialize(loader, pref);
+                    WppCore.Initialize(loader);
+                    initComponents(loader, pref);
+                    plugins(loader, pref, packageInfo.versionName);
+                    registerReceivers();
+                    mApp.registerActivityLifecycleCallbacks(new WaCallback());
+                    sendEnabledBroadcast(mApp);
+                    if (Feature.DEBUG)
+                        XposedHelpers.setStaticIntField(XposedHelpers.findClass("com.whatsapp.util.Log", loader), "level", 5);
+                } catch (Exception e) {
+                    XposedBridge.log(e);
+                    var error = new ErrorItem();
+                    error.setPluginName("MainFeatures[Critical]");
+                    error.setWhatsAppVersion(packageInfo.versionName);
+                    error.setModuleVersion(BuildConfig.VERSION_NAME);
+                    error.setError(e.getMessage() + ": " + Arrays.toString(Arrays.stream(e.getStackTrace()).filter(s -> !s.getClassName().startsWith("android") && !s.getClassName().startsWith("com.android")).map(StackTraceElement::toString).toArray()));
+                    list.add(error);
+                }
             }
         });
 
@@ -132,7 +140,7 @@ public class MainFeatures {
             public void onReceive(Context context, Intent intent) {
                 if (context.getPackageName().equals(intent.getStringExtra("PKG"))) {
                     var appName = context.getPackageManager().getApplicationLabel(context.getApplicationInfo());
-                    Toast.makeText(context, context.getString(ResId.string.rebooting) + " " +  appName + "...", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(context, context.getString(ResId.string.rebooting) + " " + appName + "...", Toast.LENGTH_SHORT).show();
                     if (!Utils.doRestart(context))
                         Toast.makeText(context, "Unable to rebooting " + appName, Toast.LENGTH_SHORT).show();
                 }
