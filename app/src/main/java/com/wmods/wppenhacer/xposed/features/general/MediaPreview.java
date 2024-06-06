@@ -33,6 +33,7 @@ import java.util.Locale;
 import java.util.Objects;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.atomic.AtomicReference;
 
 import javax.crypto.Cipher;
 import javax.crypto.spec.IvParameterSpec;
@@ -70,8 +71,7 @@ public class MediaPreview extends Feature {
             @Override
             protected void afterHookedMethod(MethodHookParam param) throws Throwable {
                 if (param.args.length < 2) return;
-                var userJid = WppCore.getCurrentRawJID();
-                if (userJid != null && userJid.contains("@newsletter")) return;
+
                 var view = (View) param.thisObject;
                 var context = view.getContext();
                 var surface = (ViewGroup) view.findViewById(Utils.getID("invisible_press_surface", "id"));
@@ -94,7 +94,8 @@ public class MediaPreview extends Feature {
                 prevBtn.setOnClickListener((v) -> {
                     var objmessage = XposedHelpers.callMethod(param.thisObject, "getFMessage");
                     var id = (long) ReflectionUtils.getField(getFieldIdMessage, objmessage);
-                    startPlayer(id, context);
+                    var userJid = WppCore.getCurrentRawJID();
+                    startPlayer(id, context, userJid != null && userJid.contains("@newsletter"));
                 });
             }
         });
@@ -106,8 +107,7 @@ public class MediaPreview extends Feature {
                 if (param.args.length < 2) return;
                 var view = (View) param.thisObject;
                 var context = view.getContext();
-                var userJid = WppCore.getCurrentRawJID();
-                if (userJid != null && userJid.contains("@newsletter")) return;
+
 
                 ViewGroup mediaContainer = view.findViewById(Utils.getID("media_container", "id"));
                 ViewGroup controlFrame = view.findViewById(Utils.getID("control_frame", "id"));
@@ -142,7 +142,8 @@ public class MediaPreview extends Feature {
                 prevBtn.setOnClickListener((v) -> {
                     var objmessage = XposedHelpers.callMethod(param.thisObject, "getFMessage");
                     var id = (long) ReflectionUtils.getField(getFieldIdMessage, objmessage);
-                    startPlayer(id, context);
+                    var userJid = WppCore.getCurrentRawJID();
+                    startPlayer(id, context, userJid != null && userJid.contains("@newsletter"));
                 });
 
             }
@@ -155,16 +156,20 @@ public class MediaPreview extends Feature {
      * @noinspection ResultOfMethodCallIgnored
      */
     @SuppressLint("SetJavaScriptEnabled")
-    private void startPlayer(long id, Context context) {
+    private void startPlayer(long id, Context context, boolean isNewsletter) {
         var executor = Executors.newSingleThreadExecutor();
         try {
-            Cursor cursor0 = MessageStore.database.getReadableDatabase().rawQuery(String.format(Locale.ENGLISH, "SELECT message_url,mime_type,hex(media_key) FROM message_media WHERE message_row_id =\"%d\"", id), null);
+            Cursor cursor0 = MessageStore.database.getReadableDatabase().rawQuery(String.format(Locale.ENGLISH, "SELECT message_url,mime_type,hex(media_key),direct_path FROM message_media WHERE message_row_id =\"%d\"", id), null);
             if (cursor0 != null && cursor0.getCount() > 0) {
                 cursor0.moveToFirst();
-                String url = cursor0.getString(0);
+                AtomicReference<String> url = new AtomicReference<>(cursor0.getString(0));
                 String mine_type = cursor0.getString(1);
                 String media_key = cursor0.getString(2);
+                String direct_path = cursor0.getString(3);
                 cursor0.close();
+                if (isNewsletter) {
+                    url.set("https://mmg.whatsapp.net" + direct_path);
+                }
                 var alertDialog = new AlertDialog.Builder(context);
                 FrameLayout frameLayout = new FrameLayout(context);
                 var webView = new WebView(context);
@@ -186,7 +191,7 @@ public class MediaPreview extends Feature {
                 });
                 dialog = alertDialog.create();
                 dialog.show();
-                executor.execute(() -> decodeMedia(url, media_key, mine_type, executor, webView));
+                executor.execute(() -> decodeMedia(url.get(), media_key, mine_type, executor, webView, isNewsletter));
             }
         } catch (Exception e) {
             logDebug(e);
@@ -201,7 +206,7 @@ public class MediaPreview extends Feature {
     /**
      * @noinspection ResultOfMethodCallIgnored
      */
-    private void decodeMedia(String url, String mediaKey, String mineType, ExecutorService executor, WebView webView) {
+    private void decodeMedia(String url, String mediaKey, String mineType, ExecutorService executor, WebView webView, boolean isNewsletter) {
         try {
             String s = mineType.startsWith("image") ? ".jpg" : ".mp4";
             filePath = new File(Utils.getApplication().getCacheDir(), "mediapreview" + s);
@@ -209,7 +214,7 @@ public class MediaPreview extends Feature {
             if (filePath.exists()) {
                 filePath.delete();
             }
-            byte[] arr_b1 = decryptFile(arr_b, mediaKey, mineType);
+            byte[] arr_b1 = isNewsletter ? arr_b : decryptFile(arr_b, mediaKey, mineType);
             assert arr_b1 != null;
             BufferedSink bufferedSink0 = Okio.buffer(Okio.sink(filePath));
             bufferedSink0.write(arr_b1);
