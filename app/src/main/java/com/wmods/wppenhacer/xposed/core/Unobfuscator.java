@@ -571,7 +571,7 @@ public class Unobfuscator {
     // TODO: Classes and methods to ViewOnce
 
     public static Method[] loadViewOnceMethod(ClassLoader classLoader) throws Exception {
-        var method = dexkit.findMethod(new FindMethod().matcher(new MethodMatcher().addUsingString("SELECT state FROM message_view_once_media", StringMatchType.Contains)));
+        var method = dexkit.findMethod(new FindMethod().matcher(new MethodMatcher().addUsingString("INSERT_VIEW_ONCE_SQL", StringMatchType.Contains)));
         if (method.isEmpty()) throw new Exception("ViewOnce method not found");
         var methodData = method.get(0);
         var listMethods = methodData.getInvokes();
@@ -943,7 +943,7 @@ public class Unobfuscator {
             Class<?> class1 = findFirstClassUsingStrings(loader, StringMatchType.Contains, "GET_CONTACTS_BY_JID_PATTERN");
             if (class1 == null) throw new Exception("ContactManager class not found");
             var jidClass = XposedHelpers.findClass("com.whatsapp.jid.Jid", loader);
-            var result = ReflectionUtils.findMethodUsingFilter(class1, m -> m.getParameterCount() == 2 && jidClass.isAssignableFrom(m.getParameterTypes()[0]) && m.getParameterTypes()[1] == boolean.class && m.getReturnType() != void.class);
+            var result = ReflectionUtils.findMethodUsingFilter(class1, m -> m.getParameterCount() == 1 && jidClass.isAssignableFrom(m.getParameterTypes()[0]) && m.getReturnType() != void.class);
             if (result == null) throw new Exception("GetContactInfo method not found");
             return result;
         });

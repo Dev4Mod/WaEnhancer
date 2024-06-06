@@ -34,6 +34,7 @@ public class HideSeen extends Feature {
         XposedBridge.hookMethod(SendReadReceiptJobMethod, new XC_MethodHook() {
             @Override
             protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
+                if (!sendJob.isInstance(param.thisObject)) return;
                 var srj = sendJob.cast(param.thisObject);
                 var messageIds = XposedHelpers.getObjectField(srj, "messageIds");
                 var firstmessage = (String) Array.get(messageIds, 0);
