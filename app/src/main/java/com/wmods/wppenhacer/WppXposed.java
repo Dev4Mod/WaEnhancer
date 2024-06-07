@@ -46,7 +46,7 @@ public class WppXposed implements IXposedHookLoadPackage, IXposedHookInitPackage
     public void handleLoadPackage(XC_LoadPackage.LoadPackageParam lpparam) throws Throwable {
         var packageName = lpparam.packageName;
         var classLoader = lpparam.classLoader;
-        var sourceDir = lpparam.appInfo.sourceDir;
+
 
         if (packageName.equals(BuildConfig.APPLICATION_ID)) {
             XposedHelpers.findAndHookMethod(MainActivity.class.getName(), lpparam.classLoader, "isXposedEnabled", XC_MethodReplacement.returnConstant(true));
@@ -58,6 +58,7 @@ public class WppXposed implements IXposedHookLoadPackage, IXposedHookInitPackage
         Patch.handleLoadPackage(lpparam, pref);
         if (!packageName.equals(MainFeatures.PACKAGE_WPP) && !packageName.equals(MainFeatures.PACKAGE_BUSINESS))
             return;
+        var sourceDir = lpparam.appInfo.sourceDir;
         MainFeatures.start(classLoader, getPref(), sourceDir);
         disableSecureFlag();
     }
