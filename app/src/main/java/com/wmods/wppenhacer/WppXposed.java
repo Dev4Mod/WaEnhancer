@@ -7,12 +7,12 @@ import android.view.Window;
 import android.view.WindowManager;
 
 import androidx.annotation.NonNull;
-import androidx.preference.Preference;
 import androidx.preference.PreferenceManager;
 
 import com.wmods.wppenhacer.xposed.AntiUpdater;
 import com.wmods.wppenhacer.xposed.core.MainFeatures;
 import com.wmods.wppenhacer.xposed.core.ResId;
+import com.wmods.wppenhacer.xposed.downgrade.Patch;
 
 import de.robv.android.xposed.IXposedHookInitPackageResources;
 import de.robv.android.xposed.IXposedHookLoadPackage;
@@ -46,7 +46,7 @@ public class WppXposed implements IXposedHookLoadPackage, IXposedHookInitPackage
     public void handleLoadPackage(XC_LoadPackage.LoadPackageParam lpparam) throws Throwable {
         var packageName = lpparam.packageName;
         var classLoader = lpparam.classLoader;
-        var sourceDir = lpparam.appInfo.sourceDir;
+
 
         if (packageName.equals(BuildConfig.APPLICATION_ID)) {
             XposedHelpers.findAndHookMethod(MainActivity.class.getName(), lpparam.classLoader, "isXposedEnabled", XC_MethodReplacement.returnConstant(true));
@@ -55,8 +55,10 @@ public class WppXposed implements IXposedHookLoadPackage, IXposedHookInitPackage
         }
         XposedBridge.log("[•] This package: " + lpparam.packageName);
         AntiUpdater.hookSession(pref);
+        Patch.handleLoadPackage(lpparam, pref);
         if (!packageName.equals(MainFeatures.PACKAGE_WPP) && !packageName.equals(MainFeatures.PACKAGE_BUSINESS))
             return;
+        var sourceDir = lpparam.appInfo.sourceDir;
         MainFeatures.start(classLoader, getPref(), sourceDir);
         disableSecureFlag();
     }
