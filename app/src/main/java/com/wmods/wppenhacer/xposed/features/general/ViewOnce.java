@@ -2,6 +2,7 @@ package com.wmods.wppenhacer.xposed.features.general;
 
 
 import android.annotation.SuppressLint;
+import android.text.TextUtils;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Toast;
@@ -80,9 +81,8 @@ public class ViewOnce extends Feature {
                 @Override
                 @SuppressLint("DiscouragedApi")
                 protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-                    super.afterHookedMethod(param);
-
-                    if (XposedHelpers.getIntField(param.thisObject, menuIntField.getName()) == 3) {
+                    var id = XposedHelpers.getIntField(param.thisObject, menuIntField.getName());
+                    if (id == 3 || id == 0) {
                         Menu menu = (Menu) param.args[0];
                         MenuItem item = menu.add(0, 0, 0, ResId.string.download).setIcon(Utils.getID("btn_download", "drawable"));
                         item.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
@@ -93,10 +93,11 @@ public class ViewOnce extends Feature {
                                 var fileData = XposedHelpers.getObjectField(message, "A01");
                                 var file = (File) XposedHelpers.getObjectField(fileData, fileField.getName());
                                 var dest = Utils.getDestination(prefs, file, "View Once");
-                                if (Utils.copyFile(file,new File(dest))) {
-                                    Toast.makeText(Utils.getApplication(), Utils.getApplication().getString(ResId.string.saved_to) + dest, Toast.LENGTH_SHORT).show();
+                                var error = Utils.copyFile(file, new File(dest));
+                                if (TextUtils.isEmpty(error)) {
+                                    Utils.showToast(Utils.getApplication().getString(ResId.string.saved_to) + dest, Toast.LENGTH_LONG);
                                 } else {
-                                    Toast.makeText(Utils.getApplication(), Utils.getApplication().getString(ResId.string.error_when_saving_try_again), Toast.LENGTH_SHORT).show();
+                                    Utils.showToast(Utils.getApplication().getString(ResId.string.error_when_saving_try_again) + ":" + error, Toast.LENGTH_LONG);
                                 }
                             }
                             return true;
@@ -114,7 +115,6 @@ public class ViewOnce extends Feature {
     public String getPluginName() {
         return "View Once";
     }
-
 
 
 }

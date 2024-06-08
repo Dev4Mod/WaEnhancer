@@ -179,11 +179,13 @@ public class UnobfuscatorCache {
         return XposedHelpers.findClass(value, loader);
     }
 
+    @SuppressWarnings("ApplySharedPref")
     public void saveField(String key, Field field) {
         String value = field.getDeclaringClass().getName() + ":" + field.getName();
         mShared.edit().putString(key, value).commit();
     }
 
+    @SuppressWarnings("ApplySharedPref")
     public void saveMethod(String key, Method method) {
         String value = method.getDeclaringClass().getName() + ":" + method.getName();
         if (method.getParameterTypes().length > 0) {
@@ -192,6 +194,7 @@ public class UnobfuscatorCache {
         mShared.edit().putString(key, value).commit();
     }
 
+    @SuppressWarnings("ApplySharedPref")
     public void saveClass(String message, Class<?> messageClass) {
         mShared.edit().putString(message, messageClass.getName()).commit();
     }
@@ -221,6 +224,7 @@ public class UnobfuscatorCache {
         return XposedHelpers.findConstructorExact(cls);
     }
 
+    @SuppressWarnings("ApplySharedPref")
     private void saveConstructor(String key, Constructor constructor) {
         String value = constructor.getDeclaringClass().getName();
         if (constructor.getParameterTypes().length > 0) {

@@ -246,88 +246,65 @@ public class Others extends Feature {
         XposedBridge.hookMethod(grpAdmin1, hooked);
     }
 
-    private void hookViewProfile() throws Exception {
-        var loadProfileInfoField = Unobfuscator.loadProfileInfoField(loader);
-        XposedHelpers.findAndHookMethod("com.whatsapp.profile.ViewProfilePhoto", loader, "onCreateOptionsMenu", Menu.class, new XC_MethodHook() {
-            @Override
-            protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-                var menu = (Menu) param.args[0];
-                var item = menu.add(0, 0, 0, "Save");
-                item.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
-                var icon = DesignUtils.getDrawableByName("ic_action_download_wds");
-                icon.setTint(Color.WHITE);
-                item.setIcon(icon);
-                item.setOnMenuItemClickListener(menuItem -> {
-                    var subCls = param.thisObject.getClass().getSuperclass();
-                    var field = Unobfuscator.getFieldByType(subCls, loadProfileInfoField.getDeclaringClass());
-                    var jidObj = ReflectionUtils.getField(loadProfileInfoField, ReflectionUtils.getField(field, param.thisObject));
-                    var jid = WppCore.stripJID(WppCore.getRawString(jidObj));
-                    var file = WppCore.getContactPhotoFile(jid);
-                    var destPath = Utils.getDestination(prefs, file, "Profile Photo");
-                    destPath = destPath.endsWith(".jpg") ? destPath : destPath + "pg";
-                    if (Utils.copyFile(file, new File(destPath))) {
-                        Toast.makeText(Utils.getApplication(), Utils.getApplication().getString(ResId.string.saved_to) + destPath, Toast.LENGTH_SHORT).show();
-                    } else {
-                        Toast.makeText(Utils.getApplication(), Utils.getApplication().getString(ResId.string.error_when_saving_try_again), Toast.LENGTH_SHORT).show();
-                    }
-                    return true;
-                });
+    @SuppressLint({"DiscouragedApi", "UseCompatLoadingForDrawables", "ApplySharedPref"})
+    private static void InsertDNDOption(Menu menu, Activity home, boolean newSettings) {
+        var dndmode = WppCore.getPrivBoolean("dndmode", false);
+        var item = menu.add(0, 0, 0, home.getString(ResId.string.dnd_mode_title));
+        var drawable = DesignUtils.getDrawableByName(dndmode ? "ic_location_nearby_disabled" : "ic_location_nearby");
+        if (drawable != null) {
+            drawable.setTint(newSettings ? DesignUtils.getPrimaryTextColor() : 0xff8696a0);
+            item.setIcon(drawable);
+        }
+        if (newSettings) {
+            item.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
+        }
+        item.setOnMenuItemClickListener(menuItem -> {
+            if (!dndmode) {
+                new AlertDialogWpp(home)
+                        .setTitle(home.getString(ResId.string.dnd_mode_title))
+                        .setMessage(home.getString(ResId.string.dnd_message))
+                        .setPositiveButton(home.getString(ResId.string.activate), (dialog, which) -> {
+                            WppCore.setPrivBoolean("dndmode", true);
+                            Utils.doRestart(home);
+                        })
+                        .setNegativeButton(home.getString(ResId.string.cancel), (dialog, which) -> dialog.dismiss())
+                        .create().show();
+                return true;
             }
+            WppCore.setPrivBoolean("dndmode", false);
+            Utils.doRestart(home);
+            return true;
         });
     }
 
-    private void hookStickers() throws Exception {
-        var sendStickerMethod = Unobfuscator.loadSendStickerMethod(loader);
-        XposedBridge.hookMethod(sendStickerMethod, new XC_MethodHook() {
-            private Unhook unhooked;
-
-            @Override
-            protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
-                unhooked = XposedHelpers.findAndHookMethod(View.class, "setOnClickListener", View.OnClickListener.class, new XC_MethodHook() {
-                    @Override
-                    protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
-                        View.OnClickListener mCaptureOnClickListener = (View.OnClickListener) param.args[0];
-                        if (mCaptureOnClickListener == null) return;
-                        if (!(param.thisObject instanceof ViewGroup)) return;
-                        param.args[0] = (View.OnClickListener) view -> {
-                            var context = view.getContext();
-                            var dialog = new AlertDialogWpp(view.getContext());
-                            dialog.setTitle(context.getString(ResId.string.send_sticker));
-
-                            var stickerView = (ImageView) ((ViewGroup) view).getChildAt(0);
-                            LinearLayout linearLayout = new LinearLayout(context);
-                            linearLayout.setOrientation(LinearLayout.VERTICAL);
-                            linearLayout.setGravity(Gravity.CENTER_HORIZONTAL);
-                            var padding = Utils.dipToPixels(16);
-                            linearLayout.setPadding(padding, padding, padding, padding);
-                            var image = new ImageView(context);
-                            var size = Utils.dipToPixels(72);
-                            var params = new LinearLayout.LayoutParams(size, size);
-                            params.bottomMargin = padding;
-                            image.setLayoutParams(params);
-                            image.setImageDrawable(stickerView.getDrawable());
-                            linearLayout.addView(image);
-
-                            TextView text = new TextView(context);
-                            text.setText(context.getString(ResId.string.do_you_want_to_send_sticker));
-                            text.setTextAlignment(View.TEXT_ALIGNMENT_CENTER);
-                            linearLayout.addView(text);
-
-
-                            dialog.setView(linearLayout);
-                            dialog.setPositiveButton(context.getString(ResId.string.send), (dialog1, which) -> mCaptureOnClickListener.onClick(view));
-                            dialog.setNegativeButton(context.getString(ResId.string.cancel), null);
-                            dialog.show();
-                        };
-                    }
-                });
+    @SuppressLint({"DiscouragedApi", "UseCompatLoadingForDrawables", "ApplySharedPref"})
+    private static void InsertFreezeLastSeenOption(Menu menu, Activity home, boolean newSettings) {
+        final boolean freezelastseen = WppCore.getPrivBoolean("freezelastseen", false);
+        MenuItem item = menu.add(0, 0, 0, home.getString(ResId.string.freezelastseen_title));
+        var drawable = Utils.getApplication().getDrawable(freezelastseen ? ResId.drawable.eye_disabled : ResId.drawable.eye_enabled);
+        if (drawable != null) {
+            drawable.setTint(newSettings ? DesignUtils.getPrimaryTextColor() : 0xff8696a0);
+            item.setIcon(drawable);
+        }
+        if (newSettings) {
+            item.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
+        }
+        item.setOnMenuItemClickListener(menuItem -> {
+            if (!freezelastseen) {
+                new AlertDialogWpp(home)
+                        .setTitle(home.getString(ResId.string.freezelastseen_title))
+                        .setMessage(home.getString(ResId.string.freezelastseen_message))
+                        .setPositiveButton(home.getString(ResId.string.activate), (dialog, which) -> {
+                            WppCore.setPrivBoolean("freezelastseen", true);
+                            Utils.doRestart(home);
+                        })
+                        .setNegativeButton(home.getString(ResId.string.cancel), (dialog, which) -> dialog.dismiss())
+                        .create().show();
+                return true;
             }
-
-            @Override
-            protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-                unhooked.unhook();
-            }
-
+            WppCore.setPrivBoolean("freezelastseen", false);
+            Utils.doRestart(home);
+            return true;
         });
     }
 
@@ -375,32 +352,34 @@ public class Others extends Feature {
         });
     }
 
-    @SuppressLint({"DiscouragedApi", "UseCompatLoadingForDrawables", "ApplySharedPref"})
-    private static void InsertDNDOption(Menu menu, Activity home, boolean newSettings) {
-        var dndmode = WppCore.getPrivBoolean("dndmode", false);
-        int iconDraw;
-        iconDraw = Utils.getID(dndmode ? "ic_location_nearby_disabled" : "ic_location_nearby", "drawable");
-        var item = menu.add(0, 0, 0, "Dnd Mode " + dndmode);
-        item.setIcon(iconDraw);
-        if (newSettings) {
-            item.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
-        }
-        item.setOnMenuItemClickListener(menuItem -> {
-            if (!dndmode) {
-                new AlertDialogWpp(home)
-                        .setTitle(home.getString(ResId.string.dnd_mode_title))
-                        .setMessage(home.getString(ResId.string.dnd_message))
-                        .setPositiveButton(home.getString(ResId.string.activate), (dialog, which) -> {
-                            WppCore.setPrivBoolean("dndmode", true);
-                            Utils.doRestart(home);
-                        })
-                        .setNegativeButton(home.getString(ResId.string.cancel), (dialog, which) -> dialog.dismiss())
-                        .create().show();
-                return true;
+    private void hookViewProfile() throws Exception {
+        var loadProfileInfoField = Unobfuscator.loadProfileInfoField(loader);
+        XposedHelpers.findAndHookMethod("com.whatsapp.profile.ViewProfilePhoto", loader, "onCreateOptionsMenu", Menu.class, new XC_MethodHook() {
+            @Override
+            protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+                var menu = (Menu) param.args[0];
+                var item = menu.add(0, 0, 0, "Save");
+                item.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
+                var icon = DesignUtils.getDrawableByName("ic_action_download_wds");
+                icon.setTint(Color.WHITE);
+                item.setIcon(icon);
+                item.setOnMenuItemClickListener(menuItem -> {
+                    var subCls = param.thisObject.getClass().getSuperclass();
+                    var field = Unobfuscator.getFieldByType(subCls, loadProfileInfoField.getDeclaringClass());
+                    var jidObj = ReflectionUtils.getField(loadProfileInfoField, ReflectionUtils.getField(field, param.thisObject));
+                    var jid = WppCore.stripJID(WppCore.getRawString(jidObj));
+                    var file = WppCore.getContactPhotoFile(jid);
+                    var destPath = Utils.getDestination(prefs, file, "Profile Photo");
+                    destPath = destPath.endsWith(".jpg") ? destPath : destPath + "pg";
+                    var error = Utils.copyFile(file, new File(destPath));
+                    if (TextUtils.isEmpty(error)) {
+                        Toast.makeText(Utils.getApplication(), Utils.getApplication().getString(ResId.string.saved_to) + destPath, Toast.LENGTH_LONG).show();
+                    } else {
+                        Toast.makeText(Utils.getApplication(), Utils.getApplication().getString(ResId.string.error_when_saving_try_again) + " " + error, Toast.LENGTH_LONG).show();
+                    }
+                    return true;
+                });
             }
-            WppCore.setPrivBoolean("dndmode", false);
-            Utils.doRestart(home);
-            return true;
         });
     }
 
@@ -455,30 +434,58 @@ public class Others extends Feature {
 //        Runtime.getRuntime().exit(0);
 //    }
 
-    @SuppressLint({"DiscouragedApi", "UseCompatLoadingForDrawables", "ApplySharedPref"})
-    private static void InsertFreezeLastSeenOption(Menu menu, Activity home, boolean newSettings) {
-        final boolean freezelastseen = WppCore.getPrivBoolean("freezelastseen", false);
-        MenuItem item = menu.add(0, 0, 0, "Freeze Last Seen");
-        item.setIcon(freezelastseen ? ResId.drawable.eye_disabled : ResId.drawable.eye_enabled);
-        if (newSettings) {
-            item.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
-        }
-        item.setOnMenuItemClickListener(menuItem -> {
-            if (!freezelastseen) {
-                new AlertDialogWpp(home)
-                        .setTitle(home.getString(ResId.string.freezelastseen_title))
-                        .setMessage(home.getString(ResId.string.freezelastseen_message))
-                        .setPositiveButton(home.getString(ResId.string.activate), (dialog, which) -> {
-                            WppCore.setPrivBoolean("freezelastseen", true);
-                            Utils.doRestart(home);
-                        })
-                        .setNegativeButton(home.getString(ResId.string.cancel), (dialog, which) -> dialog.dismiss())
-                        .create().show();
-                return true;
+    private void hookStickers() throws Exception {
+        var sendStickerMethod = Unobfuscator.loadSendStickerMethod(loader);
+        XposedBridge.hookMethod(sendStickerMethod, new XC_MethodHook() {
+            private Unhook unhooked;
+
+            @Override
+            protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
+                unhooked = XposedHelpers.findAndHookMethod(View.class, "setOnClickListener", View.OnClickListener.class, new XC_MethodHook() {
+                    @Override
+                    protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
+                        View.OnClickListener mCaptureOnClickListener = (View.OnClickListener) param.args[0];
+                        if (mCaptureOnClickListener == null) return;
+                        if (!(param.thisObject instanceof ViewGroup)) return;
+                        param.args[0] = (View.OnClickListener) view -> {
+                            var context = view.getContext();
+                            var dialog = new AlertDialogWpp(view.getContext());
+                            dialog.setTitle(context.getString(ResId.string.send_sticker));
+
+                            var stickerView = (ImageView) view.findViewById(Utils.getID("sticker", "id"));
+                            LinearLayout linearLayout = new LinearLayout(context);
+                            linearLayout.setOrientation(LinearLayout.VERTICAL);
+                            linearLayout.setGravity(Gravity.CENTER_HORIZONTAL);
+                            var padding = Utils.dipToPixels(16);
+                            linearLayout.setPadding(padding, padding, padding, padding);
+                            var image = new ImageView(context);
+                            var size = Utils.dipToPixels(72);
+                            var params = new LinearLayout.LayoutParams(size, size);
+                            params.bottomMargin = padding;
+                            image.setLayoutParams(params);
+                            image.setImageDrawable(stickerView.getDrawable());
+                            linearLayout.addView(image);
+
+                            TextView text = new TextView(context);
+                            text.setText(context.getString(ResId.string.do_you_want_to_send_sticker));
+                            text.setTextAlignment(View.TEXT_ALIGNMENT_CENTER);
+                            linearLayout.addView(text);
+
+
+                            dialog.setView(linearLayout);
+                            dialog.setPositiveButton(context.getString(ResId.string.send), (dialog1, which) -> mCaptureOnClickListener.onClick(view));
+                            dialog.setNegativeButton(context.getString(ResId.string.cancel), null);
+                            dialog.show();
+                        };
+                    }
+                });
             }
-            WppCore.setPrivBoolean("freezelastseen", false);
-            Utils.doRestart(home);
-            return true;
+
+            @Override
+            protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+                unhooked.unhook();
+            }
+
         });
     }
 
@@ -489,7 +496,7 @@ public class Others extends Feature {
             public void onAfterCreate(Activity activity, Menu menu) {
                 if (prefs.getBoolean("restartbutton", true)) {
                     var iconDraw = DesignUtils.getDrawableByName("vec_account_switcher");
-                    iconDraw.setTint(0xff8696a0);
+                    iconDraw.setTint(newSettings ? DesignUtils.getPrimaryTextColor() : 0xff8696a0);
                     var itemMenu = menu.add(0, 0, 0, ResId.string.restart_whatsapp).setIcon(iconDraw).setOnMenuItemClickListener(item -> {
                         Utils.doRestart(activity);
                         return true;

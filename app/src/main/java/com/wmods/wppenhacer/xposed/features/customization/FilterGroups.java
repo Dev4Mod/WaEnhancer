@@ -45,7 +45,8 @@ public class FilterGroups extends Feature {
     @Override
     public void doHook() throws Throwable {
 
-        if (!prefs.getBoolean("filtergroups", false)) return;
+        if (!prefs.getBoolean("filtergroups", false) || prefs.getBoolean("separategroups", false))
+            return;
 
         var filterAdaperClass = Unobfuscator.loadFilterAdaperClass(loader);
         methodSetFilter = ReflectionUtils.findMethodUsingFilter(filterAdaperClass, m -> m.getParameterCount() == 1 && m.getParameterTypes()[0].equals(int.class));

@@ -17,11 +17,11 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.collection.ArraySet;
 
+import com.wmods.wppenhacer.xposed.core.Feature;
 import com.wmods.wppenhacer.xposed.core.ResId;
 import com.wmods.wppenhacer.xposed.core.Unobfuscator;
 import com.wmods.wppenhacer.xposed.core.Utils;
 import com.wmods.wppenhacer.xposed.core.WppCore;
-import com.wmods.wppenhacer.xposed.core.Feature;
 import com.wmods.wppenhacer.xposed.core.db.MessageStore;
 import com.wmods.wppenhacer.xposed.utils.ReflectionUtils;
 
@@ -92,7 +92,6 @@ public class SeenTick extends Feature {
         XposedBridge.hookMethod(messageJobMethod, new XC_MethodHook() {
             @Override
             protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
-                if (!messageSendClass.isInstance(param.thisObject)) return;
                 if (!prefs.getBoolean("blueonreply", false)) return;
                 new Handler(Looper.getMainLooper()).post(() -> sendBlueTick((String) XposedHelpers.getObjectField(messageSendClass.cast(param.thisObject), "jid")));
             }
@@ -150,7 +149,6 @@ public class SeenTick extends Feature {
                 currentJid = jid;
             }
         });
-
 
 
         var viewButtonMethod = Unobfuscator.loadBlueOnReplayViewButtonMethod(loader);
@@ -230,14 +228,15 @@ public class SeenTick extends Feature {
             @Override
             @SuppressLint("DiscouragedApi")
             protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-                if (XposedHelpers.getIntField(param.thisObject, menuIntField.getName()) == 3) {
+                var id = XposedHelpers.getIntField(param.thisObject, menuIntField.getName());
+                if (id == 3 || id == 0) {
                     Menu menu = (Menu) param.args[0];
                     MenuItem item = menu.add(0, 0, 0, ResId.string.send_blue_tick).setIcon(Utils.getID("ic_notif_mark_read", "drawable"));
                     if (ticktype == 1) item.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
                     item.setOnMenuItemClickListener(item1 -> {
                         var messageField = Unobfuscator.getFieldByExtendType(menuMethod.getDeclaringClass(), classThreadMessage);
                         var messageObject = XposedHelpers.getObjectField(param.thisObject, messageField.getName());
-                        sendBlueTickMedia(messageObject,true);
+                        sendBlueTickMedia(messageObject, true);
                         Toast.makeText(Utils.getApplication(), ResId.string.sending_read_blue_tick, Toast.LENGTH_SHORT).show();
                         return true;
                     });
@@ -252,14 +251,14 @@ public class SeenTick extends Feature {
         logDebug("messages: " + Arrays.toString(messages.toArray(new MessageInfo[0])));
         if (messages.isEmpty() || currentJid == null || currentJid.contains(Utils.getMyNumber()))
             return;
-        var messagekeys = messages.stream().map(item->item.messageKey).collect(Collectors.toList());
+        var messagekeys = messages.stream().map(item -> item.messageKey).collect(Collectors.toList());
         var listAudios = MessageStore.getAudioListByMessageList(messagekeys);
         logDebug("listAudios: " + listAudios);
         for (var messageKey : listAudios) {
             var mInfo = messages.stream().filter(messageInfo -> messageInfo.messageKey.equals(messageKey)).findAny();
             if (mInfo.isPresent()) {
                 messages.remove(mInfo.get());
-                sendBlueTickMedia(mInfo.get().fMessage,false);
+                sendBlueTickMedia(mInfo.get().fMessage, false);
             }
         }
         sendBlueTickMsg(currentJid);
@@ -271,9 +270,9 @@ public class SeenTick extends Feature {
             return;
         try {
             logDebug("Blue on Reply: " + currentJid);
-            var arr_s = messages.stream().map(item->item.messageKey).toArray(String[]::new);
+            var arr_s = messages.stream().map(item -> item.messageKey).toArray(String[]::new);
             var userJid = WppCore.createUserJid(currentJid);
-            WppCore.setPrivBoolean(arr_s[0]+"_rpass",true);
+            WppCore.setPrivBoolean(arr_s[0] + "_rpass", true);
             var sendJob = XposedHelpers.newInstance(mSendReadClass, userJid, null, null, null, arr_s, -1, 0L, false);
             WaJobManagerMethod.invoke(mWaJobManager, sendJob);
             messages.clear();
@@ -287,10 +286,10 @@ public class SeenTick extends Feature {
         if (messages.isEmpty() || currentJid == null || currentJid.equals("status_me")) return;
         try {
             logDebug("sendBlue: " + currentJid);
-            var arr_s = messages.stream().map(item->item.messageKey).toArray(String[]::new);
+            var arr_s = messages.stream().map(item -> item.messageKey).toArray(String[]::new);
             var userJidSender = WppCore.createUserJid("status@broadcast");
             var userJid = WppCore.createUserJid(currentJid);
-            WppCore.setPrivBoolean(arr_s[0]+"_rpass",true);
+            WppCore.setPrivBoolean(arr_s[0] + "_rpass", true);
             var sendJob = XposedHelpers.newInstance(mSendReadClass, userJidSender, userJid, null, null, arr_s, -1, 0L, false);
             WaJobManagerMethod.invoke(mWaJobManager, sendJob);
             messages.clear();

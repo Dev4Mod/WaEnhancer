@@ -46,6 +46,8 @@ public class ShowEditMessage extends Feature {
     @Override
     public void doHook() throws Throwable {
 
+        if (!prefs.getBoolean("antieditmessages", false)) return;
+
         var onStartMethod = Unobfuscator.loadAntiRevokeOnStartMethod(loader);
         logDebug(Unobfuscator.getMethodDescriptor(onStartMethod));
 

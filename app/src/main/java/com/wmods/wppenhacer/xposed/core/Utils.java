@@ -131,8 +131,8 @@ public class Utils {
         return filePath.getAbsolutePath() + "/" + (file == null ? "" : file.getName());
     }
 
-    public static boolean copyFile(File srcFile, File destFile) {
-        if (srcFile == null || !srcFile.exists()) return false;
+    public static String copyFile(File srcFile, File destFile) {
+        if (srcFile == null || !srcFile.exists()) return "File not found or is null";
 
         try (FileInputStream in = new FileInputStream(srcFile);
              FileOutputStream out = new FileOutputStream(destFile)) {
@@ -148,13 +148,13 @@ public class Utils {
                             (path, uri) -> {
                             });
 
-                    return true;
+                    return "";
                 }
                 out.write(bArr, 0, read);
             }
         } catch (IOException e) {
             XposedBridge.log(e.getMessage());
-            return false;
+            return e.getMessage();
         }
     }
 

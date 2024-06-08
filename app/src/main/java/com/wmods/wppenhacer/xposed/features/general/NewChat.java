@@ -1,6 +1,5 @@
 package com.wmods.wppenhacer.xposed.features.general;
 
-import static de.robv.android.xposed.XposedHelpers.findAndHookMethod;
 import static de.robv.android.xposed.XposedHelpers.findClass;
 
 import android.app.Activity;
@@ -15,12 +14,13 @@ import android.widget.LinearLayout;
 
 import androidx.annotation.NonNull;
 
+import com.wmods.wppenhacer.xposed.core.DesignUtils;
 import com.wmods.wppenhacer.xposed.core.Feature;
 import com.wmods.wppenhacer.xposed.core.ResId;
 import com.wmods.wppenhacer.xposed.core.Utils;
+import com.wmods.wppenhacer.xposed.core.WppCore;
 import com.wmods.wppenhacer.xposed.core.components.AlertDialogWpp;
 
-import de.robv.android.xposed.XC_MethodHook;
 import de.robv.android.xposed.XSharedPreferences;
 
 public class NewChat extends Feature {
@@ -32,21 +32,23 @@ public class NewChat extends Feature {
     public void doHook() {
         var homeActivity = findClass("com.whatsapp.HomeActivity", loader);
         var newSettings = prefs.getBoolean("novaconfig", false);
-        if (!prefs.getBoolean("newchat", true))return;
-
-        findAndHookMethod(homeActivity, "onCreateOptionsMenu", Menu.class, new XC_MethodHook() {
+        if (!prefs.getBoolean("newchat", true)) return;
+        WppCore.addMenuItem(homeActivity, new WppCore.OnMenuCreate() {
             @Override
-            protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-                var home = (Activity) param.thisObject;
-                var menu = (Menu) param.args[0];
-
+            public void onAfterCreate(Activity activity, Menu menu) {
                 var item = menu.add(0, 0, 0, ResId.string.new_chat);
-                item.setIcon(Utils.getID("vec_ic_chat_add", "drawable"));
+                var drawable = DesignUtils.getDrawableByName("vec_ic_chat_add");
+
+                if (drawable != null) {
+                    drawable.setTint(newSettings ? DesignUtils.getPrimaryTextColor() : 0xff8696a0);
+                    item.setIcon(drawable);
+                }
+
                 if (newSettings) {
                     item.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
                 }
                 item.setOnMenuItemClickListener(item1 -> {
-                    var view = new LinearLayout(home);
+                    var view = new LinearLayout(activity);
                     view.setGravity(Gravity.CENTER);
                     view.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT));
                     var edt = new EditText(view.getContext());
@@ -56,25 +58,24 @@ public class NewChat extends Feature {
                     edt.setTransformationMethod(null);
                     edt.setHint(ResId.string.number_with_country_code);
                     view.addView(edt);
-                    new AlertDialogWpp(home)
-                            .setTitle(home.getString(ResId.string.new_chat))
+                    new AlertDialogWpp(activity)
+                            .setTitle(activity.getString(ResId.string.new_chat))
                             .setView(view)
-                            .setPositiveButton(home.getString(ResId.string.message), (dialog, which) -> {
+                            .setPositiveButton(activity.getString(ResId.string.message), (dialog, which) -> {
                                 var number = edt.getText().toString();
                                 var numberFomatted = number.replaceAll("[+\\-()/\\s]", "");
                                 var intent = new Intent(Intent.ACTION_VIEW);
                                 intent.setData(Uri.parse("https://wa.me/" + numberFomatted));
                                 intent.setPackage(Utils.getApplication().getPackageName());
-                                home.startActivity(intent);
+                                activity.startActivity(intent);
                             })
-                            .setNegativeButton(home.getString(ResId.string.cancel), null)
+                            .setNegativeButton(activity.getString(ResId.string.cancel), null)
                             .show();
                     return true;
                 });
-
-                super.afterHookedMethod(param);
             }
         });
+
     }
 
     @NonNull
