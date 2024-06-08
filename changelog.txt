@@ -1,9 +1,28 @@
+NOTE: All the corrections below are related to version 2.24.11.80 of WhatsApp.
+[HIDE RECEIPTS]
+* Fix bug in hide on chat opened
+
+[FILTER GROUPS]
+* Fix error where the group separation opened together with the group filter.
+
+[IG Status]
+* Fix bug status is broken on change theme
+
+[TOOLBAR BUTTONS]
+* Fix all incorrect colors and translations
+
+[CONFIRMATION STICKER]
+* Fix bug to show correct stick in dialog
+
+[SHOW MESSAGE HISTORY]
+* Fix bug on disable function not working
+
+[VIEW ONCE]
+* Resolve the issue causing the download button to not be displayed.
+* Resolve the issue causing the send tick button to not be displayed.
+
+[SEND SECOND TICK]
+* Fix bug on reply message
+
 [WHATSAPP]
-* Remove support to 2.24.11.79~80 (many bugs)
-
-[CORE]
-* Add support to downgrade(Only Whatsapp and Business can be downgraded, avoiding security issues with other apps.)
-NOTE: Please mark the System Framework in Scopes LSPosed and reboot phone to enable the functionality.
-
-[ATTENTION]
-The version of Whatsapp 2.24.11.79~80 presents many bugs, therefore I suggest reverting to the previous [https://www.apkmirror.com/apk/whatsapp-inc/whatsapp/whatsapp-2-24-10-85-release](WhatsApp v2.24.10.85).
+* add support to WhatsApp 2.24.11.79~80

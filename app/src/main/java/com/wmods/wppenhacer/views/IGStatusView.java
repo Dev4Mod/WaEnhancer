@@ -33,9 +33,9 @@ public class IGStatusView extends FrameLayout {
 
     @Override
     public void setTranslationY(float f) {
-        if(this.getHeight() > 0) {
-            int v = f > ((float)this.getHeight()) ? GONE : VISIBLE;
-            if(v == VISIBLE) {
+        if (this.getHeight() > 0) {
+            int v = f > ((float) this.getHeight()) ? GONE : VISIBLE;
+            if (v == VISIBLE) {
                 super.setTranslationY(f);
             }
             this.setVisibility(v);
@@ -45,6 +45,7 @@ public class IGStatusView extends FrameLayout {
 
     public void updateList() {
         post(() -> {
+            if (mStatusAdapter == null) return;
             mStatusAdapter.notifyDataSetChanged();
             this.invalidate();
         });

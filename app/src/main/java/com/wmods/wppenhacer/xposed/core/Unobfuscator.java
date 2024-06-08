@@ -176,7 +176,7 @@ public class Unobfuscator {
         });
     }
 
-    public static Method loadReceiptMethod2(ClassLoader classLoader) throws Exception {
+    public static Method loadReceiptOutsideChat(ClassLoader classLoader) throws Exception {
         return UnobfuscatorCache.getInstance().getMethod(classLoader, () -> {
             var method = loadReceiptMethod(classLoader);
             if (method == null) throw new Exception("Receipt method not found");
@@ -188,12 +188,10 @@ public class Unobfuscator {
         });
     }
 
-    public static Method loadReceiptMethod3(ClassLoader classLoader) throws Exception {
+    public static Method loadReceiptInChat(ClassLoader classLoader) throws Exception {
         return UnobfuscatorCache.getInstance().getMethod(classLoader, () -> {
             var method = loadReceiptMethod(classLoader);
-            var classList = dexkit.findClass(new FindClass().matcher(new ClassMatcher().addUsingString("callCreatorJid")));
-            if (classList.isEmpty()) throw new Exception("Receipt method not found");
-            var methodDataList = dexkit.findMethod(new FindMethod().searchInClass(classList).matcher(new MethodMatcher().addInvoke(DexSignUtil.getMethodDescriptor(method))));
+            var methodDataList = dexkit.findMethod(new FindMethod().matcher(new MethodMatcher().addUsingString("callCreatorJid").addUsingString("reject").addUsingNumber(6175).addInvoke(DexSignUtil.getMethodDescriptor(method))));
             if (methodDataList.isEmpty()) throw new Exception("Receipt method not found");
             return methodDataList.get(0).getMethodInstance(classLoader);
         });
@@ -883,7 +881,7 @@ public class Unobfuscator {
 
     public static Method loadBlueOnReplayMessageJobMethod(ClassLoader loader) throws Exception {
         return UnobfuscatorCache.getInstance().getMethod(loader, () -> {
-            var result = findFirstMethodUsingStrings(loader, StringMatchType.Contains, "SendE2EMessageJob/e2e message send job added");
+            var result = findFirstMethodUsingStrings(loader, StringMatchType.Contains, "SendE2EMessageJob/onRun");
             if (result == null) throw new Exception("BlueOnReplayMessageJob method not found");
             return result;
         });
