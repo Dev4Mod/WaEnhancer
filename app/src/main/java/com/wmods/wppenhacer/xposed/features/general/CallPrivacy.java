@@ -4,9 +4,9 @@ import android.os.Message;
 
 import androidx.annotation.NonNull;
 
+import com.wmods.wppenhacer.xposed.core.Feature;
 import com.wmods.wppenhacer.xposed.core.Unobfuscator;
 import com.wmods.wppenhacer.xposed.core.WppCore;
-import com.wmods.wppenhacer.xposed.core.Feature;
 
 import java.lang.reflect.InvocationTargetException;
 
@@ -20,7 +20,9 @@ public class CallPrivacy extends Feature {
         super(loader, preferences);
     }
 
-    /** @noinspection unchecked*/
+    /**
+     * @noinspection unchecked
+     */
     @Override
     public void doHook() throws Throwable {
 
@@ -49,7 +51,12 @@ public class CallPrivacy extends Feature {
                 }
                 if (!block) return;
                 XposedHelpers.callMethod(param.thisObject, callEndMethod.getName(), callState, callinfo);
-                XposedHelpers.callStaticMethod(XposedHelpers.findClass("com.whatsapp.voipcalling.Voip", loader), "endCall", true);
+                var clazzVoip = XposedHelpers.findClass("com.whatsapp.voipcalling.Voip", loader);
+                try {
+                    XposedHelpers.callStaticMethod(clazzVoip, "endCall", true);
+                } catch (NoSuchMethodError e) {
+                    XposedHelpers.callStaticMethod(clazzVoip, "endCall", true, 0);
+                }
                 param.setResult(false);
             }
         });
