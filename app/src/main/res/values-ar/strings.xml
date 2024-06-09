@@ -13,35 +13,19 @@
     <string name="hidestatusview_sum">عرض الحالات دون معرفة المستخدمين</string>
     <string name="hideread">إخفاء العلامات الزرقاء</string>
     <string name="hideread_sum">عندما يكون نشطًا، فإنه يسمح لك بقراءة الرسائل دون أن يعلم الشخص أنك قرأتها</string>
-    <string name="danger">ملاحظة </string>
-    <string name="reboot">عندما تغير شيئًا ما على هذه الشاشة، أعد تشغيل واتساب</string>
-    <string name="reboot_module">إعادة تشغيل الوحدة🔄</string>
-    <string name="funcoes">الوظائف </string>
     <string name="perso">التخصيص </string>
     <string name="segundosnahora">عرض الثواني في الوقت المناسب</string>
     <string name="segundosnahora_sum">ضع الثواني بجوار الأوقات</string>
     <string name="textonahora">أضف نصًا بجوار الجدول الزمني</string>
-    <string name="no_active">إذا كنت على هذه الشاشة، فهذا يعني أنك لم تقم بتفعيل الوحدة بعد، أو لم تقم بتثبيت LSPosed، أو لم تمتلك نسخة معدلة من تطبيق WhatsApp بواسطة LSPatch
-
-يرجى إصلاح ذلك، وإعادة تشغيل الوحدة، والمحاولة مرة أخرى</string>
     <string name="viewonce">تعطيل العرض مرة واحدة</string>
     <string name="viewonce_sum">عندما يكون نشطًا، فإنه يسمح لك بفتح رسائل العرض مرة واحدة عدة مرات كما تريد.</string>
-    <string name="novotema">موضوع واتساب الجديد</string>
     <string name="novotema_sum">عند تفعيله، يغير اللون وموضوع الأيقونة إلى موضوع واتساب الجديد</string>
     <string name="antirevokestatus">منع حذف الحالات</string>
     <string name="antirevokestatus_sum">عرض الحالات المحذوفة</string>
     <string name="hidereceipt">إخفاء تم التسليم</string>
     <string name="hidereceipt_sum">المستخدمون لن يعلموا أن رسائلهم قد وصلت إليك
 (تحذير: قد يتسبب في تأخير استلام الرسائل)</string>
-    <string name="outros">الآخرون</string>
-    <string name="antirevoke_title">إلغاء</string>
-    <string name="privacy_title">إعدادات الخصوصية</string>
-    <string name="settings_title">الإعدادات</string>
-    <string name="autoreboot">إعادة التشغيل التلقائي</string>
-    <string name="autoreboot_sum">عند التمكين، سيتم إعادة تشغيل واتساب تلقائياً لتطبيق التغييرات التي تتطلب ذلك</string>
-    <string name="xposedinit_error">خطأ في بدء تشغيل LSPosed</string>
     <string name="ampm">الوقت بتنسيق 12 ساعة</string>
-    <string name="media_settings">إعدادات الوسائط</string>
     <string name="statusdowload">تحميل الحالات</string>
     <string name="statusdowload_sum">اظهر أيقونة لتحميل حالات المستخدم</string>
     <string name="videoquality">إرسال مقاطع الفيديو بجودة HD</string>
@@ -49,29 +33,13 @@
     <string name="colors_title">الألوان</string>
     <string name="colors_customization">خصص ألوانك</string>
     <string name="colors_customization_sum">تغيير كل الألوان في واتساب الخاص بك (يعمل فقط في السمة الداكنة)</string>
-    <string name="current_color_s">اللون الحالي: %s</string>
-    <string name="apply_button">تطبيق</string>
-    <string name="invalid_color">لون خاطئ</string>
-    <string name="social_media_title">وسائل التواصل</string>
-    <string name="telegram_group">مجموعة/ Telegram</string>
-    <string name="telegram_channel">قناة/ Telegram</string>
-    <string name="itsmadruga">ItsMadruga  (المالك)</string>
-    <string name="darker935">Darker935  (مساهم)</string>
-    <string name="required_version_s">الإصدار المطلوب : %s</string>
-    <string name="installed_version_s">الإصدار المثبت: %s</string>
-    <string name="whatsapp_version_error">هذا الإصدار من واتساب غير مدعوم من وحدتنا، الرجاء استخدام الإصدار المطلوب من واتساب</string>
-    <string name="whatsapp_not_installed">لم يتم تثبيت واتساب! التثبيت والمحاولة مرة أخرى</string>
-    <string name="restart_whatsapp">إعادة تشغيل واتساب</string>
-    <string name="media_title">الوسائط </string>
     <string name="general">عام</string>
-    <string name="novahome">نمط الصفحة الرئيسية الجديد</string>
     <string name="conversation">شاشة المحادثة</string>
     <string name="primary_color">اللون الأساسي</string>
     <string name="background_color">لون الخلفية </string>
     <string name="secondary_color">اللون الثانوي</string>
     <string name="novaconfig">نمط الإعدادات الجديدة</string>
     <string name="novaconfig_sum">تمكين نمط الإعدادات الجديدة، مع صورة الملف الشخصي على شريط أدوات الشاشة الرئيسية</string>
-    <string name="novahome_sum">تمكين نمط الشاشة الرئيسية الجديد، مع التنقل السفلي</string>
     <string name="novofiltro">وظائف البحث</string>
     <string name="novofiltro_sum">اختر بين أيقونة البحث، شريط البحث، أو لا بحث</string>
     <string name="menuwicon">أيقونات القائمة</string>
@@ -84,30 +52,13 @@
     <string name="freezelastseen_sum">سيتم تجميد آخر مرة شوهدت فيها (ملاحظة: لن ترى أي تحديثات تتعلق بالتواجد من مستخدمين آخرين، مثل الكتابة والتسجيل والإنترنت)</string>
     <string name="removeforwardlimit_sum">إزالة القيود المفروضة على إعادة توجيه 5 دردشات (عادية) ودردشة واحدة (متعددة)</string>
     <string name="removeforwardlimit">إزالة حد إعادة التوجيه</string>
-    <string name="forward">إعادة التوجيه</string>
-    <string name="home">الشاشة الرئيسية</string>
     <string name="showname">إظهار الأسم</string>
     <string name="showname_sum">أظهر اسم حسابك أعلى الشاشة الرئيسية، مع استبدال واتساب باسمك.</string>
     <string name="showbio_sum">اعرض سيرتك الذاتية أسفل عنوان شريط الأدوات</string>
     <string name="showbio">اعرض السيرة الذاتية</string>
-    <string name="reset_preferences">إعادة ضبط الإعدادات الإفتراضية</string>
-    <string name="reset_preferences_sum">انقر هنا لإعادة ضبط جميع إعدادات الوحدة المحفوظة</string>
-    <string name="reset_preferences_message">سيؤدي هذا الإجراء إلى إعادة تعيين جميع الإعدادات المحفوظة في الوحدة، وستحتاج إلى تمكين جميع الإعدادات مرة أخرى</string>
-    <string name="reset">إعادة تعيين</string>
     <string name="bubble_left">فقاعة اليسار</string>
     <string name="bubble_right">فقاعة اليمين</string>
-    <string name="general_summary">التخصيصات المطبقة بشكل أصلي من قبل واتساب</string>
-    <string name="home_summary">تخصيص الشاشة الرئيسية حسب رغبتك</string>
-    <string name="conversation_summary">تخصيص طريقة عرض شاشة المحادثة مثل البالونات والدخول وغيرها</string>
-    <string name="privacy_summary">إخفاء تأكيد القراءة، وإخفاء الإيصال، وتجميد آخر ظهور، والمزيد</string>
-    <string name="media_summary">حالة التنزيل وإعدادات الوسائط والمزيد</string>
-    <string name="module_working_text">الوحدة تعمل مع %s</string>
-    <string name="module_not_working">الوحدة لا تعمل</string>
-    <string name="lsposed_not_found">لم يتم العثور على LSPosed</string>
-    <string name="lspatch_not_found">لم يتم العثور على LSPatch</string>
     <string name="loading">جاري التحميل</string>
-    <string name="module_not_enabled_text">الوحدة معطلة على LSPosed</string>
-    <string name="module_not_setted_text">تم تمكين الوحدة، ولكن النطاق فارغ</string>
     <string name="imagequality">إرسال الصورة بجودة HD</string>
     <string name="imagequality_sum">إرسال الصور بجودة HD</string>
     <string name="downloadviewonce">تحميل عرض مرة واحدة</string>
@@ -236,8 +187,6 @@
     <string name="enable_top_navigation_sum">تفعيل شريط التنقل القديم (في الجزء العلوي من علامات التبويب)</string>
     <string name="hideread_group">إخفاء العلامة الزرقاء في المجموعات</string>
     <string name="hideread_group_sum">عرض الرسائل في شاشة المجموعات دون علم المستخدمين</string>
-    <string name="time_limit_on_status_video">زيادة الحد الزمني لفيديو الحالة</string>
-    <string name="time_limit_on_status_video_sum">زيادة الحد الزمني على فيديوهات الحالة من 30 ثانية إلى 1 دقيقة (لكل شخص)</string>
     <string name="show_freezeLastSeen_button">إظهار أيقونة تجميد آخر ظهور</string>
     <string name="show_freezeLastSeen_sum">إظهار أيقونة تجميد آخر ظهور على شريط أدوات الشاشة الرئيسية</string>
     <string name="freezelastseen_message">عند تشغيل ميزة تجميد آخر ظهور، لن تتمكن من رؤية وقت آخر ظهور للآخرين أو متصل الآن</string>
@@ -284,10 +233,12 @@
     <string name="android_version">إصدار أندرويد</string>
     <string name="message_removed_on">تمت إزالة هذه الرسالة على %s.</string>
     <string name="disable_default_emojis">تعطيل الرموز التعبيرية الافتراضية</string>
-    <string name="theme_mode">Dark Theme Wa Enhancer</string>
+    <string name="theme_mode">سمة داكنة</string>
     <string name="theme_mode_sum">تحديد سمة Wa Enhancer</string>
     <string name="disable_default_emojis_sum">تعطيل الرموز التعبيرية الافتراضية لواتساب واستخدام الرموز التعبيرية للنظام \n(ملاحظة: ستختفي الرموز التعبيرية لواتساب من المحدد، استخدم لوحة المفاتيح لإدراجها).</string>
-    <string name="other">Other</string>
-    <string name="enable_media_preview">Enable Media Preview</string>
-    <string name="enable_media_preview_sum">Add a button to preview media in a temporary file (without downloading it permanently)</string>
+    <string name="other">غير ذلك</string>
+    <string name="enable_media_preview">تمكين معاينة الوسائط</string>
+    <string name="enable_media_preview_sum">إضافة أيقونة لمعاينة الوسائط في ملف مؤقت (دون تحميله بشكل دائم)</string>
+    <string name="new_ui_group_filter">New UI Group Filter</string>
+    <string name="new_ui_group_filter_sum">Include a new filter on the home screen to separate groups and conversations.</string>
 </resources>
