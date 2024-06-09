@@ -33,6 +33,7 @@
     <string name="colors_customization">Alterar cores</string>
     <string name="colors_customization_sum">Alterar as cores do WhatsApp (funcionando apenas no tema escuro)</string>
     <string name="general">Gerais</string>
+    <string name="restart_whatsapp">Restart WhatsApp</string>
     <string name="conversation">Tela de conversas</string>
     <string name="primary_color">Cores primárias</string>
     <string name="background_color">Cores de fundo</string>

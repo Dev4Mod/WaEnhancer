@@ -33,6 +33,7 @@
     <string name="colors_customization">Personnalisez vos couleures</string>
     <string name="colors_customization_sum">Change all colors in your WhatsApp (Working only in Dark Theme)</string>
     <string name="general">Général</string>
+    <string name="restart_whatsapp">Restart WhatsApp</string>
     <string name="conversation">Conversation</string>
     <string name="primary_color">Couleur primaire</string>
     <string name="background_color">Couleur d\'arrière-plan</string>

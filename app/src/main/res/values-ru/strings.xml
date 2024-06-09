@@ -33,6 +33,7 @@
     <string name="colors_customization">Настройка ваших цветов</string>
     <string name="colors_customization_sum">Изменить все цвета в WhatsApp (работает только в темной теме)</string>
     <string name="general">Общие</string>
+    <string name="restart_whatsapp">Restart WhatsApp</string>
     <string name="conversation">Экран Переписки</string>
     <string name="primary_color">Основной цвет</string>
     <string name="background_color">Цвет заднего фона</string>

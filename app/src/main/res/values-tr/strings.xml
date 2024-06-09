@@ -33,6 +33,7 @@
     <string name="colors_customization">Renkleri Özelleştir</string>
     <string name="colors_customization_sum">WhatsApp\'ınızdaki tüm renkleri değiştir (Yalnızca Koyu Temada çalışır)</string>
     <string name="general">Genel</string>
+    <string name="restart_whatsapp">Restart WhatsApp</string>
     <string name="conversation">Konuşma Ekranı</string>
     <string name="primary_color">Ana Renk</string>
     <string name="background_color">Arkaplan Rengi</string>
