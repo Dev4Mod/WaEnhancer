@@ -44,8 +44,8 @@ public class SeparateGroup extends Feature {
 
     public void doHook() throws Exception {
 
-        var cFrag = XposedHelpers.findClass("com.whatsapp.conversationslist.ConversationsFragment", loader);
-        var home = XposedHelpers.findClass("com.whatsapp.HomeActivity", loader);
+        var cFrag = XposedHelpers.findClass("com.whatsapp.conversationslist.ConversationsFragment", classLoader);
+        var home = XposedHelpers.findClass("com.whatsapp.HomeActivity", classLoader);
 
         // Modifying tab list order
         hookTabList(home);
@@ -69,13 +69,13 @@ public class SeparateGroup extends Feature {
 
     private void hookTabCount() throws Exception {
 
-        var runMethod = Unobfuscator.loadTabCountMethod(loader);
+        var runMethod = Unobfuscator.loadTabCountMethod(classLoader);
         logDebug(Unobfuscator.getMethodDescriptor(runMethod));
 
-        var enableCountMethod = Unobfuscator.loadEnableCountTabMethod(loader);
-        var constructor1 = Unobfuscator.loadEnableCountTabConstructor1(loader);
-        var constructor2 = Unobfuscator.loadEnableCountTabConstructor2(loader);
-        var constructor3 = Unobfuscator.loadEnableCountTabConstructor3(loader);
+        var enableCountMethod = Unobfuscator.loadEnableCountTabMethod(classLoader);
+        var constructor1 = Unobfuscator.loadEnableCountTabConstructor1(classLoader);
+        var constructor2 = Unobfuscator.loadEnableCountTabConstructor2(classLoader);
+        var constructor3 = Unobfuscator.loadEnableCountTabConstructor3(classLoader);
         constructor3.setAccessible(true);
 
         logDebug(Unobfuscator.getMethodDescriptor(enableCountMethod));
@@ -124,11 +124,11 @@ public class SeparateGroup extends Feature {
 }
 
     private void hookTabIcon() throws Exception {
-        var iconTabMethod = Unobfuscator.loadIconTabMethod(loader);
+        var iconTabMethod = Unobfuscator.loadIconTabMethod(classLoader);
         logDebug(Unobfuscator.getMethodDescriptor(iconTabMethod));
-        var iconField = Unobfuscator.loadIconTabField(loader);
-        var iconFrameField = Unobfuscator.loadIconTabLayoutField(loader);
-        var iconMenuField = Unobfuscator.loadIconMenuField(loader);
+        var iconField = Unobfuscator.loadIconTabField(classLoader);
+        var iconFrameField = Unobfuscator.loadIconTabLayoutField(classLoader);
+        var iconMenuField = Unobfuscator.loadIconMenuField(classLoader);
 
         XposedBridge.hookMethod(iconTabMethod, new XC_MethodHook() {
             @SuppressLint("ResourceType")
@@ -153,7 +153,7 @@ public class SeparateGroup extends Feature {
 
     @SuppressLint("ResourceType")
     private void hookTabName(Class<?> home) throws Exception {
-        var tabNameMethod = Unobfuscator.loadTabNameMethod(loader);
+        var tabNameMethod = Unobfuscator.loadTabNameMethod(classLoader);
         logDebug(Unobfuscator.getMethodDescriptor(tabNameMethod));
         XposedBridge.hookMethod(tabNameMethod, new XC_MethodHook() {
             @Override
@@ -168,13 +168,13 @@ public class SeparateGroup extends Feature {
     }
 
     private void hookTabInstance(Class<?> cFrag) throws Exception {
-        var getTabMethod = Unobfuscator.loadGetTabMethod(loader);
+        var getTabMethod = Unobfuscator.loadGetTabMethod(classLoader);
         logDebug(Unobfuscator.getMethodDescriptor(getTabMethod));
 
-        var methodTabInstance = Unobfuscator.loadTabFragmentMethod(loader);
+        var methodTabInstance = Unobfuscator.loadTabFragmentMethod(classLoader);
         logDebug(Unobfuscator.getMethodDescriptor(methodTabInstance));
 
-        var recreateFragmentMethod = Unobfuscator.loadRecreateFragmentConstructor(loader);
+        var recreateFragmentMethod = Unobfuscator.loadRecreateFragmentConstructor(classLoader);
 
         XposedBridge.hookMethod(recreateFragmentMethod, new XC_MethodHook() {
             @Override
@@ -224,7 +224,7 @@ public class SeparateGroup extends Feature {
             }
         });
 
-        var fabintMethod = Unobfuscator.loadFabMethod(loader);
+        var fabintMethod = Unobfuscator.loadFabMethod(classLoader);
         logDebug(Unobfuscator.getMethodDescriptor(fabintMethod));
 
         XposedBridge.hookMethod(fabintMethod, new XC_MethodHook() {
@@ -236,7 +236,7 @@ public class SeparateGroup extends Feature {
             }
         });
 
-        var publishResultsMethod = Unobfuscator.loadGetFiltersMethod(loader);
+        var publishResultsMethod = Unobfuscator.loadGetFiltersMethod(classLoader);
         logDebug(Unobfuscator.getMethodDescriptor(publishResultsMethod));
 
         XposedBridge.hookMethod(publishResultsMethod, new XC_MethodHook() {
@@ -268,7 +268,7 @@ public class SeparateGroup extends Feature {
     }
 
     private void hookTabList(@NonNull Class<?> home) throws Exception {
-        var onCreateTabList = Unobfuscator.loadTabListMethod(loader);
+        var onCreateTabList = Unobfuscator.loadTabListMethod(classLoader);
         logDebug(Unobfuscator.getMethodDescriptor(onCreateTabList));
         var fieldTabsList = Arrays.stream(home.getDeclaredFields()).filter(f -> f.getType().equals(List.class)).findFirst().orElse(null);
         if (fieldTabsList == null) {

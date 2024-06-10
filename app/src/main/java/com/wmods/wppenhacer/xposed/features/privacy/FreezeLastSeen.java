@@ -19,7 +19,7 @@ public class FreezeLastSeen extends Feature {
     public void doHook() throws Exception {
         if (!prefs.getBoolean("freezelastseen", false) && !prefs.getBoolean("show_freezeLastSeen", false)) return;
         if (!WppCore.getPrivBoolean("freezelastseen", false) && prefs.getBoolean("show_freezeLastSeen", false)) return;
-        var method = Unobfuscator.loadFreezeSeenMethod(loader);
+        var method = Unobfuscator.loadFreezeSeenMethod(classLoader);
         logDebug(Unobfuscator.getMethodDescriptor(method));
         XposedBridge.hookMethod(method, XC_MethodReplacement.DO_NOTHING);
     }

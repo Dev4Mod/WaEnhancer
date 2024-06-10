@@ -5,9 +5,9 @@ import android.view.MenuItem;
 
 import androidx.annotation.NonNull;
 
+import com.wmods.wppenhacer.xposed.core.Feature;
 import com.wmods.wppenhacer.xposed.core.Unobfuscator;
 import com.wmods.wppenhacer.xposed.core.Utils;
-import com.wmods.wppenhacer.xposed.core.Feature;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -27,10 +27,10 @@ public class PinnedLimit extends Feature {
     @Override
     @SuppressLint("DiscouragedApi")
     public void doHook() throws Throwable {
-        var pinnedLimitMethod = Unobfuscator.loadPinnedLimitMethod(loader);
+        var pinnedLimitMethod = Unobfuscator.loadPinnedLimitMethod(classLoader);
         logDebug(Unobfuscator.getMethodDescriptor(pinnedLimitMethod));
-        var pinnedSetMethod = Unobfuscator.loadPinnedHashSetMethod(loader);
-        var pinnedInChatMethod = Unobfuscator.loadPinnedInChatMethod(loader);
+        var pinnedSetMethod = Unobfuscator.loadPinnedHashSetMethod(classLoader);
+        var pinnedInChatMethod = Unobfuscator.loadPinnedInChatMethod(classLoader);
 
         // increase pinned limit in chat to 60
         XposedBridge.hookMethod(pinnedInChatMethod, XC_MethodReplacement.returnConstant(60));

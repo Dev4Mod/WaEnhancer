@@ -23,8 +23,8 @@ public class HideSeen extends Feature {
     @Override
     public void doHook() throws Exception {
 
-        Method SendReadReceiptJobMethod = Unobfuscator.loadHideViewSendReadJob(loader);
-        var sendJob = XposedHelpers.findClass("com.whatsapp.jobqueue.job.SendReadReceiptJob", loader);
+        Method SendReadReceiptJobMethod = Unobfuscator.loadHideViewSendReadJob(classLoader);
+        var sendJob = XposedHelpers.findClass("com.whatsapp.jobqueue.job.SendReadReceiptJob", classLoader);
         log(Unobfuscator.getMethodDescriptor(SendReadReceiptJobMethod));
 
         var hideread = prefs.getBoolean("hideread", false);
@@ -58,10 +58,10 @@ public class HideSeen extends Feature {
             }
         });
 
-        Method hideViewInChatMethod = Unobfuscator.loadHideViewInChatMethod(loader);
+        Method hideViewInChatMethod = Unobfuscator.loadHideViewInChatMethod(classLoader);
         logDebug(Unobfuscator.getMethodDescriptor(hideViewInChatMethod));
 
-        Method hideViewMethod = Unobfuscator.loadHideViewMethod(loader);
+        Method hideViewMethod = Unobfuscator.loadHideViewMethod(classLoader);
         logDebug(Unobfuscator.getMethodDescriptor(hideViewMethod));
 
         XposedBridge.hookMethod(hideViewMethod, new XC_MethodHook() {
@@ -79,7 +79,7 @@ public class HideSeen extends Feature {
             }
         });
 
-        var methodPlayerViewJid = Unobfuscator.loadHideViewAudioMethod(loader);
+        var methodPlayerViewJid = Unobfuscator.loadHideViewAudioMethod(classLoader);
         logDebug(Unobfuscator.getMethodDescriptor(methodPlayerViewJid));
         XposedBridge.hookMethod(methodPlayerViewJid, new XC_MethodHook() {
             @Override

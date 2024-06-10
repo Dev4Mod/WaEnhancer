@@ -54,20 +54,20 @@ public class SeenTick extends Feature {
     public void doHook() throws Throwable {
 
 
-        var bubbleMethod = Unobfuscator.loadAntiRevokeBubbleMethod(loader);
+        var bubbleMethod = Unobfuscator.loadAntiRevokeBubbleMethod(classLoader);
         logDebug(Unobfuscator.getMethodDescriptor(bubbleMethod));
 
-        fieldMessageKey = Unobfuscator.loadMessageKeyField(loader);
+        fieldMessageKey = Unobfuscator.loadMessageKeyField(classLoader);
         logDebug(Unobfuscator.getFieldDescriptor(fieldMessageKey));
 
-        var messageSendClass = XposedHelpers.findClass("com.whatsapp.jobqueue.job.SendE2EMessageJob", loader);
+        var messageSendClass = XposedHelpers.findClass("com.whatsapp.jobqueue.job.SendE2EMessageJob", classLoader);
 
 
-        WaJobManagerMethod = Unobfuscator.loadBlueOnReplayWaJobManagerMethod(loader);
+        WaJobManagerMethod = Unobfuscator.loadBlueOnReplayWaJobManagerMethod(classLoader);
 
-        var messageJobMethod = Unobfuscator.loadBlueOnReplayMessageJobMethod(loader);
+        var messageJobMethod = Unobfuscator.loadBlueOnReplayMessageJobMethod(classLoader);
 
-        mSendReadClass = XposedHelpers.findClass("com.whatsapp.jobqueue.job.SendReadReceiptJob", loader);
+        mSendReadClass = XposedHelpers.findClass("com.whatsapp.jobqueue.job.SendReadReceiptJob", classLoader);
 
 
         WppCore.addListenerChat((conv, type) -> {
@@ -109,7 +109,7 @@ public class SeenTick extends Feature {
         var ticktype = Integer.parseInt(prefs.getString("seentick", "0"));
         if (ticktype == 0) return;
 
-        var onCreateMenuConversationMethod = Unobfuscator.loadBlueOnReplayCreateMenuConversationMethod(loader);
+        var onCreateMenuConversationMethod = Unobfuscator.loadBlueOnReplayCreateMenuConversationMethod(classLoader);
         logDebug(Unobfuscator.getMethodDescriptor(onCreateMenuConversationMethod));
         XposedBridge.hookMethod(onCreateMenuConversationMethod, new XC_MethodHook() {
             @Override
@@ -129,7 +129,7 @@ public class SeenTick extends Feature {
             }
         });
 
-        var setPageActiveMethod = Unobfuscator.loadStatusActivePage(loader);
+        var setPageActiveMethod = Unobfuscator.loadStatusActivePage(classLoader);
         logDebug(Unobfuscator.getMethodDescriptor(setPageActiveMethod));
         var fieldList = Unobfuscator.getFieldByType(setPageActiveMethod.getDeclaringClass(), List.class);
         XposedBridge.hookMethod(setPageActiveMethod, new XC_MethodHook() {
@@ -140,7 +140,7 @@ public class SeenTick extends Feature {
                 var message = list.get(position);
                 var messageKeyObject = fieldMessageKey.get(message);
                 var messageKey = (String) XposedHelpers.getObjectField(messageKeyObject, "A01");
-                var userJidClass = XposedHelpers.findClass("com.whatsapp.jid.UserJid", loader);
+                var userJidClass = XposedHelpers.findClass("com.whatsapp.jid.UserJid", classLoader);
                 var userJidMethod = ReflectionUtils.findMethodUsingFilter(fieldMessageKey.getDeclaringClass(), me -> me.getReturnType().equals(userJidClass) && me.getParameterCount() == 0);
                 var userJid = userJidMethod.invoke(message);
                 var jid = WppCore.getRawString(userJid);
@@ -151,7 +151,7 @@ public class SeenTick extends Feature {
         });
 
 
-        var viewButtonMethod = Unobfuscator.loadBlueOnReplayViewButtonMethod(loader);
+        var viewButtonMethod = Unobfuscator.loadBlueOnReplayViewButtonMethod(classLoader);
         logDebug(Unobfuscator.getMethodDescriptor(viewButtonMethod));
 
         if (ticktype == 1) {
@@ -189,13 +189,13 @@ public class SeenTick extends Feature {
             });
 
         } else {
-            var mediaClass = Unobfuscator.loadStatusDownloadMediaClass(loader);
+            var mediaClass = Unobfuscator.loadStatusDownloadMediaClass(classLoader);
             logDebug("Media class: " + mediaClass.getName());
-            var menuStatusClass = Unobfuscator.loadMenuStatusClass(loader);
+            var menuStatusClass = Unobfuscator.loadMenuStatusClass(classLoader);
             logDebug("MenuStatus class: " + menuStatusClass.getName());
-            var clazzSubMenu = Unobfuscator.loadStatusDownloadSubMenuClass(loader);
+            var clazzSubMenu = Unobfuscator.loadStatusDownloadSubMenuClass(classLoader);
             logDebug("SubMenu class: " + clazzSubMenu.getName());
-            var clazzMenu = Unobfuscator.loadStatusDownloadMenuClass(loader);
+            var clazzMenu = Unobfuscator.loadStatusDownloadMenuClass(classLoader);
             logDebug("Menu class: " + clazzMenu.getName());
             var menuField = Unobfuscator.getFieldByType(clazzSubMenu, clazzMenu);
             logDebug("Menu field: " + menuField.getName());
@@ -218,11 +218,11 @@ public class SeenTick extends Feature {
         }
 
         /// Add button to send View Once to Target
-        var menuMethod = Unobfuscator.loadViewOnceDownloadMenuMethod(loader);
+        var menuMethod = Unobfuscator.loadViewOnceDownloadMenuMethod(classLoader);
         logDebug(Unobfuscator.getMethodDescriptor(menuMethod));
-        var menuIntField = Unobfuscator.loadViewOnceDownloadMenuField(loader);
+        var menuIntField = Unobfuscator.loadViewOnceDownloadMenuField(classLoader);
         logDebug(Unobfuscator.getFieldDescriptor(menuIntField));
-        var classThreadMessage = Unobfuscator.loadFMessageClass(loader);
+        var classThreadMessage = Unobfuscator.loadFMessageClass(classLoader);
 
         XposedBridge.hookMethod(menuMethod, new XC_MethodHook() {
             @Override
@@ -301,7 +301,7 @@ public class SeenTick extends Feature {
     private void sendBlueTickMedia(Object messageObject, boolean clear) {
         try {
             logDebug("sendBlue: " + WppCore.getCurrentRawJID());
-            var sendPlayerClass = XposedHelpers.findClass("com.whatsapp.jobqueue.job.SendPlayedReceiptJob", loader);
+            var sendPlayerClass = XposedHelpers.findClass("com.whatsapp.jobqueue.job.SendPlayedReceiptJob", classLoader);
             var sendJob = XposedHelpers.newInstance(sendPlayerClass, messageObject);
             WaJobManagerMethod.invoke(mWaJobManager, sendJob);
             if (clear) messages.clear();

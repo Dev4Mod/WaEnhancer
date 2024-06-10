@@ -30,7 +30,7 @@ public class NewChat extends Feature {
 
     @Override
     public void doHook() {
-        var homeActivity = findClass("com.whatsapp.HomeActivity", loader);
+        var homeActivity = findClass("com.whatsapp.HomeActivity", classLoader);
         var newSettings = prefs.getBoolean("novaconfig", false);
         if (!prefs.getBoolean("newchat", true)) return;
         WppCore.addMenuItemClass(homeActivity, new WppCore.OnMenuCreate() {

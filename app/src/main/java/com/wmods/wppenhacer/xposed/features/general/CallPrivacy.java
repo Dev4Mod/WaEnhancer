@@ -26,7 +26,7 @@ public class CallPrivacy extends Feature {
     @Override
     public void doHook() throws Throwable {
 
-        var onCallReceivedMethod = Unobfuscator.loadAntiRevokeOnCallReceivedMethod(loader);
+        var onCallReceivedMethod = Unobfuscator.loadAntiRevokeOnCallReceivedMethod(classLoader);
 //        var callEndMethod = Unobfuscator.loadAntiRevokeCallEndMethod(loader);
 //        var callState = Enum.valueOf((Class<Enum>) XposedHelpers.findClass("com.whatsapp.voipcalling.CallState", loader), "ACTIVE");
 
@@ -34,7 +34,7 @@ public class CallPrivacy extends Feature {
             @Override
             protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
                 Object callinfo = ((Message) param.args[0]).obj;
-                Class<?> callInfoClass = XposedHelpers.findClass("com.whatsapp.voipcalling.CallInfo", loader);
+                Class<?> callInfoClass = XposedHelpers.findClass("com.whatsapp.voipcalling.CallInfo", classLoader);
                 if (callinfo == null || !callInfoClass.isInstance(callinfo)) return;
                 if ((boolean) XposedHelpers.callMethod(callinfo, "isCaller")) return;
                 var callId = XposedHelpers.callMethod(callinfo, "getCallId");
@@ -52,7 +52,7 @@ public class CallPrivacy extends Feature {
                 }
                 if (!block) return;
 //                XposedHelpers.callMethod(param.thisObject, callEndMethod.getName(), callState, callinfo);
-                var clazzVoip = XposedHelpers.findClass("com.whatsapp.voipcalling.Voip", loader);
+                var clazzVoip = XposedHelpers.findClass("com.whatsapp.voipcalling.Voip", classLoader);
                 var rejectType = prefs.getString("call_type", "ended");
                 switch (rejectType) {
                     case "uncallable":

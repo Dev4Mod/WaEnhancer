@@ -48,31 +48,31 @@ public class ShowEditMessage extends Feature {
 
         if (!prefs.getBoolean("antieditmessages", false)) return;
 
-        var onStartMethod = Unobfuscator.loadAntiRevokeOnStartMethod(loader);
+        var onStartMethod = Unobfuscator.loadAntiRevokeOnStartMethod(classLoader);
         logDebug(Unobfuscator.getMethodDescriptor(onStartMethod));
 
-        var onResumeMethod = Unobfuscator.loadAntiRevokeOnResumeMethod(loader);
+        var onResumeMethod = Unobfuscator.loadAntiRevokeOnResumeMethod(classLoader);
         logDebug(Unobfuscator.getMethodDescriptor(onResumeMethod));
 
-        var onMessageEdit = Unobfuscator.loadMessageEditMethod(loader);
+        var onMessageEdit = Unobfuscator.loadMessageEditMethod(classLoader);
         logDebug(Unobfuscator.getMethodDescriptor(onMessageEdit));
 
-        var getEditMessage = Unobfuscator.loadGetEditMessageMethod(loader);
+        var getEditMessage = Unobfuscator.loadGetEditMessageMethod(classLoader);
         logDebug(Unobfuscator.getMethodDescriptor(getEditMessage));
 
-        var getFieldIdMessage = Unobfuscator.loadSetEditMessageField(loader);
+        var getFieldIdMessage = Unobfuscator.loadSetEditMessageField(classLoader);
         logDebug(Unobfuscator.getFieldDescriptor(getFieldIdMessage));
 
-        var newMessageMethod = Unobfuscator.loadNewMessageMethod(loader);
+        var newMessageMethod = Unobfuscator.loadNewMessageMethod(classLoader);
         logDebug(Unobfuscator.getMethodDescriptor(newMessageMethod));
 
-        var newMessageWithMediaMethod = Unobfuscator.loadNewMessageWithMediaMethod(loader);
+        var newMessageWithMediaMethod = Unobfuscator.loadNewMessageWithMediaMethod(classLoader);
         logDebug(Unobfuscator.getMethodDescriptor(newMessageMethod));
 
-        var editMessageShowMethod = Unobfuscator.loadEditMessageShowMethod(loader);
+        var editMessageShowMethod = Unobfuscator.loadEditMessageShowMethod(classLoader);
         logDebug(Unobfuscator.getMethodDescriptor(editMessageShowMethod));
 
-        var editMessageViewField = Unobfuscator.loadEditMessageViewField(loader);
+        var editMessageViewField = Unobfuscator.loadEditMessageViewField(classLoader);
         logDebug(Unobfuscator.getFieldDescriptor(editMessageViewField));
 
 

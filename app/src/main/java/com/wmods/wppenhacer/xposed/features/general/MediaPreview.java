@@ -81,8 +81,8 @@ public class MediaPreview extends Feature {
 
         if (!prefs.getBoolean("media_preview", true)) return;
 
-        var getFieldIdMessage = Unobfuscator.loadSetEditMessageField(loader);
-        var videoViewContainerClass = Unobfuscator.loadVideoViewContainerClass(loader);
+        var getFieldIdMessage = Unobfuscator.loadSetEditMessageField(classLoader);
+        var videoViewContainerClass = Unobfuscator.loadVideoViewContainerClass(classLoader);
         XposedBridge.hookAllConstructors(videoViewContainerClass, new XC_MethodHook() {
             @Override
             protected void afterHookedMethod(MethodHookParam param) throws Throwable {
@@ -116,7 +116,7 @@ public class MediaPreview extends Feature {
             }
         });
 
-        var imageViewContainerClass = Unobfuscator.loadImageVewContainerClass(loader);
+        var imageViewContainerClass = Unobfuscator.loadImageVewContainerClass(classLoader);
         XposedBridge.hookAllConstructors(imageViewContainerClass, new XC_MethodHook() {
             @Override
             protected void afterHookedMethod(MethodHookParam param) throws Throwable {

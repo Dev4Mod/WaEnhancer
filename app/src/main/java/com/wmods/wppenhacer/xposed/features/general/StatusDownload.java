@@ -9,10 +9,10 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 
+import com.wmods.wppenhacer.xposed.core.Feature;
 import com.wmods.wppenhacer.xposed.core.ResId;
 import com.wmods.wppenhacer.xposed.core.Unobfuscator;
 import com.wmods.wppenhacer.xposed.core.Utils;
-import com.wmods.wppenhacer.xposed.core.Feature;
 import com.wmods.wppenhacer.xposed.utils.MimeTypeUtils;
 
 import java.io.File;
@@ -37,19 +37,19 @@ public class StatusDownload extends Feature {
 
     public void doHook() throws Exception {
         if (!prefs.getBoolean("downloadstatus", false)) return;
-        var setPageActiveMethod = Unobfuscator.loadStatusActivePage(loader);
+        var setPageActiveMethod = Unobfuscator.loadStatusActivePage(classLoader);
         var fieldList = Unobfuscator.getFieldByType(setPageActiveMethod.getDeclaringClass(), List.class);
         logDebug("List field: " + fieldList.getName());
         logDebug(Unobfuscator.getMethodDescriptor(setPageActiveMethod));
-        var mediaClass = Unobfuscator.loadStatusDownloadMediaClass(loader);
+        var mediaClass = Unobfuscator.loadStatusDownloadMediaClass(classLoader);
         logDebug("Media class: " + mediaClass.getName());
-        var menuStatusClass = Unobfuscator.loadMenuStatusClass(loader);
+        var menuStatusClass = Unobfuscator.loadMenuStatusClass(classLoader);
         logDebug("MenuStatus class: " + menuStatusClass.getName());
-        var fieldFile = Unobfuscator.loadStatusDownloadFileField(loader);
+        var fieldFile = Unobfuscator.loadStatusDownloadFileField(classLoader);
         logDebug("File field: " + fieldFile.getName());
-        var clazzSubMenu = Unobfuscator.loadStatusDownloadSubMenuClass(loader);
+        var clazzSubMenu = Unobfuscator.loadStatusDownloadSubMenuClass(classLoader);
         logDebug("SubMenu class: " + clazzSubMenu.getName());
-        var clazzMenu = Unobfuscator.loadStatusDownloadMenuClass(loader);
+        var clazzMenu = Unobfuscator.loadStatusDownloadMenuClass(classLoader);
         logDebug("Menu class: " + clazzMenu.getName());
         var menuField = Unobfuscator.getFieldByType(clazzSubMenu, clazzMenu);
         logDebug("Menu field: " + menuField.getName());

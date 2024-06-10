@@ -34,11 +34,11 @@ public class HideTabs extends Feature {
         if (hidetabs == null || hidetabs.isEmpty())
             return;
 
-        var home = XposedHelpers.findClass("com.whatsapp.HomeActivity", loader);
+        var home = XposedHelpers.findClass("com.whatsapp.HomeActivity", classLoader);
 
         var hideTabsList = hidetabs.stream().map(Integer::valueOf).collect(Collectors.toList());
 
-        var onCreateTabList = Unobfuscator.loadTabListMethod(loader);
+        var onCreateTabList = Unobfuscator.loadTabListMethod(classLoader);
         logDebug(Unobfuscator.getMethodDescriptor(onCreateTabList));
         var ListField = Unobfuscator.getFieldByType(home, List.class);
         XposedBridge.hookMethod(onCreateTabList, new XC_MethodHook() {
@@ -54,7 +54,7 @@ public class HideTabs extends Feature {
             }
         });
 
-        var OnTabItemAddMethod = Unobfuscator.loadOnTabItemAddMethod(loader);
+        var OnTabItemAddMethod = Unobfuscator.loadOnTabItemAddMethod(classLoader);
         XposedBridge.hookMethod(OnTabItemAddMethod, new XC_MethodHook() {
             @Override
             protected void afterHookedMethod(MethodHookParam param) throws Throwable {
@@ -66,7 +66,7 @@ public class HideTabs extends Feature {
             }
         });
 
-        var loadTabFrameClass = Unobfuscator.loadTabFrameClass(loader);
+        var loadTabFrameClass = Unobfuscator.loadTabFrameClass(classLoader);
         logDebug(loadTabFrameClass);
 
         XposedBridge.hookAllMethods(FrameLayout.class, "onMeasure", new XC_MethodHook() {
@@ -89,8 +89,8 @@ public class HideTabs extends Feature {
             }
         });
 
-        var onMenuItemSelected = Unobfuscator.loadOnMenuItemSelected(loader);
-        var onMenuItemClick = Unobfuscator.loadOnMenuItemClickClass(loader);
+        var onMenuItemSelected = Unobfuscator.loadOnMenuItemSelected(classLoader);
+        var onMenuItemClick = Unobfuscator.loadOnMenuItemClickClass(classLoader);
 
         XposedBridge.hookMethod(onMenuItemSelected, new XC_MethodHook() {
             @Override

@@ -2,20 +2,17 @@ package com.wmods.wppenhacer.xposed.core;
 
 import androidx.annotation.NonNull;
 
-
-import com.wmods.wppenhacer.BuildConfig;
-
 import de.robv.android.xposed.XSharedPreferences;
 import de.robv.android.xposed.XposedBridge;
 
 public abstract class Feature {
 
-    public final ClassLoader loader;
+    public final ClassLoader classLoader;
     public final XSharedPreferences prefs;
     public static boolean DEBUG = false;
 
-    public Feature(@NonNull ClassLoader loader, @NonNull XSharedPreferences preferences) {
-        this.loader = loader;
+    public Feature(@NonNull ClassLoader classLoader, @NonNull XSharedPreferences preferences) {
+        this.classLoader = classLoader;
         this.prefs = preferences;
     }
 

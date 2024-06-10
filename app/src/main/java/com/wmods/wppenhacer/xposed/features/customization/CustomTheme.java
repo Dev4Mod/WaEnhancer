@@ -25,7 +25,6 @@ import androidx.core.content.ContextCompat;
 
 import com.wmods.wppenhacer.utils.IColors;
 import com.wmods.wppenhacer.views.WallpaperView;
-import com.wmods.wppenhacer.xposed.core.DesignUtils;
 import com.wmods.wppenhacer.xposed.core.Feature;
 import com.wmods.wppenhacer.xposed.core.Unobfuscator;
 import com.wmods.wppenhacer.xposed.core.Utils;
@@ -40,19 +39,18 @@ import java.util.Objects;
 
 import de.robv.android.xposed.XC_MethodHook;
 import de.robv.android.xposed.XSharedPreferences;
-import de.robv.android.xposed.XposedBridge;
 import de.robv.android.xposed.XposedHelpers;
 
 public class CustomTheme extends Feature {
 
-    public static ClassLoader classLoader;
+    public static ClassLoader loader1;
     private HashMap<String, String> wallAlpha;
     private HashMap<String, String> navAlpha;
     private HashMap<String, String> toolbarAlpha;
 
     public CustomTheme(ClassLoader loader, XSharedPreferences preferences) {
         super(loader, preferences);
-        classLoader = loader;
+        loader1 = loader;
     }
 
     @Override
@@ -64,7 +62,7 @@ public class CustomTheme extends Feature {
     private void hookWallpaper() throws Exception {
         if (!prefs.getBoolean("wallpaper", false)) return;
 
-        var clazz = XposedHelpers.findClass("com.whatsapp.HomeActivity", loader);
+        var clazz = XposedHelpers.findClass("com.whatsapp.HomeActivity", classLoader);
         XposedHelpers.findAndHookMethod(clazz.getSuperclass(), "onCreate", Bundle.class, new XC_MethodHook() {
             @Override
             protected void afterHookedMethod(MethodHookParam param) throws Throwable {
@@ -75,7 +73,7 @@ public class CustomTheme extends Feature {
             }
         });
 
-        XposedHelpers.findAndHookMethod("androidx.viewpager.widget.ViewPager", classLoader, "onMeasure", int.class, int.class, new XC_MethodHook() {
+        XposedHelpers.findAndHookMethod("androidx.viewpager.widget.ViewPager", loader1, "onMeasure", int.class, int.class, new XC_MethodHook() {
             @Override
             protected void afterHookedMethod(MethodHookParam param) throws Throwable {
                 var viewGroup = (ViewGroup) param.thisObject;
@@ -84,7 +82,7 @@ public class CustomTheme extends Feature {
         });
 
 
-        var loadTabFrameClass = Unobfuscator.loadTabFrameClass(loader);
+        var loadTabFrameClass = Unobfuscator.loadTabFrameClass(classLoader);
         XposedHelpers.findAndHookMethod(FrameLayout.class, "onMeasure", int.class, int.class, new XC_MethodHook() {
             @Override
             protected void afterHookedMethod(MethodHookParam param) throws Throwable {
@@ -109,11 +107,11 @@ public class CustomTheme extends Feature {
     }
 
     private void hookColors() throws Exception {
-        var customDrawable1 = Unobfuscator.loadExpandableWidgetClass(loader);
+        var customDrawable1 = Unobfuscator.loadExpandableWidgetClass(classLoader);
         logDebug("customDrawable1: " + customDrawable1.getName());
-        var customDrawable2 = Unobfuscator.loadMaterialShapeDrawableClass(loader);
+        var customDrawable2 = Unobfuscator.loadMaterialShapeDrawableClass(classLoader);
         logDebug("customDrawable2: " + customDrawable2.getName());
-        var customDrawable3 = Unobfuscator.loadCustomDrawableClass(loader);
+        var customDrawable3 = Unobfuscator.loadCustomDrawableClass(classLoader);
         logDebug("customDrawable3: " + customDrawable3.getName());
 
         var primaryColorInt = prefs.getInt("primary_color", 0);
@@ -172,7 +170,7 @@ public class CustomTheme extends Feature {
         }
 
 
-        findAndHookMethod(Activity.class.getName(), loader, "onCreate", Bundle.class, new XC_MethodHook() {
+        findAndHookMethod(Activity.class.getName(), classLoader, "onCreate", Bundle.class, new XC_MethodHook() {
             @Override
             protected void afterHookedMethod(MethodHookParam param) throws Throwable {
                 super.afterHookedMethod(param);
@@ -184,18 +182,18 @@ public class CustomTheme extends Feature {
         });
 
         var intBgHook = new IntBgColorHook();
-        findAndHookMethod(TextView.class.getName(), loader, "setTextColor", int.class, intBgHook);
-        findAndHookMethod(Paint.class.getName(), loader, "setColor", int.class, intBgHook);
-        findAndHookMethod(View.class.getName(), loader, "setBackgroundColor", int.class, intBgHook);
-        findAndHookMethod(GradientDrawable.class.getName(), loader, "setColor", int.class, intBgHook);
-        findAndHookMethod(ColorDrawable.class.getName(), loader, "setColor", int.class, intBgHook);
-        findAndHookMethod(Notification.Builder.class.getName(), loader, "setColor", int.class, intBgHook);
-        findAndHookMethod(Drawable.class.getName(), loader, "setTint", int.class, intBgHook);
-        findAndHookMethod("com.whatsapp.CircularProgressBar", loader, "setProgressBarColor", int.class, intBgHook);
-        findAndHookMethod("com.whatsapp.CircularProgressBar", loader, "setProgressBarBackgroundColor", int.class, intBgHook);
+        findAndHookMethod(TextView.class.getName(), classLoader, "setTextColor", int.class, intBgHook);
+        findAndHookMethod(Paint.class.getName(), classLoader, "setColor", int.class, intBgHook);
+        findAndHookMethod(View.class.getName(), classLoader, "setBackgroundColor", int.class, intBgHook);
+        findAndHookMethod(GradientDrawable.class.getName(), classLoader, "setColor", int.class, intBgHook);
+        findAndHookMethod(ColorDrawable.class.getName(), classLoader, "setColor", int.class, intBgHook);
+        findAndHookMethod(Notification.Builder.class.getName(), classLoader, "setColor", int.class, intBgHook);
+        findAndHookMethod(Drawable.class.getName(), classLoader, "setTint", int.class, intBgHook);
+        findAndHookMethod("com.whatsapp.CircularProgressBar", classLoader, "setProgressBarColor", int.class, intBgHook);
+        findAndHookMethod("com.whatsapp.CircularProgressBar", classLoader, "setProgressBarBackgroundColor", int.class, intBgHook);
 
         var colorStateListHook = new ColorStateListHook();
-        findAndHookMethod(Drawable.class.getName(), loader, "setTintList", ColorStateList.class, colorStateListHook);
+        findAndHookMethod(Drawable.class.getName(), classLoader, "setTintList", ColorStateList.class, colorStateListHook);
         findAndHookMethod(customDrawable1, "setBackgroundTintList", ColorStateList.class, colorStateListHook);
         findAndHookMethod(customDrawable1, "setRippleColor", ColorStateList.class, colorStateListHook);
         findAndHookMethod(customDrawable1, "setSupportImageTintList", ColorStateList.class, colorStateListHook);
@@ -206,12 +204,12 @@ public class CustomTheme extends Feature {
         findAndHookMethod(customDrawable3, "setTintList", ColorStateList.class, colorStateListHook);
 
         var inflaterHook = (XC_MethodHook) new LayoutInflaterHook();
-        findAndHookMethod(LayoutInflater.class.getName(), loader, "inflate", int.class, ViewGroup.class, inflaterHook);
-        findAndHookMethod(LayoutInflater.class.getName(), loader, "inflate", XmlPullParser.class, ViewGroup.class, inflaterHook);
-        findAndHookMethod(LayoutInflater.class.getName(), loader, "inflate", int.class, ViewGroup.class, boolean.class, inflaterHook);
-        findAndHookMethod(LayoutInflater.class.getName(), loader, "inflate", XmlPullParser.class, ViewGroup.class, boolean.class, inflaterHook);
+        findAndHookMethod(LayoutInflater.class.getName(), classLoader, "inflate", int.class, ViewGroup.class, inflaterHook);
+        findAndHookMethod(LayoutInflater.class.getName(), classLoader, "inflate", XmlPullParser.class, ViewGroup.class, inflaterHook);
+        findAndHookMethod(LayoutInflater.class.getName(), classLoader, "inflate", int.class, ViewGroup.class, boolean.class, inflaterHook);
+        findAndHookMethod(LayoutInflater.class.getName(), classLoader, "inflate", XmlPullParser.class, ViewGroup.class, boolean.class, inflaterHook);
 
-        findAndHookMethod(View.class.getName(), loader, "setBackground", Drawable.class, new XC_MethodHook() {
+        findAndHookMethod(View.class.getName(), classLoader, "setBackground", Drawable.class, new XC_MethodHook() {
             @Override
             protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
                 var colors = IColors.colors;

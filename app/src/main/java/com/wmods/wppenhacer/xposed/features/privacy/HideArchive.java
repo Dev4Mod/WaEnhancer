@@ -4,8 +4,8 @@ import android.view.View;
 
 import androidx.annotation.NonNull;
 
-import com.wmods.wppenhacer.xposed.core.Unobfuscator;
 import com.wmods.wppenhacer.xposed.core.Feature;
+import com.wmods.wppenhacer.xposed.core.Unobfuscator;
 
 import java.util.HashSet;
 
@@ -25,7 +25,7 @@ public class HideArchive extends Feature {
     public void doHook() throws Throwable {
         if (!prefs.getBoolean("hidearchive", false))
             return;
-        var archiveHideViewMethod = Unobfuscator.loadArchiveHideViewMethod(loader);
+        var archiveHideViewMethod = Unobfuscator.loadArchiveHideViewMethod(classLoader);
         for (var method : archiveHideViewMethod) {
             logDebug(Unobfuscator.getMethodDescriptor(method));
             XposedBridge.hookMethod(method, new XC_MethodHook() {
@@ -35,7 +35,7 @@ public class HideArchive extends Feature {
                 }
             });
         }
-        var onclickCapture = Unobfuscator.loadArchiveOnclickCaptureMethod(loader);
+        var onclickCapture = Unobfuscator.loadArchiveOnclickCaptureMethod(classLoader);
         for (var method : onclickCapture) {
             logDebug(Unobfuscator.getMethodDescriptor(method));
             XposedBridge.hookMethod(method, new XC_MethodHook() {

@@ -1,7 +1,7 @@
 package com.wmods.wppenhacer.utils;
 
 import static com.wmods.wppenhacer.utils.IColors.parseColor;
-import static com.wmods.wppenhacer.xposed.features.customization.CustomTheme.classLoader;
+import static com.wmods.wppenhacer.xposed.features.customization.CustomTheme.loader1;
 
 import android.content.res.ColorStateList;
 import android.graphics.Bitmap;
@@ -165,7 +165,7 @@ public class DrawableColors {
 
     private static int getRippleDrawableColor(RippleDrawable rippleDrawable) {
         var state = rippleDrawable.getConstantState();
-        var rippleStateClass = XposedHelpers.findClass("android.graphics.drawable.RippleDrawable.RippleState", classLoader);
+        var rippleStateClass = XposedHelpers.findClass("android.graphics.drawable.RippleDrawable.RippleState", loader1);
         try {
             return XposedHelpers.getIntField(state, "mColor");
         } catch (IllegalArgumentException e) {
