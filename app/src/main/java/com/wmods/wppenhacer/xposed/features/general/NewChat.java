@@ -33,7 +33,7 @@ public class NewChat extends Feature {
         var homeActivity = findClass("com.whatsapp.HomeActivity", loader);
         var newSettings = prefs.getBoolean("novaconfig", false);
         if (!prefs.getBoolean("newchat", true)) return;
-        WppCore.addMenuItem(homeActivity, new WppCore.OnMenuCreate() {
+        WppCore.addMenuItemClass(homeActivity, new WppCore.OnMenuCreate() {
             @Override
             public void onAfterCreate(Activity activity, Menu menu) {
                 var item = menu.add(0, 0, 0, ResId.string.new_chat);

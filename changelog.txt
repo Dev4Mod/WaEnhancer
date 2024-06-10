@@ -1,8 +1,2 @@
 [CALL PRIVACY]
-* Fix bug not working in latest WhatsApp
-
-[DOWNLOAD PROFILE IMAGE]
-* Fix bug not working in latest WhatsApp
-
-[WA ENHANCER]
-* Update translations
+* Add types of call blocking.

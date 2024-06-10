@@ -57,6 +57,20 @@
         <item>1</item>
         <item>2</item>
     </string-array>
+    <string-array name="call_type_buttons">
+        <item>@string/call_type_buttons_no_internet</item>
+        <item>@string/call_type_buttons_declined</item>
+        <item>@string/call_type_buttons_ended</item>
+        <item>@string/call_type_buttons_uncallable</item>
+    </string-array>
+
+    <string-array name="call_type_values">
+        <item>no_internet</item>
+        <item>declined</item>
+        <item>ended</item>
+        <item>uncallable</item>
+    </string-array>
+
     <string-array name="seentick_buttons">
         <item>@string/antirevoke_buttons_desable</item>
         <item>@string/seentick_screen</item>

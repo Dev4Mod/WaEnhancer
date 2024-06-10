@@ -27,8 +27,8 @@ public class CallPrivacy extends Feature {
     public void doHook() throws Throwable {
 
         var onCallReceivedMethod = Unobfuscator.loadAntiRevokeOnCallReceivedMethod(loader);
-        var callEndMethod = Unobfuscator.loadAntiRevokeCallEndMethod(loader);
-        var callState = Enum.valueOf((Class<Enum>) XposedHelpers.findClass("com.whatsapp.voipcalling.CallState", loader), "ACTIVE");
+//        var callEndMethod = Unobfuscator.loadAntiRevokeCallEndMethod(loader);
+//        var callState = Enum.valueOf((Class<Enum>) XposedHelpers.findClass("com.whatsapp.voipcalling.CallState", loader), "ACTIVE");
 
         XposedBridge.hookMethod(onCallReceivedMethod, new XC_MethodHook() {
             @Override
@@ -37,6 +37,7 @@ public class CallPrivacy extends Feature {
                 Class<?> callInfoClass = XposedHelpers.findClass("com.whatsapp.voipcalling.CallInfo", loader);
                 if (callinfo == null || !callInfoClass.isInstance(callinfo)) return;
                 if ((boolean) XposedHelpers.callMethod(callinfo, "isCaller")) return;
+                var callId = XposedHelpers.callMethod(callinfo, "getCallId");
                 var type = Integer.parseInt(prefs.getString("call_privacy", "0"));
                 var block = false;
                 switch (type) {
@@ -50,12 +51,22 @@ public class CallPrivacy extends Feature {
                         break;
                 }
                 if (!block) return;
-                XposedHelpers.callMethod(param.thisObject, callEndMethod.getName(), callState, callinfo);
+//                XposedHelpers.callMethod(param.thisObject, callEndMethod.getName(), callState, callinfo);
                 var clazzVoip = XposedHelpers.findClass("com.whatsapp.voipcalling.Voip", loader);
-                try {
-                    XposedHelpers.callStaticMethod(clazzVoip, "endCall", true);
-                } catch (NoSuchMethodError e) {
-                    XposedHelpers.callStaticMethod(clazzVoip, "endCall", true, 0);
+                var rejectType = prefs.getString("call_type", "ended");
+                switch (rejectType) {
+                    case "uncallable":
+                    case "declined":
+                        XposedHelpers.callStaticMethod(clazzVoip, "rejectCall", callId, rejectType.equals("declined") ? null : rejectType);
+                        break;
+                    case "ended":
+                        try {
+                            XposedHelpers.callStaticMethod(clazzVoip, "endCall", true);
+                        } catch (NoSuchMethodError e) {
+                            XposedHelpers.callStaticMethod(clazzVoip, "endCall", true, 0);
+                        }
+                        break;
+                    default:
                 }
                 param.setResult(false);
             }

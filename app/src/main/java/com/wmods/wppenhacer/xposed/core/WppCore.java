@@ -44,7 +44,14 @@ public class WppCore {
     private static SharedPreferences privPrefs;
     private static Object mStartUpConfig;
 
-    public static void addMenuItem(Class<?> aClass, OnMenuCreate listener) {
+    public static void addMenuItemClass(Class<?> aClass, OnMenuCreate listener) {
+        var list = listenerMenu.computeIfAbsent(aClass, k -> new ArrayList<>());
+        list.add(listener);
+    }
+
+    public static void addMenuItemString(String className, OnMenuCreate listener) {
+        var classLoader = Utils.getApplication().getClassLoader();
+        var aClass = XposedHelpers.findClass(className, classLoader);
         var list = listenerMenu.computeIfAbsent(aClass, k -> new ArrayList<>());
         list.add(listener);
     }

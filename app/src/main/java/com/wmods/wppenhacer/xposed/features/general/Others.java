@@ -156,7 +156,6 @@ public class Others extends Feature {
             disable_defEmojis();
         }
 
-
     }
 
 
@@ -491,7 +490,7 @@ public class Others extends Feature {
 
     private void hookMenuOptions(boolean newSettings, boolean showFreezeLastSeen, boolean showDnd, String filterChats) {
         var homecls = XposedHelpers.findClass("com.whatsapp.HomeActivity", loader);
-        WppCore.addMenuItem(homecls, new WppCore.OnMenuCreate() {
+        WppCore.addMenuItemClass(homecls, new WppCore.OnMenuCreate() {
             @Override
             public void onAfterCreate(Activity activity, Menu menu) {
                 if (prefs.getBoolean("restartbutton", true)) {
