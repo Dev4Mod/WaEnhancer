@@ -360,7 +360,7 @@ public class Others extends Feature {
                 var menu = (Menu) param.args[0];
                 var item = menu.add(0, 0, 0, "Save");
                 item.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
-                var icon = DesignUtils.getDrawableByName("ic_action_download_wds");
+                var icon = DesignUtils.getDrawableByName("ic_action_download");
                 icon.setTint(Color.WHITE);
                 item.setIcon(icon);
                 item.setOnMenuItemClickListener(menuItem -> {

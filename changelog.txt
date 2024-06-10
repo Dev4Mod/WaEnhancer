@@ -1,28 +1,8 @@
-NOTE: All the corrections below are related to version 2.24.11.80 of WhatsApp.
-[HIDE RECEIPTS]
-* Fix bug in hide on chat opened
+[CALL PRIVACY]
+* Fix bug not working in latest WhatsApp
 
-[FILTER GROUPS]
-* Fix error where the group separation opened together with the group filter.
+[DOWNLOAD PROFILE IMAGE]
+* Fix bug not working in latest WhatsApp
 
-[IG Status]
-* Fix bug status is broken on change theme
-
-[TOOLBAR BUTTONS]
-* Fix all incorrect colors and translations
-
-[CONFIRMATION STICKER]
-* Fix bug to show correct stick in dialog
-
-[SHOW MESSAGE HISTORY]
-* Fix bug on disable function not working
-
-[VIEW ONCE]
-* Resolve the issue causing the download button to not be displayed.
-* Resolve the issue causing the send tick button to not be displayed.
-
-[SEND SECOND TICK]
-* Fix bug on reply message
-
-[WHATSAPP]
-* add support to WhatsApp 2.24.11.79~80
+[WA ENHANCER]
+* Update translations
