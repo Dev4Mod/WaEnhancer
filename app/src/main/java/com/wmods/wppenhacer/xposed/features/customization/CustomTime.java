@@ -2,8 +2,8 @@ package com.wmods.wppenhacer.xposed.features.customization;
 
 import androidx.annotation.NonNull;
 
-import com.wmods.wppenhacer.xposed.core.Unobfuscator;
 import com.wmods.wppenhacer.xposed.core.Feature;
+import com.wmods.wppenhacer.xposed.core.Unobfuscator;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -23,7 +23,7 @@ public class CustomTime extends Feature {
     public void doHook() throws Exception {
         var secondsToTime = prefs.getBoolean("segundos", false);
         var ampm = prefs.getBoolean("ampm", false);
-        var secondsToTimeMethod = Unobfuscator.loadTimeToSecondsMethod(loader);
+        var secondsToTimeMethod = Unobfuscator.loadTimeToSecondsMethod(classLoader);
         logDebug(Unobfuscator.getMethodDescriptor(secondsToTimeMethod));
 
         XposedBridge.hookMethod(secondsToTimeMethod, new XC_MethodHook() {

@@ -17,17 +17,17 @@ public class MessageStore {
     public static String getMessageById(long id) {
         String message = "";
         try {
-            Cursor cursor = database.getReadableDatabase().rawQuery("SELECT docid, c0content FROM message_ftsv2_content WHERE docid=\"" + id + "\"", null);
-            cursor.moveToFirst();
-            XposedBridge.log("Count: " + cursor.getCount());
-            if (cursor.getCount() <= 0) {
-                cursor.close();
-                return "";
+            String[] columns = new String[]{"c0content"};
+            String selection = "docid=?";
+            String[] selectionArgs = new String[]{String.valueOf(id)};
+
+            Cursor cursor = database.getReadableDatabase().query("message_ftsv2_content", columns, selection, selectionArgs, null, null, null);
+            if (cursor.moveToFirst()) {
+                message = cursor.getString(cursor.getColumnIndexOrThrow("c0content"));
             }
-            message = cursor.getString(1);
             cursor.close();
-        } catch (Exception ignored) {
-            XposedBridge.log(ignored);
+        } catch (Exception e) {
+            XposedBridge.log(e);
         }
         return message;
     }

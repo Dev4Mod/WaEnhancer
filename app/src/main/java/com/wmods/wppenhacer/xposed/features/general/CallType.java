@@ -34,7 +34,7 @@ public class CallType extends Feature {
 
         if (!prefs.getBoolean("calltype", false)) return;
 
-        var intPreferences = Unobfuscator.loadGetIntPreferences(loader);
+        var intPreferences = Unobfuscator.loadGetIntPreferences(classLoader);
         XposedBridge.hookMethod(intPreferences, new XC_MethodHook() {
             @Override
             protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
@@ -45,7 +45,7 @@ public class CallType extends Feature {
         });
 
 
-        var callConfirmationFragment = XposedHelpers.findClass("com.whatsapp.calling.fragment.CallConfirmationFragment", loader);
+        var callConfirmationFragment = XposedHelpers.findClass("com.whatsapp.calling.fragment.CallConfirmationFragment", classLoader);
         var method = ReflectionUtils.findMethodUsingFilter(callConfirmationFragment, m -> m.getParameterCount() == 1 && m.getParameterTypes()[0].equals(android.os.Bundle.class));
         XposedBridge.hookMethod(method, new XC_MethodHook() {
             private boolean isVideoCall;

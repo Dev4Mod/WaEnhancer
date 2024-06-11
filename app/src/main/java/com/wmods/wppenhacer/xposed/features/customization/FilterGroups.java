@@ -48,7 +48,7 @@ public class FilterGroups extends Feature {
         if (!prefs.getBoolean("filtergroups", false) || prefs.getBoolean("separategroups", false))
             return;
 
-        var filterAdaperClass = Unobfuscator.loadFilterAdaperClass(loader);
+        var filterAdaperClass = Unobfuscator.loadFilterAdaperClass(classLoader);
         methodSetFilter = ReflectionUtils.findMethodUsingFilter(filterAdaperClass, m -> m.getParameterCount() == 1 && m.getParameterTypes()[0].equals(int.class));
 
         XposedBridge.hookAllConstructors(filterAdaperClass, new XC_MethodHook() {
@@ -58,7 +58,7 @@ public class FilterGroups extends Feature {
             }
         });
 
-        var cFrag = XposedHelpers.findClass("com.whatsapp.conversationslist.ConversationsFragment", loader);
+        var cFrag = XposedHelpers.findClass("com.whatsapp.conversationslist.ConversationsFragment", classLoader);
 
         XposedBridge.hookAllConstructors(cFrag, new XC_MethodHook() {
             @Override
@@ -67,9 +67,9 @@ public class FilterGroups extends Feature {
             }
         });
 
-        methodInitFilter = Unobfuscator.getFilterInitMethod(loader);
+        methodInitFilter = Unobfuscator.getFilterInitMethod(classLoader);
 
-        var filterView = Unobfuscator.getFilterView(loader);
+        var filterView = Unobfuscator.getFilterView(classLoader);
 
         XposedHelpers.findAndHookConstructor(filterView, android.content.Context.class, new XC_MethodHook() {
             @Override

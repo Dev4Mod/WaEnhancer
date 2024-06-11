@@ -97,7 +97,7 @@ public class CustomView extends Feature {
                     String name;
                     if ((className = item.getClassName()) != null) {
                         className = className.replaceAll("_", ".").trim();
-                        var clazz = XposedHelpers.findClass(className, loader);
+                        var clazz = XposedHelpers.findClass(className, classLoader);
                         if (clazz == null || !clazz.isInstance(activity)) continue;
                         name = selectorItem.get(1).getIDName().trim();
                     } else {

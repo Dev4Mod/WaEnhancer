@@ -45,7 +45,7 @@ public class IGStatus extends Feature {
         if (!prefs.getBoolean("igstatus", false) || Utils.getApplication().getPackageName().equals("com.whatsapp.w4b"))
             return;
 
-        var clazz = XposedHelpers.findClass("com.whatsapp.HomeActivity", loader);
+        var clazz = XposedHelpers.findClass("com.whatsapp.HomeActivity", classLoader);
 
         XposedHelpers.findAndHookMethod(clazz.getSuperclass(), "onCreate", android.os.Bundle.class, new XC_MethodHook() {
             @Override
@@ -78,7 +78,7 @@ public class IGStatus extends Feature {
         });
 
         // fix scroll
-        var onScrollPagerMethod = Unobfuscator.loadScrollPagerMethod(loader);
+        var onScrollPagerMethod = Unobfuscator.loadScrollPagerMethod(classLoader);
 
         XposedBridge.hookMethod(onScrollPagerMethod, new XC_MethodHook() {
             @Override
@@ -89,11 +89,11 @@ public class IGStatus extends Feature {
             }
         });
 
-        var getViewConversationMethod = Unobfuscator.loadGetViewConversationMethod(loader);
+        var getViewConversationMethod = Unobfuscator.loadGetViewConversationMethod(classLoader);
         XposedBridge.hookMethod(getViewConversationMethod, new XC_MethodHook() {
             @Override
             protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-                if (XposedHelpers.findClass("com.whatsapp.conversationslist.ArchivedConversationsFragment", loader).isInstance(param.thisObject))
+                if (XposedHelpers.findClass("com.whatsapp.conversationslist.ArchivedConversationsFragment", classLoader).isInstance(param.thisObject))
                     return;
                 var view = (ViewGroup) param.getResult();
                 if (view == null) return;
@@ -109,10 +109,10 @@ public class IGStatus extends Feature {
 
         // hide on tab
 
-        var onMenuItemSelected = Unobfuscator.loadOnMenuItemSelected(loader);
+        var onMenuItemSelected = Unobfuscator.loadOnMenuItemSelected(classLoader);
         var separateGroups = prefs.getBoolean("separategroups", false);
-        var onMenuItemClick = Unobfuscator.loadOnMenuItemClickClass(loader);
-        var onMenuItemClick2 = Unobfuscator.loadOnMenuItemClickClass2(loader);
+        var onMenuItemClick = Unobfuscator.loadOnMenuItemClickClass(classLoader);
+        var onMenuItemClick2 = Unobfuscator.loadOnMenuItemClickClass2(classLoader);
 
         XposedBridge.hookMethod(onMenuItemSelected, new XC_MethodHook() {
             @Override
@@ -134,10 +134,10 @@ public class IGStatus extends Feature {
         });
 
 
-        var clazz2 = XposedHelpers.findClass("com.whatsapp.updates.viewmodels.UpdatesViewModel", loader);
-        var onUpdateStatusChanged = Unobfuscator.loadOnUpdateStatusChanged(loader);
+        var clazz2 = XposedHelpers.findClass("com.whatsapp.updates.viewmodels.UpdatesViewModel", classLoader);
+        var onUpdateStatusChanged = Unobfuscator.loadOnUpdateStatusChanged(classLoader);
         logDebug(Unobfuscator.getMethodDescriptor(onUpdateStatusChanged));
-        var statusInfoClass = Unobfuscator.loadStatusInfoClass(loader);
+        var statusInfoClass = Unobfuscator.loadStatusInfoClass(classLoader);
         logDebug(statusInfoClass);
 
         XposedBridge.hookAllConstructors(clazz2, new XC_MethodHook() {
@@ -150,7 +150,7 @@ public class IGStatus extends Feature {
             }
         });
 
-        var onStatusListUpdatesClass = Unobfuscator.loadStatusListUpdatesClass(loader);
+        var onStatusListUpdatesClass = Unobfuscator.loadStatusListUpdatesClass(classLoader);
         logDebug(onStatusListUpdatesClass);
 
         XposedBridge.hookAllConstructors(onStatusListUpdatesClass, new XC_MethodHook() {
@@ -167,7 +167,7 @@ public class IGStatus extends Feature {
         });
 
 
-        var onGetInvokeField = Unobfuscator.loadGetInvokeField(loader);
+        var onGetInvokeField = Unobfuscator.loadGetInvokeField(classLoader);
         logDebug(Unobfuscator.getFieldDescriptor(onGetInvokeField));
         XposedBridge.hookMethod(onUpdateStatusChanged, new XC_MethodHook() {
 

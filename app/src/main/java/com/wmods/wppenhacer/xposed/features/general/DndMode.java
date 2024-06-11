@@ -18,7 +18,7 @@ public class DndMode extends Feature {
     @Override
     public void doHook() throws Exception {
         if (!WppCore.getPrivBoolean("dndmode",false)) return;
-        var dndMethod = Unobfuscator.loadDndModeMethod(loader);
+        var dndMethod = Unobfuscator.loadDndModeMethod(classLoader);
         logDebug(Unobfuscator.getMethodDescriptor(dndMethod));
         XposedBridge.hookMethod(dndMethod, XC_MethodReplacement.DO_NOTHING);
     }

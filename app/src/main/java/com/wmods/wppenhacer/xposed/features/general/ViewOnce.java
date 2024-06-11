@@ -30,12 +30,12 @@ public class ViewOnce extends Feature {
 
     @Override
     public void doHook() throws Exception {
-        var methods = Unobfuscator.loadViewOnceMethod(loader);
-        var classViewOnce = Unobfuscator.loadViewOnceClass(loader);
+        var methods = Unobfuscator.loadViewOnceMethod(classLoader);
+        var classViewOnce = Unobfuscator.loadViewOnceClass(classLoader);
         logDebug(classViewOnce);
-        var viewOnceStoreMethod = Unobfuscator.loadViewOnceStoreMethod(loader);
+        var viewOnceStoreMethod = Unobfuscator.loadViewOnceStoreMethod(classLoader);
         logDebug(Unobfuscator.getMethodDescriptor(viewOnceStoreMethod));
-        var messageKeyField = Unobfuscator.loadMessageKeyField(loader);
+        var messageKeyField = Unobfuscator.loadMessageKeyField(classLoader);
 
         XposedBridge.hookMethod(viewOnceStoreMethod, new XC_MethodHook() {
             @Override
@@ -66,15 +66,15 @@ public class ViewOnce extends Feature {
 
         if (prefs.getBoolean("downloadviewonce", false)) {
 
-            var menuMethod = Unobfuscator.loadViewOnceDownloadMenuMethod(loader);
+            var menuMethod = Unobfuscator.loadViewOnceDownloadMenuMethod(classLoader);
             logDebug(Unobfuscator.getMethodDescriptor(menuMethod));
-            var menuIntField = Unobfuscator.loadViewOnceDownloadMenuField(loader);
+            var menuIntField = Unobfuscator.loadViewOnceDownloadMenuField(classLoader);
             logDebug(Unobfuscator.getFieldDescriptor(menuIntField));
-            var initIntField = Unobfuscator.loadViewOnceDownloadMenuField2(loader);
+            var initIntField = Unobfuscator.loadViewOnceDownloadMenuField2(classLoader);
             logDebug(Unobfuscator.getFieldDescriptor(initIntField));
-            var callMethod = Unobfuscator.loadViewOnceDownloadMenuCallMethod(loader);
+            var callMethod = Unobfuscator.loadViewOnceDownloadMenuCallMethod(classLoader);
             logDebug(Unobfuscator.getMethodDescriptor(callMethod));
-            var fileField = Unobfuscator.loadStatusDownloadFileField(loader);
+            var fileField = Unobfuscator.loadStatusDownloadFileField(classLoader);
             logDebug(Unobfuscator.getFieldDescriptor(fileField));
 
             XposedBridge.hookMethod(menuMethod, new XC_MethodHook() {

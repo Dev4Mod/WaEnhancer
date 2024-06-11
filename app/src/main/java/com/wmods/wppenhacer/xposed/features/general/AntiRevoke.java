@@ -26,7 +26,6 @@ import com.wmods.wppenhacer.xposed.core.db.MessageStore;
 import com.wmods.wppenhacer.xposed.utils.ReflectionUtils;
 
 import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
 import java.text.DateFormat;
 import java.util.Arrays;
 import java.util.Date;
@@ -53,26 +52,26 @@ public class AntiRevoke extends Feature {
     @Override
     public void doHook() throws Exception {
 
-        var antiRevokeMessageMethod = Unobfuscator.loadAntiRevokeMessageMethod(loader);
+        var antiRevokeMessageMethod = Unobfuscator.loadAntiRevokeMessageMethod(classLoader);
         logDebug(Unobfuscator.getMethodDescriptor(antiRevokeMessageMethod));
 
-        var classThreadMessage = Unobfuscator.loadFMessageClass(loader);
+        var classThreadMessage = Unobfuscator.loadFMessageClass(classLoader);
         logDebug("Class: " + classThreadMessage);
 
-        fieldMessageKey = Unobfuscator.loadMessageKeyField(loader);
+        fieldMessageKey = Unobfuscator.loadMessageKeyField(classLoader);
         logDebug(Unobfuscator.getFieldDescriptor(fieldMessageKey));
 
-        getFieldIdMessage = Unobfuscator.loadSetEditMessageField(loader);
+        getFieldIdMessage = Unobfuscator.loadSetEditMessageField(classLoader);
         logDebug(Unobfuscator.getFieldDescriptor(getFieldIdMessage));
 
 
-        var bubbleMethod = Unobfuscator.loadAntiRevokeBubbleMethod(loader);
+        var bubbleMethod = Unobfuscator.loadAntiRevokeBubbleMethod(classLoader);
         logDebug(Unobfuscator.getMethodDescriptor(bubbleMethod));
 
-        var unknownStatusPlaybackMethod = Unobfuscator.loadUnknownStatusPlaybackMethod(loader);
+        var unknownStatusPlaybackMethod = Unobfuscator.loadUnknownStatusPlaybackMethod(classLoader);
         logDebug(Unobfuscator.getMethodDescriptor(unknownStatusPlaybackMethod));
 
-        var statusPlaybackField = Unobfuscator.loadStatusPlaybackViewField(loader);
+        var statusPlaybackField = Unobfuscator.loadStatusPlaybackViewField(classLoader);
         logDebug(Unobfuscator.getFieldDescriptor(statusPlaybackField));
 
         XposedBridge.hookMethod(antiRevokeMessageMethod, new XC_MethodHook() {
@@ -80,7 +79,7 @@ public class AntiRevoke extends Feature {
             protected void beforeHookedMethod(MethodHookParam param) throws Exception {
                 var objMessage = classThreadMessage.cast(param.args[0]);
                 var fieldMessageDetails = fieldMessageKey.get(objMessage);
-                var deviceJidMethod = ReflectionUtils.findMethodUsingFilter(fieldMessageKey.getDeclaringClass(), method -> method.getReturnType().equals(XposedHelpers.findClass("com.whatsapp.jid.DeviceJid", loader)));
+                var deviceJidMethod = ReflectionUtils.findMethodUsingFilter(fieldMessageKey.getDeclaringClass(), method -> method.getReturnType().equals(XposedHelpers.findClass("com.whatsapp.jid.DeviceJid", classLoader)));
                 var deviceJid = ReflectionUtils.callMethod(deviceJidMethod, objMessage);
                 var isFromMe = XposedHelpers.getBooleanField(fieldMessageDetails, "A02");
                 var userJid = XposedHelpers.getObjectField(fieldMessageDetails, "A00");
@@ -265,7 +264,7 @@ public class AntiRevoke extends Feature {
         var messageSuffix = Utils.getApplication().getString(ResId.string.deleted_message);
         if (Objects.equals(stripJID(jidAuthor), "status")) {
             messageSuffix = Utils.getApplication().getString(ResId.string.deleted_status);
-            var getUserJid = ReflectionUtils.findMethodUsingFilter(fieldMessageKey.getDeclaringClass(), method -> method.getReturnType().equals(XposedHelpers.findClass("com.whatsapp.jid.UserJid", loader)));
+            var getUserJid = ReflectionUtils.findMethodUsingFilter(fieldMessageKey.getDeclaringClass(), method -> method.getReturnType().equals(XposedHelpers.findClass("com.whatsapp.jid.UserJid", classLoader)));
             jidAuthor = WppCore.getRawString(ReflectionUtils.callMethod(getUserJid, fMessage));
         }
         if (TextUtils.isEmpty(jidAuthor)) return;

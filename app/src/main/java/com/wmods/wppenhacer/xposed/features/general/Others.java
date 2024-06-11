@@ -136,7 +136,7 @@ public class Others extends Feature {
         }
 
         if (proximity) {
-            var proximitySensorMethod = Unobfuscator.loadProximitySensorMethod(loader);
+            var proximitySensorMethod = Unobfuscator.loadProximitySensorMethod(classLoader);
             XposedBridge.hookMethod(proximitySensorMethod, XC_MethodReplacement.DO_NOTHING);
         }
 
@@ -156,12 +156,11 @@ public class Others extends Feature {
             disable_defEmojis();
         }
 
-
     }
 
 
     private void disable_defEmojis() throws Exception {
-        var defEmojiClass = Unobfuscator.loadDefEmojiClass(loader);
+        var defEmojiClass = Unobfuscator.loadDefEmojiClass(classLoader);
         XposedBridge.hookMethod(defEmojiClass, XC_MethodReplacement.returnConstant(null));
     }
 
@@ -187,7 +186,7 @@ public class Others extends Feature {
     }
 
     private void showOnline() throws Exception {
-        var checkOnlineMethod = Unobfuscator.loadCheckOnlineMethod(loader);
+        var checkOnlineMethod = Unobfuscator.loadCheckOnlineMethod(classLoader);
         XposedBridge.hookMethod(checkOnlineMethod, new XC_MethodHook() {
             @Override
             protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
@@ -204,15 +203,15 @@ public class Others extends Feature {
     }
 
     private void addgrpAdminIcon() throws Exception {
-        var jidFactory = Unobfuscator.loadJidFactory(loader);
-        var grpAdmin1 = Unobfuscator.loadGroupAdminMethod(loader);
-        var grpcheckAdmin = Unobfuscator.loadGroupCheckAdminMethod(loader);
+        var jidFactory = Unobfuscator.loadJidFactory(classLoader);
+        var grpAdmin1 = Unobfuscator.loadGroupAdminMethod(classLoader);
+        var grpcheckAdmin = Unobfuscator.loadGroupCheckAdminMethod(classLoader);
         var hooked = new XC_MethodHook() {
             @SuppressLint("ResourceType")
             @Override
             protected void afterHookedMethod(MethodHookParam param) throws Throwable {
                 var fMessage = XposedHelpers.callMethod(param.thisObject, "getFMessage");
-                var userJidClass = XposedHelpers.findClass("com.whatsapp.jid.UserJid", loader);
+                var userJidClass = XposedHelpers.findClass("com.whatsapp.jid.UserJid", classLoader);
                 var methodResult = ReflectionUtils.findMethodUsingFilter(fMessage.getClass(), method -> method.getReturnType() == userJidClass && method.getParameterCount() == 0);
                 var userJid = ReflectionUtils.callMethod(methodResult, fMessage);
                 var chatCurrentJid = WppCore.getCurrentRawJID();
@@ -309,7 +308,7 @@ public class Others extends Feature {
     }
 
     private void hookChatFilters() throws Exception {
-        var filterAdaperClass = Unobfuscator.loadFilterAdaperClass(loader);
+        var filterAdaperClass = Unobfuscator.loadFilterAdaperClass(classLoader);
         XposedBridge.hookAllConstructors(filterAdaperClass, new XC_MethodHook() {
             @Override
             protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
@@ -340,7 +339,7 @@ public class Others extends Feature {
     }
 
     private void hookChannels() throws Exception {
-        var removeChannelRecClass = Unobfuscator.loadRemoveChannelRecClass(loader);
+        var removeChannelRecClass = Unobfuscator.loadRemoveChannelRecClass(classLoader);
         XposedBridge.hookAllConstructors(removeChannelRecClass, new XC_MethodHook() {
             @Override
             protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
@@ -353,8 +352,8 @@ public class Others extends Feature {
     }
 
     private void hookViewProfile() throws Exception {
-        var loadProfileInfoField = Unobfuscator.loadProfileInfoField(loader);
-        XposedHelpers.findAndHookMethod("com.whatsapp.profile.ViewProfilePhoto", loader, "onCreateOptionsMenu", Menu.class, new XC_MethodHook() {
+        var loadProfileInfoField = Unobfuscator.loadProfileInfoField(classLoader);
+        XposedHelpers.findAndHookMethod("com.whatsapp.profile.ViewProfilePhoto", classLoader, "onCreateOptionsMenu", Menu.class, new XC_MethodHook() {
             @Override
             protected void afterHookedMethod(MethodHookParam param) throws Throwable {
                 var menu = (Menu) param.args[0];
@@ -384,10 +383,10 @@ public class Others extends Feature {
     }
 
     private void hookProps() throws Exception {
-        var methodPropsBoolean = Unobfuscator.loadPropsBooleanMethod(loader);
+        var methodPropsBoolean = Unobfuscator.loadPropsBooleanMethod(classLoader);
         logDebug(Unobfuscator.getMethodDescriptor(methodPropsBoolean));
-        var dataUsageActivityClass = XposedHelpers.findClass("com.whatsapp.settings.SettingsDataUsageActivity", loader);
-        var workManagerClass = Unobfuscator.loadWorkManagerClass(loader);
+        var dataUsageActivityClass = XposedHelpers.findClass("com.whatsapp.settings.SettingsDataUsageActivity", classLoader);
+        var workManagerClass = Unobfuscator.loadWorkManagerClass(classLoader);
         XposedBridge.hookMethod(methodPropsBoolean, new XC_MethodHook() {
             @Override
             protected void afterHookedMethod(MethodHookParam param) throws Throwable {
@@ -412,7 +411,7 @@ public class Others extends Feature {
             }
         });
 
-        var methodPropsInteger = Unobfuscator.loadPropsIntegerMethod(loader);
+        var methodPropsInteger = Unobfuscator.loadPropsIntegerMethod(classLoader);
 
         XposedBridge.hookMethod(methodPropsInteger, new XC_MethodHook() {
             @Override
@@ -435,7 +434,7 @@ public class Others extends Feature {
 //    }
 
     private void hookStickers() throws Exception {
-        var sendStickerMethod = Unobfuscator.loadSendStickerMethod(loader);
+        var sendStickerMethod = Unobfuscator.loadSendStickerMethod(classLoader);
         XposedBridge.hookMethod(sendStickerMethod, new XC_MethodHook() {
             private Unhook unhooked;
 
@@ -490,8 +489,8 @@ public class Others extends Feature {
     }
 
     private void hookMenuOptions(boolean newSettings, boolean showFreezeLastSeen, boolean showDnd, String filterChats) {
-        var homecls = XposedHelpers.findClass("com.whatsapp.HomeActivity", loader);
-        WppCore.addMenuItem(homecls, new WppCore.OnMenuCreate() {
+        var homecls = XposedHelpers.findClass("com.whatsapp.HomeActivity", classLoader);
+        WppCore.addMenuItemClass(homecls, new WppCore.OnMenuCreate() {
             @Override
             public void onAfterCreate(Activity activity, Menu menu) {
                 if (prefs.getBoolean("restartbutton", true)) {
@@ -521,7 +520,7 @@ public class Others extends Feature {
         });
 
 
-        XposedHelpers.findAndHookMethod("com.whatsapp.HomeActivity", loader, "onPrepareOptionsMenu", Menu.class, new XC_MethodHook() {
+        XposedHelpers.findAndHookMethod("com.whatsapp.HomeActivity", classLoader, "onPrepareOptionsMenu", Menu.class, new XC_MethodHook() {
             @Override
             protected void afterHookedMethod(MethodHookParam param) throws Throwable {
                 var menu = (Menu) param.args[0];

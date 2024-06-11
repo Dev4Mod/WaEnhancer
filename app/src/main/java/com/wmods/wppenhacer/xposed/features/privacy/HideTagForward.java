@@ -2,8 +2,8 @@ package com.wmods.wppenhacer.xposed.features.privacy;
 
 import androidx.annotation.NonNull;
 
-import com.wmods.wppenhacer.xposed.core.Unobfuscator;
 import com.wmods.wppenhacer.xposed.core.Feature;
+import com.wmods.wppenhacer.xposed.core.Unobfuscator;
 
 import java.lang.reflect.Method;
 
@@ -18,9 +18,9 @@ public class HideTagForward extends Feature {
 
     @Override
     public void doHook() throws Exception {
-        Method method = Unobfuscator.loadForwardTagMethod(loader);
+        Method method = Unobfuscator.loadForwardTagMethod(classLoader);
         logDebug(Unobfuscator.getMethodDescriptor(method));
-        Class<?> forwardClass = Unobfuscator.loadForwardClassMethod(loader);
+        Class<?> forwardClass = Unobfuscator.loadForwardClassMethod(classLoader);
         logDebug("ForwardClass: " + forwardClass.getName());
 
         XposedBridge.hookMethod(method, new XC_MethodHook() {

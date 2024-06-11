@@ -2,8 +2,8 @@ package com.wmods.wppenhacer.xposed.features.privacy;
 
 import androidx.annotation.NonNull;
 
-import com.wmods.wppenhacer.xposed.core.Unobfuscator;
 import com.wmods.wppenhacer.xposed.core.Feature;
+import com.wmods.wppenhacer.xposed.core.Unobfuscator;
 
 import java.lang.reflect.Method;
 
@@ -21,7 +21,7 @@ public class GhostMode extends Feature {
     public void doHook() throws Throwable {
         var ghostmode_t = prefs.getBoolean("ghostmode_t", false);
         var ghostmode_r = prefs.getBoolean("ghostmode_r", false);
-        Method method = Unobfuscator.loadGhostModeMethod(loader);
+        Method method = Unobfuscator.loadGhostModeMethod(classLoader);
         logDebug(Unobfuscator.getMethodDescriptor(method));
         XposedBridge.hookMethod(method, new XC_MethodHook() {
             @Override

@@ -69,7 +69,7 @@ public class BubbleColors extends Feature {
         }
 
 
-        var methods = Unobfuscator.loadNineDrawableMethods(loader);
+        var methods = Unobfuscator.loadNineDrawableMethods(classLoader);
         for (var method : methods) {
             XposedBridge.hookMethod(method, new XC_MethodHook() {
                 @Override

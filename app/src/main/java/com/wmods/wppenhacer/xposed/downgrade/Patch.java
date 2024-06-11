@@ -23,7 +23,7 @@ public class Patch {
         XC_MethodHook hookDowngrade = new XC_MethodHook() {
             @Override
             protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
-                var pkg = (String) XposedHelpers.getObjectField(param.thisObject, "mPackageName");
+                var pkg = (String) XposedHelpers.callMethod(param.args[0], "getPackageName");
                 if (Objects.equals(pkg, MainFeatures.PACKAGE_WPP) || Objects.equals(pkg, MainFeatures.PACKAGE_BUSINESS))
                     param.setResult(null);
             }
@@ -32,7 +32,7 @@ public class Patch {
         XC_MethodHook hookDowngrade2 = new XC_MethodHook() {
             @Override
             protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
-                var pkg = (String) XposedHelpers.getObjectField(param.thisObject, "mPackageName");
+                var pkg = (String) XposedHelpers.callMethod(param.args[0], "getPackageName");
                 if (Objects.equals(pkg, MainFeatures.PACKAGE_WPP) || Objects.equals(pkg, MainFeatures.PACKAGE_BUSINESS))
                     param.setResult(true);
             }

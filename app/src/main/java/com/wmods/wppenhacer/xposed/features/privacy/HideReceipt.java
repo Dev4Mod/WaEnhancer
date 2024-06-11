@@ -17,11 +17,11 @@ public class HideReceipt extends Feature {
 
     @Override
     public void doHook() throws Exception {
-        var method = Unobfuscator.loadReceiptMethod(loader);
+        var method = Unobfuscator.loadReceiptMethod(classLoader);
         logDebug("hook method:" + Unobfuscator.getMethodDescriptor(method));
-        var method2 = Unobfuscator.loadReceiptOutsideChat(loader);
+        var method2 = Unobfuscator.loadReceiptOutsideChat(classLoader);
         logDebug("Outside Chat: " + Unobfuscator.getMethodDescriptor(method2));
-        var method3 = Unobfuscator.loadReceiptInChat(loader);
+        var method3 = Unobfuscator.loadReceiptInChat(classLoader);
         logDebug("In Chat: " + Unobfuscator.getMethodDescriptor(method3));
         XposedBridge.hookMethod(method, new XC_MethodHook() {
             @Override

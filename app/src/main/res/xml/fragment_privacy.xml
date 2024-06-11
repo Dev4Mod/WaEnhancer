@@ -78,6 +78,13 @@
             app:key="call_privacy"
             app:title="@string/call_blocker" />
 
+        <ListPreference
+            app:entries="@array/call_type_buttons"
+            app:entryValues="@array/call_type_values"
+            app:key="call_type"
+            app:summary="@string/call_blocking_type_sum"
+            app:title="@string/call_blocking_type" />
+
     </PreferenceCategory>
 
 

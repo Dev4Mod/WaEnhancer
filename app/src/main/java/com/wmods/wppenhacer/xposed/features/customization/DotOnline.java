@@ -14,15 +14,15 @@ import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
-import android.widget.TextView; // Added for displaying last seen time
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 
+import com.wmods.wppenhacer.xposed.core.Feature;
 import com.wmods.wppenhacer.xposed.core.Unobfuscator;
 import com.wmods.wppenhacer.xposed.core.UnobfuscatorCache;
 import com.wmods.wppenhacer.xposed.core.Utils;
 import com.wmods.wppenhacer.xposed.core.WppCore;
-import com.wmods.wppenhacer.xposed.core.Feature;
 
 import java.util.HashMap;
 
@@ -47,7 +47,7 @@ public class DotOnline extends Feature {
         var showOnlineIcon = prefs.getBoolean("dotonline", false);
         if (!showOnlineText && !showOnlineIcon) return;
 
-        var classViewHolder = XposedHelpers.findClass("com.whatsapp.conversationslist.ViewHolder", loader);
+        var classViewHolder = XposedHelpers.findClass("com.whatsapp.conversationslist.ViewHolder", classLoader);
         XposedBridge.hookAllConstructors(classViewHolder, new XC_MethodHook() {
             @SuppressLint("ResourceType")
             @Override
@@ -104,13 +104,13 @@ public class DotOnline extends Feature {
             }
         });
 
-        var onChangeStatus = Unobfuscator.loadOnChangeStatus(loader);
+        var onChangeStatus = Unobfuscator.loadOnChangeStatus(classLoader);
         logDebug(Unobfuscator.getMethodDescriptor(onChangeStatus));
-        var field1 = Unobfuscator.loadViewHolderField1(loader);
+        var field1 = Unobfuscator.loadViewHolderField1(classLoader);
         logDebug(Unobfuscator.getFieldDescriptor(field1));
-        var getStatusUser = Unobfuscator.loadGetStatusUserMethod(loader);
+        var getStatusUser = Unobfuscator.loadGetStatusUserMethod(classLoader);
         logDebug(Unobfuscator.getMethodDescriptor(getStatusUser));
-        var sendPresenceMethod = Unobfuscator.loadSendPresenceMethod(loader);
+        var sendPresenceMethod = Unobfuscator.loadSendPresenceMethod(classLoader);
         logDebug(Unobfuscator.getMethodDescriptor(sendPresenceMethod));
 
 
@@ -143,7 +143,7 @@ public class DotOnline extends Feature {
                 if (showOnlineText) {
                     lastSeenText.setVisibility(View.INVISIBLE); // Hide last seen time initially
                 }
-                var jidFiled = Unobfuscator.getFieldByExtendType(object.getClass(), XposedHelpers.findClass("com.whatsapp.jid.Jid", loader));
+                var jidFiled = Unobfuscator.getFieldByExtendType(object.getClass(), XposedHelpers.findClass("com.whatsapp.jid.Jid", classLoader));
                 var jidObject = jidFiled.get(object);
                 var jid = WppCore.getRawString(jidObject);
                 if (WppCore.isGroup(jid)) return;

@@ -28,7 +28,7 @@ public class MediaQuality extends Feature {
 
         if (videoQuality) {
 
-            var resolutionMethod = Unobfuscator.loadMediaQualityResolutionMethod(loader);
+            var resolutionMethod = Unobfuscator.loadMediaQualityResolutionMethod(classLoader);
             logDebug(Unobfuscator.getMethodDescriptor(resolutionMethod));
 
             XposedBridge.hookMethod(resolutionMethod, new XC_MethodHook() {
@@ -39,7 +39,7 @@ public class MediaQuality extends Feature {
                 }
             });
 
-            var bitrateMethod = Unobfuscator.loadMediaQualityBitrateMethod(loader);
+            var bitrateMethod = Unobfuscator.loadMediaQualityBitrateMethod(classLoader);
             logDebug(Unobfuscator.getMethodDescriptor(bitrateMethod));
 
             XposedBridge.hookMethod(bitrateMethod, new XC_MethodHook() {
@@ -49,7 +49,7 @@ public class MediaQuality extends Feature {
                 }
             });
 
-            var videoMethod = Unobfuscator.loadMediaQualityVideoMethod2(loader);
+            var videoMethod = Unobfuscator.loadMediaQualityVideoMethod2(classLoader);
             logDebug(Unobfuscator.getMethodDescriptor(videoMethod));
 
             XposedBridge.hookMethod(videoMethod, new XC_MethodHook() {
@@ -85,7 +85,7 @@ public class MediaQuality extends Feature {
                 }
             });
 
-            var videoLimitClass = Unobfuscator.loadMediaQualityVideoLimitClass(loader);
+            var videoLimitClass = Unobfuscator.loadMediaQualityVideoLimitClass(classLoader);
             logDebug(videoLimitClass);
             XposedHelpers.findAndHookConstructor(videoLimitClass, int.class, int.class, int.class, new XC_MethodHook() {
                 @Override
@@ -116,7 +116,7 @@ public class MediaQuality extends Feature {
             Others.propsInteger.put(6029, 100); // Image quality compression
             Others.propsInteger.put(3657, 100); // Image quality compression
 
-            var mediaQualityProcessor = Unobfuscator.loadMediaQualityProcessor(loader);
+            var mediaQualityProcessor = Unobfuscator.loadMediaQualityProcessor(classLoader);
             XposedBridge.hookAllConstructors(mediaQualityProcessor, new XC_MethodHook() {
                 @Override
                 protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
