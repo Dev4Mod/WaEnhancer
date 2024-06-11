@@ -3,3 +3,7 @@
 
 [CALL PRIVACY]
 * Fix error the blockage of no internet access.
+
+[INSTANT VIDEO]
+* Activate the instant video feature (inside the chat, hold the camera icon to use it)
+

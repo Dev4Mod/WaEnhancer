@@ -106,6 +106,11 @@ public class Others extends Feature {
         propsBoolean.put(2889, floatingMenu);
         propsBoolean.put(7769, false);
 
+        // Instant Video
+        propsBoolean.put(3354, true);
+        propsBoolean.put(5418, true);
+
+
         if (metaai) {
             propsBoolean.put(8025, false);
             propsBoolean.put(6251, false);
@@ -155,7 +160,6 @@ public class Others extends Feature {
         if (disable_defemojis) {
             disable_defEmojis();
         }
-
     }
 
 
