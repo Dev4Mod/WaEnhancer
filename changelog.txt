@@ -1,2 +1,3 @@
-[CALL PRIVACY]
-* Add types of call blocking.
+[STATUS DOWNLOAD]
+* Fix a minor issue that was preventing the media from being saved.
+
