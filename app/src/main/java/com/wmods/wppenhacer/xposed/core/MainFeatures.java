@@ -43,6 +43,7 @@ import com.wmods.wppenhacer.xposed.features.general.SeenTick;
 import com.wmods.wppenhacer.xposed.features.general.ShareLimit;
 import com.wmods.wppenhacer.xposed.features.general.ShowEditMessage;
 import com.wmods.wppenhacer.xposed.features.general.StatusDownload;
+import com.wmods.wppenhacer.xposed.features.general.Tasker;
 import com.wmods.wppenhacer.xposed.features.general.ViewOnce;
 import com.wmods.wppenhacer.xposed.features.privacy.FreezeLastSeen;
 import com.wmods.wppenhacer.xposed.features.privacy.GhostMode;
@@ -211,7 +212,8 @@ public class MainFeatures {
                 ViewOnce.class,
                 CallType.class,
                 MediaPreview.class,
-                FilterGroups.class
+                FilterGroups.class,
+                Tasker.class
         };
 
         for (var classe : classes) {

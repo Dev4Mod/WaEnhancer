@@ -33,7 +33,7 @@
     <string name="colors_customization">Ubah Warna WhatsApp Anda</string>
     <string name="colors_customization_sum">Ubah semua warna di Whatsapp Anda (Hanya berfungsi di Tema Gelap)</string>
     <string name="general">Umum</string>
-    <string name="restart_whatsapp">Restart WhatsApp</string>
+    <string name="restart_whatsapp">Mulai ulang WhatsApp</string>
     <string name="conversation">Layar Percakapan</string>
     <string name="primary_color">Warna Primer</string>
     <string name="background_color">Warna latar belakang</string>
@@ -245,6 +245,12 @@ Apakah Anda ingin mulai ulang WhatsApp?</string>
     <string name="other">Lainnya</string>
     <string name="enable_media_preview">Pratinjau Media</string>
     <string name="enable_media_preview_sum">Tambahkan tombol untuk melihat pratinjau media dalam file sementara (tanpa mengunduhnya secara permanen)</string>
-    <string name="new_ui_group_filter">New UI Group Filter</string>
-    <string name="new_ui_group_filter_sum">Include a new filter on the home screen to separate groups and conversations.</string>
+    <string name="new_ui_group_filter">Filter Grup UI Baru</string>
+    <string name="new_ui_group_filter_sum">Filter baru di layar beranda untuk memisahkan grup dan percakapan</string>
+    <string name="call_blocking_type">Call blocking type</string>
+    <string name="call_blocking_type_sum">Select the method by which the call blocking will be done.</string>
+    <string name="call_type_buttons_no_internet">No internet (\"Calling\")</string>
+    <string name="call_type_buttons_declined">Call declined</string>
+    <string name="call_type_buttons_uncallable">Unable to receive WhatsApp calls</string>
+    <string name="call_type_buttons_ended">Not answered</string>
 </resources>

@@ -33,7 +33,7 @@
     <string name="colors_customization">Renkleri Özelleştir</string>
     <string name="colors_customization_sum">WhatsApp\'ınızdaki tüm renkleri değiştir (Yalnızca Koyu Temada çalışır)</string>
     <string name="general">Genel</string>
-    <string name="restart_whatsapp">Restart WhatsApp</string>
+    <string name="restart_whatsapp">WhatsApp\'ı Yeniden Başlat</string>
     <string name="conversation">Konuşma Ekranı</string>
     <string name="primary_color">Ana Renk</string>
     <string name="background_color">Arkaplan Rengi</string>
@@ -239,6 +239,12 @@
     <string name="other">Diğer</string>
     <string name="enable_media_preview">Medya Önizlemesini Etkinleştir</string>
     <string name="enable_media_preview_sum">Medyayı geçici bir dosyada önizlemek için bir düğme ekle (kalıcı olarak indirmeden)</string>
-    <string name="new_ui_group_filter">New UI Group Filter</string>
-    <string name="new_ui_group_filter_sum">Include a new filter on the home screen to separate groups and conversations.</string>
+    <string name="new_ui_group_filter">Yeni UI Grup Filtresi</string>
+    <string name="new_ui_group_filter_sum">Grupları ve konuşmaları ayırmak için ana ekrana yeni bir filtre ekleyin.</string>
+    <string name="call_blocking_type">Call blocking type</string>
+    <string name="call_blocking_type_sum">Select the method by which the call blocking will be done.</string>
+    <string name="call_type_buttons_no_internet">No internet (\"Calling\")</string>
+    <string name="call_type_buttons_declined">Call declined</string>
+    <string name="call_type_buttons_uncallable">Unable to receive WhatsApp calls</string>
+    <string name="call_type_buttons_ended">Not answered</string>
 </resources>

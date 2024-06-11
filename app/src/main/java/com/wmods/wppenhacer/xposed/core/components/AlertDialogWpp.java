@@ -43,12 +43,8 @@ public class AlertDialogWpp {
         }
     }
 
-    public static boolean isAvailable() {
-        return isAvailable;
-    }
-
     public AlertDialogWpp(Context context) {
-        if (!isAvailable()) {
+        if (isSystemDialog()) {
             mAlertDialog = new AlertDialog.Builder(context);
             return;
         }
@@ -62,8 +58,12 @@ public class AlertDialogWpp {
 
     }
 
+    public static boolean isSystemDialog() {
+        return !isAvailable;
+    }
+
     public AlertDialogWpp setTitle(String title) {
-        if (!isAvailable()) {
+        if (isSystemDialog()) {
             mAlertDialog.setTitle(title);
             return this;
         }
@@ -72,7 +72,7 @@ public class AlertDialogWpp {
     }
 
     public AlertDialogWpp setMessage(String message) {
-        if (!isAvailable()) {
+        if (isSystemDialog()) {
             mAlertDialog.setMessage(message);
             return this;
         }
@@ -85,7 +85,7 @@ public class AlertDialogWpp {
     }
 
     public AlertDialogWpp setItems(CharSequence[] items, DialogInterface.OnClickListener listener){
-        if (!isAvailable()) {
+        if (isSystemDialog()) {
             mAlertDialog.setItems(items, listener);
             return this;
         }
@@ -98,7 +98,7 @@ public class AlertDialogWpp {
     }
 
     public AlertDialogWpp setNegativeButton(CharSequence text, DialogInterface.OnClickListener listener) {
-        if (!isAvailable()) {
+        if (isSystemDialog()) {
             mAlertDialog.setNegativeButton(text, listener);
             return this;
         }
@@ -111,7 +111,7 @@ public class AlertDialogWpp {
     }
 
     public AlertDialogWpp setPositiveButton(CharSequence text, DialogInterface.OnClickListener listener) {
-        if (!isAvailable()) {
+        if (isSystemDialog()) {
             mAlertDialog.setPositiveButton(text, listener);
             return this;
         }
@@ -124,7 +124,7 @@ public class AlertDialogWpp {
     }
 
     public AlertDialogWpp setView(View view) {
-        if (!isAvailable()) {
+        if (isSystemDialog()) {
             mAlertDialog.setView(view);
             return this;
         }
@@ -134,14 +134,14 @@ public class AlertDialogWpp {
 
 
     public Dialog create() {
-        if (!isAvailable()) {
+        if (isSystemDialog()) {
             return mAlertDialog.create();
         }
         return (Dialog) XposedHelpers.callMethod(mAlertDialogWpp, "create");
     }
 
     public void show() {
-        if (!isAvailable()) {
+        if (isSystemDialog()) {
             mAlertDialog.show();
             return;
         }

@@ -1,2 +1,13 @@
+[STATUS DOWNLOAD]
+* Fix a minor issue that was preventing the media from being saved.
+
 [CALL PRIVACY]
-* Add types of call blocking.
+* Fix error the blockage of no internet access.
+
+[INSTANT VIDEO]
+* Activate the instant video feature (inside the chat, hold the camera icon to use it)
+
+[TASKER]
+* Add support to Tasker Automation
+Use action "com.wmods.wppenhacer.MESSAGE_RECEIVER" with %message and %number to receiver messages
+Use action "com.wmods.wppenhacer.MESSAGE_SENT" with %message and %number to send message

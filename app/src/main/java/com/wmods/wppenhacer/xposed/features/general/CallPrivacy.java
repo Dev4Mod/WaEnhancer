@@ -37,6 +37,7 @@ public class CallPrivacy extends Feature {
                 Class<?> callInfoClass = XposedHelpers.findClass("com.whatsapp.voipcalling.CallInfo", classLoader);
                 if (callinfo == null || !callInfoClass.isInstance(callinfo)) return;
                 if ((boolean) XposedHelpers.callMethod(callinfo, "isCaller")) return;
+                var userJid = XposedHelpers.callMethod(callinfo, "getPeerJid");
                 var callId = XposedHelpers.callMethod(callinfo, "getCallId");
                 var type = Integer.parseInt(prefs.getString("call_privacy", "0"));
                 var block = false;
@@ -47,17 +48,18 @@ public class CallPrivacy extends Feature {
                         block = true;
                         break;
                     case 2:
-                        block = checkCallBlock(callinfo);
+                        block = checkCallBlock(userJid);
                         break;
                 }
                 if (!block) return;
 //                XposedHelpers.callMethod(param.thisObject, callEndMethod.getName(), callState, callinfo);
                 var clazzVoip = XposedHelpers.findClass("com.whatsapp.voipcalling.Voip", classLoader);
-                var rejectType = prefs.getString("call_type", "ended");
+                var rejectType = prefs.getString("call_type", "no_internet");
                 switch (rejectType) {
                     case "uncallable":
                     case "declined":
                         XposedHelpers.callStaticMethod(clazzVoip, "rejectCall", callId, rejectType.equals("declined") ? null : rejectType);
+                        param.setResult(true);
                         break;
                     case "ended":
                         try {
@@ -65,18 +67,40 @@ public class CallPrivacy extends Feature {
                         } catch (NoSuchMethodError e) {
                             XposedHelpers.callStaticMethod(clazzVoip, "endCall", true, 0);
                         }
+                        param.setResult(true);
                         break;
                     default:
                 }
-                param.setResult(false);
+            }
+        });
+
+        XposedBridge.hookAllMethods(classLoader.loadClass("com.whatsapp.voipcalling.Voip"), "nativeHandleIncomingXmppOffer", new XC_MethodHook() {
+            @Override
+            protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
+                if (!prefs.getString("call_type", "no_internet").equals("no_internet")) return;
+                var userJid = param.args[0];
+                log("Call received: " + param.args[0]);
+                var type = Integer.parseInt(prefs.getString("call_privacy", "0"));
+                var block = false;
+                switch (type) {
+                    case 0:
+                        break;
+                    case 1:
+                        block = true;
+                        break;
+                    case 2:
+                        block = checkCallBlock(userJid);
+                        break;
+                }
+                if (!block) return;
+                param.setResult(1);
             }
         });
 
 
     }
 
-    public boolean checkCallBlock(Object callinfo) throws IllegalAccessException, InvocationTargetException {
-        var userJid = XposedHelpers.callMethod(callinfo, "getPeerJid");
+    public boolean checkCallBlock(Object userJid) throws IllegalAccessException, InvocationTargetException {
         var jid = WppCore.stripJID(WppCore.getRawString(userJid));
         var contactName = WppCore.getContactName(userJid);
         return contactName == null || contactName.equals(jid);

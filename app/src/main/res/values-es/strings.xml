@@ -33,7 +33,7 @@
     <string name="colors_customization">Personaliza tus colores</string>
     <string name="colors_customization_sum">Cambia todos los colores de tu WhatsApp (funcionando sólo en el tema oscuro)</string>
     <string name="general">General</string>
-    <string name="restart_whatsapp">Restart WhatsApp</string>
+    <string name="restart_whatsapp">Reiniciar WhatsApp</string>
     <string name="conversation">Conversación</string>
     <string name="primary_color">Color primario</string>
     <string name="background_color">Color del fondo</string>
@@ -239,6 +239,12 @@
     <string name="other">Otros</string>
     <string name="enable_media_preview">Activar vista previa de multimedia</string>
     <string name="enable_media_preview_sum">Añadir un botón para previsualizar la imagen/video de manera temporal (sin descargarlo permanentemente)</string>
-    <string name="new_ui_group_filter">New UI Group Filter</string>
-    <string name="new_ui_group_filter_sum">Include a new filter on the home screen to separate groups and conversations.</string>
+    <string name="new_ui_group_filter">Nueva Interfaz del filtro del grupo</string>
+    <string name="new_ui_group_filter_sum">Incluye un nuevo filtro en la pantalla de inicio para separar grupos y conversaciones.</string>
+    <string name="call_blocking_type">Call blocking type</string>
+    <string name="call_blocking_type_sum">Select the method by which the call blocking will be done.</string>
+    <string name="call_type_buttons_no_internet">No internet (\"Calling\")</string>
+    <string name="call_type_buttons_declined">Call declined</string>
+    <string name="call_type_buttons_uncallable">Unable to receive WhatsApp calls</string>
+    <string name="call_type_buttons_ended">Not answered</string>
 </resources>

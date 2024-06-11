@@ -57,18 +57,22 @@ public class StatusDownload extends Feature {
         XposedHelpers.findAndHookMethod(menuStatusClass, "onClick", View.class, new XC_MethodHook() {
             @Override
             protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-                if (messageObj == null) return;
-                var fileData = XposedHelpers.getObjectField(messageObj, "A01");
-                var file = (File) XposedHelpers.getObjectField(fileData, fieldFile.getName());
                 Field subMenuField = Arrays.stream(param.thisObject.getClass().getDeclaredFields()).filter(f -> f.getType() == Object.class && clazzSubMenu.isInstance(XposedHelpers.getObjectField(param.thisObject, f.getName()))).findFirst().orElse(null);
                 Object submenu = XposedHelpers.getObjectField(param.thisObject, subMenuField.getName());
                 var menu = (Menu) XposedHelpers.getObjectField(submenu, menuField.getName());
                 if (menu.findItem(ResId.string.download) != null) return;
                 menu.add(0, ResId.string.download, 0, ResId.string.download).setOnMenuItemClickListener(item -> {
-                    if (copyFile(prefs, file)) {
-                        Toast.makeText(Utils.getApplication(), Utils.getApplication().getString(ResId.string.saved_to) + getPathDestination(prefs, file), Toast.LENGTH_SHORT).show();
-                    } else {
-                        Toast.makeText(Utils.getApplication(), Utils.getApplication().getString(ResId.string.error_when_saving_try_again), Toast.LENGTH_SHORT).show();
+                    if (messageObj == null) return true;
+                    try {
+                        var fileData = XposedHelpers.getObjectField(messageObj, "A01");
+                        var file = (File) XposedHelpers.getObjectField(fileData, fieldFile.getName());
+                        if (copyFile(prefs, file)) {
+                            Utils.showToast(Utils.getApplication().getString(ResId.string.saved_to) + getPathDestination(prefs, file), Toast.LENGTH_SHORT);
+                        } else {
+                            Utils.showToast(Utils.getApplication().getString(ResId.string.error_when_saving_try_again), Toast.LENGTH_SHORT);
+                        }
+                    } catch (Exception e) {
+                        Utils.showToast(e.getMessage(), Toast.LENGTH_SHORT);
                     }
                     return true;
                 });
@@ -94,8 +98,8 @@ public class StatusDownload extends Feature {
         return "Download Status";
     }
 
-    private boolean copyFile(SharedPreferences prefs, File file) {
-        if (file == null || !file.exists()) return false;
+    private boolean copyFile(SharedPreferences prefs, File file) throws IOException {
+        if (file == null || !file.exists()) throw new IOException("File doesn't exist");
 
         var destination = getPathDestination(prefs, file);
 
@@ -118,9 +122,6 @@ public class StatusDownload extends Feature {
                 }
                 out.write(bArr, 0, read);
             }
-        } catch (IOException e) {
-            XposedBridge.log(e.getMessage());
-            return false;
         }
     }
 

@@ -249,4 +249,6 @@
     <string name="call_type_buttons_declined">Call declined</string>
     <string name="call_type_buttons_uncallable">Unable to receive WhatsApp calls</string>
     <string name="call_type_buttons_ended">Not answered</string>
+    <string name="enable_tasker_automation">Enable Tasker Automation</string>
+    <string name="enable_tasker_automation_sum">Enables the possibility of using intent to receive and send messages in Tasker</string>
 </resources>

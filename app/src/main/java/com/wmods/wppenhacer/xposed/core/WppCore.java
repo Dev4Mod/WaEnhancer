@@ -7,6 +7,7 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.graphics.drawable.Drawable;
 import android.view.Menu;
+import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 
@@ -18,6 +19,7 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -43,6 +45,7 @@ public class WppCore {
     private static Object mContactManager;
     private static SharedPreferences privPrefs;
     private static Object mStartUpConfig;
+    private static Object mActionUser;
 
     public static void addMenuItemClass(Class<?> aClass, OnMenuCreate listener) {
         var list = listenerMenu.computeIfAbsent(aClass, k -> new ArrayList<>());
@@ -56,6 +59,37 @@ public class WppCore {
         list.add(listener);
     }
 
+    public static Object getConversation() {
+        return mConversation;
+    }
+
+    public static void sendMessage(String number, String message) {
+        try {
+            var senderMethod = ReflectionUtils.findMethodUsingFilterIfExists(mActionUser.getClass(), (method) -> List.class.isAssignableFrom(method.getReturnType()) && ReflectionUtils.findIndexOfType(method.getParameterTypes(), String.class) != -1);
+            if (senderMethod != null) {
+                var userJid = createUserJid(number + "@s.whatsapp.net");
+                if (userJid == null) {
+                    Utils.showToast("UserJID not found", Toast.LENGTH_SHORT);
+                    return;
+                }
+                var newObject = new Object[senderMethod.getParameterCount()];
+                var index = ReflectionUtils.findIndexOfType(senderMethod.getParameterTypes(), String.class);
+                newObject[index - 1] = 0;
+                newObject[index] = message;
+                newObject[newObject.length - 1] = false;
+                newObject[newObject.length - 2] = false;
+                newObject[newObject.length - 3] = false;
+                var index2 = ReflectionUtils.findIndexOfType(senderMethod.getParameterTypes(), List.class);
+                newObject[index2] = Collections.singletonList(userJid);
+                senderMethod.invoke(mActionUser, newObject);
+                Utils.showToast("Message sent to " + number, Toast.LENGTH_SHORT);
+            }
+        } catch (Exception e) {
+            Utils.showToast("Error in sending message:" + e.getMessage(), Toast.LENGTH_SHORT);
+            XposedBridge.log(e);
+        }
+    }
+
 
     public interface ObjectOnChangeListener {
         void onChange(Object object, String type);
@@ -63,95 +97,106 @@ public class WppCore {
     }
 
     public static void Initialize(ClassLoader loader) throws Exception {
-            privPrefs = Utils.getApplication().getSharedPreferences("WaGlobal", Context.MODE_PRIVATE);
+        privPrefs = Utils.getApplication().getSharedPreferences("WaGlobal", Context.MODE_PRIVATE);
 
-            // init Main activity
-            XposedBridge.hookAllMethods(XposedHelpers.findClass("com.whatsapp.HomeActivity", loader), "onCreate", new XC_MethodHook() {
-                @Override
-                protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
-                    mainActivity = param.thisObject;
-                }
-            });
+        // init Main activity
+        XposedBridge.hookAllMethods(XposedHelpers.findClass("com.whatsapp.HomeActivity", loader), "onCreate", new XC_MethodHook() {
+            @Override
+            protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
+                mainActivity = param.thisObject;
+            }
+        });
 
-            XposedBridge.hookAllMethods(XposedHelpers.findClass("com.whatsapp.HomeActivity", loader), "onResume", new XC_MethodHook() {
-                @Override
-                protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
-                    mainActivity = param.thisObject;
-                }
-            });
+        XposedBridge.hookAllMethods(XposedHelpers.findClass("com.whatsapp.HomeActivity", loader), "onResume", new XC_MethodHook() {
+            @Override
+            protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
+                mainActivity = param.thisObject;
+            }
+        });
 
-            XposedHelpers.findAndHookMethod(Activity.class, "onCreateOptionsMenu", Menu.class, new XC_MethodHook() {
-                @Override
-                protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
-                    for (Class<?> aClass : listenerMenu.keySet()) {
-                        if (!aClass.isInstance(param.thisObject)) return;
-                        for (OnMenuCreate listener : listenerMenu.get(aClass)) {
-                            listener.onBeforeCreate((Activity) param.thisObject, (Menu) param.args[0]);
-                        }
+        XposedHelpers.findAndHookMethod(Activity.class, "onCreateOptionsMenu", Menu.class, new XC_MethodHook() {
+            @Override
+            protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
+                for (Class<?> aClass : listenerMenu.keySet()) {
+                    if (!aClass.isInstance(param.thisObject)) return;
+                    for (OnMenuCreate listener : listenerMenu.get(aClass)) {
+                        listener.onBeforeCreate((Activity) param.thisObject, (Menu) param.args[0]);
                     }
                 }
+            }
 
-                @Override
-                protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-                    for (Class<?> aClass : listenerMenu.keySet()) {
-                        if (!aClass.isInstance(param.thisObject)) return;
-                        for (OnMenuCreate listener : listenerMenu.get(aClass)) {
-                            listener.onAfterCreate((Activity) param.thisObject, (Menu) param.args[0]);
-                        }
+            @Override
+            protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+                for (Class<?> aClass : listenerMenu.keySet()) {
+                    if (!aClass.isInstance(param.thisObject)) return;
+                    for (OnMenuCreate listener : listenerMenu.get(aClass)) {
+                        listener.onAfterCreate((Activity) param.thisObject, (Menu) param.args[0]);
                     }
                 }
-            });
+            }
+        });
 
-            // init ContactManager
-            getContactMethod = Unobfuscator.loadGetContactInfoMethod(loader);
-            XposedBridge.hookAllConstructors(getContactMethod.getDeclaringClass(), new XC_MethodHook() {
-                @Override
-                protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-                    mContactManager = param.thisObject;
+        // init ContactManager
+        getContactMethod = Unobfuscator.loadGetContactInfoMethod(loader);
+        XposedBridge.hookAllConstructors(getContactMethod.getDeclaringClass(), new XC_MethodHook() {
+            @Override
+            protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+                mContactManager = param.thisObject;
+            }
+        });
+
+        // init UserJID
+        var mSendReadClass = XposedHelpers.findClass("com.whatsapp.jobqueue.job.SendReadReceiptJob", loader);
+        var subClass = Arrays.stream(mSendReadClass.getConstructors()).filter(c -> c.getParameterTypes().length == 8).findFirst().orElse(null).getParameterTypes()[0];
+        mGenJidClass = Arrays.stream(subClass.getFields()).filter(field -> Modifier.isStatic(field.getModifiers())).findFirst().orElse(null).getType();
+        mGenJidMethod = Arrays.stream(mGenJidClass.getMethods()).filter(m -> m.getParameterCount() == 1 && !Modifier.isStatic(m.getModifiers())).findFirst().orElse(null);
+        // Bottom Dialog
+        bottomDialog = Unobfuscator.loadDialogViewClass(loader);
+
+        // Conversation
+        var onStartMethod = Unobfuscator.loadAntiRevokeOnStartMethod(loader);
+        var onResumeMethod = Unobfuscator.loadAntiRevokeOnResumeMethod(loader);
+        convChatField = Unobfuscator.loadAntiRevokeConvChatField(loader);
+        chatJidField = Unobfuscator.loadAntiRevokeChatJidField(loader);
+        XposedBridge.hookMethod(onStartMethod, new XC_MethodHook() {
+            @Override
+            protected void afterHookedMethod(MethodHookParam param) {
+                mConversation = (Activity) param.thisObject;
+                for (ObjectOnChangeListener listener : listenerChat) {
+                    listener.onChange(mConversation, "onStartConversation");
                 }
-            });
+            }
+        });
 
-            // init UserJID
-            var mSendReadClass = XposedHelpers.findClass("com.whatsapp.jobqueue.job.SendReadReceiptJob", loader);
-            var subClass = Arrays.stream(mSendReadClass.getConstructors()).filter(c -> c.getParameterTypes().length == 8).findFirst().orElse(null).getParameterTypes()[0];
-            mGenJidClass = Arrays.stream(subClass.getFields()).filter(field -> Modifier.isStatic(field.getModifiers())).findFirst().orElse(null).getType();
-            mGenJidMethod = Arrays.stream(mGenJidClass.getMethods()).filter(m -> m.getParameterCount() == 1 && !Modifier.isStatic(m.getModifiers())).findFirst().orElse(null);
-            // Bottom Dialog
-            bottomDialog = Unobfuscator.loadDialogViewClass(loader);
-
-            // Conversation
-            var onStartMethod = Unobfuscator.loadAntiRevokeOnStartMethod(loader);
-            var onResumeMethod = Unobfuscator.loadAntiRevokeOnResumeMethod(loader);
-            convChatField = Unobfuscator.loadAntiRevokeConvChatField(loader);
-            chatJidField = Unobfuscator.loadAntiRevokeChatJidField(loader);
-            XposedBridge.hookMethod(onStartMethod, new XC_MethodHook() {
-                @Override
-                protected void afterHookedMethod(MethodHookParam param) {
-                    mConversation = (Activity) param.thisObject;
-                    for (ObjectOnChangeListener listener : listenerChat) {
-                        listener.onChange(mConversation, "onStartConversation");
-                    }
+        XposedBridge.hookMethod(onResumeMethod, new XC_MethodHook() {
+            @Override
+            protected void afterHookedMethod(MethodHookParam param) {
+                mConversation = (Activity) param.thisObject;
+                for (ObjectOnChangeListener listener : listenerChat) {
+                    listener.onChange(mConversation, "onResumeConversation");
                 }
-            });
+            }
+        });
 
-            XposedBridge.hookMethod(onResumeMethod, new XC_MethodHook() {
-                @Override
-                protected void afterHookedMethod(MethodHookParam param) {
-                    mConversation = (Activity) param.thisObject;
-                    for (ObjectOnChangeListener listener : listenerChat) {
-                        listener.onChange(mConversation, "onResumeConversation");
-                    }
-                }
-            });
+        // StartUpPrefs
+        var startPrefsConfig = Unobfuscator.loadStartPrefsConfig(loader);
+        XposedBridge.hookMethod(startPrefsConfig, new XC_MethodHook() {
+            @Override
+            protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
+                mStartUpConfig = param.thisObject;
+            }
+        });
 
-            // StartUpPrefs
-            var startPrefsConfig = Unobfuscator.loadStartPrefsConfig(loader);
-            XposedBridge.hookMethod(startPrefsConfig, new XC_MethodHook() {
-                @Override
-                protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
-                    mStartUpConfig = param.thisObject;
-                }
-            });
+        var actionUser = Unobfuscator.loadActionUser(loader);
+        XposedBridge.hookAllConstructors(actionUser, new XC_MethodHook() {
+            @Override
+            protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+                mActionUser = param.thisObject;
+                XposedBridge.log("mActionUser: " + mActionUser);
+            }
+        });
+
+
     }
 
     public static int getDefaultTheme() {
