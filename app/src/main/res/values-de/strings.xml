@@ -33,7 +33,7 @@
     <string name="colors_customization">Farben anpassen</string>
     <string name="colors_customization_sum">Ändern sie alle Farben von WhatsApp (Nur Dark-Theme)</string>
     <string name="general">Sonstiges</string>
-    <string name="restart_whatsapp">Restart WhatsApp</string>
+    <string name="restart_whatsapp">WhatsApp neu starten</string>
     <string name="conversation">Sonstiges</string>
     <string name="primary_color">Hauptfarbe</string>
     <string name="background_color">Hintergrundfarbe</string>
@@ -184,7 +184,7 @@
     <string name="toast_on_delete">Zeige Toast-Benachrichtigung beim Löschen der Nachricht</string>
     <string name="toast_on_delete_sum">Zeige Toast-Benachrichtigung, wenn ein Kontakt eine Nachricht löscht</string>
     <string name="enable_top_navigation">Top Navigation aktivieren</string>
-    <string name="enable_top_navigation_sum">Aktiviere die alte Navigationsleiste (oben auf den Tabs)</string>
+    <string name="enable_top_navigation_sum">Aktiviere die alte Navigationsleiste (Tabs sind oben)</string>
     <string name="hideread_group">Blaue Häkchen in Gruppen ausblenden</string>
     <string name="hideread_group_sum">Nachrichten innerhalb des Chat-Bildschirms anzeigen, ohne das Kontakte informiert werden</string>
     <string name="show_freezeLastSeen_button">Einfrierender zuletzt gesehener Button anzeigen</string>
@@ -239,6 +239,12 @@
     <string name="other">Sonstiges</string>
     <string name="enable_media_preview">Medienvorschau aktivieren</string>
     <string name="enable_media_preview_sum">Hinzufügen einer Schaltfläche, um Medien temporär anzuzeigen (kein herunterladen möglich)</string>
-    <string name="new_ui_group_filter">New UI Group Filter</string>
-    <string name="new_ui_group_filter_sum">Include a new filter on the home screen to separate groups and conversations.</string>
+    <string name="new_ui_group_filter">Neuer UI-Gruppenfilter</string>
+    <string name="new_ui_group_filter_sum">Fügen Sie einen neuen Filter auf dem Startbildschirm hinzu, um Gruppen und Unterhaltungen zu trennen.</string>
+    <string name="call_blocking_type">Call blocking type</string>
+    <string name="call_blocking_type_sum">Select the method by which the call blocking will be done.</string>
+    <string name="call_type_buttons_no_internet">No internet (\"Calling\")</string>
+    <string name="call_type_buttons_declined">Call declined</string>
+    <string name="call_type_buttons_uncallable">Unable to receive WhatsApp calls</string>
+    <string name="call_type_buttons_ended">Not answered</string>
 </resources>

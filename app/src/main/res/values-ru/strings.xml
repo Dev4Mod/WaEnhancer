@@ -33,7 +33,7 @@
     <string name="colors_customization">Настройка ваших цветов</string>
     <string name="colors_customization_sum">Изменить все цвета в WhatsApp (работает только в темной теме)</string>
     <string name="general">Общие</string>
-    <string name="restart_whatsapp">Restart WhatsApp</string>
+    <string name="restart_whatsapp">Перезапустите WhatsApp</string>
     <string name="conversation">Экран Переписки</string>
     <string name="primary_color">Основной цвет</string>
     <string name="background_color">Цвет заднего фона</string>
@@ -239,6 +239,12 @@
     <string name="other">Другое</string>
     <string name="enable_media_preview">Включить предпросмотр мультимедиа</string>
     <string name="enable_media_preview_sum">Добавить кнопку для просмотра мультимедиа как временный файл (без скачивания)</string>
-    <string name="new_ui_group_filter">New UI Group Filter</string>
-    <string name="new_ui_group_filter_sum">Include a new filter on the home screen to separate groups and conversations.</string>
+    <string name="new_ui_group_filter">Новый пользовательский интерфейс для фильтрации групп</string>
+    <string name="new_ui_group_filter_sum">Добавьте новый фильтр на главный экран для разделения групп и разговоров.</string>
+    <string name="call_blocking_type">Call blocking type</string>
+    <string name="call_blocking_type_sum">Select the method by which the call blocking will be done.</string>
+    <string name="call_type_buttons_no_internet">No internet (\"Calling\")</string>
+    <string name="call_type_buttons_declined">Call declined</string>
+    <string name="call_type_buttons_uncallable">Unable to receive WhatsApp calls</string>
+    <string name="call_type_buttons_ended">Not answered</string>
 </resources>
