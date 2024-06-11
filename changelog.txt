@@ -1,3 +1,5 @@
 [STATUS DOWNLOAD]
 * Fix a minor issue that was preventing the media from being saved.
 
+[CALL PRIVACY]
+* Fix error the blockage of no internet access.
