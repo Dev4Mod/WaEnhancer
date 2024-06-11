@@ -1528,4 +1528,13 @@ public class Unobfuscator {
             return results.get(0).getInstance(loader);
         });
     }
+
+    public static Class loadActionUser(ClassLoader loader) throws Exception {
+        return UnobfuscatorCache.getInstance().getClass(loader, () -> {
+            var results = dexkit.findClass(new FindClass().matcher(new ClassMatcher().addUsingString("UserActions/reportIfBadTime: time=")));
+            if (results.isEmpty()) throw new RuntimeException("ActionUser class not found");
+            return results.get(0).getInstance(loader);
+        });
+    }
+
 }

@@ -29,6 +29,12 @@
             app:iconSpaceReserved="false"
             app:key="secondstotime"
             app:title="@string/textonahora" />
+
+        <rikka.material.preference.MaterialSwitchPreference
+            app:key="tasker"
+            app:summary="@string/enable_tasker_automation_sum"
+            app:title="@string/enable_tasker_automation" />
+
     </PreferenceCategory>
 
     <PreferenceCategory
