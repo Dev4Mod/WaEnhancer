@@ -18,6 +18,7 @@ import androidx.annotation.NonNull;
 
 import com.wmods.wppenhacer.xposed.core.DesignUtils;
 import com.wmods.wppenhacer.xposed.core.Feature;
+import com.wmods.wppenhacer.xposed.core.MainFeatures;
 import com.wmods.wppenhacer.xposed.core.Unobfuscator;
 import com.wmods.wppenhacer.xposed.core.UnobfuscatorCache;
 import com.wmods.wppenhacer.xposed.core.Utils;
@@ -47,6 +48,8 @@ public class FilterGroups extends Feature {
 
         if (!prefs.getBoolean("filtergroups", false) || prefs.getBoolean("separategroups", false))
             return;
+        if (Utils.getApplication().getPackageName().equals(MainFeatures.PACKAGE_BUSINESS))
+            return; // Business is not supported
 
         var filterAdaperClass = Unobfuscator.loadFilterAdaperClass(classLoader);
         methodSetFilter = ReflectionUtils.findMethodUsingFilter(filterAdaperClass, m -> m.getParameterCount() == 1 && m.getParameterTypes()[0].equals(int.class));

@@ -1,7 +1,6 @@
 package com.wmods.wppenhacer.xposed.core;
 
 import android.annotation.SuppressLint;
-import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.res.XResources;
 import android.graphics.BlendMode;
@@ -19,7 +18,6 @@ import android.os.Build;
 import androidx.annotation.NonNull;
 
 import com.wmods.wppenhacer.WppXposed;
-import com.wmods.wppenhacer.utils.IColors;
 
 public class DesignUtils {
 
@@ -34,6 +32,7 @@ public class DesignUtils {
 
     public static Drawable getDrawableByName(String name) {
         var id = Utils.getID(name, "drawable");
+        if (id == 0) return null;
         return DesignUtils.getDrawable(id);
     }
 

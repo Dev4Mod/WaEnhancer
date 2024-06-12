@@ -498,7 +498,7 @@ public class Others extends Feature {
             @Override
             public void onAfterCreate(Activity activity, Menu menu) {
                 if (prefs.getBoolean("restartbutton", true)) {
-                    var iconDraw = DesignUtils.getDrawableByName("vec_account_switcher");
+                    var iconDraw = activity.getDrawable(ResId.drawable.refresh);
                     iconDraw.setTint(newSettings ? DesignUtils.getPrimaryTextColor() : 0xff8696a0);
                     var itemMenu = menu.add(0, 0, 0, ResId.string.restart_whatsapp).setIcon(iconDraw).setOnMenuItemClickListener(item -> {
                         Utils.doRestart(activity);
