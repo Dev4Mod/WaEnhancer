@@ -9,6 +9,8 @@ public class ResId {
         public static int admin;
 
         public static int preview_eye;
+        public static int ic_reload;
+        public static int refresh;
     }
 
     public static class string {

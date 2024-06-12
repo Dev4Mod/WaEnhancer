@@ -1,13 +1,5 @@
-[STATUS DOWNLOAD]
-* Fix a minor issue that was preventing the media from being saved.
+[BLUE TICK ON REPLY]
+* Add support to groups
 
-[CALL PRIVACY]
-* Fix error the blockage of no internet access.
-
-[INSTANT VIDEO]
-* Activate the instant video feature (inside the chat, hold the camera icon to use it)
-
-[TASKER]
-* Add support to Tasker Automation
-Use action "com.wmods.wppenhacer.MESSAGE_RECEIVER" with %message and %number to receiver messages
-Use action "com.wmods.wppenhacer.MESSAGE_SENT" with %message and %number to send message
+[WHATSAPP BUSINESS]
+* Add experimental support to version 2.24.11.83 (only)

@@ -526,9 +526,9 @@ public class Unobfuscator {
 
     public static Class loadMenuStatusClass(ClassLoader loader) throws Exception {
         return UnobfuscatorCache.getInstance().getClass(loader, () -> {
-            var clazz = findFirstClassUsingStrings(loader, StringMatchType.Contains, "chatSettingsStore", "post_status_in_companion", "systemFeatures");
-            if (clazz == null) throw new Exception("MenuStatus class not found");
-            return clazz;
+            var classList = dexkit.findClass(new FindClass().matcher(new ClassMatcher().addMethod(new MethodMatcher().addUsingString("chatSettingsStore", StringMatchType.Equals).name("onClick"))));
+            if (classList.isEmpty()) throw new Exception("MenuStatus class not found");
+            return classList.get(0).getInstance(loader);
         });
     }
 
@@ -811,18 +811,16 @@ public class Unobfuscator {
 
     public static Field loadMessageKeyField(ClassLoader loader) throws Exception {
         return UnobfuscatorCache.getInstance().getField(loader, () -> {
-            var GroupJidClass = XposedHelpers.findClass("com.whatsapp.jid.GroupJid", loader);
-            var UserJidClass = XposedHelpers.findClass("com.whatsapp.jid.UserJid", loader);
-            var keyMessageList = dexkit.findClass(new FindClass().matcher(new ClassMatcher().addUsingString("Key").addMethod(new MethodMatcher().returnType(GroupJidClass))));
-            if (keyMessageList.isEmpty()) {
-                keyMessageList = dexkit.findClass(new FindClass().matcher(new ClassMatcher().addUsingString("Key[id=").addMethod(new MethodMatcher().returnType(UserJidClass))));
+            var classList = dexkit.findClass(new FindClass().matcher(new ClassMatcher().fieldCount(3).addMethod(new MethodMatcher().addUsingString("Key").name("toString"))));
+            if (classList.isEmpty()) throw new Exception("MessageKey class not found");
+            for (ClassData classData : classList) {
+                Class<?> keyMessageClass = classData.getInstance(loader);
+                var classMessage = loadFMessageClass(loader);
+                var fields = ReflectionUtils.getFieldsByExtendType(classMessage, keyMessageClass);
+                if (fields.isEmpty()) continue;
+                return fields.get(fields.size() - 1);
             }
-            if (keyMessageList.isEmpty()) throw new Exception("MessageKey class not found");
-            Class<?> keyMessageClass = keyMessageList.get(0).getInstance(loader);
-            var classMessage = loadFMessageClass(loader);
-            var fields = ReflectionUtils.getFieldsByExtendType(classMessage, keyMessageClass);
-            if (fields.isEmpty()) throw new Exception("MessageKey field not found");
-            return fields.get(fields.size() - 1);
+            throw new Exception("MessageKey field not found");
         });
     }
 
