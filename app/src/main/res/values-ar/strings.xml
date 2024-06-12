@@ -240,12 +240,12 @@
     <string name="other">غير ذلك</string>
     <string name="enable_media_preview">تمكين معاينة الوسائط</string>
     <string name="enable_media_preview_sum">إضافة أيقونة لمعاينة الوسائط في ملف مؤقت (دون تحميله بشكل دائم)</string>
-    <string name="new_ui_group_filter">New UI Group Filter</string>
-    <string name="new_ui_group_filter_sum">Include a new filter on the home screen to separate groups and conversations.</string>
-    <string name="call_blocking_type">Call blocking type</string>
-    <string name="call_blocking_type_sum">Select the method by which the call blocking will be done.</string>
-    <string name="call_type_buttons_no_internet">No internet (\"Calling\")</string>
-    <string name="call_type_buttons_declined">Call declined</string>
-    <string name="call_type_buttons_uncallable">Unable to receive WhatsApp calls</string>
-    <string name="call_type_buttons_ended">Not answered</string>
+    <string name="new_ui_group_filter">إضافة فلتر المجموعات لواجهة المستخدم.</string>
+    <string name="new_ui_group_filter_sum">إضافة فلتر جديد على الشاشة الرئيسية لفصل المجموعات والمحادثات.</string>
+    <string name="call_blocking_type">نوع حظر المكالمات</string>
+    <string name="call_blocking_type_sum">أختر الطريقة التي سيتم من خلالها حظر المكالمات.</string>
+    <string name="call_type_buttons_no_internet">غير متصل بالإنترنت (\"يتصل\")</string>
+    <string name="call_type_buttons_declined">تم رفض المكالمة</string>
+    <string name="call_type_buttons_uncallable">غير قادر على استقبال مكالمات الواتس اب</string>
+    <string name="call_type_buttons_ended">لم يتم الرد عليها</string>
 </resources>
