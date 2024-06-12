@@ -15,6 +15,7 @@ import android.widget.LinearLayout;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.collection.ArraySet;
 
 import com.wmods.wppenhacer.xposed.core.Feature;
@@ -27,7 +28,9 @@ import com.wmods.wppenhacer.xposed.utils.ReflectionUtils;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -84,8 +87,11 @@ public class SeenTick extends Feature {
                 var objMessage = param.args[2];
                 var fieldMessageDetails = XposedHelpers.getObjectField(objMessage, fieldMessageKey.getName());
                 String messageKey = (String) XposedHelpers.getObjectField(fieldMessageDetails, "A01");
+                var userJidClass = XposedHelpers.findClass("com.whatsapp.jid.UserJid", classLoader);
+                var userJidMethod = ReflectionUtils.findMethodUsingFilter(fieldMessageKey.getDeclaringClass(), me -> me.getReturnType().equals(userJidClass) && me.getParameterCount() == 0);
+                Object userJid = ReflectionUtils.callMethod(userJidMethod, objMessage);
                 if (XposedHelpers.getBooleanField(fieldMessageDetails, "A02")) return;
-                messages.add(new MessageInfo(objMessage, messageKey));
+                messages.add(new MessageInfo(objMessage, messageKey, userJid));
             }
         });
 
@@ -145,7 +151,7 @@ public class SeenTick extends Feature {
                 var userJid = userJidMethod.invoke(message);
                 var jid = WppCore.getRawString(userJid);
                 messages.clear();
-                messages.add(new MessageInfo(message, messageKey));
+                messages.add(new MessageInfo(message, messageKey, null));
                 currentJid = jid;
             }
         });
@@ -270,11 +276,19 @@ public class SeenTick extends Feature {
             return;
         try {
             logDebug("Blue on Reply: " + currentJid);
-            var arr_s = messages.stream().map(item -> item.messageKey).toArray(String[]::new);
-            var userJid = WppCore.createUserJid(currentJid);
-            WppCore.setPrivBoolean(arr_s[0] + "_rpass", true);
-            var sendJob = XposedHelpers.newInstance(mSendReadClass, userJid, null, null, null, arr_s, -1, 0L, false);
-            WaJobManagerMethod.invoke(mWaJobManager, sendJob);
+            HashMap<Object, List<String>> map = new HashMap<>();
+            for (var messageInfo : messages) {
+                map.computeIfAbsent(messageInfo.userJid, k -> new ArrayList<>());
+                Objects.requireNonNull(map.get(messageInfo.userJid)).add(messageInfo.messageKey);
+            }
+            var userJidTarget = WppCore.createUserJid(currentJid);
+            for (var userjid : map.keySet()) {
+                var messages = Objects.requireNonNull(map.get(userjid)).toArray(new String[0]);
+                WppCore.setPrivBoolean(messages[0] + "_rpass", true);
+                var participant = WppCore.isGroup(currentJid) ? userjid : null;
+                var sendJob = XposedHelpers.newInstance(mSendReadClass, userJidTarget, participant, null, null, messages, -1, 1L, false);
+                WaJobManagerMethod.invoke(mWaJobManager, sendJob);
+            }
             messages.clear();
         } catch (Throwable e) {
             XposedBridge.log("Error: " + e.getMessage());
@@ -318,12 +332,22 @@ public class SeenTick extends Feature {
 
 
     static class MessageInfo {
+        public Object userJid;
         public String messageKey;
         public Object fMessage;
 
-        public MessageInfo(Object fMessage, String messageKey) {
+        public MessageInfo(Object fMessage, String messageKey, Object userJid) {
             this.messageKey = messageKey;
             this.fMessage = fMessage;
+            this.userJid = userJid;
+        }
+
+        @Override
+        public boolean equals(@Nullable Object obj) {
+            if (obj instanceof MessageInfo messageInfo) {
+                return messageKey.equals(messageInfo.messageKey) && fMessage.equals(messageInfo.fMessage) && userJid.equals(messageInfo.userJid);
+            }
+            return false;
         }
 
         @NonNull
