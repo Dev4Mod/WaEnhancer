@@ -1490,7 +1490,7 @@ public class Unobfuscator {
 
     public static Class loadImageVewContainerClass(ClassLoader loader) throws Exception {
         return UnobfuscatorCache.getInstance().getClass(loader, () -> {
-            var clazzList = dexkit.findClass(new FindClass().matcher(new ClassMatcher().addUsingString("viewmessage/ no file").addMethod(new MethodMatcher().addUsingNumber(Utils.getID("hd_invisible_touch", "id")).addUsingNumber(Utils.getID("control_btn", "id")))));
+            var clazzList = dexkit.findClass(new FindClass().matcher(new ClassMatcher().addMethod(new MethodMatcher().addUsingNumber(Utils.getID("hd_invisible_touch", "id")).addUsingNumber(Utils.getID("control_btn", "id")))));
             if (clazzList.isEmpty())
                 throw new RuntimeException("ImageViewContainer class not found");
             return clazzList.get(0).getInstance(loader);
@@ -1520,8 +1520,7 @@ public class Unobfuscator {
 
     public static Class getFilterView(ClassLoader loader) throws Exception {
         return UnobfuscatorCache.getInstance().getClass(loader, () -> {
-            var id = Utils.getID("filter_and_locked_chats_container", "id");
-            var results = dexkit.findClass(new FindClass().matcher(new ClassMatcher().addMethod(new MethodMatcher().addUsingNumber(id))));
+            var results = dexkit.findClass(new FindClass().matcher(new ClassMatcher().addMethod(new MethodMatcher().name("setInboxFilterHelper"))));
             if (results.isEmpty()) throw new RuntimeException("FilterView class not found");
             return results.get(0).getInstance(loader);
         });

@@ -1,5 +1,6 @@
-[BLUE TICK ON REPLY]
-* Add support to groups
-
 [WHATSAPP BUSINESS]
-* Add experimental support to version 2.24.11.83 (only)
+* fix experimental support to version 2.24.11.83 (only)
+
+[WHATSAPP]
+* Removed olds versions 2.24.8.85~2.24.9.79
+* Add support to version 2.24.12.71 and 73
