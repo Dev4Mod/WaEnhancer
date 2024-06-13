@@ -1,6 +1,6 @@
 package com.wmods.wppenhacer.adapter;
 
-import static com.wmods.wppenhacer.xposed.features.customization.IGStatus.itens;
+import static com.wmods.wppenhacer.xposed.features.customization.IGStatus.items;
 
 import android.content.Context;
 import android.content.Intent;
@@ -91,13 +91,13 @@ public class IGStatusAdapter extends ArrayAdapter {
 
     @Override
     public int getCount() {
-        return itens.size();
+        return items.size();
     }
 
     @NonNull
     @Override
     public View getView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
-        var item = itens.get(position);
+        var item = items.get(position);
         IGStatusViewHolder holder;
         if (convertView == null) {
             holder = new IGStatusViewHolder();

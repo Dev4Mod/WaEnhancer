@@ -70,13 +70,13 @@ public class CustomView extends Feature {
 
     @Override
     public void doHook() throws Throwable {
-        var filter_itens = prefs.getString("css_theme", null);
-        if (TextUtils.isEmpty(filter_itens)) return;
+        var filter_items = prefs.getString("css_theme", null);
+        if (TextUtils.isEmpty(filter_items)) return;
         cacheImages = new DrawableCache();
         chacheDrawables = new HashMap<>();
         mThreadService = Executors.newFixedThreadPool(8);
 
-        var sheet = CSSFactory.parseString(filter_itens, new URL("https://base.url/"));
+        var sheet = CSSFactory.parseString(filter_items, new URL("https://base.url/"));
         XposedHelpers.findAndHookMethod(Activity.class, "onCreate", Bundle.class, new XC_MethodHook() {
             @Override
             protected void beforeHookedMethod(MethodHookParam param) throws Throwable {

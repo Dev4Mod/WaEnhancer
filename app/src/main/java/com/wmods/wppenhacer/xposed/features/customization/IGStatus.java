@@ -32,7 +32,7 @@ import de.robv.android.xposed.XposedBridge;
 import de.robv.android.xposed.XposedHelpers;
 
 public class IGStatus extends Feature {
-    public static ArrayList<Object> itens = new ArrayList<>();
+    public static ArrayList<Object> items = new ArrayList<>();
     @SuppressLint("StaticFieldLeak")
     private static IGStatusView mStatusContainer;
 
@@ -144,7 +144,7 @@ public class IGStatus extends Feature {
         XposedBridge.hookAllConstructors(clazz2, new XC_MethodHook() {
             @Override
             protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-                itens.add(0, null);
+                items.add(0, null);
                 IGStatusAdapter mStatusAdapter = new IGStatusAdapter(WppCore.getMainActivity(), statusInfoClass);
                 mStatusContainer.setAdapter(mStatusAdapter);
                 mStatusContainer.updateList();
@@ -159,10 +159,10 @@ public class IGStatus extends Feature {
             protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
                 var list1 = (List) param.args[2];
                 var list2 = (List) param.args[3];
-                itens.clear();
-                itens.add(0, null);
-                itens.addAll(list1);
-                itens.addAll(list2);
+                items.clear();
+                items.add(0, null);
+                items.addAll(list1);
+                items.addAll(list2);
                 mStatusContainer.updateList();
             }
         });
@@ -183,10 +183,10 @@ public class IGStatus extends Feature {
                 if (lists.size() < 3) return;
                 var list1 = (List) lists.get(1).get(StatusListUpdates);
                 var list2 = (List) lists.get(2).get(StatusListUpdates);
-                itens.clear();
-                itens.add(0, null);
-                itens.addAll(list1);
-                itens.addAll(list2);
+                items.clear();
+                items.add(0, null);
+                items.addAll(list1);
+                items.addAll(list2);
                 mStatusContainer.updateList();
             }
         });

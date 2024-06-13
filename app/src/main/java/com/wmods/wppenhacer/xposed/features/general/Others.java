@@ -89,7 +89,7 @@ public class Others extends Feature {
         var adminGrp = prefs.getBoolean("admin_grp", false);
         var showOnline = prefs.getBoolean("showonline", false);
         var floatingMenu = prefs.getBoolean("floatingmenu", false);
-        var filter_itens = prefs.getString("filter_itens", null);
+        var filter_items = prefs.getString("filter_items", null);
         var disable_defemojis = prefs.getBoolean("disable_defemojis", false);
 
         propsBoolean.put(5171, filterSeen); // filtros de chat e grupos
@@ -153,8 +153,8 @@ public class Others extends Feature {
             showOnline();
         }
 
-        if (filter_itens != null) {
-            filterItens(filter_itens);
+        if (filter_items != null) {
+            filterItems(filter_items);
         }
 
         if (disable_defemojis) {
@@ -168,10 +168,10 @@ public class Others extends Feature {
         XposedBridge.hookMethod(defEmojiClass, XC_MethodReplacement.returnConstant(null));
     }
 
-    private void filterItens(String filterItens) {
-        var itens = filterItens.split("\n");
+    private void filterItems(String filterItems) {
+        var items = filterItems.split("\n");
         var idsFilter = new ArrayList<Integer>();
-        for (String item : itens) {
+        for (String item : items) {
             var id = Utils.getID(item, "id");
             if (id > 0) {
                 idsFilter.add(id);

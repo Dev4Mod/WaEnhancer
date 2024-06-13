@@ -271,8 +271,8 @@
     <string name="show_toast_on_contact_online_sum">Tampilkan notifikasi mengambang ketika kontak sedang online</string>
     <string name="new_context_menu_ui">Menu UI Konteks Baru</string>
     <string name="new_context_menu_ui_sum">Aktifkan menu konteks pesan baru bergaya iOS</string>
-    <string name="filter_itens_by_id">Filter Item Berdasarkan ID</string>
-    <string name="filter_itens_by_id_sum">Filter item berdasarkan nama ID</string>
+    <string name="filter_items_by_id">Filter Item Berdasarkan ID</string>
+    <string name="filter_items_by_id_sum">Filter item berdasarkan nama ID</string>
     <string name="custom_theme_css">Tema Khusus CSS</string>
     <string name="custom_theme_css_sum">Sesuaikan WhatsApp Anda menggunakan gaya CSS</string>
     <string name="antidisappearing">Anti Hapus Pesan Sementara</string>

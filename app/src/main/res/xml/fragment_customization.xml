@@ -95,9 +95,9 @@
             app:title="@string/hide_tabs_on_home" />
 
         <EditTextPreference
-            app:key="filter_itens"
-            android:summary="@string/filter_itens_by_id_sum"
-            app:title="@string/filter_itens_by_id" />
+            app:key="filter_items"
+            android:summary="@string/filter_items_by_id_sum"
+            app:title="@string/filter_items_by_id" />
 
         <EditTextPreference
             app:key="css_theme"

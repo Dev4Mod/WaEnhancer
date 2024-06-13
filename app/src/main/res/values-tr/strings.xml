@@ -223,8 +223,8 @@
     <string name="show_toast_on_contact_online_sum">Bir kişi çevrimiçi olduğunda bir tost mesajı göster</string>
     <string name="new_context_menu_ui">Yeni Bağlam Menüsü Kullanıcı Arayüzü</string>
     <string name="new_context_menu_ui_sum">Yeni iOS tarzı mesaj içerik menüsü etkinleştirilecektir.</string>
-    <string name="filter_itens_by_id">Kimliğe Göre Filtrele</string>
-    <string name="filter_itens_by_id_sum">Öğeleri kimlik adına göre filtrele</string>
+    <string name="filter_items_by_id">Kimliğe Göre Filtrele</string>
+    <string name="filter_items_by_id_sum">Öğeleri kimlik adına göre filtrele</string>
     <string name="custom_theme_css">Özel CSS Teması</string>
     <string name="custom_theme_css_sum">CSS stillerini kullanarak WhatsApp\'ınızı özelleştirin</string>
     <string name="antidisappearing">Anti Kaybolan Mesajlar</string>
