@@ -102,4 +102,27 @@ public class MessageStore {
     public static void setDatabase(SQLiteOpenHelper database) {
         MessageStore.database = database;
     }
+
+    public static void storeMessageRead(String messageId) {
+        XposedBridge.log("storeMessageRead: " + messageId);
+        database.getWritableDatabase().execSQL("UPDATE message SET status = 1 WHERE key_id = \"" + messageId + "\"");
+    }
+
+    public static boolean isReadMessageStatus(String messageId) {
+        boolean result = false;
+        try {
+            String[] columns = new String[]{"status"};
+            String selection = "key_id=?";
+            String[] selectionArgs = new String[]{messageId};
+
+            Cursor cursor = database.getReadableDatabase().query("message", columns, selection, selectionArgs, null, null, null);
+            if (cursor.moveToFirst()) {
+                result = cursor.getInt(cursor.getColumnIndexOrThrow("status")) == 1;
+            }
+            cursor.close();
+        } catch (Exception e) {
+            XposedBridge.log(e);
+        }
+        return result;
+    }
 }

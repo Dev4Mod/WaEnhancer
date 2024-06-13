@@ -1,6 +1,6 @@
-[WHATSAPP BUSINESS]
-* fix experimental support to version 2.24.11.83 (only)
+[SEEN TICK]
+* Now the send button in the status view turns blue when clicked
 
-[WHATSAPP]
-* Removed olds versions 2.24.8.85~2.24.9.79
-* Add support to version 2.24.12.71 and 73
+[STATUS]
+* Add function to Disable Status Auto Skip
+
