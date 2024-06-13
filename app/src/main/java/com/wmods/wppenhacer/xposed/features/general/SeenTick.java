@@ -148,8 +148,8 @@ public class SeenTick extends Feature {
             @Override
             protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
                 if (!Unobfuscator.isCalledFromClass(AsyncTask.class)
-                        && !Unobfuscator.isCalledFromClass(View.class) && prefs.getBoolean("autonext_status", false)
-                ) {
+                        && !ReflectionUtils.isCalledFromString("onClick") &&
+                        prefs.getBoolean("autonext_status", false)) {
                     param.setResult(null);
                     return;
                 }
