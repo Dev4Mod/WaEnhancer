@@ -18,6 +18,7 @@ import com.wmods.wppenhacer.xposed.core.Feature;
 import com.wmods.wppenhacer.xposed.core.Unobfuscator;
 import com.wmods.wppenhacer.xposed.core.Utils;
 import com.wmods.wppenhacer.xposed.core.WppCore;
+import com.wmods.wppenhacer.xposed.utils.ReflectionUtils;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -175,7 +176,8 @@ public class IGStatus extends Feature {
             @Override
             protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
                 var object = onGetInvokeField.get(param.args[0]);
-                var StatusListUpdates = XposedHelpers.callMethod(object, "A04");
+                var method = ReflectionUtils.findMethodUsingFilter(object.getClass(), method1 -> method1.getReturnType().equals(Object.class));
+                var StatusListUpdates = ReflectionUtils.callMethod(method, object);
                 if (StatusListUpdates == null) return;
                 var lists = Arrays.stream(StatusListUpdates.getClass().getDeclaredFields()).filter(f -> f.getType().equals(List.class)).collect(Collectors.toList());
                 if (lists.size() < 3) return;

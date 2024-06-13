@@ -1,5 +1,6 @@
-[BLUE TICK ON REPLY]
-* Add support to groups
+[SEEN TICK]
+* Now the send button in the status view turns blue when clicked
 
-[WHATSAPP BUSINESS]
-* Add experimental support to version 2.24.11.83 (only)
+[STATUS]
+* Add function to Disable Status Auto Skip
+

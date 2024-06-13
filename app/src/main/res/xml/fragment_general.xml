@@ -12,8 +12,8 @@
             app:title="@string/theme_mode" />
 
         <rikka.material.preference.MaterialSwitchPreference
-            app:key="enablelogs"
             app:defaultValue="true"
+            app:key="enablelogs"
             app:title="@string/verbose_logs" />
 
         <rikka.material.preference.MaterialSwitchPreference
@@ -57,20 +57,20 @@
             app:title="@string/show_dnd_button" />
 
         <rikka.material.preference.MaterialSwitchPreference
-            app:key="newchat"
             app:defaultValue="true"
+            app:key="newchat"
             app:summary="@string/enable_new_chat_button_sum"
             app:title="@string/enable_new_chat_button" />
 
         <rikka.material.preference.MaterialSwitchPreference
-            app:key="restartbutton"
             app:defaultValue="true"
+            app:key="restartbutton"
             app:summary="@string/enable_restart_button_sum"
             app:title="@string/enable_restart_button" />
 
         <rikka.material.preference.MaterialSwitchPreference
-            app:key="show_freezeLastSeen"
             app:defaultValue="true"
+            app:key="show_freezeLastSeen"
             app:summary="@string/show_freezeLastSeen_sum"
             app:title="@string/show_freezeLastSeen_button" />
 
@@ -129,8 +129,8 @@
 
         <rikka.material.preference.MaterialSwitchPreference
             app:key="toastdeleted"
-            app:title="@string/toast_on_delete"
-            app:summary="@string/toast_on_delete_sum" />
+            app:summary="@string/toast_on_delete_sum"
+            app:title="@string/toast_on_delete" />
 
         <ListPreference
             app:entries="@array/antirevoke_entries"
@@ -159,8 +159,8 @@
             app:title="@string/disable_pinned_limit" />
 
         <rikka.material.preference.MaterialSwitchPreference
-            app:summary="@string/removeforwardlimit_sum"
             app:key="removeforwardlimit"
+            app:summary="@string/removeforwardlimit_sum"
             app:title="@string/removeforwardlimit" />
 
         <rikka.material.preference.MaterialSwitchPreference
@@ -173,10 +173,10 @@
             app:summary="@string/delete_for_everyone_all_messages_sum"
             app:title="@string/delete_for_everyone_all_messages" />
 
-<!--        <rikka.material.preference.MaterialSwitchPreference-->
-<!--            app:key="editallmessages"-->
-<!--            app:summary="@string/remove_limit_edit_message_sum"-->
-<!--            app:title="@string/remove_limit_edit_message" />-->
+        <!--        <rikka.material.preference.MaterialSwitchPreference-->
+        <!--            app:key="editallmessages"-->
+        <!--            app:summary="@string/remove_limit_edit_message_sum"-->
+        <!--            app:title="@string/remove_limit_edit_message" />-->
 
         <rikka.material.preference.MaterialSwitchPreference
             app:key="removeseemore"
@@ -202,6 +202,15 @@
             app:key="disable_defemojis"
             app:summary="@string/disable_default_emojis_sum"
             app:title="@string/disable_default_emojis" />
+
+    </PreferenceCategory>
+
+    <PreferenceCategory app:title="@string/status">
+
+        <rikka.material.preference.MaterialSwitchPreference
+            app:key="autonext_status"
+            app:summary="@string/disable_auto_status_sum"
+            app:title="@string/disable_auto_status" />
 
     </PreferenceCategory>
 

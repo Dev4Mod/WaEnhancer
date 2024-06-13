@@ -2,8 +2,13 @@ package com.wmods.wppenhacer.xposed.features.general;
 
 
 import android.annotation.SuppressLint;
+import android.graphics.Bitmap;
 import android.graphics.Color;
+import android.graphics.PorterDuff;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
 import android.graphics.drawable.GradientDrawable;
+import android.os.AsyncTask;
 import android.os.Handler;
 import android.os.Looper;
 import android.view.Gravity;
@@ -18,6 +23,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.collection.ArraySet;
 
+import com.wmods.wppenhacer.xposed.core.DesignUtils;
 import com.wmods.wppenhacer.xposed.core.Feature;
 import com.wmods.wppenhacer.xposed.core.ResId;
 import com.wmods.wppenhacer.xposed.core.Unobfuscator;
@@ -140,7 +146,13 @@ public class SeenTick extends Feature {
         var fieldList = Unobfuscator.getFieldByType(setPageActiveMethod.getDeclaringClass(), List.class);
         XposedBridge.hookMethod(setPageActiveMethod, new XC_MethodHook() {
             @Override
-            protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+            protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
+                if (!Unobfuscator.isCalledFromClass(AsyncTask.class)
+                        && !ReflectionUtils.isCalledFromString("onClick") &&
+                        prefs.getBoolean("autonext_status", false)) {
+                    param.setResult(null);
+                    return;
+                }
                 var position = (int) param.args[1];
                 var list = (List<?>) XposedHelpers.getObjectField(param.args[0], fieldList.getName());
                 var message = list.get(position);
@@ -165,9 +177,14 @@ public class SeenTick extends Feature {
                 @Override
                 protected void afterHookedMethod(MethodHookParam param) throws Throwable {
                     if (!prefs.getBoolean("hidestatusview", false)) return;
+                    var fMessageField = ReflectionUtils.getFieldByExtendType(param.thisObject.getClass(), fieldMessageKey.getDeclaringClass());
+                    var fMessage = ReflectionUtils.getField(fMessageField, param.thisObject);
+                    var messageKey = ReflectionUtils.getField(fieldMessageKey, fMessage);
+                    var messageId = (String) XposedHelpers.getObjectField(messageKey, "A01");
+                    var isFromMe = XposedHelpers.getBooleanField(messageKey, "A02");
+                    if (isFromMe) return;
                     var view = (View) param.getResult();
                     var contentView = (LinearLayout) view.findViewById(Utils.getID("bottom_sheet", "id"));
-                    var infoBar = contentView.findViewById(Utils.getID("info", "id"));
                     var buttonImage = new ImageView(view.getContext());
                     LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(Utils.dipToPixels(32), Utils.dipToPixels(32));
                     params.gravity = Gravity.CENTER_VERTICAL;
@@ -180,20 +197,20 @@ public class SeenTick extends Feature {
                     border.setCornerRadius(20);
                     border.setColor(Color.parseColor("#80000000"));
                     buttonImage.setBackground(border);
-                    view.getViewTreeObserver().addOnGlobalLayoutListener(() -> {
-                        if (infoBar.getVisibility() != View.VISIBLE) {
-                            if (contentView.getChildAt(0) == buttonImage) return;
-                            contentView.setOrientation(LinearLayout.HORIZONTAL);
-                            contentView.addView(buttonImage, 0);
-                        }
-                    });
-                    buttonImage.setOnClickListener(v -> {
-                        new Handler(Looper.getMainLooper()).post(() -> Toast.makeText(view.getContext(), ResId.string.sending_read_blue_tick, Toast.LENGTH_SHORT).show());
+                    contentView.setOrientation(LinearLayout.HORIZONTAL);
+                    contentView.addView(buttonImage, 0);
+                    buttonImage.setOnClickListener(v -> AsyncTask.THREAD_POOL_EXECUTOR.execute(() -> {
+                        Utils.showToast(view.getContext().getString(ResId.string.sending_read_blue_tick), Toast.LENGTH_SHORT);
                         sendBlueTickStatus(currentJid);
+                        MessageStore.storeMessageRead(messageId);
+                        setSeenButton(buttonImage, true);
+                    }));
+                    AsyncTask.THREAD_POOL_EXECUTOR.execute(() -> {
+                        var seen = MessageStore.isReadMessageStatus(messageId);
+                        setSeenButton(buttonImage, seen);
                     });
                 }
             });
-
         } else {
             var mediaClass = Unobfuscator.loadStatusDownloadMediaClass(classLoader);
             logDebug("Media class: " + mediaClass.getName());
@@ -250,6 +267,24 @@ public class SeenTick extends Feature {
 
             }
         });
+    }
+
+    public static void setSeenButton(ImageView buttonImage, boolean b) {
+        Drawable originalDrawable = DesignUtils.getDrawableByName("ic_notif_mark_read");
+        Drawable clonedDrawable;
+
+        if (originalDrawable instanceof BitmapDrawable) {
+            Bitmap bitmap = ((BitmapDrawable) originalDrawable).getBitmap();
+            Bitmap clonedBitmap = bitmap.copy(bitmap.getConfig(), true);
+            clonedDrawable = new BitmapDrawable(buttonImage.getResources(), clonedBitmap);
+        } else {
+            clonedDrawable = Objects.requireNonNull(originalDrawable.getConstantState()).newDrawable().mutate();
+        }
+        if (b) {
+            clonedDrawable.setColorFilter(Color.CYAN, PorterDuff.Mode.SRC_ATOP);
+        }
+        buttonImage.setImageDrawable(clonedDrawable);
+        buttonImage.postInvalidate();
     }
 
 

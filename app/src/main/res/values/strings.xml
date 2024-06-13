@@ -251,4 +251,6 @@
     <string name="call_type_buttons_ended">Not answered</string>
     <string name="enable_tasker_automation">Enable Tasker Automation</string>
     <string name="enable_tasker_automation_sum">Enables the possibility of using intent to receive and send messages in Tasker</string>
+    <string name="disable_auto_status">Disable Status Auto Skip</string>
+    <string name="disable_auto_status_sum">Prevents the current status from advancing automatically to the next one.</string>
 </resources>
