@@ -1,9 +1,6 @@
-[CALL PRIVACY]
-* Fix bug in "No Internet" blocker
+[DISABLE AUTO SKIP STATUS]
+* Fix bug in skip pages
 
-[STATUS]
-* Fix bug in Disable Status Auto Skip
-* Fix bug in Download
-
-[MEDIA PREVIEW]
-* increase the button distance so as not to incorrectly click on download
+[TOAST ON EVENT]
+* Add function to show toast on viewed your message
+* Add function to show toast on viewed your status

@@ -762,6 +762,19 @@ public class Unobfuscator {
         });
     }
 
+    public static Method loadAntiRevokeOnFinishMethod(ClassLoader loader) throws Exception {
+        return UnobfuscatorCache.getInstance().getMethod(loader, () -> {
+            Class<?> conversation = XposedHelpers.findClass("com.whatsapp.Conversation", loader);
+            var classData = loadAntiRevokeImplClass();
+            MethodDataList mdOnStart = dexkit.findMethod(
+                    FindMethod.create().searchInClass(List.of(dexkit.getClassData(conversation)))
+                            .matcher(MethodMatcher.create().addInvoke(Objects.requireNonNull(classData).getDescriptor() + "->onResume()V"))
+            );
+            if (mdOnStart.isEmpty()) throw new Exception("AntiRevokeOnStart method not found");
+            return mdOnStart.get(0).getMethodInstance(loader);
+        });
+    }
+
     public static Field loadAntiRevokeConvChatField(ClassLoader loader) throws Exception {
         return UnobfuscatorCache.getInstance().getField(loader, () -> {
             Class<?> chatClass = findFirstClassUsingStrings(loader, StringMatchType.Contains, "payment_chat_composer_entry_nux_shown");
@@ -1544,9 +1557,18 @@ public class Unobfuscator {
 
     public static Method loadNextStatusRunMethod(ClassLoader classLoader) throws Exception {
         return UnobfuscatorCache.getInstance().getMethod(classLoader, () -> {
-            var method = findFirstMethodUsingStrings(classLoader, StringMatchType.Contains, "SequentialVoiceMemoPlayer/playMiddleTone");
-            if (method == null) throw new RuntimeException("NextStatusRun method not found");
+            var methodList = dexkit.findMethod(new FindMethod().matcher(new MethodMatcher().addUsingString("SequentialVoiceMemoPlayer/playMiddleTone").name("run")));
+            if (methodList.isEmpty()) throw new RuntimeException("RunNextStatus method not found");
+            return methodList.get(0).getMethodInstance(classLoader);
+        });
+    }
+
+    public static Method loadOnInsertReceipt(ClassLoader classLoader) throws Exception {
+        return UnobfuscatorCache.getInstance().getMethod(classLoader, () -> {
+            var method = findFirstMethodUsingStrings(classLoader, StringMatchType.Contains, "ReceiptUserStore/insertOrUpdateUserReceiptForMessage");
+            if (method == null) throw new RuntimeException("OnInsertReceipt method not found");
             return method;
         });
+
     }
 }

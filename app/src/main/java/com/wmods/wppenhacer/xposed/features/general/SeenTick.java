@@ -147,12 +147,6 @@ public class SeenTick extends Feature {
         XposedBridge.hookMethod(setPageActiveMethod, new XC_MethodHook() {
             @Override
             protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
-                if (!Unobfuscator.isCalledFromClass(AsyncTask.class)
-                        && !ReflectionUtils.isCalledFromString("onClick") &&
-                        prefs.getBoolean("autonext_status", false)) {
-                    param.setResult(null);
-                    return;
-                }
                 var position = (int) param.args[1];
                 var list = (List<?>) XposedHelpers.getObjectField(param.args[0], fieldList.getName());
                 var message = list.get(position);

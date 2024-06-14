@@ -3,6 +3,7 @@ package com.wmods.wppenhacer.xposed.features.general;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.graphics.Color;
+import android.os.AsyncTask;
 import android.os.BaseBundle;
 import android.os.Message;
 import android.text.TextUtils;
@@ -26,6 +27,7 @@ import com.wmods.wppenhacer.xposed.core.Unobfuscator;
 import com.wmods.wppenhacer.xposed.core.Utils;
 import com.wmods.wppenhacer.xposed.core.WppCore;
 import com.wmods.wppenhacer.xposed.core.components.AlertDialogWpp;
+import com.wmods.wppenhacer.xposed.core.db.MessageStore;
 import com.wmods.wppenhacer.xposed.utils.ReflectionUtils;
 
 import java.io.File;
@@ -92,6 +94,8 @@ public class Others extends Feature {
         var filter_itens = prefs.getString("filter_itens", null);
         var disable_defemojis = prefs.getBoolean("disable_defemojis", false);
         var autonext_status = prefs.getBoolean("autonext_status", false);
+        var toast_viewed_status = prefs.getBoolean("toast_viewed_status", false);
+        var toast_viewed_message = prefs.getBoolean("toast_viewed_message", false);
 
         propsBoolean.put(5171, filterSeen); // filtros de chat e grupos
         propsBoolean.put(4524, novoTema);
@@ -167,15 +171,59 @@ public class Others extends Feature {
             autoNextStatus();
         }
 
+        if (toast_viewed_status | toast_viewed_message) {
+            toast_viewed(toast_viewed_status, toast_viewed_message);
+        }
+    }
+
+    private void toast_viewed(boolean toast_viewed_status, boolean toast_viewed_message) throws Exception {
+
+        var onInsertReceipt = Unobfuscator.loadOnInsertReceipt(classLoader);
+        XposedBridge.hookMethod(onInsertReceipt, new XC_MethodHook() {
+            @Override
+            protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
+                var type = (int) param.args[1];
+                var id = (long) param.args[2];
+                if (type != 13) return;
+                var PhoneUserJid = param.args[0];
+                AsyncTask.THREAD_POOL_EXECUTOR.execute(() -> {
+                    var raw = WppCore.getRawString(PhoneUserJid);
+                    var UserJid = WppCore.createUserJid(raw);
+                    var contactName = WppCore.getContactName(UserJid);
+                    if (contactName == null) {
+                        contactName = WppCore.stripJID(raw);
+                    }
+                    var sql = MessageStore.database.getReadableDatabase();
+                    try (var result = sql.query("status", null, "message_table_id = ?", new String[]{String.valueOf(id)}, null, null, null)) {
+                        if (result.moveToNext()) {
+                            if (toast_viewed_status)
+                                Utils.showToast(String.format("%s viewed your status", contactName), Toast.LENGTH_LONG);
+                        } else if (toast_viewed_message && !Objects.equals(WppCore.getCurrentRawJID(), raw)) {
+                            try (var result2 = sql.query("message", null, "_id = ?", new String[]{String.valueOf(id)}, null, null, null)) {
+                                if (result2.moveToNext()) {
+                                    var chat_id = result2.getLong(result2.getColumnIndexOrThrow("chat_row_id"));
+                                    try (var result3 = sql.query("chat", null, "_id = ? AND subject IS NULL", new String[]{String.valueOf(chat_id)}, null, null, null)) {
+                                        if (result3.moveToNext()) {
+                                            Utils.showToast(String.format("%s viewed your message", contactName), Toast.LENGTH_LONG);
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+        });
     }
 
     private void autoNextStatus() throws Exception {
-        var setPageActiveMethod = Unobfuscator.loadStatusActivePage(classLoader);
-        var nextStatusRunMethod = Unobfuscator.loadNextStatusRunMethod(classLoader);
-        XposedBridge.hookMethod(setPageActiveMethod, new XC_MethodHook() {
+        Class<?> StatusPlaybackContactFragmentClass = classLoader.loadClass("com.whatsapp.status.playback.fragment.StatusPlaybackContactFragment");
+        var runNextStatusMethod = Unobfuscator.loadNextStatusRunMethod(classLoader);
+        XposedBridge.hookMethod(runNextStatusMethod, new XC_MethodHook() {
             @Override
             protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
-                if (Unobfuscator.isCalledFromMethod(nextStatusRunMethod)) {
+                var obj = XposedHelpers.getObjectField(param.thisObject, "A01");
+                if (StatusPlaybackContactFragmentClass.isInstance(obj)) {
                     param.setResult(null);
                 }
             }

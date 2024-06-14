@@ -25,6 +25,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
 
+import de.robv.android.xposed.XC_MethodHook;
 import de.robv.android.xposed.XposedBridge;
 
 public class Utils {
@@ -100,6 +101,34 @@ public class Utils {
             }
         }
     }
+
+    public static XC_MethodHook getDebugMethodHook(boolean printMethods, boolean printFields, boolean printArgs, boolean printTrace) {
+        return new XC_MethodHook() {
+            @Override
+            protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+                XposedBridge.log("\n\n-----------------HOOKED DEBUG START-----------------------------");
+                XposedBridge.log("DEBUG CLASS: " + param.method.getDeclaringClass().getName() + ": " + param.thisObject);
+
+                if (printArgs) {
+                    for (var i = 0; i < param.args.length; i++) {
+                        XposedBridge.log("ARG[" + i + "]: " + (param.args[i] == null ? null : param.args[i].getClass().getName()) + " -> VALUE: " + param.args[i]);
+                    }
+                }
+                if (printFields) {
+                    debugFields(param.thisObject);
+                }
+
+                if (printMethods) {
+                    debugMethods(param.thisObject.getClass(), param.thisObject);
+                }
+                if (printTrace) {
+                    XposedBridge.log(new Exception("print trace"));
+                }
+                XposedBridge.log("-----------------HOOKED DEBUG END-----------------------------\n\n");
+            }
+        };
+    }
+
 
     public static void debugMethods(Class<?> cls, Object thisObject) {
         XposedBridge.log("DEBUG METHODS: Class " + cls.getName());

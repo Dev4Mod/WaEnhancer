@@ -253,4 +253,8 @@
     <string name="enable_tasker_automation_sum">Enables the possibility of using intent to receive and send messages in Tasker</string>
     <string name="disable_auto_status">Disable Status Auto Skip</string>
     <string name="disable_auto_status_sum">Prevents the current status from advancing automatically to the next one.</string>
+    <string name="toast_on_viewed_status">Show toast on viewed your status</string>
+    <string name="toast_on_viewed_status_sum">Shows a toast if someone views your status</string>
+    <string name="toast_on_viewed_message">Show toast on viewed your message</string>
+    <string name="toast_on_viewed_message_sum">Shows a toast if someone views your message</string>
 </resources>

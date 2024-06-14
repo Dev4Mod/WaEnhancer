@@ -132,6 +132,16 @@
             app:summary="@string/toast_on_delete_sum"
             app:title="@string/toast_on_delete" />
 
+        <rikka.material.preference.MaterialSwitchPreference
+            app:key="toast_viewed_message"
+            app:summary="@string/toast_on_viewed_message_sum"
+            app:title="@string/toast_on_viewed_message" />
+
+        <rikka.material.preference.MaterialSwitchPreference
+            app:key="toast_viewed_status"
+            app:summary="@string/toast_on_viewed_status_sum"
+            app:title="@string/toast_on_viewed_status" />
+
         <ListPreference
             app:entries="@array/antirevoke_entries"
             app:entryValues="@array/antirevoke_values"

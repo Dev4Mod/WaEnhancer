@@ -3,7 +3,6 @@ package com.wmods.wppenhacer.xposed.core;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.Application;
-import android.content.Context;
 import android.os.Bundle;
 import android.widget.Toast;
 
@@ -11,6 +10,8 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import com.wmods.wppenhacer.xposed.core.components.AlertDialogWpp;
+
+import de.robv.android.xposed.XposedHelpers;
 
 public class WaCallback implements Application.ActivityLifecycleCallbacks {
     @Override
@@ -20,7 +21,7 @@ public class WaCallback implements Application.ActivityLifecycleCallbacks {
 
     @Override
     public void onActivityStarted(@NonNull Activity activity) {
-
+        checkIsConversation(activity, WppCore.ObjectOnChangeListener.TYPE_START);
     }
 
     @SuppressLint("ApplySharedPref")
@@ -37,19 +38,30 @@ public class WaCallback implements Application.ActivityLifecycleCallbacks {
                         })
                         .setNegativeButton(activity.getString(ResId.string.no), null)
                         .show();
-            }catch (Exception ignored) {
+            } catch (Exception ignored) {
             }
         }
+        checkIsConversation(activity, WppCore.ObjectOnChangeListener.TYPE_RESUME);
     }
 
     @Override
     public void onActivityPaused(@NonNull Activity activity) {
-
+        checkIsConversation(activity, WppCore.ObjectOnChangeListener.TYPE_PAUSE);
     }
 
     @Override
     public void onActivityStopped(@NonNull Activity activity) {
+        checkIsConversation(activity, WppCore.ObjectOnChangeListener.TYPE_END);
+    }
 
+    private static void checkIsConversation(@NonNull Activity activity, int type) {
+        Class<?> conversation = XposedHelpers.findClass("com.whatsapp.Conversation", activity.getClassLoader());
+        if (conversation.isInstance(activity)) {
+            WppCore.mConversation = type == WppCore.ObjectOnChangeListener.TYPE_PAUSE || WppCore.ObjectOnChangeListener.TYPE_END == type ? null : activity;
+            for (WppCore.ObjectOnChangeListener listener : WppCore.listenerChat) {
+                listener.onChange(activity, type);
+            }
+        }
     }
 
     @Override

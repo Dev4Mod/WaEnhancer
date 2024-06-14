@@ -35,12 +35,11 @@ public class WppCore {
     private static Class<?> mGenJidClass;
     private static Method mGenJidMethod;
     private static Class bottomDialog;
-    @SuppressLint("StaticFieldLeak")
-    private static Activity mConversation;
+    static final HashSet<ObjectOnChangeListener> listenerChat = new HashSet<>();
     private static Field convChatField;
     private static Field chatJidField;
-
-    private static final HashSet<ObjectOnChangeListener> listenerChat = new HashSet<>();
+    @SuppressLint("StaticFieldLeak")
+    static Activity mConversation;
     private static final HashMap<Class, List<OnMenuCreate>> listenerMenu = new HashMap<>();
     private static Object mContactManager;
     private static SharedPreferences privPrefs;
@@ -92,7 +91,12 @@ public class WppCore {
 
 
     public interface ObjectOnChangeListener {
-        void onChange(Object object, String type);
+        public static int TYPE_START = 0;
+        public static int TYPE_END = 1;
+        public static int TYPE_RESUME = 2;
+        public static int TYPE_PAUSE = 3;
+
+        void onChange(Object object, int type);
 
     }
 
@@ -153,30 +157,8 @@ public class WppCore {
         // Bottom Dialog
         bottomDialog = Unobfuscator.loadDialogViewClass(loader);
 
-        // Conversation
-        var onStartMethod = Unobfuscator.loadAntiRevokeOnStartMethod(loader);
-        var onResumeMethod = Unobfuscator.loadAntiRevokeOnResumeMethod(loader);
         convChatField = Unobfuscator.loadAntiRevokeConvChatField(loader);
         chatJidField = Unobfuscator.loadAntiRevokeChatJidField(loader);
-        XposedBridge.hookMethod(onStartMethod, new XC_MethodHook() {
-            @Override
-            protected void afterHookedMethod(MethodHookParam param) {
-                mConversation = (Activity) param.thisObject;
-                for (ObjectOnChangeListener listener : listenerChat) {
-                    listener.onChange(mConversation, "onStartConversation");
-                }
-            }
-        });
-
-        XposedBridge.hookMethod(onResumeMethod, new XC_MethodHook() {
-            @Override
-            protected void afterHookedMethod(MethodHookParam param) {
-                mConversation = (Activity) param.thisObject;
-                for (ObjectOnChangeListener listener : listenerChat) {
-                    listener.onChange(mConversation, "onResumeConversation");
-                }
-            }
-        });
 
         // StartUpPrefs
         var startPrefsConfig = Unobfuscator.loadStartPrefsConfig(loader);
