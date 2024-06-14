@@ -28,6 +28,7 @@
         <EditTextPreference
             app:iconSpaceReserved="false"
             app:key="secondstotime"
+            app:summary="@string/textonahora_sum"
             app:title="@string/textonahora" />
 
         <rikka.material.preference.MaterialSwitchPreference
@@ -205,7 +206,9 @@
 
     </PreferenceCategory>
 
-    <PreferenceCategory app:title="@string/status">
+    <PreferenceCategory
+        app:iconSpaceReserved="false"
+        app:title="@string/status">
 
         <rikka.material.preference.MaterialSwitchPreference
             app:key="autonext_status"

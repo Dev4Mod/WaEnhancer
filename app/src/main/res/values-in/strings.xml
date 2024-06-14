@@ -20,7 +20,7 @@
     <string name="perso">Kustomisasi</string>
     <string name="segundosnahora">Detik dalam Waktu</string>
     <string name="segundosnahora_sum">Tampilkan detik di samping waktu apapun di aplikasi WhatsApp</string>
-    <string name="textonahora">Tambahkan teks disebelah waktu pesan</string>
+    <string name="textonahora">Teks di samping Waktu</string>
     <string name="no_active">Jika Anda berada di layar ini, berarti Anda belum menginstal LSPosed atau tidak memiliki APK WhatsApp apa pun yang dipatch oleh LSPatch.\n\nSilahkan perbaiki! Mulai ulang modul dan coba lagi</string>
     <string name="viewonce">Nonaktifkan Batas Sekali Lihat</string>
     <string name="viewonce_sum">Anda dapat membuka pesan \"lihat sekali\" berkali-kali</string>
@@ -202,7 +202,7 @@
     <string name="send_video_in_real_resolution">Kirim Video Resolusi Asli</string>
     <string name="send_video_in_real_resolution_sum">Kirim video dalam resolusi asli untuk status, grup dan obrolan</string>
     <string name="send_video_in_60fps">Kirim Video 60fps</string>
-    <string name="send_video_in_60fps_sum">Mirim video dalam 60fps untuk status, grup dan obrolan</string>
+    <string name="send_video_in_60fps_sum">Kirim video dalam 60fps untuk status, grup dan obrolan</string>
     <string name="status">Status</string>
     <string name="download_title">Unduhan</string>
     <string name="seentick_menu">Tampilkan tombol di menu</string>
@@ -284,4 +284,20 @@
     <string name="disable_default_emojis_sum">Nonaktifkan emoji bawaan WhatsApp dan gunakan emoji sistem\n(CATATAN: Emoji WhatsApp akan hilang dari pilihan, gunakan keyboard untuk menyisipkan)</string>
     <string name="theme_mode">Tema Gelap Wa Enhancer</string>
     <string name="theme_mode_sum">Pilih tema Wa Enhancer</string>
+    <string name="other">Lainnya</string>
+    <string name="enable_media_preview">Pratinjau Media</string>
+    <string name="enable_media_preview_sum">Tampilkan tombol untuk melihat pratinjau media dalam file sementara (tanpa mengunduhnya secara permanen)</string>
+    <string name="new_ui_group_filter">Filter Grup UI Baru</string>
+    <string name="new_ui_group_filter_sum">Filter baru di layar beranda untuk memisahkan grup dan percakapan</string>
+    <string name="call_blocking_type">Jenis Pemblokiran Panggilan</string>
+    <string name="call_blocking_type_sum">Pilih metode pemblokiran panggilan yang akan dilakukan</string>
+    <string name="call_type_buttons_no_internet">Tidak ada internet (\"Memanggil\")</string>
+    <string name="call_type_buttons_declined">Panggilan ditolak</string>
+    <string name="call_type_buttons_uncallable">Tidak dapat menerima panggilan WhatsApp</string>
+    <string name="call_type_buttons_ended">Tak terjawab</string>
+    <string name="enable_tasker_automation">Otomatisasi Tasker</string>
+    <string name="enable_tasker_automation_sum">Aktifkan untuk menerima dan mengirim pesan di Tasker</string>
+    <string name="disable_auto_status">Nonaktifkan Otomatis Lewati Status</string>
+    <string name="disable_auto_status_sum">Mencegah perpindahan secara otomatis dari status saat ini ke status berikutnya</string>
+    <string name="textonahora_sum">Tampilkan teks di samping waktu apapun di aplikasi WhatsApp</string>
 </resources>
