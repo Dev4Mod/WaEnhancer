@@ -1534,4 +1534,19 @@ public class Unobfuscator {
         });
     }
 
+    public static Method loadOnPlaybackFinished(ClassLoader classLoader) throws Exception {
+        return UnobfuscatorCache.getInstance().getMethod(classLoader, () -> {
+            var method = findFirstMethodUsingStrings(classLoader, StringMatchType.Contains, "playbackPage/onPlaybackContentFinished");
+            if (method == null) throw new RuntimeException("OnPlaybackFinished method not found");
+            return method;
+        });
+    }
+
+    public static Method loadNextStatusRunMethod(ClassLoader classLoader) throws Exception {
+        return UnobfuscatorCache.getInstance().getMethod(classLoader, () -> {
+            var method = findFirstMethodUsingStrings(classLoader, StringMatchType.Contains, "SequentialVoiceMemoPlayer/playMiddleTone");
+            if (method == null) throw new RuntimeException("NextStatusRun method not found");
+            return method;
+        });
+    }
 }

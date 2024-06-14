@@ -52,7 +52,6 @@ public class CallPrivacy extends Feature {
                         break;
                 }
                 if (!block) return;
-//                XposedHelpers.callMethod(param.thisObject, callEndMethod.getName(), callState, callinfo);
                 var clazzVoip = XposedHelpers.findClass("com.whatsapp.voipcalling.Voip", classLoader);
                 var rejectType = prefs.getString("call_type", "no_internet");
                 switch (rejectType) {
@@ -102,7 +101,11 @@ public class CallPrivacy extends Feature {
 
     public boolean checkCallBlock(Object userJid) throws IllegalAccessException, InvocationTargetException {
         var jid = WppCore.stripJID(WppCore.getRawString(userJid));
-        var contactName = WppCore.getContactName(userJid);
+        if (jid != null && WppCore.stripJID(jid).equals(jid)) {
+            jid = jid.split("\\.")[0] + "@s.whatsapp.net";
+        }
+        log("Checking call block for " + jid);
+        var contactName = WppCore.getContactName(WppCore.createUserJid(jid));
         return contactName == null || contactName.equals(jid);
     }
 

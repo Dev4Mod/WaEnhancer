@@ -142,6 +142,7 @@ public class MediaPreview extends Feature {
                 var prevBtn = new ImageView(context);
                 var layoutParams2 = new LinearLayout.LayoutParams(Utils.dipToPixels(42), Utils.dipToPixels(32));
                 layoutParams2.gravity = Gravity.CENTER;
+                layoutParams2.topMargin = Utils.dipToPixels(8);
                 prevBtn.setLayoutParams(layoutParams2);
                 var drawable = context.getDrawable(ResId.drawable.preview_eye);
                 drawable.setTint(Color.WHITE);

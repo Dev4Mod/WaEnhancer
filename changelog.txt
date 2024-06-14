@@ -1,6 +1,9 @@
-[SEEN TICK]
-* Now the send button in the status view turns blue when clicked
+[CALL PRIVACY]
+* Fix bug in "No Internet" blocker
 
 [STATUS]
-* Add function to Disable Status Auto Skip
+* Fix bug in Disable Status Auto Skip
+* Fix bug in Download
 
+[MEDIA PREVIEW]
+* increase the button distance so as not to incorrectly click on download

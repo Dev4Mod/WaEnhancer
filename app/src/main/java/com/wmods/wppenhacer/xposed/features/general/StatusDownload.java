@@ -14,6 +14,7 @@ import com.wmods.wppenhacer.xposed.core.ResId;
 import com.wmods.wppenhacer.xposed.core.Unobfuscator;
 import com.wmods.wppenhacer.xposed.core.Utils;
 import com.wmods.wppenhacer.xposed.utils.MimeTypeUtils;
+import com.wmods.wppenhacer.xposed.utils.ReflectionUtils;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -25,11 +26,9 @@ import java.util.List;
 
 import de.robv.android.xposed.XC_MethodHook;
 import de.robv.android.xposed.XSharedPreferences;
-import de.robv.android.xposed.XposedBridge;
 import de.robv.android.xposed.XposedHelpers;
 
 public class StatusDownload extends Feature {
-    private static Object messageObj;
 
     public StatusDownload(ClassLoader loader, XSharedPreferences preferences) {
         super(loader, preferences);
@@ -37,10 +36,6 @@ public class StatusDownload extends Feature {
 
     public void doHook() throws Exception {
         if (!prefs.getBoolean("downloadstatus", false)) return;
-        var setPageActiveMethod = Unobfuscator.loadStatusActivePage(classLoader);
-        var fieldList = Unobfuscator.getFieldByType(setPageActiveMethod.getDeclaringClass(), List.class);
-        logDebug("List field: " + fieldList.getName());
-        logDebug(Unobfuscator.getMethodDescriptor(setPageActiveMethod));
         var mediaClass = Unobfuscator.loadStatusDownloadMediaClass(classLoader);
         logDebug("Media class: " + mediaClass.getName());
         var menuStatusClass = Unobfuscator.loadMenuStatusClass(classLoader);
@@ -53,18 +48,31 @@ public class StatusDownload extends Feature {
         logDebug("Menu class: " + clazzMenu.getName());
         var menuField = Unobfuscator.getFieldByType(clazzSubMenu, clazzMenu);
         logDebug("Menu field: " + menuField.getName());
+        Class<?> StatusPlaybackBaseFragmentClass = classLoader.loadClass("com.whatsapp.status.playback.fragment.StatusPlaybackBaseFragment");
+        Class<?> StatusPlaybackContactFragmentClass = classLoader.loadClass("com.whatsapp.status.playback.fragment.StatusPlaybackContactFragment");
+        var listStatusField = ReflectionUtils.getFieldsByExtendType(StatusPlaybackContactFragmentClass, List.class).get(0);
 
         XposedHelpers.findAndHookMethod(menuStatusClass, "onClick", View.class, new XC_MethodHook() {
             @Override
             protected void afterHookedMethod(MethodHookParam param) throws Throwable {
                 Field subMenuField = Arrays.stream(param.thisObject.getClass().getDeclaredFields()).filter(f -> f.getType() == Object.class && clazzSubMenu.isInstance(XposedHelpers.getObjectField(param.thisObject, f.getName()))).findFirst().orElse(null);
                 Object submenu = XposedHelpers.getObjectField(param.thisObject, subMenuField.getName());
+
+                var fragment = Arrays.stream(param.thisObject.getClass().getDeclaredFields()).filter(f -> StatusPlaybackBaseFragmentClass.isInstance(XposedHelpers.getObjectField(param.thisObject, f.getName()))).findFirst().orElse(null);
+                if (fragment == null) {
+                    logDebug("Fragment not found");
+                    return;
+                }
+                var fragmentInstance = fragment.get(param.thisObject);
+                var index = (int) XposedHelpers.getObjectField(fragmentInstance, "A00");
+                var listStatus = (List) listStatusField.get(fragmentInstance);
+                var fMessage = (Object) listStatus.get(index);
                 var menu = (Menu) XposedHelpers.getObjectField(submenu, menuField.getName());
                 if (menu.findItem(ResId.string.download) != null) return;
                 menu.add(0, ResId.string.download, 0, ResId.string.download).setOnMenuItemClickListener(item -> {
-                    if (messageObj == null) return true;
+                    if (fMessage == null) return true;
                     try {
-                        var fileData = XposedHelpers.getObjectField(messageObj, "A01");
+                        var fileData = XposedHelpers.getObjectField(fMessage, "A01");
                         var file = (File) XposedHelpers.getObjectField(fileData, fieldFile.getName());
                         if (copyFile(prefs, file)) {
                             Utils.showToast(Utils.getApplication().getString(ResId.string.saved_to) + getPathDestination(prefs, file), Toast.LENGTH_SHORT);
@@ -79,17 +87,7 @@ public class StatusDownload extends Feature {
             }
         });
 
-        XposedBridge.hookMethod(setPageActiveMethod, new XC_MethodHook() {
-            @Override
-            protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-                var position = (int) param.args[1];
-                var list = (List<?>) XposedHelpers.getObjectField(param.args[0], fieldList.getName());
-                var message = list.get(position);
-                if (message != null && mediaClass.isInstance(message)) {
-                    messageObj = message;
-                }
-            }
-        });
+
     }
 
     @NonNull

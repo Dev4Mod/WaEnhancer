@@ -94,8 +94,8 @@ public class MainFeatures {
                     registerReceivers();
                     mApp.registerActivityLifecycleCallbacks(new WaCallback());
                     sendEnabledBroadcast(mApp);
-                    if (Feature.DEBUG)
-                        XposedHelpers.setStaticIntField(XposedHelpers.findClass("com.whatsapp.util.Log", loader), "level", 5);
+//                    if (Feature.DEBUG)
+//                        XposedHelpers.setStaticIntField(XposedHelpers.findClass("com.whatsapp.util.Log", loader), "level", 5);
                 } catch (Exception e) {
                     XposedBridge.log(e);
                     var error = new ErrorItem();

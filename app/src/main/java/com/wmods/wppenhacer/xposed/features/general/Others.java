@@ -91,6 +91,7 @@ public class Others extends Feature {
         var floatingMenu = prefs.getBoolean("floatingmenu", false);
         var filter_itens = prefs.getString("filter_itens", null);
         var disable_defemojis = prefs.getBoolean("disable_defemojis", false);
+        var autonext_status = prefs.getBoolean("autonext_status", false);
 
         propsBoolean.put(5171, filterSeen); // filtros de chat e grupos
         propsBoolean.put(4524, novoTema);
@@ -110,12 +111,13 @@ public class Others extends Feature {
         propsBoolean.put(3354, true);
         propsBoolean.put(5418, true);
 
+        propsBoolean.put(9051, true);
+        propsBoolean.put(5332, false);
 
         if (metaai) {
             propsBoolean.put(8025, false);
             propsBoolean.put(6251, false);
             propsBoolean.put(7639, false);
-
         }
 
         propsInteger.put(8522, fbstyle ? 1 : 0);
@@ -160,6 +162,26 @@ public class Others extends Feature {
         if (disable_defemojis) {
             disable_defEmojis();
         }
+
+        if (autonext_status) {
+            autoNextStatus();
+        }
+
+    }
+
+    private void autoNextStatus() throws Exception {
+        var setPageActiveMethod = Unobfuscator.loadStatusActivePage(classLoader);
+        var nextStatusRunMethod = Unobfuscator.loadNextStatusRunMethod(classLoader);
+        XposedBridge.hookMethod(setPageActiveMethod, new XC_MethodHook() {
+            @Override
+            protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
+                if (Unobfuscator.isCalledFromMethod(nextStatusRunMethod)) {
+                    param.setResult(null);
+                }
+            }
+        });
+        var onPlayBackFinished = Unobfuscator.loadOnPlaybackFinished(classLoader);
+        XposedBridge.hookMethod(onPlayBackFinished, XC_MethodReplacement.DO_NOTHING);
     }
 
 

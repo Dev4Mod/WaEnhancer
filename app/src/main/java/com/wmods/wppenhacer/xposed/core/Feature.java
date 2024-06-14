@@ -1,5 +1,7 @@
 package com.wmods.wppenhacer.xposed.core;
 
+import android.util.Log;
+
 import androidx.annotation.NonNull;
 
 import de.robv.android.xposed.XSharedPreferences;
@@ -24,6 +26,11 @@ public abstract class Feature {
     public void logDebug(Object object) {
         if (!DEBUG) return;
         log(object);
+        if (object instanceof Throwable th) {
+            Log.i(this.getPluginName(), th.getMessage(), th);
+        } else {
+            Log.i(this.getPluginName(), String.valueOf(object));
+        }
     }
 
     public void log(Object object) {
