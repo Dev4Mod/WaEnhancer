@@ -276,7 +276,7 @@ public class AntiRevoke extends Feature {
         if (prefs.getBoolean("toastdeleted", false)) {
             Utils.showToast(message, Toast.LENGTH_SHORT);
         }
-        Tasker.sendTaskerEvent(WppCore.stripJID(jidAuthor), isStatus ? "status_deleted" : "message_deleted");
+        Tasker.sendTaskerEvent(WppCore.stripJID(jidAuthor), isStatus ? "deleted_status" : "deleted_message");
     }
 
 }

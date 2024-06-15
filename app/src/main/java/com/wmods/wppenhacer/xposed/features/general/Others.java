@@ -196,7 +196,7 @@ public class Others extends Feature {
                             if (toast_viewed_status) {
                                 Utils.showToast(String.format("%s viewed your status", contactName), Toast.LENGTH_LONG);
                             }
-                            Tasker.sendTaskerEvent(WppCore.stripJID(raw), "status_viewed");
+                            Tasker.sendTaskerEvent(WppCore.stripJID(raw), "viewed_status");
                         } else if (!Objects.equals(WppCore.getCurrentRawJID(), raw)) {
                             try (var result2 = sql.query("message", null, "_id = ?", new String[]{String.valueOf(id)}, null, null, null)) {
                                 if (result2.moveToNext()) {
@@ -205,7 +205,7 @@ public class Others extends Feature {
                                         if (result3.moveToNext()) {
                                             if (toast_viewed_message)
                                                 Utils.showToast(String.format("%s viewed your message", contactName), Toast.LENGTH_LONG);
-                                            Tasker.sendTaskerEvent(WppCore.stripJID(raw), "message_viewed");
+                                            Tasker.sendTaskerEvent(WppCore.stripJID(raw), "viewed_message");
                                         }
                                     }
                                 }
