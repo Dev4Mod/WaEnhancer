@@ -52,8 +52,27 @@ jobs:
           if [ ! -z "${{ secrets.BOT_TOKEN }}" ]; then
             GITHUB_SHA_SHORT=$(git rev-parse --short HEAD)
             export output=app/WaEnhancer_debug_$GITHUB_SHA_SHORT.apk
-            mv app/build/outputs/apk/debug/app-debug.apk $output
+            cp app/build/outputs/apk/debug/app-debug.apk $output
             export LOG=$(cat changelog.txt)
             ESCAPED=$(python3 -c 'import json,os,urllib.parse; msg = json.dumps(os.getenv("LOG")); print(urllib.parse.quote(msg if len(msg) <= 1024 else json.dumps(os.getenv("COMMIT_URL"))))')
             curl "https://api.telegram.org/bot${BOT_TOKEN}/sendMediaGroup?chat_id=${CHANNEL_ID}&media=%5B%7B%22type%22%3A%22document%22%2C%20%22media%22%3A%22attach%3A%2F%2Foutput%22%2C%22caption%22:${ESCAPED}%7D%5D" -F output="@$output"
           fi
+
+      - name: Create pre-release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: 'pre-release-${{ github.sha }}'
+          release_name: 'Pre-release ${{ github.sha }}'
+          draft: false
+          prerelease: true
+
+      - name: Upload to release
+        uses: svenstaro/upload-release-action@v2
+        with:
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          file: app/build/outputs/apk/debug/app-debug.apk
+          asset_name: WaEnhancer_debug_${{ github.sha }}.apk
+          tag: pre-release-${{ github.sha }}
