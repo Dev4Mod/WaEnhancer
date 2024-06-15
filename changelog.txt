@@ -8,3 +8,9 @@ contact_online: online contact
 call_received: received call
 
 NOTE: it works even if an event option is disabled in Wa Enhancer so you can create your own custom toast
+
+[FIX TASKER]
+* Incorret names events
+
+[WA ENHANCER]
+* Update translations

@@ -15,8 +15,8 @@
     <string name="hideread_sum">Lors ce qu\'activé, vous permet de lire les messages sans que la personne ne puisse savoir que vous les avez lu.</string>
     <string name="perso">Personnalisation</string>
     <string name="segundosnahora">Temps en seconde</string>
-    <string name="segundosnahora_sum">Mettre les secondes à côté des heures</string>
-    <string name="textonahora">Ajouter un texte à côté de l\'horaire</string>
+    <string name="segundosnahora_sum">Show seconds next to any timestamp in the WhatsApp app</string>
+    <string name="textonahora">Text next to Timestamp</string>
     <string name="viewonce">Désactiver la vue unique</string>
     <string name="viewonce_sum">Lors ce qu\'activé, celà vous permet d\'ouvrir des messages éphémères autant de fois que vous le voulez.</string>
     <string name="novotema_sum">Lors ce qu\'activé, celà vous change la couleure et le thème d\'icône vers le nouveau thème WhatsApp</string>
@@ -95,7 +95,7 @@
     <string name="activate">Activate</string>
     <string name="cancel">Cancel</string>
     <string name="edited_history">Edited History</string>
-    <string name="message_original">Message Original</string>
+    <string name="message_original">Original Message</string>
     <string name="new_chat">New Chat</string>
     <string name="number_with_country_code">Number with country code</string>
     <string name="message">Message</string>
@@ -230,7 +230,7 @@
     <string name="antidisappearing">Anti Disappearing Messages</string>
     <string name="antidisappearing_sum">Temporary messages will not be deleted for you</string>
     <string name="title_audio">Audio</string>
-    <string name="android_version">Android Version</string>
+    <string name="android_version">Android SDK</string>
     <string name="message_removed_on">This message was removed on %s.</string>
     <string name="disable_default_emojis">Disable Default Emojis</string>
     <string name="theme_mode">Dark Theme Wa Enhancer</string>
@@ -247,4 +247,13 @@
     <string name="call_type_buttons_declined">Call declined</string>
     <string name="call_type_buttons_uncallable">Unable to receive WhatsApp calls</string>
     <string name="call_type_buttons_ended">Not answered</string>
+    <string name="enable_tasker_automation">Enable Tasker Automation</string>
+    <string name="enable_tasker_automation_sum">Enables the possibility of using intent to receive and send messages in Tasker</string>
+    <string name="disable_auto_status">Disable Auto Skip Status</string>
+    <string name="disable_auto_status_sum">Prevents the current status from advancing automatically to the next one.</string>
+    <string name="toast_on_viewed_status">Show toast on viewed your status</string>
+    <string name="toast_on_viewed_status_sum">Shows a toast if someone views your status</string>
+    <string name="toast_on_viewed_message">Show toast on viewed your message</string>
+    <string name="toast_on_viewed_message_sum">Shows a toast if someone views your message</string>
+    <string name="textonahora_sum">Show text next to any timestamp in the WhatsApp app</string>
 </resources>

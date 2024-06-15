@@ -15,8 +15,8 @@
     <string name="hideread_sum">Quando ativo, permite ler mensagens sem a pessoa saber que você leu.</string>
     <string name="perso">Personalização</string>
     <string name="segundosnahora">Segundos no Horário</string>
-    <string name="segundosnahora_sum">Colocar segundos ao lado dos horários</string>
-    <string name="textonahora">Adiciona um texto ao lado dos horários</string>
+    <string name="segundosnahora_sum">Show seconds next to any timestamp in the WhatsApp app</string>
+    <string name="textonahora">Text next to Timestamp</string>
     <string name="viewonce">Desativar Visualização Única</string>
     <string name="viewonce_sum">Quando ativo, permite ver mensagens de visualização única quantas vezes quiser.</string>
     <string name="novotema_sum">Quando ativa, muda o tema de cores e ícones para o novo tema do WhatsApp.</string>
@@ -76,7 +76,7 @@
     <string name="show_online_dot_in_conversation_list">Mostrar ponto de online na guia de conversas</string>
     <string name="show_online_dot_in_conversation_list_sum">Mostra um ponto online verde na tela inicial.\n(NOTA: É necessário ativar a opção online para todos no menu Configurações de Privacidade do WhatsApp).</string>
     <string name="show_dnd_button">Mostrar botão Não perturbe</string>
-    <string name="show_dnd_button_sum">Mostra um botão para ativar o Modo Não Perturbe na barra superior da tela inicial.</string>
+    <string name="show_dnd_button_sum">Mostra uma opção para ativar o Modo Não Perturbe na tela inicial.</string>
     <string name="dev4mod">Dev4Mod (Contributor)</string>
     <string name="disable_pinned_limit">Desativar Limite de Bate-Papos Fixados</string>
     <string name="disable_pinned_limit_sum">Desativar o limite de 3 conversas fixadas</string>
@@ -95,7 +95,7 @@
     <string name="activate">Ativar</string>
     <string name="cancel">Cancelar</string>
     <string name="edited_history">Histórico de Edição</string>
-    <string name="message_original">Mensagem original</string>
+    <string name="message_original">Original Message</string>
     <string name="new_chat">Novo Bate-Papo</string>
     <string name="number_with_country_code">Número com código de país</string>
     <string name="message">Mensagem</string>
@@ -178,9 +178,9 @@
     <string name="title_image">Imagem</string>
     <string name="title_video">Vídeo</string>
     <string name="enable_new_chat_button">Habilitar botão Novo Bate-Papo</string>
-    <string name="enable_new_chat_button_sum">Adicione o botão na Tela inicial para iniciar um novo bate-papo</string>
+    <string name="enable_new_chat_button_sum">Adicione uma opção na tela inicial para iniciar um novo bate-papo.</string>
     <string name="enable_restart_button">Ativar botão reiniciar</string>
-    <string name="enable_restart_button_sum">Adicione o botão na Tela inicial para reiniciar o aplicativo</string>
+    <string name="enable_restart_button_sum">Adicione uma opção na tela inicial para reiniciar o aplicativo.</string>
     <string name="toast_on_delete">Mostrar notificação toast ao excluir mensagem</string>
     <string name="toast_on_delete_sum">Mostrar notificação toast se qualquer contato excluir qualquer mensagem</string>
     <string name="enable_top_navigation">Habilitar Navegação Superior</string>
@@ -188,7 +188,7 @@
     <string name="hideread_group">Esconder o Marcador Azul nos Grupos</string>
     <string name="hideread_group_sum">Visualizar mensagens na tela de grupos sem que os usuários saibam</string>
     <string name="show_freezeLastSeen_button">Mostrar botão de Congelar visto por último</string>
-    <string name="show_freezeLastSeen_sum">Mostra um botão para congelar o visto por último na barra superior da tela inicial.</string>
+    <string name="show_freezeLastSeen_sum">Mostra uma opção para congelar o visto por último na tela inicial.</string>
     <string name="freezelastseen_message">Congela a hora e data do visto por último.\nNOTA: As informações das outras pessoas não serão exibidas para você, como digitando e visto por último.</string>
     <string name="freezelastseen_title">Congelar visto por último</string>
     <string name="wallpaper_transparency">Transparência do Wallpaper</string>
@@ -230,7 +230,7 @@
     <string name="antidisappearing">Anti-deletar mensagens temporárias</string>
     <string name="antidisappearing_sum">Quando ativo, as mensagens temporárias não irão desaparecer para você.</string>
     <string name="title_audio">Áudio</string>
-    <string name="android_version">Versão do Android</string>
+    <string name="android_version">Android SDK</string>
     <string name="message_removed_on">Mensagem apagada em %s</string>
     <string name="disable_default_emojis">Desativar Emojis padrão</string>
     <string name="theme_mode"> Tema escuro Wa Enhancer</string>
@@ -241,10 +241,19 @@
     <string name="enable_media_preview_sum">Adicione um botão para visualizar a mídia em um arquivo temporário (sem baixá-lo permanentemente).</string>
     <string name="new_ui_group_filter">Nova UI de separação de grupo</string>
     <string name="new_ui_group_filter_sum">Inclua um novo filtro na tela inicial para separar grupos e conversas.</string>
-    <string name="call_blocking_type">Call blocking type</string>
-    <string name="call_blocking_type_sum">Select the method by which the call blocking will be done.</string>
-    <string name="call_type_buttons_no_internet">No internet (\"Calling\")</string>
-    <string name="call_type_buttons_declined">Call declined</string>
-    <string name="call_type_buttons_uncallable">Unable to receive WhatsApp calls</string>
-    <string name="call_type_buttons_ended">Not answered</string>
+    <string name="call_blocking_type">Tipo de bloqueio de chamadas</string>
+    <string name="call_blocking_type_sum">Selecione o método pelo qual o bloqueio de chamadas será feito.</string>
+    <string name="call_type_buttons_no_internet">Sem internet (\"Ligando\")</string>
+    <string name="call_type_buttons_declined">Chamada recusada</string>
+    <string name="call_type_buttons_uncallable">Não é possível receber chamadas do WhatsApp</string>
+    <string name="call_type_buttons_ended">Não atendida</string>
+    <string name="enable_tasker_automation">Enable Tasker Automation</string>
+    <string name="enable_tasker_automation_sum">Enables the possibility of using intent to receive and send messages in Tasker</string>
+    <string name="disable_auto_status">Disable Auto Skip Status</string>
+    <string name="disable_auto_status_sum">Prevents the current status from advancing automatically to the next one.</string>
+    <string name="toast_on_viewed_status">Show toast on viewed your status</string>
+    <string name="toast_on_viewed_status_sum">Shows a toast if someone views your status</string>
+    <string name="toast_on_viewed_message">Show toast on viewed your message</string>
+    <string name="toast_on_viewed_message_sum">Shows a toast if someone views your message</string>
+    <string name="textonahora_sum">Show text next to any timestamp in the WhatsApp app</string>
 </resources>

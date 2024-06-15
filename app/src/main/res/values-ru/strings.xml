@@ -15,8 +15,8 @@
     <string name="hideread_sum">Возможность просматривать сообщения собеседника без его ведома</string>
     <string name="perso">Кастомизация</string>
     <string name="segundosnahora">Секунды на отметке времени</string>
-    <string name="segundosnahora_sum">Отобразить секунды рядом с временем</string>
-    <string name="textonahora">Добавьте текст рядом с временем сообщений</string>
+    <string name="segundosnahora_sum">Show seconds next to any timestamp in the WhatsApp app</string>
+    <string name="textonahora">Text next to Timestamp</string>
     <string name="viewonce">Отключить \"Одноразовый Просмотр\"</string>
     <string name="viewonce_sum">Активирован, возможность просматривать одноразовые сообщения бесконечное количество раз</string>
     <string name="novotema_sum">При активации поменяется цвет и вид значков из новой темы</string>
@@ -95,7 +95,7 @@
     <string name="activate">Активировать</string>
     <string name="cancel">Отмена</string>
     <string name="edited_history">Редактировать историю</string>
-    <string name="message_original">Оригинальное сообщение</string>
+    <string name="message_original">Original Message</string>
     <string name="new_chat">Новый чат</string>
     <string name="number_with_country_code">Номер с кодом страны</string>
     <string name="message">Сообщение</string>
@@ -230,7 +230,7 @@
     <string name="antidisappearing">Защита \"Исчезающих Сообщений\"</string>
     <string name="antidisappearing_sum">Временные сообщения не будут удалены для вас</string>
     <string name="title_audio">Аудио</string>
-    <string name="android_version">Версия Android</string>
+    <string name="android_version">Android SDK</string>
     <string name="message_removed_on">Это сообщение было удалено %s.</string>
     <string name="disable_default_emojis">Отключить смайлики по умолчанию</string>
     <string name="theme_mode">Темная тема Wa Enhancer</string>
@@ -241,10 +241,19 @@
     <string name="enable_media_preview_sum">Добавить кнопку для просмотра мультимедиа как временный файл (без скачивания)</string>
     <string name="new_ui_group_filter">Новый пользовательский интерфейс для фильтрации групп</string>
     <string name="new_ui_group_filter_sum">Добавьте новый фильтр на главный экран для разделения групп и разговоров.</string>
-    <string name="call_blocking_type">Call blocking type</string>
-    <string name="call_blocking_type_sum">Select the method by which the call blocking will be done.</string>
-    <string name="call_type_buttons_no_internet">No internet (\"Calling\")</string>
-    <string name="call_type_buttons_declined">Call declined</string>
-    <string name="call_type_buttons_uncallable">Unable to receive WhatsApp calls</string>
-    <string name="call_type_buttons_ended">Not answered</string>
+    <string name="call_blocking_type">Тип блокировки вызовов</string>
+    <string name="call_blocking_type_sum">Выберите способ блокирования вызовов.</string>
+    <string name="call_type_buttons_no_internet">Нет интернета (\"Звонок\")</string>
+    <string name="call_type_buttons_declined">Звонок отклонен</string>
+    <string name="call_type_buttons_uncallable">Не удается получить звонки в WhatsApp</string>
+    <string name="call_type_buttons_ended">Нет ответа</string>
+    <string name="enable_tasker_automation">Enable Tasker Automation</string>
+    <string name="enable_tasker_automation_sum">Enables the possibility of using intent to receive and send messages in Tasker</string>
+    <string name="disable_auto_status">Disable Auto Skip Status</string>
+    <string name="disable_auto_status_sum">Prevents the current status from advancing automatically to the next one.</string>
+    <string name="toast_on_viewed_status">Show toast on viewed your status</string>
+    <string name="toast_on_viewed_status_sum">Shows a toast if someone views your status</string>
+    <string name="toast_on_viewed_message">Show toast on viewed your message</string>
+    <string name="toast_on_viewed_message_sum">Shows a toast if someone views your message</string>
+    <string name="textonahora_sum">Show text next to any timestamp in the WhatsApp app</string>
 </resources>

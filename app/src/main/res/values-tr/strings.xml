@@ -15,8 +15,8 @@
     <string name="hideread_sum">Kullanıcıların haberi olmadan konuşma ekranındaki mesajları görüntüle</string>
     <string name="perso">Özelleştirme</string>
     <string name="segundosnahora">Zaman Damgasında Saniyeler</string>
-    <string name="segundosnahora_sum">Uygulamadaki herhangi bir zaman damgasının yanında saniye görüntüle</string>
-    <string name="textonahora">Mesajdaki zaman damgasının yanına metin ekle</string>
+    <string name="segundosnahora_sum">Show seconds next to any timestamp in the WhatsApp app</string>
+    <string name="textonahora">Text next to Timestamp</string>
     <string name="viewonce">Bir Kez Görüntüle\'yi Devre Dışı Bırak</string>
     <string name="viewonce_sum">Bir Kez Görüntüle medyası için sınırı kaldır</string>
     <string name="novotema_sum">Renk ve simge temasını yeni WhatsApp temasıyla değiştir</string>
@@ -95,7 +95,7 @@
     <string name="activate">Etkinleştir</string>
     <string name="cancel">İptal</string>
     <string name="edited_history">Düzenlenme Geçmişi</string>
-    <string name="message_original">Mesajın Orijinali</string>
+    <string name="message_original">Original Message</string>
     <string name="new_chat">Yeni Sohbet</string>
     <string name="number_with_country_code">Numarayı ülke koduyla beraber girin</string>
     <string name="message">Mesaj</string>
@@ -230,7 +230,7 @@
     <string name="antidisappearing">Anti Kaybolan Mesajlar</string>
     <string name="antidisappearing_sum">Geçici mesajlar sizin için silinmeyecek</string>
     <string name="title_audio">Ses</string>
-    <string name="android_version">Android Sürümü</string>
+    <string name="android_version">Android SDK</string>
     <string name="message_removed_on">Bu mesaj %s tarihinde kaldırıldı.</string>
     <string name="disable_default_emojis">Varsayılan Emojileri Devre Dışı Bırak</string>
     <string name="theme_mode">Wa Enhancer Karanlık Tema</string>
@@ -241,10 +241,19 @@
     <string name="enable_media_preview_sum">Medyayı geçici bir dosyada önizlemek için bir düğme ekle (kalıcı olarak indirmeden)</string>
     <string name="new_ui_group_filter">Yeni UI Grup Filtresi</string>
     <string name="new_ui_group_filter_sum">Grupları ve konuşmaları ayırmak için ana ekrana yeni bir filtre ekleyin.</string>
-    <string name="call_blocking_type">Call blocking type</string>
-    <string name="call_blocking_type_sum">Select the method by which the call blocking will be done.</string>
-    <string name="call_type_buttons_no_internet">No internet (\"Calling\")</string>
-    <string name="call_type_buttons_declined">Call declined</string>
-    <string name="call_type_buttons_uncallable">Unable to receive WhatsApp calls</string>
-    <string name="call_type_buttons_ended">Not answered</string>
+    <string name="call_blocking_type">Çağrı engelleme türü</string>
+    <string name="call_blocking_type_sum">Çağrı engellemenin hangi yöntemle yapılacağını seç.</string>
+    <string name="call_type_buttons_no_internet">İnternet yok (\"Aranıyor\")</string>
+    <string name="call_type_buttons_declined">Arama reddedildi</string>
+    <string name="call_type_buttons_uncallable">WhatsApp aramaları alınamıyor</string>
+    <string name="call_type_buttons_ended">Cevaplanmadı</string>
+    <string name="enable_tasker_automation">Enable Tasker Automation</string>
+    <string name="enable_tasker_automation_sum">Enables the possibility of using intent to receive and send messages in Tasker</string>
+    <string name="disable_auto_status">Disable Auto Skip Status</string>
+    <string name="disable_auto_status_sum">Prevents the current status from advancing automatically to the next one.</string>
+    <string name="toast_on_viewed_status">Show toast on viewed your status</string>
+    <string name="toast_on_viewed_status_sum">Shows a toast if someone views your status</string>
+    <string name="toast_on_viewed_message">Show toast on viewed your message</string>
+    <string name="toast_on_viewed_message_sum">Shows a toast if someone views your message</string>
+    <string name="textonahora_sum">Show text next to any timestamp in the WhatsApp app</string>
 </resources>
