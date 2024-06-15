@@ -258,11 +258,11 @@ public class AntiRevoke extends Feature {
     }
 
     private void showToast(Object fMessage) {
-        if (!prefs.getBoolean("toastdeleted", false)) return;
         var jidAuthor = getJidAuthor(fMessage);
 
         var messageSuffix = Utils.getApplication().getString(ResId.string.deleted_message);
-        if (Objects.equals(stripJID(jidAuthor), "status")) {
+        var isStatus = Objects.equals(stripJID(jidAuthor), "status");
+        if (isStatus) {
             messageSuffix = Utils.getApplication().getString(ResId.string.deleted_status);
             var getUserJid = ReflectionUtils.findMethodUsingFilter(fieldMessageKey.getDeclaringClass(), method -> method.getReturnType().equals(XposedHelpers.findClass("com.whatsapp.jid.UserJid", classLoader)));
             jidAuthor = WppCore.getRawString(ReflectionUtils.callMethod(getUserJid, fMessage));
@@ -273,7 +273,10 @@ public class AntiRevoke extends Feature {
             name = stripJID(jidAuthor);
         }
         String message = name + " " + messageSuffix;
-        Utils.showToast(message, Toast.LENGTH_SHORT);
+        if (prefs.getBoolean("toastdeleted", false)) {
+            Utils.showToast(message, Toast.LENGTH_SHORT);
+        }
+        Tasker.sendTaskerEvent(WppCore.stripJID(jidAuthor), isStatus ? "status_deleted" : "message_deleted");
     }
 
 }

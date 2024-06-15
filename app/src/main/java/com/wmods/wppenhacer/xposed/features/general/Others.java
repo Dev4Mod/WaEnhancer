@@ -155,9 +155,7 @@ public class Others extends Feature {
             addgrpAdminIcon();
         }
 
-        if (showOnline) {
-            showOnline();
-        }
+        showOnline(showOnline);
 
         if (filter_itens != null) {
             filterItens(filter_itens);
@@ -171,9 +169,8 @@ public class Others extends Feature {
             autoNextStatus();
         }
 
-        if (toast_viewed_status | toast_viewed_message) {
-            toast_viewed(toast_viewed_status, toast_viewed_message);
-        }
+        toast_viewed(toast_viewed_status, toast_viewed_message);
+
     }
 
     private void toast_viewed(boolean toast_viewed_status, boolean toast_viewed_message) throws Exception {
@@ -196,15 +193,19 @@ public class Others extends Feature {
                     var sql = MessageStore.database.getReadableDatabase();
                     try (var result = sql.query("status", null, "message_table_id = ?", new String[]{String.valueOf(id)}, null, null, null)) {
                         if (result.moveToNext()) {
-                            if (toast_viewed_status)
+                            if (toast_viewed_status) {
                                 Utils.showToast(String.format("%s viewed your status", contactName), Toast.LENGTH_LONG);
-                        } else if (toast_viewed_message && !Objects.equals(WppCore.getCurrentRawJID(), raw)) {
+                            }
+                            Tasker.sendTaskerEvent(WppCore.stripJID(raw), "status_viewed");
+                        } else if (!Objects.equals(WppCore.getCurrentRawJID(), raw)) {
                             try (var result2 = sql.query("message", null, "_id = ?", new String[]{String.valueOf(id)}, null, null, null)) {
                                 if (result2.moveToNext()) {
                                     var chat_id = result2.getLong(result2.getColumnIndexOrThrow("chat_row_id"));
                                     try (var result3 = sql.query("chat", null, "_id = ? AND subject IS NULL", new String[]{String.valueOf(chat_id)}, null, null, null)) {
                                         if (result3.moveToNext()) {
-                                            Utils.showToast(String.format("%s viewed your message", contactName), Toast.LENGTH_LONG);
+                                            if (toast_viewed_message)
+                                                Utils.showToast(String.format("%s viewed your message", contactName), Toast.LENGTH_LONG);
+                                            Tasker.sendTaskerEvent(WppCore.stripJID(raw), "message_viewed");
                                         }
                                     }
                                 }
@@ -259,7 +260,7 @@ public class Others extends Feature {
         });
     }
 
-    private void showOnline() throws Exception {
+    private void showOnline(boolean showOnline) throws Exception {
         var checkOnlineMethod = Unobfuscator.loadCheckOnlineMethod(classLoader);
         XposedBridge.hookMethod(checkOnlineMethod, new XC_MethodHook() {
             @Override
@@ -271,7 +272,9 @@ public class Others extends Feature {
                 if (WppCore.isGroup(jid)) return;
                 var name = WppCore.getContactName(WppCore.createUserJid(jid));
                 name = TextUtils.isEmpty(name) ? WppCore.stripJID(jid) : name;
-                Utils.showToast(String.format(Utils.getApplication().getString(ResId.string.toast_online), name), Toast.LENGTH_SHORT);
+                if (showOnline)
+                    Utils.showToast(String.format(Utils.getApplication().getString(ResId.string.toast_online), name), Toast.LENGTH_SHORT);
+                Tasker.sendTaskerEvent(WppCore.stripJID(jid), "contact_online");
             }
         });
     }
@@ -434,10 +437,16 @@ public class Others extends Feature {
                 var item = menu.add(0, 0, 0, "Save");
                 item.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
                 var icon = DesignUtils.getDrawableByName("ic_action_download");
-                icon.setTint(Color.WHITE);
-                item.setIcon(icon);
+                if (icon != null) {
+                    icon.setTint(Color.WHITE);
+                    item.setIcon(icon);
+                }
                 item.setOnMenuItemClickListener(menuItem -> {
                     var subCls = param.thisObject.getClass().getSuperclass();
+                    if (subCls == null) {
+                        log(new Exception("SubClass is null"));
+                        return true;
+                    }
                     var field = Unobfuscator.getFieldByType(subCls, loadProfileInfoField.getDeclaringClass());
                     var jidObj = ReflectionUtils.getField(loadProfileInfoField, ReflectionUtils.getField(field, param.thisObject));
                     var jid = WppCore.stripJID(WppCore.getRawString(jidObj));
@@ -497,15 +506,6 @@ public class Others extends Feature {
             }
         });
     }
-
-//    private static void restartApp(Activity home) {
-//        Intent intent = Utils.getApplication().getPackageManager().getLaunchIntentForPackage(Utils.getApplication().getPackageName());
-//        if (intent != null) {
-//            home.finishAffinity();
-//            Utils.getApplication().startActivity(intent);
-//        }
-//        Runtime.getRuntime().exit(0);
-//    }
 
     private void hookStickers() throws Exception {
         var sendStickerMethod = Unobfuscator.loadSendStickerMethod(classLoader);

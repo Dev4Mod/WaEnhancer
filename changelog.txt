@@ -1,6 +1,10 @@
-[DISABLE AUTO SKIP STATUS]
-* Fix bug in skip pages
+[TASKER]
+added the event "com.wmods.wppenhacer.EVENT" with the parameters "%number" and "%event" with the following events:
+viewed_message: message read
+deleted_message: message deleted
+viewed_status: status viewed
+deleted_status: deleted status
+contact_online: online contact
+call_received: received call
 
-[TOAST ON EVENT]
-* Add function to show toast on viewed your message
-* Add function to show toast on viewed your status
+NOTE: it works even if an event option is disabled in Wa Enhancer so you can create your own custom toast

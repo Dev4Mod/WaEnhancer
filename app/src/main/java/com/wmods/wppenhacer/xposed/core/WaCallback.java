@@ -21,7 +21,7 @@ public class WaCallback implements Application.ActivityLifecycleCallbacks {
 
     @Override
     public void onActivityStarted(@NonNull Activity activity) {
-        checkIsConversation(activity, WppCore.ObjectOnChangeListener.TYPE_START);
+        checkIsConversation(activity, WppCore.ObjectOnChangeListener.ChangeType.START);
     }
 
     @SuppressLint("ApplySharedPref")
@@ -41,23 +41,23 @@ public class WaCallback implements Application.ActivityLifecycleCallbacks {
             } catch (Exception ignored) {
             }
         }
-        checkIsConversation(activity, WppCore.ObjectOnChangeListener.TYPE_RESUME);
+        checkIsConversation(activity, WppCore.ObjectOnChangeListener.ChangeType.RESUME);
     }
 
     @Override
     public void onActivityPaused(@NonNull Activity activity) {
-        checkIsConversation(activity, WppCore.ObjectOnChangeListener.TYPE_PAUSE);
+        checkIsConversation(activity, WppCore.ObjectOnChangeListener.ChangeType.PAUSE);
     }
 
     @Override
     public void onActivityStopped(@NonNull Activity activity) {
-        checkIsConversation(activity, WppCore.ObjectOnChangeListener.TYPE_END);
+        checkIsConversation(activity, WppCore.ObjectOnChangeListener.ChangeType.END);
     }
 
-    private static void checkIsConversation(@NonNull Activity activity, int type) {
+    private static void checkIsConversation(@NonNull Activity activity, WppCore.ObjectOnChangeListener.ChangeType type) {
         Class<?> conversation = XposedHelpers.findClass("com.whatsapp.Conversation", activity.getClassLoader());
         if (conversation.isInstance(activity)) {
-            WppCore.mConversation = type == WppCore.ObjectOnChangeListener.TYPE_PAUSE || WppCore.ObjectOnChangeListener.TYPE_END == type ? null : activity;
+            WppCore.mConversation = type == WppCore.ObjectOnChangeListener.ChangeType.PAUSE || WppCore.ObjectOnChangeListener.ChangeType.END == type ? null : activity;
             for (WppCore.ObjectOnChangeListener listener : WppCore.listenerChat) {
                 listener.onChange(activity, type);
             }

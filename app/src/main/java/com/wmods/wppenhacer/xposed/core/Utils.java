@@ -122,7 +122,9 @@ public class Utils {
                     debugMethods(param.thisObject.getClass(), param.thisObject);
                 }
                 if (printTrace) {
-                    XposedBridge.log(new Exception("print trace"));
+                    for (var trace : Thread.currentThread().getStackTrace()) {
+                        XposedBridge.log("TRACE: " + trace.toString());
+                    }
                 }
                 XposedBridge.log("-----------------HOOKED DEBUG END-----------------------------\n\n");
             }
@@ -139,17 +141,6 @@ public class Utils {
                 XposedBridge.log("METHOD: " + method.getName() + " -> VALUE: " + method.invoke(thisObject));
             } catch (Exception ignored) {
             }
-        }
-    }
-
-
-    public static void setWritePermissions(File file) {
-        try {
-            file.setWritable(true, false);
-            file.setReadable(true, false);
-            file.setExecutable(true, false);
-        } catch (Exception e) {
-            e.printStackTrace();
         }
     }
 

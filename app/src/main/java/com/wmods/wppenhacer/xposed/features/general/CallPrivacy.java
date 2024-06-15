@@ -27,8 +27,6 @@ public class CallPrivacy extends Feature {
     public void doHook() throws Throwable {
 
         var onCallReceivedMethod = Unobfuscator.loadAntiRevokeOnCallReceivedMethod(classLoader);
-//        var callEndMethod = Unobfuscator.loadAntiRevokeCallEndMethod(loader);
-//        var callState = Enum.valueOf((Class<Enum>) XposedHelpers.findClass("com.whatsapp.voipcalling.CallState", loader), "ACTIVE");
 
         XposedBridge.hookMethod(onCallReceivedMethod, new XC_MethodHook() {
             @Override
@@ -40,6 +38,7 @@ public class CallPrivacy extends Feature {
                 var userJid = XposedHelpers.callMethod(callinfo, "getPeerJid");
                 var callId = XposedHelpers.callMethod(callinfo, "getCallId");
                 var type = Integer.parseInt(prefs.getString("call_privacy", "0"));
+                Tasker.sendTaskerEvent(WppCore.stripJID(WppCore.getRawString(userJid)), "call_received");
                 var block = false;
                 switch (type) {
                     case 0:

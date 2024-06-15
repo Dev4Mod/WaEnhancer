@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Handler;
+import android.text.TextUtils;
 
 import androidx.annotation.NonNull;
 import androidx.core.content.ContextCompat;
@@ -21,6 +22,7 @@ import de.robv.android.xposed.XposedHelpers;
 
 public class Tasker extends Feature {
     private static Object fMessage;
+    private static boolean taskerEnabled;
 
     public Tasker(@NonNull ClassLoader classLoader, @NonNull XSharedPreferences preferences) {
         super(classLoader, preferences);
@@ -28,7 +30,8 @@ public class Tasker extends Feature {
 
     @Override
     public void doHook() throws Throwable {
-        if (!prefs.getBoolean("tasker", false)) return;
+        taskerEnabled = prefs.getBoolean("tasker", false);
+        if (!taskerEnabled) return;
         hookReceiveMessage();
         registerSenderMessage();
     }
@@ -42,6 +45,27 @@ public class Tasker extends Feature {
     private void registerSenderMessage() {
         IntentFilter filter = new IntentFilter("com.wmods.wppenhacer.MESSAGE_SENT");
         ContextCompat.registerReceiver(Utils.getApplication(), new SenderMessageBroadcastReceiver(), filter, ContextCompat.RECEIVER_EXPORTED);
+    }
+
+    public static void sendTaskerEvent(String number, String event) {
+        if (!taskerEnabled) return;
+        Intent intent = new Intent("com.wmods.wppenhacer.EVENT");
+        intent.putExtra("number", number);
+        intent.putExtra("event", event);
+        Utils.getApplication().sendBroadcast(intent);
+    }
+
+    public static class SenderMessageBroadcastReceiver extends BroadcastReceiver {
+
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            XposedBridge.log("Message sent");
+            var number = intent.getStringExtra("number");
+            var message = intent.getStringExtra("message");
+            if (number == null || message == null) return;
+            number = number.replaceAll("\\D", "");
+            WppCore.sendMessage(number, message);
+        }
     }
 
     public void hookReceiveMessage() throws Throwable {
@@ -66,6 +90,7 @@ public class Tasker extends Feature {
                 var rawJid = WppCore.getRawString(userJid);
                 var number = WppCore.stripJID(rawJid);
                 var msg = (String) newMessageMethod.invoke(fMessage);
+                if (TextUtils.isEmpty(msg) || TextUtils.isEmpty(number)) return;
                 new Handler(Utils.getApplication().getMainLooper()).post(() -> {
                     Intent intent = new Intent("com.wmods.wppenhacer.MESSAGE_RECEIVED");
                     intent.putExtra("number", number);
@@ -76,19 +101,5 @@ public class Tasker extends Feature {
         });
 
     }
-
-    public static class SenderMessageBroadcastReceiver extends BroadcastReceiver {
-
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            XposedBridge.log("Message sent");
-            var number = intent.getStringExtra("number");
-            var message = intent.getStringExtra("message");
-            if (number == null || message == null) return;
-            number = number.replaceAll("\\D", "");
-            WppCore.sendMessage(number, message);
-        }
-    }
-
 
 }

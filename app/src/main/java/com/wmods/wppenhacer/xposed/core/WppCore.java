@@ -49,14 +49,15 @@ public class WppCore {
     public static void addMenuItemClass(Class<?> aClass, OnMenuCreate listener) {
         var list = listenerMenu.computeIfAbsent(aClass, k -> new ArrayList<>());
         list.add(listener);
+
     }
 
-    public static void addMenuItemString(String className, OnMenuCreate listener) {
-        var classLoader = Utils.getApplication().getClassLoader();
-        var aClass = XposedHelpers.findClass(className, classLoader);
-        var list = listenerMenu.computeIfAbsent(aClass, k -> new ArrayList<>());
-        list.add(listener);
-    }
+//    public static void addMenuItemString(String className, OnMenuCreate listener) {
+//        var classLoader = Utils.getApplication().getClassLoader();
+//        var aClass = XposedHelpers.findClass(className, classLoader);
+//        var list = listenerMenu.computeIfAbsent(aClass, k -> new ArrayList<>());
+//        list.add(listener);
+//    }
 
     public static Object getConversation() {
         return mConversation;
@@ -91,13 +92,12 @@ public class WppCore {
 
 
     public interface ObjectOnChangeListener {
-        public static int TYPE_START = 0;
-        public static int TYPE_END = 1;
-        public static int TYPE_RESUME = 2;
-        public static int TYPE_PAUSE = 3;
 
-        void onChange(Object object, int type);
+        void onChange(Object object, ChangeType type);
 
+        enum ChangeType {
+            START, END, RESUME, PAUSE
+        }
     }
 
     public static void Initialize(ClassLoader loader) throws Exception {
@@ -174,11 +174,8 @@ public class WppCore {
             @Override
             protected void afterHookedMethod(MethodHookParam param) throws Throwable {
                 mActionUser = param.thisObject;
-                XposedBridge.log("mActionUser: " + mActionUser);
             }
         });
-
-
     }
 
     public static int getDefaultTheme() {
