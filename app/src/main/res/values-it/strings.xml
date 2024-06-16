@@ -34,7 +34,7 @@
     <string name="colors_customization_sum">Cambia i colori di WhatsApp (Funziona solo con il Tema Scuro)</string>
     <string name="general">Generale</string>
     <string name="restart_whatsapp">Riavvia WhatsApp</string>
-    <string name="conversation">Conversazione</string>
+    <string name="conversation">Chat</string>
     <string name="primary_color">Colore primario</string>
     <string name="background_color">Colore sfondo</string>
     <string name="secondary_color">Colore secondario</string>
@@ -73,7 +73,7 @@
     <string name="hide_once_view_seen_sum">Non far sapere di aver visto Visualizza una volta e aver ascoltato gli audio</string>
     <string name="call_blocker">Blocco Chiamate</string>
     <string name="call_blocker_sum">Blocca le chiamate WhatsApp in base al tipo di privacy</string>
-    <string name="show_online_dot_in_conversation_list">Mostra il pallino online nell\'elenco delle conversazioni</string>
+    <string name="show_online_dot_in_conversation_list">Mostra il pallino online nell\'elenco delle chat</string>
     <string name="show_online_dot_in_conversation_list_sum">Mostra un pallino online verde sulla Home\n(NOTA: E\' necessario attivare la visualizzazione online per tutti nel menù Impostazioni Privacy di WhatsApp)</string>
     <string name="show_dnd_button">Mostra Pulsante DND</string>
     <string name="show_dnd_button_sum">Mostra un pulsante per la Modalità Non Disturbare (DND) sulla barra degli strumenti della Home</string>
@@ -144,9 +144,9 @@
     <string name="enable_filter_chats_sum">Mostra opzioni per filtrare le chat per gruppi, contatti e messaggi non letti</string>
     <string name="disable_channels">Disabilita i Canali</string>
     <string name="disable_channels_sum">Disabilita i Canali dalla scheda Stato\n(NOTA: Per funzionare devi prima disabilitare IGStatus!)</string>
-    <string name="chat">Conversazione</string>
+    <string name="chat">Chat</string>
     <string name="change_bubble_colors">Cambia Colori Bolla</string>
-    <string name="change_blubble_color_sum">Cambia il colore delle bolle nella schermata conversazione</string>
+    <string name="change_blubble_color_sum">Cambia il colore delle bolle nella schermata chat</string>
     <string name="default_color">Imposta il colore #00000000 come predefinito</string>
     <string name="enable_confirmation_to_send_sticker">Conferma Prima di Inviare Adesivo</string>
     <string name="enable_confirmation_to_send_sticker_sum">Mostra una finestra di dialogo prima di inviare l\'adesivo</string>
@@ -216,7 +216,7 @@
     <string name="show_admin_group_icon_sum">Mostra icona amministratore accanto al nome dell\'utente che è l\'amministratore del gruppo</string>
     <string name="toolbar_transparency">Trasparenza Barra Strumenti</string>
     <string name="navigation_transparency">Trasparenza Barra Navigazione</string>
-    <string name="show_online_last_seen_in_conversation_list">Mostra Online/Ultimo Visto nell\'Elenco Conversazioni</string>
+    <string name="show_online_last_seen_in_conversation_list">Mostra Online/Ultimo Visto nell\'Elenco chat</string>
     <string name="show_online_last_seen_in_conversation_list_sum">Mostra un testo online o visto l\'ultima volta nella Home\n(NOTA: è necessario attivare la visualizzazione online per tutti nel menù Impostazioni privacy di WhatsApp)</string>
     <string name="toast_online">%s è online</string>
     <string name="show_toast_on_contact_online">Mostra toast al contatto online</string>
