@@ -96,4 +96,14 @@
     <string-array name="image_picker">
         <item>image/*</item>
     </string-array>
+    <string-array name="audio_type_values">
+        <item>0</item>
+        <item>1</item>
+        <item>2</item>
+    </string-array>
+    <string-array name="audio_type_buttons">
+        <item>Standard</item>
+        <item>Audio note</item>
+        <item>Voice note</item>
+    </string-array>
 </resources>

@@ -38,6 +38,7 @@ public class PinnedLimit extends Feature {
         // isso cria um LinkedHashSet modificado para retorna 0 caso a lista de fixados seja inferior a 60.
         XposedBridge.hookMethod(pinnedSetMethod, new XC_MethodHook() {
             @Override
+            @SuppressWarnings("unchecked")
             protected void afterHookedMethod(MethodHookParam param) throws Throwable {
                 var pinnedset = (Set) param.getResult();
                 PinnedLinkedHashSet<Object> pinnedMod;

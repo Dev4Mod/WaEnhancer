@@ -138,11 +138,6 @@
             app:summary="@string/toast_on_viewed_message_sum"
             app:title="@string/toast_on_viewed_message" />
 
-        <rikka.material.preference.MaterialSwitchPreference
-            app:key="toast_viewed_status"
-            app:summary="@string/toast_on_viewed_status_sum"
-            app:title="@string/toast_on_viewed_status" />
-
         <ListPreference
             app:entries="@array/antirevoke_entries"
             app:entryValues="@array/antirevoke_values"
@@ -184,11 +179,6 @@
             app:summary="@string/delete_for_everyone_all_messages_sum"
             app:title="@string/delete_for_everyone_all_messages" />
 
-        <!--        <rikka.material.preference.MaterialSwitchPreference-->
-        <!--            app:key="editallmessages"-->
-        <!--            app:summary="@string/remove_limit_edit_message_sum"-->
-        <!--            app:title="@string/remove_limit_edit_message" />-->
-
         <rikka.material.preference.MaterialSwitchPreference
             app:key="removeseemore"
             app:summary="@string/remove_see_more_button_"
@@ -224,6 +214,11 @@
             app:key="autonext_status"
             app:summary="@string/disable_auto_status_sum"
             app:title="@string/disable_auto_status" />
+
+        <rikka.material.preference.MaterialSwitchPreference
+            app:key="toast_viewed_status"
+            app:summary="@string/toast_on_viewed_status_sum"
+            app:title="@string/toast_on_viewed_status" />
 
     </PreferenceCategory>
 

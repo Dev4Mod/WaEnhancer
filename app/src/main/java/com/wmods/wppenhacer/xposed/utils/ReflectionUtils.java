@@ -1,7 +1,10 @@
 package com.wmods.wppenhacer.xposed.utils;
 
+import android.util.Pair;
+
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.function.Predicate;
@@ -94,6 +97,24 @@ public class ReflectionUtils {
             if (type.isAssignableFrom(args[i].getClass())) return i;
         }
         return -1;
+    }
+
+    public static List<Pair<Integer, Object>> findArrayOfType(Object[] args, Class<?> type) {
+        var result = new ArrayList<Pair<Integer, Object>>();
+        for (int i = 0; i < args.length; i++) {
+            var arg = args[i];
+            if (arg == null) continue;
+            if (arg instanceof Class) {
+                if (type.isAssignableFrom((Class) arg)) {
+                    result.add(new Pair<>(i, arg));
+                }
+                continue;
+            }
+            if (type.isAssignableFrom(arg.getClass()) || type.isInstance(arg)) {
+                result.add(new Pair<>(i, arg));
+            }
+        }
+        return result;
     }
 
     public static boolean isCalledFromString(String contains) {

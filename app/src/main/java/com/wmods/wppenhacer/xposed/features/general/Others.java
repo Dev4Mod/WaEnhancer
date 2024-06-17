@@ -56,6 +56,7 @@ public class Others extends Feature {
     @Override
     public void doHook() throws Exception {
 
+        // receivedIncomingTimestamp
 
         // Removido pois as não há necessidade de ficar em uma versão obsoleta.
 
@@ -96,6 +97,7 @@ public class Others extends Feature {
         var autonext_status = prefs.getBoolean("autonext_status", false);
         var toast_viewed_status = prefs.getBoolean("toast_viewed_status", false);
         var toast_viewed_message = prefs.getBoolean("toast_viewed_message", false);
+        var audio_type = Integer.parseInt(prefs.getString("audio_type", "0"));
 
         propsBoolean.put(5171, filterSeen); // filtros de chat e grupos
         propsBoolean.put(4524, novoTema);
@@ -168,9 +170,43 @@ public class Others extends Feature {
         if (autonext_status) {
             autoNextStatus();
         }
-
         toast_viewed(toast_viewed_status, toast_viewed_message);
 
+        if (audio_type > 0) {
+            sendAudioType(audio_type);
+        }
+
+    }
+
+    private void sendAudioType(int audio_type) throws Exception {
+        var sendAudioTypeMethod = Unobfuscator.loadSendAudioTypeMethod(classLoader);
+        log(Unobfuscator.getMethodDescriptor(sendAudioTypeMethod));
+        XposedBridge.hookMethod(sendAudioTypeMethod, new XC_MethodHook() {
+            @Override
+            protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
+                var results = ReflectionUtils.findArrayOfType(param.args, Integer.class);
+                if (results.size() < 2) {
+                    log("sendAudioTypeMethod size < 2");
+                    return;
+                }
+                var mediaType = results.get(0);
+                if ((int) mediaType.second != 2) return;
+                var audioType = results.get(1);
+                param.args[audioType.first] = audio_type - 1; // 1 = voice notes || 0 = audio voice
+            }
+        });
+
+        var originFMessageField = Unobfuscator.loadOriginFMessageField(classLoader);
+        var forwardAudioTypeMethod = Unobfuscator.loadForwardAudioTypeMethod(classLoader);
+
+        XposedBridge.hookMethod(forwardAudioTypeMethod, new XC_MethodHook() {
+            @Override
+            protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+                var fMessage = param.getResult();
+                originFMessageField.setAccessible(true);
+                originFMessageField.setInt(fMessage, audio_type - 1);
+            }
+        });
     }
 
     private void toast_viewed(boolean toast_viewed_status, boolean toast_viewed_message) throws Exception {

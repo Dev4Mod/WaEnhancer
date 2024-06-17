@@ -4,6 +4,7 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.graphics.drawable.NinePatchDrawable;
+import android.net.Uri;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -1570,5 +1571,40 @@ public class Unobfuscator {
             return method;
         });
 
+    }
+
+    public static Method loadSendAudioTypeMethod(ClassLoader classLoader) throws Exception {
+        var method = classLoader.loadClass("com.whatsapp.status.playback.MessageReplyActivity").getMethod("onActivityResult", int.class, int.class, android.content.Intent.class);
+        var methodData = dexkit.getMethodData(method);
+        var invokes = methodData.getInvokes();
+        for (var invoke : invokes) {
+            if (!invoke.isMethod()) continue;
+            var m1 = invoke.getMethodInstance(classLoader);
+            var params = Arrays.asList(m1.getParameterTypes());
+            if (params.contains(List.class) && params.contains(int.class) && params.contains(boolean.class) && params.contains(Uri.class)) {
+                return m1;
+            }
+        }
+        throw new RuntimeException("SendAudioType method not found");
+    }
+
+    public static Field loadOriginFMessageField(ClassLoader classLoader) throws Exception {
+        var result = dexkit.findMethod(new FindMethod().matcher(new MethodMatcher().addUsingString("audio/ogg; codecs=opu").paramCount(0).returnType(boolean.class)));
+        var clazz = loadFMessageClass(classLoader);
+        if (result.isEmpty()) throw new RuntimeException("OriginFMessageField not found");
+        var fields = result.get(0).getUsingFields();
+        for (var field : fields) {
+            var f = field.getField().getFieldInstance(classLoader);
+            if (f.getDeclaringClass().equals(clazz)) {
+                return f;
+            }
+        }
+        throw new RuntimeException("OriginFMessageField not found");
+    }
+
+    public static Method loadForwardAudioTypeMethod(ClassLoader classLoader) throws Exception {
+        var result = findFirstMethodUsingStrings(classLoader, StringMatchType.Contains, "forwardable", "FMessageFactory/newFMessageForForward/thumbnail");
+        if (result == null) throw new RuntimeException("ForwardAudioType method not found");
+        return result;
     }
 }
