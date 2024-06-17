@@ -15,8 +15,8 @@
     <string name="hideread_sum">Nachrichten innerhalb des Chat-Bildschirms anzeigen, ohne das Kontakte informiert werden</string>
     <string name="perso">Anpassung</string>
     <string name="segundosnahora">Sekunden anzeigen</string>
-    <string name="segundosnahora_sum">Show seconds next to any timestamp in the WhatsApp app</string>
-    <string name="textonahora">Text next to Timestamp</string>
+    <string name="segundosnahora_sum">Fügt die Anzeige von Sekunden im Zeitstempel hinzu</string>
+    <string name="textonahora">Fügt einen Text neben dem Zeitstempel hinzu</string>
     <string name="viewonce">\"Einmalige Ansicht\" deaktivieren</string>
     <string name="viewonce_sum">Öffnen sie Medien mit \"Einmaliger Ansicht\" so oft wie gewünscht</string>
     <string name="novotema_sum">Ändern Sie das Farb- und Symbol-Theme auf das neue WhatsApp-Theme</string>
@@ -95,7 +95,7 @@
     <string name="activate">Aktivieren</string>
     <string name="cancel">Abbrechen</string>
     <string name="edited_history">Verlauf bearbeiten</string>
-    <string name="message_original">Original Message</string>
+    <string name="message_original">Originalnachricht</string>
     <string name="new_chat">Nachricht an Unbekannt</string>
     <string name="number_with_country_code">+4917600000000</string>
     <string name="message">Nachricht</string>
@@ -247,13 +247,13 @@
     <string name="call_type_buttons_declined">Anruf abgelehnt</string>
     <string name="call_type_buttons_uncallable">Empfang von WhatsApp Anrufen nicht möglich</string>
     <string name="call_type_buttons_ended">Keine Antwort</string>
-    <string name="enable_tasker_automation">Enable Tasker Automation</string>
-    <string name="enable_tasker_automation_sum">Enables the possibility of using intent to receive and send messages in Tasker</string>
-    <string name="disable_auto_status">Disable Auto Skip Status</string>
-    <string name="disable_auto_status_sum">Prevents the current status from advancing automatically to the next one.</string>
-    <string name="toast_on_viewed_status">Show toast on viewed your status</string>
-    <string name="toast_on_viewed_status_sum">Shows a toast if someone views your status</string>
-    <string name="toast_on_viewed_message">Show toast on viewed your message</string>
-    <string name="toast_on_viewed_message_sum">Shows a toast if someone views your message</string>
-    <string name="textonahora_sum">Show text next to any timestamp in the WhatsApp app</string>
+    <string name="enable_tasker_automation">Tasker</string>
+    <string name="enable_tasker_automation_sum">Aktiviert die Möglichkeit Nachrichten in Tasker zu empfangen und zu senden</string>
+    <string name="disable_auto_status">Automatische Fortsetzung des Status</string>
+    <string name="disable_auto_status_sum">Das automatische Fortsetzen des Status wird deaktiviert.</string>
+    <string name="toast_on_viewed_status">Statusbenachrichtigung</string>
+    <string name="toast_on_viewed_status_sum">Zeigt eine Benachrichtigung an, wenn jemand Ihren Status aufruft</string>
+    <string name="toast_on_viewed_message">Nachrichtenansicht</string>
+    <string name="toast_on_viewed_message_sum">Zeigt eine Benachrichtigung an, wenn jemand Ihre Nachricht aufruft</string>
+    <string name="textonahora_sum">Fügt die Anzeige von Sekunden im Zeitstempel hinzu</string>
 </resources>

@@ -15,8 +15,8 @@
     <string name="hideread_sum">عندما يكون نشطًا، فإنه يسمح لك بقراءة الرسائل دون أن يعلم الشخص أنك قرأتها</string>
     <string name="perso">التخصيص </string>
     <string name="segundosnahora">عرض الثواني في الوقت المناسب</string>
-    <string name="segundosnahora_sum">Show seconds next to any timestamp in the WhatsApp app</string>
-    <string name="textonahora">Text next to Timestamp</string>
+    <string name="segundosnahora_sum">إظهار الثواني بجانب الوقت في تطبيق واتساب</string>
+    <string name="textonahora">النص بجانب الوقت</string>
     <string name="viewonce">تعطيل العرض مرة واحدة</string>
     <string name="viewonce_sum">عندما يكون نشطًا، فإنه يسمح لك بفتح رسائل العرض مرة واحدة عدة مرات كما تريد.</string>
     <string name="novotema_sum">عند تفعيله، يغير اللون وموضوع الأيقونة إلى موضوع واتساب الجديد</string>
@@ -96,7 +96,7 @@
     <string name="activate">تفعيل</string>
     <string name="cancel">إلغاء</string>
     <string name="edited_history">سِجِلّ التعديلات</string>
-    <string name="message_original">Original Message</string>
+    <string name="message_original">الرسالة الأصلية</string>
     <string name="new_chat">دردشة جديدة</string>
     <string name="number_with_country_code">رَقْم مع رمز البلد</string>
     <string name="message">رسالة</string>
@@ -231,7 +231,7 @@
     <string name="antidisappearing">الرسائل المؤقتة</string>
     <string name="antidisappearing_sum">لن يتم حذف الرسائل المؤقتة بالنسبة لك</string>
     <string name="title_audio">الصوت</string>
-    <string name="android_version">Android SDK</string>
+    <string name="android_version">حزمة أدوات تطوير البرمجيات للأندرويد</string>
     <string name="message_removed_on">تمت إزالة هذه الرسالة على %s.</string>
     <string name="disable_default_emojis">تعطيل الرموز التعبيرية الافتراضية</string>
     <string name="theme_mode">سمة داكنة</string>
@@ -248,13 +248,13 @@
     <string name="call_type_buttons_declined">تم رفض المكالمة</string>
     <string name="call_type_buttons_uncallable">غير قادر على تلقي مكالمات واتساب</string>
     <string name="call_type_buttons_ended">لم يتم الرد</string>
-    <string name="enable_tasker_automation">Enable Tasker Automation</string>
-    <string name="enable_tasker_automation_sum">Enables the possibility of using intent to receive and send messages in Tasker</string>
-    <string name="disable_auto_status">Disable Auto Skip Status</string>
-    <string name="disable_auto_status_sum">Prevents the current status from advancing automatically to the next one.</string>
-    <string name="toast_on_viewed_status">Show toast on viewed your status</string>
-    <string name="toast_on_viewed_status_sum">Shows a toast if someone views your status</string>
-    <string name="toast_on_viewed_message">Show toast on viewed your message</string>
-    <string name="toast_on_viewed_message_sum">Shows a toast if someone views your message</string>
-    <string name="textonahora_sum">Show text next to any timestamp in the WhatsApp app</string>
+    <string name="enable_tasker_automation">تمكين التشغيل الآلي لتاسكر</string>
+    <string name="enable_tasker_automation_sum">تمكين إمكانية استخدام نية استقبال وإرسال الرسائل في Tasker</string>
+    <string name="disable_auto_status">تعطيل تخطي الحالة التلقائي</string>
+    <string name="disable_auto_status_sum">يمنع الوضع الحالي من التقدم تلقائيا إلى الوضع التالي.</string>
+    <string name="toast_on_viewed_status">إظهار إشعار عند مشاهدة حالتك</string>
+    <string name="toast_on_viewed_status_sum">يُظهر إشعار إذا شاهد شخص ما حالتك</string>
+    <string name="toast_on_viewed_message">إظهار إشعار عند مشاهدة رسالتك</string>
+    <string name="toast_on_viewed_message_sum">يُظهر إشعار منبثق إذا شاهد شخص ما رسالتك</string>
+    <string name="textonahora_sum">إظهار الثواني بجانب الوقت في تطبيق واتساب</string>
 </resources>

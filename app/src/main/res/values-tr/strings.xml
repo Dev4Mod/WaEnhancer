@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_desc">WhatsApp Geliştirici Modülü</string>
+    <string name="app_desc">WhatsApp Enhancer Module</string>
     <string name="antirevoke">Mesajların Silinmesini Engelle</string>
     <string name="antirevoke_sum">Mesajlar sizin için silinmeyecek</string>
     <string name="ghostmode">Yazmayı Gizle</string>
@@ -15,8 +15,8 @@
     <string name="hideread_sum">Kullanıcıların haberi olmadan konuşma ekranındaki mesajları görüntüle</string>
     <string name="perso">Özelleştirme</string>
     <string name="segundosnahora">Zaman Damgasında Saniyeler</string>
-    <string name="segundosnahora_sum">Show seconds next to any timestamp in the WhatsApp app</string>
-    <string name="textonahora">Text next to Timestamp</string>
+    <string name="segundosnahora_sum">WhatsApp uygulamasında herhangi bir zaman damgasının yanında saniyeleri göster</string>
+    <string name="textonahora">Zaman damgasının yanındaki metin</string>
     <string name="viewonce">Bir Kez Görüntüle\'yi Devre Dışı Bırak</string>
     <string name="viewonce_sum">Bir Kez Görüntüle medyası için sınırı kaldır</string>
     <string name="novotema_sum">Renk ve simge temasını yeni WhatsApp temasıyla değiştir</string>
@@ -95,7 +95,7 @@
     <string name="activate">Etkinleştir</string>
     <string name="cancel">İptal</string>
     <string name="edited_history">Düzenlenme Geçmişi</string>
-    <string name="message_original">Original Message</string>
+    <string name="message_original">Orijinal Mesaj</string>
     <string name="new_chat">Yeni Sohbet</string>
     <string name="number_with_country_code">Numarayı ülke koduyla beraber girin</string>
     <string name="message">Mesaj</string>
@@ -247,13 +247,13 @@
     <string name="call_type_buttons_declined">Arama reddedildi</string>
     <string name="call_type_buttons_uncallable">WhatsApp aramaları alınamıyor</string>
     <string name="call_type_buttons_ended">Cevaplanmadı</string>
-    <string name="enable_tasker_automation">Enable Tasker Automation</string>
-    <string name="enable_tasker_automation_sum">Enables the possibility of using intent to receive and send messages in Tasker</string>
-    <string name="disable_auto_status">Disable Auto Skip Status</string>
-    <string name="disable_auto_status_sum">Prevents the current status from advancing automatically to the next one.</string>
-    <string name="toast_on_viewed_status">Show toast on viewed your status</string>
-    <string name="toast_on_viewed_status_sum">Shows a toast if someone views your status</string>
-    <string name="toast_on_viewed_message">Show toast on viewed your message</string>
-    <string name="toast_on_viewed_message_sum">Shows a toast if someone views your message</string>
-    <string name="textonahora_sum">Show text next to any timestamp in the WhatsApp app</string>
+    <string name="enable_tasker_automation">Tasker Otomasyonunu Etkinleştir</string>
+    <string name="enable_tasker_automation_sum">Tasker\'da mesaj almak ve göndermek için intent kullanma olasılığını etkinleştirir</string>
+    <string name="disable_auto_status">Otomatik Atlama Durumunu Devre Dışı Bırak</string>
+    <string name="disable_auto_status_sum">Geçerli durumun otomatik olarak bir sonrakine ilerlemesini engeller</string>
+    <string name="toast_on_viewed_status">Durumunuzu görüntülediğinizde tost göster</string>
+    <string name="toast_on_viewed_status_sum">Birisi durumunuzu görüntülediğinde bir tost gösterir</string>
+    <string name="toast_on_viewed_message">Mesajınız görüntülendiğinde tost göster</string>
+    <string name="toast_on_viewed_message_sum">Birisi mesajınızı görüntülediğinde bir tost gösterir</string>
+    <string name="textonahora_sum">WhatsApp uygulamasında herhangi bir zaman damgasının yanında metin göster</string>
 </resources>

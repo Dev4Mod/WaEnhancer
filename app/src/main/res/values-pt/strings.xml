@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_desc">Um módulo Xposed para personalizar seu WhatsApp</string>
-    <string name="antirevoke">Anti-Deletar Mensagens</string>
+    <string name="antirevoke">Anti deletar mensagens</string>
     <string name="antirevoke_sum">Quando ativo, as mensagens não serão apagadas para você.</string>
     <string name="ghostmode">Ocultar digitando</string>
     <string name="ghostmode_sum">Quando ativo, a pessoa não pode ver que você está gravando áudio</string>
@@ -15,12 +15,12 @@
     <string name="hideread_sum">Quando ativo, permite ler mensagens sem a pessoa saber que você leu.</string>
     <string name="perso">Personalização</string>
     <string name="segundosnahora">Segundos no Horário</string>
-    <string name="segundosnahora_sum">Show seconds next to any timestamp in the WhatsApp app</string>
-    <string name="textonahora">Text next to Timestamp</string>
+    <string name="segundosnahora_sum">Mostrar segundos ao lado dos horários.</string>
+    <string name="textonahora">Segundos no horário</string>
     <string name="viewonce">Desativar Visualização Única</string>
     <string name="viewonce_sum">Quando ativo, permite ver mensagens de visualização única quantas vezes quiser.</string>
     <string name="novotema_sum">Quando ativa, muda o tema de cores e ícones para o novo tema do WhatsApp.</string>
-    <string name="antirevokestatus">Anti-Deletar Status</string>
+    <string name="antirevokestatus">Anti deletar status</string>
     <string name="antirevokestatus_sum">Quando ativo, os status não serão apagados para você.</string>
     <string name="hidereceipt">Ocultar Recebimento</string>
     <string name="hidereceipt_sum">Quando ativo, não aparecerá para ninguém que você recebeu as mensagens</string>
@@ -95,7 +95,7 @@
     <string name="activate">Ativar</string>
     <string name="cancel">Cancelar</string>
     <string name="edited_history">Histórico de Edição</string>
-    <string name="message_original">Original Message</string>
+    <string name="message_original">Mensagem original</string>
     <string name="new_chat">Novo Bate-Papo</string>
     <string name="number_with_country_code">Número com código de país</string>
     <string name="message">Mensagem</string>
@@ -182,7 +182,7 @@
     <string name="enable_restart_button">Ativar botão reiniciar</string>
     <string name="enable_restart_button_sum">Adicione uma opção na tela inicial para reiniciar o aplicativo.</string>
     <string name="toast_on_delete">Mostrar notificação toast ao excluir mensagem</string>
-    <string name="toast_on_delete_sum">Mostrar notificação toast se qualquer contato excluir qualquer mensagem</string>
+    <string name="toast_on_delete_sum">Mostra notificação toast se qualquer contato excluir uma mensagem.</string>
     <string name="enable_top_navigation">Habilitar Navegação Superior</string>
     <string name="enable_top_navigation_sum">Ativar a antiga barra de navegação (na parte superior das abas)</string>
     <string name="hideread_group">Esconder o Marcador Azul nos Grupos</string>
@@ -227,10 +227,10 @@
     <string name="filter_itens_by_id_sum">Você pode remover quase tudo no WhatsApp (visualmente) usando filtro de itens.</string>
     <string name="custom_theme_css">Tema personalizado CSS</string>
     <string name="custom_theme_css_sum">Personalize seu WhatsApp usando código CSS.</string>
-    <string name="antidisappearing">Anti-deletar mensagens temporárias</string>
+    <string name="antidisappearing">Anti deletar mensagens temporárias</string>
     <string name="antidisappearing_sum">Quando ativo, as mensagens temporárias não irão desaparecer para você.</string>
     <string name="title_audio">Áudio</string>
-    <string name="android_version">Android SDK</string>
+    <string name="android_version">Versão do Android (API)</string>
     <string name="message_removed_on">Mensagem apagada em %s</string>
     <string name="disable_default_emojis">Desativar Emojis padrão</string>
     <string name="theme_mode"> Tema escuro Wa Enhancer</string>
@@ -247,13 +247,13 @@
     <string name="call_type_buttons_declined">Chamada recusada</string>
     <string name="call_type_buttons_uncallable">Não é possível receber chamadas do WhatsApp</string>
     <string name="call_type_buttons_ended">Não atendida</string>
-    <string name="enable_tasker_automation">Enable Tasker Automation</string>
-    <string name="enable_tasker_automation_sum">Enables the possibility of using intent to receive and send messages in Tasker</string>
-    <string name="disable_auto_status">Disable Auto Skip Status</string>
-    <string name="disable_auto_status_sum">Prevents the current status from advancing automatically to the next one.</string>
-    <string name="toast_on_viewed_status">Show toast on viewed your status</string>
-    <string name="toast_on_viewed_status_sum">Shows a toast if someone views your status</string>
-    <string name="toast_on_viewed_message">Show toast on viewed your message</string>
-    <string name="toast_on_viewed_message_sum">Shows a toast if someone views your message</string>
-    <string name="textonahora_sum">Show text next to any timestamp in the WhatsApp app</string>
+    <string name="enable_tasker_automation">Habilitar Automação Tasker</string>
+    <string name="enable_tasker_automation_sum">Permite enviar e receber mensagens/notificações através de comandos pelo Tasker.</string>
+    <string name="disable_auto_status">Desativar pulo automático dos status</string>
+    <string name="disable_auto_status_sum">Impede que o status atual avance automaticamente para o próximo.</string>
+    <string name="toast_on_viewed_status">Mostrar toast de visualização de status</string>
+    <string name="toast_on_viewed_status_sum">Mostra uma notificação toast se alguém visualizar seu status.</string>
+    <string name="toast_on_viewed_message">Mostrar toast de visualização de mensagem</string>
+    <string name="toast_on_viewed_message_sum">Mostra uma notificação toast se alguém visualizar sua mensagem.</string>
+    <string name="textonahora_sum">Adicione um texto ao lado dos horários</string>
 </resources>

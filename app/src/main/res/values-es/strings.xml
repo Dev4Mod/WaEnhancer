@@ -15,8 +15,8 @@
     <string name="hideread_sum">Cuando está activo, te permite leer mensajes sin que la persona sepa que los has leído.</string>
     <string name="perso">Personalización</string>
     <string name="segundosnahora">Segundos en la marca de tiempo</string>
-    <string name="segundosnahora_sum">Show seconds next to any timestamp in the WhatsApp app</string>
-    <string name="textonahora">Text next to Timestamp</string>
+    <string name="segundosnahora_sum">Muestra los segundos al lado de la hora del mensaje enviado/recibido</string>
+    <string name="textonahora">Agregar texto al lado del horario</string>
     <string name="viewonce">Desactivar Ver una vez</string>
     <string name="viewonce_sum">Activalo para ver fotos/videos enviados como \"visualización única\" tantas veces como desees</string>
     <string name="novotema_sum">Al activarse cambia el color y el tema de los iconos al nuevo tema de WhatsApp</string>
@@ -95,7 +95,7 @@
     <string name="activate">Activar</string>
     <string name="cancel">Cancelar</string>
     <string name="edited_history">Historial de editado</string>
-    <string name="message_original">Original Message</string>
+    <string name="message_original">Mensaje original</string>
     <string name="new_chat">Nuevo Chat</string>
     <string name="number_with_country_code">Número con código de país</string>
     <string name="message">Mensaje</string>
@@ -230,7 +230,7 @@
     <string name="antidisappearing">Anti Desaparición de mensajes Temporales</string>
     <string name="antidisappearing_sum">Los mensajes temporales no serán borrados para usted</string>
     <string name="title_audio">Audio</string>
-    <string name="android_version">Android SDK</string>
+    <string name="android_version">SDK de Android</string>
     <string name="message_removed_on">Este mensaje fue eliminado el %s.</string>
     <string name="disable_default_emojis">Desactivar Emojis por Defecto</string>
     <string name="theme_mode">Tema Oscuro Wa Enhancer</string>
@@ -247,13 +247,13 @@
     <string name="call_type_buttons_declined">Llamada rechazada</string>
     <string name="call_type_buttons_uncallable">No se pueden recibir llamadas de WhatsApp</string>
     <string name="call_type_buttons_ended">Sin contestar</string>
-    <string name="enable_tasker_automation">Enable Tasker Automation</string>
-    <string name="enable_tasker_automation_sum">Enables the possibility of using intent to receive and send messages in Tasker</string>
-    <string name="disable_auto_status">Disable Auto Skip Status</string>
-    <string name="disable_auto_status_sum">Prevents the current status from advancing automatically to the next one.</string>
-    <string name="toast_on_viewed_status">Show toast on viewed your status</string>
-    <string name="toast_on_viewed_status_sum">Shows a toast if someone views your status</string>
-    <string name="toast_on_viewed_message">Show toast on viewed your message</string>
-    <string name="toast_on_viewed_message_sum">Shows a toast if someone views your message</string>
-    <string name="textonahora_sum">Show text next to any timestamp in the WhatsApp app</string>
+    <string name="enable_tasker_automation">Activar automatización de Tasker</string>
+    <string name="enable_tasker_automation_sum">Permite la posibilidad de usar la intención de recibir y enviar mensajes en Tasker</string>
+    <string name="disable_auto_status">Desactivar Auto Omitir Estado</string>
+    <string name="disable_auto_status_sum">Evita que el estado actual avance automáticamente al siguiente.</string>
+    <string name="toast_on_viewed_status">Mostrar notificación al ver tu estado</string>
+    <string name="toast_on_viewed_status_sum">Mostrar notificación al ver tu estado</string>
+    <string name="toast_on_viewed_message">Mostrar notificación al ver tu mensaje</string>
+    <string name="toast_on_viewed_message_sum">Muestra una notificación si alguien ve tu mensaje</string>
+    <string name="textonahora_sum">Muestra los segundos al lado de la hora del mensaje enviado/recibido</string>
 </resources>

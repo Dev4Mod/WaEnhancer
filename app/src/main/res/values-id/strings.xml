@@ -15,8 +15,8 @@
     <string name="hideread_sum">Orang lain tidak akan mengetahui bahwa Anda telah membaca pesannya</string>
     <string name="perso">Kustomisasi</string>
     <string name="segundosnahora">Detik dalam Waktu</string>
-    <string name="segundosnahora_sum">Show seconds next to any timestamp in the WhatsApp app</string>
-    <string name="textonahora">Text next to Timestamp</string>
+    <string name="segundosnahora_sum">Tampilkan detik di samping waktu apapun di aplikasi WhatsApp</string>
+    <string name="textonahora">Teks di samping Waktu</string>
     <string name="viewonce">Nonaktifkan Batas Sekali Lihat</string>
     <string name="viewonce_sum">Anda dapat membuka pesan \"lihat sekali\" berkali-kali</string>
     <string name="novotema_sum">Ubah warna dan tema ikon menjadi tema WhatsApp baru</string>
@@ -98,7 +98,7 @@
     <string name="activate">Aktifkan</string>
     <string name="cancel">Batal</string>
     <string name="edited_history">Riwayat pesan yang diedit</string>
-    <string name="message_original">Original Message</string>
+    <string name="message_original">Pesan Asli</string>
     <string name="new_chat">Obrolan baru</string>
     <string name="number_with_country_code">Nomor dengan kode negara</string>
     <string name="message">Pesan</string>
@@ -253,13 +253,13 @@ Apakah Anda ingin mulai ulang WhatsApp?</string>
     <string name="call_type_buttons_declined">Panggilan ditolak</string>
     <string name="call_type_buttons_uncallable">Tidak dapat menerima panggilan WhatsApp</string>
     <string name="call_type_buttons_ended">Tak terjawab</string>
-    <string name="enable_tasker_automation">Enable Tasker Automation</string>
-    <string name="enable_tasker_automation_sum">Enables the possibility of using intent to receive and send messages in Tasker</string>
-    <string name="disable_auto_status">Disable Auto Skip Status</string>
-    <string name="disable_auto_status_sum">Prevents the current status from advancing automatically to the next one.</string>
-    <string name="toast_on_viewed_status">Show toast on viewed your status</string>
-    <string name="toast_on_viewed_status_sum">Shows a toast if someone views your status</string>
-    <string name="toast_on_viewed_message">Show toast on viewed your message</string>
-    <string name="toast_on_viewed_message_sum">Shows a toast if someone views your message</string>
-    <string name="textonahora_sum">Show text next to any timestamp in the WhatsApp app</string>
+    <string name="enable_tasker_automation">Otomatisasi Tasker</string>
+    <string name="enable_tasker_automation_sum">Aktifkan untuk menerima dan mengirim pesan di Tasker</string>
+    <string name="disable_auto_status">Nonaktifkan Otomatis Lewati Status</string>
+    <string name="disable_auto_status_sum">Mencegah perpindahan secara otomatis dari status saat ini ke status berikutnya</string>
+    <string name="toast_on_viewed_status">Notifikasi Status Dilihat</string>
+    <string name="toast_on_viewed_status_sum">Tampilkan notifikasi mengambang ketika seseorang melihat status Anda</string>
+    <string name="toast_on_viewed_message">Notifikasi Pesan Dibaca</string>
+    <string name="toast_on_viewed_message_sum">Tampilkan notifikasi mengambang ketika seseorang membaca pesan Anda</string>
+    <string name="textonahora_sum">Tampilkan teks di samping waktu apapun di aplikasi WhatsApp</string>
 </resources>
