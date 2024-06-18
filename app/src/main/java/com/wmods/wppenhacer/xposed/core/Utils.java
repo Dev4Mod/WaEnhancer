@@ -2,6 +2,8 @@ package com.wmods.wppenhacer.xposed.core;
 
 import android.annotation.SuppressLint;
 import android.app.Application;
+import android.content.ClipData;
+import android.content.ClipboardManager;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
@@ -186,5 +188,11 @@ public class Utils {
 
     public static void debugAllMethods(String className, String methodName, boolean printMethods, boolean printFields, boolean printArgs, boolean printTrace) {
         XposedBridge.hookAllMethods(XposedHelpers.findClass(className, Utils.getApplication().getClassLoader()), methodName, getDebugMethodHook(printMethods, printFields, printArgs, printTrace));
+    }
+
+    public static void setToClipboard(String string) {
+        ClipboardManager clipboard = (ClipboardManager) Utils.getApplication().getSystemService(Context.CLIPBOARD_SERVICE);
+        ClipData clip = ClipData.newPlainText("label", string);
+        clipboard.setPrimaryClip(clip);
     }
 }

@@ -175,7 +175,29 @@ public class Others extends Feature {
         if (audio_type > 0) {
             sendAudioType(audio_type);
         }
+        copieStatusToClipboard();
 
+
+    }
+
+    private void copieStatusToClipboard() throws Exception {
+        var viewButtonMethod = Unobfuscator.loadBlueOnReplayViewButtonMethod(classLoader);
+        logDebug(Unobfuscator.getMethodDescriptor(viewButtonMethod));
+
+        XposedBridge.hookMethod(viewButtonMethod, new XC_MethodHook() {
+            @Override
+            protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+                var view = (View) param.getResult();
+                var caption = (TextView) view.findViewById(Utils.getID("caption", "id"));
+                if (caption != null) {
+                    caption.setOnLongClickListener((view1 -> {
+                        Utils.setToClipboard(caption.getText().toString());
+                        Utils.showToast(Utils.getApplication().getString(ResId.string.copied_to_clipboard), Toast.LENGTH_LONG);
+                        return true;
+                    }));
+                }
+            }
+        });
     }
 
     private void sendAudioType(int audio_type) throws Exception {
