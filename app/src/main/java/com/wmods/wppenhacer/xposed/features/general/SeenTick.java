@@ -54,6 +54,7 @@ public class SeenTick extends Feature {
     private static Class<?> mSendReadClass;
     private static Method WaJobManagerMethod;
     private static String currentJid;
+    private static String currentScreen = "none";
 
     public SeenTick(@NonNull ClassLoader loader, @NonNull XSharedPreferences preferences) {
         super(loader, preferences);
@@ -85,6 +86,7 @@ public class SeenTick extends Feature {
                 currentJid = jid;
                 messages.clear();
             }
+            currentScreen = "conversation";
         });
 
         XposedBridge.hookMethod(bubbleMethod, new XC_MethodHook() {
@@ -105,7 +107,14 @@ public class SeenTick extends Feature {
             @Override
             protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
                 if (!prefs.getBoolean("blueonreply", false)) return;
-                new Handler(Looper.getMainLooper()).post(() -> sendBlueTick((String) XposedHelpers.getObjectField(messageSendClass.cast(param.thisObject), "jid")));
+                var obj = messageSendClass.cast(param.thisObject);
+                var rawJid = (String) XposedHelpers.getObjectField(obj, "jid");
+                var handler = new Handler(Looper.getMainLooper());
+                if (Objects.equals(currentScreen, "status")) {
+                    handler.post(() -> sendBlueTickStatus(currentJid));
+                } else {
+                    handler.post(() -> sendBlueTick(rawJid));
+                }
             }
         });
 
@@ -134,7 +143,7 @@ public class SeenTick extends Feature {
                 if (ticktype == 1) menuItem.setShowAsAction(2);
                 menuItem.setIcon(Utils.getID("ic_notif_mark_read", "drawable"));
                 menuItem.setOnMenuItemClickListener(item -> {
-                    new Handler(Looper.getMainLooper()).post(() -> Toast.makeText(Utils.getApplication(), "Sending read blue tick..", Toast.LENGTH_SHORT).show());
+                    Utils.showToast(Utils.getApplication().getString(ResId.string.sending_read_blue_tick), Toast.LENGTH_SHORT);
                     sendBlueTick(currentJid);
                     return true;
                 });
@@ -159,6 +168,7 @@ public class SeenTick extends Feature {
                 messages.clear();
                 messages.add(new MessageInfo(message, messageKey, null));
                 currentJid = jid;
+                currentScreen = "status";
             }
         });
 
