@@ -1,2 +1,8 @@
-[WA ENHANCER]
-* Add function to send audio media/forward as voice note or audio note
+[STATUS]
+* Add copie status caption to clipboard (press and hold on the text)
+
+[BLUE TICK ON REPLY]
+* Add sending a blue tick when replying to a status
+
+[STATUS]
+* Add button to delete other people's status (NOTE: it will only be deleted for you)
