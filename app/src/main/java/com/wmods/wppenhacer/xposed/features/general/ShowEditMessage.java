@@ -1,7 +1,6 @@
 package com.wmods.wppenhacer.xposed.features.general;
 
 import android.annotation.SuppressLint;
-import android.app.Activity;
 import android.content.Context;
 import android.graphics.Color;
 import android.graphics.Typeface;
@@ -37,7 +36,6 @@ import de.robv.android.xposed.XposedBridge;
 import de.robv.android.xposed.XposedHelpers;
 
 public class ShowEditMessage extends Feature {
-    private Object mConversation;
 
     public ShowEditMessage(@NonNull ClassLoader loader, @NonNull XSharedPreferences preferences) {
         super(loader, preferences);
@@ -50,9 +48,6 @@ public class ShowEditMessage extends Feature {
 
         var onStartMethod = Unobfuscator.loadAntiRevokeOnStartMethod(classLoader);
         logDebug(Unobfuscator.getMethodDescriptor(onStartMethod));
-
-        var onResumeMethod = Unobfuscator.loadAntiRevokeOnResumeMethod(classLoader);
-        logDebug(Unobfuscator.getMethodDescriptor(onResumeMethod));
 
         var onMessageEdit = Unobfuscator.loadMessageEditMethod(classLoader);
         logDebug(Unobfuscator.getMethodDescriptor(onMessageEdit));
@@ -74,21 +69,6 @@ public class ShowEditMessage extends Feature {
 
         var editMessageViewField = Unobfuscator.loadEditMessageViewField(classLoader);
         logDebug(Unobfuscator.getFieldDescriptor(editMessageViewField));
-
-
-        XposedBridge.hookMethod(onStartMethod, new XC_MethodHook() {
-            @Override
-            protected void afterHookedMethod(MethodHookParam param) {
-                mConversation = param.thisObject;
-            }
-        });
-
-        XposedBridge.hookMethod(onResumeMethod, new XC_MethodHook() {
-            @Override
-            protected void afterHookedMethod(MethodHookParam param) {
-                mConversation = param.thisObject;
-            }
-        });
 
         XposedBridge.hookMethod(onMessageEdit, new XC_MethodHook() {
             @Override
@@ -151,8 +131,8 @@ public class ShowEditMessage extends Feature {
 
     @SuppressLint("SetTextI18n")
     private void showBottomDialog(ArrayList<MessageHistory.MessageItem> messages) {
-        ((Activity) mConversation).runOnUiThread(() -> {
-            var ctx = (Context) mConversation;
+        WppCore.getCurrentConversation().runOnUiThread(() -> {
+            var ctx = (Context) WppCore.getCurrentConversation();
 
             var dialog = WppCore.createDialog(ctx);
             // NestedScrollView
