@@ -33,6 +33,7 @@ import com.wmods.wppenhacer.xposed.features.general.AntiRevoke;
 import com.wmods.wppenhacer.xposed.features.general.CallPrivacy;
 import com.wmods.wppenhacer.xposed.features.general.CallType;
 import com.wmods.wppenhacer.xposed.features.general.ChatLimit;
+import com.wmods.wppenhacer.xposed.features.general.DeleteStatus;
 import com.wmods.wppenhacer.xposed.features.general.DndMode;
 import com.wmods.wppenhacer.xposed.features.general.MediaPreview;
 import com.wmods.wppenhacer.xposed.features.general.MediaQuality;
@@ -213,7 +214,8 @@ public class MainFeatures {
                 CallType.class,
                 MediaPreview.class,
                 FilterGroups.class,
-                Tasker.class
+                Tasker.class,
+                DeleteStatus.class
         };
 
         for (var classe : classes) {

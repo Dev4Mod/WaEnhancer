@@ -750,31 +750,6 @@ public class Unobfuscator {
         });
     }
 
-    public static Method loadAntiRevokeOnResumeMethod(ClassLoader loader) throws Exception {
-        return UnobfuscatorCache.getInstance().getMethod(loader, () -> {
-            Class<?> conversation = XposedHelpers.findClass("com.whatsapp.Conversation", loader);
-            var classData = loadAntiRevokeImplClass();
-            MethodDataList mdOnStart = dexkit.findMethod(
-                    FindMethod.create().searchInClass(List.of(dexkit.getClassData(conversation)))
-                            .matcher(MethodMatcher.create().addInvoke(Objects.requireNonNull(classData).getDescriptor() + "->onResume()V"))
-            );
-            if (mdOnStart.isEmpty()) throw new Exception("AntiRevokeOnStart method not found");
-            return mdOnStart.get(0).getMethodInstance(loader);
-        });
-    }
-
-    public static Method loadAntiRevokeOnFinishMethod(ClassLoader loader) throws Exception {
-        return UnobfuscatorCache.getInstance().getMethod(loader, () -> {
-            Class<?> conversation = XposedHelpers.findClass("com.whatsapp.Conversation", loader);
-            var classData = loadAntiRevokeImplClass();
-            MethodDataList mdOnStart = dexkit.findMethod(
-                    FindMethod.create().searchInClass(List.of(dexkit.getClassData(conversation)))
-                            .matcher(MethodMatcher.create().addInvoke(Objects.requireNonNull(classData).getDescriptor() + "->onResume()V"))
-            );
-            if (mdOnStart.isEmpty()) throw new Exception("AntiRevokeOnStart method not found");
-            return mdOnStart.get(0).getMethodInstance(loader);
-        });
-    }
 
     public static Field loadAntiRevokeConvChatField(ClassLoader loader) throws Exception {
         return UnobfuscatorCache.getInstance().getField(loader, () -> {
@@ -803,25 +778,6 @@ public class Unobfuscator {
             return method;
         });
     }
-
-//    public static Field loadMessageKeyField(ClassLoader loader) throws Exception {
-//        return UnobfuscatorCache.getInstance().getField(loader, () -> {
-//            Class<?> classExtendJid = loadAntiRevokeChatJidField(loader).getType();
-//            ClassDataList classes = dexkit.findClass(
-//                    new FindClass().matcher(
-//                            new ClassMatcher().
-//                                    addUsingString("remote_jid=")
-//                                    .addField(new FieldMatcher().type(classExtendJid))
-//                    )
-//            );
-//            if (classes.isEmpty()) throw new Exception("AntiRevokeMessageKey class not found");
-//            Class<?> messageKey = classes.get(0).getInstance(loader);
-//            var classMessage = loadThreadMessageClass(loader);
-//            var field = Arrays.stream(classMessage.getFields()).filter(f -> f.getType() == messageKey && Modifier.isFinal(f.getModifiers())).findFirst().orElse(null);
-//            if (field == null) throw new Exception("AntiRevokeMessageKey field not found");
-//            return field;
-//        });
-//    }
 
     public static Field loadMessageKeyField(ClassLoader loader) throws Exception {
         return UnobfuscatorCache.getInstance().getField(loader, () -> {
@@ -935,14 +891,6 @@ public class Unobfuscator {
         return UnobfuscatorCache.getInstance().getMethod(loader, () -> {
             var method = findFirstMethodUsingStrings(loader, StringMatchType.Contains, "VoiceService:callStateChangedOnUiThread");
             if (method == null) throw new Exception("OnCallReceiver method not found");
-            return method;
-        });
-    }
-
-    public static Method loadAntiRevokeCallEndMethod(ClassLoader loader) throws Exception {
-        return UnobfuscatorCache.getInstance().getMethod(loader, () -> {
-            var method = findFirstMethodUsingStrings(loader, StringMatchType.Contains, "voicefgservice/stop-service");
-            if (method == null) throw new Exception("CallEndReceiver method not found");
             return method;
         });
     }
@@ -1574,37 +1522,62 @@ public class Unobfuscator {
     }
 
     public static Method loadSendAudioTypeMethod(ClassLoader classLoader) throws Exception {
-        var method = classLoader.loadClass("com.whatsapp.status.playback.MessageReplyActivity").getMethod("onActivityResult", int.class, int.class, android.content.Intent.class);
-        var methodData = dexkit.getMethodData(method);
-        var invokes = methodData.getInvokes();
-        for (var invoke : invokes) {
-            if (!invoke.isMethod()) continue;
-            var m1 = invoke.getMethodInstance(classLoader);
-            var params = Arrays.asList(m1.getParameterTypes());
-            if (params.contains(List.class) && params.contains(int.class) && params.contains(boolean.class) && params.contains(Uri.class)) {
-                return m1;
+        return UnobfuscatorCache.getInstance().getMethod(classLoader, () -> {
+            var method = classLoader.loadClass("com.whatsapp.status.playback.MessageReplyActivity").getMethod("onActivityResult", int.class, int.class, android.content.Intent.class);
+            var methodData = dexkit.getMethodData(method);
+            var invokes = methodData.getInvokes();
+            for (var invoke : invokes) {
+                if (!invoke.isMethod()) continue;
+                var m1 = invoke.getMethodInstance(classLoader);
+                var params = Arrays.asList(m1.getParameterTypes());
+                if (params.contains(List.class) && params.contains(int.class) && params.contains(boolean.class) && params.contains(Uri.class)) {
+                    return m1;
+                }
             }
-        }
-        throw new RuntimeException("SendAudioType method not found");
+            throw new RuntimeException("SendAudioType method not found");
+        });
     }
 
     public static Field loadOriginFMessageField(ClassLoader classLoader) throws Exception {
-        var result = dexkit.findMethod(new FindMethod().matcher(new MethodMatcher().addUsingString("audio/ogg; codecs=opu").paramCount(0).returnType(boolean.class)));
-        var clazz = loadFMessageClass(classLoader);
-        if (result.isEmpty()) throw new RuntimeException("OriginFMessageField not found");
-        var fields = result.get(0).getUsingFields();
-        for (var field : fields) {
-            var f = field.getField().getFieldInstance(classLoader);
-            if (f.getDeclaringClass().equals(clazz)) {
-                return f;
+        return UnobfuscatorCache.getInstance().getField(classLoader, () -> {
+            var result = dexkit.findMethod(new FindMethod().matcher(new MethodMatcher().addUsingString("audio/ogg; codecs=opu").paramCount(0).returnType(boolean.class)));
+            var clazz = loadFMessageClass(classLoader);
+            if (result.isEmpty()) throw new RuntimeException("OriginFMessageField not found");
+            var fields = result.get(0).getUsingFields();
+            for (var field : fields) {
+                var f = field.getField().getFieldInstance(classLoader);
+                if (f.getDeclaringClass().equals(clazz)) {
+                    return f;
+                }
             }
-        }
-        throw new RuntimeException("OriginFMessageField not found");
+            throw new RuntimeException("OriginFMessageField not found");
+        });
     }
 
     public static Method loadForwardAudioTypeMethod(ClassLoader classLoader) throws Exception {
-        var result = findFirstMethodUsingStrings(classLoader, StringMatchType.Contains, "forwardable", "FMessageFactory/newFMessageForForward/thumbnail");
-        if (result == null) throw new RuntimeException("ForwardAudioType method not found");
-        return result;
+        return UnobfuscatorCache.getInstance().getMethod(classLoader, () -> {
+            var result = findFirstMethodUsingStrings(classLoader, StringMatchType.Contains, "forwardable", "FMessageFactory/newFMessageForForward/thumbnail");
+            if (result == null) throw new RuntimeException("ForwardAudioType method not found");
+            return result;
+        });
     }
+
+    public static Class loadFragmentLoader(ClassLoader classLoader) throws Exception {
+        return UnobfuscatorCache.getInstance().getClass(classLoader, () -> {
+            var clazz = findFirstClassUsingStrings(classLoader, StringMatchType.Contains, "not associated with a fragment manager.");
+            if (clazz == null) throw new RuntimeException("FragmentLoader class not found");
+            return clazz;
+        });
+    }
+
+    public static Method loadShowDialogStatusMethod(ClassLoader classLoader) throws Exception {
+        return UnobfuscatorCache.getInstance().getMethod(classLoader, () -> {
+            var clazz = loadFragmentLoader(classLoader);
+            var frag = classLoader.loadClass("androidx.fragment.app.DialogFragment");
+            var result = dexkit.findMethod(new FindMethod().matcher(new MethodMatcher().paramCount(2).addParamType(frag).addParamType(clazz).returnType(void.class).modifiers(Modifier.PUBLIC | Modifier.STATIC)));
+            if (result.isEmpty()) throw new RuntimeException("showDialogStatus not found");
+            return result.get(0).getMethodInstance(classLoader);
+        });
+    }
+
 }

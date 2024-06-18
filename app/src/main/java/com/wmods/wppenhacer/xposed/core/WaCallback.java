@@ -21,12 +21,14 @@ public class WaCallback implements Application.ActivityLifecycleCallbacks {
 
     @Override
     public void onActivityStarted(@NonNull Activity activity) {
+        WppCore.mCurrentActivity = activity;
         checkIsConversation(activity, WppCore.ObjectOnChangeListener.ChangeType.START);
     }
 
     @SuppressLint("ApplySharedPref")
     @Override
     public void onActivityResumed(@NonNull Activity activity) {
+        WppCore.mCurrentActivity = activity;
         if (WppCore.getPrivBoolean("need_restart", false)) {
             WppCore.setPrivBoolean("need_restart", false);
             try {

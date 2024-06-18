@@ -49,6 +49,7 @@ public class ResId {
         public static int toast_online;
         public static int message_removed_on;
         public static int loading;
+        public static int delete_for_me;
     }
 
 }

@@ -74,6 +74,7 @@ public class AntiRevoke extends Feature {
         var statusPlaybackField = Unobfuscator.loadStatusPlaybackViewField(classLoader);
         logDebug(Unobfuscator.getFieldDescriptor(statusPlaybackField));
 
+
         XposedBridge.hookMethod(antiRevokeMessageMethod, new XC_MethodHook() {
             @Override
             protected void beforeHookedMethod(MethodHookParam param) throws Exception {
@@ -83,6 +84,17 @@ public class AntiRevoke extends Feature {
                 var deviceJid = ReflectionUtils.callMethod(deviceJidMethod, objMessage);
                 var isFromMe = XposedHelpers.getBooleanField(fieldMessageDetails, "A02");
                 var userJid = XposedHelpers.getObjectField(fieldMessageDetails, "A00");
+                var id = getFieldIdMessage.getLong(objMessage);
+                // Caso o proprio usuario tenha deletado o status
+                if (id == -1 & DeleteStatus.bypassAntiRevoke) {
+                    DeleteStatus.bypassAntiRevoke = false;
+                    var activity = WppCore.getCurrentActivity();
+                    Class<?> StatusPlaybackActivityClass = classLoader.loadClass("com.whatsapp.status.playback.StatusPlaybackActivity");
+                    if (activity != null && StatusPlaybackActivityClass.isInstance(activity)) {
+                        activity.finish();
+                    }
+                    return;
+                }
                 var rawString = WppCore.getRawString(userJid);
                 if (WppCore.isGroup(rawString)) {
                     if (deviceJid != null && antiRevoke(objMessage) != 0) {
@@ -234,7 +246,7 @@ public class AntiRevoke extends Feature {
                 AsyncTask.THREAD_POOL_EXECUTOR.execute(() -> {
                     saveRevokedMessage(stripJID, messageKey, objMessage);
                     try {
-                        var mConversation = WppCore.getCurrenConversation();
+                        var mConversation = WppCore.getCurrentConversation();
                         if (mConversation != null && WppCore.stripJID(WppCore.getCurrentRawJID()).equals(stripJID)) {
                             mConversation.runOnUiThread(() -> {
                                 if (mConversation.hasWindowFocus()) {

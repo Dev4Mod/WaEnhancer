@@ -45,6 +45,7 @@ public class WppCore {
     private static SharedPreferences privPrefs;
     private static Object mStartUpConfig;
     private static Object mActionUser;
+    static Activity mCurrentActivity;
 
     public static void addMenuItemClass(Class<?> aClass, OnMenuCreate listener) {
         var list = listenerMenu.computeIfAbsent(aClass, k -> new ArrayList<>());
@@ -178,6 +179,12 @@ public class WppCore {
         });
     }
 
+
+    public static Activity getCurrentActivity() {
+        return mCurrentActivity;
+    }
+
+
     public static int getDefaultTheme() {
         if (mStartUpConfig != null) {
             var result = ReflectionUtils.findMethodUsingFilterIfExists(mStartUpConfig.getClass(), (method) -> method.getParameterCount() == 0 && method.getReturnType() == int.class);
@@ -296,7 +303,7 @@ public class WppCore {
         return (Dialog) XposedHelpers.newInstance(bottomDialog, context, 0);
     }
 
-    public static Activity getCurrenConversation() {
+    public static Activity getCurrentConversation() {
         return mConversation;
     }
 
