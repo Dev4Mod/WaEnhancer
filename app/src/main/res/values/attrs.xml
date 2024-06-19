@@ -19,6 +19,15 @@
   -->
 
 <resources>
+
+    <declare-styleable name="FloatSeekBarPreference">
+        <attr name="minValue" format="float" />
+        <attr name="maxValue" format="float" />
+        <attr name="valueSpacing" format="float" />
+        <attr name="format" format="float" />
+    </declare-styleable>
+
+
     <attr name="colorNormal" format="color" />
     <attr name="colorInstall" format="color" />
 

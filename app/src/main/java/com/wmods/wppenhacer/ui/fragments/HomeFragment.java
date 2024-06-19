@@ -164,6 +164,8 @@ public class HomeFragment extends BaseFragment {
                             prefs.edit().putInt(keyName, (int) value).apply();
                         } else if (value instanceof Long) {
                             prefs.edit().putLong(keyName, (long) value).apply();
+                        } else if (value instanceof Float) {
+                            prefs.edit().putFloat(keyName, (float) value).apply();
                         }
                     }
                 }

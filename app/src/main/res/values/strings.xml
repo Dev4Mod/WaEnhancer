@@ -259,4 +259,7 @@
     <string name="toast_on_viewed_message_sum">Shows a toast if someone views your message</string>
     <string name="textonahora_sum">Show text next to any timestamp in the WhatsApp app</string>
     <string name="delete_for_me">Delete(for me)</string>
+    <string name="send_audio_as_voice_audio_note">Send audio as voice/audio Note</string>
+    <string name="send_audio_as_voice_audio_note_sum">Always sends audio media/forward as a voice note or audio note</string>
+    <string name="voice_note_speed">Voice Note Speed</string>
 </resources>

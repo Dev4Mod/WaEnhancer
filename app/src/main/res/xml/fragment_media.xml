@@ -74,9 +74,16 @@
             android:defaultValue="0"
             android:entries="@array/audio_type_buttons"
             android:entryValues="@array/audio_type_values"
-            android:summary="Always sends audio media/forward as a voice note or audio note"
+            android:summary="@string/send_audio_as_voice_audio_note_sum"
             app:key="audio_type"
-            app:title="Send audio as voice/audio Note" />
+            app:title="@string/send_audio_as_voice_audio_note" />
+
+        <com.wmods.wppenhacer.preference.FloatSeekBarPreference
+            android:defaultValue="2"
+            app:key="voicenote_speed"
+            app:maxValue="5"
+            app:minValue="0.1"
+            app:title="@string/voice_note_speed" />
 
     </PreferenceCategory>
 

@@ -176,8 +176,38 @@ public class Others extends Feature {
             sendAudioType(audio_type);
         }
         copieStatusToClipboard();
+        customPlayBackSpeed();
 
+    }
 
+    private void customPlayBackSpeed() throws Exception {
+        var voicenote_speed = prefs.getFloat("voicenote_speed", 2.0f);
+        var playBackSpeed = Unobfuscator.loadPlaybackSpeed(classLoader);
+        XposedBridge.hookMethod(playBackSpeed, new XC_MethodHook() {
+            @Override
+            protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
+                super.beforeHookedMethod(param);
+                if ((float) param.args[1] == 2.0f) {
+                    param.args[1] = voicenote_speed;
+                }
+            }
+        });
+        var voicenoteClass = classLoader.loadClass("com.whatsapp.search.views.itemviews.VoiceNoteProfileAvatarView");
+        var method = ReflectionUtils.findAllMethodUsingFilter(voicenoteClass, method1 -> method1.getParameterCount() == 4 && method1.getParameterTypes()[0] == int.class && method1.getReturnType().equals(void.class));
+        XposedBridge.hookMethod(method[method.length - 1], new XC_MethodHook() {
+            @SuppressLint("SetTextI18n")
+            @Override
+            protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+                super.afterHookedMethod(param);
+                if ((int) param.args[0] == 3) {
+                    var view = (View) param.thisObject;
+                    var playback = (TextView) view.findViewById(Utils.getID("fast_playback_overlay", "id"));
+                    if (playback != null) {
+                        playback.setText(voicenote_speed + "x");
+                    }
+                }
+            }
+        });
     }
 
     private void copieStatusToClipboard() throws Exception {

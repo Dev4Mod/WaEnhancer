@@ -110,12 +110,13 @@ public class Utils {
             @Override
             protected void afterHookedMethod(MethodHookParam param) throws Throwable {
                 XposedBridge.log("\n\n-----------------HOOKED DEBUG START-----------------------------");
-                XposedBridge.log("DEBUG CLASS: " + param.method.getDeclaringClass().getName() + ": " + param.thisObject);
+                XposedBridge.log("DEBUG CLASS: " + param.method.getDeclaringClass().getName() + "->" + param.method.getName() + ": " + param.thisObject);
 
                 if (printArgs) {
                     for (var i = 0; i < param.args.length; i++) {
                         XposedBridge.log("ARG[" + i + "]: " + (param.args[i] == null ? null : param.args[i].getClass().getName()) + " -> VALUE: " + param.args[i]);
                     }
+                    XposedBridge.log("Return value: " + (param.getResult() == null ? null : param.getResult().getClass().getName()) + " -> VALUE: " + param.getResult());
                 }
                 if (printFields) {
                     debugFields(param.thisObject);

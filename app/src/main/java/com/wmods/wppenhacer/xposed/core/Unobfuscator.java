@@ -1580,4 +1580,11 @@ public class Unobfuscator {
         });
     }
 
+    public static Method loadPlaybackSpeed(ClassLoader classLoader) throws Exception {
+        return UnobfuscatorCache.getInstance().getMethod(classLoader, () -> {
+            var method = findFirstMethodUsingStrings(classLoader, StringMatchType.Contains, "heroaudioplayer/setPlaybackSpeed");
+            if (method == null) throw new RuntimeException("PlaybackSpeed method not found");
+            return method;
+        });
+    }
 }
