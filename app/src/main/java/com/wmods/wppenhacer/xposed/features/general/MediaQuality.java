@@ -26,6 +26,8 @@ public class MediaQuality extends Feature {
         var videoQuality = prefs.getBoolean("videoquality", false);
         var imageQuality = prefs.getBoolean("imagequality", false);
 
+        Others.propsBoolean.put(7950, false); // Força o uso do MediaComposer para processar os videos
+
         if (videoQuality) {
 
             var resolutionMethod = Unobfuscator.loadMediaQualityResolutionMethod(classLoader);
@@ -55,7 +57,6 @@ public class MediaQuality extends Feature {
             XposedBridge.hookMethod(videoMethod, new XC_MethodHook() {
                 @Override
                 protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-                    log(param.args[1]);
                     if ((int) param.args[1] == 3) {
                         var resizeVideo = param.getResult();
                         var originalVieo = param.args[0];
@@ -87,6 +88,7 @@ public class MediaQuality extends Feature {
 
             var videoLimitClass = Unobfuscator.loadMediaQualityVideoLimitClass(classLoader);
             logDebug(videoLimitClass);
+
             XposedHelpers.findAndHookConstructor(videoLimitClass, int.class, int.class, int.class, new XC_MethodHook() {
                 @Override
                 protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
