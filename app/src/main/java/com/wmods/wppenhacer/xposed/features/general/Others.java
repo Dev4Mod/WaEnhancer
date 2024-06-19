@@ -175,7 +175,9 @@ public class Others extends Feature {
         if (audio_type > 0) {
             sendAudioType(audio_type);
         }
+
         copieStatusToClipboard();
+
         customPlayBackSpeed();
 
     }
@@ -203,7 +205,7 @@ public class Others extends Feature {
                     var view = (View) param.thisObject;
                     var playback = (TextView) view.findViewById(Utils.getID("fast_playback_overlay", "id"));
                     if (playback != null) {
-                        playback.setText(voicenote_speed + "x");
+                        playback.setText(String.valueOf(voicenote_speed).replace(".", ",") + "×");
                     }
                 }
             }

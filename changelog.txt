@@ -1,8 +1,13 @@
-[STATUS]
-* Add copie status caption to clipboard (press and hold on the text)
+[MEDIA QUALITY]
+* Force use MediaComposer to process videos
 
-[BLUE TICK ON REPLY]
-* Add sending a blue tick when replying to a status
+[NEW FUNCTION]
+* Add a function to change the 2x speed of voice notes to a custom speed (check in Media on Wa Enhancer)
 
-[STATUS]
-* Add button to delete other people's status (NOTE: it will only be deleted for you)
+
+[TASKER]
+* Fix %number to support long value (no need "(quote) anymore)
+* Add %name to MESSAGE_RECEIVED to show contact name
+
+
+

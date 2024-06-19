@@ -209,7 +209,7 @@ public class WppCore {
                 var stringField = Arrays.stream(contact.getClass().getDeclaredFields()).filter(f -> f.getType().equals(String.class)).toArray(Field[]::new);
                 return (String) stringField[3].get(contact);
             }
-        } catch (Exception e) {
+        } catch (Throwable e) {
             XposedBridge.log(e);
         }
         return null;

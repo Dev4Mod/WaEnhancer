@@ -15,6 +15,8 @@ import com.wmods.wppenhacer.xposed.core.Unobfuscator;
 import com.wmods.wppenhacer.xposed.core.Utils;
 import com.wmods.wppenhacer.xposed.core.WppCore;
 
+import java.util.Objects;
+
 import de.robv.android.xposed.XC_MethodHook;
 import de.robv.android.xposed.XSharedPreferences;
 import de.robv.android.xposed.XposedBridge;
@@ -55,19 +57,6 @@ public class Tasker extends Feature {
         Utils.getApplication().sendBroadcast(intent);
     }
 
-    public static class SenderMessageBroadcastReceiver extends BroadcastReceiver {
-
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            XposedBridge.log("Message sent");
-            var number = intent.getStringExtra("number");
-            var message = intent.getStringExtra("message");
-            if (number == null || message == null) return;
-            number = number.replaceAll("\\D", "");
-            WppCore.sendMessage(number, message);
-        }
-    }
-
     public void hookReceiveMessage() throws Throwable {
         var method = Unobfuscator.loadReceiptMethod(classLoader);
         var method2 = Unobfuscator.loadReceiptOutsideChat(classLoader);
@@ -88,18 +77,37 @@ public class Tasker extends Feature {
                 var messageKey = fieldMessageKey.get(fMessage);
                 var userJid = XposedHelpers.getObjectField(messageKey, "A00");
                 var rawJid = WppCore.getRawString(userJid);
+                var name = WppCore.getContactName(userJid);
                 var number = WppCore.stripJID(rawJid);
                 var msg = (String) newMessageMethod.invoke(fMessage);
                 if (TextUtils.isEmpty(msg) || TextUtils.isEmpty(number)) return;
                 new Handler(Utils.getApplication().getMainLooper()).post(() -> {
                     Intent intent = new Intent("com.wmods.wppenhacer.MESSAGE_RECEIVED");
                     intent.putExtra("number", number);
+                    intent.putExtra("name", name);
                     intent.putExtra("message", msg);
                     Utils.getApplication().sendBroadcast(intent);
                 });
             }
         });
 
+    }
+
+    public static class SenderMessageBroadcastReceiver extends BroadcastReceiver {
+
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            XposedBridge.log("Message sent");
+            var number = intent.getStringExtra("number");
+            if (number == null) {
+                number = String.valueOf(intent.getLongExtra("number", 0));
+                number = Objects.equals(number, "0") ? null : number;
+            }
+            var message = intent.getStringExtra("message");
+            if (number == null || message == null) return;
+            number = number.replaceAll("\\D", "");
+            WppCore.sendMessage(number, message);
+        }
     }
 
 }
