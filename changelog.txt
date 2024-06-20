@@ -3,3 +3,6 @@
 
 [BLUE TICK]
 * The button now turns blue when replying to a status
+
+[CALL PRIVACY]
+* Add white and block contacts for call privacy
