@@ -55,6 +55,7 @@ public class SeenTick extends Feature {
     private static Method WaJobManagerMethod;
     private static String currentJid;
     private static String currentScreen = "none";
+    private static HashMap<String, ImageView> messageMap = new HashMap<>();
 
     public SeenTick(@NonNull ClassLoader loader, @NonNull XSharedPreferences preferences) {
         super(loader, preferences);
@@ -78,7 +79,6 @@ public class SeenTick extends Feature {
         var messageJobMethod = Unobfuscator.loadBlueOnReplayMessageJobMethod(classLoader);
 
         mSendReadClass = XposedHelpers.findClass("com.whatsapp.jobqueue.job.SendReadReceiptJob", classLoader);
-
 
         WppCore.addListenerChat((conv, type) -> {
             var jid = WppCore.getCurrentRawJID();
@@ -111,6 +111,12 @@ public class SeenTick extends Feature {
                 var rawJid = (String) XposedHelpers.getObjectField(obj, "jid");
                 var handler = new Handler(Looper.getMainLooper());
                 if (Objects.equals(currentScreen, "status")) {
+                    if (messages.isEmpty()) return;
+                    MessageStore.storeMessageRead(messages.valueAt(0).messageKey);
+                    var view = messageMap.get(messages.valueAt(0).messageKey);
+                    if (view != null) {
+                        view.post(() -> setSeenButton(view, true));
+                    }
                     handler.post(() -> sendBlueTickStatus(currentJid));
                 } else {
                     handler.post(() -> sendBlueTick(rawJid));
@@ -203,6 +209,7 @@ public class SeenTick extends Feature {
                     buttonImage.setBackground(border);
                     contentView.setOrientation(LinearLayout.HORIZONTAL);
                     contentView.addView(buttonImage, 0);
+                    messageMap.put(messageId, buttonImage);
                     buttonImage.setOnClickListener(v -> AsyncTask.THREAD_POOL_EXECUTOR.execute(() -> {
                         Utils.showToast(view.getContext().getString(ResId.string.sending_read_blue_tick), Toast.LENGTH_SHORT);
                         sendBlueTickStatus(currentJid);
