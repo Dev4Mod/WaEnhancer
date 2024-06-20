@@ -27,7 +27,6 @@ public class HideReceipt extends Feature {
             @Override
             protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
                 if (!prefs.getBoolean("hidereceipt", false)) return;
-                log(new Exception());
                 if (!Unobfuscator.isCalledFromMethod(method2) && !Unobfuscator.isCalledFromMethod(method3))
                     return;
                 var jid = WppCore.getRawString(param.args[0]);

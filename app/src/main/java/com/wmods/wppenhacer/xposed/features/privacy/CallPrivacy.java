@@ -84,7 +84,6 @@ public class CallPrivacy extends Feature {
             protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
                 if (!prefs.getString("call_type", "no_internet").equals("no_internet")) return;
                 var userJid = param.args[0];
-                log("Call received: " + param.args[0]);
                 var type = Integer.parseInt(prefs.getString("call_privacy", "0"));
                 var block = false;
                 switch (type) {
@@ -109,16 +108,13 @@ public class CallPrivacy extends Feature {
 
     public boolean checkCallBlock(Object userJid, int type) throws IllegalAccessException, InvocationTargetException {
         var jid = WppCore.stripJID(WppCore.getRawString(userJid));
-        log("JID: " + jid);
         if (jid == null) return false;
         switch (type) {
             case 3:
-                log("Call block list: " + prefs.getString("call_block_contacts", "[]"));
                 var callBlockList = prefs.getString("call_block_contacts", "[]");
                 var blockList = Arrays.stream(callBlockList.substring(1, callBlockList.length() - 1).split(", ")).map(String::trim).collect(Collectors.toCollection(ArrayList::new));
                 for (var blockNumber : blockList) {
                     if (!TextUtils.isEmpty(blockNumber) && jid.contains(blockNumber)) {
-                        log("Blocked number: " + blockNumber);
                         return true;
                     }
                 }
