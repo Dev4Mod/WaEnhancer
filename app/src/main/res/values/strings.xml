@@ -268,4 +268,7 @@
     <string name="contact_white_list">List of allowed contacts</string>
     <string name="no_contacts_selected">No contacts selected</string>
     <string name="contact_were_selected">%d contact(s) were selected</string>
+    <string name="standard">Standard</string>
+    <string name="audio_note">Audio note</string>
+    <string name="voice_note">Voice note</string>
 </resources>
