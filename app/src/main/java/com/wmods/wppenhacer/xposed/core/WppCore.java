@@ -5,6 +5,7 @@ import android.app.Activity;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.database.sqlite.SQLiteDatabase;
 import android.graphics.drawable.Drawable;
 import android.view.Menu;
 import android.widget.Toast;
@@ -31,7 +32,6 @@ import de.robv.android.xposed.XposedHelpers;
 public class WppCore {
 
     private static Object mainActivity;
-    private static Method getContactMethod;
     private static Class<?> mGenJidClass;
     private static Method mGenJidMethod;
     private static Class bottomDialog;
@@ -41,11 +41,11 @@ public class WppCore {
     @SuppressLint("StaticFieldLeak")
     static Activity mConversation;
     private static final HashMap<Class, List<OnMenuCreate>> listenerMenu = new HashMap<>();
-    private static Object mContactManager;
     private static SharedPreferences privPrefs;
     private static Object mStartUpConfig;
     private static Object mActionUser;
     static Activity mCurrentActivity;
+    private static SQLiteDatabase mWaDatabase;
 
     public static void addMenuItemClass(Class<?> aClass, OnMenuCreate listener) {
         var list = listenerMenu.computeIfAbsent(aClass, k -> new ArrayList<>());
@@ -141,15 +141,6 @@ public class WppCore {
             }
         });
 
-        // init ContactManager
-        getContactMethod = Unobfuscator.loadGetContactInfoMethod(loader);
-        XposedBridge.hookAllConstructors(getContactMethod.getDeclaringClass(), new XC_MethodHook() {
-            @Override
-            protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-                mContactManager = param.thisObject;
-            }
-        });
-
         // init UserJID
         var mSendReadClass = XposedHelpers.findClass("com.whatsapp.jobqueue.job.SendReadReceiptJob", loader);
         var subClass = Arrays.stream(mSendReadClass.getConstructors()).filter(c -> c.getParameterTypes().length == 8).findFirst().orElse(null).getParameterTypes()[0];
@@ -177,6 +168,18 @@ public class WppCore {
                 mActionUser = param.thisObject;
             }
         });
+
+        // Load wa database
+        loadDatabase();
+    }
+
+    public static void loadDatabase() {
+        if (mWaDatabase != null) return;
+        var dataDir = Utils.getApplication().getFilesDir().getParentFile();
+        var database = new File(dataDir, "databases/wa.db");
+        if (database.exists()) {
+            mWaDatabase = SQLiteDatabase.openDatabase(database.getAbsolutePath(), null, SQLiteDatabase.OPEN_READONLY);
+        }
     }
 
 
@@ -197,22 +200,18 @@ public class WppCore {
         return startup_prefs.getInt("night_mode", 0);
     }
 
-    public static Object getContactManager() {
-        return mContactManager;
-    }
-
     @Nullable
     public static String getContactName(Object userJid) {
-        try {
-            var contact = getContactMethod.invoke(mContactManager, userJid);
-            if (contact != null) {
-                var stringField = Arrays.stream(contact.getClass().getDeclaredFields()).filter(f -> f.getType().equals(String.class)).toArray(Field[]::new);
-                return (String) stringField[3].get(contact);
-            }
-        } catch (Throwable e) {
-            XposedBridge.log(e);
+        loadDatabase();
+        if (mWaDatabase == null) return "";
+        var rawJid = getRawString(userJid);
+        var cursor = mWaDatabase.query("wa_contacts", new String[]{"display_name"}, "jid = ?", new String[]{rawJid}, null, null, null);
+        if (cursor != null && cursor.moveToFirst()) {
+            var name = cursor.getString(0);
+            cursor.close();
+            return name;
         }
-        return null;
+        return "";
     }
 
     public static Object createUserJid(String rawjid) {
