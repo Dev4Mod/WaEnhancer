@@ -251,9 +251,19 @@
     <string name="enable_tasker_automation_sum">Позволяет использовать намерение принимать и отправлять сообщения в Tasker</string>
     <string name="disable_auto_status">Отключить статус автопропуска</string>
     <string name="disable_auto_status_sum">Предотвращает автоматическое продвижение текущего статуса на следующий.</string>
-    <string name="toast_on_viewed_status">Показывать всплывающие уведомления на просмотре вашего статуса</string>
-    <string name="toast_on_viewed_status_sum">Показывает всплывающее сообщение, если кто-то просматривает ваш статус</string>
-    <string name="toast_on_viewed_message">Показывать всплывающие уведомления на просмотре вашего статуса</string>
+    <string name="toast_on_viewed_status">Показывать тост при просмотре вашего статуса</string>
+    <string name="toast_on_viewed_status_sum">Показывает всплывающие сообщение, если кто-то просматривает ваш статус</string>
+    <string name="toast_on_viewed_message">Показывать тост о просмотре вашего сообщения</string>
     <string name="toast_on_viewed_message_sum">Показывает всплывающее сообщение, если кто-то просматривает ваш статус</string>
     <string name="textonahora_sum">Показывать текст рядом с любой отметкой времени в WhatsApp</string>
+    <string name="delete_for_me">Удалить у меня</string>
+    <string name="send_audio_as_voice_audio_note">Отправить аудио как голосовое/аудиометка</string>
+    <string name="send_audio_as_voice_audio_note_sum">Всегда отправлять аудио медиа/вперёд как голосовую заметку или аудиозапись</string>
+    <string name="voice_note_speed">Voice Note Speed</string>
+    <string name="select">Select</string>
+    <string name="search_contacts">Search contacts</string>
+    <string name="contact_block_list">List of blocked contacts</string>
+    <string name="contact_white_list">List of allowed contacts</string>
+    <string name="no_contacts_selected">No contacts selected</string>
+    <string name="contact_were_selected">%d contact(s) were selected</string>
 </resources>

@@ -14,9 +14,9 @@
     <string name="hideread">Ocultar Visualizacao de Mensagens</string>
     <string name="hideread_sum">Quando ativo, permite ler mensagens sem a pessoa saber que você leu.</string>
     <string name="perso">Personalização</string>
-    <string name="segundosnahora">Segundos no Horário</string>
+    <string name="segundosnahora">Segundos no horário</string>
     <string name="segundosnahora_sum">Mostrar segundos ao lado dos horários.</string>
-    <string name="textonahora">Segundos no horário</string>
+    <string name="textonahora">Texto no horário</string>
     <string name="viewonce">Desativar Visualização Única</string>
     <string name="viewonce_sum">Quando ativo, permite ver mensagens de visualização única quantas vezes quiser.</string>
     <string name="novotema_sum">Quando ativa, muda o tema de cores e ícones para o novo tema do WhatsApp.</string>
@@ -248,7 +248,7 @@
     <string name="call_type_buttons_uncallable">Não é possível receber chamadas do WhatsApp</string>
     <string name="call_type_buttons_ended">Não atendida</string>
     <string name="enable_tasker_automation">Habilitar Automação Tasker</string>
-    <string name="enable_tasker_automation_sum">Permite enviar e receber mensagens/notificações através de comandos pelo Tasker.</string>
+    <string name="enable_tasker_automation_sum">Permite automatizar mensagens e notificações através de comandos pelo Tasker.</string>
     <string name="disable_auto_status">Desativar pulo automático dos status</string>
     <string name="disable_auto_status_sum">Impede que o status atual avance automaticamente para o próximo.</string>
     <string name="toast_on_viewed_status">Mostrar toast de visualização de status</string>
@@ -256,4 +256,14 @@
     <string name="toast_on_viewed_message">Mostrar toast de visualização de mensagem</string>
     <string name="toast_on_viewed_message_sum">Mostra uma notificação toast se alguém visualizar sua mensagem.</string>
     <string name="textonahora_sum">Adicione um texto ao lado dos horários</string>
+    <string name="delete_for_me">Apagar (para mim)</string>
+    <string name="send_audio_as_voice_audio_note">Enviar áudio como nota de voz ou áudio</string>
+    <string name="send_audio_as_voice_audio_note_sum">Sempre enviar mídia de áudio como uma nota de voz ou de áudio.</string>
+    <string name="voice_note_speed">Voice Note Speed</string>
+    <string name="select">Select</string>
+    <string name="search_contacts">Search contacts</string>
+    <string name="contact_block_list">List of blocked contacts</string>
+    <string name="contact_white_list">List of allowed contacts</string>
+    <string name="no_contacts_selected">No contacts selected</string>
+    <string name="contact_were_selected">%d contact(s) were selected</string>
 </resources>

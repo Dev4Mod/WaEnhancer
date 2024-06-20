@@ -248,12 +248,22 @@
     <string name="call_type_buttons_uncallable">No se pueden recibir llamadas de WhatsApp</string>
     <string name="call_type_buttons_ended">Sin contestar</string>
     <string name="enable_tasker_automation">Activar automatización de Tasker</string>
-    <string name="enable_tasker_automation_sum">Permite la posibilidad de usar la intención de recibir y enviar mensajes en Tasker</string>
-    <string name="disable_auto_status">Desactivar Auto Omitir Estado</string>
+    <string name="enable_tasker_automation_sum">Permite poder recibir y enviar mensajes usando la herramienta Tasker</string>
+    <string name="disable_auto_status">Desactivar omitir siguiente estado automáticamente</string>
     <string name="disable_auto_status_sum">Evita que el estado actual avance automáticamente al siguiente.</string>
     <string name="toast_on_viewed_status">Mostrar notificación al ver tu estado</string>
-    <string name="toast_on_viewed_status_sum">Mostrar notificación al ver tu estado</string>
+    <string name="toast_on_viewed_status_sum">Muestra una notificación si alguien ve tu estado</string>
     <string name="toast_on_viewed_message">Mostrar notificación al ver tu mensaje</string>
     <string name="toast_on_viewed_message_sum">Muestra una notificación si alguien ve tu mensaje</string>
     <string name="textonahora_sum">Muestra los segundos al lado de la hora del mensaje enviado/recibido</string>
+    <string name="delete_for_me">Eliminar (para mí)</string>
+    <string name="send_audio_as_voice_audio_note">Enviar audio como nota de voz/audio</string>
+    <string name="send_audio_as_voice_audio_note_sum">Envia siempre multimedia de audio o reenvialo como una nota de voz o un audio</string>
+    <string name="voice_note_speed">Voice Note Speed</string>
+    <string name="select">Select</string>
+    <string name="search_contacts">Search contacts</string>
+    <string name="contact_block_list">List of blocked contacts</string>
+    <string name="contact_white_list">List of allowed contacts</string>
+    <string name="no_contacts_selected">No contacts selected</string>
+    <string name="contact_were_selected">%d contact(s) were selected</string>
 </resources>
