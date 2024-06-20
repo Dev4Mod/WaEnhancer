@@ -10,6 +10,8 @@ import androidx.annotation.NonNull;
 import com.wmods.wppenhacer.xposed.core.Feature;
 import com.wmods.wppenhacer.xposed.core.Unobfuscator;
 
+import org.json.JSONObject;
+
 import de.robv.android.xposed.XC_MethodHook;
 import de.robv.android.xposed.XC_MethodReplacement;
 import de.robv.android.xposed.XSharedPreferences;
@@ -29,6 +31,23 @@ public class MediaQuality extends Feature {
         Others.propsBoolean.put(7950, false); // Força o uso do MediaComposer para processar os videos
 
         if (videoQuality) {
+
+            Others.propsBoolean.put(5549, true); // Remove o limite de qualidade do video
+            var jsonProperty = Unobfuscator.loadPropsJsonMethod(classLoader);
+            XposedBridge.hookMethod(jsonProperty, new XC_MethodHook() {
+                @Override
+                protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+                    if ((int) param.args[0] == 5550) {
+                        var json = (JSONObject) param.getResult();
+                        for (int i = 0; i < json.length(); i++) {
+                            var key = (String) json.names().opt(i);
+                            var jSONObject = json.getJSONObject(key);
+                            jSONObject.put("max_bitrate", 16000);
+                            jSONObject.put("max_bandwidth", 90);
+                        }
+                    }
+                }
+            });
 
             var resolutionMethod = Unobfuscator.loadMediaQualityResolutionMethod(classLoader);
             logDebug(Unobfuscator.getMethodDescriptor(resolutionMethod));

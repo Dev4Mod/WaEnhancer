@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<PreferenceScreen xmlns:app="http://schemas.android.com/apk/res-auto">
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <PreferenceCategory
         app:iconSpaceReserved="false"
@@ -84,6 +85,18 @@
             app:key="call_type"
             app:summary="@string/call_blocking_type_sum"
             app:title="@string/call_blocking_type" />
+
+        <com.wmods.wppenhacer.preference.ContactPickerPreference
+            android:key="call_block_contacts"
+            android:title="@string/contact_block_list"
+            app:summaryOff="@string/no_contacts_selected"
+            app:summaryOn="@string/contact_were_selected" />
+
+        <com.wmods.wppenhacer.preference.ContactPickerPreference
+            android:key="call_white_contacts"
+            android:title="@string/contact_white_list"
+            app:summaryOff="@string/no_contacts_selected"
+            app:summaryOn="@string/contact_were_selected" />
 
     </PreferenceCategory>
 

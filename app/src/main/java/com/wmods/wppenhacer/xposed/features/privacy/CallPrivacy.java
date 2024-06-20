@@ -1,14 +1,19 @@
-package com.wmods.wppenhacer.xposed.features.general;
+package com.wmods.wppenhacer.xposed.features.privacy;
 
 import android.os.Message;
+import android.text.TextUtils;
 
 import androidx.annotation.NonNull;
 
 import com.wmods.wppenhacer.xposed.core.Feature;
 import com.wmods.wppenhacer.xposed.core.Unobfuscator;
 import com.wmods.wppenhacer.xposed.core.WppCore;
+import com.wmods.wppenhacer.xposed.features.general.Tasker;
 
 import java.lang.reflect.InvocationTargetException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.stream.Collectors;
 
 import de.robv.android.xposed.XC_MethodHook;
 import de.robv.android.xposed.XSharedPreferences;
@@ -47,7 +52,9 @@ public class CallPrivacy extends Feature {
                         block = true;
                         break;
                     case 2:
-                        block = checkCallBlock(userJid);
+                    case 3:
+                    case 4:
+                        block = checkCallBlock(userJid, type);
                         break;
                 }
                 if (!block) return;
@@ -87,7 +94,9 @@ public class CallPrivacy extends Feature {
                         block = true;
                         break;
                     case 2:
-                        block = checkCallBlock(userJid);
+                    case 3:
+                    case 4:
+                        block = checkCallBlock(userJid, type);
                         break;
                 }
                 if (!block) return;
@@ -98,14 +107,38 @@ public class CallPrivacy extends Feature {
 
     }
 
-    public boolean checkCallBlock(Object userJid) throws IllegalAccessException, InvocationTargetException {
+    public boolean checkCallBlock(Object userJid, int type) throws IllegalAccessException, InvocationTargetException {
         var jid = WppCore.stripJID(WppCore.getRawString(userJid));
-        if (jid != null && WppCore.stripJID(jid).equals(jid)) {
-            jid = jid.split("\\.")[0] + "@s.whatsapp.net";
+        log("JID: " + jid);
+        if (jid == null) return false;
+        switch (type) {
+            case 3:
+                log("Call block list: " + prefs.getString("call_block_contacts", "[]"));
+                var callBlockList = prefs.getString("call_block_contacts", "[]");
+                var blockList = Arrays.stream(callBlockList.substring(1, callBlockList.length() - 1).split(", ")).map(String::trim).collect(Collectors.toCollection(ArrayList::new));
+                for (var blockNumber : blockList) {
+                    if (!TextUtils.isEmpty(blockNumber) && jid.contains(blockNumber)) {
+                        log("Blocked number: " + blockNumber);
+                        return true;
+                    }
+                }
+                return false;
+            case 4:
+                var callWhiteList = prefs.getString("call_white_contacts", "[]");
+                var whiteList = Arrays.stream(callWhiteList.substring(1, callWhiteList.length() - 1).split(", ")).map(String::trim).collect(Collectors.toCollection(ArrayList::new));
+                for (var whiteNumber : whiteList) {
+                    if (!TextUtils.isEmpty(whiteNumber) && jid.contains(whiteNumber)) {
+                        return false;
+                    }
+                }
+                return true;
+            default:
+                if (WppCore.stripJID(jid).equals(jid)) {
+                    jid = jid.split("\\.")[0] + "@s.whatsapp.net";
+                }
+                var contactName = WppCore.getContactName(WppCore.createUserJid(jid));
+                return contactName == null || contactName.equals(jid);
         }
-        log("Checking call block for " + jid);
-        var contactName = WppCore.getContactName(WppCore.createUserJid(jid));
-        return contactName == null || contactName.equals(jid);
     }
 
 

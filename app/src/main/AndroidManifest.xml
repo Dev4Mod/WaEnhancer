@@ -11,6 +11,7 @@
         android:maxSdkVersion="32"
         tools:ignore="SelectedPhotoAccess" />
     <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" />
+    <uses-permission android:name="android.permission.READ_CONTACTS" />
 
 
     <application
@@ -32,6 +33,10 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <activity
+            android:name=".activities.ContactPickerActivity"
+            android:theme="@style/AppTheme" />
 
         <meta-data
             android:name="xposedmodule"

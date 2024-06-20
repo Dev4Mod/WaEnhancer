@@ -1,13 +1,5 @@
-[MEDIA QUALITY]
-* Force use MediaComposer to process videos
+[WHATSAPP]
+* Fix contact display names
 
-[NEW FUNCTION]
-* Add a function to change the 2x speed of voice notes to a custom speed (check in Media on Wa Enhancer)
-
-
-[TASKER]
-* Fix %number to support long value (no need "(quote) anymore)
-* Add %name to MESSAGE_RECEIVED to show contact name
-
-
-
+[BLUE TICK]
+* The button now turns blue when replying to a status

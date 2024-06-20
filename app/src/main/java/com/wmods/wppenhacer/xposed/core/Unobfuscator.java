@@ -722,6 +722,14 @@ public class Unobfuscator {
         });
     }
 
+    public static Method loadPropsJsonMethod(ClassLoader loader) throws Exception {
+        return UnobfuscatorCache.getInstance().getMethod(loader, () -> {
+            var method = findFirstMethodUsingStrings(loader, StringMatchType.Contains, "Unknown JsonField");
+            if (method == null) throw new Exception("Props method not found");
+            return method;
+        });
+    }
+
 //    public static Method loadPropsStringMethod(ClassLoader loader) throws Exception {
 //        return UnobfuscatorCache.getInstance().getMethod(loader, () -> {
 //            var method = findFirstMethodUsingStrings(loader, StringMatchType.Contains, "Unknown StringField");

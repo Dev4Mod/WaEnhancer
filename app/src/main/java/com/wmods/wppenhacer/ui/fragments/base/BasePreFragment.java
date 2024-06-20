@@ -11,7 +11,6 @@ import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.preference.ListPreference;
-import androidx.preference.Preference;
 import androidx.preference.PreferenceFragmentCompat;
 import androidx.preference.PreferenceManager;
 
@@ -71,6 +70,26 @@ public abstract class BasePreFragment extends PreferenceFragmentCompat implement
             filtergroups.setEnabled(!bool);
         }
 
+        var callBlockContacts = findPreference("call_block_contacts");
+        var callWhiteContacts = findPreference("call_white_contacts");
+        if (callBlockContacts != null && callWhiteContacts != null) {
+            var callType = Integer.parseInt(mPrefs.getString("call_privacy", "0"));
+            switch (callType) {
+                case 3:
+                    callBlockContacts.setEnabled(true);
+                    callWhiteContacts.setEnabled(false);
+                    break;
+                case 4:
+                    callWhiteContacts.setEnabled(true);
+                    callBlockContacts.setEnabled(false);
+                    break;
+                default:
+                    callWhiteContacts.setEnabled(false);
+                    callBlockContacts.setEnabled(false);
+                    break;
+            }
+
+        }
     }
 
     @Override
