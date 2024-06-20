@@ -44,20 +44,8 @@ public class CallPrivacy extends Feature {
                 var callId = XposedHelpers.callMethod(callinfo, "getCallId");
                 var type = Integer.parseInt(prefs.getString("call_privacy", "0"));
                 Tasker.sendTaskerEvent(WppCore.stripJID(WppCore.getRawString(userJid)), "call_received");
-                var block = false;
-                switch (type) {
-                    case 0:
-                        break;
-                    case 1:
-                        block = true;
-                        break;
-                    case 2:
-                    case 3:
-                    case 4:
-                        block = checkCallBlock(userJid, type);
-                        break;
-                }
-                if (!block) return;
+                var blockCall = checkCallBlock(userJid, type);
+                if (!blockCall) return;
                 var clazzVoip = XposedHelpers.findClass("com.whatsapp.voipcalling.Voip", classLoader);
                 var rejectType = prefs.getString("call_type", "no_internet");
                 switch (rejectType) {
@@ -85,21 +73,10 @@ public class CallPrivacy extends Feature {
                 if (!prefs.getString("call_type", "no_internet").equals("no_internet")) return;
                 var userJid = param.args[0];
                 var type = Integer.parseInt(prefs.getString("call_privacy", "0"));
-                var block = false;
-                switch (type) {
-                    case 0:
-                        break;
-                    case 1:
-                        block = true;
-                        break;
-                    case 2:
-                    case 3:
-                    case 4:
-                        block = checkCallBlock(userJid, type);
-                        break;
+                var block = checkCallBlock(userJid, type);
+                if (block) {
+                    param.setResult(1);
                 }
-                if (!block) return;
-                param.setResult(1);
             }
         });
 
@@ -107,9 +84,18 @@ public class CallPrivacy extends Feature {
     }
 
     public boolean checkCallBlock(Object userJid, int type) throws IllegalAccessException, InvocationTargetException {
+        if (type == 0) return false;
+        if (type == 1) return true;
+
         var jid = WppCore.stripJID(WppCore.getRawString(userJid));
         if (jid == null) return false;
         switch (type) {
+            case 2:
+                if (WppCore.stripJID(jid).equals(jid)) {
+                    jid = jid.split("\\.")[0] + "@s.whatsapp.net";
+                }
+                var contactName = WppCore.getContactName(WppCore.createUserJid(jid));
+                return contactName == null || contactName.equals(jid);
             case 3:
                 var callBlockList = prefs.getString("call_block_contacts", "[]");
                 var blockList = Arrays.stream(callBlockList.substring(1, callBlockList.length() - 1).split(", ")).map(String::trim).collect(Collectors.toCollection(ArrayList::new));
@@ -128,13 +114,8 @@ public class CallPrivacy extends Feature {
                     }
                 }
                 return true;
-            default:
-                if (WppCore.stripJID(jid).equals(jid)) {
-                    jid = jid.split("\\.")[0] + "@s.whatsapp.net";
-                }
-                var contactName = WppCore.getContactName(WppCore.createUserJid(jid));
-                return contactName == null || contactName.equals(jid);
         }
+        return false;
     }
 
 

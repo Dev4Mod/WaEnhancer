@@ -29,8 +29,11 @@ import com.wmods.wppenhacer.xposed.core.MainFeatures;
 
 import org.json.JSONObject;
 
+import java.text.SimpleDateFormat;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.HashSet;
+import java.util.Locale;
 import java.util.stream.Collectors;
 
 import rikka.core.util.IOUtils;
@@ -134,7 +137,9 @@ public class HomeFragment extends BaseFragment {
                 Toast.makeText(context, e.getMessage(), Toast.LENGTH_SHORT).show();
             }
         });
-        FilePicker.fileSalve.launch("wpp_enhacer_config.json");
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss", Locale.US);
+        String formattedDate = dateFormat.format(new Date());
+        FilePicker.fileSalve.launch("wpp_enhacer_configs_" + formattedDate + ".json");
     }
 
     private void importConfigs(Context context) {
