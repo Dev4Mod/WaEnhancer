@@ -89,7 +89,6 @@ public class HideSeen extends Feature {
             }
         });
 
-
     }
 
     @NonNull

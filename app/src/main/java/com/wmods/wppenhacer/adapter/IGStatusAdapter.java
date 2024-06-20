@@ -114,13 +114,13 @@ public class IGStatusAdapter extends ArrayAdapter {
 
         convertView.setOnClickListener(v -> {
             if (holder.myStatus) {
-                var intent = new Intent(WppCore.getMainActivity(), XposedHelpers.findClass("com.whatsapp.status.playback.MyStatusesActivity", getContext().getClassLoader()));
-                WppCore.getMainActivity().startActivity(intent);
+                var intent = new Intent(WppCore.getCurrentActivity(), XposedHelpers.findClass("com.whatsapp.status.playback.MyStatusesActivity", getContext().getClassLoader()));
+                WppCore.getCurrentActivity().startActivity(intent);
                 return;
             }
-            var intent = new Intent(WppCore.getMainActivity(), XposedHelpers.findClass("com.whatsapp.status.playback.StatusPlaybackActivity", getContext().getClassLoader()));
+            var intent = new Intent(WppCore.getCurrentActivity(), XposedHelpers.findClass("com.whatsapp.status.playback.StatusPlaybackActivity", getContext().getClassLoader()));
             intent.putExtra("jid", holder.jid);
-            WppCore.getMainActivity().startActivity(intent);
+            WppCore.getCurrentActivity().startActivity(intent);
         });
 
         return convertView;

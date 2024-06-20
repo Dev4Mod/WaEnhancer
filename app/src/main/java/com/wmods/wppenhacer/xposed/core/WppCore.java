@@ -24,6 +24,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
 
 import de.robv.android.xposed.XC_MethodHook;
 import de.robv.android.xposed.XposedBridge;
@@ -31,37 +32,23 @@ import de.robv.android.xposed.XposedHelpers;
 
 public class WppCore {
 
-    private static Object mainActivity;
     private static Class<?> mGenJidClass;
     private static Method mGenJidMethod;
     private static Class bottomDialog;
-    static final HashSet<ObjectOnChangeListener> listenerChat = new HashSet<>();
+    static final HashSet<ActivityChangeState> listenerChat = new HashSet<>();
     private static Field convChatField;
     private static Field chatJidField;
-    @SuppressLint("StaticFieldLeak")
-    static Activity mConversation;
     private static final HashMap<Class, List<OnMenuCreate>> listenerMenu = new HashMap<>();
     private static SharedPreferences privPrefs;
     private static Object mStartUpConfig;
     private static Object mActionUser;
+    @SuppressLint("StaticFieldLeak")
     static Activity mCurrentActivity;
     private static SQLiteDatabase mWaDatabase;
 
     public static void addMenuItemClass(Class<?> aClass, OnMenuCreate listener) {
         var list = listenerMenu.computeIfAbsent(aClass, k -> new ArrayList<>());
         list.add(listener);
-
-    }
-
-//    public static void addMenuItemString(String className, OnMenuCreate listener) {
-//        var classLoader = Utils.getApplication().getClassLoader();
-//        var aClass = XposedHelpers.findClass(className, classLoader);
-//        var list = listenerMenu.computeIfAbsent(aClass, k -> new ArrayList<>());
-//        list.add(listener);
-//    }
-
-    public static Object getConversation() {
-        return mConversation;
     }
 
     public static void sendMessage(String number, String message) {
@@ -92,39 +79,15 @@ public class WppCore {
     }
 
 
-    public interface ObjectOnChangeListener {
-
-        void onChange(Object object, ChangeType type);
-
-        enum ChangeType {
-            START, END, RESUME, PAUSE
-        }
-    }
-
     public static void Initialize(ClassLoader loader) throws Exception {
         privPrefs = Utils.getApplication().getSharedPreferences("WaGlobal", Context.MODE_PRIVATE);
 
-        // init Main activity
-        XposedBridge.hookAllMethods(XposedHelpers.findClass("com.whatsapp.HomeActivity", loader), "onCreate", new XC_MethodHook() {
-            @Override
-            protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
-                mainActivity = param.thisObject;
-            }
-        });
-
-        XposedBridge.hookAllMethods(XposedHelpers.findClass("com.whatsapp.HomeActivity", loader), "onResume", new XC_MethodHook() {
-            @Override
-            protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
-                mainActivity = param.thisObject;
-            }
-        });
-
-        XposedHelpers.findAndHookMethod(Activity.class, "onCreateOptionsMenu", Menu.class, new XC_MethodHook() {
+        XposedHelpers.findAndHookMethod(Activity.class.getName(), loader, "onCreateOptionsMenu", Menu.class, new XC_MethodHook() {
             @Override
             protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
                 for (Class<?> aClass : listenerMenu.keySet()) {
                     if (!aClass.isInstance(param.thisObject)) return;
-                    for (OnMenuCreate listener : listenerMenu.get(aClass)) {
+                    for (OnMenuCreate listener : Objects.requireNonNull(listenerMenu.get(aClass))) {
                         listener.onBeforeCreate((Activity) param.thisObject, (Menu) param.args[0]);
                     }
                 }
@@ -134,7 +97,7 @@ public class WppCore {
             protected void afterHookedMethod(MethodHookParam param) throws Throwable {
                 for (Class<?> aClass : listenerMenu.keySet()) {
                     if (!aClass.isInstance(param.thisObject)) return;
-                    for (OnMenuCreate listener : listenerMenu.get(aClass)) {
+                    for (OnMenuCreate listener : Objects.requireNonNull(listenerMenu.get(aClass))) {
                         listener.onAfterCreate((Activity) param.thisObject, (Menu) param.args[0]);
                     }
                 }
@@ -235,8 +198,9 @@ public class WppCore {
     }
 
     public static String getCurrentRawJID() {
-        if (mConversation == null) return null;
-        var chatField = XposedHelpers.getObjectField(mConversation, convChatField.getName());
+        var conversation = getCurrentConversation();
+        if (conversation == null) return null;
+        var chatField = XposedHelpers.getObjectField(conversation, convChatField.getName());
         var chatJidObj = XposedHelpers.getObjectField(chatField, chatJidField.getName());
         return getRawString(chatJidObj);
     }
@@ -249,7 +213,6 @@ public class WppCore {
             return str;
         }
     }
-
 
     public static Drawable getContactPhotoDrawable(String jid) {
         var file = getContactPhotoFile(jid);
@@ -267,7 +230,7 @@ public class WppCore {
     }
 
     public static String getMyName() {
-        var startup_prefs = ((Context) mainActivity).getSharedPreferences("startup_prefs", Context.MODE_PRIVATE);
+        var startup_prefs = Utils.getApplication().getSharedPreferences("startup_prefs", Context.MODE_PRIVATE);
         return startup_prefs.getString("push_name", "WhatsApp");
     }
 
@@ -293,17 +256,15 @@ public class WppCore {
         return null;
     }
 
-    public static Activity getMainActivity() {
-        return (Activity) mainActivity;
-    }
-
-
     public static Dialog createDialog(Context context) {
         return (Dialog) XposedHelpers.newInstance(bottomDialog, context, 0);
     }
 
+    @Nullable
     public static Activity getCurrentConversation() {
-        return mConversation;
+        Class<?> conversation = XposedHelpers.findClass("com.whatsapp.Conversation", mCurrentActivity.getClassLoader());
+        if (conversation.isInstance(mCurrentActivity)) return mCurrentActivity;
+        return null;
     }
 
     @SuppressLint("ApplySharedPref")
@@ -315,22 +276,12 @@ public class WppCore {
         return privPrefs.getString(key, defaultValue);
     }
 
+    @SuppressLint("ApplySharedPref")
     public static void removePrivKey(String s) {
         if (s != null && privPrefs.contains(s))
             privPrefs.edit().remove(s).commit();
     }
 
-    public abstract static class OnMenuCreate {
-
-        public void onBeforeCreate(Activity activity, Menu menu) {
-
-        }
-
-        public void onAfterCreate(Activity activity, Menu menu) {
-
-        }
-
-    }
 
     @SuppressLint("ApplySharedPref")
     public static void setPrivBoolean(String key, boolean value) {
@@ -341,8 +292,25 @@ public class WppCore {
         return privPrefs.getBoolean(key, defaultValue);
     }
 
-    public static void addListenerChat(ObjectOnChangeListener listener) {
+    public static void addListenerChat(ActivityChangeState listener) {
         listenerChat.add(listener);
+    }
+
+    public interface ActivityChangeState {
+
+        void onChange(Object object, ChangeType type);
+
+        enum ChangeType {
+            START, END, RESUME, PAUSE
+        }
+    }
+
+    public abstract static class OnMenuCreate {
+        public void onBeforeCreate(Activity activity, Menu menu) {
+        }
+
+        public void onAfterCreate(Activity activity, Menu menu) {
+        }
     }
 
 }

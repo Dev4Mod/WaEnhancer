@@ -11,18 +11,16 @@ import androidx.annotation.Nullable;
 
 import com.wmods.wppenhacer.xposed.core.components.AlertDialogWpp;
 
-import de.robv.android.xposed.XposedHelpers;
-
 public class WaCallback implements Application.ActivityLifecycleCallbacks {
     @Override
     public void onActivityCreated(@NonNull Activity activity, @Nullable Bundle bundle) {
-
+        WppCore.mCurrentActivity = activity;
     }
 
     @Override
     public void onActivityStarted(@NonNull Activity activity) {
         WppCore.mCurrentActivity = activity;
-        checkIsConversation(activity, WppCore.ObjectOnChangeListener.ChangeType.START);
+        triggerActivityState(activity, WppCore.ActivityChangeState.ChangeType.START);
     }
 
     @SuppressLint("ApplySharedPref")
@@ -43,26 +41,22 @@ public class WaCallback implements Application.ActivityLifecycleCallbacks {
             } catch (Exception ignored) {
             }
         }
-        checkIsConversation(activity, WppCore.ObjectOnChangeListener.ChangeType.RESUME);
+        triggerActivityState(activity, WppCore.ActivityChangeState.ChangeType.RESUME);
     }
 
     @Override
     public void onActivityPaused(@NonNull Activity activity) {
-        checkIsConversation(activity, WppCore.ObjectOnChangeListener.ChangeType.PAUSE);
+        triggerActivityState(activity, WppCore.ActivityChangeState.ChangeType.PAUSE);
     }
 
     @Override
     public void onActivityStopped(@NonNull Activity activity) {
-        checkIsConversation(activity, WppCore.ObjectOnChangeListener.ChangeType.END);
+        triggerActivityState(activity, WppCore.ActivityChangeState.ChangeType.END);
     }
 
-    private static void checkIsConversation(@NonNull Activity activity, WppCore.ObjectOnChangeListener.ChangeType type) {
-        Class<?> conversation = XposedHelpers.findClass("com.whatsapp.Conversation", activity.getClassLoader());
-        if (conversation.isInstance(activity)) {
-            WppCore.mConversation = type == WppCore.ObjectOnChangeListener.ChangeType.PAUSE || WppCore.ObjectOnChangeListener.ChangeType.END == type ? null : activity;
-            for (WppCore.ObjectOnChangeListener listener : WppCore.listenerChat) {
-                listener.onChange(activity, type);
-            }
+    private static void triggerActivityState(@NonNull Activity activity, WppCore.ActivityChangeState.ChangeType type) {
+        for (WppCore.ActivityChangeState listener : WppCore.listenerChat) {
+            listener.onChange(activity, type);
         }
     }
 

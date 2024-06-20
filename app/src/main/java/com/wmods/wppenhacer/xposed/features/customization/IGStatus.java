@@ -84,7 +84,7 @@ public class IGStatus extends Feature {
         XposedBridge.hookMethod(onScrollPagerMethod, new XC_MethodHook() {
             @Override
             protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-                var scroll = -(float) XposedHelpers.getIntField(WppCore.getMainActivity(), "A02");
+                var scroll = -(float) XposedHelpers.getIntField(WppCore.getCurrentActivity(), "A02");
                 if (mStatusContainer.isShown())
                     mStatusContainer.setTranslationY(scroll);
             }
@@ -100,7 +100,7 @@ public class IGStatus extends Feature {
                 if (view == null) return;
                 var mainView = (ListView) view.findViewById(android.R.id.list);
                 mainView.setNestedScrollingEnabled(true);
-                var paddingView = new View(WppCore.getMainActivity());
+                var paddingView = new View(WppCore.getCurrentActivity());
                 paddingView.setClickable(true);
                 var layoutParams = new AbsListView.LayoutParams(AbsListView.LayoutParams.MATCH_PARENT, Utils.dipToPixels(105));
                 paddingView.setLayoutParams(layoutParams);
@@ -121,8 +121,8 @@ public class IGStatus extends Feature {
                 if (!Unobfuscator.isCalledFromClass(clazz) && !Unobfuscator.isCalledFromClass(onMenuItemClick2) && !Unobfuscator.isCalledFromClass(onMenuItemClick))
                     return;
                 var index = (int) param.args[0];
-                WppCore.getMainActivity().runOnUiThread(() -> {
-                    XposedHelpers.setObjectField(WppCore.getMainActivity(), "A02", 0);
+                WppCore.getCurrentActivity().runOnUiThread(() -> {
+                    XposedHelpers.setObjectField(WppCore.getCurrentActivity(), "A02", 0);
                     var visible = View.GONE;
                     if (index == SeparateGroup.tabs.indexOf(SeparateGroup.CHATS) || (separateGroups && index == SeparateGroup.tabs.indexOf(SeparateGroup.GROUPS))) {
                         visible = View.VISIBLE;
@@ -145,7 +145,7 @@ public class IGStatus extends Feature {
             @Override
             protected void afterHookedMethod(MethodHookParam param) throws Throwable {
                 itens.add(0, null);
-                IGStatusAdapter mStatusAdapter = new IGStatusAdapter(WppCore.getMainActivity(), statusInfoClass);
+                IGStatusAdapter mStatusAdapter = new IGStatusAdapter(WppCore.getCurrentActivity(), statusInfoClass);
                 mStatusContainer.setAdapter(mStatusAdapter);
                 mStatusContainer.updateList();
             }

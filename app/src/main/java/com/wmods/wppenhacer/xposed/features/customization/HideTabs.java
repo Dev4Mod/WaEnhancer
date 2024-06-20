@@ -113,7 +113,7 @@ public class HideTabs extends Feature {
         if (tabs == null) return index;
         var tabIsHidden = hidetabs.contains(tabs.get(index));
         if (!tabIsHidden) return index;
-        var idAtual = XposedHelpers.getIntField(WppCore.getMainActivity(), "A03");
+        var idAtual = XposedHelpers.getIntField(WppCore.getCurrentActivity(), "A03");
         var indexAtual = tabs.indexOf(idAtual);
         var newIndex = index > indexAtual ? index + 1 : index - 1;
         if (newIndex < 0) return 0;
