@@ -29,11 +29,12 @@ public class ContactPickerActivity extends AppCompatActivity {
     private ListView contactListView;
     private ArrayAdapter<String> adapter;
     private HashSet<String> selectedNumbers = new HashSet<>();
-    private List<Contact> allContacts = new ArrayList<>();
+    private final List<Contact> allContacts = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        getTheme().applyStyle(R.style.ThemeOverlay_MaterialGreen, true);
         setContentView(R.layout.activity_contact_picker);
         mKey = getIntent().getStringExtra("key");
 
