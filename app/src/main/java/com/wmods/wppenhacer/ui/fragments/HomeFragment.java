@@ -26,15 +26,18 @@ import com.wmods.wppenhacer.R;
 import com.wmods.wppenhacer.databinding.FragmentHomeBinding;
 import com.wmods.wppenhacer.ui.fragments.base.BaseFragment;
 import com.wmods.wppenhacer.xposed.core.MainFeatures;
+import com.wmods.wppenhacer.xposed.core.Utils;
 
+import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Locale;
-import java.util.stream.Collectors;
+import java.util.Objects;
 
 import rikka.core.util.IOUtils;
 
@@ -62,38 +65,6 @@ public class HomeFragment extends BaseFragment {
         }, intentFilter, ContextCompat.RECEIVER_EXPORTED);
     }
 
-    @SuppressLint("StringFormatInvalid")
-    private void receiverBroadcastBusiness(Context context, Intent intent) {
-        binding.statusTitle3.setText(R.string.business_in_background);
-        var version = intent.getStringExtra("VERSION");
-        var supported_list = Arrays.asList(context.getResources().getStringArray(R.array.supported_versions_business));
-        if (supported_list.contains(version)) {
-            binding.statusSummary3.setText(String.format(getString(R.string.version_s), version));
-            binding.status3.setCardBackgroundColor(context.getColor(rikka.material.R.color.material_green_500));
-        } else {
-            binding.statusSummary3.setText(String.format(getString(R.string.version_s_not_listed), version));
-            binding.status3.setCardBackgroundColor(context.getColor(rikka.material.R.color.material_yellow_500));
-        }
-        binding.statusSummary3.setVisibility(View.VISIBLE);
-        binding.statusIcon3.setImageResource(R.drawable.ic_round_check_circle_24);
-    }
-
-    private void receiverBroadcastWpp(Context context, Intent intent) {
-        binding.statusTitle2.setText(R.string.whatsapp_in_background);
-        var version = intent.getStringExtra("VERSION");
-        var supported_list = Arrays.asList(context.getResources().getStringArray(R.array.supported_versions_wpp));
-
-        if (supported_list.contains(version)) {
-            binding.statusSummary1.setText(String.format(getString(R.string.version_s), version));
-            binding.status2.setCardBackgroundColor(context.getColor(rikka.material.R.color.material_green_500));
-        } else {
-            binding.statusSummary1.setText(String.format(getString(R.string.version_s_not_listed), version));
-            binding.status2.setCardBackgroundColor(context.getColor(rikka.material.R.color.material_yellow_500));
-        }
-        binding.statusSummary1.setVisibility(View.VISIBLE);
-        binding.statusIcon2.setImageResource(R.drawable.ic_round_check_circle_24);
-    }
-
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
         binding = FragmentHomeBinding.inflate(inflater, container, false);
@@ -101,23 +72,63 @@ public class HomeFragment extends BaseFragment {
         checkStateWpp(requireActivity());
 
         binding.rebootBtn.setOnClickListener(view -> {
-            Intent intent = new Intent(BuildConfig.APPLICATION_ID + ".WHATSAPP.RESTART");
-            intent.putExtra("PKG", MainFeatures.PACKAGE_WPP);
-            requireActivity().sendBroadcast(intent);
+            App.getInstance().restartApp(MainFeatures.PACKAGE_WPP);
             disableWpp(requireActivity());
         });
 
         binding.rebootBtn2.setOnClickListener(view -> {
-            Intent intent = new Intent(BuildConfig.APPLICATION_ID + ".WHATSAPP.RESTART");
-            intent.putExtra("PKG", MainFeatures.PACKAGE_BUSINESS);
-            requireActivity().sendBroadcast(intent);
+            App.getInstance().restartApp(MainFeatures.PACKAGE_BUSINESS);
             disableBusiness(requireActivity());
         });
 
         binding.exportBtn.setOnClickListener(view -> saveConfigs(this.getContext()));
         binding.importBtn.setOnClickListener(view -> importConfigs(this.getContext()));
+        binding.resetBtn.setOnClickListener(view -> resetConfigs(this.getContext()));
 
         return binding.getRoot();
+    }
+
+    @SuppressLint("StringFormatInvalid")
+    private void receiverBroadcastBusiness(Context context, Intent intent) {
+        binding.statusTitle3.setText(R.string.business_in_background);
+        var version = intent.getStringExtra("VERSION");
+        var supported_list = Arrays.asList(context.getResources().getStringArray(R.array.supported_versions_business));
+        if (supported_list.contains(version)) {
+            binding.statusSummary3.setText(getString(R.string.version_s, version));
+            binding.status3.setCardBackgroundColor(context.getColor(rikka.material.R.color.material_green_500));
+        } else {
+            binding.statusSummary3.setText(getString(R.string.version_s_not_listed, version));
+            binding.status3.setCardBackgroundColor(context.getColor(rikka.material.R.color.material_yellow_500));
+        }
+        binding.rebootBtn2.setVisibility(View.VISIBLE);
+        binding.statusSummary3.setVisibility(View.VISIBLE);
+        binding.statusIcon3.setImageResource(R.drawable.ic_round_check_circle_24);
+    }
+
+    @SuppressLint("StringFormatInvalid")
+    private void receiverBroadcastWpp(Context context, Intent intent) {
+        binding.statusTitle2.setText(R.string.whatsapp_in_background);
+        var version = intent.getStringExtra("VERSION");
+        var supported_list = Arrays.asList(context.getResources().getStringArray(R.array.supported_versions_wpp));
+
+        if (supported_list.contains(version)) {
+            binding.statusSummary1.setText(getString(R.string.version_s, version));
+            binding.status2.setCardBackgroundColor(context.getColor(rikka.material.R.color.material_green_500));
+        } else {
+            binding.statusSummary1.setText(getString(R.string.version_s_not_listed, version));
+            binding.status2.setCardBackgroundColor(context.getColor(rikka.material.R.color.material_yellow_500));
+        }
+        binding.rebootBtn.setVisibility(View.VISIBLE);
+        binding.statusSummary1.setVisibility(View.VISIBLE);
+        binding.statusIcon2.setImageResource(R.drawable.ic_round_check_circle_24);
+    }
+
+    private void resetConfigs(Context context) {
+        var prefs = PreferenceManager.getDefaultSharedPreferences(context);
+        prefs.getAll().forEach((key, value) -> prefs.edit().remove(key).apply());
+        App.getInstance().restartApp(MainFeatures.PACKAGE_WPP);
+        App.getInstance().restartApp(MainFeatures.PACKAGE_BUSINESS);
+        Utils.showToast(context.getString(R.string.configs_reset), Toast.LENGTH_SHORT);
     }
 
     private void saveConfigs(Context context) {
@@ -128,9 +139,13 @@ public class HomeFragment extends BaseFragment {
                     var entries = prefs.getAll();
                     var JSOjsonObject = new JSONObject();
                     for (var entry : entries.entrySet()) {
-                        JSOjsonObject.put(entry.getKey(), entry.getValue());
+                        var keyValue = entry.getValue();
+                        if (keyValue instanceof HashSet<?> hashSet) {
+                            keyValue = new JSONArray(new ArrayList<>(hashSet));
+                        }
+                        JSOjsonObject.put(entry.getKey(), keyValue);
                     }
-                    output.write(JSOjsonObject.toString().getBytes());
+                    Objects.requireNonNull(output).write(JSOjsonObject.toString().getBytes());
                 }
                 Toast.makeText(context, context.getString(R.string.configs_saved), Toast.LENGTH_SHORT).show();
             } catch (Exception e) {
@@ -154,27 +169,28 @@ public class HomeFragment extends BaseFragment {
                     while (key.hasNext()) {
                         var keyName = key.next();
                         var value = jsonObject.get(keyName);
-                        if (value instanceof String stringValue) {
-                            if (stringValue.startsWith("[") && stringValue.endsWith("]")) {
-                                if (stringValue.length() > 2) {
-                                    var arr = Arrays.stream(stringValue.substring(1, stringValue.length() - 1).split(",")).map(String::trim).collect(Collectors.toList());
-                                    prefs.edit().putStringSet(keyName, new HashSet<>(arr)).apply();
-                                }
-                            } else {
-                                prefs.edit().putString(keyName, value.toString()).apply();
+                        if (value instanceof JSONArray jsonArray) {
+                            HashSet<String> hashSet = new HashSet<>();
+                            for (var i = 0; i < jsonArray.length(); i++) {
+                                hashSet.add(jsonArray.getString(i));
                             }
-                        } else if (value instanceof Boolean) {
-                            prefs.edit().putBoolean(keyName, (boolean) value).apply();
-                        } else if (value instanceof Integer) {
-                            prefs.edit().putInt(keyName, (int) value).apply();
-                        } else if (value instanceof Long) {
-                            prefs.edit().putLong(keyName, (long) value).apply();
-                        } else if (value instanceof Float) {
-                            prefs.edit().putFloat(keyName, (float) value).apply();
+                            prefs.edit().putStringSet(keyName, hashSet).apply();
+                        } else if (value instanceof String stringValue) {
+                            prefs.edit().putString(keyName, stringValue).apply();
+                        } else if (value instanceof Boolean booleanValue) {
+                            prefs.edit().putBoolean(keyName, booleanValue).apply();
+                        } else if (value instanceof Integer intValue) {
+                            prefs.edit().putInt(keyName, intValue).apply();
+                        } else if (value instanceof Long longValue) {
+                            prefs.edit().putLong(keyName, longValue).apply();
+                        } else if (value instanceof Float floatValue) {
+                            prefs.edit().putFloat(keyName, floatValue).apply();
                         }
                     }
                 }
                 Toast.makeText(context, context.getString(R.string.configs_imported), Toast.LENGTH_SHORT).show();
+                App.getInstance().restartApp(MainFeatures.PACKAGE_WPP);
+                App.getInstance().restartApp(MainFeatures.PACKAGE_BUSINESS);
             } catch (Exception e) {
                 Toast.makeText(context, e.getMessage(), Toast.LENGTH_SHORT).show();
             }
@@ -182,6 +198,7 @@ public class HomeFragment extends BaseFragment {
         FilePicker.fileCapture.launch(new String[]{"application/json"});
     }
 
+    @SuppressLint("StringFormatInvalid")
     private void checkStateWpp(FragmentActivity activity) {
 
         if (MainActivity.isXposedEnabled()) {
@@ -227,6 +244,7 @@ public class HomeFragment extends BaseFragment {
         binding.statusTitle3.setText(R.string.business_is_not_running_or_has_not_been_activated_in_lsposed);
         binding.status3.setCardBackgroundColor(activity.getColor(rikka.material.R.color.material_red_500));
         binding.statusSummary3.setVisibility(View.GONE);
+        binding.rebootBtn2.setVisibility(View.GONE);
     }
 
     private void disableWpp(FragmentActivity activity) {
@@ -234,6 +252,7 @@ public class HomeFragment extends BaseFragment {
         binding.statusTitle2.setText(R.string.whatsapp_is_not_running_or_has_not_been_activated_in_lsposed);
         binding.status2.setCardBackgroundColor(activity.getColor(rikka.material.R.color.material_red_500));
         binding.statusSummary1.setVisibility(View.GONE);
+        binding.rebootBtn.setVisibility(View.GONE);
     }
 
     private static void checkWpp(FragmentActivity activity) {

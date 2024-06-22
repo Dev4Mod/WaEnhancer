@@ -52,9 +52,9 @@ public class DownloadProfile extends Feature {
                     var jidObj = ReflectionUtils.getField(loadProfileInfoField, ReflectionUtils.getField(field, param.thisObject));
                     var jid = WppCore.stripJID(WppCore.getRawString(jidObj));
                     var file = WppCore.getContactPhotoFile(jid);
-                    var destPath = Utils.getDestination(prefs, file, "Profile Photo");
-                    destPath = destPath.endsWith(".jpg") ? destPath : destPath + "pg";
-                    var error = Utils.copyFile(file, new File(destPath));
+                    var destPath = Utils.getDestination(prefs, "Profile Photo");
+                    var name = Utils.generateName(jidObj, "jpg");
+                    var error = Utils.copyFile(file, new File(destPath, name));
                     if (TextUtils.isEmpty(error)) {
                         Toast.makeText(Utils.getApplication(), Utils.getApplication().getString(ResId.string.saved_to) + destPath, Toast.LENGTH_LONG).show();
                     } else {

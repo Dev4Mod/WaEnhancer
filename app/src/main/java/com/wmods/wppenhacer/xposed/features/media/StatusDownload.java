@@ -3,6 +3,7 @@ package com.wmods.wppenhacer.xposed.features.media;
 import android.content.SharedPreferences;
 import android.media.MediaScannerConnection;
 import android.os.Environment;
+import android.text.TextUtils;
 import android.view.Menu;
 import android.view.View;
 import android.widget.Toast;
@@ -13,6 +14,7 @@ import com.wmods.wppenhacer.xposed.core.Feature;
 import com.wmods.wppenhacer.xposed.core.ResId;
 import com.wmods.wppenhacer.xposed.core.Unobfuscator;
 import com.wmods.wppenhacer.xposed.core.Utils;
+import com.wmods.wppenhacer.xposed.core.components.FMessageWpp;
 import com.wmods.wppenhacer.xposed.utils.MimeTypeUtils;
 import com.wmods.wppenhacer.xposed.utils.ReflectionUtils;
 
@@ -48,6 +50,8 @@ public class StatusDownload extends Feature {
         logDebug("Menu class: " + clazzMenu.getName());
         var menuField = Unobfuscator.getFieldByType(clazzSubMenu, clazzMenu);
         logDebug("Menu field: " + menuField.getName());
+
+
         Class<?> StatusPlaybackBaseFragmentClass = classLoader.loadClass("com.whatsapp.status.playback.fragment.StatusPlaybackBaseFragment");
         Class<?> StatusPlaybackContactFragmentClass = classLoader.loadClass("com.whatsapp.status.playback.fragment.StatusPlaybackContactFragment");
         var listStatusField = ReflectionUtils.getFieldsByExtendType(StatusPlaybackContactFragmentClass, List.class).get(0);
@@ -74,10 +78,18 @@ public class StatusDownload extends Feature {
                     try {
                         var fileData = XposedHelpers.getObjectField(fMessage, "A01");
                         var file = (File) XposedHelpers.getObjectField(fileData, fieldFile.getName());
-                        if (copyFile(prefs, file)) {
-                            Utils.showToast(Utils.getApplication().getString(ResId.string.saved_to) + getPathDestination(prefs, file), Toast.LENGTH_SHORT);
+                        var userJid = new FMessageWpp(fMessage).getUserJid();
+                        var fileType = file.getName().substring(file.getName().lastIndexOf(".") + 1);
+                        var destination = getPathDestination(prefs, file);
+                        var name = Utils.generateName(userJid, fileType);
+                        var destinationFile = new File(destination, name);
+                        var error = Utils.copyFile(file, destinationFile);
+                        Utils.scanFile(destinationFile);
+                        if (TextUtils.isEmpty(error)) {
+                            Utils.showToast(Utils.getApplication().getString(ResId.string.saved_to) + destinationFile.getAbsolutePath(), Toast.LENGTH_SHORT);
+                            log("Saved to: " + destinationFile.getAbsolutePath());
                         } else {
-                            Utils.showToast(Utils.getApplication().getString(ResId.string.error_when_saving_try_again), Toast.LENGTH_SHORT);
+                            Utils.showToast(Utils.getApplication().getString(ResId.string.error_when_saving_try_again) + ": " + error, Toast.LENGTH_SHORT);
                         }
                     } catch (Exception e) {
                         Utils.showToast(e.getMessage(), Toast.LENGTH_SHORT);
@@ -131,7 +143,7 @@ public class StatusDownload extends Feature {
         if (!mediaPath.exists())
             mediaPath.mkdirs();
 
-        return mediaPath + "/" + f.getName();
+        return mediaPath + "/";
     }
 
     @NonNull

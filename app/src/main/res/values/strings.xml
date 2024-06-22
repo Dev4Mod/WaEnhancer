@@ -271,4 +271,6 @@
     <string name="standard">Standard</string>
     <string name="audio_note">Audio note</string>
     <string name="voice_note">Voice note</string>
+    <string name="reset_settings">Reset Settings</string>
+    <string name="configs_reset">Settings reseted</string>
 </resources>

@@ -227,7 +227,7 @@ public class Others extends Feature {
                     var raw = WppCore.getRawString(PhoneUserJid);
                     var UserJid = WppCore.createUserJid(raw);
                     var contactName = WppCore.getContactName(UserJid);
-                    if (contactName == null) {
+                    if (TextUtils.isEmpty(contactName)) {
                         contactName = WppCore.stripJID(raw);
                     }
                     var sql = MessageStore.database.getReadableDatabase();
@@ -236,7 +236,7 @@ public class Others extends Feature {
                             if (toast_viewed_status) {
                                 Utils.showToast(String.format("%s viewed your status", contactName), Toast.LENGTH_LONG);
                             }
-                            Tasker.sendTaskerEvent(WppCore.stripJID(raw), "viewed_status");
+                            Tasker.sendTaskerEvent(contactName, WppCore.stripJID(raw), "viewed_status");
                         } else if (!Objects.equals(WppCore.getCurrentRawJID(), raw)) {
                             try (var result2 = sql.query("message", null, "_id = ?", new String[]{String.valueOf(id)}, null, null, null)) {
                                 if (result2.moveToNext()) {
@@ -245,7 +245,7 @@ public class Others extends Feature {
                                         if (result3.moveToNext()) {
                                             if (toast_viewed_message)
                                                 Utils.showToast(String.format("%s viewed your message", contactName), Toast.LENGTH_LONG);
-                                            Tasker.sendTaskerEvent(WppCore.stripJID(raw), "viewed_message");
+                                            Tasker.sendTaskerEvent(contactName, WppCore.stripJID(raw), "viewed_message");
                                         }
                                     }
                                 }
@@ -314,7 +314,7 @@ public class Others extends Feature {
                 name = TextUtils.isEmpty(name) ? WppCore.stripJID(jid) : name;
                 if (showOnline)
                     Utils.showToast(String.format(Utils.getApplication().getString(ResId.string.toast_online), name), Toast.LENGTH_SHORT);
-                Tasker.sendTaskerEvent(WppCore.stripJID(jid), "contact_online");
+                Tasker.sendTaskerEvent(name, WppCore.stripJID(jid), "contact_online");
             }
         });
     }

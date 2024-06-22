@@ -10,6 +10,7 @@ import com.wmods.wppenhacer.xposed.core.Feature;
 import com.wmods.wppenhacer.xposed.core.ResId;
 import com.wmods.wppenhacer.xposed.core.Unobfuscator;
 import com.wmods.wppenhacer.xposed.core.WppCore;
+import com.wmods.wppenhacer.xposed.core.components.FMessageWpp;
 import com.wmods.wppenhacer.xposed.utils.ReflectionUtils;
 
 import java.lang.reflect.Field;
@@ -44,7 +45,7 @@ public class DeleteStatus extends Feature {
         logDebug("Menu class: " + clazzMenu.getName());
         var menuField = Unobfuscator.getFieldByType(clazzSubMenu, clazzMenu);
         logDebug("Menu field: " + menuField.getName());
-        var fMessageKey = Unobfuscator.loadMessageKeyField(classLoader);
+
         Class<?> StatusPlaybackBaseFragmentClass = classLoader.loadClass("com.whatsapp.status.playback.fragment.StatusPlaybackBaseFragment");
         Class<?> StatusPlaybackContactFragmentClass = classLoader.loadClass("com.whatsapp.status.playback.fragment.StatusPlaybackContactFragment");
         var listStatusField = ReflectionUtils.getFieldsByExtendType(StatusPlaybackContactFragmentClass, List.class).get(0);
@@ -73,7 +74,7 @@ public class DeleteStatus extends Feature {
                     if (fMessage == null) return true;
                     try {
                         var status = StatusDeleteDialogFragmentClass.newInstance();
-                        var key = fMessageKey.get(fMessage);
+                        var key = new FMessageWpp(fMessage).getKey();
                         var bundle = getBundle(key);
                         bypassAntiRevoke = true;
                         fieldBundle.set(status, bundle);
@@ -94,14 +95,11 @@ public class DeleteStatus extends Feature {
     }
 
     @NonNull
-    private static Bundle getBundle(Object key) {
-        var id = XposedHelpers.getObjectField(key, "A01");
-        var isFromMe = XposedHelpers.getBooleanField(key, "A02");
-        var remoteJid = XposedHelpers.getObjectField(key, "A00");
+    private static Bundle getBundle(FMessageWpp.Key key) {
         var bundle = new Bundle();
-        bundle.putString("fMessageKeyJid", WppCore.getRawString(remoteJid));
-        bundle.putBoolean("fMessageKeyFromMe", isFromMe);
-        bundle.putString("fMessageKeyId", (String) id);
+        bundle.putString("fMessageKeyJid", WppCore.getRawString(key.remoteJid));
+        bundle.putBoolean("fMessageKeyFromMe", key.isFromMe);
+        bundle.putString("fMessageKeyId", key.messageID);
         return bundle;
     }
 }

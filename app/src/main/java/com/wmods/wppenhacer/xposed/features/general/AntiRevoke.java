@@ -21,9 +21,9 @@ import com.wmods.wppenhacer.xposed.core.Unobfuscator;
 import com.wmods.wppenhacer.xposed.core.UnobfuscatorCache;
 import com.wmods.wppenhacer.xposed.core.Utils;
 import com.wmods.wppenhacer.xposed.core.WppCore;
+import com.wmods.wppenhacer.xposed.core.components.FMessageWpp;
 import com.wmods.wppenhacer.xposed.core.db.DelMessageStore;
 import com.wmods.wppenhacer.xposed.core.db.MessageStore;
-import com.wmods.wppenhacer.xposed.utils.ReflectionUtils;
 
 import java.lang.reflect.Field;
 import java.text.DateFormat;
@@ -42,8 +42,6 @@ import de.robv.android.xposed.XposedHelpers;
 public class AntiRevoke extends Feature {
 
     private static final HashMap<String, HashSet<String>> messageRevokedMap = new HashMap<>();
-    private static Field fieldMessageKey;
-    private static Field getFieldIdMessage;
 
     public AntiRevoke(ClassLoader loader, XSharedPreferences preferences) {
         super(loader, preferences);
@@ -54,16 +52,6 @@ public class AntiRevoke extends Feature {
 
         var antiRevokeMessageMethod = Unobfuscator.loadAntiRevokeMessageMethod(classLoader);
         logDebug(Unobfuscator.getMethodDescriptor(antiRevokeMessageMethod));
-
-        var classThreadMessage = Unobfuscator.loadFMessageClass(classLoader);
-        logDebug("Class: " + classThreadMessage);
-
-        fieldMessageKey = Unobfuscator.loadMessageKeyField(classLoader);
-        logDebug(Unobfuscator.getFieldDescriptor(fieldMessageKey));
-
-        getFieldIdMessage = Unobfuscator.loadSetEditMessageField(classLoader);
-        logDebug(Unobfuscator.getFieldDescriptor(getFieldIdMessage));
-
 
         var bubbleMethod = Unobfuscator.loadAntiRevokeBubbleMethod(classLoader);
         logDebug(Unobfuscator.getMethodDescriptor(bubbleMethod));
@@ -78,13 +66,10 @@ public class AntiRevoke extends Feature {
         XposedBridge.hookMethod(antiRevokeMessageMethod, new XC_MethodHook() {
             @Override
             protected void beforeHookedMethod(MethodHookParam param) throws Exception {
-                var objMessage = classThreadMessage.cast(param.args[0]);
-                var fieldMessageDetails = fieldMessageKey.get(objMessage);
-                var deviceJidMethod = ReflectionUtils.findMethodUsingFilter(fieldMessageKey.getDeclaringClass(), method -> method.getReturnType().equals(XposedHelpers.findClass("com.whatsapp.jid.DeviceJid", classLoader)));
-                var deviceJid = ReflectionUtils.callMethod(deviceJidMethod, objMessage);
-                var isFromMe = XposedHelpers.getBooleanField(fieldMessageDetails, "A02");
-                var userJid = XposedHelpers.getObjectField(fieldMessageDetails, "A00");
-                var id = getFieldIdMessage.getLong(objMessage);
+                var fMessage = new FMessageWpp(param.args[0]);
+                var messageKey = fMessage.getKey();
+                var deviceJid = fMessage.getDeviceJid();
+                var id = fMessage.getRowId();
                 // Caso o proprio usuario tenha deletado o status
                 if (id == -1 & DeleteStatus.bypassAntiRevoke) {
                     DeleteStatus.bypassAntiRevoke = false;
@@ -95,12 +80,12 @@ public class AntiRevoke extends Feature {
                     }
                     return;
                 }
-                var rawString = WppCore.getRawString(userJid);
+                var rawString = WppCore.getRawString(messageKey.remoteJid);
                 if (WppCore.isGroup(rawString)) {
-                    if (deviceJid != null && antiRevoke(objMessage) != 0) {
+                    if (deviceJid != null && antiRevoke(fMessage) != 0) {
                         param.setResult(true);
                     }
-                } else if (!isFromMe && antiRevoke(objMessage) != 0) {
+                } else if (!messageKey.isFromMe && antiRevoke(fMessage) != 0) {
                     param.setResult(true);
                 }
             }
@@ -157,14 +142,16 @@ public class AntiRevoke extends Feature {
         return new BitmapDrawable(resources, bitmapResized);
     }
 
-    private static void saveRevokedMessage(String authorJid, String messageKey, Object objMessage) {
-        HashSet<String> messages = getRevokedMessages(objMessage);
+    private static void saveRevokedMessage(FMessageWpp fMessage) {
+        var messageKey = (String) XposedHelpers.getObjectField(fMessage.getObject(), "A01");
+        var stripJID = WppCore.stripJID(WppCore.getRawString(fMessage.getKey().remoteJid));
+        HashSet<String> messages = getRevokedMessages(fMessage);
         messages.add(messageKey);
-        DelMessageStore.getInstance(Utils.getApplication()).insertMessage(authorJid, messageKey, System.currentTimeMillis());
+        DelMessageStore.getInstance(Utils.getApplication()).insertMessage(stripJID, messageKey, System.currentTimeMillis());
     }
 
-    private static HashSet<String> getRevokedMessages(Object objMessage) {
-        String jid = stripJID(getJidAuthor(objMessage));
+    private static HashSet<String> getRevokedMessages(FMessageWpp fMessage) {
+        String jid = WppCore.stripJID(WppCore.getRawString(fMessage.getKey().remoteJid));
         if (messageRevokedMap.containsKey(jid)) {
             return messageRevokedMap.get(jid);
         }
@@ -174,32 +161,16 @@ public class AntiRevoke extends Feature {
         return messages;
     }
 
-    public static String stripJID(String str) {
-        try {
-            return (str.contains("@g.us") || str.contains("@s.whatsapp.net") || str.contains("@broadcast")) ? str.substring(0, str.indexOf("@")) : str;
-        } catch (Exception e) {
-            XposedBridge.log(e.getMessage());
-            return str;
-        }
-    }
-
-    public static String getJidAuthor(Object objMessage) {
-        Object fieldMessageDetails = XposedHelpers.getObjectField(objMessage, fieldMessageKey.getName());
-        Object fieldMessageAuthorJid = XposedHelpers.getObjectField(fieldMessageDetails, "A00");
-        if (fieldMessageAuthorJid == null) return "";
-        else return WppCore.getRawString(fieldMessageAuthorJid);
-    }
-
 
     private void isMRevoked(Object objMessage, TextView dateTextView, String antirevokeType) {
         if (dateTextView == null) return;
-        var fieldMessageDetails = XposedHelpers.getObjectField(objMessage, fieldMessageKey.getName());
-        var messageKey = (String) XposedHelpers.getObjectField(fieldMessageDetails, "A01");
-        var messageRevokedList = getRevokedMessages(objMessage);
-        var id = XposedHelpers.getLongField(objMessage, getFieldIdMessage.getName());
+        var fMessage = new FMessageWpp(objMessage);
+        var key = fMessage.getKey();
+        var messageRevokedList = getRevokedMessages(fMessage);
+        var id = fMessage.getRowId();
         String keyOrig = null;
-        if (messageRevokedList.contains(messageKey) || ((keyOrig = MessageStore.getOriginalMessageKey(id)) != null && messageRevokedList.contains(keyOrig))) {
-            var timestamp = DelMessageStore.getInstance(Utils.getApplication()).getTimestampByMessageId(keyOrig == null ? messageKey : keyOrig);
+        if (messageRevokedList.contains(key.messageID) || ((keyOrig = MessageStore.getOriginalMessageKey(id)) != null && messageRevokedList.contains(keyOrig))) {
+            var timestamp = DelMessageStore.getInstance(Utils.getApplication()).getTimestampByMessageId(keyOrig == null ? key.messageID : keyOrig);
             if (timestamp > 0) {
                 Locale locale = Utils.getApplication().getResources().getConfiguration().getLocales().get(0);
                 DateFormat dateFormat = DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.SHORT, locale);
@@ -233,18 +204,17 @@ public class AntiRevoke extends Feature {
     }
 
 
-    private int antiRevoke(Object objMessage) {
-        showToast(objMessage);
-        var messageKey = (String) XposedHelpers.getObjectField(objMessage, "A01");
-        var stripJID = stripJID(getJidAuthor(objMessage));
+    private int antiRevoke(FMessageWpp fMessage) {
+        showToast(fMessage);
+        var messageKey = (String) XposedHelpers.getObjectField(fMessage.getObject(), "A01");
+        var stripJID = WppCore.stripJID(WppCore.getRawString(fMessage.getKey().remoteJid));
         var revokeboolean = stripJID.equals("status") ? Integer.parseInt(prefs.getString("antirevokestatus", "0")) : Integer.parseInt(prefs.getString("antirevoke", "0"));
         if (revokeboolean == 0) return revokeboolean;
-
-        var messageRevokedList = getRevokedMessages(objMessage);
+        var messageRevokedList = getRevokedMessages(fMessage);
         if (!messageRevokedList.contains(messageKey)) {
             try {
                 AsyncTask.THREAD_POOL_EXECUTOR.execute(() -> {
-                    saveRevokedMessage(stripJID, messageKey, objMessage);
+                    saveRevokedMessage(fMessage);
                     try {
                         var mConversation = WppCore.getCurrentConversation();
                         if (mConversation != null && WppCore.stripJID(WppCore.getCurrentRawJID()).equals(stripJID)) {
@@ -269,26 +239,24 @@ public class AntiRevoke extends Feature {
         return revokeboolean;
     }
 
-    private void showToast(Object fMessage) {
-        var jidAuthor = getJidAuthor(fMessage);
-
+    private void showToast(FMessageWpp fMessage) {
+        var jidAuthor = WppCore.getRawString(fMessage.getKey().remoteJid);
         var messageSuffix = Utils.getApplication().getString(ResId.string.deleted_message);
-        var isStatus = Objects.equals(stripJID(jidAuthor), "status");
+        var isStatus = Objects.equals(WppCore.stripJID(jidAuthor), "status");
         if (isStatus) {
             messageSuffix = Utils.getApplication().getString(ResId.string.deleted_status);
-            var getUserJid = ReflectionUtils.findMethodUsingFilter(fieldMessageKey.getDeclaringClass(), method -> method.getReturnType().equals(XposedHelpers.findClass("com.whatsapp.jid.UserJid", classLoader)));
-            jidAuthor = WppCore.getRawString(ReflectionUtils.callMethod(getUserJid, fMessage));
+            jidAuthor = WppCore.getRawString(fMessage.getUserJid());
         }
         if (TextUtils.isEmpty(jidAuthor)) return;
         String name = WppCore.getContactName(WppCore.createUserJid(jidAuthor));
         if (TextUtils.isEmpty(name)) {
-            name = stripJID(jidAuthor);
+            name = WppCore.stripJID(jidAuthor);
         }
         String message = name + " " + messageSuffix;
         if (prefs.getBoolean("toastdeleted", false)) {
             Utils.showToast(message, Toast.LENGTH_SHORT);
         }
-        Tasker.sendTaskerEvent(WppCore.stripJID(jidAuthor), isStatus ? "deleted_status" : "deleted_message");
+        Tasker.sendTaskerEvent(name, WppCore.stripJID(jidAuthor), isStatus ? "deleted_status" : "deleted_message");
     }
 
 }

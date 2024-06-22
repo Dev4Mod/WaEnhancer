@@ -12,6 +12,8 @@ import com.wmods.wppenhacer.xposed.core.Feature;
 import com.wmods.wppenhacer.xposed.core.ResId;
 import com.wmods.wppenhacer.xposed.core.Unobfuscator;
 import com.wmods.wppenhacer.xposed.core.Utils;
+import com.wmods.wppenhacer.xposed.core.components.FMessageWpp;
+import com.wmods.wppenhacer.xposed.utils.ReflectionUtils;
 
 import java.io.File;
 
@@ -50,18 +52,24 @@ public class DownloadViewOnce extends Feature {
                         MenuItem item = menu.add(0, 0, 0, ResId.string.download).setIcon(Utils.getID("btn_download", "drawable"));
                         item.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
                         item.setOnMenuItemClickListener(item1 -> {
-                            var i = XposedHelpers.getIntField(param.thisObject, initIntField.getName());
-                            var message = callMethod.getParameterCount() == 2 ? XposedHelpers.callMethod(param.thisObject, callMethod.getName(), param.thisObject, i) : XposedHelpers.callMethod(param.thisObject, callMethod.getName(), i);
-                            if (message != null) {
-                                var fileData = XposedHelpers.getObjectField(message, "A01");
-                                var file = (File) XposedHelpers.getObjectField(fileData, fileField.getName());
-                                var dest = Utils.getDestination(prefs, file, "View Once");
-                                var error = Utils.copyFile(file, new File(dest));
-                                if (TextUtils.isEmpty(error)) {
-                                    Utils.showToast(Utils.getApplication().getString(ResId.string.saved_to) + dest, Toast.LENGTH_LONG);
-                                } else {
-                                    Utils.showToast(Utils.getApplication().getString(ResId.string.error_when_saving_try_again) + ":" + error, Toast.LENGTH_LONG);
+                            try {
+                                var i = XposedHelpers.getIntField(param.thisObject, initIntField.getName());
+                                var message = callMethod.getParameterCount() == 2 ? XposedHelpers.callMethod(param.thisObject, callMethod.getName(), param.thisObject, i) : XposedHelpers.callMethod(param.thisObject, callMethod.getName(), i);
+                                if (message != null) {
+                                    var fileData = XposedHelpers.getObjectField(message, "A01");
+                                    var file = (File) ReflectionUtils.getField(fileField, fileData);
+                                    var dest = Utils.getDestination(prefs, "View Once");
+                                    var userJid = new FMessageWpp(message).getUserJid();
+                                    var name = Utils.generateName(userJid, "jpg");
+                                    var error = Utils.copyFile(file, new File(dest, name));
+                                    if (TextUtils.isEmpty(error)) {
+                                        Utils.showToast(Utils.getApplication().getString(ResId.string.saved_to) + dest, Toast.LENGTH_LONG);
+                                    } else {
+                                        Utils.showToast(Utils.getApplication().getString(ResId.string.error_when_saving_try_again) + ":" + error, Toast.LENGTH_LONG);
+                                    }
                                 }
+                            } catch (Exception e) {
+                                Utils.showToast(e.getMessage(), Toast.LENGTH_LONG);
                             }
                             return true;
                         });

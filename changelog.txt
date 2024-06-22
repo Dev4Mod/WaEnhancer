@@ -1,8 +1,21 @@
+[WA ENHANCER]
+* Adicionado botão de resetar as configurações
+* Os backups agora vai ter data no nome
+* Corrigido erros nos backups para a lista de bloqueios(backups antigos não será suportado)
+* Todos os modulos foi atualizados para facilitar a manutenção
+
+[STATUS DOWNLOADER]
+* Os nomes do arquivo salvo agora tera o nome do usuario, numero do telefone e data (Ex: Mary_12345678_20240622-181400.jpg)
+
+[VIEW ONCE DOWNLOADER]
+* Os nomes do arquivo salvo agora tera o nome do usuario, numero do telefone e data (Ex: Mary_12345678_20240622-181400.jpg)
+
+[PROFILE PICTURE DOWNLOADER]
+* Os nomes do arquivo salvo agora tera o nome do usuario, numero do telefone e data (Ex: Mary_12345678_20240622-181400.jpg)
+
+[TASKER]
+* Adicionado variavel %name aos eventos
+
 [WHATSAPP]
-* Fix contact display names
+* Adicionado suporte para a versão 2.24.12.78
 
-[BLUE TICK]
-* The button now turns blue when replying to a status
-
-[CALL PRIVACY]
-* Add white and block contacts for call privacy

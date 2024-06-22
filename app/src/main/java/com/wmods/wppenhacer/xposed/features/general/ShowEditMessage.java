@@ -24,6 +24,7 @@ import com.wmods.wppenhacer.xposed.core.ResId;
 import com.wmods.wppenhacer.xposed.core.Unobfuscator;
 import com.wmods.wppenhacer.xposed.core.Utils;
 import com.wmods.wppenhacer.xposed.core.WppCore;
+import com.wmods.wppenhacer.xposed.core.components.FMessageWpp;
 import com.wmods.wppenhacer.xposed.core.db.MessageHistory;
 import com.wmods.wppenhacer.xposed.core.db.MessageStore;
 import com.wmods.wppenhacer.xposed.utils.ReflectionUtils;
@@ -55,15 +56,6 @@ public class ShowEditMessage extends Feature {
         var getEditMessage = Unobfuscator.loadGetEditMessageMethod(classLoader);
         logDebug(Unobfuscator.getMethodDescriptor(getEditMessage));
 
-        var getFieldIdMessage = Unobfuscator.loadSetEditMessageField(classLoader);
-        logDebug(Unobfuscator.getFieldDescriptor(getFieldIdMessage));
-
-        var newMessageMethod = Unobfuscator.loadNewMessageMethod(classLoader);
-        logDebug(Unobfuscator.getMethodDescriptor(newMessageMethod));
-
-        var newMessageWithMediaMethod = Unobfuscator.loadNewMessageWithMediaMethod(classLoader);
-        logDebug(Unobfuscator.getMethodDescriptor(newMessageMethod));
-
         var editMessageShowMethod = Unobfuscator.loadEditMessageShowMethod(classLoader);
         logDebug(Unobfuscator.getMethodDescriptor(editMessageShowMethod));
 
@@ -77,17 +69,14 @@ public class ShowEditMessage extends Feature {
                 if (editMessage == null) return;
                 long timestamp = XposedHelpers.getLongField(editMessage, "A00");
                 if (timestamp == 0L) return;
-                long id = getFieldIdMessage.getLong(param.args[0]);
-                String newMessage = (String) newMessageMethod.invoke(param.args[0]);
+                var fMessage = new FMessageWpp(param.args[0]);
+                long id = fMessage.getRowId();
+                String newMessage = fMessage.getMessageStr();
                 if (newMessage == null) {
-                    if (newMessageWithMediaMethod == null) {
-                        var methods = ReflectionUtils.findAllMethodUsingFilter(param.args[0].getClass(), method -> method.getReturnType() == String.class && ReflectionUtils.isOverridden(method));
-                        for (var method : methods) {
-                            newMessage = (String) method.invoke(param.args[0]);
-                            if (newMessage != null) break;
-                        }
-                    }else {
-                        newMessage = (String) newMessageWithMediaMethod.invoke(param.args[0]);
+                    var methods = ReflectionUtils.findAllMethodUsingFilter(param.args[0].getClass(), method -> method.getReturnType() == String.class && ReflectionUtils.isOverridden(method));
+                    for (var method : methods) {
+                        newMessage = (String) method.invoke(param.args[0]);
+                        if (newMessage != null) break;
                     }
                     if (newMessage == null) return;
                 }
@@ -110,7 +99,8 @@ public class ShowEditMessage extends Feature {
                     textView.setOnClickListener((v) -> {
                         try {
                             var messageObj = XposedHelpers.callMethod(param.thisObject, "getFMessage");
-                            long id = getFieldIdMessage.getLong(messageObj);
+                            var fMesage = new FMessageWpp(messageObj);
+                            long id = fMesage.getRowId();
                             var msg = new MessageHistory.MessageItem(id, MessageStore.getMessageById(id), 0);
                             var messages = MessageHistory.getInstance().getMessages(id);
                             if (messages == null) {
@@ -174,7 +164,7 @@ public class ShowEditMessage extends Feature {
             LinearLayout.LayoutParams layoutParams4 = new LinearLayout.LayoutParams(Utils.dipToPixels(70), Utils.dipToPixels(8));
             layoutParams4.gravity = 17;
             layoutParams4.setMargins(0, Utils.dipToPixels(5), 0, Utils.dipToPixels(5));
-            var bg2 = DesignUtils.createDrawable("rc_dotline_dialog",Color.BLACK);
+            var bg2 = DesignUtils.createDrawable("rc_dotline_dialog", Color.BLACK);
             imageView0.setBackground(DesignUtils.alphaDrawable(bg2, DesignUtils.getPrimaryTextColor(), 33));
             imageView0.setLayoutParams(layoutParams4);
             // Button View

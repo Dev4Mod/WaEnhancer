@@ -43,7 +43,7 @@ public class CallPrivacy extends Feature {
                 var userJid = XposedHelpers.callMethod(callinfo, "getPeerJid");
                 var callId = XposedHelpers.callMethod(callinfo, "getCallId");
                 var type = Integer.parseInt(prefs.getString("call_privacy", "0"));
-                Tasker.sendTaskerEvent(WppCore.stripJID(WppCore.getRawString(userJid)), "call_received");
+                Tasker.sendTaskerEvent(WppCore.getContactName(userJid), WppCore.stripJID(WppCore.getRawString(userJid)), "call_received");
                 var blockCall = checkCallBlock(userJid, type);
                 if (!blockCall) return;
                 var clazzVoip = XposedHelpers.findClass("com.whatsapp.voipcalling.Voip", classLoader);

@@ -14,16 +14,16 @@ import com.wmods.wppenhacer.xposed.core.Feature;
 import com.wmods.wppenhacer.xposed.core.Unobfuscator;
 import com.wmods.wppenhacer.xposed.core.Utils;
 import com.wmods.wppenhacer.xposed.core.WppCore;
+import com.wmods.wppenhacer.xposed.core.components.FMessageWpp;
 
 import java.util.Objects;
 
 import de.robv.android.xposed.XC_MethodHook;
 import de.robv.android.xposed.XSharedPreferences;
 import de.robv.android.xposed.XposedBridge;
-import de.robv.android.xposed.XposedHelpers;
 
 public class Tasker extends Feature {
-    private static Object fMessage;
+    private static FMessageWpp fMessage;
     private static boolean taskerEnabled;
 
     public Tasker(@NonNull ClassLoader classLoader, @NonNull XSharedPreferences preferences) {
@@ -49,9 +49,10 @@ public class Tasker extends Feature {
         ContextCompat.registerReceiver(Utils.getApplication(), new SenderMessageBroadcastReceiver(), filter, ContextCompat.RECEIVER_EXPORTED);
     }
 
-    public static void sendTaskerEvent(String number, String event) {
+    public static void sendTaskerEvent(String name, String number, String event) {
         if (!taskerEnabled) return;
         Intent intent = new Intent("com.wmods.wppenhacer.EVENT");
+        intent.putExtra("name", name);
         intent.putExtra("number", number);
         intent.putExtra("event", event);
         Utils.getApplication().sendBroadcast(intent);
@@ -60,13 +61,11 @@ public class Tasker extends Feature {
     public void hookReceiveMessage() throws Throwable {
         var method = Unobfuscator.loadReceiptMethod(classLoader);
         var method2 = Unobfuscator.loadReceiptOutsideChat(classLoader);
-        var newMessageMethod = Unobfuscator.loadNewMessageMethod(classLoader);
-        var fieldMessageKey = Unobfuscator.loadMessageKeyField(classLoader);
 
         XposedBridge.hookMethod(method2, new XC_MethodHook() {
             @Override
             protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
-                fMessage = param.args[0];
+                fMessage = new FMessageWpp(param.args[0]);
             }
         });
 
@@ -74,12 +73,12 @@ public class Tasker extends Feature {
             @Override
             protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
                 if (param.args[4] == "sender" || param.args[1] == null) return;
-                var messageKey = fieldMessageKey.get(fMessage);
-                var userJid = XposedHelpers.getObjectField(messageKey, "A00");
+
+                var userJid = fMessage.getKey().remoteJid;
                 var rawJid = WppCore.getRawString(userJid);
                 var name = WppCore.getContactName(userJid);
                 var number = WppCore.stripJID(rawJid);
-                var msg = (String) newMessageMethod.invoke(fMessage);
+                var msg = fMessage.getMessageStr();
                 if (TextUtils.isEmpty(msg) || TextUtils.isEmpty(number)) return;
                 new Handler(Utils.getApplication().getMainLooper()).post(() -> {
                     Intent intent = new Intent("com.wmods.wppenhacer.MESSAGE_RECEIVED");

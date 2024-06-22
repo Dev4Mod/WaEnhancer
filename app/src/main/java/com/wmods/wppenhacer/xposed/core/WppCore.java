@@ -10,8 +10,10 @@ import android.graphics.drawable.Drawable;
 import android.view.Menu;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import com.wmods.wppenhacer.xposed.core.components.FMessageWpp;
 import com.wmods.wppenhacer.xposed.utils.ReflectionUtils;
 
 import java.io.File;
@@ -139,6 +141,8 @@ public class WppCore {
 
         // Load wa database
         loadDatabase();
+
+        FMessageWpp.init(loader);
     }
 
     public static void loadDatabase() {
@@ -177,10 +181,10 @@ public class WppCore {
         return startup_prefs.getInt("night_mode", 0);
     }
 
-    @Nullable
+    @NonNull
     public static String getContactName(Object userJid) {
         loadDatabase();
-        if (mWaDatabase == null) return "";
+        if (mWaDatabase == null || userJid == null) return "";
         var rawJid = getRawString(userJid);
         var cursor = mWaDatabase.query("wa_contacts", new String[]{"display_name"}, "jid = ?", new String[]{rawJid}, null, null, null);
         if (cursor != null && cursor.moveToFirst()) {

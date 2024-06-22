@@ -17,6 +17,9 @@ import android.util.DisplayMetrics;
 import android.util.TypedValue;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
+
+import com.wmods.wppenhacer.App;
 import com.wmods.wppenhacer.xposed.utils.MimeTypeUtils;
 
 import java.io.File;
@@ -33,8 +36,9 @@ import de.robv.android.xposed.XposedHelpers;
 
 public class Utils {
 
+    @NonNull
     public static Application getApplication() {
-        return MainFeatures.mApp;
+        return MainFeatures.mApp == null ? App.getInstance() : MainFeatures.mApp;
     }
 
     public static boolean doRestart(Context context) {
@@ -148,11 +152,11 @@ public class Utils {
         }
     }
 
-    public static String getDestination(SharedPreferences prefs, File file, String name) {
+    public static String getDestination(SharedPreferences prefs, String name) {
         var folderPath = prefs.getString("localdownload", Environment.getExternalStorageDirectory().getAbsolutePath() + "/Download") + "/WhatsApp/Wa Enhancer/" + name + "/";
         var filePath = new File(folderPath);
         if (!filePath.exists()) filePath.mkdirs();
-        return filePath.getAbsolutePath() + "/" + (file == null ? "" : file.getName());
+        return filePath.getAbsolutePath() + "/";
     }
 
     public static String copyFile(File srcFile, File destFile) {
@@ -166,12 +170,6 @@ public class Utils {
                 if (read <= 0) {
                     in.close();
                     out.close();
-                    MediaScannerConnection.scanFile(Utils.getApplication(),
-                            new String[]{destFile.getAbsolutePath()},
-                            new String[]{MimeTypeUtils.getMimeTypeFromExtension(srcFile.getAbsolutePath())},
-                            (path, uri) -> {
-                            });
-
                     return "";
                 }
                 out.write(bArr, 0, read);
@@ -195,5 +193,25 @@ public class Utils {
         ClipboardManager clipboard = (ClipboardManager) Utils.getApplication().getSystemService(Context.CLIPBOARD_SERVICE);
         ClipData clip = ClipData.newPlainText("label", string);
         clipboard.setPrimaryClip(clip);
+    }
+
+    public static String generateName(Object userJid, String fileFormat) {
+        var contactName = WppCore.getContactName(userJid);
+        var number = WppCore.stripJID(WppCore.getRawString(userJid));
+        return padronizarNome(contactName) + "_" + number + "_" + new SimpleDateFormat("yyyyMMdd-HHmmss", Locale.getDefault()).format(new Date()) + "." + fileFormat;
+    }
+
+    @NonNull
+    public static String padronizarNome(@NonNull String nome) {
+        String nomePadronizado = nome.replaceAll("[^a-zA-Z0-9 _]", "");
+        nomePadronizado = nomePadronizado.replace(' ', '_');
+        return nomePadronizado;
+    }
+
+    public static void scanFile(File file) {
+        MediaScannerConnection.scanFile(Utils.getApplication(),
+                new String[]{file.getAbsolutePath()},
+                new String[]{MimeTypeUtils.getMimeTypeFromExtension(file.getAbsolutePath())},
+                null);
     }
 }
