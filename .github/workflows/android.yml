@@ -64,8 +64,8 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          tag_name: 'pre-release-${{ github.sha.slice(0, 7) }}'
-          release_name: 'Pre-release ${{ github.sha.slice(0, 7) }}'
+          tag_name: 'pre-release-${{ github.sha.short_sha }}'
+          release_name: 'Pre-release ${{ github.sha.short_sha }}'
           draft: false
           prerelease: true
 
