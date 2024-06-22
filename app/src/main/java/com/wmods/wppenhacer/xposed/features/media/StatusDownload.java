@@ -84,7 +84,6 @@ public class StatusDownload extends Feature {
                         var name = Utils.generateName(userJid, fileType);
                         var destinationFile = new File(destination, name);
                         var error = Utils.copyFile(file, destinationFile);
-                        Utils.scanFile(destinationFile);
                         if (TextUtils.isEmpty(error)) {
                             Utils.showToast(Utils.getApplication().getString(ResId.string.saved_to) + destinationFile.getAbsolutePath(), Toast.LENGTH_SHORT);
                             log("Saved to: " + destinationFile.getAbsolutePath());

@@ -170,6 +170,7 @@ public class Utils {
                 if (read <= 0) {
                     in.close();
                     out.close();
+                    Utils.scanFile(destFile);
                     return "";
                 }
                 out.write(bArr, 0, read);
@@ -198,20 +199,19 @@ public class Utils {
     public static String generateName(Object userJid, String fileFormat) {
         var contactName = WppCore.getContactName(userJid);
         var number = WppCore.stripJID(WppCore.getRawString(userJid));
-        return padronizarNome(contactName) + "_" + number + "_" + new SimpleDateFormat("yyyyMMdd-HHmmss", Locale.getDefault()).format(new Date()) + "." + fileFormat;
+        return toValidFileName(contactName) + "_" + number + "_" + new SimpleDateFormat("yyyyMMdd-HHmmss", Locale.getDefault()).format(new Date()) + "." + fileFormat;
     }
 
     @NonNull
-    public static String padronizarNome(@NonNull String nome) {
-        String nomePadronizado = nome.replaceAll("[^a-zA-Z0-9 _]", "");
-        nomePadronizado = nomePadronizado.replace(' ', '_');
-        return nomePadronizado;
+    public static String toValidFileName(@NonNull String input) {
+        return input.replaceAll("[:\\\\/*\"?|<>']", " ");
     }
 
     public static void scanFile(File file) {
         MediaScannerConnection.scanFile(Utils.getApplication(),
                 new String[]{file.getAbsolutePath()},
                 new String[]{MimeTypeUtils.getMimeTypeFromExtension(file.getAbsolutePath())},
-                null);
+                (s, uri) -> {
+                });
     }
 }

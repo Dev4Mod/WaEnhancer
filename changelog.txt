@@ -1,15 +1,2 @@
-[WA ENHANCER]
-* Added reset button to settings
-* Backups will now have a date in the name
-* Fixed errors in backups for the block list(old backups will not be supported)
-* All modules have been updated to facilitate maintenance
-
 [STATUS DOWNLOADER | VIEW ONCE DOWNLOADER | PROFILE PICTURE DOWNLOADER]
-* The saved file names will now have the user name, phone number and date (Ex: Mary_12345678_20240622-181400.jpg)
-
-[TASKER]
-* Added %name variable to events
-
-[WHATSAPP]
-* Added support for version 2.24.12.78
-* Unsupported versions will no longer be applied to the features (Avoid reporting an unsupported version and downgrading the version)
+* Fixed issue with unsaved contact download

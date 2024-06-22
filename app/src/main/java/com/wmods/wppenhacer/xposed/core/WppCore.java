@@ -84,7 +84,6 @@ public class WppCore {
         }
     }
 
-
     public static void Initialize(ClassLoader loader) throws Exception {
         privPrefs = Utils.getApplication().getSharedPreferences("WaGlobal", Context.MODE_PRIVATE);
 
@@ -184,14 +183,21 @@ public class WppCore {
     public static String getContactName(Object userJid) {
         loadDatabase();
         if (mWaDatabase == null || userJid == null) return "";
+        String name = null;
         var rawJid = getRawString(userJid);
         var cursor = mWaDatabase.query("wa_contacts", new String[]{"display_name"}, "jid = ?", new String[]{rawJid}, null, null, null);
         if (cursor != null && cursor.moveToFirst()) {
-            var name = cursor.getString(0);
+            name = cursor.getString(0);
             cursor.close();
-            return name;
         }
-        return "";
+        if (name == null) {
+            var cursor2 = mWaDatabase.query("wa_vnames", new String[]{"verified_name"}, "jid = ?", new String[]{rawJid}, null, null, null);
+            if (cursor2 != null && cursor2.moveToFirst()) {
+                name = cursor2.getString(0);
+                cursor2.close();
+            }
+        }
+        return name == null ? "" : name;
     }
 
     public static Object createUserJid(String rawjid) {
@@ -279,6 +285,7 @@ public class WppCore {
 
     @Nullable
     public static Activity getCurrentConversation() {
+        if (mCurrentActivity == null) return null;
         Class<?> conversation = XposedHelpers.findClass("com.whatsapp.Conversation", mCurrentActivity.getClassLoader());
         if (conversation.isInstance(mCurrentActivity)) return mCurrentActivity;
         return null;
