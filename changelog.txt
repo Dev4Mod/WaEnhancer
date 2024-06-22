@@ -1,2 +1,3 @@
 [STATUS DOWNLOADER | VIEW ONCE DOWNLOADER | PROFILE PICTURE DOWNLOADER]
 * Fixed issue with unsaved contact download
+* Fixed files not appearing in the gallery
