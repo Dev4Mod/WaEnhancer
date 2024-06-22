@@ -23,6 +23,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Objects;
 
@@ -44,6 +45,7 @@ public class WppCore {
     private static Object mActionUser;
     @SuppressLint("StaticFieldLeak")
     static Activity mCurrentActivity;
+    static LinkedHashSet<Activity> activities = new LinkedHashSet<>();
     private static SQLiteDatabase mWaDatabase;
 
     public static void addMenuItemClass(Class<?> aClass, OnMenuCreate listener) {
@@ -61,12 +63,15 @@ public class WppCore {
                     return;
                 }
                 var newObject = new Object[senderMethod.getParameterCount()];
+                for (int i = 0; i < newObject.length; i++) {
+                    var param = senderMethod.getParameterTypes()[i];
+                    if (param.isPrimitive()) {
+                        newObject[i] = 0;
+                    }
+                }
+
                 var index = ReflectionUtils.findIndexOfType(senderMethod.getParameterTypes(), String.class);
-                newObject[index - 1] = 0;
                 newObject[index] = message;
-                newObject[newObject.length - 1] = false;
-                newObject[newObject.length - 2] = false;
-                newObject[newObject.length - 3] = false;
                 var index2 = ReflectionUtils.findIndexOfType(senderMethod.getParameterTypes(), List.class);
                 newObject[index2] = Collections.singletonList(userJid);
                 senderMethod.invoke(mActionUser, newObject);
@@ -148,6 +153,15 @@ public class WppCore {
 
     public static Activity getCurrentActivity() {
         return mCurrentActivity;
+    }
+
+    public static Activity getActivityBySimpleName(String name) {
+        for (var activity : activities) {
+            if (activity.getClass().getSimpleName().equals(name)) {
+                return activity;
+            }
+        }
+        return null;
     }
 
 

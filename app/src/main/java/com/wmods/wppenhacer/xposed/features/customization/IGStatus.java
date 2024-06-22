@@ -17,9 +17,9 @@ import com.wmods.wppenhacer.views.IGStatusView;
 import com.wmods.wppenhacer.xposed.core.Feature;
 import com.wmods.wppenhacer.xposed.core.Unobfuscator;
 import com.wmods.wppenhacer.xposed.core.Utils;
-import com.wmods.wppenhacer.xposed.core.WppCore;
 import com.wmods.wppenhacer.xposed.utils.ReflectionUtils;
 
+import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -35,6 +35,7 @@ public class IGStatus extends Feature {
     public static ArrayList<Object> itens = new ArrayList<>();
     @SuppressLint("StaticFieldLeak")
     private static IGStatusView mStatusContainer;
+    private WeakReference<Activity> homeActivity;
 
     public IGStatus(@NonNull ClassLoader loader, @NonNull XSharedPreferences preferences) {
         super(loader, preferences);
@@ -52,9 +53,9 @@ public class IGStatus extends Feature {
             @Override
             @SuppressLint("DiscouragedApi")
             protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-                var homeActivity = (Activity) param.thisObject;
+                homeActivity = new WeakReference<>((Activity) param.thisObject);
                 // create status container
-                mStatusContainer = new IGStatusView(homeActivity);
+                mStatusContainer = new IGStatusView(homeActivity.get());
                 var layoutParams = new FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT, Utils.dipToPixels(105));
                 layoutParams.gravity = Gravity.TOP;
 
@@ -70,7 +71,7 @@ public class IGStatus extends Feature {
 
                 mStatusContainer.setLayoutParams(layoutParams);
                 mStatusContainer.setBackgroundColor(Color.TRANSPARENT);
-                var mainContainer = homeActivity.findViewById(Utils.getID("main_container", "id"));
+                var mainContainer = homeActivity.get().findViewById(Utils.getID("main_container", "id"));
                 var pagerView = (ViewGroup) mainContainer.findViewById(Utils.getID("pager", "id"));
                 var pager_holder = (ViewGroup) pagerView.getParent();
                 pager_holder.addView(mStatusContainer);
@@ -84,7 +85,7 @@ public class IGStatus extends Feature {
         XposedBridge.hookMethod(onScrollPagerMethod, new XC_MethodHook() {
             @Override
             protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-                var scroll = -(float) XposedHelpers.getIntField(WppCore.getCurrentActivity(), "A02");
+                var scroll = -(float) XposedHelpers.getIntField(homeActivity.get(), "A02");
                 if (mStatusContainer.isShown())
                     mStatusContainer.setTranslationY(scroll);
             }
@@ -100,7 +101,7 @@ public class IGStatus extends Feature {
                 if (view == null) return;
                 var mainView = (ListView) view.findViewById(android.R.id.list);
                 mainView.setNestedScrollingEnabled(true);
-                var paddingView = new View(WppCore.getCurrentActivity());
+                var paddingView = new View(homeActivity.get());
                 paddingView.setClickable(true);
                 var layoutParams = new AbsListView.LayoutParams(AbsListView.LayoutParams.MATCH_PARENT, Utils.dipToPixels(105));
                 paddingView.setLayoutParams(layoutParams);
@@ -121,8 +122,8 @@ public class IGStatus extends Feature {
                 if (!Unobfuscator.isCalledFromClass(clazz) && !Unobfuscator.isCalledFromClass(onMenuItemClick2) && !Unobfuscator.isCalledFromClass(onMenuItemClick))
                     return;
                 var index = (int) param.args[0];
-                WppCore.getCurrentActivity().runOnUiThread(() -> {
-                    XposedHelpers.setObjectField(WppCore.getCurrentActivity(), "A02", 0);
+                homeActivity.get().runOnUiThread(() -> {
+                    XposedHelpers.setObjectField(homeActivity.get(), "A02", 0);
                     var visible = View.GONE;
                     if (index == SeparateGroup.tabs.indexOf(SeparateGroup.CHATS) || (separateGroups && index == SeparateGroup.tabs.indexOf(SeparateGroup.GROUPS))) {
                         visible = View.VISIBLE;
@@ -145,7 +146,7 @@ public class IGStatus extends Feature {
             @Override
             protected void afterHookedMethod(MethodHookParam param) throws Throwable {
                 itens.add(0, null);
-                IGStatusAdapter mStatusAdapter = new IGStatusAdapter(WppCore.getCurrentActivity(), statusInfoClass);
+                IGStatusAdapter mStatusAdapter = new IGStatusAdapter(homeActivity.get(), statusInfoClass);
                 mStatusContainer.setAdapter(mStatusAdapter);
                 mStatusContainer.updateList();
             }

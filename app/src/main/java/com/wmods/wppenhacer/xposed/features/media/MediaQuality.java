@@ -1,4 +1,4 @@
-package com.wmods.wppenhacer.xposed.features.general;
+package com.wmods.wppenhacer.xposed.features.media;
 
 import android.graphics.Bitmap;
 import android.graphics.RecordingCanvas;
@@ -9,6 +9,7 @@ import androidx.annotation.NonNull;
 
 import com.wmods.wppenhacer.xposed.core.Feature;
 import com.wmods.wppenhacer.xposed.core.Unobfuscator;
+import com.wmods.wppenhacer.xposed.features.general.Others;
 
 import org.json.JSONObject;
 

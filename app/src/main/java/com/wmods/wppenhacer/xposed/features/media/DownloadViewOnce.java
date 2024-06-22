@@ -1,5 +1,4 @@
-package com.wmods.wppenhacer.xposed.features.general;
-
+package com.wmods.wppenhacer.xposed.features.media;
 
 import android.annotation.SuppressLint;
 import android.text.TextUtils;
@@ -21,49 +20,13 @@ import de.robv.android.xposed.XSharedPreferences;
 import de.robv.android.xposed.XposedBridge;
 import de.robv.android.xposed.XposedHelpers;
 
-public class ViewOnce extends Feature {
-    private boolean isFromMe;
-
-    public ViewOnce(ClassLoader loader, XSharedPreferences preferences) {
-        super(loader, preferences);
+public class DownloadViewOnce extends Feature {
+    public DownloadViewOnce(@NonNull ClassLoader classLoader, @NonNull XSharedPreferences preferences) {
+        super(classLoader, preferences);
     }
 
     @Override
-    public void doHook() throws Exception {
-        var methods = Unobfuscator.loadViewOnceMethod(classLoader);
-        var classViewOnce = Unobfuscator.loadViewOnceClass(classLoader);
-        logDebug(classViewOnce);
-        var viewOnceStoreMethod = Unobfuscator.loadViewOnceStoreMethod(classLoader);
-        logDebug(Unobfuscator.getMethodDescriptor(viewOnceStoreMethod));
-        var messageKeyField = Unobfuscator.loadMessageKeyField(classLoader);
-
-        XposedBridge.hookMethod(viewOnceStoreMethod, new XC_MethodHook() {
-            @Override
-            protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
-                if (!prefs.getBoolean("viewonce", false)) return;
-                isFromMe = false;
-                var messageObject = param.args[0];
-                if (messageObject == null) return;
-                var messageKey = messageKeyField.get(messageObject);
-                isFromMe = XposedHelpers.getBooleanField(messageKey, "A02");
-            }
-        });
-
-        for (var method : methods) {
-            logDebug(Unobfuscator.getMethodDescriptor(method));
-            XposedBridge.hookMethod(method, new XC_MethodHook() {
-                @Override
-                protected void afterHookedMethod(MethodHookParam param) {
-                    if (!prefs.getBoolean("viewonce", false)) return;
-                    if ((int) param.getResult() != 2 && (Unobfuscator.isCalledFromClass(classViewOnce))) {
-                        param.setResult(0);
-                    } else if ((int) param.getResult() != 2 && !isFromMe && (Unobfuscator.isCalledFromClass(viewOnceStoreMethod.getDeclaringClass()))) {
-                        param.setResult(0);
-                    }
-                }
-            });
-        }
-
+    public void doHook() throws Throwable {
         if (prefs.getBoolean("downloadviewonce", false)) {
 
             var menuMethod = Unobfuscator.loadViewOnceDownloadMenuMethod(classLoader);
@@ -107,14 +70,11 @@ public class ViewOnce extends Feature {
                 }
             });
         }
-
     }
 
     @NonNull
     @Override
     public String getPluginName() {
-        return "View Once";
+        return "Download View Once";
     }
-
-
 }

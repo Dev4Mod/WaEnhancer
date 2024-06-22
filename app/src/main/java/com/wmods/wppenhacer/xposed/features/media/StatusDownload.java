@@ -1,4 +1,4 @@
-package com.wmods.wppenhacer.xposed.features.general;
+package com.wmods.wppenhacer.xposed.features.media;
 
 import android.content.SharedPreferences;
 import android.media.MediaScannerConnection;

@@ -33,25 +33,31 @@ import com.wmods.wppenhacer.xposed.features.general.AntiRevoke;
 import com.wmods.wppenhacer.xposed.features.general.CallType;
 import com.wmods.wppenhacer.xposed.features.general.ChatLimit;
 import com.wmods.wppenhacer.xposed.features.general.DeleteStatus;
-import com.wmods.wppenhacer.xposed.features.general.DndMode;
-import com.wmods.wppenhacer.xposed.features.general.MediaPreview;
-import com.wmods.wppenhacer.xposed.features.general.MediaQuality;
 import com.wmods.wppenhacer.xposed.features.general.NewChat;
 import com.wmods.wppenhacer.xposed.features.general.Others;
 import com.wmods.wppenhacer.xposed.features.general.PinnedLimit;
 import com.wmods.wppenhacer.xposed.features.general.SeenTick;
 import com.wmods.wppenhacer.xposed.features.general.ShareLimit;
 import com.wmods.wppenhacer.xposed.features.general.ShowEditMessage;
-import com.wmods.wppenhacer.xposed.features.general.StatusDownload;
 import com.wmods.wppenhacer.xposed.features.general.Tasker;
-import com.wmods.wppenhacer.xposed.features.general.ViewOnce;
+import com.wmods.wppenhacer.xposed.features.media.DownloadProfile;
+import com.wmods.wppenhacer.xposed.features.media.DownloadViewOnce;
+import com.wmods.wppenhacer.xposed.features.media.MediaPreview;
+import com.wmods.wppenhacer.xposed.features.media.MediaQuality;
+import com.wmods.wppenhacer.xposed.features.media.StatusDownload;
+import com.wmods.wppenhacer.xposed.features.others.Channels;
+import com.wmods.wppenhacer.xposed.features.others.ChatFilters;
+import com.wmods.wppenhacer.xposed.features.others.GroupAdmin;
+import com.wmods.wppenhacer.xposed.features.others.Stickers;
 import com.wmods.wppenhacer.xposed.features.privacy.CallPrivacy;
+import com.wmods.wppenhacer.xposed.features.privacy.DndMode;
 import com.wmods.wppenhacer.xposed.features.privacy.FreezeLastSeen;
 import com.wmods.wppenhacer.xposed.features.privacy.GhostMode;
 import com.wmods.wppenhacer.xposed.features.privacy.HideArchive;
 import com.wmods.wppenhacer.xposed.features.privacy.HideReceipt;
 import com.wmods.wppenhacer.xposed.features.privacy.HideSeen;
 import com.wmods.wppenhacer.xposed.features.privacy.HideTagForward;
+import com.wmods.wppenhacer.xposed.features.privacy.ViewOnce;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -215,7 +221,13 @@ public class MainFeatures {
                 MediaPreview.class,
                 FilterGroups.class,
                 Tasker.class,
-                DeleteStatus.class
+                DeleteStatus.class,
+                DownloadViewOnce.class,
+                Channels.class,
+                DownloadProfile.class,
+                ChatFilters.class,
+                GroupAdmin.class,
+                Stickers.class
         };
 
         for (var classe : classes) {

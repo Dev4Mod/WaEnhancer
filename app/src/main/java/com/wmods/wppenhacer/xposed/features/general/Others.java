@@ -2,19 +2,13 @@ package com.wmods.wppenhacer.xposed.features.general;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
-import android.graphics.Color;
 import android.os.AsyncTask;
 import android.os.BaseBundle;
 import android.os.Message;
 import android.text.TextUtils;
-import android.util.Pair;
-import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup;
-import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -30,13 +24,9 @@ import com.wmods.wppenhacer.xposed.core.components.AlertDialogWpp;
 import com.wmods.wppenhacer.xposed.core.db.MessageStore;
 import com.wmods.wppenhacer.xposed.utils.ReflectionUtils;
 
-import java.io.File;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Objects;
-import java.util.stream.IntStream;
 
 import de.robv.android.xposed.XC_MethodHook;
 import de.robv.android.xposed.XC_MethodReplacement;
@@ -58,19 +48,6 @@ public class Others extends Feature {
 
         // receivedIncomingTimestamp
 
-        // Removido pois as não há necessidade de ficar em uma versão obsoleta.
-
-//        var deprecatedMethod = Unobfuscator.loadDeprecatedMethod(loader);
-//        logDebug(Unobfuscator.getMethodDescriptor(deprecatedMethod));
-//
-//        XposedBridge.hookMethod(deprecatedMethod, new XC_MethodHook() {
-//            @Override
-//            protected void beforeHookedMethod(MethodHookParam param) {
-//                Date date = new Date(10554803081056L);
-//                param.setResult(date);
-//            }
-//        });
-
         var novoTema = prefs.getBoolean("novotema", false);
         var menuWIcons = prefs.getBoolean("menuwicon", false);
         var newSettings = prefs.getBoolean("novaconfig", false);
@@ -79,17 +56,11 @@ public class Others extends Feature {
         var outlinedIcons = prefs.getBoolean("outlinedicons", false);
         var showDnd = prefs.getBoolean("show_dndmode", false);
         var showFreezeLastSeen = prefs.getBoolean("show_freezeLastSeen", false);
-        var removechannelRec = prefs.getBoolean("removechannel_rec", false);
-        var separateGroups = prefs.getBoolean("separategroups", false);
         var filterSeen = prefs.getBoolean("filterseen", false);
         var fbstyle = prefs.getBoolean("fbstyle", false);
-        var alertSticker = prefs.getBoolean("alertsticker", false);
-        var channels = prefs.getBoolean("channels", false);
-        var igstatus = prefs.getBoolean("igstatus", false);
         var metaai = prefs.getBoolean("metaai", false);
         var topnav = prefs.getBoolean("topnav", false);
         var proximity = prefs.getBoolean("proximity_audios", false);
-        var adminGrp = prefs.getBoolean("admin_grp", false);
         var showOnline = prefs.getBoolean("showonline", false);
         var floatingMenu = prefs.getBoolean("floatingmenu", false);
         var filter_itens = prefs.getString("filter_itens", null);
@@ -128,36 +99,15 @@ public class Others extends Feature {
 
         propsInteger.put(8522, fbstyle ? 1 : 0);
         propsInteger.put(8521, fbstyle ? 1 : 0);
-        propsInteger.put(3877, channels ? igstatus ? 2 : 0 : 2);
-
 
         hookProps();
-        hookViewProfile();
 
         hookMenuOptions(newSettings, showFreezeLastSeen, showDnd, filterChats);
-
-        if (removechannelRec) {
-            hookChannels();
-        }
-
-        if (separateGroups) {
-            hookChatFilters();
-        }
-
-        if (alertSticker) {
-            hookStickers();
-        }
 
         if (proximity) {
             var proximitySensorMethod = Unobfuscator.loadProximitySensorMethod(classLoader);
             XposedBridge.hookMethod(proximitySensorMethod, XC_MethodReplacement.DO_NOTHING);
         }
-
-        if (adminGrp) {
-            addgrpAdminIcon();
-        }
-
-        showOnline(showOnline);
 
         if (filter_itens != null) {
             filterItens(filter_itens);
@@ -177,8 +127,8 @@ public class Others extends Feature {
         }
 
         copieStatusToClipboard();
-
         customPlayBackSpeed();
+        showOnline(showOnline);
 
     }
 
@@ -369,48 +319,6 @@ public class Others extends Feature {
         });
     }
 
-    private void addgrpAdminIcon() throws Exception {
-        var jidFactory = Unobfuscator.loadJidFactory(classLoader);
-        var grpAdmin1 = Unobfuscator.loadGroupAdminMethod(classLoader);
-        var grpcheckAdmin = Unobfuscator.loadGroupCheckAdminMethod(classLoader);
-        var hooked = new XC_MethodHook() {
-            @SuppressLint("ResourceType")
-            @Override
-            protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-                var fMessage = XposedHelpers.callMethod(param.thisObject, "getFMessage");
-                var userJidClass = XposedHelpers.findClass("com.whatsapp.jid.UserJid", classLoader);
-                var methodResult = ReflectionUtils.findMethodUsingFilter(fMessage.getClass(), method -> method.getReturnType() == userJidClass && method.getParameterCount() == 0);
-                var userJid = ReflectionUtils.callMethod(methodResult, fMessage);
-                var chatCurrentJid = WppCore.getCurrentRawJID();
-                if (!WppCore.isGroup(chatCurrentJid)) return;
-                var field = ReflectionUtils.getFieldByType(param.thisObject.getClass(), grpcheckAdmin.getDeclaringClass());
-                var grpParticipants = field.get(param.thisObject);
-                var jidGrp = jidFactory.invoke(null, chatCurrentJid);
-                var result = ReflectionUtils.callMethod(grpcheckAdmin, grpParticipants, jidGrp, userJid);
-                var view = (View) param.thisObject;
-                var context = view.getContext();
-                ImageView iconAdmin;
-                if ((iconAdmin = view.findViewById(0x7fff0010)) == null) {
-                    var nameGroup = (LinearLayout) view.findViewById(Utils.getID("name_in_group", "id"));
-                    var view1 = new LinearLayout(context);
-                    view1.setOrientation(LinearLayout.HORIZONTAL);
-                    view1.setGravity(Gravity.CENTER_VERTICAL);
-                    var nametv = nameGroup.getChildAt(0);
-                    iconAdmin = new ImageView(context);
-                    var size = Utils.dipToPixels(16);
-                    iconAdmin.setLayoutParams(new LinearLayout.LayoutParams(size, size));
-                    iconAdmin.setImageResource(ResId.drawable.admin);
-                    iconAdmin.setId(0x7fff0010);
-                    nameGroup.removeView(nametv);
-                    view1.addView(nametv);
-                    view1.addView(iconAdmin);
-                    nameGroup.addView(view1, 0);
-                }
-                iconAdmin.setVisibility(result != null && (boolean) result ? View.VISIBLE : View.GONE);
-            }
-        };
-        XposedBridge.hookMethod(grpAdmin1, hooked);
-    }
 
     @SuppressLint({"DiscouragedApi", "UseCompatLoadingForDrawables", "ApplySharedPref"})
     private static void InsertDNDOption(Menu menu, Activity home, boolean newSettings) {
@@ -474,86 +382,6 @@ public class Others extends Feature {
         });
     }
 
-    private void hookChatFilters() throws Exception {
-        var filterAdaperClass = Unobfuscator.loadFilterAdaperClass(classLoader);
-        XposedBridge.hookAllConstructors(filterAdaperClass, new XC_MethodHook() {
-            @Override
-            protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
-                var argResult = IntStream.range(0, param.args.length).mapToObj(i -> new Pair<>(i, param.args[i])).filter(p -> p.second instanceof List).findFirst().orElse(null);
-                if (argResult != null) {
-                    var newList = new ArrayList<Object>((List) argResult.second);
-                    newList.removeIf(item -> {
-                        var name = XposedHelpers.getObjectField(item, "A01");
-                        return name == null || name == "CONTACTS_FILTER" || name == "GROUP_FILTER";
-                    });
-                    param.args[argResult.first] = newList;
-                }
-            }
-        });
-        var methodSetFilter = Arrays.stream(filterAdaperClass.getDeclaredMethods()).filter(m -> m.getParameterCount() == 1 && m.getParameterTypes()[0].equals(int.class)).findFirst().orElse(null);
-
-        XposedBridge.hookMethod(methodSetFilter, new XC_MethodHook() {
-            @Override
-            protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
-                var index = (int) param.args[0];
-                var field = Unobfuscator.getFieldByType(methodSetFilter.getDeclaringClass(), List.class);
-                var list = (List) field.get(param.thisObject);
-                if (list == null || index >= list.size()) {
-                    param.setResult(null);
-                }
-            }
-        });
-    }
-
-    private void hookChannels() throws Exception {
-        var removeChannelRecClass = Unobfuscator.loadRemoveChannelRecClass(classLoader);
-        XposedBridge.hookAllConstructors(removeChannelRecClass, new XC_MethodHook() {
-            @Override
-            protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
-                if (param.args.length > 0 && param.args[0] instanceof List list) {
-                    if (list.isEmpty()) return;
-                    list.clear();
-                }
-            }
-        });
-    }
-
-    private void hookViewProfile() throws Exception {
-        var loadProfileInfoField = Unobfuscator.loadProfileInfoField(classLoader);
-        XposedHelpers.findAndHookMethod("com.whatsapp.profile.ViewProfilePhoto", classLoader, "onCreateOptionsMenu", Menu.class, new XC_MethodHook() {
-            @Override
-            protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-                var menu = (Menu) param.args[0];
-                var item = menu.add(0, 0, 0, "Save");
-                item.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
-                var icon = DesignUtils.getDrawableByName("ic_action_download");
-                if (icon != null) {
-                    icon.setTint(Color.WHITE);
-                    item.setIcon(icon);
-                }
-                item.setOnMenuItemClickListener(menuItem -> {
-                    var subCls = param.thisObject.getClass().getSuperclass();
-                    if (subCls == null) {
-                        log(new Exception("SubClass is null"));
-                        return true;
-                    }
-                    var field = Unobfuscator.getFieldByType(subCls, loadProfileInfoField.getDeclaringClass());
-                    var jidObj = ReflectionUtils.getField(loadProfileInfoField, ReflectionUtils.getField(field, param.thisObject));
-                    var jid = WppCore.stripJID(WppCore.getRawString(jidObj));
-                    var file = WppCore.getContactPhotoFile(jid);
-                    var destPath = Utils.getDestination(prefs, file, "Profile Photo");
-                    destPath = destPath.endsWith(".jpg") ? destPath : destPath + "pg";
-                    var error = Utils.copyFile(file, new File(destPath));
-                    if (TextUtils.isEmpty(error)) {
-                        Toast.makeText(Utils.getApplication(), Utils.getApplication().getString(ResId.string.saved_to) + destPath, Toast.LENGTH_LONG).show();
-                    } else {
-                        Toast.makeText(Utils.getApplication(), Utils.getApplication().getString(ResId.string.error_when_saving_try_again) + " " + error, Toast.LENGTH_LONG).show();
-                    }
-                    return true;
-                });
-            }
-        });
-    }
 
     private void hookProps() throws Exception {
         var methodPropsBoolean = Unobfuscator.loadPropsBooleanMethod(classLoader);
@@ -594,61 +422,6 @@ public class Others extends Feature {
                 if (propValue == null) return;
                 param.setResult(propValue);
             }
-        });
-    }
-
-    private void hookStickers() throws Exception {
-        var sendStickerMethod = Unobfuscator.loadSendStickerMethod(classLoader);
-        XposedBridge.hookMethod(sendStickerMethod, new XC_MethodHook() {
-            private Unhook unhooked;
-
-            @Override
-            protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
-                unhooked = XposedHelpers.findAndHookMethod(View.class, "setOnClickListener", View.OnClickListener.class, new XC_MethodHook() {
-                    @Override
-                    protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
-                        View.OnClickListener mCaptureOnClickListener = (View.OnClickListener) param.args[0];
-                        if (mCaptureOnClickListener == null) return;
-                        if (!(param.thisObject instanceof ViewGroup)) return;
-                        param.args[0] = (View.OnClickListener) view -> {
-                            var context = view.getContext();
-                            var dialog = new AlertDialogWpp(view.getContext());
-                            dialog.setTitle(context.getString(ResId.string.send_sticker));
-
-                            var stickerView = (ImageView) view.findViewById(Utils.getID("sticker", "id"));
-                            LinearLayout linearLayout = new LinearLayout(context);
-                            linearLayout.setOrientation(LinearLayout.VERTICAL);
-                            linearLayout.setGravity(Gravity.CENTER_HORIZONTAL);
-                            var padding = Utils.dipToPixels(16);
-                            linearLayout.setPadding(padding, padding, padding, padding);
-                            var image = new ImageView(context);
-                            var size = Utils.dipToPixels(72);
-                            var params = new LinearLayout.LayoutParams(size, size);
-                            params.bottomMargin = padding;
-                            image.setLayoutParams(params);
-                            image.setImageDrawable(stickerView.getDrawable());
-                            linearLayout.addView(image);
-
-                            TextView text = new TextView(context);
-                            text.setText(context.getString(ResId.string.do_you_want_to_send_sticker));
-                            text.setTextAlignment(View.TEXT_ALIGNMENT_CENTER);
-                            linearLayout.addView(text);
-
-
-                            dialog.setView(linearLayout);
-                            dialog.setPositiveButton(context.getString(ResId.string.send), (dialog1, which) -> mCaptureOnClickListener.onClick(view));
-                            dialog.setNegativeButton(context.getString(ResId.string.cancel), null);
-                            dialog.show();
-                        };
-                    }
-                });
-            }
-
-            @Override
-            protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-                unhooked.unhook();
-            }
-
         });
     }
 

@@ -1,4 +1,4 @@
-package com.wmods.wppenhacer.xposed.features.general;
+package com.wmods.wppenhacer.xposed.features.privacy;
 
 import androidx.annotation.NonNull;
 

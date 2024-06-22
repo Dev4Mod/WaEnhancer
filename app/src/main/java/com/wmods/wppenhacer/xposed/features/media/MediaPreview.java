@@ -1,4 +1,4 @@
-package com.wmods.wppenhacer.xposed.features.general;
+package com.wmods.wppenhacer.xposed.features.media;
 
 import android.annotation.SuppressLint;
 import android.app.AlertDialog;
@@ -47,6 +47,7 @@ import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okio.BufferedSink;
 import okio.Okio;
+
 
 public class MediaPreview extends Feature {
 
@@ -208,6 +209,7 @@ public class MediaPreview extends Feature {
                 });
                 dialog = alertDialog.create();
                 dialog.show();
+
                 executor.execute(() -> decodeMedia(url.get(), media_key, mine_type, executor, webView, isNewsletter));
             }
         } catch (Exception e) {
