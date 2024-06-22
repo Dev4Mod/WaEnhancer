@@ -13,7 +13,6 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-import com.wmods.wppenhacer.xposed.core.components.FMessageWpp;
 import com.wmods.wppenhacer.xposed.utils.ReflectionUtils;
 
 import java.io.File;
@@ -142,7 +141,7 @@ public class WppCore {
         // Load wa database
         loadDatabase();
 
-        FMessageWpp.init(loader);
+
     }
 
     public static void loadDatabase() {

@@ -19,6 +19,7 @@ import androidx.core.content.ContextCompat;
 
 import com.wmods.wppenhacer.BuildConfig;
 import com.wmods.wppenhacer.xposed.core.components.AlertDialogWpp;
+import com.wmods.wppenhacer.xposed.core.components.FMessageWpp;
 import com.wmods.wppenhacer.xposed.features.customization.BubbleColors;
 import com.wmods.wppenhacer.xposed.features.customization.CustomTheme;
 import com.wmods.wppenhacer.xposed.features.customization.CustomTime;
@@ -61,6 +62,8 @@ import com.wmods.wppenhacer.xposed.features.privacy.ViewOnce;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
+import java.util.Objects;
 
 import de.robv.android.xposed.XC_MethodHook;
 import de.robv.android.xposed.XSharedPreferences;
@@ -74,6 +77,8 @@ public class MainFeatures {
     public final static String PACKAGE_BUSINESS = "com.whatsapp.w4b";
 
     private static final ArrayList<ErrorItem> list = new ArrayList<>();
+    private static List<String> supportedVersions;
+    private static String currentVersion;
 
     public static void start(@NonNull ClassLoader loader, @NonNull XSharedPreferences pref, String sourceDir) {
 
@@ -91,19 +96,23 @@ public class MainFeatures {
                 pref.registerOnSharedPreferenceChangeListener((sharedPreferences, s) -> pref.reload());
                 PackageInfo packageInfo = packageManager.getPackageInfo(mApp.getPackageName(), 0);
                 XposedBridge.log(packageInfo.versionName);
+                currentVersion = packageInfo.versionName;
+                supportedVersions = Arrays.asList(mApp.getResources().getStringArray(Objects.equals(mApp.getPackageName(), MainFeatures.PACKAGE_WPP) ? ResId.array.supported_versions_wpp : ResId.array.supported_versions_business));
                 try {
-                    DesignUtils.setPrefs(pref);
                     UnobfuscatorCache.init(mApp, pref);
-                    WppDatabase.Initialize(loader, pref);
                     WppCore.Initialize(loader);
+                    if (!supportedVersions.contains(packageInfo.versionName)) {
+                        throw new Exception("Unsupported version: " + packageInfo.versionName);
+                    }
+                    DesignUtils.setPrefs(pref);
+                    WppDatabase.Initialize(loader, pref);
                     initComponents(loader, pref);
                     plugins(loader, pref, packageInfo.versionName);
                     registerReceivers();
                     mApp.registerActivityLifecycleCallbacks(new WaCallback());
                     sendEnabledBroadcast(mApp);
-//                    if (Feature.DEBUG)
-//                        XposedHelpers.setStaticIntField(XposedHelpers.findClass("com.whatsapp.util.Log", loader), "level", 5);
-                } catch (Exception e) {
+//                  XposedHelpers.setStaticIntField(XposedHelpers.findClass("com.whatsapp.util.Log", loader), "level", 5);
+                } catch (Throwable e) {
                     XposedBridge.log(e);
                     var error = new ErrorItem();
                     error.setPluginName("MainFeatures[Critical]");
@@ -123,7 +132,7 @@ public class MainFeatures {
                     var activity = (Activity) param.thisObject;
                     new AlertDialogWpp(activity)
                             .setTitle(activity.getString(ResId.string.error_detected))
-                            .setMessage(activity.getString(ResId.string.version_error) + String.join("\n", list.stream().map(ErrorItem::getPluginName).toArray(String[]::new)))
+                            .setMessage(activity.getString(ResId.string.version_error) + String.join("\n", list.stream().map(ErrorItem::getPluginName).toArray(String[]::new)) + "\n\nCurrent Version: " + currentVersion + "\nSupported Versions:\n" + String.join("\n", supportedVersions))
                             .setPositiveButton(activity.getString(ResId.string.copy_to_clipboard), (dialog, which) -> {
                                 var clipboard = (ClipboardManager) mApp.getSystemService(Context.CLIPBOARD_SERVICE);
                                 ClipData clip = ClipData.newPlainText("text", String.join("\n", list.stream().map(ErrorItem::toString).toArray(String[]::new)));
@@ -137,8 +146,9 @@ public class MainFeatures {
         });
     }
 
-    private static void initComponents(ClassLoader loader, XSharedPreferences pref) {
+    private static void initComponents(ClassLoader loader, XSharedPreferences pref) throws Exception {
         AlertDialogWpp.initDialog(loader);
+        FMessageWpp.init(loader);
     }
 
     private static void registerReceivers() {

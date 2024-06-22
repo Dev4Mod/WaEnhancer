@@ -52,4 +52,8 @@ public class ResId {
         public static int delete_for_me;
     }
 
+    public class array {
+        public static int supported_versions_wpp;
+        public static int supported_versions_business;
+    }
 }

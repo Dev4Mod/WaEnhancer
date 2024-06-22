@@ -1,21 +1,15 @@
 [WA ENHANCER]
-* Adicionado botão de resetar as configurações
-* Os backups agora vai ter data no nome
-* Corrigido erros nos backups para a lista de bloqueios(backups antigos não será suportado)
-* Todos os modulos foi atualizados para facilitar a manutenção
+* Added reset button to settings
+* Backups will now have a date in the name
+* Fixed errors in backups for the block list(old backups will not be supported)
+* All modules have been updated to facilitate maintenance
 
-[STATUS DOWNLOADER]
-* Os nomes do arquivo salvo agora tera o nome do usuario, numero do telefone e data (Ex: Mary_12345678_20240622-181400.jpg)
-
-[VIEW ONCE DOWNLOADER]
-* Os nomes do arquivo salvo agora tera o nome do usuario, numero do telefone e data (Ex: Mary_12345678_20240622-181400.jpg)
-
-[PROFILE PICTURE DOWNLOADER]
-* Os nomes do arquivo salvo agora tera o nome do usuario, numero do telefone e data (Ex: Mary_12345678_20240622-181400.jpg)
+[STATUS DOWNLOADER | VIEW ONCE DOWNLOADER | PROFILE PICTURE DOWNLOADER]
+* The saved file names will now have the user name, phone number and date (Ex: Mary_12345678_20240622-181400.jpg)
 
 [TASKER]
-* Adicionado variavel %name aos eventos
+* Added %name variable to events
 
 [WHATSAPP]
-* Adicionado suporte para a versão 2.24.12.78
-
+* Added support for version 2.24.12.78
+* Unsupported versions will no longer be applied to the features (Avoid reporting an unsupported version and downgrading the version)

@@ -69,10 +69,16 @@ public class WppXposed implements IXposedHookLoadPackage, IXposedHookInitPackage
 
         if (!packageName.equals(MainFeatures.PACKAGE_WPP) && !packageName.equals(MainFeatures.PACKAGE_BUSINESS))
             return;
+
         XModuleResources modRes = XModuleResources.createInstance(MODULE_PATH, resparam.res);
 
         for (var field : ResId.string.class.getFields()) {
             var field1 = R.string.class.getField(field.getName());
+            field.set(null, resparam.res.addResource(modRes, field1.getInt(null)));
+        }
+
+        for (var field : ResId.array.class.getFields()) {
+            var field1 = R.array.class.getField(field.getName());
             field.set(null, resparam.res.addResource(modRes, field1.getInt(null)));
         }
 
