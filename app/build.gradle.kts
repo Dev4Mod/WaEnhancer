@@ -1,8 +1,11 @@
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.runBlocking
 import java.util.Locale
 
 plugins {
     alias(libs.plugins.androidApplication)
     alias(libs.plugins.materialthemebuilder)
+    alias(libs.plugins.kotlinAndroid)
 }
 
 fun getGitHashCommit(): String {
@@ -129,6 +132,7 @@ dependencies {
     implementation(libs.jstyleparser)
     implementation(libs.guava)
     implementation(libs.okhttp)
+    implementation(libs.coroutines)
 //    testImplementation(libs.junit)
 //    androidTestImplementation(libs.ext.junit)
 //    androidTestImplementation(libs.espresso.core)
@@ -140,4 +144,34 @@ configurations.all {
     exclude("androidx.appcompat", "appcompat")
     exclude("org.jetbrains.kotlin", "kotlin-stdlib-jdk7")
     exclude("org.jetbrains.kotlin", "kotlin-stdlib-jdk8")
+}
+
+afterEvaluate {
+    tasks.findByName("installDebug")?.doLast {
+        println(project.properties["debug_package_name"]?.toString())
+        runCatching {
+            runBlocking {
+                exec {
+                    commandLine(
+                        "adb",
+                        "shell",
+                        "am",
+                        "force-stop",
+                        project.properties["debug_package_name"]?.toString()
+                    )
+                }
+                delay(500)
+                exec {
+                    commandLine(
+                        "adb",
+                        "shell",
+                        "am",
+                        "start",
+                        project.properties["debug_package_name"].toString() + "/.HomeActivity"
+                    )
+                }
+
+            }
+        }
+    }
 }

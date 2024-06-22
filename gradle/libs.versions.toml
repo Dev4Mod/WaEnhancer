@@ -7,6 +7,9 @@ agp = "8.3.2"
 colorpicker = "1.1.0"
 dexkit = "2.0.1"
 nav = "2.7.7"
+kotlinx-coroutines-android = "1.8.1"
+kotlin = "2.0.0"
+
 
 [libraries]
 colorpicker = { module = "com.jaredrummler:colorpicker", version.ref = "colorpicker" }
@@ -30,7 +33,10 @@ rikkax-preference = { module = "dev.rikka.rikkax.material:material-preference", 
 rikkax-widget-borderview = { module = "dev.rikka.rikkax.widget:borderview", version = "1.1.0" }
 material = { module = "com.google.android.material:material", version = "1.10.0" }
 
+coroutines = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-android", version.ref = "kotlinx-coroutines-android" }
+
 [plugins]
 androidApplication = { id = "com.android.application", version.ref = "agp" }
 materialthemebuilder = { id = "dev.rikka.tools.materialthemebuilder", version = "1.4.1" }
+kotlinAndroid = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
 
