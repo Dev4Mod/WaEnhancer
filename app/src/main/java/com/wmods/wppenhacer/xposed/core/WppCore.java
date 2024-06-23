@@ -21,14 +21,11 @@ import java.io.File;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Objects;
 
 import de.robv.android.xposed.XC_MethodHook;
 import de.robv.android.xposed.XposedBridge;
@@ -42,7 +39,6 @@ public class WppCore {
     static final HashSet<ActivityChangeState> listenerChat = new HashSet<>();
     private static Field convChatField;
     private static Field chatJidField;
-    private static final HashMap<Class, List<OnMenuCreate>> listenerMenu = new HashMap<>();
     private static SharedPreferences privPrefs;
     private static Object mStartUpConfig;
     private static Object mActionUser;
@@ -51,10 +47,6 @@ public class WppCore {
     static LinkedHashSet<Activity> activities = new LinkedHashSet<>();
     private static SQLiteDatabase mWaDatabase;
 
-    public static void addMenuItemClass(Class<?> aClass, OnMenuCreate listener) {
-        var list = listenerMenu.computeIfAbsent(aClass, k -> new ArrayList<>());
-        list.add(listener);
-    }
 
     public static void sendMessage(String number, String message) {
         try {
@@ -89,27 +81,6 @@ public class WppCore {
     public static void Initialize(ClassLoader loader) throws Exception {
         privPrefs = Utils.getApplication().getSharedPreferences("WaGlobal", Context.MODE_PRIVATE);
 
-        XposedHelpers.findAndHookMethod(Activity.class.getName(), loader, "onCreateOptionsMenu", Menu.class, new XC_MethodHook() {
-            @Override
-            protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
-                for (Class<?> aClass : listenerMenu.keySet()) {
-                    if (!aClass.isInstance(param.thisObject)) return;
-                    for (OnMenuCreate listener : Objects.requireNonNull(listenerMenu.get(aClass))) {
-                        listener.onBeforeCreate((Activity) param.thisObject, (Menu) param.args[0]);
-                    }
-                }
-            }
-
-            @Override
-            protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-                for (Class<?> aClass : listenerMenu.keySet()) {
-                    if (!aClass.isInstance(param.thisObject)) return;
-                    for (OnMenuCreate listener : Objects.requireNonNull(listenerMenu.get(aClass))) {
-                        listener.onAfterCreate((Activity) param.thisObject, (Menu) param.args[0]);
-                    }
-                }
-            }
-        });
 
         // init UserJID
         var mSendReadClass = XposedHelpers.findClass("com.whatsapp.jobqueue.job.SendReadReceiptJob", loader);

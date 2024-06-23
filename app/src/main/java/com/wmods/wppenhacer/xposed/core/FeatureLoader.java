@@ -20,6 +20,7 @@ import androidx.core.content.ContextCompat;
 import com.wmods.wppenhacer.BuildConfig;
 import com.wmods.wppenhacer.xposed.core.components.AlertDialogWpp;
 import com.wmods.wppenhacer.xposed.core.components.FMessageWpp;
+import com.wmods.wppenhacer.xposed.core.db.MessageStore;
 import com.wmods.wppenhacer.xposed.core.devkit.Unobfuscator;
 import com.wmods.wppenhacer.xposed.core.devkit.UnobfuscatorCache;
 import com.wmods.wppenhacer.xposed.features.customization.BubbleColors;
@@ -111,7 +112,7 @@ public class FeatureLoader {
                         throw new Exception("Unsupported version: " + packageInfo.versionName);
                     }
                     DesignUtils.setPrefs(pref);
-                    WppDatabase.Initialize(loader, pref);
+                    MessageStore.initDatabase();
                     initComponents(loader, pref);
                     plugins(loader, pref, packageInfo.versionName);
                     registerReceivers();
