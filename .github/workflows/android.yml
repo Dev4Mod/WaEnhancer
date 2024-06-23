@@ -7,7 +7,7 @@ jobs:
   build:
     permissions: write-all
     runs-on: ubuntu-latest
-
+    if: github.event_name == 'push'
     steps:
       - uses: actions/checkout@v4
       - name: set up JDK 17
