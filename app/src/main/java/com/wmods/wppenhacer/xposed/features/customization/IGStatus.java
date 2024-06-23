@@ -97,6 +97,9 @@ public class IGStatus extends Feature {
             protected void afterHookedMethod(MethodHookParam param) throws Throwable {
                 if (XposedHelpers.findClass("com.whatsapp.conversationslist.ArchivedConversationsFragment", classLoader).isInstance(param.thisObject))
                     return;
+                if (XposedHelpers.findClass("com.whatsapp.conversationslist.FolderConversationsFragment", classLoader).isInstance(param.thisObject))
+                    return;
+                log(new Exception());
                 var view = (ViewGroup) param.getResult();
                 if (view == null) return;
                 var mainView = (ListView) view.findViewById(android.R.id.list);
