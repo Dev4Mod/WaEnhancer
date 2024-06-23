@@ -15,13 +15,14 @@ import android.widget.LinearLayout;
 import androidx.annotation.NonNull;
 
 import com.wmods.wppenhacer.xposed.core.Feature;
-import com.wmods.wppenhacer.xposed.core.WppCore;
 import com.wmods.wppenhacer.xposed.core.components.AlertDialogWpp;
 import com.wmods.wppenhacer.xposed.utils.DesignUtils;
 import com.wmods.wppenhacer.xposed.utils.ResId;
 import com.wmods.wppenhacer.xposed.utils.Utils;
 
+import de.robv.android.xposed.XC_MethodHook;
 import de.robv.android.xposed.XSharedPreferences;
+import de.robv.android.xposed.XposedHelpers;
 
 public class NewChat extends Feature {
     public NewChat(@NonNull ClassLoader loader, @NonNull XSharedPreferences preferences) {
@@ -33,9 +34,12 @@ public class NewChat extends Feature {
         var homeActivity = findClass("com.whatsapp.HomeActivity", classLoader);
         var newSettings = prefs.getBoolean("novaconfig", false);
         if (!prefs.getBoolean("newchat", true)) return;
-        WppCore.addMenuItemClass(homeActivity, new WppCore.OnMenuCreate() {
+
+        XposedHelpers.findAndHookMethod(homeActivity, "onCreateOptionsMenu", Menu.class, new XC_MethodHook() {
             @Override
-            public void onAfterCreate(Activity activity, Menu menu) {
+            protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+                var activity = (Activity) param.thisObject;
+                var menu = (Menu) param.args[0];
                 var item = menu.add(0, 0, 0, ResId.string.new_chat);
                 var drawable = DesignUtils.getDrawableByName("vec_ic_chat_add");
 

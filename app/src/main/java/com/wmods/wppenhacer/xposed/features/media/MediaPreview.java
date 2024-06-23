@@ -177,7 +177,7 @@ public class MediaPreview extends Feature {
     private void startPlayer(long id, Context context, boolean isNewsletter) {
         var executor = Executors.newSingleThreadExecutor();
         try {
-            Cursor cursor0 = MessageStore.database.getReadableDatabase().rawQuery(String.format(Locale.ENGLISH, "SELECT message_url,mime_type,hex(media_key),direct_path FROM message_media WHERE message_row_id =\"%d\"", id), null);
+            Cursor cursor0 = MessageStore.getDatabase().rawQuery(String.format(Locale.ENGLISH, "SELECT message_url,mime_type,hex(media_key),direct_path FROM message_media WHERE message_row_id =\"%d\"", id), null);
             if (cursor0 != null && cursor0.getCount() > 0) {
                 cursor0.moveToFirst();
                 AtomicReference<String> url = new AtomicReference<>(cursor0.getString(0));

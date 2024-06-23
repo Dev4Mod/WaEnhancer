@@ -89,7 +89,7 @@ public class SeparateGroup extends Feature {
                     var chatCount = 0;
                     var groupCount = 0;
                     synchronized (SeparateGroup.class) {
-                        var db = MessageStore.database.getReadableDatabase();
+                        var db = MessageStore.getDatabase();
                         var sql = "SELECT * FROM chat WHERE unseen_message_count != 0";
                         var cursor = db.rawQuery(sql, null);
                         while (cursor.moveToNext()) {
