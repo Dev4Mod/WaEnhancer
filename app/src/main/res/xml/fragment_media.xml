@@ -17,8 +17,9 @@
         app:iconSpaceReserved="false"
         app:title="@string/download_title">
 
-        <Preference
+        <com.wmods.wppenhacer.preference.FileSelectPreference
             app:key="localdownload"
+            app:directory="true"
             app:title="@string/local_download" />
 
         <rikka.material.preference.MaterialSwitchPreference

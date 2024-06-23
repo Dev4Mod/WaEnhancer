@@ -38,8 +38,8 @@
 
     <declare-styleable name="FileSelectPreference">
         <attr name="android:entryValues" />
+        <attr name="directory" format="boolean" />
     </declare-styleable>
-
 
     <declare-styleable name="SubtitleCollapsingToolbarLayout">
         <!-- Specifies extra space on the start, top, end and bottom sides of the the expanded title text.

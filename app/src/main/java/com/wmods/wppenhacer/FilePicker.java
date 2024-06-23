@@ -17,10 +17,12 @@ public class FilePicker {
     public static ActivityResultLauncher<String> fileSalve;
     private static OnUriPickedListener mOnUriPickedListener;
     public static ActivityResultLauncher<String[]> fileCapture;
+    public static ActivityResultLauncher<Uri> directoryCapture;
 
     public static void registerFilePicker(AppCompatActivity activity) {
         mActivity = activity;
         fileCapture = activity.registerForActivityResult(new ActivityResultContracts.OpenDocument(), FilePicker::setFile);
+        directoryCapture = activity.registerForActivityResult(new ActivityResultContracts.OpenDocumentTree(), FilePicker::setDirectory);
         fileSalve = activity.registerForActivityResult(new ActivityResultContracts.CreateDocument("*/*"), FilePicker::setFile);
     }
 
@@ -43,6 +45,27 @@ public class FilePicker {
             mOnFilePickedListener = null;
         }
     }
+
+    private static void setDirectory(Uri uri) {
+        if (uri == null) return;
+
+        if (mOnFilePickedListener == null) {
+            mOnUriPickedListener.onUriPicked(uri);
+            mOnUriPickedListener = null;
+        }
+
+        if (mOnFilePickedListener != null) {
+            String realPath = null;
+            try {
+                realPath = RealPathUtil.getRealFolderPath(mActivity, uri);
+            } catch (Exception ignored) {
+            }
+            if (realPath == null) return;
+            mOnFilePickedListener.onFilePicked(new File(realPath));
+            mOnFilePickedListener = null;
+        }
+    }
+
 
 
 
