@@ -888,13 +888,6 @@ public class Unobfuscator {
         return resultArray;
     }
 
-    public static Method[] loadArchiveOnclickCaptureMethod(ClassLoader loader) throws Exception {
-        ArrayList<Method> result = new ArrayList<>();
-        for (var m : loadArchiveHideViewMethod(loader)) {
-            result.add(m.getDeclaringClass().getMethod("setOnClickListener", View.OnClickListener.class));
-        }
-        return result.toArray(new Method[0]);
-    }
 
     public static Method loadAntiRevokeOnCallReceivedMethod(ClassLoader loader) throws Exception {
         return UnobfuscatorCache.getInstance().getMethod(loader, () -> {
