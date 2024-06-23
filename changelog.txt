@@ -1,3 +1,9 @@
-[STATUS DOWNLOADER | VIEW ONCE DOWNLOADER | PROFILE PICTURE DOWNLOADER]
-* Fixed issue with unsaved contact download
-* Fixed files not appearing in the gallery
+[HIDE LOCKED CHATS]
+* Added function to hide locked chats, to access, hold the WhatsApp title on the home screen
+* Fixed empty space on chat locked screen when IGStatus is activated
+
+[HIDE ARCHIVED CHATS]
+* Now to access archived chats you have to quickly click 5 times on the WhatsApp title on the home screen
+
+[WA ENHANCER]
+* Hide Locked Chats and Hide Archived Chats are in the privacy tab
