@@ -6,8 +6,8 @@ import android.view.MenuItem;
 import androidx.annotation.NonNull;
 
 import com.wmods.wppenhacer.xposed.core.Feature;
-import com.wmods.wppenhacer.xposed.core.Unobfuscator;
-import com.wmods.wppenhacer.xposed.core.Utils;
+import com.wmods.wppenhacer.xposed.core.devkit.Unobfuscator;
+import com.wmods.wppenhacer.xposed.utils.Utils;
 
 import java.util.HashSet;
 import java.util.Set;

@@ -1,4 +1,4 @@
-package com.wmods.wppenhacer.xposed.core;
+package com.wmods.wppenhacer.xposed.core.devkit;
 
 import android.content.ContentValues;
 import android.content.Context;
@@ -14,6 +14,7 @@ import android.widget.FrameLayout;
 import android.widget.TextView;
 
 import com.wmods.wppenhacer.xposed.utils.ReflectionUtils;
+import com.wmods.wppenhacer.xposed.utils.Utils;
 
 import org.luckypray.dexkit.DexKitBridge;
 import org.luckypray.dexkit.query.FindClass;
@@ -1009,6 +1010,15 @@ public class Unobfuscator {
     public static Method loadBlueOnReplayViewButtonMethod(ClassLoader loader) throws Exception {
         return UnobfuscatorCache.getInstance().getMethod(loader, () -> {
             var method = findFirstMethodUsingStrings(loader, StringMatchType.Contains, "PLAYBACK_PAGE_ITEM_ON_CREATE_VIEW_END");
+            if (method == null)
+                throw new RuntimeException("BlueOnReplayViewButton method not found");
+            return method;
+        });
+    }
+
+    public static Method loadBlueOnReplayStatusViewMethod(ClassLoader loader) throws Exception {
+        return UnobfuscatorCache.getInstance().getMethod(loader, () -> {
+            var method = findFirstMethodUsingStrings(loader, StringMatchType.Contains, "StatusPlaybackPage/onViewCreated");
             if (method == null)
                 throw new RuntimeException("BlueOnReplayViewButton method not found");
             return method;

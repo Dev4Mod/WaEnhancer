@@ -19,7 +19,7 @@ import android.graphics.drawable.RippleDrawable;
 import android.graphics.drawable.ShapeDrawable;
 import android.graphics.drawable.StateListDrawable;
 
-import com.wmods.wppenhacer.xposed.core.DesignUtils;
+import com.wmods.wppenhacer.xposed.utils.DesignUtils;
 
 import java.util.HashMap;
 

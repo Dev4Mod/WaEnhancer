@@ -1,4 +1,4 @@
-package com.wmods.wppenhacer.xposed.core;
+package com.wmods.wppenhacer.xposed.utils;
 
 public class ResId {
 

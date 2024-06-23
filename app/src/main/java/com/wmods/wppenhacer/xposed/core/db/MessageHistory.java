@@ -6,7 +6,7 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
-import com.wmods.wppenhacer.xposed.core.Utils;
+import com.wmods.wppenhacer.xposed.utils.Utils;
 
 import java.util.ArrayList;
 

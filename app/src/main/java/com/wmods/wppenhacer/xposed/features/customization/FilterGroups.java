@@ -16,13 +16,13 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 
-import com.wmods.wppenhacer.xposed.core.DesignUtils;
 import com.wmods.wppenhacer.xposed.core.Feature;
-import com.wmods.wppenhacer.xposed.core.MainFeatures;
-import com.wmods.wppenhacer.xposed.core.Unobfuscator;
-import com.wmods.wppenhacer.xposed.core.UnobfuscatorCache;
-import com.wmods.wppenhacer.xposed.core.Utils;
+import com.wmods.wppenhacer.xposed.core.FeatureLoader;
+import com.wmods.wppenhacer.xposed.core.devkit.Unobfuscator;
+import com.wmods.wppenhacer.xposed.core.devkit.UnobfuscatorCache;
+import com.wmods.wppenhacer.xposed.utils.DesignUtils;
 import com.wmods.wppenhacer.xposed.utils.ReflectionUtils;
+import com.wmods.wppenhacer.xposed.utils.Utils;
 
 import java.lang.reflect.Method;
 
@@ -48,7 +48,7 @@ public class FilterGroups extends Feature {
 
         if (!prefs.getBoolean("filtergroups", false) || prefs.getBoolean("separategroups", false))
             return;
-        if (Utils.getApplication().getPackageName().equals(MainFeatures.PACKAGE_BUSINESS))
+        if (Utils.getApplication().getPackageName().equals(FeatureLoader.PACKAGE_BUSINESS))
             return; // Business is not supported
 
         var filterAdaperClass = Unobfuscator.loadFilterAdaperClass(classLoader);

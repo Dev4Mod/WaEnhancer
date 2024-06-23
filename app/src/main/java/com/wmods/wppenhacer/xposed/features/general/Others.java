@@ -14,15 +14,15 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 
-import com.wmods.wppenhacer.xposed.core.DesignUtils;
 import com.wmods.wppenhacer.xposed.core.Feature;
-import com.wmods.wppenhacer.xposed.core.ResId;
-import com.wmods.wppenhacer.xposed.core.Unobfuscator;
-import com.wmods.wppenhacer.xposed.core.Utils;
 import com.wmods.wppenhacer.xposed.core.WppCore;
 import com.wmods.wppenhacer.xposed.core.components.AlertDialogWpp;
 import com.wmods.wppenhacer.xposed.core.db.MessageStore;
+import com.wmods.wppenhacer.xposed.core.devkit.Unobfuscator;
+import com.wmods.wppenhacer.xposed.utils.DesignUtils;
 import com.wmods.wppenhacer.xposed.utils.ReflectionUtils;
+import com.wmods.wppenhacer.xposed.utils.ResId;
+import com.wmods.wppenhacer.xposed.utils.Utils;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -125,8 +125,6 @@ public class Others extends Feature {
         if (audio_type > 0) {
             sendAudioType(audio_type);
         }
-
-        copieStatusToClipboard();
         customPlayBackSpeed();
         showOnline(showOnline);
 
@@ -162,25 +160,6 @@ public class Others extends Feature {
         });
     }
 
-    private void copieStatusToClipboard() throws Exception {
-        var viewButtonMethod = Unobfuscator.loadBlueOnReplayViewButtonMethod(classLoader);
-        logDebug(Unobfuscator.getMethodDescriptor(viewButtonMethod));
-
-        XposedBridge.hookMethod(viewButtonMethod, new XC_MethodHook() {
-            @Override
-            protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-                var view = (View) param.getResult();
-                var caption = (TextView) view.findViewById(Utils.getID("caption", "id"));
-                if (caption != null) {
-                    caption.setOnLongClickListener((view1 -> {
-                        Utils.setToClipboard(caption.getText().toString());
-                        Utils.showToast(Utils.getApplication().getString(ResId.string.copied_to_clipboard), Toast.LENGTH_LONG);
-                        return true;
-                    }));
-                }
-            }
-        });
-    }
 
     private void sendAudioType(int audio_type) throws Exception {
         var sendAudioTypeMethod = Unobfuscator.loadSendAudioTypeMethod(classLoader);

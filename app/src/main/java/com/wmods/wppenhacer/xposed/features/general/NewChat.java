@@ -14,12 +14,12 @@ import android.widget.LinearLayout;
 
 import androidx.annotation.NonNull;
 
-import com.wmods.wppenhacer.xposed.core.DesignUtils;
 import com.wmods.wppenhacer.xposed.core.Feature;
-import com.wmods.wppenhacer.xposed.core.ResId;
-import com.wmods.wppenhacer.xposed.core.Utils;
 import com.wmods.wppenhacer.xposed.core.WppCore;
 import com.wmods.wppenhacer.xposed.core.components.AlertDialogWpp;
+import com.wmods.wppenhacer.xposed.utils.DesignUtils;
+import com.wmods.wppenhacer.xposed.utils.ResId;
+import com.wmods.wppenhacer.xposed.utils.Utils;
 
 import de.robv.android.xposed.XSharedPreferences;
 

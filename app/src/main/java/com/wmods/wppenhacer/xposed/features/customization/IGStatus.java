@@ -15,9 +15,9 @@ import androidx.annotation.NonNull;
 import com.wmods.wppenhacer.adapter.IGStatusAdapter;
 import com.wmods.wppenhacer.views.IGStatusView;
 import com.wmods.wppenhacer.xposed.core.Feature;
-import com.wmods.wppenhacer.xposed.core.Unobfuscator;
-import com.wmods.wppenhacer.xposed.core.Utils;
+import com.wmods.wppenhacer.xposed.core.devkit.Unobfuscator;
 import com.wmods.wppenhacer.xposed.utils.ReflectionUtils;
+import com.wmods.wppenhacer.xposed.utils.Utils;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;

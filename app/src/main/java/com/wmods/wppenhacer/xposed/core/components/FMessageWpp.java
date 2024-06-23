@@ -1,6 +1,6 @@
 package com.wmods.wppenhacer.xposed.core.components;
 
-import com.wmods.wppenhacer.xposed.core.Unobfuscator;
+import com.wmods.wppenhacer.xposed.core.devkit.Unobfuscator;
 import com.wmods.wppenhacer.xposed.utils.ReflectionUtils;
 
 import java.lang.reflect.Field;

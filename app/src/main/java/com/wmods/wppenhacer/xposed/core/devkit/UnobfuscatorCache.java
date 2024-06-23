@@ -1,10 +1,12 @@
-package com.wmods.wppenhacer.xposed.core;
+package com.wmods.wppenhacer.xposed.core.devkit;
 
 import android.app.Application;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.content.res.Resources;
+
+import com.wmods.wppenhacer.xposed.utils.Utils;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;

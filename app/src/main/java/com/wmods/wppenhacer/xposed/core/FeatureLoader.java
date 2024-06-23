@@ -20,6 +20,8 @@ import androidx.core.content.ContextCompat;
 import com.wmods.wppenhacer.BuildConfig;
 import com.wmods.wppenhacer.xposed.core.components.AlertDialogWpp;
 import com.wmods.wppenhacer.xposed.core.components.FMessageWpp;
+import com.wmods.wppenhacer.xposed.core.devkit.Unobfuscator;
+import com.wmods.wppenhacer.xposed.core.devkit.UnobfuscatorCache;
 import com.wmods.wppenhacer.xposed.features.customization.BubbleColors;
 import com.wmods.wppenhacer.xposed.features.customization.CustomTheme;
 import com.wmods.wppenhacer.xposed.features.customization.CustomTime;
@@ -48,6 +50,7 @@ import com.wmods.wppenhacer.xposed.features.media.MediaQuality;
 import com.wmods.wppenhacer.xposed.features.media.StatusDownload;
 import com.wmods.wppenhacer.xposed.features.others.Channels;
 import com.wmods.wppenhacer.xposed.features.others.ChatFilters;
+import com.wmods.wppenhacer.xposed.features.others.CopyStatus;
 import com.wmods.wppenhacer.xposed.features.others.GroupAdmin;
 import com.wmods.wppenhacer.xposed.features.others.Stickers;
 import com.wmods.wppenhacer.xposed.features.privacy.CallPrivacy;
@@ -59,6 +62,9 @@ import com.wmods.wppenhacer.xposed.features.privacy.HideReceipt;
 import com.wmods.wppenhacer.xposed.features.privacy.HideSeen;
 import com.wmods.wppenhacer.xposed.features.privacy.HideTagForward;
 import com.wmods.wppenhacer.xposed.features.privacy.ViewOnce;
+import com.wmods.wppenhacer.xposed.utils.DesignUtils;
+import com.wmods.wppenhacer.xposed.utils.ResId;
+import com.wmods.wppenhacer.xposed.utils.Utils;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -70,7 +76,7 @@ import de.robv.android.xposed.XSharedPreferences;
 import de.robv.android.xposed.XposedBridge;
 import de.robv.android.xposed.XposedHelpers;
 
-public class MainFeatures {
+public class FeatureLoader {
     public static Application mApp;
 
     public final static String PACKAGE_WPP = "com.whatsapp";
@@ -97,7 +103,7 @@ public class MainFeatures {
                 PackageInfo packageInfo = packageManager.getPackageInfo(mApp.getPackageName(), 0);
                 XposedBridge.log(packageInfo.versionName);
                 currentVersion = packageInfo.versionName;
-                supportedVersions = Arrays.asList(mApp.getResources().getStringArray(Objects.equals(mApp.getPackageName(), MainFeatures.PACKAGE_WPP) ? ResId.array.supported_versions_wpp : ResId.array.supported_versions_business));
+                supportedVersions = Arrays.asList(mApp.getResources().getStringArray(Objects.equals(mApp.getPackageName(), FeatureLoader.PACKAGE_WPP) ? ResId.array.supported_versions_wpp : ResId.array.supported_versions_business));
                 try {
                     UnobfuscatorCache.init(mApp, pref);
                     WppCore.Initialize(loader);
@@ -237,7 +243,8 @@ public class MainFeatures {
                 DownloadProfile.class,
                 ChatFilters.class,
                 GroupAdmin.class,
-                Stickers.class
+                Stickers.class,
+                CopyStatus.class
         };
 
         for (var classe : classes) {

@@ -1,4 +1,4 @@
-package com.wmods.wppenhacer.xposed.core;
+package com.wmods.wppenhacer.xposed.utils;
 
 import android.annotation.SuppressLint;
 import android.app.Application;
@@ -20,7 +20,8 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 
 import com.wmods.wppenhacer.App;
-import com.wmods.wppenhacer.xposed.utils.MimeTypeUtils;
+import com.wmods.wppenhacer.xposed.core.FeatureLoader;
+import com.wmods.wppenhacer.xposed.core.WppCore;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -38,7 +39,7 @@ public class Utils {
 
     @NonNull
     public static Application getApplication() {
-        return MainFeatures.mApp == null ? App.getInstance() : MainFeatures.mApp;
+        return FeatureLoader.mApp == null ? App.getInstance() : FeatureLoader.mApp;
     }
 
     public static boolean doRestart(Context context) {
@@ -65,12 +66,12 @@ public class Utils {
     }
 
     public static int dipToPixels(float dipValue) {
-        DisplayMetrics metrics = MainFeatures.mApp.getResources().getDisplayMetrics();
+        DisplayMetrics metrics = FeatureLoader.mApp.getResources().getDisplayMetrics();
         return (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, dipValue, metrics);
     }
 
     public static String getMyNumber() {
-        return MainFeatures.mApp.getSharedPreferences(MainFeatures.mApp.getPackageName() + "_preferences_light", Context.MODE_PRIVATE).getString("ph", "");
+        return FeatureLoader.mApp.getSharedPreferences(FeatureLoader.mApp.getPackageName() + "_preferences_light", Context.MODE_PRIVATE).getString("ph", "");
     }
 
     public static String getDateTimeFromMillis(long timestamp) {

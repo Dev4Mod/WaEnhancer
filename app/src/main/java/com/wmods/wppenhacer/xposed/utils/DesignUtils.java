@@ -1,4 +1,4 @@
-package com.wmods.wppenhacer.xposed.core;
+package com.wmods.wppenhacer.xposed.utils;
 
 import android.annotation.SuppressLint;
 import android.content.SharedPreferences;
@@ -18,6 +18,7 @@ import android.os.Build;
 import androidx.annotation.NonNull;
 
 import com.wmods.wppenhacer.WppXposed;
+import com.wmods.wppenhacer.xposed.core.WppCore;
 
 public class DesignUtils {
 

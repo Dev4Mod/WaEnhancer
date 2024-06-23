@@ -3,8 +3,8 @@ package com.wmods.wppenhacer.xposed.features.privacy;
 import androidx.annotation.NonNull;
 
 import com.wmods.wppenhacer.xposed.core.Feature;
-import com.wmods.wppenhacer.xposed.core.Unobfuscator;
 import com.wmods.wppenhacer.xposed.core.WppCore;
+import com.wmods.wppenhacer.xposed.core.devkit.Unobfuscator;
 
 import java.lang.reflect.Array;
 import java.lang.reflect.Method;

@@ -6,7 +6,7 @@ import android.widget.FrameLayout;
 import androidx.annotation.NonNull;
 
 import com.wmods.wppenhacer.adapter.IGStatusAdapter;
-import com.wmods.wppenhacer.xposed.core.Utils;
+import com.wmods.wppenhacer.xposed.utils.Utils;
 
 public class IGStatusView extends FrameLayout {
     public HorizontalListView mStatusListView;

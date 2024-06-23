@@ -8,7 +8,7 @@ import android.os.Looper;
 import androidx.appcompat.app.AppCompatDelegate;
 import androidx.preference.PreferenceManager;
 
-import com.wmods.wppenhacer.xposed.core.MainFeatures;
+import com.wmods.wppenhacer.xposed.core.FeatureLoader;
 
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -59,7 +59,7 @@ public class App extends Application {
 
     public void restartApp(String packageWpp) {
         Intent intent = new Intent(BuildConfig.APPLICATION_ID + ".WHATSAPP.RESTART");
-        intent.putExtra("PKG", MainFeatures.PACKAGE_WPP);
+        intent.putExtra("PKG", FeatureLoader.PACKAGE_WPP);
         sendBroadcast(intent);
     }
 }

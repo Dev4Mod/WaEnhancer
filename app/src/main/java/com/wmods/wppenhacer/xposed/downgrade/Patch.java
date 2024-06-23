@@ -5,7 +5,7 @@ import static de.robv.android.xposed.XposedHelpers.findAndHookMethod;
 
 import android.os.Build;
 
-import com.wmods.wppenhacer.xposed.core.MainFeatures;
+import com.wmods.wppenhacer.xposed.core.FeatureLoader;
 
 import java.lang.reflect.Field;
 import java.util.Objects;
@@ -24,7 +24,7 @@ public class Patch {
             @Override
             protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
                 var pkg = (String) XposedHelpers.callMethod(param.args[0], "getPackageName");
-                if (Objects.equals(pkg, MainFeatures.PACKAGE_WPP) || Objects.equals(pkg, MainFeatures.PACKAGE_BUSINESS))
+                if (Objects.equals(pkg, FeatureLoader.PACKAGE_WPP) || Objects.equals(pkg, FeatureLoader.PACKAGE_BUSINESS))
                     param.setResult(null);
             }
         };
@@ -33,7 +33,7 @@ public class Patch {
             @Override
             protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
                 var pkg = (String) XposedHelpers.callMethod(param.args[0], "getPackageName");
-                if (Objects.equals(pkg, MainFeatures.PACKAGE_WPP) || Objects.equals(pkg, MainFeatures.PACKAGE_BUSINESS))
+                if (Objects.equals(pkg, FeatureLoader.PACKAGE_WPP) || Objects.equals(pkg, FeatureLoader.PACKAGE_BUSINESS))
                     param.setResult(true);
             }
         };
@@ -84,7 +84,7 @@ public class Patch {
                     public void beforeHookedMethod(MethodHookParam methodHookParam) throws Throwable {
                         Object packageInfoLite = methodHookParam.args[0];
                         var packageName = XposedHelpers.getObjectField(packageInfoLite, "mPackageName");
-                        if (packageName == MainFeatures.PACKAGE_WPP || packageName == MainFeatures.PACKAGE_BUSINESS) {
+                        if (packageName == FeatureLoader.PACKAGE_WPP || packageName == FeatureLoader.PACKAGE_BUSINESS) {
                             Field field = packageClazz.getField("mVersionCode");
                             field.setAccessible(true);
                             field.set(packageInfoLite, 0);

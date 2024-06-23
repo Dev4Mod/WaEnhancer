@@ -6,7 +6,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.view.View;
 
-import com.wmods.wppenhacer.xposed.core.Unobfuscator;
+import com.wmods.wppenhacer.xposed.core.devkit.Unobfuscator;
 import com.wmods.wppenhacer.xposed.utils.ReflectionUtils;
 
 import java.lang.reflect.Method;

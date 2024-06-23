@@ -10,9 +10,9 @@ import androidx.annotation.NonNull;
 import androidx.preference.PreferenceManager;
 
 import com.wmods.wppenhacer.xposed.AntiUpdater;
-import com.wmods.wppenhacer.xposed.core.MainFeatures;
-import com.wmods.wppenhacer.xposed.core.ResId;
+import com.wmods.wppenhacer.xposed.core.FeatureLoader;
 import com.wmods.wppenhacer.xposed.downgrade.Patch;
+import com.wmods.wppenhacer.xposed.utils.ResId;
 
 import de.robv.android.xposed.IXposedHookInitPackageResources;
 import de.robv.android.xposed.IXposedHookLoadPackage;
@@ -56,10 +56,10 @@ public class WppXposed implements IXposedHookLoadPackage, IXposedHookInitPackage
         XposedBridge.log("[•] This package: " + lpparam.packageName);
         AntiUpdater.hookSession(pref);
         Patch.handleLoadPackage(lpparam, pref);
-        if (!packageName.equals(MainFeatures.PACKAGE_WPP) && !packageName.equals(MainFeatures.PACKAGE_BUSINESS))
+        if (!packageName.equals(FeatureLoader.PACKAGE_WPP) && !packageName.equals(FeatureLoader.PACKAGE_BUSINESS))
             return;
         var sourceDir = lpparam.appInfo.sourceDir;
-        MainFeatures.start(classLoader, getPref(), sourceDir);
+        FeatureLoader.start(classLoader, getPref(), sourceDir);
         disableSecureFlag();
     }
 
@@ -67,7 +67,7 @@ public class WppXposed implements IXposedHookLoadPackage, IXposedHookInitPackage
     public void handleInitPackageResources(XC_InitPackageResources.InitPackageResourcesParam resparam) throws Throwable {
         var packageName = resparam.packageName;
 
-        if (!packageName.equals(MainFeatures.PACKAGE_WPP) && !packageName.equals(MainFeatures.PACKAGE_BUSINESS))
+        if (!packageName.equals(FeatureLoader.PACKAGE_WPP) && !packageName.equals(FeatureLoader.PACKAGE_BUSINESS))
             return;
 
         XModuleResources modRes = XModuleResources.createInstance(MODULE_PATH, resparam.res);

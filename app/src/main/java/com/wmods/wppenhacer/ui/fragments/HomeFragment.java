@@ -25,8 +25,8 @@ import com.wmods.wppenhacer.MainActivity;
 import com.wmods.wppenhacer.R;
 import com.wmods.wppenhacer.databinding.FragmentHomeBinding;
 import com.wmods.wppenhacer.ui.fragments.base.BaseFragment;
-import com.wmods.wppenhacer.xposed.core.MainFeatures;
-import com.wmods.wppenhacer.xposed.core.Utils;
+import com.wmods.wppenhacer.xposed.core.FeatureLoader;
+import com.wmods.wppenhacer.xposed.utils.Utils;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -55,7 +55,7 @@ public class HomeFragment extends BaseFragment {
             @Override
             public void onReceive(Context context, Intent intent) {
                 try {
-                    if (MainFeatures.PACKAGE_WPP.equals(intent.getStringExtra("PKG")))
+                    if (FeatureLoader.PACKAGE_WPP.equals(intent.getStringExtra("PKG")))
                         receiverBroadcastWpp(context, intent);
                     else
                         receiverBroadcastBusiness(context, intent);
@@ -72,12 +72,12 @@ public class HomeFragment extends BaseFragment {
         checkStateWpp(requireActivity());
 
         binding.rebootBtn.setOnClickListener(view -> {
-            App.getInstance().restartApp(MainFeatures.PACKAGE_WPP);
+            App.getInstance().restartApp(FeatureLoader.PACKAGE_WPP);
             disableWpp(requireActivity());
         });
 
         binding.rebootBtn2.setOnClickListener(view -> {
-            App.getInstance().restartApp(MainFeatures.PACKAGE_BUSINESS);
+            App.getInstance().restartApp(FeatureLoader.PACKAGE_BUSINESS);
             disableBusiness(requireActivity());
         });
 
@@ -126,8 +126,8 @@ public class HomeFragment extends BaseFragment {
     private void resetConfigs(Context context) {
         var prefs = PreferenceManager.getDefaultSharedPreferences(context);
         prefs.getAll().forEach((key, value) -> prefs.edit().remove(key).apply());
-        App.getInstance().restartApp(MainFeatures.PACKAGE_WPP);
-        App.getInstance().restartApp(MainFeatures.PACKAGE_BUSINESS);
+        App.getInstance().restartApp(FeatureLoader.PACKAGE_WPP);
+        App.getInstance().restartApp(FeatureLoader.PACKAGE_BUSINESS);
         Utils.showToast(context.getString(R.string.configs_reset), Toast.LENGTH_SHORT);
     }
 
@@ -189,8 +189,8 @@ public class HomeFragment extends BaseFragment {
                     }
                 }
                 Toast.makeText(context, context.getString(R.string.configs_imported), Toast.LENGTH_SHORT).show();
-                App.getInstance().restartApp(MainFeatures.PACKAGE_WPP);
-                App.getInstance().restartApp(MainFeatures.PACKAGE_BUSINESS);
+                App.getInstance().restartApp(FeatureLoader.PACKAGE_WPP);
+                App.getInstance().restartApp(FeatureLoader.PACKAGE_BUSINESS);
             } catch (Exception e) {
                 Toast.makeText(context, e.getMessage(), Toast.LENGTH_SHORT).show();
             }
@@ -211,13 +211,13 @@ public class HomeFragment extends BaseFragment {
             binding.status.setCardBackgroundColor(activity.getColor(rikka.material.R.color.material_red_500));
             binding.statusSummary.setVisibility(View.GONE);
         }
-        if (isInstalled(MainFeatures.PACKAGE_WPP)) {
+        if (isInstalled(FeatureLoader.PACKAGE_WPP)) {
             disableWpp(activity);
         } else {
             binding.status2.setVisibility(View.GONE);
         }
 
-        if (isInstalled(MainFeatures.PACKAGE_BUSINESS)) {
+        if (isInstalled(FeatureLoader.PACKAGE_BUSINESS)) {
             disableBusiness(activity);
         } else {
             binding.status3.setVisibility(View.GONE);

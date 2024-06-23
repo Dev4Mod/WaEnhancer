@@ -2,7 +2,7 @@ package com.wmods.wppenhacer.xposed;
 
 import android.content.pm.PackageInstaller;
 
-import com.wmods.wppenhacer.xposed.core.MainFeatures;
+import com.wmods.wppenhacer.xposed.core.FeatureLoader;
 
 import java.io.IOException;
 
@@ -19,7 +19,7 @@ public class AntiUpdater {
             protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
                 var session = (PackageInstaller.SessionParams) param.args[0];
                 var packageName = XposedHelpers.getObjectField(session, "mPackageName");
-                if (packageName.equals(MainFeatures.PACKAGE_WPP) || packageName.equals(MainFeatures.PACKAGE_BUSINESS)) {
+                if (packageName.equals(FeatureLoader.PACKAGE_WPP) || packageName.equals(FeatureLoader.PACKAGE_BUSINESS)) {
                     if (prefs.getBoolean("lockupdate", false)) {
                         param.setThrowable(new IOException("UPDATE LOCKED BY WAENHANCER"));
                     }

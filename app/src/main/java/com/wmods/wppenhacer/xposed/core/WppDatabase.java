@@ -3,6 +3,7 @@ package com.wmods.wppenhacer.xposed.core;
 import android.database.sqlite.SQLiteOpenHelper;
 
 import com.wmods.wppenhacer.xposed.core.db.MessageStore;
+import com.wmods.wppenhacer.xposed.core.devkit.Unobfuscator;
 
 import de.robv.android.xposed.XC_MethodHook;
 import de.robv.android.xposed.XSharedPreferences;
