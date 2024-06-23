@@ -99,7 +99,6 @@ public class IGStatus extends Feature {
                     return;
                 if (XposedHelpers.findClass("com.whatsapp.conversationslist.FolderConversationsFragment", classLoader).isInstance(param.thisObject))
                     return;
-                log(new Exception());
                 var view = (ViewGroup) param.getResult();
                 if (view == null) return;
                 var mainView = (ListView) view.findViewById(android.R.id.list);
