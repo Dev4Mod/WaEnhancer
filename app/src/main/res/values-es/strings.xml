@@ -68,7 +68,7 @@
     <string name="blueonreply">Enviar marca azul al responder</string>
     <string name="blueonreply_sum">Envía marcas azules después de responder a un mensaje\n(NOTA: debe tener activo \"Ocultar marcas azules\")</string>
     <string name="hide_archived_chat">Ocultar chat archivado</string>
-    <string name="hide_archived_chat_sum">Oculte los chats archivados, véalos manteniendo presionado el título de WhatsApp en la pantalla de inicio</string>
+    <string name="hide_archived_chat_sum">Hide archived chats, to access click 5 times on the \"WhatsApp\" title in the header on Home Screen</string>
     <string name="hide_once_view_seen">Ocultar marca azul de Ver Una Vez y del audio</string>
     <string name="hide_once_view_seen_sum">Ocultar eso una vez que se haya visto la vista y el audio</string>
     <string name="call_blocker">Bloquear llamadas</string>
@@ -259,11 +259,18 @@
     <string name="delete_for_me">Eliminar (para mí)</string>
     <string name="send_audio_as_voice_audio_note">Enviar audio como nota de voz/audio</string>
     <string name="send_audio_as_voice_audio_note_sum">Envia siempre multimedia de audio o reenvialo como una nota de voz o un audio</string>
-    <string name="voice_note_speed">Voice Note Speed</string>
-    <string name="select">Select</string>
-    <string name="search_contacts">Search contacts</string>
-    <string name="contact_block_list">List of blocked contacts</string>
-    <string name="contact_white_list">List of allowed contacts</string>
-    <string name="no_contacts_selected">No contacts selected</string>
-    <string name="contact_were_selected">%d contact(s) were selected</string>
+    <string name="voice_note_speed">Velocidad de nota de voz</string>
+    <string name="select">Elegir</string>
+    <string name="search_contacts">Buscar contactos</string>
+    <string name="contact_block_list">Lista de contactos bloqueados</string>
+    <string name="contact_white_list">Lista de contactos permitidos</string>
+    <string name="no_contacts_selected">Ningún contacto seleccionado</string>
+    <string name="contact_were_selected">%d de lo(s) contacto(s) seleccionado(s)</string>
+    <string name="standard">Standard</string>
+    <string name="audio_note">Audio note</string>
+    <string name="voice_note">Voice note</string>
+    <string name="reset_settings">Reset Settings</string>
+    <string name="configs_reset">Settings reseted</string>
+    <string name="hide_locked_chats">Hide Locked Chats</string>
+    <string name="hide_locked_chats_sum">Hide archived chats, view them by holding WhatsApp title on home screen</string>
 </resources>

@@ -31,7 +31,7 @@
     <string name="videoquality_sum">Kirim video dalam kualitas HD</string>
     <string name="colors_title">Warna</string>
     <string name="colors_customization">Ubah Warna WhatsApp Anda</string>
-    <string name="colors_customization_sum">Ubah semua warna di Whatsapp Anda (Hanya berfungsi di Tema Gelap)</string>
+    <string name="colors_customization_sum">Ubah semua warna di WhatsApp Anda (Hanya berfungsi di Tema Gelap)</string>
     <string name="general">Umum</string>
     <string name="restart_whatsapp">Mulai ulang WhatsApp</string>
     <string name="conversation">Layar Percakapan</string>
@@ -70,7 +70,7 @@
     <string name="blueonreply_sum">Kontak hanya akan melihat tanda centang biru setelah Anda membalas pesan.
 (CATATAN: Harus mengaktifkan \"Sembunyikan centang biru\")</string>
     <string name="hide_archived_chat">Sembunyikan Obrolan yang Diarsipkan</string>
-    <string name="hide_archived_chat_sum">Sembunyikan obrolan yang diarsipkan, klik dan tahan pada judul \"WhatsApp\" di layar beranda untuk mengakses obrolan</string>
+    <string name="hide_archived_chat_sum">Hide archived chats, to access click 5 times on the \"WhatsApp\" title in the header on Home Screen</string>
     <string name="hide_once_view_seen">Sembunyikan Lihat Sekali dan Pesan Suara</string>
     <string name="hide_once_view_seen_sum">Orang lain tidak akan mengetahui bahwa Anda telah membuka pesan \"lihat sekali\" dan pesan suara</string>
     <string name="call_blocker">Blokir Panggilan</string>
@@ -98,7 +98,7 @@
     <string name="activate">Aktifkan</string>
     <string name="cancel">Batal</string>
     <string name="edited_history">Riwayat pesan yang diedit</string>
-    <string name="message_original">Pesan Asli</string>
+    <string name="message_original">Pesan asli</string>
     <string name="new_chat">Obrolan baru</string>
     <string name="number_with_country_code">Nomor dengan kode negara</string>
     <string name="message">Pesan</string>
@@ -133,7 +133,8 @@
     <string name="restart_wpp">WhatsApp harus dimulai ulang agar perubahan di Wa Enhancer dapat diterapkan.
 
 Apakah Anda ingin mulai ulang WhatsApp?</string>
-    <string name="version_s_not_listed">Versi %s tidak terdaftar dalam versi yang didukung!\nHarap gunakan versi Whatsapp yang didukung!</string>
+    <string name="version_s_not_listed">Versi %s tidak terdaftar dalam versi yang didukung!
+Harap gunakan versi WhatsApp yang didukung!</string>
     <string name="media">Media</string>
     <string name="show_button_to_send_blue_tick">Tampilkan Tombol Centang Biru</string>
     <string name="show_button_to_send_blue_tick_sum">Tampilkan tombol centang biru (dibaca/dilihat untuk pesan dan status)</string>
@@ -162,7 +163,7 @@ Apakah Anda ingin mulai ulang WhatsApp?</string>
     <string name="send_video_in_real_resolution">Kirim Video Resolusi Asli</string>
     <string name="send_video_in_real_resolution_sum">Kirim video dalam resolusi asli untuk status, grup dan obrolan</string>
     <string name="send_video_in_60fps">Kirim Video 60fps</string>
-    <string name="send_video_in_60fps_sum">Kirim video dalam 60fps untuk status, grup, dan obrolan</string>
+    <string name="send_video_in_60fps_sum">Kirim video dalam 60fps untuk status, grup dan obrolan</string>
     <string name="status">Status</string>
     <string name="download_title">Unduhan</string>
     <string name="seentick_menu">Tampilkan tombol di menu</string>
@@ -187,16 +188,18 @@ Apakah Anda ingin mulai ulang WhatsApp?</string>
     <string name="enable_new_chat_button_sum">Tampilkan tombol di layar beranda untuk memulai obrolan baru</string>
     <string name="enable_restart_button">Tampilkan Tombol Mulai Ulang</string>
     <string name="enable_restart_button_sum">Tampilkan tombol di layar beranda untuk memulai ulang aplikasi</string>
-    <string name="toast_on_delete">Tampilkan Notifikasi Saat Pesan Dihapus</string>
-    <string name="toast_on_delete_sum">Tampilkan notifikasi mengambang jika ada pesan yang dihapus</string>
+    <string name="toast_on_delete">Notifikasi Saat Pesan/Status Dihapus</string>
+    <string name="toast_on_delete_sum">Tampilkan notifikasi mengambang jika ada pesan/status yang dihapus</string>
     <string name="enable_top_navigation">Aktifkan Navigasi Atas</string>
     <string name="enable_top_navigation_sum">Aktifkan bilah navigasi lama (tab di bagian atas)</string>
     <string name="hideread_group">Sembunyikan Centang Biru di Grup</string>
     <string name="hideread_group_sum">Pengirim pesan tidak akan mengetahui bahwa Anda telah membaca pesannya di grup</string>
     <string name="show_freezeLastSeen_button">Tampilkan Tombol Bekukan \"terakhir dilihat dan online\"</string>
     <string name="show_freezeLastSeen_sum">Tampilkan tombol untuk membekukan \"terakhir dilihat dan online\" di toolbar layar beranda</string>
-    <string name="freezelastseen_message">PERHATIAN!!!\n\nSaat Anda mengaktifkan bekukan \"terakhir dilihat dan online\", Anda tidak dapat melihat pembaruan kehadiran apa pun dari orang lain seperti: mengetik, merekam, terakhir dilihat dan online</string>
-    <string name="freezelastseen_title">Bekukan \"terakhir dilihat dan online\"</string>
+    <string name="freezelastseen_message">PERHATIAN!!!
+
+Saat Anda mengaktifkan bekukan \"terakhir dilihat dan online\", Anda tidak dapat melihat pembaruan kehadiran apa pun dari orang lain seperti: mengetik, merekam, terakhir dilihat dan online</string>
+    <string name="freezelastseen_title">@string/freezelastseen</string>
     <string name="wallpaper_transparency">Transparansi Wallpaper</string>
     <string name="select_wallpaper">Pilih Wallpaper</string>
     <string name="wallpaper_not_selected">Wallpaper tidak dipilih</string>
@@ -207,7 +210,7 @@ Apakah Anda ingin mulai ulang WhatsApp?</string>
     <string name="backup_settings">Cadangkan Setelan</string>
     <string name="import_settings">Pulihkan</string>
     <string name="export_settings">Cadangkan</string>
-    <string name="version_error">Versi Whatsapp yang Anda gunakan tidak kompatibel dan menimbulkan kesalahan pada fitur-fitur berikut:\n\n</string>
+    <string name="version_error">Versi Whatsapp yang Anda gunakan tidak kompatibel dan menimbulkan kesalahan pada fitur-fitur berikut:</string>
     <string name="copy_to_clipboard">Menyalin ke papan klip</string>
     <string name="copied_to_clipboard">Disalin ke papan klip</string>
     <string name="error_detected">Kesalahan terdeteksi</string>
@@ -215,17 +218,18 @@ Apakah Anda ingin mulai ulang WhatsApp?</string>
     <string name="deleted_message">menghapus pesan</string>
     <string name="deleted_status">menghapus status</string>
     <string name="remove_limit_edit_message">Hapus Batas Mengedit Pesan</string>
-    <string name="remove_limit_edit_message_sum">Hapus batas 15 menit untuk mengedit pesan</string>
+    <string name="remove_limit_edit_message_sum">Hapus batas waktu 15 menit untuk mengedit pesan</string>
     <string name="disable_audio_sensor">Nonaktifkan Sensor Audio</string>
     <string name="disable_audio_sensor_sum">Nonaktifkan peralihan audio dengan sensor jarak</string>
-    <string name="show_admin_group_icon"> Ikon Admin Grup</string>
+    <string name="show_admin_group_icon">Ikon Admin Grup</string>
     <string name="show_admin_group_icon_sum">Tampilkan ikon admin di samping nama pengguna yang merupakan admin grup</string>
     <string name="toolbar_transparency">Transparansi Toolbar</string>
     <string name="navigation_transparency">Transparansi Navigasi</string>
     <string name="show_online_last_seen_in_conversation_list">Tampilkan \"terakhir dilihat dan online\"</string>
-    <string name="show_online_last_seen_in_conversation_list_sum">Tampilkan \"terakhir dilihat dan online\" di layar beranda\n(CATATAN: Harus mengaktifkan \"Terakhir dilihat dan online\" untuk semua orang di menu setelan privasi WhatsApp)</string>
+    <string name="show_online_last_seen_in_conversation_list_sum">Tampilkan \"terakhir dilihat dan online\" di layar beranda
+(CATATAN: Harus mengaktifkan \"Terakhir dilihat dan online\" untuk semua orang di menu setelan privasi WhatsApp)</string>
     <string name="toast_online">%s online</string>
-    <string name="show_toast_on_contact_online">Toast Kontak Online</string>
+    <string name="show_toast_on_contact_online">Notifikasi Kontak Online</string>
     <string name="show_toast_on_contact_online_sum">Tampilkan notifikasi mengambang ketika kontak sedang online</string>
     <string name="new_context_menu_ui">Menu UI Konteks Baru</string>
     <string name="new_context_menu_ui_sum">Aktifkan menu konteks pesan baru bergaya iOS</string>
@@ -241,10 +245,11 @@ Apakah Anda ingin mulai ulang WhatsApp?</string>
     <string name="disable_default_emojis">Nonaktifkan Emoji Bawaan</string>
     <string name="theme_mode">Tema Gelap Wa Enhancer</string>
     <string name="theme_mode_sum">Pilih tema Wa Enhancer</string>
-    <string name="disable_default_emojis_sum">Nonaktifkan emoji bawaan WhatsApp dan gunakan emoji sistem\n(CATATAN: Emoji WhatsApp akan hilang dari pilihan, gunakan keyboard untuk menyisipkan)</string>
+    <string name="disable_default_emojis_sum">Nonaktifkan emoji bawaan WhatsApp dan gunakan emoji sistem
+(CATATAN: Emoji WhatsApp akan hilang dari pilihan, gunakan keyboard untuk menyisipkan)</string>
     <string name="other">Lainnya</string>
     <string name="enable_media_preview">Pratinjau Media</string>
-    <string name="enable_media_preview_sum">Tambahkan tombol untuk melihat pratinjau media dalam file sementara (tanpa mengunduhnya secara permanen)</string>
+    <string name="enable_media_preview_sum">Tampilkan tombol untuk melihat pratinjau media dalam file sementara (tanpa mengunduhnya secara permanen)</string>
     <string name="new_ui_group_filter">Filter Grup UI Baru</string>
     <string name="new_ui_group_filter_sum">Filter baru di layar beranda untuk memisahkan grup dan percakapan</string>
     <string name="call_blocking_type">Jenis Pemblokiran Panggilan</string>
@@ -262,14 +267,21 @@ Apakah Anda ingin mulai ulang WhatsApp?</string>
     <string name="toast_on_viewed_message">Notifikasi Pesan Dibaca</string>
     <string name="toast_on_viewed_message_sum">Tampilkan notifikasi mengambang ketika seseorang membaca pesan Anda</string>
     <string name="textonahora_sum">Tampilkan teks di samping waktu apapun di aplikasi WhatsApp</string>
-    <string name="delete_for_me">Delete(for me)</string>
-    <string name="send_audio_as_voice_audio_note">Send audio as voice/audio Note</string>
-    <string name="send_audio_as_voice_audio_note_sum">Always sends audio media/forward as a voice note or audio note</string>
-    <string name="voice_note_speed">Voice Note Speed</string>
-    <string name="select">Select</string>
-    <string name="search_contacts">Search contacts</string>
-    <string name="contact_block_list">List of blocked contacts</string>
-    <string name="contact_white_list">List of allowed contacts</string>
-    <string name="no_contacts_selected">No contacts selected</string>
-    <string name="contact_were_selected">%d contact(s) were selected</string>
+    <string name="delete_for_me">Hapus (untuk saya)</string>
+    <string name="send_audio_as_voice_audio_note">Kirim Audio Sebagai Suara/Catatan Audio</string>
+    <string name="send_audio_as_voice_audio_note_sum">Selalu mengirim/meneruskan media audio sebagai catatan suara atau catatan audio</string>
+    <string name="voice_note_speed">Kecepatan Catatan Suara</string>
+    <string name="select">Pilih</string>
+    <string name="search_contacts">Cari kontak</string>
+    <string name="contact_block_list">Daftar kontak yang diblokir</string>
+    <string name="contact_white_list">Daftar kontak yang diizinkan</string>
+    <string name="no_contacts_selected">Tidak ada kontak yang dipilih</string>
+    <string name="contact_were_selected">%d kontak dipilih</string>
+    <string name="standard">Standard</string>
+    <string name="audio_note">Audio note</string>
+    <string name="voice_note">Voice note</string>
+    <string name="reset_settings">Reset Settings</string>
+    <string name="configs_reset">Settings reseted</string>
+    <string name="hide_locked_chats">Hide Locked Chats</string>
+    <string name="hide_locked_chats_sum">Hide archived chats, view them by holding WhatsApp title on home screen</string>
 </resources>

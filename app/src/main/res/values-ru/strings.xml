@@ -68,7 +68,7 @@
     <string name="blueonreply">Отправить синюю галочку в ответ</string>
     <string name="blueonreply_sum">Отправляет синие галочки после ответа на сообщение\n(ПРИМЕЧАНИЕ: должна быть активна опция «Скрыть синие галочки»)</string>
     <string name="hide_archived_chat">Скрыть архивные чаты</string>
-    <string name="hide_archived_chat_sum">Скройте архивные чаты и просматривайте их удержав заголовок WhatsApp на домашнем экране</string>
+    <string name="hide_archived_chat_sum">Hide archived chats, to access click 5 times on the \"WhatsApp\" title in the header on Home Screen</string>
     <string name="hide_once_view_seen">Скрыть синюю галочку с одноразового просмотра и аудио</string>
     <string name="hide_once_view_seen_sum">Скрыть индикатор, когда был просмотрен одноразовый Медиафайл и аудио</string>
     <string name="call_blocker">Блокировать вызовы</string>
@@ -266,4 +266,11 @@
     <string name="contact_white_list">List of allowed contacts</string>
     <string name="no_contacts_selected">No contacts selected</string>
     <string name="contact_were_selected">%d contact(s) were selected</string>
+    <string name="standard">Standard</string>
+    <string name="audio_note">Audio note</string>
+    <string name="voice_note">Voice note</string>
+    <string name="reset_settings">Reset Settings</string>
+    <string name="configs_reset">Settings reseted</string>
+    <string name="hide_locked_chats">Hide Locked Chats</string>
+    <string name="hide_locked_chats_sum">Hide archived chats, view them by holding WhatsApp title on home screen</string>
 </resources>

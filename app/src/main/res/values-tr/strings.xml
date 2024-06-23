@@ -68,7 +68,7 @@
     <string name="blueonreply">Yanıt Üzerine Mavi Tik Gönder</string>
     <string name="blueonreply_sum">Bir mesajı yanıtladıktan sonra mavi tik işareti gönderir\n(NOT: \"Mavi Tik İşaretlerini Gizle\" etkin olmalıdır)</string>
     <string name="hide_archived_chat">Arşivlenmiş Sohbetleri Gizle</string>
-    <string name="hide_archived_chat_sum">Arşivlenmiş sohbetleri gizle, ana ekranda WhatsApp başlığını basılı tutarak bunları görüntüleyin</string>
+    <string name="hide_archived_chat_sum">Hide archived chats, to access click 5 times on the \"WhatsApp\" title in the header on Home Screen</string>
     <string name="hide_once_view_seen">Bir Kez Görüntüle\'yi ve Ses Görmeyi Gizle</string>
     <string name="hide_once_view_seen_sum">Bir medya ve sesin görüldüğünü gizle</string>
     <string name="call_blocker">Aramaları Engelle</string>
@@ -259,11 +259,18 @@
     <string name="delete_for_me">Benim için sil</string>
     <string name="send_audio_as_voice_audio_note">Sesli mesaj/ses notu olarak gönder</string>
     <string name="send_audio_as_voice_audio_note_sum">Sesli mesaj veya ses notu olarak her zaman sesli medya gönder/yönlendir</string>
-    <string name="voice_note_speed">Voice Note Speed</string>
-    <string name="select">Select</string>
-    <string name="search_contacts">Search contacts</string>
-    <string name="contact_block_list">List of blocked contacts</string>
-    <string name="contact_white_list">List of allowed contacts</string>
-    <string name="no_contacts_selected">No contacts selected</string>
-    <string name="contact_were_selected">%d contact(s) were selected</string>
+    <string name="voice_note_speed">Sesli mesaj hızı</string>
+    <string name="select">Seçin</string>
+    <string name="search_contacts">Kişileri ara</string>
+    <string name="contact_block_list">Engellenen kişilerin listesi</string>
+    <string name="contact_white_list">İzin verilen kişilerin listesi</string>
+    <string name="no_contacts_selected">Seçili kişi yok</string>
+    <string name="contact_were_selected">%d kişi(ler) seçildi</string>
+    <string name="standard">Standard</string>
+    <string name="audio_note">Audio note</string>
+    <string name="voice_note">Voice note</string>
+    <string name="reset_settings">Reset Settings</string>
+    <string name="configs_reset">Settings reseted</string>
+    <string name="hide_locked_chats">Hide Locked Chats</string>
+    <string name="hide_locked_chats_sum">Hide archived chats, view them by holding WhatsApp title on home screen</string>
 </resources>
