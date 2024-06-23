@@ -90,8 +90,12 @@ public class StatusDownload extends Feature {
                         } else {
                             Utils.showToast(Utils.getApplication().getString(ResId.string.error_when_saving_try_again) + ": " + error, Toast.LENGTH_SHORT);
                         }
-                    } catch (Exception e) {
-                        Utils.showToast(e.getMessage(), Toast.LENGTH_SHORT);
+                    } catch (Throwable e) {
+                        if (e instanceof NoSuchFieldError) {
+                            Utils.showToast(Utils.getApplication().getString(ResId.string.msg_text_status_not_downloadable), Toast.LENGTH_SHORT);
+                        } else {
+                            Utils.showToast(e.getMessage(), Toast.LENGTH_SHORT);
+                        }
                     }
                     return true;
                 });
