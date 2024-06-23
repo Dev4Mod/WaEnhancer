@@ -381,7 +381,7 @@ public class SeenTick extends Feature {
         @Override
         public boolean equals(@Nullable Object obj) {
             if (obj instanceof MessageInfo messageInfo) {
-                return messageId.equals(messageInfo.messageId) && fMessage.equals(messageInfo.fMessage) && userJid.equals(messageInfo.userJid);
+                return Objects.equals(messageId, messageInfo.messageId) && Objects.equals(fMessage, messageInfo.fMessage) && Objects.equals(userJid, messageInfo.userJid);
             }
             return false;
         }
