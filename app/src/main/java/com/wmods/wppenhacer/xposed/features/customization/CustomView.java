@@ -24,9 +24,6 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 
-import com.google.common.cache.CacheBuilder;
-import com.google.common.cache.CacheLoader;
-import com.google.common.cache.LoadingCache;
 import com.wmods.wppenhacer.utils.IColors;
 import com.wmods.wppenhacer.xposed.core.Feature;
 import com.wmods.wppenhacer.xposed.utils.ReflectionUtils;
@@ -37,10 +34,8 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.Objects;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
 
 import cz.vutbr.web.css.CSSFactory;
 import cz.vutbr.web.css.CombinedSelector;
@@ -82,7 +77,7 @@ public class CustomView extends Feature {
             protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
                 var activity = (Activity) param.thisObject;
                 View rootView = activity.getWindow().getDecorView().getRootView();
-                rootView.getViewTreeObserver().addOnGlobalLayoutListener(() -> mThreadService.execute(() -> registerCssRules(activity, (ViewGroup)rootView, sheet)));
+                rootView.getViewTreeObserver().addOnGlobalLayoutListener(() -> mThreadService.execute(() -> registerCssRules(activity, (ViewGroup) rootView, sheet)));
             }
         });
     }
@@ -180,7 +175,7 @@ public class CustomView extends Feature {
                     view.setAlpha(value.getValue());
                 }
                 case "background-image" -> {
-                    if (!(declaration.get(0) instanceof TermURI uri))continue;
+                    if (!(declaration.get(0) instanceof TermURI uri)) continue;
                     if (!new File(uri.getValue()).exists()) continue;
                     var draw = cacheImages.getDrawable(uri.getValue());
                     if (view instanceof ImageView imageView) {
@@ -495,19 +490,10 @@ public class CustomView extends Feature {
     }
 
     public static class DrawableCache {
-        private final LoadingCache<String, Drawable> drawableCache;
+        private final HashMap<String, Drawable> drawableCache;
 
         public DrawableCache() {
-            drawableCache = CacheBuilder.newBuilder()
-                    .maximumSize(100)
-                    .expireAfterWrite(30, TimeUnit.MINUTES)
-                    .build(new CacheLoader<>() {
-                        @NonNull
-                        @Override
-                        public Drawable load(@NonNull String key) throws Exception {
-                            return Objects.requireNonNull(loadDrawableFromFile(key));
-                        }
-                    });
+            drawableCache = new HashMap<>();
         }
 
         private Drawable loadDrawableFromFile(String filePath) {
@@ -517,7 +503,12 @@ public class CustomView extends Feature {
         }
 
         public Drawable getDrawable(String key) {
-            return drawableCache.getUnchecked(key);
+            var drawable = drawableCache.get(key);
+            if (drawable == null) {
+                drawable = loadDrawableFromFile(key);
+                drawableCache.put(key, drawable);
+            }
+            return drawable;
         }
 
     }
