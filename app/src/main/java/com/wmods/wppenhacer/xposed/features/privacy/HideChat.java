@@ -9,8 +9,6 @@ import com.wmods.wppenhacer.xposed.core.devkit.Unobfuscator;
 import com.wmods.wppenhacer.xposed.features.general.Others;
 import com.wmods.wppenhacer.xposed.utils.ReflectionUtils;
 
-import java.util.HashSet;
-
 import de.robv.android.xposed.XC_MethodHook;
 import de.robv.android.xposed.XC_MethodReplacement;
 import de.robv.android.xposed.XSharedPreferences;
@@ -18,7 +16,6 @@ import de.robv.android.xposed.XposedBridge;
 
 public class HideChat extends Feature {
 
-    public static final HashSet<View.OnClickListener> mClickListenerList = new HashSet<>();
     public static View.OnClickListener mClickListenerLocked;
 
     public HideChat(@NonNull ClassLoader loader, @NonNull XSharedPreferences preferences) {
@@ -35,16 +32,6 @@ public class HideChat extends Feature {
                     @Override
                     protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
                         param.args[0] = false;
-                    }
-                });
-            }
-            var onclickCapture = Unobfuscator.loadArchiveOnclickCaptureMethod(classLoader);
-            for (var method : onclickCapture) {
-                logDebug(Unobfuscator.getMethodDescriptor(method));
-                XposedBridge.hookMethod(method, new XC_MethodHook() {
-                    @Override
-                    protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
-                        mClickListenerList.add((View.OnClickListener) param.args[0]);
                     }
                 });
             }

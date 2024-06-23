@@ -1,6 +1,7 @@
 package com.wmods.wppenhacer.xposed.features.customization;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.Gravity;
@@ -73,10 +74,10 @@ public class CustomToolbar extends Feature {
                 }
                 ref.lastClickTime = currentTime;
                 if (ref.clickCount == 5) {
-                    for (var onClick : HideChat.mClickListenerList) {
-                        onClick.onClick(v);
-                    }
                     ref.clickCount = 0;
+                    Intent intent = new Intent();
+                    intent.setClassName(Utils.getApplication().getPackageName(), "com.whatsapp.conversationslist.ArchivedConversationsActivity");
+                    homeActivity.startActivity(intent);
                 }
             });
 
