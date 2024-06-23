@@ -7,3 +7,4 @@
 
 [WA ENHANCER]
 * Hide Locked Chats and Hide Archived Chats are in the privacy tab
+* Update icons quality (Thanks to BryanGIG)
