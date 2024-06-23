@@ -275,4 +275,5 @@
     <string name="configs_reset">Settings reseted</string>
     <string name="hide_locked_chats">Hide Locked Chats</string>
     <string name="hide_locked_chats_sum">Hide archived chats, view them by holding WhatsApp title on home screen</string>
+    <string name="msg_text_status_not_downloadable">Text status is not downloadable!</string>
 </resources>
