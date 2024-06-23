@@ -13,7 +13,7 @@ import com.wmods.wppenhacer.xposed.core.DesignUtils;
 import com.wmods.wppenhacer.xposed.core.Feature;
 import com.wmods.wppenhacer.xposed.core.Utils;
 import com.wmods.wppenhacer.xposed.core.WppCore;
-import com.wmods.wppenhacer.xposed.features.privacy.HideArchive;
+import com.wmods.wppenhacer.xposed.features.privacy.HideChat;
 
 import java.lang.reflect.Method;
 import java.util.Arrays;
@@ -60,9 +60,29 @@ public class CustomToolbar extends Feature {
             var name = WppCore.getMyName();
             var bio = WppCore.getMyBio();
 
-            toolbar.setOnLongClickListener((v) -> {
-                for (var onClick : HideArchive.mClickListenerList) {
-                    onClick.onClick(v);
+            var ref = new Object() {
+                int clickCount = 0;
+                long lastClickTime = 0L;
+            };
+            toolbar.setOnClickListener(v -> {
+                long currentTime = System.currentTimeMillis();
+                if (currentTime - ref.lastClickTime < 500) {
+                    ref.clickCount++;
+                } else {
+                    ref.clickCount = 1;
+                }
+                ref.lastClickTime = currentTime;
+                if (ref.clickCount == 5) {
+                    for (var onClick : HideChat.mClickListenerList) {
+                        onClick.onClick(v);
+                    }
+                    ref.clickCount = 0;
+                }
+            });
+
+            toolbar.setOnLongClickListener(v -> {
+                if (HideChat.mClickListenerLocked != null) {
+                    HideChat.mClickListenerLocked.onClick(v);
                     return true;
                 }
                 return false;

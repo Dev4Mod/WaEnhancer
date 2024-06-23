@@ -54,7 +54,7 @@ import com.wmods.wppenhacer.xposed.features.privacy.CallPrivacy;
 import com.wmods.wppenhacer.xposed.features.privacy.DndMode;
 import com.wmods.wppenhacer.xposed.features.privacy.FreezeLastSeen;
 import com.wmods.wppenhacer.xposed.features.privacy.GhostMode;
-import com.wmods.wppenhacer.xposed.features.privacy.HideArchive;
+import com.wmods.wppenhacer.xposed.features.privacy.HideChat;
 import com.wmods.wppenhacer.xposed.features.privacy.HideReceipt;
 import com.wmods.wppenhacer.xposed.features.privacy.HideSeen;
 import com.wmods.wppenhacer.xposed.features.privacy.HideTagForward;
@@ -213,7 +213,7 @@ public class MainFeatures {
                 DndMode.class,
                 FreezeLastSeen.class,
                 GhostMode.class,
-                HideArchive.class,
+                HideChat.class,
                 HideReceipt.class,
                 HideSeen.class,
                 HideTagForward.class,

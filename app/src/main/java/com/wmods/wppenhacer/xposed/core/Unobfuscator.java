@@ -1595,4 +1595,27 @@ public class Unobfuscator {
             return method;
         });
     }
+
+    public static Method loadArchiveCheckLockedChatsMethod(ClassLoader classLoader) throws Exception {
+        var method = findFirstMethodUsingStrings(classLoader, StringMatchType.Contains, "conversationsfragment/verticalswipetorevealbehavior");
+        if (method == null) throw new RuntimeException("ArchiveCheckLockedChats method not found");
+        return method;
+    }
+
+    public static Method loadArchiveCheckLockedChatsMethod2(ClassLoader classLoader) throws Exception {
+        var methods = findAllMethodUsingStrings(classLoader, StringMatchType.Contains, "registration_device_id");
+        if (methods.length == 0)
+            throw new RuntimeException("ArchiveCheckLockedChats method not found");
+        return Arrays.stream(methods).filter(m -> m.getReturnType().equals(boolean.class) && m.getParameterTypes().length == 0).findFirst().orElse(null);
+    }
+
+    public static Class<?> loadArchiveLockedChatClass(ClassLoader classLoader) throws Exception {
+        return UnobfuscatorCache.getInstance().getClass(classLoader, () -> {
+            var clazzList = dexkit.findClass(new FindClass().matcher(new ClassMatcher().addMethod(new MethodMatcher().name("setLockedRowVisibility")).addMethod(new MethodMatcher().name("setEnableStateForChatLock"))));
+            if (clazzList.isEmpty())
+                throw new RuntimeException("ArchiveLockedChatFrame class not found");
+            return clazzList.get(0).getInstance(classLoader);
+        });
+    }
+
 }

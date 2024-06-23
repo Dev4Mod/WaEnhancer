@@ -70,7 +70,7 @@
     <string name="blueonreply">Send Blue Ticks upon Reply</string>
     <string name="blueonreply_sum">Sends blue ticks after replying to a message\n(NOTE: Must have \"Hide Blue Ticks\" active)</string>
     <string name="hide_archived_chat">Hide Archived Chats</string>
-    <string name="hide_archived_chat_sum">Hide archived chats, view them by holding WhatsApp title on home screen</string>
+    <string name="hide_archived_chat_sum">Hide archived chats, to access click 5 times on the \"WhatsApp\" title in the header on Home Screen</string>
     <string name="hide_once_view_seen">Hide View Once and Audio Seen</string>
     <string name="hide_once_view_seen_sum">Hide that view one media and audio has been seen</string>
     <string name="call_blocker">Block Calls</string>
@@ -273,4 +273,6 @@
     <string name="voice_note">Voice note</string>
     <string name="reset_settings">Reset Settings</string>
     <string name="configs_reset">Settings reseted</string>
+    <string name="hide_locked_chats">Hide Locked Chats</string>
+    <string name="hide_locked_chats_sum">Hide archived chats, view them by holding WhatsApp title on home screen</string>
 </resources>

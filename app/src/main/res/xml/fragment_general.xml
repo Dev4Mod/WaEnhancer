@@ -86,11 +86,6 @@
             app:title="@string/new_ui_group_filter" />
 
         <rikka.material.preference.MaterialSwitchPreference
-            app:key="hidearchive"
-            app:summary="@string/hide_archived_chat_sum"
-            app:title="@string/hide_archived_chat" />
-
-        <rikka.material.preference.MaterialSwitchPreference
             app:key="dotonline"
             app:summary="@string/show_online_dot_in_conversation_list_sum"
             app:title="@string/show_online_dot_in_conversation_list" />
