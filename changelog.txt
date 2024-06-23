@@ -1,17 +1,8 @@
-[HIDE LOCKED CHATS]
-* Added function to hide locked chats, to access, hold the WhatsApp title on the home screen
-* Fixed empty space on chat locked screen when IGStatus is activated
-
 [HIDE ARCHIVED CHATS]
-* Now to access archived chats you have to quickly click 5 times on the WhatsApp title on the home screen
+* Corrigido o bug de multiplas atividades abertas
 
-[FUNCTION]
-* Added copy to clipboard in text stories
+[CUSTOM CSS]
+* Removed Google cache to fix bug in drawable loader
 
-[STATUS DOWNLOADER]
-* added toast of not supported text stories download(Thanks to BryanGIG)
-
-[WA ENHANCER]
-* Hide Locked Chats and Hide Archived Chats are in the privacy tab
-* Update icons quality (Thanks to BryanGIG)
-
+[SEEN TICK]
+* Fix bug on reply audios
