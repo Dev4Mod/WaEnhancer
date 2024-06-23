@@ -27,6 +27,7 @@ public class ResId {
         public static int message;
         public static int download;
         public static int error_when_saving_try_again;
+        public static int msg_text_status_not_downloadable;
         public static int saved_to;
         public static int restart_whatsapp;
         public static int restart_wpp;
