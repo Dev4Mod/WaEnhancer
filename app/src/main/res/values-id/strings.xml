@@ -70,7 +70,7 @@
     <string name="blueonreply_sum">Kontak hanya akan melihat tanda centang biru setelah Anda membalas pesan.
 (CATATAN: Harus mengaktifkan \"Sembunyikan centang biru\")</string>
     <string name="hide_archived_chat">Sembunyikan Obrolan yang Diarsipkan</string>
-    <string name="hide_archived_chat_sum">Hide archived chats, to access click 5 times on the \"WhatsApp\" title in the header on Home Screen</string>
+    <string name="hide_archived_chat_sum">Sembunyikan obrolan yang diarsipkan, untuk mengakses klik 5 kali pada judul \"WhatsApp\" di header di Layar Beranda</string>
     <string name="hide_once_view_seen">Sembunyikan Lihat Sekali dan Pesan Suara</string>
     <string name="hide_once_view_seen_sum">Orang lain tidak akan mengetahui bahwa Anda telah membuka pesan \"lihat sekali\" dan pesan suara</string>
     <string name="call_blocker">Blokir Panggilan</string>
@@ -277,11 +277,11 @@ Saat Anda mengaktifkan bekukan \"terakhir dilihat dan online\", Anda tidak dapat
     <string name="contact_white_list">Daftar kontak yang diizinkan</string>
     <string name="no_contacts_selected">Tidak ada kontak yang dipilih</string>
     <string name="contact_were_selected">%d kontak dipilih</string>
-    <string name="standard">Standard</string>
-    <string name="audio_note">Audio note</string>
-    <string name="voice_note">Voice note</string>
-    <string name="reset_settings">Reset Settings</string>
-    <string name="configs_reset">Settings reseted</string>
-    <string name="hide_locked_chats">Hide Locked Chats</string>
-    <string name="hide_locked_chats_sum">Hide archived chats, view them by holding WhatsApp title on home screen</string>
+    <string name="standard">Standar</string>
+    <string name="audio_note">Catatan Audio</string>
+    <string name="voice_note">Catatan Suara</string>
+    <string name="reset_settings">Atur Ulang Pengaturan</string>
+    <string name="configs_reset">Pengaturan Telah Disetel Ulang</string>
+    <string name="hide_locked_chats">Sembunyikan Obrolan Yang Dikunci</string>
+    <string name="hide_locked_chats_sum">Sembunyikan obrolan yang diarsipkan, Untuk membukanya tekan dan tahan judul \"WhatsApp\" di layar beranda</string>
 </resources>
