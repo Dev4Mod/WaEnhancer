@@ -69,6 +69,7 @@ public class Others extends Feature {
         var toast_viewed_status = prefs.getBoolean("toast_viewed_status", false);
         var toast_viewed_message = prefs.getBoolean("toast_viewed_message", false);
         var audio_type = Integer.parseInt(prefs.getString("audio_type", "0"));
+        var audio_transcription = prefs.getBoolean("audio_transcription", false);
 
         propsBoolean.put(5171, filterSeen); // filtros de chat e grupos
         propsBoolean.put(4524, novoTema);
@@ -95,6 +96,11 @@ public class Others extends Feature {
             propsBoolean.put(8025, false);
             propsBoolean.put(6251, false);
             propsBoolean.put(7639, false);
+        }
+
+        if (audio_transcription) {
+            Others.propsBoolean.put(8632, true);
+            Others.propsBoolean.put(2890, true);
         }
 
         propsInteger.put(8522, fbstyle ? 1 : 0);

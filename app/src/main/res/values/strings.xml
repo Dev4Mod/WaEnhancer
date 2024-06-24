@@ -27,8 +27,8 @@
     <string name="lorem_ipsum_dolor_sum" translatable="false">Lorem ipsum dolor sit amet,consectetur adipiscing elit. Etiam eget ligula eu lectus lobortis condimentum.</string>
     <string name="hidereceipt_sum">Users will not know that their messages have been delivered to you\n(CAUTION: May cause delay in receiving messages)</string>
     <string name="ampm">Time in 12-Hour Format</string>
-    <string name="statusdowload">Download Status</string>
-    <string name="statusdowload_sum">Show button to download user statuses</string>
+    <string name="statusdowload">Download and Share Status</string>
+    <string name="statusdowload_sum">Shows two buttons to share and download status</string>
     <string name="videoquality">HD Quality Videos</string>
     <string name="videoquality_sum">Send videos in HD quality, by default</string>
     <string name="colors_title">Colors</string>
@@ -279,4 +279,7 @@
     <string name="failed_save_directory">Unable to save files in this folder, select another location</string>
     <string name="unable_to_read_this_file">Unable to read this file</string>
     <string name="disabled">Disabled</string>
+    <string name="share_as_status">Share as Status</string>
+    <string name="audio_transcription">Audio transcription</string>
+    <string name="audio_transcription_sum">Enable native WhatsApp audio transcription (Check the connection menu for transcription options)</string>
 </resources>
