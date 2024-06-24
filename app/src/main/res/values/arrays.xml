@@ -5,6 +5,8 @@
         <item>com.whatsapp.w4b</item>
         <item>android</item>
     </string-array>
+
+
     <string-array name="antirevoke_entries">
         <item>@string/antirevoke_buttons_desable</item>
         <item>@string/antirevoke_buttons_show_text</item>
@@ -15,6 +17,20 @@
         <item>1</item>
         <item>2</item>
     </string-array>
+
+    <string-array name="archive_entries">
+        <item>@string/disabled</item>
+        <item>@string/click_times</item>
+        <item>@string/hold_title</item>
+    </string-array>
+
+    <string-array name="archive_values">
+        <item>0</item>
+        <item>1</item>
+        <item>2</item>
+    </string-array>
+
+
     <string-array name="tabshide_contents">
         <item>@string/updates</item>
         <item>@string/communities</item>
@@ -112,4 +128,6 @@
         <item>@string/audio_note</item>
         <item>@string/voice_note</item>
     </string-array>
+    <string name="click_times">Click 5 times on the WhatsApp title</string>
+    <string name="hold_title">Hold on WhatsApp title</string>
 </resources>

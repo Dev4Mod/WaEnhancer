@@ -12,7 +12,6 @@ import androidx.annotation.NonNull;
 
 import com.wmods.wppenhacer.xposed.core.Feature;
 import com.wmods.wppenhacer.xposed.core.WppCore;
-import com.wmods.wppenhacer.xposed.features.privacy.HideChat;
 import com.wmods.wppenhacer.xposed.utils.DesignUtils;
 import com.wmods.wppenhacer.xposed.utils.Utils;
 
@@ -33,7 +32,8 @@ public class CustomToolbar extends Feature {
     public void doHook() {
         var showName = prefs.getBoolean("shownamehome", false);
         var showBio = prefs.getBoolean("showbiohome", false);
-        var methodHook = new MethodHook(showName, showBio);
+        var typeArchive = prefs.getString("typearchive", "0");
+        var methodHook = new MethodHook(showName, showBio, typeArchive);
         XposedHelpers.findAndHookMethod("com.whatsapp.HomeActivity", classLoader, "onCreate", Bundle.class, methodHook);
     }
 
@@ -46,10 +46,12 @@ public class CustomToolbar extends Feature {
     public static class MethodHook extends XC_MethodHook {
         private final boolean showName;
         private final boolean showBio;
+        private final String typeArchive;
 
-        public MethodHook(boolean showName, boolean showBio) {
+        public MethodHook(boolean showName, boolean showBio, String typeArchive) {
             this.showName = showName;
             this.showBio = showBio;
+            this.typeArchive = typeArchive;
         }
 
         @Override
@@ -61,33 +63,35 @@ public class CustomToolbar extends Feature {
             var name = WppCore.getMyName();
             var bio = WppCore.getMyBio();
 
-            var ref = new Object() {
-                int clickCount = 0;
-                long lastClickTime = 0L;
-            };
-            toolbar.setOnClickListener(v -> {
-                long currentTime = System.currentTimeMillis();
-                if (currentTime - ref.lastClickTime < 500) {
-                    ref.clickCount++;
-                } else {
-                    ref.clickCount = 1;
-                }
-                ref.lastClickTime = currentTime;
-                if (ref.clickCount == 5) {
-                    ref.clickCount = 0;
+
+            if (typeArchive.equals("1")) {
+                var ref = new Object() {
+                    int clickCount = 0;
+                    long lastClickTime = 0L;
+                };
+                toolbar.setOnClickListener(v -> {
+                    long currentTime = System.currentTimeMillis();
+                    if (currentTime - ref.lastClickTime < 500) {
+                        ref.clickCount++;
+                    } else {
+                        ref.clickCount = 1;
+                    }
+                    ref.lastClickTime = currentTime;
+                    if (ref.clickCount == 5) {
+                        ref.clickCount = 0;
+                        Intent intent = new Intent();
+                        intent.setClassName(Utils.getApplication().getPackageName(), "com.whatsapp.conversationslist.ArchivedConversationsActivity");
+                        homeActivity.startActivity(intent);
+                    }
+                });
+            } else if (typeArchive.equals("2")) {
+                toolbar.setOnLongClickListener(v -> {
                     Intent intent = new Intent();
                     intent.setClassName(Utils.getApplication().getPackageName(), "com.whatsapp.conversationslist.ArchivedConversationsActivity");
                     homeActivity.startActivity(intent);
-                }
-            });
-
-            toolbar.setOnLongClickListener(v -> {
-                if (HideChat.mClickListenerLocked != null) {
-                    HideChat.mClickListenerLocked.onClick(v);
                     return true;
-                }
-                return false;
-            });
+                });
+            }
 
             if (!(logo.getParent() instanceof LinearLayout parent)) {
                 var methods = Arrays.stream(actionbar.getClass().getDeclaredMethods()).filter(m -> m.getParameterCount() == 1 && m.getParameterTypes()[0] == CharSequence.class).toArray(Method[]::new);

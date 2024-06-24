@@ -4,15 +4,18 @@
 
     <PreferenceCategory app:title="@string/home_screen">
 
-        <rikka.material.preference.MaterialSwitchPreference
-            app:key="hidearchive"
+        <ListPreference
+            android:defaultValue="0"
+            android:entries="@array/archive_entries"
+            android:entryValues="@array/archive_values"
+            app:key="typearchive"
             app:summary="@string/hide_archived_chat_sum"
             app:title="@string/hide_archived_chat" />
 
-        <rikka.material.preference.MaterialSwitchPreference
-            app:key="hidelocked"
-            app:summary="@string/hide_locked_chats_sum"
-            app:title="@string/hide_locked_chats" />
+        <!--        <rikka.material.preference.MaterialSwitchPreference-->
+        <!--            app:key="hidelocked"-->
+        <!--            app:summary="@string/hide_locked_chats_sum"-->
+        <!--            app:title="@string/hide_locked_chats" />-->
 
     </PreferenceCategory>
 
