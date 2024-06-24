@@ -51,6 +51,7 @@ public class ResId {
         public static int message_removed_on;
         public static int loading;
         public static int delete_for_me;
+        public static int share_as_status;
     }
 
     public class array {
