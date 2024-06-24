@@ -1,8 +1,16 @@
+[NEW FUNCTIONS]
+* Activated WhatsApp's native audio transcription (use the context menu to transcribe an old audio) (enable in Wa Enhancer -> media)
+* Added the function to share other people's statuses as yours (Works for media and text)
+
+[DATABASE]
+* Fixed WhatsApp database reading error
+
+[TOOLBAR]
+* Fixed error when displaying the menu on the home screen
+
+[HIDE LOCKED CHATS]
+* Removed due to lots of bugs, use secret password option with search bar to hide, this is native to WhatsApp
+
 [HIDE ARCHIVED CHATS]
-* Corrigido o bug de multiplas atividades abertas
+* Now archived chats can be opened by clicking 5 times or holding on the WhatsApp name (Selectable under privacy)
 
-[CUSTOM CSS]
-* Removed Google cache to fix bug in drawable loader
-
-[SEEN TICK]
-* Fix bug on reply audios
