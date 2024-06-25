@@ -96,7 +96,8 @@ public class SeparateGroup extends Feature {
                             int jid = cursor.getInt(cursor.getColumnIndex("jid_row_id"));
                             int groupType = cursor.getInt(cursor.getColumnIndex("group_type"));
                             int archived = cursor.getInt(cursor.getColumnIndex("archived"));
-                            if (archived != 0 || groupType != 0) continue;
+                            int chatLocked = cursor.getInt(cursor.getColumnIndex("chat_lock"));
+                            if (archived != 0 || groupType != 0 || chatLocked != 0) continue;
                             var sql2 = "SELECT * FROM jid WHERE _id == ?";
                             var cursor1 = db.rawQuery(sql2, new String[]{String.valueOf(jid)});
                             if (!cursor1.moveToFirst()) continue;
