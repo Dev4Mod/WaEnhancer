@@ -12,6 +12,10 @@
             app:title="@string/theme_mode" />
 
         <rikka.material.preference.MaterialSwitchPreference
+            app:key="force_english"
+            app:title="Force English in Wa Enhancer" />
+
+        <rikka.material.preference.MaterialSwitchPreference
             app:defaultValue="true"
             app:key="enablelogs"
             app:title="@string/verbose_logs" />

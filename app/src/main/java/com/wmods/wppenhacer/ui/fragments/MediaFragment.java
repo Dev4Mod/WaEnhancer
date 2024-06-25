@@ -5,9 +5,9 @@ import android.os.Bundle;
 import androidx.annotation.Nullable;
 
 import com.wmods.wppenhacer.R;
-import com.wmods.wppenhacer.ui.fragments.base.BasePreFragment;
+import com.wmods.wppenhacer.ui.fragments.base.BasePreferenceFragment;
 
-public class MediaFragment extends BasePreFragment {
+public class MediaFragment extends BasePreferenceFragment {
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {

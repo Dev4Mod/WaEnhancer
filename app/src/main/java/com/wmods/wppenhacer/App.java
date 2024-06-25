@@ -1,6 +1,7 @@
 package com.wmods.wppenhacer;
 
 import android.app.Application;
+import android.content.Context;
 import android.content.Intent;
 import android.os.Handler;
 import android.os.Looper;
@@ -10,8 +11,11 @@ import androidx.preference.PreferenceManager;
 
 import com.wmods.wppenhacer.xposed.core.FeatureLoader;
 
+import java.util.Locale;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+
+import rikka.material.app.LocaleDelegate;
 
 public class App extends Application {
 
@@ -27,6 +31,7 @@ public class App extends Application {
         sharedPreferences.edit().putLong("lastUpdateTime", System.currentTimeMillis()).commit();
         var mode = Integer.parseInt(sharedPreferences.getString("thememode", "0"));
         setThemeMode(mode);
+        changeLanguage(this);
     }
 
     public static void setThemeMode(int mode) {
@@ -62,4 +67,16 @@ public class App extends Application {
         intent.putExtra("PKG", FeatureLoader.PACKAGE_WPP);
         sendBroadcast(intent);
     }
+
+    public static void changeLanguage(Context context) {
+        var force = PreferenceManager.getDefaultSharedPreferences(context).getBoolean("force_english", false);
+        LocaleDelegate.setDefaultLocale(force ? Locale.ENGLISH : Locale.getDefault());
+        var res = context.getResources();
+        var config = res.getConfiguration();
+        config.setLocale(LocaleDelegate.getDefaultLocale());
+        //noinspection deprecation
+        res.updateConfiguration(config, res.getDisplayMetrics());
+    }
+
+
 }
