@@ -52,7 +52,7 @@
     <string name="outlinedicons_sum">New outlined icons style</string>
     <string name="freezelastseen">Freeze Last Seen</string>
     <string name="freezelastseen_sum">Your last seen time will be frozen\n(CAUTION: You will not see any presence updates from other users, like typing, recording, online)</string>
-    <string name="removeforwardlimit_sum">Remove forward limit for 5 chats (normal) and 1 chat (multiple times)</string>
+    <string name="removeforwardlimit_sum">Remove forward limit for 5 chats (normal) and 1 chat (multiple times)\n(Note: Use with caution, you may be banned for spam)</string>
     <string name="removeforwardlimit">Remove Forward Limit</string>
     <string name="showname">Show Name</string>
     <string name="showname_sum">Show your profile name at the top of home screen, instead of \"WhatsApp\"</string>

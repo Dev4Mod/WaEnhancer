@@ -41,6 +41,7 @@ import java.util.Calendar;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.Timer;
@@ -482,29 +483,21 @@ public class Unobfuscator {
 
     // TODO: Classes and methods to ShareLimit
 
-    private static MethodData loadShareLimitMethodData() throws Exception {
-        var methods = dexkit.findMethod(new FindMethod().matcher(new MethodMatcher()
-                .addUsingString("send_max_video_duration")));
-        if (methods.isEmpty()) throw new Exception("ShareLimit method not found");
-        return methods.get(0);
-    }
 
     public static Method loadShareLimitMethod(ClassLoader classLoader) throws Exception {
-        return UnobfuscatorCache.getInstance().getMethod(classLoader, () -> loadShareLimitMethodData().getMethodInstance(classLoader));
+        return UnobfuscatorCache.getInstance().getMethod(classLoader, () -> {
+            var method = findFirstMethodUsingStrings(classLoader, StringMatchType.Contains, "send_max_video_duration");
+            if (method == null) throw new Exception("ShareLimit method not found");
+            return method;
+        });
     }
 
-    public static Field loadShareLimitField(ClassLoader classLoader) throws Exception {
+    public static Field loadShareItemField(ClassLoader classLoader) throws Exception {
         return UnobfuscatorCache.getInstance().getField(classLoader, () -> {
-            var methodData = loadShareLimitMethodData();
-            var clazz = methodData.getMethodInstance(classLoader).getDeclaringClass();
-            var fields = methodData.getUsingFields();
-            for (UsingFieldData field : fields) {
-                Field field1 = field.getField().getFieldInstance(classLoader);
-                if (field1.getType() == boolean.class && field1.getDeclaringClass() == clazz) {
-                    return field1;
-                }
-            }
-            throw new Exception("ShareLimit field not found");
+            var clazz = loadShareLimitMethod(classLoader).getDeclaringClass();
+            var field = ReflectionUtils.getFieldByType(clazz, Map.class);
+            if (field == null) throw new Exception("ShareItem field not found");
+            return field;
         });
     }
 
