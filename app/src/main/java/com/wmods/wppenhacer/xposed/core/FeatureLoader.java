@@ -52,6 +52,7 @@ import com.wmods.wppenhacer.xposed.features.media.StatusDownload;
 import com.wmods.wppenhacer.xposed.features.others.Channels;
 import com.wmods.wppenhacer.xposed.features.others.ChatFilters;
 import com.wmods.wppenhacer.xposed.features.others.CopyStatus;
+import com.wmods.wppenhacer.xposed.features.others.DebugFeature;
 import com.wmods.wppenhacer.xposed.features.others.GroupAdmin;
 import com.wmods.wppenhacer.xposed.features.others.Stickers;
 import com.wmods.wppenhacer.xposed.features.privacy.CallPrivacy;
@@ -206,6 +207,7 @@ public class FeatureLoader {
     private static void plugins(@NonNull ClassLoader loader, @NonNull XSharedPreferences pref, @NonNull String versionWpp) {
 
         var classes = new Class<?>[]{
+                DebugFeature.class,
                 ShowEditMessage.class,
                 AntiRevoke.class,
                 CustomToolbar.class,
