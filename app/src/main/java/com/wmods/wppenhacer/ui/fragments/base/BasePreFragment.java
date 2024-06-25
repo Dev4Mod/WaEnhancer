@@ -3,7 +3,6 @@ package com.wmods.wppenhacer.ui.fragments.base;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -37,38 +36,33 @@ public abstract class BasePreFragment extends PreferenceFragmentCompat implement
 
     private void chanceStates() {
 
-        var channels = (MaterialSwitchPreference) findPreference("channels");
-        if (channels != null) {
-            Log.i("channels", String.valueOf(mPrefs.getBoolean("channels", false)));
-            var bool = mPrefs.getBoolean("igstatus", false);
-            if (bool) channels.setChecked(false);
-            channels.setEnabled(!bool);
-        }
+        var igstatus = mPrefs.getBoolean("igstatus", false);
+        setPreferenceState("oldstatus", !igstatus);
 
-        var fbstyle = (MaterialSwitchPreference) findPreference("fbstyle");
-        if (fbstyle != null) {
-            var bool = mPrefs.getBoolean("channels", false);
-            if (bool) fbstyle.setChecked(false);
-            fbstyle.setEnabled(!bool);
-        }
-        var showFreeze = (MaterialSwitchPreference) findPreference("show_freezeLastSeen");
-        if (showFreeze != null) {
-            var bool = mPrefs.getBoolean("freezelastseen", false);
-            if (bool) showFreeze.setChecked(false);
-            showFreeze.setEnabled(!bool);
-        }
+        var oldstatus = mPrefs.getBoolean("oldstatus", false);
+        setPreferenceState("channels", !oldstatus);
+        setPreferenceState("removechannel_rec", !oldstatus);
+        setPreferenceState("fbstyle", !oldstatus);
+        setPreferenceState("igstatus", !oldstatus);
+
+        var channels = mPrefs.getBoolean("channels", false);
+        setPreferenceState("removechannel_rec", !channels && !oldstatus);
+
+        var freezelastseen = mPrefs.getBoolean("freezelastseen", false);
+        setPreferenceState("show_freezeLastSeen", !freezelastseen);
+
         var thememode = (ListPreference) findPreference("thememode");
         if (thememode != null) {
             var mode = Integer.parseInt(mPrefs.getString("thememode", "0"));
             App.setThemeMode(mode);
         }
-        var filtergroups = (MaterialSwitchPreference) findPreference("filtergroups");
 
-        if (filtergroups != null) {
-            var bool = mPrefs.getBoolean("separategroups", false);
-            if (bool) filtergroups.setChecked(false);
-            filtergroups.setEnabled(!bool);
-        }
+        var separategroups = mPrefs.getBoolean("separategroups", false);
+        setPreferenceState("filtergroups", !separategroups);
+
+        var filtergroups = mPrefs.getBoolean("filtergroups", false);
+        setPreferenceState("separategroups", !filtergroups);
+
 
         var callBlockContacts = findPreference("call_block_contacts");
         var callWhiteContacts = findPreference("call_white_contacts");
@@ -89,6 +83,16 @@ public abstract class BasePreFragment extends PreferenceFragmentCompat implement
                     break;
             }
 
+        }
+    }
+
+    private void setPreferenceState(String key, boolean enabled) {
+        var pref = findPreference(key);
+        if (pref != null) {
+            pref.setEnabled(enabled);
+            if (pref instanceof MaterialSwitchPreference && !enabled) {
+                ((MaterialSwitchPreference) pref).setChecked(false);
+            }
         }
     }
 

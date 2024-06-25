@@ -142,6 +142,8 @@ public class HomeFragment extends BaseFragment {
                         var keyValue = entry.getValue();
                         if (keyValue instanceof HashSet<?> hashSet) {
                             keyValue = new JSONArray(new ArrayList<>(hashSet));
+                        } else if (keyValue instanceof Float floatValue) {
+                            keyValue = (double) floatValue;
                         }
                         JSOjsonObject.put(entry.getKey(), keyValue);
                     }
@@ -183,8 +185,8 @@ public class HomeFragment extends BaseFragment {
                             prefs.edit().putInt(keyName, intValue).apply();
                         } else if (value instanceof Long longValue) {
                             prefs.edit().putLong(keyName, longValue).apply();
-                        } else if (value instanceof Float floatValue) {
-                            prefs.edit().putFloat(keyName, floatValue).apply();
+                        } else if (value instanceof Double doubleValue) {
+                            prefs.edit().putFloat(keyName, doubleValue.floatValue()).apply();
                         }
                     }
                 }

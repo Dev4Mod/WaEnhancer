@@ -1378,14 +1378,6 @@ public class Unobfuscator {
         });
     }
 
-    public static Class<?> loadWorkManagerClass(ClassLoader loader) throws Exception {
-        return UnobfuscatorCache.getInstance().getClass(loader, () -> {
-            var clazz = findFirstClassUsingStrings(loader, StringMatchType.Contains, "work-manager/configuration/created");
-            if (clazz == null) throw new RuntimeException("WorkManager class not found");
-            return clazz;
-        });
-    }
-
     public static Field loadProfileInfoField(ClassLoader loader) throws Exception {
         var clazz = findFirstClassUsingStrings(loader, StringMatchType.Contains, "[obfuscated]@%s");
         if (clazz == null) throw new RuntimeException("ProfileInfo class not found");

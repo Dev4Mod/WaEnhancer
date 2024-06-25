@@ -32,7 +32,6 @@ import com.wmods.wppenhacer.xposed.utils.Utils;
 
 import org.xmlpull.v1.XmlPullParser;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Objects;
@@ -236,17 +235,8 @@ public class CustomTheme extends Feature {
         var rootView = (ViewGroup) content.getChildAt(0);
         var header = (ViewGroup) rootView.findViewById(Utils.getID("header", "id"));
         replaceColors(header, toolbarAlpha);
-
-        var views = new ArrayList<View>();
-        while (rootView.getChildCount() > 0) {
-            views.add(rootView.getChildAt(0));
-            rootView.removeView(rootView.getChildAt(0));
-        }
         var frameLayout = new WallpaperView(rootView.getContext(), prefs);
-        for (var v : views) {
-            frameLayout.addView(v);
-        }
-        rootView.addView(frameLayout);
+        rootView.addView(frameLayout, 0);
     }
 
     @NonNull
