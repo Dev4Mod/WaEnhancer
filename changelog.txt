@@ -1,25 +1,6 @@
-[FUNCTIONS]
-* Enabled the option to show all statuses (Go to the updates tab and check the options menu), on this screen it is possible to filter and search for statuses by name, viewed, muted, and others
-* Added the function to show the old UI statuses (NOTE: This causes interface lag when switching tabs by sliding), This function automatically deactivates the channels.
-
 [CHANNELS]
-* The option to deactivate channels was changed to hide channels and is now compatible with IG Status and maintains the current structure of statuses
+* Fixed bug where statuses disappeared.
 
-[WALLPAPER ON HOMESCREEN]
-* The way images are loaded was changed because if the image was too large it caused lag and now it will be resized and saved for quick use
-
-[CUSTOM CSS]
-* All images are resized to the size of the View and saved in cache to save RAM and avoid lags
-
-[SEPARATE GROUPS]
-* Fixed unread message count for blocked chats
-
-[REMOVE LIMIT FORWARD]
-* Fixed a bug in groups and added a note warning of ban for spam in cases of abuse, use with caution
-
-[WA ENHANCER]
-* Added the option to force English
-* Updated translations
 
 
 

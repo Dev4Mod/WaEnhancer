@@ -76,10 +76,6 @@ public class CustomView extends Feature {
     @Override
     public void doHook() throws Throwable {
         var filter_itens = prefs.getString("css_theme", "");
-        var channels = prefs.getBoolean("channels", false);
-        if (channels) {
-            filter_itens = "#updates_list RelativeLayout,#updates_list ViewGroup:nth-child(4){display:none}\n" + filter_itens;
-        }
         if (TextUtils.isEmpty(filter_itens)) return;
         cacheImages = new DrawableCache(Utils.getApplication(), 100 * 1024 * 1024);
         chacheDrawables = new HashMap<>();

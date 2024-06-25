@@ -1584,26 +1584,50 @@ public class Unobfuscator {
         });
     }
 
-    public static Method loadArchiveCheckLockedChatsMethod(ClassLoader classLoader) throws Exception {
-        var method = findFirstMethodUsingStrings(classLoader, StringMatchType.Contains, "conversationsfragment/verticalswipetorevealbehavior");
-        if (method == null) throw new RuntimeException("ArchiveCheckLockedChats method not found");
-        return method;
-    }
+//    public static Method loadArchiveCheckLockedChatsMethod(ClassLoader classLoader) throws Exception {
+//        var method = findFirstMethodUsingStrings(classLoader, StringMatchType.Contains, "conversationsfragment/verticalswipetorevealbehavior");
+//        if (method == null) throw new RuntimeException("ArchiveCheckLockedChats method not found");
+//        return method;
+//    }
+//
+//    public static Method loadArchiveCheckLockedChatsMethod2(ClassLoader classLoader) throws Exception {
+//        var methods = findAllMethodUsingStrings(classLoader, StringMatchType.Contains, "registration_device_id");
+//        if (methods.length == 0)
+//            throw new RuntimeException("ArchiveCheckLockedChats method not found");
+//        return Arrays.stream(methods).filter(m -> m.getReturnType().equals(boolean.class) && m.getParameterTypes().length == 0).findFirst().orElse(null);
+//    }
+//
+//    public static Class<?> loadArchiveLockedChatClass(ClassLoader classLoader) throws Exception {
+//        return UnobfuscatorCache.getInstance().getClass(classLoader, () -> {
+//            var clazzList = dexkit.findClass(new FindClass().matcher(new ClassMatcher().addMethod(new MethodMatcher().name("setLockedRowVisibility")).addMethod(new MethodMatcher().name("setEnableStateForChatLock"))));
+//            if (clazzList.isEmpty())
+//                throw new RuntimeException("ArchiveLockedChatFrame class not found");
+//            return clazzList.get(0).getInstance(classLoader);
+//        });
+//    }
 
-    public static Method loadArchiveCheckLockedChatsMethod2(ClassLoader classLoader) throws Exception {
-        var methods = findAllMethodUsingStrings(classLoader, StringMatchType.Contains, "registration_device_id");
-        if (methods.length == 0)
-            throw new RuntimeException("ArchiveCheckLockedChats method not found");
-        return Arrays.stream(methods).filter(m -> m.getReturnType().equals(boolean.class) && m.getParameterTypes().length == 0).findFirst().orElse(null);
-    }
-
-    public static Class<?> loadArchiveLockedChatClass(ClassLoader classLoader) throws Exception {
-        return UnobfuscatorCache.getInstance().getClass(classLoader, () -> {
-            var clazzList = dexkit.findClass(new FindClass().matcher(new ClassMatcher().addMethod(new MethodMatcher().name("setLockedRowVisibility")).addMethod(new MethodMatcher().name("setEnableStateForChatLock"))));
-            if (clazzList.isEmpty())
-                throw new RuntimeException("ArchiveLockedChatFrame class not found");
-            return clazzList.get(0).getInstance(classLoader);
+    public static Constructor loadListUpdateItemsConstructor(ClassLoader classLoader) throws Exception {
+        return UnobfuscatorCache.getInstance().getConstructor(classLoader, () -> {
+            var method = dexkit.findMethod(new FindMethod().matcher(new MethodMatcher().paramCount(1).returnType(void.class).addParamType(Object.class).addUsingNumber(8686)));
+            if (method.isEmpty())
+                throw new RuntimeException("ListUpdateItems method not found");
+            return method.get(0).getClassInstance(classLoader).getConstructors()[0];
         });
     }
 
+    public static Class loadHeaderChannelItemClass(ClassLoader classLoader) throws Exception {
+        return UnobfuscatorCache.getInstance().getClass(classLoader, () -> {
+            var clazz = findFirstClassUsingStrings(classLoader, StringMatchType.Contains, "NewsletterHeaderDataItem");
+            if (clazz == null) throw new RuntimeException("HeaderChannelItem class not found");
+            return clazz;
+        });
+    }
+
+    public static Class loadListChannelItemClass(ClassLoader classLoader) throws Exception {
+        return UnobfuscatorCache.getInstance().getClass(classLoader, () -> {
+            var clazz = findFirstClassUsingStrings(classLoader, StringMatchType.Contains, "NewsletterDataItem", "isMuteIndicatorEnabled");
+            if (clazz == null) throw new RuntimeException("HeaderChannelItem class not found");
+            return clazz;
+        });
+    }
 }
