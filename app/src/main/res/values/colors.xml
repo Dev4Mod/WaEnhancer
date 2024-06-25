@@ -6,4 +6,9 @@
 
     <color name="ic_launcher_foreground">#FFFFFF</color>
     <color name="ic_launcher_background">#F48FB1</color>
+
+    <color name="material_state_yellow">@color/material_yellow_A400</color>
+    <color name="material_state_green">@color/material_green_A400</color>
+    <color name="material_state_red">@color/material_red_A400</color>
+
 </resources>

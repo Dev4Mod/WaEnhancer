@@ -144,8 +144,8 @@
     <string name="send_sticker">Send Sticker</string>
     <string name="enable_filter_chats">Enable filter chats for type</string>
     <string name="enable_filter_chats_sum">Show options to filter chats for groups, contacts and unseen messages</string>
-    <string name="disable_channels">Disable Channels</string>
-    <string name="disable_channels_sum">Disable Channels from Status tab\n(NOTE: Disable IGStatus to work!)</string>
+    <string name="disable_channels">Hide Channels</string>
+    <string name="disable_channels_sum">Hide Channels from Updates tab</string>
     <string name="chat">Chat</string>
     <string name="change_bubble_colors">Change Bubble Colors</string>
     <string name="change_blubble_color_sum">Change Bubble Color on Conversation Screen</string>

@@ -95,10 +95,10 @@ public class HomeFragment extends BaseFragment {
         var supported_list = Arrays.asList(context.getResources().getStringArray(R.array.supported_versions_business));
         if (supported_list.contains(version)) {
             binding.statusSummary3.setText(getString(R.string.version_s, version));
-            binding.status3.setCardBackgroundColor(context.getColor(rikka.material.R.color.material_green_500));
+            binding.status3.setCardBackgroundColor(context.getColor(R.color.material_state_green));
         } else {
             binding.statusSummary3.setText(getString(R.string.version_s_not_listed, version));
-            binding.status3.setCardBackgroundColor(context.getColor(rikka.material.R.color.material_yellow_500));
+            binding.status3.setCardBackgroundColor(context.getColor(R.color.material_state_yellow));
         }
         binding.rebootBtn2.setVisibility(View.VISIBLE);
         binding.statusSummary3.setVisibility(View.VISIBLE);
@@ -113,10 +113,10 @@ public class HomeFragment extends BaseFragment {
 
         if (supported_list.contains(version)) {
             binding.statusSummary1.setText(getString(R.string.version_s, version));
-            binding.status2.setCardBackgroundColor(context.getColor(rikka.material.R.color.material_green_500));
+            binding.status2.setCardBackgroundColor(context.getColor(R.color.material_state_green));
         } else {
             binding.statusSummary1.setText(getString(R.string.version_s_not_listed, version));
-            binding.status2.setCardBackgroundColor(context.getColor(rikka.material.R.color.material_yellow_500));
+            binding.status2.setCardBackgroundColor(context.getColor(R.color.material_state_yellow));
         }
         binding.rebootBtn.setVisibility(View.VISIBLE);
         binding.statusSummary1.setVisibility(View.VISIBLE);
@@ -207,10 +207,11 @@ public class HomeFragment extends BaseFragment {
             binding.statusIcon.setImageResource(R.drawable.ic_round_check_circle_24);
             binding.statusTitle.setText(R.string.module_enabled);
             binding.statusSummary.setText(String.format(getString(R.string.version_s), BuildConfig.VERSION_NAME));
+            binding.status.setCardBackgroundColor(activity.getColor(R.color.material_state_green));
         } else {
             binding.statusIcon.setImageResource(R.drawable.ic_round_error_outline_24);
             binding.statusTitle.setText(R.string.module_disabled);
-            binding.status.setCardBackgroundColor(activity.getColor(rikka.material.R.color.material_red_500));
+            binding.status.setCardBackgroundColor(activity.getColor(R.color.material_state_red));
             binding.statusSummary.setVisibility(View.GONE);
         }
         if (isInstalled(FeatureLoader.PACKAGE_WPP)) {
@@ -244,7 +245,7 @@ public class HomeFragment extends BaseFragment {
     private void disableBusiness(FragmentActivity activity) {
         binding.statusIcon3.setImageResource(R.drawable.ic_round_error_outline_24);
         binding.statusTitle3.setText(R.string.business_is_not_running_or_has_not_been_activated_in_lsposed);
-        binding.status3.setCardBackgroundColor(activity.getColor(rikka.material.R.color.material_red_500));
+        binding.status3.setCardBackgroundColor(activity.getColor(R.color.material_state_red));
         binding.statusSummary3.setVisibility(View.GONE);
         binding.rebootBtn2.setVisibility(View.GONE);
     }
@@ -252,7 +253,7 @@ public class HomeFragment extends BaseFragment {
     private void disableWpp(FragmentActivity activity) {
         binding.statusIcon2.setImageResource(R.drawable.ic_round_error_outline_24);
         binding.statusTitle2.setText(R.string.whatsapp_is_not_running_or_has_not_been_activated_in_lsposed);
-        binding.status2.setCardBackgroundColor(activity.getColor(rikka.material.R.color.material_red_500));
+        binding.status2.setCardBackgroundColor(activity.getColor(R.color.material_state_red));
         binding.statusSummary1.setVisibility(View.GONE);
         binding.rebootBtn.setVisibility(View.GONE);
     }

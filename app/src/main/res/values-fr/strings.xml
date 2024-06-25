@@ -25,8 +25,8 @@
     <string name="hidereceipt">Masquer la réception</string>
     <string name="hidereceipt_sum">Ne pas dire à l\'utilisateur que vous avez reçu les messages</string>
     <string name="ampm">Heure au format 12 heures</string>
-    <string name="statusdowload">Status de téléchargement</string>
-    <string name="statusdowload_sum">Créer un boutton pour télécharger les status des personnes</string>
+    <string name="statusdowload">Download and Share Status</string>
+    <string name="statusdowload_sum">Shows two buttons to share and download status</string>
     <string name="videoquality">Envoyer les vidéos en qualité HD</string>
     <string name="videoquality_sum">Envoyer les vidéos en qualité HD</string>
     <string name="colors_title">Couleures</string>
@@ -68,7 +68,7 @@
     <string name="blueonreply">Envoyer une coche bleue lors de la réponse</string>
     <string name="blueonreply_sum">Envoie la coche bleue lors de la réponse au message</string>
     <string name="hide_archived_chat">Hide archived chat</string>
-    <string name="hide_archived_chat_sum">Hide archived chats, to access click 5 times on the \"WhatsApp\" title in the header on Home Screen</string>
+    <string name="hide_archived_chat_sum">Hide archived chats, to access click 5 times or hold on the \"WhatsApp\" title in the header on Home Screen</string>
     <string name="hide_once_view_seen">Hide Once View and Audio Seen</string>
     <string name="hide_once_view_seen_sum">hide that once view and audio has been seen</string>
     <string name="call_blocker">Call Blocker</string>
@@ -142,8 +142,8 @@
     <string name="send_sticker">Send Sticker</string>
     <string name="enable_filter_chats">Enable filter chats for type</string>
     <string name="enable_filter_chats_sum">Show options to filter chats for groups, contacts and unseen messages</string>
-    <string name="disable_channels">Disable Channels</string>
-    <string name="disable_channels_sum">Disable Channels from Status tab\n(NOTE: Disable IGStatus to work!)</string>
+    <string name="disable_channels">Hide Channels</string>
+    <string name="disable_channels_sum">Hide Channels from Updates tab</string>
     <string name="chat">Chat</string>
     <string name="change_bubble_colors">Change Bubble Colors</string>
     <string name="change_blubble_color_sum">Change Bubble Color on Conversation Screen</string>
@@ -273,4 +273,15 @@
     <string name="configs_reset">Settings reseted</string>
     <string name="hide_locked_chats">Hide Locked Chats</string>
     <string name="hide_locked_chats_sum">Hide archived chats, view them by holding WhatsApp title on home screen</string>
+    <string name="msg_text_status_not_downloadable">Text status is not downloadable!</string>
+    <string name="failed_save_directory">Unable to save files in this folder, select another location</string>
+    <string name="unable_to_read_this_file">Unable to read this file</string>
+    <string name="disabled">Disabled</string>
+    <string name="share_as_status">Share as Status</string>
+    <string name="audio_transcription">Audio transcription</string>
+    <string name="audio_transcription_sum">Enable native WhatsApp audio transcription (Check the connection menu for transcription options)</string>
+    <string name="viewed_your_status">%s viewed your status</string>
+    <string name="viewed_your_message">%s viewed your message</string>
+    <string name="old_statuses">Old Statuses</string>
+    <string name="old_statuses_sum">Change to the old statuses page vertically and without channels (NOTE: May cause lag in the interface)</string>
 </resources>

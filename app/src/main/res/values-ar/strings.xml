@@ -26,8 +26,8 @@
     <string name="hidereceipt_sum">المستخدمون لن يعلموا أن رسائلهم قد وصلت إليك
 (تحذير: قد يتسبب في تأخير استلام الرسائل)</string>
     <string name="ampm">الوقت بتنسيق 12 ساعة</string>
-    <string name="statusdowload">تحميل الحالات</string>
-    <string name="statusdowload_sum">اظهر أيقونة لتحميل حالات المستخدم</string>
+    <string name="statusdowload">Download and Share Status</string>
+    <string name="statusdowload_sum">Shows two buttons to share and download status</string>
     <string name="videoquality">إرسال مقاطع الفيديو بجودة HD</string>
     <string name="videoquality_sum">إرسال مقاطع الفيديو بجودة HD</string>
     <string name="colors_title">الألوان</string>
@@ -69,7 +69,7 @@
     <string name="blueonreply">أرسل علامة زرقاء عند الرد</string>
     <string name="blueonreply_sum">إرسال علامات الصح الزرقاء بعد الرد على رسالة(ملاحظة: يجب أن يكون خِيار \"إخفاء العلامات الزرقاء\" نشطًا)</string>
     <string name="hide_archived_chat">إخفاء المحادثة المؤرشفة</string>
-    <string name="hide_archived_chat_sum">Hide archived chats, to access click 5 times on the \"WhatsApp\" title in the header on Home Screen</string>
+    <string name="hide_archived_chat_sum">Hide archived chats, to access click 5 times or hold on the \"WhatsApp\" title in the header on Home Screen</string>
     <string name="hide_once_view_seen">إخفاء أنك سمعت المقطع الصوتي</string>
     <string name="hide_once_view_seen_sum">إخفاء هذا العرض تم مشاهدة واحدة من الوسائط والصوت</string>
     <string name="call_blocker">حظر المكالمات</string>
@@ -143,8 +143,8 @@
     <string name="send_sticker">إرسال ملصق</string>
     <string name="enable_filter_chats">تمكين تصفية الدردشات</string>
     <string name="enable_filter_chats_sum">إظهار الخيارات لتصفية المحادثة للمجموعات وجهات الاتصال والرسائل غير المرئية</string>
-    <string name="disable_channels">تعطيل القنوات</string>
-    <string name="disable_channels_sum">تعطيل القنوات من علامة التبويب الحالة (ملاحظة) يجب تعطيل IGStatus للعمل</string>
+    <string name="disable_channels">Hide Channels</string>
+    <string name="disable_channels_sum">Hide Channels from Updates tab</string>
     <string name="chat">الدردشة</string>
     <string name="change_bubble_colors">تغيير ألوان الفقاعات</string>
     <string name="change_blubble_color_sum">تغيير لون الفقاعة على شاشة المحادثة</string>
@@ -267,11 +267,22 @@
     <string name="contact_white_list">قائمة جهات الاتصال المسموح بها</string>
     <string name="no_contacts_selected">لم يتم تحديد أي جهات اتصال</string>
     <string name="contact_were_selected">تم تحديد جهات الاتصال %d</string>
-    <string name="standard">Standard</string>
-    <string name="audio_note">Audio note</string>
-    <string name="voice_note">Voice note</string>
-    <string name="reset_settings">Reset Settings</string>
-    <string name="configs_reset">Settings reseted</string>
-    <string name="hide_locked_chats">Hide Locked Chats</string>
-    <string name="hide_locked_chats_sum">Hide archived chats, view them by holding WhatsApp title on home screen</string>
+    <string name="standard">أساسي</string>
+    <string name="audio_note">المقاطع الصوتية</string>
+    <string name="voice_note">التسجيل الصوتي</string>
+    <string name="reset_settings">استعادة الخيارات الإفتراضية</string>
+    <string name="configs_reset">إعادة تعيين الإعدادات</string>
+    <string name="hide_locked_chats">إخفاء المحادثة المقفلة</string>
+    <string name="hide_locked_chats_sum">إخفاء المحادثة المؤرشفة ، اعرضها من خلال الاحتفاظ بعنوان واتساب على الشاشة الرئيسية</string>
+    <string name="msg_text_status_not_downloadable">Text status is not downloadable!</string>
+    <string name="failed_save_directory">Unable to save files in this folder, select another location</string>
+    <string name="unable_to_read_this_file">Unable to read this file</string>
+    <string name="disabled">Disabled</string>
+    <string name="share_as_status">Share as Status</string>
+    <string name="audio_transcription">Audio transcription</string>
+    <string name="audio_transcription_sum">Enable native WhatsApp audio transcription (Check the connection menu for transcription options)</string>
+    <string name="viewed_your_status">%s viewed your status</string>
+    <string name="viewed_your_message">%s viewed your message</string>
+    <string name="old_statuses">Old Statuses</string>
+    <string name="old_statuses_sum">Change to the old statuses page vertically and without channels (NOTE: May cause lag in the interface)</string>
 </resources>
