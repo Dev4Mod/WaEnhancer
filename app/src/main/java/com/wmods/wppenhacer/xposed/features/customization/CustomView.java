@@ -3,8 +3,10 @@ package com.wmods.wppenhacer.xposed.features.customization;
 import static com.wmods.wppenhacer.utils.ColorReplacement.replaceColors;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.res.ColorStateList;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.LinearGradient;
 import android.graphics.PorterDuff;
@@ -16,6 +18,8 @@ import android.graphics.drawable.ShapeDrawable;
 import android.graphics.drawable.shapes.RectShape;
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.util.Log;
+import android.util.LruCache;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
@@ -30,6 +34,12 @@ import com.wmods.wppenhacer.xposed.utils.ReflectionUtils;
 import com.wmods.wppenhacer.xposed.utils.Utils;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.io.OutputStream;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -65,9 +75,13 @@ public class CustomView extends Feature {
 
     @Override
     public void doHook() throws Throwable {
-        var filter_itens = prefs.getString("css_theme", null);
+        var filter_itens = prefs.getString("css_theme", "");
+        var channels = prefs.getBoolean("channels", false);
+        if (channels) {
+            filter_itens = "#updates_list RelativeLayout,#updates_list ViewGroup:nth-child(4){display:none}\n" + filter_itens;
+        }
         if (TextUtils.isEmpty(filter_itens)) return;
-        cacheImages = new DrawableCache();
+        cacheImages = new DrawableCache(Utils.getApplication(), 100 * 1024 * 1024);
         chacheDrawables = new HashMap<>();
         mThreadService = Executors.newFixedThreadPool(8);
 
@@ -177,7 +191,7 @@ public class CustomView extends Feature {
                 case "background-image" -> {
                     if (!(declaration.get(0) instanceof TermURI uri)) continue;
                     if (!new File(uri.getValue()).exists()) continue;
-                    var draw = cacheImages.getDrawable(uri.getValue());
+                    var draw = cacheImages.getDrawable(uri.getValue(), view.getWidth(), view.getHeight());
                     if (view instanceof ImageView imageView) {
                         if (draw == imageView.getDrawable()) continue;
                         imageView.setImageDrawable(draw);
@@ -240,7 +254,7 @@ public class CustomView extends Feature {
 
                     if (declaration.get(0) instanceof TermURI uri) {
                         if (!new File(uri.getValue()).exists()) continue;
-                        var draw = cacheImages.getDrawable(uri.getValue());
+                        var draw = cacheImages.getDrawable(uri.getValue(), view.getWidth(), view.getHeight());
                         view.setBackground(draw);
                         continue;
                     }
@@ -261,7 +275,7 @@ public class CustomView extends Feature {
 
                     if (declaration.get(0) instanceof TermURI uri) {
                         if (!new File(uri.getValue()).exists()) continue;
-                        var draw = cacheImages.getDrawable(uri.getValue());
+                        var draw = cacheImages.getDrawable(uri.getValue(), view.getWidth(), view.getHeight());
                         view.setBackground(draw);
                         continue;
                     }
@@ -489,29 +503,156 @@ public class CustomView extends Feature {
         return "Custom View";
     }
 
+
     public static class DrawableCache {
-        private final HashMap<String, Drawable> drawableCache;
+        private final LruCache<String, CachedDrawable> drawableCache;
+        private final Context context;
 
-        public DrawableCache() {
-            drawableCache = new HashMap<>();
+        public DrawableCache(Context context, int maxSize) {
+            this.context = context.getApplicationContext();
+            drawableCache = new LruCache<>(maxSize);
         }
 
-        private Drawable loadDrawableFromFile(String filePath) {
+        private Drawable loadDrawableFromFile(String filePath, int reqWidth, int reqHeight) {
             File file = new File(filePath);
-            if (!file.exists()) return new ColorDrawable(0);
-            return Drawable.createFromPath(file.getAbsolutePath());
+            if (!file.exists()) {
+                Log.e("DrawableCache", "File not found: " + filePath);
+                return new ColorDrawable(0);  // Return transparent drawable
+            }
+
+            // First pass to get image dimensions
+            BitmapFactory.Options options = new BitmapFactory.Options();
+            options.inJustDecodeBounds = true;
+            BitmapFactory.decodeFile(file.getAbsolutePath(), options);
+
+            // Calculate the inSampleSize based on required dimensions
+            options.inSampleSize = calculateInSampleSize(options, reqWidth, reqHeight);
+
+            // Second pass to actually load the bitmap
+            options.inJustDecodeBounds = false;
+            Bitmap bitmap = BitmapFactory.decodeFile(file.getAbsolutePath(), options);
+
+            if (bitmap == null) {
+                Log.e("DrawableCache", "Failed to decode file: " + filePath);
+                return new ColorDrawable(0);  // Return transparent drawable
+            }
+
+            return new BitmapDrawable(context.getResources(), bitmap);
         }
 
-        public Drawable getDrawable(String key) {
-            var drawable = drawableCache.get(key);
-            if (drawable == null) {
-                drawable = loadDrawableFromFile(key);
-                drawableCache.put(key, drawable);
+        private int calculateInSampleSize(BitmapFactory.Options options, int reqWidth, int reqHeight) {
+            // Raw height and width of image
+            final int height = options.outHeight;
+            final int width = options.outWidth;
+            int inSampleSize = 1;
+
+            if (height > reqHeight || width > reqWidth) {
+                final int halfHeight = height / 2;
+                final int halfWidth = width / 2;
+
+                // Calculate the largest inSampleSize value that is a power of 2 and keeps both
+                // height and width larger than the requested height and width.
+                while ((halfHeight / inSampleSize) >= reqHeight && (halfWidth / inSampleSize) >= reqWidth) {
+                    inSampleSize *= 2;
+                }
             }
+
+            return inSampleSize;
+        }
+
+        public Drawable getDrawable(String key, int width, int height) {
+            File file = new File(key);
+            long lastModified = file.lastModified();
+
+            // Check if the cached drawable exists and is up-to-date
+            CachedDrawable cachedDrawable = drawableCache.get(key);
+            if (cachedDrawable != null && cachedDrawable.lastModified == lastModified) {
+                return cachedDrawable.drawable;
+            }
+
+            // Try loading the drawable from cache
+            Drawable cachedDrawableFromFile = loadDrawableFromCache(key, lastModified);
+            if (cachedDrawableFromFile != null) {
+                cachedDrawable = new CachedDrawable(cachedDrawableFromFile, lastModified);
+                drawableCache.put(key, cachedDrawable);
+                return cachedDrawableFromFile;
+            }
+
+            // Load drawable from original file
+            Drawable drawable = loadDrawableFromFile(key, width, height);
+            // Save the drawable to cache directory
+            saveDrawableToCache(key, (BitmapDrawable) drawable, lastModified);
+
+            // Update the cache
+            cachedDrawable = new CachedDrawable(drawable, lastModified);
+            drawableCache.put(key, cachedDrawable);
+
             return drawable;
         }
 
+        private void saveDrawableToCache(String key, BitmapDrawable drawable, long lastModified) {
+            File cacheDir = context.getCacheDir();
+            File cacheLocation = new File(cacheDir, "drawable_cache");
+            if (!cacheLocation.exists()) {
+                cacheLocation.mkdirs();
+            }
+            File cacheFile = new File(cacheLocation, getCacheFileName(key));
+            File metadataFile = new File(cacheLocation, getCacheFileName(key) + ".meta");
+
+            try (OutputStream out = new FileOutputStream(cacheFile);
+                 ObjectOutputStream metaOut = new ObjectOutputStream(new FileOutputStream(metadataFile))) {
+                drawable.getBitmap().compress(Bitmap.CompressFormat.PNG, 100, out);
+                metaOut.writeLong(lastModified);
+                Log.d("DrawableCache", "Saved drawable to cache: " + cacheFile.getAbsolutePath());
+            } catch (IOException e) {
+                Log.e("DrawableCache", "Failed to save drawable to cache", e);
+            }
+        }
+
+        private Drawable loadDrawableFromCache(String key, long originalLastModified) {
+            File cacheDir = context.getCacheDir();
+            File cacheFile = new File(cacheDir, getCacheFileName(key));
+            File metadataFile = new File(cacheDir, getCacheFileName(key) + ".meta");
+
+            if (!cacheFile.exists() || !metadataFile.exists()) {
+                return null;
+            }
+
+            try (ObjectInputStream metaIn = new ObjectInputStream(new FileInputStream(metadataFile))) {
+                long cachedLastModified = metaIn.readLong();
+                if (cachedLastModified != originalLastModified) {
+                    return null;
+                }
+
+                Bitmap bitmap = BitmapFactory.decodeFile(cacheFile.getAbsolutePath());
+                if (bitmap != null) {
+                    return new BitmapDrawable(context.getResources(), bitmap);
+                }
+            } catch (IOException e) {
+                Log.e("DrawableCache", "Failed to load drawable from cache", e);
+            }
+
+            return null;
+        }
+
+        private String getCacheFileName(String key) {
+            // Create a unique file name based on the original file path
+            return String.valueOf(key.hashCode());
+        }
+
+        private static class CachedDrawable {
+            Drawable drawable;
+            long lastModified;
+
+            CachedDrawable(Drawable drawable, long lastModified) {
+                this.drawable = drawable;
+                this.lastModified = lastModified;
+            }
+        }
     }
+
+    // Create a unique file name based
+
 
     public static class RuleItem {
         public CombinedSelector selector;
