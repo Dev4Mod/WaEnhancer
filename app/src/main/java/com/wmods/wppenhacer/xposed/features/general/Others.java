@@ -9,7 +9,6 @@ import android.text.TextUtils;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -143,22 +142,6 @@ public class Others extends Feature {
         customPlayBackSpeed();
         showOnline(showOnline);
 
-        XposedHelpers.findAndHookMethod("com.whatsapp.updates.ui.UpdatesFragment", classLoader, "A1M", classLoader.loadClass("android.os.Bundle"), classLoader.loadClass("android.view.LayoutInflater"), classLoader.loadClass("android.view.ViewGroup"),
-                new XC_MethodHook() {
-                    @Override
-                    protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
-                        super.beforeHookedMethod(param);
-                    }
-
-                    @Override
-                    protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-                        super.afterHookedMethod(param);
-                        var viewGroup = (ViewGroup) param.getResult();
-                        for (int i = 0; i < viewGroup.getChildCount(); i++) {
-                            log(viewGroup.getChildAt(i).toString());
-                        }
-                    }
-                });
 
     }
 
