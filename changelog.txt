@@ -1,16 +1,25 @@
-[NEW FUNCTIONS]
-* Activated WhatsApp's native audio transcription (use the context menu to transcribe an old audio) (enable in Wa Enhancer -> media)
-* Added the function to share other people's statuses as yours (Works for media and text)
+[FUNCTIONS]
+* Enabled the option to show all statuses (Go to the updates tab and check the options menu), on this screen it is possible to filter and search for statuses by name, viewed, muted, and others
+* Added the function to show the old UI statuses (NOTE: This causes interface lag when switching tabs by sliding), This function automatically deactivates the channels.
 
-[DATABASE]
-* Fixed WhatsApp database reading error
+[CHANNELS]
+* The option to deactivate channels was changed to hide channels and is now compatible with IG Status and maintains the current structure of statuses
 
-[TOOLBAR]
-* Fixed error when displaying the menu on the home screen
+[WALLPAPER ON HOMESCREEN]
+* The way images are loaded was changed because if the image was too large it caused lag and now it will be resized and saved for quick use
 
-[HIDE LOCKED CHATS]
-* Removed due to lots of bugs, use secret password option with search bar to hide, this is native to WhatsApp
+[CUSTOM CSS]
+* All images are resized to the size of the View and saved in cache to save RAM and avoid lags
 
-[HIDE ARCHIVED CHATS]
-* Now archived chats can be opened by clicking 5 times or holding on the WhatsApp name (Selectable under privacy)
+[SEPARATE GROUPS]
+* Fixed unread message count for blocked chats
+
+[REMOVE LIMIT FORWARD]
+* Fixed a bug in groups and added a note warning of ban for spam in cases of abuse, use with caution
+
+[WA ENHANCER]
+* Added the option to force English
+* Updated translations
+
+
 
