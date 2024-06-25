@@ -12,21 +12,23 @@
             app:summary="@string/hide_archived_chat_sum"
             app:title="@string/hide_archived_chat" />
 
-        <!--        <rikka.material.preference.MaterialSwitchPreference-->
-        <!--            app:key="hidelocked"-->
-        <!--            app:summary="@string/hide_locked_chats_sum"-->
-        <!--            app:title="@string/hide_locked_chats" />-->
-
     </PreferenceCategory>
 
 
     <PreferenceCategory
         app:iconSpaceReserved="false"
         app:title="@string/conversation">
+
         <rikka.material.preference.MaterialSwitchPreference
             app:key="freezelastseen"
             app:summary="@string/freezelastseen_sum"
             app:title="@string/freezelastseen" />
+
+        <rikka.material.preference.MaterialSwitchPreference
+            app:defaultValue="true"
+            app:key="show_freezeLastSeen"
+            app:summary="@string/show_freezeLastSeen_sum"
+            app:title="@string/show_freezeLastSeen_button" />
 
         <rikka.material.preference.MaterialSwitchPreference
             app:key="hideread"

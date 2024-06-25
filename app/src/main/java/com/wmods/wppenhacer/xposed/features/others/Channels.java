@@ -1,7 +1,5 @@
 package com.wmods.wppenhacer.xposed.features.others;
 
-import static com.wmods.wppenhacer.xposed.features.general.Others.propsInteger;
-
 import androidx.annotation.NonNull;
 
 import com.wmods.wppenhacer.xposed.core.Feature;
@@ -21,13 +19,8 @@ public class Channels extends Feature {
     @Override
     public void doHook() throws Throwable {
         var channels = prefs.getBoolean("channels", false);
-        if (channels) {
-            var igstatus = prefs.getBoolean("igstatus", false);
-            propsInteger.put(3877, channels ? igstatus ? 2 : 0 : 2);
-            return;
-        }
         var removechannelRec = prefs.getBoolean("removechannel_rec", false);
-        if (removechannelRec) {
+        if (removechannelRec || channels) {
             var removeChannelRecClass = Unobfuscator.loadRemoveChannelRecClass(classLoader);
             XposedBridge.hookAllConstructors(removeChannelRecClass, new XC_MethodHook() {
                 @Override

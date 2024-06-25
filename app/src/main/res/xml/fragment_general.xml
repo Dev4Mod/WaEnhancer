@@ -70,12 +70,6 @@
             app:title="@string/enable_restart_button" />
 
         <rikka.material.preference.MaterialSwitchPreference
-            app:defaultValue="true"
-            app:key="show_freezeLastSeen"
-            app:summary="@string/show_freezeLastSeen_sum"
-            app:title="@string/show_freezeLastSeen_button" />
-
-        <rikka.material.preference.MaterialSwitchPreference
             app:key="separategroups"
             app:summary="@string/separate_groups_sum"
             app:title="@string/separate_groups" />
