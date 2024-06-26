@@ -166,9 +166,15 @@ public class WppCore {
     public static String getSContactName(Object userJid, boolean saveOnly) {
         loadWADatabase();
         if (mWaDatabase == null || userJid == null) return "";
+        String selection;
+        if (saveOnly) {
+            selection = "jid = ? AND raw_contact_id > 0";
+        } else {
+            selection = "jid = ?";
+        }
         String name = null;
         var rawJid = getRawString(userJid);
-        var cursor = mWaDatabase.query("wa_contacts", new String[]{"display_name"}, "jid = ? AND raw_contact_id > 0", new String[]{rawJid}, null, null, null);
+        var cursor = mWaDatabase.query("wa_contacts", new String[]{"display_name"}, selection, new String[]{rawJid}, null, null, null);
         if (cursor != null && cursor.moveToFirst()) {
             name = cursor.getString(0);
             cursor.close();
