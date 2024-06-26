@@ -4,6 +4,7 @@ import androidx.annotation.NonNull;
 
 import com.wmods.wppenhacer.xposed.core.Feature;
 import com.wmods.wppenhacer.xposed.core.devkit.Unobfuscator;
+import com.wmods.wppenhacer.xposed.utils.ReflectionUtils;
 
 import org.luckypray.dexkit.util.DexSignUtil;
 
@@ -34,9 +35,10 @@ public class Channels extends Feature {
                     new XC_MethodHook() {
                         @Override
                         protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
-                            if (param.args[0] instanceof ArrayList<?> list) {
-                                list.removeIf((e) -> headerChannelItem.isInstance(e) || listChannelItem.isInstance(e));
-                            }
+                            var list = ReflectionUtils.findArrayOfType(param.args, ArrayList.class);
+                            if (list.isEmpty()) return;
+                            var arrList = (ArrayList<?>) list.get(0).second;
+                            arrList.removeIf((e) -> headerChannelItem.isInstance(e) || listChannelItem.isInstance(e));
                         }
                     });
         }

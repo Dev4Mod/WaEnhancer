@@ -57,7 +57,7 @@ public class Others extends Feature {
         var showDnd = prefs.getBoolean("show_dndmode", false);
         var showFreezeLastSeen = prefs.getBoolean("show_freezeLastSeen", false);
         var filterSeen = prefs.getBoolean("filterseen", false);
-        var fbstyle = prefs.getBoolean("fbstyle", false);
+        var fbstyle = Integer.parseInt(prefs.getString("facebookstyle", "0"));
         var metaai = prefs.getBoolean("metaai", false);
         var topnav = prefs.getBoolean("topnav", false);
         var proximity = prefs.getBoolean("proximity_audios", false);
@@ -82,7 +82,6 @@ public class Others extends Feature {
         propsBoolean.put(5834, strokeButtons);
         propsBoolean.put(5509, outlinedIcons);
         propsBoolean.put(2358, false);
-        propsBoolean.put(7516, fbstyle);
         propsBoolean.put(3289, !topnav);
         propsBoolean.put(4656, !topnav);
         propsBoolean.put(2889, floatingMenu);
@@ -110,8 +109,8 @@ public class Others extends Feature {
         }
 
 
-        propsInteger.put(8522, fbstyle ? 1 : 0);
-        propsInteger.put(8521, fbstyle ? 1 : 0);
+        propsInteger.put(8522, fbstyle);
+        propsInteger.put(8521, fbstyle);
 
 
         hookProps();

@@ -511,6 +511,7 @@ public class CustomView extends Feature {
 
         private Drawable loadDrawableFromFile(String filePath, int reqWidth, int reqHeight) {
             File file = new File(filePath);
+
             if (!file.exists()) {
                 Log.e("DrawableCache", "File not found: " + filePath);
                 return new ColorDrawable(0);  // Return transparent drawable
@@ -537,6 +538,10 @@ public class CustomView extends Feature {
         }
 
         private int calculateInSampleSize(BitmapFactory.Options options, int reqWidth, int reqHeight) {
+            if (options == null) {
+                throw new IllegalArgumentException("Options cannot be null");
+            }
+
             // Raw height and width of image
             final int height = options.outHeight;
             final int width = options.outWidth;
@@ -546,10 +551,15 @@ public class CustomView extends Feature {
                 final int halfHeight = height / 2;
                 final int halfWidth = width / 2;
 
-                // Calculate the largest inSampleSize value that is a power of 2 and keeps both
-                // height and width larger than the requested height and width.
-                while ((halfHeight / inSampleSize) >= reqHeight && (halfWidth / inSampleSize) >= reqWidth) {
-                    inSampleSize *= 2;
+                try {
+                    // Calculate the largest inSampleSize value that is a power of 2 and keeps both
+                    // height and width larger than the requested height and width.
+                    while ((halfHeight / inSampleSize) >= reqHeight && (halfWidth / inSampleSize) >= reqWidth) {
+                        inSampleSize *= 2;
+                    }
+                } catch (ArithmeticException e) {
+                    // Handle the exception if division by zero occurs
+                    return 1;
                 }
             }
 
@@ -597,7 +607,7 @@ public class CustomView extends Feature {
 
             try (OutputStream out = new FileOutputStream(cacheFile);
                  ObjectOutputStream metaOut = new ObjectOutputStream(new FileOutputStream(metadataFile))) {
-                drawable.getBitmap().compress(Bitmap.CompressFormat.PNG, 100, out);
+                drawable.getBitmap().compress(Bitmap.CompressFormat.JPEG, 80, out);
                 metaOut.writeLong(lastModified);
                 Log.d("DrawableCache", "Saved drawable to cache: " + cacheFile.getAbsolutePath());
             } catch (IOException e) {

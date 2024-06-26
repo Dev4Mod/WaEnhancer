@@ -18,6 +18,7 @@
         <item>2</item>
     </string-array>
 
+
     <string-array name="archive_entries">
         <item>@string/disabled</item>
         <item>@string/click_times</item>
@@ -25,6 +26,18 @@
     </string-array>
 
     <string-array name="archive_values">
+        <item>0</item>
+        <item>1</item>
+        <item>2</item>
+    </string-array>
+
+    <string-array name="fbstyle_entries">
+        <item>@string/disabled</item>
+        <item>One Row</item>
+        <item>Two Row</item>
+    </string-array>
+
+    <string-array name="fbstyle_values">
         <item>0</item>
         <item>1</item>
         <item>2</item>

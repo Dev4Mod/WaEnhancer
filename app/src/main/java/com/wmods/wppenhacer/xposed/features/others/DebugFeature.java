@@ -14,7 +14,6 @@ public class DebugFeature extends Feature {
     @Override
     public void doHook() throws Throwable {
 
-
     }
 
     @NonNull

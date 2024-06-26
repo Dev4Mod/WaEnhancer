@@ -37,7 +37,7 @@ public class FMessageWpp {
         var fMessageClass = Unobfuscator.loadFMessageClass(classLoader);
         TYPE = fMessageClass;
         var userJidClass = classLoader.loadClass("com.whatsapp.jid.UserJid");
-        userJidMethod = ReflectionUtils.findMethodUsingFilter(fMessageClass, method -> method.getReturnType() == userJidClass);
+        userJidMethod = ReflectionUtils.findMethodUsingFilter(fMessageClass, method -> method.getParameterCount() == 0 && method.getReturnType() == userJidClass);
         keyMessage = Unobfuscator.loadMessageKeyField(classLoader);
         messageMethod = Unobfuscator.loadNewMessageMethod(classLoader);
         messageWithMediaMethod = Unobfuscator.loadNewMessageWithMediaMethod(classLoader);

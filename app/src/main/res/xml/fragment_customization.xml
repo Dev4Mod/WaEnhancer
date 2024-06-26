@@ -180,8 +180,11 @@
             app:summary="@string/remove_channel_recomendations_sum"
             app:title="@string/remove_channel_recomendations" />
 
-        <rikka.material.preference.MaterialSwitchPreference
-            app:key="fbstyle"
+        <ListPreference
+            android:defaultValue="0"
+            android:entries="@array/fbstyle_entries"
+            android:entryValues="@array/fbstyle_values"
+            app:key="facebookstyle"
             app:summary="@string/enable_facebook_style_for_status_sum"
             app:title="@string/enable_facebook_style_for_status" />
 

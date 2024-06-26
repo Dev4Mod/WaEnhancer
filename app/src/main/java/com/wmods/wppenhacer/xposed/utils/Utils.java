@@ -118,9 +118,7 @@ public class Utils {
                 XposedBridge.log("DEBUG CLASS: " + param.method.getDeclaringClass().getName() + "->" + param.method.getName() + ": " + param.thisObject);
 
                 if (printArgs) {
-                    for (var i = 0; i < param.args.length; i++) {
-                        XposedBridge.log("ARG[" + i + "]: " + (param.args[i] == null ? null : param.args[i].getClass().getName()) + " -> VALUE: " + param.args[i]);
-                    }
+                    debugArgs(param.args);
                     XposedBridge.log("Return value: " + (param.getResult() == null ? null : param.getResult().getClass().getName()) + " -> VALUE: " + param.getResult());
                 }
                 if (printFields) {
@@ -138,6 +136,12 @@ public class Utils {
                 XposedBridge.log("-----------------HOOKED DEBUG END-----------------------------\n\n");
             }
         };
+    }
+
+    public static void debugArgs(Object[] args) {
+        for (var i = 0; i < args.length; i++) {
+            XposedBridge.log("ARG[" + i + "]: " + (args[i] == null ? null : args[i].getClass().getName()) + " -> VALUE: " + args[i]);
+        }
     }
 
 
