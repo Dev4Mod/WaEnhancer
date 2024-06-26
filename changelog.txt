@@ -1,6 +1,9 @@
-[CHANNELS]
-* Fixed bug where statuses disappeared.
+[HIDE CHANNELS]
+* Fixed bug in versions below 2.24.12.78 of WhatsApp
 
+[CUSTOM VIEW]
+* Fixed image loading bug with very small views.
 
-
+[STATUS FACEBOOK STYLE]
+* Added function to show two lines in the grid
 
