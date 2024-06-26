@@ -7,6 +7,7 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.database.sqlite.SQLiteDatabase;
 import android.graphics.drawable.Drawable;
+import android.text.TextUtils;
 import android.view.Menu;
 import android.widget.Toast;
 
@@ -111,12 +112,12 @@ public class WppCore {
         });
 
         // Load wa database
-        loadDatabase();
+        loadWADatabase();
 
 
     }
 
-    public static void loadDatabase() {
+    public static void loadWADatabase() {
         if (mWaDatabase != null) return;
         var dataDir = Utils.getApplication().getFilesDir().getParentFile();
         var database = new File(dataDir, "databases/wa.db");
@@ -154,24 +155,41 @@ public class WppCore {
 
     @NonNull
     public static String getContactName(Object userJid) {
-        loadDatabase();
+        loadWADatabase();
+        if (mWaDatabase == null || userJid == null) return "";
+        String name = getSContactName(userJid, false);
+        if (!TextUtils.isEmpty(name)) return name;
+        return getWppContactName(userJid);
+    }
+
+    @NonNull
+    public static String getSContactName(Object userJid, boolean saveOnly) {
+        loadWADatabase();
         if (mWaDatabase == null || userJid == null) return "";
         String name = null;
         var rawJid = getRawString(userJid);
-        var cursor = mWaDatabase.query("wa_contacts", new String[]{"display_name"}, "jid = ?", new String[]{rawJid}, null, null, null);
+        var cursor = mWaDatabase.query("wa_contacts", new String[]{"display_name"}, "jid = ? AND raw_contact_id > 0", new String[]{rawJid}, null, null, null);
         if (cursor != null && cursor.moveToFirst()) {
             name = cursor.getString(0);
             cursor.close();
         }
-        if (name == null) {
-            var cursor2 = mWaDatabase.query("wa_vnames", new String[]{"verified_name"}, "jid = ?", new String[]{rawJid}, null, null, null);
-            if (cursor2 != null && cursor2.moveToFirst()) {
-                name = cursor2.getString(0);
-                cursor2.close();
-            }
+        return name == null ? "" : name;
+    }
+
+    @NonNull
+    public static String getWppContactName(Object userJid) {
+        loadWADatabase();
+        if (mWaDatabase == null || userJid == null) return "";
+        String name = null;
+        var rawJid = getRawString(userJid);
+        var cursor2 = mWaDatabase.query("wa_vnames", new String[]{"verified_name"}, "jid = ?", new String[]{rawJid}, null, null, null);
+        if (cursor2 != null && cursor2.moveToFirst()) {
+            name = cursor2.getString(0);
+            cursor2.close();
         }
         return name == null ? "" : name;
     }
+
 
     public static Object createUserJid(String rawjid) {
         var genInstance = XposedHelpers.newInstance(mGenJidClass);

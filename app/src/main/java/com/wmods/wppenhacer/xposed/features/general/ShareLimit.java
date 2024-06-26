@@ -20,7 +20,7 @@ public class ShareLimit extends Feature {
         if (!prefs.getBoolean("removeforwardlimit", false)) return;
         var shareLimitMethod = Unobfuscator.loadShareLimitMethod(classLoader);
         logDebug(Unobfuscator.getMethodDescriptor(shareLimitMethod));
-        var shareItemField = Unobfuscator.loadShareItemField(classLoader);
+        var shareItemField = Unobfuscator.loadShareMapItemField(classLoader);
         logDebug(Unobfuscator.getFieldDescriptor(shareItemField));
 
         XposedBridge.hookMethod(

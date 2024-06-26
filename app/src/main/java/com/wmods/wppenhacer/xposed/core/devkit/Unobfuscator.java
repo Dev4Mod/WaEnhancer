@@ -492,12 +492,16 @@ public class Unobfuscator {
         });
     }
 
-    public static Field loadShareItemField(ClassLoader classLoader) throws Exception {
+    public static Field loadShareMapItemField(ClassLoader classLoader) throws Exception {
         return UnobfuscatorCache.getInstance().getField(classLoader, () -> {
-            var clazz = loadShareLimitMethod(classLoader).getDeclaringClass();
-            var field = ReflectionUtils.getFieldByType(clazz, Map.class);
-            if (field == null) throw new Exception("ShareItem field not found");
-            return field;
+            var shareLimitMethod = loadShareLimitMethod(classLoader);
+            var methodData = dexkit.getMethodData(shareLimitMethod);
+            var usingFields = Objects.requireNonNull(methodData).getUsingFields();
+            for (var ufield : usingFields) {
+                var field = ufield.getField().getFieldInstance(classLoader);
+                if (field.getType() == Map.class) return field;
+            }
+            throw new Exception("ShareItem field not found");
         });
     }
 

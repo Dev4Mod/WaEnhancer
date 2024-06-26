@@ -9,7 +9,6 @@ import com.wmods.wppenhacer.xposed.utils.ReflectionUtils;
 import org.luckypray.dexkit.util.DexSignUtil;
 
 import java.util.ArrayList;
-import java.util.List;
 
 import de.robv.android.xposed.XC_MethodHook;
 import de.robv.android.xposed.XSharedPreferences;
@@ -24,7 +23,8 @@ public class Channels extends Feature {
     public void doHook() throws Throwable {
         var channels = prefs.getBoolean("channels", false);
         var removechannelRec = prefs.getBoolean("removechannel_rec", false);
-        if (channels) {
+        var removeChannelRecClass = Unobfuscator.loadRemoveChannelRecClass(classLoader);
+        if (channels || removechannelRec) {
             var headerChannelItem = Unobfuscator.loadHeaderChannelItemClass(classLoader);
             log("HeaderChannelItem: " + headerChannelItem);
             var listChannelItem = Unobfuscator.loadListChannelItemClass(classLoader);
@@ -38,22 +38,23 @@ public class Channels extends Feature {
                             var list = ReflectionUtils.findArrayOfType(param.args, ArrayList.class);
                             if (list.isEmpty()) return;
                             var arrList = (ArrayList<?>) list.get(0).second;
-                            arrList.removeIf((e) -> headerChannelItem.isInstance(e) || listChannelItem.isInstance(e));
+                            arrList.removeIf((e) -> {
+                                if (channels) {
+                                    if (headerChannelItem.isInstance(e) || listChannelItem.isInstance(e))
+                                        return true;
+                                }
+                                if (channels || removechannelRec) {
+                                    return removeChannelRecClass.isInstance(e);
+                                }
+                                return false;
+                            });
+                            for (var item : arrList) {
+                                XposedBridge.log(item.getClass().getName() + " -> " + item.toString().replace("\n", ""));
+                            }
                         }
                     });
         }
-        if (removechannelRec || channels) {
-            var removeChannelRecClass = Unobfuscator.loadRemoveChannelRecClass(classLoader);
-            XposedBridge.hookAllConstructors(removeChannelRecClass, new XC_MethodHook() {
-                @Override
-                protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
-                    if (param.args.length > 0 && param.args[0] instanceof List list) {
-                        if (list.isEmpty()) return;
-                        list.clear();
-                    }
-                }
-            });
-        }
+
     }
 
     @NonNull

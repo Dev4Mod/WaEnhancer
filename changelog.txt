@@ -1,9 +1,9 @@
 [HIDE CHANNELS]
-* Fixed bug in versions below 2.24.12.78 of WhatsApp
+* Fixed bug when hiding recommendation
 
-[CUSTOM VIEW]
-* Fixed image loading bug with very small views.
+[CALL PRIVACY]
+* Fixed bug for deleted contacts or with real names in unknown contacts
 
-[STATUS FACEBOOK STYLE]
-* Added function to show two lines in the grid
+[FORWARD LIMIT]
+* Fixed bug when trying to find the number of selected contacts
 

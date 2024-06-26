@@ -94,8 +94,8 @@ public class CallPrivacy extends Feature {
                 if (WppCore.stripJID(jid).equals(jid)) {
                     jid = jid.split("\\.")[0] + "@s.whatsapp.net";
                 }
-                var contactName = WppCore.getContactName(WppCore.createUserJid(jid));
-                return contactName == null || contactName.equals(jid);
+                var contactName = WppCore.getSContactName(WppCore.createUserJid(jid), true);
+                return TextUtils.isEmpty(contactName) || contactName.equals(jid);
             case 3:
                 var callBlockList = prefs.getString("call_block_contacts", "[]");
                 var blockList = Arrays.stream(callBlockList.substring(1, callBlockList.length() - 1).split(", ")).map(String::trim).collect(Collectors.toCollection(ArrayList::new));
