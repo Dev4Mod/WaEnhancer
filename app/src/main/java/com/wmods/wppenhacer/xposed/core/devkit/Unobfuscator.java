@@ -1406,7 +1406,7 @@ public class Unobfuscator {
     public static Method loadGroupCheckAdminMethod(ClassLoader loader) throws Exception {
         var clazz = findFirstClassUsingStrings(loader, StringMatchType.Contains, "[LidGroup]GroupParticipantsManager");
         var userJidClass = XposedHelpers.findClass("com.whatsapp.jid.UserJid", loader);
-        var methods = ReflectionUtils.findAllMethodUsingFilter(clazz, m -> m.getParameterCount() == 2 && m.getParameterTypes()[1].equals(userJidClass) && m.getReturnType().equals(boolean.class));
+        var methods = ReflectionUtils.findAllMethodsUsingFilter(clazz, m -> m.getParameterCount() == 2 && m.getParameterTypes()[1].equals(userJidClass) && m.getReturnType().equals(boolean.class));
         if (methods == null || methods.length == 0)
             throw new RuntimeException("GroupCheckAdmin method not found");
         return methods[methods.length - 1];

@@ -20,6 +20,7 @@ import androidx.core.content.ContextCompat;
 import com.wmods.wppenhacer.BuildConfig;
 import com.wmods.wppenhacer.xposed.core.components.AlertDialogWpp;
 import com.wmods.wppenhacer.xposed.core.components.FMessageWpp;
+import com.wmods.wppenhacer.xposed.core.components.SharedPreferencesWrapper;
 import com.wmods.wppenhacer.xposed.core.db.MessageStore;
 import com.wmods.wppenhacer.xposed.core.devkit.Unobfuscator;
 import com.wmods.wppenhacer.xposed.core.devkit.UnobfuscatorCache;
@@ -37,6 +38,7 @@ import com.wmods.wppenhacer.xposed.features.general.AntiRevoke;
 import com.wmods.wppenhacer.xposed.features.general.CallType;
 import com.wmods.wppenhacer.xposed.features.general.ChatLimit;
 import com.wmods.wppenhacer.xposed.features.general.DeleteStatus;
+import com.wmods.wppenhacer.xposed.features.general.MenuStatus;
 import com.wmods.wppenhacer.xposed.features.general.NewChat;
 import com.wmods.wppenhacer.xposed.features.general.Others;
 import com.wmods.wppenhacer.xposed.features.general.PinnedLimit;
@@ -107,6 +109,7 @@ public class FeatureLoader {
                 currentVersion = packageInfo.versionName;
                 supportedVersions = Arrays.asList(mApp.getResources().getStringArray(Objects.equals(mApp.getPackageName(), FeatureLoader.PACKAGE_WPP) ? ResId.array.supported_versions_wpp : ResId.array.supported_versions_business));
                 try {
+                    SharedPreferencesWrapper.hookInit(mApp.getClassLoader());
                     UnobfuscatorCache.init(mApp, pref);
                     WppCore.Initialize(loader);
                     if (!supportedVersions.contains(packageInfo.versionName)) {
@@ -207,6 +210,7 @@ public class FeatureLoader {
     private static void plugins(@NonNull ClassLoader loader, @NonNull XSharedPreferences pref, @NonNull String versionWpp) {
 
         var classes = new Class<?>[]{
+                MenuStatus.class,
                 DebugFeature.class,
                 ShowEditMessage.class,
                 AntiRevoke.class,

@@ -73,7 +73,7 @@ public class ShowEditMessage extends Feature {
                 long id = fMessage.getRowId();
                 String newMessage = fMessage.getMessageStr();
                 if (newMessage == null) {
-                    var methods = ReflectionUtils.findAllMethodUsingFilter(param.args[0].getClass(), method -> method.getReturnType() == String.class && ReflectionUtils.isOverridden(method));
+                    var methods = ReflectionUtils.findAllMethodsUsingFilter(param.args[0].getClass(), method -> method.getReturnType() == String.class && ReflectionUtils.isOverridden(method));
                     for (var method : methods) {
                         newMessage = (String) method.invoke(param.args[0]);
                         if (newMessage != null) break;

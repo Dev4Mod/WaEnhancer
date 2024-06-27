@@ -1,5 +1,7 @@
 package com.wmods.wppenhacer.xposed.features.media;
 
+import static com.wmods.wppenhacer.xposed.features.general.MenuStatus.menuStatuses;
+
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.media.MediaScannerConnection;
@@ -7,7 +9,7 @@ import android.net.Uri;
 import android.os.Environment;
 import android.text.TextUtils;
 import android.view.Menu;
-import android.view.View;
+import android.view.MenuItem;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -16,6 +18,7 @@ import com.wmods.wppenhacer.xposed.core.Feature;
 import com.wmods.wppenhacer.xposed.core.WppCore;
 import com.wmods.wppenhacer.xposed.core.components.FMessageWpp;
 import com.wmods.wppenhacer.xposed.core.devkit.Unobfuscator;
+import com.wmods.wppenhacer.xposed.features.general.MenuStatus;
 import com.wmods.wppenhacer.xposed.utils.MimeTypeUtils;
 import com.wmods.wppenhacer.xposed.utils.ReflectionUtils;
 import com.wmods.wppenhacer.xposed.utils.ResId;
@@ -27,11 +30,8 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
-import java.util.List;
 
-import de.robv.android.xposed.XC_MethodHook;
 import de.robv.android.xposed.XSharedPreferences;
 import de.robv.android.xposed.XposedHelpers;
 
@@ -45,57 +45,50 @@ public class StatusDownload extends Feature {
 
     public void doHook() throws Exception {
         if (!prefs.getBoolean("downloadstatus", false)) return;
-        var mediaClass = Unobfuscator.loadStatusDownloadMediaClass(classLoader);
-        logDebug("Media class: " + mediaClass.getName());
-        var menuStatusClass = Unobfuscator.loadMenuStatusClass(classLoader);
-        logDebug("MenuStatus class: " + menuStatusClass.getName());
+
         fieldFile = Unobfuscator.loadStatusDownloadFileField(classLoader);
-        logDebug("File field: " + fieldFile.getName());
-        var clazzSubMenu = Unobfuscator.loadStatusDownloadSubMenuClass(classLoader);
-        logDebug("SubMenu class: " + clazzSubMenu.getName());
-        var clazzMenu = Unobfuscator.loadStatusDownloadMenuClass(classLoader);
-        logDebug("Menu class: " + clazzMenu.getName());
-        var menuField = Unobfuscator.getFieldByType(clazzSubMenu, clazzMenu);
-        logDebug("Menu field: " + menuField.getName());
 
+        var downloadStatus = new MenuStatus.MenuItemStatus() {
 
-        Class<?> StatusPlaybackBaseFragmentClass = classLoader.loadClass("com.whatsapp.status.playback.fragment.StatusPlaybackBaseFragment");
-        Class<?> StatusPlaybackContactFragmentClass = classLoader.loadClass("com.whatsapp.status.playback.fragment.StatusPlaybackContactFragment");
-        var listStatusField = ReflectionUtils.getFieldsByExtendType(StatusPlaybackContactFragmentClass, List.class).get(0);
-
-        XposedHelpers.findAndHookMethod(menuStatusClass, "onClick", View.class, new XC_MethodHook() {
             @Override
-            protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-                Field subMenuField = Arrays.stream(param.thisObject.getClass().getDeclaredFields()).filter(f -> f.getType() == Object.class && clazzSubMenu.isInstance(XposedHelpers.getObjectField(param.thisObject, f.getName()))).findFirst().orElse(null);
-                Object submenu = XposedHelpers.getObjectField(param.thisObject, subMenuField.getName());
-
-                var fragment = Arrays.stream(param.thisObject.getClass().getDeclaredFields()).filter(f -> StatusPlaybackBaseFragmentClass.isInstance(XposedHelpers.getObjectField(param.thisObject, f.getName()))).findFirst().orElse(null);
-                if (fragment == null) {
-                    logDebug("Fragment not found");
-                    return;
-                }
-                var fragmentInstance = fragment.get(param.thisObject);
-                var index = (int) XposedHelpers.getObjectField(fragmentInstance, "A00");
-                var listStatus = (List) listStatusField.get(fragmentInstance);
-                var fMessage = (Object) listStatus.get(index);
-                var menu = (Menu) XposedHelpers.getObjectField(submenu, menuField.getName());
-                if (menu.findItem(ResId.string.download) != null) return;
-                menu.add(0, ResId.string.download, 0, ResId.string.download).setOnMenuItemClickListener(item -> downloadFile(fMessage));
-                menu.add(0, 0, 0, ResId.string.share_as_status).setOnMenuItemClickListener(item -> sharedStatus(fMessage));
+            public MenuItem addMenu(Menu menu) {
+                if (menu.findItem(ResId.string.download) != null) return null;
+                return menu.add(0, ResId.string.download, 0, ResId.string.download);
             }
-        });
+
+            @Override
+            public void onClick(MenuItem item, Object fragmentInstance, FMessageWpp fMessageWpp) {
+                downloadFile(fMessageWpp);
+            }
+        };
+        menuStatuses.add(downloadStatus);
+
+
+        var sharedMenu = new MenuStatus.MenuItemStatus() {
+
+            @Override
+            public MenuItem addMenu(Menu menu) {
+                if (menu.findItem(ResId.string.share_as_status) != null) return null;
+                return menu.add(0, ResId.string.share_as_status, 0, ResId.string.share_as_status);
+            }
+
+            @Override
+            public void onClick(MenuItem item, Object fragmentInstance, FMessageWpp fMessageWpp) {
+                sharedStatus(fMessageWpp);
+            }
+        };
+        menuStatuses.add(sharedMenu);
     }
 
-    private boolean sharedStatus(Object fMessage) {
+    private void sharedStatus(FMessageWpp fMessageWpp) {
         try {
-            var fMessageWpp = new FMessageWpp(fMessage);
-            var fileData = XposedHelpers.getObjectField(fMessage, "A01");
+            var fileData = XposedHelpers.getObjectField(fMessageWpp.getObject(), "A01");
             if (!fieldFile.getDeclaringClass().isInstance(fileData)) {
                 Intent intent = new Intent();
                 intent.setClassName(Utils.getApplication().getPackageName(), "com.whatsapp.textstatuscomposer.TextStatusComposerActivity");
                 intent.putExtra("android.intent.extra.TEXT", fMessageWpp.getMessageStr());
                 WppCore.getCurrentActivity().startActivity(intent);
-                return false;
+                return;
             }
             var file = (File) ReflectionUtils.getField(fieldFile, fileData);
             Intent intent = new Intent();
@@ -107,19 +100,17 @@ public class StatusDownload extends Feature {
         } catch (Throwable e) {
             Utils.showToast(e.getMessage(), Toast.LENGTH_SHORT);
         }
-        return true;
     }
 
-    private boolean downloadFile(Object fMessage) {
-        if (fMessage == null) return true;
+    private void downloadFile(FMessageWpp fMessage) {
         try {
-            var fileData = XposedHelpers.getObjectField(fMessage, "A01");
+            var fileData = XposedHelpers.getObjectField(fMessage.getObject(), "A01");
             if (!fieldFile.getDeclaringClass().isInstance(fileData)) {
                 Utils.showToast(Utils.getApplication().getString(ResId.string.msg_text_status_not_downloadable), Toast.LENGTH_SHORT);
-                return false;
+                return;
             }
             var file = (File) ReflectionUtils.getField(fieldFile, fileData);
-            var userJid = new FMessageWpp(fMessage).getUserJid();
+            var userJid = fMessage.getUserJid();
             var fileType = file.getName().substring(file.getName().lastIndexOf(".") + 1);
             var destination = getPathDestination(prefs, file);
             var name = Utils.generateName(userJid, fileType);
@@ -134,7 +125,6 @@ public class StatusDownload extends Feature {
         } catch (Throwable e) {
             Utils.showToast(e.getMessage(), Toast.LENGTH_SHORT);
         }
-        return true;
     }
 
     @NonNull

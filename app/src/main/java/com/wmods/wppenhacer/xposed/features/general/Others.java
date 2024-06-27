@@ -95,7 +95,12 @@ public class Others extends Feature {
 
         propsBoolean.put(6798, true); // show all status
 
-        propsBoolean.put(5332, false);
+        propsBoolean.put(3575, true); // auto play emojis settings
+
+        propsBoolean.put(7589, true); // Media select quality
+        propsBoolean.put(6972, false); // Media select quality
+        propsBoolean.put(5625, true); // Enable option to autodelete channels media
+
 
         if (metaai) {
             propsBoolean.put(8025, false);
@@ -138,10 +143,9 @@ public class Others extends Feature {
         if (audio_type > 0) {
             sendAudioType(audio_type);
         }
+
         customPlayBackSpeed();
         showOnline(showOnline);
-
-
     }
 
     private void customPlayBackSpeed() throws Exception {
@@ -157,7 +161,7 @@ public class Others extends Feature {
             }
         });
         var voicenoteClass = classLoader.loadClass("com.whatsapp.search.views.itemviews.VoiceNoteProfileAvatarView");
-        var method = ReflectionUtils.findAllMethodUsingFilter(voicenoteClass, method1 -> method1.getParameterCount() == 4 && method1.getParameterTypes()[0] == int.class && method1.getReturnType().equals(void.class));
+        var method = ReflectionUtils.findAllMethodsUsingFilter(voicenoteClass, method1 -> method1.getParameterCount() == 4 && method1.getParameterTypes()[0] == int.class && method1.getReturnType().equals(void.class));
         XposedBridge.hookMethod(method[method.length - 1], new XC_MethodHook() {
             @SuppressLint("SetTextI18n")
             @Override
