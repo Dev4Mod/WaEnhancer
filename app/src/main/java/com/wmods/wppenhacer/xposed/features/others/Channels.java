@@ -48,9 +48,6 @@ public class Channels extends Feature {
                                 }
                                 return false;
                             });
-                            for (var item : arrList) {
-                                XposedBridge.log(item.getClass().getName() + " -> " + item.toString().replace("\n", ""));
-                            }
                         }
                     });
         }
