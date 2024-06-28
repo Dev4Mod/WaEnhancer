@@ -14,6 +14,7 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import com.wmods.wppenhacer.views.dialog.BottomDialogWpp;
 import com.wmods.wppenhacer.xposed.core.devkit.Unobfuscator;
 import com.wmods.wppenhacer.xposed.utils.ReflectionUtils;
 import com.wmods.wppenhacer.xposed.utils.Utils;
@@ -110,6 +111,7 @@ public class WppCore {
                 mActionUser = param.thisObject;
             }
         });
+
 
         // Load wa database
         loadWADatabase();
@@ -276,8 +278,8 @@ public class WppCore {
         return null;
     }
 
-    public static Dialog createDialog(Context context) {
-        return (Dialog) XposedHelpers.newInstance(bottomDialog, context, 0);
+    public static BottomDialogWpp createBottomDialog(Context context) {
+        return new BottomDialogWpp((Dialog) XposedHelpers.newInstance(bottomDialog, context, 0));
     }
 
     @Nullable
@@ -316,6 +318,7 @@ public class WppCore {
     public static void addListenerChat(ActivityChangeState listener) {
         listenerChat.add(listener);
     }
+
 
     public interface ActivityChangeState {
 

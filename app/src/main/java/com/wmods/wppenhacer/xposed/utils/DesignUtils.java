@@ -10,12 +10,13 @@ import android.graphics.Paint;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
+import android.graphics.drawable.InsetDrawable;
 import android.graphics.drawable.ShapeDrawable;
-import android.graphics.drawable.shapes.RectShape;
 import android.graphics.drawable.shapes.RoundRectShape;
 import android.os.Build;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 import com.wmods.wppenhacer.WppXposed;
 import com.wmods.wppenhacer.xposed.core.WppCore;
@@ -31,11 +32,24 @@ public class DesignUtils {
     }
 
 
+    @Nullable
     public static Drawable getDrawableByName(String name) {
         var id = Utils.getID(name, "drawable");
         if (id == 0) return null;
         return DesignUtils.getDrawable(id);
     }
+
+    @Nullable
+    public static Drawable getIconByName(String name, boolean isTheme) {
+        var id = Utils.getID(name, "drawable");
+        if (id == 0) return null;
+        var icon = DesignUtils.getDrawable(id);
+        if (isTheme && icon != null) {
+            return DesignUtils.coloredDrawable(icon, isNightMode() ? Color.WHITE : Color.BLACK);
+        }
+        return icon;
+    }
+
 
     @NonNull
     public static Drawable coloredDrawable(Drawable drawable, int color) {
@@ -77,17 +91,18 @@ public class DesignUtils {
                 return shapeDrawable;
             }
             case "stroke_border" -> {
-                ShapeDrawable shapeDrawable = new ShapeDrawable(new RectShape());
+                float radius = Utils.dipToPixels(18.0f);
+                float[] outerRadii = new float[]{radius, radius, radius, radius, radius, radius, radius, radius};
+                RoundRectShape roundRectShape = new RoundRectShape(outerRadii, null, null);
+                ShapeDrawable shapeDrawable = new ShapeDrawable(roundRectShape);
                 Paint paint = shapeDrawable.getPaint();
                 paint.setColor(Color.TRANSPARENT);
                 paint.setStyle(Paint.Style.STROKE);
                 paint.setStrokeWidth(Utils.dipToPixels(2));
                 paint.setColor(color);
-                float radius = Utils.dipToPixels(2.0f);
-                float[] outerRadii = new float[]{radius, radius, radius, radius, radius, radius, radius, radius};
-                RoundRectShape roundRectShape = new RoundRectShape(outerRadii, null, null);
-                shapeDrawable.setShape(roundRectShape);
-                return shapeDrawable;
+                int inset = Utils.dipToPixels(2);
+                return new InsetDrawable(shapeDrawable, inset, inset, inset, inset);
+
             }
         }
         return new ColorDrawable(Color.BLACK);
@@ -110,7 +125,7 @@ public class DesignUtils {
     public static int getPrimarySurfaceColor() {
         var backgroundColor = mPrefs.getInt("background_color", 0);
         if (backgroundColor == 0 || !mPrefs.getBoolean("changecolor", false)) {
-            return DesignUtils.isNightMode() ? 0xff121212: 0xfffffffe;
+            return DesignUtils.isNightMode() ? 0xff121212 : 0xfffffffe;
         }
         return backgroundColor;
     }

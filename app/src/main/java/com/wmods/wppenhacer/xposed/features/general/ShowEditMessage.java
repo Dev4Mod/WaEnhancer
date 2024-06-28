@@ -6,7 +6,6 @@ import android.graphics.Color;
 import android.graphics.Typeface;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -30,6 +29,7 @@ import com.wmods.wppenhacer.xposed.utils.ResId;
 import com.wmods.wppenhacer.xposed.utils.Utils;
 
 import java.util.ArrayList;
+import java.util.Objects;
 
 import de.robv.android.xposed.XC_MethodHook;
 import de.robv.android.xposed.XSharedPreferences;
@@ -121,10 +121,10 @@ public class ShowEditMessage extends Feature {
 
     @SuppressLint("SetTextI18n")
     private void showBottomDialog(ArrayList<MessageHistory.MessageItem> messages) {
-        WppCore.getCurrentConversation().runOnUiThread(() -> {
+        Objects.requireNonNull(WppCore.getCurrentConversation()).runOnUiThread(() -> {
             var ctx = (Context) WppCore.getCurrentConversation();
 
-            var dialog = WppCore.createDialog(ctx);
+            var dialog = WppCore.createBottomDialog(ctx);
             // NestedScrollView
             NestedScrollView nestedScrollView0 = new NestedScrollView(ctx, null);
             nestedScrollView0.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
@@ -177,22 +177,15 @@ public class ShowEditMessage extends Feature {
             var drawable = DesignUtils.createDrawable("selector_bg", Color.BLACK);
             okButton.setBackground(DesignUtils.alphaDrawable(drawable, DesignUtils.getPrimaryTextColor(), 25));
             okButton.setText("OK");
-            okButton.setOnClickListener((View view) -> dialog.dismiss());
+            okButton.setOnClickListener((View view) -> dialog.dismissDialog());
             linearLayout.addView(imageView0);
             linearLayout.addView(titleView);
             linearLayout.addView(listView);
             linearLayout.addView(okButton);
             nestedScrollView0.addView(linearLayout);
             dialog.setContentView(nestedScrollView0);
-            if (dialog.getWindow() != null) {
-                dialog.getWindow().setBackgroundDrawable(null);
-                dialog.getWindow().setDimAmount(0);
-                var view = dialog.getWindow().getDecorView();
-                view.findViewById(Utils.getID("design_bottom_sheet", "id")).setBackgroundColor(Color.TRANSPARENT);
-                dialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN);
-            }
             dialog.setCanceledOnTouchOutside(true);
-            dialog.show();
+            dialog.showDialog();
         });
     }
 

@@ -54,9 +54,12 @@ public class ResId {
         public static int share_as_status;
         public static int viewed_your_status;
         public static int viewed_your_message;
+        public static int select_status_type;
+        public static int open_camera;
+        public static int edit_text;
     }
 
-    public class array {
+    public static class array {
         public static int supported_versions_wpp;
         public static int supported_versions_business;
     }

@@ -21,10 +21,12 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import com.wmods.wppenhacer.views.dialog.TabDialogContent;
 import com.wmods.wppenhacer.xposed.core.WppCore;
 import com.wmods.wppenhacer.xposed.core.devkit.Unobfuscator;
 import com.wmods.wppenhacer.xposed.core.devkit.UnobfuscatorCache;
 import com.wmods.wppenhacer.xposed.utils.DesignUtils;
+import com.wmods.wppenhacer.xposed.utils.ResId;
 import com.wmods.wppenhacer.xposed.utils.Utils;
 
 import java.lang.reflect.Method;
@@ -41,6 +43,78 @@ public class IGStatusAdapter extends ArrayAdapter {
     private final Class<?> statusInfoClazz;
     private final Method setCountStatus;
 
+    @NonNull
+    @Override
+    public View getView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
+        var item = itens.get(position);
+        IGStatusViewHolder holder;
+        if (convertView == null) {
+            holder = new IGStatusViewHolder();
+            convertView = createLayoutStatus(holder);
+            convertView.setTag(holder);
+        } else {
+            holder = (IGStatusViewHolder) convertView.getTag();
+        }
+        if (item == null) {
+            holder.setInfo("my_status");
+        } else if (statusInfoClazz.isInstance(item)) {
+            holder.setInfo(item);
+        }
+
+        convertView.setOnClickListener(v -> {
+            if (holder.myStatus) {
+                var activity = WppCore.getCurrentActivity();
+                var dialog = WppCore.createBottomDialog(activity);
+                var tabdialog = new TabDialogContent(activity);
+                tabdialog.setTitle(activity.getString(ResId.string.select_status_type));
+                tabdialog.addTab(UnobfuscatorCache.getInstance().getString("mystatus"), DesignUtils.getIconByName("ic_status", true), (view) -> {
+                    var intent = new Intent(WppCore.getCurrentActivity(), XposedHelpers.findClass("com.whatsapp.status.playback.MyStatusesActivity", getContext().getClassLoader()));
+                    WppCore.getCurrentActivity().startActivity(intent);
+                    dialog.dismissDialog();
+                });
+                tabdialog.addTab(activity.getString(ResId.string.open_camera), DesignUtils.getIconByName("ic_home_camera", true), (view) -> {
+                    Intent A09 = new Intent();
+                    A09.setClassName(activity.getPackageName(), "com.whatsapp.camera.CameraActivity");
+                    A09.putExtra("jid", "status@broadcast");
+                    A09.putExtra("camera_origin", 4);
+                    A09.putExtra("is_coming_from_chat", false);
+                    A09.putExtra("media_sharing_user_journey_origin", 32);
+                    A09.putExtra("media_sharing_user_journey_start_target", 9);
+                    A09.putExtra("media_sharing_user_journey_chat_type", 4);
+                    activity.startActivity(A09);
+                    dialog.dismissDialog();
+
+                });
+                tabdialog.addTab(activity.getString(ResId.string.edit_text), DesignUtils.getIconByName("ic_action_edit", true), (view) -> {
+                    Intent A09 = new Intent();
+                    A09.setClassName(activity.getPackageName(), "com.whatsapp.textstatuscomposer.TextStatusComposerActivity");
+                    activity.startActivity(A09);
+                    dialog.dismissDialog();
+                });
+                dialog.setContentView(tabdialog);
+                dialog.showDialog();
+                return;
+            }
+            var intent = new Intent(WppCore.getCurrentActivity(), XposedHelpers.findClass("com.whatsapp.status.playback.StatusPlaybackActivity", getContext().getClassLoader()));
+            intent.putExtra("jid", holder.jid);
+            WppCore.getCurrentActivity().startActivity(intent);
+        });
+
+        return convertView;
+    }
+
+    public IGStatusAdapter(@NonNull Context context, @NonNull Class<?> statusInfoClazz) {
+        super(context, 0);
+        this.clazzImageStatus = XposedHelpers.findClass("com.whatsapp.status.ContactStatusThumbnail", this.getContext().getClassLoader());
+        this.statusInfoClazz = statusInfoClazz;
+        this.setCountStatus = Arrays.stream(this.clazzImageStatus.getDeclaredMethods()).filter(m -> m.getParameterCount() == 2 && m.getParameterTypes()[0].equals(int.class) && m.getParameterTypes()[1].equals(int.class)).findFirst().orElse(null);
+    }
+
+    @Override
+    public int getCount() {
+        return itens.size();
+    }
+
     class IGStatusViewHolder {
         public ImageView igStatusContactPhoto;
         public RelativeLayout addButton;
@@ -49,13 +123,13 @@ public class IGStatusAdapter extends ArrayAdapter {
         private String jid;
 
         public void setInfo(Object item) {
-
             if (Objects.equals(item, "my_status")) {
                 myStatus = true;
                 igStatusContactName.setText(UnobfuscatorCache.getInstance().getString("mystatus"));
                 igStatusContactPhoto.setImageDrawable(WppCore.getMyPhoto());
                 setCountStatus(0, 0);
                 return;
+                //select call type
             }
             var statusInfo = XposedHelpers.getObjectField(item, "A01");
             var field = Unobfuscator.getFieldByType(statusInfo.getClass(), XposedHelpers.findClass("com.whatsapp.jid.UserJid", statusInfoClazz.getClassLoader()));
@@ -81,50 +155,6 @@ public class IGStatusAdapter extends ArrayAdapter {
             }
         }
 
-    }
-
-    public IGStatusAdapter(@NonNull Context context, @NonNull Class<?> statusInfoClazz) {
-        super(context, 0);
-        this.clazzImageStatus = XposedHelpers.findClass("com.whatsapp.status.ContactStatusThumbnail", this.getContext().getClassLoader());
-        this.statusInfoClazz = statusInfoClazz;
-        this.setCountStatus = Arrays.stream(this.clazzImageStatus.getDeclaredMethods()).filter(m -> m.getParameterCount() == 2 && m.getParameterTypes()[0].equals(int.class) && m.getParameterTypes()[1].equals(int.class)).findFirst().orElse(null);
-    }
-
-    @Override
-    public int getCount() {
-        return itens.size();
-    }
-
-    @NonNull
-    @Override
-    public View getView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
-        var item = itens.get(position);
-        IGStatusViewHolder holder;
-        if (convertView == null) {
-            holder = new IGStatusViewHolder();
-            convertView = createLayoutStatus(holder);
-            convertView.setTag(holder);
-        } else {
-            holder = (IGStatusViewHolder) convertView.getTag();
-        }
-        if (item == null) {
-            holder.setInfo("my_status");
-        } else if (statusInfoClazz.isInstance(item)) {
-            holder.setInfo(item);
-        }
-
-        convertView.setOnClickListener(v -> {
-            if (holder.myStatus) {
-                var intent = new Intent(WppCore.getCurrentActivity(), XposedHelpers.findClass("com.whatsapp.status.playback.MyStatusesActivity", getContext().getClassLoader()));
-                WppCore.getCurrentActivity().startActivity(intent);
-                return;
-            }
-            var intent = new Intent(WppCore.getCurrentActivity(), XposedHelpers.findClass("com.whatsapp.status.playback.StatusPlaybackActivity", getContext().getClassLoader()));
-            intent.putExtra("jid", holder.jid);
-            WppCore.getCurrentActivity().startActivity(intent);
-        });
-
-        return convertView;
     }
 
     @NonNull
