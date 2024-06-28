@@ -49,6 +49,7 @@ public class IGStatusAdapter extends ArrayAdapter {
         private String jid;
 
         public void setInfo(Object item) {
+
             if (Objects.equals(item, "my_status")) {
                 myStatus = true;
                 igStatusContactName.setText(UnobfuscatorCache.getInstance().getString("mystatus"));

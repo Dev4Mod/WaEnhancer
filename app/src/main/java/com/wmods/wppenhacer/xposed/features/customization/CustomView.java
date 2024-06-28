@@ -44,8 +44,8 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 import cz.vutbr.web.css.CSSFactory;
 import cz.vutbr.web.css.CombinedSelector;
@@ -79,7 +79,7 @@ public class CustomView extends Feature {
         if (TextUtils.isEmpty(filter_itens)) return;
         cacheImages = new DrawableCache(Utils.getApplication(), 100 * 1024 * 1024);
         chacheDrawables = new HashMap<>();
-        mThreadService = Executors.newFixedThreadPool(8);
+        mThreadService = Utils.getExecutor();
 
         var sheet = CSSFactory.parseString(filter_itens, new URL("https://base.url/"));
         XposedHelpers.findAndHookMethod(Activity.class, "onCreate", Bundle.class, new XC_MethodHook() {
@@ -137,9 +137,7 @@ public class CustomView extends Feature {
         for (var view : resultViews) {
             if (view == null || !view.isAttachedToWindow())
                 continue;
-            mThreadService.submit(() -> {
-                view.post(() -> setRuleInView(ruleItem, view));
-            });
+            CompletableFuture.runAsync(() -> view.post(() -> setRuleInView(ruleItem, view)), mThreadService);
         }
     }
 

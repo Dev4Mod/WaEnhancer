@@ -22,8 +22,6 @@ import de.robv.android.xposed.XSharedPreferences;
 public class DeleteStatus extends Feature {
 
 
-    public static boolean bypassAntiRevoke = false;
-
 
     public DeleteStatus(@NonNull ClassLoader classLoader, @NonNull XSharedPreferences preferences) {
         super(classLoader, preferences);
@@ -49,9 +47,10 @@ public class DeleteStatus extends Feature {
             public void onClick(MenuItem item, Object fragmentInstance, FMessageWpp fMessage) {
                 try {
                     var status = StatusDeleteDialogFragmentClass.newInstance();
-                    var key = new FMessageWpp(fMessage).getKey();
+                    var key = fMessage.getKey();
                     var bundle = getBundle(key);
-                    bypassAntiRevoke = true;
+                    WppCore.setPrivBoolean(key.messageID + "_delpass", true);
+                    log(key.messageID);
                     fieldBundle.set(status, bundle);
                     showDialogStatus.invoke(status, status, fragmentInstance);
                 } catch (Exception e) {

@@ -55,7 +55,7 @@ public class SeenTick extends Feature {
     private static Method WaJobManagerMethod;
     private static String currentJid;
     private static String currentScreen = "none";
-    private static HashMap<String, ImageView> messageMap = new HashMap<>();
+    private static final HashMap<String, ImageView> messageMap = new HashMap<>();
 
     public SeenTick(@NonNull ClassLoader loader, @NonNull XSharedPreferences preferences) {
         super(loader, preferences);

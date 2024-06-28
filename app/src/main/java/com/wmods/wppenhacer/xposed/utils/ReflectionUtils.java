@@ -98,9 +98,9 @@ public class ReflectionUtils {
         return Arrays.stream(cls.getFields()).filter(f -> type == f.getType()).findFirst().orElse(null);
     }
 
-    public static Object callMethod(Method getUserJid, Object fMessage, Object... args) {
+    public static Object callMethod(Method method, Object instance, Object... args) {
         try {
-            return getUserJid.invoke(fMessage, args);
+            return method.invoke(instance, args);
         } catch (Exception e) {
             return null;
         }

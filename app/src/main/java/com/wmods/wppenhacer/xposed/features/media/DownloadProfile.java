@@ -35,7 +35,7 @@ public class DownloadProfile extends Feature {
             @Override
             protected void afterHookedMethod(MethodHookParam param) throws Throwable {
                 var menu = (Menu) param.args[0];
-                var item = menu.add(0, 0, 0, "Save");
+                var item = menu.add(0, 0, 0, ResId.string.download);
                 item.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
                 var icon = DesignUtils.getDrawableByName("ic_action_download");
                 if (icon != null) {

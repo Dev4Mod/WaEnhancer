@@ -926,7 +926,6 @@ public class Unobfuscator {
     public static Method loadGetStatusUserMethod(ClassLoader loader) throws Exception {
         return UnobfuscatorCache.getInstance().getMethod(loader, () -> {
             var id = UnobfuscatorCache.getInstance().getOfuscateIDString("last seen sun %s");
-            XposedBridge.log(Integer.toHexString(id));
             var result = dexkit.findMethod(new FindMethod().matcher(new MethodMatcher().addUsingNumber(id)));
             if (result.isEmpty()) throw new Exception("GetStatusUser method not found");
             return result.get(0).getMethodInstance(loader);

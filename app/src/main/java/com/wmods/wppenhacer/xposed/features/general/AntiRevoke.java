@@ -70,9 +70,10 @@ public class AntiRevoke extends Feature {
                 var messageKey = fMessage.getKey();
                 var deviceJid = fMessage.getDeviceJid();
                 var id = fMessage.getRowId();
+                var messageID = (String) XposedHelpers.getObjectField(fMessage.getObject(), "A01");
                 // Caso o proprio usuario tenha deletado o status
-                if (id == -1 & DeleteStatus.bypassAntiRevoke) {
-                    DeleteStatus.bypassAntiRevoke = false;
+                if (WppCore.getPrivBoolean(messageID + "_delpass", false)) {
+                    WppCore.removePrivKey(messageID + "_delpass");
                     var activity = WppCore.getCurrentActivity();
                     Class<?> StatusPlaybackActivityClass = classLoader.loadClass("com.whatsapp.status.playback.StatusPlaybackActivity");
                     if (activity != null && StatusPlaybackActivityClass.isInstance(activity)) {
