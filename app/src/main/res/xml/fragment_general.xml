@@ -13,7 +13,7 @@
 
         <rikka.material.preference.MaterialSwitchPreference
             app:key="force_english"
-            app:title="Force English in Wa Enhancer" />
+            app:title="@string/force_english" />
 
         <rikka.material.preference.MaterialSwitchPreference
             app:defaultValue="true"
