@@ -50,7 +50,7 @@
     <string name="outlinedicons_sum">Nouveau style d\'icônes, si vous les aimez, activez les</string>
     <string name="freezelastseen">Geler le dernier affichage</string>
     <string name="freezelastseen_sum">Your last seen time will be frozen\n(CAUTION: You will not see any presence updates from other users, like typing, recording, online)</string>
-    <string name="removeforwardlimit_sum">Supprimer la limite de transfert pour les 5 échanges (normal) et 1 échange (plusieures fois)</string>
+    <string name="removeforwardlimit_sum">Remove forward limit for 5 chats (normal) and 1 chat (multiple times)\n(Note: Use with caution, you may be banned for spam)</string>
     <string name="removeforwardlimit">Supprimer la limite de transfert</string>
     <string name="showname">Afficher les noms</string>
     <string name="showname_sum">Afficher votre nom de compte en haut de l\'application, remplaçant \"WhatsApp\" par votre nom.</string>
@@ -284,4 +284,5 @@
     <string name="viewed_your_message">%s viewed your message</string>
     <string name="old_statuses">Old Statuses</string>
     <string name="old_statuses_sum">Change to the old statuses page vertically and without channels (NOTE: May cause lag in the interface)</string>
+    <string name="force_english">Force English Wa Enhancer</string>
 </resources>

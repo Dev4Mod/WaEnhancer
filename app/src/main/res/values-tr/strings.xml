@@ -25,8 +25,8 @@
     <string name="hidereceipt">İletildi İbaresini Gizle</string>
     <string name="hidereceipt_sum">Kullanıcılar mesajlarının size iletildiğini bilmeyecektir\n(DİKKAT: Mesajların alınmasında gecikmeye neden olabilir)</string>
     <string name="ampm">12 Saat Formatında Zaman</string>
-    <string name="statusdowload">Download and Share Status</string>
-    <string name="statusdowload_sum">Shows two buttons to share and download status</string>
+    <string name="statusdowload">Durumu İndirme ve Paylaşma</string>
+    <string name="statusdowload_sum">Durumu paylaşmak ve indirmek için iki düğme gösterir</string>
     <string name="videoquality">HD Kalitede Videolar</string>
     <string name="videoquality_sum">Varsayılan olarak videoları HD kalitesinde gönder</string>
     <string name="colors_title">Renkler</string>
@@ -50,7 +50,7 @@
     <string name="outlinedicons_sum">Yeni özetlenmiş simgeler stili</string>
     <string name="freezelastseen">Son Görülmeyi Dondur</string>
     <string name="freezelastseen_sum">Son görülme zamanınız dondurulacaktır\n(NOT: Diğer kullanıcılardan gelen yazma, kaydetme, çevrimiçi olma gibi varlık güncellemelerini görmeyeceksiniz)</string>
-    <string name="removeforwardlimit_sum">5 sohbet (normal) ve 1 sohbet (birden çok kez) için iletme sınırını kaldır</string>
+    <string name="removeforwardlimit_sum">Remove forward limit for 5 chats (normal) and 1 chat (multiple times)\n(Note: Use with caution, you may be banned for spam)</string>
     <string name="removeforwardlimit">İletme Sınırı Kaldır</string>
     <string name="showname">Adı Göster</string>
     <string name="showname_sum">Ana ekranın üst kısmında \"WhatsApp\" yerine profil adını göster</string>
@@ -68,7 +68,7 @@
     <string name="blueonreply">Yanıt Üzerine Mavi Tik Gönder</string>
     <string name="blueonreply_sum">Bir mesajı yanıtladıktan sonra mavi tik işareti gönderir\n(NOT: \"Mavi Tik İşaretlerini Gizle\" etkin olmalıdır)</string>
     <string name="hide_archived_chat">Arşivlenmiş Sohbetleri Gizle</string>
-    <string name="hide_archived_chat_sum">Hide archived chats, to access click 5 times or hold on the \"WhatsApp\" title in the header on Home Screen</string>
+    <string name="hide_archived_chat_sum">Arşivlenmiş sohbetleri gizle, erişmek için Ana Ekranda başlıktaki \"WhatsApp\" başlığına 5 kez tıklayın veya basılı tutun</string>
     <string name="hide_once_view_seen">Bir Kez Görüntüle\'yi ve Ses Görmeyi Gizle</string>
     <string name="hide_once_view_seen_sum">Bir medya ve sesin görüldüğünü gizle</string>
     <string name="call_blocker">Aramaları Engelle</string>
@@ -142,8 +142,8 @@
     <string name="send_sticker">Çıkartma Gönder</string>
     <string name="enable_filter_chats">Tür için sohbetleri filtrelemeyi etkinleştir</string>
     <string name="enable_filter_chats_sum">Gruplar, kişiler ve görünmeyen mesajlar için sohbetleri filtreleme seçeneklerini göster</string>
-    <string name="disable_channels">Hide Channels</string>
-    <string name="disable_channels_sum">Hide Channels from Updates tab</string>
+    <string name="disable_channels">Kanalları Gizle</string>
+    <string name="disable_channels_sum">Kanalları Güncellemeler sekmesinden gizle</string>
     <string name="chat">Sohbet</string>
     <string name="change_bubble_colors">Baloncuk Renklerini Değiştir</string>
     <string name="change_blubble_color_sum">Konuşma Ekranındaki Balon Rengini Değiştir</string>
@@ -273,15 +273,16 @@
     <string name="configs_reset">Ayarlar sıfırlandı</string>
     <string name="hide_locked_chats">Kilitli Sohbetleri Gizle</string>
     <string name="hide_locked_chats_sum">Arşivlenmiş sohbetleri gizleyin, ana ekranda WhatsApp başlığını basılı tutarak görüntüleyin</string>
-    <string name="msg_text_status_not_downloadable">Text status is not downloadable!</string>
-    <string name="failed_save_directory">Unable to save files in this folder, select another location</string>
-    <string name="unable_to_read_this_file">Unable to read this file</string>
-    <string name="disabled">Disabled</string>
-    <string name="share_as_status">Share as Status</string>
-    <string name="audio_transcription">Audio transcription</string>
-    <string name="audio_transcription_sum">Enable native WhatsApp audio transcription (Check the connection menu for transcription options)</string>
-    <string name="viewed_your_status">%s viewed your status</string>
-    <string name="viewed_your_message">%s viewed your message</string>
-    <string name="old_statuses">Old Statuses</string>
-    <string name="old_statuses_sum">Change to the old statuses page vertically and without channels (NOTE: May cause lag in the interface)</string>
+    <string name="msg_text_status_not_downloadable">Metin durumu indirilebilir değil!</string>
+    <string name="failed_save_directory">Bu klasöre dosya kaydedilemiyor, başka bir konum seçin</string>
+    <string name="unable_to_read_this_file">Bu dosya okunamıyor</string>
+    <string name="disabled">Devre dışı</string>
+    <string name="share_as_status">Durum Olarak Paylaş</string>
+    <string name="audio_transcription">Ses transkripsiyonu</string>
+    <string name="audio_transcription_sum">Yerel WhatsApp ses transkripsiyonunu etkinleştir (Transkripsiyon seçenekleri için bağlantı menüsünü kontrol edin)</string>
+    <string name="viewed_your_status">%s durumunuzu görüntüledi</string>
+    <string name="viewed_your_message">%s mesajınızı görüntüledi</string>
+    <string name="old_statuses">Eski Durumlar</string>
+    <string name="old_statuses_sum">Eski durumlar sayfasına dikey olarak ve kanallar olmadan geçiş yap (NOT: Arayüzde gecikmeye neden olabilir)</string>
+    <string name="force_english">Force English Wa Enhancer</string>
 </resources>

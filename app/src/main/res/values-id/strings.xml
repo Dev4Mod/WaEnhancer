@@ -23,10 +23,11 @@
     <string name="antirevokestatus">Anti Hapus Status</string>
     <string name="antirevokestatus_sum">Status tidak akan dihapus untuk Anda</string>
     <string name="hidereceipt">Sembunyikan Centang Dua</string>
-    <string name="hidereceipt_sum">Orang lain tidak akan mengetahui bahwa pesan mereka telah terkirim kepada Anda.\n(PERHATIAN: Dapat menyebabkan keterlambatan dalam menerima pesan)</string>
+    <string name="hidereceipt_sum">Orang lain tidak akan mengetahui bahwa pesan mereka telah terkirim kepada Anda.
+(PERHATIAN: Dapat menyebabkan keterlambatan dalam menerima pesan)</string>
     <string name="ampm">Waktu dalam format 12 jam</string>
-    <string name="statusdowload">Download and Share Status</string>
-    <string name="statusdowload_sum">Shows two buttons to share and download status</string>
+    <string name="statusdowload">Unduh dan Bagikan Status</string>
+    <string name="statusdowload_sum">Tampilkan tombol untuk bagikan dan mengunduh status</string>
     <string name="videoquality">Video Kualitas HD</string>
     <string name="videoquality_sum">Kirim video dalam kualitas HD</string>
     <string name="colors_title">Warna</string>
@@ -51,7 +52,7 @@
     <string name="freezelastseen">Bekukan \"terakhir dilihat dan online\"</string>
     <string name="freezelastseen_sum">Waktu \"terakhir dilihat dan online\" Anda akan dibekukan
 (PERHATIAN: Anda tidak dapat melihat pembaruan kehadiran apa pun dari orang lain seperti: mengetik, merekam, terakhir dilihat dan online)</string>
-    <string name="removeforwardlimit_sum">Hapus batas penerusan pesan untuk 5 obrolan (normal) dan 1 obrolan (berkali-kali)</string>
+    <string name="removeforwardlimit_sum">Remove forward limit for 5 chats (normal) and 1 chat (multiple times)\n(Note: Use with caution, you may be banned for spam)</string>
     <string name="removeforwardlimit">Hapus Batas \"Diteruskan\"</string>
     <string name="showname">Tampilkan Nama</string>
     <string name="showname_sum">Tampilkan nama profil Anda di bagian atas layar utama, menggantikan \"WhatsApp\"</string>
@@ -70,7 +71,7 @@
     <string name="blueonreply_sum">Kontak hanya akan melihat tanda centang biru setelah Anda membalas pesan.
 (CATATAN: Harus mengaktifkan \"Sembunyikan centang biru\")</string>
     <string name="hide_archived_chat">Sembunyikan Obrolan yang Diarsipkan</string>
-    <string name="hide_archived_chat_sum">Hide archived chats, to access click 5 times or hold on the \"WhatsApp\" title in the header on Home Screen</string>
+    <string name="hide_archived_chat_sum">Sembunyikan obrolan yang diarsipkan, untuk mengakses klik 5 kali pada judul \"WhatsApp\" di header Layar Beranda</string>
     <string name="hide_once_view_seen">Sembunyikan Lihat Sekali dan Pesan Suara</string>
     <string name="hide_once_view_seen_sum">Orang lain tidak akan mengetahui bahwa Anda telah membuka pesan \"lihat sekali\" dan pesan suara</string>
     <string name="call_blocker">Blokir Panggilan</string>
@@ -105,7 +106,7 @@
     <string name="download">Unduh</string>
     <string name="reboot_whatsapp">(Mulai ulang WhatsApp)</string>
     <string name="error_when_saving_try_again">Terjadi kesalahan saat menyimpan, coba lagi!</string>
-    <string name="saved_to">"Disimpan ke "</string>
+    <string name="saved_to">"Disimpan ke"</string>
     <string name="hide_tabs_on_home">Sembunyikan Tab di Beranda</string>
     <string name="hide_tabs_on_home_sum">Sembunyikan tab di layar beranda seperti: Status, Komunitas, Panggilan</string>
     <string name="communities">Komunitas</string>
@@ -148,8 +149,8 @@ Harap gunakan versi WhatsApp yang didukung!</string>
     <string name="send_sticker">Kirim Stiker</string>
     <string name="enable_filter_chats">Aktifkan Filter Obrolan</string>
     <string name="enable_filter_chats_sum">Tampilkan opsi untuk memfilter obrolan seperti grup, kontak dan pesan belum dibaca</string>
-    <string name="disable_channels">Hide Channels</string>
-    <string name="disable_channels_sum">Hide Channels from Updates tab</string>
+    <string name="disable_channels">Nonaktifkan Saluran</string>
+    <string name="disable_channels_sum">Nonaktifkan saluran dari tab Status</string>
     <string name="chat">Obrolan</string>
     <string name="change_bubble_colors">Ubah Warna Gelembung</string>
     <string name="change_blubble_color_sum">Ubah warna gelembung di layar percakapan</string>
@@ -276,22 +277,24 @@ Saat Anda mengaktifkan bekukan \"terakhir dilihat dan online\", Anda tidak dapat
     <string name="contact_white_list">Daftar kontak yang diizinkan</string>
     <string name="no_contacts_selected">Tidak ada kontak yang dipilih</string>
     <string name="contact_were_selected">%d kontak dipilih</string>
-    <string name="standard">Standar</string>
-    <string name="audio_note">Catatan Audio</string>
-    <string name="voice_note">Catatan Suara</string>
-    <string name="reset_settings">Atur Ulang Pengaturan</string>
-    <string name="configs_reset">Pengaturan Telah Disetel Ulang</string>
-    <string name="hide_locked_chats">Sembunyikan Obrolan Yang Dikunci</string>
-    <string name="hide_locked_chats_sum">Sembunyikan obrolan yang diarsipkan, Untuk membukanya tekan dan tahan judul \"WhatsApp\" di layar beranda</string>
-    <string name="msg_text_status_not_downloadable">Text status is not downloadable!</string>
-    <string name="failed_save_directory">Unable to save files in this folder, select another location</string>
-    <string name="unable_to_read_this_file">Unable to read this file</string>
-    <string name="disabled">Disabled</string>
-    <string name="share_as_status">Share as Status</string>
-    <string name="audio_transcription">Audio transcription</string>
-    <string name="audio_transcription_sum">Enable native WhatsApp audio transcription (Check the connection menu for transcription options)</string>
-    <string name="viewed_your_status">%s viewed your status</string>
-    <string name="viewed_your_message">%s viewed your message</string>
-    <string name="old_statuses">Old Statuses</string>
-    <string name="old_statuses_sum">Change to the old statuses page vertically and without channels (NOTE: May cause lag in the interface)</string>
+    <string name="standard">Bawaan</string>
+    <string name="audio_note">Catatan audio</string>
+    <string name="voice_note">Catatan suara</string>
+    <string name="reset_settings">Atur Ulang Konfigurasi</string>
+    <string name="configs_reset">Konfigurasi disetel ulang</string>
+    <string name="hide_locked_chats">Sembunyikan Obrolan Dikunci</string>
+    <string name="hide_locked_chats_sum">Sembunyikan obrolan yang dikunci, untuk mengakses klik dan tahan pada judul \"WhatsApp\" di header Layar Beranda</string>
+    <string name="msg_text_status_not_downloadable">Status teks tidak dapat diunduh!</string>
+    <string name="failed_save_directory">Tidak dapat menyimpan file di folder ini, pilih direktori lain</string>
+    <string name="unable_to_read_this_file">Tidak dapat membaca file ini</string>
+    <string name="disabled">Nonaktif</string>
+    <string name="share_as_status">Bagikan status</string>
+    <string name="audio_transcription">Transkripsi Audio</string>
+    <string name="audio_transcription_sum">Aktifkan transkripsi audio Whatsapp asli (Periksa menu koneksi untuk opsi transkripsi)</string>
+    <string name="viewed_your_status">%s melihat status Anda</string>
+    <string name="viewed_your_message">%s membaca pesan Anda</string>
+    <string name="old_statuses">Status Lama</string>
+    <string name="old_statuses_sum">Ubah ke halaman status lama secara vertikal dan tanpa saluran
+(CATATAN: Dapat menyebabkan kelambatan pada antarmuka)</string>
+    <string name="force_english">Force English Wa Enhancer</string>
 </resources>
