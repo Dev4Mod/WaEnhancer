@@ -50,7 +50,7 @@
     <string name="outlinedicons_sum">Nuovo stile delle icone con bordo</string>
     <string name="freezelastseen">Congela Ultimo Accesso</string>
     <string name="freezelastseen_sum">L\'orario della tua ultima visualizzazione verrà congelato\n(NOTA: Non vedrai alcun aggiornamento sulla presenza di altri utenti, come digitazione, registrazione, online)</string>
-    <string name="removeforwardlimit_sum">Remove forward limit for 5 chats (normal) and 1 chat (multiple times)\n(Note: Use with caution, you may be banned for spam)</string>
+    <string name="removeforwardlimit_sum">Rimuovere il limite inoltro per 5 chat (normale) e 1 chat (più volte)\n(Nota: Utilizzare con cautela, si può essere banditi per spam)</string>
     <string name="removeforwardlimit">Rimuovi Limite di Inoltro</string>
     <string name="showname">Mostra nome</string>
     <string name="showname_sum">Mostra il nome del tuo profilo nella parte superiore della Home, invece di \"WhatsApp\"</string>
@@ -284,5 +284,8 @@
     <string name="viewed_your_message">%s ha visualizzato il tuo messaggio</string>
     <string name="old_statuses">Vecchi Stati</string>
     <string name="old_statuses_sum">Passa alla pagina vecchi stati verticalmente e senza canali (NOTA: Può causare ritardo nell\'interfaccia)</string>
-    <string name="force_english">Force English Wa Enhancer</string>
+    <string name="force_english">Forza Wa Enhancer in Inglese</string>
+    <string name="select_status_type">Seleziona tipo di stato</string>
+    <string name="open_camera">Apri Fotocamera</string>
+    <string name="edit_text">Modifica Testo</string>
 </resources>

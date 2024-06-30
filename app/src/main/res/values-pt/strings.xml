@@ -50,7 +50,7 @@
     <string name="outlinedicons_sum">Novo estilo de ícones, se você gostar, ative</string>
     <string name="freezelastseen">Congelar visto por último</string>
     <string name="freezelastseen_sum">Quando ativo, congela a hora e data do visto por último.\n(NOTA: As informações das outras pessoas não serão exibidas para você, como digitando e visto por último).</string>
-    <string name="removeforwardlimit_sum">Remove forward limit for 5 chats (normal) and 1 chat (multiple times)\n(Note: Use with caution, you may be banned for spam)</string>
+    <string name="removeforwardlimit_sum">Remover limite de encaminhamento para 5 chats (normal) e 1 chat (múltiplas vezes)\n(Nota: Use com cautela, você pode ser banido por spam)</string>
     <string name="removeforwardlimit">Remover limite de encaminhamento</string>
     <string name="showname">Mostrar nome</string>
     <string name="showname_sum">Mostra o seu nome no topo da tela inicial, substituindo o \"WhatsApp\" pelo nome da sua conta</string>
@@ -97,7 +97,7 @@
     <string name="edited_history">Histórico de Edição</string>
     <string name="message_original">Mensagem original</string>
     <string name="new_chat">Novo Bate-Papo</string>
-    <string name="number_with_country_code">Número com código de país</string>
+    <string name="number_with_country_code">Digite DDD + n° do telefone</string>
     <string name="message">Mensagem</string>
     <string name="download">Baixar</string>
     <string name="reboot_whatsapp">(Reiniciar WhatsApp)</string>
@@ -284,5 +284,8 @@
     <string name="viewed_your_message">%s visualizou sua mensagem</string>
     <string name="old_statuses">Status antigos</string>
     <string name="old_statuses_sum">Alterar para guia de status antigos verticalmente e sem canais. (NOTA: Pode causar lag na interface).</string>
-    <string name="force_english">Force English Wa Enhancer</string>
+    <string name="force_english">Forçar Inglês Wa Enhancer</string>
+    <string name="select_status_type">Selecione o tipo de status</string>
+    <string name="open_camera">Abrir câmera</string>
+    <string name="edit_text">Editar texto</string>
 </resources>

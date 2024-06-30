@@ -50,7 +50,7 @@
     <string name="outlinedicons_sum">Neuer Symbol-Stil</string>
     <string name="freezelastseen">Friere \"Zuletzt gesehen\" ein</string>
     <string name="freezelastseen_sum">Ihre zuletzt gesehene Zeit wird eingefroren\n (NOTE: Sie werden keine Aktualisierungen von anderen Benutzern, wie Tippen, Sprachaufnahme, online usw., sehen)</string>
-    <string name="removeforwardlimit_sum">Remove forward limit for 5 chats (normal) and 1 chat (multiple times)\n(Note: Use with caution, you may be banned for spam)</string>
+    <string name="removeforwardlimit_sum">Entfernt das Weiterleitungslimit von 5 Chats (normal) und 1 Chat (mehrfach)\n(Hinweis: Mit Vorsicht benutzen, sie können wegen Spam gebannt werden)</string>
     <string name="removeforwardlimit">Entferne Weiterleitungs-Limit</string>
     <string name="showname">Name anzeigen</string>
     <string name="showname_sum">Anzeige des Profilnamen oben auf dem Startbildschirm, anstatt \"WhatsApp\"</string>
@@ -258,7 +258,7 @@
     <string name="textonahora_sum">Fügt die Anzeige von Sekunden im Zeitstempel hinzu</string>
     <string name="delete_for_me">Für mich löschen</string>
     <string name="send_audio_as_voice_audio_note">Audio als Sprach-/Audionotiz senden</string>
-    <string name="send_audio_as_voice_audio_note_sum">Sendet Audiomedien immer als Sprach- oder Audio-Notiz</string>
+    <string name="send_audio_as_voice_audio_note_sum">Sendet Audiomedien immer als Sprach- oder Ton-Notiz</string>
     <string name="voice_note_speed">Abspielgeschwindigkeit Sprachnotizen</string>
     <string name="select">Auswählen</string>
     <string name="search_contacts">Kontakte suchen</string>
@@ -284,5 +284,8 @@
     <string name="viewed_your_message">%s hat Ihre Nachricht angesehen</string>
     <string name="old_statuses">Alte Status</string>
     <string name="old_statuses_sum">Änderung der alten Statusseite zu vertikal und ohne Kanäle (NOTE: Kann Verzögerungen in der Schnittstelle verursachen)</string>
-    <string name="force_english">Force English Wa Enhancer</string>
+    <string name="force_english">Erzwinge englische Sprache für WA Enhancer</string>
+    <string name="select_status_type">Status Typ auswählen</string>
+    <string name="open_camera">Kamera öffnen</string>
+    <string name="edit_text">Text bearbeiten</string>
 </resources>

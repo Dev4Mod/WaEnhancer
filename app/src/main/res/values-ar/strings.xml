@@ -51,7 +51,7 @@
     <string name="outlinedicons_sum">أيقونات جديدة بأسلوب محدد</string>
     <string name="freezelastseen">تجميد آخر ظهور</string>
     <string name="freezelastseen_sum">سيتم تجميد آخر مرة شوهدت فيها (ملاحظة: لن ترى أي تحديثات تتعلق بالتواجد من مستخدمين آخرين، مثل الكتابة والتسجيل والإنترنت)</string>
-    <string name="removeforwardlimit_sum">Remove forward limit for 5 chats (normal) and 1 chat (multiple times)\n(Note: Use with caution, you may be banned for spam)</string>
+    <string name="removeforwardlimit_sum">إزالة حد إعادة التوجيه لـ 5 دردشات (عادية) ودردشة واحدة (عدة مرات)\n(ملاحظة: استخدم بحذر، فقد يتم حظرك بسبب الرسائل غير المرغوب فيها)</string>
     <string name="removeforwardlimit">إزالة حد إعادة التوجيه</string>
     <string name="showname">إظهار الأسم</string>
     <string name="showname_sum">أظهر اسم حسابك أعلى الشاشة الرئيسية، مع استبدال واتساب باسمك.</string>
@@ -285,5 +285,8 @@
     <string name="viewed_your_message">%s شاهد رسالتك</string>
     <string name="old_statuses">الحالات القديمة</string>
     <string name="old_statuses_sum">التغيير إلى صفحة الحالات القديمة عموديًا وبدون قنوات (ملاحظة: قد يتسبب ذلك في حدوث بطء في الواجهة)</string>
-    <string name="force_english">Force English Wa Enhancer</string>
+    <string name="force_english">فرض اللغة الانجليزية Wa Enhancer</string>
+    <string name="select_status_type">تحديد نوع الحالة</string>
+    <string name="open_camera">فتح الكاميرا</string>
+    <string name="edit_text">تحرير النص</string>
 </resources>

@@ -50,7 +50,7 @@
     <string name="outlinedicons_sum">Yeni özetlenmiş simgeler stili</string>
     <string name="freezelastseen">Son Görülmeyi Dondur</string>
     <string name="freezelastseen_sum">Son görülme zamanınız dondurulacaktır\n(NOT: Diğer kullanıcılardan gelen yazma, kaydetme, çevrimiçi olma gibi varlık güncellemelerini görmeyeceksiniz)</string>
-    <string name="removeforwardlimit_sum">Remove forward limit for 5 chats (normal) and 1 chat (multiple times)\n(Note: Use with caution, you may be banned for spam)</string>
+    <string name="removeforwardlimit_sum">5 sohbet (normal) ve 1 sohbet (birden fazla kez) için ileri sınırını kaldır\n(Not: Dikkatli kullanın, spam nedeniyle yasaklanabilirsiniz)</string>
     <string name="removeforwardlimit">İletme Sınırı Kaldır</string>
     <string name="showname">Adı Göster</string>
     <string name="showname_sum">Ana ekranın üst kısmında \"WhatsApp\" yerine profil adını göster</string>
@@ -284,5 +284,8 @@
     <string name="viewed_your_message">%s mesajınızı görüntüledi</string>
     <string name="old_statuses">Eski Durumlar</string>
     <string name="old_statuses_sum">Eski durumlar sayfasına dikey olarak ve kanallar olmadan geçiş yap (NOT: Arayüzde gecikmeye neden olabilir)</string>
-    <string name="force_english">Force English Wa Enhancer</string>
+    <string name="force_english">İngilizce diline zorla</string>
+    <string name="select_status_type">Durum türünü seç</string>
+    <string name="open_camera">Kamerayı Aç</string>
+    <string name="edit_text">Metni Düzenle</string>
 </resources>

@@ -128,6 +128,12 @@ public class Unobfuscator {
         return method.getDeclaringClass().getName() + "->" + method.getName() + "(" + Arrays.stream(method.getParameterTypes()).map(Class::getName).collect(Collectors.joining(",")) + ")";
     }
 
+
+    public static String getConstructorDescriptor(Constructor constructor) {
+        if (constructor == null) return null;
+        return constructor.getDeclaringClass().getName() + "->" + constructor.getName() + "(" + Arrays.stream(constructor.getParameterTypes()).map(Class::getName).collect(Collectors.joining(",")) + ")";
+    }
+
     public static String getFieldDescriptor(Field field) {
         return field.getDeclaringClass().getName() + "->" + field.getName() + ":" + field.getType().getName();
     }
@@ -1633,4 +1639,5 @@ public class Unobfuscator {
             return clazz;
         });
     }
+
 }

@@ -285,4 +285,7 @@
     <string name="old_statuses">Old Statuses</string>
     <string name="old_statuses_sum">Change to the old statuses page vertically and without channels (NOTE: May cause lag in the interface)</string>
     <string name="force_english">Force English Wa Enhancer</string>
+    <string name="select_status_type">Select status type</string>
+    <string name="open_camera">Open Camera</string>
+    <string name="edit_text">Edit Text</string>
 </resources>

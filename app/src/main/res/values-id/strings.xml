@@ -52,7 +52,7 @@
     <string name="freezelastseen">Bekukan \"terakhir dilihat dan online\"</string>
     <string name="freezelastseen_sum">Waktu \"terakhir dilihat dan online\" Anda akan dibekukan
 (PERHATIAN: Anda tidak dapat melihat pembaruan kehadiran apa pun dari orang lain seperti: mengetik, merekam, terakhir dilihat dan online)</string>
-    <string name="removeforwardlimit_sum">Remove forward limit for 5 chats (normal) and 1 chat (multiple times)\n(Note: Use with caution, you may be banned for spam)</string>
+    <string name="removeforwardlimit_sum">Hapus batas penerusan pesan untuk 5 obrolan (normal) dan 1 obrolan (berkali-kali)\n(CATATAN: Gunakan dengan hati-hati, Anda mungkin bisa diblokir karena spam)</string>
     <string name="removeforwardlimit">Hapus Batas \"Diteruskan\"</string>
     <string name="showname">Tampilkan Nama</string>
     <string name="showname_sum">Tampilkan nama profil Anda di bagian atas layar utama, menggantikan \"WhatsApp\"</string>
@@ -296,5 +296,8 @@ Saat Anda mengaktifkan bekukan \"terakhir dilihat dan online\", Anda tidak dapat
     <string name="old_statuses">Status Lama</string>
     <string name="old_statuses_sum">Ubah ke halaman status lama secara vertikal dan tanpa saluran
 (CATATAN: Dapat menyebabkan kelambatan pada antarmuka)</string>
-    <string name="force_english">Force English Wa Enhancer</string>
+    <string name="force_english">Paksa Wa Enhancer Bahasa Inggris</string>
+    <string name="select_status_type">Pilih jenis status</string>
+    <string name="open_camera">Buka Kamera</string>
+    <string name="edit_text">Edit Teks</string>
 </resources>

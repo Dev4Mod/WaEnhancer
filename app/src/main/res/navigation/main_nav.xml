@@ -34,4 +34,5 @@
         android:name="com.wmods.wppenhacer.ui.fragments.CustomizationFragment"
         android:label="@string/perso"
         />
+
 </navigation>

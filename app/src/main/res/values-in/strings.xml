@@ -27,7 +27,7 @@
 (PERHATIAN: Dapat menyebabkan keterlambatan dalam menerima pesan)</string>
     <string name="ampm">Waktu dalam format 12 jam</string>
     <string name="statusdowload">Unduh dan Bagikan Status</string>
-    <string name="statusdowload_sum">Tampilkan tombol untuk bagikan dan mengunduh status</string>
+    <string name="statusdowload_sum">Tampilkan tombol untuk mengunduh dan bagikan status</string>
     <string name="videoquality">Video Kualitas HD</string>
     <string name="videoquality_sum">Kirim video dalam kualitas HD</string>
     <string name="colors_title">Warna</string>
@@ -52,7 +52,7 @@
     <string name="freezelastseen">Bekukan \"terakhir dilihat dan online\"</string>
     <string name="freezelastseen_sum">Waktu \"terakhir dilihat dan online\" Anda akan dibekukan
 (PERHATIAN: Anda tidak dapat melihat pembaruan kehadiran apa pun dari orang lain seperti: mengetik, merekam, terakhir dilihat dan online)</string>
-    <string name="removeforwardlimit_sum">Remove forward limit for 5 chats (normal) and 1 chat (multiple times)\n(Note: Use with caution, you may be banned for spam)</string>
+    <string name="removeforwardlimit_sum">Hapus batas penerusan pesan untuk 5 obrolan (normal) dan 1 obrolan (berkali-kali)\n(CATATAN: Gunakan dengan hati-hati, Anda mungkin bisa diblokir karena spam)</string>
     <string name="removeforwardlimit">Hapus Batas \"Diteruskan\"</string>
     <string name="showname">Tampilkan Nama</string>
     <string name="showname_sum">Tampilkan nama profil Anda di bagian atas layar utama, menggantikan \"WhatsApp\"</string>
@@ -77,8 +77,7 @@
     <string name="call_blocker">Blokir Panggilan</string>
     <string name="call_blocker_sum">Blokir panggilan WhatsApp berdasarkan jenis privasi</string>
     <string name="show_online_dot_in_conversation_list">Tampilkan Titik Online</string>
-    <string name="show_online_dot_in_conversation_list_sum">Tampilkan titik online berwarna hijau di layar beranda
-(CATATAN: Harus mengaktifkan \"Terakhir dilihat dan online\" untuk semua orang di menu setelan privasi WhatsApp)</string>
+    <string name="show_online_dot_in_conversation_list_sum">Tampilkan titik online berwarna hijau di layar beranda\n(CATATAN: Harus mengaktifkan \"Terakhir dilihat dan online\" untuk semua orang di menu setelan privasi WhatsApp)</string>
     <string name="show_dnd_button">Tampilkan Tombol DND</string>
     <string name="show_dnd_button_sum">Tampilkan tombol mode DND di toolbar layar beranda</string>
     <string name="dev4mod">Dev4Mod (Penyumbang)</string>
@@ -196,9 +195,7 @@ Harap gunakan versi WhatsApp yang didukung!</string>
     <string name="hideread_group_sum">Pengirim pesan tidak akan mengetahui bahwa Anda telah membaca pesannya di grup</string>
     <string name="show_freezeLastSeen_button">Tampilkan Tombol Bekukan \"terakhir dilihat dan online\"</string>
     <string name="show_freezeLastSeen_sum">Tampilkan tombol untuk membekukan \"terakhir dilihat dan online\" di toolbar layar beranda</string>
-    <string name="freezelastseen_message">PERHATIAN!!!
-
-Saat Anda mengaktifkan bekukan \"terakhir dilihat dan online\", Anda tidak dapat melihat pembaruan kehadiran apa pun dari orang lain seperti: mengetik, merekam, terakhir dilihat dan online</string>
+    <string name="freezelastseen_message">PERHATIAN!!!\n\nSaat Anda mengaktifkan bekukan \"terakhir dilihat dan online\", Anda tidak dapat melihat pembaruan kehadiran apa pun dari orang lain seperti: mengetik, merekam, terakhir dilihat dan online</string>
     <string name="freezelastseen_title">@string/freezelastseen</string>
     <string name="wallpaper_transparency">Transparansi Wallpaper</string>
     <string name="select_wallpaper">Pilih Wallpaper</string>
@@ -296,5 +293,8 @@ Saat Anda mengaktifkan bekukan \"terakhir dilihat dan online\", Anda tidak dapat
     <string name="old_statuses">Status Lama</string>
     <string name="old_statuses_sum">Ubah ke halaman status lama secara vertikal dan tanpa saluran
 (CATATAN: Dapat menyebabkan kelambatan pada antarmuka)</string>
-    <string name="force_english">Force English Wa Enhancer</string>
+    <string name="force_english">Paksa Wa Enhancer Bahasa Inggris</string>
+    <string name="select_status_type">Pilih jenis status</string>
+    <string name="open_camera">Buka Kamera</string>
+    <string name="edit_text">Edit Teks</string>
 </resources>

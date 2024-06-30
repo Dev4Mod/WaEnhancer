@@ -50,7 +50,7 @@
     <string name="outlinedicons_sum">Новый стиль контурных значков</string>
     <string name="freezelastseen">Заморозка времени последнего посещения</string>
     <string name="freezelastseen_sum">Ваше последнее время посещения будет заморожено\n(Важно: Вы не увидите время присутствия других пользователей, а так же печать текста, запись, статус онлайн)</string>
-    <string name="removeforwardlimit_sum">Remove forward limit for 5 chats (normal) and 1 chat (multiple times)\n(Note: Use with caution, you may be banned for spam)</string>
+    <string name="removeforwardlimit_sum">Снимите ограничение на переадресацию для 5 чатов (обычных) и 1 чата (многократных) \n (Примечание: используйте с осторожностью, вас могут забанить за спам)</string>
     <string name="removeforwardlimit">Удалить \"Лимит Пересылки\"</string>
     <string name="showname">Показать имя</string>
     <string name="showname_sum">Показывать имя вашего профиля в верхней части главного экрана вместо «WhatsApp»</string>
@@ -284,5 +284,8 @@
     <string name="viewed_your_message">%s Просмотрел ваше сообщение</string>
     <string name="old_statuses">Старые статусы</string>
     <string name="old_statuses_sum">Перейдите на старую страницу статусов по вертикали и без каналов (примечание: это может привести к задержке работы интерфейса)</string>
-    <string name="force_english">Force English Wa Enhancer</string>
+    <string name="force_english">Принудительно установить анг. язык в программе</string>
+    <string name="select_status_type">Выберите тип статуса</string>
+    <string name="open_camera">Открыть камеру</string>
+    <string name="edit_text">Редактировать текст</string>
 </resources>

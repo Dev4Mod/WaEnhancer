@@ -93,13 +93,15 @@ public class Others extends Feature {
 
         propsBoolean.put(9051, true);
 
-        propsBoolean.put(6798, true); // show all status
+        propsBoolean.put(6798, true);  // show all status
+        propsBoolean.put(3575, true);  // auto play emojis settings
 
-        propsBoolean.put(3575, true); // auto play emojis settings
-
-        propsBoolean.put(7589, true); // Media select quality
+        propsBoolean.put(7589, true);  // Media select quality
         propsBoolean.put(6972, false); // Media select quality
-        propsBoolean.put(5625, true); // Enable option to autodelete channels media
+        propsBoolean.put(5625, true);  // Enable option to autodelete channels media
+
+        propsBoolean.put(5332, true);  // Enable option to autodelete channels media
+
 
 
         if (metaai) {
@@ -113,10 +115,8 @@ public class Others extends Feature {
             Others.propsBoolean.put(2890, true);
         }
 
-
         propsInteger.put(8522, fbstyle);
         propsInteger.put(8521, fbstyle);
-
 
         hookProps();
 

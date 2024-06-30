@@ -21,10 +21,8 @@ import com.wmods.wppenhacer.xposed.utils.Utils;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
-import java.util.stream.Collectors;
 
 import de.robv.android.xposed.XC_MethodHook;
 import de.robv.android.xposed.XSharedPreferences;
@@ -175,17 +173,16 @@ public class IGStatus extends Feature {
         logDebug(Unobfuscator.getFieldDescriptor(onGetInvokeField));
         XposedBridge.hookMethod(onUpdateStatusChanged, new XC_MethodHook() {
 
-            /** @noinspection SimplifyStreamApiCallChains*/
             @Override
             protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
                 var object = onGetInvokeField.get(param.args[0]);
                 var method = ReflectionUtils.findMethodUsingFilter(object.getClass(), method1 -> method1.getReturnType().equals(Object.class));
                 var StatusListUpdates = ReflectionUtils.callMethod(method, object);
                 if (StatusListUpdates == null) return;
-                var lists = Arrays.stream(StatusListUpdates.getClass().getDeclaredFields()).filter(f -> f.getType().equals(List.class)).collect(Collectors.toList());
-                if (lists.size() < 3) return;
-                var list1 = (List) lists.get(1).get(StatusListUpdates);
-                var list2 = (List) lists.get(2).get(StatusListUpdates);
+                var lists = ReflectionUtils.findAllFieldsUsingFilter(StatusListUpdates.getClass(), field -> field.getType().equals(List.class));
+                if (lists.length < 3) return;
+                var list1 = (List) lists[1].get(StatusListUpdates);
+                var list2 = (List) lists[2].get(StatusListUpdates);
                 itens.clear();
                 itens.add(0, null);
                 itens.addAll(list1);

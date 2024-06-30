@@ -50,7 +50,7 @@ public class ReflectionUtils {
             var results = Arrays.stream(clazz.getDeclaredFields()).filter(predicate).collect(Collectors.toList());
             if (!results.isEmpty()) return results.toArray(new Field[0]);
         } while ((clazz = clazz.getSuperclass()) != null);
-        throw new RuntimeException("Method not found");
+        return new Field[0];
     }
 
     public static Method findMethodUsingFilterIfExists(Class<?> clazz, Predicate<Method> predicate) {

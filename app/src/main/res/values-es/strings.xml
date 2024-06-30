@@ -284,5 +284,8 @@
     <string name="viewed_your_message">%s ha visto tu mensaje</string>
     <string name="old_statuses">Estados antiguos</string>
     <string name="old_statuses_sum">Cambiar a la interfaz de estados antiguos verticalmente y sin canales (NOTA: Puede causar lag en la interfaz)</string>
-    <string name="force_english">Force English Wa Enhancer</string>
+    <string name="force_english">Forzar idioma Ingles en Wa Enhancer</string>
+    <string name="select_status_type">Seleccionar tipo de estado</string>
+    <string name="open_camera">Abrir cámara</string>
+    <string name="edit_text">Editar texto</string>
 </resources>

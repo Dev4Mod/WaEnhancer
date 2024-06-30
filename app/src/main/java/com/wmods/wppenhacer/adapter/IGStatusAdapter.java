@@ -23,14 +23,13 @@ import androidx.annotation.Nullable;
 
 import com.wmods.wppenhacer.views.dialog.TabDialogContent;
 import com.wmods.wppenhacer.xposed.core.WppCore;
-import com.wmods.wppenhacer.xposed.core.devkit.Unobfuscator;
 import com.wmods.wppenhacer.xposed.core.devkit.UnobfuscatorCache;
 import com.wmods.wppenhacer.xposed.utils.DesignUtils;
+import com.wmods.wppenhacer.xposed.utils.ReflectionUtils;
 import com.wmods.wppenhacer.xposed.utils.ResId;
 import com.wmods.wppenhacer.xposed.utils.Utils;
 
 import java.lang.reflect.Method;
-import java.util.Arrays;
 import java.util.Objects;
 
 import de.robv.android.xposed.XposedBridge;
@@ -107,7 +106,7 @@ public class IGStatusAdapter extends ArrayAdapter {
         super(context, 0);
         this.clazzImageStatus = XposedHelpers.findClass("com.whatsapp.status.ContactStatusThumbnail", this.getContext().getClassLoader());
         this.statusInfoClazz = statusInfoClazz;
-        this.setCountStatus = Arrays.stream(this.clazzImageStatus.getDeclaredMethods()).filter(m -> m.getParameterCount() == 2 && m.getParameterTypes()[0].equals(int.class) && m.getParameterTypes()[1].equals(int.class)).findFirst().orElse(null);
+        this.setCountStatus = ReflectionUtils.findMethodUsingFilter(this.clazzImageStatus, m -> m.getParameterCount() == 2 && m.getParameterTypes()[0].equals(int.class) && m.getParameterTypes()[1].equals(int.class));
     }
 
     @Override
@@ -123,17 +122,17 @@ public class IGStatusAdapter extends ArrayAdapter {
         private String jid;
 
         public void setInfo(Object item) {
+
             if (Objects.equals(item, "my_status")) {
                 myStatus = true;
                 igStatusContactName.setText(UnobfuscatorCache.getInstance().getString("mystatus"));
                 igStatusContactPhoto.setImageDrawable(WppCore.getMyPhoto());
                 setCountStatus(0, 0);
                 return;
-                //select call type
             }
             var statusInfo = XposedHelpers.getObjectField(item, "A01");
-            var field = Unobfuscator.getFieldByType(statusInfo.getClass(), XposedHelpers.findClass("com.whatsapp.jid.UserJid", statusInfoClazz.getClassLoader()));
-            var userJid = XposedHelpers.getObjectField(statusInfo, field.getName());
+            var field = ReflectionUtils.getFieldByType(statusInfo.getClass(), XposedHelpers.findClass("com.whatsapp.jid.UserJid", statusInfoClazz.getClassLoader()));
+            var userJid = ReflectionUtils.getField(field, statusInfo);
             var contactName = WppCore.getContactName(userJid);
             jid = WppCore.getRawString(userJid);
             igStatusContactName.setText(contactName);
