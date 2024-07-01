@@ -41,6 +41,7 @@ public class HideTabs extends Feature {
         var onCreateTabList = Unobfuscator.loadTabListMethod(classLoader);
         logDebug(Unobfuscator.getMethodDescriptor(onCreateTabList));
         var ListField = Unobfuscator.getFieldByType(home, List.class);
+
         XposedBridge.hookMethod(onCreateTabList, new XC_MethodHook() {
             @Override
             @SuppressWarnings("unchecked")

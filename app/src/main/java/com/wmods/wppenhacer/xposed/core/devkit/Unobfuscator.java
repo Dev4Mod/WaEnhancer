@@ -534,9 +534,19 @@ public class Unobfuscator {
 
     public static Class loadMenuStatusClass(ClassLoader loader) throws Exception {
         return UnobfuscatorCache.getInstance().getClass(loader, () -> {
-            var classList = dexkit.findClass(new FindClass().matcher(new ClassMatcher().addMethod(new MethodMatcher().addUsingString("chatSettingsStore", StringMatchType.Equals).name("onClick"))));
+            var id = Utils.getID("menuitem_conversations_message_contact", "id");
+            var classList = dexkit.findClass(new FindClass().matcher(new ClassMatcher().addMethod(new MethodMatcher().addUsingNumber(id))));
             if (classList.isEmpty()) throw new Exception("MenuStatus class not found");
             return classList.get(0).getInstance(loader);
+        });
+    }
+
+    public static Method loadMenuStatusMethod(ClassLoader loader) throws Exception {
+        return UnobfuscatorCache.getInstance().getMethod(loader, () -> {
+            var id = Utils.getID("menuitem_conversations_message_contact", "id");
+            var methods = dexkit.findMethod(new FindMethod().matcher(new MethodMatcher().addUsingNumber(id)));
+            if (methods.isEmpty()) throw new Exception("MenuStatus method not found");
+            return methods.get(0).getMethodInstance(loader);
         });
     }
 

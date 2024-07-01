@@ -2,7 +2,6 @@ package com.wmods.wppenhacer.xposed.features.general;
 
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
 
 import androidx.annotation.NonNull;
 
@@ -17,6 +16,7 @@ import java.util.List;
 
 import de.robv.android.xposed.XC_MethodHook;
 import de.robv.android.xposed.XSharedPreferences;
+import de.robv.android.xposed.XposedBridge;
 import de.robv.android.xposed.XposedHelpers;
 
 public class MenuStatus extends Feature {
@@ -32,8 +32,9 @@ public class MenuStatus extends Feature {
 
         var mediaClass = Unobfuscator.loadStatusDownloadMediaClass(classLoader);
         logDebug("Media class: " + mediaClass.getName());
-        var menuStatusClass = Unobfuscator.loadMenuStatusClass(classLoader);
-        logDebug("MenuStatus class: " + menuStatusClass.getName());
+//        var menuStatusClass = Unobfuscator.loadMenuStatusClass(classLoader);
+        var menuStatusMethod = Unobfuscator.loadMenuStatusMethod(classLoader);
+        logDebug("MenuStatus method: " + menuStatusMethod.getName());
         var fieldFile = Unobfuscator.loadStatusDownloadFileField(classLoader);
         logDebug("File field: " + fieldFile.getName());
         var clazzSubMenu = Unobfuscator.loadStatusDownloadSubMenuClass(classLoader);
@@ -47,24 +48,33 @@ public class MenuStatus extends Feature {
         Class<?> StatusPlaybackContactFragmentClass = classLoader.loadClass("com.whatsapp.status.playback.fragment.StatusPlaybackContactFragment");
         var listStatusField = ReflectionUtils.getFieldsByExtendType(StatusPlaybackContactFragmentClass, List.class).get(0);
 
-        XposedHelpers.findAndHookMethod(menuStatusClass, "onClick", View.class, new XC_MethodHook() {
+        XposedBridge.hookMethod(menuStatusMethod, new XC_MethodHook() {
             @Override
             protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-                var clazz = param.thisObject.getClass();
-                Field subMenuField = ReflectionUtils.findFieldUsingFilter(clazz, f -> f.getType() == Object.class && clazzSubMenu.isInstance(ReflectionUtils.getField(f, param.thisObject)));
-                Object subMenu = ReflectionUtils.getField(subMenuField, param.thisObject);
-                var fragment = ReflectionUtils.findFieldUsingFilter(clazz, f -> StatusPlaybackBaseFragmentClass.isInstance(ReflectionUtils.getField(f, param.thisObject)));
-                if (fragment == null) {
-                    logDebug("Fragment not found");
-                    return;
+                Object fragmentInstance;
+                Menu menu;
+                if (param.args[0] instanceof Menu) {
+                    menu = (Menu) param.args[0];
+                    fragmentInstance = param.thisObject;
+                } else {
+                    var clazz = param.thisObject.getClass();
+                    Field subMenuField = ReflectionUtils.findFieldUsingFilter(clazz, f -> f.getType() == Object.class && clazzSubMenu.isInstance(ReflectionUtils.getField(f, param.thisObject)));
+                    Object subMenu = ReflectionUtils.getField(subMenuField, param.thisObject);
+                    menu = (Menu) ReflectionUtils.getField(menuField, subMenu);
+                    var fragment = ReflectionUtils.findFieldUsingFilter(clazz, f -> StatusPlaybackBaseFragmentClass.isInstance(ReflectionUtils.getField(f, param.thisObject)));
+                    if (fragment == null) {
+                        logDebug("Fragment not found");
+                        return;
+                    }
+                    fragmentInstance = fragment.get(param.thisObject);
                 }
-                var fragmentInstance = fragment.get(param.thisObject);
+
                 var index = (int) XposedHelpers.getObjectField(fragmentInstance, "A00");
                 var listStatus = (List) listStatusField.get(fragmentInstance);
                 var fMessage = new FMessageWpp(listStatus.get(index));
-                var menu = (Menu) ReflectionUtils.getField(menuField, subMenu);
+
                 for (MenuItemStatus menuStatus : menuStatuses) {
-                    var menuItem = menuStatus.addMenu(menu);
+                    var menuItem = menuStatus.addMenu(menu, fMessage);
                     if (menuItem == null) continue;
                     menuItem.setOnMenuItemClickListener(item -> {
                         menuStatus.onClick(item, fragmentInstance, fMessage);
@@ -83,7 +93,7 @@ public class MenuStatus extends Feature {
 
     public abstract static class MenuItemStatus {
 
-        public abstract MenuItem addMenu(Menu menu);
+        public abstract MenuItem addMenu(Menu menu, FMessageWpp fMessage);
 
         public abstract void onClick(MenuItem item, Object fragmentInstance, FMessageWpp fMessageWpp);
     }

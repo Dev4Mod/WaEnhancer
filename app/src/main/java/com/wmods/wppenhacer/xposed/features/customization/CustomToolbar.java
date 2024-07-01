@@ -136,6 +136,8 @@ public class CustomToolbar extends Feature {
                 });
             }
 
+            if (!showBio && !showName) return;
+
             if (!(logo.getParent() instanceof LinearLayout parent)) {
                 var methods = Arrays.stream(actionbar.getClass().getDeclaredMethods()).filter(m -> m.getParameterCount() == 1 && m.getParameterTypes()[0] == CharSequence.class).toArray(Method[]::new);
 

@@ -123,6 +123,11 @@
         <item>2.24.12.71</item>
         <item>2.24.12.73</item>
         <item>2.24.12.78</item>
+        <item>2.24.13.71</item>
+        <item>2.24.13.72</item>
+        <item>2.24.13.73</item>
+        <item>2.24.13.74</item>
+        <item>2.24.13.75</item>
     </string-array>
     <string-array name="supported_versions_business">
         <item>2.24.11.83</item>
@@ -141,6 +146,5 @@
         <item>@string/audio_note</item>
         <item>@string/voice_note</item>
     </string-array>
-    <string name="click_times">Click 5 times on the WhatsApp title</string>
-    <string name="hold_title">Hold on WhatsApp title</string>
+
 </resources>

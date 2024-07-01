@@ -51,8 +51,9 @@ public class StatusDownload extends Feature {
         var downloadStatus = new MenuStatus.MenuItemStatus() {
 
             @Override
-            public MenuItem addMenu(Menu menu) {
+            public MenuItem addMenu(Menu menu, FMessageWpp fMessage) {
                 if (menu.findItem(ResId.string.download) != null) return null;
+                if (fMessage.getKey().isFromMe) return null;
                 return menu.add(0, ResId.string.download, 0, ResId.string.download);
             }
 
@@ -67,7 +68,8 @@ public class StatusDownload extends Feature {
         var sharedMenu = new MenuStatus.MenuItemStatus() {
 
             @Override
-            public MenuItem addMenu(Menu menu) {
+            public MenuItem addMenu(Menu menu, FMessageWpp fMessage) {
+                if (fMessage.getKey().isFromMe) return null;
                 if (menu.findItem(ResId.string.share_as_status) != null) return null;
                 return menu.add(0, ResId.string.share_as_status, 0, ResId.string.share_as_status);
             }

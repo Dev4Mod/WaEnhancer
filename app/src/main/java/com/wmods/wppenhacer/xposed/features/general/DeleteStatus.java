@@ -38,8 +38,9 @@ public class DeleteStatus extends Feature {
         var item = new MenuStatus.MenuItemStatus() {
 
             @Override
-            public MenuItem addMenu(Menu menu) {
+            public MenuItem addMenu(Menu menu, FMessageWpp fMessage) {
                 if (menu.findItem(ResId.string.delete_for_me) != null) return null;
+                if (fMessage.getKey().isFromMe) return null;
                 return menu.add(0, ResId.string.delete_for_me, 0, ResId.string.delete_for_me);
             }
 
