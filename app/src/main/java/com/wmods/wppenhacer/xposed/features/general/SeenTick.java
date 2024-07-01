@@ -33,7 +33,6 @@ import com.wmods.wppenhacer.xposed.utils.ReflectionUtils;
 import com.wmods.wppenhacer.xposed.utils.ResId;
 import com.wmods.wppenhacer.xposed.utils.Utils;
 
-import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -213,32 +212,22 @@ public class SeenTick extends Feature {
                 }
             });
         } else {
-            var mediaClass = Unobfuscator.loadStatusDownloadMediaClass(classLoader);
-            logDebug("Media class: " + mediaClass.getName());
-            var menuStatusClass = Unobfuscator.loadMenuStatusClass(classLoader);
-            logDebug("MenuStatus class: " + menuStatusClass.getName());
-            var clazzSubMenu = Unobfuscator.loadStatusDownloadSubMenuClass(classLoader);
-            logDebug("SubMenu class: " + clazzSubMenu.getName());
-            var clazzMenu = Unobfuscator.loadStatusDownloadMenuClass(classLoader);
-            logDebug("Menu class: " + clazzMenu.getName());
-            var menuField = Unobfuscator.getFieldByType(clazzSubMenu, clazzMenu);
-            logDebug("Menu field: " + menuField.getName());
-            XposedHelpers.findAndHookMethod(menuStatusClass, "onClick", View.class, new XC_MethodHook() {
-                @Override
-                protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-                    Field subMenuField = Arrays.stream(param.thisObject.getClass().getDeclaredFields()).filter(f -> f.getType() == Object.class && clazzSubMenu.isInstance(XposedHelpers.getObjectField(param.thisObject, f.getName()))).findFirst().orElse(null);
-                    Object submenu = XposedHelpers.getObjectField(param.thisObject, subMenuField.getName());
-                    var menu = (Menu) XposedHelpers.getObjectField(submenu, menuField.getName());
-                    if (menu.findItem(ResId.string.send_blue_tick) != null) return;
-                    MenuItem item = menu.add(0, ResId.string.send_blue_tick, 0, ResId.string.send_blue_tick);
-                    item.setOnMenuItemClickListener(item1 -> {
-                        sendBlueTickStatus(currentJid);
-                        Toast.makeText(Utils.getApplication(), ResId.string.sending_read_blue_tick, Toast.LENGTH_SHORT).show();
-                        return true;
-                    });
-                }
-            });
 
+            MenuStatus.menuStatuses.add(
+                    new MenuStatus.MenuItemStatus() {
+                        @Override
+                        public MenuItem addMenu(Menu menu, FMessageWpp fMessage) {
+                            if (menu.findItem(ResId.string.send_blue_tick) != null) return null;
+                            if (fMessage.getKey().isFromMe) return null;
+                            return menu.add(0, ResId.string.send_blue_tick, 0, ResId.string.send_blue_tick);
+                        }
+
+                        @Override
+                        public void onClick(MenuItem item, Object fragmentInstance, FMessageWpp fMessageWpp) {
+                            sendBlueTickStatus(currentJid);
+                            Utils.showToast(Utils.getApplication().getString(ResId.string.sending_read_blue_tick), Toast.LENGTH_SHORT);
+                        }
+                    });
         }
 
         /// Add button to send View Once to Target

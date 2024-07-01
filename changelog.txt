@@ -1,6 +1,2 @@
-[WHATSAPP]
-* added pre support for WhatsApp versions 2.24.13.xx
-* The expiration date of the current version of WhatsApp has been added to the about screen (useful for anyone using an app to prevent updates and know when to update)
-
-[WA ENHANCER]
-* Update translations
+[Seen Tick]
+* Fix bug in WhatsApp version 2.24.13.xx
