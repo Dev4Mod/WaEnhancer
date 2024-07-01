@@ -71,7 +71,7 @@
     <string name="blueonreply_sum">Kontak hanya akan melihat tanda centang biru setelah Anda membalas pesan.
 (CATATAN: Harus mengaktifkan \"Sembunyikan centang biru\")</string>
     <string name="hide_archived_chat">Sembunyikan Obrolan yang Diarsipkan</string>
-    <string name="hide_archived_chat_sum">Sembunyikan obrolan yang diarsipkan, untuk mengakses klik 5 kali pada judul \"WhatsApp\" di header Layar Beranda</string>
+    <string name="hide_archived_chat_sum">Sembunyikan obrolan yang diarsipkan, untuk mengakses klik 5 kali atau tahan pada judul \"WhatsApp\" di header Layar Beranda</string>
     <string name="hide_once_view_seen">Sembunyikan Lihat Sekali dan Pesan Suara</string>
     <string name="hide_once_view_seen_sum">Orang lain tidak akan mengetahui bahwa Anda telah membuka pesan \"lihat sekali\" dan pesan suara</string>
     <string name="call_blocker">Blokir Panggilan</string>
@@ -230,8 +230,8 @@ Harap gunakan versi WhatsApp yang didukung!</string>
     <string name="show_toast_on_contact_online_sum">Tampilkan notifikasi mengambang ketika kontak sedang online</string>
     <string name="new_context_menu_ui">Menu UI Konteks Baru</string>
     <string name="new_context_menu_ui_sum">Aktifkan menu konteks pesan baru bergaya iOS</string>
-    <string name="filter_items_by_id">Filter Items By ID</string>
-    <string name="filter_items_by_id_sum">Filter items by id name</string>
+    <string name="filter_items_by_id">Filter Item Berdasarkan ID</string>
+    <string name="filter_items_by_id_sum">Filter item berdasarkan nama ID</string>
     <string name="custom_theme_css">Tema Khusus CSS</string>
     <string name="custom_theme_css_sum">Sesuaikan WhatsApp Anda menggunakan gaya CSS</string>
     <string name="antidisappearing">Anti Hapus Pesan Sementara</string>
@@ -297,17 +297,19 @@ Harap gunakan versi WhatsApp yang didukung!</string>
     <string name="select_status_type">Pilih jenis status</string>
     <string name="open_camera">Buka Kamera</string>
     <string name="edit_text">Edit Teks</string>
-    <string name="about_info">Wa Enhancer is an Xposed module that enhances your WhatsApp experience by offering advanced privacy features, home screen customization, general tweaks, and media improvements.</string>
-    <string name="installation">Installation</string>
-    <string name="installation_desc">1. Ensure that your device is rooted.\n2. Install the Xposed Framework on your device.\n3. Download the Wa Enhancer from the Actions section.\n4. Install the Wa Enhancer APK.\n5. Enable the Wa Enhancer module in the Xposed Installer app.</string>
-    <string name="go_to_telegram">Go to Telegram</string>
-    <string name="go_to_github">Go to GitHub</string>
-    <string name="donate">Donate</string>
-    <string name="support">Support</string>
-    <string name="support_desc">If you encounter any issues or have questions about Wa Enhancer, please visit Telegram.</string>
-    <string name="license">License</string>
-    <string name="license_desc">This project is licensed under the GNU License - see the LICENSE file for details.\n\nNote: Please use Wa Enhancer responsibly and in compliance with the terms and conditions of the apps you are modifying. Misuse of this tool may lead to legal consequences.</string>
-    <string name="select_a_color">Select a color</string>
-    <string name="custom_appearance">Custom Appearance</string>
-    <string name="custom_filters_sum">Activate filters by ID and Custom CSS</string>
+    <string name="about_info">Wa Enhancer adalah modul Xposed yang meningkatkan pengalaman WhatsApp Anda dengan menawarkan fitur privasi tingkat lanjut, penyesuaian layar beranda, penyesuaian umum, dan peningkatan media.</string>
+    <string name="installation">Panduan Instal</string>
+    <string name="installation_desc">1. Pastikan perangkat Anda telah di-root.\n2. Instal Xposed Framework di perangkat Anda.\n3. Unduh Wa Enhancer dari bagian Tindakan.\n4. Instal APK Wa Enhancer.\n5. Aktifkan modul Wa Enhancer di aplikasi Xpose Installer.</string>
+    <string name="go_to_telegram">Buka Telegram</string>
+    <string name="go_to_github">Buka GitHub</string>
+    <string name="donate">Donasi</string>
+    <string name="support">Dukungan</string>
+    <string name="support_desc">Jika Anda mengalami masalah apa pun atau memiliki pertanyaan tentang Wa Enhancer, silahkan kunjungi Telegram.</string>
+    <string name="license">Lisensi</string>
+    <string name="license_desc">Proyek ini dilisensikan di bawah Lisensi GNU - lihat file LISENSI untuk detailnya.\n\nCatatan: Silahkan gunakan Wa Enhancer secara bertanggung jawab dan sesuai dengan syarat dan ketentuan aplikasi yang Anda modifikasi. Penyalahgunaan alat ini dapat menimbulkan konsekuensi hukum.</string>
+    <string name="select_a_color">Pilih warna</string>
+    <string name="custom_appearance">Tampilan Kustom</string>
+    <string name="custom_filters_sum">Aktifkan filter berdasarkan ID dan CSS Khusus</string>
+    <string name="click_times">Click 5 times on the WhatsApp title</string>
+    <string name="hold_title">Hold on WhatsApp title</string>
 </resources>
