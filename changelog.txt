@@ -1,9 +1,10 @@
-[IG STATUS]
-* Added function to open a menu when clicking on my status. Now it is possible to open the camera and also create text statuses using IG Status itself.
-
-[WHATSAPP]
-* Enabled the beta function of animated emojis. Send a single emoji and watch it animate. Can be disabled in the WhatsApp configuration itself
-* The beta function of auto deleting media from channels has been enabled. Can be configured within WhatsApp itself
+[TEXT STATUS]
+* Now you can select the background color you want (Long press on the color selection palette to make a custom selector appear)
+* Added the possibility to change the color of the text and this works for other users who use normal WhatsApp (Long press on the font selector)
 
 [WA ENHANCER]
+* Added about menu, now contains information about this project and links to access help groups and donations
 * Update translations
+
+[CUSTOM CSS AND HIDE CSS]
+* Added button to deactivate it without having to delete the filters
