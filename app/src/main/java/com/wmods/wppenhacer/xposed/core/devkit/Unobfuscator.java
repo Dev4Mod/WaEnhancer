@@ -1,8 +1,10 @@
 package com.wmods.wppenhacer.xposed.core.devkit;
 
+import android.app.Activity;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.graphics.drawable.Drawable;
 import android.graphics.drawable.NinePatchDrawable;
 import android.net.Uri;
 import android.view.LayoutInflater;
@@ -1640,4 +1642,49 @@ public class Unobfuscator {
         });
     }
 
+    public static Method loadTextStatusComposer(ClassLoader classLoader) throws Exception {
+        return UnobfuscatorCache.getInstance().getMethod(classLoader, () -> {
+            var method1 = Activity.class.getDeclaredMethod("getWindow");
+            var method2 = View.class.getDeclaredMethod("setBackground", Drawable.class);
+            var clazz = classLoader.loadClass("com.whatsapp.textstatuscomposer.TextStatusComposerActivity");
+            var field1 = clazz.getDeclaredField("A02");
+            var classData = dexkit.getClassData(clazz);
+            if (classData == null) throw new RuntimeException("TextStatusComposer class not found");
+            var methods = classData.findMethod(new FindMethod().matcher(new MethodMatcher()
+                    .addInvoke(DexSignUtil.getMethodDescriptor(method1))
+                    .addInvoke(DexSignUtil.getMethodDescriptor(method2))
+                    .addUsingField(DexSignUtil.getFieldDescriptor(field1))
+                    .modifiers(Modifier.PUBLIC | Modifier.STATIC)
+            ));
+            if (methods.isEmpty())
+                throw new RuntimeException("TextStatusComposer method not found");
+            return methods.get(0).getMethodInstance(classLoader);
+        });
+    }
+
+    public static Method loadTextStatusComposer2(ClassLoader classLoader) throws Exception {
+        return UnobfuscatorCache.getInstance().getMethod(classLoader, () -> {
+            Class<?> TextDataClass = classLoader.loadClass("com.whatsapp.TextData");
+            var clazz = classLoader.loadClass("com.whatsapp.textstatuscomposer.TextStatusComposerActivity");
+            var field1 = TextDataClass.getDeclaredField("fontStyle");
+            var field2 = TextDataClass.getDeclaredField("textColor");
+            var field3 = TextDataClass.getDeclaredField("backgroundColor");
+            var classData = dexkit.getClassData(clazz);
+            if (classData == null)
+                throw new RuntimeException("TextStatusComposer2 class not found");
+            var methods = dexkit.findMethod(new FindMethod().matcher(new MethodMatcher()
+                    .addUsingField(DexSignUtil.getFieldDescriptor(field1))
+                    .addUsingField(DexSignUtil.getFieldDescriptor(field2))
+                    .addUsingField(DexSignUtil.getFieldDescriptor(field3))
+                    .modifiers(Modifier.PUBLIC)
+            ));
+            for (var method : methods) {
+                var callers = method.getCallers();
+                if (callers.stream().anyMatch(methodData -> methodData.getDeclaredClassName().contains("TextStatusComposerActivity"))) {
+                    return method.getMethodInstance(classLoader);
+                }
+            }
+            throw new RuntimeException("TextStatusComposer2 method not found");
+        });
+    }
 }

@@ -57,6 +57,7 @@ public class ResId {
         public static int select_status_type;
         public static int open_camera;
         public static int edit_text;
+        public static int select_a_color;
     }
 
     public static class array {

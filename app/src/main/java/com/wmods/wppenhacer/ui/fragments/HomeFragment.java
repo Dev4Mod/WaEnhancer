@@ -5,8 +5,10 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.SharedPreferences;
 import android.os.Build;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -29,6 +31,7 @@ import com.wmods.wppenhacer.xposed.core.FeatureLoader;
 import com.wmods.wppenhacer.xposed.utils.Utils;
 
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.text.SimpleDateFormat;
@@ -131,23 +134,29 @@ public class HomeFragment extends BaseFragment {
         Utils.showToast(context.getString(R.string.configs_reset), Toast.LENGTH_SHORT);
     }
 
+    private static @NonNull JSONObject getJsonObject(SharedPreferences prefs) throws JSONException {
+        var entries = prefs.getAll();
+        var JSOjsonObject = new JSONObject();
+        for (var entry : entries.entrySet()) {
+            var type = new JSONObject();
+            var keyValue = entry.getValue();
+            if (keyValue instanceof HashSet<?> hashSet) {
+                keyValue = new JSONArray(new ArrayList<>(hashSet));
+            }
+            type.put("type", entry.getValue().getClass().getSimpleName());
+            type.put("value", keyValue);
+            JSOjsonObject.put(entry.getKey(), type);
+        }
+        return JSOjsonObject;
+    }
+
     private void saveConfigs(Context context) {
         FilePicker.setOnUriPickedListener((uri) -> {
             try {
                 try (var output = context.getContentResolver().openOutputStream(uri)) {
                     var prefs = PreferenceManager.getDefaultSharedPreferences(context);
-                    var entries = prefs.getAll();
-                    var JSOjsonObject = new JSONObject();
-                    for (var entry : entries.entrySet()) {
-                        var keyValue = entry.getValue();
-                        if (keyValue instanceof HashSet<?> hashSet) {
-                            keyValue = new JSONArray(new ArrayList<>(hashSet));
-                        } else if (keyValue instanceof Float floatValue) {
-                            keyValue = (double) floatValue;
-                        }
-                        JSOjsonObject.put(entry.getKey(), keyValue);
-                    }
-                    Objects.requireNonNull(output).write(JSOjsonObject.toString().getBytes());
+                    var JSOjsonObject = getJsonObject(prefs);
+                    Objects.requireNonNull(output).write(JSOjsonObject.toString(4).getBytes());
                 }
                 Toast.makeText(context, context.getString(R.string.configs_saved), Toast.LENGTH_SHORT).show();
             } catch (Exception e) {
@@ -171,29 +180,40 @@ public class HomeFragment extends BaseFragment {
                     while (key.hasNext()) {
                         var keyName = key.next();
                         var value = jsonObject.get(keyName);
-                        if (value instanceof JSONArray jsonArray) {
+                        var type = value.getClass().getSimpleName();
+                        if (value instanceof JSONObject valueJson) {
+                            value = valueJson.get("value");
+                            type = valueJson.getString("type");
+                        }
+
+                        if (type.equals(JSONArray.class.getSimpleName())) {
+                            var jsonArray = (JSONArray) value;
                             HashSet<String> hashSet = new HashSet<>();
                             for (var i = 0; i < jsonArray.length(); i++) {
                                 hashSet.add(jsonArray.getString(i));
                             }
                             prefs.edit().putStringSet(keyName, hashSet).apply();
-                        } else if (value instanceof String stringValue) {
-                            prefs.edit().putString(keyName, stringValue).apply();
-                        } else if (value instanceof Boolean booleanValue) {
-                            prefs.edit().putBoolean(keyName, booleanValue).apply();
-                        } else if (value instanceof Integer intValue) {
-                            prefs.edit().putInt(keyName, intValue).apply();
-                        } else if (value instanceof Long longValue) {
-                            prefs.edit().putLong(keyName, longValue).apply();
-                        } else if (value instanceof Double doubleValue) {
-                            prefs.edit().putFloat(keyName, doubleValue.floatValue()).apply();
+                        } else if (type.equals(String.class.getSimpleName())) {
+                            prefs.edit().putString(keyName, (String) value).apply();
+                        } else if (type.equals(Boolean.class.getSimpleName())) {
+                            prefs.edit().putBoolean(keyName, (boolean) value).apply();
+                        } else if (type.equals(Integer.class.getSimpleName())) {
+                            prefs.edit().putInt(keyName, (int) value).apply();
+                        } else if (type.equals(Long.class.getSimpleName())) {
+                            prefs.edit().putLong(keyName, (long) value).apply();
+                        } else if (type.equals(Double.class.getSimpleName())) {
+                            prefs.edit().putFloat(keyName, ((Double) value).floatValue()).apply();
+                        } else if (type.equals(Float.class.getSimpleName())) {
+                            prefs.edit().putFloat(keyName, ((Double) value).floatValue()).apply();
                         }
+
                     }
                 }
                 Toast.makeText(context, context.getString(R.string.configs_imported), Toast.LENGTH_SHORT).show();
                 App.getInstance().restartApp(FeatureLoader.PACKAGE_WPP);
                 App.getInstance().restartApp(FeatureLoader.PACKAGE_BUSINESS);
             } catch (Exception e) {
+                Log.e("importConfigs", e.getMessage(), e);
                 Toast.makeText(context, e.getMessage(), Toast.LENGTH_SHORT).show();
             }
         });

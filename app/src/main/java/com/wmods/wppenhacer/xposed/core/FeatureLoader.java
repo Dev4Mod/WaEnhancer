@@ -57,6 +57,7 @@ import com.wmods.wppenhacer.xposed.features.others.CopyStatus;
 import com.wmods.wppenhacer.xposed.features.others.DebugFeature;
 import com.wmods.wppenhacer.xposed.features.others.GroupAdmin;
 import com.wmods.wppenhacer.xposed.features.others.Stickers;
+import com.wmods.wppenhacer.xposed.features.others.TextStatusComposer;
 import com.wmods.wppenhacer.xposed.features.privacy.CallPrivacy;
 import com.wmods.wppenhacer.xposed.features.privacy.DndMode;
 import com.wmods.wppenhacer.xposed.features.privacy.FreezeLastSeen;
@@ -210,8 +211,8 @@ public class FeatureLoader {
     private static void plugins(@NonNull ClassLoader loader, @NonNull XSharedPreferences pref, @NonNull String versionWpp) {
 
         var classes = new Class<?>[]{
-                MenuStatus.class,
                 DebugFeature.class,
+                MenuStatus.class,
                 ShowEditMessage.class,
                 AntiRevoke.class,
                 CustomToolbar.class,
@@ -251,7 +252,8 @@ public class FeatureLoader {
                 ChatFilters.class,
                 GroupAdmin.class,
                 Stickers.class,
-                CopyStatus.class
+                CopyStatus.class,
+                TextStatusComposer.class
         };
 
         for (var classe : classes) {

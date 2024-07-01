@@ -24,8 +24,10 @@ public class AlertDialogWpp {
     private static Method setMessageMethod;
     private static Method setNegativeButtonMethod;
     private static Method setPositiveButtonMethod;
+    private final Context mContext;
     private AlertDialog.Builder mAlertDialog;
     private Object mAlertDialogWpp;
+    private Dialog mCreate;
 
     public static void initDialog(ClassLoader loader) {
         try {
@@ -44,6 +46,7 @@ public class AlertDialogWpp {
     }
 
     public AlertDialogWpp(Context context) {
+        mContext = context;
         if (isSystemDialog()) {
             mAlertDialog = new AlertDialog.Builder(context);
             return;
@@ -56,6 +59,10 @@ public class AlertDialogWpp {
             XposedBridge.log(e);
         }
 
+    }
+
+    public Context getContext() {
+        return mContext;
     }
 
     public static boolean isSystemDialog() {
@@ -84,7 +91,7 @@ public class AlertDialogWpp {
         return this;
     }
 
-    public AlertDialogWpp setItems(CharSequence[] items, DialogInterface.OnClickListener listener){
+    public AlertDialogWpp setItems(CharSequence[] items, DialogInterface.OnClickListener listener) {
         if (isSystemDialog()) {
             mAlertDialog.setItems(items, listener);
             return this;
@@ -134,10 +141,18 @@ public class AlertDialogWpp {
 
 
     public Dialog create() {
+        if (mCreate != null) return mCreate;
         if (isSystemDialog()) {
-            return mAlertDialog.create();
+            mCreate = mAlertDialog.create();
+        } else {
+            mCreate = (Dialog) XposedHelpers.callMethod(mAlertDialogWpp, "create");
         }
-        return (Dialog) XposedHelpers.callMethod(mAlertDialogWpp, "create");
+        return mCreate;
+    }
+
+    public void dismiss() {
+        if (mCreate == null) return;
+        mCreate.dismiss();
     }
 
     public void show() {
