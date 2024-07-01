@@ -100,8 +100,7 @@ public class Others extends Feature {
         propsBoolean.put(6972, false); // Media select quality
         propsBoolean.put(5625, true);  // Enable option to autodelete channels media
 
-        propsBoolean.put(5332, true);  // Enable option to autodelete channels media
-
+        propsBoolean.put(8643, false);  // Disable TextStatusComposerActivityV2
 
 
         if (metaai) {

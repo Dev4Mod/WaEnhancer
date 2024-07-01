@@ -1,10 +1,2 @@
 [TEXT STATUS]
-* Now you can select the background color you want (Long press on the color selection palette to make a custom selector appear)
-* Added the possibility to change the color of the text and this works for other users who use normal WhatsApp (Long press on the font selector)
-
-[WA ENHANCER]
-* Added about menu, now contains information about this project and links to access help groups and donations
-* Update translations
-
-[CUSTOM CSS AND HIDE CSS]
-* Added button to deactivate it without having to delete the filters
+* Disabled TextStatusComposerActivityV2 to use Custom colors
