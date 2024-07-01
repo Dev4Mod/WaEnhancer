@@ -41,6 +41,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -1686,5 +1687,12 @@ public class Unobfuscator {
             }
             throw new RuntimeException("TextStatusComposer2 method not found");
         });
+    }
+
+    public static Class loadExpirationClass(ClassLoader classLoader) {
+        var methods = findAllMethodUsingStrings(classLoader, StringMatchType.Contains, "software_forced_expiration");
+        var expirationMethod = Arrays.stream(methods).filter(methodData -> methodData.getReturnType().equals(Date.class)).findFirst().orElse(null);
+        if (expirationMethod == null) throw new RuntimeException("Expiration class not found");
+        return expirationMethod.getDeclaringClass();
     }
 }

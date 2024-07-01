@@ -1,5 +1,6 @@
 package com.wmods.wppenhacer.xposed.features.customization;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
@@ -12,11 +13,17 @@ import androidx.annotation.NonNull;
 
 import com.wmods.wppenhacer.xposed.core.Feature;
 import com.wmods.wppenhacer.xposed.core.WppCore;
+import com.wmods.wppenhacer.xposed.core.devkit.Unobfuscator;
 import com.wmods.wppenhacer.xposed.utils.DesignUtils;
+import com.wmods.wppenhacer.xposed.utils.ReflectionUtils;
 import com.wmods.wppenhacer.xposed.utils.Utils;
 
 import java.lang.reflect.Method;
+import java.text.SimpleDateFormat;
 import java.util.Arrays;
+import java.util.Date;
+import java.util.Locale;
+import java.util.Objects;
 
 import de.robv.android.xposed.XC_MethodHook;
 import de.robv.android.xposed.XSharedPreferences;
@@ -24,18 +31,23 @@ import de.robv.android.xposed.XposedBridge;
 import de.robv.android.xposed.XposedHelpers;
 
 public class CustomToolbar extends Feature {
+
+    private String mDateExpiration;
+
     public CustomToolbar(ClassLoader loader, XSharedPreferences preferences) {
         super(loader, preferences);
     }
 
     @Override
-    public void doHook() {
+    public void doHook() throws Exception {
         var showName = prefs.getBoolean("shownamehome", false);
         var showBio = prefs.getBoolean("showbiohome", false);
         var typeArchive = prefs.getString("typearchive", "0");
         var methodHook = new MethodHook(showName, showBio, typeArchive);
         XposedHelpers.findAndHookMethod("com.whatsapp.HomeActivity", classLoader, "onCreate", Bundle.class, methodHook);
+        expirationAboutInfo();
     }
+
 
     @NonNull
     @Override
@@ -43,10 +55,41 @@ public class CustomToolbar extends Feature {
         return "Show Name and Bio";
     }
 
+    public void expirationAboutInfo() throws Exception {
+
+        var expirationClass = Unobfuscator.loadExpirationClass(classLoader);
+        XposedBridge.hookAllConstructors(expirationClass, new XC_MethodHook() {
+            @SuppressLint("SetTextI18n")
+            @Override
+            protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+                var method = ReflectionUtils.findMethodUsingFilter(param.thisObject.getClass(), m -> m.getReturnType().equals(Date.class));
+                var date = (Date) method.invoke(param.thisObject);
+                mDateExpiration = new SimpleDateFormat("dd/MM/yyyy", Locale.getDefault()).format(Objects.requireNonNull(date));
+
+            }
+        });
+
+        XposedHelpers.findAndHookMethod("com.whatsapp.settings.About", classLoader, "onCreate", classLoader.loadClass("android.os.Bundle"),
+                new XC_MethodHook() {
+                    @SuppressLint("SetTextI18n")
+                    @Override
+                    protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+                        var activity = (Activity) param.thisObject;
+                        var viewRoot = activity.getWindow().getDecorView();
+                        var version = (TextView) viewRoot.findViewById(Utils.getID("version", "id"));
+                        if (version != null) {
+                            version.setText(version.getText() + " (Expiration: " + mDateExpiration + ")");
+                        }
+                    }
+                });
+    }
+
+
     public static class MethodHook extends XC_MethodHook {
         private final boolean showName;
         private final boolean showBio;
         private final String typeArchive;
+
 
         public MethodHook(boolean showName, boolean showBio, String typeArchive) {
             this.showName = showName;
@@ -120,7 +163,7 @@ public class CustomToolbar extends Feature {
             mTitle.setTextColor(DesignUtils.getPrimaryTextColor());
             parent.addView(mTitle);
             if (showBio) {
-                var mSubtitle = new TextView(homeActivity);
+                TextView mSubtitle = new TextView(homeActivity);
                 mSubtitle.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.MATCH_PARENT));
                 mSubtitle.setText(bio);
                 mSubtitle.setTextSize(12f);
