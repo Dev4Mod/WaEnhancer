@@ -223,8 +223,8 @@
     <string name="show_toast_on_contact_online_sum">Показывать всплывающее уведомление, когда контакт в сети</string>
     <string name="new_context_menu_ui">Новый пользовательский интерфейс контекстного меню</string>
     <string name="new_context_menu_ui_sum">Новое контекстное меню сообщений в стиле iOS.</string>
-    <string name="filter_itens_by_id">Отфильтровать элементы по ID</string>
-    <string name="filter_itens_by_id_sum">Фильтровать по id имени</string>
+    <string name="filter_items_by_id">Отфильтровать элементы по ID</string>
+    <string name="filter_items_by_id_sum">Фильтровать по id имени</string>
     <string name="custom_theme_css">Пользовательская тема CSS</string>
     <string name="custom_theme_css_sum">Настройте WhatsApp с помощью стилей CSS</string>
     <string name="antidisappearing">Защита \"Исчезающих Сообщений\"</string>

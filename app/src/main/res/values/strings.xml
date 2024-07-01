@@ -225,8 +225,8 @@
     <string name="show_toast_on_contact_online_sum">Show a toast when a contact is online</string>
     <string name="new_context_menu_ui">New Context Menu UI</string>
     <string name="new_context_menu_ui_sum">The new iOS-style message context menu will be enabled.</string>
-    <string name="filter_itens_by_id">Filter Itens By ID</string>
-    <string name="filter_itens_by_id_sum">Filter items by id name</string>
+    <string name="filter_items_by_id">Filter Items By ID</string>
+    <string name="filter_items_by_id_sum">Filter items by id name</string>
     <string name="custom_theme_css">Custom Theme CSS</string>
     <string name="custom_theme_css_sum">Customize your WhatsApp using CSS styles</string>
     <string name="antidisappearing">Anti Disappearing Messages</string>
@@ -302,4 +302,6 @@
     <string name="license">License</string>
     <string name="license_desc">This project is licensed under the GNU License - see the LICENSE file for details.\n\nNote: Please use Wa Enhancer responsibly and in compliance with the terms and conditions of the apps you are modifying. Misuse of this tool may lead to legal consequences.</string>
     <string name="select_a_color">Select a color</string>
+    <string name="custom_appearance">Custom Appearance</string>
+    <string name="custom_filters_sum">Activate filters by ID and Custom CSS</string>
 </resources>

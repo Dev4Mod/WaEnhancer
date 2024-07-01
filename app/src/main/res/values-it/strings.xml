@@ -223,8 +223,8 @@
     <string name="show_toast_on_contact_online_sum">Mostra una notifica toast quando un contatto è online</string>
     <string name="new_context_menu_ui">Nuova UI del Menù Contestuale</string>
     <string name="new_context_menu_ui_sum">Verrà abilitato il nuovo menù contestuale del messaggio in stile iOS.</string>
-    <string name="filter_itens_by_id">Filtra Elementi Per ID</string>
-    <string name="filter_itens_by_id_sum">Filtra elementi per nome id</string>
+    <string name="filter_items_by_id">Filtra Elementi Per ID</string>
+    <string name="filter_items_by_id_sum">Filtra elementi per nome id</string>
     <string name="custom_theme_css">Tema Personalizzato CSS</string>
     <string name="custom_theme_css_sum">Personalizza il tuo WhatsApp utilizzando gli stili CSS</string>
     <string name="antidisappearing">Anti-Scomparsa Messaggi</string>

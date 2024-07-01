@@ -47,37 +47,36 @@
             app:summary="@string/wallpaper_in_home_screen_sum"
             app:title="@string/wallpaper_in_home_screen" />
 
-
         <com.wmods.wppenhacer.preference.FileSelectPreference
             android:entryValues="@array/image_picker"
-            app:key="wallpaper_file"
-            app:dependency="wallpaper"
             android:summary="@string/wallpaper_not_selected"
+            app:dependency="wallpaper"
+            app:key="wallpaper_file"
             app:title="@string/select_wallpaper" />
 
         <SeekBarPreference
-            app:dependency="wallpaper"
-            app:key="wallpaper_alpha"
             android:defaultValue="60"
             android:max="100"
+            app:dependency="wallpaper"
+            app:key="wallpaper_alpha"
             app:min="0"
             app:showSeekBarValue="true"
             app:title="@string/wallpaper_transparency" />
 
         <SeekBarPreference
-            app:dependency="wallpaper"
-            app:key="wallpaper_alpha_toolbar"
             android:defaultValue="75"
             android:max="100"
+            app:dependency="wallpaper"
+            app:key="wallpaper_alpha_toolbar"
             app:min="0"
             app:showSeekBarValue="true"
             app:title="@string/toolbar_transparency" />
 
         <SeekBarPreference
-            app:dependency="wallpaper"
-            app:key="wallpaper_alpha_navigation"
             android:defaultValue="15"
             android:max="100"
+            app:dependency="wallpaper"
+            app:key="wallpaper_alpha_navigation"
             app:min="0"
             app:showSeekBarValue="true"
             app:title="@string/navigation_transparency" />
@@ -89,14 +88,22 @@
             app:summary="@string/hide_tabs_on_home_sum"
             app:title="@string/hide_tabs_on_home" />
 
-        <EditTextPreference
-            app:key="filter_itens"
-            android:summary="@string/filter_itens_by_id_sum"
-            app:title="@string/filter_itens_by_id" />
+        <rikka.material.preference.MaterialSwitchPreference
+            android:defaultValue="true"
+            android:summary="@string/custom_filters_sum"
+            app:key="custom_filters"
+            app:title="@string/custom_appearance" />
 
         <EditTextPreference
-            app:key="css_theme"
+            android:summary="@string/filter_items_by_id_sum"
+            app:dependency="custom_filters"
+            app:key="filter_items"
+            app:title="@string/filter_items_by_id" />
+
+        <EditTextPreference
             android:summary="@string/custom_theme_css_sum"
+            app:dependency="custom_filters"
+            app:key="css_theme"
             app:title="@string/custom_theme_css" />
 
     </PreferenceCategory>
@@ -111,8 +118,8 @@
             app:title="@string/show_admin_group_icon" />
 
         <rikka.material.preference.MaterialSwitchPreference
-            app:key="floatingmenu"
             android:summary="@string/new_context_menu_ui_sum"
+            app:key="floatingmenu"
             app:title="@string/new_context_menu_ui" />
 
         <rikka.material.preference.MaterialSwitchPreference

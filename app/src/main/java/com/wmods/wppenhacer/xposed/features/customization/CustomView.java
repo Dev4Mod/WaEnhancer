@@ -76,7 +76,7 @@ public class CustomView extends Feature {
     @Override
     public void doHook() throws Throwable {
         var filter_itens = prefs.getString("css_theme", "");
-        if (TextUtils.isEmpty(filter_itens)) return;
+        if (TextUtils.isEmpty(filter_itens) || !prefs.getBoolean("custom_filters", true)) return;
         cacheImages = new DrawableCache(Utils.getApplication(), 100 * 1024 * 1024);
         chacheDrawables = new HashMap<>();
         mThreadService = Utils.getExecutor();

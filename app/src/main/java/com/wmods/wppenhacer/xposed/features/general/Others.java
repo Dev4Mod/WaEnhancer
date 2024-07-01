@@ -63,7 +63,7 @@ public class Others extends Feature {
         var proximity = prefs.getBoolean("proximity_audios", false);
         var showOnline = prefs.getBoolean("showonline", false);
         var floatingMenu = prefs.getBoolean("floatingmenu", false);
-        var filter_itens = prefs.getString("filter_itens", null);
+        var filter_items = prefs.getString("filter_items", null);
         var disable_defemojis = prefs.getBoolean("disable_defemojis", false);
         var autonext_status = prefs.getBoolean("autonext_status", false);
         var toast_viewed_status = prefs.getBoolean("toast_viewed_status", false);
@@ -127,8 +127,8 @@ public class Others extends Feature {
             XposedBridge.hookMethod(proximitySensorMethod, XC_MethodReplacement.DO_NOTHING);
         }
 
-        if (filter_itens != null) {
-            filterItens(filter_itens);
+        if (filter_items != null && prefs.getBoolean("custom_filters", true)) {
+            filterItems(filter_items);
         }
 
         if (disable_defemojis) {
@@ -276,8 +276,8 @@ public class Others extends Feature {
         XposedBridge.hookMethod(defEmojiClass, XC_MethodReplacement.returnConstant(null));
     }
 
-    private void filterItens(String filterItens) {
-        var itens = filterItens.split("\n");
+    private void filterItems(String filterItems) {
+        var itens = filterItems.split("\n");
         var idsFilter = new ArrayList<Integer>();
         for (String item : itens) {
             var id = Utils.getID(item, "id");
