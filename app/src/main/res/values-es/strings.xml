@@ -303,5 +303,5 @@
     <string name="custom_filters_sum">Activar filtros por ID y CSS personalizado</string>
     <string name="click_times">Haz clic 5 veces en el título de WhatsApp</string>
     <string name="hold_title">Mantenga presionado el título de WhatsApp</string>
-    <string name="read_all_mark_as_read">Read all (mark as read)</string>
+    <string name="read_all_mark_as_read">Leer todo (marcar como leído)</string>
 </resources>
