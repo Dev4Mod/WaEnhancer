@@ -81,7 +81,7 @@ public class SeparateGroup extends Feature {
         logDebug(Unobfuscator.getMethodDescriptor(enableCountMethod));
         XposedBridge.hookMethod(enableCountMethod, new XC_MethodHook() {
             @Override
-            @SuppressLint({"Range","Recycle"})
+            @SuppressLint({"Range", "Recycle"})
             protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
                 var indexTab = (int) param.args[2];
                 if (indexTab == tabs.indexOf(CHATS)) {
@@ -107,22 +107,25 @@ public class SeparateGroup extends Feature {
                             } else {
                                 chatCount++;
                             }
+                            cursor1.close();
                         }
-                }
-                if (tabs.contains(CHATS) && tabInstances.containsKey(CHATS)) {
-                    var instance12 = chatCount <= 0 ? constructor3.newInstance() : constructor2.newInstance(chatCount);
-                    var instance22 = constructor1.newInstance(instance12);
-                    param.args[1] = instance22;
-                }
-                if (tabs.contains(GROUPS) && tabInstances.containsKey(GROUPS)) {
-                    var instance2 = groupCount <= 0 ? constructor3.newInstance() : constructor2.newInstance(groupCount);
-                    var instance1 = constructor1.newInstance(instance2);
-                    enableCountMethod.invoke(param.thisObject, param.args[0], instance1, tabs.indexOf(GROUPS));
+                        cursor.close();
+                        db.close();
+                    }
+                    if (tabs.contains(CHATS) && tabInstances.containsKey(CHATS)) {
+                        var instance12 = chatCount <= 0 ? constructor3.newInstance() : constructor2.newInstance(chatCount);
+                        var instance22 = constructor1.newInstance(instance12);
+                        param.args[1] = instance22;
+                    }
+                    if (tabs.contains(GROUPS) && tabInstances.containsKey(GROUPS)) {
+                        var instance2 = groupCount <= 0 ? constructor3.newInstance() : constructor2.newInstance(groupCount);
+                        var instance1 = constructor1.newInstance(instance2);
+                        enableCountMethod.invoke(param.thisObject, param.args[0], instance1, tabs.indexOf(GROUPS));
+                    }
                 }
             }
-        }
-    });
-}
+        });
+    }
 
     private void hookTabIcon() throws Exception {
         var iconTabMethod = Unobfuscator.loadIconTabMethod(classLoader);
@@ -292,49 +295,49 @@ public class SeparateGroup extends Feature {
     }
 
 
-public static class ArrayListFilter extends ArrayList {
+    public static class ArrayListFilter extends ArrayList {
 
-    private final boolean isGroup;
+        private final boolean isGroup;
 
-    public ArrayListFilter(boolean isGroup) {
-        this.isGroup = isGroup;
-    }
-
-
-    @Override
-    public void add(int index, Object element) {
-        if (checkGroup(element)) {
-            super.add(index, element);
+        public ArrayListFilter(boolean isGroup) {
+            this.isGroup = isGroup;
         }
-    }
 
-    @Override
-    public boolean add(Object object) {
-        if (checkGroup(object)) {
-            return super.add(object);
-        }
-        return true;
-    }
 
-    @Override
-    public boolean addAll(@NonNull Collection c) {
-        for (var chat : c) {
-            if (checkGroup(chat)) {
-                super.add(chat);
+        @Override
+        public void add(int index, Object element) {
+            if (checkGroup(element)) {
+                super.add(index, element);
             }
         }
-        return true;
-    }
 
-    private boolean checkGroup(Object chat) {
-        var requiredServer = isGroup ? "g.us" : "s.whatsapp.net";
-        var jid = getObjectField(chat, "A00");
-        if (XposedHelpers.findMethodExactIfExists(jid.getClass(), "getServer") != null) {
-            var server = (String) callMethod(jid, "getServer");
-            return server.equals(requiredServer);
+        @Override
+        public boolean add(Object object) {
+            if (checkGroup(object)) {
+                return super.add(object);
+            }
+            return true;
         }
-        return true;
+
+        @Override
+        public boolean addAll(@NonNull Collection c) {
+            for (var chat : c) {
+                if (checkGroup(chat)) {
+                    super.add(chat);
+                }
+            }
+            return true;
+        }
+
+        private boolean checkGroup(Object chat) {
+            var requiredServer = isGroup ? "g.us" : "s.whatsapp.net";
+            var jid = getObjectField(chat, "A00");
+            if (XposedHelpers.findMethodExactIfExists(jid.getClass(), "getServer") != null) {
+                var server = (String) callMethod(jid, "getServer");
+                return server.equals(requiredServer);
+            }
+            return true;
+        }
     }
-}
 
 }
