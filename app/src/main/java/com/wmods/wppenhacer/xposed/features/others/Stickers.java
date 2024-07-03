@@ -40,7 +40,10 @@ public class Stickers extends Feature {
                         View.OnClickListener mCaptureOnClickListener = (View.OnClickListener) param.args[0];
                         if (mCaptureOnClickListener == null) return;
                         if (!(param.thisObject instanceof ViewGroup)) return;
-                        param.args[0] = (View.OnClickListener) view -> {
+                        var view = (View) param.thisObject;
+                        if (view.findViewById(Utils.getID("sticker", "id")) == null) return;
+
+                        param.args[0] = (View.OnClickListener) v -> {
                             var context = view.getContext();
                             var dialog = new AlertDialogWpp(view.getContext());
                             dialog.setTitle(context.getString(ResId.string.send_sticker));

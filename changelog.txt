@@ -7,5 +7,8 @@
 [SEEN TICK]
 * Added button to read all of that person's statuses
 
+[CONFIRMATION STICKER]
+* Fix bug in confirmation send sticker
+
 [WHATSAPP]
 * Added support for versions 2.24.13.77 and 78
