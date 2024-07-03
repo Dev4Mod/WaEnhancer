@@ -58,6 +58,7 @@ public class ResId {
         public static int open_camera;
         public static int edit_text;
         public static int select_a_color;
+        public static int read_all_mark_as_read;
     }
 
     public static class array {

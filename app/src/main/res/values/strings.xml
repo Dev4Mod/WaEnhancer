@@ -306,4 +306,5 @@
     <string name="custom_filters_sum">Activate filters by ID and Custom CSS</string>
     <string name="click_times">Click 5 times on the WhatsApp title</string>
     <string name="hold_title">Hold on WhatsApp title</string>
+    <string name="read_all_mark_as_read">Read all (mark as read)</string>
 </resources>

@@ -202,7 +202,6 @@ public class SeenTick extends Feature {
                     buttonImage.setOnClickListener(v -> AsyncTask.THREAD_POOL_EXECUTOR.execute(() -> {
                         Utils.showToast(view.getContext().getString(ResId.string.sending_read_blue_tick), Toast.LENGTH_SHORT);
                         sendBlueTickStatus(currentJid);
-                        MessageStore.storeMessageRead(key.messageID);
                         setSeenButton(buttonImage, true);
                     }));
                     AsyncTask.THREAD_POOL_EXECUTOR.execute(() -> {
@@ -229,6 +228,42 @@ public class SeenTick extends Feature {
                         }
                     });
         }
+
+
+        MenuStatus.menuStatuses.add(
+                new MenuStatus.MenuItemStatus() {
+                    @Override
+                    public MenuItem addMenu(Menu menu, FMessageWpp fMessage) {
+                        if (menu.findItem(ResId.string.read_all_mark_as_read) != null) return null;
+                        if (fMessage.getKey().isFromMe) return null;
+                        return menu.add(0, ResId.string.read_all_mark_as_read, 0, ResId.string.read_all_mark_as_read);
+                    }
+
+                    @Override
+                    public void onClick(MenuItem item, Object fragmentInstance, FMessageWpp fMessageWpp) {
+                        try {
+                            messages.clear();
+                            var listStatusField = ReflectionUtils.getFieldByExtendType(fragmentInstance.getClass(), List.class);
+                            var listStatus = (List) listStatusField.get(fragmentInstance);
+                            for (int i = 0; i < listStatus.size(); i++) {
+                                var fMessage = new FMessageWpp(listStatus.get(i));
+                                var messageId = fMessage.getKey().messageID;
+                                if (!fMessage.getKey().isFromMe) {
+                                    messages.add(new MessageInfo(fMessage, messageId, null));
+                                }
+                                var view = messageMap.get(messageId);
+                                if (view != null) {
+                                    view.post(() -> setSeenButton(view, true));
+                                }
+                            }
+                        } catch (Exception e) {
+                            log(e);
+                        }
+                        sendBlueTickStatus(currentJid);
+                        Utils.showToast(Utils.getApplication().getString(ResId.string.sending_read_blue_tick), Toast.LENGTH_SHORT);
+                    }
+                });
+
 
         /// Add button to send View Once to Target
         var menuMethod = Unobfuscator.loadViewOnceDownloadMenuMethod(classLoader);
@@ -326,6 +361,7 @@ public class SeenTick extends Feature {
         try {
             logDebug("sendBlue: " + currentJid);
             var arr_s = messages.stream().map(item -> item.messageId).toArray(String[]::new);
+            Arrays.stream(arr_s).forEach(MessageStore::storeMessageRead);
             var userJidSender = WppCore.createUserJid("status@broadcast");
             var userJid = WppCore.createUserJid(currentJid);
             WppCore.setPrivBoolean(arr_s[0] + "_rpass", true);
