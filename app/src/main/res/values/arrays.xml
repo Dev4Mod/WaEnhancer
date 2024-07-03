@@ -128,6 +128,8 @@
         <item>2.24.13.73</item>
         <item>2.24.13.74</item>
         <item>2.24.13.75</item>
+        <item>2.24.13.77</item>
+        <item>2.24.13.78</item>
     </string-array>
     <string-array name="supported_versions_business">
         <item>2.24.11.83</item>
