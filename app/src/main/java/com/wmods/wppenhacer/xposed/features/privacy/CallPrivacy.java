@@ -9,6 +9,7 @@ import com.wmods.wppenhacer.xposed.core.Feature;
 import com.wmods.wppenhacer.xposed.core.WppCore;
 import com.wmods.wppenhacer.xposed.core.devkit.Unobfuscator;
 import com.wmods.wppenhacer.xposed.features.general.Tasker;
+import com.wmods.wppenhacer.xposed.utils.ReflectionUtils;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
@@ -51,7 +52,15 @@ public class CallPrivacy extends Feature {
                 switch (rejectType) {
                     case "uncallable":
                     case "declined":
-                        XposedHelpers.callStaticMethod(clazzVoip, "rejectCall", callId, rejectType.equals("declined") ? null : rejectType);
+                        var rejectCallMethod = ReflectionUtils.findMethodUsingFilter(clazzVoip, m -> m.getName().equals("rejectCall"));
+                        var obj = new Object[rejectCallMethod.getParameterCount()];
+                        obj[0] = callId;
+                        obj[1] = "declined".equals(rejectType) ? null : rejectType;
+                        if (obj.length > 2) {
+                            obj[2] = 0;
+                        }
+
+                        ReflectionUtils.callMethod(rejectCallMethod, null, obj);
                         param.setResult(true);
                         break;
                     case "ended":
