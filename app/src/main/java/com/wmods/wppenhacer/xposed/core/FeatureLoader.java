@@ -21,7 +21,6 @@ import com.wmods.wppenhacer.BuildConfig;
 import com.wmods.wppenhacer.xposed.core.components.AlertDialogWpp;
 import com.wmods.wppenhacer.xposed.core.components.FMessageWpp;
 import com.wmods.wppenhacer.xposed.core.components.SharedPreferencesWrapper;
-import com.wmods.wppenhacer.xposed.core.db.MessageStore;
 import com.wmods.wppenhacer.xposed.core.devkit.Unobfuscator;
 import com.wmods.wppenhacer.xposed.core.devkit.UnobfuscatorCache;
 import com.wmods.wppenhacer.xposed.features.customization.BubbleColors;
@@ -58,6 +57,7 @@ import com.wmods.wppenhacer.xposed.features.others.DebugFeature;
 import com.wmods.wppenhacer.xposed.features.others.GroupAdmin;
 import com.wmods.wppenhacer.xposed.features.others.Stickers;
 import com.wmods.wppenhacer.xposed.features.others.TextStatusComposer;
+import com.wmods.wppenhacer.xposed.features.others.ToastViewer;
 import com.wmods.wppenhacer.xposed.features.privacy.CallPrivacy;
 import com.wmods.wppenhacer.xposed.features.privacy.DndMode;
 import com.wmods.wppenhacer.xposed.features.privacy.FreezeLastSeen;
@@ -117,7 +117,6 @@ public class FeatureLoader {
                         throw new Exception("Unsupported version: " + packageInfo.versionName);
                     }
                     DesignUtils.setPrefs(pref);
-                    MessageStore.initDatabase();
                     initComponents(loader, pref);
                     plugins(loader, pref, packageInfo.versionName);
                     registerReceivers();
@@ -253,7 +252,8 @@ public class FeatureLoader {
                 GroupAdmin.class,
                 Stickers.class,
                 CopyStatus.class,
-                TextStatusComposer.class
+                TextStatusComposer.class,
+                ToastViewer.class
         };
 
         for (var classe : classes) {

@@ -26,6 +26,7 @@ public class Tasker extends Feature {
     private static FMessageWpp fMessage;
     private static boolean taskerEnabled;
 
+
     public Tasker(@NonNull ClassLoader classLoader, @NonNull XSharedPreferences preferences) {
         super(classLoader, preferences);
     }
@@ -49,13 +50,15 @@ public class Tasker extends Feature {
         ContextCompat.registerReceiver(Utils.getApplication(), new SenderMessageBroadcastReceiver(), filter, ContextCompat.RECEIVER_EXPORTED);
     }
 
-    public static void sendTaskerEvent(String name, String number, String event) {
+    public synchronized static void sendTaskerEvent(String name, String number, String event) {
         if (!taskerEnabled) return;
+
         Intent intent = new Intent("com.wmods.wppenhacer.EVENT");
         intent.putExtra("name", name);
         intent.putExtra("number", number);
         intent.putExtra("event", event);
         Utils.getApplication().sendBroadcast(intent);
+
     }
 
     public void hookReceiveMessage() throws Throwable {
@@ -68,6 +71,7 @@ public class Tasker extends Feature {
                 fMessage = new FMessageWpp(param.args[0]);
             }
         });
+
 
         XposedBridge.hookMethod(method, new XC_MethodHook() {
             @Override

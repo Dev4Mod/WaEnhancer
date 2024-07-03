@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.database.sqlite.SQLiteOpenHelper;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.NinePatchDrawable;
 import android.net.Uri;
@@ -1704,5 +1705,14 @@ public class Unobfuscator {
         var expirationMethod = Arrays.stream(methods).filter(methodData -> methodData.getReturnType().equals(Date.class)).findFirst().orElse(null);
         if (expirationMethod == null) throw new RuntimeException("Expiration class not found");
         return expirationMethod.getDeclaringClass();
+    }
+
+    /**
+     * @noinspection unchecked
+     */
+    public static Class<? extends SQLiteOpenHelper> loadMsgDatabaseClass(ClassLoader classLoader) throws Exception {
+        var classUsingStrings = findFirstClassUsingStrings(classLoader, StringMatchType.Contains, "msgstore/create", "msgstore/upgrade");
+        if (classUsingStrings == null) throw new RuntimeException("MsgDatabase class not found");
+        return (Class<? extends SQLiteOpenHelper>) classUsingStrings;
     }
 }

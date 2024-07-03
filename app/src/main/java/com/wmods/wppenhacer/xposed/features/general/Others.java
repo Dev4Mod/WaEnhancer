@@ -2,7 +2,6 @@ package com.wmods.wppenhacer.xposed.features.general;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
-import android.os.AsyncTask;
 import android.os.BaseBundle;
 import android.os.Message;
 import android.text.TextUtils;
@@ -17,7 +16,6 @@ import androidx.annotation.NonNull;
 import com.wmods.wppenhacer.xposed.core.Feature;
 import com.wmods.wppenhacer.xposed.core.WppCore;
 import com.wmods.wppenhacer.xposed.core.components.AlertDialogWpp;
-import com.wmods.wppenhacer.xposed.core.db.MessageStore;
 import com.wmods.wppenhacer.xposed.core.devkit.Unobfuscator;
 import com.wmods.wppenhacer.xposed.utils.DesignUtils;
 import com.wmods.wppenhacer.xposed.utils.ReflectionUtils;
@@ -66,8 +64,6 @@ public class Others extends Feature {
         var filter_items = prefs.getString("filter_items", null);
         var disable_defemojis = prefs.getBoolean("disable_defemojis", false);
         var autonext_status = prefs.getBoolean("autonext_status", false);
-        var toast_viewed_status = prefs.getBoolean("toast_viewed_status", false);
-        var toast_viewed_message = prefs.getBoolean("toast_viewed_message", false);
         var audio_type = Integer.parseInt(prefs.getString("audio_type", "0"));
         var audio_transcription = prefs.getBoolean("audio_transcription", false);
         var oldStatus = prefs.getBoolean("oldstatus", false);
@@ -137,7 +133,6 @@ public class Others extends Feature {
         if (autonext_status) {
             autoNextStatus();
         }
-        toast_viewed(toast_viewed_status, toast_viewed_message);
 
         if (audio_type > 0) {
             sendAudioType(audio_type);
@@ -209,49 +204,7 @@ public class Others extends Feature {
         });
     }
 
-    private void toast_viewed(boolean toast_viewed_status, boolean toast_viewed_message) throws Exception {
 
-        var onInsertReceipt = Unobfuscator.loadOnInsertReceipt(classLoader);
-        XposedBridge.hookMethod(onInsertReceipt, new XC_MethodHook() {
-            @Override
-            protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
-                var type = (int) param.args[1];
-                var id = (long) param.args[2];
-                if (type != 13) return;
-                var PhoneUserJid = param.args[0];
-                AsyncTask.THREAD_POOL_EXECUTOR.execute(() -> {
-                    var raw = WppCore.getRawString(PhoneUserJid);
-                    var UserJid = WppCore.createUserJid(raw);
-                    var contactName = WppCore.getContactName(UserJid);
-                    if (TextUtils.isEmpty(contactName)) {
-                        contactName = WppCore.stripJID(raw);
-                    }
-                    var sql = MessageStore.getDatabase();
-                    try (var result = sql.query("status", null, "message_table_id = ?", new String[]{String.valueOf(id)}, null, null, null)) {
-                        if (result.moveToNext()) {
-                            if (toast_viewed_status) {
-                                Utils.showToast(Utils.getApplication().getString(ResId.string.viewed_your_status, contactName), Toast.LENGTH_LONG);
-                            }
-                            Tasker.sendTaskerEvent(contactName, WppCore.stripJID(raw), "viewed_status");
-                        } else if (!Objects.equals(WppCore.getCurrentRawJID(), raw)) {
-                            try (var result2 = sql.query("message", null, "_id = ?", new String[]{String.valueOf(id)}, null, null, null)) {
-                                if (result2.moveToNext()) {
-                                    var chat_id = result2.getLong(result2.getColumnIndexOrThrow("chat_row_id"));
-                                    try (var result3 = sql.query("chat", null, "_id = ? AND subject IS NULL", new String[]{String.valueOf(chat_id)}, null, null, null)) {
-                                        if (result3.moveToNext()) {
-                                            if (toast_viewed_message)
-                                                Utils.showToast(Utils.getApplication().getString(ResId.string.viewed_your_message, contactName), Toast.LENGTH_LONG);
-                                            Tasker.sendTaskerEvent(contactName, WppCore.stripJID(raw), "viewed_message");
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                });
-            }
-        });
-    }
 
     private void autoNextStatus() throws Exception {
         Class<?> StatusPlaybackContactFragmentClass = classLoader.loadClass("com.whatsapp.status.playback.fragment.StatusPlaybackContactFragment");
