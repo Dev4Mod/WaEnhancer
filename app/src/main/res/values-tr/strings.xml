@@ -301,6 +301,7 @@
     <string name="select_a_color">Bir renk seçin</string>
     <string name="custom_appearance">Özel Görünüm</string>
     <string name="custom_filters_sum">ID ve Özel CSS\'ye göre filtreleri etkinleştir</string>
-    <string name="click_times">Click 5 times on the WhatsApp title</string>
-    <string name="hold_title">Hold on WhatsApp title</string>
+    <string name="click_times">WhatsApp başlığına 5 kez tıklayın</string>
+    <string name="hold_title">WhatsApp başlığına tutun</string>
+    <string name="read_all_mark_as_read">Read all (mark as read)</string>
 </resources>

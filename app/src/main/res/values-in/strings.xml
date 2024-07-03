@@ -310,6 +310,7 @@ Harap gunakan versi WhatsApp yang didukung!</string>
     <string name="select_a_color">Pilih warna</string>
     <string name="custom_appearance">Tampilan Kustom</string>
     <string name="custom_filters_sum">Aktifkan filter berdasarkan ID dan CSS Khusus</string>
-    <string name="click_times">Click 5 times on the WhatsApp title</string>
-    <string name="hold_title">Hold on WhatsApp title</string>
+    <string name="click_times">Klik 5 kali pada judul WhatsApp</string>
+    <string name="hold_title">Tahan pada judul WhatsApp</string>
+    <string name="read_all_mark_as_read">Read all (mark as read)</string>
 </resources>

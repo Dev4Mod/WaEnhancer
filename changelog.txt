@@ -1,14 +1,3 @@
-[TASKER]
-* Small fix for event flooding when multiple messages are read.
-
-[CALL PRIVACY]
-* Fixed bug in blocking type for newer versions of WhatsApp
-
-[SEEN TICK]
-* Added button to read all of that person's statuses
-
-[CONFIRMATION STICKER]
-* Fix bug in confirmation send sticker
-
-[WHATSAPP]
-* Added support for versions 2.24.13.77 and 78
+[WA ENHANCER]
+* Added Hebrew translation
+* updated translations

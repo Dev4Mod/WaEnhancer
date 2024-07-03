@@ -301,6 +301,7 @@
     <string name="select_a_color">Seleccione un color</string>
     <string name="custom_appearance">Apariencia personalizada</string>
     <string name="custom_filters_sum">Activar filtros por ID y CSS personalizado</string>
-    <string name="click_times">Click 5 times on the WhatsApp title</string>
-    <string name="hold_title">Hold on WhatsApp title</string>
+    <string name="click_times">Haz clic 5 veces en el título de WhatsApp</string>
+    <string name="hold_title">Mantenga presionado el título de WhatsApp</string>
+    <string name="read_all_mark_as_read">Read all (mark as read)</string>
 </resources>

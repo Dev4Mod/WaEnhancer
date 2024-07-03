@@ -289,7 +289,7 @@
     <string name="select_status_type">تحديد نوع الحالة</string>
     <string name="open_camera">فتح الكاميرا</string>
     <string name="edit_text">تحرير النص</string>
-    <string name="about_info">Wa Enhancer هو وحدة Xposed التي تعمل على تحسين تجربة واتساب من خلال تقديم ميزات خصوصية متقدمة، وتخصيص الشاشة الرئيسية، وتعديلات عامة، وتحسينات على الوسائط.</string>
+    <string name="about_info">( المُحسِّن) هو وحدة إكسبوزيد التي تعمل على تحسين تجربة واتساب من خلال تقديم ميزات خصوصية متقدمة، وتخصيص الشاشة الرئيسية، وتعديلات عامة، وتحسينات على الوسائط.</string>
     <string name="installation">تثبيت</string>
     <string name="installation_desc">1. تأكد من أن جهازك متجذر.\n2. قم بتثبيت إطار عمل Xposed Framework على جهازك.\n3. قم بتنزيل Wa Enhancer من قسم الإجراءات.\n4. قم بتثبيت ملف Wa Enhancer APK.\n5. قم بتمكين وحدة Wa Enhancer في تطبيق Xposed Installe.</string>
     <string name="go_to_telegram">الذهاب إلى تيليجرام</string>
@@ -302,6 +302,7 @@
     <string name="select_a_color">اختر اللون</string>
     <string name="custom_appearance">المظهر المخصص</string>
     <string name="custom_filters_sum">تفعيل الفلاتر حسب المعرف و CSS المخصص</string>
-    <string name="click_times">Click 5 times on the WhatsApp title</string>
-    <string name="hold_title">Hold on WhatsApp title</string>
+    <string name="click_times">انقر 5 مرات على عنوان واتساب</string>
+    <string name="hold_title">اضغط على عنوان واتساب</string>
+    <string name="read_all_mark_as_read">Read all (mark as read)</string>
 </resources>
