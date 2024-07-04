@@ -2,6 +2,7 @@ package com.wmods.wppenhacer.xposed.features.customization;
 
 import static com.wmods.wppenhacer.utils.ColorReplacement.replaceColors;
 import static com.wmods.wppenhacer.utils.DrawableColors.replaceColor;
+import static de.robv.android.xposed.XposedHelpers.findAndHookConstructor;
 import static de.robv.android.xposed.XposedHelpers.findAndHookMethod;
 
 import android.Manifest;
@@ -9,10 +10,15 @@ import android.app.Activity;
 import android.app.Notification;
 import android.content.pm.PackageManager;
 import android.content.res.ColorStateList;
+import android.graphics.BlendMode;
+import android.graphics.BlendModeColorFilter;
 import android.graphics.Paint;
+import android.graphics.PorterDuff;
+import android.graphics.PorterDuffColorFilter;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.GradientDrawable;
+import android.os.Build;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -181,6 +187,10 @@ public class CustomTheme extends Feature {
         });
 
         var intBgHook = new IntBgColorHook();
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            findAndHookConstructor(BlendModeColorFilter.class, int.class, BlendMode.class, intBgHook);
+        }
+        findAndHookConstructor(PorterDuffColorFilter.class, int.class, PorterDuff.Mode.class, intBgHook);
         findAndHookMethod(TextView.class.getName(), classLoader, "setTextColor", int.class, intBgHook);
         findAndHookMethod(Paint.class.getName(), classLoader, "setColor", int.class, intBgHook);
         findAndHookMethod(View.class.getName(), classLoader, "setBackgroundColor", int.class, intBgHook);
