@@ -7,6 +7,7 @@ import com.wmods.wppenhacer.xposed.core.devkit.Unobfuscator;
 import com.wmods.wppenhacer.xposed.utils.ReflectionUtils;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import de.robv.android.xposed.XC_MethodHook;
 import de.robv.android.xposed.XSharedPreferences;
@@ -21,9 +22,10 @@ public class Channels extends Feature {
     public void doHook() throws Throwable {
         var channels = prefs.getBoolean("channels", false);
         var removechannelRec = prefs.getBoolean("removechannel_rec", false);
-        var removeChannelRecClass = Unobfuscator.loadRemoveChannelRecClass(classLoader);
         if (channels || removechannelRec) {
 
+            var removeChannelRecClass = Unobfuscator.loadRemoveChannelRecClass(classLoader);
+            log("RemoveChannelRec: " + removeChannelRecClass);
             var headerChannelItem = Unobfuscator.loadHeaderChannelItemClass(classLoader);
             log("HeaderChannelItem: " + headerChannelItem);
             var listChannelItem = Unobfuscator.loadListChannelItemClass(classLoader);
@@ -41,6 +43,18 @@ public class Channels extends Feature {
                             removeItems(arrList, channels, removechannelRec, headerChannelItem, listChannelItem, removeChannelRecClass);
                         }
                     });
+
+            if (removechannelRec) {
+                XposedBridge.hookAllConstructors(removeChannelRecClass, new XC_MethodHook() {
+                    @Override
+                    protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
+                        var pairs = ReflectionUtils.findArrayOfType(param.args, List.class);
+                        for (var pair : pairs) {
+                            param.args[pair.first] = new ArrayList<>();
+                        }
+                    }
+                });
+            }
         }
 
     }

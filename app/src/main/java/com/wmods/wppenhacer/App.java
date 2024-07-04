@@ -1,5 +1,6 @@
 package com.wmods.wppenhacer;
 
+import android.annotation.SuppressLint;
 import android.app.Application;
 import android.content.Context;
 import android.content.Intent;
@@ -8,8 +9,6 @@ import android.os.Looper;
 
 import androidx.appcompat.app.AppCompatDelegate;
 import androidx.preference.PreferenceManager;
-
-import com.wmods.wppenhacer.xposed.core.FeatureLoader;
 
 import java.util.Locale;
 import java.util.concurrent.ExecutorService;
@@ -23,6 +22,7 @@ public class App extends Application {
     private static final ExecutorService executorService = Executors.newCachedThreadPool();
     private static final Handler MainHandler = new Handler(Looper.getMainLooper());
 
+    @SuppressLint("ApplySharedPref")
     @Override
     public void onCreate() {
         super.onCreate();
@@ -64,7 +64,7 @@ public class App extends Application {
 
     public void restartApp(String packageWpp) {
         Intent intent = new Intent(BuildConfig.APPLICATION_ID + ".WHATSAPP.RESTART");
-        intent.putExtra("PKG", FeatureLoader.PACKAGE_WPP);
+        intent.putExtra("PKG", packageWpp);
         sendBroadcast(intent);
     }
 

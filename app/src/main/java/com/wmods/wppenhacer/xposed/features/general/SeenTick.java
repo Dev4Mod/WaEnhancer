@@ -8,7 +8,6 @@ import android.graphics.PorterDuff;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.GradientDrawable;
-import android.os.AsyncTask;
 import android.os.Handler;
 import android.os.Looper;
 import android.view.Gravity;
@@ -39,6 +38,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Objects;
+import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
 import de.robv.android.xposed.XC_MethodHook;
@@ -199,12 +199,12 @@ public class SeenTick extends Feature {
                     contentView.setOrientation(LinearLayout.HORIZONTAL);
                     contentView.addView(buttonImage, 0);
                     messageMap.put(key.messageID, buttonImage);
-                    buttonImage.setOnClickListener(v -> AsyncTask.THREAD_POOL_EXECUTOR.execute(() -> {
+                    buttonImage.setOnClickListener(v -> CompletableFuture.runAsync(() -> {
                         Utils.showToast(view.getContext().getString(ResId.string.sending_read_blue_tick), Toast.LENGTH_SHORT);
                         sendBlueTickStatus(currentJid);
                         setSeenButton(buttonImage, true);
                     }));
-                    AsyncTask.THREAD_POOL_EXECUTOR.execute(() -> {
+                    CompletableFuture.runAsync(() -> {
                         var seen = MessageStore.isReadMessageStatus(key.messageID);
                         setSeenButton(buttonImage, seen);
                     });

@@ -1,5 +1,7 @@
 package com.wmods.wppenhacer.xposed.utils;
 
+import java.util.Arrays;
+
 import de.robv.android.xposed.XC_MethodHook;
 import de.robv.android.xposed.XposedBridge;
 import de.robv.android.xposed.XposedHelpers;
@@ -10,7 +12,12 @@ public class DebugUtils {
         for (var field : cls.getDeclaredFields()) {
             try {
                 field.setAccessible(true);
-                XposedBridge.log("FIELD: " + field.getName() + " -> VALUE: " + field.get(thisObject));
+                var name = field.getName();
+                var value = field.get(thisObject);
+                if (value != null && value.getClass().isArray()) {
+                    value = Arrays.toString((Object[]) value);
+                }
+                XposedBridge.log("FIELD: " + name + " -> VALUE: " + value);
             } catch (Exception ignored) {
             }
         }
