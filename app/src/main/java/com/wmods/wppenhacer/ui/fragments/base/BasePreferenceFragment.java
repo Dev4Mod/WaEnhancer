@@ -68,12 +68,14 @@ public abstract class BasePreferenceFragment extends PreferenceFragmentCompat im
         }
 
         var igstatus = mPrefs.getBoolean("igstatus", false);
+        var verticalstatus = mPrefs.getBoolean("verticalstatus", false);
         setPreferenceState("oldstatus", !igstatus);
 
         var oldstatus = mPrefs.getBoolean("oldstatus", false);
+        setPreferenceState("verticalstatus", !oldstatus);
         setPreferenceState("channels", !oldstatus);
         setPreferenceState("removechannel_rec", !oldstatus);
-        setPreferenceState("fbstyle", !oldstatus);
+        setPreferenceState("facebookstyle", !(oldstatus || verticalstatus));
         setPreferenceState("igstatus", !oldstatus);
 
         var channels = mPrefs.getBoolean("channels", false);

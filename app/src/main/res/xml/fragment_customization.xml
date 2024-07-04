@@ -195,6 +195,10 @@
             app:summary="@string/enable_facebook_style_for_status_sum"
             app:title="@string/enable_facebook_style_for_status" />
 
+        <rikka.material.preference.MaterialSwitchPreference
+            android:summary="Show status in vertical mode on Updates tab"
+            app:key="verticalstatus"
+            app:title="Vertical Status" />
 
         <rikka.material.preference.MaterialSwitchPreference
             app:key="oldstatus"

@@ -68,6 +68,7 @@ public class Others extends Feature {
         var audio_transcription = prefs.getBoolean("audio_transcription", false);
         var oldStatus = prefs.getBoolean("oldstatus", false);
         var igstatus = prefs.getBoolean("igstatus", false);
+        var verticalStatus = prefs.getBoolean("verticalstatus", false);
 
         propsInteger.put(3877, oldStatus ? igstatus ? 2 : 0 : 2);
         propsBoolean.put(5171, filterSeen); // filtros de chat e grupos
@@ -110,11 +111,16 @@ public class Others extends Feature {
             Others.propsBoolean.put(2890, true);
         }
 
-        propsInteger.put(8522, fbstyle);
-        propsInteger.put(8521, fbstyle);
+        if (verticalStatus) {
+            propsBoolean.put(6285, true);// fix crash bug in vertical status
+            propsInteger.put(8522, 3);
+            propsInteger.put(8521, 3);
+        } else {
+            propsInteger.put(8522, fbstyle);
+            propsInteger.put(8521, fbstyle);
+        }
 
         hookProps();
-
         hookMenuOptions(newSettings, showFreezeLastSeen, showDnd, filterChats);
 
         if (proximity) {
@@ -203,7 +209,6 @@ public class Others extends Feature {
             }
         });
     }
-
 
 
     private void autoNextStatus() throws Exception {
