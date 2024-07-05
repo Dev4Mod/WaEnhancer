@@ -44,17 +44,15 @@ public class Channels extends Feature {
                         }
                     });
 
-            if (removechannelRec) {
-                XposedBridge.hookAllConstructors(removeChannelRecClass, new XC_MethodHook() {
-                    @Override
-                    protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
-                        var pairs = ReflectionUtils.findArrayOfType(param.args, List.class);
-                        for (var pair : pairs) {
-                            param.args[pair.first] = new ArrayList<>();
-                        }
+            XposedBridge.hookAllConstructors(removeChannelRecClass, new XC_MethodHook() {
+                @Override
+                protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
+                    var pairs = ReflectionUtils.findArrayOfType(param.args, List.class);
+                    for (var pair : pairs) {
+                        param.args[pair.first] = new ArrayList<>();
                     }
-                });
-            }
+                }
+            });
         }
 
     }
