@@ -69,6 +69,7 @@ public class Others extends Feature {
         var oldStatus = prefs.getBoolean("oldstatus", false);
         var igstatus = prefs.getBoolean("igstatus", false);
         var verticalStatus = prefs.getBoolean("verticalstatus", false);
+        var animationEmojis = prefs.getBoolean("animation_emojis", false);
 
         propsInteger.put(3877, oldStatus ? igstatus ? 2 : 0 : 2);
         propsBoolean.put(5171, filterSeen); // filtros de chat e grupos
@@ -91,7 +92,7 @@ public class Others extends Feature {
         propsBoolean.put(9051, true);
 
         propsBoolean.put(6798, true);  // show all status
-        propsBoolean.put(3575, true);  // auto play emojis settings
+        propsBoolean.put(3575, animationEmojis);  // auto play emojis settings
 
         propsBoolean.put(7589, true);  // Media select quality
         propsBoolean.put(6972, false); // Media select quality
