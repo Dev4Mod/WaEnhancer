@@ -50,7 +50,7 @@
     <string name="outlinedicons_sum">Novo estilo de ícones, se você gostar, ative</string>
     <string name="freezelastseen">Congelar visto por último</string>
     <string name="freezelastseen_sum">Quando ativo, congela a hora e data do visto por último.\n(NOTA: As informações das outras pessoas não serão exibidas para você, como digitando e visto por último).</string>
-    <string name="removeforwardlimit_sum">Remover limite de encaminhamento para 5 chats (normal) e 1 chat (múltiplas vezes)\n(Nota: Use com cautela, você pode ser banido por spam)</string>
+    <string name="removeforwardlimit_sum">Remover limite de encaminhamento para 5 chats (normal) e 1 chat (múltiplas vezes).\n(NOTA: Use com cautela, você pode ser banido por spam).</string>
     <string name="removeforwardlimit">Remover limite de encaminhamento</string>
     <string name="showname">Mostrar nome</string>
     <string name="showname_sum">Mostra o seu nome no topo da tela inicial, substituindo o \"WhatsApp\" pelo nome da sua conta</string>
@@ -224,7 +224,7 @@
     <string name="new_context_menu_ui">Nova IU do menu de contexto</string>
     <string name="new_context_menu_ui_sum">Habilite o novo menu de contexto de mensagens no estilo iOS para edição de mensagens.</string>
     <string name="filter_items_by_id">Filtrar itens por ID</string>
-    <string name="filter_items_by_id_sum">Filtrar itens por nome de id</string>
+    <string name="filter_items_by_id_sum">Filtrar itens por nome de ID</string>
     <string name="custom_theme_css">Tema personalizado CSS</string>
     <string name="custom_theme_css_sum">Personalize seu WhatsApp usando código CSS.</string>
     <string name="antidisappearing">Anti deletar mensagens temporárias</string>
@@ -235,7 +235,7 @@
     <string name="disable_default_emojis">Desativar Emojis padrão</string>
     <string name="theme_mode"> Tema escuro Wa Enhancer</string>
     <string name="theme_mode_sum">Selecione o tema para o Wa Enhancer.</string>
-    <string name="disable_default_emojis_sum">Desative os emojis padrão do Whatsapp e use emojis do sistema\n(NOTA: os emojis do Whatsapp desaparecerão do seletor, use o teclado para inserir).</string>
+    <string name="disable_default_emojis_sum">Desative os emojis padrão do Whatsapp e use emojis do sistema.\n(NOTA: os emojis do Whatsapp desaparecerão do seletor, use o teclado para inserir).</string>
     <string name="other">Outros</string>
     <string name="enable_media_preview">Habilitar visualização de mídia</string>
     <string name="enable_media_preview_sum">Adicione um botão para visualizar a mídia em um arquivo temporário (sem baixá-lo permanentemente).</string>
@@ -282,13 +282,13 @@
     <string name="audio_transcription_sum">Habilitar transcrição de áudio nativa do WhatsApp.</string>
     <string name="viewed_your_status">%s visualizou seu status</string>
     <string name="viewed_your_message">%s visualizou sua mensagem</string>
-    <string name="old_statuses">Status antigos</string>
-    <string name="old_statuses_sum">Alterar para guia de status antigos verticalmente e sem canais. (NOTA: Pode causar lag na interface).</string>
+    <string name="old_statuses">Status antigo</string>
+    <string name="old_statuses_sum">Alterar para guia de status antigo verticalmente e sem canais. (NOTA: Pode causar lag na interface).</string>
     <string name="force_english">Forçar Inglês Wa Enhancer</string>
     <string name="select_status_type">Selecione o tipo de status</string>
     <string name="open_camera">Abrir câmera</string>
     <string name="edit_text">Editar texto</string>
-    <string name="about_info">Wa Enhancer é um módulo Xposed que melhora sua experiência com o WhatsApp, oferecendo recursos avançados de privacidade, personalização da tela inicial, ajustes gerais e funções de mídia.</string>
+    <string name="about_info">Wa Enhancer é um módulo Xposed que melhora sua experiência com o WhatsApp, oferecendo recursos avançados de privacidade, personalização da tela inicial, ajustes gerais e opções de mídia.</string>
     <string name="installation">Instalação</string>
     <string name="installation_desc">1. Certifique-se de que seu dispositivo esteja rooteado.\n2. Instale o Xposed Framework em seu dispositivo.\n3. Baixe o Wa Enhancer no Repositório do Xposed.\n4. Instale o Wa Enhancer APK.\n5. Habilite o módulo Wa Enhancer no aplicativo Xposed Installer.</string>
     <string name="go_to_telegram">Ir para o Telegram</string>
@@ -303,5 +303,11 @@
     <string name="custom_filters_sum">Ativar Filtros por ID e Tema personalizado CSS </string>
     <string name="click_times">Clicar 5 vezes no título do WhatsApp</string>
     <string name="hold_title">Segurar no título do WhatsApp</string>
-    <string name="read_all_mark_as_read">Read all (mark as read)</string>
+    <string name="read_all_mark_as_read">Visualizar todos</string>
+    <string name="enable_copy_status">Enable Copy Status</string>
+    <string name="enable_copy_status_sum">Activates the possibility of copying the description and caption of statuses by holding on them</string>
+    <string name="animation_emojis">Animation Emojis</string>
+    <string name="animation_emojis_sum">Activate animated emojis (This creates large emojis in conversations)</string>
+    <string name="vertical_status">Vertical Status</string>
+    <string name="vertical_status_sum">Show status in vertical mode on Updates tab</string>
 </resources>

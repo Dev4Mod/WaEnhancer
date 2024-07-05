@@ -303,5 +303,11 @@
     <string name="custom_filters_sum">ID Filter und benutzerdefiniertes CSS aktivieren</string>
     <string name="click_times">5 mal auf den WhatsApp Titel klicken</string>
     <string name="hold_title">WhatsApp Titel länger drücken</string>
-    <string name="read_all_mark_as_read">Read all (mark as read)</string>
+    <string name="read_all_mark_as_read">Alle gesehen/gelesen</string>
+    <string name="enable_copy_status">Enable Copy Status</string>
+    <string name="enable_copy_status_sum">Activates the possibility of copying the description and caption of statuses by holding on them</string>
+    <string name="animation_emojis">Animation Emojis</string>
+    <string name="animation_emojis_sum">Activate animated emojis (This creates large emojis in conversations)</string>
+    <string name="vertical_status">Vertical Status</string>
+    <string name="vertical_status_sum">Show status in vertical mode on Updates tab</string>
 </resources>

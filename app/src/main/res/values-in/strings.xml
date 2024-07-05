@@ -118,7 +118,7 @@
     <string name="chatfilter_search_icon">Ikon pencarian</string>
     <string name="chatfilter_search_bar">Bilah pencarian</string>
     <string name="remove_channel_recomendations">Sembunyikan Rekomendasi Saluran</string>
-    <string name="remove_channel_recomendations_sum">Sembunyikan rekomendasi saluran dari tab Status</string>
+    <string name="remove_channel_recomendations_sum">Sembunyikan rekomendasi saluran dari tab Pembaruan</string>
     <string name="remove_see_more_button">Hapus \"Baca selengkapnya\"</string>
     <string name="remove_see_more_button_">Hapus \"Baca selengkapnya\" dan tampilkan semua pesan panjang</string>
     <string name="tools">Alat</string>
@@ -148,8 +148,8 @@ Harap gunakan versi WhatsApp yang didukung!</string>
     <string name="send_sticker">Kirim Stiker</string>
     <string name="enable_filter_chats">Aktifkan Filter Obrolan</string>
     <string name="enable_filter_chats_sum">Tampilkan opsi untuk memfilter obrolan seperti grup, kontak dan pesan belum dibaca</string>
-    <string name="disable_channels">Nonaktifkan Saluran</string>
-    <string name="disable_channels_sum">Nonaktifkan saluran dari tab Status</string>
+    <string name="disable_channels">Sembunyikan Saluran</string>
+    <string name="disable_channels_sum">Sembunyikan saluran dari tab Pembaruan</string>
     <string name="chat">Obrolan</string>
     <string name="change_bubble_colors">Ubah Warna Gelembung</string>
     <string name="change_blubble_color_sum">Ubah warna gelembung di layar percakapan</string>
@@ -312,5 +312,11 @@ Harap gunakan versi WhatsApp yang didukung!</string>
     <string name="custom_filters_sum">Aktifkan filter berdasarkan ID dan CSS Khusus</string>
     <string name="click_times">Klik 5 kali pada judul WhatsApp</string>
     <string name="hold_title">Tahan pada judul WhatsApp</string>
-    <string name="read_all_mark_as_read">Read all (mark as read)</string>
+    <string name="read_all_mark_as_read">Lihat semua (tandai dilihat)</string>
+    <string name="enable_copy_status">Enable Copy Status</string>
+    <string name="enable_copy_status_sum">Activates the possibility of copying the description and caption of statuses by holding on them</string>
+    <string name="animation_emojis">Animation Emojis</string>
+    <string name="animation_emojis_sum">Activate animated emojis (This creates large emojis in conversations)</string>
+    <string name="vertical_status">Vertical Status</string>
+    <string name="vertical_status_sum">Show status in vertical mode on Updates tab</string>
 </resources>

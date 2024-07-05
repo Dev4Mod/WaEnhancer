@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_desc">מודול ווצאפ - Enhancer</string>
-    <string name="antirevoke">הודעות נגד מחיקה</string>
+    <string name="antirevoke">חסימת מחיקת הודעות</string>
     <string name="antirevoke_sum">הודעות לא יימחקו אצלך</string>
     <string name="ghostmode">הסתר הקלדה</string>
     <string name="ghostmode_sum">משתמשים לא יכולים לראות שאתה מקליד</string>
     <string name="ghostmode_r">הסתר הקלטת אודיו</string>
     <string name="ghostmode_sum_r">משתמשים לא יכולים לראות שאתה מקליט אודיו</string>
-    <string name="hidetag">הסתר תג \"העברה\"</string>
+    <string name="hidetag">הסתר תג הועברה</string>
     <string name="hidetag_sum">העברת הודעות ללא התגית \"הועברה\"</string>
     <string name="hidestatusview">הסתר צפייה בסטטוס</string>
     <string name="hidestatusview_sum">צפה בסטטוסים מבלי שהמשתמשים ידעו</string>
@@ -17,11 +17,11 @@
     <string name="segundosnahora">שניות - חותמת זמן</string>
     <string name="segundosnahora_sum">הצג זמן של שניות לצד כל הודעה</string>
     <string name="textonahora">טקסט ליד חותמת זמן</string>
-    <string name="viewonce">השבת הצגת הודעות חד פעמיות</string>
+    <string name="viewonce">השבת מגבלת ההודעות החד פעמיות</string>
     <string name="viewonce_sum">פתח הודעה חד פעמית מספר פעמים ללא הגבלה</string>
     <string name="novotema_sum">שנה את נושא הצבע והסמל לנושא החדש של WhatsApp</string>
-    <string name="antirevokestatus">סטטוס אנטי-מחיקה</string>
-    <string name="antirevokestatus_sum">הצג סטטוסים שמשתמשים מחקו</string>
+    <string name="antirevokestatus">חסימת מחיקת סטטוסים</string>
+    <string name="antirevokestatus_sum">כשמשתמש מוחק סטטוס, אצלך זה לא יימחק</string>
     <string name="hidereceipt">הסתר וי שני</string>
     <string name="hidereceipt_sum">משתמשים לא יידעו שההודעות שלהם נמסרה אליך\n(זהירות: זה עלול לגרום לעיכוב בקבלת ההודעות)</string>
     <string name="ampm">זמן בפורמט של 12 שעות</string>
@@ -48,10 +48,10 @@
     <string name="strokebuttons_sum">Stroke around some buttons on WhatsApp</string>
     <string name="outlinedicons">סמלים מתארים</string>
     <string name="outlinedicons_sum">סגנון חדש של סמלים מתארים</string>
-    <string name="freezelastseen">להקפיא נראה לאחרונה</string>
-    <string name="freezelastseen_sum">הזמן האחרון שנראה לך יוקפא\n(זהירות: לא תראה עדכוני נוכחות ממשתמשים אחרים, כמו הקלדה, הקלטה, מקוון)</string>
-    <string name="removeforwardlimit_sum">הסר את מגבלת העברה עבור 5 צ\'אטים (רגיל)\n(הערה: השתמש בזהירות, ייתכן שתחסם בגלל ספאם)</string>
-    <string name="removeforwardlimit">הסר את תווית ההעברה</string>
+    <string name="freezelastseen">הקפאת נראה לאחרונה</string>
+    <string name="freezelastseen_sum">הזמן שבו נראית לאחרונה יוקפא\n(שים לב: לא תראה את \'\'מקליד\'\', \'\'מקליט\'\' \'\'מחובר\'\' ונראה לאחרונה של המשתמשים האחרים, עד שתבטל פונקציה זו)</string>
+    <string name="removeforwardlimit_sum">בטל את המגבלה שלא מאפשרת העברת הודעה ליותר מ5 צ\'אטים \n(הערה: השתמש בזהירות, ייתכן שתחסם בגלל ספאם)</string>
+    <string name="removeforwardlimit">בטל מגבלת העברת הודעות</string>
     <string name="showname">הצג שם</string>
     <string name="showname_sum">הצג את שם הפרופיל שלך בחלק העליון של מסך הבית, במקום \"WhatsApp\"</string>
     <string name="showbio_sum">הצג את האודות שלך בחלק התחתון של מסך הבית</string>
@@ -63,10 +63,11 @@
     <string name="imagequality_sum">שלח תמונות באיכות HD, כברירת מחדל</string>
     <string name="downloadviewonce">הורדת המדיה של הודעה חד פעמית</string>
     <string name="downloadviewonce_sum">הצג כפתור להורדת מדיה של הודעה חד פעמית</string>
-    <string name="separate_groups">קבוצות נפרדות</string>
-    <string name="separate_groups_sum">הפרד את הצ\'אטים שלך לפי: קבוצות, צ\'אטים פרטיים, סטטוס, שיחות, קהילות</string>
+    <string name="separate_groups">הפרדת צ\'אטים וקבוצות</string>
+    <string name="separate_groups_sum">הפרד את הצ\'אטים שלך לפי הסדר הזה: צ\'אטים פרטיים, עדכונים, קהילות, קבוצות, שיחות</string>
     <string name="blueonreply">שלח וי כחול אחרי תשובה</string>
-    <string name="blueonreply_sum">שולח סימון כחול לאחר מענה להודעה\n(הערה: חייב להיות \"הסתר וי כחול\" פעיל)</string>
+    <string name="blueonreply_sum">שולח סימון כחול רק לאחר מענה להודעה\n(ה
+\"הסתר וי כחול\" חייב להיות פעיל)</string>
     <string name="hide_archived_chat">הסתר צ\'אטים בארכיון</string>
     <string name="hide_archived_chat_sum">הסתר צ\'אטים בארכיון, לגישה לחץ 5 פעמים או החזק את הכותרת \"ווצאפ\" במסך הבית</string>
     <string name="hide_once_view_seen">הסתר View Once ואודיו נראה</string>
@@ -79,9 +80,9 @@
     <string name="show_dnd_button_sum">הצג כפתור מצב טיסה במסך הבית</string>
     <string name="dev4mod">Dev4Mod (תורם)</string>
     <string name="disable_pinned_limit">השבת את מגבלת הצ\'אטים המוצמדים</string>
-    <string name="disable_pinned_limit_sum">השבת מגבלה של 3 צ\'אטים מוצמדים</string>
-    <string name="delete_for_everyone_all_messages">אפשר \"מחק לכולם\" בכל ההודעות</string>
-    <string name="delete_for_everyone_all_messages_sum">הסר את מגבלת 24 השעות למחיקת ההודעה לכולם</string>
+    <string name="disable_pinned_limit_sum">אפשר לנעוץ צ\'אטים ללא הגבלה</string>
+    <string name="delete_for_everyone_all_messages">אפשר תמיד \"מחק לכולם\"</string>
+    <string name="delete_for_everyone_all_messages_sum">מחק הודעה למשתמשים אחרים גם אחרי שעברו 24 שעות משליחת ההודעה</string>
     <string name="antirevoke_buttons_desable">מושבת</string>
     <string name="antirevoke_buttons_show_text">הצג טקסט</string>
     <string name="antirevoke_buttons_show_icon">הצג אייקון</string>
@@ -89,12 +90,12 @@
     <string name="call_blocker_buttons_all_block">חסום את כל השיחות</string>
     <string name="call_blocker_buttons_only_unknown_block">חסום רק מספרים לא שמורים</string>
     <string name="show_edited_message_history">הצג היסטוריית הודעות ערוכה</string>
-    <string name="show_edited_message_history_sum">הצג היסטוריית הודעות ערוכה בעת לחיצה על \"ערוך\" בהודעה</string>
-    <string name="dnd_message">כאשר מצב \'נא לא להפריע\' מופעל, לא תוכל לשלוח או לקבל הודעות</string>
+    <string name="show_edited_message_history_sum">הצג היסטוריית הודעה שנערכה</string>
+    <string name="dnd_message">כאשר מצב טיסה מופעל, לא תוכל לשלוח או לקבל הודעות</string>
     <string name="dnd_mode_title">מצב טיסה</string>
     <string name="activate">הפעלה</string>
     <string name="cancel">ביטול</string>
-    <string name="edited_history">היסטוריה ערוכה</string>
+    <string name="edited_history">היסטוריית העריכה</string>
     <string name="message_original">הודעה מקורית</string>
     <string name="new_chat">צ\'אט חדש</string>
     <string name="number_with_country_code">מספר עם קוד מדינה</string>
@@ -112,20 +113,20 @@
     <string name="igstatus_on_home_screen">אפשר סטטוס במסך הבית (כמו אינסטגרם)</string>
     <string name="igstatus_on_home_screen_sum">הצג סטטוס בסגנון אינסטגרם במסך הבית</string>
     <string name="chatfilter_no_search">אין חיפוש</string>
-    <string name="chatfilter_search_icon">סמל חיפוש</string>
+    <string name="chatfilter_search_icon">אייקון חיפוש</string>
     <string name="chatfilter_search_bar">שורת החיפוש החדשה</string>
-    <string name="remove_channel_recomendations">הסר את המלצות הערוץ</string>
-    <string name="remove_channel_recomendations_sum">הסר את המלצות הערוץ מכרטיסיית הסטטוס</string>
+    <string name="remove_channel_recomendations">הסר המלצות לערוצים</string>
+    <string name="remove_channel_recomendations_sum">הסר המלצות לערוצים מכרטיסיית הסטטוס</string>
     <string name="remove_see_more_button">הסר את כפתור \"ראה עוד\"</string>
     <string name="remove_see_more_button_">השבת את הכפתור \'\'קרא עוד\'\' והצג את כל ההודעה</string>
     <string name="tools">כלים</string>
     <string name="title_home">בית</string>
     <string name="privacy">פרטיות</string>
-    <string name="module_enabled">מודול מופעל</string>
+    <string name="module_enabled">המודול מופעל</string>
     <string name="version_s">גרסת %s</string>
-    <string name="module_disabled">מודול מושבת</string>
-    <string name="whatsapp_in_background">וואטסאפ מופעל ברקע</string>
-    <string name="whatsapp_is_not_running_or_has_not_been_activated_in_lsposed">ווצאפ לא פועל או לא הופעל ב-Lsposed</string>
+    <string name="module_disabled">המודול מושבת</string>
+    <string name="whatsapp_in_background">WhatsApp מופעל ברקע</string>
+    <string name="whatsapp_is_not_running_or_has_not_been_activated_in_lsposed">WhatsApp לא פועל או לא הופעל ב-Lsposed</string>
     <string name="business_is_not_running_or_has_not_been_activated_in_lsposed">ווצאפ ביזנס אינו פועל או לא הופעל ב-Lsposed</string>
     <string name="restart_wpp">יש צורך להפעיל מחדש את ווצאפ כדי שהשינויים ב-Wa Enhancer ייכנסו לתוקף.\n\nהאם ברצונך להפעיל מחדש?</string>
     <string name="version_s_not_listed">גרסת %s לא מופיעה בגרסאות הנתמכות!\nאנא השתמש בגרסת ווצאפ נתמכת!</string>
@@ -137,8 +138,8 @@
     <string name="sending_read_blue_tick">שולח סימון כחול (סמן כנקרא/נצפה)</string>
     <string name="enable_facebook_style_for_status">אפשר סגנון פייסבוק לסטטוס</string>
     <string name="enable_facebook_style_for_status_sum">שנה את סגנון הסטטוס המקורי לסגנון פייסבוק</string>
-    <string name="send">נשלח</string>
-    <string name="do_you_want_to_send_sticker">האם ברצונך לשלוח את מדבקה זו?</string>
+    <string name="send">כן</string>
+    <string name="do_you_want_to_send_sticker">האם ברצונך לשלוח את המדבקה?</string>
     <string name="send_sticker">שליחת הסטיקר</string>
     <string name="enable_filter_chats">אפשר סינון צ\'אטים במסך הבית</string>
     <string name="enable_filter_chats_sum">הצג אפשרויות לסינון צ\'אטים עבור קבוצות, אנשי קשר והודעות שלא נראו</string>
@@ -148,7 +149,7 @@
     <string name="change_bubble_colors">שנה את צבעי ההודעה</string>
     <string name="change_blubble_color_sum">שנה את צבעי ההודעות במסך השיחה</string>
     <string name="default_color">הגדר את צבע #00000000 לצבע ברירת מחדל</string>
-    <string name="enable_confirmation_to_send_sticker">אישור לפני שליחת מדבקה</string>
+    <string name="enable_confirmation_to_send_sticker">בקש אישור לפני שליחת מדבקה</string>
     <string name="enable_confirmation_to_send_sticker_sum">הצג הודעה אזהרה לפני שליחת המדבקה</string>
     <string name="local_download">הורדה מקומית</string>
     <string name="increase_video_size_limit">הגדל את מגבלת גודל הווידאו</string>
@@ -166,7 +167,7 @@
     <string name="whatsapp_call">שיחת ווצאפ</string>
     <string name="home_screen">מסך הבית</string>
     <string name="selection_of_call_type">אפשר בחירת סוג שיחה</string>
-    <string name="selection_of_call_type_sum">הצג אפשרות לבחור אם ברצונך להתקשר בטלפון או בשיחת ווצאפ</string>
+    <string name="selection_of_call_type_sum">הצג אפשרות לבחור אם ברצונך להתקשר בשיחת טלפון או בשיחת ווצאפ</string>
     <string name="yes">כן</string>
     <string name="no">לא</string>
     <string name="device_model">דגם המכשיר</string>
@@ -174,7 +175,7 @@
     <string name="disable_metaai">השבת את פונקציות Meta Ai</string>
     <string name="disable_metaai_sum">השבת את הMeta AI רק עבור אלה שכבר מופעל להם</string>
     <string name="list_business">רשימת הגרסאות שנתמכת בווצאפ ביזנס:</string>
-    <string name="list_wpp">רשימת הגרסאות שנתמכת בווצאפ:</string>
+    <string name="list_wpp">רשימת גרסאות הWhatsApp הנתמכות:</string>
     <string name="title_image">תמונה</string>
     <string name="title_video">וידאו</string>
     <string name="enable_new_chat_button">אפשר לחצן צ\'אט חדש</string>
@@ -211,9 +212,9 @@
     <string name="remove_limit_edit_message">הסר הודעה של מגבלת עריכה</string>
     <string name="remove_limit_edit_message_sum">מסיר את מגבלת ה15 דקות לעריכת ההודעה</string>
     <string name="disable_audio_sensor">השבת את חיישן השמע</string>
-    <string name="disable_audio_sensor_sum">השבת את הרמקול באמצעות חיישן הקרבה</string>
+    <string name="disable_audio_sensor_sum">השבת את המעבר לרמקול שמתבצע בגלל חיישן הקרבה</string>
     <string name="show_admin_group_icon">הצג את אייקון הניהול</string>
-    <string name="show_admin_group_icon_sum">הצג סמל ניהול לצד שם המשתמש שהוא מנהל הקבוצה</string>
+    <string name="show_admin_group_icon_sum">הצג סמל ניהול אצל משתמש שהוא מנהל הקבוצה</string>
     <string name="toolbar_transparency">שקיפות סרגל הכלים</string>
     <string name="navigation_transparency">שקיפות ניווט</string>
     <string name="show_online_last_seen_in_conversation_list">הצג מחובר/ת או נראה לאחרונה במסך הבית</string>
@@ -226,7 +227,7 @@
     <string name="filter_items_by_id">סנן פריטים לפי id</string>
     <string name="filter_items_by_id_sum">סנן פריטים בווצאפ לפי id</string>
     <string name="custom_theme_css">ערכת נושא מותאמת אישית CSS</string>
-    <string name="custom_theme_css_sum">התאם אישית את הווצאפ שלך באמצעות סגנונות CSS</string>
+    <string name="custom_theme_css_sum">התאם אישית את הווצאפ שלך באמצעות CSS</string>
     <string name="antidisappearing">שמור לצמיתות הודעות זמניות</string>
     <string name="antidisappearing_sum">הודעות זמניות לא יימחקו אצלך</string>
     <string name="title_audio">שמע</string>
@@ -249,14 +250,14 @@
     <string name="call_type_buttons_ended">השיחה לא נענתה</string>
     <string name="enable_tasker_automation">אפשר Tasker Automation</string>
     <string name="enable_tasker_automation_sum">הפעל את האפשרות לקבל ולשלוח הודעות ב-Tasker</string>
-    <string name="disable_auto_status">השבת את הדילוג האוטומטי בסטטוס</string>
-    <string name="disable_auto_status_sum">מונע מהסטטוס הנוכחי להתקדם אוטומטית למצב הבא.</string>
-    <string name="toast_on_viewed_status">הצג התראות קופצות על הצופים בסטטוס שלך</string>
+    <string name="disable_auto_status">השבת את ההמשך האוטומטי בין הסטטוסים</string>
+    <string name="disable_auto_status_sum">מונע התקדמות אוטומטית לסטטוס הבא.</string>
+    <string name="toast_on_viewed_status">הצג התראה קופצת על כל צפייה בסטטוס שלך</string>
     <string name="toast_on_viewed_status_sum">מציג התראה אם מישהו צופה בסטטוס שלך</string>
-    <string name="toast_on_viewed_message">הצג התראה קופצת על מי שראה את ההודעה שלך</string>
+    <string name="toast_on_viewed_message">הצג התראה קופצת כשמשתמש צופה בהודעה ששלחת לו</string>
     <string name="toast_on_viewed_message_sum">מציג התראה אם מישהו צופה בהודעה שלך</string>
     <string name="textonahora_sum">הצג התראה קופצת ליד כל חותמת זמן באפליקציית ווצאפ</string>
-    <string name="delete_for_me">מחיקה (עבורי)</string>
+    <string name="delete_for_me">מחק את הסטטוס (עבורי)</string>
     <string name="send_audio_as_voice_audio_note">שלח אודיו כהערת קול/שמע</string>
     <string name="send_audio_as_voice_audio_note_sum">שולח תמיד מדיה/העברה של אודיו כהערה קולית או הערת אודיו</string>
     <string name="voice_note_speed">מהירות הודעה קולית</string>
@@ -270,7 +271,7 @@
     <string name="audio_note">הערת שמע</string>
     <string name="voice_note">הודעה קולית</string>
     <string name="reset_settings">אפס את ההגדרות</string>
-    <string name="configs_reset">ההגדרות אופסו</string>
+    <string name="configs_reset">ההגדרות אופסו בהצלחה</string>
     <string name="hide_locked_chats">הסתר צ\'אטים נעולים</string>
     <string name="hide_locked_chats_sum">הסתר צ\'אטים בארכיון, הצג אותם על ידי החזקת כותרת ווצאפ במסך הבית</string>
     <string name="msg_text_status_not_downloadable">סטטוס טקסט אינו ניתן להורדה!</string>
@@ -283,7 +284,7 @@
     <string name="viewed_your_status">%s צפו בסטטוס שלך</string>
     <string name="viewed_your_message">%s צפו בהודעה שלך</string>
     <string name="old_statuses">סגנון סטטוס ישן</string>
-    <string name="old_statuses_sum">שנה לדף הסטטוסים הישן בצורה אנכית וללא ערוצים (הערה: עלול לגרום לפיגור בממשק)</string>
+    <string name="old_statuses_sum">שנה לדף הסטטוסים הישן בצורה אנכית וללא ערוצים (שים לב: עלול לגרום לבעיות בממשק)</string>
     <string name="force_english">כפה אנגלית</string>
     <string name="select_status_type">בחר סוג סטטוס</string>
     <string name="open_camera">פתח מצלמה</string>
@@ -295,7 +296,8 @@
     <string name="go_to_github">לך לאתר GitHub</string>
     <string name="donate">תרום</string>
     <string name="support">תמיכה</string>
-    <string name="support_desc">אם אתה נתקל בבעיות כלשהן או יש לך שאלות לגבי Wa Enhancer, אנא בקר בטלגרם.</string>
+    <string name="support_desc">אם אתה נתקל בבעיות כלשהן או יש לך שאלות לגבי Wa Enhancer, אנא בקר בטלגרם.
+תורגם לעברית ע\'\'י מושון ואורי.</string>
     <string name="license">רישיון</string>
     <string name="license_desc">פרויקט זה מורשה תחת רישיון GNU - עיין בקובץ LICENSE לפרטים.\n\nהערה: אנא השתמש ב-Wa Enhancer באחריות ובהתאם לתנאים וההגבלות של האפליקציות שאתה משנה.  שימוש לרעה בכלי זה עלול להוביל לתוצאות משפטיות.</string>
     <string name="select_a_color">בחר צבע</string>
@@ -303,5 +305,11 @@
     <string name="custom_filters_sum">הפעל פילטר לפי מזהה ו-CSS מותאם אישית</string>
     <string name="click_times">לחץ 5 פעמים על הכותרת של ווצאפ</string>
     <string name="hold_title">לחץ ארוך על כותרת ה Whatsapp במסך הבית</string>
-    <string name="read_all_mark_as_read">Read all (mark as read)</string>
+    <string name="read_all_mark_as_read">קרא הכל (סמן כנקרא)</string>
+    <string name="enable_copy_status">Enable Copy Status</string>
+    <string name="enable_copy_status_sum">Activates the possibility of copying the description and caption of statuses by holding on them</string>
+    <string name="animation_emojis">Animation Emojis</string>
+    <string name="animation_emojis_sum">Activate animated emojis (This creates large emojis in conversations)</string>
+    <string name="vertical_status">Vertical Status</string>
+    <string name="vertical_status_sum">Show status in vertical mode on Updates tab</string>
 </resources>

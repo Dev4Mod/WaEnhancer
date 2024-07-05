@@ -276,7 +276,7 @@
     <string name="msg_text_status_not_downloadable">Текстовый статус недоступен для загрузки!</string>
     <string name="failed_save_directory">Не удается сохранить файлы в этой папке, выберите другое расположение</string>
     <string name="unable_to_read_this_file">Не удается прочитать этот файл</string>
-    <string name="disabled">Отключённый</string>
+    <string name="disabled">Отключено</string>
     <string name="share_as_status">Отправить как \"Статус\"</string>
     <string name="audio_transcription">Аудио транскрипция</string>
     <string name="audio_transcription_sum">Включить встроенный перевод аудио сообщения в текст (проверьте параметры транскрипции в меню подключения)</string>
@@ -303,5 +303,11 @@
     <string name="custom_filters_sum">Активировать фильтры по ID и пользовательским CSS</string>
     <string name="click_times">Нажмите 5 раз на названию WhatsApp</string>
     <string name="hold_title">Удерживайте на заголовке WhatsApp</string>
-    <string name="read_all_mark_as_read">Read all (mark as read)</string>
+    <string name="read_all_mark_as_read">Читать все (отметить как прочитанные)</string>
+    <string name="enable_copy_status">Enable Copy Status</string>
+    <string name="enable_copy_status_sum">Activates the possibility of copying the description and caption of statuses by holding on them</string>
+    <string name="animation_emojis">Animation Emojis</string>
+    <string name="animation_emojis_sum">Activate animated emojis (This creates large emojis in conversations)</string>
+    <string name="vertical_status">Vertical Status</string>
+    <string name="vertical_status_sum">Show status in vertical mode on Updates tab</string>
 </resources>

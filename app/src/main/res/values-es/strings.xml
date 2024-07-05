@@ -304,4 +304,10 @@
     <string name="click_times">Haz clic 5 veces en el título de WhatsApp</string>
     <string name="hold_title">Mantenga presionado el título de WhatsApp</string>
     <string name="read_all_mark_as_read">Leer todo (marcar como leído)</string>
+    <string name="enable_copy_status">Enable Copy Status</string>
+    <string name="enable_copy_status_sum">Activates the possibility of copying the description and caption of statuses by holding on them</string>
+    <string name="animation_emojis">Animation Emojis</string>
+    <string name="animation_emojis_sum">Activate animated emojis (This creates large emojis in conversations)</string>
+    <string name="vertical_status">Vertical Status</string>
+    <string name="vertical_status_sum">Show status in vertical mode on Updates tab</string>
 </resources>

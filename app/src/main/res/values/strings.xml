@@ -311,4 +311,6 @@
     <string name="enable_copy_status_sum">Activates the possibility of copying the description and caption of statuses by holding on them</string>
     <string name="animation_emojis">Animation Emojis</string>
     <string name="animation_emojis_sum">Activate animated emojis (This creates large emojis in conversations)</string>
+    <string name="vertical_status">Vertical Status</string>
+    <string name="vertical_status_sum">Show status in vertical mode on Updates tab</string>
 </resources>
