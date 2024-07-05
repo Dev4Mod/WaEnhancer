@@ -136,6 +136,19 @@ public class Utils {
         return toValidFileName(contactName) + "_" + number + "_" + new SimpleDateFormat("yyyyMMdd-HHmmss", Locale.getDefault()).format(new Date()) + "." + fileFormat;
     }
 
+    public static Object getDefaultValue(Class<?> paramType) {
+        if (paramType == int.class || paramType == Integer.class) {
+            return 0;
+        } else if (paramType == long.class || paramType == Long.class) {
+            return 0L;
+        } else if (paramType == double.class || paramType == Double.class) {
+            return 0.0;
+        } else if (paramType == boolean.class || paramType == Boolean.class) {
+            return false;
+        }
+        return null;
+    }
+
     @NonNull
     public static String toValidFileName(@NonNull String input) {
         return input.replaceAll("[:\\\\/*\"?|<>']", " ");

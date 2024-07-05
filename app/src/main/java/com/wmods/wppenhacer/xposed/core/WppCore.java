@@ -62,11 +62,8 @@ public class WppCore {
                 var newObject = new Object[senderMethod.getParameterCount()];
                 for (int i = 0; i < newObject.length; i++) {
                     var param = senderMethod.getParameterTypes()[i];
-                    if (param.isPrimitive()) {
-                        newObject[i] = 0;
-                    }
+                    newObject[i] = Utils.getDefaultValue(param);
                 }
-
                 var index = ReflectionUtils.findIndexOfType(senderMethod.getParameterTypes(), String.class);
                 newObject[index] = message;
                 var index2 = ReflectionUtils.findIndexOfType(senderMethod.getParameterTypes(), List.class);

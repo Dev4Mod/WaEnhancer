@@ -1,8 +1,12 @@
 [CHANNELS]
 * Fix bug in Hide Recommendad Channels
+* Remove create channels on menu
 
 [COPY STATUS/STORIES]
 * Added button to disable and activate
 
 [ANIMATION OF EMOJIS]
 * Added button to disable or activate
+
+[TASKER]
+* Fixed bug in the send message function
