@@ -1,3 +1,13 @@
 [WA ENHANCER]
-* Added Hebrew translation
+* Fixed Hebrew translation
 * updated translations
+
+[STATUS]
+* New function to show vertical status with preview in updates tab
+
+[CHANNELS]
+* Fix bug in Hide Recommendad Channels
+
+[CUSTOM THEME]
+* Fixed color bug in message counter
+
