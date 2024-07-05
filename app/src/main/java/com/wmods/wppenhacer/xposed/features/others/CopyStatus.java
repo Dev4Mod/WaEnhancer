@@ -22,6 +22,9 @@ public class CopyStatus extends Feature {
 
     @Override
     public void doHook() throws Throwable {
+
+        if (!prefs.getBoolean("copystatus", false)) return;
+
         var viewButtonMethod = Unobfuscator.loadBlueOnReplayViewButtonMethod(classLoader);
         logDebug(Unobfuscator.getMethodDescriptor(viewButtonMethod));
 

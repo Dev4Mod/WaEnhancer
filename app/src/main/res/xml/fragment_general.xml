@@ -209,6 +209,11 @@
             app:title="@string/disable_auto_status" />
 
         <rikka.material.preference.MaterialSwitchPreference
+            app:key="copystatus"
+            app:summary="@string/enable_copy_status_sum"
+            app:title="@string/enable_copy_status" />
+
+        <rikka.material.preference.MaterialSwitchPreference
             app:key="toast_viewed_status"
             app:summary="@string/toast_on_viewed_status_sum"
             app:title="@string/toast_on_viewed_status" />
