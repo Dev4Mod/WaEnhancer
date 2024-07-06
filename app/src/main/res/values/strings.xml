@@ -313,4 +313,6 @@
     <string name="animation_emojis_sum">Activate animated emojis (This creates large emojis in conversations)</string>
     <string name="vertical_status">Vertical Status</string>
     <string name="vertical_status_sum">Show status in vertical mode on Updates tab</string>
+    <string name="disable_version_check">Disable Version Check</string>
+    <string name="disable_version_check_sum">Disables the supported version check of WhatsApp (Bugs may occur in unsupported versions that will not be fixed soon)</string>
 </resources>

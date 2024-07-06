@@ -113,7 +113,7 @@ public class FeatureLoader {
                     SharedPreferencesWrapper.hookInit(mApp.getClassLoader());
                     UnobfuscatorCache.init(mApp, pref);
                     WppCore.Initialize(loader);
-                    if (!supportedVersions.contains(packageInfo.versionName)) {
+                    if (!supportedVersions.contains(packageInfo.versionName) && !pref.getBoolean("bypass_version_check", false)) {
                         throw new Exception("Unsupported version: " + packageInfo.versionName);
                     }
                     DesignUtils.setPrefs(pref);
