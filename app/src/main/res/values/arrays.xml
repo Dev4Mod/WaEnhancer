@@ -115,11 +115,6 @@
         <item>2</item>
     </string-array>
     <string-array name="supported_versions_wpp">
-        <item>2.24.10.74</item>
-        <item>2.24.10.75</item>
-        <item>2.24.10.85</item>
-        <item>2.24.11.79</item>
-        <item>2.24.11.80</item>
         <item>2.24.12.71</item>
         <item>2.24.12.73</item>
         <item>2.24.12.78</item>
@@ -134,6 +129,8 @@
     <string-array name="supported_versions_business">
         <item>2.24.11.83</item>
         <item>2.24.12.78</item>
+        <item>2.24.13.77</item>
+        <item>2.24.13.78</item>
     </string-array>
     <string-array name="image_picker">
         <item>image/*</item>
