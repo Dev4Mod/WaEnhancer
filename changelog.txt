@@ -1,8 +1,9 @@
-[WA ENHANCER]
-* Added function to disable version checking (This means you can use unsupported versions of WhatsApp, but use with caution, in case of bugs do not report errors)
+[THEME MANAGER]
+* Added a CSS theme manager, now you can import, export and create your themes in one place
 
-[WHATSAPP 2.24.13.71+]
-* Enable Sticker Suggestions (It's still not working well, maybe it's better in WhatsApp Beta) (WhatsApp -> Settings -> Conversations)
-* Enable Dialer in Call Fragment (WhatsApp -> Calls)
-* Enable Privacy Checkup (WhatsApp -> Settings -> Privacy)
+[DOT ONLINE/LAST SEEN]
+* Fixed a bug that caused incorrect statuses to be displayed for contacts
+
+[TASKER]
+* Fixed bug that caused status texts to appear as if they were messages
 
