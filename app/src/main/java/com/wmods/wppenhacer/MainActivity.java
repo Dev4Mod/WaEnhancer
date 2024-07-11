@@ -17,7 +17,7 @@ import androidx.fragment.app.Fragment;
 import androidx.viewpager2.widget.ViewPager2;
 
 import com.google.android.material.navigation.NavigationBarView;
-import com.wmods.wppenhacer.activities.TextEditorActivity;
+import com.wmods.wppenhacer.activities.AboutActivity;
 import com.wmods.wppenhacer.adapter.MainPagerAdapter;
 import com.wmods.wppenhacer.databinding.ActivityMainBinding;
 
@@ -117,7 +117,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         if (item.getItemId() == R.id.menu_about) {
-            startActivity(new Intent(this, TextEditorActivity.class));
+            startActivity(new Intent(this, AboutActivity.class));
             return true;
         }
         return super.onOptionsItemSelected(item);
