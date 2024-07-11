@@ -9,4 +9,3 @@
 
 [WA ENHANCER]
 * Fixed bug in About Activity
-* Updated translations
