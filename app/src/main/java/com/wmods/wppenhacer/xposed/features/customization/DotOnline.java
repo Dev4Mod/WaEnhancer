@@ -5,8 +5,6 @@ import android.content.Context;
 import android.graphics.Color;
 import android.graphics.drawable.ShapeDrawable;
 import android.graphics.drawable.shapes.OvalShape;
-import android.os.Handler;
-import android.os.Looper;
 import android.text.TextUtils;
 import android.view.Gravity;
 import android.view.View;
@@ -153,26 +151,20 @@ public class DotOnline extends Feature {
                 var method = ReflectionUtils.findMethodUsingFilter(sendPresenceMethod.getDeclaringClass(), method1 -> method1.getParameterCount() == 2 && JidClass.isAssignableFrom(method1.getParameterTypes()[0]) && method1.getParameterTypes()[1] == sendPresenceMethod.getDeclaringClass());
                 var instance = ReflectionUtils.callMethod(method, null, jidObject, mInstancePresence); //XposedHelpers.newInstance(clazz, new Object[]{null, null});
                 sendPresenceMethod.invoke(null, jidObject, instance, mInstancePresence);
-                new Handler(Looper.getMainLooper()).postDelayed(() -> {
-                    try {
-                        var status = (String) getStatusUser.invoke(mStatusUser, object);
-                        var currentPosition = (int) ReflectionUtils.callMethod(getAdapterPositionMethod, viewHolder);
-                        if (currentPosition != position) return;
-                        if (!TextUtils.isEmpty(status) && status.trim().equals(UnobfuscatorCache.getInstance().getString("online"))) {
-                            if (csDot != null) {
-                                csDot.setVisibility(View.VISIBLE);
-                            }
-                        }
-                        if (!TextUtils.isEmpty(status)) {
-                            if (lastSeenText != null) {
-                                lastSeenText.setText(status);
-                                lastSeenText.setVisibility(View.VISIBLE);
-                            }
-                        }
-                    } catch (Exception e) {
-                        logDebug(e);
+                var status = (String) getStatusUser.invoke(mStatusUser, object);
+                var currentPosition = (int) ReflectionUtils.callMethod(getAdapterPositionMethod, viewHolder);
+                if (currentPosition != position) return;
+                if (!TextUtils.isEmpty(status) && status.trim().equals(UnobfuscatorCache.getInstance().getString("online"))) {
+                    if (csDot != null) {
+                        csDot.setVisibility(View.VISIBLE);
                     }
-                }, 2000);
+                }
+                if (!TextUtils.isEmpty(status)) {
+                    if (lastSeenText != null) {
+                        lastSeenText.setText(status);
+                        lastSeenText.setVisibility(View.VISIBLE);
+                    }
+                }
             }
         });
     }
