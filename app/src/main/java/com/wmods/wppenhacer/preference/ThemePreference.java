@@ -1,8 +1,9 @@
 package com.wmods.wppenhacer.preference;
 
-import android.app.AlertDialog;
 import android.content.Context;
 import android.content.Intent;
+import android.net.Uri;
+import android.os.Build;
 import android.os.Environment;
 import android.text.TextUtils;
 import android.util.AttributeSet;
@@ -13,24 +14,30 @@ import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
+import androidx.annotation.RequiresApi;
 import androidx.core.content.ContextCompat;
 import androidx.preference.Preference;
 import androidx.preference.PreferenceManager;
 
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
+import com.wmods.wppenhacer.FilePicker;
 import com.wmods.wppenhacer.R;
 import com.wmods.wppenhacer.activities.TextEditorActivity;
+import com.wmods.wppenhacer.xposed.utils.Utils;
 
 import java.io.File;
 import java.nio.charset.Charset;
+import java.nio.file.Files;
+import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
 
 import kotlin.io.FilesKt;
 
-public class ThemePreference extends Preference {
+public class ThemePreference extends Preference implements FilePicker.OnUriPickedListener {
 
 
     public static File rootDirectory = new File(Environment.getExternalStorageDirectory(), "Download/WaEnhancer/themes");
@@ -44,10 +51,33 @@ public class ThemePreference extends Preference {
     @Override
     protected void onClick() {
         super.onClick();
-        showFolderDialog();
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            if (Environment.isExternalStorageManager()) {
+                showThemeDialog();
+            } else {
+                showAlertPermission();
+            }
+        } else {
+            showThemeDialog();
+        }
     }
 
-    private void showFolderDialog() {
+    @RequiresApi(api = Build.VERSION_CODES.R)
+    private void showAlertPermission() {
+        MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(getContext());
+        builder.setTitle(R.string.storage_permission);
+        builder.setMessage(R.string.permission_storage);
+        builder.setPositiveButton(R.string.allow, (dialog, which) -> {
+            Intent intent = new Intent(android.provider.Settings.ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION);
+            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            intent.setData(Uri.fromParts("package", getContext().getPackageName(), null));
+            getContext().startActivity(intent);
+        });
+        builder.setNegativeButton(R.string.deny, (dialog, which) -> dialog.dismiss());
+        builder.show();
+    }
+
+    private void showThemeDialog() {
         final Context context = getContext();
         List<String> folders = getFolders();
 
@@ -58,9 +88,14 @@ public class ThemePreference extends Preference {
         builder.setView(dialogView);
 
         LinearLayout folderListContainer = dialogView.findViewById(R.id.folder_list_container);
-        Button addButton = dialogView.findViewById(R.id.add_button);
+        Button newTheme = dialogView.findViewById(R.id.create_theme_button);
+        newTheme.setOnClickListener(v -> showCreateNewThemeDialog());
 
-        addButton.setOnClickListener(v -> showCreateNewFolderDialog());
+        Button importTheme = dialogView.findViewById(R.id.import_theme_button);
+        importTheme.setOnClickListener(v -> {
+            FilePicker.setOnUriPickedListener(this);
+            FilePicker.fileCapture.launch(new String[]{"application/zip"});
+        });
 
         for (String folder : folders) {
             View itemView = LayoutInflater.from(context).inflate(R.layout.item_folder, null, false);
@@ -89,8 +124,6 @@ public class ThemePreference extends Preference {
             });
             folderListContainer.addView(itemView);
         }
-
-        builder.setNegativeButton("Cancel", null);
         mainDialog = builder.show();
     }
 
@@ -107,36 +140,61 @@ public class ThemePreference extends Preference {
         return folderNames;
     }
 
-    private void showCreateNewFolderDialog() {
+    private void showCreateNewThemeDialog() {
         final Context context = getContext();
         final EditText input = new EditText(context);
-        new AlertDialog.Builder(context)
-                .setTitle("New Theme Name")
+        new MaterialAlertDialogBuilder(context)
+                .setTitle(R.string.new_theme_name)
                 .setView(input)
-                .setPositiveButton("Create", (dialog, whichButton) -> {
+                .setPositiveButton(R.string.create, (dialog, whichButton) -> {
                     String folderName = input.getText().toString();
                     if (!TextUtils.isEmpty(folderName)) {
                         createNewFolder(folderName);
                     }
                 })
-                .setNegativeButton("Cancel", null)
+                .setNegativeButton(R.string.cancel, null)
                 .show();
     }
 
     private void createNewFolder(String folderName) {
         File rootDirectory = new File(Environment.getExternalStorageDirectory(), "Download/WaEnhancer/themes");
         File newFolder = new File(rootDirectory, folderName);
-
         if (!newFolder.exists()) {
             if (newFolder.mkdirs()) {
-                Toast.makeText(getContext(), "Folder created successfully", Toast.LENGTH_SHORT).show();
                 mainDialog.dismiss();
-                showFolderDialog();
-            } else {
-                Toast.makeText(getContext(), "Failed to create folder", Toast.LENGTH_SHORT).show();
+                showThemeDialog();
             }
-        } else {
-            Toast.makeText(getContext(), "Folder already exists", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    @Override
+    public void onUriPicked(Uri uri) {
+        if (uri == null) return;
+        try (var inputStream = getContext().getContentResolver().openInputStream(uri)) {
+            var zipInputStream = new ZipInputStream(inputStream);
+            ZipEntry zipEntry = zipInputStream.getNextEntry();
+            if (zipEntry == null) {
+                Utils.showToast(getContext().getString(R.string.invalid_zip_file), 1);
+                return;
+            }
+            do {
+                var name = zipEntry.getName();
+                if (!name.contains("/")) {
+                    continue;
+                }
+                var folderName = name.substring(0, name.lastIndexOf('/'));
+                File rootDirectory = new File(Environment.getExternalStorageDirectory(), "Download/WaEnhancer/themes");
+                File newFolder = new File(rootDirectory, folderName);
+                if (!newFolder.exists()) newFolder.mkdirs();
+                var file = new File(rootDirectory, name);
+                Files.copy(zipInputStream, file.toPath(), StandardCopyOption.REPLACE_EXISTING);
+                zipEntry = zipInputStream.getNextEntry();
+            } while (zipEntry != null);
+            Utils.showToast(getContext().getString(R.string.theme_imported_successfully), 1);
+            mainDialog.dismiss();
+            showThemeDialog();
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 }

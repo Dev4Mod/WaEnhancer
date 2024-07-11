@@ -5,4 +5,6 @@
 
     <color name="ic_launcher_foreground">#F06292</color>
     <color name="ic_launcher_background">#E1F5FE</color>
+
+    <color name="primary_background">@color/background_dark</color>
 </resources>

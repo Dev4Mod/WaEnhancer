@@ -11,4 +11,15 @@
     <color name="material_state_green">@color/material_green_A400</color>
     <color name="material_state_red">@color/material_red_A400</color>
 
+    <color name="codeview_background">#282C34</color>
+    <color name="codeview_selector">#61aeee</color>
+    <color name="codeview_units">#d19a66</color>
+    <color name="codeview_important">#d19a66</color>
+    <color name="codeview_properties">#56b6c2</color>
+    <color name="codeview_text">#FFFFFF</color>
+    <color name="codeview_css_properties">#cc7832</color>
+    <color name="codeview_nth_child">#e0c46c</color>
+    <color name="primary_background">@color/background_light</color>
+    <color name="codeview_strings">#24D52B</color>
+
 </resources>

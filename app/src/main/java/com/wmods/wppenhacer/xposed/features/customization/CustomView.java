@@ -28,6 +28,7 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 
+import com.wmods.wppenhacer.preference.ThemePreference;
 import com.wmods.wppenhacer.utils.IColors;
 import com.wmods.wppenhacer.xposed.core.Feature;
 import com.wmods.wppenhacer.xposed.utils.ReflectionUtils;
@@ -68,6 +69,7 @@ public class CustomView extends Feature {
     private DrawableCache cacheImages;
     private HashMap<String, Drawable> chacheDrawables;
     private ExecutorService mThreadService;
+    private static File themeDir;
 
     public CustomView(@NonNull ClassLoader loader, @NonNull XSharedPreferences preferences) {
         super(loader, preferences);
@@ -76,7 +78,16 @@ public class CustomView extends Feature {
     @Override
     public void doHook() throws Throwable {
         var filter_itens = prefs.getString("css_theme", "");
-        if (TextUtils.isEmpty(filter_itens) || !prefs.getBoolean("custom_filters", true)) return;
+        var folder_theme = prefs.getString("folder_theme", "");
+        var custom_css = prefs.getString("custom_css", "");
+        log("Folder theme: " + folder_theme);
+        log("filter_itens: " + filter_itens);
+
+        if ((TextUtils.isEmpty(filter_itens) && TextUtils.isEmpty(folder_theme)) || !prefs.getBoolean("custom_filters", true))
+            return;
+        themeDir = new File(ThemePreference.rootDirectory, folder_theme);
+        filter_itens += "\n" + custom_css;
+        log("Custom filters: " + filter_itens);
         cacheImages = new DrawableCache(Utils.getApplication(), 100 * 1024 * 1024);
         chacheDrawables = new HashMap<>();
         mThreadService = Utils.getExecutor();
@@ -183,8 +194,8 @@ public class CustomView extends Feature {
                     view.setAlpha(value.getValue());
                 }
                 case "background-image" -> {
+                    log(declaration.get(0).toString());
                     if (!(declaration.get(0) instanceof TermURI uri)) continue;
-                    if (!new File(uri.getValue()).exists()) continue;
                     var draw = cacheImages.getDrawable(uri.getValue(), view.getWidth(), view.getHeight());
                     if (view instanceof ImageView imageView) {
                         if (draw == imageView.getDrawable()) continue;
@@ -247,7 +258,6 @@ public class CustomView extends Feature {
                     }
 
                     if (declaration.get(0) instanceof TermURI uri) {
-                        if (!new File(uri.getValue()).exists()) continue;
                         var draw = cacheImages.getDrawable(uri.getValue(), view.getWidth(), view.getHeight());
                         view.setBackground(draw);
                         continue;
@@ -268,7 +278,6 @@ public class CustomView extends Feature {
                     }
 
                     if (declaration.get(0) instanceof TermURI uri) {
-                        if (!new File(uri.getValue()).exists()) continue;
                         var draw = cacheImages.getDrawable(uri.getValue(), view.getWidth(), view.getHeight());
                         view.setBackground(draw);
                         continue;
@@ -458,19 +467,12 @@ public class CustomView extends Feature {
         } else {
             if (!(currentView instanceof ViewGroup viewGroup)) return;
             var name = Arrays.stream(selectorItem.toString().split(":")).map(String::trim).toArray(String[]::new);
-//            log("Search Element:" + name[0] + " in " + viewGroup);
-            var itemCount = 0;
+            var itemCount = new int[]{0};
             for (int i = 0; i < viewGroup.getChildCount(); i++) {
                 var itemView = viewGroup.getChildAt(i);
-//                log("Item: " + itemView);
                 if (ReflectionUtils.isClassSimpleNameString(itemView.getClass(), name[0])) {
-//                    log("Found: " + itemView);
-                    if (name.length > 1 && name[1].startsWith("nth-child")) {
-                        var startIndex = name[1].indexOf("(") + 1;
-                        var endIndex = name[1].indexOf(")");
-                        var index = Integer.parseInt(name[1].substring(startIndex, endIndex)) - 1;
-                        if (index != itemCount++) continue;
-                    }
+                    if (name.length > 1)
+                        if (checkAttribute(itemView, itemCount, name[1])) continue;
                     if (selector.size() == position + 1) {
                         resultViews.add(itemView);
                     } else {
@@ -486,6 +488,25 @@ public class CustomView extends Feature {
         }
     }
 
+    private boolean checkAttribute(View itemView, int[] itemCount, String name) {
+        if (name.startsWith("nth-child")) {
+            var startIndex = name.indexOf("(") + 1;
+            var endIndex = name.indexOf(")");
+            var index = Integer.parseInt(name.substring(startIndex, endIndex)) - 1;
+            return index != itemCount[0]++;
+        } else if (name.startsWith("contains")) {
+            var startIndex = name.indexOf("(") + 1;
+            var endIndex = name.indexOf(")");
+            var contains = name.substring(startIndex, endIndex);
+            if (itemView instanceof TextView textView) {
+                return !textView.getText().toString().contains(contains);
+            } else {
+                return !itemView.toString().contains(contains);
+            }
+        }
+        return false;
+    }
+
     private boolean isWidgetString(String view) {
         return XposedHelpers.findClassIfExists("android.widget." + view, null) != null;
     }
@@ -498,7 +519,7 @@ public class CustomView extends Feature {
     }
 
 
-    public static class DrawableCache {
+    public class DrawableCache {
         private final LruCache<String, CachedDrawable> drawableCache;
         private final Context context;
 
@@ -508,10 +529,10 @@ public class CustomView extends Feature {
         }
 
         private Drawable loadDrawableFromFile(String filePath, int reqWidth, int reqHeight) {
-            File file = new File(filePath);
 
+            File file = new File(filePath);
             if (!file.exists()) {
-                Log.e("DrawableCache", "File not found: " + filePath);
+                logDebug("File not found: " + filePath);
                 return new ColorDrawable(0);  // Return transparent drawable
             }
 
@@ -564,8 +585,9 @@ public class CustomView extends Feature {
             return inSampleSize;
         }
 
-        public Drawable getDrawable(String key, int width, int height) {
-            File file = new File(key);
+        public Drawable getDrawable(String filePath, int width, int height) {
+            File file = filePath.startsWith("/") ? new File(filePath) : new File(themeDir, filePath);
+            String key = file.getAbsolutePath();
             long lastModified = file.lastModified();
 
             // Check if the cached drawable exists and is up-to-date

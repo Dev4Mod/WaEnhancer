@@ -1,18 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
-
     <item
         android:id="@+id/menuitem_save"
         android:icon="@drawable/download"
         android:showAsAction="ifRoom"
-        android:title="Save" />
+        android:title="@string/save" />
     <item
         android:id="@+id/menuitem_import_image"
-        android:title="Import Image" />
+        android:title="@string/import_image" />
+    <item
+        android:id="@+id/menuitem_export"
+        android:title="@string/export_as_zip" />
     <item
         android:id="@+id/menuitem_clear"
-        android:title="Clear" />
+        android:title="@string/clear" />
     <item
         android:id="@+id/menuitem_exit"
-        android:title="Exit" />
+        android:title="@string/exit" />
 </menu>

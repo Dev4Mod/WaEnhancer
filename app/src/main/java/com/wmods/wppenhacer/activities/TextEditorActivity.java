@@ -24,12 +24,18 @@ import com.amrdeveloper.codeview.CodeView;
 import com.wmods.wppenhacer.R;
 import com.wmods.wppenhacer.activities.syntax.CSSLanguage;
 import com.wmods.wppenhacer.preference.ThemePreference;
+import com.wmods.wppenhacer.xposed.utils.Utils;
 
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.nio.charset.Charset;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
 
 import kotlin.io.FilesKt;
 
@@ -37,6 +43,7 @@ public class TextEditorActivity extends AppCompatActivity {
     private CodeView codeView;
     private String folderName;
     private ActivityResultLauncher<String> mGetContent;
+    private ActivityResultLauncher<String> mExportFile;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -47,6 +54,7 @@ public class TextEditorActivity extends AppCompatActivity {
         codeView.setHorizontallyScrolling(false);
 
         mGetContent = registerForActivityResult(new ActivityResultContracts.GetContent(), this::onUriSelected);
+        mExportFile = registerForActivityResult(new ActivityResultContracts.CreateDocument("*/*"), this::exportAsZip);
 
         folderName = getIntent().getStringExtra("folder_name");
         if (!TextUtils.isEmpty(folderName)) {
@@ -107,7 +115,7 @@ public class TextEditorActivity extends AppCompatActivity {
                     File folderFolder = new File(ThemePreference.rootDirectory, folderName);
                     File cssCode = new File(folderFolder, "style.css");
                     FilesKt.writeText(cssCode, code, Charset.defaultCharset());
-                    Toast.makeText(this, "Saved", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(this, R.string.saved, Toast.LENGTH_SHORT).show();
                     var prefs = PreferenceManager.getDefaultSharedPreferences(this);
                     var key = getIntent().getStringExtra("key");
                     if (key != null && prefs.getString(key, "").equals(folderName)) {
@@ -122,8 +130,48 @@ public class TextEditorActivity extends AppCompatActivity {
             case R.id.menuitem_import_image -> {
                 mGetContent.launch("image/*");
             }
+            case R.id.menuitem_export -> {
+                mExportFile.launch(folderName + ".zip");
+            }
+
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    private void exportAsZip(Uri uri) {
+        try (var outputStream = getContentResolver().openOutputStream(uri)) {
+            var zipOutputStream = new ZipOutputStream(outputStream);
+            var dir = ThemePreference.rootDirectory.getAbsolutePath() + "/";
+            var folderFolder = new File(ThemePreference.rootDirectory, folderName);
+            var files = getAllFilesPath(folderFolder);
+            for (File file : files) {
+                var name = file.getAbsolutePath().replace(dir, "");
+                zipOutputStream.putNextEntry(new ZipEntry(name));
+                var bytes = FilesKt.readBytes(file);
+                zipOutputStream.write(bytes);
+                zipOutputStream.closeEntry();
+            }
+            zipOutputStream.close();
+            Toast.makeText(this, R.string.exported, Toast.LENGTH_SHORT).show();
+        } catch (Exception e) {
+            Utils.showToast("Error: " + e.getMessage(), 1);
+        }
+    }
+
+    private List<File> getAllFilesPath(File folderFolder) {
+        File[] files = folderFolder.listFiles();
+        if (files == null) {
+            return Collections.emptyList();
+        }
+        ArrayList<File> list = new ArrayList<>();
+        for (File file : files) {
+            if (file.isDirectory()) {
+                list.addAll(getAllFilesPath(file));
+            } else {
+                list.add(file);
+            }
+        }
+        return list;
     }
 
 
@@ -139,16 +187,16 @@ public class TextEditorActivity extends AppCompatActivity {
         input.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT));
         linearLayout.addView(input);
         new AlertDialog.Builder(this)
-                .setTitle("Enter image file name")
+                .setTitle(R.string.enter_image_file_name)
                 .setPositiveButton("OK", (dialog, which) -> {
                     var fileName = input.getText().toString();
                     if (fileName.endsWith(".png")) {
                         copyFromUri(fileName, uri);
                     } else {
-                        Toast.makeText(this, "Name must end with .png", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(this, R.string.error_image_name, Toast.LENGTH_SHORT).show();
                     }
                 })
-                .setNegativeButton("Cancel", null)
+                .setNegativeButton(R.string.cancel, null)
                 .setView(linearLayout).show();
     }
 
@@ -160,10 +208,10 @@ public class TextEditorActivity extends AppCompatActivity {
             FileOutputStream out = new FileOutputStream(outFile);
             bitmap.compress(Bitmap.CompressFormat.PNG, 90, out);
             out.close();
-            Toast.makeText(this, "Imported as " + fileName, Toast.LENGTH_LONG).show();
+            Toast.makeText(this, getString(R.string.imported_as) + fileName, Toast.LENGTH_LONG).show();
             configAutoComplete();
         } catch (Exception e) {
-            e.printStackTrace();
+            Toast.makeText(this, "Error: " + e.getMessage(), Toast.LENGTH_SHORT).show();
         }
     }
 }
