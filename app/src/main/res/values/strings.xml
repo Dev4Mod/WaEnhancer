@@ -337,4 +337,5 @@
     <string name="import_theme">Import Theme</string>
     <string name="theme_manager">Theme Manager</string>
     <string name="manage_theme_sum">Manage themes using CSS for WhatsApp</string>
+    <string name="grant_permission">Please, grant permissions to read images and read external storage</string>
 </resources>

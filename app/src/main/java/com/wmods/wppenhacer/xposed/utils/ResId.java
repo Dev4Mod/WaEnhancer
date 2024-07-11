@@ -59,6 +59,7 @@ public class ResId {
         public static int edit_text;
         public static int select_a_color;
         public static int read_all_mark_as_read;
+        public static int grant_permission;
     }
 
     public static class array {

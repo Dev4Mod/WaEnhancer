@@ -2,8 +2,11 @@ package com.wmods.wppenhacer.xposed.features.customization;
 
 import static com.wmods.wppenhacer.utils.ColorReplacement.replaceColors;
 
+import android.Manifest;
 import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.content.res.ColorStateList;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -16,7 +19,10 @@ import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.ShapeDrawable;
 import android.graphics.drawable.shapes.RectShape;
+import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
+import android.provider.Settings;
 import android.text.TextUtils;
 import android.util.Log;
 import android.util.LruCache;
@@ -25,13 +31,18 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.core.content.ContextCompat;
 
 import com.wmods.wppenhacer.preference.ThemePreference;
 import com.wmods.wppenhacer.utils.IColors;
 import com.wmods.wppenhacer.xposed.core.Feature;
+import com.wmods.wppenhacer.xposed.core.devkit.Unobfuscator;
 import com.wmods.wppenhacer.xposed.utils.ReflectionUtils;
+import com.wmods.wppenhacer.xposed.utils.ResId;
 import com.wmods.wppenhacer.xposed.utils.Utils;
 
 import java.io.File;
@@ -45,7 +56,7 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.concurrent.CompletableFuture;
+import java.util.Objects;
 import java.util.concurrent.ExecutorService;
 
 import cz.vutbr.web.css.CSSFactory;
@@ -80,14 +91,16 @@ public class CustomView extends Feature {
         var filter_itens = prefs.getString("css_theme", "");
         var folder_theme = prefs.getString("folder_theme", "");
         var custom_css = prefs.getString("custom_css", "");
-        log("Folder theme: " + folder_theme);
-        log("filter_itens: " + filter_itens);
+
+        checkPermissions();
 
         if ((TextUtils.isEmpty(filter_itens) && TextUtils.isEmpty(folder_theme)) || !prefs.getBoolean("custom_filters", true))
             return;
+
+        hookDrawableViews();
+
         themeDir = new File(ThemePreference.rootDirectory, folder_theme);
         filter_itens += "\n" + custom_css;
-        log("Custom filters: " + filter_itens);
         cacheImages = new DrawableCache(Utils.getApplication(), 100 * 1024 * 1024);
         chacheDrawables = new HashMap<>();
         mThreadService = Utils.getExecutor();
@@ -101,6 +114,74 @@ public class CustomView extends Feature {
                 rootView.getViewTreeObserver().addOnGlobalLayoutListener(() -> mThreadService.execute(() -> registerCssRules(activity, (ViewGroup) rootView, sheet)));
             }
         });
+    }
+
+    private void hookDrawableViews() {
+        XposedHelpers.findAndHookMethod(View.class, "setBackground", Drawable.class, new XC_MethodHook() {
+            @Override
+            protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
+                var view = (View) param.thisObject;
+                var newDrawable = (Drawable) param.args[0];
+                var hookedBackground = XposedHelpers.getAdditionalInstanceField(view, "mHookedBackground");
+                if (Unobfuscator.isCalledFromClass(CustomView.class)) {
+                    if (hookedBackground == null || hookedBackground != newDrawable) {
+                        log("background " + hookedBackground + " -> " + newDrawable);
+                        XposedHelpers.setAdditionalInstanceField(view, "mHookedBackground", newDrawable);
+                        return;
+                    }
+                } else if (hookedBackground == null) return;
+                param.setResult(null);
+            }
+        });
+
+        XposedHelpers.findAndHookMethod(ImageView.class, "setImageDrawable", Drawable.class, new XC_MethodHook() {
+            @Override
+            protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
+                var view = (View) param.thisObject;
+                var newDrawable = (Drawable) param.args[0];
+                var mHookedDrawable = XposedHelpers.getAdditionalInstanceField(view, "mHookedDrawable");
+                if (Unobfuscator.isCalledFromClass(CustomView.class)) {
+                    if (mHookedDrawable == null || mHookedDrawable != newDrawable) {
+                        log("Image Drawable " + mHookedDrawable + " -> " + newDrawable);
+                        XposedHelpers.setAdditionalInstanceField(view, "mHookedDrawable", newDrawable);
+                        return;
+                    }
+                } else if (mHookedDrawable == null) return;
+                param.setResult(null);
+            }
+        });
+
+    }
+
+    private void checkPermissions() {
+        XposedHelpers.findAndHookMethod("com.whatsapp.HomeActivity", classLoader, "onCreate", Bundle.class, new XC_MethodHook() {
+            @Override
+            protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
+                var activity = (Activity) param.thisObject;
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                    if (ContextCompat.checkSelfPermission(activity, Manifest.permission.READ_MEDIA_IMAGES) != PackageManager.PERMISSION_GRANTED) {
+                        activity.requestPermissions(new String[]{Manifest.permission.READ_MEDIA_IMAGES}, 852582);
+                    }
+                }
+            }
+        });
+
+        XposedHelpers.findAndHookMethod(Activity.class, "onRequestPermissionsResult", int.class, String[].class, int[].class, new XC_MethodHook() {
+            @Override
+            protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+                super.afterHookedMethod(param);
+                var activity = (Activity) param.thisObject;
+                if ((int) param.args[0] == 852582) {
+                    var results = (int[]) param.args[2];
+                    if (Arrays.stream(results).anyMatch(result -> result != PackageManager.PERMISSION_GRANTED)) {
+                        // start intent to permissions
+                        activity.startActivity(new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS, Uri.fromParts("package", activity.getPackageName(), null)));
+                        Utils.showToast(activity.getString(ResId.string.grant_permission), Toast.LENGTH_LONG);
+                    }
+                }
+            }
+        });
+
     }
 
     private void registerCssRules(Activity activity, ViewGroup currenView, StyleSheet sheet) {
@@ -148,7 +229,8 @@ public class CustomView extends Feature {
         for (var view : resultViews) {
             if (view == null || !view.isAttachedToWindow())
                 continue;
-            CompletableFuture.runAsync(() -> view.post(() -> setRuleInView(ruleItem, view)), mThreadService);
+            Utils.getExecutor().execute(() -> setRuleInView(ruleItem, view));
+//            CompletableFuture.runAsync(() -> setRuleInView(ruleItem, view));
         }
     }
 
@@ -169,6 +251,7 @@ public class CustomView extends Feature {
                         var drawable = imageView.getDrawable();
                         if (drawable == null) continue;
                         drawable.setTint(colorNew.getValue().getRGB());
+                        view.postInvalidate();
                     }
                 }
                 case "display" -> {
@@ -182,28 +265,22 @@ public class CustomView extends Feature {
                 case "font-size" -> {
                     if (!(view instanceof TextView textView)) continue;
                     var value = (TermLength) declaration.get(0);
-                    textView.setTextSize(getRealValue(value, 0));
+                    view.post(() -> textView.setTextSize(getRealValue(value, 0)));
                 }
                 case "color" -> {
                     if (!(view instanceof TextView textView)) continue;
                     var value = (TermColor) declaration.get(0);
-                    textView.setTextColor(value.getValue().getRGB());
+                    view.post(() -> textView.setTextColor(value.getValue().getRGB()));
                 }
                 case "alpha" -> {
                     var value = (TermFloatValue) declaration.get(0);
-                    view.setAlpha(value.getValue());
+                    view.post(() -> view.setAlpha(value.getValue()));
                 }
                 case "background-image" -> {
-                    log(declaration.get(0).toString());
                     if (!(declaration.get(0) instanceof TermURI uri)) continue;
                     var draw = cacheImages.getDrawable(uri.getValue(), view.getWidth(), view.getHeight());
-                    if (view instanceof ImageView imageView) {
-                        if (draw == imageView.getDrawable()) continue;
-                        imageView.setImageDrawable(draw);
-                    } else {
-                        if (draw == view.getBackground()) continue;
-                        view.setBackground(draw);
-                    }
+                    if (draw == null) continue;
+                    setHookedDrawable(view, draw);
                 }
                 case "background-size" -> {
                     if (declaration.get(0) instanceof TermLength width) {
@@ -211,27 +288,39 @@ public class CustomView extends Feature {
                         if (view instanceof ImageView imageView) {
                             if (width.isPercentage() || height.isPercentage()) {
                                 if (width.getValue().intValue() == 100 || height.getValue().intValue() == 100) {
-                                    imageView.setScaleType(ImageView.ScaleType.FIT_CENTER);
+                                    view.post(() -> imageView.setScaleType(ImageView.ScaleType.FIT_CENTER));
                                     continue;
                                 }
                             }
                             var drawable = imageView.getDrawable();
                             if (drawable == null) continue;
                             Bitmap bitmap = ((BitmapDrawable) drawable).getBitmap();
-                            if (getRealValue(width, imageView.getWidth()) == bitmap.getWidth() && getRealValue(height, imageView.getHeight()) == bitmap.getHeight())
-                                continue;
+                            var widthObj = XposedHelpers.getAdditionalInstanceField(view, "mWidth");
+                            var heightObj = XposedHelpers.getAdditionalInstanceField(view, "mHeight");
+                            if (widthObj != null && heightObj != null) {
+                                if (getRealValue(width, imageView.getWidth()) == (int) widthObj && getRealValue(height, imageView.getHeight()) == (int) heightObj)
+                                    continue;
+                            }
                             Bitmap resizedBitmap = Bitmap.createScaledBitmap(bitmap, getRealValue(width, imageView.getWidth()), getRealValue(height, imageView.getHeight()), false);
-                            drawable = new BitmapDrawable(view.getContext().getResources(), resizedBitmap);
-                            imageView.setImageDrawable(drawable);
+                            var resizeDrawable = new BitmapDrawable(view.getContext().getResources(), resizedBitmap);
+                            XposedHelpers.setAdditionalInstanceField(view, "mHeight", view.getHeight());
+                            XposedHelpers.setAdditionalInstanceField(view, "mWidth", view.getWidth());
+                            setHookedDrawable(imageView, resizeDrawable);
                         } else {
                             var drawable = view.getBackground();
                             if (drawable == null) continue;
                             Bitmap bitmap = ((BitmapDrawable) drawable).getBitmap();
-                            if (getRealValue(width, 0) == bitmap.getWidth() && getRealValue(height, 0) == bitmap.getHeight())
-                                continue;
+                            var widthObj = XposedHelpers.getAdditionalInstanceField(view, "mWidth");
+                            var heightObj = XposedHelpers.getAdditionalInstanceField(view, "mHeight");
+                            if (widthObj != null && heightObj != null) {
+                                if (getRealValue(width, view.getWidth()) == (int) widthObj && getRealValue(height, view.getHeight()) == (int) heightObj)
+                                    continue;
+                            }
                             Bitmap resizedBitmap = Bitmap.createScaledBitmap(bitmap, getRealValue(width, 0), getRealValue(height, 0), false);
-                            drawable = new BitmapDrawable(view.getContext().getResources(), resizedBitmap);
-                            view.setBackground(drawable);
+                            var resizeDrawable = new BitmapDrawable(view.getContext().getResources(), resizedBitmap);
+                            XposedHelpers.setAdditionalInstanceField(view, "mHeight", view.getHeight());
+                            XposedHelpers.setAdditionalInstanceField(view, "mWidth", view.getWidth());
+                            setHookedBackground(view, resizeDrawable);
                         }
                     } else {
                         var value = declaration.get(0).toString().trim();
@@ -242,30 +331,34 @@ public class CustomView extends Feature {
                                 var drawable = view.getBackground();
                                 if (!(drawable instanceof BitmapDrawable)) continue;
                                 Bitmap bitmap = ((BitmapDrawable) drawable).getBitmap();
-                                if (bitmap.getWidth() == view.getWidth() && bitmap.getHeight() == view.getHeight())
-                                    continue;
-                                drawable = new BitmapDrawable(view.getContext().getResources(), Bitmap.createScaledBitmap(bitmap, view.getWidth(), view.getHeight(), false));
-                                view.setBackground(drawable);
+                                var widthObj = XposedHelpers.getAdditionalInstanceField(view, "mWidth");
+                                var heightObj = XposedHelpers.getAdditionalInstanceField(view, "mHeight");
+                                if (widthObj != null && heightObj != null) {
+                                    if ((int) widthObj == view.getWidth() && (int) heightObj == view.getHeight())
+                                        continue;
+                                }
+                                var resizeDrawable = new BitmapDrawable(view.getContext().getResources(), Bitmap.createScaledBitmap(bitmap, view.getWidth(), view.getHeight(), true));
+                                XposedHelpers.setAdditionalInstanceField(view, "mHeight", view.getHeight());
+                                XposedHelpers.setAdditionalInstanceField(view, "mWidth", view.getWidth());
+                                setHookedBackground(view, resizeDrawable);
                             }
                         }
                     }
                 }
                 case "background" -> {
-
                     if (declaration.get(0) instanceof TermColor color) {
-                        view.setBackground(new ColorDrawable(color.getValue().getRGB()));
+                        view.post(() -> view.setBackgroundColor(color.getValue().getRGB()));
                         continue;
                     }
-
                     if (declaration.get(0) instanceof TermURI uri) {
                         var draw = cacheImages.getDrawable(uri.getValue(), view.getWidth(), view.getHeight());
-                        view.setBackground(draw);
+                        if (draw == null) continue;
+                        view.post(() -> view.setBackground(draw));
                         continue;
                     }
-
                     var value = declaration.get(0).toString().trim();
                     if (value.equals("none")) {
-                        view.setBackground(null);
+                        view.post(() -> view.setBackground(null));
                     } else {
                         setBackgroundModel(view, declaration.get(0));
                     }
@@ -276,15 +369,15 @@ public class CustomView extends Feature {
                         view.setBackground(new ColorDrawable(color.getValue().getRGB()));
                         continue;
                     }
-
                     if (declaration.get(0) instanceof TermURI uri) {
                         var draw = cacheImages.getDrawable(uri.getValue(), view.getWidth(), view.getHeight());
-                        view.setBackground(draw);
+                        if (draw == null) continue;
+                        view.post(() -> view.setForeground(draw));
                         continue;
                     }
                     var value = declaration.get(0).toString().trim();
                     if (value.equals("none")) {
-                        view.setForeground(null);
+                        view.post(() -> view.setForeground(null));
                     }
                 }
                 case "width" -> {
@@ -337,11 +430,11 @@ public class CustomView extends Feature {
                     var mode = declaration.get(0).toString().trim();
                     if (mode.equals("none")) {
                         if (view instanceof ImageView imageView) {
-                            imageView.clearColorFilter();
+                            view.post(imageView::clearColorFilter);
                         } else {
                             var drawable = view.getBackground();
                             if (drawable != null) {
-                                drawable.clearColorFilter();
+                                view.post(drawable::clearColorFilter);
                             }
                         }
                     } else {
@@ -349,15 +442,14 @@ public class CustomView extends Feature {
                         try {
                             var pMode = PorterDuff.Mode.valueOf(mode);
                             if (view instanceof ImageView imageView) {
-                                imageView.setColorFilter(color.getValue().getRGB(), pMode);
+                                view.post(() -> imageView.setColorFilter(color.getValue().getRGB(), pMode));
                             } else {
                                 var drawable = view.getBackground();
                                 if (drawable != null) {
-                                    drawable.setColorFilter(color.getValue().getRGB(), pMode);
+                                    view.post(() -> drawable.setColorFilter(color.getValue().getRGB(), pMode));
                                 }
                             }
                         } catch (IllegalArgumentException ignored) {
-                            // Log the exception if needed
                         }
                     }
                 }
@@ -370,18 +462,18 @@ public class CustomView extends Feature {
                             var drawable = view.getBackground();
                             if (drawable != null) {
                                 ColorStateList colorStateList = declaration.size() == 1 ? ColorStateList.valueOf(color.getValue().getRGB()) : getColorStateList(declaration);
-                                drawable.setTintList(colorStateList);
+                                view.post(() -> drawable.setTintList(colorStateList));
                             }
                         }
                     } else {
                         var value = declaration.get(0).toString().trim();
                         if (value.equals("none")) {
                             if (view instanceof ImageView imageView) {
-                                imageView.setImageTintList(null);
+                                view.post(imageView::clearColorFilter);
                             } else {
                                 var drawable = view.getBackground();
                                 if (drawable != null) {
-                                    drawable.setTintList(null);
+                                    view.post(drawable::clearColorFilter);
                                 }
                             }
                         }
@@ -389,6 +481,22 @@ public class CustomView extends Feature {
                 }
             }
         }
+    }
+
+    private void setHookedDrawable(View view, Drawable draw) {
+        view.post(() -> {
+            if (view instanceof ImageView imageView) {
+                imageView.setImageDrawable(draw);
+            } else {
+                view.setBackground(draw);
+            }
+        });
+    }
+
+    private void setHookedBackground(View view, Drawable draw) {
+        view.post(() -> {
+            view.setBackground(draw);
+        });
     }
 
     private void setBackgroundModel(View view, Term<?> value) {
@@ -536,22 +644,10 @@ public class CustomView extends Feature {
                 return new ColorDrawable(0);  // Return transparent drawable
             }
 
-            // First pass to get image dimensions
-            BitmapFactory.Options options = new BitmapFactory.Options();
-            options.inJustDecodeBounds = true;
-            BitmapFactory.decodeFile(file.getAbsolutePath(), options);
-
-            // Calculate the inSampleSize based on required dimensions
-            options.inSampleSize = calculateInSampleSize(options, reqWidth, reqHeight);
-
-            // Second pass to actually load the bitmap
-            options.inJustDecodeBounds = false;
-            Bitmap bitmap = BitmapFactory.decodeFile(file.getAbsolutePath(), options);
-
-            if (bitmap == null) {
-                Log.e("DrawableCache", "Failed to decode file: " + filePath);
-                return new ColorDrawable(0);  // Return transparent drawable
-            }
+            var bitmap = BitmapFactory.decodeFile(file.getAbsolutePath());
+            var newHeight = Math.min(bitmap.getHeight(), reqHeight);
+            var newWidth = Math.min(bitmap.getWidth(), reqWidth);
+            bitmap = Bitmap.createScaledBitmap(bitmap, newWidth, newHeight, true);
 
             return new BitmapDrawable(context.getResources(), bitmap);
         }
@@ -585,8 +681,12 @@ public class CustomView extends Feature {
             return inSampleSize;
         }
 
+        @Nullable
         public Drawable getDrawable(String filePath, int width, int height) {
             File file = filePath.startsWith("/") ? new File(filePath) : new File(themeDir, filePath);
+            if (!file.exists() || !file.canRead()) {
+                return null;  // Return transparent drawable
+            }
             String key = file.getAbsolutePath();
             long lastModified = file.lastModified();
 
@@ -627,7 +727,7 @@ public class CustomView extends Feature {
 
             try (OutputStream out = new FileOutputStream(cacheFile);
                  ObjectOutputStream metaOut = new ObjectOutputStream(new FileOutputStream(metadataFile))) {
-                drawable.getBitmap().compress(Bitmap.CompressFormat.JPEG, 80, out);
+                drawable.getBitmap().compress(Bitmap.CompressFormat.PNG, 80, out);
                 metaOut.writeLong(lastModified);
                 Log.d("DrawableCache", "Saved drawable to cache: " + cacheFile.getAbsolutePath());
             } catch (IOException e) {
@@ -637,10 +737,12 @@ public class CustomView extends Feature {
 
         private Drawable loadDrawableFromCache(String key, long originalLastModified) {
             File cacheDir = context.getCacheDir();
-            File cacheFile = new File(cacheDir, getCacheFileName(key));
-            File metadataFile = new File(cacheDir, getCacheFileName(key) + ".meta");
+            File cacheLocation = new File(cacheDir, "drawable_cache");
+            File cacheFile = new File(cacheLocation, getCacheFileName(key));
+            File metadataFile = new File(cacheLocation, getCacheFileName(key) + ".meta");
 
             if (!cacheFile.exists() || !metadataFile.exists()) {
+                log("Drawable not found in cache: " + cacheFile.getAbsolutePath());
                 return null;
             }
 
@@ -661,9 +763,8 @@ public class CustomView extends Feature {
             return null;
         }
 
-        private String getCacheFileName(String key) {
-            // Create a unique file name based on the original file path
-            return String.valueOf(key.hashCode());
+        private String getCacheFileName(String input) {
+            return String.valueOf(Objects.hash(input));
         }
 
         private static class CachedDrawable {
