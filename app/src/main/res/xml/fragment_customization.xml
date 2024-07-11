@@ -106,6 +106,11 @@
             app:key="css_theme"
             app:title="@string/custom_theme_css" />
 
+        <com.wmods.wppenhacer.preference.ThemePreference
+            android:key="folder_theme"
+            android:summary="Select a Theme"
+            android:title="Theme Manager" />
+
     </PreferenceCategory>
 
     <PreferenceCategory

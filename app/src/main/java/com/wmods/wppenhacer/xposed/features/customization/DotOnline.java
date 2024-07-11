@@ -112,6 +112,8 @@ public class DotOnline extends Feature {
         var sendPresenceMethod = Unobfuscator.loadSendPresenceMethod(classLoader);
         logDebug(Unobfuscator.getMethodDescriptor(sendPresenceMethod));
 
+        var absViewHolderClass = Unobfuscator.loadAbsViewHolder(classLoader);
+
 
         XposedBridge.hookAllConstructors(getStatusUser.getDeclaringClass(), new XC_MethodHook() {
             @Override
@@ -133,10 +135,9 @@ public class DotOnline extends Feature {
             protected void afterHookedMethod(MethodHookParam param) throws Throwable {
                 var viewHolder = field1.get(param.thisObject);
                 var object = param.args[0];
-                var abViewHolder = viewHolder.getClass().getSuperclass().getSuperclass();
-                var viewField = ReflectionUtils.findFieldUsingFilter(abViewHolder, field -> field.getType() == View.class);
+                var viewField = ReflectionUtils.findFieldUsingFilter(absViewHolderClass, field -> field.getType() == View.class);
                 var view = (View) viewField.get(viewHolder);
-                var getAdapterPositionMethod = ReflectionUtils.findMethodUsingFilter(abViewHolder, method -> method.getParameterCount() == 0 && method.getReturnType() == int.class);
+                var getAdapterPositionMethod = ReflectionUtils.findMethodUsingFilter(absViewHolderClass, method -> method.getParameterCount() == 0 && method.getReturnType() == int.class);
                 var position = (int) ReflectionUtils.callMethod(getAdapterPositionMethod, viewHolder);
 
                 CompletableFuture.runAsync(() -> {

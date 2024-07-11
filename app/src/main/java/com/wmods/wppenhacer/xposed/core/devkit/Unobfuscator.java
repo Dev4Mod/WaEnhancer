@@ -4,7 +4,6 @@ import android.app.Activity;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.SharedPreferences;
-import android.database.sqlite.SQLiteOpenHelper;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.NinePatchDrawable;
 import android.net.Uri;
@@ -61,8 +60,6 @@ public class Unobfuscator {
 
     public static final String BUBBLE_COLORS_BALLOON_INCOMING_NORMAL = "balloon_incoming_normal";
     public static final String BUBBLE_COLORS_BALLOON_INCOMING_NORMAL_EXT = "balloon_incoming_normal_ext";
-    public static final String BUBBLE_COLORS_BALLOON_OUTGOING_NORMAL = "balloon_outgoing_normal";
-    public static final String BUBBLE_COLORS_BALLOON_OUTGOING_NORMAL_EXT = "balloon_outgoing_normal_ext";
     public static final HashMap<String, Object> cache = new HashMap<>();
 
     static {
@@ -1700,19 +1697,27 @@ public class Unobfuscator {
         });
     }
 
-    public static Class loadExpirationClass(ClassLoader classLoader) {
+    public static Class<?> loadExpirationClass(ClassLoader classLoader) {
         var methods = findAllMethodUsingStrings(classLoader, StringMatchType.Contains, "software_forced_expiration");
         var expirationMethod = Arrays.stream(methods).filter(methodData -> methodData.getReturnType().equals(Date.class)).findFirst().orElse(null);
         if (expirationMethod == null) throw new RuntimeException("Expiration class not found");
         return expirationMethod.getDeclaringClass();
     }
 
-    /**
-     * @noinspection unchecked
-     */
-    public static Class<? extends SQLiteOpenHelper> loadMsgDatabaseClass(ClassLoader classLoader) throws Exception {
-        var classUsingStrings = findFirstClassUsingStrings(classLoader, StringMatchType.Contains, "msgstore/create", "msgstore/upgrade");
-        if (classUsingStrings == null) throw new RuntimeException("MsgDatabase class not found");
-        return (Class<? extends SQLiteOpenHelper>) classUsingStrings;
+    public static Class<?> loadMsgDatabaseClass(ClassLoader classLoader) throws Exception {
+        return UnobfuscatorCache.getInstance().getClass(classLoader, () -> {
+            var aClass = findFirstClassUsingStrings(classLoader, StringMatchType.Contains, "msgstore/create", "msgstore/upgrade");
+            if (aClass == null)
+                throw new RuntimeException("MsgDatabase class not found");
+            return aClass;
+        });
+    }
+
+    public static Class<?> loadAbsViewHolder(ClassLoader classLoader) throws Exception {
+        return UnobfuscatorCache.getInstance().getClass(classLoader, () -> {
+            var clazz = findFirstClassUsingStrings(classLoader, StringMatchType.Contains, "not recyclable");
+            if (clazz == null) throw new RuntimeException("AbsViewHolder class not found");
+            return clazz;
+        });
     }
 }

@@ -108,13 +108,9 @@ public class SeenTick extends Feature {
                     if (messages.isEmpty()) return;
                     MessageStore.storeMessageRead(messages.valueAt(0).messageId);
                     var view = messageMap.get(messages.valueAt(0).messageId);
-                    if (view != null) {
-                        view.post(() -> setSeenButton(view, true));
-                    }
+                    if (view != null) view.post(() -> setSeenButton(view, true));
                     handler.post(() -> sendBlueTickStatus(currentJid));
-                } else {
-                    handler.post(() -> sendBlueTick(rawJid));
-                }
+                } else handler.post(() -> sendBlueTick(rawJid));
             }
         });
 

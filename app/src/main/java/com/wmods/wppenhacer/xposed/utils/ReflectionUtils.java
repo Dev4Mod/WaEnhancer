@@ -2,6 +2,7 @@ package com.wmods.wppenhacer.xposed.utils;
 
 import android.util.Pair;
 
+import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -45,6 +46,25 @@ public class ReflectionUtils {
     /**
      * @noinspection SimplifyStreamApiCallChains
      */
+    public static Constructor[] findAllConstructorsUsingFilter(Class<?> clazz, Predicate<Constructor> predicate) {
+        do {
+            var results = Arrays.stream(clazz.getDeclaredConstructors()).filter(predicate).collect(Collectors.toList());
+            if (!results.isEmpty()) return results.toArray(new Constructor[0]);
+        } while ((clazz = clazz.getSuperclass()) != null);
+        return new Constructor[0];
+    }
+
+    public static Constructor findConstructorUsingFilter(Class<?> clazz, Predicate<Constructor> predicate) {
+        do {
+            var results = Arrays.stream(clazz.getDeclaredConstructors()).filter(predicate).findFirst();
+            if (results.isPresent()) return results.get();
+        } while ((clazz = clazz.getSuperclass()) != null);
+        throw new RuntimeException("Field not found");
+    }
+
+    /**
+     * @noinspection SimplifyStreamApiCallChains
+     */
     public static Field[] findAllFieldsUsingFilter(Class<?> clazz, Predicate<Field> predicate) {
         do {
             var results = Arrays.stream(clazz.getDeclaredFields()).filter(predicate).collect(Collectors.toList());
@@ -52,6 +72,7 @@ public class ReflectionUtils {
         } while ((clazz = clazz.getSuperclass()) != null);
         return new Field[0];
     }
+
 
     public static Method findMethodUsingFilterIfExists(Class<?> clazz, Predicate<Method> predicate) {
         do {

@@ -118,11 +118,17 @@ public class Utils {
         }
     }
 
-    public static void showToast(String s, int len) {
-        new Handler(Looper.getMainLooper()).post(() -> Toast.makeText(Utils.getApplication(), s, len).show());
+    public static void showToast(String message, int length) {
+        if (Looper.myLooper() == Looper.getMainLooper()) {
+            // Já estamos na thread principal
+            Toast.makeText(Utils.getApplication(), message, length).show();
+        } else {
+            // Não estamos na thread principal, postamos no Handler
+            new Handler(Looper.getMainLooper()).post(() ->
+                    Toast.makeText(Utils.getApplication(), message, length).show()
+            );
+        }
     }
-
-
 
     public static void setToClipboard(String string) {
         ClipboardManager clipboard = (ClipboardManager) Utils.getApplication().getSystemService(Context.CLIPBOARD_SERVICE);

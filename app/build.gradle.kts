@@ -28,8 +28,8 @@ android {
         applicationId = "com.wmods.wppenhacer"
         minSdk = 28
         targetSdk = 34
-        versionCode = 1
-        versionName = "1.1.0-DEV ($gitHash)"
+        versionCode = 120
+        versionName = "1.2.0-DEV ($gitHash)"
         multiDexEnabled = true
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
@@ -92,6 +92,8 @@ android {
         viewBinding = true
         buildConfig = true
     }
+    buildToolsVersion = "34.0.0"
+    ndkVersion = "27.0.11902837 rc2"
 
     materialThemeBuilder {
         themes {
@@ -136,6 +138,7 @@ dependencies {
 //    testImplementation(libs.junit)
 //    androidTestImplementation(libs.ext.junit)
 //    androidTestImplementation(libs.espresso.core)
+    implementation(libs.codeview)
 
 }
 

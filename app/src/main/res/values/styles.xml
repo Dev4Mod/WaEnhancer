@@ -20,18 +20,22 @@
         <item name="android:layout_weight">1</item>
         <item name="android:maxWidth">@null</item>
     </style>
+
     <style name="ThemeOverlay.MaterialAlertDialog.Centered.FullWidthButtons" parent="ThemeOverlay.Material3.MaterialAlertDialog.Centered">
         <!-- Mark spacer as gone when showing full width buttons -->
         <item name="materialAlertDialogButtonSpacerVisibility">2</item>
         <item name="buttonBarPositiveButtonStyle">@style/Widget.Button.TextButton.Dialog.FullWidth</item>
         <item name="buttonBarNegativeButtonStyle">@style/Widget.Button.TextButton.Dialog.FullWidth</item>
         <item name="buttonBarNeutralButtonStyle">@style/Widget.Button.TextButton.Dialog.FullWidth</item>
+
     </style>
+
     <style name="ThemeOverlay.MaterialAlertDialog.FullWidthButtons" parent="ThemeOverlay.Material3.MaterialAlertDialog">
         <!-- Mark spacer as gone when showing full width buttons -->
         <item name="materialAlertDialogButtonSpacerVisibility">2</item>
         <item name="buttonBarPositiveButtonStyle">@style/Widget.Button.TextButton.Dialog.FullWidth</item>
         <item name="buttonBarNegativeButtonStyle">@style/Widget.Button.TextButton.Dialog.FullWidth</item>
         <item name="buttonBarNeutralButtonStyle">@style/Widget.Button.TextButton.Dialog.FullWidth</item>
+        <item name="android:windowBackground">@color/primary_background</item>
     </style>
 </resources>

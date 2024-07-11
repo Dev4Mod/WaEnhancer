@@ -23,7 +23,6 @@ import java.io.File;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
@@ -35,20 +34,55 @@ import de.robv.android.xposed.XposedHelpers;
 
 public class WppCore {
 
+    static final HashSet<ActivityChangeState> listenerChat = new HashSet<>();
+    @SuppressLint("StaticFieldLeak")
+    static Activity mCurrentActivity;
+    static LinkedHashSet<Activity> activities = new LinkedHashSet<>();
     private static Class<?> mGenJidClass;
     private static Method mGenJidMethod;
     private static Class bottomDialog;
-    static final HashSet<ActivityChangeState> listenerChat = new HashSet<>();
     private static Field convChatField;
     private static Field chatJidField;
     private static SharedPreferences privPrefs;
     private static Object mStartUpConfig;
     private static Object mActionUser;
-    @SuppressLint("StaticFieldLeak")
-    static Activity mCurrentActivity;
-    static LinkedHashSet<Activity> activities = new LinkedHashSet<>();
     private static SQLiteDatabase mWaDatabase;
 
+
+    public static void Initialize(ClassLoader loader) throws Exception {
+        privPrefs = Utils.getApplication().getSharedPreferences("WaGlobal", Context.MODE_PRIVATE);
+
+
+        // init UserJID
+        var mSendReadClass = XposedHelpers.findClass("com.whatsapp.jobqueue.job.SendReadReceiptJob", loader);
+        var subClass = ReflectionUtils.findConstructorUsingFilter(mSendReadClass, (constructor) -> constructor.getParameterCount() == 8).getParameterTypes()[0];
+        mGenJidClass = ReflectionUtils.findFieldUsingFilter(subClass, (field) -> Modifier.isStatic(field.getModifiers())).getType();
+        mGenJidMethod = ReflectionUtils.findMethodUsingFilter(mGenJidClass, (method) -> method.getParameterCount() == 1 && !Modifier.isStatic(method.getModifiers()));
+        // Bottom Dialog
+        bottomDialog = Unobfuscator.loadDialogViewClass(loader);
+
+        convChatField = Unobfuscator.loadAntiRevokeConvChatField(loader);
+        chatJidField = Unobfuscator.loadAntiRevokeChatJidField(loader);
+
+        // StartUpPrefs
+        var startPrefsConfig = Unobfuscator.loadStartPrefsConfig(loader);
+        XposedBridge.hookMethod(startPrefsConfig, new XC_MethodHook() {
+            @Override
+            protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
+                mStartUpConfig = param.thisObject;
+            }
+        });
+
+        var actionUser = Unobfuscator.loadActionUser(loader);
+        XposedBridge.hookAllConstructors(actionUser, new XC_MethodHook() {
+            @Override
+            protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+                mActionUser = param.thisObject;
+            }
+        });
+        // Load wa database
+        loadWADatabase();
+    }
 
     public static void sendMessage(String number, String message) {
         try {
@@ -75,45 +109,6 @@ public class WppCore {
             Utils.showToast("Error in sending message:" + e.getMessage(), Toast.LENGTH_SHORT);
             XposedBridge.log(e);
         }
-    }
-
-    public static void Initialize(ClassLoader loader) throws Exception {
-        privPrefs = Utils.getApplication().getSharedPreferences("WaGlobal", Context.MODE_PRIVATE);
-
-
-        // init UserJID
-        var mSendReadClass = XposedHelpers.findClass("com.whatsapp.jobqueue.job.SendReadReceiptJob", loader);
-        var subClass = Arrays.stream(mSendReadClass.getConstructors()).filter(c -> c.getParameterTypes().length == 8).findFirst().orElse(null).getParameterTypes()[0];
-        mGenJidClass = Arrays.stream(subClass.getFields()).filter(field -> Modifier.isStatic(field.getModifiers())).findFirst().orElse(null).getType();
-        mGenJidMethod = Arrays.stream(mGenJidClass.getMethods()).filter(m -> m.getParameterCount() == 1 && !Modifier.isStatic(m.getModifiers())).findFirst().orElse(null);
-        // Bottom Dialog
-        bottomDialog = Unobfuscator.loadDialogViewClass(loader);
-
-        convChatField = Unobfuscator.loadAntiRevokeConvChatField(loader);
-        chatJidField = Unobfuscator.loadAntiRevokeChatJidField(loader);
-
-        // StartUpPrefs
-        var startPrefsConfig = Unobfuscator.loadStartPrefsConfig(loader);
-        XposedBridge.hookMethod(startPrefsConfig, new XC_MethodHook() {
-            @Override
-            protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
-                mStartUpConfig = param.thisObject;
-            }
-        });
-
-        var actionUser = Unobfuscator.loadActionUser(loader);
-        XposedBridge.hookAllConstructors(actionUser, new XC_MethodHook() {
-            @Override
-            protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-                mActionUser = param.thisObject;
-            }
-        });
-
-
-        // Load wa database
-        loadWADatabase();
-
-
     }
 
     public static void loadWADatabase() {

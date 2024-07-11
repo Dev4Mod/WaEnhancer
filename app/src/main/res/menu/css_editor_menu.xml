@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item
+        android:id="@+id/menuitem_save"
+        android:icon="@drawable/download"
+        android:showAsAction="ifRoom"
+        android:title="Save" />
+    <item
+        android:id="@+id/menuitem_import_image"
+        android:title="Import Image" />
+    <item
+        android:id="@+id/menuitem_clear"
+        android:title="Clear" />
+    <item
+        android:id="@+id/menuitem_exit"
+        android:title="Exit" />
+</menu>

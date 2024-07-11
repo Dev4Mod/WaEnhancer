@@ -99,7 +99,7 @@ public class Others extends Feature {
         propsBoolean.put(5625, true);  // Enable option to autodelete channels media
 
         propsBoolean.put(8643, false);  // Disable TextStatusComposerActivityV2
-        propsBoolean.put(3403, true);  // Enable Sticker Suggestion
+//        propsBoolean.put(3403, true);  // Enable Sticker Suggestion
         propsBoolean.put(8607, true);  // Enable Dialer keyboard
         propsBoolean.put(9578, true);  // Enable Privacy Checkup
         propsInteger.put(8135, 2);  // Call Filters

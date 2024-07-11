@@ -34,15 +34,14 @@ public class FMessageWpp {
     public static void init(ClassLoader classLoader) throws Exception {
         if (initialized) return;
         initialized = true;
-        var fMessageClass = Unobfuscator.loadFMessageClass(classLoader);
-        TYPE = fMessageClass;
+        TYPE = Unobfuscator.loadFMessageClass(classLoader);
         var userJidClass = classLoader.loadClass("com.whatsapp.jid.UserJid");
-        userJidMethod = ReflectionUtils.findMethodUsingFilter(fMessageClass, method -> method.getParameterCount() == 0 && method.getReturnType() == userJidClass);
+        userJidMethod = ReflectionUtils.findMethodUsingFilter(TYPE, method -> method.getParameterCount() == 0 && method.getReturnType() == userJidClass);
         keyMessage = Unobfuscator.loadMessageKeyField(classLoader);
         messageMethod = Unobfuscator.loadNewMessageMethod(classLoader);
         messageWithMediaMethod = Unobfuscator.loadNewMessageWithMediaMethod(classLoader);
         getFieldIdMessage = Unobfuscator.loadSetEditMessageField(classLoader);
-        deviceJidMethod = ReflectionUtils.findMethodUsingFilter(fMessageClass, method -> method.getReturnType().equals(XposedHelpers.findClass("com.whatsapp.jid.DeviceJid", classLoader)));
+        deviceJidMethod = ReflectionUtils.findMethodUsingFilter(TYPE, method -> method.getReturnType().equals(XposedHelpers.findClass("com.whatsapp.jid.DeviceJid", classLoader)));
     }
 
     public Object getUserJid() {
