@@ -7,3 +7,5 @@
 [TASKER]
 * Fixed bug that caused status texts to appear as if they were messages
 
+[WA ENHANCER]
+* Updated translations
