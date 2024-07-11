@@ -1,11 +1,12 @@
 [THEME MANAGER]
-* Added a CSS theme manager, now you can import, export and create your themes in one place
+* Ask Permission in WhatsApp to fix bug
 
 [DOT ONLINE/LAST SEEN]
-* Fixed a bug that caused incorrect statuses to be displayed for contacts
+* Fixed a bug
 
-[TASKER]
-* Fixed bug that caused status texts to appear as if they were messages
+[CUSTOM CSS]
+* Reduce lags
 
 [WA ENHANCER]
+* Fixed bug in About Activity
 * Updated translations
