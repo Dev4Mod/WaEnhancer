@@ -645,8 +645,8 @@ public class CustomView extends Feature {
             }
 
             var bitmap = BitmapFactory.decodeFile(file.getAbsolutePath());
-            var newHeight = Math.min(bitmap.getHeight(), reqHeight);
-            var newWidth = Math.min(bitmap.getWidth(), reqWidth);
+            var newHeight = reqHeight < 10 ? bitmap.getHeight() : Math.min(bitmap.getHeight(), reqHeight);
+            var newWidth = reqWidth < 10 ? bitmap.getWidth() : Math.min(bitmap.getWidth(), reqWidth);
             bitmap = Bitmap.createScaledBitmap(bitmap, newWidth, newHeight, true);
 
             return new BitmapDrawable(context.getResources(), bitmap);

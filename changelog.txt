@@ -1,11 +1,5 @@
-[THEME MANAGER]
-* Ask Permission in WhatsApp to fix bug
-
-[DOT ONLINE/LAST SEEN]
-* Fixed a bug
-
 [CUSTOM CSS]
-* Reduce lags
+* Fix bug on load images
 
 [WA ENHANCER]
-* Fixed bug in About Activity
+* Updated translations
