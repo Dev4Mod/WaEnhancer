@@ -1,11 +1,14 @@
-[CUSTOM CSS]
-* Fixed lags when using CSS with images
+[DATABASE]
+* Improve code
 
-[WALLAPER]
-* Fixed the lag when scrolling through contacts (I believe that now we will no longer have lag problems with this)
+[CUSTOM COLORS]
+* added status indicator color to custom primary color
 
-[THEME MANAGER]
-* Add Default Theme
+[TOAST VIEWER]
+* Fixed bug in multiples statuses
+
+[CUSTOM VIEW]
+* More lag fixes
 
 [WA ENHANCER]
 * Update translations
