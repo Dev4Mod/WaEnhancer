@@ -1,2 +1,11 @@
 [CUSTOM CSS]
-* Fix bugs again..
+* Fixed lags when using CSS with images
+
+[WALLAPER]
+* Fixed the lag when scrolling through contacts (I believe that now we will no longer have lag problems with this)
+
+[THEME MANAGER]
+* Add Default Theme
+
+[WA ENHANCER]
+* Update translations
