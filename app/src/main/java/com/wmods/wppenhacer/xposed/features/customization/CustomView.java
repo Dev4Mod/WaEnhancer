@@ -126,7 +126,7 @@ public class CustomView extends Feature {
                 var newDrawable = (Drawable) param.args[0];
                 var hookedBackground = XposedHelpers.getAdditionalInstanceField(view, "mHookedBackground");
                 if (Unobfuscator.isCalledFromClass(CustomView.class)) {
-                    if (hookedBackground == null || hookedBackground != newDrawable) {
+                    if (hookedBackground == null || view.getBackground() != newDrawable) {
                         XposedHelpers.setAdditionalInstanceField(view, "mHookedBackground", newDrawable);
                         return;
                     }
@@ -138,11 +138,11 @@ public class CustomView extends Feature {
         XposedHelpers.findAndHookMethod(ImageView.class, "setImageDrawable", Drawable.class, new XC_MethodHook() {
             @Override
             protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
-                var view = (View) param.thisObject;
+                var view = (ImageView) param.thisObject;
                 var newDrawable = (Drawable) param.args[0];
                 var mHookedDrawable = XposedHelpers.getAdditionalInstanceField(view, "mHookedDrawable");
                 if (Unobfuscator.isCalledFromClass(CustomView.class)) {
-                    if (mHookedDrawable == null || mHookedDrawable != newDrawable) {
+                    if (mHookedDrawable == null || view.getDrawable() != newDrawable) {
                         XposedHelpers.setAdditionalInstanceField(view, "mHookedDrawable", newDrawable);
                         return;
                     }
@@ -285,6 +285,8 @@ public class CustomView extends Feature {
                     if (!(declaration.get(0) instanceof TermURI uri)) continue;
                     var draw = cacheImages.getDrawable(uri.getValue(), view.getWidth(), view.getHeight());
                     if (draw == null) continue;
+                    if (XposedHelpers.getAdditionalInstanceField(view, "mHookedBackground") != null || XposedHelpers.getAdditionalInstanceField(view, "mHookedDrawable") != null)
+                        continue;
                     setHookedDrawable(view, draw);
                 }
                 case "background-size" -> {
@@ -308,8 +310,8 @@ public class CustomView extends Feature {
                             }
                             Bitmap resizedBitmap = Bitmap.createScaledBitmap(bitmap, getRealValue(width, imageView.getWidth()), getRealValue(height, imageView.getHeight()), false);
                             var resizeDrawable = new BitmapDrawable(view.getContext().getResources(), resizedBitmap);
-                            XposedHelpers.setAdditionalInstanceField(view, "mHeight", view.getHeight());
-                            XposedHelpers.setAdditionalInstanceField(view, "mWidth", view.getWidth());
+                            XposedHelpers.setAdditionalInstanceField(view, "mHeight", getRealValue(height, imageView.getHeight()));
+                            XposedHelpers.setAdditionalInstanceField(view, "mWidth", getRealValue(width, imageView.getWidth()));
                             setHookedDrawable(imageView, resizeDrawable);
                         } else {
                             var drawable = view.getBackground();
@@ -323,8 +325,8 @@ public class CustomView extends Feature {
                             }
                             Bitmap resizedBitmap = Bitmap.createScaledBitmap(bitmap, getRealValue(width, 0), getRealValue(height, 0), false);
                             var resizeDrawable = new BitmapDrawable(view.getContext().getResources(), resizedBitmap);
-                            XposedHelpers.setAdditionalInstanceField(view, "mHeight", view.getHeight());
-                            XposedHelpers.setAdditionalInstanceField(view, "mWidth", view.getWidth());
+                            XposedHelpers.setAdditionalInstanceField(view, "mHeight", getRealValue(height, 0));
+                            XposedHelpers.setAdditionalInstanceField(view, "mWidth", getRealValue(width, 0));
                             view.setBackground(resizeDrawable);
                         }
                     } else {
