@@ -58,13 +58,9 @@ public class ToastViewer extends Feature {
 
                     if (TextUtils.isEmpty(contactName)) contactName = WppCore.stripJID(raw);
 
-                    var sql = MessageStore.getDatabase();
+                    var sql = MessageStore.getInstance().getDatabase();
 
-                    if (checkStatus(sql, id, contactName, raw, toastViewedStatus)) return;
-
-                    if (Objects.equals(WppCore.getCurrentRawJID(), raw)) return;
-
-                    checkMessage(sql, id, contactName, raw, toastViewedMessage);
+                    checkDataBase(sql, id, contactName, raw, toastViewedMessage, toastViewedStatus);
 
                 });
             }
@@ -77,9 +73,20 @@ public class ToastViewer extends Feature {
         return "Toast Viewer";
     }
 
-    private synchronized void checkMessage(SQLiteDatabase sql, long id, String contactName, String raw, boolean toastViewedMessage) {
+    private synchronized void checkDataBase(SQLiteDatabase sql, long id, String contactName, String raw, boolean toastViewedMessage, boolean toast_viewed_status) {
         try (var result2 = sql.query("message", null, "_id = ?", new String[]{String.valueOf(id)}, null, null, null)) {
             if (!result2.moveToNext()) return;
+
+            var origin = result2.getInt(result2.getColumnIndexOrThrow("origin"));
+            if (origin == 5 || origin == 11) {  // 11 = media status, 5 = text status
+                if (toast_viewed_status) {
+                    Utils.showToast(Utils.getApplication().getString(ResId.string.viewed_your_status, contactName), Toast.LENGTH_LONG);
+                }
+                Tasker.sendTaskerEvent(contactName, WppCore.stripJID(raw), "viewed_status");
+                return;
+            }
+
+            if (Objects.equals(WppCore.getCurrentRawJID(), raw)) return;
 
             var chat_id = result2.getLong(result2.getColumnIndexOrThrow("chat_row_id"));
             try (var result3 = sql.query("chat", null, "_id = ? AND subject IS NULL", new String[]{String.valueOf(chat_id)}, null, null, null)) {
@@ -96,25 +103,6 @@ public class ToastViewer extends Feature {
                     Tasker.sendTaskerEvent(contactName, WppCore.stripJID(raw), "viewed_message");
                 }
             }
-        }
-    }
-
-    private synchronized boolean checkStatus(SQLiteDatabase sql, long id, String contactName, String raw, boolean toast_viewed_status) {
-        try (var result = sql.query("status", null, "message_table_id = ?", new String[]{String.valueOf(id)}, null, null, null)) {
-            if (!result.moveToNext()) return false;
-            var key = raw + "_" + "viewed_status";
-            long currentTime = System.currentTimeMillis();
-            Long lastEventTime = lastEventTimeMap.get(key);
-
-            if (lastEventTime == null || (currentTime - lastEventTime) >= MIN_INTERVAL) {
-                if (toast_viewed_status) {
-                    Utils.showToast(Utils.getApplication().getString(ResId.string.viewed_your_status, contactName), Toast.LENGTH_LONG);
-                }
-                Tasker.sendTaskerEvent(contactName, WppCore.stripJID(raw), "viewed_status");
-                lastEventTimeMap.put(key, currentTime);
-            }
-
-            return true;
         }
     }
 
