@@ -3,7 +3,6 @@ package com.wmods.wppenhacer.utils;
 import android.graphics.Color;
 
 import java.util.HashMap;
-import java.util.HashSet;
 
 public class IColors {
     public static HashMap<String, String> colors = new HashMap<>();
@@ -19,8 +18,9 @@ public class IColors {
         colors.put("00a884", "00a884");
         colors.put("#ff00a884", "#ff00a884");
         colors.put("#21c063", "#21c063");
-        colors.put("#ff21c063", "#ff21c063");
-        colors.put("#ff000000", "#ff000000");
+        colors.put("#ff21c063", "#ff21c063"); // bagde indicator, message indicator, date color, title color, image color
+        colors.put("#ff000000", "#ff000000"); // background
+        colors.put("#ff25d366", "#ff25d366"); // status indicator
 //        colors.put("#0b141a", "#ff0b141a");
 
         colors.put("#ffffffff", "#ffffffff"); // background color in light theme
