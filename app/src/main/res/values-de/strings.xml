@@ -65,10 +65,10 @@
     <string name="downloadviewonce_sum">Schaltfläche anzeigen, um \"einmalige Ansicht\" herunterzuladen</string>
     <string name="separate_groups">Registerkarten</string>
     <string name="separate_groups_sum">Trennen Sie Ihre Chats nach Gruppen, privaten Chats, Status, Anrufe, Gemeinschaften</string>
-    <string name="blueonreply">Sendet blaue Häkchen erst nach Antwort</string>
-    <string name="blueonreply_sum">Sende blaue Häkchen erst nach Beantwortung einer Nachricht\n(NOTE: \"Lesebestätigung deaktivieren\" muss aktiv sein)</string>
+    <string name="blueonreply">Sende blaue Häkchen erst nach Antwort</string>
+    <string name="blueonreply_sum">Sendet blaue Häkchen erst nach Beantwortung einer Nachricht\n(NOTE: \"Lesebestätigung deaktivieren\" muss aktiv sein)</string>
     <string name="hide_archived_chat">Archivierte Chats</string>
-    <string name="hide_archived_chat_sum">Einstellungen wie mit archivierten Unterhaltungen umgegangen werden soll</string>
+    <string name="hide_archived_chat_sum">Menü zur Behandlung der Anzeige von archivierten Unterhaltungen</string>
     <string name="hide_once_view_seen">Verstecke \"Gesehen\" von \"einmalige Ansicht\" und Audio</string>
     <string name="hide_once_view_seen_sum">Deaktivierung der Bestätigung, dass \"einmalige Ansicht\" von Medien und Sprachnachrichten gesehen bzw. gehört worden sind</string>
     <string name="call_blocker">Anrufe blockieren</string>
@@ -187,9 +187,9 @@
     <string name="enable_top_navigation_sum">Aktiviere die alte Navigationsleiste (Tabs sind oben)</string>
     <string name="hideread_group">Blaue Häkchen in Gruppen ausblenden</string>
     <string name="hideread_group_sum">Nachrichten innerhalb des Chat-Bildschirms anzeigen, ohne das Kontakte informiert werden</string>
-    <string name="show_freezeLastSeen_button">Einfrierender zuletzt gesehener Button anzeigen</string>
-    <string name="show_freezeLastSeen_sum">Schaltfläche zum Einfrieren von \"Zuletzt gesehen\" auf der Symbolleiste anzeigen</string>
-    <string name="freezelastseen_message">Wenn das Einfrieren von \"Zuletzt gesehen\" aktiv ist, wirst du nicht in der Lage sein, andere zu sehen, die zuletzt gesehen wurden oder online sind</string>
+    <string name="show_freezeLastSeen_button">\"Zuletzt gesehen\"</string>
+    <string name="show_freezeLastSeen_sum">Schaltfläche zum Deaktivieren von \"Zuletzt gesehen\" auf der Symbolleiste anzeigen</string>
+    <string name="freezelastseen_message">Wenn das Einfrieren von \"Zuletzt gesehen\" aktiv ist, werden sie nicht in der Lage sein, andere zu sehen, die zuletzt gesehen wurden oder online sind</string>
     <string name="freezelastseen_title">Friere \"Zuletzt gesehen\" ein</string>
     <string name="wallpaper_transparency">Hintergrundbildtransparenz</string>
     <string name="select_wallpaper">Hintergrund auswählen</string>
@@ -334,5 +334,5 @@
     <string name="import_theme">Design importieren</string>
     <string name="theme_manager">Design Manager</string>
     <string name="manage_theme_sum">Themes mit CSS für WhatsApp verwalten</string>
-    <string name="grant_permission">Please, grant permissions to read images and read external storage</string>
+    <string name="grant_permission">Bitte erteilen Sie die Berechtigung zum Lesen des externen Speichers</string>
 </resources>

@@ -49,7 +49,7 @@
     <string name="outlinedicons">סמלים מתארים</string>
     <string name="outlinedicons_sum">סגנון חדש של סמלים מתארים</string>
     <string name="freezelastseen">הקפאת נראה לאחרונה</string>
-    <string name="freezelastseen_sum">הזמן שבו נראית לאחרונה יוקפא\n(שים לב: לא תראה את \'\'מקליד\'\', \'\'מקליט\'\' \'\'מחובר\'\' ונראה לאחרונה של המשתמשים האחרים, עד שתבטל פונקציה זו)</string>
+    <string name="freezelastseen_sum">הזמן שבו נראית לאחרונה יוקפא\n(שים לב: לא תראה את \'\'מקליד\'\', \'\'מקליט\'\' \'\'מחובר\'\' ונראה לאחרונה של המשתמשים האחרים, עד שתבטל את פונקציה זו)</string>
     <string name="removeforwardlimit_sum">בטל את המגבלה שלא מאפשרת העברת הודעה ליותר מ5 צ\'אטים \n(הערה: השתמש בזהירות, ייתכן שתחסם בגלל ספאם)</string>
     <string name="removeforwardlimit">בטל מגבלת העברת הודעות</string>
     <string name="showname">הצג שם</string>
@@ -137,7 +137,7 @@
     <string name="business_in_background">ווצאפ ביזנס ברקע</string>
     <string name="sending_read_blue_tick">שולח סימון כחול (סמן כנקרא/נצפה)</string>
     <string name="enable_facebook_style_for_status">אפשר סגנון פייסבוק לסטטוס</string>
-    <string name="enable_facebook_style_for_status_sum">שנה את סגנון הסטטוס המקורי לסגנון פייסבוק</string>
+    <string name="enable_facebook_style_for_status_sum">שנה את סגנון הסטטוס המקורי לסגנון פייסבוק.</string>
     <string name="send">כן</string>
     <string name="do_you_want_to_send_sticker">האם ברצונך לשלוח את המדבקה?</string>
     <string name="send_sticker">שליחת הסטיקר</string>
@@ -146,7 +146,7 @@
     <string name="disable_channels">הסתר ערוצים</string>
     <string name="disable_channels_sum">הסתר ערוצים מכרטיסיית העדכונים</string>
     <string name="chat">צ\'אטים</string>
-    <string name="change_bubble_colors">שנה את צבעי ההודעה</string>
+    <string name="change_bubble_colors">שנה את צבע ההודעה</string>
     <string name="change_blubble_color_sum">שנה את צבעי ההודעות במסך השיחה</string>
     <string name="default_color">הגדר את צבע #00000000 לצבע ברירת מחדל</string>
     <string name="enable_confirmation_to_send_sticker">בקש אישור לפני שליחת מדבקה</string>
@@ -308,12 +308,12 @@
     <string name="read_all_mark_as_read">קרא הכל (סמן כנקרא)</string>
     <string name="enable_copy_status">הפעל מצב העתקה בסטטוס</string>
     <string name="enable_copy_status_sum">מפעיל את האפשרות להעתיק את התיאור והכיתוב של הסטטוסים על ידי החזקה בהם</string>
-    <string name="animation_emojis">אנימציית אימוג\'י</string>
+    <string name="animation_emojis">אנימציית אימוג\'י בצ\'אט</string>
     <string name="animation_emojis_sum"></string>
     <string name="vertical_status">סטטוס אנכי</string>
     <string name="vertical_status_sum">הצג סטטוס במצב אנכי בכרטיסיית העדכונים</string>
     <string name="disable_version_check">השבת את בדיקת הגרסה</string>
-    <string name="disable_version_check_sum">משבית את בדיקת הגרסה הנתמכת של ווצאפ (ייתכנו באגים בגרסאות לא נתמכות שלא יתוקנו בקרוב)</string>
+    <string name="disable_version_check_sum">משבית את בדיקת הגרסה הנתמכת של ווצאפ במודול (ייתכנו באגים בגרסאות שלא נתמכות)</string>
     <string name="invalid_zip_file">קובץ zip לא חוקי</string>
     <string name="theme_imported_successfully">ערכת הנושא יובאה בהצלחה</string>
     <string name="new_theme_name">שם ערכת נושא חדש</string>
@@ -336,5 +336,5 @@
     <string name="import_theme">ייבא ערכת עיצוב</string>
     <string name="theme_manager">מנהל ערכת נושא</string>
     <string name="manage_theme_sum">נהל ערכות נושא באמצעות CSS עבור ווצאפ</string>
-    <string name="grant_permission">Please, grant permissions to read images and read external storage</string>
+    <string name="grant_permission">אנא הענק הרשאות לתמונות ולאחסון</string>
 </resources>
