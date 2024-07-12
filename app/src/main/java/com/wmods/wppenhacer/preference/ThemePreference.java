@@ -1,5 +1,6 @@
 package com.wmods.wppenhacer.preference;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
@@ -77,9 +78,11 @@ public class ThemePreference extends Preference implements FilePicker.OnUriPicke
         builder.show();
     }
 
+    @SuppressLint("ApplySharedPref")
     private void showThemeDialog() {
         final Context context = getContext();
         List<String> folders = getFolders();
+        folders.add(0, "Default Theme");
 
         var folder_name = getSharedPreferences().getString(getKey(), null);
 
@@ -106,22 +109,28 @@ public class ThemePreference extends Preference implements FilePicker.OnUriPicke
                 folderNameView.setTextColor(ContextCompat.getColor(context, R.color.md_theme_material_green_dark_onPrimaryContainer));
             }
             itemView.setOnClickListener(v -> {
+                var sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
+                sharedPreferences.edit().putString(getKey(), folder).commit();
                 var cssFile = new File(rootDirectory, folder + "/style.css");
                 if (cssFile.exists()) {
                     var code = FilesKt.readText(cssFile, Charset.defaultCharset());
-                    var sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
-                    sharedPreferences.edit().putString(getKey(), folder).commit();
                     sharedPreferences.edit().putString("custom_css", code).commit();
+                } else {
+                    sharedPreferences.edit().putString("custom_css", "").commit();
                 }
                 mainDialog.dismiss();
             });
             ImageButton editButton = itemView.findViewById(R.id.edit_button);
-            editButton.setOnClickListener(v -> {
-                Intent intent = new Intent(context, TextEditorActivity.class);
-                intent.putExtra("folder_name", folder);
-                intent.putExtra("key", getKey());
-                ContextCompat.startActivity(context, intent, null);
-            });
+            if (folder.equals("Default Theme")) {
+                editButton.setVisibility(View.INVISIBLE);
+            } else {
+                editButton.setOnClickListener(v -> {
+                    Intent intent = new Intent(context, TextEditorActivity.class);
+                    intent.putExtra("folder_name", folder);
+                    intent.putExtra("key", getKey());
+                    ContextCompat.startActivity(context, intent, null);
+                });
+            }
             folderListContainer.addView(itemView);
         }
         mainDialog = builder.show();

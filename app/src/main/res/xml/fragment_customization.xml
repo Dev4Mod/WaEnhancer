@@ -108,6 +108,7 @@
 
         <com.wmods.wppenhacer.preference.ThemePreference
             android:key="folder_theme"
+            app:dependency="custom_filters"
             android:summary="@string/manage_theme_sum"
             android:title="@string/theme_manager" />
 
