@@ -22,8 +22,6 @@ import android.graphics.drawable.shapes.RectShape;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Looper;
 import android.provider.Settings;
 import android.text.TextUtils;
 import android.util.Log;
@@ -59,6 +57,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Objects;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 
 import cz.vutbr.web.css.CSSFactory;
@@ -96,7 +95,7 @@ public class CustomView extends Feature {
 
         checkPermissions();
 
-        if ((TextUtils.isEmpty(filter_itens) && TextUtils.isEmpty(folder_theme)) || !prefs.getBoolean("custom_filters", true))
+        if ((TextUtils.isEmpty(filter_itens) && TextUtils.isEmpty(folder_theme) && TextUtils.isEmpty(custom_css)) || !prefs.getBoolean("custom_filters", true))
             return;
 
         hookDrawableViews();
@@ -107,14 +106,16 @@ public class CustomView extends Feature {
         chacheDrawables = new HashMap<>();
 
         var sheet = CSSFactory.parseString(filter_itens, new URL("https://base.url/"));
+
         XposedHelpers.findAndHookMethod(Activity.class, "onCreate", Bundle.class, new XC_MethodHook() {
             @Override
             protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
                 var activity = (Activity) param.thisObject;
                 View rootView = activity.getWindow().getDecorView().getRootView();
-                rootView.getViewTreeObserver().addOnGlobalLayoutListener(() -> registerCssRules(activity, (ViewGroup) rootView, sheet));
+                rootView.getViewTreeObserver().addOnGlobalLayoutListener(() -> CompletableFuture.runAsync(() -> registerCssRules(activity, (ViewGroup) rootView, sheet)));
             }
         });
+
     }
 
     private void hookDrawableViews() {
@@ -126,7 +127,6 @@ public class CustomView extends Feature {
                 var hookedBackground = XposedHelpers.getAdditionalInstanceField(view, "mHookedBackground");
                 if (Unobfuscator.isCalledFromClass(CustomView.class)) {
                     if (hookedBackground == null || hookedBackground != newDrawable) {
-                        log("background " + hookedBackground + " -> " + newDrawable);
                         XposedHelpers.setAdditionalInstanceField(view, "mHookedBackground", newDrawable);
                         return;
                     }
@@ -143,7 +143,6 @@ public class CustomView extends Feature {
                 var mHookedDrawable = XposedHelpers.getAdditionalInstanceField(view, "mHookedDrawable");
                 if (Unobfuscator.isCalledFromClass(CustomView.class)) {
                     if (mHookedDrawable == null || mHookedDrawable != newDrawable) {
-                        log("Image Drawable " + mHookedDrawable + " -> " + newDrawable);
                         XposedHelpers.setAdditionalInstanceField(view, "mHookedDrawable", newDrawable);
                         return;
                     }
@@ -230,13 +229,13 @@ public class CustomView extends Feature {
         for (var view : resultViews) {
             if (view == null || !view.isAttachedToWindow())
                 continue;
-            new Handler(Looper.getMainLooper()).post(() -> {
+            CompletableFuture.runAsync(() -> view.post(() -> {
                 try {
                     setRuleInView(ruleItem, view);
                 } catch (Throwable e) {
                     log(e);
                 }
-            });
+            }), Utils.getExecutor());
         }
     }
 
@@ -643,35 +642,6 @@ public class CustomView extends Feature {
             bitmap = Bitmap.createScaledBitmap(bitmap, newWidth, newHeight, true);
 
             return new BitmapDrawable(context.getResources(), bitmap);
-        }
-
-        private int calculateInSampleSize(BitmapFactory.Options options, int reqWidth, int reqHeight) {
-            if (options == null) {
-                throw new IllegalArgumentException("Options cannot be null");
-            }
-
-            // Raw height and width of image
-            final int height = options.outHeight;
-            final int width = options.outWidth;
-            int inSampleSize = 1;
-
-            if (height > reqHeight || width > reqWidth) {
-                final int halfHeight = height / 2;
-                final int halfWidth = width / 2;
-
-                try {
-                    // Calculate the largest inSampleSize value that is a power of 2 and keeps both
-                    // height and width larger than the requested height and width.
-                    while ((halfHeight / inSampleSize) >= reqHeight && (halfWidth / inSampleSize) >= reqWidth) {
-                        inSampleSize *= 2;
-                    }
-                } catch (ArithmeticException e) {
-                    // Handle the exception if division by zero occurs
-                    return 1;
-                }
-            }
-
-            return inSampleSize;
         }
 
         @Nullable
