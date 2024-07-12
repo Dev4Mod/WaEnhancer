@@ -61,7 +61,7 @@ public class WallpaperView extends FrameLayout {
         String cachedData = WppCore.getPrivString("wallpaper_data", "");
 
         // Verificar se o arquivo foi modificado ou se é um novo arquivo
-        if (cacheKey.equals(cachedData)) {
+        if (cacheKey.equals(cachedData) && new File(fileOut).exists()) {
             // Carregar imagem do arquivo em cache
             Bitmap bitmap = BitmapFactory.decodeFile(fileOut);
             return new BitmapDrawable(getResources(), bitmap);

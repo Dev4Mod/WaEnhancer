@@ -1720,4 +1720,12 @@ public class Unobfuscator {
             return clazz;
         });
     }
+
+    public static Method loadFragmentViewMethod(ClassLoader classLoader) throws Exception {
+        return UnobfuscatorCache.getInstance().getMethod(classLoader, () -> {
+            var method = findFirstMethodUsingStrings(classLoader, StringMatchType.Contains, "this was called before onCreateView()");
+            if (method == null) throw new RuntimeException("FragmentView method not found");
+            return method;
+        });
+    }
 }

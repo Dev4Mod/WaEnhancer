@@ -44,6 +44,7 @@ import java.util.Objects;
 
 import de.robv.android.xposed.XC_MethodHook;
 import de.robv.android.xposed.XSharedPreferences;
+import de.robv.android.xposed.XposedBridge;
 import de.robv.android.xposed.XposedHelpers;
 
 public class CustomTheme extends Feature {
@@ -78,14 +79,16 @@ public class CustomTheme extends Feature {
             }
         });
 
-        XposedHelpers.findAndHookMethod("androidx.viewpager.widget.ViewPager", loader1, "onMeasure", int.class, int.class, new XC_MethodHook() {
-            @Override
-            protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-                var viewGroup = (ViewGroup) param.thisObject;
-                replaceColors(viewGroup, wallAlpha);
-            }
-        });
+        var hookFragmentView = Unobfuscator.loadFragmentViewMethod(classLoader);
 
+        XposedBridge.hookMethod(hookFragmentView,
+                new XC_MethodHook() {
+                    @Override
+                    protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+                        var viewGroup = (ViewGroup) param.getResult();
+                        replaceColors(viewGroup, wallAlpha);
+                    }
+                });
 
         var loadTabFrameClass = Unobfuscator.loadTabFrameClass(classLoader);
         XposedHelpers.findAndHookMethod(FrameLayout.class, "onMeasure", int.class, int.class, new XC_MethodHook() {
