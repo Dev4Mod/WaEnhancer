@@ -101,7 +101,7 @@ public class ShowEditMessage extends Feature {
                             var messageObj = XposedHelpers.callMethod(param.thisObject, "getFMessage");
                             var fMesage = new FMessageWpp(messageObj);
                             long id = fMesage.getRowId();
-                            var msg = new MessageHistory.MessageItem(id, MessageStore.getMessageById(id), 0);
+                            var msg = new MessageHistory.MessageItem(id, MessageStore.getInstance().getMessageById(id), 0);
                             var messages = MessageHistory.getInstance().getMessages(id);
                             if (messages == null) {
                                 messages = new ArrayList<>();

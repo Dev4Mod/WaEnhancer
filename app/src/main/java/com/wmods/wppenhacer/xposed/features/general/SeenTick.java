@@ -106,7 +106,7 @@ public class SeenTick extends Feature {
                 var handler = new Handler(Looper.getMainLooper());
                 if (Objects.equals(currentScreen, "status")) {
                     if (messages.isEmpty()) return;
-                    MessageStore.storeMessageRead(messages.valueAt(0).messageId);
+                    MessageStore.getInstance().storeMessageRead(messages.valueAt(0).messageId);
                     var view = messageMap.get(messages.valueAt(0).messageId);
                     if (view != null) view.post(() -> setSeenButton(view, true));
                     handler.post(() -> sendBlueTickStatus(currentJid));
@@ -201,7 +201,7 @@ public class SeenTick extends Feature {
                         setSeenButton(buttonImage, true);
                     }));
                     CompletableFuture.runAsync(() -> {
-                        var seen = MessageStore.isReadMessageStatus(key.messageID);
+                        var seen = MessageStore.getInstance().isReadMessageStatus(key.messageID);
                         setSeenButton(buttonImage, seen);
                     });
                 }
@@ -314,7 +314,7 @@ public class SeenTick extends Feature {
         if (messages.isEmpty() || currentJid == null || currentJid.contains(Utils.getMyNumber()))
             return;
         var messagekeys = messages.stream().map(item -> item.messageId).collect(Collectors.toList());
-        var listAudios = MessageStore.getAudioListByMessageList(messagekeys);
+        var listAudios = MessageStore.getInstance().getAudioListByMessageList(messagekeys);
         logDebug("listAudios: " + listAudios);
         for (var messageKey : listAudios) {
             var mInfo = messages.stream().filter(messageInfo -> messageInfo.messageId.equals(messageKey)).findAny();
@@ -357,7 +357,7 @@ public class SeenTick extends Feature {
         try {
             logDebug("sendBlue: " + currentJid);
             var arr_s = messages.stream().map(item -> item.messageId).toArray(String[]::new);
-            Arrays.stream(arr_s).forEach(MessageStore::storeMessageRead);
+            Arrays.stream(arr_s).forEach(s -> MessageStore.getInstance().storeMessageRead(s));
             var userJidSender = WppCore.createUserJid("status@broadcast");
             var userJid = WppCore.createUserJid(currentJid);
             WppCore.setPrivBoolean(arr_s[0] + "_rpass", true);

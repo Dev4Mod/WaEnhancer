@@ -19,7 +19,7 @@ public class DelMessageStore extends SQLiteOpenHelper {
 
     public static DelMessageStore getInstance(Context ctx) {
         synchronized (DelMessageStore.class) {
-            if (mInstance == null) {
+            if (mInstance == null || !mInstance.getWritableDatabase().isOpen()) {
                 mInstance = new DelMessageStore(ctx);
             }
         }
@@ -36,15 +36,12 @@ public class DelMessageStore extends SQLiteOpenHelper {
     }
 
     public void insertMessage(String jid, String msgid, long timestamp) {
-        SQLiteDatabase dbWrite = this.getWritableDatabase();
-        try {
+        try (SQLiteDatabase dbWrite = this.getWritableDatabase()) {
             ContentValues values = new ContentValues();
             values.put("jid", jid);
             values.put("msgid", msgid);
             values.put("timestamp", timestamp);
             dbWrite.insert("delmessages", null, values);
-        } finally {
-            dbWrite.close();
         }
     }
 
@@ -72,15 +69,11 @@ public class DelMessageStore extends SQLiteOpenHelper {
 
     public long getTimestampByMessageId(String msgid) {
         SQLiteDatabase dbReader = this.getReadableDatabase();
-        Cursor query = dbReader.query("delmessages", new String[]{"timestamp"}, "msgid=?", new String[]{msgid}, null, null, null);
-        try {
+        try (dbReader; Cursor query = dbReader.query("delmessages", new String[]{"timestamp"}, "msgid=?", new String[]{msgid}, null, null, null)) {
             if (query.moveToFirst()) {
                 return query.getLong(query.getColumnIndexOrThrow("timestamp"));
             }
             return 0;
-        } finally {
-            query.close();
-            dbReader.close();
         }
     }
 

@@ -20,7 +20,7 @@ public class MessageHistory extends SQLiteOpenHelper {
 
     public static MessageHistory getInstance() {
         synchronized(MessageHistory.class) {
-            if(mInstance == null) {
+            if (mInstance == null || !mInstance.getReadableDatabase().isOpen()) {
                 mInstance = new MessageHistory(Utils.getApplication());
                 mInstance.dbWrite = mInstance.getWritableDatabase();
             }

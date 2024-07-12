@@ -170,7 +170,7 @@ public class AntiRevoke extends Feature {
         var messageRevokedList = getRevokedMessages(fMessage);
         var id = fMessage.getRowId();
         String keyOrig = null;
-        if (messageRevokedList.contains(key.messageID) || ((keyOrig = MessageStore.getOriginalMessageKey(id)) != null && messageRevokedList.contains(keyOrig))) {
+        if (messageRevokedList.contains(key.messageID) || ((keyOrig = MessageStore.getInstance().getOriginalMessageKey(id)) != null && messageRevokedList.contains(keyOrig))) {
             var timestamp = DelMessageStore.getInstance(Utils.getApplication()).getTimestampByMessageId(keyOrig == null ? key.messageID : keyOrig);
             if (timestamp > 0) {
                 Locale locale = Utils.getApplication().getResources().getConfiguration().getLocales().get(0);
