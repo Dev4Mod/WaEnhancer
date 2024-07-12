@@ -22,6 +22,8 @@ import android.graphics.drawable.shapes.RectShape;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.provider.Settings;
 import android.text.TextUtils;
 import android.util.Log;
@@ -103,7 +105,6 @@ public class CustomView extends Feature {
         filter_itens += "\n" + custom_css;
         cacheImages = new DrawableCache(Utils.getApplication(), 100 * 1024 * 1024);
         chacheDrawables = new HashMap<>();
-        mThreadService = Utils.getExecutor();
 
         var sheet = CSSFactory.parseString(filter_itens, new URL("https://base.url/"));
         XposedHelpers.findAndHookMethod(Activity.class, "onCreate", Bundle.class, new XC_MethodHook() {
@@ -111,7 +112,7 @@ public class CustomView extends Feature {
             protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
                 var activity = (Activity) param.thisObject;
                 View rootView = activity.getWindow().getDecorView().getRootView();
-                rootView.getViewTreeObserver().addOnGlobalLayoutListener(() -> mThreadService.execute(() -> registerCssRules(activity, (ViewGroup) rootView, sheet)));
+                rootView.getViewTreeObserver().addOnGlobalLayoutListener(() -> registerCssRules(activity, (ViewGroup) rootView, sheet));
             }
         });
     }
@@ -229,8 +230,13 @@ public class CustomView extends Feature {
         for (var view : resultViews) {
             if (view == null || !view.isAttachedToWindow())
                 continue;
-            Utils.getExecutor().execute(() -> setRuleInView(ruleItem, view));
-//            CompletableFuture.runAsync(() -> setRuleInView(ruleItem, view));
+            new Handler(Looper.getMainLooper()).post(() -> {
+                try {
+                    setRuleInView(ruleItem, view);
+                } catch (Throwable e) {
+                    log(e);
+                }
+            });
         }
     }
 
@@ -265,16 +271,16 @@ public class CustomView extends Feature {
                 case "font-size" -> {
                     if (!(view instanceof TextView textView)) continue;
                     var value = (TermLength) declaration.get(0);
-                    view.post(() -> textView.setTextSize(getRealValue(value, 0)));
+                    textView.setTextSize(getRealValue(value, 0));
                 }
                 case "color" -> {
                     if (!(view instanceof TextView textView)) continue;
                     var value = (TermColor) declaration.get(0);
-                    view.post(() -> textView.setTextColor(value.getValue().getRGB()));
+                    textView.setTextColor(value.getValue().getRGB());
                 }
                 case "alpha" -> {
                     var value = (TermFloatValue) declaration.get(0);
-                    view.post(() -> view.setAlpha(value.getValue()));
+                    view.setAlpha(value.getValue());
                 }
                 case "background-image" -> {
                     if (!(declaration.get(0) instanceof TermURI uri)) continue;
@@ -288,12 +294,12 @@ public class CustomView extends Feature {
                         if (view instanceof ImageView imageView) {
                             if (width.isPercentage() || height.isPercentage()) {
                                 if (width.getValue().intValue() == 100 || height.getValue().intValue() == 100) {
-                                    view.post(() -> imageView.setScaleType(ImageView.ScaleType.FIT_CENTER));
+                                    imageView.setScaleType(ImageView.ScaleType.FIT_CENTER);
                                     continue;
                                 }
                             }
                             var drawable = imageView.getDrawable();
-                            if (drawable == null) continue;
+                            if (!(drawable instanceof BitmapDrawable)) continue;
                             Bitmap bitmap = ((BitmapDrawable) drawable).getBitmap();
                             var widthObj = XposedHelpers.getAdditionalInstanceField(view, "mWidth");
                             var heightObj = XposedHelpers.getAdditionalInstanceField(view, "mHeight");
@@ -308,7 +314,7 @@ public class CustomView extends Feature {
                             setHookedDrawable(imageView, resizeDrawable);
                         } else {
                             var drawable = view.getBackground();
-                            if (drawable == null) continue;
+                            if (!(drawable instanceof BitmapDrawable)) continue;
                             Bitmap bitmap = ((BitmapDrawable) drawable).getBitmap();
                             var widthObj = XposedHelpers.getAdditionalInstanceField(view, "mWidth");
                             var heightObj = XposedHelpers.getAdditionalInstanceField(view, "mHeight");
@@ -320,7 +326,7 @@ public class CustomView extends Feature {
                             var resizeDrawable = new BitmapDrawable(view.getContext().getResources(), resizedBitmap);
                             XposedHelpers.setAdditionalInstanceField(view, "mHeight", view.getHeight());
                             XposedHelpers.setAdditionalInstanceField(view, "mWidth", view.getWidth());
-                            setHookedBackground(view, resizeDrawable);
+                            view.setBackground(resizeDrawable);
                         }
                     } else {
                         var value = declaration.get(0).toString().trim();
@@ -340,25 +346,25 @@ public class CustomView extends Feature {
                                 var resizeDrawable = new BitmapDrawable(view.getContext().getResources(), Bitmap.createScaledBitmap(bitmap, view.getWidth(), view.getHeight(), true));
                                 XposedHelpers.setAdditionalInstanceField(view, "mHeight", view.getHeight());
                                 XposedHelpers.setAdditionalInstanceField(view, "mWidth", view.getWidth());
-                                setHookedBackground(view, resizeDrawable);
+                                view.setBackground(resizeDrawable);
                             }
                         }
                     }
                 }
                 case "background" -> {
                     if (declaration.get(0) instanceof TermColor color) {
-                        view.post(() -> view.setBackgroundColor(color.getValue().getRGB()));
+                        view.setBackgroundColor(color.getValue().getRGB());
                         continue;
                     }
                     if (declaration.get(0) instanceof TermURI uri) {
                         var draw = cacheImages.getDrawable(uri.getValue(), view.getWidth(), view.getHeight());
                         if (draw == null) continue;
-                        view.post(() -> view.setBackground(draw));
+                        view.setBackground(draw);
                         continue;
                     }
                     var value = declaration.get(0).toString().trim();
                     if (value.equals("none")) {
-                        view.post(() -> view.setBackground(null));
+                        view.setBackground(null);
                     } else {
                         setBackgroundModel(view, declaration.get(0));
                     }
@@ -372,12 +378,12 @@ public class CustomView extends Feature {
                     if (declaration.get(0) instanceof TermURI uri) {
                         var draw = cacheImages.getDrawable(uri.getValue(), view.getWidth(), view.getHeight());
                         if (draw == null) continue;
-                        view.post(() -> view.setForeground(draw));
+                        view.setForeground(draw);
                         continue;
                     }
                     var value = declaration.get(0).toString().trim();
                     if (value.equals("none")) {
-                        view.post(() -> view.setForeground(null));
+                        view.setForeground(null);
                     }
                 }
                 case "width" -> {
@@ -387,8 +393,7 @@ public class CustomView extends Feature {
                 }
                 case "height" -> {
                     var value = (TermLength) declaration.get(0);
-                    view.getLayoutParams().height = getRealValue(value, 0)
-                    ;
+                    view.getLayoutParams().height = getRealValue(value, 0);
                 }
                 case "left" -> {
                     var value = (TermLength) declaration.get(0);
@@ -430,11 +435,11 @@ public class CustomView extends Feature {
                     var mode = declaration.get(0).toString().trim();
                     if (mode.equals("none")) {
                         if (view instanceof ImageView imageView) {
-                            view.post(imageView::clearColorFilter);
+                            imageView.clearColorFilter();
                         } else {
                             var drawable = view.getBackground();
                             if (drawable != null) {
-                                view.post(drawable::clearColorFilter);
+                                drawable.clearColorFilter();
                             }
                         }
                     } else {
@@ -442,11 +447,11 @@ public class CustomView extends Feature {
                         try {
                             var pMode = PorterDuff.Mode.valueOf(mode);
                             if (view instanceof ImageView imageView) {
-                                view.post(() -> imageView.setColorFilter(color.getValue().getRGB(), pMode));
+                                imageView.setColorFilter(color.getValue().getRGB(), pMode);
                             } else {
                                 var drawable = view.getBackground();
                                 if (drawable != null) {
-                                    view.post(() -> drawable.setColorFilter(color.getValue().getRGB(), pMode));
+                                    drawable.setColorFilter(color.getValue().getRGB(), pMode);
                                 }
                             }
                         } catch (IllegalArgumentException ignored) {
@@ -462,18 +467,18 @@ public class CustomView extends Feature {
                             var drawable = view.getBackground();
                             if (drawable != null) {
                                 ColorStateList colorStateList = declaration.size() == 1 ? ColorStateList.valueOf(color.getValue().getRGB()) : getColorStateList(declaration);
-                                view.post(() -> drawable.setTintList(colorStateList));
+                                drawable.setTintList(colorStateList);
                             }
                         }
                     } else {
                         var value = declaration.get(0).toString().trim();
                         if (value.equals("none")) {
                             if (view instanceof ImageView imageView) {
-                                view.post(imageView::clearColorFilter);
+                                imageView.setImageTintList(null);
                             } else {
                                 var drawable = view.getBackground();
                                 if (drawable != null) {
-                                    view.post(drawable::clearColorFilter);
+                                    drawable.setTintList(null);
                                 }
                             }
                         }
@@ -484,19 +489,11 @@ public class CustomView extends Feature {
     }
 
     private void setHookedDrawable(View view, Drawable draw) {
-        view.post(() -> {
-            if (view instanceof ImageView imageView) {
-                imageView.setImageDrawable(draw);
-            } else {
-                view.setBackground(draw);
-            }
-        });
-    }
-
-    private void setHookedBackground(View view, Drawable draw) {
-        view.post(() -> {
+        if (view instanceof ImageView imageView) {
+            imageView.setImageDrawable(draw);
+        } else {
             view.setBackground(draw);
-        });
+        }
     }
 
     private void setBackgroundModel(View view, Term<?> value) {
@@ -639,10 +636,6 @@ public class CustomView extends Feature {
         private Drawable loadDrawableFromFile(String filePath, int reqWidth, int reqHeight) {
 
             File file = new File(filePath);
-            if (!file.exists()) {
-                logDebug("File not found: " + filePath);
-                return new ColorDrawable(0);  // Return transparent drawable
-            }
 
             var bitmap = BitmapFactory.decodeFile(file.getAbsolutePath());
             var newHeight = reqHeight < 10 ? bitmap.getHeight() : Math.min(bitmap.getHeight(), reqHeight);

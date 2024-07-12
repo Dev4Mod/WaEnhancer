@@ -1,5 +1,2 @@
 [CUSTOM CSS]
-* Fix bug on load images
-
-[WA ENHANCER]
-* Updated translations
+* Fix bugs again..
