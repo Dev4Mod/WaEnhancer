@@ -1,14 +1,3 @@
-[DATABASE]
-* Improve code
-
-[CUSTOM COLORS]
-* added status indicator color to custom primary color
-
-[TOAST VIEWER]
-* Fixed bug in multiples statuses
-
-[CUSTOM VIEW]
-* More lag fixes
-
-[WA ENHANCER]
-* Update translations
+[THEME MANAGER]
+Added the ability to modify wallpaper and colors through the Theme Editor
+Read docs for mores details (https://github.com/Dev4Mod/WaEnhancer/Theme.md)

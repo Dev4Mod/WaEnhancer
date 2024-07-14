@@ -16,6 +16,7 @@
     <color name="codeview_units">#d19a66</color>
     <color name="codeview_important">#d19a66</color>
     <color name="codeview_properties">#56b6c2</color>
+    <color name="codeview_comments">#757875</color>
     <color name="codeview_text">#FFFFFF</color>
     <color name="codeview_css_properties">#cc7832</color>
     <color name="codeview_nth_child">#e0c46c</color>

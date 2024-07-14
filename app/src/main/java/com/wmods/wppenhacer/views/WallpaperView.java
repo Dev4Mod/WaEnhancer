@@ -15,20 +15,24 @@ import android.widget.ImageView;
 
 import androidx.annotation.NonNull;
 
+import com.wmods.wppenhacer.preference.ThemePreference;
 import com.wmods.wppenhacer.xposed.core.WppCore;
 
 import java.io.File;
 import java.io.FileOutputStream;
+import java.util.Properties;
 
 import de.robv.android.xposed.XSharedPreferences;
 
 @SuppressLint("ViewConstructor")
 public class WallpaperView extends FrameLayout {
     private final XSharedPreferences prefs;
+    private final Properties properties;
 
-    public WallpaperView(@NonNull Context context, XSharedPreferences preferences) {
+    public WallpaperView(@NonNull Context context, XSharedPreferences preferences, Properties properties) {
         super(context);
         this.prefs = preferences;
+        this.properties = properties;
         init(context);
     }
 
@@ -38,7 +42,10 @@ public class WallpaperView extends FrameLayout {
         bgView.setScaleType(ImageView.ScaleType.CENTER_CROP);
         bgView.setAdjustViewBounds(false);
         try {
-            var image = prefs.getString("wallpaper_file", "");
+            String image = ThemePreference.rootDirectory.getAbsolutePath() + "/" + prefs.getString("folder_theme", "") + "/" + properties.getProperty("wallpaper_file");
+            if (prefs.getBoolean("wallpaper", false)) {
+                image = prefs.getString("wallpaper_file", "");
+            }
             Drawable drawable = getDrawableImage(image);
             bgView.setImageDrawable(drawable);
             addView(bgView);

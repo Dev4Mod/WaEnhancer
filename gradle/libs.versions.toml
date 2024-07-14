@@ -1,5 +1,4 @@
 [versions]
-codeview = "1.3.9"
 jstyleparser = "4.0.0"
 okhttp = "4.12.0"
 xposed-legacy = "82"
@@ -11,7 +10,6 @@ kotlin = "2.0.0"
 
 
 [libraries]
-codeview = { module = "io.github.amrdeveloper:codeview", version.ref = "codeview" }
 colorpicker = { module = "com.jaredrummler:colorpicker", version.ref = "colorpicker" }
 dexkit = { module = "org.luckypray:dexkit", version.ref = "dexkit" }
 jstyleparser = { module = "net.sf.cssbox:jstyleparser", version.ref = "jstyleparser" }
@@ -28,7 +26,6 @@ rikkax-appcompat = { module = "dev.rikka.rikkax.appcompat:appcompat", version = 
 rikkax-core = { module = "dev.rikka.rikkax.core:core", version = "1.4.1" }
 rikkax-material = { module = "dev.rikka.rikkax.material:material", version = "2.7.0" }
 rikkax-material-preference = { module = "dev.rikka.rikkax.material:material-preference", version = "2.0.0" }
-rikkax-preference = { module = "dev.rikka.rikkax.material:material-preference", version = "2.0.0" }
 rikkax-widget-borderview = { module = "dev.rikka.rikkax.widget:borderview", version = "1.1.0" }
 material = { module = "com.google.android.material:material", version = "1.12.0" }
 

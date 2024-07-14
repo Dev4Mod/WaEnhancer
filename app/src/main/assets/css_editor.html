@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html, body{
+            height: 100% !important;
+            width: 100%;
+            background: #2d2d2d;
+        }
+
+
+    </style>
+    <link href="www/prism.css" rel="stylesheet"/>
+    <link href="www/prism-live.css" rel="stylesheet">
+    <script src="www/prism.js"></script>
+    <title>CSS Editor</title>
+</head>
+<body>
+<label for="code"></label>
+<textarea class="prism-live language-css fill" id="code"
+          style="--height: 50em">{{content}}</textarea>
+<script type="text/javascript">
+    function getTextareaContent() {
+           return document.getElementById('code').value;
+       }
+</script>
+<script src="www/src/prism-live.mjs?load=css" type="module"></script>
+<script src="www/index.js"></script>
+</body>
+</html>

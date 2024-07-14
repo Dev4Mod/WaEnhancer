@@ -33,6 +33,7 @@ import com.wmods.wppenhacer.utils.IColors;
 import com.wmods.wppenhacer.views.WallpaperView;
 import com.wmods.wppenhacer.xposed.core.Feature;
 import com.wmods.wppenhacer.xposed.core.devkit.Unobfuscator;
+import com.wmods.wppenhacer.xposed.utils.DesignUtils;
 import com.wmods.wppenhacer.xposed.utils.ReflectionUtils;
 import com.wmods.wppenhacer.xposed.utils.Utils;
 
@@ -41,6 +42,7 @@ import org.xmlpull.v1.XmlPullParser;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Objects;
+import java.util.Properties;
 
 import de.robv.android.xposed.XC_MethodHook;
 import de.robv.android.xposed.XSharedPreferences;
@@ -53,6 +55,7 @@ public class CustomTheme extends Feature {
     private HashMap<String, String> wallAlpha;
     private HashMap<String, String> navAlpha;
     private HashMap<String, String> toolbarAlpha;
+    private Properties properties;
 
     public CustomTheme(ClassLoader loader, XSharedPreferences preferences) {
         super(loader, preferences);
@@ -61,12 +64,15 @@ public class CustomTheme extends Feature {
 
     @Override
     public void doHook() throws Exception {
+        properties = Utils.extractProperties(prefs.getString("custom_css", ""));
         hookColors();
         hookWallpaper();
     }
 
     private void hookWallpaper() throws Exception {
-        if (!prefs.getBoolean("wallpaper", false)) return;
+
+        if (!prefs.getBoolean("wallpaper", false) && !Objects.equals(properties.getProperty("wallpaper"), "true"))
+            return;
 
         var clazz = XposedHelpers.findClass("com.whatsapp.HomeActivity", classLoader);
         XposedHelpers.findAndHookMethod(clazz.getSuperclass(), "onCreate", Bundle.class, new XC_MethodHook() {
@@ -112,6 +118,29 @@ public class CustomTheme extends Feature {
             }
         });
 
+
+        var customWallpaper = prefs.getBoolean("wallpaper", false);
+
+        if (customWallpaper || properties.containsKey("wallpaper")) {
+
+            wallAlpha = new HashMap<>(IColors.colors);
+            var wallpaperAlpha = customWallpaper ? prefs.getInt("wallpaper_alpha", 30) : Utils.tryParseInt(properties.getProperty("wallpaper_alpha"), 30);
+            replaceTransparency(wallAlpha, (100 - wallpaperAlpha) / 100.0f);
+
+            navAlpha = new HashMap<>(IColors.colors);
+            var wallpaperAlphaNav = customWallpaper ? prefs.getInt("wallpaper_alpha_navigation", 30) : Utils.tryParseInt(properties.getProperty("wallpaper_alpha_navigation"), 30);
+            replaceTransparency(navAlpha, (100 - wallpaperAlphaNav) / 100.0f);
+
+            toolbarAlpha = new HashMap<>(IColors.colors);
+
+            // Corrigir cor verde na barra de ferramentas
+            var colorOrig = "#ff1b8755";
+            var color = toolbarAlpha.get(colorOrig);
+            if (Objects.equals(colorOrig, color)) toolbarAlpha.put(colorOrig, "#ffffffff");
+            var wallpaperToolbarAlpha = customWallpaper ? prefs.getInt("wallpaper_alpha_toolbar", 30) : Utils.tryParseInt(properties.getProperty("wallpaper_alpha_toolbar"), 30);
+            replaceTransparency(toolbarAlpha, (100 - wallpaperToolbarAlpha) / 100.0f);
+        }
+
     }
 
     private void hookColors() throws Exception {
@@ -126,13 +155,20 @@ public class CustomTheme extends Feature {
         var secondaryColorInt = prefs.getInt("secondary_color", 0);
         var backgroundColorInt = prefs.getInt("background_color", 0);
 
-        var primaryColor = primaryColorInt == 0 ? "0" : IColors.toString(primaryColorInt);
-        var secondaryColor = secondaryColorInt == 0 ? "0" : IColors.toString(secondaryColorInt);
-        var backgroundColor = backgroundColorInt == 0 ? "0" : IColors.toString(backgroundColorInt);
+        var primaryColor = DesignUtils.checkSystemColor(properties.getProperty("primary_color", "0"));
+        var secondaryColor = DesignUtils.checkSystemColor(properties.getProperty("secondary_color", "0"));
+        var backgroundColor = DesignUtils.checkSystemColor(properties.getProperty("background_color", "0"));
 
         if (prefs.getBoolean("changecolor", false)) {
+            primaryColor = primaryColorInt == 0 ? "0" : IColors.toString(primaryColorInt);
+            secondaryColor = secondaryColorInt == 0 ? "0" : IColors.toString(secondaryColorInt);
+            backgroundColor = backgroundColorInt == 0 ? "0" : IColors.toString(backgroundColorInt);
+        }
+
+        if (prefs.getBoolean("changecolor", false) || Objects.equals(properties.getProperty("change_colors"), "true")) {
             for (var c : IColors.colors.keySet()) {
-                if (!primaryColor.equals("0")) {
+                if (!primaryColor.equals("0") && DesignUtils.isValidColor(primaryColor)) {
+                    primaryColor = primaryColor.length() == 9 ? primaryColor : "#ff" + primaryColor.substring(1);
                     switch (c) {
                         case "00a884", "1da457", "21c063", "d9fdd3" ->
                                 IColors.colors.put(c, primaryColor.substring(3));
@@ -143,7 +179,8 @@ public class CustomTheme extends Feature {
                     }
                 }
 
-                if (!backgroundColor.equals("0")) {
+                if (!backgroundColor.equals("0") && DesignUtils.isValidColor(backgroundColor)) {
+                    backgroundColor = backgroundColor.length() == 9 ? backgroundColor : "#ff" + backgroundColor.substring(1);
                     switch (c) {
                         case "0b141a" -> IColors.colors.put(c, backgroundColor.substring(3));
                         case "#ff0b141a", "#ff111b21", "#ff000000" ->
@@ -151,32 +188,14 @@ public class CustomTheme extends Feature {
                     }
                 }
 
-                if (!secondaryColor.equals("0")) {
+                if (!secondaryColor.equals("0") && DesignUtils.isValidColor(secondaryColor)) {
+                    secondaryColor = secondaryColor.length() == 9 ? secondaryColor : "#ff" + secondaryColor.substring(1);
                     if (c.equals("#ff202c33")) {
                         IColors.colors.put(c, secondaryColor);
                     }
                 }
             }
         }
-
-        if (prefs.getBoolean("wallpaper", false)) {
-
-            wallAlpha = new HashMap<>(IColors.colors);
-            replaceTransparency(wallAlpha, (100 - prefs.getInt("wallpaper_alpha", 30)) / 100.0f);
-
-            navAlpha = new HashMap<>(IColors.colors);
-            replaceTransparency(navAlpha, (100 - prefs.getInt("wallpaper_alpha_navigation", 30)) / 100.0f);
-
-            toolbarAlpha = new HashMap<>(IColors.colors);
-
-            // Corrigir cor verde na barra de ferramentas
-            var colorOrig = "#ff1b8755";
-            var color = toolbarAlpha.get(colorOrig);
-            if (Objects.equals(colorOrig, color)) toolbarAlpha.put(colorOrig, "#ffffffff");
-
-            replaceTransparency(toolbarAlpha, (100 - prefs.getInt("wallpaper_alpha_toolbar", 30)) / 100.0f);
-        }
-
 
         findAndHookMethod(Activity.class.getName(), classLoader, "onCreate", Bundle.class, new XC_MethodHook() {
             @Override
@@ -232,6 +251,7 @@ public class CustomTheme extends Feature {
 
     }
 
+
     private void replaceTransparency(HashMap<String, String> wallpaperColors, float mAlpha) {
         var hexAlpha = Integer.toHexString((int) Math.ceil(mAlpha * 255));
         hexAlpha = hexAlpha.length() == 1 ? "0" + hexAlpha : hexAlpha;
@@ -249,7 +269,7 @@ public class CustomTheme extends Feature {
         var rootView = (ViewGroup) content.getChildAt(0);
         var header = (ViewGroup) rootView.findViewById(Utils.getID("header", "id"));
         replaceColors(header, toolbarAlpha);
-        var frameLayout = new WallpaperView(rootView.getContext(), prefs);
+        var frameLayout = new WallpaperView(rootView.getContext(), prefs, properties);
         rootView.addView(frameLayout, 0);
     }
 

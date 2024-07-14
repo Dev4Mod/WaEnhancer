@@ -9,7 +9,10 @@ import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.widget.ArrayAdapter;
+import android.view.ViewGroup;
+import android.webkit.WebChromeClient;
+import android.webkit.WebView;
+import android.webkit.WebViewClient;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.Toast;
@@ -20,9 +23,7 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.preference.PreferenceManager;
 
-import com.amrdeveloper.codeview.CodeView;
 import com.wmods.wppenhacer.R;
-import com.wmods.wppenhacer.activities.syntax.CSSLanguage;
 import com.wmods.wppenhacer.preference.ThemePreference;
 import com.wmods.wppenhacer.xposed.utils.Utils;
 
@@ -31,27 +32,41 @@ import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
 import kotlin.io.FilesKt;
+import rikka.core.util.IOUtils;
 
 public class TextEditorActivity extends AppCompatActivity {
-    private CodeView codeView;
+    //    private CodeView codeView;
     private String folderName;
     private ActivityResultLauncher<String> mGetContent;
     private ActivityResultLauncher<String> mExportFile;
+    private WebView webView;
 
+    @SuppressLint("SetJavaScriptEnabled")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_text_editor);
 
-        codeView = findViewById(R.id.codeView);
-        codeView.setHorizontallyScrolling(false);
+        webView = new WebView(this);
+        webView.getSettings().setJavaScriptEnabled(true);
+        webView.getSettings().setAllowContentAccess(true);
+        webView.getSettings().setDomStorageEnabled(true);
+        webView.getSettings().setAllowUniversalAccessFromFileURLs(true);
+        webView.getSettings().setJavaScriptCanOpenWindowsAutomatically(true);
+        webView.setWebViewClient(new WebViewClient());
+        webView.setWebChromeClient(new WebChromeClient());
+        updateWebViewContent("");
+        setContentView(webView, new ViewGroup.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.MATCH_PARENT
+        ));
+
 
         mGetContent = registerForActivityResult(new ActivityResultContracts.GetContent(), this::onUriSelected);
         mExportFile = registerForActivityResult(new ActivityResultContracts.CreateDocument("*/*"), this::exportAsZip);
@@ -60,28 +75,42 @@ public class TextEditorActivity extends AppCompatActivity {
         if (!TextUtils.isEmpty(folderName)) {
             readFile(folderName);
         }
-        // Apply CSS Highlighting with dynamic color highlight
-        CSSLanguage.applyCSSHighlighting(this, codeView);
-        configAutoComplete();
+
     }
 
-    public void configAutoComplete() {
-        File folderFolder = new File(ThemePreference.rootDirectory, folderName);
-        var files = folderFolder.listFiles(item -> item.getName().endsWith(".png"));
-
-        String[] languageKeywords = Arrays.stream(files).map(File::getName).map(s -> "url(\"" + s + "\")").toArray(String[]::new);
-
-        // Custom list item xml layout
-        final int layoutId = R.layout.list_item_suggestion;
-
-        // TextView id to put suggestion on it
-        final int viewId = R.id.suggestItemTextView;
-        ArrayAdapter<String> adapter = new ArrayAdapter<>(this, layoutId, viewId, languageKeywords);
-
-        // Add the ArrayAdapter to the CodeView
-        codeView.setAdapter(adapter);
+    @SuppressLint("SetJavaScriptEnabled")
+    private void updateWebViewContent(String newContent) {
+        if (webView != null) {
+            try {
+                var inputStream = getAssets().open("css_editor.html");
+                var code = IOUtils.toString(inputStream);
+                code = code.replace("{{content}}", newContent);
+                webView.loadDataWithBaseURL("file:///android_asset/", code, "text/html", "UTF-8", null);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
     }
 
+    private CompletableFuture<String> getTextareaContentAsync() {
+        CompletableFuture<String> future = new CompletableFuture<>();
+        if (webView != null) {
+            webView.evaluateJavascript("getTextareaContent();", content -> {
+                if (content != null) {
+                    content = content.substring(1, content.length() - 1)
+                            .replace("\\n", "\n")
+                            .replace("\\r", "\r")
+                            .replace("\\\"", "\"")
+                            .replace("\\'", "'")
+                            .replace("\\\\", "\\");
+                }
+                future.complete(content);
+            });
+        } else {
+            future.completeExceptionally(new Exception("WebView is null"));
+        }
+        return future;
+    }
 
     private void readFile(String folderName) {
         try {
@@ -89,7 +118,8 @@ public class TextEditorActivity extends AppCompatActivity {
             File cssCode = new File(folderFolder, "style.css");
             if (cssCode.exists()) {
                 var code = FilesKt.readText(cssCode, Charset.defaultCharset());
-                codeView.setText(code);
+                updateWebViewContent(code);
+                //                codeView.setText(code);
             } else {
                 cssCode.createNewFile();
             }
@@ -110,23 +140,27 @@ public class TextEditorActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         switch (item.getItemId()) {
             case R.id.menuitem_save -> {
-                String code = codeView.getText().toString();
                 try {
-                    File folderFolder = new File(ThemePreference.rootDirectory, folderName);
-                    File cssCode = new File(folderFolder, "style.css");
-                    FilesKt.writeText(cssCode, code, Charset.defaultCharset());
-                    Toast.makeText(this, R.string.saved, Toast.LENGTH_SHORT).show();
-                    var prefs = PreferenceManager.getDefaultSharedPreferences(this);
-                    var key = getIntent().getStringExtra("key");
-                    if (key != null && prefs.getString(key, "").equals(folderName)) {
-                        prefs.edit().putString("custom_css", code).commit();
-                    }
+                    getTextareaContentAsync().thenAccept(content -> {
+                        String code = content;
+                        File folderFolder = new File(ThemePreference.rootDirectory, folderName);
+                        File cssCode = new File(folderFolder, "style.css");
+                        FilesKt.writeText(cssCode, code, Charset.defaultCharset());
+                        Toast.makeText(this, R.string.saved, Toast.LENGTH_SHORT).show();
+                        var prefs = PreferenceManager.getDefaultSharedPreferences(this);
+                        var key = getIntent().getStringExtra("key");
+                        if (key != null && prefs.getString(key, "").equals(folderName)) {
+                            prefs.edit().putString("custom_css", code).commit();
+                        }
+                    });
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
             }
             case R.id.menuitem_exit -> finish();
-            case R.id.menuitem_clear -> codeView.setText("");
+            case R.id.menuitem_clear -> {
+                updateWebViewContent("");
+            }
             case R.id.menuitem_import_image -> {
                 mGetContent.launch("image/*");
             }
@@ -209,7 +243,6 @@ public class TextEditorActivity extends AppCompatActivity {
             bitmap.compress(Bitmap.CompressFormat.PNG, 90, out);
             out.close();
             Toast.makeText(this, getString(R.string.imported_as) + fileName, Toast.LENGTH_LONG).show();
-            configAutoComplete();
         } catch (Exception e) {
             Toast.makeText(this, "Error: " + e.getMessage(), Toast.LENGTH_SHORT).show();
         }

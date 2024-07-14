@@ -129,17 +129,9 @@ dependencies {
     implementation(libs.material)
     implementation(libs.rikkax.material)
     implementation(libs.rikkax.material.preference)
-    implementation(libs.rikkax.preference)
     implementation(libs.rikkax.widget.borderview)
     implementation(libs.jstyleparser)
-//    implementation(libs.guava)
     implementation(libs.okhttp)
-//    implementation(libs.coroutines)
-//    testImplementation(libs.junit)
-//    androidTestImplementation(libs.ext.junit)
-//    androidTestImplementation(libs.espresso.core)
-    implementation(libs.codeview)
-
 }
 
 configurations.all {

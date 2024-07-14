@@ -1,6 +1,7 @@
 package com.wmods.wppenhacer.xposed.features.customization;
 
 
+import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.graphics.PorterDuffColorFilter;
 import android.graphics.drawable.NinePatchDrawable;
@@ -10,8 +11,11 @@ import androidx.annotation.NonNull;
 import com.wmods.wppenhacer.xposed.core.Feature;
 import com.wmods.wppenhacer.xposed.core.devkit.Unobfuscator;
 import com.wmods.wppenhacer.xposed.utils.DesignUtils;
+import com.wmods.wppenhacer.xposed.utils.Utils;
 
 import java.util.List;
+import java.util.Objects;
+import java.util.Properties;
 
 import de.robv.android.xposed.XC_MethodHook;
 import de.robv.android.xposed.XSharedPreferences;
@@ -36,11 +40,14 @@ public class BubbleColors extends Feature {
     @Override
     public void doHook() throws Exception {
 
-        if (!prefs.getBoolean("bubble_color", false)) return;
+        Properties properties = Utils.extractProperties(prefs.getString("custom_css", ""));
 
-        var bubbleLeftColor = prefs.getInt("bubble_left", 0);
+        if (!prefs.getBoolean("bubble_color", false) && !Objects.equals(properties.getProperty("bubble_colors"), "true"))
+            return;
 
-        var bubbleRightColor = prefs.getInt("bubble_right", 0);
+        boolean bubbleColor = prefs.getBoolean("bubble_color", false);
+        int bubbleLeftColor = bubbleColor ? prefs.getInt("bubble_left", 0) : Color.parseColor(DesignUtils.checkSystemColor(properties.getProperty("bubble_left", "#000000")));
+        int bubbleRightColor = bubbleColor ? prefs.getInt("bubble_right", 0) : Color.parseColor(DesignUtils.checkSystemColor(properties.getProperty("bubble_right", "#000000")));
 
         // Right
         if (bubbleRightColor != 0) {

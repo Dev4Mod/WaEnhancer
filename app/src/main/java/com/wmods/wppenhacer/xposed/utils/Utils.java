@@ -30,8 +30,11 @@ import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
+import java.util.Properties;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import de.robv.android.xposed.XposedBridge;
 
@@ -166,5 +169,33 @@ public class Utils {
                 new String[]{MimeTypeUtils.getMimeTypeFromExtension(file.getAbsolutePath())},
                 (s, uri) -> {
                 });
+    }
+
+    public static Properties extractProperties(String text) {
+        Properties properties = new Properties();
+        Pattern pattern = Pattern.compile("^/\\*\\s*(.*?)\\s*\\*/", Pattern.DOTALL);
+        Matcher matcher = pattern.matcher(text);
+
+        if (matcher.find()) {
+            String propertiesText = matcher.group(1);
+            String[] lines = propertiesText.split("\\s*\\n\\s*");
+
+            for (String line : lines) {
+                String[] keyValue = line.split("\\s*=\\s*");
+                String key = keyValue[0].strip();
+                String value = keyValue[1].strip().replaceAll("^\"|\"$", ""); // Remove quotes, if any
+                properties.put(key, value);
+            }
+        }
+
+        return properties;
+    }
+
+    public static int tryParseInt(String wallpaperAlpha, int i) {
+        try {
+            return Integer.parseInt(wallpaperAlpha.trim());
+        } catch (Exception e) {
+            return i;
+        }
     }
 }

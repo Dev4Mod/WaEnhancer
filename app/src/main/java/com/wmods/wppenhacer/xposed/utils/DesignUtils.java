@@ -17,9 +17,12 @@ import android.os.Build;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.content.ContextCompat;
 
 import com.wmods.wppenhacer.WppXposed;
 import com.wmods.wppenhacer.xposed.core.WppCore;
+
+import de.robv.android.xposed.XposedBridge;
 
 public class DesignUtils {
 
@@ -151,5 +154,32 @@ public class DesignUtils {
 
     public static void setPrefs(SharedPreferences mPrefs) {
         DesignUtils.mPrefs = mPrefs;
+    }
+
+    public static boolean isValidColor(String primaryColor) {
+        try {
+            Color.parseColor(primaryColor);
+            return true;
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    public static String checkSystemColor(String color) {
+        if (DesignUtils.isValidColor(color)) {
+            return color;
+        }
+        try {
+            if (color.startsWith("color_")) {
+                var idColor = color.replace("color_", "");
+                var colorRes = android.R.color.class.getField(idColor).getInt(null);
+                if (colorRes != -1) {
+                    return "#" + Integer.toHexString(ContextCompat.getColor(Utils.getApplication(), colorRes));
+                }
+            }
+        } catch (Exception e) {
+            XposedBridge.log("Error: " + e);
+        }
+        return "0";
     }
 }
