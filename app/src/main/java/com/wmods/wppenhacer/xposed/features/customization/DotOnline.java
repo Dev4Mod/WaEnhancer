@@ -103,7 +103,7 @@ public class DotOnline extends Feature {
         logDebug(Unobfuscator.getMethodDescriptor(onChangeStatus));
         var field1 = Unobfuscator.loadViewHolderField1(classLoader);
         logDebug(Unobfuscator.getFieldDescriptor(field1));
-        var getStatusUser = Unobfuscator.loadGetStatusUserMethod(classLoader);
+        var getStatusUser = Unobfuscator.loadStatusUserMethod(classLoader);
         logDebug(Unobfuscator.getMethodDescriptor(getStatusUser));
         var sendPresenceMethod = Unobfuscator.loadSendPresenceMethod(classLoader);
         logDebug(Unobfuscator.getMethodDescriptor(sendPresenceMethod));

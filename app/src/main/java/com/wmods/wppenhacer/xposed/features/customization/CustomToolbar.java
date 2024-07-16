@@ -16,6 +16,7 @@ import com.wmods.wppenhacer.xposed.core.WppCore;
 import com.wmods.wppenhacer.xposed.core.devkit.Unobfuscator;
 import com.wmods.wppenhacer.xposed.utils.DesignUtils;
 import com.wmods.wppenhacer.xposed.utils.ReflectionUtils;
+import com.wmods.wppenhacer.xposed.utils.ResId;
 import com.wmods.wppenhacer.xposed.utils.Utils;
 
 import java.lang.reflect.Method;
@@ -78,7 +79,7 @@ public class CustomToolbar extends Feature {
                         var viewRoot = activity.getWindow().getDecorView();
                         var version = (TextView) viewRoot.findViewById(Utils.getID("version", "id"));
                         if (version != null) {
-                            version.setText(version.getText() + " (Expiration: " + mDateExpiration + ")");
+                            version.setText(version.getText() + " " + activity.getString(ResId.string.expiration, mDateExpiration));
                         }
                     }
                 });

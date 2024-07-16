@@ -172,7 +172,8 @@ public class CustomTheme extends Feature {
                     switch (c) {
                         case "00a884", "1da457", "21c063", "d9fdd3" ->
                                 IColors.colors.put(c, primaryColor.substring(3));
-                        case "#ff00a884", "#ff1da457", "#ff21c063", "#ff1daa61", "#ff25d366" ->
+                        case "#ff00a884", "#ff1da457", "#ff21c063", "#ff1daa61", "#ff25d366",
+                             "#ffd9fdd3" ->
                                 IColors.colors.put(c, primaryColor);
                         case "#ff103529" ->
                                 IColors.colors.put(c, "#66" + primaryColor.substring(3));

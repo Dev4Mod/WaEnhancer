@@ -295,7 +295,7 @@ public class SeparateGroup extends Feature {
     }
 
 
-    public static class ArrayListFilter extends ArrayList {
+    public static class ArrayListFilter extends ArrayList<Object> {
 
         private final boolean isGroup;
 

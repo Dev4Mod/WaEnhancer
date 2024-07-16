@@ -60,6 +60,7 @@ public class ResId {
         public static int select_a_color;
         public static int read_all_mark_as_read;
         public static int grant_permission;
+        public static int expiration;
     }
 
     public static class array {

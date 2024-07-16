@@ -21,6 +21,9 @@ public class IColors {
         colors.put("#ff21c063", "#ff21c063"); // bagde indicator, message indicator, date color, title color, image color
         colors.put("#ff000000", "#ff000000"); // background
         colors.put("#ff25d366", "#ff25d366"); // status indicator
+        colors.put("#ffd9fdd3", "#ffd9fdd3"); // nav bar color in light theme
+        colors.put("#ff15603e", "#ff15603e");  // nav bar color in light theme
+        colors.put("15603e", "15603e");
 //        colors.put("#0b141a", "#ff0b141a");
 
         colors.put("#ffffffff", "#ffffffff"); // background color in light theme

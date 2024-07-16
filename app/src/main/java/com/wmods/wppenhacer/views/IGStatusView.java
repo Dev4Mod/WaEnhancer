@@ -12,7 +12,6 @@ public class IGStatusView extends FrameLayout {
     public HorizontalListView mStatusListView;
 
     public IGStatusAdapter mStatusAdapter;
-    private FrameLayout mStatusFrag;
 
     public IGStatusView(@NonNull Context context) {
         super(context);
@@ -25,10 +24,7 @@ public class IGStatusView extends FrameLayout {
         var layoutParams = new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT);
         layoutParams.setMargins(Utils.dipToPixels(4), Utils.dipToPixels(10), 0, 0);
         mStatusListView.setLayoutParams(layoutParams);
-        mStatusFrag = new FrameLayout(context);
-        mStatusFrag.setLayoutParams(new LayoutParams(0, 0));
         addView(mStatusListView);
-        addView(mStatusFrag);
     }
 
     @Override

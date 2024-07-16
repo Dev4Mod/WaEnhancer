@@ -17,11 +17,8 @@ import androidx.annotation.NonNull;
 import java.util.LinkedList;
 import java.util.Queue;
 
-import de.robv.android.xposed.XposedBridge;
-
 public class HorizontalListView extends AdapterView<ListAdapter> {
 
-    public boolean mAlwaysOverrideTouch = true;
     protected ListAdapter mAdapter;
     private int mLeftViewIndex = -1;
     private int mRightViewIndex = 0;
@@ -103,7 +100,6 @@ public class HorizontalListView extends AdapterView<ListAdapter> {
 
     @Override
     public View getSelectedView() {
-        //TODO: implement
         return null;
     }
 
@@ -139,48 +135,85 @@ public class HorizontalListView extends AdapterView<ListAdapter> {
                 MeasureSpec.makeMeasureSpec(getHeight(), MeasureSpec.AT_MOST));
     }
 
-    @Override
-    protected synchronized void onLayout(boolean changed, int left, int top, int right, int bottom) {
-        super.onLayout(changed, left, top, right, bottom);
+    private final GestureDetector.OnGestureListener mOnGesture = new GestureDetector.SimpleOnGestureListener() {
 
-        if (mAdapter == null) {
-            return;
+        @Override
+        public boolean onDown(@NonNull MotionEvent e) {
+            return HorizontalListView.this.onDown(e);
         }
 
-        if (mDataChanged) {
-            int oldCurrentX = mCurrentX;
-            initView();
-            removeAllViewsInLayout();
-            mNextX = oldCurrentX;
-            mDataChanged = false;
+        @Override
+        public boolean onFling(MotionEvent e1, @NonNull MotionEvent e2, float velocityX,
+                               float velocityY) {
+            return HorizontalListView.this.onFling(e1, e2, velocityX, velocityY);
         }
 
-        if (mScroller.computeScrollOffset()) {
-            int scrollx = mScroller.getCurrX();
-            mNextX = scrollx;
+        @Override
+        public boolean onScroll(MotionEvent e1, @NonNull MotionEvent e2,
+                                float distanceX, float distanceY) {
+
+            getParent().requestDisallowInterceptTouchEvent(true);
+
+            synchronized (HorizontalListView.this) {
+                mNextX += (int) distanceX;
+            }
+            requestLayout();
+
+            return true;
         }
 
-        if (mNextX <= 0) {
-            mNextX = 0;
-            mScroller.forceFinished(true);
+        @Override
+        public boolean onSingleTapConfirmed(@NonNull MotionEvent e) {
+            Rect viewRect = new Rect();
+            for (int i = 0; i < getChildCount(); i++) {
+                View child = getChildAt(i);
+                int left = child.getLeft();
+                int right = child.getRight();
+                int top = child.getTop();
+                int bottom = child.getBottom();
+                viewRect.set(left, top, right, bottom);
+                if (viewRect.contains((int) e.getX(), (int) e.getY())) {
+                    if (mOnItemClicked != null) {
+                        mOnItemClicked.onItemClick(HorizontalListView.this, child, mLeftViewIndex + 1 + i, mAdapter.getItemId(mLeftViewIndex + 1 + i));
+                    }
+                    if (mOnItemSelected != null) {
+                        mOnItemSelected.onItemSelected(HorizontalListView.this, child, mLeftViewIndex + 1 + i, mAdapter.getItemId(mLeftViewIndex + 1 + i));
+                    }
+                    int x = (int) e.getX() - left;
+                    int y = (int) e.getY() - top;
+                    MotionEvent motionEvent = MotionEvent.obtain(SystemClock.uptimeMillis(), SystemClock.uptimeMillis(), MotionEvent.ACTION_DOWN, x, y, 0);
+                    child.dispatchTouchEvent(motionEvent);
+                    motionEvent.recycle();
+                    child.performClick();
+                    break;
+                }
+
+            }
+            return true;
         }
-        if (mNextX >= mMaxX) {
-            mNextX = mMaxX;
-            mScroller.forceFinished(true);
+
+        @Override
+        public void onLongPress(@NonNull MotionEvent e) {
+            Rect viewRect = new Rect();
+            int childCount = getChildCount();
+            for (int i = 0; i < childCount; i++) {
+                View child = getChildAt(i);
+                int left = child.getLeft();
+                int right = child.getRight();
+                int top = child.getTop();
+                int bottom = child.getBottom();
+                viewRect.set(left, top, right, bottom);
+                if (viewRect.contains((int) e.getX(), (int) e.getY())) {
+                    if (mOnItemLongClicked != null) {
+                        mOnItemLongClicked.onItemLongClick(HorizontalListView.this, child, mLeftViewIndex + 1 + i, mAdapter.getItemId(mLeftViewIndex + 1 + i));
+                    }
+                    break;
+                }
+
+            }
         }
 
-        int dx = mCurrentX - mNextX;
-
-        removeNonVisibleItems(dx);
-        fillList(dx);
-        positionItems(dx);
-
-        mCurrentX = mNextX;
-
-        if (!mScroller.isFinished()) {
-            post(this::requestLayout);
-        }
-    }
+    };
 
     private void fillList(final int dx) {
         int edge = 0;
@@ -288,86 +321,46 @@ public class HorizontalListView extends AdapterView<ListAdapter> {
         return true;
     }
 
-    private final GestureDetector.OnGestureListener mOnGesture = new GestureDetector.SimpleOnGestureListener() {
+    @Override
+    protected synchronized void onLayout(boolean changed, int left, int top, int right, int bottom) {
+        super.onLayout(changed, left, top, right, bottom);
 
-        @Override
-        public boolean onDown(@NonNull MotionEvent e) {
-            return HorizontalListView.this.onDown(e);
+        if (mAdapter == null) {
+            return;
         }
 
-        @Override
-        public boolean onFling(MotionEvent e1, @NonNull MotionEvent e2, float velocityX,
-                               float velocityY) {
-            return HorizontalListView.this.onFling(e1, e2, velocityX, velocityY);
+        if (mDataChanged) {
+            int oldCurrentX = mCurrentX;
+            initView();
+            removeAllViewsInLayout();
+            mNextX = oldCurrentX;
+            mDataChanged = false;
         }
 
-        @Override
-        public boolean onScroll(MotionEvent e1, @NonNull MotionEvent e2,
-                                float distanceX, float distanceY) {
-
-            getParent().requestDisallowInterceptTouchEvent(true);
-
-            synchronized (HorizontalListView.this) {
-                mNextX += (int) distanceX;
-            }
-            requestLayout();
-
-            return true;
+        if (mScroller.computeScrollOffset()) {
+            mNextX = mScroller.getCurrX();
         }
 
-        @Override
-        public boolean onSingleTapConfirmed(@NonNull MotionEvent e) {
-            XposedBridge.log("onSingleTapConfirmed");
-            Rect viewRect = new Rect();
-            for (int i = 0; i < getChildCount(); i++) {
-                View child = getChildAt(i);
-                int left = child.getLeft();
-                int right = child.getRight();
-                int top = child.getTop();
-                int bottom = child.getBottom();
-                viewRect.set(left, top, right, bottom);
-                if (viewRect.contains((int) e.getX(), (int) e.getY())) {
-                    XposedBridge.log("onSingleTapConfirmed: " + i);
-                    if (mOnItemClicked != null) {
-                        mOnItemClicked.onItemClick(HorizontalListView.this, child, mLeftViewIndex + 1 + i, mAdapter.getItemId(mLeftViewIndex + 1 + i));
-                    }
-                    if (mOnItemSelected != null) {
-                        mOnItemSelected.onItemSelected(HorizontalListView.this, child, mLeftViewIndex + 1 + i, mAdapter.getItemId(mLeftViewIndex + 1 + i));
-                    }
-                    int x = (int) e.getX() - left;
-                    int y = (int) e.getY() - top;
-                    MotionEvent motionEvent = MotionEvent.obtain(SystemClock.uptimeMillis(), SystemClock.uptimeMillis(),  MotionEvent.ACTION_DOWN, x, y, 0);
-                    child.dispatchTouchEvent(motionEvent);
-                    motionEvent.recycle();
-                    child.performClick();
-                    break;
-                }
-
-            }
-            return true;
+        if (mNextX <= 0) {
+            mNextX = 0;
+            mScroller.forceFinished(true);
+        }
+        if (mNextX >= mMaxX) {
+            mNextX = mMaxX;
+            mScroller.forceFinished(true);
         }
 
-        @Override
-        public void onLongPress(@NonNull MotionEvent e) {
-            Rect viewRect = new Rect();
-            int childCount = getChildCount();
-            for (int i = 0; i < childCount; i++) {
-                View child = getChildAt(i);
-                int left = child.getLeft();
-                int right = child.getRight();
-                int top = child.getTop();
-                int bottom = child.getBottom();
-                viewRect.set(left, top, right, bottom);
-                if (viewRect.contains((int) e.getX(), (int) e.getY())) {
-                    if (mOnItemLongClicked != null) {
-                        mOnItemLongClicked.onItemLongClick(HorizontalListView.this, child, mLeftViewIndex + 1 + i, mAdapter.getItemId(mLeftViewIndex + 1 + i));
-                    }
-                    break;
-                }
+        int dx = mCurrentX - mNextX;
 
-            }
+        removeNonVisibleItems(dx);
+        fillList(dx);
+        positionItems(dx);
+
+        mCurrentX = mNextX;
+
+        if (!mScroller.isFinished()) {
+            post(this::requestLayout);
         }
-
-    };
+    }
 
 }

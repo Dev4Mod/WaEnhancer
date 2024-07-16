@@ -338,4 +338,7 @@
     <string name="theme_manager">Theme Manager</string>
     <string name="manage_theme_sum">Manage themes using CSS for WhatsApp</string>
     <string name="grant_permission">Please, grant permissions to read images and read external storage</string>
+    <string name="one_row">One Row</string>
+    <string name="two_row">Two row</string>
+    <string name="expiration">(Expiration: %s)</string>
 </resources>
