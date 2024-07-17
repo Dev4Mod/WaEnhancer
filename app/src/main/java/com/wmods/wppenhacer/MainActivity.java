@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Environment;
 import android.view.Menu;
 import android.view.MenuItem;
 
@@ -21,11 +22,14 @@ import com.wmods.wppenhacer.activities.AboutActivity;
 import com.wmods.wppenhacer.adapter.MainPagerAdapter;
 import com.wmods.wppenhacer.databinding.ActivityMainBinding;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity {
 
     private ActivityMainBinding binding;
+    public static File mainDir;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -35,6 +39,7 @@ public class MainActivity extends AppCompatActivity {
         getTheme().applyStyle(R.style.ThemeOverlay_MaterialGreen, true);
         App.changeLanguage(this);
         super.onCreate(savedInstanceState);
+
         if (getSupportActionBar() != null) {
             getSupportActionBar().setDisplayShowHomeEnabled(true);
             getSupportActionBar().setIcon(R.mipmap.launcher);
@@ -84,6 +89,7 @@ public class MainActivity extends AppCompatActivity {
         });
 
         setupPermissions();
+        createMainDir();
         FilePicker.registerFilePicker(this);
     }
 
@@ -97,6 +103,20 @@ public class MainActivity extends AppCompatActivity {
         }
         if (!permissions.isEmpty()) {
             ActivityCompat.requestPermissions(this, permissions.toArray(new String[0]), 0);
+        }
+    }
+
+    private void createMainDir() {
+        mainDir = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS), "WaEnhancer");
+        if (!mainDir.exists()) {
+            mainDir.mkdir();
+        }
+        var nomedia = new File(mainDir, ".nomedia");
+        if (!nomedia.exists()) {
+            try {
+                nomedia.createNewFile();
+            } catch (IOException ignored) {
+            }
         }
     }
 
