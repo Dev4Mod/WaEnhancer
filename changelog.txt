@@ -13,3 +13,10 @@
 
 [LIST ANIMATIONS]
 * Added animations to the main list (WAE -> Customization)
+
+[WHATSAPP]
+* Added support to version 2.24.14.xx
+
+[IGSTATUS]
+* In version 2.24.14.xx of WhatsApp there was a change in the toolbar which is now fixed when swiping (bug? or on purpose?) so to avoid problems,
+ IG Status is being fixed to Fragment (tab) which solves some swiping bugs side.
