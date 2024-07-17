@@ -20,7 +20,6 @@ import com.wmods.wppenhacer.xposed.core.Feature;
 import com.wmods.wppenhacer.xposed.core.WppCore;
 import com.wmods.wppenhacer.xposed.core.devkit.Unobfuscator;
 import com.wmods.wppenhacer.xposed.core.devkit.UnobfuscatorCache;
-import com.wmods.wppenhacer.xposed.utils.AnimationUtil;
 import com.wmods.wppenhacer.xposed.utils.ReflectionUtils;
 import com.wmods.wppenhacer.xposed.utils.Utils;
 
@@ -40,8 +39,6 @@ public class DotOnline extends Feature {
 
     @Override
     public void doHook() throws Throwable {
-
-        var properties = Utils.extractProperties(prefs.getString("custom_css", ""));
 
         var showOnlineText = prefs.getBoolean("showonlinetext", false);
         var showOnlineIcon = prefs.getBoolean("dotonline", false);
@@ -136,12 +133,7 @@ public class DotOnline extends Feature {
                 var object = param.args[0];
                 var viewField = ReflectionUtils.findFieldUsingFilter(absViewHolderClass, field -> field.getType() == View.class);
                 var view = (View) viewField.get(viewHolder);
-                if (properties.containsKey("home_list_animation")) {
-                    var animation = AnimationUtil.getAnimation(properties.getProperty("home_list_animation"));
-                    if (animation != null) {
-                        view.startAnimation(animation);
-                    }
-                }
+
                 var getAdapterPositionMethod = ReflectionUtils.findMethodUsingFilter(absViewHolderClass, method -> method.getParameterCount() == 0 && method.getReturnType() == int.class);
                 var position = (int) ReflectionUtils.callMethod(getAdapterPositionMethod, viewHolder);
                 ImageView csDot = showOnlineIcon ? view.findViewById(0x7FFF0003).findViewById(0x7FFF0001) : null;

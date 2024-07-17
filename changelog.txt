@@ -1,3 +1,15 @@
-[THEME MANAGER]
-Added the ability to modify wallpaper and colors through the Theme Editor
-Read docs for mores details (https://github.com/Dev4Mod/WaEnhancer/Theme.md)
+[CUSTOM COLOR]
+* Fixed bug in colors in the Light theme
+
+[DOT ONLINE]
+* Fixed bug when obtaining the status function (bug sometimes occurred)
+
+[TOAST VIEWER]
+* Fixed bug in status view Toast
+* Now Toasts of deleted messages show the name of the group and the user who deleted the message
+
+[BACKUP/IMPORT]
+* Fixed bug when importing WaEnhancer settings
+
+[LIST ANIMATIONS]
+* Added animations to the main list (WAE -> Customization)

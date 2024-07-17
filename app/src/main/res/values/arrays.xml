@@ -145,4 +145,30 @@
         <item>@string/audio_note</item>
         <item>@string/voice_note</item>
     </string-array>
+    <string-array name="animations_values">
+        <item>default</item>
+        <item>fade_in</item>
+        <item>fade_out</item>
+        <item>scale_up</item>
+        <item>slide_up</item>
+        <item>slide_right_to_left</item>
+        <item>rotate</item>
+        <item>bounce</item>
+        <item>shrink</item>
+        <item>flip</item>
+        <item>hyperspace_out</item>
+    </string-array>
+    <string-array name="animations_names">
+        <item>Default</item>
+        <item>Fade in</item>
+        <item>Fade out</item>
+        <item>Scale up</item>
+        <item>Slide up</item>
+        <item>Slide right to left</item>
+        <item>Rotate</item>
+        <item>Bounce</item>
+        <item>Shrink</item>
+        <item>Flip</item>
+        <item>Hyperspace out</item>
+    </string-array>
 </resources>

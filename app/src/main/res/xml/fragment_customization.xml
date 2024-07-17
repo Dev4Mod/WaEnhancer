@@ -112,6 +112,14 @@
             android:summary="@string/manage_theme_sum"
             android:title="@string/theme_manager" />
 
+        <ListPreference
+            android:entries="@array/animations_names"
+            app:defaultValue="default"
+            app:entryValues="@array/animations_values"
+            app:key="animation_list"
+            app:summary="Adiciona animações ao deslizar a lista de chats"
+            app:title="Animações de lista (Tela Inicial)" />
+
     </PreferenceCategory>
 
     <PreferenceCategory

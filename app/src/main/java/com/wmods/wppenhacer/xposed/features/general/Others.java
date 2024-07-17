@@ -17,6 +17,7 @@ import com.wmods.wppenhacer.xposed.core.Feature;
 import com.wmods.wppenhacer.xposed.core.WppCore;
 import com.wmods.wppenhacer.xposed.core.components.AlertDialogWpp;
 import com.wmods.wppenhacer.xposed.core.devkit.Unobfuscator;
+import com.wmods.wppenhacer.xposed.utils.AnimationUtil;
 import com.wmods.wppenhacer.xposed.utils.DesignUtils;
 import com.wmods.wppenhacer.xposed.utils.ReflectionUtils;
 import com.wmods.wppenhacer.xposed.utils.ResId;
@@ -25,6 +26,7 @@ import com.wmods.wppenhacer.xposed.utils.Utils;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Objects;
+import java.util.Properties;
 
 import de.robv.android.xposed.XC_MethodHook;
 import de.robv.android.xposed.XC_MethodReplacement;
@@ -36,6 +38,7 @@ public class Others extends Feature {
 
     public static HashMap<Integer, Boolean> propsBoolean = new HashMap<>();
     public static HashMap<Integer, Integer> propsInteger = new HashMap<>();
+    private Properties properties;
 
     public Others(ClassLoader loader, XSharedPreferences preferences) {
         super(loader, preferences);
@@ -45,6 +48,8 @@ public class Others extends Feature {
     public void doHook() throws Exception {
 
         // receivedIncomingTimestamp
+
+        properties = Utils.extractProperties(prefs.getString("custom_css", ""));
 
         var novoTema = prefs.getBoolean("novotema", false);
         var menuWIcons = prefs.getBoolean("menuwicon", false);
@@ -152,6 +157,39 @@ public class Others extends Feature {
 
         customPlayBackSpeed();
         showOnline(showOnline);
+
+        animationList();
+
+    }
+
+    private void animationList() throws Exception {
+        var animation = prefs.getString("animation_list", "default");
+
+        var onChangeStatus = Unobfuscator.loadOnChangeStatus(classLoader);
+        logDebug(Unobfuscator.getMethodDescriptor(onChangeStatus));
+        var field1 = Unobfuscator.loadViewHolderField1(classLoader);
+        logDebug(Unobfuscator.getFieldDescriptor(field1));
+        var absViewHolderClass = Unobfuscator.loadAbsViewHolder(classLoader);
+
+        XposedBridge.hookMethod(onChangeStatus, new XC_MethodHook() {
+            @Override
+            @SuppressLint("ResourceType")
+            protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+                var viewHolder = field1.get(param.thisObject);
+                var viewField = ReflectionUtils.findFieldUsingFilter(absViewHolderClass, field -> field.getType() == View.class);
+                var view = (View) viewField.get(viewHolder);
+                if (!Objects.equals(animation, "default")) {
+                    view.startAnimation(AnimationUtil.getAnimation(animation));
+                } else {
+                    if (properties.containsKey("home_list_animation")) {
+                        var animation = AnimationUtil.getAnimation(properties.getProperty("home_list_animation"));
+                        if (animation != null) {
+                            view.startAnimation(animation);
+                        }
+                    }
+                }
+            }
+        });
     }
 
     private void customPlayBackSpeed() throws Exception {
