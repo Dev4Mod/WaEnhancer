@@ -77,8 +77,8 @@ public class ToastViewer extends Feature {
         try (var result2 = sql.query("message", null, "_id = ?", new String[]{String.valueOf(id)}, null, null, null)) {
             if (!result2.moveToNext()) return;
 
-            var origin = result2.getInt(result2.getColumnIndexOrThrow("origin"));
-            if (origin == 5 || origin == 11) {  // 11 = media status, 5 = text status
+            var participantHash = result2.getString(result2.getColumnIndexOrThrow("participant_hash"));
+            if (participantHash != null) {
                 if (toast_viewed_status) {
                     Utils.showToast(Utils.getApplication().getString(ResId.string.viewed_your_status, contactName), Toast.LENGTH_LONG);
                 }
