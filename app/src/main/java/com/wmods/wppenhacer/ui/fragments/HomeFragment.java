@@ -202,11 +202,10 @@ public class HomeFragment extends BaseFragment {
                         } else if (type.equals(Long.class.getSimpleName())) {
                             prefs.edit().putLong(keyName, (long) value).apply();
                         } else if (type.equals(Double.class.getSimpleName())) {
-                            prefs.edit().putFloat(keyName, ((Double) value).floatValue()).apply();
+                            prefs.edit().putFloat(keyName, Float.parseFloat(String.valueOf(value))).apply();
                         } else if (type.equals(Float.class.getSimpleName())) {
-                            prefs.edit().putFloat(keyName, ((Double) value).floatValue()).apply();
+                            prefs.edit().putFloat(keyName, Float.parseFloat(String.valueOf(value))).apply();
                         }
-
                     }
                 }
                 Toast.makeText(context, context.getString(R.string.configs_imported), Toast.LENGTH_SHORT).show();
