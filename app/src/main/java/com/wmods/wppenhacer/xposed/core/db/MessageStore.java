@@ -51,7 +51,6 @@ public class MessageStore {
             XposedBridge.log(e);
         } finally {
             if (cursor != null) cursor.close();
-            sqLiteDatabase.close();
         }
         return message;
     }
@@ -65,8 +64,6 @@ public class MessageStore {
             }
         } catch (Exception e) {
             XposedBridge.log(e);
-        } finally {
-            sqLiteDatabase.close();
         }
         return message;
     }
@@ -107,7 +104,6 @@ public class MessageStore {
             XposedBridge.log(e);
         } finally {
             if (cursor != null) cursor.close();
-            sqLiteDatabase.close();
         }
         return list;
     }
@@ -144,7 +140,6 @@ public class MessageStore {
             XposedBridge.log(e);
         } finally {
             if (cursor != null) cursor.close();
-            sqLiteDatabase.close();
         }
         return result;
     }
