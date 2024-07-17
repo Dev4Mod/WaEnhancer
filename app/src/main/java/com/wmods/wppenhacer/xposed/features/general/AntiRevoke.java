@@ -253,9 +253,16 @@ public class AntiRevoke extends Feature {
         if (TextUtils.isEmpty(name)) {
             name = WppCore.stripJID(jidAuthor);
         }
-        String message = name + " " + messageSuffix;
+        String message;
+        if (WppCore.isGroup(jidAuthor) && fMessage.getUserJid() != null) {
+            var participantJid = fMessage.getUserJid();
+            String participantName = WppCore.getContactName(participantJid);
+            message = Utils.getApplication().getString(ResId.string.deleted_a_message_in_group, participantName, name);
+        } else {
+            message = name + " " + messageSuffix;
+        }
         if (prefs.getBoolean("toastdeleted", false)) {
-            Utils.showToast(message, Toast.LENGTH_SHORT);
+            Utils.showToast(message, Toast.LENGTH_LONG);
         }
         Tasker.sendTaskerEvent(name, WppCore.stripJID(jidAuthor), isStatus ? "deleted_status" : "deleted_message");
     }
