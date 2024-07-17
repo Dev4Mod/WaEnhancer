@@ -51,8 +51,10 @@ public class TextEditorActivity extends AppCompatActivity {
     @SuppressLint("SetJavaScriptEnabled")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        getTheme().applyStyle(rikka.material.preference.R.style.ThemeOverlay_Rikka_Material3_Preference, true);
+        getTheme().applyStyle(R.style.ThemeOverlay, true);
+        getTheme().applyStyle(R.style.ThemeOverlay_MaterialGreen, true);
         super.onCreate(savedInstanceState);
-
         webView = new WebView(this);
         webView.getSettings().setJavaScriptEnabled(true);
         webView.getSettings().setAllowContentAccess(true);

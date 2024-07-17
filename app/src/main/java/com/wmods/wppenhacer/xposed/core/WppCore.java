@@ -8,7 +8,6 @@ import android.content.SharedPreferences;
 import android.database.sqlite.SQLiteDatabase;
 import android.graphics.drawable.Drawable;
 import android.text.TextUtils;
-import android.view.Menu;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -125,14 +124,14 @@ public class WppCore {
         return mCurrentActivity;
     }
 
-    public static Activity getActivityBySimpleName(String name) {
-        for (var activity : activities) {
-            if (activity.getClass().getSimpleName().equals(name)) {
-                return activity;
-            }
-        }
-        return null;
-    }
+//    public static Activity getActivityBySimpleName(String name) {
+//        for (var activity : activities) {
+//            if (activity.getClass().getSimpleName().equals(name)) {
+//                return activity;
+//            }
+//        }
+//        return null;
+//    }
 
 
     public static int getDefaultTheme() {
@@ -248,10 +247,10 @@ public class WppCore {
         return startup_prefs.getString("push_name", "WhatsApp");
     }
 
-    public static String getMyNumber() {
-        var mainPrefs = getMainPrefs();
-        return mainPrefs.getString("registration_jid", "");
-    }
+//    public static String getMyNumber() {
+//        var mainPrefs = getMainPrefs();
+//        return mainPrefs.getString("registration_jid", "");
+//    }
 
     public static SharedPreferences getMainPrefs() {
         return Utils.getApplication().getSharedPreferences(Utils.getApplication().getPackageName() + "_preferences_light", Context.MODE_PRIVATE);
@@ -321,12 +320,5 @@ public class WppCore {
         }
     }
 
-    public abstract static class OnMenuCreate {
-        public void onBeforeCreate(Activity activity, Menu menu) {
-        }
-
-        public void onAfterCreate(Activity activity, Menu menu) {
-        }
-    }
 
 }
