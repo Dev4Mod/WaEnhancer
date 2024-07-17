@@ -117,8 +117,8 @@
             app:defaultValue="default"
             app:entryValues="@array/animations_values"
             app:key="animation_list"
-            app:summary="Adiciona animações ao deslizar a lista de chats"
-            app:title="Animações de lista (Tela Inicial)" />
+            app:summary="@string/list_animations_home_screen_sum"
+            app:title="@string/list_animations_home_screen" />
 
     </PreferenceCategory>
 
