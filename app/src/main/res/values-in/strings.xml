@@ -344,4 +344,10 @@ Harap gunakan versi WhatsApp yang didukung!</string>
     <string name="theme_manager">Manajer Tema CSS</string>
     <string name="manage_theme_sum">Kelola tema menggunakan CSS untuk WhatsApp</string>
     <string name="grant_permission">Perhatian, berikan izin untuk membaca gambar dan membaca penyimpanan eksternal</string>
+    <string name="one_row">One Row</string>
+    <string name="two_row">Two row</string>
+    <string name="expiration">(Expiration: %s)</string>
+    <string name="deleted_a_message_in_group">%s deleted a message in group %s</string>
+    <string name="list_animations_home_screen">List animations (Home Screen)</string>
+    <string name="list_animations_home_screen_sum">Add animations when swiping the chat list</string>
 </resources>

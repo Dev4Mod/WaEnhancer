@@ -336,4 +336,10 @@
     <string name="theme_manager">مدير السمة</string>
     <string name="manage_theme_sum">إدارة القوالب باستخدام CSS لواتساب</string>
     <string name="grant_permission">يرجى منح الأذونات لقراءة الصور وقراءة التخزين الخارجي</string>
+    <string name="one_row">One Row</string>
+    <string name="two_row">Two row</string>
+    <string name="expiration">(Expiration: %s)</string>
+    <string name="deleted_a_message_in_group">%s deleted a message in group %s</string>
+    <string name="list_animations_home_screen">List animations (Home Screen)</string>
+    <string name="list_animations_home_screen_sum">Add animations when swiping the chat list</string>
 </resources>

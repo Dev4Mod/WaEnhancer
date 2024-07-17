@@ -334,5 +334,11 @@
     <string name="import_theme">Importa Tema</string>
     <string name="theme_manager">Gestore Tema</string>
     <string name="manage_theme_sum">Gestisci temi utilizzando CSS per WhatsApp</string>
-    <string name="grant_permission">Please, grant permissions to read images and read external storage</string>
+    <string name="grant_permission">Per favore, concedi i permessi per leggere le immagini e la memoria esterna</string>
+    <string name="one_row">One Row</string>
+    <string name="two_row">Two row</string>
+    <string name="expiration">(Expiration: %s)</string>
+    <string name="deleted_a_message_in_group">%s deleted a message in group %s</string>
+    <string name="list_animations_home_screen">List animations (Home Screen)</string>
+    <string name="list_animations_home_screen_sum">Add animations when swiping the chat list</string>
 </resources>

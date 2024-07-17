@@ -174,7 +174,7 @@
     <string name="device_name">שם המכשיר</string>
     <string name="disable_metaai">השבת את פונקציות Meta Ai</string>
     <string name="disable_metaai_sum">השבת את הMeta AI רק עבור אלה שכבר מופעל להם</string>
-    <string name="list_business">רשימת הגרסאות הנתמכת בווצאפ ביזנס:</string>
+    <string name="list_business">רשימת הגרסאות הנתמכות בווצאפ ביזנס:</string>
     <string name="list_wpp">רשימת הגרסאות הנתמכות בווצאפ:</string>
     <string name="title_image">תמונה</string>
     <string name="title_video">וידאו</string>
@@ -206,7 +206,7 @@
     <string name="copy_to_clipboard">העתק למקלדת</string>
     <string name="copied_to_clipboard">הועתק למקלדת</string>
     <string name="error_detected">זוהתה שגיאה</string>
-    <string name="rebooting">אתחול מחדש</string>
+    <string name="rebooting">מאתחל מחדש את</string>
     <string name="deleted_message">מחק הודעה</string>
     <string name="deleted_status">מחק סטטוס</string>
     <string name="remove_limit_edit_message">הסר הודעה של מגבלת עריכה</string>
@@ -297,7 +297,7 @@
     <string name="donate">תרום</string>
     <string name="support">תמיכה</string>
     <string name="support_desc">אם אתה נתקל בבעיות כלשהן או שיש לך שאלות והערות לגבי המודול Wa Enhancer, אנא בקר בטלגרם שלנו.
-תורגם לעברית ע\'\'י אורי ומשה. ✊🏼</string>
+תורגם לעברית ע\'\'י אורי ומושון.</string>
     <string name="license">רישיון</string>
     <string name="license_desc">פרויקט זה מורשה תחת רישיון GNU - עיין בקובץ LICENSE לפרטים.\n\nהערה: אנא השתמש ב-Wa Enhancer באחריות ובהתאם לתנאים וההגבלות של האפליקציות שאתה משנה.  שימוש לרעה בכלי זה עלול להוביל לתוצאות משפטיות.</string>
     <string name="select_a_color">בחר צבע</string>
@@ -337,4 +337,10 @@
     <string name="theme_manager">מנהל ערכת נושא</string>
     <string name="manage_theme_sum">נהל ערכות נושא באמצעות CSS עבור ווצאפ</string>
     <string name="grant_permission">אנא הענק הרשאות לתמונות ולאחסון</string>
+    <string name="one_row">One Row</string>
+    <string name="two_row">Two row</string>
+    <string name="expiration">(Expiration: %s)</string>
+    <string name="deleted_a_message_in_group">%s deleted a message in group %s</string>
+    <string name="list_animations_home_screen">List animations (Home Screen)</string>
+    <string name="list_animations_home_screen_sum">Add animations when swiping the chat list</string>
 </resources>

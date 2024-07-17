@@ -347,4 +347,10 @@ Saat Anda mengaktifkan bekukan \"terakhir dilihat dan online\", Anda tidak dapat
     <string name="theme_manager">Theme Manager</string>
     <string name="manage_theme_sum">Manage themes using CSS for WhatsApp</string>
     <string name="grant_permission">Please, grant permissions to read images and read external storage</string>
+    <string name="one_row">One Row</string>
+    <string name="two_row">Two row</string>
+    <string name="expiration">(Expiration: %s)</string>
+    <string name="deleted_a_message_in_group">%s deleted a message in group %s</string>
+    <string name="list_animations_home_screen">List animations (Home Screen)</string>
+    <string name="list_animations_home_screen_sum">Add animations when swiping the chat list</string>
 </resources>
