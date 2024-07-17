@@ -341,4 +341,5 @@
     <string name="one_row">One Row</string>
     <string name="two_row">Two row</string>
     <string name="expiration">(Expiration: %s)</string>
+    <string name="deleted_a_message_in_group">%s deleted a message in group %s</string>
 </resources>
