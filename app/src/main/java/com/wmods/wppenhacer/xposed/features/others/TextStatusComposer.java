@@ -11,6 +11,7 @@ import com.wmods.wppenhacer.xposed.core.devkit.Unobfuscator;
 import com.wmods.wppenhacer.xposed.utils.ReflectionUtils;
 import com.wmods.wppenhacer.xposed.utils.Utils;
 
+import java.lang.reflect.Field;
 import java.util.concurrent.atomic.AtomicReference;
 
 import de.robv.android.xposed.XC_MethodHook;
@@ -19,7 +20,7 @@ import de.robv.android.xposed.XposedBridge;
 import de.robv.android.xposed.XposedHelpers;
 
 public class TextStatusComposer extends Feature {
-    private static AtomicReference<ColorData> colorData = new AtomicReference<>();
+    private static final AtomicReference<ColorData> colorData = new AtomicReference<>();
 
     public TextStatusComposer(@NonNull ClassLoader classLoader, @NonNull XSharedPreferences preferences) {
         super(classLoader, preferences);
@@ -42,8 +43,13 @@ public class TextStatusComposer extends Feature {
 
                         pickerColor.setOnLongClickListener(v -> {
                             var dialog = new SimpleColorPickerDialog(activity, color -> {
-                                XposedHelpers.setObjectField(param.thisObject, "A02", color);
-                                ReflectionUtils.callMethod(setColorTextComposer, null, param.thisObject);
+                                try {
+                                    Field fieldInt = ReflectionUtils.findFieldUsingFilter(param.thisObject.getClass(), field -> field.getType() == int.class);
+                                    fieldInt.setInt(param.thisObject, color);
+                                    ReflectionUtils.callMethod(setColorTextComposer, null, param.thisObject);
+                                } catch (Exception e) {
+                                    log(e);
+                                }
                             });
                             dialog.create().setCanceledOnTouchOutside(false);
                             dialog.show();
