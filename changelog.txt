@@ -1,22 +1,20 @@
-[CUSTOM COLOR]
-* Fixed bug in colors in the Light theme
+[SEPARATE GROUP]
+* Fixed the group count that did not consider community groups
 
-[DOT ONLINE]
-* Fixed bug when obtaining the status function (bug sometimes occurred)
+[HIDE TAB]
+* Fixed error when swiping on a hidden tab
 
 [TOAST VIEWER]
-* Fixed bug in status view Toast
-* Now Toasts of deleted messages show the name of the group and the user who deleted the message
+* Added to display the phone number in groups if the person does not have the person saved in contacts
 
-[BACKUP/IMPORT]
-* Fixed bug when importing WaEnhancer settings
+[DATABASE]
+* Fixed unexpected closing error
 
-[LIST ANIMATIONS]
-* Added animations to the main list (WAE -> Customization)
+[REMOVE STAMP FROM COPIED MESSAGES]
+* Add function to remove date and name from copied messages
 
-[WHATSAPP]
-* Added support to version 2.24.14.xx
+[SEND REACTION]
+* Added double click to react with 👍 (also removes)
 
-[IGSTATUS]
-* In version 2.24.14.xx of WhatsApp there was a change in the toolbar which is now fixed when swiping (bug? or on purpose?) so to avoid problems,
- IG Status is being fixed to Fragment (tab) which solves some swiping bugs side.
+[WA ENHANCER]
+* Update translations
