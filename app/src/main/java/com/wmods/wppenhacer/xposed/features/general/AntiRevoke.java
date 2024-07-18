@@ -257,6 +257,9 @@ public class AntiRevoke extends Feature {
         if (WppCore.isGroup(jidAuthor) && fMessage.getUserJid() != null) {
             var participantJid = fMessage.getUserJid();
             String participantName = WppCore.getContactName(participantJid);
+            if (TextUtils.isEmpty(participantName)) {
+                participantName = WppCore.stripJID(WppCore.getRawString(participantJid));
+            }
             message = Utils.getApplication().getString(ResId.string.deleted_a_message_in_group, participantName, name);
         } else {
             message = name + " " + messageSuffix;
