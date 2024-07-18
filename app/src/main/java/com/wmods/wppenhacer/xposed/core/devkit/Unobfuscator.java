@@ -1728,4 +1728,12 @@ public class Unobfuscator {
             return method;
         });
     }
+
+    public static Method loadCopiedMessageMethod(ClassLoader classLoader) throws Exception {
+        return UnobfuscatorCache.getInstance().getMethod(classLoader, () -> {
+            var method = findFirstMethodUsingStrings(classLoader, StringMatchType.Contains, "conversation/copymessage");
+            if (method == null) throw new RuntimeException("CopiedMessage method not found");
+            return method;
+        });
+    }
 }

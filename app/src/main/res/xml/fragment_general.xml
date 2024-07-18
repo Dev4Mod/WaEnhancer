@@ -204,6 +204,11 @@
             app:summary="@string/disable_default_emojis_sum"
             app:title="@string/disable_default_emojis" />
 
+        <rikka.material.preference.MaterialSwitchPreference
+            app:key="stamp_copied_message"
+            app:summary="@string/stamp_copied_messages_sum"
+            app:title="@string/stamp_copied_messages" />
+
     </PreferenceCategory>
 
     <PreferenceCategory

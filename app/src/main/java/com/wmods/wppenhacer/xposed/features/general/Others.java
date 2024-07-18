@@ -160,6 +160,27 @@ public class Others extends Feature {
 
         animationList();
 
+        stampCopiedMessage();
+
+    }
+
+    private void stampCopiedMessage() throws Exception {
+        if (!prefs.getBoolean("stamp_copied_message", false)) return;
+
+        var copiedMessage = Unobfuscator.loadCopiedMessageMethod(classLoader);
+
+        XposedBridge.hookMethod(copiedMessage, new XC_MethodHook() {
+            @Override
+            protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
+                var Collection = (java.util.Collection) param.args[param.args.length - 1];
+                param.args[param.args.length - 1] = new ArrayList<Object>(Collection) {
+                    @Override
+                    public int size() {
+                        return 1;
+                    }
+                };
+            }
+        });
     }
 
     private void animationList() throws Exception {
