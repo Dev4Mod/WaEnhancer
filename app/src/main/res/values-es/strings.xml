@@ -335,10 +335,12 @@
     <string name="theme_manager">Gestor de temas</string>
     <string name="manage_theme_sum">Administrar temas usando CSS para WhatsApp</string>
     <string name="grant_permission">Por favor, concede permisos para leer las imágenes y leer el almacenamiento externo</string>
-    <string name="one_row">One Row</string>
-    <string name="two_row">Two row</string>
-    <string name="expiration">(Expiration: %s)</string>
-    <string name="deleted_a_message_in_group">%s deleted a message in group %s</string>
-    <string name="list_animations_home_screen">List animations (Home Screen)</string>
-    <string name="list_animations_home_screen_sum">Add animations when swiping the chat list</string>
+    <string name="one_row">Una fila</string>
+    <string name="two_row">Dos filas</string>
+    <string name="expiration">(Caducación: %s)</string>
+    <string name="deleted_a_message_in_group">%1$s deleted a message in group %2$s</string>
+    <string name="list_animations_home_screen">Lista de animaciones (pantalla de inicio)</string>
+    <string name="list_animations_home_screen_sum">Añadir animaciones al deslizar la lista de chat</string>
+    <string name="stamp_copied_messages">Remove Stamp from Copied Messages</string>
+    <string name="stamp_copied_messages_sum">Removes name and date when copying more than one message</string>
 </resources>
