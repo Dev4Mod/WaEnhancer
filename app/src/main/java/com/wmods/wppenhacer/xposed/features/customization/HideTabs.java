@@ -2,6 +2,7 @@ package com.wmods.wppenhacer.xposed.features.customization;
 
 import static com.wmods.wppenhacer.xposed.features.customization.SeparateGroup.tabs;
 
+import android.os.Bundle;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.FrameLayout;
@@ -9,7 +10,6 @@ import android.widget.FrameLayout;
 import androidx.annotation.NonNull;
 
 import com.wmods.wppenhacer.xposed.core.Feature;
-import com.wmods.wppenhacer.xposed.core.WppCore;
 import com.wmods.wppenhacer.xposed.core.devkit.Unobfuscator;
 
 import java.util.ArrayList;
@@ -22,6 +22,8 @@ import de.robv.android.xposed.XposedBridge;
 import de.robv.android.xposed.XposedHelpers;
 
 public class HideTabs extends Feature {
+    private Object mTabPagerInstance;
+
     public HideTabs(@NonNull ClassLoader loader, @NonNull XSharedPreferences preferences) {
         super(loader, preferences);
     }
@@ -90,18 +92,43 @@ public class HideTabs extends Feature {
             }
         });
 
+        XposedHelpers.findAndHookMethod("com.whatsapp.HomeActivity", classLoader, "onCreate", Bundle.class, new XC_MethodHook() {
+            @Override
+            protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+                Class<?> TabsPagerClass = classLoader.loadClass("com.whatsapp.TabsPager");
+                var tabsField = Unobfuscator.getFieldByType(param.thisObject.getClass(), TabsPagerClass);
+                mTabPagerInstance = tabsField.get(param.thisObject);
+            }
+        });
+
+
         var onMenuItemSelected = Unobfuscator.loadOnMenuItemSelected(classLoader);
-        var onMenuItemClick = Unobfuscator.loadOnMenuItemClickClass(classLoader);
 
         XposedBridge.hookMethod(onMenuItemSelected, new XC_MethodHook() {
             @Override
             protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
-                if (!Unobfuscator.isCalledFromClass(home) && !Unobfuscator.isCalledFromClass(onMenuItemClick))
-                    return;
-                var index = (int) param.args[0];
-                param.args[0] = getNewTabIndex(hideTabsList, index);
+                if (param.thisObject == mTabPagerInstance) {
+                    var index = (int) param.args[0];
+                    var idxAtual = (int) XposedHelpers.callMethod(param.thisObject, "getCurrentItem");
+                    param.args[0] = getNewTabIndex(hideTabsList, idxAtual, index);
+                }
             }
         });
+
+        XposedHelpers.findAndHookMethod("androidx.viewpager.widget.ViewPager", classLoader, "addView", classLoader.loadClass("android.view.View"), int.class, classLoader.loadClass("android.view.ViewGroup$LayoutParams"),
+                new XC_MethodHook() {
+                    @Override
+                    protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
+                        if (param.thisObject != mTabPagerInstance) return;
+                        for (var item : hideTabsList) {
+                            var index = tabs.indexOf(item);
+                            if (index == -1) continue;
+                            if ((int) param.args[1] == index) {
+                                ((View) param.args[0]).setVisibility(View.GONE);
+                            }
+                        }
+                    }
+                });
     }
 
     @NonNull
@@ -110,15 +137,13 @@ public class HideTabs extends Feature {
         return "Hide Tabs";
     }
 
-    public int getNewTabIndex(List hidetabs, int index) {
+    public int getNewTabIndex(List hidetabs, int indexAtual, int index) {
         if (tabs == null) return index;
         var tabIsHidden = hidetabs.contains(tabs.get(index));
         if (!tabIsHidden) return index;
-        var idAtual = XposedHelpers.getIntField(WppCore.getCurrentActivity(), "A03");
-        var indexAtual = tabs.indexOf(idAtual);
         var newIndex = index > indexAtual ? index + 1 : index - 1;
         if (newIndex < 0) return 0;
         if (newIndex >= tabs.size()) return indexAtual;
-        return getNewTabIndex(hidetabs, newIndex);
+        return getNewTabIndex(hidetabs, indexAtual, newIndex);
     }
 }
