@@ -14,6 +14,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import com.wmods.wppenhacer.views.dialog.BottomDialogWpp;
+import com.wmods.wppenhacer.xposed.core.components.FMessageWpp;
 import com.wmods.wppenhacer.xposed.core.devkit.Unobfuscator;
 import com.wmods.wppenhacer.xposed.utils.ReflectionUtils;
 import com.wmods.wppenhacer.xposed.utils.Utils;
@@ -22,6 +23,7 @@ import java.io.File;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
@@ -106,6 +108,16 @@ public class WppCore {
             }
         } catch (Exception e) {
             Utils.showToast("Error in sending message:" + e.getMessage(), Toast.LENGTH_SHORT);
+            XposedBridge.log(e);
+        }
+    }
+
+    public static void sendReaction(String s, Object objMessage) {
+        try {
+            var senderMethod = ReflectionUtils.findMethodUsingFilter(mActionUser.getClass(), (method) -> method.getParameterCount() == 3 && Arrays.equals(method.getParameterTypes(), new Class[]{FMessageWpp.TYPE, String.class, boolean.class}));
+            senderMethod.invoke(mActionUser, objMessage, s, !TextUtils.isEmpty(s));
+        } catch (Exception e) {
+            Utils.showToast("Error in sending reaction:" + e.getMessage(), Toast.LENGTH_SHORT);
             XposedBridge.log(e);
         }
     }
