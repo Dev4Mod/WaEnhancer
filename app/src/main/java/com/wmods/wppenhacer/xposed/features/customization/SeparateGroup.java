@@ -97,7 +97,8 @@ public class SeparateGroup extends Feature {
                             int groupType = cursor.getInt(cursor.getColumnIndex("group_type"));
                             int archived = cursor.getInt(cursor.getColumnIndex("archived"));
                             int chatLocked = cursor.getInt(cursor.getColumnIndex("chat_lock"));
-                            if (archived != 0 || groupType != 0 || chatLocked != 0) continue;
+                            if (archived != 0 || (groupType != 0 && groupType != 6) || chatLocked != 0)
+                                continue;
                             var sql2 = "SELECT * FROM jid WHERE _id == ?";
                             var cursor1 = db.rawQuery(sql2, new String[]{String.valueOf(jid)});
                             if (!cursor1.moveToFirst()) continue;
@@ -110,7 +111,6 @@ public class SeparateGroup extends Feature {
                             cursor1.close();
                         }
                         cursor.close();
-                        db.close();
                     }
                     if (tabs.contains(CHATS) && tabInstances.containsKey(CHATS)) {
                         var instance12 = chatCount <= 0 ? constructor3.newInstance() : constructor2.newInstance(chatCount);
