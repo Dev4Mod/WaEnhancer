@@ -120,10 +120,9 @@
         <item>2.24.14.xx</item>
     </string-array>
     <string-array name="supported_versions_business">
-        <item>2.24.11.83</item>
-        <item>2.24.12.78</item>
-        <item>2.24.13.77</item>
-        <item>2.24.13.78</item>
+        <item>2.24.12.xx</item>
+        <item>2.24.13.xx</item>
+        <item>2.24.14.xx</item>
     </string-array>
     <string-array name="image_picker">
         <item>image/*</item>
