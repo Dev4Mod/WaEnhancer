@@ -348,4 +348,6 @@
     <string name="stamp_copied_messages_sum">Removes name and date when copying more than one message</string>
     <string name="invalid_folder">The invalid folder has been selected. Please choose the WaEnhancer folder</string>
     <string name="uri_permission">To use custom themes you need to select the \"WaEnhancer\" folder in \"Download\"</string>
+    <string name="double_click_to_like">Enable Double Click to Like</string>
+    <string name="double_click_to_like_sum">Activates the possibility of double-clicking on the message to like it</string>
 </resources>

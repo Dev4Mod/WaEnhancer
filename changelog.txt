@@ -1,20 +1,14 @@
-[SEPARATE GROUP]
-* Fixed the group count that did not consider community groups
+[ANIMATION EMOJIS]
+* Fixed in WA 2.24.14.xx
 
-[HIDE TAB]
-* Fixed error when swiping on a hidden tab
+[CUSTOM CSS]
+* Fixed bug (Now a screen will be shown at the start of WA to ask for permission to access the WaEnhancer folder)
 
-[TOAST VIEWER]
-* Added to display the phone number in groups if the person does not have the person saved in contacts
+[DOUBLE TAP TO LIKE]
+* Added disable/enable button in WAE (WAE -> General)
 
-[DATABASE]
-* Fixed unexpected closing error
-
-[REMOVE STAMP FROM COPIED MESSAGES]
-* Add function to remove date and name from copied messages
-
-[SEND REACTION]
-* Added double click to react with 👍 (also removes)
+[WHATSAPP BUSINESS]
+* add support to version 2.24.14.xx
 
 [WA ENHANCER]
 * Update translations

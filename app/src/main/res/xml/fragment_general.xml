@@ -209,6 +209,12 @@
             app:summary="@string/stamp_copied_messages_sum"
             app:title="@string/stamp_copied_messages" />
 
+        <rikka.material.preference.MaterialSwitchPreference
+            app:defaultValue="true"
+            app:key="doubletap2like"
+            app:summary="@string/double_click_to_like_sum"
+            app:title="@string/double_click_to_like" />
+
     </PreferenceCategory>
 
     <PreferenceCategory

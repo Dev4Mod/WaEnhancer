@@ -335,12 +335,16 @@
     <string name="theme_manager">Tema Yöneticisi</string>
     <string name="manage_theme_sum">WhatsApp için CSS kullanarak temaları yönet</string>
     <string name="grant_permission">Lütfen görüntüleri okuma ve harici depolama alanını okuma izinlerini verin</string>
-    <string name="one_row">One Row</string>
-    <string name="two_row">Two row</string>
-    <string name="expiration">(Expiration: %s)</string>
-    <string name="deleted_a_message_in_group">%1$s deleted a message in group %2$s</string>
-    <string name="list_animations_home_screen">List animations (Home Screen)</string>
-    <string name="list_animations_home_screen_sum">Add animations when swiping the chat list</string>
-    <string name="stamp_copied_messages">Remove Stamp from Copied Messages</string>
-    <string name="stamp_copied_messages_sum">Removes name and date when copying more than one message</string>
+    <string name="one_row">Bir Satır</string>
+    <string name="two_row">İki Satır</string>
+    <string name="expiration">(Bitiş: %s)</string>
+    <string name="deleted_a_message_in_group">%1$s, %2$s grubundan bir ileti sildi</string>
+    <string name="list_animations_home_screen">Liste animasyonları (Ana Ekran)</string>
+    <string name="list_animations_home_screen_sum">Sohbet listesini kaydırırken animasyonlar ekleyin</string>
+    <string name="stamp_copied_messages">Kopyalanan Mesajlardan Damgayı Kaldır</string>
+    <string name="stamp_copied_messages_sum">Birden fazla mesaj kopyalarken isim ve tarihi kaldırır</string>
+    <string name="invalid_folder">The invalid folder has been selected. Please choose the WaEnhancer folder</string>
+    <string name="uri_permission">To use custom themes you need to select the \"WaEnhancer\" folder in \"Download\"</string>
+    <string name="double_click_to_like">Enable Double Click to Like</string>
+    <string name="double_click_to_like_sum">Activates the possibility of double-clicking on the message to like it</string>
 </resources>

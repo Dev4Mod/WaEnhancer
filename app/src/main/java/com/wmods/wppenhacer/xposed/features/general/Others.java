@@ -172,6 +172,8 @@ public class Others extends Feature {
 
     private void doubleTapReaction() throws Exception {
 
+        if (!prefs.getBoolean("doubletap2like", false)) return;
+
         var bubbleMethod = Unobfuscator.loadAntiRevokeBubbleMethod(classLoader);
         logDebug(Unobfuscator.getMethodDescriptor(bubbleMethod));
 
