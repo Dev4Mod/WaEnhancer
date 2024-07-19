@@ -18,15 +18,16 @@ import androidx.annotation.NonNull;
 
 import com.wmods.wppenhacer.xposed.core.Feature;
 import com.wmods.wppenhacer.xposed.core.WppCore;
+import com.wmods.wppenhacer.xposed.core.components.FMessageWpp;
 import com.wmods.wppenhacer.xposed.core.db.MessageStore;
 import com.wmods.wppenhacer.xposed.core.devkit.Unobfuscator;
 import com.wmods.wppenhacer.xposed.utils.DesignUtils;
 import com.wmods.wppenhacer.xposed.utils.HKDF;
-import com.wmods.wppenhacer.xposed.utils.ReflectionUtils;
 import com.wmods.wppenhacer.xposed.utils.ResId;
 import com.wmods.wppenhacer.xposed.utils.Utils;
 
 import java.io.File;
+import java.lang.reflect.InvocationTargetException;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Locale;
@@ -82,7 +83,6 @@ public class MediaPreview extends Feature {
 
         if (!prefs.getBoolean("media_preview", true)) return;
 
-        var getFieldIdMessage = Unobfuscator.loadSetEditMessageField(classLoader);
         var videoViewContainerClass = Unobfuscator.loadVideoViewContainerClass(classLoader);
         XposedBridge.hookAllConstructors(videoViewContainerClass, new XC_MethodHook() {
             @Override
@@ -108,9 +108,9 @@ public class MediaPreview extends Feature {
                 prevBtn.setBackground(DesignUtils.getDrawableByName("download_background"));
                 prevBtn.setScaleType(ImageView.ScaleType.FIT_CENTER);
                 linearLayout.addView(prevBtn);
+                var objmessage = XposedHelpers.callMethod(param.thisObject, "getFMessage");
+                var id = new FMessageWpp(objmessage).getRowId();
                 prevBtn.setOnClickListener((v) -> {
-                    var objmessage = XposedHelpers.callMethod(param.thisObject, "getFMessage");
-                    var id = (long) ReflectionUtils.getField(getFieldIdMessage, objmessage);
                     var userJid = WppCore.getCurrentRawJID();
                     startPlayer(id, context, userJid != null && userJid.contains("@newsletter"));
                 });
@@ -157,9 +157,9 @@ public class MediaPreview extends Feature {
                     if (prevBtn.getVisibility() != controlFrame.getVisibility())
                         prevBtn.setVisibility(controlFrame.getVisibility());
                 });
+                var objmessage = XposedHelpers.callMethod(param.thisObject, "getFMessage");
+                var id = new FMessageWpp(objmessage).getRowId();
                 prevBtn.setOnClickListener((v) -> {
-                    var objmessage = XposedHelpers.callMethod(param.thisObject, "getFMessage");
-                    var id = (long) ReflectionUtils.getField(getFieldIdMessage, objmessage);
                     var userJid = WppCore.getCurrentRawJID();
                     startPlayer(id, context, userJid != null && userJid.contains("@newsletter"));
                 });
@@ -209,7 +209,6 @@ public class MediaPreview extends Feature {
                 });
                 dialog = alertDialog.create();
                 dialog.show();
-
                 executor.execute(() -> decodeMedia(url.get(), media_key, mine_type, executor, webView, isNewsletter));
             }
         } catch (Exception e) {
@@ -228,8 +227,8 @@ public class MediaPreview extends Feature {
      * @param url          A URL da mídia.
      * @param mediaKey     A chave de mídia.
      * @param mimeType     O tipo MIME da mídia.
-     * @param executor    O executor de tarefas.
-     * @param webView     A visualização da web.
+     * @param executor     O executor de tarefas.
+     * @param webView      A visualização da web.
      * @param isNewsletter Indica se a mensagem é de um boletim informativo.
      */
     private void decodeMedia(String url, String mediaKey, String mimeType, ExecutorService executor, WebView webView, boolean isNewsletter) {
@@ -267,7 +266,11 @@ public class MediaPreview extends Feature {
                 }
             });
         } catch (Exception e) {
-            Utils.showToast(e.getMessage(), Toast.LENGTH_LONG);
+            if (e instanceof InvocationTargetException) {
+                Utils.showToast(Objects.requireNonNull(e.getCause()).getMessage(), Toast.LENGTH_LONG);
+            } else {
+                Utils.showToast(e.getMessage(), Toast.LENGTH_LONG);
+            }
             if (dialog != null && dialog.isShowing()) {
                 dialog.dismiss();
             }

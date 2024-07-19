@@ -101,6 +101,7 @@ public class Others extends Feature {
 
         propsBoolean.put(6798, true);  // show all status
         propsBoolean.put(3575, animationEmojis);  // auto play emojis settings
+        propsBoolean.put(9757, animationEmojis);  // auto play emojis settings
 
         propsBoolean.put(7589, true);  // Media select quality
         propsBoolean.put(6972, false); // Media select quality

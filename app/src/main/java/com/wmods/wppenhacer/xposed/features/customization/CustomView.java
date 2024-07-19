@@ -338,11 +338,9 @@ public class CustomView extends Feature {
                 case "background-image" -> {
                     if (!(declaration.get(0) instanceof TermURI uri)) continue;
                     var draw = cacheImages.getDrawable(uri.getValue(), view.getWidth(), view.getHeight());
-//                    log("background-image: " + uri.getValue() + " " + draw);
                     if (draw == null) continue;
                     if (XposedHelpers.getAdditionalInstanceField(view, "mHookedBackground") != null || XposedHelpers.getAdditionalInstanceField(view, "mHookedDrawable") != null)
                         continue;
-                    log("set background " + uri.getValue());
                     setHookedDrawable(view, draw);
                 }
                 case "background-size" -> {

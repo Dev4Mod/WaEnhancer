@@ -8,6 +8,8 @@ import android.graphics.drawable.GradientDrawable;
 import android.graphics.drawable.LayerDrawable;
 import android.graphics.drawable.ShapeDrawable;
 import android.graphics.drawable.shapes.RoundRectShape;
+import android.os.Handler;
+import android.os.Looper;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
@@ -133,6 +135,7 @@ public class FilterGroups extends Feature {
 
         // Inicialize com a primeira aba selecionada
         updateContent(0);
+        new Handler(Looper.getMainLooper()).postDelayed(() -> setFilter(0), 500);
 
         // Definir o layout principal como a visualização de conteúdo
         container.addView(mainLayout);
