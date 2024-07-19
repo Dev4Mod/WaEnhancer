@@ -22,6 +22,9 @@ import android.graphics.drawable.shapes.RectShape;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Environment;
+import android.provider.DocumentsContract;
+import android.provider.MediaStore;
 import android.provider.Settings;
 import android.text.TextUtils;
 import android.util.Log;
@@ -36,10 +39,13 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
+import androidx.documentfile.provider.DocumentFile;
 
 import com.wmods.wppenhacer.preference.ThemePreference;
 import com.wmods.wppenhacer.utils.IColors;
 import com.wmods.wppenhacer.xposed.core.Feature;
+import com.wmods.wppenhacer.xposed.core.WppCore;
+import com.wmods.wppenhacer.xposed.core.components.AlertDialogWpp;
 import com.wmods.wppenhacer.xposed.core.devkit.Unobfuscator;
 import com.wmods.wppenhacer.xposed.utils.ReflectionUtils;
 import com.wmods.wppenhacer.xposed.utils.ResId;
@@ -58,7 +64,6 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutorService;
 
 import cz.vutbr.web.css.CSSFactory;
 import cz.vutbr.web.css.CombinedSelector;
@@ -79,43 +84,24 @@ import de.robv.android.xposed.XposedHelpers;
 public class CustomView extends Feature {
 
     private DrawableCache cacheImages;
-    private HashMap<String, Drawable> chacheDrawables;
-    private ExecutorService mThreadService;
+    private static final int REQUEST_PERMISSION = 852582;
     private static File themeDir;
+    private static final int REQUEST_FOLDER = 852583;
+    private final HashMap<String, Drawable> chacheDrawables = new HashMap<>();
+    private final HashMap<String, DocumentFile> chacheUris = new HashMap<>();
 
     public CustomView(@NonNull ClassLoader loader, @NonNull XSharedPreferences preferences) {
         super(loader, preferences);
     }
 
-    @Override
-    public void doHook() throws Throwable {
-        var filter_itens = prefs.getString("css_theme", "");
-        var folder_theme = prefs.getString("folder_theme", "");
-        var custom_css = prefs.getString("custom_css", "");
-
-        checkPermissions();
-
-        if ((TextUtils.isEmpty(filter_itens) && TextUtils.isEmpty(folder_theme) && TextUtils.isEmpty(custom_css)) || !prefs.getBoolean("custom_filters", true))
-            return;
-
-        hookDrawableViews();
-
-        themeDir = new File(ThemePreference.rootDirectory, folder_theme);
-        filter_itens += "\n" + custom_css;
-        cacheImages = new DrawableCache(Utils.getApplication(), 100 * 1024 * 1024);
-        chacheDrawables = new HashMap<>();
-
-        var sheet = CSSFactory.parseString(filter_itens, new URL("https://base.url/"));
-
-        XposedHelpers.findAndHookMethod(Activity.class, "onCreate", Bundle.class, new XC_MethodHook() {
-            @Override
-            protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
-                var activity = (Activity) param.thisObject;
-                View rootView = activity.getWindow().getDecorView().getRootView();
-                rootView.getViewTreeObserver().addOnGlobalLayoutListener(() -> CompletableFuture.runAsync(() -> registerCssRules(activity, (ViewGroup) rootView, sheet)));
-            }
-        });
-
+    private static void showDialogUriPermission(Activity activity) {
+        new AlertDialogWpp(activity).setTitle("Custom CSS")
+                .setMessage(activity.getString(ResId.string.uri_permission))
+                .setPositiveButton(activity.getString(ResId.string.allow), (dialog, which) -> {
+                    Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT_TREE);
+                    intent.putExtra(DocumentsContract.EXTRA_INITIAL_URI, getDownloadsUri());
+                    activity.startActivityForResult(intent, REQUEST_FOLDER);
+                }).setNegativeButton(activity.getString(ResId.string.cancel), (dialog, which) -> dialog.dismiss()).show();
     }
 
     private void hookDrawableViews() {
@@ -153,14 +139,77 @@ public class CustomView extends Feature {
 
     }
 
-    private void checkPermissions() {
-        XposedHelpers.findAndHookMethod("com.whatsapp.HomeActivity", classLoader, "onCreate", Bundle.class, new XC_MethodHook() {
+    private static Uri getDownloadsUri() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            return MediaStore.Downloads.EXTERNAL_CONTENT_URI;
+        } else {
+            return Uri.fromFile(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS));
+        }
+    }
+
+    @Override
+    public void doHook() throws Throwable {
+        var filter_itens = prefs.getString("css_theme", "");
+        var folder_theme = prefs.getString("folder_theme", "");
+        var custom_css = prefs.getString("custom_css", "");
+
+        if ((TextUtils.isEmpty(filter_itens) && TextUtils.isEmpty(folder_theme) && TextUtils.isEmpty(custom_css)) || !prefs.getBoolean("custom_filters", true))
+            return;
+
+        checkPermissions();
+
+        hookDrawableViews();
+
+        themeDir = new File(ThemePreference.rootDirectory, folder_theme);
+        filter_itens += "\n" + custom_css;
+        cacheImages = new DrawableCache(Utils.getApplication(), 100 * 1024 * 1024);
+
+        var sheet = CSSFactory.parseString(filter_itens, new URL("https://base.url/"));
+
+        XposedHelpers.findAndHookMethod(Activity.class, "onCreate", Bundle.class, new XC_MethodHook() {
             @Override
             protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
                 var activity = (Activity) param.thisObject;
+                View rootView = activity.getWindow().getDecorView().getRootView();
+                rootView.getViewTreeObserver().addOnGlobalLayoutListener(() -> CompletableFuture.runAsync(() -> registerCssRules(activity, (ViewGroup) rootView, sheet)));
+            }
+        });
+
+    }
+
+    private void checkPermissions() {
+
+
+        XposedHelpers.findAndHookMethod("com.whatsapp.HomeActivity", classLoader, "onCreate", Bundle.class, new XC_MethodHook() {
+            @Override
+            protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+                var activity = (Activity) param.thisObject;
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
                     if (ContextCompat.checkSelfPermission(activity, Manifest.permission.READ_MEDIA_IMAGES) != PackageManager.PERMISSION_GRANTED) {
-                        activity.requestPermissions(new String[]{Manifest.permission.READ_MEDIA_IMAGES}, 852582);
+                        activity.requestPermissions(new String[]{Manifest.permission.READ_MEDIA_IMAGES}, REQUEST_PERMISSION);
+                    }
+                }
+                var wae = WppCore.getPrivString("folder_wae", null);
+                if (wae == null || !isUriPermissionGranted(activity, Uri.parse(wae))) {
+                    showDialogUriPermission(activity);
+                }
+            }
+        });
+
+        XposedHelpers.findAndHookMethod(Activity.class, "onActivityResult", int.class, int.class, Intent.class, new XC_MethodHook() {
+            @Override
+            protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+                super.afterHookedMethod(param);
+                var activity = (Activity) param.thisObject;
+                if ((int) param.args[0] == REQUEST_FOLDER && (int) param.args[1] == Activity.RESULT_OK) {
+                    var uri = (Uri) ((Intent) param.args[2]).getData();
+                    if (uri.getPath().endsWith("Download/WaEnhancer")) {
+                        WppCore.setPrivString("folder_wae", uri.toString());
+                        activity.getContentResolver().takePersistableUriPermission(uri, Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
+                        Utils.doRestart(activity);
+                    } else {
+                        showDialogUriPermission(activity);
+                        Utils.showToast(activity.getString(ResId.string.invalid_folder), Toast.LENGTH_LONG);
                     }
                 }
             }
@@ -171,10 +220,9 @@ public class CustomView extends Feature {
             protected void afterHookedMethod(MethodHookParam param) throws Throwable {
                 super.afterHookedMethod(param);
                 var activity = (Activity) param.thisObject;
-                if ((int) param.args[0] == 852582) {
+                if ((int) param.args[0] == REQUEST_PERMISSION) {
                     var results = (int[]) param.args[2];
                     if (Arrays.stream(results).anyMatch(result -> result != PackageManager.PERMISSION_GRANTED)) {
-                        // start intent to permissions
                         activity.startActivity(new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS, Uri.fromParts("package", activity.getPackageName(), null)));
                         Utils.showToast(activity.getString(ResId.string.grant_permission), Toast.LENGTH_LONG);
                     }
@@ -182,6 +230,12 @@ public class CustomView extends Feature {
             }
         });
 
+    }
+
+    private boolean isUriPermissionGranted(Context context, Uri uri) {
+        int takeFlags = Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_GRANT_WRITE_URI_PERMISSION;
+        int permissionCheck = context.checkUriPermission(uri, android.os.Process.myPid(), android.os.Process.myUid(), takeFlags);
+        return permissionCheck == PackageManager.PERMISSION_GRANTED;
     }
 
     private void registerCssRules(Activity activity, ViewGroup currenView, StyleSheet sheet) {
@@ -284,9 +338,11 @@ public class CustomView extends Feature {
                 case "background-image" -> {
                     if (!(declaration.get(0) instanceof TermURI uri)) continue;
                     var draw = cacheImages.getDrawable(uri.getValue(), view.getWidth(), view.getHeight());
+//                    log("background-image: " + uri.getValue() + " " + draw);
                     if (draw == null) continue;
                     if (XposedHelpers.getAdditionalInstanceField(view, "mHookedBackground") != null || XposedHelpers.getAdditionalInstanceField(view, "mHookedDrawable") != null)
                         continue;
+                    log("set background " + uri.getValue());
                     setHookedDrawable(view, draw);
                 }
                 case "background-size" -> {
@@ -642,42 +698,78 @@ public class CustomView extends Feature {
             var newHeight = reqHeight < 10 ? bitmap.getHeight() : Math.min(bitmap.getHeight(), reqHeight);
             var newWidth = reqWidth < 10 ? bitmap.getWidth() : Math.min(bitmap.getWidth(), reqWidth);
             bitmap = Bitmap.createScaledBitmap(bitmap, newWidth, newHeight, true);
-
             return new BitmapDrawable(context.getResources(), bitmap);
+        }
+
+        private Drawable loadDrawableFromUri(Uri uri, int reqWidth, int reqHeight) {
+            try {
+                var inputStream = context.getContentResolver().openInputStream(uri);
+                var bitmap = BitmapFactory.decodeStream(inputStream);
+                var newHeight = reqHeight < 10 ? bitmap.getHeight() : Math.min(bitmap.getHeight(), reqHeight);
+                var newWidth = reqWidth < 10 ? bitmap.getWidth() : Math.min(bitmap.getWidth(), reqWidth);
+                bitmap = Bitmap.createScaledBitmap(bitmap, newWidth, newHeight, true);
+                return new BitmapDrawable(context.getResources(), bitmap);
+            } catch (Exception e) {
+                return null;
+            }
         }
 
         @Nullable
         public Drawable getDrawable(String filePath, int width, int height) {
             File file = filePath.startsWith("/") ? new File(filePath) : new File(themeDir, filePath);
+            var wae = WppCore.getPrivString("folder_wae", null);
+
+            if (wae != null && !filePath.startsWith("/")) {
+                var uriFile = chacheUris.get(filePath);
+                if (uriFile == null) {
+                    var themes = DocumentFile.fromTreeUri(context, Uri.parse(wae)).findFile("themes");
+                    if (themes == null) return null;
+                    var theme = themes.findFile(themeDir.getName());
+                    if (theme == null) return null;
+                    uriFile = theme.findFile(file.getName());
+                    if (uriFile == null) return null;
+                    chacheUris.put(filePath, uriFile);
+                }
+                String key = uriFile.getUri().toString();
+                long lastModified = uriFile.lastModified();
+
+                CachedDrawable cachedDrawable = drawableCache.get(key);
+                if (cachedDrawable != null && cachedDrawable.lastModified == lastModified) {
+                    return cachedDrawable.drawable;
+                }
+                Drawable cachedDrawableFromFile = loadDrawableFromCache(key, lastModified);
+                if (cachedDrawableFromFile != null) {
+                    cachedDrawable = new CachedDrawable(cachedDrawableFromFile, lastModified);
+                    drawableCache.put(key, cachedDrawable);
+                    return cachedDrawableFromFile;
+                }
+                Drawable drawable = loadDrawableFromUri(uriFile.getUri(), width, height);
+                saveDrawableToCache(key, (BitmapDrawable) drawable, lastModified);
+                cachedDrawable = new CachedDrawable(drawable, lastModified);
+                drawableCache.put(key, cachedDrawable);
+                return drawable;
+            }
+
+
             if (!file.exists() || !file.canRead()) {
-                return null;  // Return transparent drawable
+                return null;
             }
             String key = file.getAbsolutePath();
             long lastModified = file.lastModified();
-
-            // Check if the cached drawable exists and is up-to-date
             CachedDrawable cachedDrawable = drawableCache.get(key);
             if (cachedDrawable != null && cachedDrawable.lastModified == lastModified) {
                 return cachedDrawable.drawable;
             }
-
-            // Try loading the drawable from cache
             Drawable cachedDrawableFromFile = loadDrawableFromCache(key, lastModified);
             if (cachedDrawableFromFile != null) {
                 cachedDrawable = new CachedDrawable(cachedDrawableFromFile, lastModified);
                 drawableCache.put(key, cachedDrawable);
                 return cachedDrawableFromFile;
             }
-
-            // Load drawable from original file
             Drawable drawable = loadDrawableFromFile(key, width, height);
-            // Save the drawable to cache directory
             saveDrawableToCache(key, (BitmapDrawable) drawable, lastModified);
-
-            // Update the cache
             cachedDrawable = new CachedDrawable(drawable, lastModified);
             drawableCache.put(key, cachedDrawable);
-
             return drawable;
         }
 

@@ -9,8 +9,8 @@ import androidx.annotation.Nullable;
 import androidx.preference.Preference;
 import androidx.preference.PreferenceManager;
 
-import com.wmods.wppenhacer.FilePicker;
 import com.wmods.wppenhacer.R;
+import com.wmods.wppenhacer.utils.FilePicker;
 
 import java.io.File;
 import java.nio.file.Files;

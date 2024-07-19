@@ -1,12 +1,10 @@
-package com.wmods.wppenhacer;
+package com.wmods.wppenhacer.utils;
 
 import android.net.Uri;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AppCompatActivity;
-
-import com.wmods.wppenhacer.utils.RealPathUtil;
 
 import java.io.File;
 

@@ -62,6 +62,9 @@ public class ResId {
         public static int grant_permission;
         public static int expiration;
         public static int deleted_a_message_in_group;
+        public static int allow;
+        public static int invalid_folder;
+        public static int uri_permission;
     }
 
     public static class array {

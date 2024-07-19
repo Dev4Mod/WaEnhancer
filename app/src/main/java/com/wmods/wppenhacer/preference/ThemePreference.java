@@ -22,9 +22,9 @@ import androidx.preference.Preference;
 import androidx.preference.PreferenceManager;
 
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
-import com.wmods.wppenhacer.FilePicker;
 import com.wmods.wppenhacer.R;
 import com.wmods.wppenhacer.activities.TextEditorActivity;
+import com.wmods.wppenhacer.utils.FilePicker;
 import com.wmods.wppenhacer.xposed.utils.Utils;
 
 import java.io.File;
