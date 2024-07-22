@@ -8,6 +8,7 @@ import com.wmods.wppenhacer.xposed.utils.Utils;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import de.robv.android.xposed.XposedBridge;
 
@@ -84,27 +85,25 @@ public class MessageStore {
 //    }
 
     public List<String> getAudioListByMessageList(List<String> messageList) {
-        if (sqLiteDatabase == null) return new ArrayList<>();
-        List<String> list = new ArrayList<>();
-        Cursor cursor = null;
-        try {
-            String sql = "SELECT key_id, message_type FROM message WHERE key_id IN (";
-            sql += String.join(",", messageList.stream().map(m -> "\"" + m + "\"").toArray(String[]::new));
-            sql += ")";
-            cursor = sqLiteDatabase.rawQuery(sql, null);
+        if (sqLiteDatabase == null || messageList == null || messageList.isEmpty()) {
+            return new ArrayList<>();
+        }
+
+        var list = new ArrayList<String>();
+        var placeholders = messageList.stream().map(m -> "?").collect(Collectors.joining(","));
+        var sql = "SELECT message_type FROM message WHERE key_id IN (" + placeholders + ")";
+        try (Cursor cursor = sqLiteDatabase.rawQuery(sql, messageList.toArray(new String[0]))) {
             if (cursor.moveToFirst()) {
                 do {
-                    int type = cursor.getInt(1);
-                    if (type == 2) {
+                    if (cursor.getInt(0) == 2) {
                         list.add(cursor.getString(0));
                     }
                 } while (cursor.moveToNext());
             }
         } catch (Exception e) {
             XposedBridge.log(e);
-        } finally {
-            if (cursor != null) cursor.close();
         }
+
         return list;
     }
 
