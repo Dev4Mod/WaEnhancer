@@ -371,13 +371,21 @@ public class SeenTick extends Feature {
 
     private void sendBlueTickMedia(Object messageObject, boolean clear) {
         try {
-            logDebug("sendBlue: " + WppCore.getCurrentRawJID());
-            var sendPlayerClass = XposedHelpers.findClass("com.whatsapp.jobqueue.job.SendPlayedReceiptJob", classLoader);
-            var sendJob = XposedHelpers.newInstance(sendPlayerClass, messageObject);
+            var fMessage = new FMessageWpp(messageObject);
+            logDebug("sendBlueTickMedia: " + WppCore.getRawString(fMessage.getKey().remoteJid));
+            var sendPlayerClass = XposedHelpers.findClass("com.whatsapp.jobqueue.job.SendPlayedReceiptJobV2", classLoader);
+            var constructor = sendPlayerClass.getDeclaredConstructors()[0];
+            var classParticipantInfo = constructor.getParameterTypes()[0];
+            var rowsId = new Long[]{fMessage.getRowId()};
+            var remoteJid = fMessage.getKey().remoteJid;
+            var messageId = fMessage.getKey().messageID;
+            constructor = classParticipantInfo.getDeclaredConstructors()[0];
+            var participantInfo = constructor.newInstance(remoteJid, null, rowsId, new String[]{messageId});
+            var sendJob = XposedHelpers.newInstance(sendPlayerClass, participantInfo, false);
             WaJobManagerMethod.invoke(mWaJobManager, sendJob);
             if (clear) messages.clear();
         } catch (Throwable e) {
-            XposedBridge.log("Error: " + e.getMessage());
+            XposedBridge.log(e);
         }
     }
 
