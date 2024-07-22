@@ -2,11 +2,8 @@ package com.wmods.wppenhacer.xposed.features.customization;
 
 import static com.wmods.wppenhacer.utils.ColorReplacement.replaceColors;
 
-import android.Manifest;
 import android.app.Activity;
 import android.content.Context;
-import android.content.Intent;
-import android.content.pm.PackageManager;
 import android.content.res.ColorStateList;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -20,12 +17,7 @@ import android.graphics.drawable.Drawable;
 import android.graphics.drawable.ShapeDrawable;
 import android.graphics.drawable.shapes.RectShape;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
-import android.os.Environment;
-import android.provider.DocumentsContract;
-import android.provider.MediaStore;
-import android.provider.Settings;
 import android.text.TextUtils;
 import android.util.Log;
 import android.util.LruCache;
@@ -34,21 +26,17 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.core.content.ContextCompat;
 import androidx.documentfile.provider.DocumentFile;
 
 import com.wmods.wppenhacer.preference.ThemePreference;
 import com.wmods.wppenhacer.utils.IColors;
 import com.wmods.wppenhacer.xposed.core.Feature;
 import com.wmods.wppenhacer.xposed.core.WppCore;
-import com.wmods.wppenhacer.xposed.core.components.AlertDialogWpp;
 import com.wmods.wppenhacer.xposed.core.devkit.Unobfuscator;
 import com.wmods.wppenhacer.xposed.utils.ReflectionUtils;
-import com.wmods.wppenhacer.xposed.utils.ResId;
 import com.wmods.wppenhacer.xposed.utils.Utils;
 
 import java.io.File;
@@ -84,9 +72,7 @@ import de.robv.android.xposed.XposedHelpers;
 public class CustomView extends Feature {
 
     private DrawableCache cacheImages;
-    private static final int REQUEST_PERMISSION = 852582;
     private static File themeDir;
-    private static final int REQUEST_FOLDER = 852583;
     private final HashMap<String, Drawable> chacheDrawables = new HashMap<>();
     private final HashMap<String, DocumentFile> chacheUris = new HashMap<>();
 
@@ -94,15 +80,6 @@ public class CustomView extends Feature {
         super(loader, preferences);
     }
 
-    private static void showDialogUriPermission(Activity activity) {
-        new AlertDialogWpp(activity).setTitle("Custom CSS")
-                .setMessage(activity.getString(ResId.string.uri_permission))
-                .setPositiveButton(activity.getString(ResId.string.allow), (dialog, which) -> {
-                    Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT_TREE);
-                    intent.putExtra(DocumentsContract.EXTRA_INITIAL_URI, getDownloadsUri());
-                    activity.startActivityForResult(intent, REQUEST_FOLDER);
-                }).setNegativeButton(activity.getString(ResId.string.cancel), (dialog, which) -> dialog.dismiss()).show();
-    }
 
     private void hookDrawableViews() {
         XposedHelpers.findAndHookMethod(View.class, "setBackground", Drawable.class, new XC_MethodHook() {
@@ -139,13 +116,6 @@ public class CustomView extends Feature {
 
     }
 
-    private static Uri getDownloadsUri() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            return MediaStore.Downloads.EXTERNAL_CONTENT_URI;
-        } else {
-            return Uri.fromFile(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS));
-        }
-    }
 
     @Override
     public void doHook() throws Throwable {
@@ -155,8 +125,6 @@ public class CustomView extends Feature {
 
         if ((TextUtils.isEmpty(filter_itens) && TextUtils.isEmpty(folder_theme) && TextUtils.isEmpty(custom_css)) || !prefs.getBoolean("custom_filters", true))
             return;
-
-        checkPermissions();
 
         hookDrawableViews();
 
@@ -177,66 +145,7 @@ public class CustomView extends Feature {
 
     }
 
-    private void checkPermissions() {
 
-
-        XposedHelpers.findAndHookMethod("com.whatsapp.HomeActivity", classLoader, "onCreate", Bundle.class, new XC_MethodHook() {
-            @Override
-            protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-                var activity = (Activity) param.thisObject;
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                    if (ContextCompat.checkSelfPermission(activity, Manifest.permission.READ_MEDIA_IMAGES) != PackageManager.PERMISSION_GRANTED) {
-                        activity.requestPermissions(new String[]{Manifest.permission.READ_MEDIA_IMAGES}, REQUEST_PERMISSION);
-                    }
-                }
-                var wae = WppCore.getPrivString("folder_wae", null);
-                if (wae == null || !isUriPermissionGranted(activity, Uri.parse(wae))) {
-                    showDialogUriPermission(activity);
-                }
-            }
-        });
-
-        XposedHelpers.findAndHookMethod(Activity.class, "onActivityResult", int.class, int.class, Intent.class, new XC_MethodHook() {
-            @Override
-            protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-                super.afterHookedMethod(param);
-                var activity = (Activity) param.thisObject;
-                if ((int) param.args[0] == REQUEST_FOLDER && (int) param.args[1] == Activity.RESULT_OK) {
-                    var uri = (Uri) ((Intent) param.args[2]).getData();
-                    if (uri.getPath().endsWith("Download/WaEnhancer")) {
-                        WppCore.setPrivString("folder_wae", uri.toString());
-                        activity.getContentResolver().takePersistableUriPermission(uri, Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
-                        Utils.doRestart(activity);
-                    } else {
-                        showDialogUriPermission(activity);
-                        Utils.showToast(activity.getString(ResId.string.invalid_folder), Toast.LENGTH_LONG);
-                    }
-                }
-            }
-        });
-
-        XposedHelpers.findAndHookMethod(Activity.class, "onRequestPermissionsResult", int.class, String[].class, int[].class, new XC_MethodHook() {
-            @Override
-            protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-                super.afterHookedMethod(param);
-                var activity = (Activity) param.thisObject;
-                if ((int) param.args[0] == REQUEST_PERMISSION) {
-                    var results = (int[]) param.args[2];
-                    if (Arrays.stream(results).anyMatch(result -> result != PackageManager.PERMISSION_GRANTED)) {
-                        activity.startActivity(new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS, Uri.fromParts("package", activity.getPackageName(), null)));
-                        Utils.showToast(activity.getString(ResId.string.grant_permission), Toast.LENGTH_LONG);
-                    }
-                }
-            }
-        });
-
-    }
-
-    private boolean isUriPermissionGranted(Context context, Uri uri) {
-        int takeFlags = Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_GRANT_WRITE_URI_PERMISSION;
-        int permissionCheck = context.checkUriPermission(uri, android.os.Process.myPid(), android.os.Process.myUid(), takeFlags);
-        return permissionCheck == PackageManager.PERMISSION_GRANTED;
-    }
 
     private void registerCssRules(Activity activity, ViewGroup currenView, StyleSheet sheet) {
         try {

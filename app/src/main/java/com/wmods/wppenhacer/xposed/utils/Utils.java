@@ -7,10 +7,8 @@ import android.content.ClipboardManager;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.media.MediaScannerConnection;
-import android.os.Environment;
 import android.os.Handler;
 import android.os.Looper;
 import android.util.DisplayMetrics;
@@ -92,9 +90,9 @@ public class Utils {
         return new SimpleDateFormat("hh:mm:ss a", Locale.ENGLISH).format(new Date(timestamp));
     }
 
-    public static String getDestination(SharedPreferences prefs, String name) {
-        var folderPath = prefs.getString("localdownload", Environment.getExternalStorageDirectory().getAbsolutePath() + "/Download") + "/WhatsApp/Wa Enhancer/" + name + "/";
-        var filePath = new File(folderPath);
+    public static String getDestination(String name) {
+        var waFolder = new File(App.getWaEnhancerFolder(), "WhatsApp");
+        var filePath = new File(waFolder, name);
         if (!filePath.exists()) filePath.mkdirs();
         return filePath.getAbsolutePath() + "/";
     }

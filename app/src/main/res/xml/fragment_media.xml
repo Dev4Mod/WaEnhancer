@@ -17,11 +17,6 @@
         app:iconSpaceReserved="false"
         app:title="@string/download_title">
 
-        <com.wmods.wppenhacer.preference.FileSelectPreference
-            app:key="localdownload"
-            app:directory="true"
-            app:title="@string/local_download" />
-
         <rikka.material.preference.MaterialSwitchPreference
             app:key="downloadstatus"
             app:summary="@string/statusdowload_sum"

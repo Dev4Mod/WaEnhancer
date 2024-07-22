@@ -55,6 +55,7 @@ import com.wmods.wppenhacer.xposed.features.others.ChatFilters;
 import com.wmods.wppenhacer.xposed.features.others.CopyStatus;
 import com.wmods.wppenhacer.xposed.features.others.DebugFeature;
 import com.wmods.wppenhacer.xposed.features.others.GroupAdmin;
+import com.wmods.wppenhacer.xposed.features.others.Permissions;
 import com.wmods.wppenhacer.xposed.features.others.Stickers;
 import com.wmods.wppenhacer.xposed.features.others.TextStatusComposer;
 import com.wmods.wppenhacer.xposed.features.others.ToastViewer;
@@ -253,7 +254,8 @@ public class FeatureLoader {
                 Stickers.class,
                 CopyStatus.class,
                 TextStatusComposer.class,
-                ToastViewer.class
+                ToastViewer.class,
+                Permissions.class
         };
 
         for (var classe : classes) {

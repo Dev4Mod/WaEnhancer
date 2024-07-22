@@ -3,6 +3,7 @@ package com.wmods.wppenhacer.utils;
 import android.net.Uri;
 
 import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.PickVisualMediaRequest;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -16,10 +17,12 @@ public class FilePicker {
     private static OnUriPickedListener mOnUriPickedListener;
     public static ActivityResultLauncher<String[]> fileCapture;
     public static ActivityResultLauncher<Uri> directoryCapture;
+    public static ActivityResultLauncher<PickVisualMediaRequest> imageCapture;
 
     public static void registerFilePicker(AppCompatActivity activity) {
         mActivity = activity;
         fileCapture = activity.registerForActivityResult(new ActivityResultContracts.OpenDocument(), FilePicker::setFile);
+        imageCapture = activity.registerForActivityResult(new ActivityResultContracts.PickVisualMedia(), FilePicker::setFile);
         directoryCapture = activity.registerForActivityResult(new ActivityResultContracts.OpenDocumentTree(), FilePicker::setDirectory);
         fileSalve = activity.registerForActivityResult(new ActivityResultContracts.CreateDocument("*/*"), FilePicker::setFile);
     }
@@ -27,7 +30,7 @@ public class FilePicker {
     private static void setFile(Uri uri) {
         if (uri == null) return;
 
-        if (mOnFilePickedListener == null) {
+        if (mOnUriPickedListener != null) {
             mOnUriPickedListener.onUriPicked(uri);
             mOnUriPickedListener = null;
         }
@@ -63,17 +66,17 @@ public class FilePicker {
             mOnFilePickedListener = null;
         }
     }
-
-
-
-
+    
     public static void setOnFilePickedListener(OnFilePickedListener onFilePickedListener) {
         mOnFilePickedListener = onFilePickedListener;
+        mOnUriPickedListener = null;
     }
 
     public static void setOnUriPickedListener(OnUriPickedListener onFilePickedListener) {
         mOnUriPickedListener = onFilePickedListener;
+        mOnFilePickedListener = null;
     }
+
 
     public interface OnFilePickedListener {
         void onFilePicked(File file);

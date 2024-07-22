@@ -8,13 +8,16 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
+import android.net.Uri;
 import android.util.DisplayMetrics;
 import android.view.WindowManager;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 
 import androidx.annotation.NonNull;
+import androidx.documentfile.provider.DocumentFile;
 
+import com.wmods.wppenhacer.App;
 import com.wmods.wppenhacer.preference.ThemePreference;
 import com.wmods.wppenhacer.xposed.core.WppCore;
 
@@ -58,12 +61,26 @@ public class WallpaperView extends FrameLayout {
         var fileOut = getContext().getFilesDir().getAbsolutePath() + "/" + "wallpaper.jpg";
         var file = new File(imagePath);
         if (!file.exists()) return null;
-
-        // Obter o caminho do arquivo, a última data de modificação e formatar a string de cache
+        var waeFolder = App.getWaEnhancerFolder();
         String filePath = file.getAbsolutePath();
         long lastModified = file.lastModified();
         String cacheKey = filePath + "_" + lastModified;
+        Uri fileUri = null;
 
+        if (!file.canRead() && imagePath.startsWith(waeFolder.getAbsolutePath())) {
+            var destination = imagePath.replace(waeFolder.getAbsolutePath() + "/", "");
+            var split = destination.split("/");
+            var waeFolderUriPath = WppCore.getPrivString("folder_wae", null);
+            if (waeFolderUriPath == null) return null;
+            var waeFolderUri = Uri.parse(waeFolderUriPath);
+            var documentFile = DocumentFile.fromTreeUri(getContext(), waeFolderUri);
+            for (String s : split) {
+                if ((documentFile = documentFile.findFile(s)) == null) {
+                    return null;
+                }
+            }
+            fileUri = documentFile.getUri();
+        }
         // Recuperar informações armazenadas em cache
         String cachedData = WppCore.getPrivString("wallpaper_data", "");
 
@@ -74,8 +91,8 @@ public class WallpaperView extends FrameLayout {
             return new BitmapDrawable(getResources(), bitmap);
         }
 
-        // Se o arquivo foi modificado ou é novo, decodificar, dimensionar e salvar
-        Bitmap bitmap = BitmapFactory.decodeFile(imagePath);
+        Bitmap bitmap = fileUri != null ? BitmapFactory.decodeStream(getContext().getContentResolver().openInputStream(fileUri)) : BitmapFactory.decodeFile(imagePath);
+
         DisplayMetrics displayMetrics = new DisplayMetrics();
         var windowManager = (WindowManager) getContext().getSystemService(Context.WINDOW_SERVICE);
         windowManager.getDefaultDisplay().getMetrics(displayMetrics);

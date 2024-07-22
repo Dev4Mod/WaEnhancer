@@ -6,7 +6,6 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.Environment;
 import android.view.Menu;
 import android.view.MenuItem;
 
@@ -24,13 +23,11 @@ import com.wmods.wppenhacer.databinding.ActivityMainBinding;
 import com.wmods.wppenhacer.utils.FilePicker;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity {
 
     private ActivityMainBinding binding;
-    public static File mainDir;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -45,6 +42,7 @@ public class MainActivity extends AppCompatActivity {
             getSupportActionBar().setDisplayShowHomeEnabled(true);
             getSupportActionBar().setIcon(R.mipmap.launcher);
         }
+
         binding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
@@ -108,16 +106,9 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void createMainDir() {
-        mainDir = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS), "WaEnhancer");
-        if (!mainDir.exists()) {
-            mainDir.mkdir();
-        }
-        var nomedia = new File(mainDir, ".nomedia");
-        if (!nomedia.exists()) {
-            try {
-                nomedia.createNewFile();
-            } catch (IOException ignored) {
-            }
+        var nomedia = new File(App.getWaEnhancerFolder(), ".nomedia");
+        if (nomedia.exists()) {
+            nomedia.delete();
         }
     }
 

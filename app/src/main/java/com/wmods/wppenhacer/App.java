@@ -4,12 +4,14 @@ import android.annotation.SuppressLint;
 import android.app.Application;
 import android.content.Context;
 import android.content.Intent;
+import android.os.Environment;
 import android.os.Handler;
 import android.os.Looper;
 
 import androidx.appcompat.app.AppCompatDelegate;
 import androidx.preference.PreferenceManager;
 
+import java.io.File;
 import java.util.Locale;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -78,5 +80,11 @@ public class App extends Application {
         res.updateConfiguration(config, res.getDisplayMetrics());
     }
 
+    public static File getWaEnhancerFolder() {
+        var download = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
+        var waEnhancerFolder = new File(download, "WaEnhancer");
+        if (!waEnhancerFolder.exists()) waEnhancerFolder.mkdirs();
+        return waEnhancerFolder;
+    }
 
 }

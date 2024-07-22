@@ -22,6 +22,7 @@ import androidx.preference.Preference;
 import androidx.preference.PreferenceManager;
 
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
+import com.wmods.wppenhacer.App;
 import com.wmods.wppenhacer.R;
 import com.wmods.wppenhacer.activities.TextEditorActivity;
 import com.wmods.wppenhacer.utils.FilePicker;
@@ -41,7 +42,7 @@ import kotlin.io.FilesKt;
 public class ThemePreference extends Preference implements FilePicker.OnUriPickedListener {
 
 
-    public static File rootDirectory = new File(Environment.getExternalStorageDirectory(), "Download/WaEnhancer/themes");
+    public static File rootDirectory = new File(App.getWaEnhancerFolder(), "themes");
     private androidx.appcompat.app.AlertDialog mainDialog;
 
     public ThemePreference(Context context, AttributeSet attrs) {

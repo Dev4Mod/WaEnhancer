@@ -58,7 +58,7 @@ public class DownloadViewOnce extends Feature {
                                 if (message != null) {
                                     var fileData = XposedHelpers.getObjectField(message, "A01");
                                     var file = (File) ReflectionUtils.getField(fileField, fileData);
-                                    var dest = Utils.getDestination(prefs, "View Once");
+                                    var dest = Utils.getDestination("View Once");
                                     var userJid = new FMessageWpp(message).getKey().remoteJid;
                                     var fileExtension = file.getAbsolutePath().substring(file.getAbsolutePath().lastIndexOf(".") + 1);
                                     var name = Utils.generateName(userJid, fileExtension);
