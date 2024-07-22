@@ -215,6 +215,14 @@
             app:summary="@string/double_click_to_like_sum"
             app:title="@string/double_click_to_like" />
 
+        <com.wmods.wppenhacer.preference.LimitedEditTextPreference
+            app:defaultValue="👍"
+            app:dependency="doubletap2like"
+            app:key="doubletap2like_emoji"
+            app:maxLength="2"
+            app:summary="@string/custom_reaction_sum"
+            app:title="@string/custom_reaction" />
+
     </PreferenceCategory>
 
     <PreferenceCategory

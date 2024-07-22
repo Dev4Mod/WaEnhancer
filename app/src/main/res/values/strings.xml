@@ -350,4 +350,6 @@
     <string name="uri_permission">To use custom themes you need to select the \"WaEnhancer\" folder in \"Download\"</string>
     <string name="double_click_to_like">Enable Double Click to Like</string>
     <string name="double_click_to_like_sum">Activates the possibility of double-clicking on the message to like it</string>
+    <string name="custom_reaction">Custom Reaction</string>
+    <string name="custom_reaction_sum">Select which reaction will be sent when double clicking on the message</string>
 </resources>

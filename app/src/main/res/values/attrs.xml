@@ -27,6 +27,11 @@
         <attr name="format" format="float" />
     </declare-styleable>
 
+
+    <declare-styleable name="LimitedEditTextPreference">
+        <attr name="maxLength" format="integer" />
+    </declare-styleable>
+
     <declare-styleable name="ContactPickerPreference">
         <attr name="summaryOff" format="string" />
         <attr name="summaryOn" format="string" />
