@@ -24,13 +24,17 @@ public class HideSeen extends Feature {
     @Override
     public void doHook() throws Exception {
 
+
         Method SendReadReceiptJobMethod = Unobfuscator.loadHideViewSendReadJob(classLoader);
         var sendJob = XposedHelpers.findClass("com.whatsapp.jobqueue.job.SendReadReceiptJob", classLoader);
         log(Unobfuscator.getMethodDescriptor(SendReadReceiptJobMethod));
 
-        var hideread = prefs.getBoolean("hideread", false);
-        var hideread_group = prefs.getBoolean("hideread_group", false);
-        var hidestatusview = prefs.getBoolean("hidestatusview", false);
+        var ghostmode = WppCore.getPrivBoolean("ghostmode", false);
+        var hideread = prefs.getBoolean("hideread", false) || ghostmode;
+        var hideaudioseen = prefs.getBoolean("hideaudioseen", false) || ghostmode;
+        var hideonceseen = prefs.getBoolean("hideonceseen", false) || ghostmode;
+        var hideread_group = prefs.getBoolean("hideread_group", false) || ghostmode;
+        var hidestatusview = prefs.getBoolean("hidestatusview", false) || ghostmode;
 
         XposedBridge.hookMethod(SendReadReceiptJobMethod, new XC_MethodHook() {
             @Override
@@ -72,9 +76,9 @@ public class HideSeen extends Feature {
                 if (param.args[4] == null || !param.args[4].equals("read")) return;
                 var jid = WppCore.getCurrentRawJID();
                 if (WppCore.isGroup(jid)) {
-                    if (prefs.getBoolean("hideread_group", false))
+                    if (hideread_group)
                         param.args[4] = null;
-                } else if (prefs.getBoolean("hideread", false)) {
+                } else if (hideread) {
                     param.args[4] = null;
                 }
             }
@@ -86,9 +90,9 @@ public class HideSeen extends Feature {
             protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
                 var fMessage = new FMessageWpp(param.args[0]);
                 var media_type = fMessage.getMediaType();  // 2 = voice note ; 82 = viewonce note voice; 42 = image view once; 43 = video view once
-                if (prefs.getBoolean("hideonceseen", false) && (media_type == 82 || media_type == 42 || media_type == 43)) {
+                if (hideonceseen && (media_type == 82 || media_type == 42 || media_type == 43)) {
                     param.setResult(null);
-                } else if (prefs.getBoolean("hideaudioseen", false) && media_type == 2) {
+                } else if (hideaudioseen && media_type == 2) {
                     param.setResult(null);
                 }
             }

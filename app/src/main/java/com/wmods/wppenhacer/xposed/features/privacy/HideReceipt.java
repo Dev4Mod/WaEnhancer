@@ -26,7 +26,8 @@ public class HideReceipt extends Feature {
         XposedBridge.hookMethod(method, new XC_MethodHook() {
             @Override
             protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
-                if (!prefs.getBoolean("hidereceipt", false)) return;
+                if (!prefs.getBoolean("hidereceipt", false) && !WppCore.getPrivBoolean("ghostmode", false))
+                    return;
                 if (!Unobfuscator.isCalledFromMethod(method2) && !Unobfuscator.isCalledFromMethod(method3))
                     return;
                 var jid = WppCore.getRawString(param.args[0]);

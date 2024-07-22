@@ -11,6 +11,8 @@ public class ResId {
         public static int preview_eye;
         public static int ic_reload;
         public static int refresh;
+        public static int ghost_disabled;
+        public static int ghost_enabled;
     }
 
     public static class string {
@@ -65,6 +67,11 @@ public class ResId {
         public static int allow;
         public static int invalid_folder;
         public static int uri_permission;
+        public static int ghost_mode;
+        public static int ghost_mode_message;
+        public static int disable;
+        public static int enable;
+        public static int ghost_mode_s;
     }
 
     public static class array {

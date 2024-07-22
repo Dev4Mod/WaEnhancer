@@ -12,6 +12,18 @@
             app:summary="@string/hide_archived_chat_sum"
             app:title="@string/hide_archived_chat" />
 
+        <rikka.material.preference.MaterialSwitchPreference
+            app:defaultValue="true"
+            app:key="show_freezeLastSeen"
+            app:summary="@string/show_freezeLastSeen_sum"
+            app:title="@string/show_freezeLastSeen_button" />
+
+        <rikka.material.preference.MaterialSwitchPreference
+            app:defaultValue="true"
+            app:key="ghostmode"
+            app:summary="@string/ghost_mode_sum"
+            app:title="@string/ghost_mode_title" />
+
     </PreferenceCategory>
 
 
@@ -24,11 +36,6 @@
             app:summary="@string/freezelastseen_sum"
             app:title="@string/freezelastseen" />
 
-        <rikka.material.preference.MaterialSwitchPreference
-            app:defaultValue="true"
-            app:key="show_freezeLastSeen"
-            app:summary="@string/show_freezeLastSeen_sum"
-            app:title="@string/show_freezeLastSeen_button" />
 
         <rikka.material.preference.MaterialSwitchPreference
             app:key="hideread"

@@ -55,6 +55,7 @@ import com.wmods.wppenhacer.xposed.features.others.ChatFilters;
 import com.wmods.wppenhacer.xposed.features.others.CopyStatus;
 import com.wmods.wppenhacer.xposed.features.others.DebugFeature;
 import com.wmods.wppenhacer.xposed.features.others.GroupAdmin;
+import com.wmods.wppenhacer.xposed.features.others.MenuHome;
 import com.wmods.wppenhacer.xposed.features.others.Permissions;
 import com.wmods.wppenhacer.xposed.features.others.Stickers;
 import com.wmods.wppenhacer.xposed.features.others.TextStatusComposer;
@@ -62,11 +63,11 @@ import com.wmods.wppenhacer.xposed.features.others.ToastViewer;
 import com.wmods.wppenhacer.xposed.features.privacy.CallPrivacy;
 import com.wmods.wppenhacer.xposed.features.privacy.DndMode;
 import com.wmods.wppenhacer.xposed.features.privacy.FreezeLastSeen;
-import com.wmods.wppenhacer.xposed.features.privacy.GhostMode;
 import com.wmods.wppenhacer.xposed.features.privacy.HideChat;
 import com.wmods.wppenhacer.xposed.features.privacy.HideReceipt;
 import com.wmods.wppenhacer.xposed.features.privacy.HideSeen;
 import com.wmods.wppenhacer.xposed.features.privacy.HideTagForward;
+import com.wmods.wppenhacer.xposed.features.privacy.TypePrivacy;
 import com.wmods.wppenhacer.xposed.features.privacy.ViewOnce;
 import com.wmods.wppenhacer.xposed.utils.DesignUtils;
 import com.wmods.wppenhacer.xposed.utils.ResId;
@@ -226,7 +227,7 @@ public class FeatureLoader {
                 DotOnline.class,
                 DndMode.class,
                 FreezeLastSeen.class,
-                GhostMode.class,
+                TypePrivacy.class,
                 HideChat.class,
                 HideReceipt.class,
                 HideSeen.class,
@@ -255,7 +256,8 @@ public class FeatureLoader {
                 CopyStatus.class,
                 TextStatusComposer.class,
                 ToastViewer.class,
-                Permissions.class
+                Permissions.class,
+                MenuHome.class
         };
 
         for (var classe : classes) {
