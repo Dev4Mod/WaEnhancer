@@ -27,6 +27,7 @@ import com.wmods.wppenhacer.xposed.utils.ReflectionUtils;
 import com.wmods.wppenhacer.xposed.utils.Utils;
 
 import java.lang.reflect.Method;
+import java.util.List;
 
 import de.robv.android.xposed.XC_MethodHook;
 import de.robv.android.xposed.XSharedPreferences;
@@ -190,7 +191,11 @@ public class FilterGroups extends Feature {
     private void setFilter(int position) {
         try {
             ReflectionUtils.callMethod(methodInitFilter, null, mConversationFragment);
-            ReflectionUtils.callMethod(methodSetFilter, mFilterInstance, position + 2);
+            if (mFilterInstance == null) return;
+            var listField = ReflectionUtils.getFieldByType(mFilterInstance.getClass(), List.class);
+            var list = (List) ReflectionUtils.getField(listField, mFilterInstance);
+            if (list == null) return;
+            ReflectionUtils.callMethod(methodSetFilter, mFilterInstance, position + list.size() - 2);
         } catch (Exception e) {
             logDebug(e);
         }
