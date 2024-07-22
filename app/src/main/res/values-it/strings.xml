@@ -17,8 +17,8 @@
     <string name="segundosnahora">Secondi nell\'orario</string>
     <string name="segundosnahora_sum">Mostra i secondi accanto a qualsiasi orario nell\'app WhatsApp</string>
     <string name="textonahora">Testo accanto all\'orario</string>
-    <string name="viewonce">Disabilita Visualizza una volta</string>
-    <string name="viewonce_sum">Apri i media \'Visualizza una volta\' tutte le volte che desideri</string>
+    <string name="viewonce">Unlimited View Once</string>
+    <string name="viewonce_sum">Allows you to open view once media multiple times</string>
     <string name="novotema_sum">Cambia il colore e il tema delle icone con il nuovo tema WhatsApp</string>
     <string name="antirevokestatus">Anti-Elimina stato</string>
     <string name="antirevokestatus_sum">Visualizza gli Stati che gli utenti hanno eliminato</string>
@@ -69,8 +69,8 @@
     <string name="blueonreply_sum">Invia le spunte blu dopo aver risposto ad un messaggio\n(NOTA: Deve essere attivo \"Nascondi spunte blu\")</string>
     <string name="hide_archived_chat">Nascondi Chat archiviate</string>
     <string name="hide_archived_chat_sum">Nascondi le chat archiviate, per accedere clicca 5 volte sul titolo \"WhatsApp\" nell\'intestazione della Home</string>
-    <string name="hide_once_view_seen">Nascondi Visualizza una Volta e Audio Ascoltato</string>
-    <string name="hide_once_view_seen_sum">Nascondi di aver visto i media \'Visualizza una volta\' e aver ascoltato i vocali</string>
+    <string name="hide_once_view_seen">Hide View Once Seen</string>
+    <string name="hide_once_view_seen_sum">Hide that view one media has been seen</string>
     <string name="call_blocker">Blocco chiamate</string>
     <string name="call_blocker_sum">Blocca le chiamate WhatsApp in base al tipo di privacy</string>
     <string name="show_online_dot_in_conversation_list">Mostra il pallino online nell\'elenco delle conversazioni</string>
@@ -344,8 +344,17 @@
     <string name="stamp_copied_messages_sum">Rimuove Nome e Data quando si copia più di un messaggio</string>
     <string name="invalid_folder">È stata selezionata una cartella non valida. Scegli la cartella WaEnhancer</string>
     <string name="uri_permission">Per utilizzare temi personalizzati è necessario selezionare la cartella \"WaEnhancer\" in \"Download\"</string>
-    <string name="double_click_to_react">Enable Double Click to React</string>
-    <string name="double_click_to_like_sum">Activates the possibility of double-clicking on the message to react it</string>
-    <string name="custom_reaction">Custom Reaction</string>
-    <string name="custom_reaction_sum">Select which reaction will be sent when double clicking on the message</string>
+    <string name="double_click_to_react">Abilita Doppio Click per Reazioni</string>
+    <string name="double_click_to_like_sum">Attiva la possibilità di fare doppio click sul messaggio per mettere una reazione</string>
+    <string name="custom_reaction">Reazione Personalizzata</string>
+    <string name="custom_reaction_sum">Seleziona quale reazione verrà inviata quando fai doppio click sul messaggio</string>
+    <string name="hide_audio_seen">Hide audio seen</string>
+    <string name="hide_audio_seen_sum">Hides the sending of audio reading when listening to it</string>
+    <string name="ghost_mode">Ghost mode</string>
+    <string name="ghost_mode_message">Ghost Mode makes you invisible, hiding your blue tick (stories, messages and groups), second tick and your last seen from all contacts</string>
+    <string name="disable">Disable</string>
+    <string name="enable">Enable</string>
+    <string name="ghost_mode_s">Ghost Mode [%s]</string>
+    <string name="ghost_mode_title">Show Ghost Mode Button</string>
+    <string name="ghost_mode_sum">Show a Ghost Mode button on the home screen toolbar</string>
 </resources>

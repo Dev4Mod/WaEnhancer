@@ -17,8 +17,8 @@
     <string name="segundosnahora">Detik dalam Waktu</string>
     <string name="segundosnahora_sum">Tampilkan detik di samping waktu apapun di aplikasi WhatsApp</string>
     <string name="textonahora">Teks di samping Waktu</string>
-    <string name="viewonce">Nonaktifkan Batas Sekali Lihat</string>
-    <string name="viewonce_sum">Anda dapat membuka pesan \"lihat sekali\" berkali-kali</string>
+    <string name="viewonce">Unlimited View Once</string>
+    <string name="viewonce_sum">Allows you to open view once media multiple times</string>
     <string name="novotema_sum">Ubah warna dan tema ikon menjadi tema WhatsApp baru</string>
     <string name="antirevokestatus">Anti Hapus Status</string>
     <string name="antirevokestatus_sum">Status tidak akan dihapus untuk Anda</string>
@@ -72,8 +72,8 @@
 (CATATAN: Harus mengaktifkan \"Sembunyikan centang biru\")</string>
     <string name="hide_archived_chat">Sembunyikan Obrolan yang Diarsipkan</string>
     <string name="hide_archived_chat_sum">Sembunyikan obrolan yang diarsipkan, untuk mengakses klik 5 kali atau tahan pada judul \"WhatsApp\" di header Layar Beranda</string>
-    <string name="hide_once_view_seen">Sembunyikan Lihat Sekali dan Pesan Suara</string>
-    <string name="hide_once_view_seen_sum">Orang lain tidak akan mengetahui bahwa Anda telah membuka pesan \"lihat sekali\" dan pesan suara</string>
+    <string name="hide_once_view_seen">Hide View Once Seen</string>
+    <string name="hide_once_view_seen_sum">Hide that view one media has been seen</string>
     <string name="call_blocker">Blokir Panggilan</string>
     <string name="call_blocker_sum">Blokir panggilan WhatsApp berdasarkan jenis privasi</string>
     <string name="show_online_dot_in_conversation_list">Tampilkan Titik Online</string>
@@ -351,10 +351,19 @@ Harap gunakan versi WhatsApp yang didukung!</string>
     <string name="list_animations_home_screen_sum">Aktifkan animasi saat menggulir daftar obrolan</string>
     <string name="stamp_copied_messages">Hapus Nama dan Tanggal</string>
     <string name="stamp_copied_messages_sum">Hapus nama dan tanggal saat menyalin lebih dari satu pesan</string>
-    <string name="invalid_folder">Folder yang dipilih tidak valid. Silahkan pilih folder Wa Enhancer</string>
-    <string name="uri_permission">Untuk menggunakan tema khusus Anda perlu memilih folder \"Download/Wa Enhancer\"</string>
-    <string name="double_click_to_react">Enable Double Click to React</string>
-    <string name="double_click_to_like_sum">Activates the possibility of double-clicking on the message to react it</string>
-    <string name="custom_reaction">Custom Reaction</string>
-    <string name="custom_reaction_sum">Select which reaction will be sent when double clicking on the message</string>
+    <string name="invalid_folder">Folder yang dipilih tidak valid. Silahkan pilih folder \"WaEnhancer\"</string>
+    <string name="uri_permission">Untuk menggunakan tema khusus Anda perlu memilih folder \"Download/WaEnhancer\"</string>
+    <string name="double_click_to_react">Klik Dua Kali untuk Reaksi</string>
+    <string name="double_click_to_like_sum">Aktifkan klik dua kali untuk reaksi pada pesan</string>
+    <string name="custom_reaction">Reaksi Kustom</string>
+    <string name="custom_reaction_sum">Pilih reaksi yang akan dikirim ketika mengklik dua kali pada pesan</string>
+    <string name="hide_audio_seen">Hide audio seen</string>
+    <string name="hide_audio_seen_sum">Hides the sending of audio reading when listening to it</string>
+    <string name="ghost_mode">Ghost mode</string>
+    <string name="ghost_mode_message">Ghost Mode makes you invisible, hiding your blue tick (stories, messages and groups), second tick and your last seen from all contacts</string>
+    <string name="disable">Disable</string>
+    <string name="enable">Enable</string>
+    <string name="ghost_mode_s">Ghost Mode [%s]</string>
+    <string name="ghost_mode_title">Show Ghost Mode Button</string>
+    <string name="ghost_mode_sum">Show a Ghost Mode button on the home screen toolbar</string>
 </resources>

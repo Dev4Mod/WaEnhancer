@@ -17,8 +17,8 @@
     <string name="segundosnahora">שניות - חותמת זמן</string>
     <string name="segundosnahora_sum">הצג זמן של שניות לצד כל הודעה</string>
     <string name="textonahora">טקסט ליד חותמת זמן</string>
-    <string name="viewonce">השבת מגבלת ההודעות החד פעמיות</string>
-    <string name="viewonce_sum">פתח הודעה חד פעמית מספר פעמים ללא הגבלה</string>
+    <string name="viewonce">Unlimited View Once</string>
+    <string name="viewonce_sum">Allows you to open view once media multiple times</string>
     <string name="novotema_sum">שנה את נושא הצבע והסמל לנושא החדש של WhatsApp</string>
     <string name="antirevokestatus">חסימת מחיקת סטטוסים</string>
     <string name="antirevokestatus_sum">כשמשתמש מוחק סטטוס, אצלך זה לא יימחק</string>
@@ -70,8 +70,8 @@
 \"הסתר וי כחול\" חייב להיות פעיל)</string>
     <string name="hide_archived_chat">הסתר צ\'אטים בארכיון</string>
     <string name="hide_archived_chat_sum">הסתר צ\'אטים בארכיון, לגישה לחץ 5 פעמים או החזק את הכותרת \"Whatsapp\" במסך הבית</string>
-    <string name="hide_once_view_seen">הסתר View Once ואודיו</string>
-    <string name="hide_once_view_seen_sum">הסתר תצוגת חד פעמי ושמע נצפה</string>
+    <string name="hide_once_view_seen">Hide View Once Seen</string>
+    <string name="hide_once_view_seen_sum">Hide that view one media has been seen</string>
     <string name="call_blocker">חסום שיחות</string>
     <string name="call_blocker_sum">חסום שיחות ווצאפ על סמך סוג הפרטיות</string>
     <string name="show_online_dot_in_conversation_list">הצג נקודה ירוקה ברשימת שיחות</string>
@@ -346,8 +346,17 @@
     <string name="stamp_copied_messages_sum">מסיר שם ותאריך כשמעתיקים יותר מהודעה אחת</string>
     <string name="invalid_folder"></string>
     <string name="uri_permission">כדי להשתמש בערכות נושא מותאמות אישית, עליך לבחור בתיקיית \"WaEnhancer\" ב\"הורדה\"</string>
-    <string name="double_click_to_react">Enable Double Click to React</string>
-    <string name="double_click_to_like_sum">Activates the possibility of double-clicking on the message to react it</string>
-    <string name="custom_reaction">Custom Reaction</string>
-    <string name="custom_reaction_sum">Select which reaction will be sent when double clicking on the message</string>
+    <string name="double_click_to_react">אפשר לחיצה כפולה כדי להגיב</string>
+    <string name="double_click_to_like_sum">מפעיל את האפשרות ללחוץ פעמיים על ההודעה כדי להגיב עליה באימוג\'י</string>
+    <string name="custom_reaction">אימוג\'י מותאם אישית</string>
+    <string name="custom_reaction_sum">בחר איזה אימוג\'י ישלח בעת לחיצה כפולה על ההודעה</string>
+    <string name="hide_audio_seen">Hide audio seen</string>
+    <string name="hide_audio_seen_sum">Hides the sending of audio reading when listening to it</string>
+    <string name="ghost_mode">Ghost mode</string>
+    <string name="ghost_mode_message">Ghost Mode makes you invisible, hiding your blue tick (stories, messages and groups), second tick and your last seen from all contacts</string>
+    <string name="disable">Disable</string>
+    <string name="enable">Enable</string>
+    <string name="ghost_mode_s">Ghost Mode [%s]</string>
+    <string name="ghost_mode_title">Show Ghost Mode Button</string>
+    <string name="ghost_mode_sum">Show a Ghost Mode button on the home screen toolbar</string>
 </resources>

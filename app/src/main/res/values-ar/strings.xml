@@ -17,8 +17,8 @@
     <string name="segundosnahora">عرض الثواني في الوقت المناسب</string>
     <string name="segundosnahora_sum">إظهار الثواني بجانب الوقت في تطبيق واتساب</string>
     <string name="textonahora">النص بجانب الوقت</string>
-    <string name="viewonce">تعطيل العرض مرة واحدة</string>
-    <string name="viewonce_sum">عندما يكون نشطًا، فإنه يسمح لك بفتح رسائل العرض مرة واحدة عدة مرات كما تريد.</string>
+    <string name="viewonce">Unlimited View Once</string>
+    <string name="viewonce_sum">Allows you to open view once media multiple times</string>
     <string name="novotema_sum">عند تفعيله، يغير اللون وموضوع الأيقونة إلى موضوع واتساب الجديد</string>
     <string name="antirevokestatus">منع حذف الحالات</string>
     <string name="antirevokestatus_sum">عرض الحالات المحذوفة</string>
@@ -70,8 +70,8 @@
     <string name="blueonreply_sum">إرسال علامات الصح الزرقاء بعد الرد على رسالة(ملاحظة: يجب أن يكون خِيار \"إخفاء العلامات الزرقاء\" نشطًا)</string>
     <string name="hide_archived_chat">إخفاء المحادثة المؤرشفة</string>
     <string name="hide_archived_chat_sum">إخفاء الدردشات المؤرشفة، للوصول إليها انقر 5 مرات أو اضغط مع الاستمرار على عنوان \"WhatsApp\" في رأس الشاشة الرئيسية</string>
-    <string name="hide_once_view_seen">إخفاء أنك سمعت المقطع الصوتي</string>
-    <string name="hide_once_view_seen_sum">إخفاء هذا العرض تم مشاهدة واحدة من الوسائط والصوت</string>
+    <string name="hide_once_view_seen">Hide View Once Seen</string>
+    <string name="hide_once_view_seen_sum">Hide that view one media has been seen</string>
     <string name="call_blocker">حظر المكالمات</string>
     <string name="call_blocker_sum">حظر مكالمات واتساب استناداً إلى نوع الخصوصية</string>
     <string name="show_online_dot_in_conversation_list">إظهار نقطة الإنترنت في قائمة المحادثات</string>
@@ -349,4 +349,13 @@
     <string name="double_click_to_like_sum">Activates the possibility of double-clicking on the message to react it</string>
     <string name="custom_reaction">Custom Reaction</string>
     <string name="custom_reaction_sum">Select which reaction will be sent when double clicking on the message</string>
+    <string name="hide_audio_seen">Hide audio seen</string>
+    <string name="hide_audio_seen_sum">Hides the sending of audio reading when listening to it</string>
+    <string name="ghost_mode">Ghost mode</string>
+    <string name="ghost_mode_message">Ghost Mode makes you invisible, hiding your blue tick (stories, messages and groups), second tick and your last seen from all contacts</string>
+    <string name="disable">Disable</string>
+    <string name="enable">Enable</string>
+    <string name="ghost_mode_s">Ghost Mode [%s]</string>
+    <string name="ghost_mode_title">Show Ghost Mode Button</string>
+    <string name="ghost_mode_sum">Show a Ghost Mode button on the home screen toolbar</string>
 </resources>

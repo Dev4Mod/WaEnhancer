@@ -17,8 +17,8 @@
     <string name="segundosnahora">Segundos en la marca de tiempo</string>
     <string name="segundosnahora_sum">Muestra los segundos al lado de la hora del mensaje enviado/recibido</string>
     <string name="textonahora">Agregar texto al lado del horario</string>
-    <string name="viewonce">Desactivar Ver una vez</string>
-    <string name="viewonce_sum">Activalo para ver fotos/videos enviados como \"visualización única\" tantas veces como desees</string>
+    <string name="viewonce">Unlimited View Once</string>
+    <string name="viewonce_sum">Allows you to open view once media multiple times</string>
     <string name="novotema_sum">Al activarse cambia el color y el tema de los iconos al nuevo tema de WhatsApp</string>
     <string name="antirevokestatus">Anti-eliminar estados </string>
     <string name="antirevokestatus_sum">Cuando esté activo, los estados no se borrarán para usted.</string>
@@ -69,8 +69,8 @@
     <string name="blueonreply_sum">Envía marcas azules después de responder a un mensaje\n(NOTA: debe tener activo \"Ocultar marcas azules\")</string>
     <string name="hide_archived_chat">Ocultar chat archivado</string>
     <string name="hide_archived_chat_sum">Ocultar chats archivados, para acceder a pulsar 5 veces o mantener pulsado el título \"WhatsApp\" en la pantalla de inicio</string>
-    <string name="hide_once_view_seen">Ocultar marca azul de Ver Una Vez y del audio</string>
-    <string name="hide_once_view_seen_sum">Ocultar eso una vez que se haya visto la vista y el audio</string>
+    <string name="hide_once_view_seen">Hide View Once Seen</string>
+    <string name="hide_once_view_seen_sum">Hide that view one media has been seen</string>
     <string name="call_blocker">Bloquear llamadas</string>
     <string name="call_blocker_sum">Bloquear llamadas de WhatsApp según el tipo de privacidad</string>
     <string name="show_online_dot_in_conversation_list">Mostrar punto en línea en la lista de conversaciones</string>
@@ -99,7 +99,7 @@
     <string name="new_chat">Nuevo Chat</string>
     <string name="number_with_country_code">Número con código de país</string>
     <string name="message">Mensaje</string>
-    <string name="download">Descargas</string>
+    <string name="download">Descargar</string>
     <string name="reboot_whatsapp">(Reiniciar WhatsApp)</string>
     <string name="error_when_saving_try_again">Error al guardar, inténtalo de nuevo</string>
     <string name="saved_to">"Guardado en "</string>
@@ -344,8 +344,17 @@
     <string name="stamp_copied_messages_sum">Elimina nombre y fecha al copiar más de un mensaje</string>
     <string name="invalid_folder">La carpeta no válida ha sido seleccionada. Por favor, elija la carpeta WaEnhancer</string>
     <string name="uri_permission">Para utilizar temas personalizados necesitas seleccionar la carpeta \"WaEnhancer\" en \"Download\"</string>
-    <string name="double_click_to_react">Enable Double Click to React</string>
-    <string name="double_click_to_like_sum">Activates the possibility of double-clicking on the message to react it</string>
-    <string name="custom_reaction">Custom Reaction</string>
-    <string name="custom_reaction_sum">Select which reaction will be sent when double clicking on the message</string>
+    <string name="double_click_to_react">Habilitar Doble Clic para Reaccionar</string>
+    <string name="double_click_to_like_sum">Activa la posibilidad de hacer doble clic en el mensaje para reaccionarlo</string>
+    <string name="custom_reaction">Reacción personalizada</string>
+    <string name="custom_reaction_sum">Seleccione qué reacción se enviará cuando haga doble clic en el mensaje</string>
+    <string name="hide_audio_seen">Hide audio seen</string>
+    <string name="hide_audio_seen_sum">Hides the sending of audio reading when listening to it</string>
+    <string name="ghost_mode">Ghost mode</string>
+    <string name="ghost_mode_message">Ghost Mode makes you invisible, hiding your blue tick (stories, messages and groups), second tick and your last seen from all contacts</string>
+    <string name="disable">Disable</string>
+    <string name="enable">Enable</string>
+    <string name="ghost_mode_s">Ghost Mode [%s]</string>
+    <string name="ghost_mode_title">Show Ghost Mode Button</string>
+    <string name="ghost_mode_sum">Show a Ghost Mode button on the home screen toolbar</string>
 </resources>

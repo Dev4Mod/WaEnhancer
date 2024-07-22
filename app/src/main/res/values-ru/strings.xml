@@ -17,8 +17,8 @@
     <string name="segundosnahora">Секунды на отметке времени</string>
     <string name="segundosnahora_sum">Показывать текст рядом с любой отметкой времени в WhatsApp</string>
     <string name="textonahora">Текст рядом с меткой времени</string>
-    <string name="viewonce">Отключить \"Одноразовый Просмотр\"</string>
-    <string name="viewonce_sum">Активирован, возможность просматривать одноразовые сообщения бесконечное количество раз</string>
+    <string name="viewonce">Unlimited View Once</string>
+    <string name="viewonce_sum">Allows you to open view once media multiple times</string>
     <string name="novotema_sum">При активации поменяется цвет и вид значков из новой темы</string>
     <string name="antirevokestatus">Анти удаление статусов</string>
     <string name="antirevokestatus_sum">Просмотреть статусы, которые удалили пользователи</string>
@@ -69,8 +69,8 @@
     <string name="blueonreply_sum">Отправляет синие галочки после ответа на сообщение\n(ПРИМЕЧАНИЕ: должна быть активна опция «Скрыть синие галочки»)</string>
     <string name="hide_archived_chat">Скрыть архивные чаты</string>
     <string name="hide_archived_chat_sum">Скрыть архивные чаты. Чтобы открыть их, нажмите 5 раз или удерживайте заголовок «WhatsApp» в заголовке на главном экране</string>
-    <string name="hide_once_view_seen">Скрыть синюю галочку с одноразового просмотра и аудио</string>
-    <string name="hide_once_view_seen_sum">Скрыть индикатор, когда был просмотрен одноразовый Медиафайл и аудио</string>
+    <string name="hide_once_view_seen">Hide View Once Seen</string>
+    <string name="hide_once_view_seen_sum">Hide that view one media has been seen</string>
     <string name="call_blocker">Блокировать вызовы</string>
     <string name="call_blocker_sum">Блокировать звонки WhatsApp на основе типа конфиденциальности</string>
     <string name="show_online_dot_in_conversation_list">Показать онлайн точку в списке чатов</string>
@@ -344,8 +344,17 @@
     <string name="stamp_copied_messages_sum">Удаляет имя и дату при копировании более одного сообщения</string>
     <string name="invalid_folder">Выбрана неверная папка. Пожалуйста, выберите папку WaEnhancer</string>
     <string name="uri_permission">Чтобы использовать пользовательские темы, вам необходимо выбрать папку \"WaEnhancer\" в разделе \"Загрузка\"</string>
-    <string name="double_click_to_react">Enable Double Click to React</string>
-    <string name="double_click_to_like_sum">Activates the possibility of double-clicking on the message to react it</string>
-    <string name="custom_reaction">Custom Reaction</string>
-    <string name="custom_reaction_sum">Select which reaction will be sent when double clicking on the message</string>
+    <string name="double_click_to_react">Включить двойной клик для реакции</string>
+    <string name="double_click_to_like_sum">Активирует возможность двойного щелчка по сообщению для реакции</string>
+    <string name="custom_reaction">Пользовательская реакция</string>
+    <string name="custom_reaction_sum">Выберите, какая реакция будет отправлена при двойном нажатии на сообщение</string>
+    <string name="hide_audio_seen">Hide audio seen</string>
+    <string name="hide_audio_seen_sum">Hides the sending of audio reading when listening to it</string>
+    <string name="ghost_mode">Ghost mode</string>
+    <string name="ghost_mode_message">Ghost Mode makes you invisible, hiding your blue tick (stories, messages and groups), second tick and your last seen from all contacts</string>
+    <string name="disable">Disable</string>
+    <string name="enable">Enable</string>
+    <string name="ghost_mode_s">Ghost Mode [%s]</string>
+    <string name="ghost_mode_title">Show Ghost Mode Button</string>
+    <string name="ghost_mode_sum">Show a Ghost Mode button on the home screen toolbar</string>
 </resources>

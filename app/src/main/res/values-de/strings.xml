@@ -17,8 +17,8 @@
     <string name="segundosnahora">Sekunden anzeigen</string>
     <string name="segundosnahora_sum">Fügt die Anzeige von Sekunden im Zeitstempel hinzu</string>
     <string name="textonahora">Fügt einen Text neben dem Zeitstempel hinzu</string>
-    <string name="viewonce">\"Einmalige Ansicht\" deaktivieren</string>
-    <string name="viewonce_sum">Öffnen sie Medien mit \"Einmaliger Ansicht\" so oft wie gewünscht</string>
+    <string name="viewonce">Unlimited View Once</string>
+    <string name="viewonce_sum">Allows you to open view once media multiple times</string>
     <string name="novotema_sum">Ändern Sie das Farb- und Symbol-Theme auf das neue WhatsApp-Theme</string>
     <string name="antirevokestatus">Anti-Lösch Status</string>
     <string name="antirevokestatus_sum">Gelöschten Status der Kontakte betrachten</string>
@@ -69,8 +69,8 @@
     <string name="blueonreply_sum">Sendet blaue Häkchen erst nach Beantwortung einer Nachricht\n(NOTE: \"Lesebestätigung deaktivieren\" muss aktiv sein)</string>
     <string name="hide_archived_chat">Archivierte Chats</string>
     <string name="hide_archived_chat_sum">Menü zur Behandlung der Anzeige von archivierten Unterhaltungen</string>
-    <string name="hide_once_view_seen">Verstecke \"Gesehen\" von \"einmalige Ansicht\" und Audio</string>
-    <string name="hide_once_view_seen_sum">Deaktivierung der Bestätigung, dass \"einmalige Ansicht\" von Medien und Sprachnachrichten gesehen bzw. gehört worden sind</string>
+    <string name="hide_once_view_seen">Hide View Once Seen</string>
+    <string name="hide_once_view_seen_sum">Hide that view one media has been seen</string>
     <string name="call_blocker">Anrufe blockieren</string>
     <string name="call_blocker_sum">Blockiere WhatsApp Anrufe basierend auf den Einstellungen der Privatsphäre</string>
     <string name="show_online_dot_in_conversation_list">Optische online Anzeige</string>
@@ -348,4 +348,13 @@
     <string name="double_click_to_like_sum">Activates the possibility of double-clicking on the message to react it</string>
     <string name="custom_reaction">Custom Reaction</string>
     <string name="custom_reaction_sum">Select which reaction will be sent when double clicking on the message</string>
+    <string name="hide_audio_seen">Hide audio seen</string>
+    <string name="hide_audio_seen_sum">Hides the sending of audio reading when listening to it</string>
+    <string name="ghost_mode">Ghost mode</string>
+    <string name="ghost_mode_message">Ghost Mode makes you invisible, hiding your blue tick (stories, messages and groups), second tick and your last seen from all contacts</string>
+    <string name="disable">Disable</string>
+    <string name="enable">Enable</string>
+    <string name="ghost_mode_s">Ghost Mode [%s]</string>
+    <string name="ghost_mode_title">Show Ghost Mode Button</string>
+    <string name="ghost_mode_sum">Show a Ghost Mode button on the home screen toolbar</string>
 </resources>
