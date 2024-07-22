@@ -1,14 +1,16 @@
-[ANIMATION EMOJIS]
-* Fixed in WA 2.24.14.xx
-
-[CUSTOM CSS]
-* Fixed bug (Now a screen will be shown at the start of WA to ask for permission to access the WaEnhancer folder)
-
-[DOUBLE TAP TO LIKE]
-* Added disable/enable button in WAE (WAE -> General)
-
-[WHATSAPP BUSINESS]
-* add support to version 2.24.14.xx
+[MEDIA PREVIEW
+* Fixed bug that opened incorrect media
 
 [WA ENHANCER]
-* Update translations
+* Various changes related to storage access permission. (Custom CSS, Wallpaper, Download)
+
+[DOWNLOAD MEDIA]
+* Removed the option to select the download location (Due to Android restrictions)
+* Downloads will be stored in the folder Download -> Wa Enhancer -> WhatsApp (/sdcard/Download/Wa Enhancer/WhatsApp/)
+
+[DOUBLE TAP TO REACTION]
+* Added the possibility to change the emoji
+
+[SEND BLUE TICK]
+* Fixed bug of not sending the tick in WA 2.24.14.xx
+
