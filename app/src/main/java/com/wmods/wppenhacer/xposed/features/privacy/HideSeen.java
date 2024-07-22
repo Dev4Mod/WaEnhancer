@@ -4,6 +4,7 @@ import androidx.annotation.NonNull;
 
 import com.wmods.wppenhacer.xposed.core.Feature;
 import com.wmods.wppenhacer.xposed.core.WppCore;
+import com.wmods.wppenhacer.xposed.core.components.FMessageWpp;
 import com.wmods.wppenhacer.xposed.core.devkit.Unobfuscator;
 
 import java.lang.reflect.Array;
@@ -79,13 +80,17 @@ public class HideSeen extends Feature {
             }
         });
 
-        var methodPlayerViewJid = Unobfuscator.loadHideViewAudioMethod(classLoader);
-        logDebug(Unobfuscator.getMethodDescriptor(methodPlayerViewJid));
-        XposedBridge.hookMethod(methodPlayerViewJid, new XC_MethodHook() {
+        var loadSenderPlayed = Unobfuscator.loadSenderPlayed(classLoader);
+        XposedBridge.hookMethod(loadSenderPlayed, new XC_MethodHook() {
             @Override
             protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
-                if (prefs.getBoolean("hideonceseen", false))
-                    param.setResult(true);
+                var fMessage = new FMessageWpp(param.args[0]);
+                var media_type = fMessage.getMediaType();  // 2 = voice note ; 82 = viewonce note voice; 42 = image view once; 43 = video view once
+                if (prefs.getBoolean("hideonceseen", false) && (media_type == 82 || media_type == 42 || media_type == 43)) {
+                    param.setResult(null);
+                } else if (prefs.getBoolean("hideaudioseen", false) && media_type == 2) {
+                    param.setResult(null);
+                }
             }
         });
 

@@ -1735,4 +1735,31 @@ public class Unobfuscator {
             return method;
         });
     }
+
+    public static Method loadSenderPlayed(ClassLoader classLoader) throws Exception {
+        var clazz = findFirstClassUsingStrings(classLoader, StringMatchType.Contains, "sendmethods/sendClearDirty");
+        if (clazz == null) throw new RuntimeException("SenderPlayed class not found");
+        var fmessageClass = loadFMessageClass(classLoader);
+        var methodResult = ReflectionUtils.findMethodUsingFilter(clazz, method -> method.getParameterCount() == 1 && method.getParameterTypes()[0].equals(fmessageClass));
+        if (methodResult == null) throw new RuntimeException("SenderPlayed method not found");
+        return methodResult;
+
+    }
+
+    public static Field loadMediaTypeField(ClassLoader classLoader) throws Exception {
+        return UnobfuscatorCache.getInstance().getField(classLoader, () -> {
+            var fMessage = loadFMessageClass(classLoader);
+            var toStringMethod = fMessage.getDeclaredMethod("toString");
+            var methodData = dexkit.getMethodData(toStringMethod);
+            var usingFields = methodData.getUsingFields();
+            for (var f : usingFields) {
+                var field = f.getField();
+                if (field.getType().getName().equals(int.class.getName())) {
+                    return field.getFieldInstance(classLoader);
+                }
+            }
+            throw new RuntimeException("MediaType field not found");
+        });
+
+    }
 }

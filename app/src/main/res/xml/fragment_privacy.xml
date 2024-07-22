@@ -67,6 +67,11 @@
             app:title="@string/hide_once_view_seen" />
 
         <rikka.material.preference.MaterialSwitchPreference
+            app:key="hideaudioseen"
+            app:summary="@string/hide_audio_seen_sum"
+            app:title="@string/hide_audio_seen" />
+
+        <rikka.material.preference.MaterialSwitchPreference
             app:key="viewonce"
             app:summary="@string/viewonce_sum"
             app:title="@string/viewonce" />

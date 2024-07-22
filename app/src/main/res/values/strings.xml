@@ -17,8 +17,8 @@
     <string name="segundosnahora">Seconds on Timestamp</string>
     <string name="segundosnahora_sum">Show seconds next to any timestamp in the WhatsApp app</string>
     <string name="textonahora">Text next to Timestamp</string>
-    <string name="viewonce">Disable View Once</string>
-    <string name="viewonce_sum">Open view once media many times</string>
+    <string name="viewonce">Unlimited View Once</string>
+    <string name="viewonce_sum">Allows you to open view once media multiple times</string>
     <string name="novotema_sum">Change the color and icon theme to the new WhatsApp theme</string>
     <string name="antirevokestatus">Anti-Delete Status</string>
     <string name="antirevokestatus_sum">View statuses that users have since deleted</string>
@@ -71,8 +71,8 @@
     <string name="blueonreply_sum">Sends blue ticks after replying to a message\n(NOTE: Must have \"Hide Blue Ticks\" active)</string>
     <string name="hide_archived_chat">Hide Archived Chats</string>
     <string name="hide_archived_chat_sum">Hide archived chats, to access click 5 times or hold on the \"WhatsApp\" title in the header on Home Screen</string>
-    <string name="hide_once_view_seen">Hide View Once and Audio Seen</string>
-    <string name="hide_once_view_seen_sum">Hide that view one media and audio has been seen</string>
+    <string name="hide_once_view_seen">Hide View Once Seen</string>
+    <string name="hide_once_view_seen_sum">Hide that view one media has been seen</string>
     <string name="call_blocker">Block Calls</string>
     <string name="call_blocker_sum">Block WhatsApp calls based on privacy type</string>
     <string name="show_online_dot_in_conversation_list">Show Online Dot in Conversation List</string>
@@ -351,4 +351,6 @@
     <string name="double_click_to_like_sum">Activates the possibility of double-clicking on the message to react it</string>
     <string name="custom_reaction">Custom Reaction</string>
     <string name="custom_reaction_sum">Select which reaction will be sent when double clicking on the message</string>
+    <string name="hide_audio_seen">Hide audio seen</string>
+    <string name="hide_audio_seen_sum">Hides the sending of audio reading when listening to it</string>
 </resources>
