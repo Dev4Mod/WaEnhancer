@@ -213,7 +213,7 @@
             app:defaultValue="true"
             app:key="doubletap2like"
             app:summary="@string/double_click_to_like_sum"
-            app:title="@string/double_click_to_like" />
+            app:title="@string/double_click_to_react" />
 
         <com.wmods.wppenhacer.preference.LimitedEditTextPreference
             app:defaultValue="👍"
