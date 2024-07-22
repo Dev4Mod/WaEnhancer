@@ -88,7 +88,6 @@ public class MediaPreview extends Feature {
             @Override
             protected void afterHookedMethod(MethodHookParam param) throws Throwable {
                 if (param.args.length < 2) return;
-
                 var view = (View) param.thisObject;
                 var context = view.getContext();
                 var surface = (ViewGroup) view.findViewById(Utils.getID("invisible_press_surface", "id"));
@@ -108,9 +107,9 @@ public class MediaPreview extends Feature {
                 prevBtn.setBackground(DesignUtils.getDrawableByName("download_background"));
                 prevBtn.setScaleType(ImageView.ScaleType.FIT_CENTER);
                 linearLayout.addView(prevBtn);
-                var objmessage = XposedHelpers.callMethod(param.thisObject, "getFMessage");
-                var id = new FMessageWpp(objmessage).getRowId();
                 prevBtn.setOnClickListener((v) -> {
+                    var objmessage = XposedHelpers.callMethod(param.thisObject, "getFMessage");
+                    var id = new FMessageWpp(objmessage).getRowId();
                     var userJid = WppCore.getCurrentRawJID();
                     startPlayer(id, context, userJid != null && userJid.contains("@newsletter"));
                 });
@@ -157,9 +156,10 @@ public class MediaPreview extends Feature {
                     if (prevBtn.getVisibility() != controlFrame.getVisibility())
                         prevBtn.setVisibility(controlFrame.getVisibility());
                 });
-                var objmessage = XposedHelpers.callMethod(param.thisObject, "getFMessage");
-                var id = new FMessageWpp(objmessage).getRowId();
+
                 prevBtn.setOnClickListener((v) -> {
+                    var objmessage = XposedHelpers.callMethod(param.thisObject, "getFMessage");
+                    var id = new FMessageWpp(objmessage).getRowId();
                     var userJid = WppCore.getCurrentRawJID();
                     startPlayer(id, context, userJid != null && userJid.contains("@newsletter"));
                 });
