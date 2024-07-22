@@ -1,16 +1,13 @@
-[MEDIA PREVIEW
-* Fixed bug that opened incorrect media
+[HIDE VIEW ONCE AND AUDIO SEEN]
+* This function has been separated into two (Hide View Once and Hide Audio Seen)
+* [FIX] This fixes the problem of sending messages in a group with just one person
+* [FIX] This fixes the problem of reading an audio and the microphone always staying green
+
+[GHOST MODE]
+* Added button on the home screen to activate/deactivate ghost mode (hides ticks and presence on WhatsApp)
+
+[GROUP FILTER]
+* Fix bug in group filter
 
 [WA ENHANCER]
-* Various changes related to storage access permission. (Custom CSS, Wallpaper, Download)
-
-[DOWNLOAD MEDIA]
-* Removed the option to select the download location (Due to Android restrictions)
-* Downloads will be stored in the folder Download -> Wa Enhancer -> WhatsApp (/sdcard/Download/Wa Enhancer/WhatsApp/)
-
-[DOUBLE TAP TO REACTION]
-* Added the possibility to change the emoji
-
-[SEND BLUE TICK]
-* Fixed bug of not sending the tick in WA 2.24.14.xx
-
+* Updated translation
