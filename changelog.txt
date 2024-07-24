@@ -11,3 +11,4 @@
 
 [WA ENHANCER]
 * Updated translation
+

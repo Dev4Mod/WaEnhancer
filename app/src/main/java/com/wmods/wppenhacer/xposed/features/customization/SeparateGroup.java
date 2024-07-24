@@ -44,19 +44,19 @@ public class SeparateGroup extends Feature {
 
     public void doHook() throws Exception {
 
-        var cFrag = XposedHelpers.findClass("com.whatsapp.conversationslist.ConversationsFragment", classLoader);
-        var home = XposedHelpers.findClass("com.whatsapp.HomeActivity", classLoader);
-
-        // Modifying tab list order
-        hookTabList(home);
+        var cFragClass = XposedHelpers.findClass("com.whatsapp.conversationslist.ConversationsFragment", classLoader);
+        var homeActivityClass = XposedHelpers.findClass("com.whatsapp.HomeActivity", classLoader);
 
         if (!prefs.getBoolean("separategroups", false)) return;
+
+        // Modifying tab list order
+        hookTabList(homeActivityClass);
         // Setting group icon
         hookTabIcon();
         // Setting up fragments
-        hookTabInstance(cFrag);
+        hookTabInstance(cFragClass);
         // Setting group tab name
-        hookTabName(home);
+        hookTabName(homeActivityClass);
         // Setting tab count
         hookTabCount();
     }
