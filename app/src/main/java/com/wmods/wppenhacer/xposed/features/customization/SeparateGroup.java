@@ -51,12 +51,16 @@ public class SeparateGroup extends Feature {
 
         // Modifying tab list order
         hookTabList(homeActivityClass);
+
         // Setting group icon
         hookTabIcon();
+
         // Setting up fragments
         hookTabInstance(cFragClass);
+
         // Setting group tab name
         hookTabName(homeActivityClass);
+
         // Setting tab count
         hookTabCount();
     }

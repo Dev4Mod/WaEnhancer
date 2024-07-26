@@ -91,6 +91,7 @@ android {
     buildFeatures {
         viewBinding = true
         buildConfig = true
+        aidl = true
     }
     buildToolsVersion = "34.0.0"
     ndkVersion = "27.0.11902837 rc2"
