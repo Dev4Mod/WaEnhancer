@@ -1,14 +1,10 @@
-[HIDE SEEN]
-* Fixed in WhatsApp Business
+[WA ENHANCER]
+* Fixed an error that appears when starting WhatsApp (If a bridge error occurs, activate the System Framework in lsposed for Wa Enhancer and restart the device)
+* Update translations
 
-[STORAGE]
-* Now Wa Enhancer will handle all WhatsApp file management for download and read images using a binder
+[CLASSFINDER]
+* Fixed an issue loading primitive classes (Strangely this error seems to be coming from lsposed on some devices, so I'm releasing a solution for it)
 
-[DOWNLOAD LOCAL]
-* With the strategy above, now let's bring back the Download Location of the downloaded files
-
-[WHATSAPP AND WA BUSINESS]
-* Added pre-support for version 2.24.15.xx
-
-
+[BUBBLE COLORS]
+* Fixed in Wa 2.24.15.XX
 
