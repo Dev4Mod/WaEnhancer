@@ -17,8 +17,8 @@
     <string name="segundosnahora">عرض الثواني في الوقت المناسب</string>
     <string name="segundosnahora_sum">إظهار الثواني بجانب الوقت في تطبيق واتساب</string>
     <string name="textonahora">النص بجانب الوقت</string>
-    <string name="viewonce">Unlimited View Once</string>
-    <string name="viewonce_sum">Allows you to open view once media multiple times</string>
+    <string name="viewonce">عرض غير محدود مرة واحدة</string>
+    <string name="viewonce_sum">يسمح لك بفتح عرض مرة واحدة للوسائط عدة مرات</string>
     <string name="novotema_sum">عند تفعيله، يغير اللون وموضوع الأيقونة إلى موضوع واتساب الجديد</string>
     <string name="antirevokestatus">منع حذف الحالات</string>
     <string name="antirevokestatus_sum">عرض الحالات المحذوفة</string>
@@ -70,8 +70,8 @@
     <string name="blueonreply_sum">إرسال علامات الصح الزرقاء بعد الرد على رسالة(ملاحظة: يجب أن يكون خِيار \"إخفاء العلامات الزرقاء\" نشطًا)</string>
     <string name="hide_archived_chat">إخفاء المحادثة المؤرشفة</string>
     <string name="hide_archived_chat_sum">إخفاء الدردشات المؤرشفة، للوصول إليها انقر 5 مرات أو اضغط مع الاستمرار على عنوان \"WhatsApp\" في رأس الشاشة الرئيسية</string>
-    <string name="hide_once_view_seen">Hide View Once Seen</string>
-    <string name="hide_once_view_seen_sum">Hide that view one media has been seen</string>
+    <string name="hide_once_view_seen">إخفاء العرض بمجرد رؤيته</string>
+    <string name="hide_once_view_seen_sum">إخفاء هذا العرض تمت رؤية إحدى الوسائط</string>
     <string name="call_blocker">حظر المكالمات</string>
     <string name="call_blocker_sum">حظر مكالمات واتساب استناداً إلى نوع الخصوصية</string>
     <string name="show_online_dot_in_conversation_list">إظهار نقطة الإنترنت في قائمة المحادثات</string>
@@ -343,19 +343,24 @@
     <string name="list_animations_home_screen_sum">إضافة رسوم متحركة عند تمرير قائمة الدردشة</string>
     <string name="stamp_copied_messages">إزالة الاسم والتاريخ من الرسائل المنسوخة</string>
     <string name="stamp_copied_messages_sum">إزالة الاسم والتاريخ عند نسخ أكثر من رسالة واحدة</string>
-    <string name="invalid_folder">The invalid folder has been selected. Please choose the WaEnhancer folder</string>
-    <string name="uri_permission">To use custom themes you need to select the \"WaEnhancer\" folder in \"Download\"</string>
-    <string name="double_click_to_react">Enable Double Click to React</string>
-    <string name="double_click_to_like_sum">Activates the possibility of double-clicking on the message to react it</string>
-    <string name="custom_reaction">Custom Reaction</string>
-    <string name="custom_reaction_sum">Select which reaction will be sent when double clicking on the message</string>
-    <string name="hide_audio_seen">Hide audio seen</string>
-    <string name="hide_audio_seen_sum">Hides the sending of audio reading when listening to it</string>
-    <string name="ghost_mode">Ghost mode</string>
-    <string name="ghost_mode_message">Ghost Mode makes you invisible, hiding your blue tick (stories, messages and groups), second tick and your last seen from all contacts</string>
-    <string name="disable">Disable</string>
-    <string name="enable">Enable</string>
-    <string name="ghost_mode_s">Ghost Mode [%s]</string>
-    <string name="ghost_mode_title">Show Ghost Mode Button</string>
-    <string name="ghost_mode_sum">Show a Ghost Mode button on the home screen toolbar</string>
+    <string name="invalid_folder">تم تحديد مجلد غير صالح. الرجاء اختيار مجلد WaEnhancer</string>
+    <string name="uri_permission">لاستخدام القوالب المخصصة تحتاج إلى تحديد مجلد \"WaEnhancer\" في \"تنزيل\"</string>
+    <string name="double_click_to_react">تمكين النقر المزدوج للتفاعل</string>
+    <string name="double_click_to_like_sum">تنشيط إمكانية النقر المزدوج على الرسالة للتفاعل معها</string>
+    <string name="custom_reaction">رد فعل مخصص</string>
+    <string name="custom_reaction_sum">حدد رد الفعل الذي سيتم إرساله عند النقر المزدوج على الرسالة</string>
+    <string name="hide_audio_seen">إخفاء الصوت المرئي</string>
+    <string name="hide_audio_seen_sum">يخفي إرسال القراءة الصوتية عند الاستماع إليها</string>
+    <string name="ghost_mode">وضع الشبح 👻</string>
+    <string name="ghost_mode_message">يجعلك وضع الشبح غير مرئي، حيث يخفي العلامة الزرقاء (القصص والرسائل والمجموعات) والعلامة الثانية وآخر ظهور لك عن جميع جهات الاتصال</string>
+    <string name="disable">تعطيل</string>
+    <string name="enable">تمكين</string>
+    <string name="ghost_mode_s">وضع الشبح [%s]</string>
+    <string name="ghost_mode_title">إظهار أيقونة وضع الشبح</string>
+    <string name="ghost_mode_sum">إظهار أيقونة وضع الشبح على شريط أدوات الشاشة الرئيسية</string>
+    <string name="grant_permissions">To use Wa Enhancer it is necessary to grant some permissions to use the functions.</string>
+    <string name="grant_manage_storage">Grant manage storage</string>
+    <string name="grant_media_read">Grant Media Read</string>
+    <string name="grant_reading_of_contacts">Grant reading of Contacts</string>
+    <string name="local_download">Local Download</string>
 </resources>

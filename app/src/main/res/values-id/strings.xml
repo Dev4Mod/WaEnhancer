@@ -369,4 +369,9 @@ Saat Anda mengaktifkan bekukan \"terakhir dilihat dan online\", Anda tidak dapat
     <string name="ghost_mode_s">Ghost Mode [%s]</string>
     <string name="ghost_mode_title">Show Ghost Mode Button</string>
     <string name="ghost_mode_sum">Show a Ghost Mode button on the home screen toolbar</string>
+    <string name="grant_permissions">To use Wa Enhancer it is necessary to grant some permissions to use the functions.</string>
+    <string name="grant_manage_storage">Grant manage storage</string>
+    <string name="grant_media_read">Grant Media Read</string>
+    <string name="grant_reading_of_contacts">Grant reading of Contacts</string>
+    <string name="local_download">Local Download</string>
 </resources>
