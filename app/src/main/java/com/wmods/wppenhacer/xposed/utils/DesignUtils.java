@@ -3,11 +3,14 @@ package com.wmods.wppenhacer.xposed.utils;
 import android.annotation.SuppressLint;
 import android.content.SharedPreferences;
 import android.content.res.XResources;
+import android.graphics.Bitmap;
 import android.graphics.BlendMode;
 import android.graphics.BlendModeColorFilter;
+import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.PorterDuff;
+import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.InsetDrawable;
@@ -21,6 +24,9 @@ import androidx.core.content.ContextCompat;
 
 import com.wmods.wppenhacer.WppXposed;
 import com.wmods.wppenhacer.xposed.core.WppCore;
+
+import java.util.HashMap;
+import java.util.Map;
 
 import de.robv.android.xposed.XposedBridge;
 
@@ -133,6 +139,18 @@ public class DesignUtils {
         return backgroundColor;
     }
 
+    public static Drawable generatePrimaryColorDrawable(Drawable drawable) {
+        if (drawable == null) return null;
+        var primaryColorInt = mPrefs.getInt("primary_color", 0);
+        if (primaryColorInt != 0 && mPrefs.getBoolean("changecolor", false)) {
+            var bitmap = drawableToBitmap(drawable);
+            var color = getDominantColor(bitmap);
+            bitmap = replaceColor(bitmap, color, primaryColorInt, 50);
+            return new BitmapDrawable(Utils.getApplication().getResources(), bitmap);
+        }
+        return null;
+    }
+
     public static void setReplacementDrawable(String name, Drawable replacement) {
         if (WppXposed.ResParam == null) return;
         WppXposed.ResParam.res.setReplacement(Utils.getApplication().getPackageName(), "drawable", name, new XResources.DrawableLoader() {
@@ -181,5 +199,63 @@ public class DesignUtils {
             XposedBridge.log("Error: " + e);
         }
         return "0";
+    }
+
+    public static Bitmap drawableToBitmap(Drawable drawable) {
+        if (drawable instanceof BitmapDrawable) {
+            return ((BitmapDrawable) drawable).getBitmap();
+        }
+
+        Bitmap bitmap = Bitmap.createBitmap(drawable.getIntrinsicWidth(), drawable.getIntrinsicHeight(), Bitmap.Config.ARGB_8888);
+        Canvas canvas = new Canvas(bitmap);
+        drawable.setBounds(0, 0, canvas.getWidth(), canvas.getHeight());
+        drawable.draw(canvas);
+
+        return bitmap;
+    }
+
+    public static int getDominantColor(Bitmap bitmap) {
+        Map<Integer, Integer> colorCountMap = new HashMap<>();
+
+        for (int y = 0; y < bitmap.getHeight(); y++) {
+            for (int x = 0; x < bitmap.getWidth(); x++) {
+                int color = bitmap.getPixel(x, y);
+                if (Color.alpha(color) > 0) { // Ignore pixels que são totalmente transparentes
+                    colorCountMap.put(color, colorCountMap.getOrDefault(color, 0) + 1);
+                }
+            }
+        }
+
+        return colorCountMap.entrySet().stream()
+                .max(Map.Entry.comparingByValue())
+                .map(Map.Entry::getKey)
+                .orElse(Color.BLACK); // Retorna preto se não encontrar nenhuma cor
+    }
+
+    public static double colorDistance(int color1, int color2) {
+        int r1 = Color.red(color1);
+        int g1 = Color.green(color1);
+        int b1 = Color.blue(color1);
+
+        int r2 = Color.red(color2);
+        int g2 = Color.green(color2);
+        int b2 = Color.blue(color2);
+
+        return Math.sqrt(Math.pow(r1 - r2, 2) + Math.pow(g1 - g2, 2) + Math.pow(b1 - b2, 2));
+    }
+
+    public static Bitmap replaceColor(Bitmap bitmap, int oldColor, int newColor, double threshold) {
+        Bitmap newBitmap = bitmap.copy(Bitmap.Config.ARGB_8888, true);
+
+        for (int y = 0; y < newBitmap.getHeight(); y++) {
+            for (int x = 0; x < newBitmap.getWidth(); x++) {
+                int currentColor = newBitmap.getPixel(x, y);
+                if (colorDistance(currentColor, oldColor) < threshold) {
+                    newBitmap.setPixel(x, y, newColor);
+                }
+            }
+        }
+
+        return newBitmap;
     }
 }

@@ -1740,7 +1740,7 @@ public class Unobfuscator {
         var clazz = findFirstClassUsingStrings(classLoader, StringMatchType.Contains, "sendmethods/sendClearDirty");
         if (clazz == null) throw new RuntimeException("SenderPlayed class not found");
         var fmessageClass = loadFMessageClass(classLoader);
-        var methodResult = ReflectionUtils.findMethodUsingFilter(clazz, method -> method.getParameterCount() == 1 && method.getParameterTypes()[0].equals(fmessageClass));
+        var methodResult = ReflectionUtils.findMethodUsingFilter(clazz, method -> method.getParameterCount() == 1 && fmessageClass.isAssignableFrom(method.getParameterTypes()[0]));
         if (methodResult == null) throw new RuntimeException("SenderPlayed method not found");
         return methodResult;
 

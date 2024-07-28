@@ -6,6 +6,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.Typeface;
+import android.graphics.drawable.Drawable;
 import android.text.TextUtils;
 import android.util.TypedValue;
 import android.view.Gravity;
@@ -41,6 +42,7 @@ public class IGStatusAdapter extends ArrayAdapter {
     private final Class<?> clazzImageStatus;
     private final Class<?> statusInfoClazz;
     private final Method setCountStatus;
+    private static Drawable cacheIcon;
 
     @NonNull
     @Override
@@ -56,10 +58,11 @@ public class IGStatusAdapter extends ArrayAdapter {
         }
         if (item == null) {
             holder.setInfo("my_status");
+            holder.addButton.setVisibility(View.VISIBLE);
         } else if (statusInfoClazz.isInstance(item)) {
             holder.setInfo(item);
+            holder.addButton.setVisibility(View.GONE);
         }
-
         convertView.setOnClickListener(v -> {
             if (holder.myStatus) {
                 var activity = WppCore.getCurrentActivity();
@@ -199,16 +202,20 @@ public class IGStatusAdapter extends ArrayAdapter {
         addBtnParams.addRule(RelativeLayout.ALIGN_PARENT_RIGHT);
         addBtnRelativeLayout.setLayoutParams(addBtnParams);
         addBtnRelativeLayout.setVisibility(View.GONE);
-        holder.addButton = addBtnRelativeLayout;
 
         ImageView iconImageView = new ImageView(this.getContext());
         RelativeLayout.LayoutParams iconParams = new RelativeLayout.LayoutParams(Utils.dipToPixels(24), Utils.dipToPixels(24));
         iconImageView.setLayoutParams(iconParams);
-        var icon = DesignUtils.getDrawableByName("my_status_add_button_new");
-        iconImageView.setImageDrawable(icon);
+        if (cacheIcon == null) {
+            var icon = DesignUtils.getDrawableByName("my_status_add_button_new");
+            cacheIcon = DesignUtils.generatePrimaryColorDrawable(icon);
+        }
+        iconImageView.setImageDrawable(cacheIcon);
         iconImageView.setBackgroundColor(Color.TRANSPARENT);
-
         addBtnRelativeLayout.addView(iconImageView);
+        holder.addButton = addBtnRelativeLayout;
+
+
         internalRelativeLayout.addView(contactPhoto);
         internalRelativeLayout.addView(addBtnRelativeLayout);
 
