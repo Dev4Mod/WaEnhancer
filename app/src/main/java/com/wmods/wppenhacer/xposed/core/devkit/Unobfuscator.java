@@ -5,7 +5,6 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.graphics.drawable.Drawable;
-import android.graphics.drawable.NinePatchDrawable;
 import android.net.Uri;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -40,7 +39,6 @@ import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
-import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -1297,16 +1295,6 @@ public class Unobfuscator {
     }
 
 
-    public static List<Method> loadNineDrawableMethods(ClassLoader loader) throws Exception {
-        var result = dexkit.findMethod(new FindMethod().matcher(new MethodMatcher().returnType(NinePatchDrawable.class).paramCount(4)));
-        if (result.isEmpty()) return Collections.emptyList();
-        var arr = new ArrayList<Method>();
-        for (var m : result) {
-            if (m.isMethod()) arr.add(m.getMethodInstance(loader));
-        }
-        return arr;
-    }
-
     public static Class loadOnMenuItemClickClass(ClassLoader loader) throws Exception {
         return UnobfuscatorCache.getInstance().getClass(loader, () -> {
             var clazz = findFirstClassUsingStrings(loader, StringMatchType.Contains, "android:menu:expandedactionview");
@@ -1761,5 +1749,13 @@ public class Unobfuscator {
             throw new RuntimeException("MediaType field not found");
         });
 
+    }
+
+    public static Method loadBubbleDrawableMethod(ClassLoader classLoader) throws Exception {
+        return UnobfuscatorCache.getInstance().getMethod(classLoader, () -> {
+            var methodData = dexkit.findMethod(FindMethod.create().matcher(MethodMatcher.create().addUsingString("Unreachable code: direction=").returnType(Drawable.class)));
+            if (methodData.isEmpty()) throw new Exception("BubbleDrawable method not found");
+            return methodData.get(0).getMethodInstance(classLoader);
+        });
     }
 }
