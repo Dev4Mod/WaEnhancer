@@ -1,14 +1,14 @@
-[HIDE VIEW ONCE AND AUDIO SEEN]
-* This function has been separated into two (Hide View Once and Hide Audio Seen)
-* [FIX] This fixes the problem of sending messages in a group with just one person
-* [FIX] This fixes the problem of reading an audio and the microphone always staying green
+[HIDE SEEN]
+* Fixed in WhatsApp Business
 
-[GHOST MODE]
-* Added button on the home screen to activate/deactivate ghost mode (hides ticks and presence on WhatsApp)
+[STORAGE]
+* Now Wa Enhancer will handle all WhatsApp file management for download and read images using a binder
 
-[GROUP FILTER]
-* Fix bug in group filter
+[DOWNLOAD LOCAL]
+* With the strategy above, now let's bring back the Download Location of the downloaded files
 
-[WA ENHANCER]
-* Updated translation
+[WHATSAPP AND WA BUSINESS]
+* Added pre-support for version 2.24.15.xx
+
+
 
