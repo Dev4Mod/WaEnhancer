@@ -12,7 +12,7 @@ import de.robv.android.xposed.callbacks.XC_LoadPackage;
 public class ScopeHook {
 
     public static void hook(XC_LoadPackage.LoadPackageParam lpparam) {
-        if ("android".equals(lpparam.packageName) && "android".equals(lpparam.processName)) {
+        if ("android".equals(lpparam.packageName) && "android".equals(lpparam.processName) && Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
             XposedBridge.log("Hooked Android System");
             String className = (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) ? "com.android.server.pm.AppsFilterBase" : "com.android.server.pm.AppsFilter";
             XposedBridge.hookAllMethods(XposedHelpers.findClass(className, lpparam.classLoader), "shouldFilterApplication", new XC_MethodHook() {
