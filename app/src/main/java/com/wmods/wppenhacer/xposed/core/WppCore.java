@@ -14,6 +14,8 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import com.wmods.wppenhacer.views.dialog.BottomDialogWpp;
+import com.wmods.wppenhacer.xposed.bridge.providers.ProviderClient;
+import com.wmods.wppenhacer.xposed.core.components.AlertDialogWpp;
 import com.wmods.wppenhacer.xposed.core.components.FMessageWpp;
 import com.wmods.wppenhacer.xposed.core.devkit.Unobfuscator;
 import com.wmods.wppenhacer.xposed.utils.ReflectionUtils;
@@ -83,6 +85,13 @@ public class WppCore {
         });
         // Load wa database
         loadWADatabase();
+
+        var instance = ProviderClient.getInstance();
+        if (instance == null) {
+            var dialog = new AlertDialogWpp(Utils.getApplication());
+            dialog.setMessage("Failed to connect to Bridge, contact support!");
+            dialog.show();
+        }
     }
 
     public static void sendMessage(String number, String message) {

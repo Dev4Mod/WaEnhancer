@@ -8,20 +8,19 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
-import android.net.Uri;
 import android.util.DisplayMetrics;
 import android.view.WindowManager;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 
 import androidx.annotation.NonNull;
-import androidx.documentfile.provider.DocumentFile;
 
-import com.wmods.wppenhacer.App;
 import com.wmods.wppenhacer.preference.ThemePreference;
+import com.wmods.wppenhacer.xposed.bridge.services.HookBinder;
 import com.wmods.wppenhacer.xposed.core.WppCore;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.util.Properties;
 
@@ -61,26 +60,10 @@ public class WallpaperView extends FrameLayout {
         var fileOut = getContext().getFilesDir().getAbsolutePath() + "/" + "wallpaper.jpg";
         var file = new File(imagePath);
         if (!file.exists()) return null;
-        var waeFolder = App.getWaEnhancerFolder();
         String filePath = file.getAbsolutePath();
         long lastModified = file.lastModified();
         String cacheKey = filePath + "_" + lastModified;
-        Uri fileUri = null;
 
-        if (!file.canRead() && imagePath.startsWith(waeFolder.getAbsolutePath())) {
-            var destination = imagePath.replace(waeFolder.getAbsolutePath() + "/", "");
-            var split = destination.split("/");
-            var waeFolderUriPath = WppCore.getPrivString("folder_wae", null);
-            if (waeFolderUriPath == null) return null;
-            var waeFolderUri = Uri.parse(waeFolderUriPath);
-            var documentFile = DocumentFile.fromTreeUri(getContext(), waeFolderUri);
-            for (String s : split) {
-                if ((documentFile = documentFile.findFile(s)) == null) {
-                    return null;
-                }
-            }
-            fileUri = documentFile.getUri();
-        }
         // Recuperar informações armazenadas em cache
         String cachedData = WppCore.getPrivString("wallpaper_data", "");
 
@@ -91,7 +74,13 @@ public class WallpaperView extends FrameLayout {
             return new BitmapDrawable(getResources(), bitmap);
         }
 
-        Bitmap bitmap = fileUri != null ? BitmapFactory.decodeStream(getContext().getContentResolver().openInputStream(fileUri)) : BitmapFactory.decodeFile(imagePath);
+        Bitmap bitmap;
+        if (!file.canRead()) {
+            var parcelFile = HookBinder.getInstance().openFile(filePath, false);
+            bitmap = BitmapFactory.decodeStream(new FileInputStream(parcelFile.getFileDescriptor()));
+        } else {
+            bitmap = BitmapFactory.decodeFile(file.getAbsolutePath());
+        }
 
         DisplayMetrics displayMetrics = new DisplayMetrics();
         var windowManager = (WindowManager) getContext().getSystemService(Context.WINDOW_SERVICE);

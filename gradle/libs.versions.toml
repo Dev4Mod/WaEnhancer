@@ -1,8 +1,9 @@
 [versions]
+filepicker = "9.2.5"
 jstyleparser = "4.0.0"
 okhttp = "4.12.0"
 xposed-legacy = "82"
-agp = "8.5.0"
+agp = "8.5.1"
 colorpicker = "1.1.0"
 dexkit = "2.0.2"
 nav = "2.7.7"
@@ -12,6 +13,7 @@ kotlin = "2.0.0"
 [libraries]
 colorpicker = { module = "com.jaredrummler:colorpicker", version.ref = "colorpicker" }
 dexkit = { module = "org.luckypray:dexkit", version.ref = "dexkit" }
+filepicker = { module = "io.github.tutorialsandroid:filepicker", version.ref = "filepicker" }
 jstyleparser = { module = "net.sf.cssbox:jstyleparser", version.ref = "jstyleparser" }
 libxposed-legacy = { group = "de.robv.android.xposed", name = "api", version.ref = "xposed-legacy" }
 

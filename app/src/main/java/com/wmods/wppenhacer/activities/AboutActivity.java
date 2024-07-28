@@ -5,12 +5,11 @@ import android.net.Uri;
 import android.os.Bundle;
 
 import androidx.annotation.Nullable;
-import androidx.appcompat.app.AppCompatActivity;
 
-import com.wmods.wppenhacer.R;
+import com.wmods.wppenhacer.activities.base.BaseActivity;
 import com.wmods.wppenhacer.databinding.ActivityAboutBinding;
 
-public class AboutActivity extends AppCompatActivity {
+public class AboutActivity extends BaseActivity {
 
 
     private ActivityAboutBinding binding;
@@ -18,7 +17,6 @@ public class AboutActivity extends AppCompatActivity {
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        getTheme().applyStyle(R.style.ThemeOverlay_MaterialGreen, true);
         binding = ActivityAboutBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
         binding.btnTelegram.setOnClickListener(v -> {

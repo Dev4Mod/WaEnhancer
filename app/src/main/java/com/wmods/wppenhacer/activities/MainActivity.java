@@ -1,40 +1,32 @@
-package com.wmods.wppenhacer;
+package com.wmods.wppenhacer.activities;
 
-import android.Manifest;
 import android.annotation.SuppressLint;
 import android.content.Intent;
-import android.content.pm.PackageManager;
-import android.os.Build;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 
 import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.viewpager2.widget.ViewPager2;
 
 import com.google.android.material.navigation.NavigationBarView;
-import com.wmods.wppenhacer.activities.AboutActivity;
+import com.wmods.wppenhacer.App;
+import com.wmods.wppenhacer.R;
+import com.wmods.wppenhacer.activities.base.BaseActivity;
 import com.wmods.wppenhacer.adapter.MainPagerAdapter;
 import com.wmods.wppenhacer.databinding.ActivityMainBinding;
 import com.wmods.wppenhacer.utils.FilePicker;
 
 import java.io.File;
-import java.util.ArrayList;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends BaseActivity {
 
     private ActivityMainBinding binding;
 
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        setTheme(R.style.AppTheme);
-        getTheme().applyStyle(rikka.material.preference.R.style.ThemeOverlay_Rikka_Material3_Preference, true);
-        getTheme().applyStyle(R.style.ThemeOverlay, true);
-        getTheme().applyStyle(R.style.ThemeOverlay_MaterialGreen, true);
         App.changeLanguage(this);
         super.onCreate(savedInstanceState);
 
@@ -86,24 +78,10 @@ public class MainActivity extends AppCompatActivity {
                 binding.navView.getMenu().getItem(position).setChecked(true);
             }
         });
-
-        setupPermissions();
         createMainDir();
         FilePicker.registerFilePicker(this);
     }
 
-    private void setupPermissions() {
-        ArrayList<String> permissions = new ArrayList<>();
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_MEDIA_IMAGES) != PackageManager.PERMISSION_GRANTED && Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            permissions.add(Manifest.permission.READ_MEDIA_IMAGES);
-        }
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
-            permissions.add(Manifest.permission.READ_EXTERNAL_STORAGE);
-        }
-        if (!permissions.isEmpty()) {
-            ActivityCompat.requestPermissions(this, permissions.toArray(new String[0]), 0);
-        }
-    }
 
     private void createMainDir() {
         var nomedia = new File(App.getWaEnhancerFolder(), ".nomedia");

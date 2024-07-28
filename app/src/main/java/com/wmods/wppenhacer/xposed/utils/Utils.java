@@ -11,6 +11,7 @@ import android.content.pm.PackageManager;
 import android.media.MediaScannerConnection;
 import android.os.Handler;
 import android.os.Looper;
+import android.os.RemoteException;
 import android.util.DisplayMetrics;
 import android.util.TypedValue;
 import android.widget.Toast;
@@ -18,6 +19,8 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 
 import com.wmods.wppenhacer.App;
+import com.wmods.wppenhacer.WppXposed;
+import com.wmods.wppenhacer.xposed.bridge.services.HookBinder;
 import com.wmods.wppenhacer.xposed.core.FeatureLoader;
 import com.wmods.wppenhacer.xposed.core.WppCore;
 
@@ -90,10 +93,15 @@ public class Utils {
         return new SimpleDateFormat("hh:mm:ss a", Locale.ENGLISH).format(new Date(timestamp));
     }
 
+    @SuppressLint("SdCardPath")
     public static String getDestination(String name) {
-        var waFolder = new File(App.getWaEnhancerFolder(), "WhatsApp");
+        var folder = WppXposed.getPref().getString("download_local", "/sdcard/Download");
+        var waFolder = new File(folder, "WhatsApp");
         var filePath = new File(waFolder, name);
-        if (!filePath.exists()) filePath.mkdirs();
+        try {
+            HookBinder.getInstance().createDir(filePath.getAbsolutePath());
+        } catch (RemoteException ignored) {
+        }
         return filePath.getAbsolutePath() + "/";
     }
 
@@ -101,7 +109,8 @@ public class Utils {
         if (srcFile == null || !srcFile.exists()) return "File not found or is null";
 
         try (FileInputStream in = new FileInputStream(srcFile);
-             FileOutputStream out = new FileOutputStream(destFile)) {
+             var parcelFileDescriptor = HookBinder.getInstance().openFile(destFile.getAbsolutePath(), true)) {
+            var out = new FileOutputStream(parcelFileDescriptor.getFileDescriptor());
             byte[] bArr = new byte[1024];
             while (true) {
                 int read = in.read(bArr);
@@ -113,7 +122,7 @@ public class Utils {
                 }
                 out.write(bArr, 0, read);
             }
-        } catch (IOException e) {
+        } catch (IOException | RemoteException e) {
             XposedBridge.log(e.getMessage());
             return e.getMessage();
         }
@@ -195,5 +204,21 @@ public class Utils {
         } catch (Exception e) {
             return i;
         }
+    }
+
+    public static Application getApplicationByReflect() {
+        try {
+            @SuppressLint("PrivateApi")
+            Class<?> activityThread = Class.forName("android.app.ActivityThread");
+            Object thread = activityThread.getMethod("currentActivityThread").invoke(null);
+            Object app = activityThread.getMethod("getApplication").invoke(thread);
+            if (app == null) {
+                throw new NullPointerException("u should init first");
+            }
+            return (Application) app;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        throw new NullPointerException("u should init first");
     }
 }

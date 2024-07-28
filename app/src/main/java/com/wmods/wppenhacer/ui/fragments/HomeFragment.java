@@ -22,8 +22,8 @@ import androidx.preference.PreferenceManager;
 
 import com.wmods.wppenhacer.App;
 import com.wmods.wppenhacer.BuildConfig;
-import com.wmods.wppenhacer.MainActivity;
 import com.wmods.wppenhacer.R;
+import com.wmods.wppenhacer.activities.MainActivity;
 import com.wmods.wppenhacer.databinding.FragmentHomeBinding;
 import com.wmods.wppenhacer.ui.fragments.base.BaseFragment;
 import com.wmods.wppenhacer.utils.FilePicker;

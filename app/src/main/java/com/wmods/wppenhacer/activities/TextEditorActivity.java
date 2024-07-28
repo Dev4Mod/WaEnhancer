@@ -20,10 +20,10 @@ import android.widget.Toast;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.preference.PreferenceManager;
 
 import com.wmods.wppenhacer.R;
+import com.wmods.wppenhacer.activities.base.BaseActivity;
 import com.wmods.wppenhacer.preference.ThemePreference;
 import com.wmods.wppenhacer.xposed.utils.Utils;
 
@@ -41,7 +41,7 @@ import java.util.zip.ZipOutputStream;
 import kotlin.io.FilesKt;
 import rikka.core.util.IOUtils;
 
-public class TextEditorActivity extends AppCompatActivity {
+public class TextEditorActivity extends BaseActivity {
     //    private CodeView codeView;
     private String folderName;
     private ActivityResultLauncher<String> mGetContent;
@@ -51,9 +51,6 @@ public class TextEditorActivity extends AppCompatActivity {
     @SuppressLint("SetJavaScriptEnabled")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        getTheme().applyStyle(rikka.material.preference.R.style.ThemeOverlay_Rikka_Material3_Preference, true);
-        getTheme().applyStyle(R.style.ThemeOverlay, true);
-        getTheme().applyStyle(R.style.ThemeOverlay_MaterialGreen, true);
         super.onCreate(savedInstanceState);
         webView = new WebView(this);
         webView.getSettings().setJavaScriptEnabled(true);

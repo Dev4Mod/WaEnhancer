@@ -17,6 +17,12 @@
         app:iconSpaceReserved="false"
         app:title="@string/download_title">
 
+        <com.wmods.wppenhacer.preference.FileSelectPreference
+            android:defaultValue="/sdcard/Download"
+            app:directory="true"
+            app:key="download_local"
+            app:title="@string/local_download" />
+
         <rikka.material.preference.MaterialSwitchPreference
             app:key="downloadstatus"
             app:summary="@string/statusdowload_sum"

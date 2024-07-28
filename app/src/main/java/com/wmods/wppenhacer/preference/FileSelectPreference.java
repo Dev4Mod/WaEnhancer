@@ -17,6 +17,9 @@ import androidx.annotation.RequiresApi;
 import androidx.preference.Preference;
 import androidx.preference.PreferenceManager;
 
+import com.developer.filepicker.model.DialogConfigs;
+import com.developer.filepicker.model.DialogProperties;
+import com.developer.filepicker.view.FilePickerDialog;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.wmods.wppenhacer.App;
 import com.wmods.wppenhacer.R;
@@ -74,7 +77,7 @@ public class FileSelectPreference extends Preference implements Preference.OnPre
 
         FilePicker.setOnFilePickedListener(this);
         if (selectDirectory) {
-            FilePicker.directoryCapture.launch(null);
+            showSelectDirectoryDialog();
             return true;
         }
         if (mineTypes.length == 1 && mineTypes[0].contains("image")) {
@@ -84,6 +87,24 @@ public class FileSelectPreference extends Preference implements Preference.OnPre
         }
         FilePicker.fileCapture.launch(mineTypes);
         return false;
+    }
+
+    private void showSelectDirectoryDialog() {
+
+        DialogProperties properties = new DialogProperties();
+        properties.selection_mode = DialogConfigs.SINGLE_MODE;
+        properties.selection_type = DialogConfigs.DIR_SELECT;
+        properties.root = new File(DialogConfigs.DEFAULT_DIR);
+        properties.error_dir = new File(DialogConfigs.DEFAULT_DIR);
+        properties.offset = new File(DialogConfigs.DEFAULT_DIR);
+        FilePickerDialog dialog = new FilePickerDialog(getContext(), properties);
+        dialog.setTitle("Select a local to download");
+        dialog.setDialogSelectionListener((selectionPaths) -> {
+            getSharedPreferences().edit().putString(getKey(), selectionPaths[0]).apply();
+            setSummary(selectionPaths[0]);
+        });
+        dialog.show();
+        Utils.showToast("Select a local to download", Toast.LENGTH_SHORT);
     }
 
     @Override

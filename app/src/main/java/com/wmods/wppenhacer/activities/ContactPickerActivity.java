@@ -13,9 +13,8 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
 
-import androidx.appcompat.app.AppCompatActivity;
-
 import com.wmods.wppenhacer.R;
+import com.wmods.wppenhacer.activities.base.BaseActivity;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -23,7 +22,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-public class ContactPickerActivity extends AppCompatActivity {
+public class ContactPickerActivity extends BaseActivity {
 
     private String mKey;
     private ListView contactListView;
@@ -34,7 +33,6 @@ public class ContactPickerActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        getTheme().applyStyle(R.style.ThemeOverlay_MaterialGreen, true);
         setContentView(R.layout.activity_contact_picker);
         mKey = getIntent().getStringExtra("key");
 
