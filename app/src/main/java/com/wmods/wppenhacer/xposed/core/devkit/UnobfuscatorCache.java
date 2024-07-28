@@ -6,6 +6,7 @@ import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.content.res.Resources;
 
+import com.wmods.wppenhacer.xposed.utils.ReflectionUtils;
 import com.wmods.wppenhacer.xposed.utils.Utils;
 
 import java.lang.reflect.Constructor;
@@ -146,7 +147,7 @@ public class UnobfuscatorCache {
             return result;
         }
         String[] ClassAndName = value.split(":");
-        Class<?> cls = XposedHelpers.findClass(ClassAndName[0], loader);
+        Class<?> cls = ReflectionUtils.findClass(ClassAndName[0], loader);
         return XposedHelpers.findField(cls, ClassAndName[1]);
     }
 
@@ -163,7 +164,7 @@ public class UnobfuscatorCache {
         Class<?> cls = XposedHelpers.findClass(classAndName[0], loader);
         if (classAndName.length == 3) {
             String[] params = classAndName[2].split(",");
-            Class<?>[] paramTypes = Arrays.stream(params).map(param -> XposedHelpers.findClass(param, loader)).toArray(Class<?>[]::new);
+            Class<?>[] paramTypes = Arrays.stream(params).map(param -> ReflectionUtils.findClass(param, loader)).toArray(Class<?>[]::new);
             return XposedHelpers.findMethodExact(cls, classAndName[1], paramTypes);
         }
         return XposedHelpers.findMethodExact(cls, classAndName[1]);
@@ -220,7 +221,7 @@ public class UnobfuscatorCache {
         Class<?> cls = XposedHelpers.findClass(classAndName[0], loader);
         if (classAndName.length == 2) {
             String[] params = classAndName[1].split(",");
-            Class<?>[] paramTypes = Arrays.stream(params).map(param -> XposedHelpers.findClass(param, loader)).toArray(Class<?>[]::new);
+            Class<?>[] paramTypes = Arrays.stream(params).map(param -> ReflectionUtils.findClass(param, loader)).toArray(Class<?>[]::new);
             return XposedHelpers.findConstructorExact(cls, paramTypes);
         }
         return XposedHelpers.findConstructorExact(cls);

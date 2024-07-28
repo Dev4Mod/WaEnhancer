@@ -11,6 +11,7 @@ import androidx.preference.PreferenceManager;
 
 import com.wmods.wppenhacer.activities.MainActivity;
 import com.wmods.wppenhacer.xposed.AntiUpdater;
+import com.wmods.wppenhacer.xposed.bridge.ScopeHook;
 import com.wmods.wppenhacer.xposed.core.FeatureLoader;
 import com.wmods.wppenhacer.xposed.downgrade.Patch;
 import com.wmods.wppenhacer.xposed.utils.ResId;
@@ -57,6 +58,7 @@ public class WppXposed implements IXposedHookLoadPackage, IXposedHookInitPackage
         XposedBridge.log("[•] This package: " + lpparam.packageName);
         AntiUpdater.hookSession(pref);
         Patch.handleLoadPackage(lpparam, pref);
+        ScopeHook.hook(lpparam);
         if (!packageName.equals(FeatureLoader.PACKAGE_WPP) && !packageName.equals(FeatureLoader.PACKAGE_BUSINESS))
             return;
         var sourceDir = lpparam.appInfo.sourceDir;

@@ -130,7 +130,8 @@ public class FeatureLoader {
                     error.setPluginName("MainFeatures[Critical]");
                     error.setWhatsAppVersion(packageInfo.versionName);
                     error.setModuleVersion(BuildConfig.VERSION_NAME);
-                    error.setError(e.getMessage() + ": " + Arrays.toString(Arrays.stream(e.getStackTrace()).filter(s -> !s.getClassName().startsWith("android") && !s.getClassName().startsWith("com.android")).map(StackTraceElement::toString).toArray()));
+                    error.setMessage(e.getMessage());
+                    error.setError(Arrays.toString(Arrays.stream(e.getStackTrace()).filter(s -> !s.getClassName().startsWith("android") && !s.getClassName().startsWith("com.android")).map(StackTraceElement::toString).toArray()));
                     list.add(error);
                 }
             }
@@ -142,9 +143,11 @@ public class FeatureLoader {
                 super.afterHookedMethod(param);
                 if (!list.isEmpty()) {
                     var activity = (Activity) param.thisObject;
+                    var msg = String.join("\n", list.stream().map(item -> item.getPluginName() + " - " + item.getMessage()).toArray(String[]::new));
+
                     new AlertDialogWpp(activity)
                             .setTitle(activity.getString(ResId.string.error_detected))
-                            .setMessage(activity.getString(ResId.string.version_error) + String.join("\n", list.stream().map(ErrorItem::getPluginName).toArray(String[]::new)) + "\n\nCurrent Version: " + currentVersion + "\nSupported Versions:\n" + String.join("\n", supportedVersions))
+                            .setMessage(activity.getString(ResId.string.version_error) + msg + "\n\nCurrent Version: " + currentVersion + "\nSupported Versions:\n" + String.join("\n", supportedVersions))
                             .setPositiveButton(activity.getString(ResId.string.copy_to_clipboard), (dialog, which) -> {
                                 var clipboard = (ClipboardManager) mApp.getSystemService(Context.CLIPBOARD_SERVICE);
                                 ClipData clip = ClipData.newPlainText("text", String.join("\n", list.stream().map(ErrorItem::toString).toArray(String[]::new)));
@@ -275,12 +278,12 @@ public class FeatureLoader {
         }
     }
 
-
     private static class ErrorItem {
         private String pluginName;
         private String whatsAppVersion;
         private String error;
         private String moduleVersion;
+        private String message;
 
         @NonNull
         @Override
@@ -288,6 +291,7 @@ public class FeatureLoader {
             return "pluginName='" + getPluginName() + '\'' +
                     "\nmoduleVersion='" + getModuleVersion() + '\'' +
                     "\nwhatsAppVersion='" + getWhatsAppVersion() + '\'' +
+                    "\nMessage=" + getMessage() +
                     "\nerror='" + getError() + '\'';
         }
 
@@ -321,6 +325,14 @@ public class FeatureLoader {
 
         public void setModuleVersion(String moduleVersion) {
             this.moduleVersion = moduleVersion;
+        }
+
+        public String getMessage() {
+            return message;
+        }
+
+        public void setMessage(String message) {
+            this.message = message;
         }
     }
 }

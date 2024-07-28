@@ -8,6 +8,7 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
@@ -15,6 +16,20 @@ import de.robv.android.xposed.XposedHelpers;
 
 @SuppressWarnings("unused")
 public class ReflectionUtils {
+
+    public static Map<String, Class<?>> primitiveClasses = Map.of(
+            "byte", Byte.TYPE,
+            "short", Short.TYPE,
+            "int", Integer.TYPE,
+            "long", Long.TYPE,
+            "float", Float.TYPE
+    );
+
+    public static Class<?> findClass(String className, ClassLoader classLoader) {
+        var primitive = primitiveClasses.get(className);
+        if (primitive != null) return primitive;
+        return XposedHelpers.findClass(className, classLoader);
+    }
 
     public static Method findMethodUsingFilter(Class<?> clazz, Predicate<Method> predicate) {
         do {
