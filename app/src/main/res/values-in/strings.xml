@@ -366,9 +366,11 @@ Harap gunakan versi WhatsApp yang didukung!</string>
     <string name="ghost_mode_s">Mode Hantu [%s]</string>
     <string name="ghost_mode_title">Tampilkan Tombol Mode Hantu</string>
     <string name="ghost_mode_sum">Tampilkan tombol mode hantu di toolbar layar beranda</string>
-    <string name="grant_permissions">To use Wa Enhancer it is necessary to grant some permissions to use the functions.</string>
-    <string name="grant_manage_storage">Grant manage storage</string>
-    <string name="grant_media_read">Grant Media Read</string>
-    <string name="grant_reading_of_contacts">Grant reading of Contacts</string>
-    <string name="local_download">Local Download</string>
+    <string name="grant_permissions">Untuk menggunakan Wa Enhancer, Anda perlu memberikan beberapa izin untuk menggunakan fungsi tersebut</string>
+    <string name="grant_manage_storage">Kelola penyimpanan</string>
+    <string name="grant_media_read">Akses media</string>
+    <string name="grant_reading_of_contacts">Akses kontak</string>
+    <string name="local_download">Lokasi Unduhan</string>
+    <string name="show_menu_buttons_as_icons">Show menu buttons as icons</string>
+    <string name="show_menu_buttons_as_icons_sum">Shows menu buttons on the home screen as icons for easy access to them</string>
 </resources>

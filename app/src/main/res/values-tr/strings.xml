@@ -357,9 +357,11 @@
     <string name="ghost_mode_s">Hayalet Modu [%s]</string>
     <string name="ghost_mode_title">Hayalet Modu Düğmesini Göster</string>
     <string name="ghost_mode_sum">Anasayfa araç çubuğunda Hayalet Modu düğmesini göster</string>
-    <string name="grant_permissions">To use Wa Enhancer it is necessary to grant some permissions to use the functions.</string>
-    <string name="grant_manage_storage">Grant manage storage</string>
-    <string name="grant_media_read">Grant Media Read</string>
-    <string name="grant_reading_of_contacts">Grant reading of Contacts</string>
-    <string name="local_download">Local Download</string>
+    <string name="grant_permissions">Wa Enhancer\'ı kullanmak için işlevleri kullanmak üzere bazı izinler vermek gerekir.</string>
+    <string name="grant_manage_storage">Depolama alanını yönetme izni ver</string>
+    <string name="grant_media_read">Medya Okuma Yetkisi Ver</string>
+    <string name="grant_reading_of_contacts">Kişileri Okuma İzni Ver</string>
+    <string name="local_download">Yerel İndirme</string>
+    <string name="show_menu_buttons_as_icons">Show menu buttons as icons</string>
+    <string name="show_menu_buttons_as_icons_sum">Shows menu buttons on the home screen as icons for easy access to them</string>
 </resources>

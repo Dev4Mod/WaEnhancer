@@ -42,8 +42,8 @@
     <string name="novaconfig_sum">Abilita il nuovo stile delle impostazioni, con la foto del profilo sulla barra degli strumenti della Home</string>
     <string name="novofiltro">Funzioni di ricerca</string>
     <string name="novofiltro_sum">Scegli tra Icona di ricerca, Barra di ricerca o Nessuna ricerca</string>
-    <string name="menuwicon">Icone del menù</string>
-    <string name="menuwicon_sum">Aggiungi icone accanto alle opzioni di menù dell\'app</string>
+    <string name="menuwicon">Icone nel menù</string>
+    <string name="menuwicon_sum">Aggiungi le icone accanto alle opzioni di menù dell\'app</string>
     <string name="strokebuttons">Bordo pulsanti</string>
     <string name="strokebuttons_sum">Genera un bordo attorno ad alcuni pulsanti di WhatsApp</string>
     <string name="outlinedicons">Icone delineate</string>
@@ -103,7 +103,7 @@
     <string name="reboot_whatsapp">(Riavvia WhatsApp)</string>
     <string name="error_when_saving_try_again">Errore nel salvataggio, riprova</string>
     <string name="saved_to">"Salvato in "</string>
-    <string name="hide_tabs_on_home">Nascondi le schede nella Home</string>
+    <string name="hide_tabs_on_home">Nascondi schede nella Home</string>
     <string name="hide_tabs_on_home_sum">Nascondi le schede nella Home, come Aggiornamenti, Community e Chiamate</string>
     <string name="communities">Community</string>
     <string name="calls">Chiamate</string>
@@ -146,7 +146,7 @@
     <string name="disable_channels_sum">Nascondi i canali dalla scheda Aggiornamenti</string>
     <string name="chat">Chat</string>
     <string name="change_bubble_colors">Cambia colori bolla</string>
-    <string name="change_blubble_color_sum">Cambia il colore della bolla nella schermata di conversazione</string>
+    <string name="change_blubble_color_sum">Cambia il colore della bolla nella schermata delle conversazioni</string>
     <string name="default_color">Imposta il colore #00000000 come predefinito</string>
     <string name="enable_confirmation_to_send_sticker">Conferma prima di inviare sticker</string>
     <string name="enable_confirmation_to_send_sticker_sum">Mostra una finestra di dialogo prima di inviare gli sticker</string>
@@ -194,7 +194,7 @@
     <string name="select_wallpaper">Seleziona sfondo</string>
     <string name="wallpaper_not_selected">Sfondo non selezionato</string>
     <string name="wallpaper_in_home_screen">Abilita sfondo nella Home</string>
-    <string name="wallpaper_in_home_screen_sum">Mostra lo sfondo selezionato nella Home con trasparenza</string>
+    <string name="wallpaper_in_home_screen_sum">Mostra nella Home lo sfondo selezionato con trasparenza</string>
     <string name="configs_imported">Configurazioni importate</string>
     <string name="configs_saved">Configurazioni salvate</string>
     <string name="backup_settings">Backup delle impostazioni</string>
@@ -220,8 +220,8 @@
     <string name="toast_online">%s è online</string>
     <string name="show_toast_on_contact_online">Mostra toast sui contatti online</string>
     <string name="show_toast_on_contact_online_sum">Mostra una notifica toast quando un contatto è online</string>
-    <string name="new_context_menu_ui">Nuova UI del menù contestuale</string>
-    <string name="new_context_menu_ui_sum">Verrà abilitato il nuovo menù contestuale del messaggio in stile iOS.</string>
+    <string name="new_context_menu_ui">Nuova UI menù contestuale</string>
+    <string name="new_context_menu_ui_sum">Verrà abilitato il nuovo menù contestuale dei messaggi in stile iOS</string>
     <string name="filter_items_by_id">Filtra elementi per ID</string>
     <string name="filter_items_by_id_sum">Filtra elementi per nome id</string>
     <string name="custom_theme_css">Tema CSS personalizzato</string>
@@ -248,10 +248,10 @@
     <string name="call_type_buttons_ended">Nessuna risposta</string>
     <string name="enable_tasker_automation">Abilita automazione Tasker</string>
     <string name="enable_tasker_automation_sum">Abilita la possibilità di utilizzare l\'intent per ricevere e inviare messaggi in Tasker</string>
-    <string name="disable_auto_status">Disabilita salto automatico dello Stato</string>
-    <string name="disable_auto_status_sum">Impedisce l\'avanzamento automatico dello stato da quello corrente al successivo</string>
-    <string name="toast_on_viewed_status">Mostra toast sugli stati visualizzati</string>
-    <string name="toast_on_viewed_status_sum">Mostra una notifica toast quando qualcuno visualizza il tuo stato</string>
+    <string name="disable_auto_status">Disabilita skip automatico dello Stato</string>
+    <string name="disable_auto_status_sum">Impedisce l\'avanzamento automatico dello Stato da quello corrente al successivo</string>
+    <string name="toast_on_viewed_status">Mostra toast sugli Stati visualizzati</string>
+    <string name="toast_on_viewed_status_sum">Mostra una notifica toast quando qualcuno visualizza un tuo Stato</string>
     <string name="toast_on_viewed_message">Mostra toast sui messaggi visualizzati</string>
     <string name="toast_on_viewed_message_sum">Mostra una notifica toast quando qualcuno visualizza un tuo messaggio</string>
     <string name="textonahora_sum">Mostra il testo accanto a qualsiasi orario nell\'app WhatsApp</string>
@@ -277,8 +277,8 @@
     <string name="unable_to_read_this_file">Impossibile leggere questo file</string>
     <string name="disabled">Disabilitato</string>
     <string name="share_as_status">Condividi come Stato</string>
-    <string name="audio_transcription">Trascrizione Audio</string>
-    <string name="audio_transcription_sum">Abilita la trascrizione audio nativa di WhatsApp (Controlla il menù connessione per le opzioni di trascrizione)</string>
+    <string name="audio_transcription">Trascrizione audio</string>
+    <string name="audio_transcription_sum">Abilita la trascrizione audio nativa di WhatsApp (Controlla nel menù \"Chat\" per le impostazioni di trascrizione)</string>
     <string name="viewed_your_status">%s ha visualizzato il tuo stato</string>
     <string name="viewed_your_message">%s ha visualizzato il tuo messaggio</string>
     <string name="old_statuses">Vecchio Stato</string>
@@ -344,9 +344,9 @@
     <string name="stamp_copied_messages_sum">Rimuove Nome e Data quando si copia più di un messaggio</string>
     <string name="invalid_folder">È stata selezionata una cartella non valida. Scegli la cartella WaEnhancer</string>
     <string name="uri_permission">Per utilizzare temi personalizzati è necessario selezionare la cartella \"WaEnhancer\" in \"Download\"</string>
-    <string name="double_click_to_react">Abilita doppio click per le reazioni</string>
+    <string name="double_click_to_react">Abilita doppio click per reagire</string>
     <string name="double_click_to_like_sum">Attiva la possibilità di fare doppio click sui messaggi per mettere una reazione</string>
-    <string name="custom_reaction">Reazione Personalizzata</string>
+    <string name="custom_reaction">Reazione personalizzata</string>
     <string name="custom_reaction_sum">Seleziona quale reazione verrà inviata quando fai doppio click sui messaggi</string>
     <string name="hide_audio_seen">Nascondi audio visto</string>
     <string name="hide_audio_seen_sum">Nasconde l\'invio della lettura audio durante l\'ascolto</string>
@@ -357,9 +357,11 @@
     <string name="ghost_mode_s">Ghost Mode [%s]</string>
     <string name="ghost_mode_title">Mostra pulsante Ghost Mode</string>
     <string name="ghost_mode_sum">Mostra un pulsante per la Modalità Fantasma nella barra degli strumenti della Home</string>
-    <string name="grant_permissions">To use Wa Enhancer it is necessary to grant some permissions to use the functions.</string>
-    <string name="grant_manage_storage">Grant manage storage</string>
-    <string name="grant_media_read">Grant Media Read</string>
-    <string name="grant_reading_of_contacts">Grant reading of Contacts</string>
-    <string name="local_download">Local Download</string>
+    <string name="grant_permissions">Per utilizzare Wa Enhancer è necessario concedere alcune autorizzazioni per utilizzare le funzioni.</string>
+    <string name="grant_manage_storage">Concedi la gestione della memoria</string>
+    <string name="grant_media_read">Concedi la lettura dei media</string>
+    <string name="grant_reading_of_contacts">Concedi la lettura dei Contatti</string>
+    <string name="local_download">Percorso di download</string>
+    <string name="show_menu_buttons_as_icons">Show menu buttons as icons</string>
+    <string name="show_menu_buttons_as_icons_sum">Shows menu buttons on the home screen as icons for easy access to them</string>
 </resources>

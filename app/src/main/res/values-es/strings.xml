@@ -18,7 +18,7 @@
     <string name="segundosnahora_sum">Muestra los segundos al lado de la hora del mensaje enviado/recibido</string>
     <string name="textonahora">Agregar texto al lado del horario</string>
     <string name="viewonce">\"Ver una vez\" ilimitadamente</string>
-    <string name="viewonce_sum">Le permite abrir multimedia de visualización las veces que desee</string>
+    <string name="viewonce_sum">Le permite abrir multimedia de \"visualización única\", las veces que desee</string>
     <string name="novotema_sum">Al activarse cambia el color y el tema de los iconos al nuevo tema de WhatsApp</string>
     <string name="antirevokestatus">Anti-eliminar estados </string>
     <string name="antirevokestatus_sum">Cuando esté activo, los estados no se borrarán para usted.</string>
@@ -355,11 +355,13 @@
     <string name="disable">Desactivar</string>
     <string name="enable">Activar</string>
     <string name="ghost_mode_s">Modo fantasma [%s]</string>
-    <string name="ghost_mode_title">Mostrar botón Modo Fantasma</string>
-    <string name="ghost_mode_sum">Mostrar un botón de Modo Fantasma en la barra de herramientas de la pantalla de inicio</string>
-    <string name="grant_permissions">To use Wa Enhancer it is necessary to grant some permissions to use the functions.</string>
-    <string name="grant_manage_storage">Grant manage storage</string>
-    <string name="grant_media_read">Grant Media Read</string>
-    <string name="grant_reading_of_contacts">Grant reading of Contacts</string>
-    <string name="local_download">Local Download</string>
+    <string name="ghost_mode_title">Mostrar botón para el Modo Fantasma</string>
+    <string name="ghost_mode_sum">Mostrar un botón del Modo Fantasma en la barra de herramientas de la pantalla de inicio</string>
+    <string name="grant_permissions">Para usar Wa Enhancer es necesario conceder algunos permisos para usar las funciones.</string>
+    <string name="grant_manage_storage">Conceder permiso de almacenamiento</string>
+    <string name="grant_media_read">Conceder permiso para leer multimedia</string>
+    <string name="grant_reading_of_contacts">Conceder permiso para la lectura de contactos</string>
+    <string name="local_download">Directorio para las descargas</string>
+    <string name="show_menu_buttons_as_icons">Show menu buttons as icons</string>
+    <string name="show_menu_buttons_as_icons_sum">Shows menu buttons on the home screen as icons for easy access to them</string>
 </resources>
