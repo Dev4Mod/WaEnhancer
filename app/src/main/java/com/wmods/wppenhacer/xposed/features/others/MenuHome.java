@@ -15,6 +15,7 @@ import com.wmods.wppenhacer.xposed.utils.ResId;
 import com.wmods.wppenhacer.xposed.utils.Utils;
 
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 
 import de.robv.android.xposed.XC_MethodHook;
 import de.robv.android.xposed.XSharedPreferences;
@@ -22,7 +23,8 @@ import de.robv.android.xposed.XposedHelpers;
 
 public class MenuHome extends Feature {
 
-    public static HashSet<HomeMenuItem> menuItems = new HashSet<>();
+    public static HashSet<HomeMenuItem> menuItems = new LinkedHashSet<>();
+
 
     public MenuHome(@NonNull ClassLoader classLoader, @NonNull XSharedPreferences preferences) {
         super(classLoader, preferences);
@@ -31,20 +33,19 @@ public class MenuHome extends Feature {
     @Override
     public void doHook() throws Throwable {
         hookMenu();
-        var newSettings = prefs.getBoolean("novaconfig", false);
-        // restart button
-        menuItems.add((menu, activity) -> {
-            InsertRestartButton(menu, activity, newSettings);
-        });
+        var action = prefs.getBoolean("buttonaction", true);
 
-        // freeze last seen
-        menuItems.add((menu, activity) -> InsertFreezeLastSeenOption(menu, activity, newSettings));
+        // restart button
+        menuItems.add((menu, activity) -> InsertRestartButton(menu, activity, action));
 
         // dnd mode
-        menuItems.add((menu, activity) -> InsertDNDOption(menu, activity, newSettings));
+        menuItems.add((menu, activity) -> InsertDNDOption(menu, activity, action));
 
         // ghost mode
-        menuItems.add((menu, activity) -> InsertGhostModeOption(menu, activity, newSettings));
+        menuItems.add((menu, activity) -> InsertGhostModeOption(menu, activity, action));
+
+        // freeze last seen
+        menuItems.add((menu, activity) -> InsertFreezeLastSeenOption(menu, activity, action));
 
 
     }
@@ -109,7 +110,7 @@ public class MenuHome extends Feature {
             return;
         }
         var item = menu.add(0, 0, 0, activity.getString(ResId.string.dnd_mode_title));
-        var drawable = DesignUtils.getDrawableByName(dndmode ? "ic_location_nearby_disabled" : "ic_location_nearby");
+        var drawable = Utils.getApplication().getDrawable(dndmode ? ResId.drawable.airplane_enabled : ResId.drawable.airplane_disabled);
         if (drawable != null) {
             drawable.setTint(newSettings ? DesignUtils.getPrimaryTextColor() : 0xff8696a0);
             item.setIcon(drawable);

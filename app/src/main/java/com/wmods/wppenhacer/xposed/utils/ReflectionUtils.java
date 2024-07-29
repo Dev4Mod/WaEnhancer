@@ -22,7 +22,8 @@ public class ReflectionUtils {
             "short", Short.TYPE,
             "int", Integer.TYPE,
             "long", Long.TYPE,
-            "float", Float.TYPE
+            "float", Float.TYPE,
+            "boolean", Boolean.TYPE
     );
 
     public static Class<?> findClass(String className, ClassLoader classLoader) {

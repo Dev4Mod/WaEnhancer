@@ -32,7 +32,7 @@ public class NewChat extends Feature {
     @Override
     public void doHook() {
         var homeActivity = findClass("com.whatsapp.HomeActivity", classLoader);
-        var newSettings = prefs.getBoolean("novaconfig", false);
+        var action = prefs.getBoolean("buttonaction", true);
         if (!prefs.getBoolean("newchat", true)) return;
 
         XposedHelpers.findAndHookMethod(homeActivity, "onCreateOptionsMenu", Menu.class, new XC_MethodHook() {
@@ -44,11 +44,11 @@ public class NewChat extends Feature {
                 var drawable = DesignUtils.getDrawableByName("vec_ic_chat_add");
 
                 if (drawable != null) {
-                    drawable.setTint(newSettings ? DesignUtils.getPrimaryTextColor() : 0xff8696a0);
+                    drawable.setTint(action ? DesignUtils.getPrimaryTextColor() : 0xff8696a0);
                     item.setIcon(drawable);
                 }
 
-                if (newSettings) {
+                if (action) {
                     item.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
                 }
                 item.setOnMenuItemClickListener(item1 -> {

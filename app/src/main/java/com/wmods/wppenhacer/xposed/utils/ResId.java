@@ -13,6 +13,8 @@ public class ResId {
         public static int refresh;
         public static int ghost_disabled;
         public static int ghost_enabled;
+        public static int airplane_enabled;
+        public static int airplane_disabled;
     }
 
     public static class string {

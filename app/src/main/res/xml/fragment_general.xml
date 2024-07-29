@@ -54,6 +54,12 @@
         app:title="@string/home_screen">
 
         <rikka.material.preference.MaterialSwitchPreference
+            android:defaultValue="true"
+            android:title="@string/show_menu_buttons_as_icons"
+            app:key="buttonaction"
+            app:summary="@string/show_menu_buttons_as_icons_sum" />
+
+        <rikka.material.preference.MaterialSwitchPreference
             app:key="shownamehome"
             app:summary="@string/showname_sum"
             app:title="@string/showname" />
