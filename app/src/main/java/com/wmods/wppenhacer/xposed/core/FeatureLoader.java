@@ -272,7 +272,8 @@ public class FeatureLoader {
                 error.setPluginName(classe.getSimpleName());
                 error.setWhatsAppVersion(versionWpp);
                 error.setModuleVersion(BuildConfig.VERSION_NAME);
-                error.setError(e.getMessage() + ": " + Arrays.toString(Arrays.stream(e.getStackTrace()).filter(s -> !s.getClassName().startsWith("android") && !s.getClassName().startsWith("com.android")).map(StackTraceElement::toString).toArray()));
+                error.setMessage(e.getMessage());
+                error.setError(Arrays.toString(Arrays.stream(e.getStackTrace()).filter(s -> !s.getClassName().startsWith("android") && !s.getClassName().startsWith("com.android")).map(StackTraceElement::toString).toArray()));
                 list.add(error);
             }
         }

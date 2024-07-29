@@ -1,10 +1,11 @@
 [WA ENHANCER]
-* Fixed an error that appears when starting WhatsApp (If a bridge error occurs, activate the System Framework in lsposed for Wa Enhancer and restart the device)
 * Update translations
 
-[CLASSFINDER]
-* Fixed an issue loading primitive classes (Strangely this error seems to be coming from lsposed on some devices, so I'm releasing a solution for it)
+[DND MODE]
+* New Icon
 
-[BUBBLE COLORS]
-* Fixed in Wa 2.24.15.XX
+[MENU BUTTON IN HOMESCREEN]
+* I added a button to change whether the buttons on the WhatsApp home screen should appear as three dots or whether they should appear as icons (Previously this function depended on the New Settings UI)
 
+[LSPOSED]
+* Support for LSposed by JingMatrix (You can use others but I will not guarantee compatibility and it has not been tested on Android 15)
