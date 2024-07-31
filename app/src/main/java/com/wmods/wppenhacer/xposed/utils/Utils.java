@@ -9,9 +9,9 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.media.MediaScannerConnection;
+import android.os.Binder;
 import android.os.Handler;
 import android.os.Looper;
-import android.os.RemoteException;
 import android.util.DisplayMetrics;
 import android.util.TypedValue;
 import android.widget.Toast;
@@ -20,14 +20,12 @@ import androidx.annotation.NonNull;
 
 import com.wmods.wppenhacer.App;
 import com.wmods.wppenhacer.WppXposed;
-import com.wmods.wppenhacer.xposed.bridge.services.HookBinder;
 import com.wmods.wppenhacer.xposed.core.FeatureLoader;
 import com.wmods.wppenhacer.xposed.core.WppCore;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
-import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
@@ -99,8 +97,8 @@ public class Utils {
         var waFolder = new File(folder, "WhatsApp");
         var filePath = new File(waFolder, name);
         try {
-            HookBinder.getInstance().createDir(filePath.getAbsolutePath());
-        } catch (RemoteException ignored) {
+            WppCore.getClientBridge().createDir(filePath.getAbsolutePath());
+        } catch (Exception ignored) {
         }
         return filePath.getAbsolutePath() + "/";
     }
@@ -109,7 +107,7 @@ public class Utils {
         if (srcFile == null || !srcFile.exists()) return "File not found or is null";
 
         try (FileInputStream in = new FileInputStream(srcFile);
-             var parcelFileDescriptor = HookBinder.getInstance().openFile(destFile.getAbsolutePath(), true)) {
+             var parcelFileDescriptor = WppCore.getClientBridge().openFile(destFile.getAbsolutePath(), true)) {
             var out = new FileOutputStream(parcelFileDescriptor.getFileDescriptor());
             byte[] bArr = new byte[1024];
             while (true) {
@@ -122,7 +120,7 @@ public class Utils {
                 }
                 out.write(bArr, 0, read);
             }
-        } catch (IOException | RemoteException e) {
+        } catch (Exception e) {
             XposedBridge.log(e.getMessage());
             return e.getMessage();
         }
@@ -220,5 +218,19 @@ public class Utils {
             e.printStackTrace();
         }
         throw new NullPointerException("u should init first");
+    }
+
+    public static <T> T binderLocalScope(BinderLocalScopeBlock<T> block) {
+        long identity = Binder.clearCallingIdentity();
+        try {
+            return block.execute();
+        } finally {
+            Binder.restoreCallingIdentity(identity);
+        }
+    }
+
+    @FunctionalInterface
+    public interface BinderLocalScopeBlock<T> {
+        T execute();
     }
 }

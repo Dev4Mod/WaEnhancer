@@ -24,7 +24,6 @@ public class MainActivity extends BaseActivity {
 
     private ActivityMainBinding binding;
 
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         App.changeLanguage(this);
@@ -46,15 +45,15 @@ public class MainActivity extends BaseActivity {
             @Override
             public boolean onNavigationItemSelected(@NonNull MenuItem item) {
                 return switch (item.getItemId()) {
-                    case R.id.navigation_home -> {
+                    case R.id.navigation_chat -> {
                         binding.viewPager.setCurrentItem(0);
                         yield true;
                     }
-                    case R.id.navigation_chat -> {
+                    case R.id.navigation_privacy -> {
                         binding.viewPager.setCurrentItem(1);
                         yield true;
                     }
-                    case R.id.navigation_privacy -> {
+                    case R.id.navigation_home -> {
                         binding.viewPager.setCurrentItem(2);
                         yield true;
                     }
@@ -78,6 +77,7 @@ public class MainActivity extends BaseActivity {
                 binding.navView.getMenu().getItem(position).setChecked(true);
             }
         });
+        binding.viewPager.setCurrentItem(2, false);
         createMainDir();
         FilePicker.registerFilePicker(this);
     }

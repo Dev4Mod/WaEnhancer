@@ -16,7 +16,6 @@ import android.widget.ImageView;
 import androidx.annotation.NonNull;
 
 import com.wmods.wppenhacer.preference.ThemePreference;
-import com.wmods.wppenhacer.xposed.bridge.services.HookBinder;
 import com.wmods.wppenhacer.xposed.core.WppCore;
 
 import java.io.File;
@@ -76,7 +75,7 @@ public class WallpaperView extends FrameLayout {
 
         Bitmap bitmap;
         if (!file.canRead()) {
-            var parcelFile = HookBinder.getInstance().openFile(filePath, false);
+            var parcelFile = WppCore.getClientBridge().openFile(filePath, false);
             bitmap = BitmapFactory.decodeStream(new FileInputStream(parcelFile.getFileDescriptor()));
         } else {
             bitmap = BitmapFactory.decodeFile(file.getAbsolutePath());

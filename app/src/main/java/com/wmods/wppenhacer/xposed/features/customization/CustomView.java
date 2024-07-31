@@ -32,8 +32,8 @@ import androidx.documentfile.provider.DocumentFile;
 
 import com.wmods.wppenhacer.preference.ThemePreference;
 import com.wmods.wppenhacer.utils.IColors;
-import com.wmods.wppenhacer.xposed.bridge.services.HookBinder;
 import com.wmods.wppenhacer.xposed.core.Feature;
+import com.wmods.wppenhacer.xposed.core.WppCore;
 import com.wmods.wppenhacer.xposed.core.devkit.Unobfuscator;
 import com.wmods.wppenhacer.xposed.utils.ReflectionUtils;
 import com.wmods.wppenhacer.xposed.utils.Utils;
@@ -601,7 +601,7 @@ public class CustomView extends Feature {
                 File file = new File(filePath);
                 Bitmap bitmap;
                 if (!file.canRead()) {
-                    var parcelFile = HookBinder.getInstance().openFile(filePath, false);
+                    var parcelFile = WppCore.getClientBridge().openFile(filePath, false);
                     bitmap = BitmapFactory.decodeStream(new FileInputStream(parcelFile.getFileDescriptor()));
                 } else {
                     bitmap = BitmapFactory.decodeFile(file.getAbsolutePath());

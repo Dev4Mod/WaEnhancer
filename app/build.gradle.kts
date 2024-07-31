@@ -139,6 +139,7 @@ dependencies {
     implementation(libs.jstyleparser)
     implementation(libs.okhttp)
     implementation(libs.filepicker)
+    implementation(libs.betterypermissionhelper)
 }
 
 configurations.all {

@@ -14,7 +14,9 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import com.wmods.wppenhacer.views.dialog.BottomDialogWpp;
-import com.wmods.wppenhacer.xposed.bridge.providers.ProviderClient;
+import com.wmods.wppenhacer.xposed.bridge.ClientBridge;
+import com.wmods.wppenhacer.xposed.bridge.WaeIIFace;
+import com.wmods.wppenhacer.xposed.core.components.AlertDialogWpp;
 import com.wmods.wppenhacer.xposed.core.components.FMessageWpp;
 import com.wmods.wppenhacer.xposed.core.devkit.Unobfuscator;
 import com.wmods.wppenhacer.xposed.utils.ReflectionUtils;
@@ -29,6 +31,8 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.TimeUnit;
 
 import de.robv.android.xposed.XC_MethodHook;
 import de.robv.android.xposed.XposedBridge;
@@ -49,6 +53,8 @@ public class WppCore {
     private static Object mStartUpConfig;
     private static Object mActionUser;
     private static SQLiteDatabase mWaDatabase;
+    public static ClientBridge bridgeClient;
+    private static boolean isBridgeInitialized;
 
 
     public static void Initialize(ClassLoader loader) throws Exception {
@@ -84,10 +90,18 @@ public class WppCore {
         });
         // Load wa database
         loadWADatabase();
+        initBridge(Utils.getApplication());
+    }
 
-        var instance = ProviderClient.getInstance();
-        if (instance == null) {
-            throw new RuntimeException("Error in Bridge: enable System Framework in lsposed and reboot");
+    public static void initBridge(Context context) throws Exception {
+        bridgeClient = new ClientBridge(context);
+        CompletableFuture<Boolean> canLoadFuture = bridgeClient.connect();
+        try {
+            Boolean canLoad = canLoadFuture.get(10, TimeUnit.SECONDS);
+            if (!canLoad) throw new Exception();
+            isBridgeInitialized = true;
+        } catch (Exception e) {
+            throw new Exception("Bridge Failed: Enable System Framework in Lsposed and reboot device");
         }
     }
 
@@ -326,6 +340,24 @@ public class WppCore {
 
     public static void addListenerChat(ActivityChangeState listener) {
         listenerChat.add(listener);
+    }
+
+    public static WaeIIFace getClientBridge() throws Exception {
+        if (bridgeClient == null || bridgeClient.service == null || !bridgeClient.service.asBinder().isBinderAlive() || !bridgeClient.service.asBinder().pingBinder()) {
+            WppCore.getCurrentActivity().runOnUiThread(() -> {
+                var dialog = new AlertDialogWpp(WppCore.getCurrentActivity());
+                dialog.setTitle("Bridge Error");
+                dialog.setMessage("The Connection with WaEnhancer was lost, it is necessary to reconnect with WaEnhancer in order to reestablish the connection.");
+                dialog.setPositiveButton("reconnect", (dialog1, which) -> {
+                    bridgeClient.tryReconnect();
+                    dialog.dismiss();
+                });
+                dialog.setNegativeButton("cancel", null);
+                dialog.show();
+            });
+            throw new Exception("Failed connect to Bridge");
+        }
+        return bridgeClient.service;
     }
 
 

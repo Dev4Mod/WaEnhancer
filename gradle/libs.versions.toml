@@ -1,4 +1,5 @@
 [versions]
+betterypermissionhelper = "1.0.3"
 filepicker = "9.2.5"
 jstyleparser = "4.0.0"
 okhttp = "4.12.0"
@@ -11,6 +12,7 @@ kotlin = "2.0.0"
 
 
 [libraries]
+betterypermissionhelper = { module = "com.waseemsabir:betterypermissionhelper", version.ref = "betterypermissionhelper" }
 colorpicker = { module = "com.jaredrummler:colorpicker", version.ref = "colorpicker" }
 dexkit = { module = "org.luckypray:dexkit", version.ref = "dexkit" }
 filepicker = { module = "io.github.tutorialsandroid:filepicker", version.ref = "filepicker" }

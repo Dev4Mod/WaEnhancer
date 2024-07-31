@@ -15,7 +15,7 @@ public class HookBinder extends WaeIIFace.Stub {
 
     private static HookBinder mInstance;
 
-    public static HookBinder getInstance() {
+    public static HookBinder getIxnstance() {
         if (mInstance == null) {
             mInstance = new HookBinder();
         }

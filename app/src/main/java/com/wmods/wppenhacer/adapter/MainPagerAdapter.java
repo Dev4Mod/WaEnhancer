@@ -21,8 +21,8 @@ public class MainPagerAdapter extends FragmentStateAdapter {
     @Override
     public Fragment createFragment(int position) {
         return switch (position) {
-            case 1 -> new GeneralFragment();
-            case 2 -> new PrivacyFragment();
+            case 0 -> new GeneralFragment();
+            case 1 -> new PrivacyFragment();
             case 3 -> new MediaFragment();
             case 4 -> new CustomizationFragment();
             default -> new HomeFragment();
