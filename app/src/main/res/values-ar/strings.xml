@@ -363,6 +363,6 @@
     <string name="grant_media_read">منح قراءة الوسائط</string>
     <string name="grant_reading_of_contacts">منح قراءة جهات الاتصال</string>
     <string name="local_download">مكان التحميل</string>
-    <string name="show_menu_buttons_as_icons">Show menu buttons as icons</string>
-    <string name="show_menu_buttons_as_icons_sum">Shows menu buttons on the home screen as icons for easy access to them</string>
+    <string name="show_menu_buttons_as_icons">إظهار أزرار القائمة كأيقونات</string>
+    <string name="show_menu_buttons_as_icons_sum">إظهار أزرار القائمة على الشاشة الرئيسية كأيقونات لتسهيل الوصول إليها</string>
 </resources>

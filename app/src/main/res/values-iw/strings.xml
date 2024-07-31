@@ -359,11 +359,11 @@
     <string name="ghost_mode_s">מצב רוח רפאים [%s]</string>
     <string name="ghost_mode_title">הצג כפתור רוח רפאים במסך הבית</string>
     <string name="ghost_mode_sum">הצג כפתור מצב רוח רפאים בסרגל הכלים של מסך הבית</string>
-    <string name="grant_permissions">To use Wa Enhancer it is necessary to grant some permissions to use the functions.</string>
-    <string name="grant_manage_storage">Grant manage storage</string>
-    <string name="grant_media_read">Grant Media Read</string>
-    <string name="grant_reading_of_contacts">Grant reading of Contacts</string>
-    <string name="local_download">Local Download</string>
-    <string name="show_menu_buttons_as_icons">Show menu buttons as icons</string>
-    <string name="show_menu_buttons_as_icons_sum">Shows menu buttons on the home screen as icons for easy access to them</string>
+    <string name="grant_permissions">כדי להשתמש ב-Wa Enhancer יש צורך להעניק הרשאות מסוימות לשימוש בפונקציות.</string>
+    <string name="grant_manage_storage">הענק ניהול אחסון</string>
+    <string name="grant_media_read">קריאת מדיה</string>
+    <string name="grant_reading_of_contacts">הענק קריאת אנשי קשר</string>
+    <string name="local_download">הורדה מקומית</string>
+    <string name="show_menu_buttons_as_icons">הצג כפתורי תפריט כסמלים</string>
+    <string name="show_menu_buttons_as_icons_sum">מציג לחצני תפריט במסך הבית כסמלים</string>
 </resources>

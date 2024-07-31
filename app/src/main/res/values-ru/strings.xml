@@ -348,8 +348,8 @@
     <string name="double_click_to_like_sum">Активирует возможность двойного щелчка по сообщению для реакции</string>
     <string name="custom_reaction">Пользовательская реакция</string>
     <string name="custom_reaction_sum">Выберите, какая реакция будет отправлена при двойном нажатии на сообщение</string>
-    <string name="hide_audio_seen">Скрыть просмотренный звук</string>
-    <string name="hide_audio_seen_sum">Скрывает отправку аудио при прослушивании</string>
+    <string name="hide_audio_seen">Скрыть прослушивание аудио сообщений</string>
+    <string name="hide_audio_seen_sum">Скрыть от собеседника, что вы прослушали его аудио сообщение</string>
     <string name="ghost_mode">Режим призрака</string>
     <string name="ghost_mode_message">Режим призрака делает вас невидимым, скрывая синий тик (истории, сообщения и группы), второй тик и ваш последний вид от всех контактов</string>
     <string name="disable">Отключить</string>
@@ -357,11 +357,11 @@
     <string name="ghost_mode_s">Режим призрака [%s]</string>
     <string name="ghost_mode_title">Показать кнопку режима призрака</string>
     <string name="ghost_mode_sum">Показать кнопку режима Призрака на панели инструментов главного экрана</string>
-    <string name="grant_permissions">To use Wa Enhancer it is necessary to grant some permissions to use the functions.</string>
-    <string name="grant_manage_storage">Grant manage storage</string>
-    <string name="grant_media_read">Grant Media Read</string>
-    <string name="grant_reading_of_contacts">Grant reading of Contacts</string>
-    <string name="local_download">Local Download</string>
-    <string name="show_menu_buttons_as_icons">Show menu buttons as icons</string>
-    <string name="show_menu_buttons_as_icons_sum">Shows menu buttons on the home screen as icons for easy access to them</string>
+    <string name="grant_permissions">Для использования Wa Enhancer необходимо предоставить некоторые разрешения для использования функций.</string>
+    <string name="grant_manage_storage">Разрешить управление хранилищем</string>
+    <string name="grant_media_read">Разрешить чтение медиа</string>
+    <string name="grant_reading_of_contacts">Разрешить чтение контактов</string>
+    <string name="local_download">Локальная загрузка</string>
+    <string name="show_menu_buttons_as_icons">Отображать кнопки меню в виде значков</string>
+    <string name="show_menu_buttons_as_icons_sum">Отображает кнопки меню на главном экране в виде значков для быстрого доступа к ним</string>
 </resources>

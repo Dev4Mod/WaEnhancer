@@ -357,11 +357,11 @@
     <string name="ghost_mode_s">Geistmodus [%s]</string>
     <string name="ghost_mode_title">Schaltfläche \"Geistmodus\"</string>
     <string name="ghost_mode_sum">Zeigt eine Schaltfläche in der Symbolleiste des Startbildschirmes an</string>
-    <string name="grant_permissions">To use Wa Enhancer it is necessary to grant some permissions to use the functions.</string>
-    <string name="grant_manage_storage">Grant manage storage</string>
-    <string name="grant_media_read">Grant Media Read</string>
-    <string name="grant_reading_of_contacts">Grant reading of Contacts</string>
-    <string name="local_download">Local Download</string>
-    <string name="show_menu_buttons_as_icons">Show menu buttons as icons</string>
+    <string name="grant_permissions">Um Wa Enhancer nutzen zu können, ist es notwendig, einige Berechtigungen für die Verwendung der Funktionen zu gewähren.</string>
+    <string name="grant_manage_storage">Speicherverwaltung</string>
+    <string name="grant_media_read">Medien lesen erlauben</string>
+    <string name="grant_reading_of_contacts">Lesen von Kontakten erlauben</string>
+    <string name="local_download">Lokaler Download</string>
+    <string name="show_menu_buttons_as_icons">Menü-Buttons als Symbole anzeigen</string>
     <string name="show_menu_buttons_as_icons_sum">Shows menu buttons on the home screen as icons for easy access to them</string>
 </resources>

@@ -357,11 +357,11 @@
     <string name="ghost_mode_s">Modo Fantasma [%s]</string>
     <string name="ghost_mode_title">Mostrar botão do Modo Fantasma</string>
     <string name="ghost_mode_sum">Mostra um botão do Modo Fantasma na barra superior da tela inicial.</string>
-    <string name="grant_permissions">To use Wa Enhancer it is necessary to grant some permissions to use the functions.</string>
-    <string name="grant_manage_storage">Grant manage storage</string>
-    <string name="grant_media_read">Grant Media Read</string>
-    <string name="grant_reading_of_contacts">Grant reading of Contacts</string>
-    <string name="local_download">Local Download</string>
-    <string name="show_menu_buttons_as_icons">Show menu buttons as icons</string>
-    <string name="show_menu_buttons_as_icons_sum">Shows menu buttons on the home screen as icons for easy access to them</string>
+    <string name="grant_permissions">Para usar o Wa Enhancer é necessário conceder algumas permissões.</string>
+    <string name="grant_manage_storage">Permitir acesso a todos os arquivos</string>
+    <string name="grant_media_read">Permitir acesso a fotos e vídeos</string>
+    <string name="grant_reading_of_contacts">Permitir acesso aos contatos</string>
+    <string name="local_download">Local de download das mídias</string>
+    <string name="show_menu_buttons_as_icons">Mostrar botões na tela inicial</string>
+    <string name="show_menu_buttons_as_icons_sum">Mostra os botões habilitados no Wa Enhancer na barra superior da tela inicial do WhatsApp.</string>
 </resources>

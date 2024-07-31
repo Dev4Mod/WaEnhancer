@@ -362,6 +362,6 @@
     <string name="grant_media_read">Conceder permiso para leer multimedia</string>
     <string name="grant_reading_of_contacts">Conceder permiso para la lectura de contactos</string>
     <string name="local_download">Directorio para las descargas</string>
-    <string name="show_menu_buttons_as_icons">Show menu buttons as icons</string>
-    <string name="show_menu_buttons_as_icons_sum">Shows menu buttons on the home screen as icons for easy access to them</string>
+    <string name="show_menu_buttons_as_icons">Mostrar botones de menú como iconos</string>
+    <string name="show_menu_buttons_as_icons_sum">Muestra los botones de menú en la pantalla de inicio como iconos para un fácil acceso a ellos</string>
 </resources>

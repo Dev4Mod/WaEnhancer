@@ -362,6 +362,6 @@
     <string name="grant_media_read">Medya Okuma Yetkisi Ver</string>
     <string name="grant_reading_of_contacts">Kişileri Okuma İzni Ver</string>
     <string name="local_download">Yerel İndirme</string>
-    <string name="show_menu_buttons_as_icons">Show menu buttons as icons</string>
-    <string name="show_menu_buttons_as_icons_sum">Shows menu buttons on the home screen as icons for easy access to them</string>
+    <string name="show_menu_buttons_as_icons">Menü düğmelerini simge olarak göster</string>
+    <string name="show_menu_buttons_as_icons_sum">Kolay erişim için ana ekrandaki menü düğmelerini simge olarak gösterir</string>
 </resources>

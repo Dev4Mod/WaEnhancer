@@ -371,6 +371,6 @@ Harap gunakan versi WhatsApp yang didukung!</string>
     <string name="grant_media_read">Akses media</string>
     <string name="grant_reading_of_contacts">Akses kontak</string>
     <string name="local_download">Lokasi Unduhan</string>
-    <string name="show_menu_buttons_as_icons">Show menu buttons as icons</string>
-    <string name="show_menu_buttons_as_icons_sum">Shows menu buttons on the home screen as icons for easy access to them</string>
+    <string name="show_menu_buttons_as_icons">Tombol Menu Ikon</string>
+    <string name="show_menu_buttons_as_icons_sum">Tampilkan tombol menu di layar beranda sebagai ikon untuk memudahkan akses ke tombol tersebut</string>
 </resources>
