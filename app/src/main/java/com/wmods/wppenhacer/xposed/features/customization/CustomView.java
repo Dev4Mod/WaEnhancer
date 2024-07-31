@@ -80,6 +80,32 @@ public class CustomView extends Feature {
         super(loader, preferences);
     }
 
+    @Override
+    public void doHook() throws Throwable {
+        var filter_itens = prefs.getString("css_theme", "");
+        var folder_theme = prefs.getString("folder_theme", "");
+        var custom_css = prefs.getString("custom_css", "");
+
+        if ((TextUtils.isEmpty(filter_itens) && TextUtils.isEmpty(folder_theme) && TextUtils.isEmpty(custom_css)) || !prefs.getBoolean("custom_filters", true))
+            return;
+
+        hookDrawableViews();
+
+        themeDir = new File(ThemePreference.rootDirectory, folder_theme);
+        filter_itens += "\n" + custom_css;
+        cacheImages = new DrawableCache(Utils.getApplication(), 100 * 1024 * 1024);
+        var sheet = CSSFactory.parseString(filter_itens, new URL("https://base.url/"));
+
+        XposedHelpers.findAndHookMethod(Activity.class, "onCreate", Bundle.class, new XC_MethodHook() {
+            @Override
+            protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
+                var activity = (Activity) param.thisObject;
+                View rootView = activity.getWindow().getDecorView().getRootView();
+                rootView.getViewTreeObserver().addOnGlobalLayoutListener(() -> CompletableFuture.runAsync(() -> registerCssRules(activity, (ViewGroup) rootView, sheet)));
+            }
+        });
+
+    }
 
     private void hookDrawableViews() {
         XposedHelpers.findAndHookMethod(View.class, "setBackground", Drawable.class, new XC_MethodHook() {
@@ -111,35 +137,6 @@ public class CustomView extends Feature {
                     }
                 } else if (mHookedDrawable == null) return;
                 param.setResult(null);
-            }
-        });
-
-    }
-
-
-    @Override
-    public void doHook() throws Throwable {
-        var filter_itens = prefs.getString("css_theme", "");
-        var folder_theme = prefs.getString("folder_theme", "");
-        var custom_css = prefs.getString("custom_css", "");
-
-        if ((TextUtils.isEmpty(filter_itens) && TextUtils.isEmpty(folder_theme) && TextUtils.isEmpty(custom_css)) || !prefs.getBoolean("custom_filters", true))
-            return;
-
-        hookDrawableViews();
-
-        themeDir = new File(ThemePreference.rootDirectory, folder_theme);
-        filter_itens += "\n" + custom_css;
-        cacheImages = new DrawableCache(Utils.getApplication(), 100 * 1024 * 1024);
-
-        var sheet = CSSFactory.parseString(filter_itens, new URL("https://base.url/"));
-
-        XposedHelpers.findAndHookMethod(Activity.class, "onCreate", Bundle.class, new XC_MethodHook() {
-            @Override
-            protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
-                var activity = (Activity) param.thisObject;
-                View rootView = activity.getWindow().getDecorView().getRootView();
-                rootView.getViewTreeObserver().addOnGlobalLayoutListener(() -> CompletableFuture.runAsync(() -> registerCssRules(activity, (ViewGroup) rootView, sheet)));
             }
         });
 

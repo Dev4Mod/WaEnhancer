@@ -1,11 +1,13 @@
+[ATENÇÃO]
+* This is a test version, I'm changing the bridge to service and testing the battery optimization features to open WhatsApp faster
+
 [WA ENHANCER]
 * Update translations
+* Centralized home page
 
-[DND MODE]
-* New Icon
+[BUBBLE COLORS]
+* Fix colors
 
-[MENU BUTTON IN HOMESCREEN]
-* I added a button to change whether the buttons on the WhatsApp home screen should appear as three dots or whether they should appear as icons (Previously this function depended on the New Settings UI)
+[SYSTEM FRAMEWORK]
+* Works with Hide My App list (reboot device after update)
 
-[LSPOSED]
-* Support for LSposed by JingMatrix (You can use others but I will not guarantee compatibility and it has not been tested on Android 15)

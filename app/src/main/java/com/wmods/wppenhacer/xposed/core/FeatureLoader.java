@@ -12,6 +12,7 @@ import android.content.IntentFilter;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
+import android.os.SystemClock;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -76,6 +77,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 import de.robv.android.xposed.XC_MethodHook;
 import de.robv.android.xposed.XSharedPreferences;
@@ -104,6 +108,7 @@ public class FeatureLoader {
             @SuppressWarnings("deprecation")
             protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
                 mApp = (Application) param.args[0];
+
                 PackageManager packageManager = mApp.getPackageManager();
                 pref.registerOnSharedPreferenceChangeListener((sharedPreferences, s) -> pref.reload());
                 PackageInfo packageInfo = packageManager.getPackageInfo(mApp.getPackageName(), 0);
@@ -111,6 +116,7 @@ public class FeatureLoader {
                 currentVersion = packageInfo.versionName;
                 supportedVersions = Arrays.asList(mApp.getResources().getStringArray(Objects.equals(mApp.getPackageName(), FeatureLoader.PACKAGE_WPP) ? ResId.array.supported_versions_wpp : ResId.array.supported_versions_business));
                 try {
+                    var timemillis = SystemClock.currentThreadTimeMillis();
                     SharedPreferencesWrapper.hookInit(mApp.getClassLoader());
                     UnobfuscatorCache.init(mApp, pref);
                     WppCore.Initialize(loader);
@@ -124,6 +130,8 @@ public class FeatureLoader {
                     mApp.registerActivityLifecycleCallbacks(new WaCallback());
                     sendEnabledBroadcast(mApp);
 //                  XposedHelpers.setStaticIntField(XposedHelpers.findClass("com.whatsapp.util.Log", loader), "level", 5);
+                    var timemillis2 = SystemClock.currentThreadTimeMillis() - timemillis;
+                    XposedBridge.log("Loaded Hooks in " + timemillis2 + "ms");
                 } catch (Throwable e) {
                     XposedBridge.log(e);
                     var error = new ErrorItem();
@@ -134,6 +142,7 @@ public class FeatureLoader {
                     error.setError(Arrays.toString(Arrays.stream(e.getStackTrace()).filter(s -> !s.getClassName().startsWith("android") && !s.getClassName().startsWith("com.android")).map(StackTraceElement::toString).toArray()));
                     list.add(error);
                 }
+
             }
         });
 
@@ -211,7 +220,7 @@ public class FeatureLoader {
         }
     }
 
-    private static void plugins(@NonNull ClassLoader loader, @NonNull XSharedPreferences pref, @NonNull String versionWpp) {
+    private static void plugins(@NonNull ClassLoader loader, @NonNull XSharedPreferences pref, @NonNull String versionWpp) throws Exception {
 
         var classes = new Class<?>[]{
                 DebugFeature.class,
@@ -260,21 +269,35 @@ public class FeatureLoader {
                 ToastViewer.class,
                 MenuHome.class
         };
-
+        XposedBridge.log("Loading Plugins");
+        var executorService = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
+        var times = new ArrayList<String>();
         for (var classe : classes) {
-            try {
-                var constructor = classe.getConstructor(ClassLoader.class, XSharedPreferences.class);
-                var plugin = (Feature) constructor.newInstance(loader, pref);
-                plugin.doHook();
-            } catch (Throwable e) {
-                XposedBridge.log(e);
-                var error = new ErrorItem();
-                error.setPluginName(classe.getSimpleName());
-                error.setWhatsAppVersion(versionWpp);
-                error.setModuleVersion(BuildConfig.VERSION_NAME);
-                error.setMessage(e.getMessage());
-                error.setError(Arrays.toString(Arrays.stream(e.getStackTrace()).filter(s -> !s.getClassName().startsWith("android") && !s.getClassName().startsWith("com.android")).map(StackTraceElement::toString).toArray()));
-                list.add(error);
+            CompletableFuture.runAsync(() -> {
+                var timemillis = SystemClock.currentThreadTimeMillis();
+                try {
+                    var constructor = classe.getConstructor(ClassLoader.class, XSharedPreferences.class);
+                    var plugin = (Feature) constructor.newInstance(loader, pref);
+                    plugin.doHook();
+                } catch (Throwable e) {
+                    XposedBridge.log(e);
+                    var error = new ErrorItem();
+                    error.setPluginName(classe.getSimpleName());
+                    error.setWhatsAppVersion(versionWpp);
+                    error.setModuleVersion(BuildConfig.VERSION_NAME);
+                    error.setMessage(e.getMessage());
+                    error.setError(Arrays.toString(Arrays.stream(e.getStackTrace()).filter(s -> !s.getClassName().startsWith("android") && !s.getClassName().startsWith("com.android")).map(StackTraceElement::toString).toArray()));
+                    list.add(error);
+                }
+                var timemillis2 = SystemClock.currentThreadTimeMillis() - timemillis;
+                times.add("* Loaded Plugin " + classe.getSimpleName() + " in " + timemillis2 + "ms");
+            }, executorService);
+        }
+        executorService.shutdown();
+        executorService.awaitTermination(15, TimeUnit.SECONDS);
+        if (DebugFeature.DEBUG) {
+            for (var time : times) {
+                XposedBridge.log(time);
             }
         }
     }
