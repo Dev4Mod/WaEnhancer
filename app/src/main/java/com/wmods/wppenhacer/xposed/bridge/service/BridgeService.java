@@ -1,4 +1,4 @@
-package com.wmods.wppenhacer.xposed.bridge.services;
+package com.wmods.wppenhacer.xposed.bridge.service;
 
 import android.app.Service;
 import android.content.Intent;
@@ -11,7 +11,7 @@ public class BridgeService extends Service {
     @Nullable
     @Override
     public IBinder onBind(Intent intent) {
-        return new HookBinder();
+        return HookBinder.getInstance();
     }
 
 }

@@ -98,15 +98,9 @@
             android:theme="@android:style/Theme.NoDisplay" />
 
         <service
-            android:name=".xposed.bridge.services.BridgeService"
-            android:exported="true" />
-
-        <provider
-            android:name=".xposed.bridge.providers.HookProvider"
-            android:authorities="com.wmods.waenhancer.hookprovider"
-            android:enabled="true"
+            android:name=".xposed.bridge.service.BridgeService"
             android:exported="true"
-            tools:ignore="ExportedContentProvider" />
+            tools:ignore="ExportedService" />
 
         <meta-data
             android:name="xposedmodule"

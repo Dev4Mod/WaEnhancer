@@ -62,9 +62,18 @@ public class Unobfuscator {
         System.loadLibrary("dexkit");
     }
 
-    public synchronized static boolean initDexKit(String path) {
+    public static boolean initWithPath(String path) {
         try {
             dexkit = DexKitBridge.create(path);
+        } catch (Exception e) {
+            return false;
+        }
+        return true;
+    }
+
+    public static boolean initWithClassLoader(ClassLoader classLoader) {
+        try {
+            dexkit = DexKitBridge.create(classLoader, true);
         } catch (Exception e) {
             return false;
         }

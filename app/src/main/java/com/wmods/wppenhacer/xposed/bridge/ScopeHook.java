@@ -66,7 +66,6 @@ public class ScopeHook {
                         for (var caller : callingApps) {
                             if ((caller.equals(FeatureLoader.PACKAGE_WPP) || caller.equals(FeatureLoader.PACKAGE_BUSINESS)) && targetApp.equals(BuildConfig.APPLICATION_ID)) {
                                 param.setResult(Boolean.FALSE);
-                                XposedBridge.log("Bypass Scope for WhatsApp");
                                 return;
                             }
                         }
@@ -93,7 +92,6 @@ public class ScopeHook {
                         for (var caller : callingApps) {
                             if ((caller.equals(FeatureLoader.PACKAGE_WPP) || caller.equals(FeatureLoader.PACKAGE_BUSINESS)) && targetApp.equals(BuildConfig.APPLICATION_ID)) {
                                 param.setResult(Boolean.FALSE);
-                                XposedBridge.log("Bypass Scope for WhatsApp");
                                 return;
                             }
                         }

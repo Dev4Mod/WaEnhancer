@@ -14,8 +14,8 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import com.wmods.wppenhacer.views.dialog.BottomDialogWpp;
-import com.wmods.wppenhacer.xposed.bridge.ClientBridge;
 import com.wmods.wppenhacer.xposed.bridge.WaeIIFace;
+import com.wmods.wppenhacer.xposed.bridge.client.BridgeClient;
 import com.wmods.wppenhacer.xposed.core.components.AlertDialogWpp;
 import com.wmods.wppenhacer.xposed.core.components.FMessageWpp;
 import com.wmods.wppenhacer.xposed.core.devkit.Unobfuscator;
@@ -53,7 +53,7 @@ public class WppCore {
     private static Object mStartUpConfig;
     private static Object mActionUser;
     private static SQLiteDatabase mWaDatabase;
-    public static ClientBridge bridgeClient;
+    public static BridgeClient bridgeClient;
     private static boolean isBridgeInitialized;
 
 
@@ -94,9 +94,9 @@ public class WppCore {
     }
 
     public static void initBridge(Context context) throws Exception {
-        bridgeClient = new ClientBridge(context);
-        CompletableFuture<Boolean> canLoadFuture = bridgeClient.connect();
+        bridgeClient = new BridgeClient(context);
         try {
+            CompletableFuture<Boolean> canLoadFuture = bridgeClient.connect();
             Boolean canLoad = canLoadFuture.get(10, TimeUnit.SECONDS);
             if (!canLoad) throw new Exception();
             isBridgeInitialized = true;

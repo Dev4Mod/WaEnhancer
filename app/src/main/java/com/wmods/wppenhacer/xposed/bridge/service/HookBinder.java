@@ -1,4 +1,4 @@
-package com.wmods.wppenhacer.xposed.bridge.services;
+package com.wmods.wppenhacer.xposed.bridge.service;
 
 import android.os.ParcelFileDescriptor;
 import android.os.RemoteException;
@@ -15,7 +15,7 @@ public class HookBinder extends WaeIIFace.Stub {
 
     private static HookBinder mInstance;
 
-    public static HookBinder getIxnstance() {
+    public static HookBinder getInstance() {
         if (mInstance == null) {
             mInstance = new HookBinder();
         }

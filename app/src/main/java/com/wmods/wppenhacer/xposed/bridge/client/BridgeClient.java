@@ -1,4 +1,4 @@
-package com.wmods.wppenhacer.xposed.bridge;
+package com.wmods.wppenhacer.xposed.bridge.client;
 
 import android.content.ComponentName;
 import android.content.Context;
@@ -13,7 +13,8 @@ import android.widget.Toast;
 
 import com.wmods.wppenhacer.BuildConfig;
 import com.wmods.wppenhacer.activities.ForceStartActivity;
-import com.wmods.wppenhacer.xposed.bridge.services.BridgeService;
+import com.wmods.wppenhacer.xposed.bridge.WaeIIFace;
+import com.wmods.wppenhacer.xposed.bridge.service.BridgeService;
 import com.wmods.wppenhacer.xposed.utils.Utils;
 
 import java.util.concurrent.CompletableFuture;
@@ -22,7 +23,7 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 
-public class ClientBridge implements ServiceConnection {
+public class BridgeClient implements ServiceConnection {
     private final Context context;
     private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
     private final Semaphore connectSemaphore = new Semaphore(1);
@@ -30,7 +31,7 @@ public class ClientBridge implements ServiceConnection {
     public WaeIIFace service;
     private CompletableFuture<Boolean> continuation;
 
-    public ClientBridge(Context context) {
+    public BridgeClient(Context context) {
         this.context = context;
     }
 

@@ -30,7 +30,6 @@ public class App extends Application {
         super.onCreate();
         instance = this;
         var sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
-        sharedPreferences.edit().putLong("lastUpdateTime", System.currentTimeMillis()).commit();
         var mode = Integer.parseInt(sharedPreferences.getString("thememode", "0"));
         setThemeMode(mode);
         changeLanguage(this);

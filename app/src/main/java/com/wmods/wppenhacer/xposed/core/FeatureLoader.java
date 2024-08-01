@@ -98,7 +98,7 @@ public class FeatureLoader {
 
     public static void start(@NonNull ClassLoader loader, @NonNull XSharedPreferences pref, String sourceDir) {
 
-        if (!Unobfuscator.initDexKit(sourceDir)) {
+        if (!Unobfuscator.initWithPath(sourceDir)) {
             XposedBridge.log("Can't init dexkit");
             return;
         }

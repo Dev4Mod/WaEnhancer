@@ -64,7 +64,6 @@ public class PermissionActivity extends AppCompatActivity {
                 startActivityForResult(intent, 0);
             }
         });
-
         checkPermissions();
     }
 
@@ -76,6 +75,7 @@ public class PermissionActivity extends AppCompatActivity {
 
     private void checkPermissions() {
         boolean allPermissions = true;
+
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_MEDIA_IMAGES) != PackageManager.PERMISSION_GRANTED && Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             allPermissions = false;
         } else {
@@ -106,10 +106,10 @@ public class PermissionActivity extends AppCompatActivity {
         if (!powerManager.isIgnoringBatteryOptimizations(getPackageName())) {
             allPermissions = false;
         }
+
         if (allPermissions) {
             startActivity(new Intent(this, MainActivity.class));
             finish();
-
         }
     }
 

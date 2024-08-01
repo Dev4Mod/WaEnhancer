@@ -6,6 +6,7 @@ import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.content.res.Resources;
 
+import com.wmods.wppenhacer.BuildConfig;
 import com.wmods.wppenhacer.xposed.utils.ReflectionUtils;
 import com.wmods.wppenhacer.xposed.utils.Utils;
 
@@ -41,7 +42,7 @@ public class UnobfuscatorCache {
             long version = mShared.getLong("version", 0);
             long currentVersion = mApp.getPackageManager().getPackageInfo(mApp.getPackageName(), 0).getLongVersionCode();
             long savedUpdateTime = mShared.getLong("updateTime", 0);
-            long lastUpdateTime = shared.getLong("lastUpdateTime", -1);
+            long lastUpdateTime = mApp.getPackageManager().getPackageInfo(BuildConfig.APPLICATION_ID, 0).lastUpdateTime;
             if (version != currentVersion || savedUpdateTime != lastUpdateTime) {
                 mShared.edit().clear().commit();
                 mShared.edit().putLong("version", currentVersion).commit();
@@ -71,6 +72,7 @@ public class UnobfuscatorCache {
     }
 
     private void initializeReverseResourceMap() {
+        Utils.showToast("Saving string cache on first boot..", 1);
         int numThreads = Runtime.getRuntime().availableProcessors();
         ExecutorService executor = Executors.newFixedThreadPool(numThreads); // Create a thread pool with 4 threads
 
@@ -117,6 +119,7 @@ public class UnobfuscatorCache {
             initializeReverseResourceMap();
         }
         search = search.toLowerCase().replaceAll("\\s", "");
+        XposedBridge.log("need search obsfucate: " + search);
         return reverseResourceMap.get(search);
     }
 
