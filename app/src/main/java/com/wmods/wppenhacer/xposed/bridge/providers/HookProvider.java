@@ -9,6 +9,8 @@ import android.os.Bundle;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import com.wmods.wppenhacer.xposed.bridge.service.HookBinder;
+
 public class HookProvider extends ContentProvider {
 
     @Override
@@ -21,7 +23,7 @@ public class HookProvider extends ContentProvider {
     public Bundle call(@NonNull String method, @Nullable String arg, @Nullable Bundle extras) {
         if (method.equals("getHookBinder")) {
             Bundle result = new Bundle();
-//            result.putBinder("binder", HookBinder.getInstance());
+            result.putBinder("binder", HookBinder.getInstance());
             return result;
         }
         return null;

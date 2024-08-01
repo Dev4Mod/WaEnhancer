@@ -33,7 +33,7 @@ public class UnobfuscatorCache {
 
     private final Application mApplication;
     private static UnobfuscatorCache mInstance;
-    private final SharedPreferences sPrefsCacheHooks;
+    public final SharedPreferences sPrefsCacheHooks;
 
     private final Map<String, String> reverseResourceMap = new HashMap<>();
     private final SharedPreferences sPrefsCacheStrings;

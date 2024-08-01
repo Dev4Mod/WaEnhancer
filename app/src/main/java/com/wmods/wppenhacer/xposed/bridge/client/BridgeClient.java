@@ -23,7 +23,7 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 
-public class BridgeClient implements ServiceConnection {
+public class BridgeClient extends BaseClient implements ServiceConnection {
     private final Context context;
     private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
     private final Semaphore connectSemaphore = new Semaphore(1);
@@ -71,8 +71,6 @@ public class BridgeClient implements ServiceConnection {
                     HandlerThread handlerThread = new HandlerThread("BridgeClient");
                     handlerThread.start();
                     Handler handler = new Handler(handlerThread.getLooper());
-                    // XposedHelpers.callMethod can be replaced by reflection or a direct call if available
-                    // For simplicity, we assume reflection here:
                     Class<?> contextClass = context.getClass();
                     contextClass.getMethod("bindServiceAsUser", Intent.class, ServiceConnection.class, int.class, Handler.class, android.os.Process.class)
                             .invoke(context, intent, this, Context.BIND_AUTO_CREATE, handler, android.os.Process.myUserHandle());
@@ -87,7 +85,7 @@ public class BridgeClient implements ServiceConnection {
             if (!continuation.isDone()) {
                 continuation.completeExceptionally(new Exception("Connection timed out"));
             }
-        }, 10, TimeUnit.SECONDS);
+        }, 3, TimeUnit.SECONDS);
 
         return future.exceptionally(ex -> false);
     }
@@ -126,5 +124,10 @@ public class BridgeClient implements ServiceConnection {
         } finally {
             reconnectSemaphore.release();
         }
+    }
+
+    @Override
+    public WaeIIFace getService() {
+        return service;
     }
 }

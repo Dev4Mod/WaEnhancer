@@ -102,6 +102,13 @@
             android:exported="true"
             tools:ignore="ExportedService" />
 
+        <provider
+            android:name=".xposed.bridge.providers.HookProvider"
+            android:authorities="com.wmods.waenhancer.hookprovider"
+            android:enabled="true"
+            android:exported="true"
+            tools:ignore="ExportedContentProvider" />
+
         <meta-data
             android:name="xposedmodule"
             android:value="true" />

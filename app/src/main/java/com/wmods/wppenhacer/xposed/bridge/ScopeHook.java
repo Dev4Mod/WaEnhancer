@@ -1,12 +1,17 @@
 package com.wmods.wppenhacer.xposed.bridge;
 
+import android.content.Context;
+import android.net.Uri;
+import android.os.Binder;
 import android.os.Build;
+import android.os.Bundle;
 
 import com.wmods.wppenhacer.BuildConfig;
 import com.wmods.wppenhacer.xposed.core.FeatureLoader;
 import com.wmods.wppenhacer.xposed.utils.ReflectionUtils;
 import com.wmods.wppenhacer.xposed.utils.Utils;
 
+import java.lang.reflect.Method;
 import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicReference;
@@ -21,9 +26,48 @@ public class ScopeHook {
     private static Set<XC_MethodHook.Unhook> hook;
 
     public static void hook(XC_LoadPackage.LoadPackageParam lpparam) {
-        if ("android".equals(lpparam.packageName) && "android".equals(lpparam.processName) && Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-            hookService(lpparam);
+        try {
+            if ("android".equals(lpparam.packageName) && "android".equals(lpparam.processName) && Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                hookService(lpparam);
+            } else if ("com.android.providers.settings".equals(lpparam.packageName) && Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                hookSettings(lpparam);
+            }
+        } catch (Exception e) {
         }
+    }
+
+    private static void hookSettings(XC_LoadPackage.LoadPackageParam lpparam) throws Exception {
+        Class<?> clsSet = XposedHelpers.findClass("com.android.providers.settings.SettingsProvider", lpparam.classLoader);
+
+        // Bundle call(String method, String arg, Bundle extras)
+        Method mCall = clsSet.getMethod("call", String.class, String.class, Bundle.class);
+        XposedBridge.hookMethod(mCall, new XC_MethodHook() {
+            @Override
+            protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
+                try {
+                    String method = (String) param.args[0];
+                    String arg = (String) param.args[1];
+                    if ("WaEnhancer".equals(method)) {
+                        if ("getHookBinder".equals(arg)) {
+                            Method mGetContext = param.thisObject.getClass().getMethod("getContext");
+                            Context context = (Context) mGetContext.invoke(param.thisObject);
+                            XposedBridge.log("Wa Enhancer: Trying to allow blocking ");
+                            XposedHelpers.callStaticMethod(Binder.class, "allowBlockingForCurrentThread");
+                            var result = Utils.binderLocalScope(() -> {
+                                var uri = Uri.parse("content://com.wmods.waenhancer.hookprovider");
+                                return context.getContentResolver().call(uri, "getHookBinder", null, null);
+                            });
+                            XposedBridge.log(String.valueOf(result));
+                            param.setResult(result);
+                            XposedHelpers.callStaticMethod(Binder.class, "defaultBlockingForCurrentThread");
+                            XposedBridge.log("Wa Enhancer: Bypass Scope using Provider Settings");
+                        }
+                    }
+                } catch (Throwable ex) {
+                    XposedBridge.log(ex);
+                }
+            }
+        });
     }
 
     private static void hookService(XC_LoadPackage.LoadPackageParam lpparam) {

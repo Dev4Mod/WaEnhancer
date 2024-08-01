@@ -75,6 +75,7 @@ public class ResId {
         public static int enable;
         public static int ghost_mode_s;
         public static int starting_cache;
+        public static int bridge_error;
     }
 
     public static class array {
