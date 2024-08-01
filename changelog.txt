@@ -1,13 +1,4 @@
-[ATENÇÃO]
-* This is a test version, I'm changing the bridge to service and testing the battery optimization features to open WhatsApp faster
+[WHATSAPP]
+* Fixed the lag when starting WhatsApp (When updating WAE it will still take a few seconds to save the cache of obfuscated strings, but after that the subsequent openings will be much faster).
 
-[WA ENHANCER]
-* Update translations
-* Centralized home page
-
-[BUBBLE COLORS]
-* Fix colors
-
-[SYSTEM FRAMEWORK]
-* Works with Hide My App list (reboot device after update)
 

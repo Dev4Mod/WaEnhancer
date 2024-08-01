@@ -42,7 +42,11 @@ public class UnobfuscatorCache {
             long version = mShared.getLong("version", 0);
             long currentVersion = mApp.getPackageManager().getPackageInfo(mApp.getPackageName(), 0).getLongVersionCode();
             long savedUpdateTime = mShared.getLong("updateTime", 0);
-            long lastUpdateTime = mApp.getPackageManager().getPackageInfo(BuildConfig.APPLICATION_ID, 0).lastUpdateTime;
+            long lastUpdateTime = savedUpdateTime;
+            try {
+                lastUpdateTime = mApp.getPackageManager().getPackageInfo(BuildConfig.APPLICATION_ID, 0).lastUpdateTime;
+            } catch (Exception ignored) {
+            }
             if (version != currentVersion || savedUpdateTime != lastUpdateTime) {
                 mShared.edit().clear().commit();
                 mShared.edit().putLong("version", currentVersion).commit();
