@@ -12,7 +12,6 @@ import android.content.IntentFilter;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
-import android.os.SystemClock;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -116,9 +115,9 @@ public class FeatureLoader {
                 currentVersion = packageInfo.versionName;
                 supportedVersions = Arrays.asList(mApp.getResources().getStringArray(Objects.equals(mApp.getPackageName(), FeatureLoader.PACKAGE_WPP) ? ResId.array.supported_versions_wpp : ResId.array.supported_versions_business));
                 try {
-                    var timemillis = SystemClock.currentThreadTimeMillis();
+                    var timemillis = System.currentTimeMillis();
                     SharedPreferencesWrapper.hookInit(mApp.getClassLoader());
-                    UnobfuscatorCache.init(mApp, pref);
+                    UnobfuscatorCache.init(mApp);
                     WppCore.Initialize(loader);
                     if (supportedVersions.stream().noneMatch(s -> packageInfo.versionName.startsWith(s.replace(".xx", ""))) && !pref.getBoolean("bypass_version_check", false)) {
                         throw new Exception("Unsupported version: " + packageInfo.versionName);
@@ -130,7 +129,7 @@ public class FeatureLoader {
                     mApp.registerActivityLifecycleCallbacks(new WaCallback());
                     sendEnabledBroadcast(mApp);
 //                  XposedHelpers.setStaticIntField(XposedHelpers.findClass("com.whatsapp.util.Log", loader), "level", 5);
-                    var timemillis2 = SystemClock.currentThreadTimeMillis() - timemillis;
+                    var timemillis2 = System.currentTimeMillis() - timemillis;
                     XposedBridge.log("Loaded Hooks in " + timemillis2 + "ms");
                 } catch (Throwable e) {
                     XposedBridge.log(e);
@@ -274,7 +273,7 @@ public class FeatureLoader {
         var times = new ArrayList<String>();
         for (var classe : classes) {
             CompletableFuture.runAsync(() -> {
-                var timemillis = SystemClock.currentThreadTimeMillis();
+                var timemillis = System.currentTimeMillis();
                 try {
                     var constructor = classe.getConstructor(ClassLoader.class, XSharedPreferences.class);
                     var plugin = (Feature) constructor.newInstance(loader, pref);
@@ -289,7 +288,7 @@ public class FeatureLoader {
                     error.setError(Arrays.toString(Arrays.stream(e.getStackTrace()).filter(s -> !s.getClassName().startsWith("android") && !s.getClassName().startsWith("com.android")).map(StackTraceElement::toString).toArray()));
                     list.add(error);
                 }
-                var timemillis2 = SystemClock.currentThreadTimeMillis() - timemillis;
+                var timemillis2 = System.currentTimeMillis() - timemillis;
                 times.add("* Loaded Plugin " + classe.getSimpleName() + " in " + timemillis2 + "ms");
             }, executorService);
         }

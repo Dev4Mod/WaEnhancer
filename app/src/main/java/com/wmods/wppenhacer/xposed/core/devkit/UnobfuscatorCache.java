@@ -1,13 +1,16 @@
 package com.wmods.wppenhacer.xposed.core.devkit;
 
+import android.annotation.SuppressLint;
 import android.app.Application;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.content.res.Resources;
+import android.widget.Toast;
 
 import com.wmods.wppenhacer.BuildConfig;
 import com.wmods.wppenhacer.xposed.utils.ReflectionUtils;
+import com.wmods.wppenhacer.xposed.utils.ResId;
 import com.wmods.wppenhacer.xposed.utils.Utils;
 
 import java.lang.reflect.Constructor;
@@ -23,34 +26,40 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
-import de.robv.android.xposed.XSharedPreferences;
 import de.robv.android.xposed.XposedBridge;
 import de.robv.android.xposed.XposedHelpers;
 
 public class UnobfuscatorCache {
 
-    private final Application mApp;
+    private final Application mApplication;
     private static UnobfuscatorCache mInstance;
-    private final SharedPreferences mShared;
+    private final SharedPreferences sPrefsCacheHooks;
 
     private final Map<String, String> reverseResourceMap = new HashMap<>();
+    private final SharedPreferences sPrefsCacheStrings;
 
-    public UnobfuscatorCache(Application app, XSharedPreferences shared) {
-        mApp = app;
+    @SuppressLint("ApplySharedPref")
+    public UnobfuscatorCache(Application application) {
+        mApplication = application;
         try {
-            mShared = mApp.getSharedPreferences("UnobfuscatorCache", Context.MODE_PRIVATE);
-            long version = mShared.getLong("version", 0);
-            long currentVersion = mApp.getPackageManager().getPackageInfo(mApp.getPackageName(), 0).getLongVersionCode();
-            long savedUpdateTime = mShared.getLong("updateTime", 0);
+            sPrefsCacheHooks = mApplication.getSharedPreferences("UnobfuscatorCache", Context.MODE_PRIVATE);
+            sPrefsCacheStrings = mApplication.getSharedPreferences("UnobfuscatorCacheStrings", Context.MODE_PRIVATE);
+            long version = sPrefsCacheHooks.getLong("version", 0);
+            long currentVersion = mApplication.getPackageManager().getPackageInfo(mApplication.getPackageName(), 0).getLongVersionCode();
+            long savedUpdateTime = sPrefsCacheHooks.getLong("updateTime", 0);
             long lastUpdateTime = savedUpdateTime;
             try {
-                lastUpdateTime = mApp.getPackageManager().getPackageInfo(BuildConfig.APPLICATION_ID, 0).lastUpdateTime;
+                lastUpdateTime = mApplication.getPackageManager().getPackageInfo(BuildConfig.APPLICATION_ID, 0).lastUpdateTime;
             } catch (Exception ignored) {
             }
             if (version != currentVersion || savedUpdateTime != lastUpdateTime) {
-                mShared.edit().clear().commit();
-                mShared.edit().putLong("version", currentVersion).commit();
-                mShared.edit().putLong("updateTime", lastUpdateTime).commit();
+                Utils.showToast(application.getString(ResId.string.starting_cache), Toast.LENGTH_LONG);
+                sPrefsCacheHooks.edit().clear().commit();
+                sPrefsCacheHooks.edit().putLong("version", currentVersion).commit();
+                sPrefsCacheHooks.edit().putLong("updateTime", lastUpdateTime).commit();
+                if (version != currentVersion) {
+                    sPrefsCacheStrings.edit().clear().commit();
+                }
             }
             initCacheStrings();
         } catch (Exception e) {
@@ -59,29 +68,30 @@ public class UnobfuscatorCache {
 
     }
 
-    private void initCacheStrings() {
-        getOfuscateIDString("mystatus");
-        getOfuscateIDString("online");
-        getOfuscateIDString("groups");
-        getOfuscateIDString("messagedeleted");
-        getOfuscateIDString("selectcalltype");
+    public static void init(Application mApp) {
+        mInstance = new UnobfuscatorCache(mApp);
     }
 
     public static UnobfuscatorCache getInstance() {
         return mInstance;
     }
 
-    public static void init(Application mApp, XSharedPreferences pref) {
-        mInstance = new UnobfuscatorCache(mApp, pref);
+    private void initCacheStrings() {
+        getOfuscateIDString("mystatus");
+        getOfuscateIDString("online");
+        getOfuscateIDString("groups");
+        getOfuscateIDString("messagedeleted");
+        getOfuscateIDString("selectcalltype");
+        getOfuscateIDString("lastseensun%s");
     }
 
     private void initializeReverseResourceMap() {
-        Utils.showToast("Saving string cache on first boot..", 1);
+        var currentTime = System.currentTimeMillis();
         int numThreads = Runtime.getRuntime().availableProcessors();
         ExecutorService executor = Executors.newFixedThreadPool(numThreads); // Create a thread pool with 4 threads
 
         try {
-            var configuration = new Configuration(mApp.getResources().getConfiguration());
+            var configuration = new Configuration(mApplication.getResources().getConfiguration());
             configuration.setLocale(Locale.ENGLISH);
             var context = Utils.getApplication().createConfigurationContext(configuration);
             Resources resources = context.getResources();
@@ -111,6 +121,7 @@ public class UnobfuscatorCache {
                 });
             }
             latch.await(); // Wait for all threads to finish
+            XposedBridge.log("String cache saved in " + (System.currentTimeMillis() - currentTime) + "ms");
         } catch (Exception e) {
             XposedBridge.log(e);
         } finally {
@@ -129,11 +140,11 @@ public class UnobfuscatorCache {
 
     public int getOfuscateIDString(String search) {
         search = search.toLowerCase().replaceAll("\\s", "");
-        var id = mShared.getString(search, null);
+        var id = sPrefsCacheStrings.getString(search, null);
         if (id == null) {
             id = getMapIdString(search);
             if (id != null) {
-                mShared.edit().putString(search, id).commit();
+                sPrefsCacheStrings.edit().putString(search, id).commit();
             }
         }
         return id == null ? -1 : Integer.parseInt(id);
@@ -141,12 +152,12 @@ public class UnobfuscatorCache {
 
     public String getString(String search) {
         var id = getOfuscateIDString(search);
-        return id == -1 ? "" : mApp.getResources().getString(id);
+        return id < 1 ? "" : mApplication.getResources().getString(id);
     }
 
     public Field getField(ClassLoader loader, FunctionCall functionCall) throws Exception {
         var methodName = getKeyName();
-        String value = mShared.getString(methodName, null);
+        String value = sPrefsCacheHooks.getString(methodName, null);
         if (value == null) {
             Field result = (Field) functionCall.call();
             if (result == null) throw new Exception("Field is null");
@@ -160,7 +171,7 @@ public class UnobfuscatorCache {
 
     public Method getMethod(ClassLoader loader, FunctionCall functionCall) throws Exception {
         var methodName = getKeyName();
-        String value = mShared.getString(methodName, null);
+        String value = sPrefsCacheHooks.getString(methodName, null);
         if (value == null) {
             Method result = (Method) functionCall.call();
             if (result == null) throw new Exception("Method is null");
@@ -179,7 +190,7 @@ public class UnobfuscatorCache {
 
     public Class<?> getClass(ClassLoader loader, FunctionCall functionCall) throws Exception {
         var methodName = getKeyName();
-        String value = mShared.getString(methodName, null);
+        String value = sPrefsCacheHooks.getString(methodName, null);
         if (value == null) {
             Class<?> result = (Class<?>) functionCall.call();
             if (result == null) throw new Exception("Class is null");
@@ -192,7 +203,7 @@ public class UnobfuscatorCache {
     @SuppressWarnings("ApplySharedPref")
     public void saveField(String key, Field field) {
         String value = field.getDeclaringClass().getName() + ":" + field.getName();
-        mShared.edit().putString(key, value).commit();
+        sPrefsCacheHooks.edit().putString(key, value).commit();
     }
 
     @SuppressWarnings("ApplySharedPref")
@@ -201,12 +212,12 @@ public class UnobfuscatorCache {
         if (method.getParameterTypes().length > 0) {
             value += ":" + Arrays.stream(method.getParameterTypes()).map(Class::getName).collect(Collectors.joining(","));
         }
-        mShared.edit().putString(key, value).commit();
+        sPrefsCacheHooks.edit().putString(key, value).commit();
     }
 
     @SuppressWarnings("ApplySharedPref")
     public void saveClass(String message, Class<?> messageClass) {
-        mShared.edit().putString(message, messageClass.getName()).commit();
+        sPrefsCacheHooks.edit().putString(message, messageClass.getName()).commit();
     }
 
     private String getKeyName() {
@@ -217,7 +228,7 @@ public class UnobfuscatorCache {
 
     public Constructor getConstructor(ClassLoader loader, FunctionCall functionCall) throws Exception {
         var methodName = getKeyName();
-        String value = mShared.getString(methodName, null);
+        String value = sPrefsCacheHooks.getString(methodName, null);
         if (value == null) {
             var result = (Constructor) functionCall.call();
             if (result == null) throw new Exception("Class is null");
@@ -240,7 +251,7 @@ public class UnobfuscatorCache {
         if (constructor.getParameterTypes().length > 0) {
             value += ":" + Arrays.stream(constructor.getParameterTypes()).map(Class::getName).collect(Collectors.joining(","));
         }
-        mShared.edit().putString(key, value).commit();
+        sPrefsCacheHooks.edit().putString(key, value).commit();
     }
 
     public interface FunctionCall {

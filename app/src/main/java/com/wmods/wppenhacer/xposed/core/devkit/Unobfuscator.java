@@ -94,6 +94,20 @@ public class Unobfuscator {
         throw new NoSuchMethodException();
     }
 
+    public synchronized static Method findFirstMethodUsingStringsFilter(ClassLoader classLoader, String packageFilter, StringMatchType type, String... strings) throws Exception {
+        MethodMatcher matcher = new MethodMatcher();
+        for (String string : strings) {
+            matcher.addUsingString(string, type);
+        }
+        MethodDataList result = dexkit.findMethod(FindMethod.create().searchPackages(packageFilter).matcher(matcher));
+        if (result.isEmpty()) return null;
+
+        for (MethodData methodData : result) {
+            if (methodData.isMethod()) return methodData.getMethodInstance(classLoader);
+        }
+        throw new NoSuchMethodException();
+    }
+
     public synchronized static Method[] findAllMethodUsingStrings(ClassLoader classLoader, StringMatchType type, String... strings) {
         MethodMatcher matcher = new MethodMatcher();
         for (String string : strings) {
@@ -116,6 +130,16 @@ public class Unobfuscator {
             matcher.addUsingString(string, type);
         }
         var result = dexkit.findClass(new FindClass().matcher(matcher));
+        if (result.isEmpty()) return null;
+        return result.get(0).getInstance(classLoader);
+    }
+
+    public synchronized static Class<?> findFirstClassUsingStringsFilter(ClassLoader classLoader, String packageFilter, StringMatchType type, String... strings) throws Exception {
+        var matcher = new ClassMatcher();
+        for (String string : strings) {
+            matcher.addUsingString(string, type);
+        }
+        var result = dexkit.findClass(FindClass.create().matcher(matcher));
         if (result.isEmpty()) return null;
         return result.get(0).getInstance(classLoader);
     }
@@ -288,8 +312,10 @@ public class Unobfuscator {
 
     public synchronized static Method loadTabListMethod(ClassLoader classLoader) throws Exception {
         return UnobfuscatorCache.getInstance().getMethod(classLoader, () -> {
-            Class<?> classMain = findFirstClassUsingStrings(classLoader, StringMatchType.Equals, "mainContainer");
-            if (classMain == null) throw new Exception("mainContainer class not found");
+//            Class<?> classMain = findFirstClassUsingStrings(classLoader, StringMatchType.Equals, "mainContainer");
+            var classData = dexkit.findClass(FindClass.create().searchPackages("X.").matcher(ClassMatcher.create().addUsingString("mainContainer")));
+            if (classData.isEmpty()) throw new Exception("mainContainer class not found");
+            var classMain = classData.get(0).getInstance(classLoader);
             Method method = Arrays.stream(classMain.getMethods()).filter(m -> m.getName().equals("onCreate")).findFirst().orElse(null);
             if (method == null) throw new Exception("onCreate method not found");
             return method;
@@ -298,7 +324,7 @@ public class Unobfuscator {
 
     public synchronized static Method loadGetTabMethod(ClassLoader classLoader) throws Exception {
         return UnobfuscatorCache.getInstance().getMethod(classLoader, () -> {
-            Method result = findFirstMethodUsingStrings(classLoader, StringMatchType.Contains, "Invalid tab id: 600");
+            Method result = findFirstMethodUsingStringsFilter(classLoader, "X.", StringMatchType.Contains, "Invalid tab id: 600");
             if (result == null) throw new Exception("GetTab method not found");
             return result;
         });
@@ -318,7 +344,7 @@ public class Unobfuscator {
             Method tabListMethod = loadGetTabMethod(classLoader);
             Class<?> cls = tabListMethod.getDeclaringClass();
             if (Modifier.isAbstract(cls.getModifiers())) {
-                var findClass = dexkit.findClass(new FindClass().matcher(new ClassMatcher().superClass(cls.getName()).addUsingString("The item position should be less")));
+                var findClass = dexkit.findClass(FindClass.create().searchPackages("X.").matcher(ClassMatcher.create().superClass(cls.getName()).addUsingString("The item position should be less")));
                 cls = findClass.get(0).getInstance(classLoader);
             }
             Method result = Arrays.stream(cls.getMethods()).filter(m -> m.getParameterTypes().length == 1 && m.getReturnType().equals(String.class)).findFirst().orElse(null);
@@ -339,7 +365,7 @@ public class Unobfuscator {
 
     public synchronized static Method loadIconTabMethod(ClassLoader classLoader) throws Exception {
         return UnobfuscatorCache.getInstance().getMethod(classLoader, () -> {
-            Method result = findFirstMethodUsingStrings(classLoader, StringMatchType.Contains, "homeFabManager");
+            Method result = findFirstMethodUsingStringsFilter(classLoader, "X.", StringMatchType.Contains, "homeFabManager");
             if (result == null) throw new Exception("IconTab method not found");
             return result;
         });
@@ -348,7 +374,7 @@ public class Unobfuscator {
     public synchronized static Field loadIconTabField(ClassLoader classLoader) throws Exception {
         return UnobfuscatorCache.getInstance().getField(classLoader, () -> {
             Class<?> cls = loadIconTabMethod(classLoader).getDeclaringClass();
-            Class<?> clsType = findFirstClassUsingStrings(classLoader, StringMatchType.Contains, "Tried to set badge");
+            Class<?> clsType = findFirstClassUsingStringsFilter(classLoader, "X.", StringMatchType.Contains, "Tried to set badge");
             var result = Arrays.stream(cls.getFields()).filter(f -> f.getType().equals(clsType)).findFirst().orElse(null);
             if (result == null) throw new Exception("IconTabField not found");
             return result;
@@ -358,7 +384,7 @@ public class Unobfuscator {
     public synchronized static Field loadIconTabLayoutField(ClassLoader classLoader) throws Exception {
         return UnobfuscatorCache.getInstance().getField(classLoader, () -> {
             Class<?> clsType = loadIconTabField(classLoader).getType();
-            Class<?> framelayout = findFirstClassUsingStrings(classLoader, StringMatchType.Contains, "android:menu:presenters");
+            Class<?> framelayout = findFirstClassUsingStringsFilter(classLoader, "X.", StringMatchType.Contains, "android:menu:presenters");
             var result = Arrays.stream(clsType.getFields()).filter(f -> f.getType().equals(framelayout)).findFirst().orElse(null);
             if (result == null) throw new Exception("IconTabLayoutField not found");
             return result;
@@ -368,7 +394,7 @@ public class Unobfuscator {
     public synchronized static Field loadIconMenuField(ClassLoader classLoader) throws Exception {
         return UnobfuscatorCache.getInstance().getField(classLoader, () -> {
             Class<?> clsType = loadIconTabLayoutField(classLoader).getType();
-            Class<?> menuClass = findFirstClassUsingStrings(classLoader, StringMatchType.Contains, "Maximum number of items");
+            Class<?> menuClass = findFirstClassUsingStringsFilter(classLoader, "X.", StringMatchType.Contains, "Maximum number of items");
             return Arrays.stream(clsType.getFields()).filter(f -> f.getType().equals(menuClass)).findFirst().orElse(null);
         });
     }
@@ -946,7 +972,7 @@ public class Unobfuscator {
 
     public synchronized static Method loadStatusUserMethod(ClassLoader loader) throws Exception {
         return UnobfuscatorCache.getInstance().getMethod(loader, () -> {
-            var id = UnobfuscatorCache.getInstance().getOfuscateIDString("last seen sun %s");
+            var id = UnobfuscatorCache.getInstance().getOfuscateIDString("lastseensun%s");
             var result = dexkit.findMethod(new FindMethod().matcher(new MethodMatcher().addUsingNumber(id).paramCount(1)));
             if (result.isEmpty()) throw new Exception("GetStatusUser method not found");
             return result.get(0).getMethodInstance(loader);
@@ -1197,7 +1223,7 @@ public class Unobfuscator {
 
     public synchronized static Constructor loadRecreateFragmentConstructor(ClassLoader loader) throws Exception {
         return UnobfuscatorCache.getInstance().getConstructor(loader, () -> {
-            var data = dexkit.findMethod(new FindMethod().matcher(new MethodMatcher().addUsingString("Instantiated fragment")));
+            var data = dexkit.findMethod(FindMethod.create().searchPackages("X.").matcher(MethodMatcher.create().addUsingString("Instantiated fragment")));
             if (data.isEmpty()) throw new RuntimeException("RecreateFragment method not found");
             if (!data.single().isConstructor())
                 throw new RuntimeException("RecreateFragment method not found");

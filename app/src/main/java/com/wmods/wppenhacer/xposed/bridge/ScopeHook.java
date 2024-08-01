@@ -18,7 +18,6 @@ import de.robv.android.xposed.callbacks.XC_LoadPackage;
 
 public class ScopeHook {
 
-
     private static Set<XC_MethodHook.Unhook> hook;
 
     public static void hook(XC_LoadPackage.LoadPackageParam lpparam) {
