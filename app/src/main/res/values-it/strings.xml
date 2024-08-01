@@ -362,6 +362,6 @@
     <string name="grant_media_read">Concedi la lettura dei media</string>
     <string name="grant_reading_of_contacts">Concedi la lettura dei Contatti</string>
     <string name="local_download">Percorso di download</string>
-    <string name="show_menu_buttons_as_icons">Mostra i pulsanti menu come icone</string>
-    <string name="show_menu_buttons_as_icons_sum">Mostra i pulsanti del menu nella schermata home come icone per un facile accesso</string>
+    <string name="show_menu_buttons_as_icons">Mostra pulsanti menù come icone</string>
+    <string name="show_menu_buttons_as_icons_sum">Mostra i pulsanti del menù come icone nella parte superiore della Home, per un facile accesso</string>
 </resources>

@@ -1,4 +1,6 @@
 [WHATSAPP]
-* Fixed the lag when starting WhatsApp (When updating WAE it will still take a few seconds to save the cache of obfuscated strings, but after that the subsequent openings will be much faster).
+* Improved performance when browsing and opening the app
 
-
+[WA ENHANCER]
+* Improved compatibility for connecting to the bridge (If you are still having problems, select the System Framework in LSposed and restart, now there are two connection methods that are automatically selected)
+* Update translations
