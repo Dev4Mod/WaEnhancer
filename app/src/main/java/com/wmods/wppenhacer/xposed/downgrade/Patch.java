@@ -83,7 +83,7 @@ public class Patch {
                 hookAllMethods(XposedHelpers.findClass("com.android.server.pm.PackageManagerService", lpparam.classLoader), "checkDowngrade", new XC_MethodHook() {
                     public void beforeHookedMethod(MethodHookParam methodHookParam) throws Throwable {
                         Object packageInfoLite = methodHookParam.args[0];
-                        var packageName = XposedHelpers.getObjectField(packageInfoLite, "mPackageName");
+                        var packageName = XposedHelpers.getObjectField(packageInfoLite, "packageName");
                         if (packageName == FeatureLoader.PACKAGE_WPP || packageName == FeatureLoader.PACKAGE_BUSINESS) {
                             Field field = packageClazz.getField("mVersionCode");
                             field.setAccessible(true);

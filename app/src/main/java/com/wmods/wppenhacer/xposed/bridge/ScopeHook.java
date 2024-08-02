@@ -29,10 +29,11 @@ public class ScopeHook {
         try {
             if ("android".equals(lpparam.packageName) && "android".equals(lpparam.processName) && Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
                 hookService(lpparam);
-            } else if ("com.android.providers.settings".equals(lpparam.packageName) && Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            } else if ("com.android.providers.settings".equals(lpparam.packageName)) {
                 hookSettings(lpparam);
             }
         } catch (Exception e) {
+            XposedBridge.log(e);
         }
     }
 
@@ -52,14 +53,19 @@ public class ScopeHook {
                             Method mGetContext = param.thisObject.getClass().getMethod("getContext");
                             Context context = (Context) mGetContext.invoke(param.thisObject);
                             XposedBridge.log("Wa Enhancer: Trying to allow blocking ");
-                            XposedHelpers.callStaticMethod(Binder.class, "allowBlockingForCurrentThread");
+                            try {
+                                XposedHelpers.callStaticMethod(Binder.class, "allowBlockingForCurrentThread");
+                            } catch (Throwable ignored) {
+                            }
                             var result = Utils.binderLocalScope(() -> {
                                 var uri = Uri.parse("content://com.wmods.waenhancer.hookprovider");
                                 return context.getContentResolver().call(uri, "getHookBinder", null, null);
                             });
-                            XposedBridge.log(String.valueOf(result));
                             param.setResult(result);
-                            XposedHelpers.callStaticMethod(Binder.class, "defaultBlockingForCurrentThread");
+                            try {
+                                XposedHelpers.callStaticMethod(Binder.class, "defaultBlockingForCurrentThread");
+                            } catch (Throwable ignored) {
+                            }
                             XposedBridge.log("Wa Enhancer: Bypass Scope using Provider Settings");
                         }
                     }

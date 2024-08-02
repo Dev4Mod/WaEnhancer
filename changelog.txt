@@ -1,6 +1,4 @@
-[WHATSAPP]
-* Improved performance when browsing and opening the app
-
 [WA ENHANCER]
-* Improved compatibility for connecting to the bridge (If you are still having problems, select the System Framework in LSposed and restart, now there are two connection methods that are automatically selected)
-* Update translations
+* Fixed connection to the bridge in Android 9
+* Fixed issue with downgrade feature on Android 9
+

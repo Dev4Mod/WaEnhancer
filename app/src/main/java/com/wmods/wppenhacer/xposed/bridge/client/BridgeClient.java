@@ -23,6 +23,9 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 
+import de.robv.android.xposed.XposedBridge;
+import de.robv.android.xposed.XposedHelpers;
+
 public class BridgeClient extends BaseClient implements ServiceConnection {
     private final Context context;
     private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
@@ -71,11 +74,11 @@ public class BridgeClient extends BaseClient implements ServiceConnection {
                     HandlerThread handlerThread = new HandlerThread("BridgeClient");
                     handlerThread.start();
                     Handler handler = new Handler(handlerThread.getLooper());
-                    Class<?> contextClass = context.getClass();
-                    contextClass.getMethod("bindServiceAsUser", Intent.class, ServiceConnection.class, int.class, Handler.class, android.os.Process.class)
-                            .invoke(context, intent, this, Context.BIND_AUTO_CREATE, handler, android.os.Process.myUserHandle());
+                    XposedHelpers.callMethod(context, "bindServiceAsUser", intent, this, Context.BIND_AUTO_CREATE,
+                            handler, android.os.Process.myUserHandle());
                 }
             } catch (Exception e) {
+                XposedBridge.log(e);
                 resumeContinuation(false);
             }
             return continuation.join();
