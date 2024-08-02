@@ -7,7 +7,6 @@ import android.graphics.PorterDuff;
 import android.graphics.PorterDuffColorFilter;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
-import android.os.AsyncTask;
 import android.text.TextUtils;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -22,17 +21,18 @@ import com.wmods.wppenhacer.xposed.core.db.MessageStore;
 import com.wmods.wppenhacer.xposed.core.devkit.Unobfuscator;
 import com.wmods.wppenhacer.xposed.core.devkit.UnobfuscatorCache;
 import com.wmods.wppenhacer.xposed.utils.DesignUtils;
+import com.wmods.wppenhacer.xposed.utils.ReflectionUtils;
 import com.wmods.wppenhacer.xposed.utils.ResId;
 import com.wmods.wppenhacer.xposed.utils.Utils;
 
 import java.lang.reflect.Field;
 import java.text.DateFormat;
-import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Locale;
 import java.util.Objects;
+import java.util.concurrent.CompletableFuture;
 
 import de.robv.android.xposed.XC_MethodHook;
 import de.robv.android.xposed.XSharedPreferences;
@@ -108,8 +108,8 @@ public class AntiRevoke extends Feature {
                 var obj = param.args[1];
                 var objMessage = param.args[0];
                 Object objView = statusPlaybackField.get(obj);
-                Field[] textViews = Arrays.stream(statusPlaybackField.getType().getDeclaredFields()).filter(f -> f.getType() == TextView.class).toArray(Field[]::new);
-                if (textViews == null) {
+                var textViews = ReflectionUtils.getFieldsByType(statusPlaybackField.getType(), TextView.class);
+                if (textViews.isEmpty()) {
                     log("Could not find TextView");
                     return;
                 }
@@ -214,7 +214,7 @@ public class AntiRevoke extends Feature {
         var messageRevokedList = getRevokedMessages(fMessage);
         if (!messageRevokedList.contains(messageKey)) {
             try {
-                AsyncTask.THREAD_POOL_EXECUTOR.execute(() -> {
+                CompletableFuture.runAsync(() -> {
                     saveRevokedMessage(fMessage);
                     try {
                         var mConversation = WppCore.getCurrentConversation();

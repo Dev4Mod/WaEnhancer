@@ -2,6 +2,8 @@ package com.wmods.wppenhacer.xposed.utils;
 
 import android.util.Pair;
 
+import androidx.annotation.NonNull;
+
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
@@ -81,7 +83,8 @@ public class ReflectionUtils {
     /**
      * @noinspection SimplifyStreamApiCallChains
      */
-    public static Field[] findAllFieldsUsingFilter(Class<?> clazz, Predicate<Field> predicate) {
+    @NonNull
+    public static Field[] findAllFieldsUsingFilter(Class<?> clazz, @NonNull Predicate<Field> predicate) {
         do {
             var results = Arrays.stream(clazz.getDeclaredFields()).filter(predicate).collect(Collectors.toList());
             if (!results.isEmpty()) return results.toArray(new Field[0]);

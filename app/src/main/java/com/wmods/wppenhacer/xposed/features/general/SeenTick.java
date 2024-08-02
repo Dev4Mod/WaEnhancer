@@ -327,66 +327,72 @@ public class SeenTick extends Feature {
     }
 
     private void sendBlueTickMsg(String currentJid) {
-        logDebug("messages: " + Arrays.toString(messages.toArray(new MessageInfo[0])));
-        if (messages.isEmpty() || currentJid == null || currentJid.contains(Utils.getMyNumber()))
-            return;
-        try {
-            logDebug("Blue on Reply: " + currentJid);
-            HashMap<Object, List<String>> map = new HashMap<>();
-            for (var messageInfo : messages) {
-                map.computeIfAbsent(messageInfo.userJid, k -> new ArrayList<>());
-                Objects.requireNonNull(map.get(messageInfo.userJid)).add(messageInfo.messageId);
+        CompletableFuture.runAsync(() -> {
+            logDebug("messages: " + Arrays.toString(messages.toArray(new MessageInfo[0])));
+            if (messages.isEmpty() || currentJid == null || currentJid.contains(Utils.getMyNumber()))
+                return;
+            try {
+                logDebug("Blue on Reply: " + currentJid);
+                HashMap<Object, List<String>> map = new HashMap<>();
+                for (var messageInfo : messages) {
+                    map.computeIfAbsent(messageInfo.userJid, k -> new ArrayList<>());
+                    Objects.requireNonNull(map.get(messageInfo.userJid)).add(messageInfo.messageId);
+                }
+                var userJidTarget = WppCore.createUserJid(currentJid);
+                for (var userjid : map.keySet()) {
+                    var messages = Objects.requireNonNull(map.get(userjid)).toArray(new String[0]);
+                    WppCore.setPrivBoolean(messages[0] + "_rpass", true);
+                    var participant = WppCore.isGroup(currentJid) ? userjid : null;
+                    var sendJob = XposedHelpers.newInstance(mSendReadClass, userJidTarget, participant, null, null, messages, -1, 1L, false);
+                    WaJobManagerMethod.invoke(mWaJobManager, sendJob);
+                }
+                messages.clear();
+            } catch (Throwable e) {
+                XposedBridge.log("Error: " + e.getMessage());
             }
-            var userJidTarget = WppCore.createUserJid(currentJid);
-            for (var userjid : map.keySet()) {
-                var messages = Objects.requireNonNull(map.get(userjid)).toArray(new String[0]);
-                WppCore.setPrivBoolean(messages[0] + "_rpass", true);
-                var participant = WppCore.isGroup(currentJid) ? userjid : null;
-                var sendJob = XposedHelpers.newInstance(mSendReadClass, userJidTarget, participant, null, null, messages, -1, 1L, false);
-                WaJobManagerMethod.invoke(mWaJobManager, sendJob);
-            }
-            messages.clear();
-        } catch (Throwable e) {
-            XposedBridge.log("Error: " + e.getMessage());
-        }
+        });
     }
 
     private void sendBlueTickStatus(String currentJid) {
-        logDebug("messages: " + Arrays.toString(messages.toArray(new MessageInfo[0])));
-        if (messages.isEmpty() || currentJid == null || currentJid.equals("status_me")) return;
-        try {
-            logDebug("sendBlue: " + currentJid);
-            var arr_s = messages.stream().map(item -> item.messageId).toArray(String[]::new);
-            Arrays.stream(arr_s).forEach(s -> MessageStore.getInstance().storeMessageRead(s));
-            var userJidSender = WppCore.createUserJid("status@broadcast");
-            var userJid = WppCore.createUserJid(currentJid);
-            WppCore.setPrivBoolean(arr_s[0] + "_rpass", true);
-            var sendJob = XposedHelpers.newInstance(mSendReadClass, userJidSender, userJid, null, null, arr_s, -1, 0L, false);
-            WaJobManagerMethod.invoke(mWaJobManager, sendJob);
-            messages.clear();
-        } catch (Throwable e) {
-            XposedBridge.log("Error: " + e.getMessage());
-        }
+        CompletableFuture.runAsync(() -> {
+            logDebug("messages: " + Arrays.toString(messages.toArray(new MessageInfo[0])));
+            if (messages.isEmpty() || currentJid == null || currentJid.equals("status_me")) return;
+            try {
+                logDebug("sendBlue: " + currentJid);
+                var arr_s = messages.stream().map(item -> item.messageId).toArray(String[]::new);
+                Arrays.stream(arr_s).forEach(s -> MessageStore.getInstance().storeMessageRead(s));
+                var userJidSender = WppCore.createUserJid("status@broadcast");
+                var userJid = WppCore.createUserJid(currentJid);
+                WppCore.setPrivBoolean(arr_s[0] + "_rpass", true);
+                var sendJob = XposedHelpers.newInstance(mSendReadClass, userJidSender, userJid, null, null, arr_s, -1, 0L, false);
+                WaJobManagerMethod.invoke(mWaJobManager, sendJob);
+                messages.clear();
+            } catch (Throwable e) {
+                XposedBridge.log("Error: " + e.getMessage());
+            }
+        });
     }
 
     private void sendBlueTickMedia(Object messageObject, boolean clear) {
-        try {
-            var fMessage = new FMessageWpp(messageObject);
-            logDebug("sendBlueTickMedia: " + WppCore.getRawString(fMessage.getKey().remoteJid));
-            var sendPlayerClass = XposedHelpers.findClass("com.whatsapp.jobqueue.job.SendPlayedReceiptJobV2", classLoader);
-            var constructor = sendPlayerClass.getDeclaredConstructors()[0];
-            var classParticipantInfo = constructor.getParameterTypes()[0];
-            var rowsId = new Long[]{fMessage.getRowId()};
-            var remoteJid = fMessage.getKey().remoteJid;
-            var messageId = fMessage.getKey().messageID;
-            constructor = classParticipantInfo.getDeclaredConstructors()[0];
-            var participantInfo = constructor.newInstance(remoteJid, null, rowsId, new String[]{messageId});
-            var sendJob = XposedHelpers.newInstance(sendPlayerClass, participantInfo, false);
-            WaJobManagerMethod.invoke(mWaJobManager, sendJob);
-            if (clear) messages.clear();
-        } catch (Throwable e) {
-            XposedBridge.log(e);
-        }
+        CompletableFuture.runAsync(() -> {
+            try {
+                var fMessage = new FMessageWpp(messageObject);
+                logDebug("sendBlueTickMedia: " + WppCore.getRawString(fMessage.getKey().remoteJid));
+                var sendPlayerClass = XposedHelpers.findClass("com.whatsapp.jobqueue.job.SendPlayedReceiptJobV2", classLoader);
+                var constructor = sendPlayerClass.getDeclaredConstructors()[0];
+                var classParticipantInfo = constructor.getParameterTypes()[0];
+                var rowsId = new Long[]{fMessage.getRowId()};
+                var remoteJid = fMessage.getKey().remoteJid;
+                var messageId = fMessage.getKey().messageID;
+                constructor = classParticipantInfo.getDeclaredConstructors()[0];
+                var participantInfo = constructor.newInstance(remoteJid, null, rowsId, new String[]{messageId});
+                var sendJob = XposedHelpers.newInstance(sendPlayerClass, participantInfo, false);
+                WaJobManagerMethod.invoke(mWaJobManager, sendJob);
+                if (clear) messages.clear();
+            } catch (Throwable e) {
+                XposedBridge.log(e);
+            }
+        });
     }
 
     @NonNull
