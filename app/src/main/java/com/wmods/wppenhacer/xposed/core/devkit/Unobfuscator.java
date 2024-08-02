@@ -130,7 +130,7 @@ public class Unobfuscator {
         for (String string : strings) {
             matcher.addUsingString(string, type);
         }
-        var result = dexkit.findClass(FindClass.create().matcher(matcher));
+        var result = dexkit.findClass(FindClass.create().searchPackages(packageFilter).matcher(matcher));
         if (result.isEmpty()) return null;
         return result.get(0).getInstance(classLoader);
     }
@@ -255,14 +255,6 @@ public class Unobfuscator {
         });
     }
 
-    public synchronized static Method loadHideViewAudioMethod(ClassLoader loader) throws Exception {
-        return UnobfuscatorCache.getInstance().getMethod(loader, () -> {
-            var result = findFirstMethodUsingStrings(loader, StringMatchType.Contains, "MessageStatusStore/update/nosuchmessage");
-            if (result == null) throw new Exception("HideViewAudio method not found");
-            return result;
-        });
-    }
-
     public synchronized static Class<?> loadFMessageClass(ClassLoader classLoader) throws Exception {
         return UnobfuscatorCache.getInstance().getClass(classLoader, () -> {
             var messageClass = findFirstClassUsingStrings(classLoader, StringMatchType.Contains, "FMessage/getSenderUserJid/key.id");
@@ -370,13 +362,6 @@ public class Unobfuscator {
         });
     }
 
-//    public synchronized static Field loadTabCountField(ClassLoader classLoader) throws Exception {
-//        return UnobfuscatorCache.getInstance().getField(classLoader, () -> {
-//            Class<?> homeActivity = XposedHelpers.findClass("com.whatsapp.HomeActivity", classLoader);
-//            Class<?> pager = loadGetTabMethod(classLoader).getDeclaringClass();
-//            return getFieldByExtendType(homeActivity, pager);
-//        });
-//    }
 
     public synchronized static Method loadEnableCountTabMethod(ClassLoader classLoader) throws Exception {
         return UnobfuscatorCache.getInstance().getMethod(classLoader, () -> {
@@ -521,15 +506,6 @@ public class Unobfuscator {
             var clazz = findFirstClassUsingStrings(classLoader, StringMatchType.Contains, "FMessageVideo/Cloned");
             if (clazz == null) throw new Exception("StatusDownloadMedia class not found");
             return clazz;
-        });
-    }
-
-    public synchronized static Class loadMenuStatusClass(ClassLoader loader) throws Exception {
-        return UnobfuscatorCache.getInstance().getClass(loader, () -> {
-            var id = Utils.getID("menuitem_conversations_message_contact", "id");
-            var classList = dexkit.findClass(new FindClass().matcher(new ClassMatcher().addMethod(new MethodMatcher().addUsingNumber(id))));
-            if (classList.isEmpty()) throw new Exception("MenuStatus class not found");
-            return classList.get(0).getInstance(loader);
         });
     }
 
@@ -704,17 +680,6 @@ public class Unobfuscator {
         });
     }
 
-//    public synchronized static Method loadDeprecatedMethod(ClassLoader loader) throws Exception {
-//        return UnobfuscatorCache.getInstance().getMethod(loader, () -> {
-//            var methods = findAllMethodUsingStrings(loader, StringMatchType.Contains, "software_forced_expiration");
-//            if (methods == null || methods.length == 0)
-//                throw new Exception("Deprecated method not found");
-//            var result = Arrays.stream(methods).filter(method -> method.getReturnType().equals(Date.class)).findFirst().orElse(null);
-//            if (result == null) throw new Exception("Deprecated method not found");
-//            return result;
-//        });
-//    }
-
     public synchronized static Method loadPropsBooleanMethod(ClassLoader loader) throws Exception {
         return UnobfuscatorCache.getInstance().getMethod(loader, () -> {
             var method = findFirstMethodUsingStrings(loader, StringMatchType.Contains, "Unknown BooleanField");
@@ -739,13 +704,6 @@ public class Unobfuscator {
         });
     }
 
-//    public synchronized static Method loadPropsStringMethod(ClassLoader loader) throws Exception {
-//        return UnobfuscatorCache.getInstance().getMethod(loader, () -> {
-//            var method = findFirstMethodUsingStrings(loader, StringMatchType.Contains, "Unknown StringField");
-//            if (method == null) throw new Exception("Props method not found");
-//            return method;
-//        });
-//    }
 
 
     private static ClassData loadAntiRevokeImplClass() throws Exception {
@@ -848,21 +806,7 @@ public class Unobfuscator {
         });
     }
 
-    public synchronized static Class<?> loadMessageStoreClass2(ClassLoader loader) throws Exception {
-        return UnobfuscatorCache.getInstance().getClass(loader, () -> {
-            var result = findFirstClassUsingStrings(loader, StringMatchType.Contains, "databasehelper/createDatabaseTables");
-            if (result == null) throw new Exception("MessageStore class not found");
-            return result;
-        });
-    }
 
-//    public synchronized static Class<?> loadAxolotlClass(ClassLoader loader) throws Exception {
-//        return UnobfuscatorCache.getInstance().getClass(loader, () -> {
-//            var result = findFirstClassUsingStrings(loader, StringMatchType.Contains, "failed to open axolotl store");
-//            if (result == null) throw new Exception("Axolotl class not found");
-//            return result;
-//        });
-//    }
 
     public synchronized static Method loadBlueOnReplayMessageJobMethod(ClassLoader loader) throws Exception {
         return UnobfuscatorCache.getInstance().getMethod(loader, () -> {
@@ -902,18 +846,6 @@ public class Unobfuscator {
             var method = findFirstMethodUsingStrings(loader, StringMatchType.Contains, "VoiceService:callStateChangedOnUiThread");
             if (method == null) throw new Exception("OnCallReceiver method not found");
             return method;
-        });
-    }
-
-
-    public synchronized static Method loadGetContactInfoMethod(ClassLoader loader) throws Exception {
-        return UnobfuscatorCache.getInstance().getMethod(loader, () -> {
-            Class<?> class1 = findFirstClassUsingStrings(loader, StringMatchType.Contains, "GET_CONTACTS_BY_JID_PATTERN");
-            if (class1 == null) throw new Exception("ContactManager class not found");
-            var jidClass = XposedHelpers.findClass("com.whatsapp.jid.Jid", loader);
-            var result = ReflectionUtils.findMethodUsingFilter(class1, m -> m.getParameterCount() == 1 && jidClass.isAssignableFrom(m.getParameterTypes()[0]) && m.getReturnType() != void.class);
-            if (result == null) throw new Exception("GetContactInfo method not found");
-            return result;
         });
     }
 
@@ -958,15 +890,6 @@ public class Unobfuscator {
         });
     }
 
-//    public synchronized static Method loadPinnedLimit2Method(ClassLoader loader) throws Exception {
-//        return UnobfuscatorCache.getInstance().getMethod(loader, () -> {
-//            var id = UnobfuscatorCache.getInstance().getOfuscateIdString("Unpin All");
-//            MethodDataList result = dexkit.findMethod(new FindMethod().matcher(new MethodMatcher().addUsingNumber(id)));
-//            if (result.isEmpty()) throw new Exception("PinnedLimit2 method not found");
-//            var clazz = result.get(0).getDeclaredClass().getInstance(loader);
-//            return Arrays.stream(clazz.getDeclaredMethods()).filter(m -> m.getReturnType().equals(boolean.class)).findFirst().orElse(null);
-//        });
-//    }
 
     public synchronized static Method loadPinnedHashSetMethod(ClassLoader loader) throws Exception {
         return UnobfuscatorCache.getInstance().getMethod(loader, () -> {
@@ -1052,23 +975,6 @@ public class Unobfuscator {
             return method;
         });
     }
-
-//    public synchronized static Class<?> loadChatLimitEditClass(ClassLoader loader) throws Exception {
-//        return UnobfuscatorCache.getInstance().getClass(loader, () -> {
-//          var clazzList = dexkit.findClass(new FindClass().matcher(new ClassMatcher().addMethod(new MethodMatcher().addUsingNumber(5884).addUsingNumber(2890))));
-//          if (clazzList.isEmpty()) throw new RuntimeException("ChatLimitEdit class not found");
-//          return clazzList.get(0).getInstance(loader);
-//        });
-//    }
-
-
-//    public synchronized static Method loadOriginalMessageMethod(ClassLoader loader) throws Exception {
-//        return UnobfuscatorCache.getInstance().getMethod(loader, () -> {
-//            var method = findFirstMethodUsingStrings(loader, StringMatchType.Contains, "fmessage-clone-comparison-failed");
-//            if (method == null) throw new RuntimeException("OriginalMessage method not found");
-//            return method;
-//        });
-//    }
 
     public synchronized static Method loadNewMessageMethod(ClassLoader loader) throws Exception {
         return UnobfuscatorCache.getInstance().getMethod(loader, () -> {
@@ -1203,15 +1109,7 @@ public class Unobfuscator {
         });
     }
 
-    public synchronized static Method loadScrollPagerMethod(ClassLoader loader) throws Exception {
-        return UnobfuscatorCache.getInstance().getMethod(loader, () -> {
-            var result = findAllMethodUsingStrings(loader, StringMatchType.Contains, "search_fragment");
-            if (result == null) throw new RuntimeException("ScrollPager methods not found");
-            var method = Arrays.stream(result).filter(m -> m.getName().equals("onScroll")).findFirst().orElse(null);
-            if (method == null) throw new RuntimeException("ScrollPager method not found");
-            return method;
-        });
-    }
+
 
     public synchronized static Method loadGetViewConversationMethod(ClassLoader loader) throws Exception {
         return UnobfuscatorCache.getInstance().getMethod(loader, () -> {
@@ -1289,24 +1187,6 @@ public class Unobfuscator {
             return clazz;
         });
     }
-
-
-    public synchronized static Class loadOnMenuItemClickClass(ClassLoader loader) throws Exception {
-        return UnobfuscatorCache.getInstance().getClass(loader, () -> {
-            var clazz = findFirstClassUsingStrings(loader, StringMatchType.Contains, "android:menu:expandedactionview");
-            if (clazz == null) throw new RuntimeException("OnMenuItemClick class not found");
-            return clazz;
-        });
-    }
-
-    public synchronized static Class loadOnMenuItemClickClass2(ClassLoader loader) throws Exception {
-        return UnobfuscatorCache.getInstance().getClass(loader, () -> {
-            var clazz = findFirstClassUsingStrings(loader, StringMatchType.Contains, "flash_call_retry_dialog");
-            if (clazz == null) throw new RuntimeException("OnMenuItemClick class not found");
-            return clazz;
-        });
-    }
-
 
     public synchronized static Class loadRemoveChannelRecClass(ClassLoader loader) throws Exception {
         return UnobfuscatorCache.getInstance().getClass(loader, () -> {
@@ -1523,7 +1403,7 @@ public class Unobfuscator {
     public synchronized static Method loadSendAudioTypeMethod(ClassLoader classLoader) throws Exception {
         return UnobfuscatorCache.getInstance().getMethod(classLoader, () -> {
             var method = classLoader.loadClass("com.whatsapp.status.playback.MessageReplyActivity").getMethod("onActivityResult", int.class, int.class, android.content.Intent.class);
-            var methodData = dexkit.getMethodData(method);
+            var methodData = Objects.requireNonNull(dexkit.getMethodData(method));
             var invokes = methodData.getInvokes();
             for (var invoke : invokes) {
                 if (!invoke.isMethod()) continue;
@@ -1687,14 +1567,6 @@ public class Unobfuscator {
         return expirationMethod.getDeclaringClass();
     }
 
-    public synchronized static Class<?> loadMsgDatabaseClass(ClassLoader classLoader) throws Exception {
-        return UnobfuscatorCache.getInstance().getClass(classLoader, () -> {
-            var aClass = findFirstClassUsingStrings(classLoader, StringMatchType.Contains, "msgstore/create", "msgstore/upgrade");
-            if (aClass == null)
-                throw new RuntimeException("MsgDatabase class not found");
-            return aClass;
-        });
-    }
 
     public synchronized static Class<?> loadAbsViewHolder(ClassLoader classLoader) throws Exception {
         return UnobfuscatorCache.getInstance().getClass(classLoader, () -> {
@@ -1734,7 +1606,7 @@ public class Unobfuscator {
         return UnobfuscatorCache.getInstance().getField(classLoader, () -> {
             var fMessage = loadFMessageClass(classLoader);
             var toStringMethod = fMessage.getDeclaredMethod("toString");
-            var methodData = dexkit.getMethodData(toStringMethod);
+            var methodData = Objects.requireNonNull(dexkit.getMethodData(toStringMethod));
             var usingFields = methodData.getUsingFields();
             for (var f : usingFields) {
                 var field = f.getField();
