@@ -138,6 +138,7 @@ public class UnobfuscatorCache {
         return reverseResourceMap.get(search);
     }
 
+    @SuppressLint("ApplySharedPref")
     public int getOfuscateIDString(String search) {
         search = search.toLowerCase().replaceAll("\\s", "");
         var id = sPrefsCacheStrings.getString(search, null);

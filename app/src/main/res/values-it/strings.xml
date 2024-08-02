@@ -364,4 +364,6 @@
     <string name="local_download">Percorso di download</string>
     <string name="show_menu_buttons_as_icons">Mostra pulsanti menù come icone</string>
     <string name="show_menu_buttons_as_icons_sum">Mostra i pulsanti del menù come icone nella parte superiore della Home, per un facile accesso</string>
+    <string name="starting_cache">Starting hook cache in WhatsApp. This may take a while.</string>
+    <string name="bridge_error">Bridge Failed: Enable System Framework in Lsposed and reboot device</string>
 </resources>

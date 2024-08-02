@@ -364,4 +364,6 @@
     <string name="local_download">Yerel İndirme</string>
     <string name="show_menu_buttons_as_icons">Menü düğmelerini simge olarak göster</string>
     <string name="show_menu_buttons_as_icons_sum">Kolay erişim için ana ekrandaki menü düğmelerini simge olarak gösterir</string>
+    <string name="starting_cache">Starting hook cache in WhatsApp. This may take a while.</string>
+    <string name="bridge_error">Bridge Failed: Enable System Framework in Lsposed and reboot device</string>
 </resources>
