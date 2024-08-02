@@ -14,6 +14,7 @@ import com.wmods.wppenhacer.xposed.core.Feature;
 import com.wmods.wppenhacer.xposed.core.db.MessageStore;
 import com.wmods.wppenhacer.xposed.core.devkit.Unobfuscator;
 import com.wmods.wppenhacer.xposed.core.devkit.UnobfuscatorCache;
+import com.wmods.wppenhacer.xposed.utils.ReflectionUtils;
 import com.wmods.wppenhacer.xposed.utils.Utils;
 
 import java.util.ArrayList;
@@ -252,9 +253,9 @@ public class SeparateGroup extends Feature {
             protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
                 var filters = param.args[1];
                 var chatsList = (List) XposedHelpers.getObjectField(filters, "values");
-                var baseField = Unobfuscator.getFieldByExtendType(publishResultsMethod.getDeclaringClass(), BaseAdapter.class);
+                var baseField = ReflectionUtils.getFieldByExtendType(publishResultsMethod.getDeclaringClass(), BaseAdapter.class);
                 if (baseField == null) return;
-                var convField = Unobfuscator.getFieldByType(baseField.getType(), cFrag);
+                var convField = ReflectionUtils.getFieldByType(baseField.getType(), cFrag);
                 Object thiz = convField.get(baseField.get(param.thisObject));
                 if (thiz == null) return;
                 var resultList = filterChat(thiz, chatsList);

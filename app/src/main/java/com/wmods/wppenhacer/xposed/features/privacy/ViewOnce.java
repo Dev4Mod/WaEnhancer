@@ -6,6 +6,7 @@ import androidx.annotation.NonNull;
 import com.wmods.wppenhacer.xposed.core.Feature;
 import com.wmods.wppenhacer.xposed.core.components.FMessageWpp;
 import com.wmods.wppenhacer.xposed.core.devkit.Unobfuscator;
+import com.wmods.wppenhacer.xposed.utils.ReflectionUtils;
 
 import de.robv.android.xposed.XC_MethodHook;
 import de.robv.android.xposed.XSharedPreferences;
@@ -43,9 +44,9 @@ public class ViewOnce extends Feature {
                 @Override
                 protected void afterHookedMethod(MethodHookParam param) {
                     if (!prefs.getBoolean("viewonce", false)) return;
-                    if ((int) param.getResult() != 2 && (Unobfuscator.isCalledFromClass(classViewOnce))) {
+                    if ((int) param.getResult() != 2 && (ReflectionUtils.isCalledFromClass(classViewOnce))) {
                         param.setResult(0);
-                    } else if ((int) param.getResult() != 2 && !isFromMe && (Unobfuscator.isCalledFromClass(viewOnceStoreMethod.getDeclaringClass()))) {
+                    } else if ((int) param.getResult() != 2 && !isFromMe && (ReflectionUtils.isCalledFromClass(viewOnceStoreMethod.getDeclaringClass()))) {
                         param.setResult(0);
                     }
                 }

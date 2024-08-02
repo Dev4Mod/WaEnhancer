@@ -48,7 +48,7 @@ public class DownloadProfile extends Feature {
                         log(new Exception("SubClass is null"));
                         return true;
                     }
-                    var field = Unobfuscator.getFieldByType(subCls, loadProfileInfoField.getDeclaringClass());
+                    var field = ReflectionUtils.getFieldByType(subCls, loadProfileInfoField.getDeclaringClass());
                     var jidObj = ReflectionUtils.getField(loadProfileInfoField, ReflectionUtils.getField(field, param.thisObject));
                     var jid = WppCore.stripJID(WppCore.getRawString(jidObj));
                     var file = WppCore.getContactPhotoFile(jid);

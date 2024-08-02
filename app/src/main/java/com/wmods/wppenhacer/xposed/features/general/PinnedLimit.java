@@ -7,6 +7,7 @@ import androidx.annotation.NonNull;
 
 import com.wmods.wppenhacer.xposed.core.Feature;
 import com.wmods.wppenhacer.xposed.core.devkit.Unobfuscator;
+import com.wmods.wppenhacer.xposed.utils.ReflectionUtils;
 import com.wmods.wppenhacer.xposed.utils.Utils;
 
 import java.util.HashSet;
@@ -46,7 +47,7 @@ public class PinnedLimit extends Feature {
                 if (!(pinnedset instanceof PinnedLinkedHashSet)) {
                     pinnedMod = new PinnedLinkedHashSet<>();
                     pinnedMod.addAll(pinnedset);
-                    var setField = Unobfuscator.getFieldByType(pinnedSetMethod.getDeclaringClass(), Set.class);
+                    var setField = ReflectionUtils.getFieldByType(pinnedSetMethod.getDeclaringClass(), Set.class);
                     XposedHelpers.setObjectField(param.thisObject, setField.getName(), pinnedMod);
                     param.setResult(pinnedMod);
                 } else {

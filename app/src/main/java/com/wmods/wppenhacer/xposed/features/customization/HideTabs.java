@@ -11,6 +11,7 @@ import androidx.annotation.NonNull;
 
 import com.wmods.wppenhacer.xposed.core.Feature;
 import com.wmods.wppenhacer.xposed.core.devkit.Unobfuscator;
+import com.wmods.wppenhacer.xposed.utils.ReflectionUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -42,7 +43,7 @@ public class HideTabs extends Feature {
 
         var onCreateTabList = Unobfuscator.loadTabListMethod(classLoader);
         logDebug(Unobfuscator.getMethodDescriptor(onCreateTabList));
-        var ListField = Unobfuscator.getFieldByType(home, List.class);
+        var ListField = ReflectionUtils.getFieldByType(home, List.class);
 
         XposedBridge.hookMethod(onCreateTabList, new XC_MethodHook() {
             @Override
@@ -96,7 +97,7 @@ public class HideTabs extends Feature {
             @Override
             protected void afterHookedMethod(MethodHookParam param) throws Throwable {
                 Class<?> TabsPagerClass = classLoader.loadClass("com.whatsapp.TabsPager");
-                var tabsField = Unobfuscator.getFieldByType(param.thisObject.getClass(), TabsPagerClass);
+                var tabsField = ReflectionUtils.getFieldByType(param.thisObject.getClass(), TabsPagerClass);
                 mTabPagerInstance = tabsField.get(param.thisObject);
             }
         });

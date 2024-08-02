@@ -34,7 +34,6 @@ import com.wmods.wppenhacer.preference.ThemePreference;
 import com.wmods.wppenhacer.utils.IColors;
 import com.wmods.wppenhacer.xposed.core.Feature;
 import com.wmods.wppenhacer.xposed.core.WppCore;
-import com.wmods.wppenhacer.xposed.core.devkit.Unobfuscator;
 import com.wmods.wppenhacer.xposed.utils.ReflectionUtils;
 import com.wmods.wppenhacer.xposed.utils.Utils;
 
@@ -114,7 +113,7 @@ public class CustomView extends Feature {
                 var view = (View) param.thisObject;
                 var newDrawable = (Drawable) param.args[0];
                 var hookedBackground = XposedHelpers.getAdditionalInstanceField(view, "mHookedBackground");
-                if (Unobfuscator.isCalledFromClass(CustomView.class)) {
+                if (ReflectionUtils.isCalledFromClass(CustomView.class)) {
                     if (hookedBackground == null || view.getBackground() != newDrawable) {
                         XposedHelpers.setAdditionalInstanceField(view, "mHookedBackground", newDrawable);
                         return;
@@ -130,7 +129,7 @@ public class CustomView extends Feature {
                 var view = (ImageView) param.thisObject;
                 var newDrawable = (Drawable) param.args[0];
                 var mHookedDrawable = XposedHelpers.getAdditionalInstanceField(view, "mHookedDrawable");
-                if (Unobfuscator.isCalledFromClass(CustomView.class)) {
+                if (ReflectionUtils.isCalledFromClass(CustomView.class)) {
                     if (mHookedDrawable == null || view.getDrawable() != newDrawable) {
                         XposedHelpers.setAdditionalInstanceField(view, "mHookedDrawable", newDrawable);
                         return;

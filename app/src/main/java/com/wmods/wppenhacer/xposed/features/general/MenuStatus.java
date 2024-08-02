@@ -41,7 +41,7 @@ public class MenuStatus extends Feature {
         logDebug("SubMenu class: " + clazzSubMenu.getName());
         var clazzMenu = Unobfuscator.loadStatusDownloadMenuClass(classLoader);
         logDebug("Menu class: " + clazzMenu.getName());
-        var menuField = Unobfuscator.getFieldByType(clazzSubMenu, clazzMenu);
+        var menuField = ReflectionUtils.getFieldByType(clazzSubMenu, clazzMenu);
         logDebug("Menu field: " + menuField.getName());
 
         Class<?> StatusPlaybackBaseFragmentClass = classLoader.loadClass("com.whatsapp.status.playback.fragment.StatusPlaybackBaseFragment");

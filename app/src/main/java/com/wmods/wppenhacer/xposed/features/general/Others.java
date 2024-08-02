@@ -385,7 +385,7 @@ public class Others extends Feature {
                     // Fix Bug in Settings Data Usage
                     switch (i) {
                         case 4023:
-                            if (Unobfuscator.isCalledFromClass(dataUsageActivityClass))
+                            if (ReflectionUtils.isCalledFromClass(dataUsageActivityClass))
                                 return;
                             break;
                     }

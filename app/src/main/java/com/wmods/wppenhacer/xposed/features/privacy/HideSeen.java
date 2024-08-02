@@ -6,6 +6,7 @@ import com.wmods.wppenhacer.xposed.core.Feature;
 import com.wmods.wppenhacer.xposed.core.WppCore;
 import com.wmods.wppenhacer.xposed.core.components.FMessageWpp;
 import com.wmods.wppenhacer.xposed.core.devkit.Unobfuscator;
+import com.wmods.wppenhacer.xposed.utils.ReflectionUtils;
 
 import java.lang.reflect.Array;
 import java.lang.reflect.Method;
@@ -72,7 +73,7 @@ public class HideSeen extends Feature {
         XposedBridge.hookMethod(hideViewMethod, new XC_MethodHook() {
             @Override
             protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
-                if (!Unobfuscator.isCalledFromMethod(hideViewInChatMethod)) return;
+                if (!ReflectionUtils.isCalledFromMethod(hideViewInChatMethod)) return;
                 if (param.args[4] == null || !param.args[4].equals("read")) return;
                 var jid = WppCore.getCurrentRawJID();
                 if (WppCore.isGroup(jid)) {

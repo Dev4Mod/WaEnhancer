@@ -71,22 +71,13 @@ public class Unobfuscator {
         return true;
     }
 
-    public static boolean initWithClassLoader(ClassLoader classLoader) {
-        try {
-            dexkit = DexKitBridge.create(classLoader, true);
-        } catch (Exception e) {
-            return false;
-        }
-        return true;
-    }
-
     // TODO: Functions to find classes and methods
     public synchronized static Method findFirstMethodUsingStrings(ClassLoader classLoader, StringMatchType type, String... strings) throws Exception {
         MethodMatcher matcher = new MethodMatcher();
         for (String string : strings) {
             matcher.addUsingString(string, type);
         }
-        MethodDataList result = dexkit.findMethod(new FindMethod().matcher(matcher));
+        MethodDataList result = dexkit.findMethod(FindMethod.create().matcher(matcher));
         if (result.isEmpty()) return null;
         for (MethodData methodData : result) {
             if (methodData.isMethod()) return methodData.getMethodInstance(classLoader);
@@ -113,7 +104,7 @@ public class Unobfuscator {
         for (String string : strings) {
             matcher.addUsingString(string, type);
         }
-        MethodDataList result = dexkit.findMethod(new FindMethod().matcher(matcher));
+        MethodDataList result = dexkit.findMethod(FindMethod.create().matcher(matcher));
         if (result.isEmpty()) return new Method[0];
         return result.stream().filter(MethodData::isMethod).map(methodData -> {
             try {
@@ -129,7 +120,7 @@ public class Unobfuscator {
         for (String string : strings) {
             matcher.addUsingString(string, type);
         }
-        var result = dexkit.findClass(new FindClass().matcher(matcher));
+        var result = dexkit.findClass(FindClass.create().matcher(matcher));
         if (result.isEmpty()) return null;
         return result.get(0).getInstance(classLoader);
     }
@@ -142,15 +133,6 @@ public class Unobfuscator {
         var result = dexkit.findClass(FindClass.create().matcher(matcher));
         if (result.isEmpty()) return null;
         return result.get(0).getInstance(classLoader);
-    }
-
-    public synchronized static Field getFieldByType(Class<?> cls, Class<?> type) {
-        return Arrays.stream(cls.getDeclaredFields()).filter(f -> f.getType().equals(type)).findFirst().orElse(null);
-    }
-
-    public synchronized static Field getFieldByExtendType(Class<?> cls, Class<?> type) {
-        return Arrays.stream(cls.getFields()).filter(f -> type.isAssignableFrom(f.getType())).findFirst().orElse(null);
-
     }
 
     public synchronized static String getMethodDescriptor(Method method) {
@@ -167,25 +149,6 @@ public class Unobfuscator {
     public synchronized static String getFieldDescriptor(Field field) {
         return field.getDeclaringClass().getName() + "->" + field.getName() + ":" + field.getType().getName();
     }
-
-    public synchronized static boolean isCalledFromClass(Class<?> cls) {
-        var trace = Thread.currentThread().getStackTrace();
-        for (StackTraceElement stackTraceElement : trace) {
-            if (stackTraceElement.getClassName().equals(cls.getName()))
-                return true;
-        }
-        return false;
-    }
-
-    public synchronized static boolean isCalledFromMethod(Method method) {
-        var trace = Thread.currentThread().getStackTrace();
-        for (StackTraceElement stackTraceElement : trace) {
-            if (stackTraceElement.getClassName().equals(method.getDeclaringClass().getName()) && stackTraceElement.getMethodName().equals(method.getName()))
-                return true;
-        }
-        return false;
-    }
-
 
     // TODO: Classes and Methods for FreezeSeen
     public synchronized static Method loadFreezeSeenMethod(ClassLoader classLoader) throws Exception {
@@ -583,7 +546,7 @@ public class Unobfuscator {
         return UnobfuscatorCache.getInstance().getField(classLoader, () -> {
             var clazz = loadStatusDownloadMediaClass(classLoader);
             var clazz2 = clazz.getField("A01").getType();
-            var field = getFieldByType(clazz2, File.class);
+            var field = ReflectionUtils.getFieldByType(clazz2, File.class);
             if (field == null) throw new Exception("StatusDownloadFile field not found");
             return field;
         });
@@ -809,7 +772,7 @@ public class Unobfuscator {
         return UnobfuscatorCache.getInstance().getField(loader, () -> {
             Class<?> chatClass = findFirstClassUsingStrings(loader, StringMatchType.Contains, "payment_chat_composer_entry_nux_shown");
             Class<?> conversation = XposedHelpers.findClass("com.whatsapp.Conversation", loader);
-            Field field = getFieldByType(conversation, chatClass);
+            Field field = ReflectionUtils.getFieldByType(conversation, chatClass);
             if (field == null) throw new Exception("AntiRevokeConvChat field not found");
             return field;
         });
@@ -819,7 +782,7 @@ public class Unobfuscator {
         return UnobfuscatorCache.getInstance().getField(loader, () -> {
             Class<?> chatClass = findFirstClassUsingStrings(loader, StringMatchType.Contains, "payment_chat_composer_entry_nux_shown");
             Class<?> jidClass = XposedHelpers.findClass("com.whatsapp.jid.Jid", loader);
-            Field field = getFieldByExtendType(chatClass, jidClass);
+            Field field = ReflectionUtils.getFieldByExtendType(chatClass, jidClass);
             if (field == null) throw new Exception("AntiRevokeChatJid field not found");
             return field;
         });
@@ -966,7 +929,7 @@ public class Unobfuscator {
         return UnobfuscatorCache.getInstance().getField(loader, () -> {
             Class<?> class1 = loadOnChangeStatus(loader).getDeclaringClass().getSuperclass();
             Class<?> classViewHolder = XposedHelpers.findClass("com.whatsapp.conversationslist.ViewHolder", loader);
-            return getFieldByType(class1, classViewHolder);
+            return ReflectionUtils.getFieldByType(class1, classViewHolder);
         });
     }
 

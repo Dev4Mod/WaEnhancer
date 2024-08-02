@@ -8,6 +8,7 @@ import androidx.annotation.NonNull;
 import com.wmods.wppenhacer.xposed.core.Feature;
 import com.wmods.wppenhacer.xposed.core.db.MessageStore;
 import com.wmods.wppenhacer.xposed.core.devkit.Unobfuscator;
+import com.wmods.wppenhacer.xposed.utils.ReflectionUtils;
 
 import de.robv.android.xposed.XC_MethodHook;
 import de.robv.android.xposed.XSharedPreferences;
@@ -59,7 +60,7 @@ public class ChatLimit extends Feature {
         XposedBridge.hookMethod(chatLimitDeleteMethod, new XC_MethodHook() {
             @Override
             protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-                if (Unobfuscator.isCalledFromMethod(chatLimitDelete2Method) && revokeallmessages) {
+                if (ReflectionUtils.isCalledFromMethod(chatLimitDelete2Method) && revokeallmessages) {
                     param.setResult(0L);
                 }
             }

@@ -144,7 +144,7 @@ public class DotOnline extends Feature {
                 if (showOnlineText) {
                     lastSeenText.setVisibility(View.INVISIBLE); // Hide last seen time initially
                 }
-                var jidFiled = Unobfuscator.getFieldByExtendType(object.getClass(), XposedHelpers.findClass("com.whatsapp.jid.Jid", classLoader));
+                var jidFiled = ReflectionUtils.getFieldByExtendType(object.getClass(), XposedHelpers.findClass("com.whatsapp.jid.Jid", classLoader));
                 var jidObject = jidFiled.get(object);
                 var jid = WppCore.getRawString(jidObject);
                 if (WppCore.isGroup(jid)) return;

@@ -215,4 +215,23 @@ public class ReflectionUtils {
         }
         return false;
     }
+
+    public synchronized static boolean isCalledFromClass(Class<?> cls) {
+        var trace = Thread.currentThread().getStackTrace();
+        for (StackTraceElement stackTraceElement : trace) {
+            if (stackTraceElement.getClassName().equals(cls.getName()))
+                return true;
+        }
+        return false;
+    }
+
+    public synchronized static boolean isCalledFromMethod(Method method) {
+        var trace = Thread.currentThread().getStackTrace();
+        for (StackTraceElement stackTraceElement : trace) {
+            if (stackTraceElement.getClassName().equals(method.getDeclaringClass().getName()) && stackTraceElement.getMethodName().equals(method.getName()))
+                return true;
+        }
+        return false;
+    }
+
 }

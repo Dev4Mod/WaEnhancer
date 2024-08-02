@@ -45,7 +45,7 @@ public class ChatFilters extends Feature {
             @Override
             protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
                 var index = (int) param.args[0];
-                var field = Unobfuscator.getFieldByType(methodSetFilter.getDeclaringClass(), List.class);
+                var field = ReflectionUtils.getFieldByType(methodSetFilter.getDeclaringClass(), List.class);
                 var list = (List) field.get(param.thisObject);
                 if (list == null || index >= list.size()) {
                     param.setResult(null);

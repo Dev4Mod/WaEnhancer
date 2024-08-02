@@ -4,6 +4,7 @@ import androidx.annotation.NonNull;
 
 import com.wmods.wppenhacer.xposed.core.Feature;
 import com.wmods.wppenhacer.xposed.core.devkit.Unobfuscator;
+import com.wmods.wppenhacer.xposed.utils.ReflectionUtils;
 
 import java.lang.reflect.Method;
 
@@ -29,7 +30,7 @@ public class HideTagForward extends Feature {
                 if (!prefs.getBoolean("hidetag", false)) return;
                 var arg = (int) param.args[0];
                 if (arg == 1) {
-                    if (Unobfuscator.isCalledFromClass(forwardClass)) {
+                    if (ReflectionUtils.isCalledFromClass(forwardClass)) {
                         param.args[0] = 0;
                     }
                 }

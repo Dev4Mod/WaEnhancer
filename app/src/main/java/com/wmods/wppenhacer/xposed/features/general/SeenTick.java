@@ -148,7 +148,7 @@ public class SeenTick extends Feature {
 
         var setPageActiveMethod = Unobfuscator.loadStatusActivePage(classLoader);
         logDebug(Unobfuscator.getMethodDescriptor(setPageActiveMethod));
-        var fieldList = Unobfuscator.getFieldByType(setPageActiveMethod.getDeclaringClass(), List.class);
+        var fieldList = ReflectionUtils.getFieldByType(setPageActiveMethod.getDeclaringClass(), List.class);
 
         XposedBridge.hookMethod(setPageActiveMethod, new XC_MethodHook() {
             @Override
@@ -278,7 +278,7 @@ public class SeenTick extends Feature {
                     MenuItem item = menu.add(0, 0, 0, ResId.string.send_blue_tick).setIcon(Utils.getID("ic_notif_mark_read", "drawable"));
                     if (ticktype == 1) item.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
                     item.setOnMenuItemClickListener(item1 -> {
-                        var messageField = Unobfuscator.getFieldByExtendType(menuMethod.getDeclaringClass(), classThreadMessage);
+                        var messageField = ReflectionUtils.getFieldByExtendType(menuMethod.getDeclaringClass(), classThreadMessage);
                         var messageObject = XposedHelpers.getObjectField(param.thisObject, messageField.getName());
                         sendBlueTickMedia(messageObject, true);
                         Toast.makeText(Utils.getApplication(), ResId.string.sending_read_blue_tick, Toast.LENGTH_SHORT).show();
