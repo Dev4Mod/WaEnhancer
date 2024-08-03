@@ -1,4 +1,8 @@
 [WA ENHANCER]
-* Fixed connection to the bridge in Android 9
-* Fixed issue with downgrade feature on Android 9
+* The initial permissions screen has been removed, but to use certain functions you will be asked for the corresponding permission
+* Code refactorings
+
+[HIDE RECEIPT]
+* Fixed a bug that didn't allow it to work in groups
+
 
