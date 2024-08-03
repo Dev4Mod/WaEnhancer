@@ -1,15 +1,21 @@
 package com.wmods.wppenhacer;
 
 import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.app.Application;
 import android.content.Context;
 import android.content.Intent;
+import android.net.Uri;
+import android.os.Build;
 import android.os.Environment;
 import android.os.Handler;
 import android.os.Looper;
 
 import androidx.appcompat.app.AppCompatDelegate;
+import androidx.core.app.ActivityCompat;
 import androidx.preference.PreferenceManager;
+
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
 import java.io.File;
 import java.util.Locale;
@@ -23,6 +29,24 @@ public class App extends Application {
     private static App instance;
     private static final ExecutorService executorService = Executors.newCachedThreadPool();
     private static final Handler MainHandler = new Handler(Looper.getMainLooper());
+
+    public static void showRequestStoragePermission(Activity activity) {
+        MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(activity);
+        builder.setTitle(R.string.storage_permission);
+        builder.setMessage(R.string.permission_storage);
+        builder.setPositiveButton(R.string.allow, (dialog, which) -> {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                Intent intent = new Intent(android.provider.Settings.ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION);
+                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                intent.setData(Uri.fromParts("package", activity.getPackageName(), null));
+                activity.startActivity(intent);
+            } else {
+                ActivityCompat.requestPermissions(activity, new String[]{android.Manifest.permission.WRITE_EXTERNAL_STORAGE, android.Manifest.permission.READ_EXTERNAL_STORAGE}, 0);
+            }
+        });
+        builder.setNegativeButton(R.string.deny, (dialog, which) -> dialog.dismiss());
+        builder.show();
+    }
 
     @SuppressLint("ApplySharedPref")
     @Override

@@ -1,8 +1,11 @@
 package com.wmods.wppenhacer.preference;
 
+import android.Manifest;
 import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Environment;
@@ -16,7 +19,6 @@ import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import androidx.annotation.RequiresApi;
 import androidx.core.content.ContextCompat;
 import androidx.preference.Preference;
 import androidx.preference.PreferenceManager;
@@ -53,30 +55,11 @@ public class ThemePreference extends Preference implements FilePicker.OnUriPicke
     @Override
     protected void onClick() {
         super.onClick();
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-            if (Environment.isExternalStorageManager()) {
-                showThemeDialog();
-            } else {
-                showAlertPermission();
-            }
+        if ((Build.VERSION.SDK_INT >= Build.VERSION_CODES.R && !Environment.isExternalStorageManager()) || (Build.VERSION.SDK_INT < Build.VERSION_CODES.R && ContextCompat.checkSelfPermission(getContext(), Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED)) {
+            App.showRequestStoragePermission((Activity) getContext());
         } else {
             showThemeDialog();
         }
-    }
-
-    @RequiresApi(api = Build.VERSION_CODES.R)
-    private void showAlertPermission() {
-        MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(getContext());
-        builder.setTitle(R.string.storage_permission);
-        builder.setMessage(R.string.permission_storage);
-        builder.setPositiveButton(R.string.allow, (dialog, which) -> {
-            Intent intent = new Intent(android.provider.Settings.ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION);
-            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-            intent.setData(Uri.fromParts("package", getContext().getPackageName(), null));
-            getContext().startActivity(intent);
-        });
-        builder.setNegativeButton(R.string.deny, (dialog, which) -> dialog.dismiss());
-        builder.show();
     }
 
     @SuppressLint("ApplySharedPref")

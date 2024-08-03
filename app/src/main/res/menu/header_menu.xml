@@ -5,4 +5,8 @@
         android:icon="@drawable/about"
         android:showAsAction="ifRoom"
         android:title="@string/about" />
+
+    <item
+        android:id="@+id/batteryoptimization"
+        android:title="@string/disable_battery_optimization" />
 </menu>

@@ -56,8 +56,9 @@
                 android:value="" />
         </service>
 
+
         <activity
-            android:name=".activities.PermissionActivity"
+            android:name=".activities.MainActivity"
             android:exported="true"
             android:launchMode="singleTop">
             <intent-filter>
@@ -66,17 +67,6 @@
                 <category android:name="android.intent.category.LAUNCHER" />
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
-        </activity>
-
-        <activity
-            android:name=".activities.MainActivity"
-            android:exported="true"
-            android:launchMode="singleTop">
-            <!--This is just to be visible on WhatsApp using the filter present in it. A11+ -->
-            <intent-filter>
-                <action android:name="com.facebook.GET_PHONE_ID" />
-            </intent-filter>
-
         </activity>
 
         <activity

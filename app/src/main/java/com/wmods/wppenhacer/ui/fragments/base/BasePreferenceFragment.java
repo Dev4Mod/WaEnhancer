@@ -1,15 +1,20 @@
 package com.wmods.wppenhacer.ui.fragments.base;
 
+import android.Manifest;
 import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
+import android.os.Build;
 import android.os.Bundle;
+import android.os.Environment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.content.ContextCompat;
 import androidx.preference.PreferenceFragmentCompat;
 import androidx.preference.PreferenceManager;
 
@@ -34,6 +39,7 @@ public abstract class BasePreferenceFragment extends PreferenceFragmentCompat im
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         chanceStates(null);
+        monitorPreference();
         return super.onCreateView(inflater, container, savedInstanceState);
     }
 
@@ -52,6 +58,30 @@ public abstract class BasePreferenceFragment extends PreferenceFragmentCompat im
                 ((MaterialSwitchPreference) pref).setChecked(false);
             }
         }
+    }
+
+    private void monitorPreference() {
+        var downloadstatus = (MaterialSwitchPreference) findPreference("downloadstatus");
+
+        if (downloadstatus != null) {
+            downloadstatus.setOnPreferenceChangeListener((preference, newValue) -> checkStoragePermission(newValue));
+        }
+
+        var downloadviewonce = (MaterialSwitchPreference) findPreference("downloadviewonce");
+        if (downloadviewonce != null) {
+            downloadviewonce.setOnPreferenceChangeListener((preference, newValue) -> checkStoragePermission(newValue));
+        }
+
+    }
+
+    private boolean checkStoragePermission(Object newValue) {
+        if (newValue instanceof Boolean && (Boolean) newValue) {
+            if ((Build.VERSION.SDK_INT >= Build.VERSION_CODES.R && !Environment.isExternalStorageManager()) || (Build.VERSION.SDK_INT < Build.VERSION_CODES.R && ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED)) {
+                App.showRequestStoragePermission(requireActivity());
+                return false;
+            }
+        }
+        return true;
     }
 
     @SuppressLint("ApplySharedPref")

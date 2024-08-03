@@ -2,7 +2,10 @@ package com.wmods.wppenhacer.activities;
 
 import android.annotation.SuppressLint;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
+import android.os.PowerManager;
+import android.provider.Settings;
 import android.view.Menu;
 import android.view.MenuItem;
 
@@ -11,6 +14,7 @@ import androidx.fragment.app.Fragment;
 import androidx.viewpager2.widget.ViewPager2;
 
 import com.google.android.material.navigation.NavigationBarView;
+import com.waseemsabir.betterypermissionhelper.BatteryPermissionHelper;
 import com.wmods.wppenhacer.App;
 import com.wmods.wppenhacer.R;
 import com.wmods.wppenhacer.activities.base.BaseActivity;
@@ -23,6 +27,8 @@ import java.io.File;
 public class MainActivity extends BaseActivity {
 
     private ActivityMainBinding binding;
+
+    private BatteryPermissionHelper batteryPermissionHelper = BatteryPermissionHelper.Companion.getInstance();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -101,14 +107,28 @@ public class MainActivity extends BaseActivity {
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.header_menu, menu);
+        var powerManager = (PowerManager) getSystemService(POWER_SERVICE);
+        if (powerManager.isIgnoringBatteryOptimizations(getPackageName())) {
+            menu.findItem(R.id.batteryoptimization).setVisible(false);
+        }
         return true;
     }
 
+    @SuppressLint("BatteryLife")
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         if (item.getItemId() == R.id.menu_about) {
             startActivity(new Intent(this, AboutActivity.class));
             return true;
+        } else if (item.getItemId() == R.id.batteryoptimization) {
+            if (batteryPermissionHelper.isBatterySaverPermissionAvailable(this, true)) {
+                batteryPermissionHelper.getPermission(this, true, true);
+            } else {
+                var intent = new Intent();
+                intent.setAction(Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS);
+                intent.setData(Uri.parse("package:" + getPackageName()));
+                startActivityForResult(intent, 0);
+            }
         }
         return super.onOptionsItemSelected(item);
     }
