@@ -1,8 +1,11 @@
 package com.wmods.wppenhacer.preference;
 
+import android.Manifest;
+import android.app.Activity;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Environment;
@@ -14,6 +17,7 @@ import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
+import androidx.core.content.ContextCompat;
 import androidx.preference.Preference;
 import androidx.preference.PreferenceManager;
 
@@ -30,6 +34,7 @@ import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
 import java.util.Arrays;
+import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 
 public class FileSelectPreference extends Preference implements Preference.OnPreferenceClickListener, FilePicker.OnFilePickedListener, FilePicker.OnUriPickedListener {
@@ -81,7 +86,15 @@ public class FileSelectPreference extends Preference implements Preference.OnPre
             return true;
         }
         if (mineTypes.length == 1 && mineTypes[0].contains("image")) {
-            FilePicker.setOnUriPickedListener(this);
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                if (ContextCompat.checkSelfPermission(getContext(), Manifest.permission.READ_MEDIA_IMAGES) != PackageManager.PERMISSION_GRANTED) {
+                    ((Activity) getContext()).requestPermissions(new String[]{Manifest.permission.READ_MEDIA_IMAGES}, 1);
+                    return true;
+                }
+            } else if (ContextCompat.checkSelfPermission(getContext(), Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+                ((Activity) getContext()).requestPermissions(new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, 1);
+                return true;
+            }
             FilePicker.imageCapture.launch(new PickVisualMediaRequest.Builder().setMediaType(new ActivityResultContracts.PickVisualMedia.SingleMimeType(mineTypes[0])).build());
             return true;
         }
@@ -147,14 +160,16 @@ public class FileSelectPreference extends Preference implements Preference.OnPre
     @Override
     public void onUriPicked(Uri uri) {
         ContentResolver contentResolver = getContext().getContentResolver();
-        var type = contentResolver.getType(uri);
+        var type = Objects.requireNonNull(contentResolver.getType(uri));
         var extension = type.split("/")[1];
         var folder = new File(App.getWaEnhancerFolder(), "files");
         if (!folder.exists()) {
             folder.mkdirs();
         }
         var outFile = new File(folder, this.getKey() + "." + extension);
-        getSharedPreferences().edit().putString(getKey(), outFile.getAbsolutePath()).apply();
+        var editor = getSharedPreferences().edit();
+        editor.putString(getKey(), null).apply();
+        editor.putString(getKey(), outFile.getAbsolutePath()).apply();
         setSummary(outFile.getAbsolutePath());
         CompletableFuture.runAsync(() -> {
             try (var inputStream = contentResolver.openInputStream(uri)) {

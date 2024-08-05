@@ -71,7 +71,6 @@ public abstract class BasePreferenceFragment extends PreferenceFragmentCompat im
         if (downloadviewonce != null) {
             downloadviewonce.setOnPreferenceChangeListener((preference, newValue) -> checkStoragePermission(newValue));
         }
-
     }
 
     private boolean checkStoragePermission(Object newValue) {
