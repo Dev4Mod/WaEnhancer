@@ -1,8 +1,10 @@
 [WHATSAPP]
 * Added pre-support to version 2.24.16.xx
 
-[WA ENHANHCER
+[WA ENHANHCER]
 * Added function to bootloader spoofer (If you have previously been banned for using a GBWhatsapp and are receiving the Unofficial WhatsApp message, activate this option) thanks for chiteroman
 * Fix bug in File Preference
+* Fix bug in AntiUpdater (Now you can select Play Store or another store in Lsposed to avoid automatic update)
 * Update translations
+
 
