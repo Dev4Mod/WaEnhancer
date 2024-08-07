@@ -1,6 +1,5 @@
 package com.wmods.wppenhacer.xposed.core.devkit;
 
-import android.app.Activity;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -296,15 +295,11 @@ public class Unobfuscator {
 
     public synchronized static Method loadTabNameMethod(ClassLoader classLoader) throws Exception {
         return UnobfuscatorCache.getInstance().getMethod(classLoader, () -> {
-            Method tabListMethod = loadGetTabMethod(classLoader);
-            Class<?> cls = tabListMethod.getDeclaringClass();
-            if (Modifier.isAbstract(cls.getModifiers())) {
-                var findClass = dexkit.findClass(FindClass.create().searchPackages("X.").matcher(ClassMatcher.create().superClass(cls.getName()).addUsingString("The item position should be less")));
-                cls = findClass.get(0).getInstance(classLoader);
-            }
-            Method result = Arrays.stream(cls.getMethods()).filter(m -> m.getParameterTypes().length == 1 && m.getReturnType().equals(String.class)).findFirst().orElse(null);
-            if (result == null) throw new Exception("TabName method not found");
-            return result;
+            int id = UnobfuscatorCache.getInstance().getOfuscateIDString("communities");
+            if (id < 1) throw new Exception("TabName ID not found");
+            MethodDataList result = dexkit.findMethod(FindMethod.create().matcher(MethodMatcher.create().returnType(String.class).usingNumbers(id)));
+            if (result.isEmpty()) throw new Exception("TabName method not found");
+            return result.get(0).getMethodInstance(classLoader);
         });
     }
 
@@ -705,7 +700,6 @@ public class Unobfuscator {
     }
 
 
-
     private static ClassData loadAntiRevokeImplClass() throws Exception {
         var classes = dexkit.findClass(new FindClass().matcher(new ClassMatcher().addUsingString("smb_eu_tos_update_url")));
         if (classes.isEmpty()) throw new Exception("AntiRevokeImpl class not found");
@@ -807,7 +801,6 @@ public class Unobfuscator {
     }
 
 
-
     public synchronized static Method loadBlueOnReplayMessageJobMethod(ClassLoader loader) throws Exception {
         return UnobfuscatorCache.getInstance().getMethod(loader, () -> {
             var result = findFirstMethodUsingStrings(loader, StringMatchType.Contains, "SendE2EMessageJob/onRun");
@@ -868,7 +861,8 @@ public class Unobfuscator {
     public synchronized static Method loadStatusUserMethod(ClassLoader loader) throws Exception {
         return UnobfuscatorCache.getInstance().getMethod(loader, () -> {
             var id = UnobfuscatorCache.getInstance().getOfuscateIDString("lastseensun%s");
-            var result = dexkit.findMethod(new FindMethod().matcher(new MethodMatcher().addUsingNumber(id).paramCount(1)));
+            if (id < 1) throw new Exception("GetStatusUser ID not found");
+            var result = dexkit.findMethod(FindMethod.create().matcher(MethodMatcher.create().addUsingNumber(id).returnType(String.class)));
             if (result.isEmpty()) throw new Exception("GetStatusUser method not found");
             return result.get(0).getMethodInstance(loader);
         });
@@ -1108,7 +1102,6 @@ public class Unobfuscator {
             return result;
         });
     }
-
 
 
     public synchronized static Method loadGetViewConversationMethod(ClassLoader loader) throws Exception {
@@ -1516,15 +1509,14 @@ public class Unobfuscator {
 
     public synchronized static Method loadTextStatusComposer(ClassLoader classLoader) throws Exception {
         return UnobfuscatorCache.getInstance().getMethod(classLoader, () -> {
-            var method1 = Activity.class.getDeclaredMethod("getWindow");
-            var method2 = View.class.getDeclaredMethod("setBackground", Drawable.class);
-            var clazz = classLoader.loadClass("com.whatsapp.textstatuscomposer.TextStatusComposerActivity");
-            var fieldInt = ReflectionUtils.findFieldUsingFilter(clazz, field -> field.getType() == int.class);
-            var classData = dexkit.getClassData(clazz);
+            var method1 = View.class.getDeclaredMethod("setBackgroundColor", int.class);
+            Class<?> TextStatusComposerFragmentClass = classLoader.loadClass("com.whatsapp.statuscomposer.composer.TextStatusComposerFragment");
+            var fieldInt = ReflectionUtils.findFieldUsingFilter(TextStatusComposerFragmentClass, field -> field.getType() == int.class);
+            var classData = dexkit.getClassData(TextStatusComposerFragmentClass);
             if (classData == null) throw new RuntimeException("TextStatusComposer class not found");
-            var methods = classData.findMethod(new FindMethod().matcher(new MethodMatcher()
+
+            var methods = classData.findMethod(FindMethod.create().matcher(MethodMatcher.create()
                     .addInvoke(DexSignUtil.getMethodDescriptor(method1))
-                    .addInvoke(DexSignUtil.getMethodDescriptor(method2))
                     .addUsingField(DexSignUtil.getFieldDescriptor(fieldInt))
                     .modifiers(Modifier.PUBLIC | Modifier.STATIC)
             ));
@@ -1537,25 +1529,16 @@ public class Unobfuscator {
     public synchronized static Method loadTextStatusComposer2(ClassLoader classLoader) throws Exception {
         return UnobfuscatorCache.getInstance().getMethod(classLoader, () -> {
             Class<?> TextDataClass = classLoader.loadClass("com.whatsapp.TextData");
-            var clazz = classLoader.loadClass("com.whatsapp.textstatuscomposer.TextStatusComposerActivity");
-            var field1 = TextDataClass.getDeclaredField("fontStyle");
-            var field2 = TextDataClass.getDeclaredField("textColor");
-            var field3 = TextDataClass.getDeclaredField("backgroundColor");
-            var classData = dexkit.getClassData(clazz);
-            if (classData == null)
-                throw new RuntimeException("TextStatusComposer2 class not found");
-            var methods = dexkit.findMethod(new FindMethod().matcher(new MethodMatcher()
-                    .addUsingField(DexSignUtil.getFieldDescriptor(field1))
-                    .addUsingField(DexSignUtil.getFieldDescriptor(field2))
-                    .addUsingField(DexSignUtil.getFieldDescriptor(field3))
-                    .modifiers(Modifier.PUBLIC)
+            var result = dexkit.findClass(FindClass.create().matcher(
+                    ClassMatcher.create().addUsingString("ViewOnce messages can not be forwarded").
+                            addMethod(MethodMatcher.create().paramCount(1).addParamType(TextDataClass))
             ));
-            for (var method : methods) {
-                var callers = method.getCallers();
-                if (callers.stream().anyMatch(methodData -> methodData.getDeclaredClassName().contains("TextStatusComposerActivity"))) {
-                    return method.getMethodInstance(classLoader);
-                }
-            }
+            if (result.isEmpty())
+                throw new RuntimeException("TextStatusComposer2 class not found");
+            var foundClass = result.get(0).getInstance(classLoader);
+            var resultMethod = ReflectionUtils.findMethodUsingFilter(foundClass, method -> method.getParameterCount() == 1 && method.getParameterTypes()[0] == TextDataClass);
+            if (resultMethod != null)
+                return resultMethod;
             throw new RuntimeException("TextStatusComposer2 method not found");
         });
     }
@@ -1604,13 +1587,13 @@ public class Unobfuscator {
 
     public synchronized static Field loadMediaTypeField(ClassLoader classLoader) throws Exception {
         return UnobfuscatorCache.getInstance().getField(classLoader, () -> {
-            var fMessage = loadFMessageClass(classLoader);
-            var toStringMethod = fMessage.getDeclaredMethod("toString");
-            var methodData = Objects.requireNonNull(dexkit.getMethodData(toStringMethod));
-            var usingFields = methodData.getUsingFields();
+            var methodData = dexkit.findMethod(FindMethod.create().matcher(MethodMatcher.create().addUsingString("conversation/refresh")));
+            if (methodData.isEmpty()) throw new RuntimeException("MediaType: aux method not found");
+            var fclass = dexkit.getClassData(loadFMessageClass(classLoader));
+            var usingFields = methodData.get(0).getUsingFields();
             for (var f : usingFields) {
                 var field = f.getField();
-                if (field.getType().getName().equals(int.class.getName())) {
+                if (field.getDeclaredClass().equals(fclass) && field.getType().getName().equals(int.class.getName())) {
                     return field.getFieldInstance(classLoader);
                 }
             }

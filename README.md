@@ -89,6 +89,13 @@ If you encounter any issues or have questions about Wa Enhancer, please [Visit T
 ## License
 This project is licensed under the GNU License - see the [LICENSE](LICENSE) file for details.
 
+## Thanks
+
+* Bootloader Spoofer (Thanks to [chiteroman](https://github.com/chiteroman))
+* LSPosed Framework e Core Patch (thanks to the team [LSPosed](https://github.com/LSPosed))
+* Bridge Client and Server (Thanks to [rhunk](https://github.com/rhunk/))
+
 ---
+
 
 **Note**: Please use Wa Enhancer responsibly and in compliance with the terms and conditions of the apps you are modifying. Misuse of this tool may lead to legal consequences.

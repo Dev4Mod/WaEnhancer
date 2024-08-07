@@ -60,7 +60,7 @@ public class SeparateGroup extends Feature {
         hookTabInstance(cFragClass);
 
         // Setting group tab name
-        hookTabName(homeActivityClass);
+        hookTabName();
 
         // Setting tab count
         hookTabCount();
@@ -69,7 +69,7 @@ public class SeparateGroup extends Feature {
     @NonNull
     @Override
     public String getPluginName() {
-        return "Chats Filter";
+        return "Separate Group";
     }
 
     private void hookTabCount() throws Exception {
@@ -161,9 +161,9 @@ public class SeparateGroup extends Feature {
     }
 
     @SuppressLint("ResourceType")
-    private void hookTabName(Class<?> home) throws Exception {
+    private void hookTabName() throws Exception {
         var tabNameMethod = Unobfuscator.loadTabNameMethod(classLoader);
-        logDebug(Unobfuscator.getMethodDescriptor(tabNameMethod));
+        logDebug("TAB NAME", Unobfuscator.getMethodDescriptor(tabNameMethod));
         XposedBridge.hookMethod(tabNameMethod, new XC_MethodHook() {
             @Override
             protected void beforeHookedMethod(MethodHookParam param) throws Throwable {

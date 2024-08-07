@@ -83,6 +83,7 @@ public class UnobfuscatorCache {
         getOfuscateIDString("messagedeleted");
         getOfuscateIDString("selectcalltype");
         getOfuscateIDString("lastseensun%s");
+        getOfuscateIDString("communities");
     }
 
     private void initializeReverseResourceMap() {

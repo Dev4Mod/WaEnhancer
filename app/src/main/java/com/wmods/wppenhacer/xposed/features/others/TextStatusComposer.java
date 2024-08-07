@@ -1,12 +1,14 @@
 package com.wmods.wppenhacer.xposed.features.others;
 
-import android.app.Activity;
+import android.os.Bundle;
+import android.view.View;
 import android.widget.EditText;
 
 import androidx.annotation.NonNull;
 
 import com.wmods.wppenhacer.views.dialog.SimpleColorPickerDialog;
 import com.wmods.wppenhacer.xposed.core.Feature;
+import com.wmods.wppenhacer.xposed.core.WppCore;
 import com.wmods.wppenhacer.xposed.core.devkit.Unobfuscator;
 import com.wmods.wppenhacer.xposed.utils.ReflectionUtils;
 import com.wmods.wppenhacer.xposed.utils.Utils;
@@ -30,14 +32,15 @@ public class TextStatusComposer extends Feature {
     public void doHook() throws Throwable {
         var setColorTextComposer = Unobfuscator.loadTextStatusComposer(classLoader);
         log("setColorTextComposer: " + Unobfuscator.getMethodDescriptor(setColorTextComposer));
-
-        XposedHelpers.findAndHookMethod("com.whatsapp.textstatuscomposer.TextStatusComposerActivity", classLoader, "onCreate", classLoader.loadClass("android.os.Bundle"),
+        var clazz = XposedHelpers.findClass("com.whatsapp.statuscomposer.composer.TextStatusComposerFragment", classLoader);
+        var methodOnCreate = ReflectionUtils.findMethodUsingFilter(clazz, method -> method.getParameterCount() == 2 && method.getParameterTypes()[0] == Bundle.class && method.getParameterTypes()[1] == View.class);
+        XposedBridge.hookMethod(methodOnCreate,
                 new XC_MethodHook() {
 
                     @Override
                     protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-                        var activity = (Activity) param.thisObject;
-                        var viewRoot = activity.getWindow().getDecorView();
+                        var activity = WppCore.getCurrentActivity();
+                        var viewRoot = (View) param.args[1];
                         var pickerColor = viewRoot.findViewById(Utils.getID("color_picker_btn", "id"));
                         var entry = (EditText) viewRoot.findViewById(Utils.getID("entry", "id"));
 
@@ -78,10 +81,9 @@ public class TextStatusComposer extends Feature {
         log("setColorTextComposer2: " + Unobfuscator.getMethodDescriptor(setColorTextComposer2));
         XposedBridge.hookMethod(setColorTextComposer2, new XC_MethodHook() {
             @Override
-            protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+            protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
                 if (colorData.get() != null) {
-                    var message = param.getResult();
-                    var textData = XposedHelpers.getObjectField(message, "A02");
+                    var textData = param.args[0];
                     XposedHelpers.setObjectField(textData, "textColor", colorData.get().color);
                     colorData.set(null);
                 }

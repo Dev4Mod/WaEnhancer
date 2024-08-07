@@ -140,10 +140,37 @@ public class ReflectionUtils {
 
     public static Object callMethod(Method method, Object instance, Object... args) {
         try {
+            var count = method.getParameterCount();
+            if (count != args.length) {
+                var newargs = initArray(method.getParameterTypes());
+                System.arraycopy(args, 0, newargs, 0, Math.min(args.length, count));
+                args = newargs;
+            }
             return method.invoke(instance, args);
         } catch (Exception e) {
             return null;
         }
+    }
+
+    private static Object[] initArray(Class<?>[] parameterTypes) {
+        var args = new Object[parameterTypes.length];
+        for (int i = 0; i < parameterTypes.length; i++) {
+            args[i] = getDefaultValue(parameterTypes[i]);
+        }
+        return args;
+    }
+
+    public static Object getDefaultValue(Class<?> paramType) {
+        if (paramType == int.class || paramType == Integer.class) {
+            return 0;
+        } else if (paramType == long.class || paramType == Long.class) {
+            return 0L;
+        } else if (paramType == double.class || paramType == Double.class) {
+            return 0.0;
+        } else if (paramType == boolean.class || paramType == Boolean.class) {
+            return false;
+        }
+        return null;
     }
 
     public static Object getField(Field loadProfileInfoField, Object thisObject) {

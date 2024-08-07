@@ -27,11 +27,22 @@ public abstract class Feature {
         if (!DEBUG) return;
         log(object);
         if (object instanceof Throwable th) {
-            Log.i(this.getPluginName(), th.getMessage(), th);
+            Log.i("WAE", this.getPluginName() + "-> " + th.getMessage(), th);
         } else {
-            Log.i(this.getPluginName(), String.valueOf(object));
+            Log.i("WAE", this.getPluginName() + "-> " + object);
         }
     }
+
+    public void logDebug(String title, Object object) {
+        if (!DEBUG) return;
+        log(title + ": " + object);
+        if (object instanceof Throwable th) {
+            Log.i("WAE", this.getPluginName() + "-> " + title + ": " + th.getMessage(), th);
+        } else {
+            Log.i("WAE", this.getPluginName() + "-> " + title + ": " + object);
+        }
+    }
+
 
     public void log(Object object) {
         if (object instanceof Throwable) {
