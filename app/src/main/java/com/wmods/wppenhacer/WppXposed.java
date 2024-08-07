@@ -14,6 +14,7 @@ import com.wmods.wppenhacer.xposed.AntiUpdater;
 import com.wmods.wppenhacer.xposed.bridge.ScopeHook;
 import com.wmods.wppenhacer.xposed.core.FeatureLoader;
 import com.wmods.wppenhacer.xposed.downgrade.Patch;
+import com.wmods.wppenhacer.xposed.spoofer.HookBL;
 import com.wmods.wppenhacer.xposed.utils.ResId;
 
 import de.robv.android.xposed.IXposedHookInitPackageResources;
@@ -48,19 +49,22 @@ public class WppXposed implements IXposedHookLoadPackage, IXposedHookInitPackage
     public void handleLoadPackage(XC_LoadPackage.LoadPackageParam lpparam) throws Throwable {
         var packageName = lpparam.packageName;
         var classLoader = lpparam.classLoader;
-
-
         if (packageName.equals(BuildConfig.APPLICATION_ID)) {
             XposedHelpers.findAndHookMethod(MainActivity.class.getName(), lpparam.classLoader, "isXposedEnabled", XC_MethodReplacement.returnConstant(true));
             XposedHelpers.findAndHookMethod(PreferenceManager.class.getName(), lpparam.classLoader, "getDefaultSharedPreferencesMode", XC_MethodReplacement.returnConstant(ContextWrapper.MODE_WORLD_READABLE));
             return;
         }
-        XposedBridge.log("[•] This package: " + lpparam.packageName);
-        AntiUpdater.hookSession(pref);
-        Patch.handleLoadPackage(lpparam, pref);
+        AntiUpdater.hookSession(lpparam);
+        Patch.handleLoadPackage(lpparam, getPref());
         ScopeHook.hook(lpparam);
+//        AndroidPermissions.hook(lpparam); in tests
         if (!packageName.equals(FeatureLoader.PACKAGE_WPP) && !packageName.equals(FeatureLoader.PACKAGE_BUSINESS))
             return;
+        XposedBridge.log("[•] This package: " + lpparam.packageName);
+        if (getPref().getBoolean("bootloader_spoofer", false)) {
+            HookBL.hook(lpparam);
+            XposedBridge.log("Bootloader Spoofer is Injected");
+        }
         var sourceDir = lpparam.appInfo.sourceDir;
         FeatureLoader.start(classLoader, getPref(), sourceDir);
         disableSecureFlag();

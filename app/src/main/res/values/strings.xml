@@ -370,4 +370,6 @@
     <string name="starting_cache">Starting hook cache in WhatsApp. This may take a while.</string>
     <string name="bridge_error">Bridge Failed: Enable System Framework in Lsposed and reboot device</string>
     <string name="disable_battery_optimization">Disable Battery Optimization</string>
+    <string name="bootloader_spoofer">Bootloader Spoofer</string>
+    <string name="bootloader_spoofer_sum">Use this if you have been banned and are receiving the unofficial Whatsapp message</string>
 </resources>

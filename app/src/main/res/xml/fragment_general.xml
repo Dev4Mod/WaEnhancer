@@ -22,10 +22,15 @@
             app:title="@string/verbose_logs" />
 
         <rikka.material.preference.MaterialSwitchPreference
-            android:summary="@string/disable_version_check_sum"
+            app:summary="@string/disable_version_check_sum"
             app:defaultValue="false"
             app:key="bypass_version_check"
             app:title="@string/disable_version_check" />
+
+        <rikka.material.preference.MaterialSwitchPreference
+            android:summary="@string/bootloader_spoofer_sum"
+            android:title="@string/bootloader_spoofer"
+            app:key="bootloader_spoofer" />
 
         <rikka.material.preference.MaterialSwitchPreference
             app:key="ampm"
