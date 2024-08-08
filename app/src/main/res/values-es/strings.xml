@@ -316,7 +316,7 @@
     <string name="new_theme_name">Nuevo nombre del tema</string>
     <string name="create">Crear</string>
     <string name="storage_permission">Permiso de almacenamiento</string>
-    <string name="permission_storage">¿Permitir a Wa Enhancer acceder a tu almacenamiento externo? Es necesario en Android 11+</string>
+    <string name="permission_storage">Allow Wa Enhancer to access your external storage?</string>
     <string name="allow">Permitir</string>
     <string name="deny">Denegar</string>
     <string name="saved">Guardado</string>
@@ -366,4 +366,8 @@
     <string name="show_menu_buttons_as_icons_sum">Muestra los botones de menú en la pantalla de inicio como iconos para un fácil acceso a ellos</string>
     <string name="starting_cache">Iniciando caché del hook en WhatsApp. Esto puede tardar un rato.</string>
     <string name="bridge_error">Fallo del Bridge: Habilita Framework del Sistema en Lsposed y reinicia el dispositivo</string>
+    <string name="disable_battery_optimization">Disable Battery Optimization</string>
+    <string name="bootloader_spoofer">Bootloader Spoofer</string>
+    <string name="bootloader_spoofer_sum">Use this if you have been banned and are receiving the unofficial Whatsapp message</string>
+    <string name="not_available">not available</string>
 </resources>

@@ -10,3 +10,6 @@
 [WHATSAPP 2.24.16.XX]
 * Enable beta function: translate message (unfortunately it only translates from 5 source languages: Arabic, English, Spanish, Hindi and Russian. In my tests, just translating from English to the native language worked)
 Note: This is a beta thing being developed by WhatsApp, so don't report it as a bug if you are facing errors
+
+[WA ENHANCER]
+* Update translations

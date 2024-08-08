@@ -325,7 +325,7 @@ Harap gunakan versi WhatsApp yang didukung!</string>
     <string name="new_theme_name">Nama Tema Baru</string>
     <string name="create">Buat</string>
     <string name="storage_permission">Izin Penyimpanan</string>
-    <string name="permission_storage">Izinkan Wa Enhancer mengakses penyimpanan eksternal Anda? Perlu dilakukan di Android 11+</string>
+    <string name="permission_storage">Allow Wa Enhancer to access your external storage?</string>
     <string name="allow">Izinkan</string>
     <string name="deny">Tolak</string>
     <string name="saved">Disimpan</string>
@@ -375,4 +375,8 @@ Harap gunakan versi WhatsApp yang didukung!</string>
     <string name="show_menu_buttons_as_icons_sum">Tampilkan tombol menu di layar beranda sebagai ikon untuk memudahkan akses ke tombol tersebut</string>
     <string name="starting_cache">Muat ulang cache di WhatsApp. Ini mungkin memerlukan waktu cukup lama.</string>
     <string name="bridge_error">Bridge Gagal: Aktifkan Kerangka Sistem di LSPosed dan reboot perangkat</string>
+    <string name="disable_battery_optimization">Disable Battery Optimization</string>
+    <string name="bootloader_spoofer">Bootloader Spoofer</string>
+    <string name="bootloader_spoofer_sum">Use this if you have been banned and are receiving the unofficial Whatsapp message</string>
+    <string name="not_available">not available</string>
 </resources>

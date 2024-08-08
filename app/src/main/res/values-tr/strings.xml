@@ -316,7 +316,7 @@
     <string name="new_theme_name">Yeni Tema Adı</string>
     <string name="create">Oluştur</string>
     <string name="storage_permission">Depolama İzni</string>
-    <string name="permission_storage">Wa Enhancer\'ın harici depolama alanınıza erişmesine izin verilsin mi? Android 11+ üzerinde yapılması gerekiyor</string>
+    <string name="permission_storage">Allow Wa Enhancer to access your external storage?</string>
     <string name="allow">İzin ver</string>
     <string name="deny">Reddet</string>
     <string name="saved">Kaydedildi</string>
@@ -366,4 +366,8 @@
     <string name="show_menu_buttons_as_icons_sum">Kolay erişim için ana ekrandaki menü düğmelerini simge olarak gösterir</string>
     <string name="starting_cache">WhatsApp\'ta kanca önbelleği başlatılıyor. Bu biraz zaman alabilir.</string>
     <string name="bridge_error">Köprü Başarısız: Lsposed\'de Sistem Çerçevesini Etkinleştirin ve cihazı yeniden başlatın</string>
+    <string name="disable_battery_optimization">Disable Battery Optimization</string>
+    <string name="bootloader_spoofer">Bootloader Spoofer</string>
+    <string name="bootloader_spoofer_sum">Use this if you have been banned and are receiving the unofficial Whatsapp message</string>
+    <string name="not_available">not available</string>
 </resources>

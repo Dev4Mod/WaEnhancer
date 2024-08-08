@@ -318,7 +318,7 @@
     <string name="new_theme_name">שם ערכת נושא חדש</string>
     <string name="create">יצירה</string>
     <string name="storage_permission">הרשאת אחסון</string>
-    <string name="permission_storage">לאפשר ל-Wa Enhancer לגשת לאחסון החיצוני שלך? צריך להעשות ב-Android 11+</string>
+    <string name="permission_storage">Allow Wa Enhancer to access your external storage?</string>
     <string name="allow">אפשר</string>
     <string name="deny">דחה</string>
     <string name="saved">שמור</string>
@@ -368,4 +368,8 @@
     <string name="show_menu_buttons_as_icons_sum">מציג לחצני תפריט במסך הבית כסמלים</string>
     <string name="starting_cache">הפעלת מטמון בוואטסאפ. זה עשוי לקחת זמן.</string>
     <string name="bridge_error">הפעולה נכשלה: הפעל את מסגרת המערכת ב-Lsposed ואתחל את הטלפון מחדש</string>
+    <string name="disable_battery_optimization">Disable Battery Optimization</string>
+    <string name="bootloader_spoofer">Bootloader Spoofer</string>
+    <string name="bootloader_spoofer_sum">Use this if you have been banned and are receiving the unofficial Whatsapp message</string>
+    <string name="not_available">not available</string>
 </resources>

@@ -317,7 +317,7 @@
     <string name="new_theme_name">اسم السمة الجديدة</string>
     <string name="create">إنشاء</string>
     <string name="storage_permission">إذن التخزين</string>
-    <string name="permission_storage">السماح لـ Wa Enhancer بالوصول إلى وحدة التخزين الخارجية الخاصة بك؟ تحتاج إلى القيام بذلك على أندرويد 11+</string>
+    <string name="permission_storage">Allow Wa Enhancer to access your external storage?</string>
     <string name="allow">سماح</string>
     <string name="deny">رفض</string>
     <string name="saved">تم الحفظ</string>
@@ -365,6 +365,10 @@
     <string name="local_download">مكان التحميل</string>
     <string name="show_menu_buttons_as_icons">إظهار أزرار القائمة كأيقونات</string>
     <string name="show_menu_buttons_as_icons_sum">إظهار أزرار القائمة على الشاشة الرئيسية كأيقونات لتسهيل الوصول إليها</string>
-    <string name="starting_cache">Starting hook cache in WhatsApp. This may take a while.</string>
-    <string name="bridge_error">Bridge Failed: Enable System Framework in Lsposed and reboot device</string>
+    <string name="starting_cache">بدء ربط ذاكرة التخزين المؤقت في واتساب. قد يستغرق ذلك بعض الوقت.</string>
+    <string name="bridge_error">فشل الربط: تمكين إطار النظام في Lsposed وإعادة تشغيل الجهاز</string>
+    <string name="disable_battery_optimization">Disable Battery Optimization</string>
+    <string name="bootloader_spoofer">Bootloader Spoofer</string>
+    <string name="bootloader_spoofer_sum">Use this if you have been banned and are receiving the unofficial Whatsapp message</string>
+    <string name="not_available">not available</string>
 </resources>
