@@ -106,6 +106,7 @@ public class Others extends Feature {
         propsBoolean.put(8607, true);  // Enable Dialer keyboard
         propsBoolean.put(9578, true);  // Enable Privacy Checkup
         propsInteger.put(8135, 2);  // Call Filters
+        propsBoolean.put(9141, true);  // Enable Translate Message
 
 
         if (metaai) {

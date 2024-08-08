@@ -1,10 +1,12 @@
-[WHATSAPP]
-* Added pre-support to version 2.24.16.xx
+[DOT ONLINE]
+* Fixed bug that does not display online contact details or last seen
+* Added an icon for online
+* The text changes color depending on the contact's current status
+* Add support to RTL (Right to Left direction)
 
-[WA ENHANHCER]
-* Added function to bootloader spoofer (If you have previously been banned for using a GBWhatsapp and are receiving the Unofficial WhatsApp message, activate this option) thanks for chiteroman
-* Fix bug in File Preference
-* Fix bug in AntiUpdater (Now you can select Play Store or another store in Lsposed to avoid automatic update)
-* Update translations
+[WA BUSINESS]
+* Fixed closing bug when starting
 
-
+[WHATSAPP 2.24.16.XX]
+* Enable beta function: translate message (unfortunately it only translates from 5 source languages: Arabic, English, Spanish, Hindi and Russian. In my tests, just translating from English to the native language worked)
+Note: This is a beta thing being developed by WhatsApp, so don't report it as a bug if you are facing errors
