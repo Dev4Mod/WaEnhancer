@@ -295,7 +295,7 @@ public class Unobfuscator {
 
     public synchronized static Method loadTabNameMethod(ClassLoader classLoader) throws Exception {
         return UnobfuscatorCache.getInstance().getMethod(classLoader, () -> {
-            int id = UnobfuscatorCache.getInstance().getOfuscateIDString("communities");
+            int id = UnobfuscatorCache.getInstance().getOfuscateIDString("updates");
             if (id < 1) throw new Exception("TabName ID not found");
             MethodDataList result = dexkit.findMethod(FindMethod.create().matcher(MethodMatcher.create().returnType(String.class).usingNumbers(id)));
             if (result.isEmpty()) throw new Exception("TabName method not found");
@@ -864,7 +864,7 @@ public class Unobfuscator {
             if (id < 1) throw new Exception("GetStatusUser ID not found");
             var result = dexkit.findMethod(FindMethod.create().matcher(MethodMatcher.create().addUsingNumber(id).returnType(String.class)));
             if (result.isEmpty()) throw new Exception("GetStatusUser method not found");
-            return result.get(0).getMethodInstance(loader);
+            return result.get(result.size() - 1).getMethodInstance(loader);
         });
     }
 
