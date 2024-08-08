@@ -3,8 +3,6 @@ package com.wmods.wppenhacer.xposed.features.customization;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.Color;
-import android.graphics.drawable.ShapeDrawable;
-import android.graphics.drawable.shapes.OvalShape;
 import android.text.TextUtils;
 import android.view.Gravity;
 import android.view.View;
@@ -15,13 +13,17 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.core.text.TextUtilsCompat;
 
 import com.wmods.wppenhacer.xposed.core.Feature;
 import com.wmods.wppenhacer.xposed.core.WppCore;
 import com.wmods.wppenhacer.xposed.core.devkit.Unobfuscator;
 import com.wmods.wppenhacer.xposed.core.devkit.UnobfuscatorCache;
 import com.wmods.wppenhacer.xposed.utils.ReflectionUtils;
+import com.wmods.wppenhacer.xposed.utils.ResId;
 import com.wmods.wppenhacer.xposed.utils.Utils;
+
+import java.util.Locale;
 
 import de.robv.android.xposed.XC_MethodHook;
 import de.robv.android.xposed.XSharedPreferences;
@@ -62,9 +64,10 @@ public class DotOnline extends Feature {
                     TextView lastSeenText = new TextView(context);
                     lastSeenText.setId(0x7FFF0002);
                     lastSeenText.setTextSize(12f);
+                    lastSeenText.setText(ResId.string.not_available);
                     lastSeenText.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.MATCH_PARENT));
                     lastSeenText.setGravity(Gravity.CENTER_VERTICAL);
-                    lastSeenText.setVisibility(View.INVISIBLE);
+                    lastSeenText.setVisibility(View.VISIBLE);
                     linearLayout.addView(lastSeenText);
                 }
                 if (showOnlineIcon) {
@@ -79,20 +82,18 @@ public class DotOnline extends Feature {
                     photoView.setLayoutParams(params);
                     relativeLayout.addView(photoView);
                     contactView.addView(relativeLayout);
+                    var isLeftToRight = TextUtilsCompat.getLayoutDirectionFromLocale(Locale.getDefault()) == View.LAYOUT_DIRECTION_LTR;
 
                     var imageView = new ImageView(context);
                     imageView.setId(0x7FFF0001);
-                    var params2 = new RelativeLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
-                    params2.addRule(RelativeLayout.ALIGN_TOP, photoView.getId());
-                    params2.addRule(RelativeLayout.ALIGN_RIGHT, photoView.getId());
+                    var params2 = new RelativeLayout.LayoutParams(Utils.dipToPixels(14), Utils.dipToPixels(14));
+                    params2.addRule(RelativeLayout.ALIGN_TOP, contactView.getId());
+                    params2.addRule(isLeftToRight ? RelativeLayout.ALIGN_RIGHT : RelativeLayout.ALIGN_LEFT, photoView.getId());
                     params2.topMargin = Utils.dipToPixels(5);
                     imageView.setLayoutParams(params2);
-                    ShapeDrawable shapeDrawable = new ShapeDrawable(new OvalShape());
-                    shapeDrawable.getPaint().setColor(Color.GREEN);
-                    // Define the size of the circle
-                    shapeDrawable.setIntrinsicHeight(20);
-                    shapeDrawable.setIntrinsicWidth(20);
-                    imageView.setImageDrawable(shapeDrawable);
+                    imageView.setImageResource(ResId.drawable.online);
+                    imageView.setAdjustViewBounds(true);
+                    imageView.setScaleType(ImageView.ScaleType.FIT_XY);
                     imageView.setVisibility(View.INVISIBLE);
                     relativeLayout.addView(imageView);
                 }
@@ -141,9 +142,6 @@ public class DotOnline extends Feature {
                     csDot.setVisibility(View.INVISIBLE);
                 }
                 TextView lastSeenText = showOnlineText ? view.findViewById(0x7FFF0002) : null;
-                if (showOnlineText) {
-                    lastSeenText.setVisibility(View.INVISIBLE); // Hide last seen time initially
-                }
                 var jidFiled = ReflectionUtils.getFieldByExtendType(object.getClass(), XposedHelpers.findClass("com.whatsapp.jid.Jid", classLoader));
                 var jidObject = jidFiled.get(object);
                 var jid = WppCore.getRawString(jidObject);
@@ -160,12 +158,21 @@ public class DotOnline extends Feature {
                         csDot.setVisibility(View.VISIBLE);
                     }
                 }
-                if (!TextUtils.isEmpty(status)) {
-                    if (lastSeenText != null) {
+
+                if (lastSeenText != null) {
+                    if (!TextUtils.isEmpty(status)) {
                         lastSeenText.setText(status);
-                        lastSeenText.setVisibility(View.VISIBLE);
+                        if (UnobfuscatorCache.getInstance().getString("online").equals(status)) {
+                            lastSeenText.setTextColor(Color.GREEN);
+                        } else {
+                            lastSeenText.setTextColor(Color.RED);
+                        }
+                    } else {
+                        lastSeenText.setText(ResId.string.not_available);
+                        lastSeenText.setTextColor(Color.GRAY);
                     }
                 }
+
             }
         });
     }

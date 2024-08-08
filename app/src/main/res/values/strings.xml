@@ -372,4 +372,5 @@
     <string name="disable_battery_optimization">Disable Battery Optimization</string>
     <string name="bootloader_spoofer">Bootloader Spoofer</string>
     <string name="bootloader_spoofer_sum">Use this if you have been banned and are receiving the unofficial Whatsapp message</string>
+    <string name="not_available">not available</string>
 </resources>
