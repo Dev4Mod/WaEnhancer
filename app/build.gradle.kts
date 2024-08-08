@@ -170,7 +170,7 @@ afterEvaluate {
                         "shell",
                         "am",
                         "start",
-                        project.properties["debug_package_name"].toString() + "/.HomeActivity"
+                        project.properties["debug_package_name"].toString() + "/com.whatsapp.HomeActivity"
                     )
                 }
 
