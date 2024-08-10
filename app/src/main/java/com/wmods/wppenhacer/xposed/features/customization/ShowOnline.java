@@ -30,12 +30,12 @@ import de.robv.android.xposed.XSharedPreferences;
 import de.robv.android.xposed.XposedBridge;
 import de.robv.android.xposed.XposedHelpers;
 
-public class DotOnline extends Feature {
+public class ShowOnline extends Feature {
 
     private Object mStatusUser;
     private Object mInstancePresence;
 
-    public DotOnline(@NonNull ClassLoader loader, @NonNull XSharedPreferences preferences) {
+    public ShowOnline(@NonNull ClassLoader loader, @NonNull XSharedPreferences preferences) {
         super(loader, preferences);
     }
 
@@ -64,7 +64,7 @@ public class DotOnline extends Feature {
                     TextView lastSeenText = new TextView(context);
                     lastSeenText.setId(0x7FFF0002);
                     lastSeenText.setTextSize(12f);
-                    lastSeenText.setText(ResId.string.not_available);
+                    lastSeenText.setText("");
                     lastSeenText.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.MATCH_PARENT));
                     lastSeenText.setGravity(Gravity.CENTER_VERTICAL);
                     lastSeenText.setVisibility(View.VISIBLE);
@@ -165,10 +165,10 @@ public class DotOnline extends Feature {
                         if (UnobfuscatorCache.getInstance().getString("online").equals(status)) {
                             lastSeenText.setTextColor(Color.GREEN);
                         } else {
-                            lastSeenText.setTextColor(Color.RED);
+                            lastSeenText.setTextColor(Color.YELLOW);
                         }
                     } else {
-                        lastSeenText.setText(ResId.string.not_available);
+                        lastSeenText.setText("");
                         lastSeenText.setTextColor(Color.GRAY);
                     }
                 }
