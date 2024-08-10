@@ -316,7 +316,7 @@
     <string name="new_theme_name">Nome do novo tema</string>
     <string name="create">Criar</string>
     <string name="storage_permission">Permissão de armazenamento</string>
-    <string name="permission_storage">Allow Wa Enhancer to access your external storage?</string>
+    <string name="permission_storage">Permitir que o Wa Enhancer acesse seu armazenamento externo? Android 11+ suportado.</string>
     <string name="allow">Permitir</string>
     <string name="deny">Negar</string>
     <string name="saved">Salvo</string>
@@ -366,8 +366,8 @@
     <string name="show_menu_buttons_as_icons_sum">Mostra os botões habilitados no Wa Enhancer na barra superior da tela inicial do WhatsApp.</string>
     <string name="starting_cache">Iniciando hook cache no WhatsApp. Isso pode demorar um pouco.</string>
     <string name="bridge_error">Bridge Failed: Habilitar System Framework no Lsposed e reiniciar o dispositivo</string>
-    <string name="disable_battery_optimization">Disable Battery Optimization</string>
-    <string name="bootloader_spoofer">Bootloader Spoofer</string>
-    <string name="bootloader_spoofer_sum">Use this if you have been banned and are receiving the unofficial Whatsapp message</string>
-    <string name="not_available">not available</string>
+    <string name="disable_battery_optimization">Desativar otimização da bateria</string>
+    <string name="bootloader_spoofer">Spoofer do Bootloader</string>
+    <string name="bootloader_spoofer_sum">Use isto se você foi banido e está recebendo a mensagem para usar o app oficial do Whatsapp.</string>
+    <string name="not_available"></string>
 </resources>

@@ -1,15 +1,16 @@
-[DOT ONLINE]
-* Fixed bug that does not display online contact details or last seen
-* Added an icon for online
-* The text changes color depending on the contact's current status
-* Add support to RTL (Right to Left direction)
-
-[WA BUSINESS]
-* Fixed closing bug when starting
-
-[WHATSAPP 2.24.16.XX]
-* Enable beta function: translate message (unfortunately it only translates from 5 source languages: Arabic, English, Spanish, Hindi and Russian. In my tests, just translating from English to the native language worked)
-Note: This is a beta thing being developed by WhatsApp, so don't report it as a bug if you are facing errors
+[BOOTLOADER SPOOFER]
+* Added anti root detections (nothing too big, as there are numerous ways of hiding root by modules that are more efficient)
+* Added emulator anti detections
+* Added custom rom anti detections
+NOTE: Enabling the bootloader spoofer already activates all mentioned hides
 
 [WA ENHANCER]
+* General settings are now more organized
 * Update translations
+
+[DOT ONLINE]
+* Removido o texto "not available"
+* Text color changed to a less flashy color
+
+
+

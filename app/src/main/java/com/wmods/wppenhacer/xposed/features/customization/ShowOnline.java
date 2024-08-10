@@ -165,7 +165,7 @@ public class ShowOnline extends Feature {
                         if (UnobfuscatorCache.getInstance().getString("online").equals(status)) {
                             lastSeenText.setTextColor(Color.GREEN);
                         } else {
-                            lastSeenText.setTextColor(Color.YELLOW);
+                            lastSeenText.setTextColor(0xffcac100);
                         }
                     } else {
                         lastSeenText.setText("");

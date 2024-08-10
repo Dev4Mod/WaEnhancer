@@ -316,7 +316,7 @@
     <string name="new_theme_name">Название новой темы</string>
     <string name="create">Создать</string>
     <string name="storage_permission">Доступ к хранилищу</string>
-    <string name="permission_storage">Allow Wa Enhancer to access your external storage?</string>
+    <string name="permission_storage">Разрешить Wa Enhancer доступ к внешнему хранилищу?</string>
     <string name="allow">Разрешить</string>
     <string name="deny">Запретить</string>
     <string name="saved">Сохранено</string>
@@ -366,8 +366,8 @@
     <string name="show_menu_buttons_as_icons_sum">Отображает кнопки меню на главном экране в виде значков для быстрого доступа к ним</string>
     <string name="starting_cache">Запуск кэша хуков в WhatsApp. Это может занять некоторое время.</string>
     <string name="bridge_error">Сбой моста: включите системную структуру в Lsposed и перезагрузите устройство</string>
-    <string name="disable_battery_optimization">Disable Battery Optimization</string>
+    <string name="disable_battery_optimization">Отключить оптимизацию батареи</string>
     <string name="bootloader_spoofer">Bootloader Spoofer</string>
-    <string name="bootloader_spoofer_sum">Use this if you have been banned and are receiving the unofficial Whatsapp message</string>
-    <string name="not_available">not available</string>
+    <string name="bootloader_spoofer_sum">Используйте это, если вы были заблокированы и получаете неофициальное сообщение Whatsapp</string>
+    <string name="not_available">недоступен</string>
 </resources>
