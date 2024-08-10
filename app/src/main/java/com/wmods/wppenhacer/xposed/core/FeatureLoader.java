@@ -28,11 +28,11 @@ import com.wmods.wppenhacer.xposed.features.customization.CustomTheme;
 import com.wmods.wppenhacer.xposed.features.customization.CustomTime;
 import com.wmods.wppenhacer.xposed.features.customization.CustomToolbar;
 import com.wmods.wppenhacer.xposed.features.customization.CustomView;
-import com.wmods.wppenhacer.xposed.features.customization.DotOnline;
 import com.wmods.wppenhacer.xposed.features.customization.FilterGroups;
 import com.wmods.wppenhacer.xposed.features.customization.HideTabs;
 import com.wmods.wppenhacer.xposed.features.customization.IGStatus;
 import com.wmods.wppenhacer.xposed.features.customization.SeparateGroup;
+import com.wmods.wppenhacer.xposed.features.customization.ShowOnline;
 import com.wmods.wppenhacer.xposed.features.general.AntiRevoke;
 import com.wmods.wppenhacer.xposed.features.general.CallType;
 import com.wmods.wppenhacer.xposed.features.general.ChatLimit;
@@ -59,6 +59,7 @@ import com.wmods.wppenhacer.xposed.features.others.MenuHome;
 import com.wmods.wppenhacer.xposed.features.others.Stickers;
 import com.wmods.wppenhacer.xposed.features.others.TextStatusComposer;
 import com.wmods.wppenhacer.xposed.features.others.ToastViewer;
+import com.wmods.wppenhacer.xposed.features.privacy.AntiDetector;
 import com.wmods.wppenhacer.xposed.features.privacy.CallPrivacy;
 import com.wmods.wppenhacer.xposed.features.privacy.DndMode;
 import com.wmods.wppenhacer.xposed.features.privacy.FreezeLastSeen;
@@ -234,7 +235,7 @@ public class FeatureLoader {
                 CustomTheme.class,
                 ChatLimit.class,
                 SeparateGroup.class,
-                DotOnline.class,
+                ShowOnline.class,
                 DndMode.class,
                 FreezeLastSeen.class,
                 TypePrivacy.class,
@@ -266,7 +267,8 @@ public class FeatureLoader {
                 CopyStatus.class,
                 TextStatusComposer.class,
                 ToastViewer.class,
-                MenuHome.class
+                MenuHome.class,
+                AntiDetector.class
         };
         XposedBridge.log("Loading Plugins");
         var executorService = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
