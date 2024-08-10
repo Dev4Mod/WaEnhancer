@@ -1609,4 +1609,22 @@ public class Unobfuscator {
             return methodData.get(0).getMethodInstance(classLoader);
         });
     }
+
+    public static Method[] loadRootDetector(ClassLoader classLoader) {
+        var methods = findAllMethodUsingStrings(classLoader, StringMatchType.Contains, "/system/bin/su");
+        if (methods.length == 0) throw new RuntimeException("RootDetector method not found");
+        return methods;
+    }
+
+    public static Method loadCheckEmulator(ClassLoader classLoader) throws Exception {
+        var method = findFirstMethodUsingStrings(classLoader, StringMatchType.Contains, "Android SDK built for x86");
+        if (method == null) throw new RuntimeException("CheckEmulator method not found");
+        return method;
+    }
+
+    public static Method loadCheckCustomRom(ClassLoader classLoader) throws Exception {
+        var method = findFirstMethodUsingStrings(classLoader, StringMatchType.Contains, "cyanogen");
+        if (method == null) throw new RuntimeException("CheckCustomRom method not found");
+        return method;
+    }
 }

@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:app="http://schemas.android.com/apk/res-auto">
+    <PreferenceCategory
+        app:iconSpaceReserved="false"
+        app:title="@string/conversation">
+
+        <rikka.material.preference.MaterialSwitchPreference
+            app:key="showonline"
+            app:summary="@string/show_toast_on_contact_online_sum"
+            app:title="@string/show_toast_on_contact_online" />
+
+        <rikka.material.preference.MaterialSwitchPreference
+            app:key="toastdeleted"
+            app:summary="@string/toast_on_delete_sum"
+            app:title="@string/toast_on_delete" />
+
+        <rikka.material.preference.MaterialSwitchPreference
+            app:key="toast_viewed_message"
+            app:summary="@string/toast_on_viewed_message_sum"
+            app:title="@string/toast_on_viewed_message" />
+
+        <ListPreference
+            app:entries="@array/antirevoke_entries"
+            app:entryValues="@array/antirevoke_values"
+            app:iconSpaceReserved="false"
+            app:key="antirevoke"
+            app:summary="@string/antirevoke_sum"
+            app:title="@string/antirevoke" />
+
+        <ListPreference
+            app:entries="@array/antirevoke_entries"
+            app:entryValues="@array/antirevoke_values"
+            app:iconSpaceReserved="false"
+            app:key="antirevokestatus"
+            app:summary="@string/antirevokestatus_sum"
+            app:title="@string/antirevokestatus" />
+
+        <rikka.material.preference.MaterialSwitchPreference
+            app:key="antidisappearing"
+            app:summary="@string/antidisappearing_sum"
+            app:title="@string/antidisappearing" />
+
+        <rikka.material.preference.MaterialSwitchPreference
+            app:key="pinnedlimit"
+            app:summary="@string/disable_pinned_limit_sum"
+            app:title="@string/disable_pinned_limit" />
+
+        <rikka.material.preference.MaterialSwitchPreference
+            app:key="removeforwardlimit"
+            app:summary="@string/removeforwardlimit_sum"
+            app:title="@string/removeforwardlimit" />
+
+        <rikka.material.preference.MaterialSwitchPreference
+            app:key="hidetag"
+            app:summary="@string/hidetag_sum"
+            app:title="@string/hidetag" />
+
+        <rikka.material.preference.MaterialSwitchPreference
+            app:key="revokeallmessages"
+            app:summary="@string/delete_for_everyone_all_messages_sum"
+            app:title="@string/delete_for_everyone_all_messages" />
+
+        <rikka.material.preference.MaterialSwitchPreference
+            app:key="removeseemore"
+            app:summary="@string/remove_see_more_button_"
+            app:title="@string/remove_see_more_button" />
+
+        <rikka.material.preference.MaterialSwitchPreference
+            app:key="antieditmessages"
+            app:summary="@string/show_edited_message_history_sum"
+            app:title="@string/show_edited_message_history" />
+
+        <rikka.material.preference.MaterialSwitchPreference
+            app:key="alertsticker"
+            app:summary="@string/enable_confirmation_to_send_sticker_sum"
+            app:title="@string/enable_confirmation_to_send_sticker" />
+
+        <rikka.material.preference.MaterialSwitchPreference
+            app:key="calltype"
+            app:summary="@string/selection_of_call_type_sum"
+            app:title="@string/selection_of_call_type" />
+
+        <rikka.material.preference.MaterialSwitchPreference
+            app:key="disable_defemojis"
+            app:summary="@string/disable_default_emojis_sum"
+            app:title="@string/disable_default_emojis" />
+
+        <rikka.material.preference.MaterialSwitchPreference
+            app:key="stamp_copied_message"
+            app:summary="@string/stamp_copied_messages_sum"
+            app:title="@string/stamp_copied_messages" />
+
+        <rikka.material.preference.MaterialSwitchPreference
+            app:defaultValue="true"
+            app:key="doubletap2like"
+            app:summary="@string/double_click_to_like_sum"
+            app:title="@string/double_click_to_react" />
+
+        <com.wmods.wppenhacer.preference.LimitedEditTextPreference
+            app:defaultValue="👍"
+            app:dependency="doubletap2like"
+            app:key="doubletap2like_emoji"
+            app:maxLength="2"
+            app:summary="@string/custom_reaction_sum"
+            app:title="@string/custom_reaction" />
+
+    </PreferenceCategory>
+
+</PreferenceScreen>

@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <PreferenceCategory
+        app:iconSpaceReserved="false"
+        app:title="@string/general">
+
+        <ListPreference
+            app:entries="@array/thememode_entries"
+            app:entryValues="@array/thememode_values"
+            app:key="thememode"
+            app:summary="%s"
+            app:title="@string/theme_mode" />
+
+        <rikka.material.preference.MaterialSwitchPreference
+            app:key="force_english"
+            app:title="@string/force_english" />
+
+        <rikka.material.preference.MaterialSwitchPreference
+            app:defaultValue="true"
+            app:key="enablelogs"
+            app:title="@string/verbose_logs" />
+
+        <rikka.material.preference.MaterialSwitchPreference
+            app:defaultValue="false"
+            app:key="bypass_version_check"
+            app:summary="@string/disable_version_check_sum"
+            app:title="@string/disable_version_check" />
+
+        <rikka.material.preference.MaterialSwitchPreference
+            android:summary="@string/bootloader_spoofer_sum"
+            android:title="@string/bootloader_spoofer"
+            app:key="bootloader_spoofer" />
+
+        <rikka.material.preference.MaterialSwitchPreference
+            app:key="ampm"
+            app:title="@string/ampm" />
+
+        <rikka.material.preference.MaterialSwitchPreference
+            app:key="segundos"
+            app:summary="@string/segundosnahora_sum"
+            app:title="@string/segundosnahora" />
+
+        <EditTextPreference
+            app:iconSpaceReserved="false"
+            app:key="secondstotime"
+            app:summary="@string/textonahora_sum"
+            app:title="@string/textonahora" />
+
+        <rikka.material.preference.MaterialSwitchPreference
+            app:key="tasker"
+            app:summary="@string/enable_tasker_automation_sum"
+            app:title="@string/enable_tasker_automation" />
+
+    </PreferenceCategory>
+
+</PreferenceScreen>

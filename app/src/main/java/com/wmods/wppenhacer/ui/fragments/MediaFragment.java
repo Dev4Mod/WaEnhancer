@@ -15,6 +15,13 @@ public class MediaFragment extends BasePreferenceFragment {
     }
 
     @Override
+    public void onResume() {
+        super.onResume();
+        setDisplayHomeAsUpEnabled(false);
+    }
+
+
+    @Override
     public void onCreatePreferences(@Nullable Bundle savedInstanceState, @Nullable String rootKey) {
         super.onCreatePreferences(savedInstanceState, rootKey);
         setPreferencesFromResource(R.xml.fragment_media, rootKey);

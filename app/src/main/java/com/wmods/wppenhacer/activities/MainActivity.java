@@ -137,4 +137,9 @@ public class MainActivity extends BaseActivity {
         return false;
     }
 
+    @Override
+    public boolean onSupportNavigateUp() {
+        onBackPressed();
+        return super.onSupportNavigateUp();
+    }
 }

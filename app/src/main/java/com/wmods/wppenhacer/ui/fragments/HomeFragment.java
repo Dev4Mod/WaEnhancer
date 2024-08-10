@@ -91,6 +91,12 @@ public class HomeFragment extends BaseFragment {
         return binding.getRoot();
     }
 
+    @Override
+    public void onResume() {
+        super.onResume();
+        setDisplayHomeAsUpEnabled(false);
+    }
+
     @SuppressLint("StringFormatInvalid")
     private void receiverBroadcastBusiness(Context context, Intent intent) {
         binding.statusTitle3.setText(R.string.business_in_background);

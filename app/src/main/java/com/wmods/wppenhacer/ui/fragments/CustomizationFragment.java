@@ -13,4 +13,11 @@ public class CustomizationFragment extends BasePreferenceFragment {
         super.onCreatePreferences(savedInstanceState, rootKey);
         setPreferencesFromResource(R.xml.fragment_customization, rootKey);
     }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        setDisplayHomeAsUpEnabled(false);
+    }
+
 }

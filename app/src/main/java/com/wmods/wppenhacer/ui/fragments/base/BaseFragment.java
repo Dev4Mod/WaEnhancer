@@ -1,10 +1,16 @@
 package com.wmods.wppenhacer.ui.fragments.base;
 
+import android.os.Bundle;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.Toast;
 
 import androidx.annotation.IdRes;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.annotation.StringRes;
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.view.MenuProvider;
 import androidx.fragment.app.Fragment;
@@ -15,12 +21,23 @@ import androidx.navigation.fragment.NavHostFragment;
 import com.google.android.material.snackbar.Snackbar;
 import com.wmods.wppenhacer.App;
 import com.wmods.wppenhacer.R;
+import com.wmods.wppenhacer.databinding.BaseFragmentBinding;
 
 import java.util.concurrent.Callable;
 import java.util.concurrent.Future;
 import java.util.concurrent.FutureTask;
 
 public class BaseFragment extends Fragment {
+
+
+    public BaseFragmentBinding binding;
+
+    @Nullable
+    @Override
+    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+        binding = BaseFragmentBinding.inflate(inflater, container, false);
+        return binding.getRoot();
+    }
 
     public void navigateUp() {
         getNavController().navigateUp();
@@ -120,5 +137,14 @@ public class BaseFragment extends Fragment {
             }
         });
     }
+
+    public void setDisplayHomeAsUpEnabled(boolean enabled) {
+        if (getActivity() == null) return;
+        var actionBar = ((AppCompatActivity) getActivity()).getSupportActionBar();
+        if (actionBar != null) {
+            actionBar.setDisplayHomeAsUpEnabled(enabled);
+        }
+    }
+
 
 }

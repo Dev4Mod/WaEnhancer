@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:app="http://schemas.android.com/apk/res-auto">
+    <PreferenceCategory
+        app:iconSpaceReserved="false"
+        app:title="@string/home_screen">
+
+        <rikka.material.preference.MaterialSwitchPreference
+            app:defaultValue="true"
+            app:key="buttonaction"
+            app:summary="@string/show_menu_buttons_as_icons_sum"
+            app:title="@string/show_menu_buttons_as_icons" />
+
+        <rikka.material.preference.MaterialSwitchPreference
+            app:key="shownamehome"
+            app:summary="@string/showname_sum"
+            app:title="@string/showname" />
+
+        <rikka.material.preference.MaterialSwitchPreference
+            app:key="showbiohome"
+            app:summary="@string/showbio_sum"
+            app:title="@string/showbio" />
+
+        <rikka.material.preference.MaterialSwitchPreference
+            app:key="show_dndmode"
+            app:summary="@string/show_dnd_button_sum"
+            app:title="@string/show_dnd_button" />
+
+        <rikka.material.preference.MaterialSwitchPreference
+            app:defaultValue="true"
+            app:key="newchat"
+            app:summary="@string/enable_new_chat_button_sum"
+            app:title="@string/enable_new_chat_button" />
+
+        <rikka.material.preference.MaterialSwitchPreference
+            app:defaultValue="true"
+            app:key="restartbutton"
+            app:summary="@string/enable_restart_button_sum"
+            app:title="@string/enable_restart_button" />
+
+        <rikka.material.preference.MaterialSwitchPreference
+            app:key="separategroups"
+            app:summary="@string/separate_groups_sum"
+            app:title="@string/separate_groups" />
+
+        <rikka.material.preference.MaterialSwitchPreference
+            app:key="filtergroups"
+            app:summary="@string/new_ui_group_filter_sum"
+            app:title="@string/new_ui_group_filter" />
+
+        <rikka.material.preference.MaterialSwitchPreference
+            app:key="dotonline"
+            app:summary="@string/show_online_dot_in_conversation_list_sum"
+            app:title="@string/show_online_dot_in_conversation_list" />
+
+        <rikka.material.preference.MaterialSwitchPreference
+            app:key="showonlinetext"
+            app:summary="@string/show_online_last_seen_in_conversation_list_sum"
+            app:title="@string/show_online_last_seen_in_conversation_list" />
+
+        <rikka.material.preference.MaterialSwitchPreference
+            app:key="filterseen"
+            app:summary="@string/enable_filter_chats_sum"
+            app:title="@string/enable_filter_chats" />
+
+        <rikka.material.preference.MaterialSwitchPreference
+            app:key="metaai"
+            app:summary="@string/disable_metaai_sum"
+            app:title="@string/disable_metaai" />
+
+        <ListPreference
+            app:entries="@array/chatfilter_buttons"
+            app:entryValues="@array/chatfilter_values"
+            app:key="chatfilter"
+            app:summary="@string/novofiltro_sum"
+            app:title="@string/novofiltro" />
+
+    </PreferenceCategory>
+
+</PreferenceScreen>

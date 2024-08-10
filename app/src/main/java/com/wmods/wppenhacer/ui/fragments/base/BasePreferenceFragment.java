@@ -12,8 +12,10 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import androidx.activity.OnBackPressedCallback;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
 import androidx.preference.PreferenceFragmentCompat;
 import androidx.preference.PreferenceManager;
@@ -33,6 +35,12 @@ public abstract class BasePreferenceFragment extends PreferenceFragmentCompat im
     public void onCreatePreferences(@Nullable Bundle savedInstanceState, @Nullable String rootKey) {
         mPrefs = PreferenceManager.getDefaultSharedPreferences(requireContext());
         mPrefs.registerOnSharedPreferenceChangeListener(this);
+        requireActivity().getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
+            @Override
+            public void handleOnBackPressed() {
+                getParentFragmentManager().popBackStack();
+            }
+        });
     }
 
     @NonNull
@@ -41,6 +49,12 @@ public abstract class BasePreferenceFragment extends PreferenceFragmentCompat im
         chanceStates(null);
         monitorPreference();
         return super.onCreateView(inflater, container, savedInstanceState);
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        setDisplayHomeAsUpEnabled(true);
     }
 
     @Override
@@ -140,6 +154,14 @@ public abstract class BasePreferenceFragment extends PreferenceFragmentCompat im
                     break;
             }
 
+        }
+    }
+
+    public void setDisplayHomeAsUpEnabled(boolean enabled) {
+        if (getActivity() == null) return;
+        var actionBar = ((AppCompatActivity) getActivity()).getSupportActionBar();
+        if (actionBar != null) {
+            actionBar.setDisplayHomeAsUpEnabled(enabled);
         }
     }
 }
