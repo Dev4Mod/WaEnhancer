@@ -1530,7 +1530,7 @@ public class Unobfuscator {
         return UnobfuscatorCache.getInstance().getMethod(classLoader, () -> {
             Class<?> TextDataClass = classLoader.loadClass("com.whatsapp.TextData");
             var result = dexkit.findClass(FindClass.create().matcher(
-                    ClassMatcher.create().addUsingString("ViewOnce messages can not be forwarded").
+                    ClassMatcher.create().addUsingString("*").
                             addMethod(MethodMatcher.create().paramCount(1).addParamType(TextDataClass))
             ));
             if (result.isEmpty())
