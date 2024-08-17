@@ -149,7 +149,7 @@ public class HomeFragment extends BaseFragment {
             if (keyValue instanceof HashSet<?> hashSet) {
                 keyValue = new JSONArray(new ArrayList<>(hashSet));
             }
-            type.put("type", entry.getValue().getClass().getSimpleName());
+            type.put("type", keyValue.getClass().getSimpleName());
             type.put("value", keyValue);
             JSOjsonObject.put(entry.getKey(), type);
         }
