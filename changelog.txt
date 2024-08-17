@@ -1,16 +1,8 @@
-[BOOTLOADER SPOOFER]
-* Added anti root detections (nothing too big, as there are numerous ways of hiding root by modules that are more efficient)
-* Added emulator anti detections
-* Added custom rom anti detections
-NOTE: Enabling the bootloader spoofer already activates all mentioned hides
+[WHATSAPP 2.24.16.76]
+* Fixed bug in Custom color status
 
 [WA ENHANCER]
-* General settings are now more organized
+* Fix back button
 * Update translations
-
-[DOT ONLINE]
-* Removido o texto "not available"
-* Text color changed to a less flashy color
-
 
 
