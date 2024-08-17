@@ -29,7 +29,6 @@ public class GeneralFragment extends BaseFragment {
         public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
             super.onCreatePreferences(savedInstanceState, rootKey);
             setPreferencesFromResource(R.xml.fragment_general, rootKey);
-
         }
 
         @Override

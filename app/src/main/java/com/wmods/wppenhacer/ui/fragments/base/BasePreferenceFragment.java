@@ -38,7 +38,11 @@ public abstract class BasePreferenceFragment extends PreferenceFragmentCompat im
         requireActivity().getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
             @Override
             public void handleOnBackPressed() {
-                getParentFragmentManager().popBackStack();
+                if (getParentFragmentManager().getBackStackEntryCount() > 0) {
+                    getParentFragmentManager().popBackStack();
+                } else {
+                    requireActivity().finish();
+                }
             }
         });
     }
