@@ -298,7 +298,8 @@ public class FeatureLoader {
         executorService.awaitTermination(15, TimeUnit.SECONDS);
         if (DebugFeature.DEBUG) {
             for (var time : times) {
-                XposedBridge.log(time);
+                if (time != null)
+                    XposedBridge.log(time);
             }
         }
     }
