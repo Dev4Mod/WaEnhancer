@@ -29,6 +29,7 @@ public class ContactPickerActivity extends BaseActivity {
     private ArrayAdapter<String> adapter;
     private HashSet<String> selectedNumbers = new HashSet<>();
     private final List<Contact> allContacts = new ArrayList<>();
+    private List<Contact> currentContacts;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -37,7 +38,8 @@ public class ContactPickerActivity extends BaseActivity {
         mKey = getIntent().getStringExtra("key");
 
         contactListView = findViewById(R.id.contactListView);
-        Button selectButton = findViewById(R.id.selectButton);
+        Button selectAllButton = findViewById(R.id.selectAllButton);
+        Button saveButton = findViewById(R.id.saveButton);
         EditText searchBar = findViewById(R.id.searchBar);
 
         ArrayList<String> selectedNumbersInIntent = getIntent().getStringArrayListExtra("selectedNumbers");
@@ -48,12 +50,25 @@ public class ContactPickerActivity extends BaseActivity {
         loadAllContacts();
         insertContactsInList(allContacts);
 
-        selectButton.setOnClickListener(view -> {
+        saveButton.setOnClickListener(view -> {
             Intent resultIntent = new Intent();
             resultIntent.putExtra("selectedNumbers", new ArrayList<>(selectedNumbers));
             resultIntent.putExtra("key", mKey);
             setResult(Activity.RESULT_OK, resultIntent);
             finish();
+        });
+
+        selectAllButton.setOnClickListener(view -> {
+            if (currentContacts.stream().allMatch(contact -> selectedNumbers.contains(contact.number))) {
+                for (Contact contact : currentContacts) {
+                    selectedNumbers.remove(contact.number);
+                }
+            } else {
+                for (Contact contact : currentContacts) {
+                    selectedNumbers.add(contact.number);
+                }
+            }
+            insertContactsInList(currentContacts);
         });
 
         searchBar.addTextChangedListener(new TextWatcher() {
@@ -110,6 +125,8 @@ public class ContactPickerActivity extends BaseActivity {
 
     @SuppressLint("Range")
     private void insertContactsInList(List<Contact> contacts) {
+        currentContacts = contacts;
+
         List<String> contactList = contacts.stream().map(contact -> contact.name + " - " + contact.number).collect(Collectors.toList());
 
         // Ordena a lista colocando os contatos selecionados no topo
