@@ -371,4 +371,5 @@
     <string name="bootloader_spoofer">مخادع محمل الإقلاع(بوت لودر)</string>
     <string name="bootloader_spoofer_sum">استخدم هذا إذا تم حظرك وتلقيت رسالة واتساب غير رسمي</string>
     <string name="not_available">غير متوفر</string>
+    <string name="select_all">Select All</string>
 </resources>

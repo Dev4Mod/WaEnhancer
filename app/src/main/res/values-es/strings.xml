@@ -370,4 +370,5 @@
     <string name="bootloader_spoofer">Bootloader Spoofer</string>
     <string name="bootloader_spoofer_sum">Usa esto si has sido baneado y estás recibiendo el mensaje de WhatsApp no oficial</string>
     <string name="not_available">no disponible</string>
+    <string name="select_all">Select All</string>
 </resources>

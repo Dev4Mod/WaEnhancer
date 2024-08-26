@@ -111,7 +111,7 @@
     <string name="about">About</string>
     <string name="igstatus_on_home_screen">Enable IGStatus on Home Screen</string>
     <string name="igstatus_on_home_screen_sum">Show status style Instagram in Home Screen</string>
-    <string name="chatfilter_no_search">No search</string>
+    <string name="chatfilter_no_search">Pas de recherche</string>
     <string name="chatfilter_search_icon">Search icon</string>
     <string name="chatfilter_search_bar">Search bar</string>
     <string name="remove_channel_recomendations">Remove Channel Recomendations</string>
@@ -130,7 +130,7 @@
     <string name="restart_wpp">It is necessary to restart WhatsApp for the changes in Wa Enhancer to take effect.\n\nDo you want to restart?</string>
     <string name="version_s_not_listed">Version %s not listed in supported versions!\nPlease use supported WhatsApp version!</string>
     <string name="media">Media</string>
-    <string name="show_button_to_send_blue_tick">Show Button to send blue tick</string>
+    <string name="show_button_to_send_blue_tick">Afficher le bouton pour envoyer la coche bleue</string>
     <string name="show_button_to_send_blue_tick_sum">Show Button to send blue tick (mark as read/viewed)</string>
     <string name="send_blue_tick">Mark as Read/Viewed</string>
     <string name="business_in_background">Business in background</string>
@@ -370,4 +370,5 @@
     <string name="bootloader_spoofer">Bootloader Spoofer</string>
     <string name="bootloader_spoofer_sum">Use this if you have been banned and are receiving the unofficial Whatsapp message</string>
     <string name="not_available">not available</string>
+    <string name="select_all">Select All</string>
 </resources>

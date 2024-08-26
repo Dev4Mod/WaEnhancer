@@ -370,4 +370,5 @@
     <string name="bootloader_spoofer">Bootloader Spoofer</string>
     <string name="bootloader_spoofer_sum">Yasaklandıysanız ve resmi olmayan Whatsapp mesajı alıyorsanız bunu kullanın</string>
     <string name="not_available">mevcut değil</string>
+    <string name="select_all">Select All</string>
 </resources>

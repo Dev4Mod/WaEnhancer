@@ -370,4 +370,5 @@
     <string name="bootloader_spoofer">Bootloader Spoofer</string>
     <string name="bootloader_spoofer_sum">Используйте это, если вы были заблокированы и получаете неофициальное сообщение Whatsapp</string>
     <string name="not_available">недоступен</string>
+    <string name="select_all">Select All</string>
 </resources>

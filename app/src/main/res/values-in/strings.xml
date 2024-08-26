@@ -379,4 +379,5 @@ Harap gunakan versi WhatsApp yang didukung!</string>
     <string name="bootloader_spoofer">Bootloader Spoofer</string>
     <string name="bootloader_spoofer_sum">Gunakan ini jika Anda telah diblokir dan menerima pesan WhatsApp tidak resmi</string>
     <string name="not_available">tidak tersedia</string>
+    <string name="select_all">Select All</string>
 </resources>

@@ -370,4 +370,5 @@
     <string name="bootloader_spoofer">Bootloader Spoofer</string>
     <string name="bootloader_spoofer_sum">Aktivieren, wenn sie gebannt worden und die inoffizielle WhatsApp-Nachricht über inoffizielle Version erhalten haben</string>
     <string name="not_available">Nicht verfügbar</string>
+    <string name="select_all">Select All</string>
 </resources>
