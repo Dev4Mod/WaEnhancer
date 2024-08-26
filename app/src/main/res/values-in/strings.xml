@@ -298,7 +298,7 @@ Harap gunakan versi WhatsApp yang didukung!</string>
     <string name="edit_text">Edit Teks</string>
     <string name="about_info">Wa Enhancer adalah modul Xposed yang meningkatkan pengalaman WhatsApp Anda dengan menawarkan fitur privasi tingkat lanjut, penyesuaian layar beranda, penyesuaian umum, dan peningkatan media.</string>
     <string name="installation">Panduan Instal</string>
-    <string name="installation_desc">1. Pastikan perangkat Anda telah di-root.\n2. Instal Xposed Framework di perangkat Anda.\n3. Unduh Wa Enhancer dari bagian Tindakan.\n4. Instal APK Wa Enhancer.\n5. Aktifkan modul Wa Enhancer di aplikasi Xpose Installer.</string>
+    <string name="installation_desc">1. Pastikan perangkat Anda telah di-root.\n2. Instal Xposed Framework di perangkat Anda.\n3. Unduh Wa Enhancer dari bagian Tindakan.\n4. Instal APK Wa Enhancer.\n5. Aktifkan modul Wa Enhancer di aplikasi Xposed Installer.</string>
     <string name="go_to_telegram">Buka Telegram</string>
     <string name="go_to_github">Buka GitHub</string>
     <string name="donate">Donasi</string>
