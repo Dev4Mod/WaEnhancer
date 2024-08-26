@@ -34,7 +34,7 @@
     <string name="colors_customization_sum">Ändern sie alle Farben von WhatsApp (Nur Dark-Theme)</string>
     <string name="general">Sonstiges</string>
     <string name="restart_whatsapp">WhatsApp neu starten</string>
-    <string name="conversation">Sonstiges</string>
+    <string name="conversation">Konversationsbildschirm</string>
     <string name="primary_color">Hauptfarbe</string>
     <string name="background_color">Hintergrundfarbe</string>
     <string name="secondary_color">Sekundärfarbe</string>
@@ -235,7 +235,7 @@
     <string name="theme_mode">Dunkles Thema Wa Enhancer</string>
     <string name="theme_mode_sum">Erzwinge einen Theme-Modus im Wa Enhancer</string>
     <string name="disable_default_emojis_sum">Deaktiviert die Standard Emojis von Whatsapp und verwendet das System Emojis\n(NOTE: Whatsapp Emojis verschwindet aus dem Selektor, verwenden Sie die Tastatur zum Einfügen).</string>
-    <string name="other">Sonstiges</string>
+    <string name="other">Andere</string>
     <string name="enable_media_preview">Medienvorschau aktivieren</string>
     <string name="enable_media_preview_sum">Hinzufügen einer Schaltfläche, um Medien temporär anzuzeigen (kein herunterladen möglich)</string>
     <string name="new_ui_group_filter">Neuer UI-Gruppenfilter</string>
