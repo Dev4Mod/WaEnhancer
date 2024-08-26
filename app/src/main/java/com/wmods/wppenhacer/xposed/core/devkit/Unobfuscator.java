@@ -1576,13 +1576,24 @@ public class Unobfuscator {
     }
 
     public synchronized static Method loadSenderPlayed(ClassLoader classLoader) throws Exception {
-        var clazz = findFirstClassUsingStrings(classLoader, StringMatchType.Contains, "sendmethods/sendClearDirty");
-        if (clazz == null) throw new RuntimeException("SenderPlayed class not found");
-        var fmessageClass = loadFMessageClass(classLoader);
-        var methodResult = ReflectionUtils.findMethodUsingFilter(clazz, method -> method.getParameterCount() == 1 && fmessageClass.isAssignableFrom(method.getParameterTypes()[0]));
-        if (methodResult == null) throw new RuntimeException("SenderPlayed method not found");
-        return methodResult;
+        return UnobfuscatorCache.getInstance().getMethod(classLoader, () -> {
+            var clazz = findFirstClassUsingStrings(classLoader, StringMatchType.Contains, "sendmethods/sendClearDirty");
+            if (clazz == null) throw new RuntimeException("SenderPlayed class not found");
+            var fmessageClass = loadFMessageClass(classLoader);
+            var methodResult = ReflectionUtils.findMethodUsingFilter(clazz, method -> method.getParameterCount() == 1 && fmessageClass.isAssignableFrom(method.getParameterTypes()[0]));
+            if (methodResult == null) throw new RuntimeException("SenderPlayed method not found");
+            return methodResult;
+        });
+    }
 
+    public synchronized static Method loadSenderPlayedBusiness(ClassLoader classLoader) throws Exception {
+        return UnobfuscatorCache.getInstance().getMethod(classLoader, () -> {
+            var loadSenderPlayed = loadSenderPlayed(classLoader);
+            var foundMethod = ReflectionUtils.findMethodUsingFilter(loadSenderPlayed.getDeclaringClass(), method -> method.getParameterCount() > 0 && method.getParameterTypes()[0] == Set.class);
+            if (foundMethod == null)
+                throw new RuntimeException("SenderPlayedBusiness method not found");
+            return foundMethod;
+        });
     }
 
     public synchronized static Field loadMediaTypeField(ClassLoader classLoader) throws Exception {
