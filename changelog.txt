@@ -1,8 +1,10 @@
-[WHATSAPP 2.24.16.76]
-* Fixed bug in Custom color status
-
 [WA ENHANCER]
-* Fix back button
+* Add select all contact in ContactPicker
 * Update translations
+* Fix bug in backup
+* Fix minor bugs
 
+[WA BUSINESS]
+* Added support 2.24.16.xx
+* Fixed bug when hiding reading in view once messages
 
