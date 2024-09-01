@@ -1,12 +1,5 @@
 package com.wmods.wppenhacer.xposed.features.general;
 
-import android.content.res.Resources;
-import android.graphics.Bitmap;
-import android.graphics.Color;
-import android.graphics.PorterDuff;
-import android.graphics.PorterDuffColorFilter;
-import android.graphics.drawable.BitmapDrawable;
-import android.graphics.drawable.Drawable;
 import android.text.TextUtils;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -20,7 +13,6 @@ import com.wmods.wppenhacer.xposed.core.db.DelMessageStore;
 import com.wmods.wppenhacer.xposed.core.db.MessageStore;
 import com.wmods.wppenhacer.xposed.core.devkit.Unobfuscator;
 import com.wmods.wppenhacer.xposed.core.devkit.UnobfuscatorCache;
-import com.wmods.wppenhacer.xposed.utils.DesignUtils;
 import com.wmods.wppenhacer.xposed.utils.ReflectionUtils;
 import com.wmods.wppenhacer.xposed.utils.ResId;
 import com.wmods.wppenhacer.xposed.utils.Utils;
@@ -132,17 +124,6 @@ public class AntiRevoke extends Feature {
         return "Anti Revoke";
     }
 
-    public static Drawable scaleImage(Resources resources, Drawable image, float scaleFactor) {
-        if (!(image instanceof BitmapDrawable)) {
-            return image;
-        }
-        Bitmap b = ((BitmapDrawable) image).getBitmap();
-        int sizeX = Math.round(image.getIntrinsicWidth() * scaleFactor);
-        int sizeY = Math.round(image.getIntrinsicHeight() * scaleFactor);
-        Bitmap bitmapResized = Bitmap.createScaledBitmap(b, sizeX, sizeY, false);
-        return new BitmapDrawable(resources, bitmapResized);
-    }
-
     private static void saveRevokedMessage(FMessageWpp fMessage) {
         var messageKey = (String) XposedHelpers.getObjectField(fMessage.getObject(), "A01");
         var stripJID = WppCore.stripJID(WppCore.getRawString(fMessage.getKey().remoteJid));
@@ -186,9 +167,7 @@ public class AntiRevoke extends Feature {
                 dateTextView.setText(newTextData);
             } else if (antirevokeValue == 2) {
                 // Icon
-                var icon = DesignUtils.getDrawableByName("msg_status_client_revoked");
-                var drawable = scaleImage(Utils.getApplication().getResources(), icon, 0.7f);
-                drawable.setColorFilter(new PorterDuffColorFilter(Color.RED, PorterDuff.Mode.SRC_ATOP));
+                var drawable = Utils.getApplication().getDrawable(ResId.drawable.deleted);
                 dateTextView.setCompoundDrawablesWithIntrinsicBounds(null, null, drawable, null);
                 dateTextView.setCompoundDrawablePadding(5);
             }

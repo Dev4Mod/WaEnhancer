@@ -35,6 +35,9 @@ public class AndroidPermissions {
         var clazz = XposedHelpers.findClass("com.android.server.pm.permission.PermissionManagerService", loadPackageParam.classLoader);
         XposedBridge.hookAllMethods(clazz, "restorePermissionState", new XC_MethodHook() {
 
+            /**
+             * @noinspection unchecked
+             */
             @Override
             protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
                 Object pkg = param.args[0];
