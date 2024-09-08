@@ -1,10 +1,9 @@
-[WA ENHANCER]
-* Add select all contact in ContactPicker
-* Update translations
-* Fix bug in backup
-* Fix minor bugs
+[ANTI REVOKE MESSAGE]
+* Fixed the icon not appearing bug
+
+[CUSTOM COLORS TEXT COMPOSER]
+* Added option to disable/enable custom text colors in composer
 
 [WA BUSINESS]
-* Added support 2.24.16.xx
-* Fixed bug when hiding reading in view once messages
+* Added support 2.24.17.xx
 
