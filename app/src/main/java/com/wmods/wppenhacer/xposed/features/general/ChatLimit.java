@@ -66,12 +66,12 @@ public class ChatLimit extends Feature {
             }
         });
 
-        var seeMoreMethod = Unobfuscator.loadSeeMoreMethod(classLoader);
+        var seeMoreMethod = Unobfuscator.loadSeeMoreConstructor(classLoader);
         XposedBridge.hookMethod(seeMoreMethod, new XC_MethodHook() {
             @Override
             protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
                 if (!prefs.getBoolean("removeseemore", false)) return;
-                param.args[0] = 0;
+                param.args[1] = Integer.MAX_VALUE;
             }
         });
 

@@ -1197,20 +1197,20 @@ public class Unobfuscator {
         });
     }
 
-    public synchronized static Method loadSeeMoreMethod(ClassLoader loader) throws Exception {
-        return UnobfuscatorCache.getInstance().getMethod(loader, () -> {
+    public synchronized static Constructor loadSeeMoreConstructor(ClassLoader loader) throws Exception {
+        return UnobfuscatorCache.getInstance().getConstructor(loader, () -> {
             var classList = dexkit.findClass(new FindClass().matcher(new ClassMatcher().
                     addMethod(new MethodMatcher().addUsingNumber(16384).addUsingNumber(512).addUsingNumber(64).addUsingNumber(16))
                     .addMethod(new MethodMatcher().paramCount(2).addParamType(int.class).addParamType(boolean.class))));
-            if (classList.isEmpty()) throw new RuntimeException("SeeMore method 1 not found");
+            if (classList.isEmpty()) throw new RuntimeException("SeeMore constructor 1 not found");
             var clazzData = classList.get(0);
             XposedBridge.log(clazzData.toString());
             for (var method : clazzData.getMethods()) {
-                if (method.getParamCount() == 2 && method.getParamTypes().get(0).getName().equals(int.class.getName()) && method.getParamTypes().get(1).getName().equals(boolean.class.getName())) {
-                    return method.getMethodInstance(loader);
+                if (method.getParamCount() == 2 && method.isConstructor() && method.getParamTypes().get(0).getName().equals(int.class.getName()) && method.getParamTypes().get(1).getName().equals(int.class.getName())) {
+                    return method.getConstructorInstance(loader);
                 }
             }
-            throw new RuntimeException("SeeMore method 2 not found");
+            throw new RuntimeException("SeeMore constructor 2 not found");
         });
     }
 
