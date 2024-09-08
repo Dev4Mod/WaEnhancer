@@ -1533,8 +1533,16 @@ public class Unobfuscator {
                     ClassMatcher.create().addUsingString("*").
                             addMethod(MethodMatcher.create().paramCount(1).addParamType(TextDataClass))
             ));
-            if (result.isEmpty())
-                throw new RuntimeException("TextStatusComposer2 class not found");
+            if (result.isEmpty()) {
+                result = dexkit.findClass(FindClass.create().matcher(
+                        ClassMatcher.create().addUsingString("ViewOnce messages can not be forwarded").
+                                addMethod(MethodMatcher.create().paramCount(1).addParamType(TextDataClass))
+                ));
+                if (result.isEmpty()) {
+                    throw new RuntimeException("TextStatusComposer2 class not found");
+                }
+            }
+
             var foundClass = result.get(0).getInstance(classLoader);
             var resultMethod = ReflectionUtils.findMethodUsingFilter(foundClass, method -> method.getParameterCount() == 1 && method.getParameterTypes()[0] == TextDataClass);
             if (resultMethod != null)
