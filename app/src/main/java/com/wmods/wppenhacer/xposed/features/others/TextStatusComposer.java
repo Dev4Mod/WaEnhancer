@@ -30,6 +30,8 @@ public class TextStatusComposer extends Feature {
 
     @Override
     public void doHook() throws Throwable {
+        if (!prefs.getBoolean("statuscomposer", false)) return;
+
         var setColorTextComposer = Unobfuscator.loadTextStatusComposer(classLoader);
         log("setColorTextComposer: " + Unobfuscator.getMethodDescriptor(setColorTextComposer));
         var clazz = XposedHelpers.findClass("com.whatsapp.statuscomposer.composer.TextStatusComposerFragment", classLoader);

@@ -225,6 +225,10 @@
             app:summary="@string/old_statuses_sum"
             app:title="@string/old_statuses" />
 
+        <rikka.material.preference.MaterialSwitchPreference
+            app:key="statuscomposer"
+            app:summary="@string/custom_colors_for_text_status_sum"
+            app:title="@string/custom_colors_for_text_status" />
     </PreferenceCategory>
 
 </PreferenceScreen>
