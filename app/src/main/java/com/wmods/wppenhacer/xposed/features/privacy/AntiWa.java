@@ -15,8 +15,8 @@ import de.robv.android.xposed.XC_MethodReplacement;
 import de.robv.android.xposed.XSharedPreferences;
 import de.robv.android.xposed.XposedBridge;
 
-public class AntiDetector extends Feature {
-    public AntiDetector(@NonNull ClassLoader classLoader, @NonNull XSharedPreferences preferences) {
+public class AntiWa extends Feature {
+    public AntiWa(@NonNull ClassLoader classLoader, @NonNull XSharedPreferences preferences) {
         super(classLoader, preferences);
     }
 
