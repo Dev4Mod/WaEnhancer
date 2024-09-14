@@ -209,7 +209,8 @@ public class Unobfuscator {
             for (var invoke : invokes) {
                 var method = invoke.getMethodInstance(classLoader);
                 if (method.getParameterCount() == 1
-                        && method.getParameterTypes()[0] == int.class
+                        && (method.getParameterTypes()[0] == int.class
+                            || method.getParameterTypes()[0] == long.class)
                         && method.getDeclaringClass() == messageInfoClass
                         && method.getReturnType() == void.class) {
                     return method;
@@ -278,7 +279,7 @@ public class Unobfuscator {
 
     public synchronized static Method loadGetTabMethod(ClassLoader classLoader) throws Exception {
         return UnobfuscatorCache.getInstance().getMethod(classLoader, () -> {
-            Method result = findFirstMethodUsingStringsFilter(classLoader, "X.", StringMatchType.Contains, "Invalid tab id: 600");
+            Method result = findFirstMethodUsingStringsFilter(classLoader, "X.", StringMatchType.Contains, "No HomeFragment mapping for community tab id:");
             if (result == null) throw new Exception("GetTab method not found");
             return result;
         });
@@ -498,7 +499,7 @@ public class Unobfuscator {
 
     public synchronized static Class<?> loadStatusDownloadMediaClass(ClassLoader classLoader) throws Exception {
         return UnobfuscatorCache.getInstance().getClass(classLoader, () -> {
-            var clazz = findFirstClassUsingStrings(classLoader, StringMatchType.Contains, "FMessageVideo/Cloned");
+            var clazz = findFirstClassUsingStrings(classLoader, StringMatchType.Contains, "static.whatsapp.net/downloadable?category=PSA");
             if (clazz == null) throw new Exception("StatusDownloadMedia class not found");
             return clazz;
         });
@@ -1428,8 +1429,15 @@ public class Unobfuscator {
 
     public synchronized static Method loadForwardAudioTypeMethod(ClassLoader classLoader) throws Exception {
         return UnobfuscatorCache.getInstance().getMethod(classLoader, () -> {
-            var result = findFirstMethodUsingStrings(classLoader, StringMatchType.Contains, "forwardable", "FMessageFactory/newFMessageForForward/thumbnail");
-            if (result == null) throw new RuntimeException("ForwardAudioType method not found");
+            var results = findAllMethodUsingStrings(classLoader, StringMatchType.Contains, "FMessageFactory/newFMessageForForward/thumbnail");
+            if (results == null || results.length < 1) throw new RuntimeException("ForwardAudioType method not found");
+            Method result;
+            if (results.length > 1) {
+                result = findFirstMethodUsingStrings(classLoader, StringMatchType.Contains, "forwardable", "FMessageFactory/newFMessageForForward/thumbnail");
+            } else {
+                // 2.24.18.xx returns one method
+                result = results[0];
+            }
             return result;
         });
     }
