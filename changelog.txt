@@ -1,9 +1,11 @@
-[ANTI REVOKE MESSAGE]
-* Fixed the icon not appearing bug
+[REMOVE SEE MORE]
+* Fixed see more button on conversation
 
-[CUSTOM COLORS TEXT COMPOSER]
-* Added option to disable/enable custom text colors in composer
+[WHATSAPP]
+* add support for new whatsapp v2.24.18.XX
 
-[WA BUSINESS]
-* Added support 2.24.17.xx
+[WHATSAPP BUSINESS]
+* add support for new business v2.24.18.XX
 
+NOTE: Not all functions have been tested, so in case of bugs, present the WhatsApp or Business version number
+and the bug that is occurring.
