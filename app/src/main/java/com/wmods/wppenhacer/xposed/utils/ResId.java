@@ -17,6 +17,7 @@ public class ResId {
         public static int airplane_disabled;
         public static int online;
         public static int deleted;
+        public static int download;
     }
 
     public static class string {

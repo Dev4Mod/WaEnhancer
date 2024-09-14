@@ -139,7 +139,7 @@ public class HideTabs extends Feature {
     }
 
     public int getNewTabIndex(List hidetabs, int indexAtual, int index) {
-        if (tabs == null) return index;
+        if (tabs == null || tabs.size() <= index) return index;
         var tabIsHidden = hidetabs.contains(tabs.get(index));
         if (!tabIsHidden) return index;
         var newIndex = index > indexAtual ? index + 1 : index - 1;

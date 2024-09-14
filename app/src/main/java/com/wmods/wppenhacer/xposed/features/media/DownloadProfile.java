@@ -1,6 +1,5 @@
 package com.wmods.wppenhacer.xposed.features.media;
 
-import android.graphics.Color;
 import android.text.TextUtils;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -11,7 +10,6 @@ import androidx.annotation.NonNull;
 import com.wmods.wppenhacer.xposed.core.Feature;
 import com.wmods.wppenhacer.xposed.core.WppCore;
 import com.wmods.wppenhacer.xposed.core.devkit.Unobfuscator;
-import com.wmods.wppenhacer.xposed.utils.DesignUtils;
 import com.wmods.wppenhacer.xposed.utils.ReflectionUtils;
 import com.wmods.wppenhacer.xposed.utils.ResId;
 import com.wmods.wppenhacer.xposed.utils.Utils;
@@ -37,11 +35,7 @@ public class DownloadProfile extends Feature {
                 var menu = (Menu) param.args[0];
                 var item = menu.add(0, 0, 0, ResId.string.download);
                 item.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
-                var icon = DesignUtils.getDrawableByName("ic_action_download");
-                if (icon != null) {
-                    icon.setTint(Color.WHITE);
-                    item.setIcon(icon);
-                }
+                item.setIcon(ResId.drawable.download);
                 item.setOnMenuItemClickListener(menuItem -> {
                     var subCls = param.thisObject.getClass().getSuperclass();
                     if (subCls == null) {
