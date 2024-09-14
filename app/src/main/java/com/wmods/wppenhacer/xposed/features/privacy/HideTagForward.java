@@ -28,7 +28,7 @@ public class HideTagForward extends Feature {
             @Override
             protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
                 if (!prefs.getBoolean("hidetag", false)) return;
-                var arg = (int) param.args[0];
+                var arg = (long) param.args[0];
                 if (arg == 1) {
                     if (ReflectionUtils.isCalledFromClass(forwardClass)) {
                         param.args[0] = 0;

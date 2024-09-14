@@ -1429,8 +1429,15 @@ public class Unobfuscator {
 
     public synchronized static Method loadForwardAudioTypeMethod(ClassLoader classLoader) throws Exception {
         return UnobfuscatorCache.getInstance().getMethod(classLoader, () -> {
-            var result = findFirstMethodUsingStrings(classLoader, StringMatchType.Contains, "forwardable", "FMessageFactory/newFMessageForForward/thumbnail");
-            if (result == null) throw new RuntimeException("ForwardAudioType method not found");
+            var results = findAllMethodUsingStrings(classLoader, StringMatchType.Contains, "FMessageFactory/newFMessageForForward/thumbnail");
+            if (results == null || results.length < 1) throw new RuntimeException("ForwardAudioType method not found");
+            Method result;
+            if (results.length > 1) {
+                result = findFirstMethodUsingStrings(classLoader, StringMatchType.Contains, "forwardable", "FMessageFactory/newFMessageForForward/thumbnail");
+            } else {
+                // 2.24.18.xx returns one method
+                result = results[0];
+            }
             return result;
         });
     }
