@@ -49,7 +49,7 @@ public class DownloadViewOnce extends Feature {
                     var id = XposedHelpers.getIntField(param.thisObject, menuIntField.getName());
                     if (id == 3 || id == 0) {
                         Menu menu = (Menu) param.args[0];
-                        MenuItem item = menu.add(0, 0, 0, ResId.string.download).setIcon(Utils.getID("btn_download", "drawable"));
+                        MenuItem item = menu.add(0, 0, 0, ResId.string.download).setIcon(ResId.drawable.download);
                         item.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
                         item.setOnMenuItemClickListener(item1 -> {
                             try {

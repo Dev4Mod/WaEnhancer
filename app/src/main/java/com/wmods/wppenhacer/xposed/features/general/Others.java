@@ -108,6 +108,8 @@ public class Others extends Feature {
         propsInteger.put(8135, 2);  // Call Filters
         propsBoolean.put(9141, true);  // Enable Translate Message
 
+        propsBoolean.put(10380, false); // fix crash bug in Settings/Archived
+
 
         if (metaai) {
             propsBoolean.put(8025, false);

@@ -31,7 +31,7 @@ public class HideReceipt extends Feature {
             protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
                 if (!ReflectionUtils.isCalledFromMethod(method2) && !ReflectionUtils.isCalledFromMethod(method3))
                     return;
-                if (param.args[4] != "sender" && param.args[4] != "read") {
+                if (param.args[4] != "sender") {
                     param.args[4] = "inactive";
                 }
             }

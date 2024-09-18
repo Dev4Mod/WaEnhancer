@@ -1,11 +1,11 @@
-[REMOVE SEE MORE]
-* Fixed see more button on conversation
+[HIDE RECEIPTS]
+* Fix bug in hide receipts in chat
+
+[CUSTOM WALLPAPER]
+* Fix bug in select wallpaper
 
 [WHATSAPP]
-* add support for new whatsapp v2.24.18.XX
+* Fix crash on open archived and others settings
 
-[WHATSAPP BUSINESS]
-* add support for new business v2.24.18.XX
-
-NOTE: Not all functions have been tested, so in case of bugs, present the WhatsApp or Business version number
-and the bug that is occurring.
+[OTHERS]
+* Fix missing icon download in View Once Download and Picture Profile Download

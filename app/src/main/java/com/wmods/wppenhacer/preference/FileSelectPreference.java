@@ -95,6 +95,7 @@ public class FileSelectPreference extends Preference implements Preference.OnPre
                 ((Activity) getContext()).requestPermissions(new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, 1);
                 return true;
             }
+            FilePicker.setOnUriPickedListener(this);
             FilePicker.imageCapture.launch(new PickVisualMediaRequest.Builder().setMediaType(new ActivityResultContracts.PickVisualMedia.SingleMimeType(mineTypes[0])).build());
             return true;
         }
@@ -168,8 +169,7 @@ public class FileSelectPreference extends Preference implements Preference.OnPre
         }
         var outFile = new File(folder, this.getKey() + "." + extension);
         var editor = getSharedPreferences().edit();
-        editor.putString(getKey(), null).apply();
-        editor.putString(getKey(), outFile.getAbsolutePath()).apply();
+        editor.putString(getKey(), "").commit();
         setSummary(outFile.getAbsolutePath());
         CompletableFuture.runAsync(() -> {
             try (var inputStream = contentResolver.openInputStream(uri)) {
@@ -177,6 +177,7 @@ public class FileSelectPreference extends Preference implements Preference.OnPre
             } catch (Exception e) {
                 Utils.showToast("Failed to save file: " + e, Toast.LENGTH_SHORT);
             }
+            editor.putString(getKey(), outFile.getAbsolutePath()).commit();
         });
 
     }

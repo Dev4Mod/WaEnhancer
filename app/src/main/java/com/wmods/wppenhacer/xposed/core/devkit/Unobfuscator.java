@@ -210,7 +210,7 @@ public class Unobfuscator {
                 var method = invoke.getMethodInstance(classLoader);
                 if (method.getParameterCount() == 1
                         && (method.getParameterTypes()[0] == int.class
-                            || method.getParameterTypes()[0] == long.class)
+                        || method.getParameterTypes()[0] == long.class)
                         && method.getDeclaringClass() == messageInfoClass
                         && method.getReturnType() == void.class) {
                     return method;
@@ -453,6 +453,24 @@ public class Unobfuscator {
             if (method == null) throw new Exception("MediaQualityVideo method not found");
             return method;
         });
+    }
+
+    public synchronized static Field[] loadMediaQualityVideoFields(ClassLoader classLoader) throws Exception {
+        var clazz = loadMediaQualityVideoMethod2(classLoader).getReturnType();
+        var method = dexkit.findMethod(FindMethod.create()
+                .searchPackages(List.of("X."))
+                .matcher(MethodMatcher.create().addUsingString("videotranscodequeue/uumos_cs"))
+        );
+        if (method.isEmpty()) throw new Exception("MediaQualityVideoTargetFields method not found");
+        var fields = method.get(0).getUsingFields();
+        ArrayList<Field> result = new ArrayList<>();
+        for (var field : fields) {
+            var realField = field.getField().getFieldInstance(classLoader);
+            if (realField.getDeclaringClass().equals(clazz)) result.add(realField);
+        }
+        if (result.size() < 4)
+            throw new Exception("MediaQualityVideoTargetFields method not found");
+        return result.toArray(new Field[0]);
     }
 
     public synchronized static Class loadMediaQualityVideoLimitClass(ClassLoader classLoader) throws Exception {
@@ -1430,7 +1448,8 @@ public class Unobfuscator {
     public synchronized static Method loadForwardAudioTypeMethod(ClassLoader classLoader) throws Exception {
         return UnobfuscatorCache.getInstance().getMethod(classLoader, () -> {
             var results = findAllMethodUsingStrings(classLoader, StringMatchType.Contains, "FMessageFactory/newFMessageForForward/thumbnail");
-            if (results == null || results.length < 1) throw new RuntimeException("ForwardAudioType method not found");
+            if (results == null || results.length < 1)
+                throw new RuntimeException("ForwardAudioType method not found");
             Method result;
             if (results.length > 1) {
                 result = findFirstMethodUsingStrings(classLoader, StringMatchType.Contains, "forwardable", "FMessageFactory/newFMessageForForward/thumbnail");
