@@ -372,5 +372,7 @@
     <string name="bootloader_spoofer">הסר חסימת ווצאפ</string>
     <string name="bootloader_spoofer_sum">הפעל את תכונה זו אם נחסמת מווצאפ ואתה מקבל הודעה שאתה משתמש בגרסה לא רשמית</string>
     <string name="not_available">לא זמין</string>
-    <string name="select_all">Select All</string>
+    <string name="select_all">בחר הכל</string>
+    <string name="custom_colors_for_text_status">Custom colors for text status</string>
+    <string name="custom_colors_for_text_status_sum">Press and hold on the color selector in the status to customize it</string>
 </resources>

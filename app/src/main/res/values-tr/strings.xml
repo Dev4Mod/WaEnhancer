@@ -370,5 +370,7 @@
     <string name="bootloader_spoofer">Bootloader Spoofer</string>
     <string name="bootloader_spoofer_sum">Yasaklandıysanız ve resmi olmayan Whatsapp mesajı alıyorsanız bunu kullanın</string>
     <string name="not_available">mevcut değil</string>
-    <string name="select_all">Select All</string>
+    <string name="select_all">Tümünü Seç</string>
+    <string name="custom_colors_for_text_status">Custom colors for text status</string>
+    <string name="custom_colors_for_text_status_sum">Press and hold on the color selector in the status to customize it</string>
 </resources>

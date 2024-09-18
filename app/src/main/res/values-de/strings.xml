@@ -163,7 +163,7 @@
     <string name="verbose_logs">Ausführliche Protokolle für Debugger aktivieren</string>
     <string name="phone_call">Telefon</string>
     <string name="whatsapp_call">WhatsApp</string>
-    <string name="home_screen">Startseite</string>
+    <string name="home_screen">System</string>
     <string name="selection_of_call_type">Anruf über WhatsApp oder Telefon</string>
     <string name="selection_of_call_type_sum">Zeigt vor dem Telefonat eine Option an, ob der Anruf über das Telefon oder WhatsApp geführt werden soll</string>
     <string name="yes">Ja</string>
@@ -370,5 +370,7 @@
     <string name="bootloader_spoofer">Bootloader Spoofer</string>
     <string name="bootloader_spoofer_sum">Aktivieren, wenn sie gebannt worden und die inoffizielle WhatsApp-Nachricht über inoffizielle Version erhalten haben</string>
     <string name="not_available">Nicht verfügbar</string>
-    <string name="select_all">Select All</string>
+    <string name="select_all">Alle auswählen</string>
+    <string name="custom_colors_for_text_status">Custom colors for text status</string>
+    <string name="custom_colors_for_text_status_sum">Press and hold on the color selector in the status to customize it</string>
 </resources>

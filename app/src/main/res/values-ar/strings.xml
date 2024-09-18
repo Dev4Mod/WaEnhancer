@@ -2,7 +2,7 @@
 <resources>
     <string name="app_desc">أداة تخصيص الواتساب</string>
     <string name="antirevoke">منع حذف الرسائل</string>
-    <string name="antirevoke_sum">لن يتم حذف الرسائل بالنسبة لك</string>
+    <string name="antirevoke_sum">عند التنشيط، لن يتم حذف الرسائل نيابةً عنك.</string>
     <string name="ghostmode">إخفاء جارية الكتابة</string>
     <string name="ghostmode_sum">المستخدمون لا يستطيعون رؤية أنك تكتب</string>
     <string name="ghostmode_r">إخفاء تسجيل الصوت</string>
@@ -371,5 +371,7 @@
     <string name="bootloader_spoofer">مخادع محمل الإقلاع(بوت لودر)</string>
     <string name="bootloader_spoofer_sum">استخدم هذا إذا تم حظرك وتلقيت رسالة واتساب غير رسمي</string>
     <string name="not_available">غير متوفر</string>
-    <string name="select_all">Select All</string>
+    <string name="select_all">تحديد الكل</string>
+    <string name="custom_colors_for_text_status">Custom colors for text status</string>
+    <string name="custom_colors_for_text_status_sum">Press and hold on the color selector in the status to customize it</string>
 </resources>

@@ -9,3 +9,6 @@
 
 [OTHERS]
 * Fix missing icon download in View Once Download and Picture Profile Download
+
+[WA ENHANCER]
+* Update translations

@@ -370,5 +370,7 @@
     <string name="bootloader_spoofer">Falsificador do bootloader</string>
     <string name="bootloader_spoofer_sum">Use isto se você foi banido e está recebendo a mensagem para usar o app oficial do WhatsApp</string>
     <string name="not_available">não disponível</string>
-    <string name="select_all">Select All</string>
+    <string name="select_all">Selecionar tudo</string>
+    <string name="custom_colors_for_text_status">Custom colors for text status</string>
+    <string name="custom_colors_for_text_status_sum">Press and hold on the color selector in the status to customize it</string>
 </resources>
