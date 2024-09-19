@@ -68,9 +68,9 @@ public class ShowEditMessage extends Feature {
                 var editMessage = getEditMessage.invoke(param.args[0]);
                 if (editMessage == null) return;
                 long timestamp = XposedHelpers.getLongField(editMessage, "A00");
-                if (timestamp == 0L) return;
                 var fMessage = new FMessageWpp(param.args[0]);
                 long id = fMessage.getRowId();
+                var origMessage = MessageStore.getInstance().getCurrentMessageByID(id);
                 String newMessage = fMessage.getMessageStr();
                 if (newMessage == null) {
                     var methods = ReflectionUtils.findAllMethodsUsingFilter(param.args[0].getClass(), method -> method.getReturnType() == String.class && ReflectionUtils.isOverridden(method));
@@ -81,6 +81,10 @@ public class ShowEditMessage extends Feature {
                     if (newMessage == null) return;
                 }
                 try {
+                    var message = MessageHistory.getInstance().getMessages(id);
+                    if (message == null) {
+                        MessageHistory.getInstance().insertMessage(id, origMessage, 0);
+                    }
                     MessageHistory.getInstance().insertMessage(id, newMessage, timestamp);
                 } catch (Exception e) {
                     logDebug(e);
@@ -101,12 +105,9 @@ public class ShowEditMessage extends Feature {
                             var messageObj = XposedHelpers.callMethod(param.thisObject, "getFMessage");
                             var fMesage = new FMessageWpp(messageObj);
                             long id = fMesage.getRowId();
-                            var msg = new MessageHistory.MessageItem(id, MessageStore.getInstance().getMessageById(id), 0);
                             var messages = MessageHistory.getInstance().getMessages(id);
                             if (messages == null) {
                                 messages = new ArrayList<>();
-                            } else {
-                                messages.add(0, msg);
                             }
                             showBottomDialog(messages);
                         } catch (Exception exception0) {

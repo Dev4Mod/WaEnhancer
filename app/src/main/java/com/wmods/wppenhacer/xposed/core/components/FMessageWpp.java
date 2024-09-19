@@ -20,6 +20,7 @@ public class FMessageWpp {
     private static Method messageMethod;
     private static Method messageWithMediaMethod;
     private static Field mediaTypeField;
+    private static Method getOriginalMessageKey;
     private final Object fmessage;
 
     public FMessageWpp(Object fMessage) {
@@ -44,6 +45,7 @@ public class FMessageWpp {
         getFieldIdMessage = Unobfuscator.loadSetEditMessageField(classLoader);
         deviceJidMethod = ReflectionUtils.findMethodUsingFilter(TYPE, method -> method.getReturnType().equals(XposedHelpers.findClass("com.whatsapp.jid.DeviceJid", classLoader)));
         mediaTypeField = Unobfuscator.loadMediaTypeField(classLoader);
+        getOriginalMessageKey = Unobfuscator.loadOriginalMessageKey(classLoader);
     }
 
     public Object getUserJid() {
@@ -77,6 +79,15 @@ public class FMessageWpp {
     public Key getKey() {
         try {
             return new Key(keyMessage.get(fmessage));
+        } catch (Exception e) {
+            XposedBridge.log(e);
+        }
+        return null;
+    }
+
+    public Key getOriginalKey() {
+        try {
+            return new Key(getOriginalMessageKey.invoke(fmessage));
         } catch (Exception e) {
             XposedBridge.log(e);
         }

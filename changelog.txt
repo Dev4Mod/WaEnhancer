@@ -1,14 +1,3 @@
-[HIDE RECEIPTS]
-* Fix bug in hide receipts in chat
+[EDITED MESSAGE HISTORY]
+* Fixed bug in new versions of Whatsapp (Attention: Whatsapp now no longer keeps the original message in the database and due to this, I had to change the way the history is saved, so old edited messages will not appear properly correct, only the new ones)
 
-[CUSTOM WALLPAPER]
-* Fix bug in select wallpaper
-
-[WHATSAPP]
-* Fix crash on open archived and others settings
-
-[OTHERS]
-* Fix missing icon download in View Once Download and Picture Profile Download
-
-[WA ENHANCER]
-* Update translations

@@ -8,6 +8,7 @@ import de.robv.android.xposed.XposedHelpers;
 
 public class DebugUtils {
     public static void debugFields(Class<?> cls, Object thisObject) {
+        if (cls == null) return;
         XposedBridge.log("DEBUG FIELDS: Class " + cls.getName());
         for (var field : cls.getDeclaredFields()) {
             try {

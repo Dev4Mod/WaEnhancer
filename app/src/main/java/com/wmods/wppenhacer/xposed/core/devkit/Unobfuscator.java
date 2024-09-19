@@ -1003,6 +1003,15 @@ public class Unobfuscator {
         });
     }
 
+    public synchronized static Method loadOriginalMessageKey(ClassLoader loader) throws Exception {
+        return UnobfuscatorCache.getInstance().getMethod(loader, () -> {
+            var method = findFirstMethodUsingStrings(loader, StringMatchType.Contains, "FMessageUtil/getOriginalMessageKeyIfEdited");
+            if (method == null) throw new RuntimeException("MessageEdit method not found");
+            return method;
+        });
+    }
+
+
     public synchronized static Method loadNewMessageWithMediaMethod(ClassLoader loader) throws Exception {
         var clazzMessage = Objects.requireNonNull(dexkit.getClassData(loadFMessageClass(loader)));
         var methodData = clazzMessage.findMethod(new FindMethod().matcher(new MethodMatcher().addUsingNumber(0x200000).returnType(String.class)));
