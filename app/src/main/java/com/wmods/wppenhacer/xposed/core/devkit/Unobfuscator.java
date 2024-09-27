@@ -865,6 +865,27 @@ public class Unobfuscator {
         return UnobfuscatorCache.getInstance().getMethod(loader, () -> {
             Method method = findFirstMethodUsingStrings(loader, StringMatchType.Contains, "ConversationViewFiller/setParentGroupProfilePhoto");
             if (method == null) throw new Exception("OnChangeStatus method not found");
+
+            // for 19.xx, the current implementation returns wrong method
+            if (method.getParameterCount() < 6) {
+                ClassData declaringClassData = dexkit.getClassData(method.getDeclaringClass());
+                if (declaringClassData == null) throw new Exception("OnChangeStatus method not found");
+
+                Class<?> arg1Class = findFirstClassUsingStrings(loader, StringMatchType.Contains, "problematic contact:");
+                MethodDataList methodData = declaringClassData.findMethod(
+                        FindMethod.create().matcher(MethodMatcher.create().paramCount(6, 8)));
+
+                for (var methodItem : methodData) {
+                    var paramTypes = methodItem.getParamTypes();
+
+                    if (paramTypes.get(0).getInstance(loader) == arg1Class &&
+                            paramTypes.get(1).getInstance(loader) == arg1Class) {
+                        method = methodItem.getMethodInstance(loader);
+                        break;
+                    }
+                }
+            }
+
             return method;
         });
     }
