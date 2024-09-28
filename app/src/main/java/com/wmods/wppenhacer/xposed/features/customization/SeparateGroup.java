@@ -337,6 +337,8 @@ public class SeparateGroup extends Feature {
         private boolean checkGroup(Object chat) {
             var requiredServer = isGroup ? "g.us" : "s.whatsapp.net";
             var jid = getObjectField(chat, "A00");
+            if (jid == null) jid = getObjectField(chat, "A01");
+            if (jid == null) return true;
             if (XposedHelpers.findMethodExactIfExists(jid.getClass(), "getServer") != null) {
                 var server = (String) callMethod(jid, "getServer");
                 return server.equals(requiredServer);
