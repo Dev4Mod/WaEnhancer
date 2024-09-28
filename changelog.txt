@@ -1,3 +1,8 @@
 [EDITED MESSAGE HISTORY]
 * Fixed bug in new versions of Whatsapp (Attention: Whatsapp now no longer keeps the original message in the database and due to this, I had to change the way the history is saved, so old edited messages will not appear properly correct, only the new ones)
 
+[WHATSAPP & WHATSAPP BUSINESS]
+* Added support for version 2.24.19.XX (Thanks @frknkrc44)
+* Removed old support for versions 13,14,15
+
+

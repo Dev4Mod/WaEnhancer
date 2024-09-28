@@ -115,19 +115,12 @@
         <item>2</item>
     </string-array>
     <string-array name="supported_versions_wpp">
-        <item>2.24.13.xx</item>
-        <item>2.24.14.xx</item>
-        <item>2.24.15.xx</item>
         <item>2.24.16.xx</item>
         <item>2.24.17.xx</item>
         <item>2.24.18.xx</item>
         <item>2.24.19.xx</item>
     </string-array>
     <string-array name="supported_versions_business">
-        <item>2.24.12.xx</item>
-        <item>2.24.13.xx</item>
-        <item>2.24.14.xx</item>
-        <item>2.24.15.xx</item>
         <item>2.24.16.xx</item>
         <item>2.24.17.xx</item>
         <item>2.24.18.xx</item>
