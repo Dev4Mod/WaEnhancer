@@ -119,6 +119,7 @@
         <item>2.24.17.xx</item>
         <item>2.24.18.xx</item>
         <item>2.24.19.xx</item>
+        <item>2.24.20.xx</item>
     </string-array>
     <string-array name="supported_versions_business">
         <item>2.24.16.xx</item>
