@@ -890,11 +890,22 @@ public class Unobfuscator {
         });
     }
 
+    public synchronized static Class<?> loadViewHolder(ClassLoader loader) throws Exception {
+        Class<?> classViewHolder = XposedHelpers.findClassIfExists("com.whatsapp.conversationslist.ViewHolder", loader);
+
+        // for 20.xx, the current implementation returns null
+        if (classViewHolder == null) {
+            Method method = findFirstMethodUsingStrings(loader, StringMatchType.Contains, "conversations/click/jid ");
+            classViewHolder = method.getParameterTypes()[0];
+        }
+
+        return classViewHolder;
+    }
+
     public synchronized static Field loadViewHolderField1(ClassLoader loader) throws Exception {
         return UnobfuscatorCache.getInstance().getField(loader, () -> {
             Class<?> class1 = loadOnChangeStatus(loader).getDeclaringClass().getSuperclass();
-            Class<?> classViewHolder = XposedHelpers.findClass("com.whatsapp.conversationslist.ViewHolder", loader);
-            return ReflectionUtils.getFieldByType(class1, classViewHolder);
+            return ReflectionUtils.getFieldByType(class1, loadViewHolder(loader));
         });
     }
 

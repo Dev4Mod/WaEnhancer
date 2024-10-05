@@ -46,7 +46,7 @@ public class ShowOnline extends Feature {
         var showOnlineIcon = prefs.getBoolean("dotonline", false);
         if (!showOnlineText && !showOnlineIcon) return;
 
-        var classViewHolder = XposedHelpers.findClass("com.whatsapp.conversationslist.ViewHolder", classLoader);
+        var classViewHolder = Unobfuscator.loadViewHolder(classLoader);
         XposedBridge.hookAllConstructors(classViewHolder, new XC_MethodHook() {
             @SuppressLint("ResourceType")
             @Override
