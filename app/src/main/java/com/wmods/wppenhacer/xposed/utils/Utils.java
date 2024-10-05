@@ -217,6 +217,13 @@ public class Utils {
         }
     }
 
+    public static String getAuthorFromCss(String code) {
+        if (code == null) return null;
+        var match = Pattern.compile("author\\s*=\\s*(.*?)\n").matcher(code);
+        if (!match.find()) return null;
+        return match.group(1);
+    }
+
     @FunctionalInterface
     public interface BinderLocalScopeBlock<T> {
         T execute();

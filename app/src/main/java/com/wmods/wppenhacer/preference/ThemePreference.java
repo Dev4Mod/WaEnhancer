@@ -18,6 +18,7 @@ import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.core.content.ContextCompat;
 import androidx.preference.Preference;
@@ -36,6 +37,7 @@ import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
@@ -85,6 +87,10 @@ public class ThemePreference extends Preference implements FilePicker.OnUriPicke
         });
 
         for (String folder : folders) {
+            var cssFile = new File(rootDirectory, folder + "/style.css");
+            if (!cssFile.exists() && !folder.equals("Default Theme")) {
+                continue;
+            }
             View itemView = LayoutInflater.from(context).inflate(R.layout.item_folder, null, false);
             TextView folderNameView = itemView.findViewById(R.id.folder_name);
             folderNameView.setText(folder);
@@ -92,10 +98,17 @@ public class ThemePreference extends Preference implements FilePicker.OnUriPicke
             if (folder.equals(folder_name)) {
                 folderNameView.setTextColor(ContextCompat.getColor(context, R.color.md_theme_material_green_dark_onPrimaryContainer));
             }
+            if (cssFile.exists()) {
+                var code = FilesKt.readText(cssFile, Charset.defaultCharset());
+                var author = Utils.getAuthorFromCss(code);
+                if (!TextUtils.isEmpty(author)) {
+                    TextView authorView = itemView.findViewById(R.id.author);
+                    authorView.setText(author);
+                }
+            }
             itemView.setOnClickListener(v -> {
                 var sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
                 sharedPreferences.edit().putString(getKey(), folder).commit();
-                var cssFile = new File(rootDirectory, folder + "/style.css");
                 if (cssFile.exists()) {
                     var code = FilesKt.readText(cssFile, Charset.defaultCharset());
                     sharedPreferences.edit().putString("custom_css", code).commit();
@@ -162,32 +175,33 @@ public class ThemePreference extends Preference implements FilePicker.OnUriPicke
 
     @Override
     public void onUriPicked(Uri uri) {
-        if (uri == null) return;
-        try (var inputStream = getContext().getContentResolver().openInputStream(uri)) {
-            var zipInputStream = new ZipInputStream(inputStream);
-            ZipEntry zipEntry = zipInputStream.getNextEntry();
-            if (zipEntry == null) {
-                Utils.showToast(getContext().getString(R.string.invalid_zip_file), 1);
-                return;
-            }
-            do {
-                var name = zipEntry.getName();
-                if (!name.contains("/")) {
-                    continue;
-                }
-                var folderName = name.substring(0, name.lastIndexOf('/'));
-                File rootDirectory = new File(Environment.getExternalStorageDirectory(), "Download/WaEnhancer/themes");
-                File newFolder = new File(rootDirectory, folderName);
-                if (!newFolder.exists()) newFolder.mkdirs();
-                var file = new File(rootDirectory, name);
-                Files.copy(zipInputStream, file.toPath(), StandardCopyOption.REPLACE_EXISTING);
-                zipEntry = zipInputStream.getNextEntry();
-            } while (zipEntry != null);
-            Utils.showToast(getContext().getString(R.string.theme_imported_successfully), 1);
-            mainDialog.dismiss();
-            showThemeDialog();
-        } catch (Exception e) {
-            e.printStackTrace();
+        if (uri == null) {
+            return;
         }
+        CompletableFuture.runAsync(() -> {
+            Utils.showToast("Importing theme...", Toast.LENGTH_SHORT);
+            try (var inputStream = getContext().getContentResolver().openInputStream(uri)) {
+                var zipInputStream = new ZipInputStream(inputStream);
+                ZipEntry zipEntry;
+                while ((zipEntry = zipInputStream.getNextEntry()) != null) {
+                    var entryName = zipEntry.getName();
+                    var folderName = entryName.substring(0, entryName.lastIndexOf('/'));
+                    var rootDirectory = new File(Environment.getExternalStorageDirectory(), "Download/WaEnhancer/themes");
+                    var newFolder = new File(rootDirectory, folderName);
+                    if (!newFolder.exists()) {
+                        newFolder.mkdirs();
+                    }
+                    if (entryName.endsWith("/")) continue;
+                    var file = new File(rootDirectory, entryName);
+                    Files.copy(zipInputStream, file.toPath(), StandardCopyOption.REPLACE_EXISTING);
+                }
+                ((Activity) getContext()).runOnUiThread(() -> {
+                    Utils.showToast(getContext().getString(R.string.theme_imported_successfully), Toast.LENGTH_SHORT);
+                    mainDialog.dismiss();
+                    showThemeDialog();
+                });
+            } catch (Exception ignored) {
+            }
+        });
     }
 }
