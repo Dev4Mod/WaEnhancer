@@ -318,8 +318,10 @@ public class SeenTick extends Feature {
                 if (!prefs.getBoolean("blueonreply", false)) return;
                 var obj = messageSendClass.cast(param.thisObject);
                 var rawJid = (String) XposedHelpers.getObjectField(obj, "jid");
+
                 var handler = new Handler(Looper.getMainLooper());
-                if (Objects.equals(currentScreen, "status")) {
+                Class<?> clazz = XposedHelpers.findClass("com.whatsapp.status.playback.StatusPlaybackActivity", classLoader);
+                if (Objects.equals(currentScreen, "status") && WppCore.getCurrentActivity().getClass() == clazz) {
                     if (messages.isEmpty()) return;
                     MessageStore.getInstance().storeMessageRead(messages.valueAt(0).messageId);
                     var view = messageMap.get(messages.valueAt(0).messageId);
