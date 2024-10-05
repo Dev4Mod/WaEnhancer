@@ -74,7 +74,11 @@ public class IGStatusAdapter extends ArrayAdapter {
                     WppCore.getCurrentActivity().startActivity(intent);
                     dialog.dismissDialog();
                 });
-                tabdialog.addTab(activity.getString(ResId.string.open_camera), DesignUtils.getIconByName("ic_home_camera", true), (view) -> {
+
+                // Botão da camera
+                var iconCamera = DesignUtils.getDrawable(ResId.drawable.camera);
+                DesignUtils.coloredDrawable(iconCamera, DesignUtils.isNightMode() ? Color.WHITE : Color.BLACK);
+                tabdialog.addTab(activity.getString(ResId.string.open_camera), iconCamera, (view) -> {
                     Intent A09 = new Intent();
                     A09.setClassName(activity.getPackageName(), "com.whatsapp.camera.CameraActivity");
                     A09.putExtra("jid", "status@broadcast");
@@ -87,7 +91,11 @@ public class IGStatusAdapter extends ArrayAdapter {
                     dialog.dismissDialog();
 
                 });
-                tabdialog.addTab(activity.getString(ResId.string.edit_text), DesignUtils.getIconByName("ic_action_edit", true), (view) -> {
+                // Botão de editar
+                var iconEdit = DesignUtils.getDrawable(ResId.drawable.edit2);
+                DesignUtils.coloredDrawable(iconEdit, DesignUtils.isNightMode() ? Color.WHITE : Color.BLACK);
+
+                tabdialog.addTab(activity.getString(ResId.string.edit_text), iconEdit, (view) -> {
                     Intent A09 = new Intent();
                     A09.setClassName(activity.getPackageName(), "com.whatsapp.textstatuscomposer.TextStatusComposerActivityV2");
                     activity.startActivity(A09);

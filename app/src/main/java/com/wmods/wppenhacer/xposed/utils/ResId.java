@@ -18,6 +18,8 @@ public class ResId {
         public static int online;
         public static int deleted;
         public static int download;
+        public static int camera;
+        public static int edit2;
     }
 
     public static class string {
