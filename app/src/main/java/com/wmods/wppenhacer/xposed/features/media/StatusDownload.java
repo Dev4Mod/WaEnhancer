@@ -83,6 +83,7 @@ public class StatusDownload extends Feature {
                 Intent intent = new Intent();
                 intent.setClassName(Utils.getApplication().getPackageName(), "com.whatsapp.textstatuscomposer.TextStatusComposerActivity");
                 intent.putExtra("android.intent.extra.TEXT", fMessageWpp.getMessageStr());
+                WppCore.getCurrentActivity().finish();
                 WppCore.getCurrentActivity().startActivity(intent);
                 return;
             }
@@ -92,6 +93,7 @@ public class StatusDownload extends Feature {
             intent.putExtra("jids", new ArrayList<>(Collections.singleton("status@broadcast")));
             intent.putExtra("android.intent.extra.STREAM", new ArrayList<>(Collections.singleton(Uri.fromFile(file))));
             intent.putExtra("android.intent.extra.TEXT", fMessageWpp.getMessageStr());
+            WppCore.getCurrentActivity().finish();
             WppCore.getCurrentActivity().startActivity(intent);
         } catch (Throwable e) {
             Utils.showToast(e.getMessage(), Toast.LENGTH_SHORT);
