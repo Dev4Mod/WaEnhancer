@@ -265,10 +265,12 @@ public class MediaPreview extends Feature {
                     webView.loadDataWithBaseURL(null, HTML_VIDEO.replace("$url", fileUrl), "text/html", "UTF-8", null);
                 }
             });
-        } catch (Exception e) {
+        } catch (Throwable e) {
             if (e instanceof InvocationTargetException) {
+                logDebug(e.getCause());
                 Utils.showToast(Objects.requireNonNull(e.getCause()).getMessage(), Toast.LENGTH_LONG);
             } else {
+                logDebug(e);
                 Utils.showToast(e.getMessage(), Toast.LENGTH_LONG);
             }
             if (dialog != null && dialog.isShowing()) {
