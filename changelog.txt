@@ -1,11 +1,5 @@
-[FIXES]
-* Fixed icons in IGStatus
-* Fixed bug when reposting stories
-* Fixed theme import bug
-
-[ADDED]
-* Added the "author" property to the theme author appears in the theme manager
-* Added support for WhatsApp 2.24.20.XX (Thanks to frknkrc44)
+[CRITICAL FIX]
+* Fixed missing icons
 
 
 
