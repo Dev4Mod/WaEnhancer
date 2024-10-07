@@ -28,7 +28,7 @@ public class HorizontalListView extends AdapterView<ListAdapter> {
     private int mDisplayOffset = 0;
     protected Scroller mScroller;
     private GestureDetector mGesture;
-    private final Queue<View> mRemovedViewQueue = new LinkedList<View>();
+    private final Queue<View> mRemovedViewQueue = new LinkedList<>();
     private OnItemSelectedListener mOnItemSelected;
     private OnItemClickListener mOnItemClicked;
     private OnItemLongClickListener mOnItemLongClicked;
@@ -302,8 +302,7 @@ public class HorizontalListView extends AdapterView<ListAdapter> {
 
     @Override
     public boolean dispatchTouchEvent(MotionEvent ev) {
-        boolean handled = mGesture.onTouchEvent(ev);
-        return handled;
+        return mGesture.onTouchEvent(ev);
     }
 
     protected boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX,

@@ -20,6 +20,7 @@ public class ResId {
         public static int download;
         public static int camera;
         public static int edit2;
+        public static int ic_general;
     }
 
     public static class string {
@@ -82,6 +83,7 @@ public class ResId {
         public static int starting_cache;
         public static int bridge_error;
         public static int not_available;
+        public static int app_name;
     }
 
     public static class array {
