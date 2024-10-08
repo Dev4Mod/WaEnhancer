@@ -41,7 +41,6 @@ public class CustomPrivacy extends Feature {
         XposedHelpers.findAndHookMethod(ContactInfoActivityClass, "onCreate", Bundle.class, new XC_MethodHook() {
             @Override
             protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-                DebugUtils.debugFields(ContactInfoActivityClass, param.thisObject);
                 Activity activity = (Activity) param.thisObject;
                 ViewGroup infoLayout = activity.findViewById(Utils.getID("contact_info_security_card_layout", "id"));
                 Class listItemWithLeftIconClass = classLoader.loadClass("com.whatsapp.ListItemWithLeftIcon");
