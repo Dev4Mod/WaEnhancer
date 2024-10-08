@@ -1,5 +1,8 @@
-[CRITICAL FIX]
-* Fixed missing icons
+[Custom Privacy]
+* Added option to customize privacy per contact (On WhatsApp, select a contact and go to information -> Custom privacy). It is worth remembering that global privacy has a general effect on custom privacy, so you must deactivate it first in WAE to use custom privacy in WhatsApp.
 
+[MENU BUTTON]
+* Added a menu on the home screen to open WAE directly from WhatsApp.
 
-
+[WAE]
+* Update translations

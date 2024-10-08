@@ -373,6 +373,10 @@
     <string name="bootloader_spoofer_sum">הפעל את תכונה זו אם נחסמת מווצאפ ואתה מקבל הודעה שאתה משתמש בגרסה לא רשמית</string>
     <string name="not_available">לא זמין</string>
     <string name="select_all">בחר הכל</string>
-    <string name="custom_colors_for_text_status">Custom colors for text status</string>
-    <string name="custom_colors_for_text_status_sum">Press and hold on the color selector in the status to customize it</string>
+    <string name="custom_colors_for_text_status">צבעים מותאמים אישית עבור סטטוס טקסט</string>
+    <string name="custom_colors_for_text_status_sum">לחץ והחזק את בורר הצבעים בסטטוס כדי להתאים אותו אישית</string>
+    <string name="enable_wa_enhancer_button">Enable Wa Enhancer Button</string>
+    <string name="enable_wa_enhancer_button_sum">Add button in Home Screen to open Wa Enhancer</string>
+    <string name="custom_privacy">Custom Privacy</string>
+    <string name="custom_privacy_sum">Enable/Disable Custom Privacy</string>
 </resources>

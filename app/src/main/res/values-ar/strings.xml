@@ -131,7 +131,7 @@
     <string name="restart_wpp">من الضروري إعادة تشغيل WhatsApp لتفعيل التغييرات في Wa Encer. هل تريد إعادة التشغيل؟</string>
     <string name="version_s_not_listed">الإصدار %s غير مدرج في الإصدارات المدعومة!\nالرجاء استخدام إصدار WhatsApp المدعوم!</string>
     <string name="media">الوسائط</string>
-    <string name="show_button_to_send_blue_tick">إظهار الزر لإرسال علامة زرقاء🔵</string>
+    <string name="show_button_to_send_blue_tick">إظهار أيقونة لإرسال علامة زرقاء✔️✔️</string>
     <string name="show_button_to_send_blue_tick_sum">إظهار أيقونة لإرسال علامة زرقاء (ضع علامة كمقروء/مشاهدة)</string>
     <string name="send_blue_tick">وضع علامة كمقروء/مشاهدة</string>
     <string name="business_in_background">واتساب أعمال في الخلفية</string>
@@ -372,6 +372,10 @@
     <string name="bootloader_spoofer_sum">استخدم هذا إذا تم حظرك وتلقيت رسالة واتساب غير رسمي</string>
     <string name="not_available">غير متوفر</string>
     <string name="select_all">تحديد الكل</string>
-    <string name="custom_colors_for_text_status">Custom colors for text status</string>
-    <string name="custom_colors_for_text_status_sum">Press and hold on the color selector in the status to customize it</string>
+    <string name="custom_colors_for_text_status">ألوان مخصصة لحالة النص</string>
+    <string name="custom_colors_for_text_status_sum">اضغط باستمرار على منتقي الألوان في الحالة لتخصيصه</string>
+    <string name="enable_wa_enhancer_button">Enable Wa Enhancer Button</string>
+    <string name="enable_wa_enhancer_button_sum">Add button in Home Screen to open Wa Enhancer</string>
+    <string name="custom_privacy">Custom Privacy</string>
+    <string name="custom_privacy_sum">Enable/Disable Custom Privacy</string>
 </resources>

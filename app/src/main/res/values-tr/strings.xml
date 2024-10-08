@@ -371,6 +371,10 @@
     <string name="bootloader_spoofer_sum">Yasaklandıysanız ve resmi olmayan Whatsapp mesajı alıyorsanız bunu kullanın</string>
     <string name="not_available">mevcut değil</string>
     <string name="select_all">Tümünü Seç</string>
-    <string name="custom_colors_for_text_status">Custom colors for text status</string>
-    <string name="custom_colors_for_text_status_sum">Press and hold on the color selector in the status to customize it</string>
+    <string name="custom_colors_for_text_status">Metin durumu için özel renkler</string>
+    <string name="custom_colors_for_text_status_sum">Özelleştirmek için durumdaki renk seçiciyi basılı tutun</string>
+    <string name="enable_wa_enhancer_button">Enable Wa Enhancer Button</string>
+    <string name="enable_wa_enhancer_button_sum">Add button in Home Screen to open Wa Enhancer</string>
+    <string name="custom_privacy">Custom Privacy</string>
+    <string name="custom_privacy_sum">Enable/Disable Custom Privacy</string>
 </resources>

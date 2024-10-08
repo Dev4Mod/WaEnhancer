@@ -371,6 +371,10 @@
     <string name="bootloader_spoofer_sum">Use isto se você foi banido e está recebendo a mensagem para usar o app oficial do WhatsApp</string>
     <string name="not_available">não disponível</string>
     <string name="select_all">Selecionar tudo</string>
-    <string name="custom_colors_for_text_status">Custom colors for text status</string>
-    <string name="custom_colors_for_text_status_sum">Press and hold on the color selector in the status to customize it</string>
+    <string name="custom_colors_for_text_status">Cores personalizadas para status de texto</string>
+    <string name="custom_colors_for_text_status_sum">Pressione e segure o seletor de cores no status para personalizá-lo</string>
+    <string name="enable_wa_enhancer_button">Enable Wa Enhancer Button</string>
+    <string name="enable_wa_enhancer_button_sum">Add button in Home Screen to open Wa Enhancer</string>
+    <string name="custom_privacy">Custom Privacy</string>
+    <string name="custom_privacy_sum">Enable/Disable Custom Privacy</string>
 </resources>
