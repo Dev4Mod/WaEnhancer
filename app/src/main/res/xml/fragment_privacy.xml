@@ -44,7 +44,6 @@
 
         <rikka.material.preference.MaterialSwitchPreference
             app:key="blueonreply"
-            app:dependency="hideread"
             app:summary="@string/blueonreply_sum"
             app:title="@string/blueonreply" />
 
@@ -84,9 +83,9 @@
             app:title="@string/viewonce" />
 
         <ListPreference
-            app:key="seentick"
             app:entries="@array/seentick_buttons"
             app:entryValues="@array/seentick_values"
+            app:key="seentick"
             app:summary="@string/show_button_to_send_blue_tick_sum"
             app:title="@string/show_button_to_send_blue_tick" />
 
@@ -94,7 +93,7 @@
 
     <PreferenceCategory
         app:iconSpaceReserved="false"
-        app:title="@string/status" >
+        app:title="@string/status">
         <rikka.material.preference.MaterialSwitchPreference
             app:key="hidestatusview"
             app:summary="@string/hidestatusview_sum"
@@ -107,8 +106,8 @@
         <ListPreference
             app:entries="@array/call_blocker_buttons"
             app:entryValues="@array/call_blocker_values"
-            app:summary="@string/call_blocker_sum"
             app:key="call_privacy"
+            app:summary="@string/call_blocker_sum"
             app:title="@string/call_blocker" />
 
         <ListPreference

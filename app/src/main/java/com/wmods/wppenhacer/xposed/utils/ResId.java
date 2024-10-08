@@ -9,7 +9,6 @@ public class ResId {
         public static int admin;
 
         public static int preview_eye;
-        public static int ic_reload;
         public static int refresh;
         public static int ghost_disabled;
         public static int ghost_enabled;
@@ -20,7 +19,7 @@ public class ResId {
         public static int download;
         public static int camera;
         public static int edit2;
-        public static int ic_general;
+        public static int ic_privacy;
     }
 
     public static class string {
@@ -84,6 +83,13 @@ public class ResId {
         public static int bridge_error;
         public static int not_available;
         public static int app_name;
+        public static int hideread;
+        public static int hidestatusview;
+        public static int hidereceipt;
+        public static int ghostmode;
+        public static int ghostmode_r;
+        public static int custom_privacy;
+        public static int custom_privacy_sum;
     }
 
     public static class array {

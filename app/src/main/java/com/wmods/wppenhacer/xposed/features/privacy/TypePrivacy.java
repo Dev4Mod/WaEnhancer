@@ -6,6 +6,8 @@ import com.wmods.wppenhacer.xposed.core.Feature;
 import com.wmods.wppenhacer.xposed.core.WppCore;
 import com.wmods.wppenhacer.xposed.core.devkit.Unobfuscator;
 
+import org.json.JSONObject;
+
 import java.lang.reflect.Method;
 
 import de.robv.android.xposed.XC_MethodHook;
@@ -29,7 +31,12 @@ public class TypePrivacy extends Feature {
             @Override
             protected void beforeHookedMethod(MethodHookParam param) {
                 var p1 = (int) param.args[2];
-                if ((p1 == 1 && ghostmode_r) || (p1 == 0 && ghostmode_t)) {
+                var userJid = param.args[1];
+                var number = WppCore.stripJID(WppCore.getRawString(userJid));
+                var privacy = WppCore.getPrivJSON(number + "_privacy", new JSONObject());
+                var customHideTyping = privacy.optBoolean("HideTyping", false);
+                var customHideRecording = privacy.optBoolean("HideRecording", false);
+                if ((p1 == 1 && (ghostmode_r || customHideRecording)) || (p1 == 0 && (ghostmode_t || customHideTyping))) {
                     param.setResult(null);
                 }
             }

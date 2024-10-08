@@ -61,6 +61,7 @@ import com.wmods.wppenhacer.xposed.features.others.TextStatusComposer;
 import com.wmods.wppenhacer.xposed.features.others.ToastViewer;
 import com.wmods.wppenhacer.xposed.features.privacy.AntiWa;
 import com.wmods.wppenhacer.xposed.features.privacy.CallPrivacy;
+import com.wmods.wppenhacer.xposed.features.privacy.CustomPrivacy;
 import com.wmods.wppenhacer.xposed.features.privacy.DndMode;
 import com.wmods.wppenhacer.xposed.features.privacy.FreezeLastSeen;
 import com.wmods.wppenhacer.xposed.features.privacy.HideChat;
@@ -268,7 +269,8 @@ public class FeatureLoader {
                 TextStatusComposer.class,
                 ToastViewer.class,
                 MenuHome.class,
-                AntiWa.class
+                AntiWa.class,
+                CustomPrivacy.class
         };
         XposedBridge.log("Loading Plugins");
         var executorService = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());

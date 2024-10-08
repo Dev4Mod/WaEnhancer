@@ -26,6 +26,8 @@ import com.wmods.wppenhacer.xposed.utils.ReflectionUtils;
 import com.wmods.wppenhacer.xposed.utils.ResId;
 import com.wmods.wppenhacer.xposed.utils.Utils;
 
+import org.json.JSONObject;
+
 import java.io.File;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
@@ -355,6 +357,21 @@ public class WppCore {
 
     public static String getPrivString(String key, String defaultValue) {
         return privPrefs.getString(key, defaultValue);
+    }
+
+    public static JSONObject getPrivJSON(String key, JSONObject defaultValue) {
+        var jsonStr = privPrefs.getString(key, null);
+        if (jsonStr == null) return defaultValue;
+        try {
+            return new JSONObject(jsonStr);
+        } catch (Exception e) {
+            return defaultValue;
+        }
+    }
+
+    @SuppressLint("ApplySharedPref")
+    public static void setPrivJSON(String key, JSONObject value) {
+        privPrefs.edit().putString(key, value == null ? null : value.toString()).commit();
     }
 
     @SuppressLint("ApplySharedPref")

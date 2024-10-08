@@ -10,6 +10,8 @@ import com.wmods.wppenhacer.xposed.core.devkit.Unobfuscator;
 import com.wmods.wppenhacer.xposed.utils.ReflectionUtils;
 import com.wmods.wppenhacer.xposed.utils.Utils;
 
+import org.json.JSONObject;
+
 import java.lang.reflect.Array;
 import java.lang.reflect.Method;
 import java.util.Set;
@@ -53,14 +55,26 @@ public class HideSeen extends Feature {
                 }
                 var jid = (String) XposedHelpers.getObjectField(srj, "jid");
                 if (jid == null) return;
+                var stripJid = WppCore.stripJID(jid);
+                var privacy = WppCore.getPrivJSON(stripJid + "_privacy", new JSONObject());
+                var customHideRead = privacy.optBoolean("HideSeen", false);
+                var cutomHideStatusView = privacy.optBoolean("HideViewStatus", false);
 
                 if (WppCore.isGroup(jid)) {
                     if (hideread_group)
                         param.setResult(null);
-                } else if (jid.startsWith("status")) {
-                    if (hidestatusview)
+                    else if (customHideRead) {
                         param.setResult(null);
+                    }
+                } else if (jid.startsWith("status")) {
+                    if (hidestatusview) {
+                        param.setResult(null);
+                    } else if (cutomHideStatusView) {
+                        param.setResult(null);
+                    }
                 } else if (hideread) {
+                    param.setResult(null);
+                } else if (customHideRead) {
                     param.setResult(null);
                 }
 
@@ -79,10 +93,19 @@ public class HideSeen extends Feature {
                 if (!ReflectionUtils.isCalledFromMethod(hideViewInChatMethod)) return;
                 if (param.args[4] == null || !param.args[4].equals("read")) return;
                 var jid = WppCore.getCurrentRawJID();
+                var stripJid = WppCore.stripJID(jid);
+                var privacy = WppCore.getPrivJSON(stripJid + "_privacy", new JSONObject());
+                var customHideRead = privacy.optBoolean("HideSeen", false);
+
                 if (WppCore.isGroup(jid)) {
                     if (hideread_group)
                         param.args[4] = null;
+                    if (customHideRead) {
+                        param.args[4] = null;
+                    }
                 } else if (hideread) {
+                    param.args[4] = null;
+                } else if (customHideRead) {
                     param.args[4] = null;
                 }
             }

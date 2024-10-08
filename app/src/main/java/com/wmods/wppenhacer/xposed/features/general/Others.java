@@ -110,6 +110,9 @@ public class Others extends Feature {
 
         propsBoolean.put(10380, false); // fix crash bug in Settings/Archived
 
+        propsBoolean.put(10379, true);
+        propsBoolean.put(10388, true);
+
 
         if (metaai) {
             propsBoolean.put(8025, false);

@@ -4,8 +4,11 @@ import androidx.annotation.NonNull;
 
 import com.wmods.wppenhacer.xposed.core.Feature;
 import com.wmods.wppenhacer.xposed.core.WppCore;
+import com.wmods.wppenhacer.xposed.core.components.FMessageWpp;
 import com.wmods.wppenhacer.xposed.core.devkit.Unobfuscator;
 import com.wmods.wppenhacer.xposed.utils.ReflectionUtils;
+
+import org.json.JSONObject;
 
 import de.robv.android.xposed.XC_MethodHook;
 import de.robv.android.xposed.XSharedPreferences;
@@ -18,8 +21,8 @@ public class HideReceipt extends Feature {
 
     @Override
     public void doHook() throws Exception {
-        if (!prefs.getBoolean("hidereceipt", false) && !WppCore.getPrivBoolean("ghostmode", false))
-            return;
+        var hideReceipt = prefs.getBoolean("hidereceipt", false);
+        var ghostmode = WppCore.getPrivBoolean("ghostmode", false);
         var method = Unobfuscator.loadReceiptMethod(classLoader);
         logDebug("hook method:" + Unobfuscator.getMethodDescriptor(method));
         var method2 = Unobfuscator.loadReceiptOutsideChat(classLoader);
@@ -31,7 +34,13 @@ public class HideReceipt extends Feature {
             protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
                 if (!ReflectionUtils.isCalledFromMethod(method2) && !ReflectionUtils.isCalledFromMethod(method3))
                     return;
-                if (param.args[4] != "sender") {
+                var messageKey = new FMessageWpp.Key(param.args[3]);
+                var userJid = messageKey.remoteJid;
+                var rawJid = WppCore.getRawString(userJid);
+                var number = WppCore.stripJID(rawJid);
+                var privacy = WppCore.getPrivJSON(number + "_privacy", new JSONObject());
+                var customHideReceipt = privacy.optBoolean("HideReceipt", false);
+                if (param.args[4] != "sender" && (ghostmode || hideReceipt || customHideReceipt)) {
                     param.args[4] = "inactive";
                 }
             }
