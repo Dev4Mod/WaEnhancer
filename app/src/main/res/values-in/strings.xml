@@ -382,8 +382,8 @@ Harap gunakan versi WhatsApp yang didukung!</string>
     <string name="select_all">Pilih semua</string>
     <string name="custom_colors_for_text_status">Warna Khusus Untuk Status Teks</string>
     <string name="custom_colors_for_text_status_sum">Tekan dan tahan pemilih warna dalam status untuk menyesuaikannya</string>
-    <string name="enable_wa_enhancer_button">Enable Wa Enhancer Button</string>
-    <string name="enable_wa_enhancer_button_sum">Add button in Home Screen to open Wa Enhancer</string>
-    <string name="custom_privacy">Custom Privacy</string>
-    <string name="custom_privacy_sum">Enable/Disable Custom Privacy</string>
+    <string name="enable_wa_enhancer_button">Tombol Wa Enhancer</string>
+    <string name="enable_wa_enhancer_button_sum">Tampilkan tombol di Layar Beranda untuk membuka Wa Enhancer</string>
+    <string name="custom_privacy">Privasi Kustom</string>
+    <string name="custom_privacy_sum">Aktifkan/Nonaktifkan Privasi Kustom</string>
 </resources>

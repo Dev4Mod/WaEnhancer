@@ -374,8 +374,8 @@
     <string name="select_all">تحديد الكل</string>
     <string name="custom_colors_for_text_status">ألوان مخصصة لحالة النص</string>
     <string name="custom_colors_for_text_status_sum">اضغط باستمرار على منتقي الألوان في الحالة لتخصيصه</string>
-    <string name="enable_wa_enhancer_button">Enable Wa Enhancer Button</string>
-    <string name="enable_wa_enhancer_button_sum">Add button in Home Screen to open Wa Enhancer</string>
-    <string name="custom_privacy">Custom Privacy</string>
-    <string name="custom_privacy_sum">Enable/Disable Custom Privacy</string>
+    <string name="enable_wa_enhancer_button">تمكين أيقونة لفتح إعدادات الوحدة</string>
+    <string name="enable_wa_enhancer_button_sum">إظهار الأيقونة في الشاشة الرئيسية</string>
+    <string name="custom_privacy">الخصوصية(المخصصة)</string>
+    <string name="custom_privacy_sum">تمكين/تعطيل الخصوصية المخصصة</string>
 </resources>

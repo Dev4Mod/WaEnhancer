@@ -373,8 +373,8 @@
     <string name="select_all">Seleziona Tutto</string>
     <string name="custom_colors_for_text_status">Colori personalizzati per il testo dello stato</string>
     <string name="custom_colors_for_text_status_sum">Premi e tieni premuto il selettore dei colori nello stato per personalizzarlo</string>
-    <string name="enable_wa_enhancer_button">Enable Wa Enhancer Button</string>
-    <string name="enable_wa_enhancer_button_sum">Add button in Home Screen to open Wa Enhancer</string>
-    <string name="custom_privacy">Custom Privacy</string>
-    <string name="custom_privacy_sum">Enable/Disable Custom Privacy</string>
+    <string name="enable_wa_enhancer_button">Abilita Pulsante Wa Enhancer</string>
+    <string name="enable_wa_enhancer_button_sum">Aggiungi pulsante nella schermata Home per aprire Wa Enhancer</string>
+    <string name="custom_privacy">Privacy Personalizzata</string>
+    <string name="custom_privacy_sum">Abilita/Disabilita Privacy Personalizzata</string>
 </resources>

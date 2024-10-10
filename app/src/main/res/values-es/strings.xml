@@ -21,7 +21,7 @@
     <string name="viewonce_sum">Le permite abrir multimedia de \"visualización única\", las veces que desee</string>
     <string name="novotema_sum">Al activarse cambia el color y el tema de los iconos al nuevo tema de WhatsApp</string>
     <string name="antirevokestatus">Anti-eliminar estados </string>
-    <string name="antirevokestatus_sum">Cuando esté activo, los estados no se borrarán para usted.</string>
+    <string name="antirevokestatus_sum">Cuando esté activo, los estados no se borrarán para usted</string>
     <string name="hidereceipt">Ocultar mensaje recibido (doble tick)</string>
     <string name="hidereceipt_sum">Los usuarios no sabrán que sus mensajes se le han enviado\n(PRECAUCIÓN: Puede causar retrasos en la recepción de mensajes)</string>
     <string name="ampm">Hora en formato de 12 horas</string>
@@ -124,8 +124,8 @@
     <string name="module_enabled">Módulo Activado</string>
     <string name="version_s">Versión %s</string>
     <string name="module_disabled">Módulo Desactivado❗\nVe a LSPosed y actívalo</string>
-    <string name="whatsapp_in_background">WhatsApp en segundo plano</string>
-    <string name="whatsapp_is_not_running_or_has_not_been_activated_in_lsposed">WhatsApp no ​se ha abierto o no se ha activado en LSPosed</string>
+    <string name="whatsapp_in_background">WhatsApp activo en segundo plano</string>
+    <string name="whatsapp_is_not_running_or_has_not_been_activated_in_lsposed">WhatsApp no esta abierto o no se ha activado en LSPosed</string>
     <string name="business_is_not_running_or_has_not_been_activated_in_lsposed">Business no está abierto o no se ha activado en Lsposed</string>
     <string name="restart_wpp">Es necesario reiniciar WhatsApp para que los cambios de Wa Enhancer hagan efecto.\n\n¿Quieres reiniciar?</string>
     <string name="version_s_not_listed">¡La versión %s no aparece en las versiones compatibles!\n¡Por favor, usa una versión de WhatsApp compatible para evitar errores!</string>
@@ -373,8 +373,8 @@
     <string name="select_all">Seleccionar Todo</string>
     <string name="custom_colors_for_text_status">Personalizar colores de los textos en los estados</string>
     <string name="custom_colors_for_text_status_sum">Mantén pulsado el selector de color en el estado para personalizar los colores</string>
-    <string name="enable_wa_enhancer_button">Enable Wa Enhancer Button</string>
-    <string name="enable_wa_enhancer_button_sum">Add button in Home Screen to open Wa Enhancer</string>
-    <string name="custom_privacy">Custom Privacy</string>
-    <string name="custom_privacy_sum">Enable/Disable Custom Privacy</string>
+    <string name="enable_wa_enhancer_button">Habilitar botón Wa Enhancer</string>
+    <string name="enable_wa_enhancer_button_sum">Añadir botón en la pantalla de inicio para abrir Wa Enhancer</string>
+    <string name="custom_privacy">Privacidad personalizada</string>
+    <string name="custom_privacy_sum">Habilitar/deshabilitar privacidad personalizada</string>
 </resources>

@@ -375,8 +375,8 @@
     <string name="select_all">בחר הכל</string>
     <string name="custom_colors_for_text_status">צבעים מותאמים אישית עבור סטטוס טקסט</string>
     <string name="custom_colors_for_text_status_sum">לחץ והחזק את בורר הצבעים בסטטוס כדי להתאים אותו אישית</string>
-    <string name="enable_wa_enhancer_button">Enable Wa Enhancer Button</string>
-    <string name="enable_wa_enhancer_button_sum">Add button in Home Screen to open Wa Enhancer</string>
-    <string name="custom_privacy">Custom Privacy</string>
-    <string name="custom_privacy_sum">Enable/Disable Custom Privacy</string>
+    <string name="enable_wa_enhancer_button">הפעל את לחצן Wa Enhancer</string>
+    <string name="enable_wa_enhancer_button_sum">הוסף כפתור במסך הבית כדי לפתוח את Wa Enhancer</string>
+    <string name="custom_privacy">פרטיות מותאמת אישית</string>
+    <string name="custom_privacy_sum">הפעל/השבת פרטיות מותאמת אישית</string>
 </resources>
