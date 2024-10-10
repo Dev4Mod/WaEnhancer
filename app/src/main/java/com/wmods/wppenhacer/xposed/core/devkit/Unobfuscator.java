@@ -1406,8 +1406,14 @@ public class Unobfuscator {
             var methods = dexkit.findMethod(new FindMethod().matcher(new MethodMatcher().addInvoke(DexSignUtil.getMethodDescriptor(constructor))));
             if (methods.isEmpty()) throw new RuntimeException("FilterInit method not found");
             var cFrag = XposedHelpers.findClass("com.whatsapp.conversationslist.ConversationsFragment", loader);
-            var method = methods.stream().filter(m -> m.getParamCount() == 1 && m.getParamTypes().get(0).getName().equals(cFrag.getName())).findFirst().orElse(null);
+            var method = methods.stream().filter(m -> Arrays.asList(1, 2).contains(m.getParamCount()) && m.getParamTypes().get(0).getName().equals(cFrag.getName())).findFirst().orElse(null);
             if (method == null) throw new RuntimeException("FilterInit method not found 2");
+
+            // for 20.xx, it returned with 2 parameter count
+            if (method.getParamCount() == 2) {
+                method = method.getDeclaredClass().findMethod(FindMethod.create().matcher(new MethodMatcher().addInvoke(DexSignUtil.getMethodDescriptor(method.getMethodInstance(loader))))).singleOrNull();
+                if (method == null) throw new RuntimeException("FilterInit method not found 3");
+            }
             return method.getMethodInstance(loader);
         });
     }
