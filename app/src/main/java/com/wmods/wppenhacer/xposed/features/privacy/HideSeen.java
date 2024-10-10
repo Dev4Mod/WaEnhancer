@@ -36,11 +36,11 @@ public class HideSeen extends Feature {
         log(Unobfuscator.getMethodDescriptor(SendReadReceiptJobMethod));
 
         var ghostmode = WppCore.getPrivBoolean("ghostmode", false);
-        var hideread = prefs.getBoolean("hideread", false) || ghostmode;
-        var hideaudioseen = prefs.getBoolean("hideaudioseen", false) || ghostmode;
-        var hideonceseen = prefs.getBoolean("hideonceseen", false) || ghostmode;
-        var hideread_group = prefs.getBoolean("hideread_group", false) || ghostmode;
-        var hidestatusview = prefs.getBoolean("hidestatusview", false) || ghostmode;
+        var hideread = prefs.getBoolean("hideread", false);
+        var hideaudioseen = prefs.getBoolean("hideaudioseen", false);
+        var hideonceseen = prefs.getBoolean("hideonceseen", false);
+        var hideread_group = prefs.getBoolean("hideread_group", false);
+        var hidestatusview = prefs.getBoolean("hidestatusview", false);
 
         XposedBridge.hookMethod(SendReadReceiptJobMethod, new XC_MethodHook() {
             @Override
@@ -57,24 +57,18 @@ public class HideSeen extends Feature {
                 if (jid == null) return;
                 var stripJid = WppCore.stripJID(jid);
                 var privacy = WppCore.getPrivJSON(stripJid + "_privacy", new JSONObject());
-                var customHideRead = privacy.optBoolean("HideSeen", false);
-                var cutomHideStatusView = privacy.optBoolean("HideViewStatus", false);
+                var customHideRead = privacy.optBoolean("HideSeen", hideread);
+                var cutomHideStatusView = privacy.optBoolean("HideViewStatus", hidestatusview);
 
                 if (WppCore.isGroup(jid)) {
-                    if (hideread_group)
-                        param.setResult(null);
-                    else if (customHideRead) {
+                    if (privacy.optBoolean("HideSeen", hideread_group) || ghostmode) {
                         param.setResult(null);
                     }
                 } else if (jid.startsWith("status")) {
-                    if (hidestatusview) {
-                        param.setResult(null);
-                    } else if (cutomHideStatusView) {
+                    if (cutomHideStatusView || ghostmode) {
                         param.setResult(null);
                     }
-                } else if (hideread) {
-                    param.setResult(null);
-                } else if (customHideRead) {
+                } else if (customHideRead || ghostmode) {
                     param.setResult(null);
                 }
 

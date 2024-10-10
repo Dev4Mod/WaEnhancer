@@ -39,8 +39,8 @@ public class HideReceipt extends Feature {
                 var rawJid = WppCore.getRawString(userJid);
                 var number = WppCore.stripJID(rawJid);
                 var privacy = WppCore.getPrivJSON(number + "_privacy", new JSONObject());
-                var customHideReceipt = privacy.optBoolean("HideReceipt", false);
-                if (param.args[4] != "sender" && (ghostmode || hideReceipt || customHideReceipt)) {
+                var customHideReceipt = privacy.optBoolean("HideReceipt", hideReceipt);
+                if (param.args[4] != "sender" && (customHideReceipt || ghostmode)) {
                     param.args[4] = "inactive";
                 }
             }

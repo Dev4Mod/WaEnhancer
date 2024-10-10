@@ -1,7 +1,5 @@
 package com.wmods.wppenhacer.xposed.features.privacy;
 
-import android.view.View;
-
 import androidx.annotation.NonNull;
 
 import com.wmods.wppenhacer.xposed.core.Feature;
@@ -15,7 +13,7 @@ import de.robv.android.xposed.XposedBridge;
 
 public class HideChat extends Feature {
 
-    public static View.OnClickListener mClickListenerLocked;
+//    public static View.OnClickListener mClickListenerLocked;
 
     public HideChat(@NonNull ClassLoader loader, @NonNull XSharedPreferences preferences) {
         super(loader, preferences);
