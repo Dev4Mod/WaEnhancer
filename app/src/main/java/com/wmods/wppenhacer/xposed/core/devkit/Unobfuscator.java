@@ -1720,4 +1720,9 @@ public class Unobfuscator {
         if (method == null) throw new RuntimeException("CheckCustomRom method not found");
         return method;
     }
+
+    public static Class loadGetContactInfoClass(ClassLoader classLoader) throws Exception {
+        return UnobfuscatorCache.getInstance().getClass(classLoader, () -> findFirstClassUsingStrings(classLoader, StringMatchType.Contains, "unknown@unknown"));
+
+    }
 }

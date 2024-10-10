@@ -5,9 +5,11 @@ import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.view.View;
+import android.widget.Toast;
 
 import com.wmods.wppenhacer.xposed.core.devkit.Unobfuscator;
 import com.wmods.wppenhacer.xposed.utils.ReflectionUtils;
+import com.wmods.wppenhacer.xposed.utils.Utils;
 
 import java.lang.reflect.Method;
 
@@ -24,6 +26,7 @@ public class AlertDialogWpp {
     private static Method setMessageMethod;
     private static Method setNegativeButtonMethod;
     private static Method setPositiveButtonMethod;
+    private static Method setMultiChoiceItemsMethod;
     private final Context mContext;
     private AlertDialog.Builder mAlertDialog;
     private Object mAlertDialogWpp;
@@ -34,6 +37,7 @@ public class AlertDialogWpp {
             getAlertDialog = Unobfuscator.loadMaterialAlertDialog(loader);
             alertDialogClass = getAlertDialog.getReturnType();
             setItemsMethod = ReflectionUtils.findMethodUsingFilter(alertDialogClass, method -> method.getParameterCount() == 2 && method.getParameterTypes()[0].equals(DialogInterface.OnClickListener.class) && method.getParameterTypes()[1].equals(CharSequence[].class));
+            setMultiChoiceItemsMethod = ReflectionUtils.findMethodUsingFilter(alertDialogClass, method -> method.getParameterCount() == 3 && method.getParameterTypes()[0].equals(DialogInterface.OnMultiChoiceClickListener.class) && method.getParameterTypes()[1].equals(CharSequence[].class));
             setMessageMethod = ReflectionUtils.findMethodUsingFilter(alertDialogClass, method -> method.getParameterCount() == 1 && method.getParameterTypes()[0].equals(CharSequence.class));
             var buttons = ReflectionUtils.findAllMethodsUsingFilter(alertDialogClass, method -> method.getParameterCount() == 2 && method.getParameterTypes()[0].equals(DialogInterface.OnClickListener.class) && method.getParameterTypes()[1].equals(CharSequence.class));
             setNegativeButtonMethod = buttons[0];
@@ -42,6 +46,7 @@ public class AlertDialogWpp {
         } catch (Throwable e) {
             isAvailable = false;
             XposedBridge.log(e);
+            Utils.showToast("Failed to load MaterialAlertDialog", Toast.LENGTH_SHORT);
         }
     }
 
@@ -58,7 +63,6 @@ public class AlertDialogWpp {
         } catch (Exception e) {
             XposedBridge.log(e);
         }
-
     }
 
     public Context getContext() {
@@ -75,6 +79,15 @@ public class AlertDialogWpp {
             return this;
         }
         XposedHelpers.callMethod(mAlertDialogWpp, "setTitle", title);
+        return this;
+    }
+
+    public AlertDialogWpp setTitle(int title) {
+        if (isSystemDialog()) {
+            mAlertDialog.setTitle(title);
+            return this;
+        }
+        XposedHelpers.callMethod(mAlertDialogWpp, "setTitle", getContext().getString(title));
         return this;
     }
 
@@ -98,6 +111,20 @@ public class AlertDialogWpp {
         }
         try {
             setItemsMethod.invoke(mAlertDialogWpp, listener, items);
+        } catch (Exception e) {
+            XposedBridge.log(e);
+        }
+        return this;
+    }
+
+
+    public AlertDialogWpp setMultiChoiceItems(CharSequence[] items, boolean[] checkedItems, DialogInterface.OnMultiChoiceClickListener listener) {
+        if (isSystemDialog()) {
+            mAlertDialog.setMultiChoiceItems(items, checkedItems, listener);
+            return this;
+        }
+        try {
+            setMultiChoiceItemsMethod.invoke(mAlertDialogWpp, listener, items, checkedItems);
         } catch (Exception e) {
             XposedBridge.log(e);
         }

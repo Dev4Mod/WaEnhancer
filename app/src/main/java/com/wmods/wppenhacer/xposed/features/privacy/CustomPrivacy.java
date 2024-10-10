@@ -1,8 +1,7 @@
 package com.wmods.wppenhacer.xposed.features.privacy;
 
 import android.app.Activity;
-import android.app.AlertDialog;
-import android.os.Bundle;
+import android.content.Context;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
@@ -11,6 +10,8 @@ import androidx.annotation.NonNull;
 
 import com.wmods.wppenhacer.xposed.core.Feature;
 import com.wmods.wppenhacer.xposed.core.WppCore;
+import com.wmods.wppenhacer.xposed.core.components.AlertDialogWpp;
+import com.wmods.wppenhacer.xposed.utils.DebugUtils;
 import com.wmods.wppenhacer.xposed.utils.ReflectionUtils;
 import com.wmods.wppenhacer.xposed.utils.ResId;
 import com.wmods.wppenhacer.xposed.utils.Utils;
@@ -21,10 +22,12 @@ import java.lang.reflect.Method;
 
 import de.robv.android.xposed.XC_MethodHook;
 import de.robv.android.xposed.XSharedPreferences;
+import de.robv.android.xposed.XposedBridge;
 import de.robv.android.xposed.XposedHelpers;
 
 public class CustomPrivacy extends Feature {
-    private Method userJidMethod;
+    private Method chatUserJidMethod;
+    private Method groupUserJidMethod;
 
     public CustomPrivacy(@NonNull ClassLoader classLoader, @NonNull XSharedPreferences preferences) {
         super(classLoader, preferences);
@@ -37,36 +40,48 @@ public class CustomPrivacy extends Feature {
     @Override
     public void doHook() throws Throwable {
         Class<?> ContactInfoActivityClass = XposedHelpers.findClass("com.whatsapp.chatinfo.ContactInfoActivity", classLoader);
-        var userJidClass = XposedHelpers.findClass("com.whatsapp.jid.UserJid", classLoader);
-        userJidMethod = ReflectionUtils.findMethodUsingFilter(ContactInfoActivityClass, method -> method.getParameterCount() == 0 && method.getReturnType() == userJidClass);
+        Class<?> GroupInfoActivityClass = XposedHelpers.findClass("com.whatsapp.group.GroupChatInfoActivity", classLoader);
         Class<?> listItemWithLeftIconClass = XposedHelpers.findClass("com.whatsapp.ListItemWithLeftIcon", classLoader);
+        Class<?> userJidClass = XposedHelpers.findClass("com.whatsapp.jid.UserJid", classLoader);
+        Class<?> groupJidClass = XposedHelpers.findClass("com.whatsapp.jid.GroupJid", classLoader);
 
-        XposedHelpers.findAndHookMethod(ContactInfoActivityClass, "onCreate", Bundle.class, new XC_MethodHook() {
+        chatUserJidMethod = ReflectionUtils.findMethodUsingFilter(ContactInfoActivityClass, method -> method.getParameterCount() == 0 && userJidClass.isAssignableFrom(method.getReturnType()));
+        groupUserJidMethod = ReflectionUtils.findMethodUsingFilter(GroupInfoActivityClass, method -> method.getParameterCount() == 0 && groupJidClass.isAssignableFrom(method.getReturnType()));
+
+        XC_MethodHook hooker = new XC_MethodHook() {
             @Override
             protected void afterHookedMethod(MethodHookParam param) throws Throwable {
                 Activity activity = (Activity) param.thisObject;
+                DebugUtils.debugFields(GroupInfoActivityClass, activity);
                 int id = Utils.getID("contact_info_security_card_layout", "id");
                 if (id == -1) {
                     throw new Exception("contact_info_security_card_layout not found");
                 }
-                ViewGroup infoLayout = activity.findViewById(id);
-                Object itemView = XposedHelpers.newInstance(listItemWithLeftIconClass, activity);
+                ViewGroup infoLayout = activity.getWindow().findViewById(id);
+                View itemView = (View) listItemWithLeftIconClass.getConstructor(Context.class).newInstance(activity);
                 XposedHelpers.callMethod(itemView, "setTitle", activity.getString(ResId.string.custom_privacy));
                 XposedHelpers.callMethod(itemView, "setDescription", activity.getString(ResId.string.custom_privacy_sum));
                 XposedHelpers.callMethod(itemView, "setIcon", ResId.drawable.ic_privacy);
-                View layoutItem = (View) itemView;
-                layoutItem.setOnClickListener((v) -> showPrivacyDialog(activity));
-                infoLayout.addView(layoutItem);
+                itemView.setOnClickListener((v) -> showPrivacyDialog(activity, ContactInfoActivityClass.isInstance(activity)));
+                infoLayout.addView(itemView);
             }
-        });
+        };
+
+        XposedBridge.hookAllMethods(ContactInfoActivityClass, "onCreate", hooker);
+        XposedBridge.hookAllMethods(GroupInfoActivityClass, "onCreate", hooker);
     }
 
-    private void showPrivacyDialog(Activity activity) {
-        var userJid = ReflectionUtils.callMethod(userJidMethod, activity);
+    private void showPrivacyDialog(Activity activity, boolean isChat) {
+        Object userJid;
+        if (isChat) {
+            userJid = ReflectionUtils.callMethod(chatUserJidMethod, activity);
+        } else {
+            userJid = ReflectionUtils.callMethod(groupUserJidMethod, activity);
+        }
         if (userJid == null) return;
         var rawJid = WppCore.getRawString(userJid);
         var number = WppCore.stripJID(rawJid);
-        AlertDialog.Builder builder = new AlertDialog.Builder(activity);
+        var builder = new AlertDialogWpp(activity);
         builder.setTitle(ResId.string.custom_privacy);
         String[] items = {activity.getString(ResId.string.hideread), activity.getString(ResId.string.hidestatusview), activity.getString(ResId.string.hidereceipt), activity.getString(ResId.string.ghostmode), activity.getString(ResId.string.ghostmode_r)};
         String[] itemsKeys = {"HideSeen", "HideViewStatus", "HideReceipt", "HideTyping", "HideRecording"};
@@ -92,9 +107,8 @@ public class CustomPrivacy extends Feature {
                 Utils.showToast(e.getMessage(), Toast.LENGTH_SHORT);
             }
         });
-        builder.setNegativeButton(ResId.string.cancel, null);
-        AlertDialog dialog = builder.create();
-        dialog.show();
+        builder.setNegativeButton(activity.getString(ResId.string.cancel), null);
+        builder.show();
     }
 
     @NonNull

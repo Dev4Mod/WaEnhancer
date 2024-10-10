@@ -230,8 +230,6 @@ public class SeenTick extends Feature {
         XposedBridge.hookMethod(onCreateMenuConversationMethod, new XC_MethodHook() {
             @Override
             protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-                if (!prefs.getBoolean("hideread", false))
-                    return;
                 var menu = (Menu) param.args[0];
                 var menuItem = menu.add(0, 0, 0, ResId.string.send_blue_tick);
                 if (ticktype == 1) menuItem.setShowAsAction(2);

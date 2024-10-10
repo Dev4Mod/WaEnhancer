@@ -89,16 +89,11 @@ public class HideSeen extends Feature {
                 var jid = WppCore.getCurrentRawJID();
                 var stripJid = WppCore.stripJID(jid);
                 var privacy = WppCore.getPrivJSON(stripJid + "_privacy", new JSONObject());
-                var customHideRead = privacy.optBoolean("HideSeen", false);
+                var customHideRead = privacy.optBoolean("HideSeen", hideread);
 
                 if (WppCore.isGroup(jid)) {
-                    if (hideread_group)
+                    if (privacy.optBoolean("HideSeen", hideread_group))
                         param.args[4] = null;
-                    if (customHideRead) {
-                        param.args[4] = null;
-                    }
-                } else if (hideread) {
-                    param.args[4] = null;
                 } else if (customHideRead) {
                     param.args[4] = null;
                 }
@@ -128,7 +123,6 @@ public class HideSeen extends Feature {
                     var set = (Set) param.args[0];
                     if (set != null && !set.isEmpty()) {
                         var fMessage = new FMessageWpp(set.iterator().next());
-                        logDebug("MEDIA TYPE", fMessage.getMediaType());
                         var media_type = fMessage.getMediaType();  // 2 = voice note ; 82 = viewonce note voice; 42 = image view once; 43 = video view once
                         if (hideonceseen && (media_type == 82 || media_type == 42 || media_type == 43)) {
                             param.setResult(null);
