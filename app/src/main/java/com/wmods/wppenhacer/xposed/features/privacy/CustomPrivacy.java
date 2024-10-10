@@ -11,7 +11,6 @@ import androidx.annotation.NonNull;
 import com.wmods.wppenhacer.xposed.core.Feature;
 import com.wmods.wppenhacer.xposed.core.WppCore;
 import com.wmods.wppenhacer.xposed.core.components.AlertDialogWpp;
-import com.wmods.wppenhacer.xposed.utils.DebugUtils;
 import com.wmods.wppenhacer.xposed.utils.ReflectionUtils;
 import com.wmods.wppenhacer.xposed.utils.ResId;
 import com.wmods.wppenhacer.xposed.utils.Utils;
@@ -52,7 +51,6 @@ public class CustomPrivacy extends Feature {
             @Override
             protected void afterHookedMethod(MethodHookParam param) throws Throwable {
                 Activity activity = (Activity) param.thisObject;
-                DebugUtils.debugFields(GroupInfoActivityClass, activity);
                 int id = Utils.getID("contact_info_security_card_layout", "id");
                 if (id == -1) {
                     throw new Exception("contact_info_security_card_layout not found");

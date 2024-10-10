@@ -1,8 +1,7 @@
 [Custom Privacy]
-* Now customized privacy takes priority over global privacy.
-
-[SEPARATE GROUP]
-* Fixed bug
+* Fixed a bug when using "Hide Seen" within the chat
+* Attempt to fix a bug on some devices (The error is unknown and does not appear to be a WAE bug)
+* Added to groups as well
 
 [WAE]
 * Update translations
