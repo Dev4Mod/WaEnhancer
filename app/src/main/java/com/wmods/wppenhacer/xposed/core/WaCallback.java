@@ -61,7 +61,7 @@ public class WaCallback implements Application.ActivityLifecycleCallbacks {
     }
 
     private static void triggerActivityState(@NonNull Activity activity, WppCore.ActivityChangeState.ChangeType type) {
-        for (WppCore.ActivityChangeState listener : WppCore.listenerChat) {
+        for (WppCore.ActivityChangeState listener : WppCore.listenerAcitivity) {
             listener.onChange(activity, type);
         }
     }

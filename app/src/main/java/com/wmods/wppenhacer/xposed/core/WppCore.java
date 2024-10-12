@@ -45,7 +45,7 @@ import de.robv.android.xposed.XposedHelpers;
 
 public class WppCore {
 
-    static final HashSet<ActivityChangeState> listenerChat = new HashSet<>();
+    static final HashSet<ActivityChangeState> listenerAcitivity = new HashSet<>();
     @SuppressLint("StaticFieldLeak")
     static Activity mCurrentActivity;
     static LinkedHashSet<Activity> activities = new LinkedHashSet<>();
@@ -390,8 +390,8 @@ public class WppCore {
         return privPrefs.getBoolean(key, defaultValue);
     }
 
-    public static void addListenerChat(ActivityChangeState listener) {
-        listenerChat.add(listener);
+    public static void addListenerActivity(ActivityChangeState listener) {
+        listenerAcitivity.add(listener);
     }
 
     public static WaeIIFace getClientBridge() throws Exception {

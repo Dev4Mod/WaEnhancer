@@ -104,6 +104,7 @@ public class FeatureLoader {
             return;
         }
         Feature.DEBUG = pref.getBoolean("enablelogs", true);
+        Utils.xprefs = pref;
 
         XposedHelpers.findAndHookMethod(Instrumentation.class, "callApplicationOnCreate", Application.class, new XC_MethodHook() {
             @SuppressWarnings("deprecation")

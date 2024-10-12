@@ -32,6 +32,12 @@
         app:title="@string/conversation">
 
         <rikka.material.preference.MaterialSwitchPreference
+            app:defaultValue="true"
+            app:key="custom_privacy"
+            app:summary="@string/custom_privacy_per_contact_sum"
+            app:title="@string/custom_privacy_per_contact" />
+
+        <rikka.material.preference.MaterialSwitchPreference
             app:key="freezelastseen"
             app:summary="@string/freezelastseen_sum"
             app:title="@string/freezelastseen" />

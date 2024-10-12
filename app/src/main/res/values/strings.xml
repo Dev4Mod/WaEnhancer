@@ -380,4 +380,6 @@
     <string name="enable_wa_enhancer_button_sum">Add button in Home Screen to open Wa Enhancer</string>
     <string name="custom_privacy">Custom Privacy</string>
     <string name="custom_privacy_sum">Enable/Disable Custom Privacy</string>
+    <string name="custom_privacy_per_contact">Custom Privacy per contact</string>
+    <string name="custom_privacy_per_contact_sum">Activate the custom privacy button on the contact information screen</string>
 </resources>

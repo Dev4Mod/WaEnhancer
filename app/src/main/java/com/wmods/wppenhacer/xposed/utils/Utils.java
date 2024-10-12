@@ -35,12 +35,14 @@ import java.util.concurrent.Executors;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import de.robv.android.xposed.XSharedPreferences;
 import de.robv.android.xposed.XposedBridge;
 
 public class Utils {
 
     private static final ExecutorService executorService = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
     private static final ExecutorService executorCachedService = Executors.newCachedThreadPool();
+    public static XSharedPreferences xprefs;
 
     @NonNull
     public static Application getApplication() {

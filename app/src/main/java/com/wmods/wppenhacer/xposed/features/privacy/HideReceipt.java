@@ -8,8 +8,6 @@ import com.wmods.wppenhacer.xposed.core.components.FMessageWpp;
 import com.wmods.wppenhacer.xposed.core.devkit.Unobfuscator;
 import com.wmods.wppenhacer.xposed.utils.ReflectionUtils;
 
-import org.json.JSONObject;
-
 import de.robv.android.xposed.XC_MethodHook;
 import de.robv.android.xposed.XSharedPreferences;
 import de.robv.android.xposed.XposedBridge;
@@ -38,7 +36,7 @@ public class HideReceipt extends Feature {
                 var userJid = messageKey.remoteJid;
                 var rawJid = WppCore.getRawString(userJid);
                 var number = WppCore.stripJID(rawJid);
-                var privacy = WppCore.getPrivJSON(number + "_privacy", new JSONObject());
+                var privacy = CustomPrivacy.getJSON(number);
                 var customHideReceipt = privacy.optBoolean("HideReceipt", hideReceipt);
                 if (param.args[4] != "sender" && (customHideReceipt || ghostmode)) {
                     param.args[4] = "inactive";

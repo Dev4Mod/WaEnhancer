@@ -1,7 +1,9 @@
 package com.wmods.wppenhacer.xposed.features.privacy;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
+import android.text.TextUtils;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
@@ -19,9 +21,7 @@ import org.json.JSONObject;
 
 import java.lang.reflect.Method;
 
-import de.robv.android.xposed.XC_MethodHook;
 import de.robv.android.xposed.XSharedPreferences;
-import de.robv.android.xposed.XposedBridge;
 import de.robv.android.xposed.XposedHelpers;
 
 public class CustomPrivacy extends Feature {
@@ -32,12 +32,16 @@ public class CustomPrivacy extends Feature {
         super(classLoader, preferences);
     }
 
-    public static boolean getBoolean(JSONObject json, String json_key, XSharedPreferences prefs, String prefkey) {
-        return json.optBoolean(json_key, prefs.getBoolean(prefkey, false));
+    public static JSONObject getJSON(String number) {
+        if (!Utils.xprefs.getBoolean("custom_privacy", true) || TextUtils.isEmpty(number))
+            return new JSONObject();
+        return WppCore.getPrivJSON(number + "_privacy", new JSONObject());
     }
 
     @Override
     public void doHook() throws Throwable {
+        if (!prefs.getBoolean("custom_privacy", true)) return;
+
         Class<?> ContactInfoActivityClass = XposedHelpers.findClass("com.whatsapp.chatinfo.ContactInfoActivity", classLoader);
         Class<?> GroupInfoActivityClass = XposedHelpers.findClass("com.whatsapp.group.GroupChatInfoActivity", classLoader);
         Class<?> listItemWithLeftIconClass = XposedHelpers.findClass("com.whatsapp.ListItemWithLeftIcon", classLoader);
@@ -47,26 +51,32 @@ public class CustomPrivacy extends Feature {
         chatUserJidMethod = ReflectionUtils.findMethodUsingFilter(ContactInfoActivityClass, method -> method.getParameterCount() == 0 && userJidClass.isAssignableFrom(method.getReturnType()));
         groupUserJidMethod = ReflectionUtils.findMethodUsingFilter(GroupInfoActivityClass, method -> method.getParameterCount() == 0 && groupJidClass.isAssignableFrom(method.getReturnType()));
 
-        XC_MethodHook hooker = new XC_MethodHook() {
+        var hooker = new WppCore.ActivityChangeState() {
+            @SuppressLint("ResourceType")
             @Override
-            protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-                Activity activity = (Activity) param.thisObject;
-                int id = Utils.getID("contact_info_security_card_layout", "id");
-                if (id == -1) {
-                    throw new Exception("contact_info_security_card_layout not found");
+            public void onChange(Object objActivity, ChangeType type) {
+                try {
+                    if (type != ChangeType.START) return;
+                    if (!ContactInfoActivityClass.isInstance(objActivity) && !GroupInfoActivityClass.isInstance(objActivity))
+                        return;
+                    Activity activity = (Activity) objActivity;
+                    if (activity.findViewById(0x7f0a9999) != null) return;
+                    int id = Utils.getID("contact_info_security_card_layout", "id");
+                    ViewGroup infoLayout = activity.getWindow().findViewById(id);
+                    View itemView = (View) listItemWithLeftIconClass.getConstructor(Context.class).newInstance(activity);
+                    itemView.setId(0x7f0a9999);
+                    XposedHelpers.callMethod(itemView, "setTitle", activity.getString(ResId.string.custom_privacy));
+                    XposedHelpers.callMethod(itemView, "setDescription", activity.getString(ResId.string.custom_privacy_sum));
+                    XposedHelpers.callMethod(itemView, "setIcon", ResId.drawable.ic_privacy);
+                    itemView.setOnClickListener((v) -> showPrivacyDialog(activity, ContactInfoActivityClass.isInstance(activity)));
+                    infoLayout.addView(itemView);
+                } catch (Throwable e) {
+                    logDebug(e);
+                    Utils.showToast(e.getMessage(), Toast.LENGTH_SHORT);
                 }
-                ViewGroup infoLayout = activity.getWindow().findViewById(id);
-                View itemView = (View) listItemWithLeftIconClass.getConstructor(Context.class).newInstance(activity);
-                XposedHelpers.callMethod(itemView, "setTitle", activity.getString(ResId.string.custom_privacy));
-                XposedHelpers.callMethod(itemView, "setDescription", activity.getString(ResId.string.custom_privacy_sum));
-                XposedHelpers.callMethod(itemView, "setIcon", ResId.drawable.ic_privacy);
-                itemView.setOnClickListener((v) -> showPrivacyDialog(activity, ContactInfoActivityClass.isInstance(activity)));
-                infoLayout.addView(itemView);
             }
         };
-
-        XposedBridge.hookAllMethods(ContactInfoActivityClass, "onCreate", hooker);
-        XposedBridge.hookAllMethods(GroupInfoActivityClass, "onCreate", hooker);
+        WppCore.addListenerActivity(hooker);
     }
 
     private void showPrivacyDialog(Activity activity, boolean isChat) {
@@ -87,7 +97,7 @@ public class CustomPrivacy extends Feature {
 
         // load prefs
         boolean[] checkedItems = new boolean[items.length];
-        var json = WppCore.getPrivJSON(number + "_privacy", new JSONObject());
+        var json = CustomPrivacy.getJSON(number);
         for (int i = 0; i < itemsKeys.length; i++) {
             checkedItems[i] = json.optBoolean(itemsKeys[i], prefs.getBoolean(globalKeys[i], false));
         }
