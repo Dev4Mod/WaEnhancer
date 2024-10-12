@@ -1,7 +1,6 @@
 [Custom Privacy]
-* Fixed a bug when using "Hide Seen" within the chat
-* Attempt to fix a bug on some devices (The error is unknown and does not appear to be a WAE bug)
-* Added to groups as well
+* Fix for crash (the shape of the hook for the activity life cycle was changed instead of hooking directly to the activation, more details in https://github.com/Dev4Mod/WaEnhancer/issues/141)
+* Added the option to disable/enable Custom Privacy
 
-[WAE]
-* Update translations
+[Status]
+* Fixed problem where reposting a Stories caused the open status to be closed.
