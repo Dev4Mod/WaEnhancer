@@ -1,6 +1,8 @@
-[Custom Privacy]
-* Fix for crash (the shape of the hook for the activity life cycle was changed instead of hooking directly to the activation, more details in https://github.com/Dev4Mod/WaEnhancer/issues/141)
-* Added the option to disable/enable Custom Privacy
+[AUDIO TRANSCRIPTION]
+* Added the option to use the AssemblyAI API to convert audio to text (This function replaces the native one from WhatsApp, but you need to generate a free key on the AssemblyAI website to use it).
 
-[Status]
-* Fixed problem where reposting a Stories caused the open status to be closed.
+[MESSAGE TRANSLATION]
+* Added the option to use Google Translation (This replaces the native translation of WhatsApp, which limits the number of languages. With Google Translation, the identification of the translation is automatic and translates to WhatsApp's default language. You can select any language when translating, regardless of which one it is).
+
+[WAE]
+* Update translation
