@@ -7,6 +7,8 @@ import com.wmods.wppenhacer.xposed.core.Feature;
 import de.robv.android.xposed.XSharedPreferences;
 
 public class DebugFeature extends Feature {
+
+
     public DebugFeature(@NonNull ClassLoader classLoader, @NonNull XSharedPreferences preferences) {
         super(classLoader, preferences);
     }
@@ -14,7 +16,9 @@ public class DebugFeature extends Feature {
     @Override
     public void doHook() throws Throwable {
 
+
     }
+
 
     @NonNull
     @Override

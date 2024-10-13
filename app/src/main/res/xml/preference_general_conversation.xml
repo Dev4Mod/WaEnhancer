@@ -104,6 +104,11 @@
             app:summary="@string/custom_reaction_sum"
             app:title="@string/custom_reaction" />
 
+        <rikka.material.preference.MaterialSwitchPreference
+            app:key="google_translate"
+            app:summary="@string/google_translate_sum"
+            app:title="@string/google_translate" />
+
     </PreferenceCategory>
 
 </PreferenceScreen>
