@@ -65,9 +65,9 @@ public class CustomPrivacy extends Feature {
                     ViewGroup infoLayout = activity.getWindow().findViewById(id);
                     View itemView = (View) listItemWithLeftIconClass.getConstructor(Context.class).newInstance(activity);
                     itemView.setId(0x7f0a9999);
-                    XposedHelpers.callMethod(itemView, "setTitle", activity.getString(ResId.string.custom_privacy));
-                    XposedHelpers.callMethod(itemView, "setDescription", activity.getString(ResId.string.custom_privacy_sum));
-                    XposedHelpers.callMethod(itemView, "setIcon", ResId.drawable.ic_privacy);
+                    listItemWithLeftIconClass.getMethod("setTitle", CharSequence.class).invoke(itemView, activity.getString(ResId.string.custom_privacy));
+                    listItemWithLeftIconClass.getMethod("setDescription", CharSequence.class).invoke(itemView, activity.getString(ResId.string.custom_privacy_sum));
+                    listItemWithLeftIconClass.getMethod("setIcon", int.class).invoke(itemView, ResId.drawable.ic_privacy);
                     itemView.setOnClickListener((v) -> showPrivacyDialog(activity, ContactInfoActivityClass.isInstance(activity)));
                     infoLayout.addView(itemView);
                 } catch (Throwable e) {
