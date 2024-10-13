@@ -4,5 +4,8 @@
 [MESSAGE TRANSLATION]
 * Added the option to use Google Translation (This replaces the native translation of WhatsApp, which limits the number of languages. With Google Translation, the identification of the translation is automatic and translates to WhatsApp's default language. You can select any language when translating, regardless of which one it is).
 
+[CUSTOM PRIVACY]
+* Improve code
+
 [WAE]
 * Update translation
