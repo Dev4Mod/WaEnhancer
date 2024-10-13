@@ -92,6 +92,18 @@
             app:summary="@string/audio_transcription_sum"
             app:title="@string/audio_transcription" />
 
+        <rikka.material.preference.MaterialSwitchPreference
+            android:dependency="audio_transcription"
+            app:key="assemblyai"
+            app:summary="@string/assemblyai_sum"
+            app:title="@string/assemblyai" />
+
+        <EditTextPreference
+            android:dependency="assemblyai"
+            app:key="assemblyai_key"
+            app:summary="@string/assemblyai_key_sum"
+            app:title="@string/assemblyai_key" />
+
     </PreferenceCategory>
 
     <PreferenceCategory
