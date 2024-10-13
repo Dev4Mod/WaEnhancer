@@ -55,6 +55,7 @@ import com.wmods.wppenhacer.xposed.features.others.Channels;
 import com.wmods.wppenhacer.xposed.features.others.ChatFilters;
 import com.wmods.wppenhacer.xposed.features.others.CopyStatus;
 import com.wmods.wppenhacer.xposed.features.others.DebugFeature;
+import com.wmods.wppenhacer.xposed.features.others.GoogleTranslate;
 import com.wmods.wppenhacer.xposed.features.others.GroupAdmin;
 import com.wmods.wppenhacer.xposed.features.others.MenuHome;
 import com.wmods.wppenhacer.xposed.features.others.Stickers;
@@ -273,7 +274,8 @@ public class FeatureLoader {
                 MenuHome.class,
                 AntiWa.class,
                 CustomPrivacy.class,
-                AudioTranscript.class
+                AudioTranscript.class,
+                GoogleTranslate.class
         };
         XposedBridge.log("Loading Plugins");
         var executorService = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
