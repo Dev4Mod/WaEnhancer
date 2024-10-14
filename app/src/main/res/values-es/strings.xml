@@ -379,10 +379,13 @@
     <string name="custom_privacy_sum">Habilitar/deshabilitar privacidad personalizada</string>
     <string name="custom_privacy_per_contact">Privacidad personalizada por contacto</string>
     <string name="custom_privacy_per_contact_sum">Activar el botón de privacidad personalizado en el apartado de información del contacto</string>
-    <string name="assemblyai">Enable AssemblyAI</string>
-    <string name="assemblyai_sum">Replaces the default Whatsapp transcription with AssemblyAI</string>
+    <string name="assemblyai">Habilitar AssemblyAI</string>
+    <string name="assemblyai_sum">Reemplaza la transcripción predeterminada de Whatsapp por AssemblyAI</string>
     <string name="assemblyai_key">AssemblyAI key</string>
-    <string name="assemblyai_key_sum">AssemblyAI API access key (Login to the website and create an account to get your key)</string>
-    <string name="google_translate">Enable Google Translate</string>
-    <string name="google_translate_sum">Replaces Whatsapp\'s native translator with Google Translate</string>
+    <string name="assemblyai_key_sum">Clave de acceso a la API de AssemblyAI (Loggeate en el sitio web y crea una cuenta para obtener tu clave)</string>
+    <string name="google_translate">Activar Google Translate</string>
+    <string name="google_translate_sum">Reemplaza al traductor nativo de Whatsapp por Google Translate</string>
+    <string name="show_contact_info">Show in contact info</string>
+    <string name="show_contact_info_menu">Show in contact info menu</string>
+    <string name="block_call">Block Call</string>
 </resources>

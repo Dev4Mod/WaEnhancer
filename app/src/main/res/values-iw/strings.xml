@@ -381,10 +381,13 @@
     <string name="custom_privacy_sum">הפעל/השבת פרטיות מותאמת אישית</string>
     <string name="custom_privacy_per_contact">פרטיות מותאמת אישית לכל איש קשר</string>
     <string name="custom_privacy_per_contact_sum">הפעל את לחצן הפרטיות המותאמת אישית</string>
-    <string name="assemblyai">Enable AssemblyAI</string>
-    <string name="assemblyai_sum">Replaces the default Whatsapp transcription with AssemblyAI</string>
-    <string name="assemblyai_key">AssemblyAI key</string>
-    <string name="assemblyai_key_sum">AssemblyAI API access key (Login to the website and create an account to get your key)</string>
-    <string name="google_translate">Enable Google Translate</string>
-    <string name="google_translate_sum">Replaces Whatsapp\'s native translator with Google Translate</string>
+    <string name="assemblyai">הפעל את AssemblyAI</string>
+    <string name="assemblyai_sum">מחליף את ברירת המחדל של התמלול ב-AssemblyAI</string>
+    <string name="assemblyai_key">מפתח הAssemblyAI</string>
+    <string name="assemblyai_key_sum">מפתח גישה ל-AssemblyAI API (התחבר לאתר וצור חשבון כדי לקבל את המפתח שלך)</string>
+    <string name="google_translate">הפעל את גוגל תרגום</string>
+    <string name="google_translate_sum">מחליף את מתרגם ברירת המחדל של ווצאפ בגוגל תרגום</string>
+    <string name="show_contact_info">Show in contact info</string>
+    <string name="show_contact_info_menu">Show in contact info menu</string>
+    <string name="block_call">Block Call</string>
 </resources>

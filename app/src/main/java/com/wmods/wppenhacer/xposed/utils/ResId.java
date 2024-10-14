@@ -90,6 +90,7 @@ public class ResId {
         public static int ghostmode_r;
         public static int custom_privacy;
         public static int custom_privacy_sum;
+        public static int block_call;
     }
 
     public static class array {

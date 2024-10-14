@@ -377,12 +377,15 @@
     <string name="enable_wa_enhancer_button_sum">Adicione um botão na tela inicial para abrir o Wa Enhancer</string>
     <string name="custom_privacy">Privacidade personalizada</string>
     <string name="custom_privacy_sum">Ative ou desative a privacidade personalizada</string>
-    <string name="custom_privacy_per_contact">Custom Privacy per contact</string>
-    <string name="custom_privacy_per_contact_sum">Activate the custom privacy button on the contact information screen</string>
-    <string name="assemblyai">Enable AssemblyAI</string>
-    <string name="assemblyai_sum">Replaces the default Whatsapp transcription with AssemblyAI</string>
-    <string name="assemblyai_key">AssemblyAI key</string>
-    <string name="assemblyai_key_sum">AssemblyAI API access key (Login to the website and create an account to get your key)</string>
-    <string name="google_translate">Enable Google Translate</string>
-    <string name="google_translate_sum">Replaces Whatsapp\'s native translator with Google Translate</string>
+    <string name="custom_privacy_per_contact">Privacidade personalizada por contato</string>
+    <string name="custom_privacy_per_contact_sum">Ative o botão de privacidade personalizado na tela de informações de contato</string>
+    <string name="assemblyai">Ativar AssemblyAI</string>
+    <string name="assemblyai_sum">Substitui a transcrição padrão do WhatsApp por AssemblyAI</string>
+    <string name="assemblyai_key">Chave AssemblyAI</string>
+    <string name="assemblyai_key_sum">Chave de acesso da API AssemblyAI (faça login no site e crie uma conta para obter sua chave)</string>
+    <string name="google_translate">Ativar Google Tradutor</string>
+    <string name="google_translate_sum">Substitui o tradutor nativo do WhatsApp pelo Google Tradutor</string>
+    <string name="show_contact_info">Show in contact info</string>
+    <string name="show_contact_info_menu">Show in contact info menu</string>
+    <string name="block_call">Bloquear chamadas</string>
 </resources>
