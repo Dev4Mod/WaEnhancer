@@ -1,11 +1,10 @@
-[AUDIO TRANSCRIPTION]
-* Added the option to use the AssemblyAI API to convert audio to text (This function replaces the native one from WhatsApp, but you need to generate a free key on the AssemblyAI website to use it).
-
-[MESSAGE TRANSLATION]
-* Added the option to use Google Translation (This replaces the native translation of WhatsApp, which limits the number of languages. With Google Translation, the identification of the translation is automatic and translates to WhatsApp's default language. You can select any language when translating, regardless of which one it is).
-
 [CUSTOM PRIVACY]
-* Improve code
+* Fixed error when hiding/showing status view
+* Added the option to appear in the contact information menu bar (You can change between appearing a layout within the contact info or in the contact information menu contact info)
+* Added the option to block/allow calls to a specific contact (This only works if you configured WAE to block or allow calls for everyone, it does not work with Whitelist or blacklist)
+
+[ AUDIO TRANSCRIPTION]
+* Improvement in the code for compatibility.
 
 [WAE]
-* Update translation
+* Atualização de tradução
