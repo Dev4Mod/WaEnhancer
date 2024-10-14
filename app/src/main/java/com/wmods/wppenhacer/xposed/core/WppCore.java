@@ -289,7 +289,12 @@ public class WppCore {
 
     public static String stripJID(String str) {
         try {
-            return (str.contains("@g.us") || str.contains("@s.whatsapp.net") || str.contains("@broadcast")) ? str.substring(0, str.indexOf("@")) : str;
+            if (str.contains(".") && str.contains("@") && str.indexOf(".") < str.indexOf("@")) {
+                return str.substring(0, str.indexOf("."));
+            } else if (str.contains("@g.us") || str.contains("@s.whatsapp.net") || str.contains("@broadcast")) {
+                return str.substring(0, str.indexOf("@"));
+            }
+            return str;
         } catch (Exception e) {
             XposedBridge.log(e.getMessage());
             return str;

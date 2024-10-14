@@ -78,4 +78,11 @@ public class DebugUtils {
             }
         }
     }
+
+    public static void debugObject(Object srj) {
+        if (srj == null) return;
+        XposedBridge.log("DEBUG OBJECT: " + srj.getClass().getName());
+        debugFields(srj.getClass(), srj);
+        debugMethods(srj.getClass(), srj);
+    }
 }

@@ -56,14 +56,15 @@ public class HideSeen extends Feature {
                 var number = WppCore.stripJID(jid);
                 var privacy = CustomPrivacy.getJSON(number);
                 var customHideRead = privacy.optBoolean("HideSeen", hideread);
-                var cutomHideStatusView = privacy.optBoolean("HideViewStatus", hidestatusview);
 
                 if (WppCore.isGroup(jid)) {
                     if (privacy.optBoolean("HideSeen", hideread_group) || ghostmode) {
                         param.setResult(null);
                     }
                 } else if (jid.startsWith("status")) {
-                    if (cutomHideStatusView || ghostmode) {
+                    var participant = (String) XposedHelpers.getObjectField(srj, "participant");
+                    var customHideStatusView = CustomPrivacy.getJSON(WppCore.stripJID(participant)).optBoolean("HideViewStatus", hidestatusview);
+                    if (customHideStatusView || ghostmode) {
                         param.setResult(null);
                     }
                 } else if (customHideRead || ghostmode) {

@@ -31,9 +31,11 @@
         app:iconSpaceReserved="false"
         app:title="@string/conversation">
 
-        <rikka.material.preference.MaterialSwitchPreference
-            app:defaultValue="true"
-            app:key="custom_privacy"
+        <ListPreference
+            app:defaultValue="0"
+            app:entries="@array/custom_privacy_entries"
+            app:entryValues="@array/custom_privacy_values"
+            app:key="custom_privacy_type"
             app:summary="@string/custom_privacy_per_contact_sum"
             app:title="@string/custom_privacy_per_contact" />
 

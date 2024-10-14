@@ -166,4 +166,14 @@
         <item>Flip</item>
         <item>Hyperspace out</item>
     </string-array>
+    <string-array name="custom_privacy_entries">
+        <item>@string/antirevoke_buttons_desable</item>
+        <item>@string/show_contact_info</item>
+        <item>@string/show_contact_info_menu</item>
+    </string-array>
+    <string-array name="custom_privacy_values">
+        <item>0</item>
+        <item>1</item>
+        <item>2</item>
+    </string-array>
 </resources>

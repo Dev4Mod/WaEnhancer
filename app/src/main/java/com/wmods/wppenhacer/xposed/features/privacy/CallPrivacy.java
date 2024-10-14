@@ -93,11 +93,18 @@ public class CallPrivacy extends Feature {
     }
 
     public boolean checkCallBlock(Object userJid, int type) throws IllegalAccessException, InvocationTargetException {
-        if (type == 0) return false;
-        if (type == 1) return true;
-
         var jid = WppCore.stripJID(WppCore.getRawString(userJid));
         if (jid == null) return false;
+        var customprivacy = CustomPrivacy.getJSON(jid);
+
+        if (type == 1) {
+            return customprivacy.optBoolean("BlockCall", true);
+        }
+
+        if (type == 0) {
+            return customprivacy.optBoolean("BlockCall", false);
+        }
+
         switch (type) {
             case 2:
                 if (WppCore.stripJID(jid).equals(jid)) {

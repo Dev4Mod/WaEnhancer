@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -53,6 +54,7 @@ import de.robv.android.xposed.XposedHelpers;
 
 public class Unobfuscator {
 
+    private static final String TAG = "Unobfuscator";
     private static DexKitBridge dexkit;
 
     public static final HashMap<String, Object> cache = new HashMap<>();
@@ -869,7 +871,8 @@ public class Unobfuscator {
             // for 19.xx, the current implementation returns wrong method
             if (method.getParameterCount() < 6) {
                 ClassData declaringClassData = dexkit.getClassData(method.getDeclaringClass());
-                if (declaringClassData == null) throw new Exception("OnChangeStatus method not found");
+                if (declaringClassData == null)
+                    throw new Exception("OnChangeStatus method not found");
 
                 Class<?> arg1Class = findFirstClassUsingStrings(loader, StringMatchType.Contains, "problematic contact:");
                 MethodDataList methodData = declaringClassData.findMethod(
@@ -1732,5 +1735,19 @@ public class Unobfuscator {
 
     public static Method loadCheckSupportLanguage(ClassLoader classLoader) throws Exception {
         return UnobfuscatorCache.getInstance().getMethod(classLoader, () -> findFirstMethodUsingStrings(classLoader, StringMatchType.Equals, "Unsupported language"));
+    }
+
+    public static Class loadUnkTranscript(ClassLoader classLoader) throws Exception {
+        return UnobfuscatorCache.getInstance().getClass(classLoader, () -> {
+            var loadTranscribe = loadTranscribeMethod(classLoader);
+            var callbackClass = loadTranscribe.getParameterTypes()[1];
+            var onComplete = ReflectionUtils.findMethodUsingFilter(callbackClass, method -> method.getParameterCount() == 4);
+            var resultTypeClass = onComplete.getParameterTypes()[0].getName();
+            Log.i(TAG, resultTypeClass);
+            var classDataList = dexkit.findClass(FindClass.create().matcher(ClassMatcher.create().addUsingString("Unknown").superClass(resultTypeClass)));
+            if (classDataList.isEmpty())
+                throw new RuntimeException("UnkTranscript class not found");
+            return classDataList.get(0).getInstance(classLoader);
+        });
     }
 }
