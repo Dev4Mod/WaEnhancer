@@ -9,16 +9,16 @@ import com.assemblyai.api.resources.transcripts.types.Transcript;
 import com.assemblyai.api.resources.transcripts.types.TranscriptOptionalParams;
 import com.assemblyai.api.resources.transcripts.types.TranscriptStatus;
 import com.wmods.wppenhacer.xposed.core.Feature;
+import com.wmods.wppenhacer.xposed.core.components.FMessageWpp;
 import com.wmods.wppenhacer.xposed.core.devkit.Unobfuscator;
 import com.wmods.wppenhacer.xposed.utils.ReflectionUtils;
 
 import java.io.File;
-import java.util.HashMap;
+import java.util.ArrayList;
 
 import de.robv.android.xposed.XC_MethodHook;
 import de.robv.android.xposed.XSharedPreferences;
 import de.robv.android.xposed.XposedBridge;
-import de.robv.android.xposed.XposedHelpers;
 
 public class AudioTranscript extends Feature {
 
@@ -33,43 +33,27 @@ public class AudioTranscript extends Feature {
         if (!prefs.getBoolean("assemblyai", false) || TextUtils.isEmpty(prefs.getString("assemblyai_key", "")))
             return;
 
+
         var transcribeMethod = Unobfuscator.loadTranscribeMethod(classLoader);
+        var unkTranscript = Unobfuscator.loadUnkTranscript(classLoader);
         var mediaClass = Unobfuscator.loadStatusDownloadMediaClass(classLoader);
         var fileField = Unobfuscator.loadStatusDownloadFileField(classLoader);
 
         XposedBridge.hookMethod(transcribeMethod, new XC_MethodHook() {
-            private Unhook unhooked;
-
             @Override
             protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
                 var pttTranscriptionRequest = param.args[0];
-                var message = pttTranscriptionRequest.getClass().getField("A01").get(pttTranscriptionRequest);
+                var fieldFMessage = ReflectionUtils.getFieldByExtendType(pttTranscriptionRequest.getClass(), FMessageWpp.TYPE);
+                var fmessage = fieldFMessage.get(pttTranscriptionRequest);
                 var field = mediaClass.getField("A01");
-                var mediaObj = field.get(message);
+                var mediaObj = field.get(fmessage);
                 File file = (File) fileField.get(mediaObj);
-
-                unhooked = XposedHelpers.findAndHookMethod("com.whatsapp.unity.UnityLib", classLoader, "transcribeAudio", classLoader.loadClass("java.lang.String"), classLoader.loadClass("java.lang.String"), classLoader.loadClass("java.lang.String"), classLoader.loadClass("com.whatsapp.unity.UnityTranscriptionListener"), new XC_MethodHook() {
-                    @Override
-                    protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
-                        var handleResult = param.args[3];
-                        var methodComplete = ReflectionUtils.findMethodUsingFilter(handleResult.getClass(), method -> method.getName().equals("onComplete"));
-                        var methodOnError = ReflectionUtils.findMethodUsingFilter(handleResult.getClass(), method -> method.getName().equals("onError"));
-                        var methodOnSegmentResult = ReflectionUtils.findMethodUsingFilter(handleResult.getClass(), method -> method.getName().equals("onSegmentResult"));
-                        try {
-                            String transcript = runTranscript(file);
-                            ReflectionUtils.callMethod(methodOnSegmentResult, handleResult, transcript, 1, 0);
-                            ReflectionUtils.callMethod(methodComplete, handleResult, new HashMap<>());
-                        } catch (Exception e) {
-                            ReflectionUtils.callMethod(methodOnError, handleResult, 2);
-                        }
-                        param.setResult(null);
-                    }
-                });
-            }
-
-            @Override
-            protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-                if (unhooked != null) unhooked.unhook();
+                var callback = param.args[1];
+                var onComplete = ReflectionUtils.findMethodUsingFilter(callback.getClass(), method -> method.getParameterCount() == 4);
+                String transcript = runTranscript(file);
+                var unkTranscriptInstance = unkTranscript.getField("A00").get(null);
+                ReflectionUtils.callMethod(onComplete, callback, unkTranscriptInstance, fmessage, transcript, new ArrayList<>());
+                param.setResult(null);
             }
         });
 
