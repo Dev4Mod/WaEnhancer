@@ -1080,8 +1080,13 @@ public class Unobfuscator {
             if (methodData == null) throw new RuntimeException("GetEditMessage method not found");
             var invokes = methodData.getInvokes();
             for (var invoke : invokes) {
-                // for 21.xx, it returns a method with one argument instead of zero
-                if (Objects.equals(invoke.getDeclaredClass(), methodData.getParamTypes().get(0))) {
+                // pre 21.xx method
+                if (invoke.getParamTypes().isEmpty() && Objects.equals(invoke.getDeclaredClass(), methodData.getParamTypes().get(0))) {
+                    return invoke.getMethodInstance(loader);
+                }
+
+                // 21.xx+ method (static)
+                if (Modifier.isStatic(invoke.getMethodInstance(loader).getModifiers()) && Objects.equals(invoke.getParamTypes().get(0), methodData.getParamTypes().get(0))) {
                     return invoke.getMethodInstance(loader);
                 }
             }
