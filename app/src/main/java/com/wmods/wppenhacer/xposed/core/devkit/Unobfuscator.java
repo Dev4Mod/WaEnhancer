@@ -539,6 +539,13 @@ public class Unobfuscator {
             var clazz = loadStatusDownloadMediaClass(classLoader);
             var clazz2 = clazz.getField("A01").getType();
             var field = ReflectionUtils.getFieldByType(clazz2, File.class);
+
+            // for 21.xx, it returns null
+            if (field == null) {
+                clazz2 = clazz.getField("A02").getType();
+                field = ReflectionUtils.getFieldByType(clazz2, File.class);
+            }
+
             if (field == null) throw new Exception("StatusDownloadFile field not found");
             return field;
         });
@@ -1073,7 +1080,8 @@ public class Unobfuscator {
             if (methodData == null) throw new RuntimeException("GetEditMessage method not found");
             var invokes = methodData.getInvokes();
             for (var invoke : invokes) {
-                if (invoke.getParamTypes().isEmpty() && Objects.equals(invoke.getDeclaredClass(), methodData.getParamTypes().get(0))) {
+                // for 21.xx, it returns a method with one argument instead of zero
+                if (Objects.equals(invoke.getDeclaredClass(), methodData.getParamTypes().get(0))) {
                     return invoke.getMethodInstance(loader);
                 }
             }
