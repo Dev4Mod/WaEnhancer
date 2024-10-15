@@ -107,9 +107,9 @@ public class StatusDownload extends Feature {
             }
 
             // for 21.xx, A01 is not File
-            var fieldData2 = XposedHelpers.getObjectField(fMessage.getObject(), "A02");
-            if (fieldFile.getDeclaringClass().isInstance(fieldData2)) {
-                fileData = fieldData2;
+            var fileData2 = XposedHelpers.getObjectField(fMessage.getObject(), "A02");
+            if (fieldFile.getDeclaringClass().isInstance(fileData2)) {
+                fileData = fileData2;
             }
 
             if (fileData == null) {
