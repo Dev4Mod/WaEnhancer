@@ -537,10 +537,13 @@ public class Unobfuscator {
     public synchronized static Field loadStatusDownloadFileField(ClassLoader classLoader) throws Exception {
         return UnobfuscatorCache.getInstance().getField(classLoader, () -> {
             var clazz = loadStatusDownloadMediaClass(classLoader);
-            var clazz2 = clazz.getField("A01").getType();
-            var field = ReflectionUtils.getFieldByType(clazz2, File.class);
-            if (field == null) throw new Exception("StatusDownloadFile field not found");
-            return field;
+            for (Field clazzField : clazz.getFields()) {
+                var clazz2 = clazzField.getType();
+                var field = ReflectionUtils.getFieldByType(clazz2, File.class);
+                if (field != null) return field;
+            }
+
+            throw new Exception("StatusDownloadFile field not found");
         });
     }
 
@@ -1073,7 +1076,13 @@ public class Unobfuscator {
             if (methodData == null) throw new RuntimeException("GetEditMessage method not found");
             var invokes = methodData.getInvokes();
             for (var invoke : invokes) {
+                // pre 21.xx method
                 if (invoke.getParamTypes().isEmpty() && Objects.equals(invoke.getDeclaredClass(), methodData.getParamTypes().get(0))) {
+                    return invoke.getMethodInstance(loader);
+                }
+
+                // 21.xx+ method (static)
+                if (Modifier.isStatic(invoke.getMethodInstance(loader).getModifiers()) && Objects.equals(invoke.getParamTypes().get(0), methodData.getParamTypes().get(0))) {
                     return invoke.getMethodInstance(loader);
                 }
             }

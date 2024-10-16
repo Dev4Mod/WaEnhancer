@@ -100,11 +100,13 @@ public class StatusDownload extends Feature {
 
     private void downloadFile(FMessageWpp fMessage) {
         try {
-            var fileData = XposedHelpers.getObjectField(fMessage.getObject(), "A01");
-            if (!fieldFile.getDeclaringClass().isInstance(fileData)) {
+            Field fieldFileInMessage =  ReflectionUtils.getFieldByType(fMessage.getObject().getClass(), fieldFile.getDeclaringClass());
+            if (fieldFileInMessage == null) {
                 Utils.showToast(Utils.getApplication().getString(ResId.string.msg_text_status_not_downloadable), Toast.LENGTH_SHORT);
                 return;
             }
+
+            var fileData = XposedHelpers.getObjectField(fMessage.getObject(), fieldFileInMessage.getName());
             var file = (File) ReflectionUtils.getField(fieldFile, fileData);
             var userJid = fMessage.getUserJid();
             var fileType = file.getName().substring(file.getName().lastIndexOf(".") + 1);

@@ -352,6 +352,11 @@ public class WppCore {
         if (mCurrentActivity == null) return null;
         Class<?> conversation = XposedHelpers.findClass("com.whatsapp.Conversation", mCurrentActivity.getClassLoader());
         if (conversation.isInstance(mCurrentActivity)) return mCurrentActivity;
+
+        // for tablet UI, they're using HomeActivity instead of Conversation
+        // TODO: Add more checks for ConversationFragment
+        Class<?> home = XposedHelpers.findClass("com.whatsapp.HomeActivity", mCurrentActivity.getClassLoader());
+        if (mCurrentActivity.getResources().getConfiguration().smallestScreenWidthDp >= 600 && home.isInstance(mCurrentActivity)) return mCurrentActivity;
         return null;
     }
 
