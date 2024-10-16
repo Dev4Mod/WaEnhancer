@@ -537,17 +537,13 @@ public class Unobfuscator {
     public synchronized static Field loadStatusDownloadFileField(ClassLoader classLoader) throws Exception {
         return UnobfuscatorCache.getInstance().getField(classLoader, () -> {
             var clazz = loadStatusDownloadMediaClass(classLoader);
-            var clazz2 = clazz.getField("A01").getType();
-            var field = ReflectionUtils.getFieldByType(clazz2, File.class);
-
-            // for 21.xx, it returns null
-            if (field == null) {
-                clazz2 = clazz.getField("A02").getType();
-                field = ReflectionUtils.getFieldByType(clazz2, File.class);
+            for (Field clazzField : clazz.getFields()) {
+                var clazz2 = clazzField.getType();
+                var field = ReflectionUtils.getFieldByType(clazz2, File.class);
+                if (field != null) return field;
             }
 
-            if (field == null) throw new Exception("StatusDownloadFile field not found");
-            return field;
+            throw new Exception("StatusDownloadFile field not found");
         });
     }
 
