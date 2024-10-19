@@ -1,10 +1,8 @@
-[CUSTOM PRIVACY]
-* Fixed error when hiding/showing status view
-* Added the option to appear in the contact information menu bar (You can change between appearing a layout within the contact info or in the contact information menu contact info)
-* Added the option to block/allow calls to a specific contact (This only works if you configured WAE to block or allow calls for everyone, it does not work with Whitelist or blacklist)
+[WHATSAPP AND BUSINESS]
+* Added support for version 2.24.21.xx (Thanks to frknkrc44 for the contribution)
 
-[ AUDIO TRANSCRIPTION]
-* Improvement in the code for compatibility.
+[DOUBLE CLICK TO REACTION]
+* Fixed double click recognition issue
 
 [WAE]
-* Atualização de tradução
+* Translations updated
