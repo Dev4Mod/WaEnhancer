@@ -28,6 +28,7 @@ import com.wmods.wppenhacer.xposed.utils.ReflectionUtils;
 import com.wmods.wppenhacer.xposed.utils.ResId;
 import com.wmods.wppenhacer.xposed.utils.Utils;
 
+import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.Objects;
 
@@ -65,7 +66,10 @@ public class ShowEditMessage extends Feature {
         XposedBridge.hookMethod(onMessageEdit, new XC_MethodHook() {
             @Override
             protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
-                var editMessage = getEditMessage.invoke(param.args[0]);
+                // for 21.xx, getEditMessage is static
+                var editMessage = Modifier.isStatic(getEditMessage.getModifiers())
+                        ? getEditMessage.invoke(null, param.args[0])
+                        : getEditMessage.invoke(param.args[0]);
                 if (editMessage == null) return;
                 long timestamp = XposedHelpers.getLongField(editMessage, "A00");
                 var fMessage = new FMessageWpp(param.args[0]);
