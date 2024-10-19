@@ -385,7 +385,7 @@
     <string name="assemblyai_key_sum">Clave de acceso a la API de AssemblyAI (Loggeate en el sitio web y crea una cuenta para obtener tu clave)</string>
     <string name="google_translate">Activar Google Translate</string>
     <string name="google_translate_sum">Reemplaza al traductor nativo de Whatsapp por Google Translate</string>
-    <string name="show_contact_info">Show in contact info</string>
-    <string name="show_contact_info_menu">Show in contact info menu</string>
-    <string name="block_call">Block Call</string>
+    <string name="show_contact_info">Mostrar en la información de contacto</string>
+    <string name="show_contact_info_menu">Mostrar en el menú de información de contactos</string>
+    <string name="block_call">Bloquear llamada</string>
 </resources>

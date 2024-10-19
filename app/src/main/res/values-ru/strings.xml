@@ -377,15 +377,15 @@
     <string name="enable_wa_enhancer_button_sum">Кнопка на домашнем экране, чтобы открыть Enhancer</string>
     <string name="custom_privacy">Конфиденциальность</string>
     <string name="custom_privacy_sum">Включить/отключить конфиденциальность</string>
-    <string name="custom_privacy_per_contact">Custom Privacy per contact</string>
-    <string name="custom_privacy_per_contact_sum">Activate the custom privacy button on the contact information screen</string>
-    <string name="assemblyai">Enable AssemblyAI</string>
-    <string name="assemblyai_sum">Replaces the default Whatsapp transcription with AssemblyAI</string>
-    <string name="assemblyai_key">AssemblyAI key</string>
-    <string name="assemblyai_key_sum">AssemblyAI API access key (Login to the website and create an account to get your key)</string>
-    <string name="google_translate">Enable Google Translate</string>
-    <string name="google_translate_sum">Replaces Whatsapp\'s native translator with Google Translate</string>
-    <string name="show_contact_info">Show in contact info</string>
-    <string name="show_contact_info_menu">Show in contact info menu</string>
-    <string name="block_call">Block Call</string>
+    <string name="custom_privacy_per_contact">Пользовательская конфиденциальность на контакт</string>
+    <string name="custom_privacy_per_contact_sum">Активировать пользовательскую кнопку конфиденциальности на экране контактной информации</string>
+    <string name="assemblyai">Включить AssemblyAI</string>
+    <string name="assemblyai_sum">Заменяет стандартную транскрипцию Whatsapp на AssemblyAI</string>
+    <string name="assemblyai_key">AssemblyAI кнопка</string>
+    <string name="assemblyai_key_sum">Ключ доступа к AssemblyAI API (войдите на сайт и создайте учётную запись, чтобы получить ваш ключ)</string>
+    <string name="google_translate">Включить перевод Google</string>
+    <string name="google_translate_sum">Заменяет родной переводчик WhatsApp на Google Translate</string>
+    <string name="show_contact_info">Показывать в контактах</string>
+    <string name="show_contact_info_menu">Показывать в меню контакта</string>
+    <string name="block_call">Блокировать вызовы</string>
 </resources>

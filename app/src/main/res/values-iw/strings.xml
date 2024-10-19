@@ -387,7 +387,7 @@
     <string name="assemblyai_key_sum">מפתח גישה ל-AssemblyAI API (התחבר לאתר וצור חשבון כדי לקבל את המפתח שלך)</string>
     <string name="google_translate">הפעל את גוגל תרגום</string>
     <string name="google_translate_sum">מחליף את מתרגם ברירת המחדל של ווצאפ בגוגל תרגום</string>
-    <string name="show_contact_info">Show in contact info</string>
-    <string name="show_contact_info_menu">Show in contact info menu</string>
-    <string name="block_call">Block Call</string>
+    <string name="show_contact_info">הצג בפרטי יצירת קשר</string>
+    <string name="show_contact_info_menu">הצג ב3 נקודות של פרטי איש הקשר</string>
+    <string name="block_call">חסום שיחה</string>
 </resources>

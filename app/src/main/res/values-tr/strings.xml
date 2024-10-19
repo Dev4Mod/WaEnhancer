@@ -377,15 +377,15 @@
     <string name="enable_wa_enhancer_button_sum">Wa Enhancer\'ı açmak için Ana Ekrana düğme ekleyin</string>
     <string name="custom_privacy">Özel Gizlilik</string>
     <string name="custom_privacy_sum">Özel Gizliliği Etkinleştir/Devre Dışı Bırak</string>
-    <string name="custom_privacy_per_contact">Custom Privacy per contact</string>
-    <string name="custom_privacy_per_contact_sum">Activate the custom privacy button on the contact information screen</string>
-    <string name="assemblyai">Enable AssemblyAI</string>
-    <string name="assemblyai_sum">Replaces the default Whatsapp transcription with AssemblyAI</string>
-    <string name="assemblyai_key">AssemblyAI key</string>
-    <string name="assemblyai_key_sum">AssemblyAI API access key (Login to the website and create an account to get your key)</string>
-    <string name="google_translate">Enable Google Translate</string>
-    <string name="google_translate_sum">Replaces Whatsapp\'s native translator with Google Translate</string>
-    <string name="show_contact_info">Show in contact info</string>
-    <string name="show_contact_info_menu">Show in contact info menu</string>
-    <string name="block_call">Block Call</string>
+    <string name="custom_privacy_per_contact">Kişi başına özel gizlilik</string>
+    <string name="custom_privacy_per_contact_sum">Kişi bilgileri ekranında özel gizlilik düğmesini etkinleştirin</string>
+    <string name="assemblyai">AssemblyAI\'yi Etkinleştir</string>
+    <string name="assemblyai_sum">Varsayılan Whatsapp transkripsiyonunu AssemblyAI ile değiştirir</string>
+    <string name="assemblyai_key">AssemblyAI anahtarı</string>
+    <string name="assemblyai_key_sum">AssemblyAI API erişim anahtarı (Anahtarınızı almak için web sitesine giriş yapın ve bir hesap oluşturun)</string>
+    <string name="google_translate">Google Çeviri\'yi Etkinleştir</string>
+    <string name="google_translate_sum">Whatsapp\'ın yerel çevirmenini Google Çeviri ile değiştirir</string>
+    <string name="show_contact_info">İletişim bilgilerinde göster</string>
+    <string name="show_contact_info_menu">İletişim bilgileri menüsünde göster</string>
+    <string name="block_call">Aramaları Engelle</string>
 </resources>

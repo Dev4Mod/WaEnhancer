@@ -386,7 +386,7 @@
     <string name="assemblyai_key_sum">مفتاح الوصول API AssemblyAI (تسجيل الدخول إلى الموقع وإنشاء حساب للحصول على المفتاح الخاص بك)</string>
     <string name="google_translate">تمكين ترجمة جوجل</string>
     <string name="google_translate_sum">يستبدل مترجم واتساب الأصلي بترجمة جوجل</string>
-    <string name="show_contact_info">Show in contact info</string>
-    <string name="show_contact_info_menu">Show in contact info menu</string>
-    <string name="block_call">Block Call</string>
+    <string name="show_contact_info">إظهار في معلومات جهة الاتصال</string>
+    <string name="show_contact_info_menu">إظهار في قائمة معلومات جهة الاتصال</string>
+    <string name="block_call">حظر المكالمات</string>
 </resources>
