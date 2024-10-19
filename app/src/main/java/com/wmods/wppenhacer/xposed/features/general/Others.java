@@ -217,7 +217,6 @@ public class Others extends Feature {
                         auxClick.clicks = 0;
                     }
                     if (auxClick.clicks > 1) {
-                        Utils.showToast("Tap", 1);
                         auxClick.clicks = 0;
                         auxClick.lastClick = 0;
                         gestureDetector.doubleClick(v, param.args[2]);
