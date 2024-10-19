@@ -70,7 +70,7 @@ public class DebugUtils {
     public static void debugMethods(Class<?> cls, Object thisObject) {
         XposedBridge.log("DEBUG METHODS: Class " + cls.getName());
         for (var method : cls.getDeclaredMethods()) {
-            if (method.getParameterCount() > 0) continue;
+            if (method.getParameterCount() > 0 || method.getReturnType() == void.class) continue;
             try {
                 method.setAccessible(true);
                 XposedBridge.log("METHOD: " + method.getName() + " -> VALUE: " + method.invoke(thisObject));
