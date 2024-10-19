@@ -4,7 +4,6 @@ import android.annotation.SuppressLint;
 import android.os.BaseBundle;
 import android.os.Message;
 import android.text.TextUtils;
-import android.view.GestureDetector;
 import android.view.Menu;
 import android.view.View;
 import android.view.ViewGroup;
@@ -13,7 +12,6 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 
-import com.wmods.wppenhacer.listeners.DoubleTapListener;
 import com.wmods.wppenhacer.xposed.core.Feature;
 import com.wmods.wppenhacer.xposed.core.WppCore;
 import com.wmods.wppenhacer.xposed.core.devkit.Unobfuscator;
@@ -185,21 +183,46 @@ public class Others extends Feature {
             protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
                 var viewGroup = (View) param.thisObject;
                 if (viewGroup == null) return;
-                var gestureDetector = new GestureDetector(viewGroup.getContext(), new DoubleTapListener(() -> {
-                    var reactionView = (ViewGroup) viewGroup.findViewById(Utils.getID("reactions_bubble_layout", "id"));
-                    if (reactionView != null && reactionView.getVisibility() == View.VISIBLE) {
-                        for (int i = 0; i < reactionView.getChildCount(); i++) {
-                            if (reactionView.getChildAt(i) instanceof TextView textView) {
-                                if (textView.getText().toString().contains(emoji)) {
-                                    WppCore.sendReaction("", param.args[2]);
-                                    return;
+
+                var gestureDetector = new Object() {
+
+                    public void doubleClick(View view, Object objMessage) {
+                        var reactionView = (ViewGroup) view.findViewById(Utils.getID("reactions_bubble_layout", "id"));
+                        if (reactionView != null && reactionView.getVisibility() == View.VISIBLE) {
+                            for (int i = 0; i < reactionView.getChildCount(); i++) {
+                                if (reactionView.getChildAt(i) instanceof TextView textView) {
+                                    if (textView.getText().toString().contains(emoji)) {
+                                        WppCore.sendReaction("", objMessage);
+                                        Utils.showToast(emoji, 1);
+                                        return;
+                                    }
                                 }
                             }
                         }
+                        WppCore.sendReaction(emoji, param.args[2]);
                     }
-                    WppCore.sendReaction(emoji, param.args[2]);
-                }));
-                viewGroup.setOnTouchListener((v, event) -> gestureDetector.onTouchEvent(event));
+                };
+
+                var auxClick = new Object() {
+                    long lastClick = 0;
+                    long clicks = 0;
+                };
+
+                viewGroup.setOnClickListener(v -> {
+                    if (auxClick.lastClick == 0 || System.currentTimeMillis() - auxClick.lastClick < 1000) {
+                        auxClick.lastClick = System.currentTimeMillis();
+                        auxClick.clicks++;
+                    } else {
+                        auxClick.lastClick = 0;
+                        auxClick.clicks = 0;
+                    }
+                    if (auxClick.clicks > 1) {
+                        Utils.showToast("Tap", 1);
+                        auxClick.clicks = 0;
+                        auxClick.lastClick = 0;
+                        gestureDetector.doubleClick(v, param.args[2]);
+                    }
+                });
             }
         });
     }
