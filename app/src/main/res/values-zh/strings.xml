@@ -137,7 +137,7 @@
     <string name="sending_read_blue_tick">正在发送蓝色勾号（标记为已读/已查看）</string>
     <string name="enable_facebook_style_for_status">启用 Facebook 风格的“动态”</string>
     <string name="enable_facebook_style_for_status_sum">将原有的"动态"样式更改为 Facebook 风格</string>
-    <string name="send">Send</string>
+    <string name="send">发送</string>
     <string name="do_you_want_to_send_sticker">您要发送此贴图吗？</string>
     <string name="send_sticker">发送贴图</string>
     <string name="enable_filter_chats">启用聊天类型过滤</string>
