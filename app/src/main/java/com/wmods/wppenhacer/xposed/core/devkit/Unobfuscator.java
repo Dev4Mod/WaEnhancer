@@ -1770,4 +1770,12 @@ public class Unobfuscator {
         return UnobfuscatorCache.getInstance().getMethod(classLoader, () -> findFirstMethodUsingStrings(classLoader, StringMatchType.Contains, "presencestatemanager/startTransitionToUnavailable/new-state"));
     }
 
+    public static synchronized Class loadCachedMessageStore(ClassLoader loader) throws Exception {
+        return UnobfuscatorCache.getInstance().getClass(loader, () -> {
+            var cacheMsClass = findFirstClassUsingStrings(loader, StringMatchType.Contains, "CachedMessageStore/getMessage/key");
+            if (cacheMsClass == null)
+                throw new RuntimeException("CachedMessageStore class not found");
+            return cacheMsClass;
+        });
+    }
 }

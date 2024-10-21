@@ -297,13 +297,38 @@ public class SeenTick extends Feature {
                         var messageField = ReflectionUtils.getFieldByExtendType(menuMethod.getDeclaringClass(), classThreadMessage);
                         var messageObject = XposedHelpers.getObjectField(param.thisObject, messageField.getName());
                         sendBlueTickMedia(messageObject, true);
-                        Toast.makeText(Utils.getApplication(), ResId.string.sending_read_blue_tick, Toast.LENGTH_SHORT).show();
+                        Utils.showToast(Utils.getApplication().getString(ResId.string.sending_read_blue_tick), Toast.LENGTH_SHORT);
                         return true;
                     });
                 }
 
             }
         });
+
+        XposedHelpers.findAndHookMethod("com.whatsapp.messaging.ViewOnceViewerActivity", classLoader, "onCreateOptionsMenu", classLoader.loadClass("android.view.Menu"),
+                new XC_MethodHook() {
+                    @Override
+                    protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+                        Menu menu = (Menu) param.args[0];
+                        MenuItem item = menu.add(0, 0, 0, ResId.string.send_blue_tick).setIcon(Utils.getID("ic_notif_mark_read", "drawable"));
+                        if (ticktype == 1) item.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
+                        item.setOnMenuItemClickListener(item1 -> {
+                            CompletableFuture.runAsync(() -> {
+                                var keyClass = FMessageWpp.Key.TYPE;
+                                var fieldType = ReflectionUtils.getFieldByType(param.thisObject.getClass(), keyClass);
+                                var keyMessage = ReflectionUtils.getField(fieldType, param.thisObject);
+                                var fMessage = WppCore.getFMessageFromKey(keyMessage);
+                                if (fMessage == null) return;
+                                sendBlueTickMedia(fMessage, true);
+                                Utils.showToast(Utils.getApplication().getString(ResId.string.sending_read_blue_tick), Toast.LENGTH_SHORT);
+                            });
+                            return true;
+                        });
+
+                    }
+                });
+
+
     }
 
     private void hookOnSendMessages() throws Exception {
