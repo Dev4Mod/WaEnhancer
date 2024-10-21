@@ -188,8 +188,8 @@ public class Others extends Feature {
                     @Override
                     protected void afterHookedMethod(MethodHookParam param) throws Throwable {
                         var wamCall = param.thisObject;
-                        var ip = XposedHelpers.getObjectField(wamCall, "callSelfIpStr").toString();
-                        var platform = XposedHelpers.getObjectField(wamCall, "callPeerPlatform").toString();
+                        var ip = (String)XposedHelpers.getObjectField(wamCall, "callPeerIpStr");
+                        var platform = (String)XposedHelpers.getObjectField(wamCall, "callPeerPlatform");
                         CompletableFuture.runAsync(() -> {
                             try {
                                 showCallInformation(ip, platform);
@@ -202,6 +202,8 @@ public class Others extends Feature {
     }
 
     private void showCallInformation(String ip, String platform) throws Exception {
+        var db = new StringBuilder();
+        if (ip != null) {
         var client = new OkHttpClient();
         var url = "http://ip-api.com/json/" + ip;
         var request = new okhttp3.Request.Builder().url(url).build();
@@ -209,9 +211,9 @@ public class Others extends Feature {
         var json = new JSONObject(content);
         var country = json.getString("country");
         var city = json.getString("city");
-        var db = new StringBuilder();
         db.append("Country: ").append(country).append("\n");
         db.append("City: ").append(city).append("\n");
+        }
         db.append("Platform: ").append(platform).append("\n");
         db.append("IP: ").append(ip).append("\n");
         Utils.showNotification("Call Information", db.toString());
