@@ -1,10 +1,8 @@
-[FUNCTIONS]
-* Added the option to display a notification after ending a call with IP information, city and platform from which the call originated
-* Added option to always stay online (This option is great like Toast de online contact because you can receive it even when you are outside of Whatsapp)
+[CALL INFORMATION]
+* Added the phone number, contact name and WhatsApp version of the originating call.
 
-[VIEW ONCE]
-* Fixed View Once for audios (Now it will no longer disappear from messages)
-* Fixed the Download option in View Once for audios
+[SEEN TICK BUTTTONS]
+* Fixed the "Mark as seen" button not appearing for single view audios
 
 [WAE]
-* Update Translations
+* Updated Translations
