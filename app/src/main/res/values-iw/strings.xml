@@ -390,4 +390,8 @@
     <string name="show_contact_info">הצג בפרטי יצירת קשר</string>
     <string name="show_contact_info_menu">הצג ב3 נקודות של פרטי איש הקשר</string>
     <string name="block_call">חסום שיחה</string>
+    <string name="always_online">Always Online</string>
+    <string name="always_online_sum">Show you online even if you minimize WhatsApp (Doesn\'t work if you remove it from recents)</string>
+    <string name="additional_call_information">Additional call information</string>
+    <string name="additional_call_information_sum">Receive a notification with additional information after the call ends</string>
 </resources>
