@@ -1,8 +1,10 @@
-[WHATSAPP AND BUSINESS]
-* Added support for version 2.24.21.xx (Thanks to frknkrc44 for the contribution)
+[FUNCTIONS]
+* Added the option to display a notification after ending a call with IP information, city and platform from which the call originated
+* Added option to always stay online (This option is great like Toast de online contact because you can receive it even when you are outside of Whatsapp)
 
-[DOUBLE CLICK TO REACTION]
-* Fixed double click recognition issue
+[VIEW ONCE]
+* Fixed View Once for audios (Now it will no longer disappear from messages)
+* Fixed the Download option in View Once for audios
 
 [WAE]
-* Translations updated
+* Update Translations
