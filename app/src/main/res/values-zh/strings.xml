@@ -376,10 +376,10 @@
     <string name="custom_colors_for_text_status_sum">按住动态中的颜色选择器以对其进行自定义</string>
     <string name="enable_wa_enhancer_button">启用 Wa Enhancer 按钮</string>
     <string name="enable_wa_enhancer_button_sum">在主页工具栏添加按钮用于打开 Wa Enhancer</string>
-    <string name="custom_privacy">自定义隐私</string>
-    <string name="custom_privacy_sum">启用/禁用自定义隐私</string>
-    <string name="custom_privacy_per_contact">每个联系人的自定义隐私</string>
-    <string name="custom_privacy_per_contact_sum">在联系人详情界面上添加自定义隐私按钮</string>
+    <string name="custom_privacy">自定义隐私设置</string>
+    <string name="custom_privacy_sum">启用/禁用自定义隐私设置</string>
+    <string name="custom_privacy_per_contact">每个联系人的自定义隐私设置</string>
+    <string name="custom_privacy_per_contact_sum">在联系人详情界面上添加自定义隐私设置按钮</string>
     <string name="assemblyai">启用 AssemblyAI</string>
     <string name="assemblyai_sum">使用 AssemblyAI 替换 Whatsapp 默认的语音转文字</string>
     <string name="assemblyai_key">AssemblyAI 密匙</string>
@@ -387,7 +387,7 @@
     <string name="google_translate">启用谷歌翻译</string>
     <string name="google_translate_sum">使用谷歌翻译取代 Whatsapp 的原生翻译</string>
     <string name="show_contact_info">在联系人详情中显示</string>
-    <string name="show_contact_info_menu">在联系人详情菜单中显示</string>
+    <string name="show_contact_info_menu">在联系人详情三点菜单中显示</string>
     <string name="block_call">拦截来电</string>
     <string name="always_online">一直在线</string>
     <string name="always_online_sum">即使你最小化WhatsApp，仍然显示你在线（如果你将其从最近使用的应用中移除，则无法使用）。</string>
