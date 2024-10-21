@@ -608,6 +608,12 @@ public class Unobfuscator {
         return method;
     }
 
+    public synchronized static Method loadViewOnceChangeMethod(ClassLoader loader) throws Exception {
+        var method = findFirstMethodUsingStrings(loader, StringMatchType.Contains, "com.whatsapp.messaging.ViewOnceViewerActivity");
+        if (method == null) throw new Exception("ViewOnce class not found");
+        return method;
+    }
+
 
     /**
      * @noinspection SimplifyOptionalCallChains
@@ -1758,5 +1764,9 @@ public class Unobfuscator {
                 throw new RuntimeException("UnkTranscript class not found");
             return classDataList.get(0).getInstance(classLoader);
         });
+    }
+
+    public static Method loadStateChangeMethod(ClassLoader classLoader) throws Exception {
+        return UnobfuscatorCache.getInstance().getMethod(classLoader, () -> findFirstMethodUsingStrings(classLoader, StringMatchType.Contains, "presencestatemanager/startTransitionToUnavailable/new-state"));
     }
 }

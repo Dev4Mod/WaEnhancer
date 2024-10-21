@@ -24,6 +24,11 @@
             app:summary="@string/ghost_mode_sum"
             app:title="@string/ghost_mode_title" />
 
+        <rikka.material.preference.MaterialSwitchPreference
+            app:key="always_online"
+            app:summary="@string/always_online_sum"
+            app:title="@string/always_online" />
+
     </PreferenceCategory>
 
 
@@ -111,6 +116,12 @@
     <PreferenceCategory
         app:iconSpaceReserved="false"
         app:title="@string/calls">
+
+        <rikka.material.preference.MaterialSwitchPreference
+            app:key="call_info"
+            app:summary="@string/additional_call_information_sum"
+            app:title="@string/additional_call_information" />
+
         <ListPreference
             app:entries="@array/call_blocker_buttons"
             app:entryValues="@array/call_blocker_values"

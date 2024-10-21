@@ -20,16 +20,20 @@ import com.wmods.wppenhacer.xposed.utils.ReflectionUtils;
 import com.wmods.wppenhacer.xposed.utils.ResId;
 import com.wmods.wppenhacer.xposed.utils.Utils;
 
+import org.json.JSONObject;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Objects;
 import java.util.Properties;
+import java.util.concurrent.CompletableFuture;
 
 import de.robv.android.xposed.XC_MethodHook;
 import de.robv.android.xposed.XC_MethodReplacement;
 import de.robv.android.xposed.XSharedPreferences;
 import de.robv.android.xposed.XposedBridge;
 import de.robv.android.xposed.XposedHelpers;
+import okhttp3.OkHttpClient;
 
 public class Others extends Feature {
 
@@ -170,6 +174,47 @@ public class Others extends Feature {
 
         alwaysOnline();
 
+        callInfo();
+
+    }
+
+    private void callInfo() throws Exception {
+        if (!prefs.getBoolean("call_info", false))
+            return;
+
+        Class<?> clsWamCall = classLoader.loadClass("com.whatsapp.fieldstats.events.WamCall");
+        XposedBridge.hookAllMethods(clsWamCall, "serialize",
+                new XC_MethodHook() {
+                    @Override
+                    protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+                        var wamCall = param.thisObject;
+                        var ip = XposedHelpers.getObjectField(wamCall, "callSelfIpStr").toString();
+                        var platform = XposedHelpers.getObjectField(wamCall, "callPeerPlatform").toString();
+                        CompletableFuture.runAsync(() -> {
+                            try {
+                                showCallInformation(ip, platform);
+                            } catch (Exception e) {
+                                logDebug(e);
+                            }
+                        });
+                    }
+                });
+    }
+
+    private void showCallInformation(String ip, String platform) throws Exception {
+        var client = new OkHttpClient();
+        var url = "http://ip-api.com/json/" + ip;
+        var request = new okhttp3.Request.Builder().url(url).build();
+        var content = client.newCall(request).execute().body().string();
+        var json = new JSONObject(content);
+        var country = json.getString("country");
+        var city = json.getString("city");
+        var db = new StringBuilder();
+        db.append("Country: ").append(country).append("\n");
+        db.append("City: ").append(city).append("\n");
+        db.append("Platform: ").append(platform).append("\n");
+        db.append("IP: ").append(ip).append("\n");
+        Utils.showNotification("Call Information", db.toString());
     }
 
     private void alwaysOnline() throws Exception {
