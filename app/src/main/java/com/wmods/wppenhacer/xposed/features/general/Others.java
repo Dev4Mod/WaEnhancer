@@ -105,6 +105,7 @@ public class Others extends Feature {
         propsBoolean.put(9578, true);  // Enable Privacy Checkup
         propsInteger.put(8135, 2);  // Call Filters
         propsBoolean.put(9141, true);  // Enable Translate Message
+        propsBoolean.put(8925, true);  // Enable Translate Message
 
         propsBoolean.put(10380, false); // fix crash bug in Settings/Archived
 
@@ -158,6 +159,7 @@ public class Others extends Feature {
         }
 
         customPlayBackSpeed();
+
         showOnline(showOnline);
 
         animationList();
@@ -166,6 +168,14 @@ public class Others extends Feature {
 
         doubleTapReaction();
 
+        alwaysOnline();
+
+    }
+
+    private void alwaysOnline() throws Exception {
+        if (!prefs.getBoolean("always_online", false)) return;
+        var stateChange = Unobfuscator.loadStateChangeMethod(classLoader);
+        XposedBridge.hookMethod(stateChange, XC_MethodReplacement.DO_NOTHING);
     }
 
     private void doubleTapReaction() throws Exception {
