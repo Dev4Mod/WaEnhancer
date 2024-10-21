@@ -177,6 +177,7 @@ public class FeatureLoader {
     private static void initComponents(ClassLoader loader, XSharedPreferences pref) throws Exception {
         AlertDialogWpp.initDialog(loader);
         FMessageWpp.init(loader);
+        Utils.init(loader);
     }
 
     private static void registerReceivers() {

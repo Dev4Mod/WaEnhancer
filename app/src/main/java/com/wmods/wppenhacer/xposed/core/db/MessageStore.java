@@ -71,6 +71,36 @@ public class MessageStore {
         return "";
     }
 
+    public long getIdfromKey(String message_key) {
+        if (sqLiteDatabase == null) return -1;
+        String[] columns = new String[]{"_id"};
+        String selection = "key_id=?";
+        String[] selectionArgs = new String[]{message_key};
+        try (Cursor cursor = sqLiteDatabase.query("message", columns, selection, selectionArgs, null, null, null)) {
+            if (cursor.moveToFirst()) {
+                return cursor.getLong(0);
+            }
+        } catch (Exception e) {
+            XposedBridge.log(e);
+        }
+        return -1;
+    }
+
+    public String getMediaFromID(long id) {
+        if (sqLiteDatabase == null) return null;
+        String[] columns = new String[]{"file_path"};
+        String selection = "message_row_id=?";
+        String[] selectionArgs = new String[]{String.valueOf(id)};
+        try (Cursor cursor = sqLiteDatabase.query("message_media", columns, selection, selectionArgs, null, null, null)) {
+            if (cursor.moveToFirst()) {
+                return cursor.getString(0);
+            }
+        } catch (Exception e) {
+            XposedBridge.log(e);
+        }
+        return null;
+    }
+
     public String getCurrentMessageByID(long row_id) {
         if (sqLiteDatabase == null) return "";
         String[] columns = new String[]{"text_data"};

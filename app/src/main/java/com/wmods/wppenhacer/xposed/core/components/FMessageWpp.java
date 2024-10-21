@@ -40,6 +40,7 @@ public class FMessageWpp {
         var userJidClass = classLoader.loadClass("com.whatsapp.jid.UserJid");
         userJidMethod = ReflectionUtils.findMethodUsingFilter(TYPE, method -> method.getParameterCount() == 0 && method.getReturnType() == userJidClass);
         keyMessage = Unobfuscator.loadMessageKeyField(classLoader);
+        Key.TYPE = keyMessage.getType();
         messageMethod = Unobfuscator.loadNewMessageMethod(classLoader);
         messageWithMediaMethod = Unobfuscator.loadNewMessageWithMediaMethod(classLoader);
         getFieldIdMessage = Unobfuscator.loadSetEditMessageField(classLoader);
@@ -120,6 +121,7 @@ public class FMessageWpp {
     }
 
     public static class Key {
+        public static Class<?> TYPE;
 
         public final Object thisObject;
         public final String messageID;

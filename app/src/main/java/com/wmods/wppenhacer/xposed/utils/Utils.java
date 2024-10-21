@@ -2,6 +2,8 @@ package com.wmods.wppenhacer.xposed.utils;
 
 import android.annotation.SuppressLint;
 import android.app.Application;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
 import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.ComponentName;
@@ -17,6 +19,8 @@ import android.util.TypedValue;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.core.app.NotificationCompat;
+import androidx.core.app.NotificationManagerCompat;
 
 import com.wmods.wppenhacer.App;
 import com.wmods.wppenhacer.WppXposed;
@@ -30,6 +34,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
 import java.util.Properties;
+import java.util.Random;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.regex.Matcher;
@@ -43,6 +48,14 @@ public class Utils {
     private static final ExecutorService executorService = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
     private static final ExecutorService executorCachedService = Executors.newCachedThreadPool();
     public static XSharedPreferences xprefs;
+
+    public static void init(ClassLoader loader) {
+        var context = Utils.getApplication();
+        var notificationManager = NotificationManagerCompat.from(context);
+        var channel = new NotificationChannel("wppenhacer", "WAE Enhancer", NotificationManager.IMPORTANCE_HIGH);
+        notificationManager.createNotificationChannel(channel);
+    }
+
 
     @NonNull
     public static Application getApplication() {
@@ -225,6 +238,22 @@ public class Utils {
         if (!match.find()) return null;
         return match.group(1);
     }
+
+    @SuppressLint("MissingPermission")
+    public static void showNotification(String title, String content) {
+        var context = Utils.getApplication();
+        var notificationManager = NotificationManagerCompat.from(context);
+        var channel = new NotificationChannel("wppenhacer", "WAE Enhancer", NotificationManager.IMPORTANCE_HIGH);
+        notificationManager.createNotificationChannel(channel);
+        var notification = new NotificationCompat.Builder(context, "wppenhacer")
+                .setSmallIcon(android.R.mipmap.sym_def_app_icon)
+                .setContentTitle(title)
+                .setContentText(content)
+                .setAutoCancel(true)
+                .setStyle(new NotificationCompat.BigTextStyle().bigText(content));
+        notificationManager.notify(new Random().nextInt(), notification.build());
+    }
+
 
     @FunctionalInterface
     public interface BinderLocalScopeBlock<T> {
