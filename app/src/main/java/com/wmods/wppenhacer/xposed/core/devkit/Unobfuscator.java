@@ -1721,38 +1721,38 @@ public class Unobfuscator {
         });
     }
 
-    public static Method[] loadRootDetector(ClassLoader classLoader) {
+    public static synchronized Method[] loadRootDetector(ClassLoader classLoader) {
         var methods = findAllMethodUsingStrings(classLoader, StringMatchType.Contains, "/system/bin/su");
         if (methods.length == 0) throw new RuntimeException("RootDetector method not found");
         return methods;
     }
 
-    public static Method loadCheckEmulator(ClassLoader classLoader) throws Exception {
+    public static synchronized Method loadCheckEmulator(ClassLoader classLoader) throws Exception {
         var method = findFirstMethodUsingStrings(classLoader, StringMatchType.Contains, "Android SDK built for x86");
         if (method == null) throw new RuntimeException("CheckEmulator method not found");
         return method;
     }
 
-    public static Method loadCheckCustomRom(ClassLoader classLoader) throws Exception {
+    public static synchronized Method loadCheckCustomRom(ClassLoader classLoader) throws Exception {
         var method = findFirstMethodUsingStrings(classLoader, StringMatchType.Contains, "cyanogen");
         if (method == null) throw new RuntimeException("CheckCustomRom method not found");
         return method;
     }
 
-    public static Class loadGetContactInfoClass(ClassLoader classLoader) throws Exception {
+    public static synchronized Class loadGetContactInfoClass(ClassLoader classLoader) throws Exception {
         return UnobfuscatorCache.getInstance().getClass(classLoader, () -> findFirstClassUsingStrings(classLoader, StringMatchType.Contains, "unknown@unknown"));
 
     }
 
-    public static Method loadTranscribeMethod(ClassLoader classLoader) throws Exception {
+    public static synchronized Method loadTranscribeMethod(ClassLoader classLoader) throws Exception {
         return UnobfuscatorCache.getInstance().getMethod(classLoader, () -> findFirstMethodUsingStrings(classLoader, StringMatchType.Contains, "transcribe: starting transcription"));
     }
 
-    public static Method loadCheckSupportLanguage(ClassLoader classLoader) throws Exception {
+    public static synchronized Method loadCheckSupportLanguage(ClassLoader classLoader) throws Exception {
         return UnobfuscatorCache.getInstance().getMethod(classLoader, () -> findFirstMethodUsingStrings(classLoader, StringMatchType.Equals, "Unsupported language"));
     }
 
-    public static Class loadUnkTranscript(ClassLoader classLoader) throws Exception {
+    public static synchronized Class loadUnkTranscript(ClassLoader classLoader) throws Exception {
         return UnobfuscatorCache.getInstance().getClass(classLoader, () -> {
             var loadTranscribe = loadTranscribeMethod(classLoader);
             var callbackClass = loadTranscribe.getParameterTypes()[1];
@@ -1766,7 +1766,8 @@ public class Unobfuscator {
         });
     }
 
-    public static Method loadStateChangeMethod(ClassLoader classLoader) throws Exception {
+    public static synchronized Method loadStateChangeMethod(ClassLoader classLoader) throws Exception {
         return UnobfuscatorCache.getInstance().getMethod(classLoader, () -> findFirstMethodUsingStrings(classLoader, StringMatchType.Contains, "presencestatemanager/startTransitionToUnavailable/new-state"));
     }
+
 }

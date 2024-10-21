@@ -16,12 +16,14 @@ import com.wmods.wppenhacer.xposed.core.Feature;
 import com.wmods.wppenhacer.xposed.core.WppCore;
 import com.wmods.wppenhacer.xposed.core.devkit.Unobfuscator;
 import com.wmods.wppenhacer.xposed.utils.AnimationUtil;
+import com.wmods.wppenhacer.xposed.utils.DebugUtils;
 import com.wmods.wppenhacer.xposed.utils.ReflectionUtils;
 import com.wmods.wppenhacer.xposed.utils.ResId;
 import com.wmods.wppenhacer.xposed.utils.Utils;
 
 import org.json.JSONObject;
 
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Objects;
@@ -182,41 +184,64 @@ public class Others extends Feature {
         if (!prefs.getBoolean("call_info", false))
             return;
 
+        var clsCallEventCallback = classLoader.loadClass("com.whatsapp.calling.service.VoiceServiceEventCallback");
+        for (Method method : clsCallEventCallback.getDeclaredMethods()) {
+            XposedBridge.hookMethod(method, DebugUtils.getDebugMethodHook(false, false, true, true));
+        }
+
+
         Class<?> clsWamCall = classLoader.loadClass("com.whatsapp.fieldstats.events.WamCall");
-        XposedBridge.hookAllMethods(clsWamCall, "serialize",
+
+        XposedBridge.hookAllMethods(clsCallEventCallback, "fieldstatsReady",
                 new XC_MethodHook() {
                     @Override
-                    protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-                        var wamCall = param.thisObject;
-                        var ip = (String)XposedHelpers.getObjectField(wamCall, "callPeerIpStr");
-                        var platform = (String)XposedHelpers.getObjectField(wamCall, "callPeerPlatform");
-                        CompletableFuture.runAsync(() -> {
-                            try {
-                                showCallInformation(ip, platform);
-                            } catch (Exception e) {
-                                logDebug(e);
-                            }
-                        });
+                    protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
+                        if (clsWamCall.isInstance(param.args[0])) {
+
+                            Object callinfo = XposedHelpers.callMethod(param.thisObject, "getCallInfo");
+                            if (callinfo == null)
+                                return;
+                            var userJid = XposedHelpers.callMethod(callinfo, "getPeerJid");
+                            CompletableFuture.runAsync(() -> {
+                                try {
+                                    showCallInformation(param.args[0], userJid);
+                                } catch (Exception e) {
+                                    logDebug(e);
+                                }
+                            });
+                        }
                     }
                 });
     }
 
-    private void showCallInformation(String ip, String platform) throws Exception {
-        var db = new StringBuilder();
+    private void showCallInformation(Object wamCall, Object userJid) throws Exception {
+        if (WppCore.isGroup(WppCore.getRawString(userJid)))
+            return;
+        var sb = new StringBuilder();
+
+        var contact = WppCore.getContactName(userJid);
+        if (!TextUtils.isEmpty(contact))
+            sb.append("Contact: ").append(contact).append("\n");
+        sb.append("Number: ").append("+").append(WppCore.stripJID(WppCore.getRawString(userJid))).append("\n");
+
+        var ip = (String) XposedHelpers.getObjectField(wamCall, "callPeerIpStr");
         if (ip != null) {
-        var client = new OkHttpClient();
-        var url = "http://ip-api.com/json/" + ip;
-        var request = new okhttp3.Request.Builder().url(url).build();
-        var content = client.newCall(request).execute().body().string();
-        var json = new JSONObject(content);
-        var country = json.getString("country");
-        var city = json.getString("city");
-        db.append("Country: ").append(country).append("\n");
-        db.append("City: ").append(city).append("\n");
+            var client = new OkHttpClient();
+            var url = "http://ip-api.com/json/" + ip;
+            var request = new okhttp3.Request.Builder().url(url).build();
+            var content = client.newCall(request).execute().body().string();
+            var json = new JSONObject(content);
+            var country = json.getString("country");
+            var city = json.getString("city");
+            sb.append("Country: ").append(country).append("\n");
+            sb.append("City: ").append(city).append("\n");
+            sb.append("IP: ").append(ip).append("\n");
         }
-        db.append("Platform: ").append(platform).append("\n");
-        db.append("IP: ").append(ip).append("\n");
-        Utils.showNotification("Call Information", db.toString());
+        var platform = (String) XposedHelpers.getObjectField(wamCall, "callPeerPlatform");
+        if (platform != null) sb.append("Platform: ").append(platform).append("\n");
+        var wppVersion = (String) XposedHelpers.getObjectField(wamCall, "callPeerAppVersion");
+        if (wppVersion != null) sb.append("WhatsApp Version: ").append(wppVersion).append("\n");
+        Utils.showNotification("Call Information", sb.toString());
     }
 
     private void alwaysOnline() throws Exception {
