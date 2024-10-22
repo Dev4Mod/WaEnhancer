@@ -261,8 +261,8 @@
     <string name="voice_note_speed">语音笔记速度</string>
     <string name="select">选择</string>
     <string name="search_contacts">搜索联系人</string>
-    <string name="contact_block_list">被拦截的联系人列表</string>
-    <string name="contact_white_list">被允许的联系人列表</string>
+    <string name="contact_block_list">只拦截黑名单列表</string>
+    <string name="contact_white_list">只允许白名单列表</string>
     <string name="no_contacts_selected">未选择联系人</string>
     <string name="contact_were_selected">已选择 %d 个联系人</string>
     <string name="standard">标准</string>
