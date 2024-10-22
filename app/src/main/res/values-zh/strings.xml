@@ -126,14 +126,14 @@
     <string name="module_disabled">模块已禁用</string>
     <string name="whatsapp_in_background">WhatsApp 后台运行中</string>
     <string name="whatsapp_is_not_running_or_has_not_been_activated_in_lsposed">Whatsapp 未运行或未在 Lsposed 中激活</string>
-    <string name="business_is_not_running_or_has_not_been_activated_in_lsposed">服务未运行或尚未在 Lsposed 中激活</string>
+    <string name="business_is_not_running_or_has_not_been_activated_in_lsposed">WhatsApp Business（企业版）未运行或尚未在 Lsposed 中激活</string>
     <string name="restart_wpp">需要重启 WhatsApp 才能使 Wa Enhancer 中的更改生效。\n\n您要重启吗？</string>
     <string name="version_s_not_listed">版本 %s 不在支持的版本列表中！\n请使用支持的 WhatsApp 版本！</string>
     <string name="media">媒体</string>
     <string name="show_button_to_send_blue_tick">显示发送蓝色勾号的按钮</string>
     <string name="show_button_to_send_blue_tick_sum">显示发送蓝色勾号的按钮（手动标记为已读/已查看）</string>
     <string name="send_blue_tick">标记为已读/已查看</string>
-    <string name="business_in_background">后台服务</string>
+    <string name="business_in_background">WhatsApp Business（企业版）后台运行中</string>
     <string name="sending_read_blue_tick">正在发送蓝色勾号（标记为已读/已查看）</string>
     <string name="enable_facebook_style_for_status">启用 Facebook 风格的“动态”</string>
     <string name="enable_facebook_style_for_status_sum">将原有的"动态"样式更改为 Facebook 风格</string>
@@ -172,7 +172,7 @@
     <string name="device_name">设备名称</string>
     <string name="disable_metaai">禁用 Meta Ai 功能</string>
     <string name="disable_metaai_sum">仅为默认启用Meta AI的用户禁用Meta AI</string>
-    <string name="list_business">服务支持列表：</string>
+    <string name="list_business">WhatsApp Business（企业版）支持列表：</string>
     <string name="list_wpp">WhatsApp 支持列表：</string>
     <string name="title_image">图片</string>
     <string name="title_video">视频</string>
