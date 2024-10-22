@@ -11,8 +11,8 @@
     <string name="hidetag_sum">转发消息时该消息不携带“已转发”标签</string>
     <string name="hidestatusview">隐藏查看“动态”行为</string>
     <string name="hidestatusview_sum">查看其他用户“动态”时不会被知道</string>
-    <string name="hideread">隐藏蓝色勾号（已读回执）</string>
-    <string name="hideread_sum">在其他用户不知情的情况下查看消息（不发送已读回执）</string>
+    <string name="hideread">不发送蓝色勾号（已读回执）</string>
+    <string name="hideread_sum">在其他用户不知情的情况下查看消息</string>
     <string name="perso">个性化</string>
     <string name="segundosnahora">显示时间秒数</string>
     <string name="segundosnahora_sum">在WhatsApp应用中任何时间戳旁显示秒数</string>
@@ -22,8 +22,8 @@
     <string name="novotema_sum">将颜色和图标主题更改为新的WhatsApp主题</string>
     <string name="antirevokestatus">防止“动态”删除</string>
     <string name="antirevokestatus_sum">查看联系人已删除的“动态”</string>
-    <string name="hidereceipt">隐藏消息已送达</string>
-    <string name="hidereceipt_sum">联系人不会知道他们的消息已发送给您\n（警告：可能会导致接收消息延迟）</string>
+    <string name="hidereceipt">不发送两个灰色勾号（消息已送达）</string>
+    <string name="hidereceipt_sum">联系人不会知道他们的消息已经发送给您\n（警告：可能会导致接收消息延迟）</string>
     <string name="ampm">12小时制时间</string>
     <string name="statusdowload">下载和分享“动态”</string>
     <string name="statusdowload_sum">显示两个按钮用于分享和下载“动态”</string>
@@ -66,7 +66,7 @@
     <string name="separate_groups">聊天分组</string>
     <string name="separate_groups_sum">按以下方式划分聊天：群组、私聊、动态、通话、社区</string>
     <string name="blueonreply">回复消息后发送蓝色勾号（已读回执）</string>
-    <string name="blueonreply_sum">回复消息后发送蓝色勾号（已读回执）\n（注意：必须启用“隐藏蓝色勾号”功能）</string>
+    <string name="blueonreply_sum">回复消息后发送蓝色勾号（已读回执）\n（注意：必须启用“不发送蓝色勾号”功能）</string>
     <string name="hide_archived_chat">隐藏已归档的聊天</string>
     <string name="hide_archived_chat_sum">隐藏已归档的聊天，要访问，请单击 5 次或按住主页标题中的“WhatsApp”标题</string>
     <string name="hide_once_view_seen">隐藏已浏览阅后即删</string>
@@ -184,7 +184,7 @@
     <string name="toast_on_delete_sum">如果任何联系人删除任何消息，则显示通知提示</string>
     <string name="enable_top_navigation">启用顶部导航栏</string>
     <string name="enable_top_navigation_sum">激活旧导航栏（将导航栏移到顶部）</string>
-    <string name="hideread_group">隐藏组中的蓝色勾号（已读回执）</string>
+    <string name="hideread_group">不在群组中发送蓝色勾号（已读回执）</string>
     <string name="hideread_group_sum">在其他用户不知情的情况下查看群组中的消息</string>
     <string name="show_freezeLastSeen_button">显示冻结最后上线时间按钮</string>
     <string name="show_freezeLastSeen_sum">在主页工具栏上显示“冻结最后上线时间”按钮。</string>
@@ -300,7 +300,7 @@
     <string name="license_desc">该项目根据 GNU 许可证授权 - 有关详细信息，请参阅 LICENSE 文件。\n\n注意：请负责任地使用 Wa Enhancer，并遵守您正在修改的应用程序的条款和条件。滥用此工具可能会导致法律后果。</string>
     <string name="select_a_color">选择颜色</string>
     <string name="custom_appearance">自定义外观</string>
-    <string name="custom_filters_sum">通过 ID 和自定义 CSS 激活过滤器</string>
+    <string name="custom_filters_sum">自定义 CSS 和通过 ID 过滤</string>
     <string name="click_times">点击 WhatsApp 标题 5 次</string>
     <string name="hold_title">按住 WhatsApp 标题</string>
     <string name="read_all_mark_as_read">全部已读（标记为已读)</string>
