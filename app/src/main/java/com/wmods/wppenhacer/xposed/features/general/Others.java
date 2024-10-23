@@ -239,7 +239,7 @@ public class Others extends Feature {
         if (platform != null) sb.append(String.format(Utils.getApplication().getString(ResId.string.platform_s), platform)).append("\n");
         var wppVersion = (String) XposedHelpers.getObjectField(wamCall, "callPeerAppVersion");
         if (wppVersion != null) sb.append(String.format(Utils.getApplication().getString(ResId.string.wpp_version_s), wppVersion)).append("\n");
-        Utils.showNotification(Utils.getApplication().getString(ResId.string.call_information_s), sb.toString());
+        Utils.showNotification(Utils.getApplication().getString(ResId.string.call_information), sb.toString());
     }
 
     private void alwaysOnline() throws Exception {
