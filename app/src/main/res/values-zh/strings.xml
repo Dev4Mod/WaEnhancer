@@ -281,7 +281,7 @@
     <string name="audio_transcription_sum">启用原生 WhatsApp 语音转文字（检查连接菜单以了解转文字选项）</string>
     <string name="viewed_your_status">%s 查看了你的动态</string>
     <string name="viewed_your_message">%s 查看了你的消息</string>
-    <string name="old_statuses">旧式状态</string>
+    <string name="old_statuses">旧版动态界面</string>
     <string name="old_statuses_sum">更改为垂直且无频道的旧版动态界面（注意：可能会导致界面卡顿）</string>
     <string name="force_english">强制使用英文 Wa Enhancer</string>
     <string name="select_status_type">选择动态类型</string>
