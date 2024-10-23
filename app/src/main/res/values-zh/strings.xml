@@ -394,7 +394,7 @@
     <string name="additional_call_information">其他通话信息</string>
     <string name="additional_call_information_sum">通话结束后收到包含更多信息的通知</string>
     <string name="contact_s">联系人：%s</string>
-    <string name="phone_number_s">手机号：%s</string>
+    <string name="phone_number_s">手机号：+%s</string>
     <string name="country_s">国家：%s</string>
     <string name="city_s">城市：%s</string>
     <string name="ip_s">IP：%s</string>

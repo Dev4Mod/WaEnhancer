@@ -396,7 +396,7 @@
     <string name="additional_call_information">Additional call information</string>
     <string name="additional_call_information_sum">Receive a notification with additional information after the call ends</string>
     <string name="contact_s">Contact: %s</string>
-    <string name="phone_number_s">Number: %s</string>
+    <string name="phone_number_s">Number: +%s</string>
     <string name="country_s">Country: %s</string>
     <string name="city_s">City: %s</string>
     <string name="ip_s">IP: %s</string>
