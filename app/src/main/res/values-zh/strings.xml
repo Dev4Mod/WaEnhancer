@@ -222,8 +222,8 @@
     <string name="show_toast_on_contact_online_sum">联系人在线时显示弹窗提示</string>
     <string name="new_context_menu_ui">新版上下文菜单 UI</string>
     <string name="new_context_menu_ui_sum">新版 iOS 风格的消息上下文菜单将被启用。</string>
-    <string name="filter_items_by_id">按 ID 过滤项目</string>
-    <string name="filter_items_by_id_sum">按 ID 名称过滤项目</string>
+    <string name="filter_items_by_id">通过 ID 过滤元素</string>
+    <string name="filter_items_by_id_sum">通过 ID 名称过滤元素</string>
     <string name="custom_theme_css">自定义 CSS 主题</string>
     <string name="custom_theme_css_sum">使用 CSS 样式自定义您的 WhatsApp</string>
     <string name="antidisappearing">防止信息消失</string>
@@ -294,13 +294,13 @@
     <string name="go_to_telegram">前往Telegram</string>
     <string name="go_to_github">前往Github</string>
     <string name="donate">捐赠</string>
-    <!-- <string name="support">Support</string> -->
+    <string name="support">支持</string>
     <string name="support_desc">如果您遇到任何问题或对 Wa Enhancer 有疑问，请访问 Telegram。</string>
     <string name="license">执照</string>
     <string name="license_desc">该项目根据 GNU 许可证授权 - 有关详细信息，请参阅 LICENSE 文件。\n\n注意：请负责任地使用 Wa Enhancer，并遵守您正在修改的应用程序的条款和条件。滥用此工具可能会导致法律后果。</string>
     <string name="select_a_color">选择颜色</string>
     <string name="custom_appearance">自定义外观</string>
-    <string name="custom_filters_sum">自定义 CSS 和通过 ID 过滤</string>
+    <string name="custom_filters_sum">自定义 CSS 和通过 ID 删除元素</string>
     <string name="click_times">点击 WhatsApp 标题 5 次</string>
     <string name="hold_title">按住 WhatsApp 标题</string>
     <string name="read_all_mark_as_read">全部已读（标记为已读)</string>
