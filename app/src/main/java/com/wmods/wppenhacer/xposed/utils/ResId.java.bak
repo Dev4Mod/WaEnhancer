@@ -91,14 +91,6 @@ public class ResId {
         public static int custom_privacy;
         public static int custom_privacy_sum;
         public static int block_call;
-        public static int contact;
-        public static int phone_number;
-        public static int country;
-        public static int city;
-        public static int ip;
-        public static int platform;
-        public static int wpp_version;
-        public static int call_information;
     }
 
     public static class array {
