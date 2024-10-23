@@ -221,8 +221,8 @@ public class Others extends Feature {
 
         var contact = WppCore.getContactName(userJid);
         if (!TextUtils.isEmpty(contact))
-            sb.append("Contact: ").append(contact).append("\n");
-        sb.append("Number: ").append("+").append(WppCore.stripJID(WppCore.getRawString(userJid))).append("\n");
+            sb.append(Utils.getApplication().getString(ResId.string.contact)).append(": ").append(contact).append("\n");
+        sb.append(Utils.getApplication().getString(ResId.string.phone_number)).append(": ").append("+").append(WppCore.stripJID(WppCore.getRawString(userJid))).append("\n");
 
         var ip = (String) XposedHelpers.getObjectField(wamCall, "callPeerIpStr");
         if (ip != null) {
@@ -233,15 +233,15 @@ public class Others extends Feature {
             var json = new JSONObject(content);
             var country = json.getString("country");
             var city = json.getString("city");
-            sb.append("Country: ").append(country).append("\n");
-            sb.append("City: ").append(city).append("\n");
-            sb.append("IP: ").append(ip).append("\n");
+            sb.append(Utils.getApplication().getString(ResId.string.country)).append(": ").append(country).append("\n");
+            sb.append(Utils.getApplication().getString(ResId.string.city)).append(": ").append(city).append("\n");
+            sb.append(Utils.getApplication().getString(ResId.string.ip)).append(": ").append(ip).append("\n");
         }
         var platform = (String) XposedHelpers.getObjectField(wamCall, "callPeerPlatform");
-        if (platform != null) sb.append("Platform: ").append(platform).append("\n");
+        if (platform != null) sb.append(Utils.getApplication().getString(ResId.string.platform)).append(": ").append(platform).append("\n");
         var wppVersion = (String) XposedHelpers.getObjectField(wamCall, "callPeerAppVersion");
-        if (wppVersion != null) sb.append("WhatsApp Version: ").append(wppVersion).append("\n");
-        Utils.showNotification("Call Information", sb.toString());
+        if (wppVersion != null) sb.append(Utils.getApplication().getString(ResId.string.wpp_version)).append(": ").append(wppVersion).append("\n");
+        Utils.showNotification(Utils.getApplication().getString(ResId.string.call_information), sb.toString());
     }
 
     private void alwaysOnline() throws Exception {

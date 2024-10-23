@@ -393,4 +393,12 @@
     <string name="always_online_sum">即使你最小化WhatsApp，仍然显示你在线（如果你将其从最近使用的应用中移除，则无法使用）。</string>
     <string name="additional_call_information">其他通话信息</string>
     <string name="additional_call_information_sum">通话结束后收到包含更多信息的通知</string>
+    <string name="contact">联系人</string>
+    <string name="phone_number">手机号</string>
+    <string name="country">国家</string>
+    <string name="city">城市</string>
+    <string name="ip">IP</string>
+    <string name="platform">平台</string>
+    <string name="wpp_version">WhatsApp 版本</string>
+    <string name="call_information">通话信息</string>
 </resources>

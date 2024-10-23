@@ -395,4 +395,12 @@
     <string name="always_online_sum">Show you online even if you minimize WhatsApp (Doesn\'t work if you remove it from recents)</string>
     <string name="additional_call_information">Additional call information</string>
     <string name="additional_call_information_sum">Receive a notification with additional information after the call ends</string>
+    <string name="contact">Contact</string>
+    <string name="phone_number">Number</string>
+    <string name="country">Country</string>
+    <string name="city">City</string>
+    <string name="ip">IP</string>
+    <string name="platform">Platform</string>
+    <string name="wpp_version">WhatsApp Version</string>
+    <string name="call_information">Call Information</string>
 </resources>
