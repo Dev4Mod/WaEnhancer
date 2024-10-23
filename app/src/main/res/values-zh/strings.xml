@@ -240,7 +240,7 @@
     <string name="enable_media_preview_sum">添加一个按钮用于预览临时文件中的媒体（无需永久下载）</string>
     <string name="new_ui_group_filter">新版分组 UI</string>
     <string name="new_ui_group_filter_sum">在主屏幕上添加一个新过滤器，以区分群组和对话。</string>
-    <string name="call_blocking_type">来电拦截类型</string>
+    <string name="call_blocking_type">来电拦截方式</string>
     <string name="call_blocking_type_sum">选择拦截来电的方法。</string>
     <string name="call_type_buttons_no_internet">无网络</string>
     <string name="call_type_buttons_declined">来电被拒绝</string>
