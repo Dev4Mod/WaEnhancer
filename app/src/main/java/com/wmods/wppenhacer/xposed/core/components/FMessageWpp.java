@@ -3,6 +3,7 @@ package com.wmods.wppenhacer.xposed.core.components;
 import com.wmods.wppenhacer.xposed.core.devkit.Unobfuscator;
 import com.wmods.wppenhacer.xposed.utils.ReflectionUtils;
 
+import java.io.File;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 
@@ -21,6 +22,7 @@ public class FMessageWpp {
     private static Method messageWithMediaMethod;
     private static Field mediaTypeField;
     private static Method getOriginalMessageKey;
+    private static Class abstractMediaMessageClass;
     private final Object fmessage;
 
     public FMessageWpp(Object fMessage) {
@@ -47,6 +49,7 @@ public class FMessageWpp {
         deviceJidMethod = ReflectionUtils.findMethodUsingFilter(TYPE, method -> method.getReturnType().equals(XposedHelpers.findClass("com.whatsapp.jid.DeviceJid", classLoader)));
         mediaTypeField = Unobfuscator.loadMediaTypeField(classLoader);
         getOriginalMessageKey = Unobfuscator.loadOriginalMessageKey(classLoader);
+        abstractMediaMessageClass = Unobfuscator.loadAbstractMediaMessageClass(classLoader);
     }
 
     public Object getUserJid() {
@@ -108,6 +111,31 @@ public class FMessageWpp {
             XposedBridge.log(e);
             return null;
         }
+    }
+
+    public boolean isMediaFile() {
+        try {
+            return abstractMediaMessageClass.isInstance(fmessage);
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    public File getMediaFile() {
+        try {
+            if (!isMediaFile()) return null;
+            for (var field : abstractMediaMessageClass.getDeclaredFields()) {
+                if (field.getType().isPrimitive()) continue;
+                var fileField = ReflectionUtils.getFieldByType(field.getType(), File.class);
+                if (fileField != null) {
+                    var mediaFile = ReflectionUtils.getField(field, fmessage);
+                    return (File) fileField.get(mediaFile);
+                }
+            }
+        } catch (Exception e) {
+            XposedBridge.log(e);
+        }
+        return null;
     }
 
 

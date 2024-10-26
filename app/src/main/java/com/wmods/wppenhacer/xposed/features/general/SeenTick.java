@@ -280,28 +280,25 @@ public class SeenTick extends Feature {
     private void hookViewOnceScreen(int ticktype) throws Exception {
         var menuMethod = Unobfuscator.loadViewOnceDownloadMenuMethod(classLoader);
         logDebug(Unobfuscator.getMethodDescriptor(menuMethod));
-        var menuIntField = Unobfuscator.loadViewOnceDownloadMenuField(classLoader);
-        logDebug(Unobfuscator.getFieldDescriptor(menuIntField));
-        var classThreadMessage = Unobfuscator.loadFMessageClass(classLoader);
 
         XposedBridge.hookMethod(menuMethod, new XC_MethodHook() {
             @Override
             @SuppressLint("DiscouragedApi")
             protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-                var id = XposedHelpers.getIntField(param.thisObject, menuIntField.getName());
-                if (id == 3 || id == 0) {
-                    Menu menu = (Menu) param.args[0];
-                    MenuItem item = menu.add(0, 0, 0, ResId.string.send_blue_tick).setIcon(Utils.getID("ic_notif_mark_read", "drawable"));
-                    if (ticktype == 1) item.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
-                    item.setOnMenuItemClickListener(item1 -> {
-                        var messageField = ReflectionUtils.getFieldByExtendType(menuMethod.getDeclaringClass(), classThreadMessage);
-                        var messageObject = XposedHelpers.getObjectField(param.thisObject, messageField.getName());
-                        sendBlueTickMedia(messageObject, true);
-                        Utils.showToast(Utils.getApplication().getString(ResId.string.sending_read_blue_tick), Toast.LENGTH_SHORT);
-                        return true;
-                    });
-                }
-
+                var messageField = ReflectionUtils.getFieldByExtendType(menuMethod.getDeclaringClass(), FMessageWpp.TYPE);
+                if (messageField == null) return;
+                var fMessage = new FMessageWpp(messageField.get(param.thisObject));
+                var id = fMessage.getMediaType();
+                // check media is view once
+                if (id != 42 && id != 43) return;
+                Menu menu = (Menu) param.args[0];
+                MenuItem item = menu.add(0, 0, 0, ResId.string.send_blue_tick).setIcon(Utils.getID("ic_notif_mark_read", "drawable"));
+                if (ticktype == 1) item.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
+                item.setOnMenuItemClickListener(item1 -> {
+                    sendBlueTickMedia(fMessage.getObject(), true);
+                    Utils.showToast(Utils.getApplication().getString(ResId.string.sending_read_blue_tick), Toast.LENGTH_SHORT);
+                    return true;
+                });
             }
         });
 

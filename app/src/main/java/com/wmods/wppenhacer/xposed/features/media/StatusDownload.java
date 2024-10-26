@@ -14,15 +14,12 @@ import androidx.annotation.NonNull;
 import com.wmods.wppenhacer.xposed.core.Feature;
 import com.wmods.wppenhacer.xposed.core.WppCore;
 import com.wmods.wppenhacer.xposed.core.components.FMessageWpp;
-import com.wmods.wppenhacer.xposed.core.devkit.Unobfuscator;
 import com.wmods.wppenhacer.xposed.features.general.MenuStatus;
 import com.wmods.wppenhacer.xposed.utils.MimeTypeUtils;
-import com.wmods.wppenhacer.xposed.utils.ReflectionUtils;
 import com.wmods.wppenhacer.xposed.utils.ResId;
 import com.wmods.wppenhacer.xposed.utils.Utils;
 
 import java.io.File;
-import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Collections;
 
@@ -31,8 +28,6 @@ import de.robv.android.xposed.XposedHelpers;
 
 public class StatusDownload extends Feature {
 
-    private Field fieldFile;
-
     public StatusDownload(ClassLoader loader, XSharedPreferences preferences) {
         super(loader, preferences);
     }
@@ -40,7 +35,6 @@ public class StatusDownload extends Feature {
     public void doHook() throws Exception {
         if (!prefs.getBoolean("downloadstatus", false)) return;
 
-        fieldFile = Unobfuscator.loadStatusDownloadFileField(classLoader);
 
         var downloadStatus = new MenuStatus.MenuItemStatus() {
 
@@ -48,6 +42,7 @@ public class StatusDownload extends Feature {
             public MenuItem addMenu(Menu menu, FMessageWpp fMessage) {
                 if (menu.findItem(ResId.string.download) != null) return null;
                 if (fMessage.getKey().isFromMe) return null;
+                if (!fMessage.isMediaFile()) return null;
                 return menu.add(0, ResId.string.download, 0, ResId.string.download);
             }
 
@@ -78,15 +73,15 @@ public class StatusDownload extends Feature {
 
     private void sharedStatus(FMessageWpp fMessageWpp) {
         try {
-            var fileData = XposedHelpers.getObjectField(fMessageWpp.getObject(), "A01");
-            if (!fieldFile.getDeclaringClass().isInstance(fileData)) {
+            if (!fMessageWpp.isMediaFile()) {
+
                 Intent intent = new Intent();
                 intent.setClassName(Utils.getApplication().getPackageName(), "com.whatsapp.textstatuscomposer.TextStatusComposerActivity");
                 intent.putExtra("android.intent.extra.TEXT", fMessageWpp.getMessageStr());
                 WppCore.getCurrentActivity().startActivity(intent);
                 return;
             }
-            var file = (File) ReflectionUtils.getField(fieldFile, fileData);
+            var file = fMessageWpp.getMediaFile();
             Intent intent = new Intent();
             intent.setClassName(Utils.getApplication().getPackageName(), "com.whatsapp.mediacomposer.MediaComposerActivity");
             intent.putExtra("jids", new ArrayList<>(Collections.singleton("status@broadcast")));
@@ -100,14 +95,7 @@ public class StatusDownload extends Feature {
 
     private void downloadFile(FMessageWpp fMessage) {
         try {
-            Field fieldFileInMessage =  ReflectionUtils.getFieldByType(fMessage.getObject().getClass(), fieldFile.getDeclaringClass());
-            if (fieldFileInMessage == null) {
-                Utils.showToast(Utils.getApplication().getString(ResId.string.msg_text_status_not_downloadable), Toast.LENGTH_SHORT);
-                return;
-            }
-
-            var fileData = XposedHelpers.getObjectField(fMessage.getObject(), fieldFileInMessage.getName());
-            var file = (File) ReflectionUtils.getField(fieldFile, fileData);
+            var file = fMessage.getMediaFile();
             var userJid = fMessage.getUserJid();
             var fileType = file.getName().substring(file.getName().lastIndexOf(".") + 1);
             var destination = getPathDestination(file);
@@ -116,8 +104,8 @@ public class StatusDownload extends Feature {
             var error = Utils.copyFile(file, destinationFile);
             if (TextUtils.isEmpty(error)) {
                 Utils.showToast(Utils.getApplication().getString(ResId.string.saved_to) + destinationFile.getAbsolutePath(), Toast.LENGTH_SHORT);
-                log("Saved to: " + destinationFile.getAbsolutePath());
             } else {
+
                 Utils.showToast(Utils.getApplication().getString(ResId.string.error_when_saving_try_again) + ": " + error, Toast.LENGTH_SHORT);
             }
         } catch (Throwable e) {

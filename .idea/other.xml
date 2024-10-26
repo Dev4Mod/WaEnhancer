@@ -323,17 +323,6 @@
           <option name="screenX" value="1080" />
           <option name="screenY" value="2424" />
         </PersistentDeviceSelectionData>
-        <PersistentDeviceSelectionData>
-          <option name="api" value="29" />
-          <option name="brand" value="samsung" />
-          <option name="codename" value="x1q" />
-          <option name="id" value="x1q" />
-          <option name="manufacturer" value="Samsung" />
-          <option name="name" value="Galaxy S20" />
-          <option name="screenDensity" value="480" />
-          <option name="screenX" value="1440" />
-          <option name="screenY" value="3200" />
-        </PersistentDeviceSelectionData>
       </list>
     </option>
   </component>

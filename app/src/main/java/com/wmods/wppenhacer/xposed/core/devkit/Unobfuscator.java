@@ -31,7 +31,6 @@ import org.luckypray.dexkit.result.MethodDataList;
 import org.luckypray.dexkit.result.UsingFieldData;
 import org.luckypray.dexkit.util.DexSignUtil;
 
-import java.io.File;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
@@ -517,11 +516,14 @@ public class Unobfuscator {
         });
     }
 
-    public synchronized static Class<?> loadStatusDownloadMediaClass(ClassLoader classLoader) throws Exception {
+
+    public synchronized static Class<?> loadMenuManagerClass(ClassLoader classLoader) throws Exception {
         return UnobfuscatorCache.getInstance().getClass(classLoader, () -> {
-            var clazz = findFirstClassUsingStrings(classLoader, StringMatchType.Contains, "static.whatsapp.net/downloadable?category=PSA");
-            if (clazz == null) throw new Exception("StatusDownloadMedia class not found");
-            return clazz;
+            var methods = findAllMethodUsingStrings(classLoader, StringMatchType.Contains, "MenuPopupHelper cannot be used without an anchor");
+            for (var method : methods) {
+                if (method.getReturnType() == void.class) return method.getDeclaringClass();
+            }
+            throw new Exception("MenuManager class not found");
         });
     }
 
@@ -531,43 +533,6 @@ public class Unobfuscator {
             var methods = dexkit.findMethod(new FindMethod().matcher(new MethodMatcher().addUsingNumber(id)));
             if (methods.isEmpty()) throw new Exception("MenuStatus method not found");
             return methods.get(0).getMethodInstance(loader);
-        });
-    }
-
-    public synchronized static Field loadStatusDownloadFileField(ClassLoader classLoader) throws Exception {
-        return UnobfuscatorCache.getInstance().getField(classLoader, () -> {
-            var clazz = loadStatusDownloadMediaClass(classLoader);
-            for (Field clazzField : clazz.getFields()) {
-                var clazz2 = clazzField.getType();
-                var field = ReflectionUtils.getFieldByType(clazz2, File.class);
-                if (field != null) return field;
-            }
-
-            throw new Exception("StatusDownloadFile field not found");
-        });
-    }
-
-    public synchronized static Class<?> loadStatusDownloadSubMenuClass(ClassLoader classLoader) throws Exception {
-        return UnobfuscatorCache.getInstance().getClass(classLoader, () -> {
-            var classes = dexkit.findClass(
-                    new FindClass().matcher(
-                            new ClassMatcher().addMethod(
-                                    new MethodMatcher()
-                                            .addUsingString("MenuPopupHelper", StringMatchType.Contains)
-                                            .returnType(void.class)
-                            )
-                    )
-            );
-            if (classes.isEmpty()) throw new Exception("StatusDownloadSubMenu method not found");
-            return classes.get(0).getInstance(classLoader);
-        });
-    }
-
-    public synchronized static Class<?> loadStatusDownloadMenuClass(ClassLoader classLoader) throws Exception {
-        return UnobfuscatorCache.getInstance().getClass(classLoader, () -> {
-            var clazz = findFirstClassUsingStrings(classLoader, StringMatchType.Contains, "android:menu:expandedactionview");
-            if (clazz == null) throw new Exception("StatusDownloadMenu class not found");
-            return clazz;
         });
     }
 
@@ -631,53 +596,6 @@ public class Unobfuscator {
         });
     }
 
-    public synchronized static Field loadViewOnceDownloadMenuField(ClassLoader classLoader) throws Exception {
-        return UnobfuscatorCache.getInstance().getField(classLoader, () -> {
-            var method = loadViewOnceDownloadMenuMethod(classLoader);
-            var clazz = XposedHelpers.findClass("com.whatsapp.mediaview.MediaViewFragment", classLoader);
-            var methodData = dexkit.getMethodData(method);
-            var fields = methodData.getUsingFields();
-            for (UsingFieldData field : fields) {
-                Field field1 = field.getField().getFieldInstance(classLoader);
-                if (field1.getType() == int.class && field1.getDeclaringClass() == clazz) {
-                    return field1;
-                }
-            }
-            throw new Exception("ViewOnceDownloadMenu field not found");
-        });
-    }
-
-    public synchronized static Field loadViewOnceDownloadMenuField2(ClassLoader classLoader) throws Exception {
-        return UnobfuscatorCache.getInstance().getField(classLoader, () -> {
-            var methodData = dexkit.findMethod(new FindMethod().matcher(new MethodMatcher().addUsingString("photo_progress_fragment"))).get(0);
-            var clazz = methodData.getMethodInstance(classLoader).getDeclaringClass();
-            var fields = methodData.getUsingFields();
-            for (UsingFieldData field : fields) {
-                Field field1 = field.getField().getFieldInstance(classLoader);
-                if (field1.getType() == int.class && field1.getDeclaringClass() == clazz) {
-                    return field1;
-                }
-            }
-            throw new Exception("ViewOnceDownloadMenu field 2 not found");
-        });
-    }
-
-    /**
-     * @noinspection SimplifyOptionalCallChains
-     */
-    public synchronized static Method loadViewOnceDownloadMenuCallMethod(ClassLoader loader) throws Exception {
-        return UnobfuscatorCache.getInstance().getMethod(loader, () -> {
-            var clazz = XposedHelpers.findClass("com.whatsapp.mediaview.MediaViewFragment", loader);
-            var method = Arrays.stream(clazz.getDeclaredMethods()).filter(m ->
-                    ((m.getParameterCount() == 2 && Objects.equals(m.getParameterTypes()[1], int.class) && Objects.equals(m.getParameterTypes()[0], clazz))
-                            || (m.getParameterCount() == 1 && Objects.equals(m.getParameterTypes()[0], int.class))) &&
-                            Modifier.isPublic(m.getModifiers()) && Object.class.isAssignableFrom(m.getReturnType())
-            ).findFirst();
-            if (!method.isPresent())
-                throw new Exception("ViewOnceDownloadMenuCall method not found");
-            return method.get();
-        });
-    }
 
     // TODO: Methods and Classes for Change Colors
 
@@ -1778,4 +1696,14 @@ public class Unobfuscator {
             return cacheMsClass;
         });
     }
+
+    public static synchronized Class loadAbstractMediaMessageClass(ClassLoader loader) throws Exception {
+        return UnobfuscatorCache.getInstance().getClass(loader, () -> {
+            var fMessageClass = findFirstClassUsingStrings(loader, StringMatchType.Contains, "static.whatsapp.net/downloadable?category=PSA");
+            if (fMessageClass == null)
+                throw new RuntimeException("AbstractMediaMessage class not found");
+            return fMessageClass;
+        });
+    }
+
 }

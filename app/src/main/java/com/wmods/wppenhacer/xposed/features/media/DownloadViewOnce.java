@@ -9,8 +9,8 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 
 import com.wmods.wppenhacer.xposed.core.Feature;
+import com.wmods.wppenhacer.xposed.core.WppCore;
 import com.wmods.wppenhacer.xposed.core.components.FMessageWpp;
-import com.wmods.wppenhacer.xposed.core.db.MessageStore;
 import com.wmods.wppenhacer.xposed.core.devkit.Unobfuscator;
 import com.wmods.wppenhacer.xposed.utils.ReflectionUtils;
 import com.wmods.wppenhacer.xposed.utils.ResId;
@@ -46,45 +46,31 @@ public class DownloadViewOnce extends Feature {
         if (prefs.getBoolean("downloadviewonce", false)) {
 
             var menuMethod = Unobfuscator.loadViewOnceDownloadMenuMethod(classLoader);
-            logDebug(Unobfuscator.getMethodDescriptor(menuMethod));
-            var menuIntField = Unobfuscator.loadViewOnceDownloadMenuField(classLoader);
-            logDebug(Unobfuscator.getFieldDescriptor(menuIntField));
-            var initIntField = Unobfuscator.loadViewOnceDownloadMenuField2(classLoader);
-            logDebug(Unobfuscator.getFieldDescriptor(initIntField));
-            var callMethod = Unobfuscator.loadViewOnceDownloadMenuCallMethod(classLoader);
-            logDebug(Unobfuscator.getMethodDescriptor(callMethod));
-            var fileField = Unobfuscator.loadStatusDownloadFileField(classLoader);
-            logDebug(Unobfuscator.getFieldDescriptor(fileField));
-
             // Media Activity
             XposedBridge.hookMethod(menuMethod, new XC_MethodHook() {
                 @Override
                 @SuppressLint("DiscouragedApi")
                 protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-                    var id = XposedHelpers.getIntField(param.thisObject, menuIntField.getName());
-                    XposedBridge.log("ID: " + id);
-                    if (id == 3 || id == 0) {
-                        Menu menu = (Menu) param.args[0];
-                        MenuItem item = menu.add(0, 0, 0, ResId.string.download).setIcon(ResId.drawable.download);
-                        item.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
-                        item.setOnMenuItemClickListener(item1 -> {
-                            try {
-                                var i = XposedHelpers.getIntField(param.thisObject, initIntField.getName());
-                                var message = callMethod.getParameterCount() == 2 ? XposedHelpers.callMethod(param.thisObject, callMethod.getName(), param.thisObject, i) : XposedHelpers.callMethod(param.thisObject, callMethod.getName(), i);
-                                if (message != null) {
-                                    var fileData = XposedHelpers.getObjectField(message, "A01");
-                                    var file = (File) ReflectionUtils.getField(fileField, fileData);
-                                    var userJid = new FMessageWpp(message).getKey().remoteJid;
-                                    downloadFile(userJid, file);
-                                }
-                            } catch (Exception e) {
-                                Utils.showToast(e.getMessage(), Toast.LENGTH_LONG);
-                            }
-                            return true;
-                        });
-                    }
-
+                    var fmessageField = ReflectionUtils.getFieldByExtendType(param.thisObject.getClass(), FMessageWpp.TYPE);
+                    if (fmessageField == null) return;
+                    var fMessage = new FMessageWpp(fmessageField.get(param.thisObject));
+                    // check media is view once
+                    if (fMessage.getMediaType() != 42 && fMessage.getMediaType() != 43) return;
+                    Menu menu = (Menu) param.args[0];
+                    MenuItem item = menu.add(0, 0, 0, ResId.string.download).setIcon(ResId.drawable.download);
+                    item.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
+                    item.setOnMenuItemClickListener(item1 -> {
+                        try {
+                            var file = fMessage.getMediaFile();
+                            downloadFile(fMessage.getKey().remoteJid, file);
+                        } catch (Exception e) {
+                            Utils.showToast(e.getMessage(), Toast.LENGTH_LONG);
+                        }
+                        return true;
+                    });
                 }
+
+
             });
             // View Once Activity
             XposedHelpers.findAndHookMethod("com.whatsapp.messaging.ViewOnceViewerActivity", classLoader, "onCreateOptionsMenu", classLoader.loadClass("android.view.Menu"),
@@ -96,14 +82,14 @@ public class DownloadViewOnce extends Feature {
                             item.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
                             item.setOnMenuItemClickListener(item1 -> {
                                 CompletableFuture.runAsync(() -> {
-                                    var messageStore = MessageStore.getInstance();
                                     var keyClass = FMessageWpp.Key.TYPE;
                                     var fieldType = ReflectionUtils.getFieldByType(param.thisObject.getClass(), keyClass);
-                                    var keyMessage = new FMessageWpp.Key(ReflectionUtils.getField(fieldType, param.thisObject));
-                                    var id = messageStore.getIdfromKey(keyMessage.messageID);
-                                    var userJid = keyMessage.remoteJid;
-                                    var filePath = messageStore.getMediaFromID(id);
-                                    downloadFile(userJid, new File(filePath));
+                                    var keyMessageObj = ReflectionUtils.getField(fieldType, param.thisObject);
+                                    var fmessageObj = WppCore.getFMessageFromKey(keyMessageObj);
+                                    var fmessage = new FMessageWpp(fmessageObj);
+                                    var file = fmessage.getMediaFile();
+                                    var userJid = fmessage.getKey().remoteJid;
+                                    downloadFile(userJid, file);
                                 });
                                 return true;
                             });

@@ -36,23 +36,20 @@ public class AudioTranscript extends Feature {
 
         var transcribeMethod = Unobfuscator.loadTranscribeMethod(classLoader);
         var unkTranscript = Unobfuscator.loadUnkTranscript(classLoader);
-        var mediaClass = Unobfuscator.loadStatusDownloadMediaClass(classLoader);
-        var fileField = Unobfuscator.loadStatusDownloadFileField(classLoader);
 
         XposedBridge.hookMethod(transcribeMethod, new XC_MethodHook() {
             @Override
             protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
                 var pttTranscriptionRequest = param.args[0];
                 var fieldFMessage = ReflectionUtils.getFieldByExtendType(pttTranscriptionRequest.getClass(), FMessageWpp.TYPE);
-                var fmessage = fieldFMessage.get(pttTranscriptionRequest);
-                var field = mediaClass.getField("A01");
-                var mediaObj = field.get(fmessage);
-                File file = (File) fileField.get(mediaObj);
+                var fmessageObj = fieldFMessage.get(pttTranscriptionRequest);
+                var fmessage = new FMessageWpp(fmessageObj);
+                File file = fmessage.getMediaFile();
                 var callback = param.args[1];
                 var onComplete = ReflectionUtils.findMethodUsingFilter(callback.getClass(), method -> method.getParameterCount() == 4);
                 String transcript = runTranscript(file);
                 var unkTranscriptInstance = unkTranscript.getField("A00").get(null);
-                ReflectionUtils.callMethod(onComplete, callback, unkTranscriptInstance, fmessage, transcript, new ArrayList<>());
+                ReflectionUtils.callMethod(onComplete, callback, unkTranscriptInstance, fmessageObj, transcript, new ArrayList<>());
                 param.setResult(null);
             }
         });

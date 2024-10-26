@@ -10,9 +10,11 @@ import com.wmods.wppenhacer.xposed.core.components.FMessageWpp;
 import com.wmods.wppenhacer.xposed.core.devkit.Unobfuscator;
 import com.wmods.wppenhacer.xposed.utils.ReflectionUtils;
 
-import java.lang.reflect.Field;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
+import java.util.stream.Collectors;
 
 import de.robv.android.xposed.XC_MethodHook;
 import de.robv.android.xposed.XSharedPreferences;
@@ -30,19 +32,9 @@ public class MenuStatus extends Feature {
     @Override
     public void doHook() throws Throwable {
 
-        var mediaClass = Unobfuscator.loadStatusDownloadMediaClass(classLoader);
-        logDebug("Media class: " + mediaClass.getName());
-//        var menuStatusClass = Unobfuscator.loadMenuStatusClass(classLoader);
         var menuStatusMethod = Unobfuscator.loadMenuStatusMethod(classLoader);
         logDebug("MenuStatus method: " + menuStatusMethod.getName());
-        var fieldFile = Unobfuscator.loadStatusDownloadFileField(classLoader);
-        logDebug("File field: " + fieldFile.getName());
-        var clazzSubMenu = Unobfuscator.loadStatusDownloadSubMenuClass(classLoader);
-        logDebug("SubMenu class: " + clazzSubMenu.getName());
-        var clazzMenu = Unobfuscator.loadStatusDownloadMenuClass(classLoader);
-        logDebug("Menu class: " + clazzMenu.getName());
-        var menuField = ReflectionUtils.getFieldByType(clazzSubMenu, clazzMenu);
-        logDebug("Menu field: " + menuField.getName());
+        var menuManagerClass = Unobfuscator.loadMenuManagerClass(classLoader);
 
         Class<?> StatusPlaybackBaseFragmentClass = classLoader.loadClass("com.whatsapp.status.playback.fragment.StatusPlaybackBaseFragment");
         Class<?> StatusPlaybackContactFragmentClass = classLoader.loadClass("com.whatsapp.status.playback.fragment.StatusPlaybackContactFragment");
@@ -51,23 +43,11 @@ public class MenuStatus extends Feature {
         XposedBridge.hookMethod(menuStatusMethod, new XC_MethodHook() {
             @Override
             protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-                Object fragmentInstance;
-                Menu menu;
-                if (param.args[0] instanceof Menu) {
-                    menu = (Menu) param.args[0];
-                    fragmentInstance = param.thisObject;
-                } else {
-                    var clazz = param.thisObject.getClass();
-                    Field subMenuField = ReflectionUtils.findFieldUsingFilter(clazz, f -> f.getType() == Object.class && clazzSubMenu.isInstance(ReflectionUtils.getField(f, param.thisObject)));
-                    Object subMenu = ReflectionUtils.getField(subMenuField, param.thisObject);
-                    menu = (Menu) ReflectionUtils.getField(menuField, subMenu);
-                    var fragment = ReflectionUtils.findFieldUsingFilter(clazz, f -> StatusPlaybackBaseFragmentClass.isInstance(ReflectionUtils.getField(f, param.thisObject)));
-                    if (fragment == null) {
-                        logDebug("Fragment not found");
-                        return;
-                    }
-                    fragmentInstance = fragment.get(param.thisObject);
-                }
+                var fieldObjects = Arrays.stream(param.method.getDeclaringClass().getDeclaredFields()).map(field -> ReflectionUtils.getField(field, param.thisObject)).filter(Objects::nonNull).collect(Collectors.toList());
+                var menuManager = fieldObjects.stream().filter(menuManagerClass::isInstance).findFirst().orElse(null);
+                var menuField = ReflectionUtils.getFieldByExtendType(menuManagerClass, Menu.class);
+                var menu = (Menu) ReflectionUtils.getField(menuField, menuManager);
+                var fragmentInstance = fieldObjects.stream().filter(StatusPlaybackBaseFragmentClass::isInstance).findFirst().orElse(null);
 
                 var index = (int) XposedHelpers.getObjectField(fragmentInstance, "A00");
                 var listStatus = (List) listStatusField.get(fragmentInstance);
