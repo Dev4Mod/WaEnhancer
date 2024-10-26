@@ -11,6 +11,7 @@ import androidx.annotation.NonNull;
 import com.wmods.wppenhacer.xposed.core.Feature;
 import com.wmods.wppenhacer.xposed.core.devkit.Unobfuscator;
 import com.wmods.wppenhacer.xposed.features.general.Others;
+import com.wmods.wppenhacer.xposed.utils.ReflectionUtils;
 
 import org.json.JSONObject;
 
@@ -39,7 +40,12 @@ public class MediaQuality extends Feature {
             XposedBridge.hookMethod(jsonProperty, new XC_MethodHook() {
                 @Override
                 protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-                    if ((int) param.args[0] == 5550) {
+                    var index = ReflectionUtils.findIndexOfType(param.args, Integer.class);
+                    if (index == -1) {
+                        logDebug("PropsJson: index int not found");
+                        return;
+                    }
+                    if ((int) param.args[index] == 5550) {
                         var json = (JSONObject) param.getResult();
                         for (int i = 0; i < json.length(); i++) {
                             var key = (String) json.names().opt(i);
