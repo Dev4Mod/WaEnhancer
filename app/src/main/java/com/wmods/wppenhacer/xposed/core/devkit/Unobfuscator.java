@@ -544,36 +544,21 @@ public class Unobfuscator {
         for (MethodData m : listMethods) {
             var mInstance = m.getMethodInstance(classLoader);
             if (mInstance.getDeclaringClass().isInterface() && mInstance.getDeclaringClass().getMethods().length == 2) {
-                ClassDataList listClasses = dexkit.findClass(new FindClass().matcher(new ClassMatcher().addInterface(mInstance.getDeclaringClass().getName())));
+                ClassDataList listClasses = dexkit.findClass(FindClass.create().matcher(ClassMatcher.create().addInterface(mInstance.getDeclaringClass().getName())));
                 for (ClassData c : listClasses) {
                     Class<?> clazz = c.getInstance(classLoader);
-                    var resultMethod = Arrays.stream(clazz.getDeclaredMethods()).filter(m1 -> m1.getParameterCount() == 0 && m1.getReturnType().equals(int.class)).findFirst().orElse(null);
-                    if (resultMethod == null) continue;
-                    list.add(resultMethod);
+                    for (Method m2 : clazz.getDeclaredMethods()) {
+                        if (m2.getParameterCount() != 1 || m2.getParameterTypes()[0] != int.class || m2.getReturnType() != void.class)
+                            continue;
+                        list.add(m2);
+                    }
                 }
+                if (list.isEmpty()) throw new Exception("ViewOnce method not found");
                 return list.toArray(new Method[0]);
             }
         }
         throw new Exception("ViewOnce method not found");
 
-    }
-
-    public synchronized static Class loadViewOnceClass(ClassLoader loader) throws Exception {
-        var clazz = findFirstClassUsingStrings(loader, StringMatchType.Contains, "conversation/row/viewOnce/no file");
-        if (clazz == null) throw new Exception("ViewOnce class not found");
-        return clazz;
-    }
-
-    public synchronized static Method loadViewOnceStoreMethod(ClassLoader loader) throws Exception {
-        var method = findFirstMethodUsingStrings(loader, StringMatchType.Contains, "INSERT_VIEW_ONCE_SQL");
-        if (method == null) throw new Exception("ViewOnce class not found");
-        return method;
-    }
-
-    public synchronized static Method loadViewOnceChangeMethod(ClassLoader loader) throws Exception {
-        var method = findFirstMethodUsingStrings(loader, StringMatchType.Contains, "com.whatsapp.messaging.ViewOnceViewerActivity");
-        if (method == null) throw new Exception("ViewOnce class not found");
-        return method;
     }
 
 
