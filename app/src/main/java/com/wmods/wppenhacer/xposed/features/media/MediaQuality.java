@@ -81,7 +81,7 @@ public class MediaQuality extends Feature {
             var videoMethod = Unobfuscator.loadMediaQualityVideoMethod2(classLoader);
             logDebug(Unobfuscator.getMethodDescriptor(videoMethod));
 
-//            var targetFields = Unobfuscator.loadMediaQualityVideoFields(classLoader);
+            var fields = Unobfuscator.loadMediaQualityVideoFields(classLoader);
 
             XposedBridge.hookMethod(videoMethod, new XC_MethodHook() {
                 @SuppressLint("DefaultLocale")
@@ -89,31 +89,20 @@ public class MediaQuality extends Feature {
                 protected void afterHookedMethod(MethodHookParam param) throws Throwable {
                     if ((int) param.args[1] == 3) {
                         var resizeVideo = param.getResult();
-//                        var originalVieo = param.args[0];
-//                        if (prefs.getBoolean("video_real_resolution", false)) {
-//
-////                            var targetWidth = targetFields[3].getInt(resizeVideo);
-////                            var targetHeight = targetFields[4].getInt(resizeVideo);
-////                            var landscapeDest = targetWidth > targetHeight;
-//
-////                            var sourceWidth = targetFields[0].getInt(resizeVideo);
-////                            var sourceHeight = targetFields[1].getInt(resizeVideo);
-////                            var landscapeSource = sourceWidth > sourceHeight;
-//
-//                            var widthSrc = XposedHelpers.getIntField(originalVieo, "A05");
-//                            var heightSrc = XposedHelpers.getIntField(originalVieo, "A03");
-////                            var rotation = (landscapeSource != landscapeDest);
-////                            logDebug("[targetWidth] = " + targetWidth);
-////                            logDebug("[targetHeight] = " + targetHeight);
-//
-////                            logDebug(String.format("[sourceWidth][%s] = %d",targetFields[0].getName(), sourceWidth));
-////                            logDebug(String.format("[sourceHeight][%s] = %d",targetFields[1].getName(), sourceHeight));
-//
-////                            logDebug("[rotation] = " + rotation);
-//
-//                            targetFields[3].setInt(resizeVideo, widthSrc);
-//                            targetFields[4].setInt(resizeVideo, heightSrc);
-//                        }
+                        if (prefs.getBoolean("video_real_resolution", false)) {
+
+                            var sourceWidthField = fields.get("sourceWidth");
+                            var sourceHeightField = fields.get("sourceHeight");
+
+                            var sourceWidth = sourceWidthField.getInt(resizeVideo);
+                            var sourceHeight = sourceHeightField.getInt(resizeVideo);
+
+                            var targetWidthField = fields.get("targetWidth");
+                            var targetHeightField = fields.get("targetHeight");
+
+                            targetHeightField.setInt(resizeVideo, sourceHeight);
+                            targetWidthField.setInt(resizeVideo, sourceWidth);
+                        }
                         if (prefs.getBoolean("video_maxfps", false)) {
                             XposedHelpers.setIntField(resizeVideo, "A01", 60);
                         }

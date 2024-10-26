@@ -456,22 +456,19 @@ public class Unobfuscator {
         });
     }
 
-    public synchronized static Field[] loadMediaQualityVideoFields(ClassLoader classLoader) throws Exception {
-        var clazz = loadMediaQualityVideoMethod2(classLoader).getReturnType();
-        var method = dexkit.findMethod(FindMethod.create()
-                .searchPackages(List.of("X."))
-                .matcher(MethodMatcher.create().addUsingString("videotranscodequeue/uumos_cs"))
-        );
-        if (method.isEmpty()) throw new Exception("MediaQualityVideoTargetFields method not found");
-        var fields = method.get(0).getUsingFields();
-        ArrayList<Field> result = new ArrayList<>();
-        for (var field : fields) {
-            var realField = field.getField().getFieldInstance(classLoader);
-            if (realField.getDeclaringClass().equals(clazz)) result.add(realField);
+    public synchronized static HashMap<String, Field> loadMediaQualityVideoFields(ClassLoader classLoader) throws Exception {
+        var method = loadMediaQualityVideoMethod2(classLoader);
+        var methodString = method.getReturnType().getDeclaredMethod("toString");
+        var methodData = dexkit.getMethodData(methodString);
+        var usingFields = Objects.requireNonNull(methodData).getUsingFields();
+        var usingStrings = Objects.requireNonNull(methodData).getUsingStrings();
+        var result = new HashMap<String, Field>();
+        for (int i = 0; i < usingStrings.size(); i++) {
+            if (i == usingFields.size()) break;
+            var field = usingFields.get(i).getField().getFieldInstance(classLoader);
+            result.put(usingStrings.get(i), field);
         }
-        if (result.size() < 4)
-            throw new Exception("MediaQualityVideoTargetFields method not found");
-        return result.toArray(new Field[0]);
+        return result;
     }
 
     public synchronized static Class loadMediaQualityVideoLimitClass(ClassLoader classLoader) throws Exception {
