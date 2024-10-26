@@ -76,7 +76,12 @@ public class StatusDownload extends Feature {
             if (!fMessageWpp.isMediaFile()) {
 
                 Intent intent = new Intent();
-                intent.setClassName(Utils.getApplication().getPackageName(), "com.whatsapp.textstatuscomposer.TextStatusComposerActivity");
+                var textStatusComposerActivity = XposedHelpers.findClassIfExists("com.whatsapp.textstatuscomposer.TextStatusComposerActivity", classLoader);
+                if (textStatusComposerActivity != null) {
+                    intent.setClassName(Utils.getApplication().getPackageName(), "com.whatsapp.textstatuscomposer.TextStatusComposerActivity");
+                } else {
+                    intent.setClassName(Utils.getApplication().getPackageName(), "com.whatsapp.textstatuscomposer.TextStatusComposerActivityV2");
+                }
                 intent.putExtra("android.intent.extra.TEXT", fMessageWpp.getMessageStr());
                 WppCore.getCurrentActivity().startActivity(intent);
                 return;
