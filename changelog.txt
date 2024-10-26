@@ -1,8 +1,10 @@
-[CALL INFORMATION]
-* Added the phone number, contact name and WhatsApp version of the originating call.
+[FIXES]
+* Fixed resolution of the original video option
+* Fixed sharing text stories
+* Fixed all downloads options
 
-[SEEN TICK BUTTTONS]
-* Fixed the "Mark as seen" button not appearing for single view audios
+[IMPROVES]
+* Improved download hooks
 
 [WAE]
-* Updated Translations
+* Updated translations
