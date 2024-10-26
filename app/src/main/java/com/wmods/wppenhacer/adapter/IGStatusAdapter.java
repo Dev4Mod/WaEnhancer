@@ -97,7 +97,11 @@ public class IGStatusAdapter extends ArrayAdapter {
 
                 tabdialog.addTab(activity.getString(ResId.string.edit_text), iconEdit, (view) -> {
                     Intent A09 = new Intent();
-                    A09.setClassName(activity.getPackageName(), "com.whatsapp.textstatuscomposer.TextStatusComposerActivityV2");
+                    if (XposedHelpers.findClassIfExists("com.whatsapp.textstatuscomposer.TextStatusComposerActivity", activity.getClassLoader()) != null) {
+                        A09.setClassName(activity.getPackageName(), "com.whatsapp.textstatuscomposer.TextStatusComposerActivity");
+                    } else {
+                        A09.setClassName(activity.getPackageName(), "com.whatsapp.textstatuscomposer.TextStatusComposerActivityV2");
+                    }
                     activity.startActivity(A09);
                     dialog.dismissDialog();
                 });
