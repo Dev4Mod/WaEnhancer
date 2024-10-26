@@ -386,14 +386,14 @@ Harap gunakan versi WhatsApp yang didukung!</string>
     <string name="enable_wa_enhancer_button_sum">Tampilkan tombol di Layar Beranda untuk membuka Wa Enhancer</string>
     <string name="custom_privacy">Privasi Kustom</string>
     <string name="custom_privacy_sum">Aktifkan/Nonaktifkan Privasi Kustom</string>
-    <string name="custom_privacy_per_contact">Privasi Kustom per Kontak</string>
+    <string name="custom_privacy_per_contact">Privasi Khusus per Kontak</string>
     <string name="custom_privacy_per_contact_sum">Tampilkan tombol privasi khusus di layar informasi kontak</string>
     <string name="assemblyai">Aktifkan AssemblyAI</string>
     <string name="assemblyai_sum">Ganti transkripsi WhatsApp default dengan AssemblyAI</string>
     <string name="assemblyai_key">Kunci AssemblyAI</string>
     <string name="assemblyai_key_sum">Kunci akses API AssemblyAI (Masuk ke situs web dan buat akun untuk mendapatkan kunci Anda)</string>
-    <string name="google_translate">Aktifkan Google Terjemahan</string>
-    <string name="google_translate_sum">Ganti penerjemah asli WhatsApp dengan Google Terjemahan</string>
+    <string name="google_translate">Aktifkan Terjemahkan Google</string>
+    <string name="google_translate_sum">Ganti penerjemah asli WhatsApp dengan Terjemahan Google</string>
     <string name="show_contact_info">Tampilkan di info kontak</string>
     <string name="show_contact_info_menu">Tampilkan di menu info kontak</string>
     <string name="block_call">Blokir Panggilan</string>

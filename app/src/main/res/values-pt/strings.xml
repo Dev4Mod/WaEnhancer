@@ -388,8 +388,8 @@
     <string name="show_contact_info">Mostrar nas informações do contato</string>
     <string name="show_contact_info_menu">Mostrar no menu de informações de contato</string>
     <string name="block_call">Bloquear chamadas</string>
-    <string name="always_online">Always Online</string>
-    <string name="always_online_sum">Show you online even if you minimize WhatsApp (Doesn\'t work if you remove it from recents)</string>
-    <string name="additional_call_information">Additional call information</string>
-    <string name="additional_call_information_sum">Receive a notification with additional information after the call ends</string>
+    <string name="always_online">Sempre online</string>
+    <string name="always_online_sum">Fique sempre online mesmo que você minimize o WhatsApp. (OBSERVAÇÃO: Não funciona se removê-lo dos recentes)</string>
+    <string name="additional_call_information">Informações adicionais de chamada</string>
+    <string name="additional_call_information_sum">Receba uma notificação com informações adicionais após o término da chamada.</string>
 </resources>

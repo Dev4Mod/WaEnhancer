@@ -391,7 +391,7 @@
     <string name="show_contact_info_menu">הצג ב3 נקודות של פרטי איש הקשר</string>
     <string name="block_call">חסום שיחה</string>
     <string name="always_online">תמיד מחובר/ת</string>
-    <string name="always_online_sum">הראה שאתה מחובר בווצאפ תמיד גם אם אתה יוצא לאפליקציות אחרות (אבל הוא לא עובד אם אתה מסיר אותו מהכרטיסיות של האחרונים)</string>
+    <string name="always_online_sum">הראה שאתה תמיד מחובר בווצאפ - גם אם אתה יוצא מהווצאפ לאפליקציות אחרות (אך התכונה לא תעבוד אם אתה מסיר את הווצאפ מהכרטיסיות של האחרונים)</string>
     <string name="additional_call_information">מידע נוסף על שיחות</string>
     <string name="additional_call_information_sum">קבל התראה עם מידע נוסף לאחר סיום השיחה בווצאפ</string>
 </resources>

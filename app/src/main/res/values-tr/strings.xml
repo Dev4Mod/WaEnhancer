@@ -388,8 +388,8 @@
     <string name="show_contact_info">İletişim bilgilerinde göster</string>
     <string name="show_contact_info_menu">İletişim bilgileri menüsünde göster</string>
     <string name="block_call">Aramaları Engelle</string>
-    <string name="always_online">Always Online</string>
-    <string name="always_online_sum">Show you online even if you minimize WhatsApp (Doesn\'t work if you remove it from recents)</string>
-    <string name="additional_call_information">Additional call information</string>
-    <string name="additional_call_information_sum">Receive a notification with additional information after the call ends</string>
+    <string name="always_online">Daima Çevrimiçi</string>
+    <string name="always_online_sum">WhatsApp\'ı küçültseniz bile çevrimiçi olduğunuzu gösterin (Son kullanılanlardan kaldırırsanız çalışmaz)</string>
+    <string name="additional_call_information">Ek çağrı bilgisi</string>
+    <string name="additional_call_information_sum">Çağrı sona erdikten sonra ek bilgiler içeren bir bildirim al</string>
 </resources>
