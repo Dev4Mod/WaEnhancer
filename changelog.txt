@@ -1,10 +1,9 @@
-[FIXES]
-* Fixed resolution of the original video option
-* Fixed sharing text stories
-* Fixed all downloads options
+[IMPROVEMENTS]
+* Improvements in Anti View Once (Now there are no more opening problems)
+* Improvements in Call Privacy (Now custom privacy is compatible with "Blocking only unknown numbers"
 
-[IMPROVES]
-* Improved download hooks
+[UPDATE CHECKER]
+* Added update screen, now all releases of new versions of Telegram will appear on the WhatApp screen
 
 [WAE]
 * Updated translations
