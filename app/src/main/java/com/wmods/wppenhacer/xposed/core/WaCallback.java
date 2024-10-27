@@ -4,14 +4,9 @@ import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.Application;
 import android.os.Bundle;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-
-import com.wmods.wppenhacer.xposed.core.components.AlertDialogWpp;
-import com.wmods.wppenhacer.xposed.utils.ResId;
-import com.wmods.wppenhacer.xposed.utils.Utils;
 
 public class WaCallback implements Application.ActivityLifecycleCallbacks {
     @Override
@@ -32,20 +27,6 @@ public class WaCallback implements Application.ActivityLifecycleCallbacks {
     public void onActivityResumed(@NonNull Activity activity) {
         WppCore.mCurrentActivity = activity;
         WppCore.activities.add(activity);
-        if (WppCore.getPrivBoolean("need_restart", false)) {
-            WppCore.setPrivBoolean("need_restart", false);
-            try {
-                new AlertDialogWpp(activity).
-                        setMessage(activity.getString(ResId.string.restart_wpp)).
-                        setPositiveButton(activity.getString(ResId.string.yes), (dialog, which) -> {
-                            if (!Utils.doRestart(activity))
-                                Toast.makeText(activity, "Unable to rebooting activity", Toast.LENGTH_SHORT).show();
-                        })
-                        .setNegativeButton(activity.getString(ResId.string.no), null)
-                        .show();
-            } catch (Exception ignored) {
-            }
-        }
         triggerActivityState(activity, WppCore.ActivityChangeState.ChangeType.RESUME);
     }
 

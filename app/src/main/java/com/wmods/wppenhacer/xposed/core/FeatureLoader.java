@@ -180,12 +180,34 @@ public class FeatureLoader {
         FMessageWpp.init(loader);
         Utils.init(loader);
         WppCore.addListenerActivity((activity, state) -> {
-            XposedBridge.log("Activity: " + activity.getClass().getSimpleName() + " " + state);
+            // Check for Change Preferences
+            if (state == WppCore.ActivityChangeState.ChangeType.RESUME) {
+                checkUpdate(activity);
+            }
+
+            // Check for Update
             if (activity.getClass().getSimpleName().equals("HomeActivity") && state == WppCore.ActivityChangeState.ChangeType.START) {
-                XposedBridge.log("Starting UpdateChecker");
                 CompletableFuture.runAsync(new UpdateChecker(activity));
             }
         });
+
+    }
+
+    private static void checkUpdate(@NonNull Activity activity) {
+        if (WppCore.getPrivBoolean("need_restart", false)) {
+            WppCore.setPrivBoolean("need_restart", false);
+            try {
+                new AlertDialogWpp(activity).
+                        setMessage(activity.getString(ResId.string.restart_wpp)).
+                        setPositiveButton(activity.getString(ResId.string.yes), (dialog, which) -> {
+                            if (!Utils.doRestart(activity))
+                                Toast.makeText(activity, "Unable to rebooting activity", Toast.LENGTH_SHORT).show();
+                        })
+                        .setNegativeButton(activity.getString(ResId.string.no), null)
+                        .show();
+            } catch (Exception ignored) {
+            }
+        }
     }
 
     private static void registerReceivers() {
