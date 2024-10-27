@@ -22,9 +22,6 @@ import de.robv.android.xposed.XposedBridge;
 import de.robv.android.xposed.XposedHelpers;
 
 public class CallPrivacy extends Feature {
-    public CallPrivacy(@NonNull ClassLoader loader, @NonNull XSharedPreferences preferences) {
-        super(loader, preferences);
-    }
 
     /**
      * @noinspection unchecked
@@ -45,7 +42,7 @@ public class CallPrivacy extends Feature {
                 var callId = XposedHelpers.callMethod(callinfo, "getCallId");
                 var type = Integer.parseInt(prefs.getString("call_privacy", "0"));
                 Tasker.sendTaskerEvent(WppCore.getContactName(userJid), WppCore.stripJID(WppCore.getRawString(userJid)), "call_received");
-                var blockCall = checkCallBlock(userJid, type);
+                var blockCall = checkCallBlock(userJid, PrivacyType.getByValue(type));
                 if (!blockCall) return;
                 var clazzVoip = XposedHelpers.findClass("com.whatsapp.voipcalling.Voip", classLoader);
                 var rejectType = prefs.getString("call_type", "no_internet");
@@ -82,7 +79,7 @@ public class CallPrivacy extends Feature {
                 if (!prefs.getString("call_type", "no_internet").equals("no_internet")) return;
                 var userJid = param.args[0];
                 var type = Integer.parseInt(prefs.getString("call_privacy", "0"));
-                var block = checkCallBlock(userJid, type);
+                var block = checkCallBlock(userJid, PrivacyType.getByValue(type));
                 if (block) {
                     param.setResult(1);
                 }
@@ -92,27 +89,38 @@ public class CallPrivacy extends Feature {
 
     }
 
-    public boolean checkCallBlock(Object userJid, int type) throws IllegalAccessException, InvocationTargetException {
+
+    public CallPrivacy(@NonNull ClassLoader loader, @NonNull XSharedPreferences preferences) {
+        super(loader, preferences);
+    }
+
+    public boolean checkCallBlock(Object userJid, PrivacyType type) throws IllegalAccessException, InvocationTargetException {
         var jid = WppCore.stripJID(WppCore.getRawString(userJid));
+        logDebug("checkCallBlock: " + jid);
+        logDebug("checkCallBlock: " + type);
         if (jid == null) return false;
+
         var customprivacy = CustomPrivacy.getJSON(jid);
 
-        if (type == 1) {
+        if (type == PrivacyType.ALL_BLOCKED) {
             return customprivacy.optBoolean("BlockCall", true);
         }
 
-        if (type == 0) {
+        if (type == PrivacyType.ALL_PERMITTED) {
             return customprivacy.optBoolean("BlockCall", false);
         }
 
+        if (type == PrivacyType.ONLY_UNKNOWN && customprivacy.optBoolean("BlockCall", false)) {
+            return true;
+        }
+
         switch (type) {
-            case 2:
-                if (WppCore.stripJID(jid).equals(jid)) {
-                    jid = jid.split("\\.")[0] + "@s.whatsapp.net";
-                }
+            case ONLY_UNKNOWN:
+                jid += "@s.whatsapp.net";
                 var contactName = WppCore.getSContactName(WppCore.createUserJid(jid), true);
+                logDebug("contactName: " + contactName);
                 return TextUtils.isEmpty(contactName) || contactName.equals(jid);
-            case 3:
+            case BACKLIST:
                 var callBlockList = prefs.getString("call_block_contacts", "[]");
                 var blockList = Arrays.stream(callBlockList.substring(1, callBlockList.length() - 1).split(", ")).map(String::trim).collect(Collectors.toCollection(ArrayList::new));
                 for (var blockNumber : blockList) {
@@ -121,7 +129,7 @@ public class CallPrivacy extends Feature {
                     }
                 }
                 return false;
-            case 4:
+            case WHITELIST:
                 var callWhiteList = prefs.getString("call_white_contacts", "[]");
                 var whiteList = Arrays.stream(callWhiteList.substring(1, callWhiteList.length() - 1).split(", ")).map(String::trim).collect(Collectors.toCollection(ArrayList::new));
                 for (var whiteNumber : whiteList) {
@@ -132,6 +140,29 @@ public class CallPrivacy extends Feature {
                 return true;
         }
         return false;
+    }
+
+    public enum PrivacyType {
+        ALL_PERMITTED(0),
+        ALL_BLOCKED(1),
+        ONLY_UNKNOWN(2),
+        BACKLIST(3),
+        WHITELIST(4);
+
+        private final int value;
+
+        PrivacyType(int i) {
+            this.value = i;
+        }
+
+        public static PrivacyType getByValue(int value) {
+            for (PrivacyType type : PrivacyType.values()) {
+                if (type.value == value) {
+                    return type;
+                }
+            }
+            return null;
+        }
     }
 
 

@@ -70,7 +70,7 @@ import com.wmods.wppenhacer.xposed.features.privacy.HideChat;
 import com.wmods.wppenhacer.xposed.features.privacy.HideReceipt;
 import com.wmods.wppenhacer.xposed.features.privacy.HideSeen;
 import com.wmods.wppenhacer.xposed.features.privacy.HideTagForward;
-import com.wmods.wppenhacer.xposed.features.privacy.TypePrivacy;
+import com.wmods.wppenhacer.xposed.features.privacy.TypingPrivacy;
 import com.wmods.wppenhacer.xposed.features.privacy.ViewOnce;
 import com.wmods.wppenhacer.xposed.utils.DesignUtils;
 import com.wmods.wppenhacer.xposed.utils.ResId;
@@ -243,7 +243,7 @@ public class FeatureLoader {
                 ShowOnline.class,
                 DndMode.class,
                 FreezeLastSeen.class,
-                TypePrivacy.class,
+                TypingPrivacy.class,
                 HideChat.class,
                 HideReceipt.class,
                 HideSeen.class,

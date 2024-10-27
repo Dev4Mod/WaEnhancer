@@ -12,9 +12,9 @@ import de.robv.android.xposed.XC_MethodHook;
 import de.robv.android.xposed.XSharedPreferences;
 import de.robv.android.xposed.XposedBridge;
 
-public class TypePrivacy extends Feature {
+public class TypingPrivacy extends Feature {
 
-    public TypePrivacy(ClassLoader loader, XSharedPreferences preferences) {
+    public TypingPrivacy(ClassLoader loader, XSharedPreferences preferences) {
         super(loader, preferences);
     }
 
@@ -44,6 +44,6 @@ public class TypePrivacy extends Feature {
     @NonNull
     @Override
     public String getPluginName() {
-        return "Ghost Mode";
+        return "Typing Privacy";
     }
 }
