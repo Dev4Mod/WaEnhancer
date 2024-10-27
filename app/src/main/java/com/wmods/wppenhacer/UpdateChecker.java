@@ -36,8 +36,7 @@ public class UpdateChecker implements Runnable {
             var lastindexHash = content.indexOf(".apk", indexHash);
             var hash = content.substring(indexHash + 17, lastindexHash);
             var appInfo = mActivity.getPackageManager().getPackageInfo(BuildConfig.APPLICATION_ID, 0);
-            XposedBridge.log("hash: " + hash + " version: " + appInfo.versionName);
-            if (!hash.toLowerCase().contains(appInfo.versionName.toLowerCase()) && !Objects.equals(WppCore.getPrivString("ignored_version", ""), hash)) {
+            if (!appInfo.versionName.toLowerCase().contains(hash.toLowerCase().trim()) && !Objects.equals(WppCore.getPrivString("ignored_version", ""), hash)) {
                 var changelogIndex = content.indexOf("<div class=\"tgme_widget_message_text js-message_text\" dir=\"auto\">", lastindexHash);
                 var closeTag = content.indexOf("</div>", changelogIndex);
                 var changelogText = content.substring(changelogIndex, closeTag + 6);
