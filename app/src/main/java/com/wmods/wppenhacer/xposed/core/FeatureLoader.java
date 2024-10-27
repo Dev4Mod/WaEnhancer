@@ -18,6 +18,7 @@ import androidx.annotation.NonNull;
 import androidx.core.content.ContextCompat;
 
 import com.wmods.wppenhacer.BuildConfig;
+import com.wmods.wppenhacer.UpdateChecker;
 import com.wmods.wppenhacer.xposed.core.components.AlertDialogWpp;
 import com.wmods.wppenhacer.xposed.core.components.FMessageWpp;
 import com.wmods.wppenhacer.xposed.core.components.SharedPreferencesWrapper;
@@ -178,6 +179,13 @@ public class FeatureLoader {
         AlertDialogWpp.initDialog(loader);
         FMessageWpp.init(loader);
         Utils.init(loader);
+        WppCore.addListenerActivity((activity, state) -> {
+            XposedBridge.log("Activity: " + activity.getClass().getSimpleName() + " " + state);
+            if (activity.getClass().getSimpleName().equals("HomeActivity") && state == WppCore.ActivityChangeState.ChangeType.START) {
+                XposedBridge.log("Starting UpdateChecker");
+                CompletableFuture.runAsync(new UpdateChecker(activity));
+            }
+        });
     }
 
     private static void registerReceivers() {

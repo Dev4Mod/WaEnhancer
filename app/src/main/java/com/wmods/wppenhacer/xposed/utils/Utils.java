@@ -1,6 +1,7 @@
 package com.wmods.wppenhacer.xposed.utils;
 
 import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.app.Application;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
@@ -11,6 +12,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.media.MediaScannerConnection;
+import android.net.Uri;
 import android.os.Binder;
 import android.os.Handler;
 import android.os.Looper;
@@ -252,6 +254,11 @@ public class Utils {
                 .setAutoCancel(true)
                 .setStyle(new NotificationCompat.BigTextStyle().bigText(content));
         notificationManager.notify(new Random().nextInt(), notification.build());
+    }
+
+    public static void openLink(Activity mActivity, String url) {
+        Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
+        mActivity.startActivity(browserIntent);
     }
 
 

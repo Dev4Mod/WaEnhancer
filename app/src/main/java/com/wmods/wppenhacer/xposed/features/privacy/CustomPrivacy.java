@@ -62,12 +62,11 @@ public class CustomPrivacy extends Feature {
             var hooker = new WppCore.ActivityChangeState() {
                 @SuppressLint("ResourceType")
                 @Override
-                public void onChange(Object objActivity, ChangeType type) {
+                public void onChange(Activity activity, ChangeType type) {
                     try {
                         if (type != ChangeType.START) return;
-                        if (!ContactInfoActivityClass.isInstance(objActivity) && !GroupInfoActivityClass.isInstance(objActivity))
+                        if (!ContactInfoActivityClass.isInstance(activity) && !GroupInfoActivityClass.isInstance(activity))
                             return;
-                        Activity activity = (Activity) objActivity;
                         if (activity.findViewById(0x7f0a9999) != null) return;
                         int id = Utils.getID("contact_info_security_card_layout", "id");
                         ViewGroup infoLayout = activity.getWindow().findViewById(id);

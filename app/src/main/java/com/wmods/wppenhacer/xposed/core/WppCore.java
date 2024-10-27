@@ -446,7 +446,7 @@ public class WppCore {
 
     public interface ActivityChangeState {
 
-        void onChange(Object object, ChangeType type);
+        void onChange(Activity activity, ChangeType type);
 
         enum ChangeType {
             START, END, RESUME, PAUSE
