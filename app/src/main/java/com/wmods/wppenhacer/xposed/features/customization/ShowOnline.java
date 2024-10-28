@@ -149,7 +149,12 @@ public class ShowOnline extends Feature {
                 Class<?> JidClass = classLoader.loadClass("com.whatsapp.jid.Jid");
                 var method = ReflectionUtils.findMethodUsingFilter(sendPresenceMethod.getDeclaringClass(), method1 -> method1.getParameterCount() == 2 && JidClass.isAssignableFrom(method1.getParameterTypes()[0]) && method1.getParameterTypes()[1] == sendPresenceMethod.getDeclaringClass());
                 var instance = ReflectionUtils.callMethod(method, null, jidObject, mInstancePresence); //XposedHelpers.newInstance(clazz, new Object[]{null, null});
-                sendPresenceMethod.invoke(null, jidObject, instance, mInstancePresence);
+                // for 22.xx, the parameter count is 4
+                if (sendPresenceMethod.getParameterCount() == 4) {
+                    sendPresenceMethod.invoke(null, jidObject, null, instance, mInstancePresence);
+                } else {
+                    sendPresenceMethod.invoke(null, jidObject, instance, mInstancePresence);
+                }
                 var status = (String) ReflectionUtils.callMethod(getStatusUser, mStatusUser, object, false);
                 var currentPosition = (int) ReflectionUtils.callMethod(getAdapterPositionMethod, viewHolder);
                 if (currentPosition != position) return;
