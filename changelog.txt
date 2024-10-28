@@ -1,9 +1,9 @@
 [IMPROVEMENTS]
-* Improvements in Anti View Once (Now there are no more opening problems)
-* Improvements in Call Privacy (Now custom privacy is compatible with "Blocking only unknown numbers"
+* Improvement in multi click functions (Archived Chats and doubled Click to reaction)
 
-[UPDATE CHECKER]
-* Added update screen, now all releases of new versions of Telegram will appear on the WhatApp screen
+[WHATSAPP]
+* Added pre-support for version 2.24.22.xx (Obrigado novamente ao frknkrc44)
 
 [WAE]
 * Updated translations
+* Added support for Chinese language (Maybe some Chinese outside the country will use it)
