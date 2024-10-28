@@ -121,6 +121,7 @@
         <item>2.24.19.xx</item>
         <item>2.24.20.xx</item>
         <item>2.24.21.xx</item>
+        <item>2.24.22.xx</item>
     </string-array>
     <string-array name="supported_versions_business">
         <item>2.24.16.xx</item>
@@ -129,6 +130,7 @@
         <item>2.24.19.xx</item>
         <item>2.24.20.xx</item>
         <item>2.24.21.xx</item>
+        <item>2.24.22.xx</item>
     </string-array>
     <string-array name="image_picker">
         <item>image/*</item>

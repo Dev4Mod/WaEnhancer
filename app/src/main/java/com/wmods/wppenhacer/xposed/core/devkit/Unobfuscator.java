@@ -38,6 +38,7 @@ import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -835,6 +836,19 @@ public class Unobfuscator {
         return UnobfuscatorCache.getInstance().getMethod(loader, () -> {
             var method = findFirstMethodUsingStrings(loader, StringMatchType.Contains, "app/send-presence-subscription jid=");
             if (method == null) throw new Exception("SendPresence method not found");
+
+            // for 22.xx, method returns wrong one
+            var methodData = dexkit.getMethodData(method);
+            var groupJidClass = XposedHelpers.findClass("com.whatsapp.jid.GroupJid", loader);
+            var classCheckMethod = dexkit.findMethod(FindMethod.create()
+                    .searchInClass(Collections.singletonList(methodData.getDeclaredClass()))
+                    .matcher(MethodMatcher.create().returnType(groupJidClass)))
+                    .singleOrNull();
+            if (classCheckMethod == null) {
+                var newMethod = methodData.getCallers().firstOrNull();
+                if (newMethod == null) throw new Exception("SendPresence method not found 2");
+                return newMethod.getMethodInstance(loader);
+            }
             return method;
         });
     }
@@ -1211,6 +1225,11 @@ public class Unobfuscator {
                 if (invoke.isMethod() && Modifier.isStatic(invoke.getModifiers()) && invoke.getParamCount() == 1 && invoke.getParamTypes().get(0).getName().equals(Context.class.getName())) {
                     return invoke.getMethodInstance(loader);
                 }
+
+                // for 22.xx, MaterialAlertDialog method is not static
+                if (invoke.isMethod() && invoke.getParamCount() == 1 && invoke.getParamTypes().get(0).getName().equals(Context.class.getName())) {
+                    return invoke.getMethodInstance(loader);
+                }
             }
             throw new RuntimeException("MaterialAlertDialog not found");
         });
@@ -1477,8 +1496,13 @@ public class Unobfuscator {
     public synchronized static Constructor loadListUpdateItemsConstructor(ClassLoader classLoader) throws Exception {
         return UnobfuscatorCache.getInstance().getConstructor(classLoader, () -> {
             var method = dexkit.findMethod(new FindMethod().matcher(new MethodMatcher().paramCount(1).returnType(void.class).addParamType(Object.class).addUsingNumber(8686)));
-            if (method.isEmpty())
-                throw new RuntimeException("ListUpdateItems method not found");
+            if (method.isEmpty()) {
+                // for 22.xx, use alternative method
+                method = dexkit.findMethod(new FindMethod().matcher(new MethodMatcher().paramCount(1).returnType(void.class).addUsingString("deleted", StringMatchType.Equals).addUsingString("membership", StringMatchType.Equals)));
+
+                if (method.isEmpty())
+                    throw new RuntimeException("ListUpdateItems method not found");
+            }
             return method.get(0).getClassInstance(classLoader).getConstructors()[0];
         });
     }
