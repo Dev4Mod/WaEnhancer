@@ -6,11 +6,13 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.Gravity;
+import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 
+import com.wmods.wppenhacer.listeners.OnMultiClickListener;
 import com.wmods.wppenhacer.xposed.core.Feature;
 import com.wmods.wppenhacer.xposed.core.WppCore;
 import com.wmods.wppenhacer.xposed.core.devkit.Unobfuscator;
@@ -109,25 +111,16 @@ public class CustomToolbar extends Feature {
 
 
             if (typeArchive.equals("1")) {
-                var ref = new Object() {
-                    int clickCount = 0;
-                    long lastClickTime = 0L;
-                };
-                toolbar.setOnClickListener(v -> {
-                    long currentTime = System.currentTimeMillis();
-                    if (currentTime - ref.lastClickTime < 500) {
-                        ref.clickCount++;
-                    } else {
-                        ref.clickCount = 1;
-                    }
-                    ref.lastClickTime = currentTime;
-                    if (ref.clickCount == 5) {
-                        ref.clickCount = 0;
+                var onMultiClickListener = new OnMultiClickListener(5, 500) {
+
+                    @Override
+                    public void onMultiClick(View v) {
                         Intent intent = new Intent();
                         intent.setClassName(Utils.getApplication().getPackageName(), "com.whatsapp.conversationslist.ArchivedConversationsActivity");
                         homeActivity.startActivity(intent);
                     }
-                });
+                };
+                toolbar.setOnClickListener(onMultiClickListener);
             } else if (typeArchive.equals("2")) {
                 toolbar.setOnLongClickListener(v -> {
                     Intent intent = new Intent();
