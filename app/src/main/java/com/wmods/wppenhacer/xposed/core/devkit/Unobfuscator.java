@@ -38,6 +38,7 @@ import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -835,6 +836,19 @@ public class Unobfuscator {
         return UnobfuscatorCache.getInstance().getMethod(loader, () -> {
             var method = findFirstMethodUsingStrings(loader, StringMatchType.Contains, "app/send-presence-subscription jid=");
             if (method == null) throw new Exception("SendPresence method not found");
+
+            // for 22.xx, method returns wrong one
+            var methodData = dexkit.getMethodData(method);
+            var groupJidClass = XposedHelpers.findClass("com.whatsapp.jid.GroupJid", loader);
+            var classCheckMethod = dexkit.findMethod(FindMethod.create()
+                    .searchInClass(Collections.singletonList(methodData.getDeclaredClass()))
+                    .matcher(MethodMatcher.create().returnType(groupJidClass)))
+                    .singleOrNull();
+            if (classCheckMethod == null) {
+                var newMethod = methodData.getCallers().firstOrNull();
+                if (newMethod == null) throw new Exception("SendPresence method not found 2");
+                return newMethod.getMethodInstance(loader);
+            }
             return method;
         });
     }
