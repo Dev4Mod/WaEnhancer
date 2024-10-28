@@ -389,16 +389,16 @@ Harap gunakan versi WhatsApp yang didukung!</string>
     <string name="custom_privacy_per_contact">Privasi Khusus per Kontak</string>
     <string name="custom_privacy_per_contact_sum">Tampilkan tombol privasi khusus di layar informasi kontak</string>
     <string name="assemblyai">Aktifkan AssemblyAI</string>
-    <string name="assemblyai_sum">Ganti transkripsi WhatsApp default dengan AssemblyAI</string>
+    <string name="assemblyai_sum">Ganti transkripsi bawaan WhatsApp dengan AssemblyAI</string>
     <string name="assemblyai_key">Kunci AssemblyAI</string>
-    <string name="assemblyai_key_sum">Kunci akses API AssemblyAI (Masuk ke situs web dan buat akun untuk mendapatkan kunci Anda)</string>
+    <string name="assemblyai_key_sum">Kunci akses API AssemblyAI/n(Masuk ke situs web dan buat akun untuk mendapatkan kunci Anda)</string>
     <string name="google_translate">Aktifkan Terjemahan Google</string>
     <string name="google_translate_sum">Ganti penerjemah asli WhatsApp dengan Terjemahan Google</string>
     <string name="show_contact_info">Tampilkan di info kontak</string>
     <string name="show_contact_info_menu">Tampilkan di menu info kontak</string>
     <string name="block_call">Blokir Panggilan</string>
     <string name="always_online">Selalu Online</string>
-    <string name="always_online_sum">Menampilkan Anda sedang online bahkan jika Anda meminimalkan WhatsApp (Tidak berfungsi jika Anda menghapusnya dari yang terbaru)</string>
-    <string name="additional_call_information">Informasi panggilan tambahan</string>
+    <string name="always_online_sum">Menampilkan Anda sedang online bahkan jika Anda meminimalkan WhatsApp/n(Tidak berfungsi jika Anda menghapusnya dari yang terbaru)</string>
+    <string name="additional_call_information">Informasi Panggilan Tambahan</string>
     <string name="additional_call_information_sum">Terima pemberitahuan dengan informasi tambahan setelah panggilan berakhir</string>
 </resources>
