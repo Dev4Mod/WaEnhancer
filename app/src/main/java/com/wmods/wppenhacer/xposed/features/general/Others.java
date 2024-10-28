@@ -218,12 +218,10 @@ public class Others extends Feature {
         if (WppCore.isGroup(WppCore.getRawString(userJid)))
             return;
         var sb = new StringBuilder();
-
         var contact = WppCore.getContactName(userJid);
-        if (!TextUtils.isEmpty(contact))
-            sb.append("Contact: ").append(contact).append("\n");
-        sb.append("Number: ").append("+").append(WppCore.stripJID(WppCore.getRawString(userJid))).append("\n");
-
+        var number = WppCore.stripJID(WppCore.getRawString(userJid));
+        if (!TextUtils.isEmpty(contact)) sb.append(String.format(Utils.getApplication().getString(ResId.string.contact_s), contact)).append("\n");
+        sb.append(String.format(Utils.getApplication().getString(ResId.string.phone_number_s), number)).append("\n");
         var ip = (String) XposedHelpers.getObjectField(wamCall, "callPeerIpStr");
         if (ip != null) {
             var client = new OkHttpClient();
@@ -233,15 +231,15 @@ public class Others extends Feature {
             var json = new JSONObject(content);
             var country = json.getString("country");
             var city = json.getString("city");
-            sb.append("Country: ").append(country).append("\n");
-            sb.append("City: ").append(city).append("\n");
-            sb.append("IP: ").append(ip).append("\n");
+            sb.append(String.format(Utils.getApplication().getString(ResId.string.country_s), country)).append("\n")
+            .append(String.format(Utils.getApplication().getString(ResId.string.city_s), city)).append("\n")
+            .append(String.format(Utils.getApplication().getString(ResId.string.ip_s), ip)).append("\n");
         }
         var platform = (String) XposedHelpers.getObjectField(wamCall, "callPeerPlatform");
-        if (platform != null) sb.append("Platform: ").append(platform).append("\n");
+        if (platform != null) sb.append(String.format(Utils.getApplication().getString(ResId.string.platform_s), platform)).append("\n");
         var wppVersion = (String) XposedHelpers.getObjectField(wamCall, "callPeerAppVersion");
-        if (wppVersion != null) sb.append("WhatsApp Version: ").append(wppVersion).append("\n");
-        Utils.showNotification("Call Information", sb.toString());
+        if (wppVersion != null) sb.append(String.format(Utils.getApplication().getString(ResId.string.wpp_version_s), wppVersion)).append("\n");
+        Utils.showNotification(Utils.getApplication().getString(ResId.string.call_information), sb.toString());
     }
 
     private void alwaysOnline() throws Exception {

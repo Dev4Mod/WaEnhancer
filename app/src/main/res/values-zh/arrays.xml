@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="animations_names">
+        <item>默认</item>
+        <item>淡入</item>
+        <item>淡出</item>
+        <item>放大</item>
+        <item>向上滑动</item>
+        <item>从右向左滑动</item>
+        <item>旋转</item>
+        <item>弹跳</item>
+        <item>缩小</item>
+        <item>翻转</item>
+        <item>超空间消失</item>
+    </string-array>
+</resources>
