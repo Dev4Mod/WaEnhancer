@@ -187,23 +187,25 @@ public class SeparateGroup extends Feature {
 
         var recreateFragmentMethod = Unobfuscator.loadRecreateFragmentConstructor(classLoader);
 
+        var pattern = Pattern.compile("android:switcher:\\d+:(\\d+)");
+
+        Class<?> FragmentClass = classLoader.loadClass("androidx.fragment.app.Fragment");
+
         XposedBridge.hookMethod(recreateFragmentMethod, new XC_MethodHook() {
             @Override
             protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-                var object = param.args[2];
-                var desc = XposedHelpers.getObjectField(object, "A06");
-                if (desc == null) return;
-                var split = desc.toString().split(":");
-                var id = 0;
-                try {
-                    id = Integer.parseInt(split[split.length - 1]);
-                } catch (Exception ignored) {
-                    return;
-                }
-                if (id == GROUPS || id == CHATS) {
-                    var convFragment = XposedHelpers.getObjectField(param.thisObject, "A02");
-                    tabInstances.remove(id);
-                    tabInstances.put(id, convFragment);
+                var bundle = (Bundle) param.args[0];
+                var state = bundle.getParcelable("state");
+                var string = state.toString();
+                var matcher = pattern.matcher(string);
+                if (matcher.find()) {
+                    var tabId = Integer.parseInt(matcher.group(1));
+                    if (tabId == GROUPS || tabId == CHATS) {
+                        var fragmentField = ReflectionUtils.getFieldByType(param.thisObject.getClass(), FragmentClass);
+                        var convFragment = ReflectionUtils.getObjectField(fragmentField, param.thisObject);
+                        tabInstances.remove(tabId);
+                        tabInstances.put(tabId, convFragment);
+                    }
                 }
             }
         });
