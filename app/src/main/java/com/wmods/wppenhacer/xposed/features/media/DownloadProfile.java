@@ -43,7 +43,7 @@ public class DownloadProfile extends Feature {
                         return true;
                     }
                     var field = ReflectionUtils.getFieldByType(subCls, loadProfileInfoField.getDeclaringClass());
-                    var jidObj = ReflectionUtils.getField(loadProfileInfoField, ReflectionUtils.getField(field, param.thisObject));
+                    var jidObj = ReflectionUtils.getObjectField(loadProfileInfoField, ReflectionUtils.getObjectField(field, param.thisObject));
                     var jid = WppCore.stripJID(WppCore.getRawString(jidObj));
                     var file = WppCore.getContactPhotoFile(jid);
                     var destPath = Utils.getDestination("Profile Photo");

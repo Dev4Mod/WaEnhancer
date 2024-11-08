@@ -43,10 +43,10 @@ public class MenuStatus extends Feature {
         XposedBridge.hookMethod(menuStatusMethod, new XC_MethodHook() {
             @Override
             protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-                var fieldObjects = Arrays.stream(param.method.getDeclaringClass().getDeclaredFields()).map(field -> ReflectionUtils.getField(field, param.thisObject)).filter(Objects::nonNull).collect(Collectors.toList());
+                var fieldObjects = Arrays.stream(param.method.getDeclaringClass().getDeclaredFields()).map(field -> ReflectionUtils.getObjectField(field, param.thisObject)).filter(Objects::nonNull).collect(Collectors.toList());
                 var menuManager = fieldObjects.stream().filter(menuManagerClass::isInstance).findFirst().orElse(null);
                 var menuField = ReflectionUtils.getFieldByExtendType(menuManagerClass, Menu.class);
-                var menu = (Menu) ReflectionUtils.getField(menuField, menuManager);
+                var menu = (Menu) ReflectionUtils.getObjectField(menuField, menuManager);
                 var fragmentInstance = fieldObjects.stream().filter(StatusPlaybackBaseFragmentClass::isInstance).findFirst().orElse(null);
 
                 var index = (int) XposedHelpers.getObjectField(fragmentInstance, "A00");

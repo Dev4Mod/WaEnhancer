@@ -128,7 +128,7 @@ public class FMessageWpp {
                 if (field.getType().isPrimitive()) continue;
                 var fileField = ReflectionUtils.getFieldByType(field.getType(), File.class);
                 if (fileField != null) {
-                    var mediaFile = ReflectionUtils.getField(field, fmessage);
+                    var mediaFile = ReflectionUtils.getObjectField(field, fmessage);
                     return (File) fileField.get(mediaFile);
                 }
             }

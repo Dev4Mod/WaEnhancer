@@ -173,7 +173,7 @@ public class SeenTick extends Feature {
                 protected void afterHookedMethod(MethodHookParam param) throws Throwable {
                     if (!prefs.getBoolean("hidestatusview", false)) return;
                     var fMessageField = ReflectionUtils.getFieldByExtendType(param.thisObject.getClass(), FMessageWpp.TYPE);
-                    var fMessage = new FMessageWpp(ReflectionUtils.getField(fMessageField, param.thisObject));
+                    var fMessage = new FMessageWpp(ReflectionUtils.getObjectField(fMessageField, param.thisObject));
                     var key = fMessage.getKey();
                     if (key.isFromMe) return;
                     var view = (View) param.getResult();
@@ -313,7 +313,7 @@ public class SeenTick extends Feature {
                             CompletableFuture.runAsync(() -> {
                                 var keyClass = FMessageWpp.Key.TYPE;
                                 var fieldType = ReflectionUtils.getFieldByType(param.thisObject.getClass(), keyClass);
-                                var keyMessage = ReflectionUtils.getField(fieldType, param.thisObject);
+                                var keyMessage = ReflectionUtils.getObjectField(fieldType, param.thisObject);
                                 var fMessage = WppCore.getFMessageFromKey(keyMessage);
                                 if (fMessage == null) return;
                                 sendBlueTickMedia(fMessage, true);

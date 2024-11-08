@@ -147,7 +147,7 @@ public class IGStatusAdapter extends ArrayAdapter {
             }
             var statusInfo = XposedHelpers.getObjectField(item, "A01");
             var field = ReflectionUtils.getFieldByType(statusInfo.getClass(), XposedHelpers.findClass("com.whatsapp.jid.UserJid", statusInfoClazz.getClassLoader()));
-            var userJid = ReflectionUtils.getField(field, statusInfo);
+            var userJid = ReflectionUtils.getObjectField(field, statusInfo);
             var contactName = WppCore.getContactName(userJid);
             jid = WppCore.getRawString(userJid);
             igStatusContactName.setText(contactName);

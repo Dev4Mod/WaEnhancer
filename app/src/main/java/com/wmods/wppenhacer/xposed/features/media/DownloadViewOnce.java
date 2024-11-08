@@ -84,7 +84,7 @@ public class DownloadViewOnce extends Feature {
                                 CompletableFuture.runAsync(() -> {
                                     var keyClass = FMessageWpp.Key.TYPE;
                                     var fieldType = ReflectionUtils.getFieldByType(param.thisObject.getClass(), keyClass);
-                                    var keyMessageObj = ReflectionUtils.getField(fieldType, param.thisObject);
+                                    var keyMessageObj = ReflectionUtils.getObjectField(fieldType, param.thisObject);
                                     var fmessageObj = WppCore.getFMessageFromKey(keyMessageObj);
                                     var fmessage = new FMessageWpp(fmessageObj);
                                     var file = fmessage.getMediaFile();
