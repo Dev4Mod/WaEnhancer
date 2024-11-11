@@ -303,7 +303,9 @@ public class WppCore {
         var conversation = getCurrentConversation();
         if (conversation == null) return null;
         var chatField = XposedHelpers.getObjectField(conversation, convChatField.getName());
+        if (chatField == null) return null;
         var chatJidObj = XposedHelpers.getObjectField(chatField, chatJidField.getName());
+        if (chatJidObj == null) return null;
         return getRawString(chatJidObj);
     }
 

@@ -143,18 +143,26 @@ public class SeparateGroup extends Feature {
             @SuppressLint("ResourceType")
             @Override
             protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-                var superClass = param.thisObject.getClass().getSuperclass();
-                if (superClass != null && superClass == iconTabMethod.getDeclaringClass()) {
-                    var field1 = superClass.getDeclaredField(iconField.getName()).get(param.thisObject);
-                    var field2 = getObjectField(field1, iconFrameField.getName());
-                    if (field2 == null) return;
-                    var menu = (Menu) getObjectField(field2, iconMenuField.getName());
-                    if (menu == null) return;
-                    // add Icon to menu
-                    var menuItem = (MenuItem) menu.findItem(GROUPS);
-                    if (menuItem != null) {
-                        menuItem.setIcon(Utils.getID("home_tab_communities_selector", "drawable"));
-                    }
+                var obj = param.thisObject;
+                var superClass = obj.getClass().getSuperclass();
+
+                // for 23.xx, superClass != iconTabMethod.getDeclaringClass()
+                if (!(superClass != null && superClass == iconTabMethod.getDeclaringClass())) {
+                    var preIconTabField = Unobfuscator.loadPreIconTabField(classLoader);
+                    var field0 = getObjectField(obj, preIconTabField.getName());
+                    superClass = field0.getClass().getSuperclass();
+                    obj = field0;
+                }
+
+                var field1 = superClass.getDeclaredField(iconField.getName()).get(obj);
+                var field2 = getObjectField(field1, iconFrameField.getName());
+                if (field2 == null) return;
+                var menu = (Menu) getObjectField(field2, iconMenuField.getName());
+                if (menu == null) return;
+                // add Icon to menu
+                var menuItem = (MenuItem) menu.findItem(GROUPS);
+                if (menuItem != null) {
+                    menuItem.setIcon(Utils.getID("home_tab_communities_selector", "drawable"));
                 }
             }
         });

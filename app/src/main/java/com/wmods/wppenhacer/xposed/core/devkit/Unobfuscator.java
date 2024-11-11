@@ -324,12 +324,38 @@ public class Unobfuscator {
         });
     }
 
+    public synchronized static Field loadPreIconTabField(ClassLoader classLoader) throws Exception {
+        return UnobfuscatorCache.getInstance().getField(classLoader, () -> {
+            Class<?> cls = loadIconTabMethod(classLoader).getDeclaringClass();
+            Class<?> clsType = findFirstClassUsingStringsFilter(classLoader, "X.", StringMatchType.Contains, "Tried to set badge");
+            if (clsType == null) throw new Exception("PreIconTabField not found");
+            Field result = null;
+            for (var field1 : cls.getFields()) {
+                Object checkResult = Arrays.stream(field1.getType().getFields()).filter(f -> f.getType().equals(clsType)).findFirst().orElse(null);
+                if (checkResult != null) {
+                    result = field1;
+                    break;
+                }
+            }
+            if (result == null) throw new Exception("PreIconTabField not found 2");
+            return result;
+        });
+    }
+
     public synchronized static Field loadIconTabField(ClassLoader classLoader) throws Exception {
         return UnobfuscatorCache.getInstance().getField(classLoader, () -> {
             Class<?> cls = loadIconTabMethod(classLoader).getDeclaringClass();
             Class<?> clsType = findFirstClassUsingStringsFilter(classLoader, "X.", StringMatchType.Contains, "Tried to set badge");
+            if (clsType == null) throw new Exception("IconTabField not found");
             var result = Arrays.stream(cls.getFields()).filter(f -> f.getType().equals(clsType)).findFirst().orElse(null);
-            if (result == null) throw new Exception("IconTabField not found");
+            // for 23.xx, the result is null
+            if (result == null) {
+                for (var field1 : cls.getFields()) {
+                    result = Arrays.stream(field1.getType().getFields()).filter(f -> f.getType().equals(clsType)).findFirst().orElse(null);
+                    if (result != null) break;
+                }
+            }
+            if (result == null) throw new Exception("IconTabField not found 2");
             return result;
         });
     }
@@ -845,7 +871,7 @@ public class Unobfuscator {
                     .matcher(MethodMatcher.create().returnType(groupJidClass)))
                     .singleOrNull();
             if (classCheckMethod == null) {
-                var newMethod = methodData.getCallers().firstOrNull();
+                var newMethod = methodData.getCallers().singleOrNull(method1 -> method1.getParamCount() == 4);
                 if (newMethod == null) throw new Exception("SendPresence method not found 2");
                 return newMethod.getMethodInstance(loader);
             }
