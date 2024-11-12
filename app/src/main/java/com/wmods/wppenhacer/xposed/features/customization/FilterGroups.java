@@ -197,7 +197,11 @@ public class FilterGroups extends Feature {
             var list = (List<Object>) ReflectionUtils.getField(listField, mFilterInstance);
             if (list == null) return;
             var name = position == 0 ? "CONTACTS_FILTER" : "GROUP_FILTER";
-            var result = list.stream().filter(item -> Objects.equals(XposedHelpers.getObjectField(item, "A01"), name)).findFirst();
+            var result = list.stream().filter(item -> {
+                Object filterItem1 = XposedHelpers.getObjectField(item, "A01");
+                Object filterItem2 = XposedHelpers.getObjectField(item, "A02");
+                return Objects.equals(filterItem1, name) || Objects.equals(filterItem2, name);
+            }).findFirst();
             if (result.isEmpty()) return;
             var index = list.indexOf(result.get());
             ReflectionUtils.callMethod(methodSetFilter, mFilterInstance, index);
