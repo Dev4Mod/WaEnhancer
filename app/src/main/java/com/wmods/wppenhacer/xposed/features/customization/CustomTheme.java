@@ -173,8 +173,7 @@ public class CustomTheme extends Feature {
                         case "00a884", "1da457", "21c063", "d9fdd3" ->
                                 IColors.colors.put(c, primaryColor.substring(3));
                         case "#ff00a884", "#ff1da457", "#ff21c063", "#ff1daa61", "#ff25d366",
-                             "#ffd9fdd3" ->
-                                IColors.colors.put(c, primaryColor);
+                             "#ffd9fdd3" -> IColors.colors.put(c, primaryColor);
                         case "#ff103529" ->
                                 IColors.colors.put(c, "#66" + primaryColor.substring(3));
                     }
@@ -183,15 +182,16 @@ public class CustomTheme extends Feature {
                 if (!backgroundColor.equals("0") && DesignUtils.isValidColor(backgroundColor)) {
                     backgroundColor = backgroundColor.length() == 9 ? backgroundColor : "#ff" + backgroundColor.substring(1);
                     switch (c) {
-                        case "0b141a" -> IColors.colors.put(c, backgroundColor.substring(3));
-                        case "#ff0b141a", "#ff111b21", "#ff000000" ->
+                        case "0b141a", "0a1014" ->
+                                IColors.colors.put(c, backgroundColor.substring(3));
+                        case "#ff0b141a", "#ff111b21", "#ff000000", "#ff0a1014", "#ff10161a" ->
                                 IColors.colors.put(c, backgroundColor);
                     }
                 }
 
                 if (!secondaryColor.equals("0") && DesignUtils.isValidColor(secondaryColor)) {
                     secondaryColor = secondaryColor.length() == 9 ? secondaryColor : "#ff" + secondaryColor.substring(1);
-                    if (c.equals("#ff202c33")) {
+                    if (c.equals("#ff202c33") || c.equals("#ff2a2f33")) {
                         IColors.colors.put(c, secondaryColor);
                     }
                 }
@@ -256,7 +256,7 @@ public class CustomTheme extends Feature {
     private void replaceTransparency(HashMap<String, String> wallpaperColors, float mAlpha) {
         var hexAlpha = Integer.toHexString((int) Math.ceil(mAlpha * 255));
         hexAlpha = hexAlpha.length() == 1 ? "0" + hexAlpha : hexAlpha;
-        for (var c : List.of("#ff0b141a", "#ff111b21", "#ff000000", "#ffffffff", "#ff1b8755")) {
+        for (var c : List.of("#ff0b141a", "#ff10161a", "#ff111b21", "#ff000000", "#ffffffff", "#ff1b8755", "#ff0a1014", "#ff12181c")) {
             var oldColor = wallpaperColors.get(c);
             if (oldColor == null) continue;
             var newColor = "#" + hexAlpha + oldColor.substring(3);

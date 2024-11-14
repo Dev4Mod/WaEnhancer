@@ -26,11 +26,19 @@ public class IColors {
         colors.put("15603e", "15603e");
 //        colors.put("#0b141a", "#ff0b141a");
 
+        // background
+        colors.put("0a1014", "0a1014"); // background green color (above version 22)
+        colors.put("#ff0a1014", "#ff0a1014"); // background green color (above version 22)
+        colors.put("#ff10161a", "#ff10161a"); // background header green color (above version 22)
+        colors.put("#ff12181c", "#ff12181c"); // background header green color (above version 22)
+
+
         colors.put("#ffffffff", "#ffffffff"); // background color in light theme
         colors.put("#ff1b8755", "#ff1b8755"); // background toolbar color in light theme
 
         // Secondary
         colors.put("#ff202c33", "#ff202c33");
+        colors.put("#ff2a2f33", "#ff2a2f33");
 
         // New theme color
         colors.put("0b141a", "0b141a");
