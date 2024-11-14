@@ -229,10 +229,10 @@
     <string name="antidisappearing">Anti Desaparición de mensajes Temporales</string>
     <string name="antidisappearing_sum">Los mensajes temporales no serán borrados para usted</string>
     <string name="title_audio">Audio</string>
-    <string name="android_version">SDK de Android</string>
+    <string name="android_version">Versión de Android (SDK)</string>
     <string name="message_removed_on">Este mensaje fue eliminado el %s.</string>
     <string name="disable_default_emojis">Desactivar Emojis por Defecto</string>
-    <string name="theme_mode">Tema Oscuro Wa Enhancer</string>
+    <string name="theme_mode">Tema Oscuro</string>
     <string name="theme_mode_sum">Forzar color de la interfaz en Wa Enhancer</string>
     <string name="disable_default_emojis_sum">Desactiva los emojis predeterminados de Whatsapp y usa emojis del sistema\n(NOTA: Los emojis de Whatsapp desaparecerán del selector, usa el teclado para insertar).</string>
     <string name="other">Otros</string>
@@ -283,7 +283,7 @@
     <string name="viewed_your_message">%s ha visto tu mensaje</string>
     <string name="old_statuses">Estados antiguos</string>
     <string name="old_statuses_sum">Cambiar a la interfaz de estados antiguos verticalmente y sin canales (NOTA: Puede causar lag en la interfaz)</string>
-    <string name="force_english">Forzar idioma Ingles en Wa Enhancer</string>
+    <string name="force_english">Forzar idioma Ingles</string>
     <string name="select_status_type">Seleccionar tipo de estado</string>
     <string name="open_camera">Abrir cámara</string>
     <string name="edit_text">Editar texto</string>
@@ -392,4 +392,12 @@
     <string name="always_online_sum">Mostrar \'en línea\' incluso si minimizas WhatsApp (no funciona si lo eliminas de los recientes)</string>
     <string name="additional_call_information">Información adicional de llamada</string>
     <string name="additional_call_information_sum">Recibir una notificación con información adicional después de que finalice la llamada</string>
+    <string name="contact_s">Contacto: %s</string>
+    <string name="phone_number_s">Número: +%s</string>
+    <string name="country_s">País: %s</string>
+    <string name="city_s">Ciudad: %s</string>
+    <string name="ip_s">IP: %s</string>
+    <string name="platform_s">Plataforma: %s</string>
+    <string name="wpp_version_s">Versión de WhatsApp: %s</string>
+    <string name="call_information">Información de la llamada</string>
 </resources>

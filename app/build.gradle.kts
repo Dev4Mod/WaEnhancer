@@ -143,7 +143,7 @@ dependencies {
     implementation(libs.filepicker)
     implementation(libs.betterypermissionhelper)
     implementation(libs.bcpkix.jdk18on)
-    implementation("com.assemblyai:assemblyai-java:3.0.0")
+    implementation(libs.assemblyai.java)
 }
 
 configurations.all {

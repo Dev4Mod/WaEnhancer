@@ -77,11 +77,11 @@
     <string name="show_online_dot_in_conversation_list_sum">在聊天列表的联系人头像右上角显示绿色在线小点\n（注意：必须在 WhatsApp 设置的“隐私”菜单中的“最后上线时间和在线状态”中对所有人开放）</string>
     <string name="show_dnd_button">显示免打扰按钮</string>
     <string name="show_dnd_button_sum">在主页工具栏上显示免打扰按钮</string>
-    <!-- <string name="dev4mod">Dev4Mod (Contributor)</string> -->
+    <string name="dev4mod">Dev4Mod (Contributor)</string>
     <string name="disable_pinned_limit">禁用置顶限制</string>
     <string name="disable_pinned_limit_sum">禁用只能置顶三个联系人的限制</string>
     <string name="delete_for_everyone_all_messages">可以对全部聊天消息“在所有人设备删除”</string>
-    <string name="delete_for_everyone_all_messages_sum">移除"在所有人设备删除"的 24 小时限制</string>
+    <string name="delete_for_everyone_all_messages_sum">移除\"在所有人设备删除\"的 24 小时限制</string>
     <string name="antirevoke_buttons_desable">禁用</string>
     <string name="antirevoke_buttons_show_text">显示文本</string>
     <string name="antirevoke_buttons_show_icon">显示图标</string>
@@ -136,7 +136,7 @@
     <string name="business_in_background">WhatsApp Business（企业版）后台运行中</string>
     <string name="sending_read_blue_tick">正在发送蓝色勾号（标记为已读/已查看）</string>
     <string name="enable_facebook_style_for_status">启用 Facebook 风格的“动态”</string>
-    <string name="enable_facebook_style_for_status_sum">将原有的"动态"样式更改为 Facebook 风格</string>
+    <string name="enable_facebook_style_for_status_sum">将原有的\"动态\"样式更改为 Facebook 风格</string>
     <string name="send">发送</string>
     <string name="do_you_want_to_send_sticker">您要发送此贴图吗？</string>
     <string name="send_sticker">发送贴图</string>
@@ -229,7 +229,7 @@
     <string name="antidisappearing">防止信息消失</string>
     <string name="antidisappearing_sum">不会为您删除临时消息</string>
     <string name="title_audio">音频</string>
-    <!-- <string name="android_version">Android SDK</string> -->
+    <string name="android_version">Android SDK</string>
     <string name="message_removed_on">该消息已于 %s 删除。</string>
     <string name="disable_default_emojis">禁用默认表情符号（Emoji）</string>
     <string name="theme_mode">黑暗主题 Wa Enhancer</string>
@@ -287,7 +287,6 @@
     <string name="select_status_type">选择动态类型</string>
     <string name="open_camera">打开相机</string>
     <string name="edit_text">编辑文本</string>
-    <!-- <string name="developer" translatable="false">Developer: Dev4Mod</string> -->
     <string name="about_info">Wa Enhancer 是一个 Xposed 模块，可以让你的 WhatsApp 使用体验更好，提供更强的隐私功能、主页自定义、一些通用调整和媒体改进。</string>
     <string name="installation">安装步骤</string>
     <string name="installation_desc">1. 确保您的设备已获取 root 权限。\n2. 在您的设备上安装 Xposed 框架。\n3. 从Github的“Actions”部分下载 Wa Enhancer。\n4. 安装 Wa Enhancer APK。\n5. 在 Xposed 框架中启用 Wa Enhancer 模块。</string>
@@ -366,7 +365,7 @@
     <string name="show_menu_buttons_as_icons">以图标形式显示菜单按钮</string>
     <string name="show_menu_buttons_as_icons_sum">在主页工具栏上以图标形式显示菜单按钮，以方便访问</string>
     <string name="starting_cache">在 WhatsApp 中启动 Hook 缓存。这可能需要一段时间。</string>
-    <!-- <string name="bridge_error">Bridge Failed: Enable System Framework in Lsposed and reboot device</string> -->
+    <string name="bridge_error">Bridge Failed: Enable System Framework in Lsposed and reboot device</string>
     <string name="disable_battery_optimization">禁用电池优化</string>
     <string name="bootloader_spoofer">Bootloader 伪装</string>
     <string name="bootloader_spoofer_sum">如果您被封禁并收到非官方 Whatsapp 消息，请使用此功能</string>

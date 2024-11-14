@@ -1,9 +1,9 @@
-[IMPROVEMENTS]
-* Improvement in multi click functions (Archived Chats and doubled Click to reaction)
+[FIXES]
+* Fixed bug in groups and conversations tab
+* Fixed bug in colors
 
 [WHATSAPP]
-* Added pre-support for version 2.24.22.xx (Obrigado novamente ao frknkrc44)
+* Added pre-support for version 2.24.23.xx (Thanks again to frknkrc44)
 
 [WAE]
 * Updated translations
-* Added support for Chinese language (Maybe some Chinese outside the country will use it)

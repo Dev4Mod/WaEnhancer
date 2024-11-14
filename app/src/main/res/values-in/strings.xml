@@ -401,4 +401,12 @@ Harap gunakan versi WhatsApp yang didukung!</string>
     <string name="always_online_sum">Menampilkan Anda sedang online bahkan jika Anda meminimalkan WhatsApp/n(Tidak berfungsi jika Anda menghapusnya dari yang terbaru)</string>
     <string name="additional_call_information">Informasi Panggilan Tambahan</string>
     <string name="additional_call_information_sum">Terima pemberitahuan dengan informasi tambahan setelah panggilan berakhir</string>
+    <string name="contact_s">Kontak: %s</string>
+    <string name="phone_number_s">Nomor: +%s</string>
+    <string name="country_s">Negara: %s</string>
+    <string name="city_s">Kota: %s</string>
+    <string name="ip_s">Alamat IP: %s</string>
+    <string name="platform_s">Platform: %s</string>
+    <string name="wpp_version_s">Versi WhatsApp: %s</string>
+    <string name="call_information">Informasi Panggilan</string>
 </resources>

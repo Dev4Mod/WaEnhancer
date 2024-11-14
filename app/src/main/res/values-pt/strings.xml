@@ -74,7 +74,7 @@
     <string name="call_blocker">Bloquear chamadas</string>
     <string name="call_blocker_sum">Bloqueie chamadas do WhatsApp com base no tipo de privacidade</string>
     <string name="show_online_dot_in_conversation_list">Mostrar ponto de online na guia de conversas</string>
-    <string name="show_online_dot_in_conversation_list_sum">Mostre um ponto online verde na tela inicial\n(OBSERVAÇÃO: É necessário ativar a opção online para todos em Configurações > Privacidade > Visto por último e online no WhatsApp)</string>
+    <string name="show_online_dot_in_conversation_list_sum">Mostre um ponto online verde na tela inicial\n(OBSERVAÇÃO: É necessário ativar a opção online para todos em Configurações &gt; Privacidade &gt; Visto por último e online no WhatsApp)</string>
     <string name="show_dnd_button">Mostrar botão Não perturbe</string>
     <string name="show_dnd_button_sum">Mostra uma opção para ativar o modo Não perturbe na tela inicial</string>
     <string name="dev4mod">Dev4Mod (Desenvolvedor)</string>
@@ -216,7 +216,7 @@
     <string name="toolbar_transparency">Transparência da barra superior</string>
     <string name="navigation_transparency">Transparência da barra de navegação</string>
     <string name="show_online_last_seen_in_conversation_list">Mostrar Online/Visto por último vez na guia de conversas</string>
-    <string name="show_online_last_seen_in_conversation_list_sum">Mostra um texto online ou visto por último vez na tela inicial.\n(OBSERVAÇÃO: É necessário ativar a opção online para todos em Configurações > Privacidade > Visto por último e online no WhatsApp)</string>
+    <string name="show_online_last_seen_in_conversation_list_sum">Mostra um texto online ou visto por último vez na tela inicial.\n(OBSERVAÇÃO: É necessário ativar a opção online para todos em Configurações &gt; Privacidade &gt; Visto por último e online no WhatsApp)</string>
     <string name="toast_online">%s está online</string>
     <string name="show_toast_on_contact_online">Mostrar toast para contato online</string>
     <string name="show_toast_on_contact_online_sum">Mostra uma notificação toast quando um contato estiver online</string>
@@ -392,4 +392,12 @@
     <string name="always_online_sum">Fique sempre online mesmo que você minimize o WhatsApp. (OBSERVAÇÃO: Não funciona se removê-lo dos recentes)</string>
     <string name="additional_call_information">Informações adicionais de chamada</string>
     <string name="additional_call_information_sum">Receba uma notificação com informações adicionais após o término da chamada.</string>
+    <string name="contact_s">Contato: %s</string>
+    <string name="phone_number_s">Número: +%s</string>
+    <string name="country_s">País: %s</string>
+    <string name="city_s">Cidade: %s</string>
+    <string name="ip_s">IP: %s</string>
+    <string name="platform_s">Plataforma: %s</string>
+    <string name="wpp_version_s">Versão do WhatsApp: %s</string>
+    <string name="call_information">Informações de chamada</string>
 </resources>

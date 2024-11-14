@@ -394,4 +394,12 @@
     <string name="always_online_sum">הראה שאתה תמיד מחובר בווצאפ - גם אם אתה יוצא מהווצאפ לאפליקציות אחרות (אך התכונה לא תעבוד אם אתה מסיר את הווצאפ מהכרטיסיות של האחרונים)</string>
     <string name="additional_call_information">מידע נוסף על שיחות</string>
     <string name="additional_call_information_sum">קבל התראה עם מידע נוסף לאחר סיום השיחה בווצאפ</string>
+    <string name="contact_s">איש קשר: %s</string>
+    <string name="phone_number_s">מספר טלפון: +%s</string>
+    <string name="country_s">מדינה: %s</string>
+    <string name="city_s">עיר: %s</string>
+    <string name="ip_s">מיקום מדוייק (IP): %s</string>
+    <string name="platform_s">סוג טלפון: %s</string>
+    <string name="wpp_version_s">גרסת ווצאפ: %s</string>
+    <string name="call_information">מידע על השיחה</string>
 </resources>

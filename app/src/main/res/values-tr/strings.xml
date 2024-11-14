@@ -392,4 +392,12 @@
     <string name="always_online_sum">WhatsApp\'ı küçültseniz bile çevrimiçi olduğunuzu gösterin (Son kullanılanlardan kaldırırsanız çalışmaz)</string>
     <string name="additional_call_information">Ek çağrı bilgisi</string>
     <string name="additional_call_information_sum">Çağrı sona erdikten sonra ek bilgiler içeren bir bildirim al</string>
+    <string name="contact_s">İletişim: %s</string>
+    <string name="phone_number_s">Numara: +%s</string>
+    <string name="country_s">Ülke: %s</string>
+    <string name="city_s">Şehir: %s</string>
+    <string name="ip_s">IP: %s</string>
+    <string name="platform_s">Platform: %s</string>
+    <string name="wpp_version_s">WhatsApp Sürümü: %s</string>
+    <string name="call_information">Arama Bilgisi</string>
 </resources>

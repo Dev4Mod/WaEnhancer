@@ -17,8 +17,8 @@
     <string name="segundosnahora">Detik dalam Waktu</string>
     <string name="segundosnahora_sum">Tampilkan detik di samping waktu apapun di aplikasi WhatsApp</string>
     <string name="textonahora">Teks di samping Waktu</string>
-    <string name="viewonce">Unlimited View Once</string>
-    <string name="viewonce_sum">Allows you to open view once media multiple times</string>
+    <string name="viewonce">Tampilan Tak Terbatas Sekali</string>
+    <string name="viewonce_sum">Memungkinkan Anda membuka tampilan media sekali beberapa kali</string>
     <string name="novotema_sum">Ubah warna dan tema ikon menjadi tema WhatsApp baru</string>
     <string name="antirevokestatus">Anti Hapus Status</string>
     <string name="antirevokestatus_sum">Status tidak akan dihapus untuk Anda</string>
@@ -72,8 +72,8 @@
 (CATATAN: Harus mengaktifkan \"Sembunyikan centang biru\")</string>
     <string name="hide_archived_chat">Sembunyikan Obrolan yang Diarsipkan</string>
     <string name="hide_archived_chat_sum">Sembunyikan obrolan yang diarsipkan, untuk mengakses klik 5 kali pada judul \"WhatsApp\" di header Layar Beranda</string>
-    <string name="hide_once_view_seen">Hide View Once Seen</string>
-    <string name="hide_once_view_seen_sum">Hide that view one media has been seen</string>
+    <string name="hide_once_view_seen">Sembunyikan Tampilan Setelah Dilihat</string>
+    <string name="hide_once_view_seen_sum">Sembunyikan tampilan yang telah dilihat satu media</string>
     <string name="call_blocker">Blokir Panggilan</string>
     <string name="call_blocker_sum">Blokir panggilan WhatsApp berdasarkan jenis privasi</string>
     <string name="show_online_dot_in_conversation_list">Tampilkan Titik Online</string>
@@ -232,8 +232,8 @@ Saat Anda mengaktifkan bekukan \"terakhir dilihat dan online\", Anda tidak dapat
     <string name="show_toast_on_contact_online_sum">Tampilkan notifikasi mengambang ketika kontak sedang online</string>
     <string name="new_context_menu_ui">Menu UI Konteks Baru</string>
     <string name="new_context_menu_ui_sum">Aktifkan menu konteks pesan baru bergaya iOS</string>
-    <string name="filter_items_by_id">Filter Items By ID</string>
-    <string name="filter_items_by_id_sum">Filter items by id name</string>
+    <string name="filter_items_by_id">Filter Item Berdasarkan ID</string>
+    <string name="filter_items_by_id_sum">Filter item berdasarkan nama id</string>
     <string name="custom_theme_css">Tema Khusus CSS</string>
     <string name="custom_theme_css_sum">Sesuaikan WhatsApp Anda menggunakan gaya CSS</string>
     <string name="antidisappearing">Anti Hapus Pesan Sementara</string>
@@ -299,19 +299,19 @@ Saat Anda mengaktifkan bekukan \"terakhir dilihat dan online\", Anda tidak dapat
     <string name="select_status_type">Pilih jenis status</string>
     <string name="open_camera">Buka Kamera</string>
     <string name="edit_text">Edit Teks</string>
-    <string name="about_info">Wa Enhancer is an Xposed module that enhances your WhatsApp experience by offering advanced privacy features, home screen customization, general tweaks, and media improvements.</string>
-    <string name="installation">Installation</string>
-    <string name="installation_desc">1. Ensure that your device is rooted.\n2. Install the Xposed Framework on your device.\n3. Download the Wa Enhancer from the Actions section.\n4. Install the Wa Enhancer APK.\n5. Enable the Wa Enhancer module in the Xposed Installer app.</string>
-    <string name="go_to_telegram">Go to Telegram</string>
+    <string name="about_info">Wa Enhancer adalah modul Xposed yang meningkatkan pengalaman WhatsApp Anda dengan menawarkan fitur privasi tingkat lanjut, kustomisasi layar beranda, penyesuaian umum, dan peningkatan media.</string>
+    <string name="installation">Instalasi</string>
+    <string name="installation_desc">1. Pastikan perangkat Anda telah di-root.\n2. Instal Xposed Framework di perangkat Anda.\n3. Unduh Wa Enhancer dari bagian Actions.\n4. Instal APK Wa Enhancer.\n5. Aktifkan modul Wa Enhancer di aplikasi Xposed Installer.</string>
+    <string name="go_to_telegram">Pergi ke Telegram</string>
     <string name="go_to_github">Go to GitHub</string>
     <string name="donate">Donate</string>
     <string name="support">Support</string>
-    <string name="support_desc">If you encounter any issues or have questions about Wa Enhancer, please visit Telegram.</string>
+    <string name="support_desc">Jika Anda mengalami masalah atau memiliki pertanyaan tentang Wa Enhancer, silakan kunjungi Telegram.</string>
     <string name="license">License</string>
-    <string name="license_desc">This project is licensed under the GNU License - see the LICENSE file for details.\n\nNote: Please use Wa Enhancer responsibly and in compliance with the terms and conditions of the apps you are modifying. Misuse of this tool may lead to legal consequences.</string>
+    <string name="license_desc">Proyek ini dilisensikan berdasarkan Lisensi GNU - lihat berkas LICENSE untuk detailnya.\n\nCatatan: Harap gunakan Wa Enhancer secara bertanggung jawab dan sesuai dengan syarat dan ketentuan aplikasi yang Anda modifikasi. Penyalahgunaan alat ini dapat mengakibatkan konsekuensi hukum.</string>
     <string name="select_a_color">Select a color</string>
-    <string name="custom_appearance">Custom Appearance</string>
-    <string name="custom_filters_sum">Activate filters by ID and Custom CSS</string>
+    <string name="custom_appearance">Penampilan Kustom</string>
+    <string name="custom_filters_sum">Aktifkan filter berdasarkan ID dan CSS Kustom</string>
     <string name="click_times">Click 5 times on the WhatsApp title</string>
     <string name="hold_title">Hold on WhatsApp title</string>
     <string name="read_all_mark_as_read">Read all (mark as read)</string>
@@ -404,4 +404,12 @@ Saat Anda mengaktifkan bekukan \"terakhir dilihat dan online\", Anda tidak dapat
     <string name="always_online_sum">Show you online even if you minimize WhatsApp (Doesn\'t work if you remove it from recents)</string>
     <string name="additional_call_information">Additional call information</string>
     <string name="additional_call_information_sum">Receive a notification with additional information after the call ends</string>
+    <string name="contact_s">Contact: %s</string>
+    <string name="phone_number_s">Number: +%s</string>
+    <string name="country_s">Country: %s</string>
+    <string name="city_s">City: %s</string>
+    <string name="ip_s">IP: %s</string>
+    <string name="platform_s">Platform: %s</string>
+    <string name="wpp_version_s">WhatsApp Version: %s</string>
+    <string name="call_information">Call Information</string>
 </resources>

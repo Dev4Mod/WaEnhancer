@@ -392,4 +392,12 @@
     <string name="always_online_sum">Показать вас в сети, даже если вы минимизируете WhatsApp (не работает, если вы удалите из недавних приложений)</string>
     <string name="additional_call_information">Дополнительная информация о звонке</string>
     <string name="additional_call_information_sum">Получать уведомление с дополнительной информацией после завершения звонка</string>
+    <string name="contact_s">Контакт: %s</string>
+    <string name="phone_number_s">Номер: +%s</string>
+    <string name="country_s">Страна: %s</string>
+    <string name="city_s">Город: %s</string>
+    <string name="ip_s">IP: %s</string>
+    <string name="platform_s">Платформа: %s</string>
+    <string name="wpp_version_s">Версия WhatsApp: %s</string>
+    <string name="call_information">Информация о звонке</string>
 </resources>
