@@ -202,23 +202,24 @@ public class CustomView extends Feature {
         for (var declaration : ruleItem.rule) {
             var property = declaration.getProperty();
             switch (property) {
-                case "position" -> {
+                case "parent" -> {
                     var value = declaration.get(0).toString().trim();
-                    if ("relative".equals(value)) {
-                        var parentView = (ViewGroup) view.getParent();
-                        if (parentView != null) {
-                            if (!(parentView instanceof FrameLayout) && parentView.getTag() != "relative") {
-                                var frameLayout = new FrameLayout(parentView.getContext());
-                                frameLayout.setTag("relative");
-                                var params = new FrameLayout.LayoutParams(view.getLayoutParams());
-                                var viewRoot = (ViewGroup) view.getRootView();
-                                viewRoot.addView(frameLayout, params);
-                                parentView.removeView(view);
-                                frameLayout.addView(view);
-                                view = frameLayout;
-                            } else if (parentView.getTag() == "relative") {
-                                view = parentView;
-                            }
+                    var parent = view.getRootView();
+                    if (!"root".equals(value)) {
+                        parent = parent.findViewById(Utils.getID(value, "id"));
+                    }
+                    if (parent instanceof ViewGroup parentView) {
+                        var oldParent = (View) view.getParent();
+                        if (oldParent.getTag() != "relative") {
+                            ((ViewGroup) view.getParent()).removeView(view);
+                            var frameLayout = new FrameLayout(parentView.getContext());
+                            frameLayout.setTag("relative");
+                            var params = new FrameLayout.LayoutParams(view.getLayoutParams());
+                            parentView.addView(frameLayout, 0, params);
+                            frameLayout.addView(view);
+                            view = frameLayout;
+                        } else if (oldParent.getTag() == "relative") {
+                            view = oldParent;
                         }
                     }
                 }
