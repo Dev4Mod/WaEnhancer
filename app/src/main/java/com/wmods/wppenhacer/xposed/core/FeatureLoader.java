@@ -268,6 +268,7 @@ public class FeatureLoader {
                 BubbleColors.class,
                 CallPrivacy.class,
                 CustomTheme.class,
+//                CustomThemeV2.class,
                 ChatLimit.class,
                 SeparateGroup.class,
                 ShowOnline.class,
