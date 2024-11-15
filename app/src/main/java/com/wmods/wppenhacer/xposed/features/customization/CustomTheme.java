@@ -184,8 +184,8 @@ public class CustomTheme extends Feature {
                     switch (c) {
                         case "0b141a", "0a1014" ->
                                 IColors.colors.put(c, backgroundColor.substring(3));
-                        case "#ff0b141a", "#ff111b21", "#ff000000", "#ff0a1014", "#ff10161a" ->
-                                IColors.colors.put(c, backgroundColor);
+                        case "#ff0b141a", "#ff111b21", "#ff000000", "#ff0a1014", "#ff10161a",
+                             "#ff12181c", "#ff20272b" -> IColors.colors.put(c, backgroundColor);
                     }
                 }
 
@@ -256,7 +256,7 @@ public class CustomTheme extends Feature {
     private void replaceTransparency(HashMap<String, String> wallpaperColors, float mAlpha) {
         var hexAlpha = Integer.toHexString((int) Math.ceil(mAlpha * 255));
         hexAlpha = hexAlpha.length() == 1 ? "0" + hexAlpha : hexAlpha;
-        for (var c : List.of("#ff0b141a", "#ff10161a", "#ff111b21", "#ff000000", "#ffffffff", "#ff1b8755", "#ff0a1014", "#ff12181c")) {
+        for (var c : List.of("#ff0b141a", "#ff10161a", "#ff111b21", "#ff000000", "#ffffffff", "#ff1b8755", "#ff0a1014", "#ff12181c", "#ff10161a", "#ff20272b")) {
             var oldColor = wallpaperColors.get(c);
             if (oldColor == null) continue;
             var newColor = "#" + hexAlpha + oldColor.substring(3);
@@ -293,24 +293,11 @@ public class CustomTheme extends Feature {
     public static class ColorStateListHook extends XC_MethodHook {
         @Override
         protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
-            var colors = IColors.colors;
             var colorStateList = param.args[0];
             if (colorStateList != null) {
                 var mColors = (int[]) XposedHelpers.getObjectField(colorStateList, "mColors");
                 for (int i = 0; i < mColors.length; i++) {
-                    var sColor = IColors.toString(mColors[i]);
-                    var newColor = colors.get(sColor);
-                    if (newColor != null && newColor.length() == 9) {
-                        mColors[i] = IColors.parseColor(newColor);
-                    } else {
-                        if (!sColor.equals("#0") && !sColor.startsWith("#ff")) {
-                            var sColorSub = sColor.substring(0, 3);
-                            newColor = colors.get(sColor.substring(3));
-                            if (newColor != null) {
-                                mColors[i] = IColors.parseColor(sColorSub + newColor);
-                            }
-                        }
-                    }
+                    mColors[i] = IColors.getFromIntColor(mColors[i]);
                 }
                 XposedHelpers.setObjectField(colorStateList, "mColors", mColors);
                 param.args[0] = colorStateList;
@@ -321,28 +308,22 @@ public class CustomTheme extends Feature {
     public static class IntBgColorHook extends XC_MethodHook {
         @Override
         protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
-            var colors = IColors.colors;
             var color = (int) param.args[0];
             var sColor = IColors.toString(color);
+
             if (param.thisObject instanceof TextView textView) {
                 var id = Utils.getID("conversations_row_message_count", "id");
                 if (textView.getId() == id) {
                     param.args[0] = IColors.parseColor("#ff" + sColor.substring(sColor.length() == 9 ? 3 : 1));
                     return;
                 }
-            }
-            var newColor = colors.get(sColor);
-            if (newColor != null && newColor.length() == 9) {
-                param.args[0] = IColors.parseColor(newColor);
-            } else {
-                if (!sColor.equals("#0") && !sColor.startsWith("#ff")) {
-                    var sColorSub = sColor.substring(0, 3);
-                    newColor = colors.get(sColor.substring(3));
-                    if (newColor != null) {
-                        param.args[0] = IColors.parseColor(sColorSub + newColor);
-                    }
+            } else if (param.thisObject instanceof Paint) {
+                // This fixes the issue with background colors affecting chat bubbles
+                if (ReflectionUtils.isCalledFromStrings("getValue")) {
+                    return;
                 }
             }
+            param.args[0] = IColors.getFromIntColor(color);
         }
     }
 }

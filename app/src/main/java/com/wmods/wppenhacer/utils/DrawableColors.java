@@ -1,6 +1,5 @@
 package com.wmods.wppenhacer.utils;
 
-import static com.wmods.wppenhacer.utils.IColors.parseColor;
 import static com.wmods.wppenhacer.xposed.features.customization.CustomTheme.loader1;
 
 import android.content.res.ColorStateList;
@@ -27,12 +26,15 @@ import de.robv.android.xposed.XposedHelpers;
 
 public class DrawableColors {
 
-    private static final HashMap<Bitmap,Integer> ninePatchs = new HashMap<>();
+    private static final HashMap<Bitmap, Integer> ninePatchs = new HashMap<>();
 
     public static void replaceColor(Drawable drawable, HashMap<String, String> colors) {
-        if (DesignUtils.isNightMode()){
+        if (drawable == null) return;
+
+        if (DesignUtils.isNightMode()) {
             colors.remove("#ffffffff");
         }
+
         if (drawable instanceof StateListDrawable stateListDrawable) {
             var count = StateListDrawableCompact.getStateCount(stateListDrawable);
             for (int i = 0; i < count; i++) {
@@ -59,19 +61,10 @@ public class DrawableColors {
             var gradientColors = gradientDrawable.getColors();
             if (gradientColors != null) {
                 for (var i = 0; i < gradientColors.length; i++) {
-                    var gradientColor = IColors.toString(gradientColors[i]);
-                    var newColor = colors.get(gradientColor);
-//                    XposedBridge.log(gradientColor + " / " + newColor);
-                    if (newColor != null) {
-                        gradientColors[i] = IColors.parseColor(newColor);
-                    } else {
-                        if (!gradientColor.startsWith("#ff") && !gradientColor.startsWith("#0")) {
-                            var sColorSub = gradientColor.substring(0, 3);
-                            newColor = colors.get(gradientColor.substring(3));
-                            if (newColor != null)
-                                gradientColors[i] = IColors.parseColor(sColorSub + newColor);
-                        }
-                    }
+                    var color = gradientColors[i];
+                    var newColor = IColors.getFromIntColor(color);
+                    if (color == newColor) continue;
+                    gradientColors[i] = newColor;
                 }
                 gradientDrawable.setColors(gradientColors);
             }
@@ -79,29 +72,18 @@ public class DrawableColors {
             replaceColor(insetDrawable.getDrawable(), colors);
         } else if (drawable instanceof NinePatchDrawable ninePatchDrawable) {
             var color = getNinePatchDrawableColor(ninePatchDrawable);
-            var sColor = IColors.toString(color);
-            var newColor = colors.get(sColor);
-//            XposedBridge.log(sColor + " / " + newColor);
-            if (newColor != null) {
-                ninePatchDrawable.setTintList(ColorStateList.valueOf(parseColor(newColor)));
-            }
+            var newColor = IColors.getFromIntColor(color);
+            if (color == newColor) return;
+            ninePatchDrawable.setTintList(ColorStateList.valueOf(newColor));
+
+        } else if (drawable instanceof ColorDrawable colorDrawable) {
+            var color = getColorDrawableColor(colorDrawable);
+            colorDrawable.setColor(IColors.getFromIntColor(color));
         } else {
-            if (drawable == null) return;
             var color = getColor(drawable);
-            var sColor = IColors.toString(color);
-            var newColor = colors.get(sColor);
-//            XposedBridge.log(sColor + " / " + newColor);
-            if (newColor != null) {
-                drawable.setColorFilter(new PorterDuffColorFilter(parseColor(newColor), PorterDuff.Mode.SRC_IN));
-            } else {
-                if (!sColor.startsWith("#ff") && !sColor.startsWith("#0")) {
-                    var sColorSub = sColor.substring(0, 3);
-                    newColor = colors.get(sColor.substring(3));
-                    if (newColor != null) {
-                        drawable.setColorFilter(new PorterDuffColorFilter(parseColor(sColorSub + newColor), PorterDuff.Mode.SRC_IN));
-                    }
-                }
-            }
+            var newColor = IColors.getFromIntColor(color);
+            if (color == newColor) return;
+            drawable.setColorFilter(new PorterDuffColorFilter(newColor, PorterDuff.Mode.SRC_IN));
         }
 
     }
@@ -140,7 +122,6 @@ public class DrawableColors {
         var corSalva = ninePatchs.get(bitmap);
         if (corSalva != null) return corSalva;
 
-        //        return bitmap.getPixel(width / 2, Math.min(5, height));
         HashMap<Integer, Integer> contagemCores = new HashMap<>();
         int corMaisFrequente = 0;
         int contagemMaxima = 0;

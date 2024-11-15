@@ -31,6 +31,7 @@ public class IColors {
         colors.put("#ff0a1014", "#ff0a1014"); // background green color (above version 22)
         colors.put("#ff10161a", "#ff10161a"); // background header green color (above version 22)
         colors.put("#ff12181c", "#ff12181c"); // background header green color (above version 22)
+        colors.put("#ff20272b", "#ff20272b"); // background footer (above version 22)
 
 
         colors.put("#ffffffff", "#ffffffff"); // background color in light theme
@@ -54,8 +55,28 @@ public class IColors {
     }
 
     public static String toString(int i) {
-        return "#" + Integer.toHexString(i);
+        var color = Integer.toHexString(i);
+        if (color.length() == 7) {
+            color = "0" + color;
+        }
+        return "#" + color;
     }
 
 
+    public static int getFromIntColor(int color) {
+        var sColor = IColors.toString(color);
+        var newColor = colors.get(sColor);
+        if (newColor != null && newColor.length() == 9) {
+            return IColors.parseColor(newColor);
+        } else {
+            if (!sColor.equals("#0") && !sColor.startsWith("#ff")) {
+                var sColorSub = sColor.substring(0, 3);
+                newColor = colors.get(sColor.substring(3));
+                if (newColor != null) {
+                    return IColors.parseColor(sColorSub + newColor);
+                }
+            }
+        }
+        return color;
+    }
 }
