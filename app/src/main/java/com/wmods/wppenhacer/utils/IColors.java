@@ -23,6 +23,9 @@ public class IColors {
         colors.put("#ff25d366", "#ff25d366"); // status indicator
         colors.put("#ffd9fdd3", "#ffd9fdd3"); // nav bar color in light theme
         colors.put("#ff15603e", "#ff15603e");  // nav bar color in light theme
+        colors.put("#fff1f2f4", "#fff1f2f4"); // nav bar color in light theme
+        colors.put("#ff008069", "#ff008069"); // header and buttons in light theme
+
         colors.put("15603e", "15603e");
 //        colors.put("#0b141a", "#ff0b141a");
 
@@ -32,10 +35,11 @@ public class IColors {
         colors.put("#ff10161a", "#ff10161a"); // background header green color (above version 22)
         colors.put("#ff12181c", "#ff12181c"); // background header green color (above version 22)
         colors.put("#ff20272b", "#ff20272b"); // background footer (above version 22)
-
+        colors.put("#ff3a484f", "#ff3a484f"); // background of Dialogs
 
         colors.put("#ffffffff", "#ffffffff"); // background color in light theme
         colors.put("#ff1b8755", "#ff1b8755"); // background toolbar color in light theme
+
 
         // Secondary
         colors.put("#ff202c33", "#ff202c33");

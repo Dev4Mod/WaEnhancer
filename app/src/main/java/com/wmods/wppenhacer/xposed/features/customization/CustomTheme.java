@@ -173,8 +173,8 @@ public class CustomTheme extends Feature {
                         case "00a884", "1da457", "21c063", "d9fdd3" ->
                                 IColors.colors.put(c, primaryColor.substring(3));
                         case "#ff00a884", "#ff1da457", "#ff21c063", "#ff1daa61", "#ff25d366",
-                             "#ffd9fdd3" -> IColors.colors.put(c, primaryColor);
-                        case "#ff103529" ->
+                             "#ffd9fdd3", "#ff008069" -> IColors.colors.put(c, primaryColor);
+                        case "#ff103529", "#fff1f2f4" ->
                                 IColors.colors.put(c, "#66" + primaryColor.substring(3));
                     }
                 }
@@ -185,7 +185,8 @@ public class CustomTheme extends Feature {
                         case "0b141a", "0a1014" ->
                                 IColors.colors.put(c, backgroundColor.substring(3));
                         case "#ff0b141a", "#ff111b21", "#ff000000", "#ff0a1014", "#ff10161a",
-                             "#ff12181c", "#ff20272b" -> IColors.colors.put(c, backgroundColor);
+                             "#ff12181c", "#ff20272b", "#ff3a484f" ->
+                                IColors.colors.put(c, backgroundColor);
                     }
                 }
 
