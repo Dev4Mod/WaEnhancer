@@ -1,9 +1,20 @@
 [FIXES]
-* Fixed bug in groups and conversations tab
-* Fixed bug in colors
+* Fixed bug where background colors affected conversation bubbles
+* Fixed small bugs in colors
+* Fixed IGStatus in version 2.24.23.XX (Provisional fix, as IG Status now it stays fixed at the top)
+* Fixed video size limit not working for some videos
+* Fix auto transcription in new audio messages
+* Fixed animated emojis (list of emojis: https://pastebin.com/gzD12jDW)
+* Fix bug in call privacy
+* Fixed bug when hiding channels in new versions of Wpp
 
 [WHATSAPP]
-* Added pre-support for version 2.24.23.xx (Thanks again to frknkrc44)
+* Add Initial support for beta 2.24.24. XX
+* Removed from the support list versions prior to 2.24.20.XX
+
+[FEATURES]
+* Video limit size is now adjustable and can reach up to 120MB
+* Removed the option to send videos in original resolution (it had a lot of bugs)
 
 [WAE]
 * Updated translations
