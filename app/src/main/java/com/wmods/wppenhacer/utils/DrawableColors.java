@@ -62,7 +62,7 @@ public class DrawableColors {
             if (gradientColors != null) {
                 for (var i = 0; i < gradientColors.length; i++) {
                     var color = gradientColors[i];
-                    var newColor = IColors.getFromIntColor(color);
+                    var newColor = IColors.getFromIntColor(color, colors);
                     if (color == newColor) continue;
                     gradientColors[i] = newColor;
                 }
@@ -72,16 +72,15 @@ public class DrawableColors {
             replaceColor(insetDrawable.getDrawable(), colors);
         } else if (drawable instanceof NinePatchDrawable ninePatchDrawable) {
             var color = getNinePatchDrawableColor(ninePatchDrawable);
-            var newColor = IColors.getFromIntColor(color);
+            var newColor = IColors.getFromIntColor(color, colors);
             if (color == newColor) return;
             ninePatchDrawable.setTintList(ColorStateList.valueOf(newColor));
-
         } else if (drawable instanceof ColorDrawable colorDrawable) {
             var color = getColorDrawableColor(colorDrawable);
-            colorDrawable.setColor(IColors.getFromIntColor(color));
+            colorDrawable.setColor(IColors.getFromIntColor(color, colors));
         } else {
             var color = getColor(drawable);
-            var newColor = IColors.getFromIntColor(color);
+            var newColor = IColors.getFromIntColor(color, colors);
             if (color == newColor) return;
             drawable.setColorFilter(new PorterDuffColorFilter(newColor, PorterDuff.Mode.SRC_IN));
         }

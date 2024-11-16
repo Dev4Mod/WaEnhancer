@@ -67,7 +67,7 @@ public class IColors {
     }
 
 
-    public static int getFromIntColor(int color) {
+    public static int getFromIntColor(int color, HashMap<String, String> colors) {
         var sColor = IColors.toString(color);
         var newColor = colors.get(sColor);
         if (newColor != null && newColor.length() == 9) {

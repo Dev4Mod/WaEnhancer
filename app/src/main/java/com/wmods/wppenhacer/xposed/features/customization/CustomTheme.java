@@ -75,7 +75,7 @@ public class CustomTheme extends Feature {
             return;
 
         var clazz = XposedHelpers.findClass("com.whatsapp.HomeActivity", classLoader);
-        XposedHelpers.findAndHookMethod(clazz.getSuperclass(), "onCreate", Bundle.class, new XC_MethodHook() {
+        XposedHelpers.findAndHookMethod(clazz, "onCreate", Bundle.class, new XC_MethodHook() {
             @Override
             protected void afterHookedMethod(MethodHookParam param) throws Throwable {
                 var activity = (Activity) param.thisObject;
@@ -107,12 +107,9 @@ public class CustomTheme extends Feature {
                     var colorfilters = XposedHelpers.getObjectField(background, "A01");
                     var fields = ReflectionUtils.getFieldsByType(colorfilters.getClass(), ColorStateList.class);
                     var colorStateList = (ColorStateList) fields.get(0).get(colorfilters);
-                    if (colorStateList == null) return;
-                    var color = IColors.toString(colorStateList.getDefaultColor());
-                    var newColor = navAlpha.get(color);
-                    if (newColor != null) {
-                        background.setTint(IColors.parseColor(newColor));
-                    }
+                    var newColor = IColors.getFromIntColor(colorStateList.getDefaultColor(), navAlpha);
+                    if (newColor == colorStateList.getDefaultColor()) return;
+                    background.setTint(newColor);
                 } catch (Throwable ignored) {
                 }
             }
@@ -257,7 +254,9 @@ public class CustomTheme extends Feature {
     private void replaceTransparency(HashMap<String, String> wallpaperColors, float mAlpha) {
         var hexAlpha = Integer.toHexString((int) Math.ceil(mAlpha * 255));
         hexAlpha = hexAlpha.length() == 1 ? "0" + hexAlpha : hexAlpha;
-        for (var c : List.of("#ff0b141a", "#ff10161a", "#ff111b21", "#ff000000", "#ffffffff", "#ff1b8755", "#ff0a1014", "#ff12181c", "#ff10161a", "#ff20272b")) {
+        for (var c : List.of("#ff0b141a", "#ff10161a", "#ff111b21", "#ff000000",
+                "#ffffffff", "#ff1b8755", "#ff0a1014", "#ff12181c", "#ff20272b", "#ff3a484f"
+        )) {
             var oldColor = wallpaperColors.get(c);
             if (oldColor == null) continue;
             var newColor = "#" + hexAlpha + oldColor.substring(3);
@@ -269,7 +268,8 @@ public class CustomTheme extends Feature {
     private void injectWallpaper(View view) {
         var content = (ViewGroup) view;
         var rootView = (ViewGroup) content.getChildAt(0);
-        var header = (ViewGroup) rootView.findViewById(Utils.getID("header", "id"));
+
+        var header = content.findViewById(Utils.getID("header", "id"));
         replaceColors(header, toolbarAlpha);
         var frameLayout = new WallpaperView(rootView.getContext(), prefs, properties);
         rootView.addView(frameLayout, 0);
@@ -298,7 +298,7 @@ public class CustomTheme extends Feature {
             if (colorStateList != null) {
                 var mColors = (int[]) XposedHelpers.getObjectField(colorStateList, "mColors");
                 for (int i = 0; i < mColors.length; i++) {
-                    mColors[i] = IColors.getFromIntColor(mColors[i]);
+                    mColors[i] = IColors.getFromIntColor(mColors[i], IColors.colors);
                 }
                 XposedHelpers.setObjectField(colorStateList, "mColors", mColors);
                 param.args[0] = colorStateList;
@@ -324,7 +324,7 @@ public class CustomTheme extends Feature {
                     return;
                 }
             }
-            param.args[0] = IColors.getFromIntColor(color);
+            param.args[0] = IColors.getFromIntColor(color, IColors.colors);
         }
     }
 }

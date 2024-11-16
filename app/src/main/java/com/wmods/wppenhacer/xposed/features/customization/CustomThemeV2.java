@@ -87,7 +87,7 @@ public class CustomThemeV2 extends Feature {
                     if (typedValue.type >= TypedValue.TYPE_FIRST_INT
                             && typedValue.type <= TypedValue.TYPE_LAST_INT) {
                         if (typedValue.data == 0) return;
-                        typedValue.data = IColors.getFromIntColor(typedValue.data);
+                        typedValue.data = IColors.getFromIntColor(typedValue.data, IColors.colors);
                     }
                 }
             }
