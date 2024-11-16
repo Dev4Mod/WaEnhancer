@@ -393,7 +393,7 @@
     <string name="always_online_sum">إظهار أنك متصل الآن حتى لو قمت بإغلاق واتساب (لا يعمل إذا قمت بإزالته من الإعدادات)</string>
     <string name="additional_call_information">معلومات إضافية عن المكالمة</string>
     <string name="additional_call_information_sum">تلقي إشعار مع معلومات إضافية بعد انتهاء المكالمة</string>
-    <string name="contact_s">الإتصال: %s</string>
+    <string name="contact_s">المُتصل: %s</string>
     <string name="phone_number_s">الرقم: +%s</string>
     <string name="country_s">الدولة: %s</string>
     <string name="city_s">المدينة: %s</string>
