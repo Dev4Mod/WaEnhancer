@@ -201,9 +201,14 @@ public class SeparateGroup extends Feature {
         XposedBridge.hookMethod(recreateFragmentMethod, new XC_MethodHook() {
             @Override
             protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-                var bundle = (Bundle) param.args[0];
-                var state = bundle.getParcelable("state");
-                var string = state.toString();
+                var string = "";
+                if (param.args[0] instanceof Bundle bundle) {
+                    var state = bundle.getParcelable("state");
+                    if (state == null) return;
+                    string = state.toString();
+                } else {
+                    string = param.args[2].toString();
+                }
                 var matcher = pattern.matcher(string);
                 if (matcher.find()) {
                     var tabId = Integer.parseInt(matcher.group(1));
