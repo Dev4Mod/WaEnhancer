@@ -1726,6 +1726,10 @@ public class Unobfuscator {
         });
     }
 
+    public static synchronized Class loadTranscriptSegment(ClassLoader classLoader) throws Exception {
+        return UnobfuscatorCache.getInstance().getClass(classLoader, () -> findFirstClassUsingStrings(classLoader, StringMatchType.Contains, "TranscriptionSegment("));
+    }
+
     public static synchronized Method loadStateChangeMethod(ClassLoader classLoader) throws Exception {
         return UnobfuscatorCache.getInstance().getMethod(classLoader, () -> findFirstMethodUsingStrings(classLoader, StringMatchType.Contains, "presencestatemanager/startTransitionToUnavailable/new-state"));
     }
