@@ -82,31 +82,31 @@ public class MediaQuality extends Feature {
             var videoMethod = Unobfuscator.loadMediaQualityVideoMethod2(classLoader);
             logDebug(Unobfuscator.getMethodDescriptor(videoMethod));
 
-            var fields = Unobfuscator.loadMediaQualityVideoFields(classLoader);
+//            var mediaFields = Unobfuscator.loadMediaQualityOriginalVideoFields(classLoader);
+            var mediaTranscodeParams = Unobfuscator.loadMediaQualityVideoFields(classLoader);
 
             XposedBridge.hookMethod(videoMethod, new XC_MethodHook() {
+
                 @Override
                 protected void afterHookedMethod(MethodHookParam param) throws Throwable {
                     if ((int) param.args[1] == 3) {
                         var resizeVideo = param.getResult();
-//                        if (prefs.getBoolean("video_real_resolution", false)) {
+//                        var width = mediaFields.get("widthPx").getInt(param.args[0]);
+//                        var height = mediaFields.get("heightPx").getInt(param.args[0]);
 //
-//                            var sourceWidthField = fields.get("sourceWidth");
-//                            var sourceHeightField = fields.get("sourceHeight");
+//                        var targetWidthField = mediaTranscodeParams.get("targetWidth");
+//                        var targetHeightField = mediaTranscodeParams.get("targetHeight");
+//                        var targetWidth = targetWidthField.getInt(resizeVideo);
+//                        var targetHeight = targetHeightField.getInt(resizeVideo);
 //
-//                            var sourceWidth = sourceWidthField.getInt(resizeVideo);
-//                            var sourceHeight = sourceHeightField.getInt(resizeVideo);
+//                        var inverted = targetWidth > targetHeight != width > height;
 //
-//                            var targetWidthField = fields.get("targetWidth");
-//                            var targetHeightField = fields.get("targetHeight");
-//
-//                            targetHeightField.setInt(resizeVideo, sourceHeight);
-//                            targetWidthField.setInt(resizeVideo, sourceWidth);
-//                        }
+//                        targetHeightField.setInt(resizeVideo, inverted ? width : height);
+//                        targetWidthField.setInt(resizeVideo, inverted ? height : width);
+
                         if (prefs.getBoolean("video_maxfps", false)) {
-                            var frameRateField = fields.get("frameRate");
+                            var frameRateField = mediaTranscodeParams.get("frameRate");
                             frameRateField.setInt(resizeVideo, 60);
-//                            XposedHelpers.setIntField(resizeVideo, "A01", 60);
                         }
                     }
                 }

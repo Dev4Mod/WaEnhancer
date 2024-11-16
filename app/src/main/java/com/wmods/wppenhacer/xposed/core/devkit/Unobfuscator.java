@@ -498,6 +498,21 @@ public class Unobfuscator {
         return result;
     }
 
+    public synchronized static HashMap<String, Field> loadMediaQualityOriginalVideoFields(ClassLoader classLoader) throws Exception {
+        var method = loadMediaQualityVideoMethod2(classLoader);
+        var methodString = method.getParameterTypes()[0].getDeclaredMethod("toString");
+        var methodData = dexkit.getMethodData(methodString);
+        var usingFields = Objects.requireNonNull(methodData).getUsingFields();
+        var usingStrings = Objects.requireNonNull(methodData).getUsingStrings();
+        var result = new HashMap<String, Field>();
+        for (int i = 0; i < usingStrings.size(); i++) {
+            if (i == usingFields.size()) break;
+            var field = usingFields.get(i).getField().getFieldInstance(classLoader);
+            result.put(usingStrings.get(i), field);
+        }
+        return result;
+    }
+
     public synchronized static Class loadMediaQualityVideoLimitClass(ClassLoader classLoader) throws Exception {
         return UnobfuscatorCache.getInstance().getClass(classLoader, () -> {
             var clazz = findFirstClassUsingStrings(classLoader, StringMatchType.Contains, "videoLimitMb=");
@@ -867,8 +882,8 @@ public class Unobfuscator {
             var methodData = dexkit.getMethodData(method);
             var groupJidClass = XposedHelpers.findClass("com.whatsapp.jid.GroupJid", loader);
             var classCheckMethod = dexkit.findMethod(FindMethod.create()
-                    .searchInClass(Collections.singletonList(methodData.getDeclaredClass()))
-                    .matcher(MethodMatcher.create().returnType(groupJidClass)))
+                            .searchInClass(Collections.singletonList(methodData.getDeclaredClass()))
+                            .matcher(MethodMatcher.create().returnType(groupJidClass)))
                     .singleOrNull();
             if (classCheckMethod == null) {
                 var newMethod = methodData.getCallers().singleOrNull(method1 -> method1.getParamCount() == 4);
