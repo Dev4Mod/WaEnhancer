@@ -1,6 +1,5 @@
 package com.wmods.wppenhacer.xposed.features.media;
 
-import android.annotation.SuppressLint;
 import android.graphics.Bitmap;
 import android.graphics.RecordingCanvas;
 import android.os.Build;
@@ -30,12 +29,14 @@ public class MediaQuality extends Feature {
     public void doHook() throws Exception {
         var videoQuality = prefs.getBoolean("videoquality", false);
         var imageQuality = prefs.getBoolean("imagequality", false);
+        var maxSize = (int) prefs.getFloat("video_limit_size", 60);
 
         Others.propsBoolean.put(7950, false); // Força o uso do MediaComposer para processar os videos
 
         if (videoQuality) {
 
             Others.propsBoolean.put(5549, true); // Remove o limite de qualidade do video
+
             var jsonProperty = Unobfuscator.loadPropsJsonMethod(classLoader);
             XposedBridge.hookMethod(jsonProperty, new XC_MethodHook() {
                 @Override
@@ -51,7 +52,7 @@ public class MediaQuality extends Feature {
                             var key = (String) json.names().opt(i);
                             var jSONObject = json.getJSONObject(key);
                             jSONObject.put("max_bitrate", 16000);
-                            jSONObject.put("max_bandwidth", 90);
+                            jSONObject.put("max_bandwidth", maxSize);
                         }
                     }
                 }
@@ -118,13 +119,13 @@ public class MediaQuality extends Feature {
                 @Override
                 protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
                     super.beforeHookedMethod(param);
-                    if (prefs.getBoolean("video_size_limit", false)) {
-                        param.args[0] = 90;
-                    }
+                    param.args[0] = maxSize;
                     param.args[1] = 8000;  // 4K Resolution
                     param.args[2] = 96 * 1000 * 1000; // 96 Mbps
                 }
             });
+
+            Others.propsInteger.put(8606, maxSize);
 
         }
 

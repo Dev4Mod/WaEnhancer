@@ -152,8 +152,8 @@
     <string name="default_color">Set color #00000000 to default color</string>
     <string name="enable_confirmation_to_send_sticker">Confirmation Before Sending Sticker</string>
     <string name="enable_confirmation_to_send_sticker_sum">Show a dialog before sending the sticker</string>
-    <string name="increase_video_size_limit">Increase Video Size Limit</string>
-    <string name="increase_video_size_limit_sum">Increase Video size limit to 90MB</string>
+    <string name="increase_video_size_limit">Increase Video Size Limit (MB)</string>
+    <string name="increase_video_size_limit_sum">Increase Video size limit to 200MB</string>
     <string name="send_video_in_real_resolution">Send Video in Real Resolution</string>
     <string name="send_video_in_real_resolution_sum">Send Video in Real Resolution for status, group and chats</string>
     <string name="send_video_in_60fps">Send Video in 60fps</string>
