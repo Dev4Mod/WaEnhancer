@@ -177,7 +177,6 @@ public class SeparateGroup extends Feature {
         XposedBridge.hookMethod(tabNameMethod, new XC_MethodHook() {
             @Override
             protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
-                super.beforeHookedMethod(param);
                 var tab = (int) param.args[0];
                 if (tab == GROUPS) {
                     param.setResult(UnobfuscatorCache.getInstance().getString("groups"));
@@ -197,7 +196,7 @@ public class SeparateGroup extends Feature {
 
         var pattern = Pattern.compile("android:switcher:\\d+:(\\d+)");
 
-        Class<?> FragmentClass = classLoader.loadClass("androidx.fragment.app.Fragment");
+        Class<?> FragmentClass = Unobfuscator.loadFragmentClass(classLoader);
 
         XposedBridge.hookMethod(recreateFragmentMethod, new XC_MethodHook() {
             @Override

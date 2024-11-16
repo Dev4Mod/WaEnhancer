@@ -1752,4 +1752,11 @@ public class Unobfuscator {
         });
     }
 
+    public static Class<?> loadFragmentClass(ClassLoader classLoader) throws Exception {
+        return UnobfuscatorCache.getInstance().getClass(classLoader, () -> {
+            var clazz = findFirstClassUsingStrings(classLoader, StringMatchType.Contains, "mFragmentId=#");
+            if (clazz == null) throw new RuntimeException("Fragment class not found");
+            return clazz;
+        });
+    }
 }
