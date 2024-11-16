@@ -50,11 +50,11 @@
             app:summary="@string/increase_video_size_limit_sum"
             app:title="@string/increase_video_size_limit" />
 
-        <rikka.material.preference.MaterialSwitchPreference
-            app:dependency="videoquality"
-            app:key="video_real_resolution"
-            app:summary="@string/send_video_in_real_resolution_sum"
-            app:title="@string/send_video_in_real_resolution" />
+        <!--        <rikka.material.preference.MaterialSwitchPreference-->
+        <!--            app:dependency="videoquality"-->
+        <!--            app:key="video_real_resolution"-->
+        <!--            app:summary="@string/send_video_in_real_resolution_sum"-->
+        <!--            app:title="@string/send_video_in_real_resolution" />-->
 
         <rikka.material.preference.MaterialSwitchPreference
             app:dependency="videoquality"
