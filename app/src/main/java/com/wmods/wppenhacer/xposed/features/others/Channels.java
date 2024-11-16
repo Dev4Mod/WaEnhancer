@@ -49,19 +49,19 @@ public class Channels extends Feature {
             log("HeaderChannelItem: " + headerChannelItem);
             var listChannelItem = Unobfuscator.loadListChannelItemClass(classLoader);
             log("ListChannelItem: " + listChannelItem);
-            var listUpdateItems = Unobfuscator.loadListUpdateItemsConstructor(classLoader);
-            log("ListUpdateItems: " + Unobfuscator.getConstructorDescriptor(listUpdateItems));
-
-            XposedBridge.hookMethod(listUpdateItems,
-                    new XC_MethodHook() {
-                        @Override
-                        protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
-                            var list = ReflectionUtils.findArrayOfType(param.args, ArrayList.class);
-                            if (list.isEmpty()) return;
-                            var arrList = (ArrayList<?>) list.get(0).second;
-                            removeItems(arrList, channels, removechannelRec, headerChannelItem, listChannelItem, removeChannelRecClass);
-                        }
-                    });
+            var listUpdateItems = Unobfuscator.loadListUpdateItems(classLoader);
+            log("ListUpdateItems: " + Unobfuscator.getMethodDescriptor(listUpdateItems));
+            XposedBridge.hookMethod(listUpdateItems, new XC_MethodHook() {
+                @Override
+                protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
+                    var results = ReflectionUtils.findArrayOfType(param.args, List.class);
+                    if (results.isEmpty()) return;
+                    var list = (List<?>) results.get(0).second;
+                    var arrList = new ArrayList<>(list);
+                    removeItems(arrList, channels, removechannelRec, headerChannelItem, listChannelItem, removeChannelRecClass);
+                    param.args[results.get(0).first] = arrList;
+                }
+            });
 
             XposedBridge.hookAllConstructors(removeChannelRecClass, new XC_MethodHook() {
                 @Override

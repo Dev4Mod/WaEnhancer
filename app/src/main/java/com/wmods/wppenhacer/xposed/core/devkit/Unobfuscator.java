@@ -1534,17 +1534,12 @@ public class Unobfuscator {
 //        });
 //    }
 
-    public synchronized static Constructor loadListUpdateItemsConstructor(ClassLoader classLoader) throws Exception {
-        return UnobfuscatorCache.getInstance().getConstructor(classLoader, () -> {
-            var method = dexkit.findMethod(new FindMethod().matcher(new MethodMatcher().paramCount(1).returnType(void.class).addParamType(Object.class).addUsingNumber(8686)));
-            if (method.isEmpty()) {
-                // for 22.xx, use alternative method
-                method = dexkit.findMethod(new FindMethod().matcher(new MethodMatcher().paramCount(1).returnType(void.class).addUsingString("deleted", StringMatchType.Equals).addUsingString("membership", StringMatchType.Equals)));
-
-                if (method.isEmpty())
-                    throw new RuntimeException("ListUpdateItems method not found");
-            }
-            return method.get(0).getClassInstance(classLoader).getConstructors()[0];
+    public synchronized static Method loadListUpdateItems(ClassLoader classLoader) throws Exception {
+        return UnobfuscatorCache.getInstance().getMethod(classLoader, () -> {
+            var method = dexkit.findMethod(FindMethod.create().matcher(MethodMatcher.create().addUsingString("Running diff util, updates list size", StringMatchType.Contains)));
+            if (method.isEmpty())
+                throw new RuntimeException("ListUpdateItems method not found");
+            return method.get(0).getMethodInstance(classLoader);
         });
     }
 
