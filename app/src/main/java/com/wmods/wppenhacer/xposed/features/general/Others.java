@@ -127,7 +127,11 @@ public class Others extends Feature {
         if (audio_transcription) {
             Others.propsBoolean.put(8632, true);
             Others.propsBoolean.put(2890, true);
-            Others.propsBoolean.put(9215, true);
+            Others.propsBoolean.put(9215, false);
+            Others.propsBoolean.put(9216, true);
+            Others.propsBoolean.put(6808, true);
+            Others.propsBoolean.put(10286, true);
+            Others.propsBoolean.put(11596, true);
         }
 
         if (verticalStatus) {
