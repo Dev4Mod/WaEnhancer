@@ -32,9 +32,6 @@ public class AudioTranscript extends Feature {
     @Override
     public void doHook() throws Throwable {
 
-        XposedHelpers.findAndHookMethod("X.Agd", classLoader, "C8L", classLoader.loadClass("X.9zA"), classLoader.loadClass("X.22R"), classLoader.loadClass("java.lang.String"), classLoader.loadClass("java.util.List"),
-                DebugUtils.getDebugMethodHook(false, false, true, false));
-
         if (!prefs.getBoolean("assemblyai", false) || TextUtils.isEmpty(prefs.getString("assemblyai_key", "")))
             return;
 
