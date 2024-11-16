@@ -2,6 +2,7 @@ package com.wmods.wppenhacer.xposed.features.privacy;
 
 import android.os.Message;
 import android.text.TextUtils;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 
@@ -10,6 +11,7 @@ import com.wmods.wppenhacer.xposed.core.WppCore;
 import com.wmods.wppenhacer.xposed.core.devkit.Unobfuscator;
 import com.wmods.wppenhacer.xposed.features.general.Tasker;
 import com.wmods.wppenhacer.xposed.utils.ReflectionUtils;
+import com.wmods.wppenhacer.xposed.utils.Utils;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
@@ -34,8 +36,16 @@ public class CallPrivacy extends Feature {
         XposedBridge.hookMethod(onCallReceivedMethod, new XC_MethodHook() {
             @Override
             protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
-                Object callinfo = ((Message) param.args[0]).obj;
+                Object callinfo = null;
                 Class<?> callInfoClass = XposedHelpers.findClass("com.whatsapp.voipcalling.CallInfo", classLoader);
+                if (param.args[0] instanceof Message) {
+                    callinfo = ((Message) param.args[0]).obj;
+                } else if (param.args.length > 1 && callInfoClass.isInstance(param.args[1])) {
+                    callinfo = param.args[1];
+                } else {
+                    Utils.showToast("Invalid call info", Toast.LENGTH_SHORT);
+                    return;
+                }
                 if (callinfo == null || !callInfoClass.isInstance(callinfo)) return;
                 if ((boolean) XposedHelpers.callMethod(callinfo, "isCaller")) return;
                 var userJid = XposedHelpers.callMethod(callinfo, "getPeerJid");
