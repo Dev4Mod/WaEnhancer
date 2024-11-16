@@ -51,7 +51,7 @@ public class MediaQuality extends Feature {
                         for (int i = 0; i < json.length(); i++) {
                             var key = (String) json.names().opt(i);
                             var jSONObject = json.getJSONObject(key);
-                            jSONObject.put("max_bitrate", 16000);
+                            jSONObject.put("max_bitrate", 96000);
                             jSONObject.put("max_bandwidth", maxSize);
                         }
                     }
