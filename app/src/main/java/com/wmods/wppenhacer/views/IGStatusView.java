@@ -20,7 +20,7 @@ public class IGStatusView extends FrameLayout {
 
     private void init(Context context) {
         mStatusListView = new HorizontalListView(context);
-        var layoutParams = new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT);
+        var layoutParams = new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT);
 //        layoutParams.setMargins(Utils.dipToPixels(4), Utils.dipToPixels(10), 0, 0);
         mStatusListView.setLayoutParams(layoutParams);
         addView(mStatusListView);

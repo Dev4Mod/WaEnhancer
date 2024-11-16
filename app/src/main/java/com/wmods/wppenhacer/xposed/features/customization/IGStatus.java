@@ -2,6 +2,7 @@ package com.wmods.wppenhacer.xposed.features.customization;
 
 import android.view.ViewGroup;
 import android.widget.AbsListView;
+import android.widget.LinearLayout;
 import android.widget.ListView;
 
 import androidx.annotation.NonNull;
@@ -46,12 +47,23 @@ public class IGStatus extends Feature {
                     return;
                 var view = (ViewGroup) param.getResult();
                 if (view == null) return;
-                var mainView = (ListView) view.findViewById(android.R.id.list);
-                mainView.setNestedScrollingEnabled(true);
+                var list = view.findViewById(android.R.id.list);
                 var mStatusContainer = new IGStatusView(WppCore.getCurrentActivity());
-                var layoutParams = new AbsListView.LayoutParams(AbsListView.LayoutParams.MATCH_PARENT, Utils.dipToPixels(88));
-                mStatusContainer.setLayoutParams(layoutParams);
-                mainView.addHeaderView(mStatusContainer);
+                if (list instanceof ListView listView) {
+                    listView.setNestedScrollingEnabled(true);
+                    var layoutParams = new AbsListView.LayoutParams(AbsListView.LayoutParams.MATCH_PARENT, Utils.dipToPixels(88));
+                    mStatusContainer.setLayoutParams(layoutParams);
+                    listView.addHeaderView(mStatusContainer);
+                } else {
+                    // RecyclerView
+                    var paddingTop = list.getPaddingTop();
+                    var parentView = (ViewGroup) list.getParent();
+                    list.setPadding(0, 0, 0, 0);
+                    var layoutParams = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, Utils.dipToPixels(88));
+                    layoutParams.topMargin = paddingTop;
+                    mStatusContainer.setLayoutParams(layoutParams);
+                    parentView.addView(mStatusContainer, 0);
+                }
                 mListStatusContainer.add(mStatusContainer);
             }
         });
