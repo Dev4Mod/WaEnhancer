@@ -230,7 +230,7 @@
     <string name="freezelastseen">Friere \'Zuletzt gesehen\' ein</string>
     <string name="freezelastseen_message">Wenn das Einfrieren von \'Zuletzt gesehen\' aktiv ist, werden sie nicht in der Lage sein, andere zu sehen, die zuletzt gesehen wurden oder online sind</string>
     <string name="freezelastseen_sum">"Ihre zuletzt gesehene Zeit wird eingefroren
- (NOTE: Sie werden keine Aktualisierungen von anderen Benutzern, wie Tippen, Sprachaufnahme, online usw., sehen)"</string>
+(VORSICHT: Du wirst keine Aktualisierungen von anderen Benutzern, wie Tippen, Sprachaufnahme, online usw., sehen)"</string>
     <string name="freezelastseen_title">Friere \'Zuletzt gesehen\' ein</string>
     <string name="general">Sonstiges</string>
     <string name="ghost_mode">Geistmodus</string>
