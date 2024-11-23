@@ -68,7 +68,7 @@
     <string name="bottomsheet_action_expand_halfway">Zur Hälfte maximieren</string>
     <string name="bottomsheet_drag_handle_clicked">Auf Ziehpunkt doppelt getippt</string>
     <string name="bottomsheet_drag_handle_content_description">Ziehpunkt</string>
-    <string name="bridge_error">Bridge fehlgeschlagen: Aktiviere das System-Framework in LSPosed und starte as Gerät neu</string>
+    <string name="bridge_error">Bridge fehlgeschlagen: Aktiviere das System-Framework in LSPosed und starte das Gerät neu</string>
     <string name="bubble_left">Linke Blase</string>
     <string name="bubble_right">Rechte Blase</string>
     <string name="business_in_background">Whatsapp Business ist aktiv</string>
