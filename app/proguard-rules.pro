@@ -20,11 +20,17 @@
 # hide the original source file name.
 #-renamesourcefileattribute SourceFile
 -dontwarn *
+
 -keepclasseswithmembers class com.wmods.** {
      *;
 }
+
 -keepclasseswithmembernames class com.wmods.**
 
 -keepclasseswithmembers class cz.vutbr.** {
+     *;
+}
+
+-keepclasseswithmembers class com.assemblyai.api.** {
      *;
 }
