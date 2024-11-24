@@ -39,30 +39,24 @@
         app:iconSpaceReserved="false"
         app:title="@string/title_video">
 
-        <rikka.material.preference.MaterialSwitchPreference
-            app:key="videoquality"
-            app:summary="@string/videoquality_sum"
-            app:title="@string/videoquality" />
-
-        <!--        <rikka.material.preference.MaterialSwitchPreference-->
-        <!--            app:dependency="videoquality"-->
-        <!--            app:key="video_size_limit"-->
-        <!--            app:summary="@string/increase_video_size_limit_sum"-->
-        <!--            app:title="@string/increase_video_size_limit" />-->
-
         <com.wmods.wppenhacer.preference.FloatSeekBarPreference
             android:defaultValue="60"
             app:key="video_limit_size"
             app:maxValue="120"
             app:minValue="30"
-            app:valueSpacing="10"
-            app:title="@string/increase_video_size_limit" />
+            app:title="@string/increase_video_size_limit"
+            app:valueSpacing="10" />
 
-        <!--        <rikka.material.preference.MaterialSwitchPreference-->
-        <!--            app:dependency="videoquality"-->
-        <!--            app:key="video_real_resolution"-->
-        <!--            app:summary="@string/send_video_in_real_resolution_sum"-->
-        <!--            app:title="@string/send_video_in_real_resolution" />-->
+        <rikka.material.preference.MaterialSwitchPreference
+            app:key="videoquality"
+            app:summary="@string/videoquality_sum"
+            app:title="@string/videoquality" />
+
+        <rikka.material.preference.MaterialSwitchPreference
+            app:dependency="videoquality"
+            app:key="video_real_resolution"
+            app:summary="@string/send_video_in_real_resolution_sum"
+            app:title="@string/send_video_in_real_resolution" />
 
         <rikka.material.preference.MaterialSwitchPreference
             app:dependency="videoquality"

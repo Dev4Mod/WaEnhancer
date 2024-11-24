@@ -452,28 +452,6 @@ public class Unobfuscator {
         });
     }
 
-    public synchronized static Method loadMediaQualityResolutionMethod(ClassLoader classLoader) throws Exception {
-        return UnobfuscatorCache.getInstance().getMethod(classLoader, () -> {
-            var clazz = loadMediaQualityClass(classLoader);
-            return Arrays.stream(clazz.getDeclaredMethods()).filter(
-                    m -> m.getParameterTypes().length == 3 &&
-                            m.getParameterTypes()[0].equals(int.class) &&
-                            m.getParameterTypes()[1].equals(int.class) &&
-                            m.getParameterTypes()[2].equals(int.class)
-            ).findFirst().orElse(null);
-        });
-    }
-
-    public synchronized static Method loadMediaQualityBitrateMethod(ClassLoader classLoader) throws Exception {
-        return UnobfuscatorCache.getInstance().getMethod(classLoader, () -> {
-            var clazz = loadMediaQualityClass(classLoader);
-            return Arrays.stream(clazz.getDeclaredMethods()).filter(
-                    m -> m.getParameterTypes().length == 1 &&
-                            m.getParameterTypes()[0].equals(int.class) &&
-                            m.getReturnType().equals(int.class)
-            ).findFirst().orElse(null);
-        });
-    }
 
     public synchronized static Method loadMediaQualityVideoMethod2(ClassLoader classLoader) throws Exception {
         return UnobfuscatorCache.getInstance().getMethod(classLoader, () -> {
@@ -511,14 +489,6 @@ public class Unobfuscator {
             result.put(usingStrings.get(i), field);
         }
         return result;
-    }
-
-    public synchronized static Class loadMediaQualityVideoLimitClass(ClassLoader classLoader) throws Exception {
-        return UnobfuscatorCache.getInstance().getClass(classLoader, () -> {
-            var clazz = findFirstClassUsingStrings(classLoader, StringMatchType.Contains, "videoLimitMb=");
-            if (clazz == null) throw new Exception("MediaQualityVideoLimit method not found");
-            return clazz;
-        });
     }
 
     // TODO: Classes and methods to ShareLimit
@@ -1369,13 +1339,6 @@ public class Unobfuscator {
         });
     }
 
-    public synchronized static Class loadMediaQualityProcessor(ClassLoader loader) throws Exception {
-        return UnobfuscatorCache.getInstance().getClass(loader, () -> {
-            var clazz = findFirstClassUsingStrings(loader, StringMatchType.Contains, "{maxKb=");
-            if (clazz == null) throw new RuntimeException("MediaQualityProcessor class not found");
-            return clazz;
-        });
-    }
 
     public synchronized static Method getFilterInitMethod(ClassLoader loader) throws Exception {
         return UnobfuscatorCache.getInstance().getMethod(loader, () -> {
