@@ -32,6 +32,7 @@ import androidx.core.content.ContextCompat;
 import com.wmods.wppenhacer.utils.IColors;
 import com.wmods.wppenhacer.views.WallpaperView;
 import com.wmods.wppenhacer.xposed.core.Feature;
+import com.wmods.wppenhacer.xposed.core.WppCore;
 import com.wmods.wppenhacer.xposed.core.devkit.Unobfuscator;
 import com.wmods.wppenhacer.xposed.utils.DesignUtils;
 import com.wmods.wppenhacer.xposed.utils.ReflectionUtils;
@@ -91,6 +92,7 @@ public class CustomTheme extends Feature {
                 new XC_MethodHook() {
                     @Override
                     protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+                        if (!checkHomeActivity()) return;
                         var viewGroup = (ViewGroup) param.getResult();
                         replaceColors(viewGroup, wallAlpha);
                     }
@@ -101,6 +103,7 @@ public class CustomTheme extends Feature {
             @Override
             protected void afterHookedMethod(MethodHookParam param) throws Throwable {
                 if (!loadTabFrameClass.isInstance(param.thisObject)) return;
+                if (!checkHomeActivity()) return;
                 var viewGroup = (ViewGroup) param.thisObject;
                 var background = viewGroup.getBackground();
                 try {
@@ -327,4 +330,12 @@ public class CustomTheme extends Feature {
             param.args[0] = IColors.getFromIntColor(color, IColors.colors);
         }
     }
+
+    private boolean checkHomeActivity() {
+        var homeClass = XposedHelpers.findClass("com.whatsapp.HomeActivity", classLoader);
+        var currentActivity = WppCore.getCurrentActivity();
+        return currentActivity != null && homeClass.isInstance(currentActivity);
+    }
+
+
 }
