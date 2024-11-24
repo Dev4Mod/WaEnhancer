@@ -62,7 +62,7 @@
     <string name="blueonreply">Blaue Häkchen erst nach Antwort senden</string>
     <string name="blueonreply_sum">"Sendet blaue Häkchen erst nach Beantwortung einer Nachricht
 (HINWEIS: \'Lesebestätigung deaktivieren\' muss aktiv sein)"</string>
-    <string name="bootloader_spoofer_sum">Aktivieren, wenn sie gebannt worden und die inoffizielle WhatsApp-Nachricht über inoffizielle Version erhalten haben</string>
+    <string name="bootloader_spoofer_sum">Aktivieren, wenn du gebannt worden bist und die inoffizielle WhatsApp-Nachricht über inoffizielle Version erhalten hast</string>
     <string name="bottomsheet_action_collapse">Ansicht am unteren Rand minimieren</string>
     <string name="bottomsheet_action_expand">Ansicht am unteren Rand maximieren</string>
     <string name="bottomsheet_action_expand_halfway">Zur Hälfte maximieren</string>
@@ -175,7 +175,7 @@
     <string name="disable_version_check">Versionsüberprüfung</string>
     <string name="disable_version_check_sum">Deaktiviert die unterstützte Versionsüberprüfung von WhatsApp (Es können Fehler in nicht unterstützten Versionen auftreten.)</string>
     <string name="disabled">Deaktiviert</string>
-    <string name="dnd_message">Wenn \'DND\' aktiviert ist, können Sie keine Nachrichten senden oder empfangen.</string>
+    <string name="dnd_message">Wenn \'DND\' aktiviert ist, kannst du keine Nachrichten senden oder empfangen.</string>
     <string name="dnd_mode_title">Flugmodus</string>
     <string name="do_you_want_to_send_sticker">Willst du Sticker senden?</string>
     <string name="donate">Spenden</string>
@@ -214,7 +214,7 @@
     <string name="error_dir_access">Zugriff auf Verzeichnis fehlgeschlagen</string>
     <string name="error_icon_content_description">Fehler</string>
     <string name="error_image_name">Name muss mit .png enden</string>
-    <string name="error_when_saving_try_again">Fehler beim Speichern, versuchen Sie es erneut</string>
+    <string name="error_when_saving_try_again">Fehler beim Speichern, erneut versuchen</string>
     <string name="exit">Beenden</string>
     <string name="expand_button_title">Erweitert</string>
     <string name="expiration">Ablauf: %s</string>
@@ -228,27 +228,27 @@
     <string name="follow_system">System folgen</string>
     <string name="force_english">Erzwinge englische Sprache für WA Enhancer</string>
     <string name="freezelastseen">Friere \'Zuletzt gesehen\' ein</string>
-    <string name="freezelastseen_message">Wenn das Einfrieren von \'Zuletzt gesehen\' aktiv ist, werden sie nicht in der Lage sein, andere zu sehen, die zuletzt gesehen wurden oder online sind</string>
-    <string name="freezelastseen_sum">"Ihre zuletzt gesehene Zeit wird eingefroren
+    <string name="freezelastseen_message">Wenn das Einfrieren von \'Zuletzt gesehen\' aktiv ist, wirst du nicht in der Lage sein, andere zu sehen, die zuletzt gesehen wurden oder online sind</string>
+    <string name="freezelastseen_sum">"Deine zuletzt gesehene Zeit wird eingefroren
 (VORSICHT: Du wirst keine Aktualisierungen von anderen Benutzern, wie Tippen, Sprachaufnahme, online usw., sehen)"</string>
     <string name="freezelastseen_title">Friere \'Zuletzt gesehen\' ein</string>
     <string name="general">Sonstiges</string>
-    <string name="ghost_mode">Geistmodus</string>
-    <string name="ghost_mode_message">Der Geistmodus macht sie unsichtbar. Versteckt ihre blauen Häkchen (Geschichten, Nachrichten und Gruppen), das zweite Häkchen und ihr \'Zuletzt gesehen\' vor allen Kontakten</string>
+    <string name="ghost_mode">Geistermodus</string>
+    <string name="ghost_mode_message">Der Geistermodus macht dich unsichtbar. Versteckt deine blauen Häkchen (Geschichten, Nachrichten und Gruppen), das zweite Häkchen und deine \'Zuletzt gesehen\' vor allen Kontakten</string>
     <string name="ghost_mode_s">Geistmodus [%s]</string>
     <string name="ghost_mode_sum">Zeigt eine Schaltfläche in der Symbolleiste des Startbildschirmes an</string>
     <string name="ghost_mode_title">Schaltfläche \'Geistmodus\'</string>
     <string name="ghostmode">Schreiben verbergen</string>
     <string name="ghostmode_r">Sprachnachrichten aufnehmen verbergen</string>
-    <string name="ghostmode_sum">Benutzer können nicht sehen, dass Sie gerade etwas schreiben</string>
-    <string name="ghostmode_sum_r">Benutzer können nicht sehen, dass Sie eine Sprachnachricht aufnehmen</string>
-    <string name="go_to_github">GitHub</string>
-    <string name="go_to_telegram">Telegram</string>
+    <string name="ghostmode_sum">Benutzer können nicht sehen, dass du gerade etwas schreibst</string>
+    <string name="ghostmode_sum_r">Benutzer können nicht sehen, dass du eine Sprachnachricht aufnimmst</string>
+    <string name="go_to_github">Zu GitHub gehen</string>
+    <string name="go_to_telegram">Zu Telegram gehen</string>
     <string name="google_translate">Google Translate aktivieren</string>
     <string name="google_translate_sum">Ersetzt den native Übersetzer von WhatsApp durch Google Translate</string>
     <string name="grant_manage_storage">Speicherverwaltung</string>
     <string name="grant_media_read">Medien lesen erlauben</string>
-    <string name="grant_permission">Bitte erteilen Sie die Berechtigung zum Lesen des externen Speichers</string>
+    <string name="grant_permission">Berechtigung zum Lesen des externen Speichers erlauben</string>
     <string name="grant_permissions">Um WA-Enhancer nutzen zu können, ist es notwendig, einige Berechtigungen für die Verwendung der Funktionen zu gewähren.</string>
     <string name="grant_reading_of_contacts">Lesen von Kontakten erlauben</string>
     <string name="hide_archived_chat">Archivierte Chats</string>
@@ -259,14 +259,15 @@
     <string name="hide_locked_chats_sum">Archivierte Chats werden ausgeblendet und durch Drücken von \'WhatsApp\' auf dem Startbildschirm angezeigt</string>
     <string name="hide_once_view_seen">Einmalige Ansicht</string>
     <string name="hide_once_view_seen_sum">Deaktiviert die Bestätigung der \'einmaligen Ansicht\' von Medien als gelesen/gehört</string>
-    <string name="hide_tabs_on_home">Registerkarten</string>
+    <string name="hide_tabs_on_home">Registerkarten ausblenden</string>
     <string name="hide_tabs_on_home_sum">Ausblenden von Aktuelles, Chats, Gruppen oder Anrufe.</string>
     <string name="hideread">Lesebestätigung deaktivieren</string>
     <string name="hideread_group">Blaue Häkchen in Gruppen ausblenden</string>
     <string name="hideread_group_sum">Nachrichten innerhalb des Chat-Bildschirms anzeigen, ohne das Kontakte informiert werden</string>
     <string name="hideread_sum">Nachrichten innerhalb des Chat-Bildschirms anzeigen, ohne das Kontakte informiert werden</string>
     <string name="hidereceipt">"Verberge 'Empfangen' Meldung"</string>
-    <string name="hidereceipt_sum">Benutzer werden nicht darüber informiert, ob ihre Nachricht angekommen ist. Dies kann zu Verzögerungen beim Empfang von Nachrichten führen</string>
+    <string name="hidereceipt_sum">Benutzer werden nicht wissen, dass deine Nachrichten an Sie zugestellt wurden
+(ACHTUNG: Kann zu Verzögerungen beim Empfang von Nachrichten führen)</string>
     <string name="hidestatusview">Statusansicht</string>
     <string name="hidestatusview_sum">Status der Kontakte ansehen, ohne das jene darüber informiert werden</string>
     <string name="hidetag">"Verstecke 'Weitergeleitet' Tag"</string>
@@ -274,8 +275,8 @@
     <string name="hold_title">WhatsApp Titel länger drücken</string>
     <string name="home_screen">System</string>
     <string name="icon_content_description">Dialogfeldsymbol</string>
-    <string name="igstatus_on_home_screen">Aktiviere IGStatus auf dem Startbildschirm</string>
-    <string name="igstatus_on_home_screen_sum">Instagram Status-Stil im Startbildschirm anzeigen</string>
+    <string name="igstatus_on_home_screen">Insta-Status auf Startbildschirm aktivieren</string>
+    <string name="igstatus_on_home_screen_sum">Insta-Status-Stil im Startbildschirm anzeigen</string>
     <string name="imagequality">Sende Bilder standardmäßig in HD Qualität</string>
     <string name="imagequality_sum">Bilder in HD senden</string>
     <string name="import_image">Bild importieren</string>
@@ -284,22 +285,19 @@
     <string name="imported_as">"Importiert als "</string>
     <string name="increase_video_size_limit">Limit für Videogröße erhöhen</string>
     <string name="increase_video_size_limit_sum">Videogrößenlimit auf 90MB erhöhen</string>
-    <string name="installation">Installation</string>
-    <string name="installation_desc">"1. Stellen Sie sicher, dass Ihr Gerät gerootet ist.
-2. Installieren Sie das Xposed-Framework auf Ihrem Gerät.
-3. Laden Sie den WA-Enhancer aus dem Bereich Aktionen herunter.
-4. Installieren Sie die WA-Enhancer-APK.
-5. Aktivieren Sie das WA-Enhancer-Modul in der Xposed Installer App."</string>
-    <string name="invalid_folder">Ein ungültiger Ordner wurde ausgewählt. Bitte wählen sie den WaEnhancer Ordner</string>
+    <string name="installation_desc">"1. Sicher stellen, dass dein Gerät gerootet ist.
+2. Installiere das Xposed-Framework auf deinem Gerät.
+3. Lade den WA-Enhancer aus dem Bereich Aktionen herunter.
+4. Installiere die WA-Enhancer-APK.
+5. Aktiviere das WA-Enhancer-Modul in der Xposed Installer App."</string>
+    <string name="invalid_folder">Ein ungültiger Ordner wurde ausgewählt. Wa-Enhancer Ordner auswählen.</string>
     <string name="invalid_zip_file">Ungültige Zip-Datei</string>
-    <string name="ip_s">IP: %s</string>
-    <string name="item_view_role_description">Tab</string>
     <string name="label_parent_directory">Übergeordnetes Verzeichnis</string>
     <string name="last_edit">Zuletzt bearbeitet: %1$s, %2$s</string>
     <string name="license">Lizenz</string>
     <string name="license_desc">"Dieses Projekt ist unter der GNU License lizenziert - siehe LICENSE Datei für Details.
 
-Hinweis: Bitte verwenden Sie WA-Enhancer verantwortungsbewusst und in Übereinstimmung mit den Nutzungsbedingungen der von Ihnen geänderten Apps. Der Missbrauch dieses Werkzeugs kann zu rechtlichen Konsequenzen führen."</string>
+Hinweis: Bitte verwende WA-Enhancer verantwortungsbewusst und in Übereinstimmung mit den Nutzungsbedingungen der von dir geänderten Apps. Der Missbrauch dieses Werkzeugs kann zu rechtlichen Konsequenzen führen."</string>
     <string name="list_animations_home_screen">Animationsmöglichkeiten (Startbildschirm)</string>
     <string name="list_animations_home_screen_sum">Animation beim Wischen der Chat-Liste hinzufügen</string>
     <string name="list_business">Unterstützte Business WhatsApp Versionen</string>
@@ -309,7 +307,7 @@ Hinweis: Bitte verwenden Sie WA-Enhancer verantwortungsbewusst und in Übereinst
     <string name="lorem_ipsum_dolor">Lorem Ipsum Dolor</string>
     <string name="lorem_ipsum_dolor_sum">Der Kunde ist sehr wichtig, der Kunde kann den Kundenservice erhalten. Es braucht auch etwas Fußballsoße.</string>
     <string name="manage_theme_sum">Themes mit CSS für WhatsApp verwalten</string>
-    <string name="material_clock_toggle_content_description">Vormittags oder Nachmittags auswählen</string>
+    <string name="material_clock_toggle_content_description">Vor-oder Nachmittags auswählen</string>
     <string name="material_hour_24h_suffix">%1$s Stunden</string>
     <string name="material_hour_selection">Stunde auswählen</string>
     <string name="material_hour_suffix">%1$s Uhr</string>
@@ -392,18 +390,18 @@ Hinweis: Bitte verwenden Sie WA-Enhancer verantwortungsbewusst und in Übereinst
     <string name="novaconfig">Neuer Einstellungsstil</string>
     <string name="novaconfig_sum">Aktiviert den neuen Einstellungsstil mit Profilfoto auf der Symbolleiste</string>
     <string name="novofiltro">Suchfunktion</string>
-    <string name="novofiltro_sum">Wählen Sie zwischen Suchsymbol, Suchleiste oder ohne Suche</string>
-    <string name="novotema_sum">Ändern Sie das Farb- und Symbol-Theme auf das neue WhatsApp-Theme</string>
+    <string name="novofiltro_sum">Zwischen Suchsymbol, Suchleiste oder ohne Suche wählen</string>
+    <string name="novotema_sum">Farb- und Symbol-Theme auf das neue WhatsApp-Thema ändern</string>
     <string name="number_with_country_code">+49 17200000000</string>
     <string name="old_statuses">Alter Statusstil</string>
-    <string name="old_statuses_sum">Änderung der alten Statusseite zu vertikal und ohne Kanäle (NOTE: Kann Verzögerungen in der Schnittstelle verursachen)</string>
+    <string name="old_statuses_sum">Änderung der alten Statusseite zu vertikal und ohne Kanäle (HINWEIS: Kann Verzögerungen in der Schnittstelle verursachen)</string>
     <string name="one_row">Eine Reihe</string>
     <string name="open_camera">Kamera öffnen</string>
     <string name="other">Andere</string>
     <string name="outlinedicons">Symbole mit Umrandung</string>
     <string name="outlinedicons_sum">Neuer Symbol-Stil</string>
     <string name="password_toggle_content_description">Passwort anzeigen</string>
-    <string name="permission_storage">WA-Enhancer den Zugriff auf Ihren externen Speicher erlauben? Benötigt ab Android 11+</string>
+    <string name="permission_storage">WA-Enhancer den Zugriff auf deinen externen Speicher erlauben? Benötigt ab Android 11+</string>
     <string name="perso">Anpassung</string>
     <string name="phone_call">Telefon</string>
     <string name="phone_number_s">Nummer: +%s</string>
@@ -422,7 +420,7 @@ Hinweis: Bitte verwenden Sie WA-Enhancer verantwortungsbewusst und in Übereinst
     <string name="remove_see_more_button_">\'Mehr anzeigen\' deaktivieren und alle Nachrichten komplett angezeigen</string>
     <string name="removeforwardlimit">Entferne Weiterleitungs-Limit</string>
     <string name="removeforwardlimit_sum">"Entfernt das Weiterleitungslimit von 5 Chats (normal) und 1 Chat (mehrfach)
-(Hinweis: Mit Vorsicht benutzen, sie können wegen Spam gebannt werden)"</string>
+(Hinweis: Mit Vorsicht benutzen, du kannst wegen Spam gebannt werden)"</string>
     <string name="reset_settings">Einstellungen zurücksetzen</string>
     <string name="restart_whatsapp">WhatsApp neu starten</string>
     <string name="restart_wpp">"Es ist notwendig, WhatsApp neu zu starten, damit die Änderungen in WA-Enhancer wirksam werden.
@@ -443,7 +441,7 @@ Möchtest du neu starten?"</string>
     <string name="select">Auswählen</string>
     <string name="select_a_color">Farbe wählen</string>
     <string name="select_all">Alle auswählen</string>
-    <string name="select_status_type">Status Typ auswählen</string>
+    <string name="select_status_type">Statustyp auswählen</string>
     <string name="select_wallpaper">Hintergrund auswählen</string>
     <string name="selection_of_call_type">Anruf über WhatsApp oder Telefon</string>
     <string name="selection_of_call_type_sum">Zeigt vor dem Telefonat eine Option an, ob der Anruf über das Telefon oder WhatsApp geführt werden soll</string>
@@ -455,13 +453,13 @@ Möchtest du neu starten?"</string>
     <string name="send_video_in_60fps">Videos in 60 FPS senden</string>
     <string name="send_video_in_60fps_sum">Videos in 60 FPS für Status, Gruppe und Chats senden</string>
     <string name="send_video_in_real_resolution">Videos in Originalauflösung senden</string>
-    <string name="send_video_in_real_resolution_sum">Senden Sie Videos in Originalauflösung für Status, Gruppen oder Chats</string>
-    <string name="sending_read_blue_tick">Sende blaue Häkchen (gelesen/angesehen)</string>
+    <string name="send_video_in_real_resolution_sum">Videos in Originalauflösung für Status, Gruppen oder Chats senden</string>
+    <string name="sending_read_blue_tick">Blaue Häkchen senden (gelesen/angesehen)</string>
     <string name="separate_groups">Registerkarten</string>
-    <string name="separate_groups_sum">Trennen Sie Ihre Chats nach Gruppen, privaten Chats, Status, Anrufe, Gemeinschaften</string>
+    <string name="separate_groups_sum">Deine Chats nach Gruppen, privaten Chats, Status, Anrufe, Gemeinschaften trennen</string>
     <string name="share_as_status">Als Status teilen</string>
     <string name="show_admin_group_icon">Admin-Gruppensymbol anzeigen</string>
-    <string name="show_admin_group_icon_sum">Füge ein Symbol neben dem Namen des Benutzers hinzu, welcher ein Gruppenadmin ist</string>
+    <string name="show_admin_group_icon_sum">Symbol neben dem Namen des Benutzers hinzufügen, welcher ein Gruppenadmin ist</string>
     <string name="show_button_to_send_blue_tick">Schaltfläche zum Senden von blauen Häkchen</string>
     <string name="show_button_to_send_blue_tick_sum">Optionen: Deaktiviert, 3-Punkte-Menü, Symbol</string>
     <string name="show_contact_info">In Kontaktinfo anzeigen</string>
@@ -494,8 +492,8 @@ Möchtest du neu starten?"</string>
     <string name="statusdowload">Status herunterladen und teilen</string>
     <string name="statusdowload_sum">Zeigt Auswahl zum Teilen und Herunterladen</string>
     <string name="storage_permission">Speicherberechtigung</string>
-    <string name="strokebuttons">Tasten-Strich</string>
-    <string name="strokebuttons_sum">Streiche um einige Tasten auf WhatsApp herum</string>
+    <string name="strokebuttons">Rahmentasten</string>
+    <string name="strokebuttons_sum">Rahmen um einige Tasten auf WhatsApp herum</string>
     <string name="support">Unterstützung</string>
     <string name="support_desc">Wenn du Probleme oder Fragen zu WA-Enhancer hast, besuche Telegram.</string>
     <string name="textonahora">Einen Text neben dem Zeitstempel hinzufügen</string>
@@ -530,11 +528,11 @@ Unterstützte WhatsApp Version verwenden!"</string>
     <string name="videoquality">Videos in HD Qualität</string>
     <string name="videoquality_sum">Videos standardmäßig in HD-Qualität senden</string>
     <string name="viewed_your_message">%s hat deine Nachricht gesehen</string>
-    <string name="viewed_your_status">%s hat Ihren Status gesehen</string>
+    <string name="viewed_your_status">%s hat deinen Status gesehen</string>
     <string name="viewonce">Unbegrenzte \'Einmal-Ansicht\'</string>
     <string name="viewonce_sum">Erlaubt es dir \'Einmalige Ansichten\' unbegrenzt zu öffnen</string>
     <string name="voice_note">Sprachnotiz</string>
-    <string name="voice_note_speed">Abspielgeschw. Sprachnotizen</string>
+    <string name="voice_note_speed">Abspielgeschwindigkeit bei Sprachnotizen</string>
     <string name="wallpaper_in_home_screen">Hintergrundbild im Startbildschirm aktivieren</string>
     <string name="wallpaper_in_home_screen_sum">Ausgewähltes Hintergrundbild im Startbildschirm mit Transparenz anzeigen</string>
     <string name="wallpaper_not_selected">Hintergrund nicht ausgewählt</string>
@@ -545,4 +543,5 @@ Unterstützte WhatsApp Version verwenden!"</string>
     <string name="wpp_version_s">WhatsApp-Version: %s</string>
     <string name="yes">Ja</string>
 </resources>
+
 
