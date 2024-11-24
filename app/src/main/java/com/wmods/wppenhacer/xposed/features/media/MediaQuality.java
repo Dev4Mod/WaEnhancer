@@ -60,7 +60,7 @@ public class MediaQuality extends Feature {
                         jsonPropertyHook.get().unhook();
                         return;
                     }
-                    // Desativar os perfis de video (mobile network)
+                    // Disable video profiles (mobile network)
                     if ((int) param.args[index] == 5550 || (int) param.args[index] == 9705) {
                         param.setResult(new JSONObject());
                     }
