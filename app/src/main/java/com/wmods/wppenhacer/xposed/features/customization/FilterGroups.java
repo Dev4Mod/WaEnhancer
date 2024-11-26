@@ -28,8 +28,6 @@ import com.wmods.wppenhacer.xposed.utils.Utils;
 
 import java.lang.reflect.Method;
 import java.util.List;
-import java.util.Objects;
-import java.util.concurrent.CopyOnWriteArrayList;
 
 import de.robv.android.xposed.XC_MethodHook;
 import de.robv.android.xposed.XSharedPreferences;
