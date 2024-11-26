@@ -29,6 +29,7 @@ import com.wmods.wppenhacer.xposed.utils.Utils;
 import java.lang.reflect.Method;
 import java.util.List;
 import java.util.Objects;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 import de.robv.android.xposed.XC_MethodHook;
 import de.robv.android.xposed.XSharedPreferences;
@@ -195,6 +196,11 @@ public class FilterGroups extends Feature {
             if (mFilterInstance == null) return;
             var listField = ReflectionUtils.getFieldByType(mFilterInstance.getClass(), List.class);
             var list = (List<Object>) ReflectionUtils.getObjectField(listField, mFilterInstance);
+            // for 24.xx, it is CopyOnWriteArrayList instead of List
+            if (list == null) {
+                listField = ReflectionUtils.getFieldByType(mFilterInstance.getClass(), CopyOnWriteArrayList.class);
+                list = (List<Object>) ReflectionUtils.getObjectField(listField, mFilterInstance);
+            }
             if (list == null) return;
             var name = position == 0 ? "CONTACTS_FILTER" : "GROUP_FILTER";
             Object result = null;
