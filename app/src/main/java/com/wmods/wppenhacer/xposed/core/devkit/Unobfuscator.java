@@ -1722,4 +1722,13 @@ public class Unobfuscator {
             return clazz;
         });
     }
+
+    public static Method loadMediaQualitySelectionMethod(ClassLoader classLoader) throws Exception {
+        return UnobfuscatorCache.getInstance().getMethod(classLoader, () -> {
+            var method = findFirstMethodUsingStrings(classLoader, StringMatchType.Contains, "enable_media_quality_tool");
+            if (method == null)
+                throw new RuntimeException("MediaQualitySelection method not found");
+            return method;
+        });
+    }
 }

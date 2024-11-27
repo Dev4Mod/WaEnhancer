@@ -44,6 +44,10 @@ public class MediaQuality extends Feature {
 
         Others.propsBoolean.put(7950, false); // Força o uso do MediaComposer para processar os videos
 
+        // Enable Media Quality selection for Stories
+        var hookMediaQualitySelection = Unobfuscator.loadMediaQualitySelectionMethod(classLoader);
+        XposedBridge.hookMethod(hookMediaQualitySelection, XC_MethodReplacement.returnConstant(true));
+
         if (videoQuality) {
 
             Others.propsBoolean.put(5549, true); // Use bitrate from json to force video high quality
@@ -106,20 +110,18 @@ public class MediaQuality extends Feature {
 
             // HD video must be sent in maximum resolution (up to 4K)
             if (realResolution) {
-                Others.propsInteger.put(594, 8000); // chat
-                Others.propsInteger.put(12852, 8000); // chat
-                Others.propsInteger.put(3183, 8000); // Stories
-                Others.propsInteger.put(4685, 8000); // Stories
+                Others.propsInteger.put(594, 8000);
+                Others.propsInteger.put(12852, 8000);
             } else {
-                Others.propsInteger.put(594, 1920); // chat
-                Others.propsInteger.put(12852, 1920); // chat
-                Others.propsInteger.put(3183, 1920); // Stories
-                Others.propsInteger.put(4685, 1920); // Stories
+                Others.propsInteger.put(594, 1920);
+                Others.propsInteger.put(12852, 1920);
             }
 
             // Non-HD video must be sent in HD resolution
             Others.propsInteger.put(4686, 1280);
             Others.propsInteger.put(3654, 1280);
+            Others.propsInteger.put(3183, 1280); // Stories
+            Others.propsInteger.put(4685, 1280); // Stories
 
             // Max bitrate
             Others.propsInteger.put(3755, 96000);
