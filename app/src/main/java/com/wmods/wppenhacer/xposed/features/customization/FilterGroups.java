@@ -28,7 +28,6 @@ import com.wmods.wppenhacer.xposed.utils.Utils;
 
 import java.lang.reflect.Method;
 import java.util.List;
-import java.util.Objects;
 
 import de.robv.android.xposed.XC_MethodHook;
 import de.robv.android.xposed.XSharedPreferences;
@@ -193,27 +192,25 @@ public class FilterGroups extends Feature {
         try {
             ReflectionUtils.callMethod(methodInitFilter, null, mConversationFragment);
             if (mFilterInstance == null) return;
-            var listField = ReflectionUtils.getFieldByType(mFilterInstance.getClass(), List.class);
-            var list = (List<Object>) ReflectionUtils.getObjectField(listField, mFilterInstance);
+            var listField = ReflectionUtils.getFieldByExtendType(mFilterInstance.getClass(), List.class);
+            var list = (List) ReflectionUtils.getObjectField(listField, mFilterInstance);
             if (list == null) return;
             var name = position == 0 ? "CONTACTS_FILTER" : "GROUP_FILTER";
-            Object result = null;
+            int index = -1;
             for (var item : list) {
-                for (var field : item.getClass().getFields()) {
-                    if (Objects.equals(XposedHelpers.getObjectField(item, field.getName()), name)) {
-                        result = item;
-                        break;
-                    }
+                if (item == null) continue;
+                if (item.toString().contains(name)) {
+                    index = list.indexOf(item);
+                    break;
                 }
             }
-            if (result == null) return;
-            var index = list.indexOf(result);
+            if (index == -1) return;
             ReflectionUtils.callMethod(methodSetFilter, mFilterInstance, index);
         } catch (Exception e) {
             logDebug(e);
         }
     }
-
+    
     @NonNull
     @Override
     public String getPluginName() {
