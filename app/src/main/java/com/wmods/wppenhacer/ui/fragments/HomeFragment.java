@@ -239,7 +239,7 @@ public class HomeFragment extends BaseFragment {
             binding.status.setCardBackgroundColor(activity.getColor(R.color.material_state_red));
             binding.statusSummary.setVisibility(View.GONE);
         }
-        if (isInstalled(FeatureLoader.PACKAGE_WPP)) {
+        if (isInstalled(FeatureLoader.PACKAGE_WPP) && App.isOriginalPackage()) {
             disableWpp(activity);
         } else {
             binding.status2.setVisibility(View.GONE);

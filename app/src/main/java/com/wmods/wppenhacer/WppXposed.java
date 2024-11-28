@@ -49,25 +49,34 @@ public class WppXposed implements IXposedHookLoadPackage, IXposedHookInitPackage
     public void handleLoadPackage(XC_LoadPackage.LoadPackageParam lpparam) throws Throwable {
         var packageName = lpparam.packageName;
         var classLoader = lpparam.classLoader;
+
         if (packageName.equals(BuildConfig.APPLICATION_ID)) {
             XposedHelpers.findAndHookMethod(MainActivity.class.getName(), lpparam.classLoader, "isXposedEnabled", XC_MethodReplacement.returnConstant(true));
             XposedHelpers.findAndHookMethod(PreferenceManager.class.getName(), lpparam.classLoader, "getDefaultSharedPreferencesMode", XC_MethodReplacement.returnConstant(ContextWrapper.MODE_WORLD_READABLE));
             return;
         }
+
         AntiUpdater.hookSession(lpparam);
+
         Patch.handleLoadPackage(lpparam, getPref());
+
         ScopeHook.hook(lpparam);
-//        AndroidPermissions.hook(lpparam); in tests
-        if (!packageName.equals(FeatureLoader.PACKAGE_WPP) && !packageName.equals(FeatureLoader.PACKAGE_BUSINESS))
-            return;
-        XposedBridge.log("[•] This package: " + lpparam.packageName);
-        if (getPref().getBoolean("bootloader_spoofer", false)) {
-            HookBL.hook(lpparam);
-            XposedBridge.log("Bootloader Spoofer is Injected");
+
+        //  AndroidPermissions.hook(lpparam); in tests
+        if ((packageName.equals(FeatureLoader.PACKAGE_WPP) && App.isOriginalPackage()) || packageName.equals(FeatureLoader.PACKAGE_BUSINESS)) {
+            XposedBridge.log("[•] This package: " + lpparam.packageName);
+
+            // Inject Booloader Spoofer
+            if (getPref().getBoolean("bootloader_spoofer", false)) {
+                HookBL.hook(lpparam);
+                XposedBridge.log("Bootloader Spoofer is Injected");
+            }
+
+            // Load features
+            FeatureLoader.start(classLoader, getPref(), lpparam.appInfo.sourceDir);
+
+            disableSecureFlag();
         }
-        var sourceDir = lpparam.appInfo.sourceDir;
-        FeatureLoader.start(classLoader, getPref(), sourceDir);
-        disableSecureFlag();
     }
 
     @Override
@@ -78,6 +87,7 @@ public class WppXposed implements IXposedHookLoadPackage, IXposedHookInitPackage
             return;
 
         XModuleResources modRes = XModuleResources.createInstance(MODULE_PATH, resparam.res);
+        ResParam = resparam;
 
         for (var field : ResId.string.class.getFields()) {
             var field1 = R.string.class.getField(field.getName());
@@ -94,7 +104,6 @@ public class WppXposed implements IXposedHookLoadPackage, IXposedHookInitPackage
             field.set(null, resparam.res.addResource(modRes, field1.getInt(null)));
         }
 
-        ResParam = resparam;
     }
 
     @Override

@@ -214,6 +214,6 @@ public class FilterGroups extends Feature {
     @NonNull
     @Override
     public String getPluginName() {
-        return null;
+        return "Filter Groups";
     }
 }

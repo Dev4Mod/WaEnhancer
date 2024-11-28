@@ -110,4 +110,9 @@ public class App extends Application {
         return waEnhancerFolder;
     }
 
+    public static boolean isOriginalPackage() {
+        //noinspection ConstantValue
+        return BuildConfig.APPLICATION_ID.equals("com.wmods.wppenhacer");
+    }
+
 }

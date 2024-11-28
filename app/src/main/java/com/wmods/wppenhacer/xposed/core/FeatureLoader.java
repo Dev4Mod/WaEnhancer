@@ -17,6 +17,7 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.core.content.ContextCompat;
 
+import com.wmods.wppenhacer.App;
 import com.wmods.wppenhacer.BuildConfig;
 import com.wmods.wppenhacer.UpdateChecker;
 import com.wmods.wppenhacer.xposed.core.components.AlertDialogWpp;
@@ -186,8 +187,10 @@ public class FeatureLoader {
             }
 
             // Check for Update
-            if (activity.getClass().getSimpleName().equals("HomeActivity") && state == WppCore.ActivityChangeState.ChangeType.START) {
-                CompletableFuture.runAsync(new UpdateChecker(activity));
+            if (App.isOriginalPackage()) {
+                if (activity.getClass().getSimpleName().equals("HomeActivity") && state == WppCore.ActivityChangeState.ChangeType.START) {
+                    CompletableFuture.runAsync(new UpdateChecker(activity));
+                }
             }
         });
 
