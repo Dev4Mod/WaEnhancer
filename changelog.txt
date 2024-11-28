@@ -1,16 +1,9 @@
 [FIXES]
-* Fixed the bug in the wallpaper function that made other screens tremble.
-* Fixed bug in AssemblyAI that didn't work (Test it and let me know if it's working for you).
-
+* Fixed the call blocking that closed the app after blocking
+* Fixed bug in media quality
 
 [WHATSAPP]
-* Add Initial support for beta 2.24.25.XX
+* Added support for beta 2.24.24.74 (Thanks to frknkrc44)
 
 [FEATURES]
-* Added the ability to send videos in real resolution.
-
-[IMPROVEMENTS]
-* Improvements to the HD video and image function (Now the Whatsapp quality selector works for videos and images with resolutions higher than HD)
-
-[WAE]
-* Updated translations
+* Added media quality selector in Stories (Now you can select the quality you want to send media to your Story)
