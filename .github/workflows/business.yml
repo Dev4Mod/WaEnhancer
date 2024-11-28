@@ -42,7 +42,6 @@ jobs:
 
       - name: Build and test app
         run: |
-          ./gradlew --recompile-scripts
           ./gradlew assembleDebug -Pminify=true
 
       - name: Upload artifacts
