@@ -48,7 +48,7 @@
     <string name="antirevokestatus">Anti-Lösch Status</string>
     <string name="antirevokestatus_sum">Gelöschten Kontaktestatus betrachten</string>
     <string name="app_desc">WhatsApp-Enhancer-Module</string>
-    <string name="app_name">WA-Enhancer</string>
+    <string name="app_name">Wa-Mods</string>
     <string name="assemblyai">Assembly-AI aktivieren</string>
     <string name="assemblyai_key">Assembly-AI-Key</string>
     <string name="assemblyai_key_sum">Assembly-AI API-Zugangsschlüssel (Auf Webseite anmelden und ein Konto erstellen, um deinen Schlüssel zu erhalten)</string>
@@ -226,7 +226,7 @@
     <string name="filter_items_by_id">Elemente nach ID filtern</string>
     <string name="filter_items_by_id_sum">Elemente nach Id-Namen filtern</string>
     <string name="follow_system">System folgen</string>
-    <string name="force_english">Erzwinge englische Sprache für WA Enhancer</string>
+    <string name="force_english">Englische Sprache für WA Enhancer erzwingen</string>
     <string name="freezelastseen">Friere \'Zuletzt gesehen\' ein</string>
     <string name="freezelastseen_message">Wenn das Einfrieren von \'Zuletzt gesehen\' aktiv ist, wirst du nicht in der Lage sein, andere zu sehen, die zuletzt gesehen wurden oder online sind</string>
     <string name="freezelastseen_sum">"Deine zuletzt gesehene Zeit wird eingefroren
@@ -448,7 +448,7 @@ Möchtest du neu starten?"</string>
     <string name="send">Absenden</string>
     <string name="send_audio_as_voice_audio_note">Audio als Sprach-/Audionotiz senden</string>
     <string name="send_audio_as_voice_audio_note_sum">Sendet Audiomedien immer als Sprach- oder Ton-Notiz</string>
-    <string name="send_blue_tick">Als Gelesen/Gesehen markieren</string>
+    <string name="send_blue_tick">Als gesehen markieren</string>
     <string name="send_sticker">Sticker senden</string>
     <string name="send_video_in_60fps">Videos in 60 FPS senden</string>
     <string name="send_video_in_60fps_sum">Videos in 60 FPS für Status, Gruppe und Chats senden</string>
@@ -481,7 +481,7 @@ Möchtest du neu starten?"</string>
     <string name="show_toast_on_contact_online">Toast bei Kontakt ist online anzeigen</string>
     <string name="show_toast_on_contact_online_sum">Zeigt einen Toast, wenn ein Kontakt online ist</string>
     <string name="showbio">Bio anzeigen</string>
-    <string name="showbio_sum">Zeigt Bio unterm Titel der Symbolleiste</string>
+    <string name="showbio_sum">Bio unterm Titel der Symbolleiste anzeigen</string>
     <string name="showname">Name anzeigen</string>
     <string name="showname_sum">Profilnamen oben auf dem Startbildschirm anzeigen, anstatt \'WhatsApp\'</string>
     <string name="side_sheet_accessibility_pane_title">Seitenblatt</string>
@@ -501,7 +501,7 @@ Möchtest du neu starten?"</string>
     <string name="theme_imported_successfully">Thema erfolgreich importiert</string>
     <string name="theme_manager">Themen-Manager</string>
     <string name="theme_mode">Dunkles WA-Enhancer-Thema</string>
-    <string name="theme_mode_sum">Einen Themen-Modus im WA-Enhancer erzwingen</string>
+    <string name="theme_mode_sum">Themen-Modus im WA-Enhancer erzwingen</string>
     <string name="title_home">Startseite</string>
     <string name="title_image">Bild</string>
     <string name="toast_on_delete">Toast-Benachrichtigung beim Löschen der Nachricht anzeigen</string>
@@ -543,5 +543,3 @@ Unterstützte WhatsApp Version verwenden!"</string>
     <string name="wpp_version_s">WhatsApp-Version: %s</string>
     <string name="yes">Ja</string>
 </resources>
-
-
