@@ -32,7 +32,7 @@ jobs:
         run: chmod +x gradlew
 
       - name: Update package name
-        run: sed -i 's/com.wmods.wppenhacer/com.wmods.wppenhacer.w4b/g' app/build.gradle.kts
+        run: sed -i 's/applicationId = "com.wmods.wppenhacer"/applicationId = "com.wmods.wppenhacer.w4b"/g' app/build.gradle.kts
 
       - name: Update app name
         run: sed -i 's/Wa Enhancer/Wa Enhancer Business/g' app/src/main/res/values/strings.xml
@@ -42,6 +42,7 @@ jobs:
 
       - name: Build and test app
         run: |
+          ./gradlew --recompile-scripts
           ./gradlew assembleDebug -Pminify=true
 
       - name: Upload artifacts
