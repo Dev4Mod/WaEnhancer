@@ -60,15 +60,10 @@ public class CallPrivacy extends Feature {
                     case "uncallable":
                     case "declined":
                         var rejectCallMethod = ReflectionUtils.findMethodUsingFilter(clazzVoip, m -> m.getName().equals("rejectCall"));
-                        var obj = new Object[rejectCallMethod.getParameterCount()];
-                        obj[0] = callId;
-                        obj[1] = "declined".equals(rejectType) ? null : rejectType;
-                        if (obj.length > 2) {
-                            obj[2] = 0;
-                        }
-
-                        ReflectionUtils.callMethod(rejectCallMethod, null, obj);
-                        param.setResult(true);
+                        var params = ReflectionUtils.initArray(rejectCallMethod.getParameterTypes());
+                        params[0] = callId;
+                        params[1] = "declined".equals(rejectType) ? null : rejectType;
+                        ReflectionUtils.callMethod(rejectCallMethod, null, params);
                         break;
                     case "ended":
                         try {
@@ -76,7 +71,6 @@ public class CallPrivacy extends Feature {
                         } catch (NoSuchMethodError e) {
                             XposedHelpers.callStaticMethod(clazzVoip, "endCall", true, 0);
                         }
-                        param.setResult(true);
                         break;
                     default:
                 }

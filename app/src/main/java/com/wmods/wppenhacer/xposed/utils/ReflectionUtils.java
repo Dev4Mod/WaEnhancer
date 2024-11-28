@@ -152,7 +152,7 @@ public class ReflectionUtils {
         }
     }
 
-    private static Object[] initArray(Class<?>[] parameterTypes) {
+    public static Object[] initArray(Class<?>[] parameterTypes) {
         var args = new Object[parameterTypes.length];
         for (int i = 0; i < parameterTypes.length; i++) {
             args[i] = getDefaultValue(parameterTypes[i]);
