@@ -12,7 +12,6 @@ import de.robv.android.xposed.XSharedPreferences;
 import de.robv.android.xposed.XposedBridge;
 
 public class ViewOnce extends Feature {
-    private boolean isFromMe;
 
     public ViewOnce(ClassLoader loader, XSharedPreferences preferences) {
         super(loader, preferences);
