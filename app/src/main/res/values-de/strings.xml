@@ -31,7 +31,7 @@
     <string name="about_info">WA-Enhancer ist ein Xposed-Modul, welches deine WhatsApp-Erfahrung verbessert, indem es erweiterte Privatsphäre-Funktionen, allgemeine Optimierungen, Medienverbesserungen und Startbildschirmanpassung bietet.</string>
     <string name="activate">Aktivieren</string>
     <string name="additional_call_information">Zusätzliche Anrufinfos</string>
-    <string name="additional_call_information_sum">Erhalte eine Benachrichtigung mit zusätzlichen Infos nach Anrufende</string>
+    <string name="additional_call_information_sum">Erhalt einer Benachrichtigung mit zusätzlichen Infos nach Beendigung des Anrufs</string>
     <string name="allow">Zulassen</string>
     <string name="always_online">Immer online</string>
     <string name="always_online_sum">Zeige dich online, auch wenn du WhatsApp minimierst (Funktioniert nicht, wenn du es aus den letzten Apps entfernst)</string>
