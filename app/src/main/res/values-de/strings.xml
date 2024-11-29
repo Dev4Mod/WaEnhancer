@@ -295,7 +295,7 @@
     <string name="label_parent_directory">Übergeordnetes Verzeichnis</string>
     <string name="last_edit">Zuletzt bearbeitet: %1$s, %2$s</string>
     <string name="license">Lizenz</string>
-    <string name="license_desc">"Dieses Projekt ist unter der GNU License lizenziert - siehe LICENSE Datei für Details.
+    <string name="license_desc">"Dieses Projekt ist unter der GNU License lizenziert - siehe LIZENZ-Datei für Details.
 
 Hinweis: Bitte verwende WA-Enhancer verantwortungsbewusst und in Übereinstimmung mit den Nutzungsbedingungen der von dir geänderten Apps. Der Missbrauch dieses Werkzeugs kann zu rechtlichen Konsequenzen führen."</string>
     <string name="list_animations_home_screen">Animationsmöglichkeiten (Startbildschirm)</string>
