@@ -34,7 +34,7 @@ public class IGStatus extends Feature {
     @Override
     public void doHook() throws Throwable {
 
-        if (!prefs.getBoolean("igstatus", false) || Utils.getApplication().getPackageName().equals("com.whatsapp.w4b"))
+        if (!prefs.getBoolean("igstatus", false))
             return;
 
         var getViewConversationMethod = Unobfuscator.loadGetViewConversationMethod(classLoader);
