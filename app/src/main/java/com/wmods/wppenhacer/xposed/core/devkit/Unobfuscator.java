@@ -1725,10 +1725,13 @@ public class Unobfuscator {
 
     public static Method loadMediaQualitySelectionMethod(ClassLoader classLoader) throws Exception {
         return UnobfuscatorCache.getInstance().getMethod(classLoader, () -> {
-            var method = findFirstMethodUsingStrings(classLoader, StringMatchType.Contains, "enable_media_quality_tool");
-            if (method == null)
+            var methodData = dexkit.findMethod(FindMethod.create().matcher(
+                    MethodMatcher.create().addUsingString("enable_media_quality_tool").
+                            returnType(boolean.class)
+            ));
+            if (methodData.isEmpty())
                 throw new RuntimeException("MediaQualitySelection method not found");
-            return method;
+            return methodData.get(0).getMethodInstance(classLoader);
         });
     }
 }
