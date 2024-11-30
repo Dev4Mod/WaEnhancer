@@ -53,8 +53,10 @@ public class ShowOnline extends Feature {
             protected void afterHookedMethod(MethodHookParam param) throws Throwable {
                 var view = (View) param.args[1];
                 var context = (Context) param.args[0];
-                var content = (LinearLayout) view.findViewById(Utils.getID("conversations_row_content", "id"));
-
+                LinearLayout content = view.findViewById(Utils.getID("conversations_row_content", "id"));
+                if (content == null) {
+                    content = view.findViewById(Utils.getID("row_content", "id"));
+                }
                 if (showOnlineText) {
                     var linearLayout = new LinearLayout(context);
                     linearLayout.setGravity(Gravity.END | Gravity.TOP);
