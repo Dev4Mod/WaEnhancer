@@ -1,9 +1,6 @@
 [FIXES]
-* Fixed the call blocking that closed the app after blocking
-* Fixed bug in media quality
-
-[WHATSAPP]
-* Added support for beta 2.24.24.74 (Thanks to frknkrc44)
+* Fixed the bug in WhatsApp Business that prevented sending media
+* Fixed the bug in WhatsApp Beta 2.24.25.12 that prevented showing Online/Recent contacts on the home screen
 
 [FEATURES]
-* Added media quality selector in Stories (Now you can select the quality you want to send media to your Story)
+* Added IGStatus for WhatsApp Business.
