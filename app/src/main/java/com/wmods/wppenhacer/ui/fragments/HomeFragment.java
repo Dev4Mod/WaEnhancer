@@ -254,7 +254,12 @@ public class HomeFragment extends BaseFragment {
         binding.deviceName.setText(Build.MANUFACTURER);
         binding.sdk.setText(String.valueOf(Build.VERSION.SDK_INT));
         binding.modelName.setText(Build.DEVICE);
-        binding.listWpp.setText(Arrays.toString(activity.getResources().getStringArray(R.array.supported_versions_wpp)));
+        if (App.isOriginalPackage()) {
+            binding.listWpp.setText(Arrays.toString(activity.getResources().getStringArray(R.array.supported_versions_wpp)));
+        } else {
+            binding.listWppTitle.setVisibility(View.GONE);
+            binding.listWpp.setVisibility(View.GONE);
+        }
         binding.listBusiness.setText(Arrays.toString(activity.getResources().getStringArray(R.array.supported_versions_business)));
     }
 
