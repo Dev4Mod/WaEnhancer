@@ -1557,12 +1557,14 @@ public class Unobfuscator {
                             addMethod(MethodMatcher.create().paramCount(1).addParamType(TextDataClass))
             ));
             if (result.isEmpty()) {
-                result = dexkit.findClass(FindClass.create().matcher(
-                        ClassMatcher.create().addUsingString("ViewOnce messages can not be forwarded").
-                                addMethod(MethodMatcher.create().paramCount(1).addParamType(TextDataClass))
-                ));
+                var tscClazzData = dexkit.getClassData("com.whatsapp.statuscomposer.composer.TextStatusComposerFragment");
+                for (var method : tscClazzData.getMethods()) {
+                    var tdMethod = method.getInvokes().stream().filter(m -> m.isMethod() && m.getParamCount() == 1 && m.getParamTypes().get(0).equals(dexkit.getClassData(TextDataClass))).findFirst();
+                    tdMethod.ifPresent(methodData -> result.add(methodData.getDeclaredClass()));
+                }
+
                 if (result.isEmpty()) {
-                    throw new RuntimeException("TextStatusComposer2 class not found");
+                    throw new RuntimeException("TextStatusComposer2 class not found 1");
                 }
             }
 
@@ -1570,7 +1572,7 @@ public class Unobfuscator {
             var resultMethod = ReflectionUtils.findMethodUsingFilter(foundClass, method -> method.getParameterCount() == 1 && method.getParameterTypes()[0] == TextDataClass);
             if (resultMethod != null)
                 return resultMethod;
-            throw new RuntimeException("TextStatusComposer2 method not found");
+            throw new RuntimeException("TextStatusComposer2 method not found 2");
         });
     }
 
