@@ -967,6 +967,14 @@ public class Unobfuscator {
                 var field = clazzMessage.getDeclaredField("A02");
                 methodData = clazzData.findMethod(new FindMethod().matcher(new MethodMatcher().addUsingField(DexSignUtil.getFieldDescriptor(field)).returnType(String.class)));
             }
+            if (methodData.isEmpty()) {
+                var csClazzData = dexkit.findClass(FindClass.create().matcher(ClassMatcher.create().addUsingString("FMessageSystemScheduledCallStart/setData index out of bounds: "))).singleOrNull();
+                if (csClazzData != null) {
+                    var csClazz = csClazzData.getInstance(loader);
+                    var field = csClazz.getDeclaredField("A02");
+                    methodData = clazzData.findMethod(new FindMethod().matcher(new MethodMatcher().addUsingField(DexSignUtil.getFieldDescriptor(field)).returnType(String.class)));
+                }
+            }
             if (methodData.isEmpty()) throw new RuntimeException("NewMessage method not found");
             return methodData.get(0).getMethodInstance(loader);
         });
