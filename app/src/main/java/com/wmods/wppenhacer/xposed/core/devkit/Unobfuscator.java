@@ -1559,9 +1559,14 @@ public class Unobfuscator {
             ));
             if (result.isEmpty()) {
                 var tscClazzData = dexkit.getClassData("com.whatsapp.statuscomposer.composer.TextStatusComposerFragment");
-                for (var method : tscClazzData.getMethods()) {
-                    var tdMethod = method.getInvokes().stream().filter(m -> m.isMethod() && m.getParamCount() == 1 && m.getParamTypes().get(0).equals(dexkit.getClassData(TextDataClass))).findFirst();
-                    tdMethod.ifPresent(methodData -> result.add(methodData.getDeclaredClass()));
+                if (tscClazzData != null) {
+                    for (var method : tscClazzData.getMethods()) {
+                        var tdMethod = method.getInvokes().stream().filter(m -> m.isMethod() && m.getParamCount() == 1 && m.getParamTypes().get(0).equals(dexkit.getClassData(TextDataClass))).findFirst();
+                        if (tdMethod.isPresent()) {
+                            result.add(tdMethod.get().getDeclaredClass());
+                            break;
+                        }
+                    }
                 }
 
                 if (result.isEmpty()) {
