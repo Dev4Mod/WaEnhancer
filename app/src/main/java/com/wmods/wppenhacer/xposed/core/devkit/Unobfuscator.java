@@ -1021,7 +1021,8 @@ public class Unobfuscator {
                 }
 
                 // 21.xx+ method (static)
-                if (Modifier.isStatic(invoke.getMethodInstance(loader).getModifiers()) && Objects.equals(invoke.getParamTypes().get(0), methodData.getParamTypes().get(0))) {
+                // 25.xx+ added additional type check
+                if (Modifier.isStatic(invoke.getMethodInstance(loader).getModifiers()) && Objects.equals(invoke.getParamTypes().get(0), methodData.getParamTypes().get(0)) && !Objects.equals(invoke.getParamTypes().get(0), invoke.getDeclaredClass())) {
                     return invoke.getMethodInstance(loader);
                 }
             }
