@@ -1563,15 +1563,12 @@ public class Unobfuscator {
                     for (var method : tscClazzData.getMethods()) {
                         var tdMethod = method.getInvokes().stream().filter(m -> m.isMethod() && m.getParamCount() == 1 && m.getParamTypes().get(0).equals(dexkit.getClassData(TextDataClass))).findFirst();
                         if (tdMethod.isPresent()) {
-                            result.add(tdMethod.get().getDeclaredClass());
-                            break;
+                            return tdMethod.get().getMethodInstance(classLoader);
                         }
                     }
                 }
 
-                if (result.isEmpty()) {
-                    throw new RuntimeException("TextStatusComposer2 class not found 1");
-                }
+                throw new RuntimeException("TextStatusComposer2 class not found 1");
             }
 
             var foundClass = result.get(0).getInstance(classLoader);
