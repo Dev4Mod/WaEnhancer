@@ -1,6 +1,2 @@
-[FIXES]
-* Fixed the bug in WhatsApp Business that prevented sending media
-* Fixed the bug in WhatsApp Beta 2.24.25.12 that prevented showing Online/Recent contacts on the home screen
-
-[FEATURES]
-* Added IGStatus for WhatsApp Business.
+[WHATSAPP]
+* Added compatibility with version 2.24.26.xx by frknkrc44
