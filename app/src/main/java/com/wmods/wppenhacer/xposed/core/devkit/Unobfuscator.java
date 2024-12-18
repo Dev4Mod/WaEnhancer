@@ -1013,7 +1013,7 @@ public synchronized static Method loadNewMessageMethod(ClassLoader loader) throw
 
             if (csClazzData != null) {
                 var csClazz = csClazzData.getInstance(loader);
-                var field = csClazz.getDeclaredField("A02");
+                var field = csClazz.getDeclaredField("A0X");
                 XposedBridge.log("Step 7 - Found field in csClazz: " + field + ", descriptor: " + DexSignUtil.getFieldDescriptor(field));
                 methodData = clazzData.findMethod(new FindMethod().matcher(
                     new MethodMatcher().addUsingField(DexSignUtil.getFieldDescriptor(field)).returnType(String.class)
