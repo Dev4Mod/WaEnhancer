@@ -1032,15 +1032,11 @@ public synchronized static Method loadNewMessageMethod(ClassLoader loader) throw
 
             if (fnClazzData != null) {
                 var fnClazz = fnClazzData.getInstance(loader);
-                var field = fnClazz.getDeclaredField("A02");
+                var field = fnClazz.getDeclaredField("A0o");
                 XposedBridge.log("Step 10 - Found field in fnClazz: " + field + ", descriptor: " + DexSignUtil.getFieldDescriptor(field));
-                methodData = clazzData.findMethod(
-                    FindMethod.create().matcher(
-                        new MethodMatcher()
-                            .addUsingString("A0X", StringMatchType.EQUALS)
-                            .returnType(String.class)
-                    )
-                );
+                methodData = clazzData.findMethod(new FindMethod().matcher(
+                    new MethodMatcher().addUsingField(DexSignUtil.getFieldDescriptor(field)).returnType(String.class)
+                ));
                 XposedBridge.log("Step 11 - methodData after searching in fnClazz: " + methodData);
             }
         }
