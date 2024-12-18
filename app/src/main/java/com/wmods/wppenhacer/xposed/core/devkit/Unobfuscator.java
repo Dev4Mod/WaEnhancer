@@ -1031,16 +1031,24 @@ public synchronized static Method loadNewMessageMethod(ClassLoader loader) throw
             XposedBridge.log("Step 9 - fnClazzData: " + fnClazzData);
 
             if (fnClazzData != null) {
-                var csClazz = fnClazzData.getInstance(loader);
-                var field = csClazz.getDeclaredField("A0X");
-                XposedBridge.log("Step 10 - Found field in csClazz: " + field + ", descriptor: " + DexSignUtil.getFieldDescriptor(field));
-                methodData = clazzData.findMethod(new FindMethod().matcher(
-                    new MethodMatcher().addUsingField(DexSignUtil.getFieldDescriptor(field)).returnType(String.class)
-                ));
-                XposedBridge.log("Step 11 - methodData after searching in csClazz: " + methodData);
+                var fnClazz = fnClazzData.getInstance(loader);
+                var field = fnClazz.getDeclaredField("A02");
+                XposedBridge.log("Step 10 - Found field in fnClazz: " + field + ", descriptor: " + DexSignUtil.getFieldDescriptor(field));
+                methodData = clazzData.findMethod(
+                    FindMethod.create().matcher(
+                        new MethodMatcher()
+                            .methodName("A0X") // Nama method
+                            .returnType(String.class) // Tipe return-nya String
+                            .opcodes(OpCodesMatcher.create()
+                                .addInstruction("iget-object") // Mencari instruksi `iget-object`
+                                .addInstruction("return-object") // Mencari instruksi `return-object`
+                            )
+                    )
+                );
+                XposedBridge.log("Step 11 - methodData after searching in fnClazz: " + methodData);
             }
         }
-
+        
         if (methodData.isEmpty()) {
             XposedBridge.log("Error - NewMessage method not found.");
             throw new RuntimeException("NewMessage method not found");
