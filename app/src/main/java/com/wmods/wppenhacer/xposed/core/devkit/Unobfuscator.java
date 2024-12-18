@@ -958,58 +958,28 @@ public class Unobfuscator {
         });
     }
 
-public synchronized static Method loadNewMessageMethod(ClassLoader loader) throws Exception {
-    return UnobfuscatorCache.getInstance().getMethod(loader, () -> {
-        XposedBridge.log("loadNewMessageMethod: Starting method discovery...");
-        
-        var clazzMessage = loadFMessageClass(loader);
-        XposedBridge.log("Step 1 - Loaded clazzMessage: " + clazzMessage);
-
-        var clazzData = Objects.requireNonNull(dexkit.getClassData(clazzMessage));
-        XposedBridge.log("Step 2 - Loaded clazzData: " + clazzData);
-
-        var methodData = clazzData.findMethod(new FindMethod().matcher(
-            new MethodMatcher().addUsingString("\n").returnType(String.class)
-        ));
-        XposedBridge.log("Step 3 - methodData after searching with string '\\n': " + methodData);
-
-        if (methodData.isEmpty()) {
-            var field = clazzMessage.getDeclaredField("A02");
-            XposedBridge.log("Step 4 - Found field: " + field + ", descriptor: " + DexSignUtil.getFieldDescriptor(field));
-            methodData = clazzData.findMethod(new FindMethod().matcher(
-                new MethodMatcher().addUsingField(DexSignUtil.getFieldDescriptor(field)).returnType(String.class)
-            ));
-            XposedBridge.log("Step 5 - methodData after searching with field descriptor: " + methodData);
-        }
-
-        if (methodData.isEmpty()) {
-            var csClazzData = dexkit.findClass(
-                FindClass.create().matcher(
-                    ClassMatcher.create().addUsingString("FMessageSystemScheduledCallStart/setData index out of bounds: ")
-                )
-            ).singleOrNull();
-            XposedBridge.log("Step 6 - csClazzData: " + csClazzData);
-
-            if (csClazzData != null) {
-                var csClazz = csClazzData.getInstance(loader);
-                var field = csClazz.getDeclaredField("A02");
-                XposedBridge.log("Step 7 - Found field in csClazz: " + field + ", descriptor: " + DexSignUtil.getFieldDescriptor(field));
-                methodData = clazzData.findMethod(new FindMethod().matcher(
-                    new MethodMatcher().addUsingField(DexSignUtil.getFieldDescriptor(field)).returnType(String.class)
-                ));
-                XposedBridge.log("Step 8 - methodData after searching in csClazz: " + methodData);
+    public synchronized static Method loadNewMessageMethod(ClassLoader loader) throws Exception {
+        return UnobfuscatorCache.getInstance().getMethod(loader, () -> {
+            var clazzMessage = loadFMessageClass(loader);
+            var clazzData = Objects.requireNonNull(dexkit.getClassData(clazzMessage));
+            var methodData = clazzData.findMethod(new FindMethod().matcher(new MethodMatcher().addUsingString("\n").returnType(String.class)));
+            XposedBridge.log(new MethodMatcher().addUsingString("\n").returnType(String.class));
+            if (methodData.isEmpty()) {
+                var field = clazzMessage.getDeclaredField("A02");
+                methodData = clazzData.findMethod(new FindMethod().matcher(new MethodMatcher().addUsingField(DexSignUtil.getFieldDescriptor(field)).returnType(String.class)));
             }
-        }
-
-        if (methodData.isEmpty()) {
-            XposedBridge.log("Error - NewMessage method not found.");
-            throw new RuntimeException("NewMessage method not found");
-        }
-
-        XposedBridge.log("Final - Found methodData: " + methodData);
-        return methodData.get(0).getMethodInstance(loader);
-    });
-}
+            if (methodData.isEmpty()) {
+                var csClazzData = dexkit.findClass(FindClass.create().matcher(ClassMatcher.create().addUsingString("FMessageSystemScheduledCallStart/setData index out of bounds: "))).singleOrNull();
+                if (csClazzData != null) {
+                    var csClazz = csClazzData.getInstance(loader);
+                    var field = csClazz.getDeclaredField("A02");
+                    methodData = clazzData.findMethod(new FindMethod().matcher(new MethodMatcher().addUsingField(DexSignUtil.getFieldDescriptor(field)).returnType(String.class)));
+                }
+            }
+            if (methodData.isEmpty()) throw new RuntimeException("NewMessage method not found");
+            return methodData.get(0).getMethodInstance(loader);
+        });
+    }
 
     public synchronized static Method loadOriginalMessageKey(ClassLoader loader) throws Exception {
         return UnobfuscatorCache.getInstance().getMethod(loader, () -> {
