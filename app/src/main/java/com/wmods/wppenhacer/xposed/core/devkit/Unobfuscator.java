@@ -950,6 +950,14 @@ public class Unobfuscator {
         });
     }
 
+    public synchronized static Method loadChatLimitDelete2Method(ClassLoader loader) throws Exception {
+        return UnobfuscatorCache.getInstance().getMethod(loader, () -> {
+            var method = findFirstMethodUsingStrings(loader, StringMatchType.Contains, "pref_revoke_admin_nux", "dialog/delete no messages");
+            if (method == null) throw new RuntimeException("ChatLimitDelete2 method not found");
+            return method;
+        });
+    }
+
     public synchronized static Method loadNewMessageMethod(ClassLoader loader) throws Exception {
         return UnobfuscatorCache.getInstance().getMethod(loader, () -> {
             var clazzMessage = loadFMessageClass(loader);
