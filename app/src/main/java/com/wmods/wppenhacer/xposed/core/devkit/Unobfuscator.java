@@ -1218,10 +1218,11 @@ public class Unobfuscator {
             var clazzData = classList.get(0);
             XposedBridge.log(clazzData.toString());
             for (var method : clazzData.getMethods()) {
-                if (method.getParamCount() == 2 && method.isConstructor() && method.getParamTypes().get(0).getName().equals(int.class.getName()) && method.getParamTypes().get(1).getName().equals(int.class.getName())) {
+                if (Arrays.asList(2, 3).contains(method.getParamCount()) && method.isConstructor() && method.getParamTypes().stream().allMatch(c -> c.getName().equals(int.class.getName()))) {
                     return method.getConstructorInstance(loader);
                 }
             }
+
             throw new RuntimeException("SeeMore constructor 2 not found");
         });
     }
