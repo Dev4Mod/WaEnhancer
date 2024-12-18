@@ -1039,7 +1039,6 @@ public synchronized static Method loadNewMessageMethod(ClassLoader loader) throw
                         new MethodMatcher()
                             .addUsingString("A0X", StringMatchType.EQUALS)
                             .returnType(String.class)
-                            )
                     )
                 );
                 XposedBridge.log("Step 11 - methodData after searching in fnClazz: " + methodData);
