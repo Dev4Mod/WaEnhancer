@@ -1022,33 +1022,22 @@ public synchronized static Method loadNewMessageMethod(ClassLoader loader) throw
             }
         }
 
-        // Langkah tambahan: Cari method A0Z di class /X/3cW
         if (methodData.isEmpty()) {
-            XposedBridge.log("Step 9 - Searching for method A0Z in class /X/3cW...");
-
-            var targetClassData = dexkit.findClass(
-                FindClass.create()
-                    .matcher(
-                        ClassMatcher.create()
-                            .className("/X/3cW") // Cari class berdasarkan nama
-                    )
+            var fnClazzData = dexkit.findClass(
+                FindClass.create().matcher(
+                    ClassMatcher.create().addUsingString("FMessage/getSenderUserJid/key.id=")
+                )
             ).singleOrNull();
+            XposedBridge.log("Step 9 - fnClazzData: " + fnClazzData);
 
-            if (targetClassData != null) {
-                XposedBridge.log("Step 10 - Found class /X/3cW: " + targetClassData.getName());
-
-                methodData = targetClassData.findMethod(
-                    FindMethod.create()
-                        .matcher(
-                            MethodMatcher.create()
-                                .methodName("A0Z") // Cari method A0Z
-                                .returnType(String.class) // Dengan return type String
-                        )
-                );
-
-                XposedBridge.log("Step 11 - Found method A0Z in /X/3cW: " + methodData);
-            } else {
-                XposedBridge.log("Step 10 - Class /X/3cW not found");
+            if (fnClazzData != null) {
+                var csClazz = fnClazzData.getInstance(loader);
+                var field = csClazz.getDeclaredField("A02");
+                XposedBridge.log("Step 10 - Found field in csClazz: " + field + ", descriptor: " + DexSignUtil.getFieldDescriptor(field));
+                methodData = clazzData.findMethod(new FindMethod().matcher(
+                    new MethodMatcher().addUsingField(DexSignUtil.getFieldDescriptor(field)).returnType(String.class)
+                ));
+                XposedBridge.log("Step 11 - methodData after searching in csClazz: " + methodData);
             }
         }
 
