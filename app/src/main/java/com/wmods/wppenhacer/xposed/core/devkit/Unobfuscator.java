@@ -950,14 +950,6 @@ public class Unobfuscator {
         });
     }
 
-    public synchronized static Method loadChatLimitDelete2Method(ClassLoader loader) throws Exception {
-        return UnobfuscatorCache.getInstance().getMethod(loader, () -> {
-            var method = findFirstMethodUsingStrings(loader, StringMatchType.Contains, "pref_revoke_admin_nux", "dialog/delete no messages");
-            if (method == null) throw new RuntimeException("ChatLimitDelete2 method not found");
-            return method;
-        });
-    }
-
     public synchronized static Method loadNewMessageMethod(ClassLoader loader) throws Exception {
         return UnobfuscatorCache.getInstance().getMethod(loader, () -> {
             var clazzMessage = loadFMessageClass(loader);
@@ -968,11 +960,29 @@ public class Unobfuscator {
                 methodData = clazzData.findMethod(new FindMethod().matcher(new MethodMatcher().addUsingField(DexSignUtil.getFieldDescriptor(field)).returnType(String.class)));
             }
             if (methodData.isEmpty()) {
-                var csClazzData = dexkit.findClass(FindClass.create().matcher(ClassMatcher.create().addUsingString("FMessageSystemScheduledCallStart/setData index out of bounds: "))).singleOrNull();
-                if (csClazzData != null) {
-                    var csClazz = csClazzData.getInstance(loader);
-                    var field = csClazz.getDeclaredField("A02");
-                    methodData = clazzData.findMethod(new FindMethod().matcher(new MethodMatcher().addUsingField(DexSignUtil.getFieldDescriptor(field)).returnType(String.class)));
+                var classMatchers = new String[]{
+                    "FMessageSystemScheduledCallStart/setData index out of bounds: ",
+                    "FMessage/getSenderUserJid/key.id="
+                };
+                var fieldNames = new String[]{"A02", "A0o"};
+                for (int i = 0; i < classMatchers.length; i++) {
+                    var classData = dexkit.findClass(
+                        FindClass.create().matcher(
+                            ClassMatcher.create().addUsingString(classMatchers[i])
+                        )
+                    ).singleOrNull();
+                    if (classData != null) {
+                        var targetClass = classData.getInstance(loader);
+                        var field = targetClass.getDeclaredField(fieldNames[i]);
+                        methodData = clazzData.findMethod(
+                            new FindMethod().matcher(
+                            new MethodMatcher()
+                                .addUsingField(DexSignUtil.getFieldDescriptor(field))
+                               .returnType(String.class)
+                            )
+                        );
+                        if (!methodData.isEmpty()) break;
+                    }
                 }
             }
             if (methodData.isEmpty()) throw new RuntimeException("NewMessage method not found");
