@@ -963,7 +963,6 @@ public class Unobfuscator {
             var clazzMessage = loadFMessageClass(loader);
             var clazzData = Objects.requireNonNull(dexkit.getClassData(clazzMessage));
             var methodData = clazzData.findMethod(new FindMethod().matcher(new MethodMatcher().addUsingString("\n").returnType(String.class)));
-            XposedBridge.log(new MethodMatcher().addUsingString("\n").returnType(String.class).toString());
             if (methodData.isEmpty()) {
                 var field = clazzMessage.getDeclaredField("A02");
                 methodData = clazzData.findMethod(new FindMethod().matcher(new MethodMatcher().addUsingField(DexSignUtil.getFieldDescriptor(field)).returnType(String.class)));
@@ -973,6 +972,9 @@ public class Unobfuscator {
                 if (csClazzData != null) {
                     var csClazz = csClazzData.getInstance(loader);
                     var field = csClazz.getDeclaredField("A02");
+                    methodData = clazzData.findMethod(new FindMethod().matcher(new MethodMatcher().addUsingField(DexSignUtil.getFieldDescriptor(field)).returnType(String.class)));
+                } else {
+                    var field = clazzMessage.getDeclaredField("A02");
                     methodData = clazzData.findMethod(new FindMethod().matcher(new MethodMatcher().addUsingField(DexSignUtil.getFieldDescriptor(field)).returnType(String.class)));
                 }
             }
