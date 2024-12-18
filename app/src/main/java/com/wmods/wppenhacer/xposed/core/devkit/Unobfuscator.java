@@ -1037,11 +1037,8 @@ public synchronized static Method loadNewMessageMethod(ClassLoader loader) throw
                 methodData = clazzData.findMethod(
                     FindMethod.create().matcher(
                         new MethodMatcher()
-                            .methodName("A0X") // Nama method
-                            .returnType(String.class) // Tipe return-nya String
-                            .opcodes(OpCodesMatcher.create()
-                                .addInstruction("iget-object") // Mencari instruksi `iget-object`
-                                .addInstruction("return-object") // Mencari instruksi `return-object`
+                            .addUsingString("A0X", StringMatchType.EQUALS)
+                            .returnType(String.class)
                             )
                     )
                 );
