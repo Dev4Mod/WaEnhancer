@@ -3,12 +3,10 @@ package com.wmods.wppenhacer.xposed.features.privacy;
 import androidx.annotation.NonNull;
 
 import com.wmods.wppenhacer.xposed.core.Feature;
-import com.wmods.wppenhacer.xposed.core.FeatureLoader;
 import com.wmods.wppenhacer.xposed.core.WppCore;
 import com.wmods.wppenhacer.xposed.core.components.FMessageWpp;
 import com.wmods.wppenhacer.xposed.core.devkit.Unobfuscator;
 import com.wmods.wppenhacer.xposed.utils.ReflectionUtils;
-import com.wmods.wppenhacer.xposed.utils.Utils;
 
 import java.lang.reflect.Array;
 import java.lang.reflect.Method;
@@ -114,24 +112,23 @@ public class HideSeen extends Feature {
             }
         });
 
-        if (Utils.getApplication().getPackageName().equals(FeatureLoader.PACKAGE_BUSINESS)) {
-            var loadSenderPlayedBusiness = Unobfuscator.loadSenderPlayedBusiness(classLoader);
-            XposedBridge.hookMethod(loadSenderPlayedBusiness, new XC_MethodHook() {
-                @Override
-                protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
-                    var set = (Set) param.args[0];
-                    if (set != null && !set.isEmpty()) {
-                        var fMessage = new FMessageWpp(set.iterator().next());
-                        var media_type = fMessage.getMediaType();  // 2 = voice note ; 82 = viewonce note voice; 42 = image view once; 43 = video view once
-                        if (hideonceseen && (media_type == 82 || media_type == 42 || media_type == 43)) {
-                            param.setResult(null);
-                        } else if (hideaudioseen && media_type == 2) {
-                            param.setResult(null);
-                        }
+        var loadSenderPlayedBusiness = Unobfuscator.loadSenderPlayedBusiness(classLoader);
+        XposedBridge.hookMethod(loadSenderPlayedBusiness, new XC_MethodHook() {
+            @Override
+            protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
+                var set = (Set) param.args[0];
+                if (set != null && !set.isEmpty()) {
+                    var fMessage = new FMessageWpp(set.iterator().next());
+                    var media_type = fMessage.getMediaType();  // 2 = voice note ; 82 = viewonce note voice; 42 = image view once; 43 = video view once
+                    if (hideonceseen && (media_type == 82 || media_type == 42 || media_type == 43)) {
+                        param.setResult(null);
+                    } else if (hideaudioseen && media_type == 2) {
+                        param.setResult(null);
                     }
                 }
-            });
-        }
+            }
+        });
+
 
     }
 
