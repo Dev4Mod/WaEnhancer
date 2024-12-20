@@ -875,7 +875,7 @@ public class Unobfuscator {
 
     public synchronized static Method loadPinnedHashSetMethod(ClassLoader loader) throws Exception {
         return UnobfuscatorCache.getInstance().getMethod(loader, () -> {
-            var clazz = findFirstClassUsingStrings(loader, StringMatchType.Contains, "SELECT jid, pinned_time FROM settings");
+            var clazz = findFirstClassUsingStrings(loader, StringMatchType.Contains, "getPinnedJids/QUERY_CHAT_SETTINGS");
             if (clazz == null) throw new Exception("PinnedList class not found");
             var method = Arrays.stream(clazz.getDeclaredMethods()).filter(m -> m.getReturnType().equals(Set.class)).findFirst().orElse(null);
             if (method == null) throw new Exception("PinnedHashSet method not found");
@@ -967,6 +967,14 @@ public class Unobfuscator {
                 var field = clazzMessage.getDeclaredField("A02");
                 methodData = clazzData.findMethod(new FindMethod().matcher(new MethodMatcher().addUsingField(DexSignUtil.getFieldDescriptor(field)).returnType(String.class)));
             }
+            if (methodData.isEmpty()) {
+                var csClazzData = dexkit.findClass(FindClass.create().matcher(ClassMatcher.create().addUsingString("FMessageSystemScheduledCallStart/setData index out of bounds: "))).singleOrNull();
+                if (csClazzData != null) {
+                    var csClazz = csClazzData.getInstance(loader);
+                    var field = csClazz.getDeclaredField("A02");
+                    methodData = clazzData.findMethod(new FindMethod().matcher(new MethodMatcher().addUsingField(DexSignUtil.getFieldDescriptor(field)).returnType(String.class)));
+                }
+            }
             if (methodData.isEmpty()) throw new RuntimeException("NewMessage method not found");
             return methodData.get(0).getMethodInstance(loader);
         });
@@ -1013,7 +1021,8 @@ public class Unobfuscator {
                 }
 
                 // 21.xx+ method (static)
-                if (Modifier.isStatic(invoke.getMethodInstance(loader).getModifiers()) && Objects.equals(invoke.getParamTypes().get(0), methodData.getParamTypes().get(0))) {
+                // 25.xx+ added additional type check
+                if (Modifier.isStatic(invoke.getMethodInstance(loader).getModifiers()) && Objects.equals(invoke.getParamTypes().get(0), methodData.getParamTypes().get(0)) && !Objects.equals(invoke.getParamTypes().get(0), invoke.getDeclaredClass())) {
                     return invoke.getMethodInstance(loader);
                 }
             }
@@ -1209,10 +1218,11 @@ public class Unobfuscator {
             var clazzData = classList.get(0);
             XposedBridge.log(clazzData.toString());
             for (var method : clazzData.getMethods()) {
-                if (method.getParamCount() == 2 && method.isConstructor() && method.getParamTypes().get(0).getName().equals(int.class.getName()) && method.getParamTypes().get(1).getName().equals(int.class.getName())) {
+                if (Arrays.asList(2, 3).contains(method.getParamCount()) && method.isConstructor() && method.getParamTypes().stream().allMatch(c -> c.getName().equals(int.class.getName()))) {
                     return method.getConstructorInstance(loader);
                 }
             }
+
             throw new RuntimeException("SeeMore constructor 2 not found");
         });
     }
@@ -1549,20 +1559,24 @@ public class Unobfuscator {
                             addMethod(MethodMatcher.create().paramCount(1).addParamType(TextDataClass))
             ));
             if (result.isEmpty()) {
-                result = dexkit.findClass(FindClass.create().matcher(
-                        ClassMatcher.create().addUsingString("ViewOnce messages can not be forwarded").
-                                addMethod(MethodMatcher.create().paramCount(1).addParamType(TextDataClass))
-                ));
-                if (result.isEmpty()) {
-                    throw new RuntimeException("TextStatusComposer2 class not found");
+                var tscClazzData = dexkit.getClassData("com.whatsapp.statuscomposer.composer.TextStatusComposerFragment");
+                if (tscClazzData != null) {
+                    for (var method : tscClazzData.getMethods()) {
+                        var tdMethod = method.getInvokes().stream().filter(m -> m.isMethod() && m.getParamCount() == 1 && m.getParamTypes().get(0).equals(dexkit.getClassData(TextDataClass))).findFirst();
+                        if (tdMethod.isPresent()) {
+                            return tdMethod.get().getMethodInstance(classLoader);
+                        }
+                    }
                 }
+
+                throw new RuntimeException("TextStatusComposer2 class not found 1");
             }
 
             var foundClass = result.get(0).getInstance(classLoader);
             var resultMethod = ReflectionUtils.findMethodUsingFilter(foundClass, method -> method.getParameterCount() == 1 && method.getParameterTypes()[0] == TextDataClass);
             if (resultMethod != null)
                 return resultMethod;
-            throw new RuntimeException("TextStatusComposer2 method not found");
+            throw new RuntimeException("TextStatusComposer2 method not found 2");
         });
     }
 
