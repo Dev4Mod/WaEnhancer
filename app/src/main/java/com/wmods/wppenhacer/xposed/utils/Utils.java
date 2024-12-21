@@ -8,6 +8,7 @@ import android.app.NotificationManager;
 import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.ComponentName;
+import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -23,6 +24,7 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
+import androidx.documentfile.provider.DocumentFile;
 
 import com.wmods.wppenhacer.App;
 import com.wmods.wppenhacer.WppXposed;
@@ -32,9 +34,12 @@ import com.wmods.wppenhacer.xposed.core.WppCore;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
+import java.util.Objects;
 import java.util.Properties;
 import java.util.Random;
 import java.util.concurrent.ExecutorService;
@@ -109,8 +114,19 @@ public class Utils {
     }
 
     @SuppressLint("SdCardPath")
-    public static String getDestination(String name) {
-        var folder = WppXposed.getPref().getString("download_local", "/sdcard/Download");
+    public static String getDestination(String name) throws Exception {
+        if (xprefs.getBoolean("lite_mode", false)) {
+            var folder = WppCore.getPrivString("download_folder", null);
+            if (folder == null)
+                throw new Exception("Download Folder is not selected!");
+            var documentFile = DocumentFile.fromTreeUri(Utils.getApplication(), Uri.parse(folder));
+            var wppFolder = Utils.getURIFolderByName(documentFile, "WhatsApp", true);
+            var nameFolder = Utils.getURIFolderByName(wppFolder, name, true);
+            if (nameFolder == null)
+                throw new Exception("Folder not found!");
+            return folder + "/WhatsApp/" + name;
+        }
+        String folder = WppXposed.getPref().getString("download_local", "/sdcard/Download");
         var waFolder = new File(folder, "WhatsApp");
         var filePath = new File(waFolder, name);
         try {
@@ -118,30 +134,83 @@ public class Utils {
         } catch (Exception ignored) {
         }
         return filePath.getAbsolutePath() + "/";
+
     }
 
-    public static String copyFile(File srcFile, File destFile) {
+    public static DocumentFile getURIFolderByName(DocumentFile documentFile, String folderName, boolean createDir) {
+        if (documentFile == null) {
+            return null;
+        }
+        DocumentFile[] files = documentFile.listFiles();
+        for (DocumentFile file : files) {
+            if (Objects.equals(file.getName(), folderName)) {
+                return file;
+            }
+        }
+        if (createDir) {
+            return documentFile.createDirectory(folderName);
+        }
+        return null;
+    }
+
+
+    public static String copyFile(File srcFile, String destFolder, String name) {
         if (srcFile == null || !srcFile.exists()) return "File not found or is null";
 
-        try (FileInputStream in = new FileInputStream(srcFile);
-             var parcelFileDescriptor = WppCore.getClientBridge().openFile(destFile.getAbsolutePath(), true)) {
-            var out = new FileOutputStream(parcelFileDescriptor.getFileDescriptor());
-            byte[] bArr = new byte[1024];
-            while (true) {
-                int read = in.read(bArr);
-                if (read <= 0) {
-                    in.close();
-                    out.close();
-                    Utils.scanFile(destFile);
+        if (xprefs.getBoolean("lite_mode", false)) {
+            try {
+                var folder = WppCore.getPrivString("download_folder", null);
+                DocumentFile documentFolder = DocumentFile.fromTreeUri(Utils.getApplication(), Uri.parse(folder));
+                destFolder = destFolder.replace(folder + "/", "");
+                for (String f : destFolder.split("/")) {
+                    documentFolder = Utils.getURIFolderByName(documentFolder, f, false);
+                    if (documentFolder == null) return "Failed to get folder";
+                }
+                DocumentFile newFile = documentFolder.createFile("*/*", name);
+                if (newFile == null) return "Failed to create destination file";
+
+                ContentResolver contentResolver = Utils.getApplication().getContentResolver();
+
+                try (InputStream in = new FileInputStream(srcFile);
+                     OutputStream out = contentResolver.openOutputStream(newFile.getUri())) {
+
+                    if (out == null) return "Failed to open output stream";
+
+                    byte[] buffer = new byte[1024];
+                    int length;
+                    while ((length = in.read(buffer)) > 0) {
+                        out.write(buffer, 0, length);
+                    }
+
                     return "";
                 }
-                out.write(bArr, 0, read);
+            } catch (Exception e) {
+                XposedBridge.log(e.getMessage());
+                return e.getMessage();
             }
-        } catch (Exception e) {
-            XposedBridge.log(e.getMessage());
-            return e.getMessage();
+        } else {
+            File destFile = new File(destFolder, name);
+            try (FileInputStream in = new FileInputStream(srcFile);
+                 var parcelFileDescriptor = WppCore.getClientBridge().openFile(destFile.getAbsolutePath(), true)) {
+                var out = new FileOutputStream(parcelFileDescriptor.getFileDescriptor());
+                byte[] bArr = new byte[1024];
+                while (true) {
+                    int read = in.read(bArr);
+                    if (read <= 0) {
+                        in.close();
+                        out.close();
+                        Utils.scanFile(destFile);
+                        return "";
+                    }
+                    out.write(bArr, 0, read);
+                }
+            } catch (Exception e) {
+                XposedBridge.log(e.getMessage());
+                return e.getMessage();
+            }
         }
     }
+
 
     public static void showToast(String message, int length) {
         if (Looper.myLooper() == Looper.getMainLooper()) {

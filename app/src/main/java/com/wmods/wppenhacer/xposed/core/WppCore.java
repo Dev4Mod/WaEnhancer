@@ -40,6 +40,7 @@ import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
 import de.robv.android.xposed.XC_MethodHook;
+import de.robv.android.xposed.XSharedPreferences;
 import de.robv.android.xposed.XposedBridge;
 import de.robv.android.xposed.XposedHelpers;
 
@@ -62,7 +63,7 @@ public class WppCore {
     private static Object mCachedMessageStore;
 
 
-    public static void Initialize(ClassLoader loader) throws Exception {
+    public static void Initialize(ClassLoader loader, XSharedPreferences pref) throws Exception {
         privPrefs = Utils.getApplication().getSharedPreferences("WaGlobal", Context.MODE_PRIVATE);
 
         // init UserJID
@@ -105,7 +106,11 @@ public class WppCore {
 
         // Load wa database
         loadWADatabase();
-        initBridge(Utils.getApplication());
+
+        if (!pref.getBoolean("lite_mode", false)) {
+            initBridge(Utils.getApplication());
+        }
+
     }
 
     public static void initBridge(Context context) throws Exception {

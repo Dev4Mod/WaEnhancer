@@ -40,6 +40,8 @@ public class BubbleColors extends Feature {
     @Override
     public void doHook() throws Exception {
 
+        if (prefs.getBoolean("lite_mode", false)) return;
+
         Properties properties = Utils.extractProperties(prefs.getString("custom_css", ""));
 
         if (!prefs.getBoolean("bubble_color", false) && !Objects.equals(properties.getProperty("bubble_colors"), "true"))

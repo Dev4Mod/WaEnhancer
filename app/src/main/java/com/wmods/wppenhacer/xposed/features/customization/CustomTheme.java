@@ -65,6 +65,7 @@ public class CustomTheme extends Feature {
 
     @Override
     public void doHook() throws Exception {
+        if (prefs.getBoolean("lite_mode", false)) return;
         properties = Utils.extractProperties(prefs.getString("custom_css", ""));
         hookColors();
         hookWallpaper();

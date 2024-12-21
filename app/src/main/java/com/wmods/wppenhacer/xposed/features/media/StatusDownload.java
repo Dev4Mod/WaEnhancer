@@ -103,12 +103,11 @@ public class StatusDownload extends Feature {
             var file = fMessage.getMediaFile();
             var userJid = fMessage.getUserJid();
             var fileType = file.getName().substring(file.getName().lastIndexOf(".") + 1);
-            var destination = getPathDestination(file);
+            var destination = getStatusDestination(file);
             var name = Utils.generateName(userJid, fileType);
-            var destinationFile = new File(destination, name);
-            var error = Utils.copyFile(file, destinationFile);
+            var error = Utils.copyFile(file, destination, name);
             if (TextUtils.isEmpty(error)) {
-                Utils.showToast(Utils.getApplication().getString(ResId.string.saved_to) + destinationFile.getAbsolutePath(), Toast.LENGTH_SHORT);
+                Utils.showToast(Utils.getApplication().getString(ResId.string.saved_to) + destination, Toast.LENGTH_SHORT);
             } else {
 
                 Utils.showToast(Utils.getApplication().getString(ResId.string.error_when_saving_try_again) + ": " + error, Toast.LENGTH_SHORT);
@@ -126,14 +125,9 @@ public class StatusDownload extends Feature {
 
 
     @NonNull
-    private String getPathDestination(@NonNull File f) {
+    private String getStatusDestination(@NonNull File f) throws Exception {
         var fileName = f.getName().toLowerCase();
-        var mediaPath = getStatusFolderPath(MimeTypeUtils.getMimeTypeFromExtension(fileName));
-        return mediaPath + "/";
-    }
-
-    @NonNull
-    private File getStatusFolderPath(@NonNull String mimeType) {
+        var mimeType = MimeTypeUtils.getMimeTypeFromExtension(fileName);
         var folderPath = "";
         if (mimeType.contains("video")) {
             folderPath = "Status Videos";
@@ -144,9 +138,7 @@ public class StatusDownload extends Feature {
         } else {
             folderPath = "Status Media";
         }
-        var folder = new File(Utils.getDestination(folderPath));
-        if (!folder.exists())
-            folder.mkdirs();
-        return folder;
+        return Utils.getDestination(folderPath);
     }
+
 }

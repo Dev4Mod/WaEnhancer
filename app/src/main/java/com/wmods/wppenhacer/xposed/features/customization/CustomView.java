@@ -82,6 +82,9 @@ public class CustomView extends Feature {
 
     @Override
     public void doHook() throws Throwable {
+
+        if (prefs.getBoolean("lite_mode", false)) return;
+
         var filter_itens = prefs.getString("css_theme", "");
         var folder_theme = prefs.getString("folder_theme", "");
         var custom_css = prefs.getString("custom_css", "");
