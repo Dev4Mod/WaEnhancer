@@ -184,8 +184,8 @@
     <string name="enable_restart_button_sum">Add button in Home Screen to Restart App</string>
     <string name="toast_on_delete">Show toast notification on delete message</string>
     <string name="toast_on_delete_sum">Show toast notification if any contact deletes any message</string>
-    <string name="enable_top_navigation">Enable Top Navigation</string>
-    <string name="enable_top_navigation_sum">Activate the old navigation bar (at the top of the tabs)</string>
+    <string name="enable_top_navigation">Enable Top Navigation (Obsolete)</string>
+    <string name="enable_top_navigation_sum">Activate the old navigation bar (does not work for versions above Wpp 2.24.24 and will be removed soon)</string>
     <string name="hideread_group">Hide Blue Tick in Groups</string>
     <string name="hideread_group_sum">View messages in groups screen without users knowing</string>
     <string name="show_freezeLastSeen_button">Show Freeze Last Seen Button</string>
