@@ -2,6 +2,8 @@ package com.wmods.wppenhacer.xposed.features.general;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.content.ClipData;
+import android.content.ClipboardManager;
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.view.View;
@@ -11,6 +13,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.core.widget.NestedScrollView;
@@ -165,6 +168,15 @@ public class ShowEditMessage extends Feature {
             layoutParams2.weight = 1.0f;
             listView.setLayoutParams(layoutParams2);
             listView.setAdapter(adapter);
+            listView.setOnItemLongClickListener((parent, view, position, id) -> {
+                MessageHistory.MessageItem item = messages.get(position);
+                String textToCopy = item.message;
+                ClipboardManager clipboard = (ClipboardManager) ctx.getSystemService(Context.CLIPBOARD_SERVICE);
+                ClipData clip = ClipData.newPlainText("Copied Text", textToCopy);
+                clipboard.setPrimaryClip(clip);
+                Toast.makeText(ctx, "Text copied to clipboard", Toast.LENGTH_SHORT).show();
+                return true;
+            });
             ImageView imageView0 = new ImageView(ctx);
             LinearLayout.LayoutParams layoutParams4 = new LinearLayout.LayoutParams(Utils.dipToPixels(70), Utils.dipToPixels(8));
             layoutParams4.gravity = 17;
