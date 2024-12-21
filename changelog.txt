@@ -1,2 +1,9 @@
+[NEW]
+* Added Lite Mode function (General -> General Settings -> Lite Mode)
+
+[BUGS FIXED]
+* Fixed a bug in audio seen in version WP 2.24.24+
+* Fixed a bug in increase pinned limit in version WP 2.24.26.xx by Ranyer
+
 [WHATSAPP]
-* Added compatibility with version 2.24.26.xx by frknkrc44
+* Added more compatibility with version 2.24.26.xx by frknkrc44
