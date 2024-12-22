@@ -99,6 +99,8 @@ public class ResId {
         public static int platform_s;
         public static int wpp_version_s;
         public static int call_information;
+        public static int ask_download_folder;
+        public static int download_folder_permission;
     }
 
     public static class array {

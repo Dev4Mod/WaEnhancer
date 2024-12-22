@@ -29,11 +29,11 @@ public class DownloadViewOnce extends Feature {
         super(classLoader, preferences);
     }
 
-    private static void downloadFile(Object userJid, File file) {
+    private static void downloadFile(Object userJid, File file) throws Exception {
         var dest = Utils.getDestination("View Once");
         var fileExtension = file.getAbsolutePath().substring(file.getAbsolutePath().lastIndexOf(".") + 1);
         var name = Utils.generateName(userJid, fileExtension);
-        var error = Utils.copyFile(file, new File(dest, name));
+        var error = Utils.copyFile(file, dest, name);
         if (TextUtils.isEmpty(error)) {
             Utils.showToast(Utils.getApplication().getString(ResId.string.saved_to) + dest, Toast.LENGTH_LONG);
         } else {
@@ -89,7 +89,11 @@ public class DownloadViewOnce extends Feature {
                                     var fmessage = new FMessageWpp(fmessageObj);
                                     var file = fmessage.getMediaFile();
                                     var userJid = fmessage.getKey().remoteJid;
-                                    downloadFile(userJid, file);
+                                    try {
+                                        downloadFile(userJid, file);
+                                    } catch (Exception e) {
+                                        Utils.showToast(e.getMessage(), Toast.LENGTH_LONG);
+                                    }
                                 });
                                 return true;
                             });

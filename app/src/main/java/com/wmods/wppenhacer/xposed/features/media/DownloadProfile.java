@@ -14,8 +14,6 @@ import com.wmods.wppenhacer.xposed.utils.ReflectionUtils;
 import com.wmods.wppenhacer.xposed.utils.ResId;
 import com.wmods.wppenhacer.xposed.utils.Utils;
 
-import java.io.File;
-
 import de.robv.android.xposed.XC_MethodHook;
 import de.robv.android.xposed.XSharedPreferences;
 import de.robv.android.xposed.XposedHelpers;
@@ -46,9 +44,15 @@ public class DownloadProfile extends Feature {
                     var jidObj = ReflectionUtils.getObjectField(loadProfileInfoField, ReflectionUtils.getObjectField(field, param.thisObject));
                     var jid = WppCore.stripJID(WppCore.getRawString(jidObj));
                     var file = WppCore.getContactPhotoFile(jid);
-                    var destPath = Utils.getDestination("Profile Photo");
+                    String destPath;
+                    try {
+                        destPath = Utils.getDestination("Profile Photo");
+                    } catch (Exception e) {
+                        Utils.showToast(e.toString(), 1);
+                        return true;
+                    }
                     var name = Utils.generateName(jidObj, "jpg");
-                    var error = Utils.copyFile(file, new File(destPath, name));
+                    var error = Utils.copyFile(file, destPath, name);
                     if (TextUtils.isEmpty(error)) {
                         Toast.makeText(Utils.getApplication(), Utils.getApplication().getString(ResId.string.saved_to) + destPath, Toast.LENGTH_LONG).show();
                     } else {

@@ -184,8 +184,8 @@
     <string name="enable_restart_button_sum">Add button in Home Screen to Restart App</string>
     <string name="toast_on_delete">Show toast notification on delete message</string>
     <string name="toast_on_delete_sum">Show toast notification if any contact deletes any message</string>
-    <string name="enable_top_navigation">Enable Top Navigation</string>
-    <string name="enable_top_navigation_sum">Activate the old navigation bar (at the top of the tabs)</string>
+    <string name="enable_top_navigation">Enable Top Navigation (Obsolete)</string>
+    <string name="enable_top_navigation_sum">Activate the old navigation bar (does not work for versions above Wpp 2.24.24 and will be removed soon)</string>
     <string name="hideread_group">Hide Blue Tick in Groups</string>
     <string name="hideread_group_sum">View messages in groups screen without users knowing</string>
     <string name="show_freezeLastSeen_button">Show Freeze Last Seen Button</string>
@@ -403,4 +403,8 @@
     <string name="platform_s">Platform: %s</string>
     <string name="wpp_version_s">WhatsApp Version: %s</string>
     <string name="call_information">Call Information</string>
+    <string name="ask_download_folder">To use WAE Enhancer\'s download functions, you must select a folder to save the downloaded files.</string>
+    <string name="download_folder_permission">Download Folder Permission</string>
+    <string name="lite_mode">Lite Mode</string>
+    <string name="lite_mode_sum">Lite Mode disables most theme features and the connection bridge that keeps WhatsApp always active is turned off.</string>
 </resources>

@@ -36,17 +36,21 @@ public class GroupAdmin extends Feature {
             @SuppressLint("ResourceType")
             @Override
             protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-                var fMessage = XposedHelpers.callMethod(param.thisObject, "getFMessage");
+                var targetObj = param.thisObject != null
+                        ? param.thisObject
+                        : param.args[1];
+
+                var fMessage = XposedHelpers.callMethod(targetObj, "getFMessage");
                 var userJidClass = XposedHelpers.findClass("com.whatsapp.jid.UserJid", classLoader);
                 var methodResult = ReflectionUtils.findMethodUsingFilter(fMessage.getClass(), method -> method.getReturnType() == userJidClass && method.getParameterCount() == 0);
                 var userJid = ReflectionUtils.callMethod(methodResult, fMessage);
                 var chatCurrentJid = WppCore.getCurrentRawJID();
                 if (!WppCore.isGroup(chatCurrentJid)) return;
-                var field = ReflectionUtils.getFieldByType(param.thisObject.getClass(), grpcheckAdmin.getDeclaringClass());
-                var grpParticipants = field.get(param.thisObject);
+                var field = ReflectionUtils.getFieldByType(targetObj.getClass(), grpcheckAdmin.getDeclaringClass());
+                var grpParticipants = field.get(targetObj);
                 var jidGrp = jidFactory.invoke(null, chatCurrentJid);
                 var result = ReflectionUtils.callMethod(grpcheckAdmin, grpParticipants, jidGrp, userJid);
-                var view = (View) param.thisObject;
+                var view = (View) targetObj;
                 var context = view.getContext();
                 ImageView iconAdmin;
                 if ((iconAdmin = view.findViewById(0x7fff0010)) == null) {

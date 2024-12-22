@@ -39,6 +39,7 @@ import com.wmods.wppenhacer.xposed.features.general.AntiRevoke;
 import com.wmods.wppenhacer.xposed.features.general.CallType;
 import com.wmods.wppenhacer.xposed.features.general.ChatLimit;
 import com.wmods.wppenhacer.xposed.features.general.DeleteStatus;
+import com.wmods.wppenhacer.xposed.features.general.LiteMode;
 import com.wmods.wppenhacer.xposed.features.general.MenuStatus;
 import com.wmods.wppenhacer.xposed.features.general.NewChat;
 import com.wmods.wppenhacer.xposed.features.general.Others;
@@ -125,7 +126,7 @@ public class FeatureLoader {
                     var timemillis = System.currentTimeMillis();
                     SharedPreferencesWrapper.hookInit(mApp.getClassLoader());
                     UnobfuscatorCache.init(mApp);
-                    WppCore.Initialize(loader);
+                    WppCore.Initialize(loader, pref);
                     if (supportedVersions.stream().noneMatch(s -> packageInfo.versionName.startsWith(s.replace(".xx", ""))) && !pref.getBoolean("bypass_version_check", false)) {
                         throw new Exception("Unsupported version: " + packageInfo.versionName);
                     }
@@ -284,6 +285,7 @@ public class FeatureLoader {
                 HideTagForward.class,
                 HideTabs.class,
                 IGStatus.class,
+                LiteMode.class,
                 MediaQuality.class,
                 NewChat.class,
                 Others.class,

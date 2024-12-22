@@ -319,6 +319,7 @@
                             android:text="" />
 
                         <com.google.android.material.textview.MaterialTextView
+                            android:id="@+id/list_wpp_title"
                             style="@style/DeviceInfoDialogLabel"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
