@@ -540,6 +540,18 @@ public class Unobfuscator {
     public synchronized static Method loadMenuStatusMethod(ClassLoader loader) throws Exception {
         return UnobfuscatorCache.getInstance().getMethod(loader, () -> {
             var id = Utils.getID("menuitem_conversations_message_contact", "id");
+            // Second Method (error fix for Betas)
+            if (!methods.isEmpty() && !methods.get(0).toString().contains("onClick")) {
+                methods = dexkit.findMethod(
+                    new FindMethod().matcher(
+                        new MethodMatcher()
+                            .addUsingString("biz_block_header_chat")
+                            .addParamType(View.class)
+                            .paramCount(1)
+                            .name("onClick")
+                    )
+                );
+            }
             var methods = dexkit.findMethod(new FindMethod().matcher(new MethodMatcher().addUsingNumber(id)));
             if (methods.isEmpty()) throw new Exception("MenuStatus method not found");
             return methods.get(0).getMethodInstance(loader);
