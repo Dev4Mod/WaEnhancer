@@ -50,9 +50,10 @@ jobs:
           path: app/build/outputs/apk/debug/app-debug.apk
 
       - name: Upload to release
-        uses: svenstaro/upload-release-action@v2
+        uses: softprops/action-gh-release@v2
         with:
-          repo_token: ${{ secrets.GITHUB_TOKEN }}
-          file: app/build/outputs/apk/debug/app-debug.apk
-          asset_name: WaEnhancer_business_debug_${{ github.sha }}.apk
-          tag: pre-release-business-${{ github.sha }}
+          token: ${{ secrets.GITHUB_TOKEN }}
+          name: WaEnhancer Business ${{ github.sha }}
+          body_path: changelog.txt
+          files: app/build/outputs/apk/debug/app-debug.apk
+          tag_name: pre-release-business-${{ github.sha }}
