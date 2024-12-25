@@ -103,6 +103,14 @@ public abstract class BasePreferenceFragment extends PreferenceFragmentCompat im
 
     @SuppressLint("ApplySharedPref")
     private void chanceStates(String key) {
+        
+        var update_check = mPrefs.getBoolean("update_check", false);
+
+        if (update_check) {
+            setPreferenceState("update_check", true);
+        } else {
+            setPreferenceState("update_check", false);
+        }
 
         var lite_mode = mPrefs.getBoolean("lite_mode", false);
 

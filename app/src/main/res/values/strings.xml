@@ -407,4 +407,6 @@
     <string name="download_folder_permission">Download Folder Permission</string>
     <string name="lite_mode">Lite Mode</string>
     <string name="lite_mode_sum">Lite Mode disables most theme features and the connection bridge that keeps WhatsApp always active is turned off.</string>
+    <string name="update_check">Automatically Check for Update</string>
+    <string name="update_check_sum">Enable or Disable Auto Check for Update. This will disable the popup inside the WhatsApp Application.</string>
 </resources>
