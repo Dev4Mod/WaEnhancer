@@ -59,7 +59,6 @@ public class Others extends Feature {
         var filterChats = prefs.getString("chatfilter", null);
         var strokeButtons = prefs.getBoolean("strokebuttons", false);
         var outlinedIcons = prefs.getBoolean("outlinedicons", false);
-        var filterSeen = prefs.getBoolean("filterseen", false);
         var fbstyle = Integer.parseInt(prefs.getString("facebookstyle", "0"));
         var metaai = prefs.getBoolean("metaai", false);
         var topnav = prefs.getBoolean("topnav", false);
@@ -77,7 +76,7 @@ public class Others extends Feature {
         var animationEmojis = prefs.getBoolean("animation_emojis", false);
 
         propsInteger.put(3877, oldStatus ? igstatus ? 2 : 0 : 2);
-        propsBoolean.put(5171, filterSeen); // filtros de chat e grupos
+        propsBoolean.put(5171, true);
         propsBoolean.put(4524, novoTema);
         propsBoolean.put(4497, menuWIcons);
         propsBoolean.put(4023, newSettings);

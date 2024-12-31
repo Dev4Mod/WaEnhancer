@@ -142,8 +142,6 @@
     <string name="send">Send</string>
     <string name="do_you_want_to_send_sticker">Do you want to send sticker?</string>
     <string name="send_sticker">Send Sticker</string>
-    <string name="enable_filter_chats">Enable filter chats for type</string>
-    <string name="enable_filter_chats_sum">Show options to filter chats for groups, contacts and unseen messages</string>
     <string name="disable_channels">Hide Channels</string>
     <string name="disable_channels_sum">Hide Channels from Updates tab</string>
     <string name="chat">Chat</string>
