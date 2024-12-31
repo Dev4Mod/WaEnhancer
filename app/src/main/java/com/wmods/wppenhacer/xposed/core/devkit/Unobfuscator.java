@@ -984,20 +984,14 @@ public class Unobfuscator {
 
     public synchronized static Method loadNewMessageWithMediaMethod(ClassLoader loader) throws Exception {
         return UnobfuscatorCache.getInstance().getMethod(loader, () -> {
-            var clazzMessage = Objects.requireNonNull(dexkit.getClassData(loadFMessageClass(loader)));
-            Class<?> mediaMessageClass = loadAbstractMediaMessageClass(loader);
-            var messagesMethods = clazzMessage.findMethod(FindMethod.create().matcher(MethodMatcher.create().paramCount(0).returnType(String.class)));
-            for (var message : messagesMethods) {
-                var usingFields = message.getUsingFields();
-                for (var field : usingFields) {
-                    Class<?> clazz = field.getField().getDeclaredClass().getInstance(loader);
-                    if (clazz.isPrimitive()) continue;
-                    if (mediaMessageClass.isAssignableFrom(clazz)) {
-                        return message.getMethodInstance(loader);
-                    }
-                }
-            }
-            throw new RuntimeException("Media Message Method Not Found");
+            var methodList = dexkit.findMethod(FindMethod.create().matcher(MethodMatcher.create().addUsingString("INSERT_TABLE_MESSAGE_QUOTED", StringMatchType.Equals)));
+            if (methodList.isEmpty()) throw new Exception("NewMessageWithMedia method not found");
+            var methodData = methodList.get(0);
+            var invokes = methodData.getInvokes();
+            var clazzMessageName = loadFMessageClass(loader).getName();
+            var method = invokes.parallelStream().filter(invoke -> clazzMessageName.equals(invoke.getDeclaredClass().getName()) && invoke.getReturnType() != null && invoke.getReturnType().getName().equals("java.lang.String")).findFirst().orElse(null);
+            if (method == null) throw new RuntimeException("NewMessageWithMedia method not found");
+            return method.getMethodInstance(loader);
         });
     }
 
