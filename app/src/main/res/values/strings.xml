@@ -407,4 +407,6 @@
     <string name="download_folder_permission">Download Folder Permission</string>
     <string name="lite_mode">Lite Mode</string>
     <string name="lite_mode_sum">Lite Mode disables most theme features and the connection bridge that keeps WhatsApp always active is turned off.</string>
+    <string name="change_default_dpi">Change Default DPI</string>
+    <string name="change_default_dpi_sum">Change the DPI setting for the application. Use 0 to reset to default.</string>
 </resources>
