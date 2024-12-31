@@ -9,6 +9,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
@@ -866,9 +867,12 @@ public class Unobfuscator {
 
     public synchronized static Method loadPinnedLimitMethod(ClassLoader loader) throws Exception {
         return UnobfuscatorCache.getInstance().getMethod(loader, () -> {
-            var method = findFirstMethodUsingStrings(loader, StringMatchType.Contains, "count_progress");
+            var methodList = dexkit.findMethod(FindMethod.create().matcher(MethodMatcher.create().addUsingString("count_progress").paramCount(1, 2)));
+            if (methodList.isEmpty()) throw new Exception("PinnedLimit method not found");
+            var menuItemName = MenuItem.class.getName();
+            var method = methodList.parallelStream().filter(m -> m.getParamTypes().get(0).getName().equals(menuItemName)).findFirst().orElse(null);
             if (method == null) throw new Exception("PinnedLimit method not found");
-            return method;
+            return method.getMethodInstance(loader);
         });
     }
 
