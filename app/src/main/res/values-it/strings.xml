@@ -140,8 +140,6 @@
     <string name="send">Invia</string>
     <string name="do_you_want_to_send_sticker">Vuoi inviare lo sticker?</string>
     <string name="send_sticker">Invia sticker</string>
-    <string name="enable_filter_chats">Abilita filtro chat per tipo</string>
-    <string name="enable_filter_chats_sum">Mostra le opzioni per filtrare le chat per gruppi, contatti e messaggi non letti</string>
     <string name="disable_channels">Nascondi Canali</string>
     <string name="disable_channels_sum">Nascondi i canali dalla scheda Aggiornamenti</string>
     <string name="chat">Chat</string>
@@ -150,8 +148,8 @@
     <string name="default_color">Imposta il colore #00000000 come predefinito</string>
     <string name="enable_confirmation_to_send_sticker">Conferma prima di inviare sticker</string>
     <string name="enable_confirmation_to_send_sticker_sum">Mostra una finestra di dialogo prima di inviare gli sticker</string>
-    <string name="increase_video_size_limit">Aumenta limite dimensioni video</string>
-    <string name="increase_video_size_limit_sum">Aumenta il limite di dimensione dei video a 90MB</string>
+    <string name="increase_video_size_limit">Increase Video Size Limit (MB)</string>
+    <string name="increase_video_size_limit_sum">Increase Video size limit to 200MB</string>
     <string name="send_video_in_real_resolution">Invia video in risoluzione originale</string>
     <string name="send_video_in_real_resolution_sum">Invia i video in risoluzione originale per Stato, Gruppi e Chat</string>
     <string name="send_video_in_60fps">Invia video in 60fps</string>
@@ -182,8 +180,8 @@
     <string name="enable_restart_button_sum">Aggiungi un pulsante nella Home per riavviare l\'app</string>
     <string name="toast_on_delete">Mostra toast sui messaggi eliminati</string>
     <string name="toast_on_delete_sum">Mostra una notifica toast quando un qualsiasi contatto elimina un messaggio</string>
-    <string name="enable_top_navigation">Abilita barra di navigazione superiore</string>
-    <string name="enable_top_navigation_sum">Attiva la vecchia barra di navigazione (nella parte superiore delle schede)</string>
+    <string name="enable_top_navigation">Enable Top Navigation (Obsolete)</string>
+    <string name="enable_top_navigation_sum">Activate the old navigation bar (does not work for versions above Wpp 2.24.24 and will be removed soon)</string>
     <string name="hideread_group">Nascondi spunte blu nei Gruppi</string>
     <string name="hideread_group_sum">Visualizza i messaggi nei gruppi senza che gli utenti lo sappiano</string>
     <string name="show_freezeLastSeen_button">Mostra pulsante Congela Ultimo accesso</string>
@@ -400,4 +398,10 @@
     <string name="platform_s">Piattaforma: %s</string>
     <string name="wpp_version_s">Versione WhatsApp: %s</string>
     <string name="call_information">Informazioni Chiamata</string>
+    <string name="ask_download_folder">To use WAE Enhancer\'s download functions, you must select a folder to save the downloaded files.</string>
+    <string name="download_folder_permission">Download Folder Permission</string>
+    <string name="lite_mode">Lite Mode</string>
+    <string name="lite_mode_sum">Lite Mode disables most theme features and the connection bridge that keeps WhatsApp always active is turned off.</string>
+    <string name="change_default_dpi">Change Default DPI</string>
+    <string name="change_default_dpi_sum">Change the DPI setting for the application. Use 0 to reset to default.</string>
 </resources>

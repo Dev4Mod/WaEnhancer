@@ -13,3 +13,6 @@
 
 [WHATSAPP]
 * Compatibility improvement with WhatsApp beta 2.24.26.20
+
+[WA ENHANCER]
+* Updated Translations

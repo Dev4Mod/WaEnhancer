@@ -140,8 +140,6 @@
     <string name="send">Envoyer</string>
     <string name="do_you_want_to_send_sticker">Voulez-vous envoyer un autocollant ?</string>
     <string name="send_sticker">Envoyer un autocollant</string>
-    <string name="enable_filter_chats">Activer le filtrage des discussions par type</string>
-    <string name="enable_filter_chats_sum">Afficher les options pour trier les discussions pour les groupes, les contacts et les messages invisibles</string>
     <string name="disable_channels">Masquer les chaînes</string>
     <string name="disable_channels_sum">Masquer les chaînes de l\'onglet actus</string>
     <string name="chat">Discussion</string>
@@ -150,8 +148,8 @@
     <string name="default_color">Définir la couleur #00000000 sur la couleur par défaut</string>
     <string name="enable_confirmation_to_send_sticker">Confirmation avant d\'envoyer l\'autocollant</string>
     <string name="enable_confirmation_to_send_sticker_sum">Afficher une boîte de dialogue avant d\'envoyer l\'autocollant</string>
-    <string name="increase_video_size_limit">Augmenter la limite de taille de la vidéo</string>
-    <string name="increase_video_size_limit_sum">Augmenter la limite de taille de la vidéo à 90 Mo</string>
+    <string name="increase_video_size_limit">Increase Video Size Limit (MB)</string>
+    <string name="increase_video_size_limit_sum">Increase Video size limit to 200MB</string>
     <string name="send_video_in_real_resolution">Envoyer une vidéo en résolution réelle</string>
     <string name="send_video_in_real_resolution_sum">Envoyer une vidéo en résolution réelle pour le statut, le groupe et les discussions</string>
     <string name="send_video_in_60fps">Envoyer une vidéo à 60fps</string>
@@ -182,8 +180,8 @@
     <string name="enable_restart_button_sum">Ajouter un bouton sur l\'écran d\'accueil pour redémarrer l\'application</string>
     <string name="toast_on_delete">Afficher une notification lors de la suppression du message</string>
     <string name="toast_on_delete_sum">Afficher une notification si un contact supprime un message</string>
-    <string name="enable_top_navigation">Activer la navigation supérieure</string>
-    <string name="enable_top_navigation_sum">Activez l\'ancienne barre de navigation (en haut des onglets)</string>
+    <string name="enable_top_navigation">Enable Top Navigation (Obsolete)</string>
+    <string name="enable_top_navigation_sum">Activate the old navigation bar (does not work for versions above Wpp 2.24.24 and will be removed soon)</string>
     <string name="hideread_group">Masquer la coche bleue dans les groupes</string>
     <string name="hideread_group_sum">Voir les messages dans l\'écran des groupes à l\'insu des utilisateurs</string>
     <string name="show_freezeLastSeen_button">Afficher le bouton Geler la dernière vue</string>
@@ -400,4 +398,10 @@
     <string name="platform_s">Plateforme : %s</string>
     <string name="wpp_version_s">Version WhatsApp : %s</string>
     <string name="call_information">Informations sur l\'appel</string>
+    <string name="ask_download_folder">To use WAE Enhancer\'s download functions, you must select a folder to save the downloaded files.</string>
+    <string name="download_folder_permission">Download Folder Permission</string>
+    <string name="lite_mode">Lite Mode</string>
+    <string name="lite_mode_sum">Lite Mode disables most theme features and the connection bridge that keeps WhatsApp always active is turned off.</string>
+    <string name="change_default_dpi">Change Default DPI</string>
+    <string name="change_default_dpi_sum">Change the DPI setting for the application. Use 0 to reset to default.</string>
 </resources>

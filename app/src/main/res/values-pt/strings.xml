@@ -140,8 +140,6 @@
     <string name="send">Enviar</string>
     <string name="do_you_want_to_send_sticker">Você quer enviar figurinha?</string>
     <string name="send_sticker">Enviar figurinha</string>
-    <string name="enable_filter_chats">Ativar filtro de conversas para o tipo</string>
-    <string name="enable_filter_chats_sum">Mostre opções para filtrar conversas de grupos, contatos e mensagens não vistas.</string>
     <string name="disable_channels">Desativar canais</string>
     <string name="disable_channels_sum">Desative os canais na aba Atualizações</string>
     <string name="chat">Conversas</string>
@@ -150,8 +148,8 @@
     <string name="default_color">Definir cor #00000000 para cor padrão</string>
     <string name="enable_confirmation_to_send_sticker">Confirmar antes de enviar figurinha</string>
     <string name="enable_confirmation_to_send_sticker_sum">Mostre uma caixa de diálogo antes de enviar a figurinha</string>
-    <string name="increase_video_size_limit">Aumentar limite de tamanho de vídeo</string>
-    <string name="increase_video_size_limit_sum">Aumente o limite de tamanho de vídeo para 90 MB</string>
+    <string name="increase_video_size_limit">Increase Video Size Limit (MB)</string>
+    <string name="increase_video_size_limit_sum">Increase Video size limit to 200MB</string>
     <string name="send_video_in_real_resolution">Enviar vídeo em resolução real</string>
     <string name="send_video_in_real_resolution_sum">Envie vídeos em resolução real para status, grupos e conversas.</string>
     <string name="send_video_in_60fps">Enviar vídeo em 60 FPS</string>
@@ -182,8 +180,8 @@
     <string name="enable_restart_button_sum">Adicione uma opção na tela inicial para reiniciar o app</string>
     <string name="toast_on_delete">Mostrar notificação toast ao excluir mensagens</string>
     <string name="toast_on_delete_sum">Mostra uma notificação toast se qualquer contato excluir uma mensagem</string>
-    <string name="enable_top_navigation">Ativar navegação superior</string>
-    <string name="enable_top_navigation_sum">Ativa a barra de navegação antiga (no topo das abas)</string>
+    <string name="enable_top_navigation">Enable Top Navigation (Obsolete)</string>
+    <string name="enable_top_navigation_sum">Activate the old navigation bar (does not work for versions above Wpp 2.24.24 and will be removed soon)</string>
     <string name="hideread_group">Ocultar marca azul em grupos</string>
     <string name="hideread_group_sum">Visualize mensagens na tela de grupos sem que os usuários saibam</string>
     <string name="show_freezeLastSeen_button">Mostrar botão de congelar visto por último</string>
@@ -400,4 +398,10 @@
     <string name="platform_s">Plataforma: %s</string>
     <string name="wpp_version_s">Versão do WhatsApp: %s</string>
     <string name="call_information">Informações de chamada</string>
+    <string name="ask_download_folder">To use WAE Enhancer\'s download functions, you must select a folder to save the downloaded files.</string>
+    <string name="download_folder_permission">Download Folder Permission</string>
+    <string name="lite_mode">Lite Mode</string>
+    <string name="lite_mode_sum">Lite Mode disables most theme features and the connection bridge that keeps WhatsApp always active is turned off.</string>
+    <string name="change_default_dpi">Change Default DPI</string>
+    <string name="change_default_dpi_sum">Change the DPI setting for the application. Use 0 to reset to default.</string>
 </resources>

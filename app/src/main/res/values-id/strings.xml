@@ -147,8 +147,6 @@ Harap gunakan versi WhatsApp yang didukung!</string>
     <string name="send">Kirim</string>
     <string name="do_you_want_to_send_sticker">Apakah Anda ingin mengirim Stiker?</string>
     <string name="send_sticker">Kirim Stiker</string>
-    <string name="enable_filter_chats">Aktifkan Filter Obrolan</string>
-    <string name="enable_filter_chats_sum">Tampilkan opsi untuk memfilter obrolan seperti grup, kontak dan pesan belum dibaca</string>
     <string name="disable_channels">Nonaktifkan Saluran</string>
     <string name="disable_channels_sum">Nonaktifkan saluran dari tab Status</string>
     <string name="chat">Obrolan</string>
@@ -157,8 +155,8 @@ Harap gunakan versi WhatsApp yang didukung!</string>
     <string name="default_color">Atur warna #00000000 ke warna default</string>
     <string name="enable_confirmation_to_send_sticker">Konfirmasi Sebelum Mengirim Stiker</string>
     <string name="enable_confirmation_to_send_sticker_sum">Tampilkan dialog sebelum mengirim stiker</string>
-    <string name="increase_video_size_limit">Tingkatkan Batas Ukuran Video</string>
-    <string name="increase_video_size_limit_sum">Tingkatkan batas ukuran video menjadi 90MB</string>
+    <string name="increase_video_size_limit">Increase Video Size Limit (MB)</string>
+    <string name="increase_video_size_limit_sum">Increase Video size limit to 200MB</string>
     <string name="send_video_in_real_resolution">Kirim Video Resolusi Asli</string>
     <string name="send_video_in_real_resolution_sum">Kirim video dalam resolusi asli untuk status, grup dan obrolan</string>
     <string name="send_video_in_60fps">Kirim Video 60fps</string>
@@ -189,8 +187,8 @@ Harap gunakan versi WhatsApp yang didukung!</string>
     <string name="enable_restart_button_sum">Tampilkan tombol di layar beranda untuk memulai ulang aplikasi</string>
     <string name="toast_on_delete">Notifikasi Saat Pesan/Status Dihapus</string>
     <string name="toast_on_delete_sum">Tampilkan notifikasi mengambang jika ada pesan/status yang dihapus</string>
-    <string name="enable_top_navigation">Aktifkan Navigasi Atas</string>
-    <string name="enable_top_navigation_sum">Aktifkan bilah navigasi lama (tab di bagian atas)</string>
+    <string name="enable_top_navigation">Enable Top Navigation (Obsolete)</string>
+    <string name="enable_top_navigation_sum">Activate the old navigation bar (does not work for versions above Wpp 2.24.24 and will be removed soon)</string>
     <string name="hideread_group">Sembunyikan Centang Biru di Grup</string>
     <string name="hideread_group_sum">Pengirim pesan tidak akan mengetahui bahwa Anda telah membaca pesannya di grup</string>
     <string name="show_freezeLastSeen_button">Tampilkan Tombol Bekukan \"terakhir dilihat dan online\"</string>
@@ -412,4 +410,10 @@ Saat Anda mengaktifkan bekukan \"terakhir dilihat dan online\", Anda tidak dapat
     <string name="platform_s">Platform: %s</string>
     <string name="wpp_version_s">WhatsApp Version: %s</string>
     <string name="call_information">Call Information</string>
+    <string name="ask_download_folder">To use WAE Enhancer\'s download functions, you must select a folder to save the downloaded files.</string>
+    <string name="download_folder_permission">Download Folder Permission</string>
+    <string name="lite_mode">Lite Mode</string>
+    <string name="lite_mode_sum">Lite Mode disables most theme features and the connection bridge that keeps WhatsApp always active is turned off.</string>
+    <string name="change_default_dpi">Change Default DPI</string>
+    <string name="change_default_dpi_sum">Change the DPI setting for the application. Use 0 to reset to default.</string>
 </resources>

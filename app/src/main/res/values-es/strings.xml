@@ -140,8 +140,6 @@
     <string name="send">Enviar</string>
     <string name="do_you_want_to_send_sticker">¿Quieres enviar un Sticker?</string>
     <string name="send_sticker">Enviar Sticker</string>
-    <string name="enable_filter_chats">Habilitar chats de filtro por tipo</string>
-    <string name="enable_filter_chats_sum">Mostrar opciones para filtrar chats por grupos, contactos y mensajes no vistos</string>
     <string name="disable_channels">Ocultar canales</string>
     <string name="disable_channels_sum">Ocultar canales de la pestaña Novedades</string>
     <string name="chat">Chat</string>
@@ -150,8 +148,8 @@
     <string name="default_color">Establezca el color #00000000 como color predeterminado</string>
     <string name="enable_confirmation_to_send_sticker">Confirmación antes de enviar un Sticker</string>
     <string name="enable_confirmation_to_send_sticker_sum">Mostrar un cuadro de diálogo antes de enviar un Sticker</string>
-    <string name="increase_video_size_limit">Aumentar el límite de tamaño del video</string>
-    <string name="increase_video_size_limit_sum">Aumentar el límite de tamaño de video a 90 Mb</string>
+    <string name="increase_video_size_limit">Increase Video Size Limit (MB)</string>
+    <string name="increase_video_size_limit_sum">Increase Video size limit to 200MB</string>
     <string name="send_video_in_real_resolution">Enviar vídeo en resolución real</string>
     <string name="send_video_in_real_resolution_sum">Enviar vídeo en resolución real para el estado, grupo y chats</string>
     <string name="send_video_in_60fps">Enviar vídeo en 60 fps</string>
@@ -182,8 +180,8 @@
     <string name="enable_restart_button_sum">Añadir botón en la pantalla de inicio para reiniciar la aplicación</string>
     <string name="toast_on_delete">Mostrar notificación cuando eliminan un mensaje</string>
     <string name="toast_on_delete_sum">Mostrar notificación si algún contacto borra cualquier mensaje</string>
-    <string name="enable_top_navigation">Habilitar navegación arriba</string>
-    <string name="enable_top_navigation_sum">Activar la antigua barra de navegación (pestañas; Chats, Estados y Llamadas arriba)</string>
+    <string name="enable_top_navigation">Enable Top Navigation (Obsolete)</string>
+    <string name="enable_top_navigation_sum">Activate the old navigation bar (does not work for versions above Wpp 2.24.24 and will be removed soon)</string>
     <string name="hideread_group">Ocultar Tick azul (leído) en grupos</string>
     <string name="hideread_group_sum">Ver los mensajes de los grupos sin que los demás usuarios se den cuenta que lo haz leído</string>
     <string name="show_freezeLastSeen_button">Congelar la última vez</string>
@@ -364,7 +362,7 @@
     <string name="local_download">Directorio para las descargas</string>
     <string name="show_menu_buttons_as_icons">Mostrar botones de menú como iconos</string>
     <string name="show_menu_buttons_as_icons_sum">Muestra los botones de menú en la pantalla de inicio como iconos para un fácil acceso a ellos</string>
-    <string name="starting_cache">Iniciando Hook cache en WhatsApp. Esto puede tardar un rato.</string>
+    <string name="starting_cache">Iniciando procesos de WAE en WhatsApp. Esto puede tardar un rato.</string>
     <string name="bridge_error">Fallo del Bridge: Habilita Framework del Sistema en Lsposed y reinicia el dispositivo</string>
     <string name="disable_battery_optimization">Desactivar la optimización de batería</string>
     <string name="bootloader_spoofer">Bootloader Spoofer</string>
@@ -400,4 +398,10 @@
     <string name="platform_s">Plataforma: %s</string>
     <string name="wpp_version_s">Versión de WhatsApp: %s</string>
     <string name="call_information">Información de la llamada</string>
+    <string name="ask_download_folder">To use WAE Enhancer\'s download functions, you must select a folder to save the downloaded files.</string>
+    <string name="download_folder_permission">Download Folder Permission</string>
+    <string name="lite_mode">Lite Mode</string>
+    <string name="lite_mode_sum">Lite Mode disables most theme features and the connection bridge that keeps WhatsApp always active is turned off.</string>
+    <string name="change_default_dpi">Change Default DPI</string>
+    <string name="change_default_dpi_sum">Change the DPI setting for the application. Use 0 to reset to default.</string>
 </resources>

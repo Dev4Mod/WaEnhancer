@@ -140,8 +140,6 @@
     <string name="send">Absenden</string>
     <string name="do_you_want_to_send_sticker">Wollen Sie Sticker senden?</string>
     <string name="send_sticker">Sticker senden</string>
-    <string name="enable_filter_chats">Chats nach Typ filtern</string>
-    <string name="enable_filter_chats_sum">Option zum Filtern nach \"Alle, Gruppen, Kontakten und Ungelesen\" anzeigen</string>
     <string name="disable_channels">Kanäle ausblenden</string>
     <string name="disable_channels_sum">Kanäle vom Update-Tab ausblenden</string>
     <string name="chat">Chat</string>
@@ -150,8 +148,8 @@
     <string name="default_color">Farbe #00000000 als Standardfarbe setzen</string>
     <string name="enable_confirmation_to_send_sticker">Bestätigung vor dem Senden des Stickers</string>
     <string name="enable_confirmation_to_send_sticker_sum">Eine Bestätigung wird vor dem Senden des Stickers angezeigt</string>
-    <string name="increase_video_size_limit">Limit für Videogröße erhöhen</string>
-    <string name="increase_video_size_limit_sum">Videogrößenlimit auf 90MB erhöhen</string>
+    <string name="increase_video_size_limit">Increase Video Size Limit (MB)</string>
+    <string name="increase_video_size_limit_sum">Increase Video size limit to 200MB</string>
     <string name="send_video_in_real_resolution">Videos in Originalauflösung senden</string>
     <string name="send_video_in_real_resolution_sum">Senden Sie Videos in Originalauflösung für Status, Gruppen oder Chats</string>
     <string name="send_video_in_60fps">Videos in 60 fps senden</string>
@@ -182,8 +180,8 @@
     <string name="enable_restart_button_sum">Auf dem Startbildschirm wird eine Schaltfläche zum Neustart von WhatsApp hinzugefügt</string>
     <string name="toast_on_delete">Zeige Toast-Benachrichtigung beim Löschen der Nachricht</string>
     <string name="toast_on_delete_sum">Zeige Toast-Benachrichtigung, wenn ein Kontakt eine Nachricht löscht</string>
-    <string name="enable_top_navigation">Top Navigation aktivieren</string>
-    <string name="enable_top_navigation_sum">Aktiviere die alte Navigationsleiste (Tabs sind oben)</string>
+    <string name="enable_top_navigation">Enable Top Navigation (Obsolete)</string>
+    <string name="enable_top_navigation_sum">Activate the old navigation bar (does not work for versions above Wpp 2.24.24 and will be removed soon)</string>
     <string name="hideread_group">Blaue Häkchen in Gruppen ausblenden</string>
     <string name="hideread_group_sum">Nachrichten innerhalb des Chat-Bildschirms anzeigen, ohne das Kontakte informiert werden</string>
     <string name="show_freezeLastSeen_button">\"Zuletzt gesehen\"</string>
@@ -400,4 +398,10 @@
     <string name="platform_s">Plattform: %s</string>
     <string name="wpp_version_s">WhatsApp-Version: %s</string>
     <string name="call_information">Anrufinformationen</string>
+    <string name="ask_download_folder">To use WAE Enhancer\'s download functions, you must select a folder to save the downloaded files.</string>
+    <string name="download_folder_permission">Download Folder Permission</string>
+    <string name="lite_mode">Lite Mode</string>
+    <string name="lite_mode_sum">Lite Mode disables most theme features and the connection bridge that keeps WhatsApp always active is turned off.</string>
+    <string name="change_default_dpi">Change Default DPI</string>
+    <string name="change_default_dpi_sum">Change the DPI setting for the application. Use 0 to reset to default.</string>
 </resources>
