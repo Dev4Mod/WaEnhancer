@@ -1358,8 +1358,10 @@ public class Unobfuscator {
 
             // for 20.xx, it returned with 2 parameter count
             if (method.getParamCount() == 2) {
-                method = method.getDeclaredClass().findMethod(FindMethod.create().matcher(new MethodMatcher().addInvoke(DexSignUtil.getMethodDescriptor(method.getMethodInstance(loader))))).singleOrNull();
-                if (method == null) throw new RuntimeException("FilterInit method not found 3");
+                var callers = method.getCallers();
+                method = callers.stream().filter(methodData -> methodData.isMethod() && methodData.getDeclaredClassName().equals(cFrag.getName())).findAny().orElse(null);
+                if (method == null)
+                    throw new RuntimeException("FilterInit method not found 3");
             }
             return method.getMethodInstance(loader);
         });
