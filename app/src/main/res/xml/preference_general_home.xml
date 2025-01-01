@@ -11,6 +11,12 @@
             app:key="thememode"
             app:summary="%s"
             app:title="@string/theme_mode" />
+            
+        <rikka.material.preference.MaterialSwitchPreference
+            app:key="update_check"
+            app:defaultValue="true"
+            app:summary="@string/update_check_sum"
+            app:title="@string/update_check" />
 
         <rikka.material.preference.MaterialSwitchPreference
             app:key="lite_mode"

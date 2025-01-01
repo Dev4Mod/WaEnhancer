@@ -187,8 +187,8 @@ public class FeatureLoader {
                 checkUpdate(activity);
             }
 
-            // Check for Update
-            if (App.isOriginalPackage()) {
+            // Check for WAE Update
+            if (App.isOriginalPackage() && pref.getBoolean("update_check", true)) {
                 if (activity.getClass().getSimpleName().equals("HomeActivity") && state == WppCore.ActivityChangeState.ChangeType.START) {
                     CompletableFuture.runAsync(new UpdateChecker(activity));
                 }
