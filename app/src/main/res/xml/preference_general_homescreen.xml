@@ -64,11 +64,6 @@
             app:title="@string/show_online_last_seen_in_conversation_list" />
 
         <rikka.material.preference.MaterialSwitchPreference
-            app:key="filterseen"
-            app:summary="@string/enable_filter_chats_sum"
-            app:title="@string/enable_filter_chats" />
-
-        <rikka.material.preference.MaterialSwitchPreference
             app:key="metaai"
             app:summary="@string/disable_metaai_sum"
             app:title="@string/disable_metaai" />
@@ -77,6 +72,7 @@
             app:entries="@array/chatfilter_buttons"
             app:entryValues="@array/chatfilter_values"
             app:key="chatfilter"
+            app:dependency="metaai"
             app:summary="@string/novofiltro_sum"
             app:title="@string/novofiltro" />
 

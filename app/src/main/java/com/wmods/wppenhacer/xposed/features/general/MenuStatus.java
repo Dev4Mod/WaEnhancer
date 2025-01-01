@@ -44,10 +44,22 @@ public class MenuStatus extends Feature {
             @Override
             protected void afterHookedMethod(MethodHookParam param) throws Throwable {
                 var fieldObjects = Arrays.stream(param.method.getDeclaringClass().getDeclaredFields()).map(field -> ReflectionUtils.getObjectField(field, param.thisObject)).filter(Objects::nonNull).collect(Collectors.toList());
-                var menuManager = fieldObjects.stream().filter(menuManagerClass::isInstance).findFirst().orElse(null);
-                var menuField = ReflectionUtils.getFieldByExtendType(menuManagerClass, Menu.class);
-                var menu = (Menu) ReflectionUtils.getObjectField(menuField, menuManager);
-                var fragmentInstance = fieldObjects.stream().filter(StatusPlaybackBaseFragmentClass::isInstance).findFirst().orElse(null);
+
+                Object fragmentInstance;
+                if (param.thisObject != null && StatusPlaybackContactFragmentClass.isInstance(param.thisObject)) {
+                    fragmentInstance = param.thisObject;
+                } else {
+                    fragmentInstance = fieldObjects.stream().filter(StatusPlaybackBaseFragmentClass::isInstance).findFirst().orElse(null);
+                }
+
+                Menu menu;
+                if (param.args.length > 0 && param.args[0] instanceof Menu) {
+                    menu = (Menu) param.args[0];
+                } else {
+                    var menuManager = fieldObjects.stream().filter(menuManagerClass::isInstance).findFirst().orElse(null);
+                    var menuField = ReflectionUtils.getFieldByExtendType(menuManagerClass, Menu.class);
+                    menu = (Menu) ReflectionUtils.getObjectField(menuField, menuManager);
+                }
 
                 var index = (int) XposedHelpers.getObjectField(fragmentInstance, "A00");
                 var listStatus = (List) listStatusField.get(fragmentInstance);

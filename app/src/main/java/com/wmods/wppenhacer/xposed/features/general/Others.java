@@ -25,7 +25,6 @@ import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Objects;
 import java.util.Properties;
 import java.util.concurrent.CompletableFuture;
@@ -38,8 +37,6 @@ import de.robv.android.xposed.XposedHelpers;
 import okhttp3.OkHttpClient;
 
 public class Others extends Feature {
-
-    public static HashSet<HookProperty> hooksProperties = new HashSet<>();
 
     public static HashMap<Integer, Boolean> propsBoolean = new HashMap<>();
     public static HashMap<Integer, Integer> propsInteger = new HashMap<>();
@@ -62,7 +59,6 @@ public class Others extends Feature {
         var filterChats = prefs.getString("chatfilter", null);
         var strokeButtons = prefs.getBoolean("strokebuttons", false);
         var outlinedIcons = prefs.getBoolean("outlinedicons", false);
-        var filterSeen = prefs.getBoolean("filterseen", false);
         var fbstyle = Integer.parseInt(prefs.getString("facebookstyle", "0"));
         var metaai = prefs.getBoolean("metaai", false);
         var topnav = prefs.getBoolean("topnav", false);
@@ -80,7 +76,7 @@ public class Others extends Feature {
         var animationEmojis = prefs.getBoolean("animation_emojis", false);
 
         propsInteger.put(3877, oldStatus ? igstatus ? 2 : 0 : 2);
-        propsBoolean.put(5171, filterSeen); // filtros de chat e grupos
+        propsBoolean.put(5171, true);
         propsBoolean.put(4524, novoTema);
         propsBoolean.put(4497, menuWIcons);
         propsBoolean.put(4023, newSettings);
@@ -107,10 +103,7 @@ public class Others extends Feature {
         propsBoolean.put(11066, animationEmojis);  // emojis map 3
 
         propsBoolean.put(7589, true);  // Media select quality
-        propsBoolean.put(6972, true); // Media select quality
-        propsBoolean.put(5868, true); // Media select quality
-        propsBoolean.put(8543, true); // Media select quality
-
+        propsBoolean.put(6972, false); // Media select quality
         propsBoolean.put(5625, true);  // Enable option to autodelete channels media
 
         propsBoolean.put(8643, true);  // Enable TextStatusComposerActivityV2
@@ -192,37 +185,6 @@ public class Others extends Feature {
 
     }
 
-    private void showCallInformation(Object wamCall, Object userJid) throws Exception {
-        if (WppCore.isGroup(WppCore.getRawString(userJid)))
-            return;
-        var sb = new StringBuilder();
-        var contact = WppCore.getContactName(userJid);
-        var number = WppCore.stripJID(WppCore.getRawString(userJid));
-        if (!TextUtils.isEmpty(contact))
-            sb.append(String.format(Utils.getApplication().getString(ResId.string.contact_s), contact)).append("\n");
-        sb.append(String.format(Utils.getApplication().getString(ResId.string.phone_number_s), number)).append("\n");
-        var ip = (String) XposedHelpers.getObjectField(wamCall, "callPeerIpStr");
-        if (ip != null) {
-            var client = new OkHttpClient();
-            var url = "http://ip-api.com/json/" + ip;
-            var request = new okhttp3.Request.Builder().url(url).build();
-            var content = client.newCall(request).execute().body().string();
-            var json = new JSONObject(content);
-            var country = json.getString("country");
-            var city = json.getString("city");
-            sb.append(String.format(Utils.getApplication().getString(ResId.string.country_s), country)).append("\n")
-                    .append(String.format(Utils.getApplication().getString(ResId.string.city_s), city)).append("\n")
-                    .append(String.format(Utils.getApplication().getString(ResId.string.ip_s), ip)).append("\n");
-        }
-        var platform = (String) XposedHelpers.getObjectField(wamCall, "callPeerPlatform");
-        if (platform != null)
-            sb.append(String.format(Utils.getApplication().getString(ResId.string.platform_s), platform)).append("\n");
-        var wppVersion = (String) XposedHelpers.getObjectField(wamCall, "callPeerAppVersion");
-        if (wppVersion != null)
-            sb.append(String.format(Utils.getApplication().getString(ResId.string.wpp_version_s), wppVersion)).append("\n");
-        Utils.showNotification(Utils.getApplication().getString(ResId.string.call_information), sb.toString());
-    }
-
     private void callInfo() throws Exception {
         if (!prefs.getBoolean("call_info", false))
             return;
@@ -252,41 +214,32 @@ public class Others extends Feature {
                 });
     }
 
-    private void hookProps() throws Exception {
-        var methodPropsBoolean = Unobfuscator.loadPropsBooleanMethod(classLoader);
-        logDebug(Unobfuscator.getMethodDescriptor(methodPropsBoolean));
-        var dataUsageActivityClass = XposedHelpers.findClass("com.whatsapp.settings.SettingsDataUsageActivity", classLoader);
-        XposedBridge.hookMethod(methodPropsBoolean, new XC_MethodHook() {
-            @Override
-            protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-                int i = (int) param.args[param.args.length - 1];
-                var propValue = (boolean) param.getResult();
-                var value = propsBoolean.getOrDefault(i, propValue);
-                if (i == 4023) {
-                    if (ReflectionUtils.isCalledFromClass(dataUsageActivityClass))
-                        return;
-                }
-                for (var hookProp : hooksProperties) {
-                    value = (boolean) hookProp.hook(boolean.class, i, value);
-                }
-                param.setResult(value);
-            }
-        });
-
-        var methodPropsInteger = Unobfuscator.loadPropsIntegerMethod(classLoader);
-
-        XposedBridge.hookMethod(methodPropsInteger, new XC_MethodHook() {
-            @Override
-            protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-                int i = (int) param.args[param.args.length - 1];
-                var propValue = (int) param.getResult();
-                var value = propsInteger.getOrDefault(i, propValue);
-                for (var hookProp : hooksProperties) {
-                    value = (int) hookProp.hook(int.class, i, value);
-                }
-                param.setResult(value);
-            }
-        });
+    private void showCallInformation(Object wamCall, Object userJid) throws Exception {
+        if (WppCore.isGroup(WppCore.getRawString(userJid)))
+            return;
+        var sb = new StringBuilder();
+        var contact = WppCore.getContactName(userJid);
+        var number = WppCore.stripJID(WppCore.getRawString(userJid));
+        if (!TextUtils.isEmpty(contact)) sb.append(String.format(Utils.getApplication().getString(ResId.string.contact_s), contact)).append("\n");
+        sb.append(String.format(Utils.getApplication().getString(ResId.string.phone_number_s), number)).append("\n");
+        var ip = (String) XposedHelpers.getObjectField(wamCall, "callPeerIpStr");
+        if (ip != null) {
+            var client = new OkHttpClient();
+            var url = "http://ip-api.com/json/" + ip;
+            var request = new okhttp3.Request.Builder().url(url).build();
+            var content = client.newCall(request).execute().body().string();
+            var json = new JSONObject(content);
+            var country = json.getString("country");
+            var city = json.getString("city");
+            sb.append(String.format(Utils.getApplication().getString(ResId.string.country_s), country)).append("\n")
+            .append(String.format(Utils.getApplication().getString(ResId.string.city_s), city)).append("\n")
+            .append(String.format(Utils.getApplication().getString(ResId.string.ip_s), ip)).append("\n");
+        }
+        var platform = (String) XposedHelpers.getObjectField(wamCall, "callPeerPlatform");
+        if (platform != null) sb.append(String.format(Utils.getApplication().getString(ResId.string.platform_s), platform)).append("\n");
+        var wppVersion = (String) XposedHelpers.getObjectField(wamCall, "callPeerAppVersion");
+        if (wppVersion != null) sb.append(String.format(Utils.getApplication().getString(ResId.string.wpp_version_s), wppVersion)).append("\n");
+        Utils.showNotification(Utils.getApplication().getString(ResId.string.call_information), sb.toString());
     }
 
     private void alwaysOnline() throws Exception {
@@ -507,8 +460,40 @@ public class Others extends Feature {
     }
 
 
-    public interface HookProperty {
-        Object hook(Class<?> type, int propertyId, Object propertyValue);
+    private void hookProps() throws Exception {
+        var methodPropsBoolean = Unobfuscator.loadPropsBooleanMethod(classLoader);
+        logDebug(Unobfuscator.getMethodDescriptor(methodPropsBoolean));
+        var dataUsageActivityClass = XposedHelpers.findClass("com.whatsapp.settings.SettingsDataUsageActivity", classLoader);
+        XposedBridge.hookMethod(methodPropsBoolean, new XC_MethodHook() {
+            @Override
+            protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+                int i = (int) param.args[param.args.length - 1];
+
+                var propValue = propsBoolean.get(i);
+                if (propValue != null) {
+                    // Fix Bug in Settings Data Usage
+                    switch (i) {
+                        case 4023:
+                            if (ReflectionUtils.isCalledFromClass(dataUsageActivityClass))
+                                return;
+                            break;
+                    }
+                    param.setResult(propValue);
+                }
+            }
+        });
+
+        var methodPropsInteger = Unobfuscator.loadPropsIntegerMethod(classLoader);
+
+        XposedBridge.hookMethod(methodPropsInteger, new XC_MethodHook() {
+            @Override
+            protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
+                int i = (int) param.args[param.args.length - 1];
+                var propValue = propsInteger.get(i);
+                if (propValue == null) return;
+                param.setResult(propValue);
+            }
+        });
     }
 
     private void hookMenuOptions(String filterChats) {

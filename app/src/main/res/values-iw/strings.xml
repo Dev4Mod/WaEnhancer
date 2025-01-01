@@ -141,8 +141,6 @@
     <string name="send">כן</string>
     <string name="do_you_want_to_send_sticker">האם ברצונך לשלוח את המדבקה?</string>
     <string name="send_sticker">שליחת הסטיקר</string>
-    <string name="enable_filter_chats">אפשר סינון צ\'אטים במסך הבית</string>
-    <string name="enable_filter_chats_sum">הצג אפשרויות לסינון צ\'אטים עבור קבוצות, אנשי קשר והודעות שלא נראו</string>
     <string name="disable_channels">הסתר ערוצים</string>
     <string name="disable_channels_sum">הסתר ערוצים מכרטיסיית העדכונים</string>
     <string name="chat">צ\'אטים</string>
@@ -151,8 +149,8 @@
     <string name="default_color">הגדר את צבע #00000000 לצבע ברירת מחדל</string>
     <string name="enable_confirmation_to_send_sticker">בקש אישור לפני שליחת מדבקה</string>
     <string name="enable_confirmation_to_send_sticker_sum">הצג הודעה אזהרה לפני שליחת המדבקה</string>
-    <string name="increase_video_size_limit">הגדל את מגבלת גודל הווידאו</string>
-    <string name="increase_video_size_limit_sum">הגדל את מגבלת גודל הווידאו ל-90MB</string>
+    <string name="increase_video_size_limit">Increase Video Size Limit (MB)</string>
+    <string name="increase_video_size_limit_sum">Increase Video size limit to 200MB</string>
     <string name="send_video_in_real_resolution">שלח וידאו ברזולוציה אמיתית</string>
     <string name="send_video_in_real_resolution_sum">שלח וידאו ברזולוציה אמיתית עבור סטטוס, קבוצות וצ\'אטים</string>
     <string name="send_video_in_60fps">שלח וידאו ב-60fps</string>
@@ -183,8 +181,8 @@
     <string name="enable_restart_button_sum">הוסף כפתור במסך הבית כדי להפעיל מחדש את האפליקציה</string>
     <string name="toast_on_delete">הצג התראה קופצת על מחיקת הודעה</string>
     <string name="toast_on_delete_sum">הצג התראה אם איש קשר מוחק הודעה כלשהי</string>
-    <string name="enable_top_navigation">אפשר ניווט עליון</string>
-    <string name="enable_top_navigation_sum">הפעל את סרגל הניווט הישן (בחלק העליון של הכרטיסיות)</string>
+    <string name="enable_top_navigation">Enable Top Navigation (Obsolete)</string>
+    <string name="enable_top_navigation_sum">Activate the old navigation bar (does not work for versions above Wpp 2.24.24 and will be removed soon)</string>
     <string name="hideread_group">הסתר סימון כחול בקבוצות</string>
     <string name="hideread_group_sum">צפה בהודעות בקבוצות מבלי שהמשתמשים ידעו</string>
     <string name="show_freezeLastSeen_button">הצג את לחצן הקפאת הנראה לאחרונה</string>
@@ -402,4 +400,10 @@
     <string name="platform_s">סוג טלפון: %s</string>
     <string name="wpp_version_s">גרסת ווצאפ: %s</string>
     <string name="call_information">מידע על השיחה</string>
+    <string name="ask_download_folder">To use WAE Enhancer\'s download functions, you must select a folder to save the downloaded files.</string>
+    <string name="download_folder_permission">Download Folder Permission</string>
+    <string name="lite_mode">Lite Mode</string>
+    <string name="lite_mode_sum">Lite Mode disables most theme features and the connection bridge that keeps WhatsApp always active is turned off.</string>
+    <string name="change_default_dpi">Change Default DPI</string>
+    <string name="change_default_dpi_sum">Change the DPI setting for the application. Use 0 to reset to default.</string>
 </resources>

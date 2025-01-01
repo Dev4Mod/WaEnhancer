@@ -110,7 +110,7 @@ public class Utils {
     }
 
     public static String getDateTimeFromMillis(long timestamp) {
-        return new SimpleDateFormat("hh:mm:ss a", Locale.ENGLISH).format(new Date(timestamp));
+        return new SimpleDateFormat("dd/MM/yyyy hh:mm:ss a", Locale.getDefault()).format(new Date(timestamp));
     }
 
     @SuppressLint("SdCardPath")

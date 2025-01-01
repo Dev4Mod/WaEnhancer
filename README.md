@@ -76,7 +76,8 @@
 
 ## Installation
 1. Ensure that your device is rooted.
-2. Install the Xposed Framework on your device.
+2. Install the Xposed Framework (recommend [this](https://github.com/JingMatrix/LSPosed) LPosed) on
+   your device.
 3. Download the WaEnhancer from the [Actions](https://github.com/Dev4Mod/WaEnhancer/actions) section.
 4. Install the WaEnhancer APK.
 5. Enable the WaEnhancer module in the Xposed Installer app.

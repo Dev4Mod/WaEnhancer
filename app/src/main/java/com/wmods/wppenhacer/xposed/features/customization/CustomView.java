@@ -18,6 +18,7 @@ import android.graphics.drawable.ShapeDrawable;
 import android.graphics.drawable.shapes.RectShape;
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.util.LruCache;
 import android.view.View;
@@ -50,6 +51,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Objects;
+import java.util.Properties;
 import java.util.concurrent.CompletableFuture;
 
 import cz.vutbr.web.css.CSSFactory;
@@ -75,6 +77,7 @@ public class CustomView extends Feature {
     private static File themeDir;
     private final HashMap<String, Drawable> chacheDrawables = new HashMap<>();
     private final HashMap<String, DocumentFile> chacheUris = new HashMap<>();
+    private Properties properties;
 
     public CustomView(@NonNull ClassLoader loader, @NonNull XSharedPreferences preferences) {
         super(loader, preferences);
@@ -92,6 +95,10 @@ public class CustomView extends Feature {
         if ((TextUtils.isEmpty(filter_itens) && TextUtils.isEmpty(folder_theme) && TextUtils.isEmpty(custom_css)) || !prefs.getBoolean("custom_filters", true))
             return;
 
+        properties = Utils.extractProperties(prefs.getString("custom_css", ""));
+
+        changeDPI();
+
         hookDrawableViews();
 
         themeDir = new File(ThemePreference.rootDirectory, folder_theme);
@@ -105,9 +112,44 @@ public class CustomView extends Feature {
                 var activity = (Activity) param.thisObject;
                 View rootView = activity.getWindow().getDecorView().getRootView();
                 rootView.getViewTreeObserver().addOnGlobalLayoutListener(() -> CompletableFuture.runAsync(() -> registerCssRules(activity, (ViewGroup) rootView, sheet)));
+
             }
         });
 
+    }
+
+    private void changeDPI() {
+
+        String dpiStr = null;
+        if (!Objects.equals(prefs.getString("change_dpi", "0"), "0")) {
+            dpiStr = prefs.getString("change_dpi", "0");
+        } else if (properties.getProperty("change_dpi") != null) {
+            dpiStr = properties.getProperty("change_dpi");
+        }
+
+        if (dpiStr == null) return;
+
+        int dpi = 0;
+        try {
+            dpi = Integer.parseInt(dpiStr);
+        } catch (NumberFormatException e) {
+            logDebug("Error parsing dpi: " + e.getMessage());
+        }
+        if (dpi != 0) {
+            dpi = dpi == 0 ? Integer.parseInt(properties.getProperty("change_dpi")) : dpi;
+            var res = Utils.getApplication().getResources();
+            DisplayMetrics runningMetrics = res.getDisplayMetrics();
+            DisplayMetrics newMetrics;
+            if (runningMetrics != null) {
+                newMetrics = new DisplayMetrics();
+                newMetrics.setTo(runningMetrics);
+            } else {
+                newMetrics = res.getDisplayMetrics();
+            }
+            newMetrics.density = dpi / 160f;
+            newMetrics.densityDpi = dpi;
+            res.getDisplayMetrics().setTo(newMetrics);
+        }
     }
 
     private void hookDrawableViews() {

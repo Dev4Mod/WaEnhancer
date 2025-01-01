@@ -1,9 +1,18 @@
 [NEW]
-* Added Lite Mode function (General -> General Settings -> Lite Mode)
+* Added function to change the DPI of WhatsApp (You can change the DPI by the theme also using the "change_dpi" property)
 
 [BUGS FIXED]
-* Fixed a bug in audio seen in version WP 2.24.24+
-* Fixed a bug in increase pinned limit in version WP 2.24.26.xx by Ranyer
+* Fixed bug when pinning more 3 conversations on WhatsApp
+* Fixed problem where the buttons did not appear on the status menu
+
+[IMPROVED]
+* Improved the hooks for WhatsApp messages
+
+[REMOVED]
+* Removed the hooks for the chat filter
 
 [WHATSAPP]
-* Added more compatibility with version 2.24.26.xx by frknkrc44
+* Compatibility improvement with WhatsApp beta 2.24.26.20
+
+[WA ENHANCER]
+* Updated Translations

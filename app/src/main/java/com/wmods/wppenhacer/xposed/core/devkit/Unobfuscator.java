@@ -9,6 +9,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
@@ -866,9 +867,12 @@ public class Unobfuscator {
 
     public synchronized static Method loadPinnedLimitMethod(ClassLoader loader) throws Exception {
         return UnobfuscatorCache.getInstance().getMethod(loader, () -> {
-            var method = findFirstMethodUsingStrings(loader, StringMatchType.Contains, "count_progress");
+            var methodList = dexkit.findMethod(FindMethod.create().matcher(MethodMatcher.create().addUsingString("count_progress").paramCount(1, 2)));
+            if (methodList.isEmpty()) throw new Exception("PinnedLimit method not found");
+            var menuItemName = MenuItem.class.getName();
+            var method = methodList.parallelStream().filter(m -> m.getParamTypes().get(0).getName().equals(menuItemName)).findFirst().orElse(null);
             if (method == null) throw new Exception("PinnedLimit method not found");
-            return method;
+            return method.getMethodInstance(loader);
         });
     }
 
@@ -960,23 +964,13 @@ public class Unobfuscator {
 
     public synchronized static Method loadNewMessageMethod(ClassLoader loader) throws Exception {
         return UnobfuscatorCache.getInstance().getMethod(loader, () -> {
-            var clazzMessage = loadFMessageClass(loader);
-            var clazzData = Objects.requireNonNull(dexkit.getClassData(clazzMessage));
-            var methodData = clazzData.findMethod(new FindMethod().matcher(new MethodMatcher().addUsingString("\n").returnType(String.class)));
-            if (methodData.isEmpty()) {
-                var field = clazzMessage.getDeclaredField("A02");
-                methodData = clazzData.findMethod(new FindMethod().matcher(new MethodMatcher().addUsingField(DexSignUtil.getFieldDescriptor(field)).returnType(String.class)));
-            }
-            if (methodData.isEmpty()) {
-                var csClazzData = dexkit.findClass(FindClass.create().matcher(ClassMatcher.create().addUsingString("FMessageSystemScheduledCallStart/setData index out of bounds: "))).singleOrNull();
-                if (csClazzData != null) {
-                    var csClazz = csClazzData.getInstance(loader);
-                    var field = csClazz.getDeclaredField("A02");
-                    methodData = clazzData.findMethod(new FindMethod().matcher(new MethodMatcher().addUsingField(DexSignUtil.getFieldDescriptor(field)).returnType(String.class)));
-                }
-            }
-            if (methodData.isEmpty()) throw new RuntimeException("NewMessage method not found");
-            return methodData.get(0).getMethodInstance(loader);
+            var clazzMessageName = loadFMessageClass(loader).getName();
+            var listMethods = dexkit.findMethod(FindMethod.create().searchPackages("com.whatsapp").matcher(MethodMatcher.create().addUsingString("extra_payment_note", StringMatchType.Equals)));
+            if (listMethods.isEmpty()) throw new Exception("NewMessage method not found");
+            var invokes = listMethods.get(0).getInvokes();
+            var method = invokes.parallelStream().filter(invoke -> clazzMessageName.equals(invoke.getDeclaredClass().getName()) && invoke.getReturnType() != null && invoke.getReturnType().getName().equals("java.lang.String")).findFirst().orElse(null);
+            if (method == null) throw new RuntimeException("NewMessage method not found");
+            return method.getMethodInstance(loader);
         });
     }
 
@@ -988,15 +982,17 @@ public class Unobfuscator {
         });
     }
 
-
     public synchronized static Method loadNewMessageWithMediaMethod(ClassLoader loader) throws Exception {
-        var clazzMessage = Objects.requireNonNull(dexkit.getClassData(loadFMessageClass(loader)));
-        var methodData = clazzMessage.findMethod(new FindMethod().matcher(new MethodMatcher().addUsingNumber(0x200000).returnType(String.class)));
-        if (methodData.isEmpty()) {
-            methodData = clazzMessage.findMethod(new FindMethod().matcher(new MethodMatcher().addUsingString("video").returnType(String.class)));
-            if (methodData.isEmpty()) return null;
-        }
-        return methodData.get(0).getMethodInstance(loader);
+        return UnobfuscatorCache.getInstance().getMethod(loader, () -> {
+            var methodList = dexkit.findMethod(FindMethod.create().matcher(MethodMatcher.create().addUsingString("INSERT_TABLE_MESSAGE_QUOTED", StringMatchType.Equals)));
+            if (methodList.isEmpty()) throw new Exception("NewMessageWithMedia method not found");
+            var methodData = methodList.get(0);
+            var invokes = methodData.getInvokes();
+            var clazzMessageName = loadFMessageClass(loader).getName();
+            var method = invokes.parallelStream().filter(invoke -> clazzMessageName.equals(invoke.getDeclaredClass().getName()) && invoke.getReturnType() != null && invoke.getReturnType().getName().equals("java.lang.String")).findFirst().orElse(null);
+            if (method == null) throw new RuntimeException("NewMessageWithMedia method not found");
+            return method.getMethodInstance(loader);
+        });
     }
 
     public synchronized static Method loadMessageEditMethod(ClassLoader loader) throws Exception {

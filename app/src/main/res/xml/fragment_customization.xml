@@ -106,6 +106,13 @@
             app:key="css_theme"
             app:title="@string/custom_theme_css" />
 
+        <EditTextPreference
+            android:summary="@string/change_default_dpi_sum"
+            app:defaultValue="0"
+            app:dependency="custom_filters"
+            app:key="change_dpi"
+            app:title="@string/change_default_dpi" />
+
         <com.wmods.wppenhacer.preference.ThemePreference
             android:key="folder_theme"
             app:dependency="custom_filters"

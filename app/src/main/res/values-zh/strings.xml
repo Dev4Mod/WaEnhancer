@@ -140,8 +140,6 @@
     <string name="send">发送</string>
     <string name="do_you_want_to_send_sticker">您要发送此贴图吗？</string>
     <string name="send_sticker">发送贴图</string>
-    <string name="enable_filter_chats">启用聊天类型过滤</string>
-    <string name="enable_filter_chats_sum">显示用于过滤群组、联系人和未读消息的聊天选项</string>
     <string name="disable_channels">隐藏频道</string>
     <string name="disable_channels_sum">从“更新”导航栏中隐藏频道</string>
     <string name="chat">聊天</string>
@@ -150,8 +148,8 @@
     <string name="default_color">将颜色 #00000000 设置为默认颜色</string>
     <string name="enable_confirmation_to_send_sticker">发送贴图前确认</string>
     <string name="enable_confirmation_to_send_sticker_sum">发送贴图前显示对话框确认</string>
-    <string name="increase_video_size_limit">增加视频大小限制</string>
-    <string name="increase_video_size_limit_sum">增加视频大小限制至 90MB</string>
+    <string name="increase_video_size_limit">Increase Video Size Limit (MB)</string>
+    <string name="increase_video_size_limit_sum">Increase Video size limit to 200MB</string>
     <string name="send_video_in_real_resolution">以原始分辨率发送视频</string>
     <string name="send_video_in_real_resolution_sum">以原始分辨率发送视频用于动态、群组和私聊</string>
     <string name="send_video_in_60fps">发送60帧视频</string>
@@ -182,8 +180,8 @@
     <string name="enable_restart_button_sum">在主页中添加按钮用于重启应用程序</string>
     <string name="toast_on_delete">消息删除时显示通知提示</string>
     <string name="toast_on_delete_sum">如果任何联系人删除任何消息，则显示通知提示</string>
-    <string name="enable_top_navigation">启用顶部导航栏</string>
-    <string name="enable_top_navigation_sum">激活旧导航栏（将导航栏移到顶部）</string>
+    <string name="enable_top_navigation">Enable Top Navigation (Obsolete)</string>
+    <string name="enable_top_navigation_sum">Activate the old navigation bar (does not work for versions above Wpp 2.24.24 and will be removed soon)</string>
     <string name="hideread_group">不在群组中发送蓝色勾号（已读回执）</string>
     <string name="hideread_group_sum">在其他用户不知情的情况下查看群组中的消息</string>
     <string name="show_freezeLastSeen_button">显示冻结最后上线时间按钮</string>
@@ -400,4 +398,10 @@
     <string name="platform_s">平台：%s</string>
     <string name="wpp_version_s">WhatsApp 版本：%s</string>
     <string name="call_information">通话信息</string>
+    <string name="ask_download_folder">To use WAE Enhancer\'s download functions, you must select a folder to save the downloaded files.</string>
+    <string name="download_folder_permission">Download Folder Permission</string>
+    <string name="lite_mode">Lite Mode</string>
+    <string name="lite_mode_sum">Lite Mode disables most theme features and the connection bridge that keeps WhatsApp always active is turned off.</string>
+    <string name="change_default_dpi">Change Default DPI</string>
+    <string name="change_default_dpi_sum">Change the DPI setting for the application. Use 0 to reset to default.</string>
 </resources>
