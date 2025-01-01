@@ -7,7 +7,7 @@ jobs:
   build:
     permissions: write-all
     runs-on: ubuntu-latest
-    if: github.event_name == 'push'
+    if: github.event_name == 'push' && !contains(github.event.head_commit.message, 'Merge')
     steps:
       - uses: actions/checkout@v4
       - name: set up JDK 17
@@ -49,11 +49,14 @@ jobs:
           name: Wa Enhancer ${{ steps.version.outputs.builddate }}
           path: app/build/outputs/apk/debug/app-debug.apk
 
+      - name: Add SHORT_SHA env property with commit short sha
+        run: echo "SHORT_SHA=`echo ${GITHUB_SHA} | cut -c1-8`" >> $GITHUB_ENV
+
       - name: Upload to release
         uses: softprops/action-gh-release@v2
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
-          name: WaEnhancer Business ${{ github.sha }}
+          name: WaEnhancer Business ${{ env.SHORT_SHA }}
           body_path: changelog.txt
           files: app/build/outputs/apk/debug/app-debug.apk
-          tag_name: pre-release-business-${{ github.sha }}
+          tag_name: pre-release-business-${{ env.SHORT_SHA }}

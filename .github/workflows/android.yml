@@ -7,7 +7,7 @@ jobs:
   build:
     permissions: write-all
     runs-on: ubuntu-latest
-    if: github.event_name == 'push'
+    if: github.event_name == 'push' && !contains(github.event.head_commit.message, 'Merge')
     steps:
       - uses: actions/checkout@v4
       - name: set up JDK 17
@@ -58,11 +58,14 @@ jobs:
             curl "https://api.telegram.org/bot${BOT_TOKEN}/sendMediaGroup?chat_id=${CHANNEL_ID}&media=%5B%7B%22type%22%3A%22document%22%2C%20%22media%22%3A%22attach%3A%2F%2Foutput%22%2C%22caption%22:${ESCAPED}%7D%5D" -F output="@$output"
           fi
 
+      - name: Add SHORT_SHA env property with commit short sha
+        run: echo "SHORT_SHA=`echo ${GITHUB_SHA} | cut -c1-8`" >> $GITHUB_ENV
+
       - name: Upload to release
         uses: softprops/action-gh-release@v2
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
-          name: WaEnhancer ${{ github.sha }}
+          name: WaEnhancer ${{ env.SHORT_SHA }}
           body_path: changelog.txt
           files: app/build/outputs/apk/debug/app-debug.apk
-          tag_name: pre-release-${{ github.sha }}
+          tag_name: pre-release-${{ env.SHORT_SHA }}
