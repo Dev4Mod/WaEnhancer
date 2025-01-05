@@ -36,7 +36,7 @@ public class CallPrivacy extends Feature {
         XposedBridge.hookMethod(onCallReceivedMethod, new XC_MethodHook() {
             @Override
             protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
-                Object callinfo = null;
+                Object callinfo;
                 Class<?> callInfoClass = XposedHelpers.findClass("com.whatsapp.voipcalling.CallInfo", classLoader);
                 if (param.args[0] instanceof Message) {
                     callinfo = ((Message) param.args[0]).obj;
@@ -99,12 +99,11 @@ public class CallPrivacy extends Feature {
     }
 
     public boolean checkCallBlock(Object userJid, PrivacyType type) throws IllegalAccessException, InvocationTargetException {
-        var jid = WppCore.stripJID(WppCore.getRawString(userJid));
-        logDebug("checkCallBlock: " + jid);
-        logDebug("checkCallBlock: " + type);
-        if (jid == null) return false;
+        var phoneNumber = WppCore.stripJID(WppCore.getRawString(userJid));
 
-        var customprivacy = CustomPrivacy.getJSON(jid);
+        if (phoneNumber == null) return false;
+
+        var customprivacy = CustomPrivacy.getJSON(phoneNumber);
 
         if (type == PrivacyType.ALL_BLOCKED) {
             return customprivacy.optBoolean("BlockCall", true);
@@ -114,21 +113,18 @@ public class CallPrivacy extends Feature {
             return customprivacy.optBoolean("BlockCall", false);
         }
 
-        if (type == PrivacyType.ONLY_UNKNOWN && customprivacy.optBoolean("BlockCall", false)) {
-            return true;
-        }
-
         switch (type) {
             case ONLY_UNKNOWN:
-                jid += "@s.whatsapp.net";
-                var contactName = WppCore.getSContactName(WppCore.createUserJid(jid), true);
-                logDebug("contactName: " + contactName);
-                return TextUtils.isEmpty(contactName) || contactName.equals(jid);
+                if (customprivacy.optBoolean("BlockCall", false)) return true;
+                phoneNumber += "@s.whatsapp.net";
+                var contactName = WppCore.getSContactName(WppCore.createUserJid(phoneNumber), true);
+                return TextUtils.isEmpty(contactName) || contactName.equals(phoneNumber);
             case BACKLIST:
+                if (customprivacy.optBoolean("BlockCall", true)) return true;
                 var callBlockList = prefs.getString("call_block_contacts", "[]");
                 var blockList = Arrays.stream(callBlockList.substring(1, callBlockList.length() - 1).split(", ")).map(String::trim).collect(Collectors.toCollection(ArrayList::new));
                 for (var blockNumber : blockList) {
-                    if (!TextUtils.isEmpty(blockNumber) && jid.contains(blockNumber)) {
+                    if (!TextUtils.isEmpty(blockNumber) && phoneNumber.contains(blockNumber)) {
                         return true;
                     }
                 }
@@ -137,7 +133,7 @@ public class CallPrivacy extends Feature {
                 var callWhiteList = prefs.getString("call_white_contacts", "[]");
                 var whiteList = Arrays.stream(callWhiteList.substring(1, callWhiteList.length() - 1).split(", ")).map(String::trim).collect(Collectors.toCollection(ArrayList::new));
                 for (var whiteNumber : whiteList) {
-                    if (!TextUtils.isEmpty(whiteNumber) && jid.contains(whiteNumber)) {
+                    if (!TextUtils.isEmpty(whiteNumber) && phoneNumber.contains(whiteNumber)) {
                         return false;
                     }
                 }
