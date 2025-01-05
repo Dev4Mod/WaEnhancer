@@ -146,6 +146,8 @@ Harap gunakan versi WhatsApp yang didukung!</string>
     <string name="send">Kirim</string>
     <string name="do_you_want_to_send_sticker">Apakah Anda ingin mengirim Stiker?</string>
     <string name="send_sticker">Kirim Stiker</string>
+    <string name="enable_filter_chats">Enable filter chats for type</string>
+    <string name="enable_filter_chats_sum">Show options to filter chats for groups, contacts and unseen messages</string>
     <string name="disable_channels">Sembunyikan Saluran</string>
     <string name="disable_channels_sum">Sembunyikan saluran dari tab Pembaruan</string>
     <string name="chat">Obrolan</string>
@@ -154,8 +156,8 @@ Harap gunakan versi WhatsApp yang didukung!</string>
     <string name="default_color">Atur warna #00000000 ke warna default</string>
     <string name="enable_confirmation_to_send_sticker">Konfirmasi Sebelum Mengirim Stiker</string>
     <string name="enable_confirmation_to_send_sticker_sum">Tampilkan dialog sebelum mengirim stiker</string>
-    <string name="increase_video_size_limit">Increase Video Size Limit (MB)</string>
-    <string name="increase_video_size_limit_sum">Increase Video size limit to 200MB</string>
+    <string name="increase_video_size_limit">Tingkatkan Batas Ukuran Video (MB)</string>
+    <string name="increase_video_size_limit_sum">Tingkatkan batas ukuran video menjadi 200MB</string>
     <string name="send_video_in_real_resolution">Kirim Video Resolusi Asli</string>
     <string name="send_video_in_real_resolution_sum">Kirim video dalam resolusi asli untuk status, grup dan obrolan</string>
     <string name="send_video_in_60fps">Kirim Video 60fps</string>
@@ -186,8 +188,8 @@ Harap gunakan versi WhatsApp yang didukung!</string>
     <string name="enable_restart_button_sum">Tampilkan tombol di layar beranda untuk memulai ulang aplikasi</string>
     <string name="toast_on_delete">Notifikasi Saat Pesan/Status Dihapus</string>
     <string name="toast_on_delete_sum">Tampilkan notifikasi mengambang jika ada pesan/status yang dihapus</string>
-    <string name="enable_top_navigation">Enable Top Navigation (Obsolete)</string>
-    <string name="enable_top_navigation_sum">Activate the old navigation bar (does not work for versions above Wpp 2.24.24 and will be removed soon)</string>
+    <string name="enable_top_navigation">Aktifkan Navigasi Atas (Usang)</string>
+    <string name="enable_top_navigation_sum">Aktifkan bilah navigasi lama (tidak berfungsi untuk versi di atas Wpp 2.24.24 dan akan segera dihapus)</string>
     <string name="hideread_group">Sembunyikan Centang Biru di Grup</string>
     <string name="hideread_group_sum">Pengirim pesan tidak akan mengetahui bahwa Anda telah membaca pesannya di grup</string>
     <string name="show_freezeLastSeen_button">Tampilkan Tombol Bekukan \"terakhir dilihat dan online\"</string>
@@ -407,10 +409,17 @@ Harap gunakan versi WhatsApp yang didukung!</string>
     <string name="platform_s">Platform: %s</string>
     <string name="wpp_version_s">Versi WhatsApp: %s</string>
     <string name="call_information">Informasi Panggilan</string>
-    <string name="ask_download_folder">To use WAE Enhancer\'s download functions, you must select a folder to save the downloaded files.</string>
-    <string name="download_folder_permission">Download Folder Permission</string>
-    <string name="lite_mode">Lite Mode</string>
-    <string name="lite_mode_sum">Lite Mode disables most theme features and the connection bridge that keeps WhatsApp always active is turned off.</string>
-    <string name="change_default_dpi">Change Default DPI</string>
-    <string name="change_default_dpi_sum">Change the DPI setting for the application. Use 0 to reset to default.</string>
+    <string name="ask_download_folder">Untuk menggunakan fungsi pengunduhan WA Enhancer, Anda harus memilih folder untuk menyimpan file yang diunduh.</string>
+    <string name="download_folder_permission">Izin Folder Unduhan</string>
+    <string name="lite_mode">Mode Ringan</string>
+    <string name="lite_mode_sum">Mode Ringan menonaktifkan sebagian besar fitur tema dan jembatan koneksi yang membuat WhatsApp selalu aktif dimatikan.</string>
+    <string name="update_check">Automatically Check for Update</string>
+    <string name="update_check_sum">      Enable or Disable Auto Check for Update. This will disable the popup inside the WhatsApp Application.\n
+      <font color="#FFFF0000">
+        WARNING: YOU WILL NOT BE NOTIFIED WHEN THERE\'S A NEW UPDATE, USE THIS CAREFULLY AND DON\'T REPORT ISSUE IF YOU\'RE USING OUTDATED VERSION!
+      </font>
+    </string>
+    <string name="change_default_dpi">Ubah DPI Bawaan</string>
+    <string name="change_default_dpi_sum">Ubah pengaturan DPI untuk aplikasi. Gunakan 0 untuk mengatur ulang ke bawaan.</string>
+    <string name="no_contact_with_custom_privacy">No contact with custom privacy!</string>
 </resources>

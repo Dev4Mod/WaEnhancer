@@ -140,6 +140,8 @@
     <string name="send">Invia</string>
     <string name="do_you_want_to_send_sticker">Vuoi inviare lo sticker?</string>
     <string name="send_sticker">Invia sticker</string>
+    <string name="enable_filter_chats">Enable filter chats for type</string>
+    <string name="enable_filter_chats_sum">Show options to filter chats for groups, contacts and unseen messages</string>
     <string name="disable_channels">Nascondi Canali</string>
     <string name="disable_channels_sum">Nascondi i canali dalla scheda Aggiornamenti</string>
     <string name="chat">Chat</string>
@@ -148,8 +150,8 @@
     <string name="default_color">Imposta il colore #00000000 come predefinito</string>
     <string name="enable_confirmation_to_send_sticker">Conferma prima di inviare sticker</string>
     <string name="enable_confirmation_to_send_sticker_sum">Mostra una finestra di dialogo prima di inviare gli sticker</string>
-    <string name="increase_video_size_limit">Increase Video Size Limit (MB)</string>
-    <string name="increase_video_size_limit_sum">Increase Video size limit to 200MB</string>
+    <string name="increase_video_size_limit">Aumenta Limite Dimensione Video (MB)</string>
+    <string name="increase_video_size_limit_sum">Aumenta il limite dimensione video a 200MB</string>
     <string name="send_video_in_real_resolution">Invia video in risoluzione originale</string>
     <string name="send_video_in_real_resolution_sum">Invia i video in risoluzione originale per Stato, Gruppi e Chat</string>
     <string name="send_video_in_60fps">Invia video in 60fps</string>
@@ -180,8 +182,8 @@
     <string name="enable_restart_button_sum">Aggiungi un pulsante nella Home per riavviare l\'app</string>
     <string name="toast_on_delete">Mostra toast sui messaggi eliminati</string>
     <string name="toast_on_delete_sum">Mostra una notifica toast quando un qualsiasi contatto elimina un messaggio</string>
-    <string name="enable_top_navigation">Enable Top Navigation (Obsolete)</string>
-    <string name="enable_top_navigation_sum">Activate the old navigation bar (does not work for versions above Wpp 2.24.24 and will be removed soon)</string>
+    <string name="enable_top_navigation">Abilita Navigazione Superiore (Obsoleta)</string>
+    <string name="enable_top_navigation_sum">Attiva la vecchia barra di navigazione (non funziona per le versioni sopra Wpp 2.24.24 e verrà rimossa a breve)</string>
     <string name="hideread_group">Nascondi spunte blu nei Gruppi</string>
     <string name="hideread_group_sum">Visualizza i messaggi nei gruppi senza che gli utenti lo sappiano</string>
     <string name="show_freezeLastSeen_button">Mostra pulsante Congela Ultimo accesso</string>
@@ -398,10 +400,17 @@
     <string name="platform_s">Piattaforma: %s</string>
     <string name="wpp_version_s">Versione WhatsApp: %s</string>
     <string name="call_information">Informazioni Chiamata</string>
-    <string name="ask_download_folder">To use WAE Enhancer\'s download functions, you must select a folder to save the downloaded files.</string>
-    <string name="download_folder_permission">Download Folder Permission</string>
-    <string name="lite_mode">Lite Mode</string>
-    <string name="lite_mode_sum">Lite Mode disables most theme features and the connection bridge that keeps WhatsApp always active is turned off.</string>
-    <string name="change_default_dpi">Change Default DPI</string>
-    <string name="change_default_dpi_sum">Change the DPI setting for the application. Use 0 to reset to default.</string>
+    <string name="ask_download_folder">Per utilizzare le funzioni di download di WAE Enhancer, è necessario selezionare una cartella per salvare i file scaricati.</string>
+    <string name="download_folder_permission">Permesso Cartella Di Download</string>
+    <string name="lite_mode">Modalità Lite</string>
+    <string name="lite_mode_sum">La Modalità Lite disabilita la maggior parte delle funzioni del tema e il ponte di connessione che mantiene WhatsApp sempre attivo è disattivato.</string>
+    <string name="update_check">Automatically Check for Update</string>
+    <string name="update_check_sum">      Enable or Disable Auto Check for Update. This will disable the popup inside the WhatsApp Application.\n
+      <font color="#FFFF0000">
+        WARNING: YOU WILL NOT BE NOTIFIED WHEN THERE\'S A NEW UPDATE, USE THIS CAREFULLY AND DON\'T REPORT ISSUE IF YOU\'RE USING OUTDATED VERSION!
+      </font>
+    </string>
+    <string name="change_default_dpi">Cambia DPI Predefiniti</string>
+    <string name="change_default_dpi_sum">Cambia l\'impostazione DPI per l\'applicazione. Usa 0 per reimpostare il valore predefinito.</string>
+    <string name="no_contact_with_custom_privacy">No contact with custom privacy!</string>
 </resources>

@@ -141,6 +141,8 @@
     <string name="send">إرسال</string>
     <string name="do_you_want_to_send_sticker">هل تريد إرسال الملصق؟</string>
     <string name="send_sticker">إرسال ملصق</string>
+    <string name="enable_filter_chats">Enable filter chats for type</string>
+    <string name="enable_filter_chats_sum">Show options to filter chats for groups, contacts and unseen messages</string>
     <string name="disable_channels">إخفاء القنوات</string>
     <string name="disable_channels_sum">إخفاء القنوات من علامة تبويب التحديثات</string>
     <string name="chat">الدردشة</string>
@@ -149,8 +151,8 @@
     <string name="default_color">تعيين اللون #00000000 إلى اللون الافتراضي</string>
     <string name="enable_confirmation_to_send_sticker">تأكيد قبل إرسال الملصق</string>
     <string name="enable_confirmation_to_send_sticker_sum">إظهار مربع حوار قبل إرسال الملصق</string>
-    <string name="increase_video_size_limit">Increase Video Size Limit (MB)</string>
-    <string name="increase_video_size_limit_sum">Increase Video size limit to 200MB</string>
+    <string name="increase_video_size_limit">زيادة حجم الفيديو (ميغابايت)</string>
+    <string name="increase_video_size_limit_sum">زيادة الحد الأقصى لحجم الفيديو إلى 200 ميغابايت</string>
     <string name="send_video_in_real_resolution">إرسال الفيديو بدقة حقيقية</string>
     <string name="send_video_in_real_resolution_sum">إرسال الفيديو بالدقة الحقيقية للحالة والمجموعة والمحادثات</string>
     <string name="send_video_in_60fps">إرسال الفيديو إلى 60fps</string>
@@ -181,8 +183,8 @@
     <string name="enable_restart_button_sum">إضافة خيار في الشاشة الرئيسية لإعادة تشغيل التطبيق</string>
     <string name="toast_on_delete">إظهار التنبيهات المنبثقة عند حذف الرسالة</string>
     <string name="toast_on_delete_sum">إظهار التنبيهات المنبثقة إذا قام أي جهة اتصال بحذف أي رسالة</string>
-    <string name="enable_top_navigation">Enable Top Navigation (Obsolete)</string>
-    <string name="enable_top_navigation_sum">Activate the old navigation bar (does not work for versions above Wpp 2.24.24 and will be removed soon)</string>
+    <string name="enable_top_navigation">تمكين التنقل العلوي (قديم)</string>
+    <string name="enable_top_navigation_sum">تفعيل شريط التنقل القديم (لا يعمل للإصدارات فوق Wpp 2.24.24 وسيتم إزالتها قريبا)</string>
     <string name="hideread_group">إخفاء العلامة الزرقاء في المجموعات</string>
     <string name="hideread_group_sum">عرض الرسائل في شاشة المجموعات دون علم المستخدمين</string>
     <string name="show_freezeLastSeen_button">إظهار أيقونة تجميد آخر ظهور</string>
@@ -399,10 +401,17 @@
     <string name="platform_s">المنصة: %s</string>
     <string name="wpp_version_s">إصدار واتساب: %s</string>
     <string name="call_information">معلومات المكالمة</string>
-    <string name="ask_download_folder">To use WAE Enhancer\'s download functions, you must select a folder to save the downloaded files.</string>
-    <string name="download_folder_permission">Download Folder Permission</string>
-    <string name="lite_mode">Lite Mode</string>
-    <string name="lite_mode_sum">Lite Mode disables most theme features and the connection bridge that keeps WhatsApp always active is turned off.</string>
-    <string name="change_default_dpi">Change Default DPI</string>
-    <string name="change_default_dpi_sum">Change the DPI setting for the application. Use 0 to reset to default.</string>
+    <string name="ask_download_folder">لاستخدام وظائف التنزيل الخاصة بـ WAE Enhancer، يجب عليك تحديد مجلد لحفظ الملفات التي تم تنزيلها.</string>
+    <string name="download_folder_permission">إذن تحميل المجلد</string>
+    <string name="lite_mode">الوضع الخفيف</string>
+    <string name="lite_mode_sum">يعطل الوضع الخفيف معظم ميزات الثيمات ويتم إيقاف تشغيل جسر الاتصال الذي يحافظ على WhatsApp نشطًا دائمًا.</string>
+    <string name="update_check">Automatically Check for Update</string>
+    <string name="update_check_sum">      Enable or Disable Auto Check for Update. This will disable the popup inside the WhatsApp Application.\n
+      <font color="#FFFF0000">
+        WARNING: YOU WILL NOT BE NOTIFIED WHEN THERE\'S A NEW UPDATE, USE THIS CAREFULLY AND DON\'T REPORT ISSUE IF YOU\'RE USING OUTDATED VERSION!
+      </font>
+    </string>
+    <string name="change_default_dpi">تغيير DPI الافتراضي</string>
+    <string name="change_default_dpi_sum">تغيير إعداد DPI للتطبيق. استخدم 0 لإعادة تعيين الافتراضي.</string>
+    <string name="no_contact_with_custom_privacy">No contact with custom privacy!</string>
 </resources>

@@ -140,6 +140,8 @@
     <string name="send">Envoyer</string>
     <string name="do_you_want_to_send_sticker">Voulez-vous envoyer un autocollant ?</string>
     <string name="send_sticker">Envoyer un autocollant</string>
+    <string name="enable_filter_chats">Enable filter chats for type</string>
+    <string name="enable_filter_chats_sum">Show options to filter chats for groups, contacts and unseen messages</string>
     <string name="disable_channels">Masquer les chaînes</string>
     <string name="disable_channels_sum">Masquer les chaînes de l\'onglet actus</string>
     <string name="chat">Discussion</string>
@@ -402,6 +404,13 @@
     <string name="download_folder_permission">Download Folder Permission</string>
     <string name="lite_mode">Lite Mode</string>
     <string name="lite_mode_sum">Lite Mode disables most theme features and the connection bridge that keeps WhatsApp always active is turned off.</string>
+    <string name="update_check">Automatically Check for Update</string>
+    <string name="update_check_sum">      Enable or Disable Auto Check for Update. This will disable the popup inside the WhatsApp Application.\n
+      <font color="#FFFF0000">
+        WARNING: YOU WILL NOT BE NOTIFIED WHEN THERE\'S A NEW UPDATE, USE THIS CAREFULLY AND DON\'T REPORT ISSUE IF YOU\'RE USING OUTDATED VERSION!
+      </font>
+    </string>
     <string name="change_default_dpi">Change Default DPI</string>
     <string name="change_default_dpi_sum">Change the DPI setting for the application. Use 0 to reset to default.</string>
+    <string name="no_contact_with_custom_privacy">No contact with custom privacy!</string>
 </resources>

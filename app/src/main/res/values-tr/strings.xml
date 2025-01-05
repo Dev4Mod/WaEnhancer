@@ -140,6 +140,8 @@
     <string name="send">Gönder</string>
     <string name="do_you_want_to_send_sticker">Çıkartma göndermek istiyor musunuz?</string>
     <string name="send_sticker">Çıkartma Gönder</string>
+    <string name="enable_filter_chats">Enable filter chats for type</string>
+    <string name="enable_filter_chats_sum">Show options to filter chats for groups, contacts and unseen messages</string>
     <string name="disable_channels">Kanalları Gizle</string>
     <string name="disable_channels_sum">Güncellemeler sekmesinden Kanalları gizle</string>
     <string name="chat">Sohbet</string>
@@ -148,8 +150,8 @@
     <string name="default_color">Varsayılan renk için #00000000 ayarla</string>
     <string name="enable_confirmation_to_send_sticker">Çıkartma Göndermeden Önce Onay</string>
     <string name="enable_confirmation_to_send_sticker_sum">Çıkartmayı göndermeden önce bir onay penceresi göster</string>
-    <string name="increase_video_size_limit">Increase Video Size Limit (MB)</string>
-    <string name="increase_video_size_limit_sum">Increase Video size limit to 200MB</string>
+    <string name="increase_video_size_limit">Video Boyutu Sınırını Artır (MB)</string>
+    <string name="increase_video_size_limit_sum">Video boyutu sınırını 200 Mb\'a çıkar</string>
     <string name="send_video_in_real_resolution">Videoyu Gerçek Çözünürlükte Gönder</string>
     <string name="send_video_in_real_resolution_sum">Durum, grup ve sohbetler için videoyu gerçek çözünürlükte gönder</string>
     <string name="send_video_in_60fps">Videoyu 60fps\'de Gönder</string>
@@ -180,8 +182,8 @@
     <string name="enable_restart_button_sum">Ana Ekrana Uygulamayı Yeniden Başlatmak için düğme ekle</string>
     <string name="toast_on_delete">Mesaj silindiğinde bildirim göster</string>
     <string name="toast_on_delete_sum">Herhangi bir kişi herhangi bir mesajı silerse bildirim göster</string>
-    <string name="enable_top_navigation">Enable Top Navigation (Obsolete)</string>
-    <string name="enable_top_navigation_sum">Activate the old navigation bar (does not work for versions above Wpp 2.24.24 and will be removed soon)</string>
+    <string name="enable_top_navigation">Üst Gezintiyi Etkinleştir (Eski)</string>
+    <string name="enable_top_navigation_sum">Eski gezinti çubuğunu etkinleştirin (Wpp 2.24.24\'ün üzerindeki sürümler için çalışmaz ve yakında kaldırılacaktır)</string>
     <string name="hideread_group">Gruplarda Mavi Tiki Gizle</string>
     <string name="hideread_group_sum">Grup ekranında mesajları kullanıcılar bilmeden görüntüle</string>
     <string name="show_freezeLastSeen_button">Son Görülmeyi Dondurma Düğmesini Göster</string>
@@ -398,10 +400,17 @@
     <string name="platform_s">Platform: %s</string>
     <string name="wpp_version_s">WhatsApp Sürümü: %s</string>
     <string name="call_information">Arama Bilgisi</string>
-    <string name="ask_download_folder">To use WAE Enhancer\'s download functions, you must select a folder to save the downloaded files.</string>
-    <string name="download_folder_permission">Download Folder Permission</string>
-    <string name="lite_mode">Lite Mode</string>
-    <string name="lite_mode_sum">Lite Mode disables most theme features and the connection bridge that keeps WhatsApp always active is turned off.</string>
-    <string name="change_default_dpi">Change Default DPI</string>
-    <string name="change_default_dpi_sum">Change the DPI setting for the application. Use 0 to reset to default.</string>
+    <string name="ask_download_folder">WAE Enhancer\'ın indirme işlevlerini kullanmak için, indirilen dosyaları kaydetmek üzere bir klasör seçmelisiniz.</string>
+    <string name="download_folder_permission">İndirme Klasörü İzni</string>
+    <string name="lite_mode">Basit Mod</string>
+    <string name="lite_mode_sum">Basit Mod çoğu tema özelliğini devre dışı bırakır ve WhatsApp\'ı her zaman aktif tutan bağlantı köprüsü kapatılır.</string>
+    <string name="update_check">Automatically Check for Update</string>
+    <string name="update_check_sum">      Enable or Disable Auto Check for Update. This will disable the popup inside the WhatsApp Application.\n
+      <font color="#FFFF0000">
+        WARNING: YOU WILL NOT BE NOTIFIED WHEN THERE\'S A NEW UPDATE, USE THIS CAREFULLY AND DON\'T REPORT ISSUE IF YOU\'RE USING OUTDATED VERSION!
+      </font>
+    </string>
+    <string name="change_default_dpi">Varsayılan DPI\'ı Değiştir</string>
+    <string name="change_default_dpi_sum">Uygulama için DPI ayarını değiştirin. Varsayılana sıfırlamak için 0 kullanın.</string>
+    <string name="no_contact_with_custom_privacy">No contact with custom privacy!</string>
 </resources>
