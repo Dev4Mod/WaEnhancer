@@ -101,6 +101,7 @@ public class ResId {
         public static int call_information;
         public static int ask_download_folder;
         public static int download_folder_permission;
+        public static int no_contact_with_custom_privacy;
     }
 
     public static class array {

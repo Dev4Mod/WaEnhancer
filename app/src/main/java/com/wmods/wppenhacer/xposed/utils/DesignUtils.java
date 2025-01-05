@@ -258,4 +258,13 @@ public class DesignUtils {
 
         return newBitmap;
     }
+
+    public static Drawable resizeDrawable(Drawable icon, int width, int height) {
+        // resize icon
+        Bitmap bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
+        Canvas canvas = new Canvas(bitmap);
+        icon.setBounds(0, 0, canvas.getWidth(), canvas.getHeight());
+        icon.draw(canvas);
+        return new BitmapDrawable(Utils.getApplication().getResources(), bitmap);
+    }
 }

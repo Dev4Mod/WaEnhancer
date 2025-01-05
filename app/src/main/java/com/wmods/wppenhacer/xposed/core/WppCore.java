@@ -388,6 +388,10 @@ public class WppCore {
         return null;
     }
 
+    public static SharedPreferences getPrivPrefs() {
+        return privPrefs;
+    }
+
     @SuppressLint("ApplySharedPref")
     public static void setPrivString(String key, String value) {
         privPrefs.edit().putString(key, value).commit();
