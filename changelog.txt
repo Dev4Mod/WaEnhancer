@@ -1,18 +1,14 @@
 [NEW]
-* Added function to change the DPI of WhatsApp (You can change the DPI by the theme also using the "change_dpi" property)
+* Added a button on the home screen to view all custom privacies (You can delete them there)
+* Re-added the option to enable/disable chat filter in WAE
 
 [BUGS FIXED]
-* Fixed bug when pinning more 3 conversations on WhatsApp
-* Fixed problem where the buttons did not appear on the status menu
+* Fixed bug in themes, even when disabled it was still possible to change default colors
+* Fixed bug in message bubble colors that did not work on the date
+* Fixed bug in contact status view (did not work with applied themes)
 
 [IMPROVED]
-* Improved the hooks for WhatsApp messages
-
-[REMOVED]
-* Removed the hooks for the chat filter
-
-[WHATSAPP]
-* Compatibility improvement with WhatsApp beta 2.24.26.20
+* Improvements in custom privacy
 
 [WA ENHANCER]
 * Updated Translations
