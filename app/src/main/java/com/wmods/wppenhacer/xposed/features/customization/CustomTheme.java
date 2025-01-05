@@ -166,7 +166,7 @@ public class CustomTheme extends Feature {
             backgroundColor = backgroundColorInt == 0 ? "0" : IColors.toString(backgroundColorInt);
         }
 
-        if (prefs.getBoolean("changecolor", false) || Objects.equals(properties.getProperty("change_colors"), "true")) {
+        if (prefs.getBoolean("changecolor", false) || (Objects.equals(properties.getProperty("change_colors"), "true") && prefs.getBoolean("custom_filters", false))) {
             for (var c : IColors.colors.keySet()) {
                 if (!primaryColor.equals("0") && DesignUtils.isValidColor(primaryColor)) {
                     primaryColor = primaryColor.length() == 9 ? primaryColor : "#ff" + primaryColor.substring(1);
