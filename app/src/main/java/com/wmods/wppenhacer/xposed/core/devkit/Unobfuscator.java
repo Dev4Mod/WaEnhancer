@@ -1656,6 +1656,14 @@ public class Unobfuscator {
         });
     }
 
+    public synchronized static Method loadDateWrapper(ClassLoader classLoader) throws Exception {
+        return UnobfuscatorCache.getInstance().getMethod(classLoader, () -> {
+            var methodData = dexkit.findMethod(FindMethod.create().matcher(MethodMatcher.create().name("getDateWrapperBackground")));
+            if (methodData.isEmpty()) throw new Exception("LoadDateWrapper method not found");
+            return methodData.get(0).getMethodInstance(classLoader);
+        });
+    }
+
     public static synchronized Method[] loadRootDetector(ClassLoader classLoader) {
         var methods = findAllMethodUsingStrings(classLoader, StringMatchType.Contains, "/system/bin/su");
         if (methods.length == 0) throw new RuntimeException("RootDetector method not found");
