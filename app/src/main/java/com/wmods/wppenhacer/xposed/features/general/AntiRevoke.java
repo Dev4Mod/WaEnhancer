@@ -61,6 +61,7 @@ public class AntiRevoke extends Feature {
                 var fMessage = new FMessageWpp(param.args[0]);
                 var messageKey = fMessage.getKey();
                 var deviceJid = fMessage.getDeviceJid();
+                var id = fMessage.getRowId();
                 var messageID = (String) XposedHelpers.getObjectField(fMessage.getObject(), "A01");
                 // Caso o proprio usuario tenha deletado o status
                 if (WppCore.getPrivBoolean(messageID + "_delpass", false)) {
