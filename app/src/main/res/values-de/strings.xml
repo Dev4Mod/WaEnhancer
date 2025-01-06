@@ -48,7 +48,8 @@
     <string name="antirevokestatus">Anti-Lösch Status</string>
     <string name="antirevokestatus_sum">Gelöschten Kontaktestatus betrachten</string>
     <string name="app_desc">WhatsApp-Enhancer-Module</string>
-    <string name="app_name">WA-Enhancer</string>
+    <string name="app_name">Wa-Enhancer</string>
+    <string name="ask_download_folder">Um die Download-Funktionen von WAE Enhancer zu nutzen, musst du einen Ordner zum Speichern der heruntergeladenen Dateien auswählen.</string>
     <string name="assemblyai">Assembly-AI aktivieren</string>
     <string name="assemblyai_key">Assembly-AI-Key</string>
     <string name="assemblyai_key_sum">Assembly-AI API-Zugangsschlüssel (Auf Webseite anmelden und ein Konto erstellen, um deinen Schlüssel zu erhalten)</string>
@@ -68,7 +69,7 @@
     <string name="bottomsheet_action_expand_halfway">Zur Hälfte maximieren</string>
     <string name="bottomsheet_drag_handle_clicked">Auf Ziehpunkt doppelt getippt</string>
     <string name="bottomsheet_drag_handle_content_description">Ziehpunkt</string>
-    <string name="bridge_error">Bridge fehlgeschlagen: Aktiviere das System-Framework in LSPosed und starte das Gerät neu</string>
+    <string name="bridge_error">Bridge fehlgeschlagen: System-Framework in LSPosed aktivieren und Gerät neu starten</string>
     <string name="bubble_left">Linke Blase</string>
     <string name="bubble_right">Rechte Blase</string>
     <string name="business_in_background">Whatsapp Business ist aktiv</string>
@@ -79,7 +80,7 @@
     <string name="call_blocker_buttons_only_unknown_block">Nur unbekannte Nummern blockieren</string>
     <string name="call_blocker_sum">WhatsApp Anrufe basierend auf den Einstellungen der Privatsphäre blockieren</string>
     <string name="call_blocking_type">Anrufblockierung</string>
-    <string name="call_blocking_type_sum">Methode auswählen, mit welcher die Anrufsperre durchgeführt wird.</string>
+    <string name="call_blocking_type_sum">Methode auswählen, mit welcher die Anrufsperre durchgeführt wird</string>
     <string name="call_information">Anrufinfos</string>
     <string name="call_notification_answer_action">Annehmen</string>
     <string name="call_notification_decline_action">Ablehnen</string>
@@ -94,18 +95,21 @@
     <string name="calls">Anrufe</string>
     <string name="cancel">Abbrechen</string>
     <string name="cancel_button_label">Abbrechen</string>
-    <string name="change_blubble_color_sum">Blasenfarbe auf dem Konversationsbildschirm ändern</string>
+    <string name="change_blubble_color_sum">Blasenfarbe auf Konversationsbildschirm ändern</string>
     <string name="change_bubble_colors">Blasenfarben ändern</string>
+    <string name="change_default_dpi">Standard-DPI ändern</string>
+    <string name="change_default_dpi_sum">Ändere die DPI-Einstellung für die App. Verwende 0, um auf die Standardeinstellung zurückzusetzen.
+    </string>
     <string name="character_counter_content_description">Eingegebene Zeichen: %1$d von %2$d</string>
     <string name="character_counter_overflowed_content_description">Zeichenbeschränkung überschritten: %1$d/%2$d</string>
     <string name="chatfilter_no_search">Keine Suche</string>
     <string name="chatfilter_search_bar">Suchleiste</string>
-    <string name="chatfilter_search_icon">Symbol \'Suche\'</string>
+    <string name="chatfilter_search_icon">Suchsymbol</string>
     <string name="choose_button_label">Auswählen</string>
     <string name="city_s">Stadt: %s</string>
-    <string name="clear">Löschen</string>
-    <string name="clear_text_end_icon_content_description">Text löschen</string>
-    <string name="click_times">5 mal auf den WhatsApp Titel tippen</string>
+    <string name="clear">Bereinigen</string>
+    <string name="clear_text_end_icon_content_description">Text bereinigen</string>
+    <string name="click_times">5x auf den WhatsApp Titel tippen</string>
     <string name="colors_customization">Farben anpassen</string>
     <string name="colors_customization_sum">Alle Farben von WhatsApp ändern (Nur dunkles Thema)</string>
     <string name="colors_title">Farbgebung</string>
@@ -142,7 +146,7 @@
     <string name="custom_theme_css">Benutzerdefiniertes CSS-Thema</string>
     <string name="custom_theme_css_sum">WhatsApp mithilfe von CSS-Stilen anpassen</string>
     <string name="dark_theme">Dunkles Thema</string>
-    <string name="dark_theme_auto_battery">Wenn \'Energiesparer\' aktiv ist</string>
+    <string name="dark_theme_auto_battery">Wenn \'Stromsparer\' aktiv ist</string>
     <string name="dark_theme_auto_time">Nachts</string>
     <string name="dark_theme_off">Immer aus</string>
     <string name="dark_theme_on">Immer an</string>
@@ -182,6 +186,7 @@
     <string name="double_click_to_like_sum">Aktiviert die Möglichkeit, auf die Nachricht doppelzuklicken, um darauf zu reagieren</string>
     <string name="double_click_to_react">Doppelktipp aktivieren, um zu reagieren</string>
     <string name="download">Herunterladen</string>
+    <string name="download_folder_permission">Download-Ordner Berechtigung</string>
     <string name="download_title">Herunterladen</string>
     <string name="downloadviewonce">Einmalige Ansicht herunterladen</string>
     <string name="downloadviewonce_sum">Taste anzeigen, um \'einmalige Ansicht\' herunterzuladen</string>
@@ -204,8 +209,8 @@
     <string name="enable_restart_button_sum">Auf dem Startbildschirm wird eine Schaltfläche zum Neustart von WhatsApp hinzugefügt</string>
     <string name="enable_tasker_automation">Tasker</string>
     <string name="enable_tasker_automation_sum">Aktiviert die Möglichkeit Nachrichten in Tasker zu empfangen und zu senden</string>
-    <string name="enable_top_navigation">Top Navigation aktivieren</string>
-    <string name="enable_top_navigation_sum">Aktiviere die alte Navigationsleiste (Tabs sind oben)</string>
+    <string name="enable_top_navigation">Navigation oben aktivieren (veraltet)</string>
+    <string name="enable_top_navigation_sum">Aktiviere die alte Navigationsleiste (funktioniert nicht für Versionen über Wpp 2.24.24 und wird bald entfernt)</string>
     <string name="enable_wa_enhancer_button">WA-Enhancer-Taste aktivieren</string>
     <string name="enable_wa_enhancer_button_sum">Taste dem Startbildschirm hinzufügen, um WA-Enhancer zu öffnen</string>
     <string name="enter_image_file_name">Dateiname eingeben</string>
@@ -302,6 +307,8 @@ Hinweis: Bitte verwende WA-Enhancer verantwortungsbewusst und in Übereinstimmun
     <string name="list_animations_home_screen_sum">Animation beim Wischen der Chat-Liste hinzufügen</string>
     <string name="list_business">Unterstützte Business WhatsApp Versionen</string>
     <string name="list_wpp">Unterstützte WhatsApp Versionen</string>
+    <string name="lite_mode">Lite-Modus</string>
+    <string name="lite_mode_sum">Im Lite-Modus sind die meisten Themenfunktionen deaktiviert und die Verbindungsbrücke, die WhatsApp immer aktiv hält, ist aus.</string>
     <string name="loading">Laden …</string>
     <string name="local_download">Lokaler Download</string>
     <string name="lorem_ipsum_dolor">Lorem Ipsum Dolor</string>
@@ -373,7 +380,6 @@ Hinweis: Bitte verwende WA-Enhancer verantwortungsbewusst und in Übereinstimmun
     <string name="mtrl_picker_toggle_to_text_input_mode">Zum Texteingabemodus wechseln</string>
     <string name="mtrl_picker_toggle_to_year_selection">Tippen, um zur Jahresansicht zu wechseln</string>
     <string name="mtrl_timepicker_cancel">Abbrechen</string>
-    <string name="mtrl_timepicker_confirm">OK</string>
     <string name="nav_app_bar_navigate_up_description">Nach oben</string>
     <string name="nav_app_bar_open_drawer_description">Navigationsleiste öffnen</string>
     <string name="navigation_transparency">Navigationstransparenz</string>
@@ -384,6 +390,7 @@ Hinweis: Bitte verwende WA-Enhancer verantwortungsbewusst und in Übereinstimmun
     <string name="new_ui_group_filter">Neuer UI-Gruppenfilter</string>
     <string name="new_ui_group_filter_sum">Neuen Filter auf dem Startbildschirm hinzufügen, um Gruppen und Unterhaltungen zu trennen.</string>
     <string name="no">Nein</string>
+    <string name="no_contact_with_custom_privacy">Kein Kontakt mit benutzerdefinierter Privatsphäre!</string>
     <string name="no_contacts_selected">Keine Kontakte ausgewählt</string>
     <string name="not_available">Nicht verfügbar</string>
     <string name="not_set">Nicht festgelegt</string>
@@ -488,7 +495,7 @@ Möchtest du neu starten?"</string>
     <string name="stamp_copied_messages">Nachrichten kopieren</string>
     <string name="stamp_copied_messages_sum">Entfernt Namen und Datum beim Kopieren von mehr als einer Nachricht</string>
     <string name="standard">Voreinstellung</string>
-    <string name="starting_cache">Hook-Cache-Erstellung in WhatsApp starten. Dies kann eine Weile dauern.</string>
+    <string name="starting_cache">WA-Hook-Cache-Erstellung starten, dauert etwas.</string>
     <string name="statusdowload">Status herunterladen und teilen</string>
     <string name="statusdowload_sum">Zeigt Auswahl zum Teilen und Herunterladen</string>
     <string name="storage_permission">Speicherberechtigung</string>
@@ -514,6 +521,9 @@ Möchtest du neu starten?"</string>
     <string name="toolbar_transparency">Symbolleisten-Transparenz</string>
     <string name="two_row">Zwei Reihen</string>
     <string name="unable_to_read_this_file">Datei kann nicht gelesen werden</string>
+    <string name="update_check">Automatisch nach Updates suchen</string>
+    <string name="update_check_sum">" Aktiviere oder deaktiviere die automatische Suche nach Updates. Dadurch wird das Popup innerhalb der WhatsApp-Anwendung deaktiviert.
+ "<font color="#FFFF0000">" WARNUNG: DU WIRST NICHT BENACHRICHTIGT, WENN ES EIN NEUES UPDATE GIBT, VERWENDE ES MIT VORSICHT UND MELDE KEINE PROBLEME, WENN DU EINE VERALTETE VERSION VERWENDEST! "</font>" "</string>
     <string name="uri_permission">Um benutzerdefinierte Themen nutzen zu können, musst du den \'WaEnhancer\'-Ordner im \'Download\' auswählen</string>
     <string name="v7_preference_off">AUS</string>
     <string name="v7_preference_on">AN</string>
@@ -521,7 +531,7 @@ Möchtest du neu starten?"</string>
     <string name="version_error">"WhatsApp-Version ist nicht kompatibel und zeigt einen Fehler in folgenden Funktionen:
 
 "</string>
-    <string name="version_s_not_listed">"Version %s nicht in unterstützten Versionen aufgelistet!
+    <string name="version_s_not_listed">"Version %s in unterstützten Versionen nicht aufgelistet!
 Unterstützte WhatsApp Version verwenden!"</string>
     <string name="vertical_status">Vertikaler Status</string>
     <string name="vertical_status_sum">Status im vertikalen Modus anzeigen</string>
