@@ -183,8 +183,8 @@
     <string name="dnd_mode_title">Flugmodus</string>
     <string name="do_you_want_to_send_sticker">Willst du Sticker senden?</string>
     <string name="donate">Spenden</string>
-    <string name="double_click_to_like_sum">Aktiviert die Möglichkeit, auf die Nachricht doppelzuklicken, um darauf zu reagieren</string>
-    <string name="double_click_to_react">Doppelktipp aktivieren, um zu reagieren</string>
+    <string name="double_click_to_like_sum">Aktiviert die Möglichkeit, auf die Nachricht doppeltippen, um darauf zu reagieren</string>
+    <string name="double_click_to_react">Doppeltipp aktivieren, um zu reagieren</string>
     <string name="download">Herunterladen</string>
     <string name="download_folder_permission">Download-Ordner Berechtigung</string>
     <string name="download_title">Herunterladen</string>
