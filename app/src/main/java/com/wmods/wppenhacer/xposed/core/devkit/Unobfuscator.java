@@ -3,6 +3,7 @@ package com.wmods.wppenhacer.xposed.core.devkit;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.util.Log;
@@ -1656,11 +1657,23 @@ public class Unobfuscator {
         });
     }
 
-    public synchronized static Method loadDateWrapper(ClassLoader classLoader) throws Exception {
+    public synchronized static Method loadBallonDateDrawable(ClassLoader classLoader) throws Exception {
         return UnobfuscatorCache.getInstance().getMethod(classLoader, () -> {
-            var methodData = dexkit.findMethod(FindMethod.create().matcher(MethodMatcher.create().name("getDateWrapperBackground")));
+            var methodData = dexkit.findMethod(FindMethod.create().matcher(MethodMatcher.create().addUsingString("Unreachable code: direction=").returnType(Rect.class)));
             if (methodData.isEmpty()) throw new Exception("LoadDateWrapper method not found");
-            return methodData.get(0).getMethodInstance(classLoader);
+            var clazz = methodData.get(0).getMethodInstance(classLoader).getDeclaringClass();
+            var method = ReflectionUtils.findMethodUsingFilterIfExists(clazz, m -> List.of(1, 2).contains(m.getParameterCount()) && m.getParameterTypes()[0].equals(int.class) && m.getReturnType().equals(Drawable.class));
+            if (method == null) throw new RuntimeException("DateWrapper method not found");
+            return method;
+        });
+    }
+
+    public synchronized static Method loadBallonBorderDrawable(ClassLoader classLoader) throws Exception {
+        return UnobfuscatorCache.getInstance().getMethod(classLoader, () -> {
+            var clazz = loadBallonDateDrawable(classLoader).getDeclaringClass();
+            var method = ReflectionUtils.findMethodUsingFilterIfExists(clazz, m -> m.getParameterCount() == 3 && m.getReturnType().equals(Drawable.class));
+            if (method == null) throw new RuntimeException("Ballon Border method not found");
+            return method;
         });
     }
 
