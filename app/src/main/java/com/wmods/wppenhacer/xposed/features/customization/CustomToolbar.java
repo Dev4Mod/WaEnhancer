@@ -7,6 +7,7 @@ import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.Gravity;
 import android.view.View;
+import android.view.ViewStub;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -135,6 +136,7 @@ public class CustomToolbar extends Feature {
             if (!(logo.getParent() instanceof LinearLayout parent)) {
                 var methods = Arrays.stream(actionbar.getClass().getDeclaredMethods()).filter(m -> m.getParameterCount() == 1 && m.getParameterTypes()[0] == CharSequence.class).toArray(Method[]::new);
 
+
                 if (showName) {
                     methods[1].invoke(actionbar, name);
                 }
@@ -142,20 +144,32 @@ public class CustomToolbar extends Feature {
                 if (showBio) {
                     methods[0].invoke(actionbar, bio);
                 }
+
                 XposedBridge.hookMethod(methods[1], new XC_MethodHook() {
                     @Override
                     protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
-                        if (showName) {
+                        var name = WppCore.getMyName();
+                        var bio = WppCore.getMyBio();
+                        if (showBio && (param.args[0] == "" || param.args[0] == "WhatsApp")) {
+                            ReflectionUtils.callMethod(methods[0], param.thisObject, bio);
+                        } else {
+                            ReflectionUtils.callMethod(methods[0], param.thisObject, "");
+                        }
+                        if (showName && (param.args[0] == "" || param.args[0] == "WhatsApp")) {
                             param.args[0] = name;
+                        }
+                        if (logo instanceof ViewStub stub) {
+                            stub.setLayoutParams(new LinearLayout.LayoutParams(1, 1));
                         }
                     }
                 });
+
                 return;
             }
             var mTitle = new TextView(homeActivity);
             mTitle.setText(showName ? name : "WhatsApp");
             mTitle.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.MATCH_PARENT, 1f));
-            mTitle.setTextSize(20f);
+            mTitle.setTextSize(18f);
             mTitle.setTextColor(DesignUtils.getPrimaryTextColor());
             parent.addView(mTitle);
             if (showBio) {
