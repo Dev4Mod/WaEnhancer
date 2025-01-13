@@ -1,14 +1,15 @@
-[NEW]
-* Added a button on the home screen to view all custom privacies (You can delete them there)
-* Re-added the option to enable/disable chat filter in WAE
-
-[BUGS FIXED]
-* Fixed bug in themes, even when disabled it was still possible to change default colors
-* Fixed bug in message bubble colors that did not work on the date
-* Fixed bug in contact status view (did not work with applied themes)
+[NEWS]
+* Added a function to show an icon for received broadcast messages (works with old messages) [General -> Conversation Screen]
+* Added broadcast groups to separate groups (Previously, group transmitters were not appearing anywhere after using the separate group function)
 
 [IMPROVED]
-* Improvements in custom privacy
+* Improvement in the "Delete for everyone" option, which now only appears for a maximum of 3 days (limitation of WhatsApp itself)
 
-[WA ENHANCER]
-* Updated Translations
+[FIXED BUGS]
+* Fixed a critical bug that prevented the update check button from being reactivated
+* Fixed the colors in chat bubbles not appearing correctly (This includes the borders on media and also on stickers)
+* Fixed an issue that prevented call blocking from working on current versions of WhatsApp
+* Fixed a bug when showing name and biography on the home screen in WhatsApp Business
+
+[WHATSAPP / WA BUSINESS]
+* Added support for beta version 2.25.1.XX
