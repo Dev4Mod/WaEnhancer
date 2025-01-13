@@ -72,7 +72,7 @@ import com.wmods.wppenhacer.xposed.features.privacy.FreezeLastSeen;
 import com.wmods.wppenhacer.xposed.features.privacy.HideChat;
 import com.wmods.wppenhacer.xposed.features.privacy.HideReceipt;
 import com.wmods.wppenhacer.xposed.features.privacy.HideSeen;
-import com.wmods.wppenhacer.xposed.features.privacy.HideTagForward;
+import com.wmods.wppenhacer.xposed.features.privacy.TagMessage;
 import com.wmods.wppenhacer.xposed.features.privacy.TypingPrivacy;
 import com.wmods.wppenhacer.xposed.features.privacy.ViewOnce;
 import com.wmods.wppenhacer.xposed.utils.DesignUtils;
@@ -282,7 +282,7 @@ public class FeatureLoader {
                 HideChat.class,
                 HideReceipt.class,
                 HideSeen.class,
-                HideTagForward.class,
+                TagMessage.class,
                 HideTabs.class,
                 IGStatus.class,
                 LiteMode.class,

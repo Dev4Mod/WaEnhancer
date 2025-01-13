@@ -224,6 +224,39 @@ public class Unobfuscator {
         });
     }
 
+    public synchronized static Field loadBroadcastTagField(ClassLoader classLoader) throws Exception {
+        return UnobfuscatorCache.getInstance().getField(classLoader, () -> {
+            var fmessage = loadFMessageClass(classLoader);
+            var clazzData = dexkit.findClass(FindClass.create().matcher(ClassMatcher.create().addUsingString("UPDATE_MESSAGE_MAIN_BROADCAST_SCAN_SQL")));
+            if (clazzData.isEmpty()) return new Exception("BroadcastTag class not found");
+            var methodData = dexkit.findMethod(FindMethod.create().searchInClass(clazzData).matcher(MethodMatcher.create().usingStrings("participant_hash", "view_mode", "broadcast")));
+            if (methodData.isEmpty()) throw new Exception("BroadcastTag method support not found");
+            var usingFields = methodData.get(0).getUsingFields();
+            for (var ufield : usingFields) {
+                var field = ufield.getField();
+                if (field.getDeclaredClass().getName().equals(fmessage.getName()) &&
+                        field.getType().getName().equals(boolean.class.getName())
+                ) {
+                    return field.getFieldInstance(classLoader);
+                }
+            }
+            throw new Exception("BroadcastTag field not found");
+        });
+    }
+
+    public synchronized static Method loadBroadcastTagMethod(ClassLoader classLoader) throws Exception {
+        return UnobfuscatorCache.getInstance().getMethod(classLoader, () -> {
+            var field = loadBroadcastTagField(classLoader);
+            var clazzData = dexkit.findClass(FindClass.create().matcher(ClassMatcher.create().addUsingString("ConversationRow/setUpUserNameInGroupView")));
+            if (clazzData.isEmpty())
+                throw new Exception("BroadcastTag: ConversationRow Class not found");
+            var method = dexkit.findMethod(FindMethod.create().searchInClass(clazzData).matcher(MethodMatcher.create().addUsingField(DexSignUtil.getFieldDescriptor(field))));
+            if (method.isEmpty())
+                throw new Exception("BroadcastTag: ConversationRow Method not found");
+            return method.get(0).getMethodInstance(classLoader);
+        });
+    }
+
     public synchronized static Class<?> loadForwardClassMethod(ClassLoader classLoader) throws Exception {
         return UnobfuscatorCache.getInstance().getClass(classLoader, () -> findFirstClassUsingStrings(classLoader, StringMatchType.Contains, "UserActions/userActionForwardMessage"));
     }

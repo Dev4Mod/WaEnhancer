@@ -23,6 +23,7 @@ public class FMessageWpp {
     private static Field mediaTypeField;
     private static Method getOriginalMessageKey;
     private static Class abstractMediaMessageClass;
+    private static Field broadcastField;
     private final Object fmessage;
 
     public FMessageWpp(Object fMessage) {
@@ -51,6 +52,7 @@ public class FMessageWpp {
         mediaTypeField = Unobfuscator.loadMediaTypeField(classLoader);
         getOriginalMessageKey = Unobfuscator.loadOriginalMessageKey(classLoader);
         abstractMediaMessageClass = Unobfuscator.loadAbstractMediaMessageClass(classLoader);
+        broadcastField = Unobfuscator.loadBroadcastTagField(classLoader);
     }
 
     public Object getUserJid() {
@@ -97,6 +99,15 @@ public class FMessageWpp {
             XposedBridge.log(e);
         }
         return null;
+    }
+
+    public boolean isBroadcast() {
+        try {
+            return (boolean) broadcastField.get(fmessage);
+        } catch (Exception e) {
+            XposedBridge.log(e);
+        }
+        return false;
     }
 
     public Object getObject() {
@@ -152,10 +163,10 @@ public class FMessageWpp {
     public static class Key {
         public static Class<?> TYPE;
 
-        public final Object thisObject;
-        public final String messageID;
-        public final boolean isFromMe;
-        public final Object remoteJid;
+        public Object thisObject;
+        public String messageID;
+        public boolean isFromMe;
+        public Object remoteJid;
 
         public Key(Object key) {
             this.thisObject = key;
@@ -164,6 +175,20 @@ public class FMessageWpp {
             this.remoteJid = XposedHelpers.getObjectField(key, "A00");
         }
 
+        public void setIsFromMe(boolean value) {
+            XposedHelpers.setBooleanField(thisObject, "A02", value);
+            this.isFromMe = value;
+        }
+
+        public void setRemoteJid(Object value) {
+            XposedHelpers.setObjectField(thisObject, "A00", value);
+            this.remoteJid = value;
+        }
+
+        public void setMessageID(String messageID) {
+            XposedHelpers.setObjectField(thisObject, "A01", messageID);
+            this.messageID = messageID;
+        }
     }
 
 }

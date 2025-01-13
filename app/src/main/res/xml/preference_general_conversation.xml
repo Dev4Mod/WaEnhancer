@@ -41,6 +41,11 @@
             app:title="@string/antidisappearing" />
 
         <rikka.material.preference.MaterialSwitchPreference
+            app:key="broadcast_tag"
+            app:summary="@string/show_chat_broadcast_icon_sum"
+            app:title="@string/show_chat_broadcast_icon" />
+
+        <rikka.material.preference.MaterialSwitchPreference
             app:key="pinnedlimit"
             app:summary="@string/disable_pinned_limit_sum"
             app:title="@string/disable_pinned_limit" />
