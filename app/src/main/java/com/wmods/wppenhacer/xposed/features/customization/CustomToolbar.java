@@ -7,6 +7,7 @@ import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.Gravity;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.ViewStub;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -105,7 +106,7 @@ public class CustomToolbar extends Feature {
         protected void afterHookedMethod(MethodHookParam param) throws Throwable {
             var homeActivity = (Activity) param.thisObject;
             var actionbar = XposedHelpers.callMethod(homeActivity, "getSupportActionBar");
-            var toolbar = homeActivity.findViewById(Utils.getID("toolbar", "id"));
+            var toolbar = (ViewGroup) homeActivity.findViewById(Utils.getID("toolbar", "id"));
             var logo = toolbar.findViewById(Utils.getID("toolbar_logo", "id"));
             var name = WppCore.getMyName();
             var bio = WppCore.getMyBio();
@@ -132,10 +133,10 @@ public class CustomToolbar extends Feature {
             }
 
             if (!showBio && !showName) return;
+            var parent = (ViewGroup) logo.getParent();
 
-            if (!(logo.getParent() instanceof LinearLayout parent)) {
+            if (!(parent instanceof LinearLayout) && logo.getVisibility() == View.VISIBLE) {
                 var methods = Arrays.stream(actionbar.getClass().getDeclaredMethods()).filter(m -> m.getParameterCount() == 1 && m.getParameterTypes()[0] == CharSequence.class).toArray(Method[]::new);
-
 
                 if (showName) {
                     methods[1].invoke(actionbar, name);
@@ -159,19 +160,42 @@ public class CustomToolbar extends Feature {
                             param.args[0] = name;
                         }
                         if (logo instanceof ViewStub stub) {
-                            stub.setLayoutParams(new LinearLayout.LayoutParams(1, 1));
+                            var layoutParams = stub.getLayoutParams();
+                            layoutParams.width = 1;
+                            layoutParams.height = 200;
+                            stub.setLayoutParams(layoutParams);
                         }
                     }
                 });
 
                 return;
             }
+            LinearLayout layout;
+            if (parent instanceof LinearLayout) {
+                layout = (LinearLayout) parent;
+            } else {
+                layout = new LinearLayout(homeActivity);
+                layout.setOrientation(LinearLayout.VERTICAL);
+                toolbar.removeAllViews();
+                parent.addView(layout, 0);
+                var clazzWDS = XposedHelpers.findClass("com.whatsapp.wds.components.topbar.WDSToolbar", homeActivity.getClassLoader());
+                if (clazzWDS.isInstance(toolbar)) {
+                    XposedHelpers.callMethod(toolbar, "setTitle", (CharSequence) null);
+                    XposedHelpers.findAndHookMethod(clazzWDS, "setTitle", CharSequence.class, new XC_MethodHook() {
+                        @Override
+                        protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
+                            if (param.thisObject != toolbar) return;
+                            param.setResult(null);
+                        }
+                    });
+                }
+            }
             var mTitle = new TextView(homeActivity);
             mTitle.setText(showName ? name : "WhatsApp");
             mTitle.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.MATCH_PARENT, 1f));
             mTitle.setTextSize(18f);
             mTitle.setTextColor(DesignUtils.getPrimaryTextColor());
-            parent.addView(mTitle);
+            layout.addView(mTitle);
             if (showBio) {
                 TextView mSubtitle = new TextView(homeActivity);
                 mSubtitle.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.MATCH_PARENT));
@@ -182,7 +206,7 @@ public class CustomToolbar extends Feature {
                 mSubtitle.setEllipsize(TextUtils.TruncateAt.MARQUEE);
                 mSubtitle.setSingleLine();
                 mSubtitle.setSelected(true);
-                parent.addView(mSubtitle);
+                layout.addView(mSubtitle);
             } else {
                 mTitle.setGravity(Gravity.CENTER);
             }
