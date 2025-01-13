@@ -80,8 +80,8 @@
     <string name="dev4mod">Dev4Mod (Collaboratore)</string>
     <string name="disable_pinned_limit">Disabilita limite chat fissate</string>
     <string name="disable_pinned_limit_sum">Disabilita il limite di 3 chat fissate</string>
-    <string name="delete_for_everyone_all_messages">\"Elimina per tutti\" su tutti i messaggi</string>
-    <string name="delete_for_everyone_all_messages_sum">Rimuovi il limite di 24 ore per poter eliminare il messaggio per tutti</string>
+    <string name="delete_for_everyone_all_messages">Increase limit of &quot;Delete for everyone&quot; option</string>
+    <string name="delete_for_everyone_all_messages_sum">Increases the limit to 3 days in the option to delete messages for everyone</string>
     <string name="antirevoke_buttons_desable">Disabilitato</string>
     <string name="antirevoke_buttons_show_text">Mostra testo</string>
     <string name="antirevoke_buttons_show_icon">Mostra icona</string>
@@ -140,8 +140,8 @@
     <string name="send">Invia</string>
     <string name="do_you_want_to_send_sticker">Vuoi inviare lo sticker?</string>
     <string name="send_sticker">Invia sticker</string>
-    <string name="enable_filter_chats">Enable filter chats for type</string>
-    <string name="enable_filter_chats_sum">Show options to filter chats for groups, contacts and unseen messages</string>
+    <string name="enable_filter_chats">Abilita filtro chat per tipo</string>
+    <string name="enable_filter_chats_sum">Mostra opzioni per filtrare le chat per gruppi, contatti e messaggi non visti</string>
     <string name="disable_channels">Nascondi Canali</string>
     <string name="disable_channels_sum">Nascondi i canali dalla scheda Aggiornamenti</string>
     <string name="chat">Chat</string>
@@ -404,13 +404,11 @@
     <string name="download_folder_permission">Permesso Cartella Di Download</string>
     <string name="lite_mode">Modalità Lite</string>
     <string name="lite_mode_sum">La Modalità Lite disabilita la maggior parte delle funzioni del tema e il ponte di connessione che mantiene WhatsApp sempre attivo è disattivato.</string>
-    <string name="update_check">Automatically Check for Update</string>
-    <string name="update_check_sum">      Enable or Disable Auto Check for Update. This will disable the popup inside the WhatsApp Application.\n
-      <font color="#FFFF0000">
-        WARNING: YOU WILL NOT BE NOTIFIED WHEN THERE\'S A NEW UPDATE, USE THIS CAREFULLY AND DON\'T REPORT ISSUE IF YOU\'RE USING OUTDATED VERSION!
-      </font>
-    </string>
+    <string name="update_check">Controlla Aggiornamenti Automaticamente</string>
+    <string name="update_check_sum">Enable or Disable Auto Check for Update. This will disable the popup inside the WhatsApp Application.</string>
     <string name="change_default_dpi">Cambia DPI Predefiniti</string>
     <string name="change_default_dpi_sum">Cambia l\'impostazione DPI per l\'applicazione. Usa 0 per reimpostare il valore predefinito.</string>
-    <string name="no_contact_with_custom_privacy">No contact with custom privacy!</string>
+    <string name="no_contact_with_custom_privacy">Nessun contatto con privacy personalizzata!</string>
+    <string name="show_chat_broadcast_icon">Show chat broadcast icon</string>
+    <string name="show_chat_broadcast_icon_sum">Shows an icon if the contact sent a message via broadcast</string>
 </resources>

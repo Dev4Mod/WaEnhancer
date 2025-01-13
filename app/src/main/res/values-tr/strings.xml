@@ -80,8 +80,8 @@
     <string name="dev4mod">Dev4Mod (Katkıda Bulunan)</string>
     <string name="disable_pinned_limit">Sabitlenmiş Sohbet Sınırını Kaldır</string>
     <string name="disable_pinned_limit_sum">3 sabitlenmiş sohbet sınırını kaldır</string>
-    <string name="delete_for_everyone_all_messages">Tüm mesajlar için \"Herkes için sil\"</string>
-    <string name="delete_for_everyone_all_messages_sum">Bir mesajı herkes için silme üzerindeki 24 saatlik sınırı kaldır</string>
+    <string name="delete_for_everyone_all_messages">Increase limit of &quot;Delete for everyone&quot; option</string>
+    <string name="delete_for_everyone_all_messages_sum">Increases the limit to 3 days in the option to delete messages for everyone</string>
     <string name="antirevoke_buttons_desable">Devre Dışı</string>
     <string name="antirevoke_buttons_show_text">Metni Göster</string>
     <string name="antirevoke_buttons_show_icon">Simgeyi Göster</string>
@@ -140,8 +140,8 @@
     <string name="send">Gönder</string>
     <string name="do_you_want_to_send_sticker">Çıkartma göndermek istiyor musunuz?</string>
     <string name="send_sticker">Çıkartma Gönder</string>
-    <string name="enable_filter_chats">Enable filter chats for type</string>
-    <string name="enable_filter_chats_sum">Show options to filter chats for groups, contacts and unseen messages</string>
+    <string name="enable_filter_chats">Tür için sohbetleri filtrelemeyi etkinleştir</string>
+    <string name="enable_filter_chats_sum">Gruplar, kişiler ve okunmamış mesajlar için sohbet filtreleme seçeneklerini göster</string>
     <string name="disable_channels">Kanalları Gizle</string>
     <string name="disable_channels_sum">Güncellemeler sekmesinden Kanalları gizle</string>
     <string name="chat">Sohbet</string>
@@ -404,13 +404,11 @@
     <string name="download_folder_permission">İndirme Klasörü İzni</string>
     <string name="lite_mode">Basit Mod</string>
     <string name="lite_mode_sum">Basit Mod çoğu tema özelliğini devre dışı bırakır ve WhatsApp\'ı her zaman aktif tutan bağlantı köprüsü kapatılır.</string>
-    <string name="update_check">Automatically Check for Update</string>
-    <string name="update_check_sum">      Enable or Disable Auto Check for Update. This will disable the popup inside the WhatsApp Application.\n
-      <font color="#FFFF0000">
-        WARNING: YOU WILL NOT BE NOTIFIED WHEN THERE\'S A NEW UPDATE, USE THIS CAREFULLY AND DON\'T REPORT ISSUE IF YOU\'RE USING OUTDATED VERSION!
-      </font>
-    </string>
+    <string name="update_check">Güncellemeleri Otomatik Denetle</string>
+    <string name="update_check_sum">Enable or Disable Auto Check for Update. This will disable the popup inside the WhatsApp Application.</string>
     <string name="change_default_dpi">Varsayılan DPI\'ı Değiştir</string>
     <string name="change_default_dpi_sum">Uygulama için DPI ayarını değiştirin. Varsayılana sıfırlamak için 0 kullanın.</string>
-    <string name="no_contact_with_custom_privacy">No contact with custom privacy!</string>
+    <string name="no_contact_with_custom_privacy">Özel gizlilik ile temas yok!</string>
+    <string name="show_chat_broadcast_icon">Show chat broadcast icon</string>
+    <string name="show_chat_broadcast_icon_sum">Shows an icon if the contact sent a message via broadcast</string>
 </resources>

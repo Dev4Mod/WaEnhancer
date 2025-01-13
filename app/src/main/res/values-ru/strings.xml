@@ -80,8 +80,8 @@
     <string name="dev4mod">Dev4mod (участник)</string>
     <string name="disable_pinned_limit">Отключить лимит закрепленных чатов</string>
     <string name="disable_pinned_limit_sum">Отключить ограничение на 3 закрепленных чата</string>
-    <string name="delete_for_everyone_all_messages">\"Удалить для всех\" во всех сообщений</string>
-    <string name="delete_for_everyone_all_messages_sum">Удалить 24-часовой лимит на удаление сообщения для всех</string>
+    <string name="delete_for_everyone_all_messages">Increase limit of &quot;Delete for everyone&quot; option</string>
+    <string name="delete_for_everyone_all_messages_sum">Increases the limit to 3 days in the option to delete messages for everyone</string>
     <string name="antirevoke_buttons_desable">Отключено</string>
     <string name="antirevoke_buttons_show_text">Показать текст</string>
     <string name="antirevoke_buttons_show_icon">Показать иконку</string>
@@ -140,8 +140,8 @@
     <string name="send">Отправить</string>
     <string name="do_you_want_to_send_sticker">Отправить этот стикер?</string>
     <string name="send_sticker">Отправить стикер</string>
-    <string name="enable_filter_chats">Enable filter chats for type</string>
-    <string name="enable_filter_chats_sum">Show options to filter chats for groups, contacts and unseen messages</string>
+    <string name="enable_filter_chats">Включить фильтрацию чатов по типу</string>
+    <string name="enable_filter_chats_sum">Показать опции фильтрации чатов для групп, контактов и невидимых сообщений</string>
     <string name="disable_channels">Скрыть каналы</string>
     <string name="disable_channels_sum">Скрыть каналы на вкладке \"Обновления\"</string>
     <string name="chat">Чат</string>
@@ -150,8 +150,8 @@
     <string name="default_color">Установить цвет #00000000 по умолчанию</string>
     <string name="enable_confirmation_to_send_sticker">Подтверждение перед отправкой Стикера</string>
     <string name="enable_confirmation_to_send_sticker_sum">Показать диалог перед отправкой Стикера</string>
-    <string name="increase_video_size_limit">Increase Video Size Limit (MB)</string>
-    <string name="increase_video_size_limit_sum">Increase Video size limit to 200MB</string>
+    <string name="increase_video_size_limit">Увеличить размер лимита видео (MB)</string>
+    <string name="increase_video_size_limit_sum">Увеличить лимит видео до 200 Мб</string>
     <string name="send_video_in_real_resolution">Отправить видео в реальном разрешении</string>
     <string name="send_video_in_real_resolution_sum">Отправлять видео в реальном разрешении в статус, группу и чаты</string>
     <string name="send_video_in_60fps">Отправить видео в 60fps</string>
@@ -182,8 +182,8 @@
     <string name="enable_restart_button_sum">Добавить кнопку на главном экране для перезапуска приложения</string>
     <string name="toast_on_delete">Показывать всплывающее уведомление об удалении сообщения</string>
     <string name="toast_on_delete_sum">Показывать всплывающее уведомление, если какой-либо контакт удаляет какое-либо сообщение</string>
-    <string name="enable_top_navigation">Enable Top Navigation (Obsolete)</string>
-    <string name="enable_top_navigation_sum">Activate the old navigation bar (does not work for versions above Wpp 2.24.24 and will be removed soon)</string>
+    <string name="enable_top_navigation">Включить верхнюю навигацию (устарело)</string>
+    <string name="enable_top_navigation_sum">Активировать старую панель навигации (не работает в версиях выше Wpp 2.24.24 и скоро будет удалено)</string>
     <string name="hideread_group">Скрыть синюю метку в группах</string>
     <string name="hideread_group_sum">Просмотр сообщений на экране групп без уведомления пользователей</string>
     <string name="show_freezeLastSeen_button">Показать кнопку \"Скрыть последнее посещение\"</string>
@@ -400,17 +400,15 @@
     <string name="platform_s">Платформа: %s</string>
     <string name="wpp_version_s">Версия WhatsApp: %s</string>
     <string name="call_information">Информация о звонке</string>
-    <string name="ask_download_folder">To use WAE Enhancer\'s download functions, you must select a folder to save the downloaded files.</string>
-    <string name="download_folder_permission">Download Folder Permission</string>
-    <string name="lite_mode">Lite Mode</string>
-    <string name="lite_mode_sum">Lite Mode disables most theme features and the connection bridge that keeps WhatsApp always active is turned off.</string>
-    <string name="update_check">Automatically Check for Update</string>
-    <string name="update_check_sum">      Enable or Disable Auto Check for Update. This will disable the popup inside the WhatsApp Application.\n
-      <font color="#FFFF0000">
-        WARNING: YOU WILL NOT BE NOTIFIED WHEN THERE\'S A NEW UPDATE, USE THIS CAREFULLY AND DON\'T REPORT ISSUE IF YOU\'RE USING OUTDATED VERSION!
-      </font>
-    </string>
-    <string name="change_default_dpi">Change Default DPI</string>
-    <string name="change_default_dpi_sum">Change the DPI setting for the application. Use 0 to reset to default.</string>
-    <string name="no_contact_with_custom_privacy">No contact with custom privacy!</string>
+    <string name="ask_download_folder">Для использования функций загрузки WAE Enhancer, необходимо выбрать папку для сохранения загруженных файлов.</string>
+    <string name="download_folder_permission">Разрешение на доступ к папке</string>
+    <string name="lite_mode">Режим Lite</string>
+    <string name="lite_mode_sum">Lite Mode отключает большинство функций темы и мост соединения, который держит WhatsApp всегда активным.</string>
+    <string name="update_check">Автоматически проверять наличие обновлений</string>
+    <string name="update_check_sum">Enable or Disable Auto Check for Update. This will disable the popup inside the WhatsApp Application.</string>
+    <string name="change_default_dpi">Изменить DPI по умолчанию</string>
+    <string name="change_default_dpi_sum">Измените параметр DPI для приложения. Используйте 0, чтобы сбросить на значения по умолчанию.</string>
+    <string name="no_contact_with_custom_privacy">Нет контакта с приватностью!</string>
+    <string name="show_chat_broadcast_icon">Show chat broadcast icon</string>
+    <string name="show_chat_broadcast_icon_sum">Shows an icon if the contact sent a message via broadcast</string>
 </resources>
