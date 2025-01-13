@@ -1800,4 +1800,20 @@ public class Unobfuscator {
             return methodData.get(0).getMethodInstance(classLoader);
         });
     }
+
+    public static Field loadFmessageTimestampField(ClassLoader classLoader) throws Exception {
+        return UnobfuscatorCache.getInstance().getField(classLoader, () -> {
+            var fmessageClass = loadFMessageClass(classLoader);
+            var chatLimitDelete2Method = Unobfuscator.loadChatLimitDelete2Method(classLoader);
+            var usingFields = dexkit.getMethodData(chatLimitDelete2Method).getUsingFields();
+            for (var uField : usingFields) {
+                var field = uField.getField();
+                if (field.getDeclaredClass().getName().equals(fmessageClass.getName())
+                        && field.getType().getName().equals(long.class.getName())) {
+                    return field.getFieldInstance(classLoader);
+                }
+            }
+            throw new RuntimeException("FMessage Timestamp method not found");
+        });
+    }
 }
