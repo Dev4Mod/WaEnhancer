@@ -813,7 +813,7 @@ public class Unobfuscator {
 
     public synchronized static Method loadAntiRevokeOnCallReceivedMethod(ClassLoader loader) throws Exception {
         return UnobfuscatorCache.getInstance().getMethod(loader, () -> {
-            var method = findFirstMethodUsingStrings(loader, StringMatchType.Contains, "VoiceService:callStateChangedOnUiThread");
+            var method = findFirstMethodUsingStrings(loader, StringMatchType.Contains, "voip/callStateChangedOnUIThread");
             if (method == null) throw new Exception("OnCallReceiver method not found");
             return method;
         });

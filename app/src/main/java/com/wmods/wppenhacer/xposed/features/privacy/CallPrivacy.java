@@ -14,6 +14,7 @@ import com.wmods.wppenhacer.xposed.utils.ReflectionUtils;
 import com.wmods.wppenhacer.xposed.utils.Utils;
 
 import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.stream.Collectors;
@@ -30,6 +31,10 @@ public class CallPrivacy extends Feature {
      */
     @Override
     public void doHook() throws Throwable {
+
+        var clazzVoip = XposedHelpers.findClass("com.whatsapp.voipcalling.Voip", classLoader);
+        var endCallMethod = ReflectionUtils.findMethodUsingFilter(clazzVoip, m -> m.getName().equals("endCall"));
+        var rejectCallMethod = ReflectionUtils.findMethodUsingFilter(clazzVoip, m -> m.getName().equals("rejectCall"));
 
         var onCallReceivedMethod = Unobfuscator.loadAntiRevokeOnCallReceivedMethod(classLoader);
 
@@ -54,23 +59,28 @@ public class CallPrivacy extends Feature {
                 Tasker.sendTaskerEvent(WppCore.getContactName(userJid), WppCore.stripJID(WppCore.getRawString(userJid)), "call_received");
                 var blockCall = checkCallBlock(userJid, PrivacyType.getByValue(type));
                 if (!blockCall) return;
-                var clazzVoip = XposedHelpers.findClass("com.whatsapp.voipcalling.Voip", classLoader);
                 var rejectType = prefs.getString("call_type", "no_internet");
+
+                // Need Instance of VoipManager from WhatsApp 2.24.24.XX
+                Object voipManager = null;
+                if (!Modifier.isStatic(endCallMethod.getModifiers())) {
+                    var fieldVoipManager = ReflectionUtils.findFieldUsingFilterIfExists(param.thisObject.getClass(), field -> clazzVoip.isInstance(ReflectionUtils.getObjectField(field, param.thisObject)));
+                    voipManager = fieldVoipManager == null ? null : fieldVoipManager.get(param.thisObject);
+                }
                 switch (rejectType) {
                     case "uncallable":
                     case "declined":
-                        var rejectCallMethod = ReflectionUtils.findMethodUsingFilter(clazzVoip, m -> m.getName().equals("rejectCall"));
                         var params = ReflectionUtils.initArray(rejectCallMethod.getParameterTypes());
                         params[0] = callId;
                         params[1] = "declined".equals(rejectType) ? null : rejectType;
-                        ReflectionUtils.callMethod(rejectCallMethod, null, params);
+                        ReflectionUtils.callMethod(rejectCallMethod, voipManager, params);
+                        param.setResult(true);
                         break;
                     case "ended":
-                        try {
-                            XposedHelpers.callStaticMethod(clazzVoip, "endCall", true);
-                        } catch (NoSuchMethodError e) {
-                            XposedHelpers.callStaticMethod(clazzVoip, "endCall", true, 0);
-                        }
+                        var params1 = ReflectionUtils.initArray(endCallMethod.getParameterTypes());
+                        params1[0] = true;
+                        ReflectionUtils.callMethod(endCallMethod, voipManager, params1);
+                        param.setResult(true);
                         break;
                     default:
                 }
