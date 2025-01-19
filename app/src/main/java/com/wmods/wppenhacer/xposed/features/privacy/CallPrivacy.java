@@ -130,7 +130,7 @@ public class CallPrivacy extends Feature {
                 var contactName = WppCore.getSContactName(WppCore.createUserJid(phoneNumber), true);
                 return TextUtils.isEmpty(contactName) || contactName.equals(phoneNumber);
             case BACKLIST:
-                if (customprivacy.optBoolean("BlockCall", true)) return true;
+                if (customprivacy.optBoolean("BlockCall", false)) return true;
                 var callBlockList = prefs.getString("call_block_contacts", "[]");
                 var blockList = Arrays.stream(callBlockList.substring(1, callBlockList.length() - 1).split(", ")).map(String::trim).collect(Collectors.toCollection(ArrayList::new));
                 for (var blockNumber : blockList) {
