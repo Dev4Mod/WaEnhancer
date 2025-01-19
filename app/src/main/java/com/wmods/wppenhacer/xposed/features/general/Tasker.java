@@ -63,20 +63,13 @@ public class Tasker extends Feature {
 
     public void hookReceiveMessage() throws Throwable {
         var method = Unobfuscator.loadReceiptMethod(classLoader);
-        var method2 = Unobfuscator.loadReceiptOutsideChat(classLoader);
-
-        XposedBridge.hookMethod(method2, new XC_MethodHook() {
-            @Override
-            protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
-                fMessage = new FMessageWpp(param.args[0]);
-            }
-        });
-
 
         XposedBridge.hookMethod(method, new XC_MethodHook() {
             @Override
             protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
-                if (param.args[4] == "sender" || param.args[1] == null || fMessage == null) return;
+                if (param.args[4] == "sender" || param.args[1] == null || param.args[3] == null)
+                    return;
+                var fMessage = new FMessageWpp(WppCore.getFMessageFromKey(param.args[3]));
                 var userJid = fMessage.getKey().remoteJid;
                 var rawJid = WppCore.getRawString(userJid);
                 var name = WppCore.getContactName(userJid);
