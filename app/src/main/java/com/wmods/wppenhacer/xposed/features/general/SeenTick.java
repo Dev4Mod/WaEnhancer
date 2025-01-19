@@ -32,6 +32,7 @@ import com.wmods.wppenhacer.xposed.utils.ReflectionUtils;
 import com.wmods.wppenhacer.xposed.utils.ResId;
 import com.wmods.wppenhacer.xposed.utils.Utils;
 
+import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -55,6 +56,7 @@ public class SeenTick extends Feature {
     private static String currentJid;
     private static String currentScreen = "none";
     private static final HashMap<String, ImageView> messageMap = new HashMap<>();
+    private Field fMessageField;
 
     public SeenTick(@NonNull ClassLoader loader, @NonNull XSharedPreferences preferences) {
         super(loader, preferences);
@@ -143,7 +145,7 @@ public class SeenTick extends Feature {
                 var position = (int) param.args[1];
                 var list = (List<?>) XposedHelpers.getObjectField(param.args[0], fieldList.getName());
                 var fMessage = new FMessageWpp(list.get(position));
-                var messageKey = (String) fMessage.getKey().messageID;
+                var messageKey = fMessage.getKey().messageID;
                 var jid = WppCore.getRawString(fMessage.getUserJid());
                 messages.clear();
                 messages.add(new MessageInfo(fMessage, messageKey, null));
@@ -166,14 +168,32 @@ public class SeenTick extends Feature {
     private void hookStatusScreen(int ticktype) throws Exception {
         var viewButtonMethod = Unobfuscator.loadBlueOnReplayViewButtonMethod(classLoader);
         logDebug(Unobfuscator.getMethodDescriptor(viewButtonMethod));
-
+        var viewStatusClass = Unobfuscator.loadBlueOnReplayViewButtonOutSideClass(classLoader);
         if (ticktype == 1) {
             XposedBridge.hookMethod(viewButtonMethod, new XC_MethodHook() {
                 @Override
                 protected void afterHookedMethod(MethodHookParam param) throws Throwable {
                     if (!prefs.getBoolean("hidestatusview", false)) return;
-                    var fMessageField = ReflectionUtils.getFieldByExtendType(param.thisObject.getClass(), FMessageWpp.TYPE);
-                    var fMessage = new FMessageWpp(ReflectionUtils.getObjectField(fMessageField, param.thisObject));
+                    var fMessageField = ReflectionUtils.getFieldByExtendType(viewStatusClass, FMessageWpp.TYPE);
+                    var fMessageObj = ReflectionUtils.getObjectField(fMessageField, param.thisObject);
+                    if (fMessageObj == null) {
+                        var fields = viewStatusClass.getDeclaredFields();
+                        for (Field field : fields) {
+                            if (field.getType().isPrimitive()) continue;
+                            var instance = ReflectionUtils.getObjectField(field, param.thisObject);
+                            if (instance == null) continue;
+                            fMessageField = ReflectionUtils.getFieldByExtendType(field.getType(), FMessageWpp.TYPE);
+                            if (fMessageField != null) {
+                                fMessageObj = ReflectionUtils.getObjectField(fMessageField, instance);
+                                break;
+                            }
+                        }
+                    }
+                    if (fMessageObj == null) {
+                        logDebug("Failed to find fMessageField");
+                        return;
+                    }
+                    var fMessage = new FMessageWpp(fMessageObj);
                     var key = fMessage.getKey();
                     if (key.isFromMe) return;
                     var view = (View) param.getResult();

@@ -958,6 +958,16 @@ public class Unobfuscator {
         });
     }
 
+    public synchronized static Class<?> loadBlueOnReplayViewButtonOutSideClass(ClassLoader loader) throws Exception {
+        return UnobfuscatorCache.getInstance().getClass(loader, () -> {
+            var clazz = loadBlueOnReplayViewButtonMethod(loader).getDeclaringClass().getName();
+            var outClasses = dexkit.findClass(FindClass.create().matcher(ClassMatcher.create().superClass(clazz)));
+            if (outClasses.isEmpty())
+                throw new RuntimeException("BlueOnReplayViewButtonOutSideMethod method not found");
+            return outClasses.get(0).getInstance(loader);
+        });
+    }
+
     public synchronized static Method loadBlueOnReplayStatusViewMethod(ClassLoader loader) throws Exception {
         return UnobfuscatorCache.getInstance().getMethod(loader, () -> {
             var method = findFirstMethodUsingStrings(loader, StringMatchType.Contains, "StatusPlaybackPage/onViewCreated");
