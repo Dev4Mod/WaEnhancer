@@ -96,6 +96,10 @@ public class Others extends Feature {
 
         propsBoolean.put(9051, true);
 
+        // disable new toolbar
+        propsBoolean.put(11824, false);
+        propsBoolean.put(6481, false);
+
         propsBoolean.put(6798, true);  // show all status
         propsBoolean.put(3575, animationEmojis);  // auto play emojis settings
         propsBoolean.put(9757, animationEmojis);  // auto play emojis settings
