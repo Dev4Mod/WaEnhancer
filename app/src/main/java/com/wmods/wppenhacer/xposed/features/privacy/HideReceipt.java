@@ -21,24 +21,34 @@ public class HideReceipt extends Feature {
     public void doHook() throws Exception {
         var hideReceipt = prefs.getBoolean("hidereceipt", false);
         var ghostmode = WppCore.getPrivBoolean("ghostmode", false);
+        var hideread = prefs.getBoolean("hideread", false);
+
         var method = Unobfuscator.loadReceiptMethod(classLoader);
         logDebug("hook method:" + Unobfuscator.getMethodDescriptor(method));
         var method2 = Unobfuscator.loadReceiptOutsideChat(classLoader);
         logDebug("Outside Chat: " + Unobfuscator.getMethodDescriptor(method2));
-        var method3 = Unobfuscator.loadReceiptInChat(classLoader);
-        logDebug("In Chat: " + Unobfuscator.getMethodDescriptor(method3));
+        var mInChat = Unobfuscator.loadReceiptInChat(classLoader);
+        logDebug("In Chat: " + Unobfuscator.getMethodDescriptor(mInChat));
+
         XposedBridge.hookMethod(method, new XC_MethodHook() {
             @Override
             protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
-                if (!ReflectionUtils.isCalledFromMethod(method2) && !ReflectionUtils.isCalledFromMethod(method3))
+                if (!ReflectionUtils.isCalledFromMethod(method2) && !ReflectionUtils.isCalledFromMethod(mInChat))
                     return;
+                logDebug("HideReceipt 1:" + ReflectionUtils.isCalledFromMethod(method2));
+                logDebug("HideReceipt 2:" + ReflectionUtils.isCalledFromMethod(mInChat));
                 var messageKey = new FMessageWpp.Key(param.args[3]);
                 var userJid = messageKey.remoteJid;
                 var rawJid = WppCore.getRawString(userJid);
                 var number = WppCore.stripJID(rawJid);
                 var privacy = CustomPrivacy.getJSON(number);
                 var customHideReceipt = privacy.optBoolean("HideReceipt", hideReceipt);
+                var customHideRead = privacy.optBoolean("HideSeen", hideread);
                 if (param.args[4] != "sender" && (customHideReceipt || ghostmode)) {
+                    if (!ReflectionUtils.isCalledFromMethod(method2) && ReflectionUtils.isCalledFromMethod(mInChat) && !customHideRead) {
+                        log("Called from In Chat");
+                        return;
+                    }
                     param.args[4] = "inactive";
                 }
             }

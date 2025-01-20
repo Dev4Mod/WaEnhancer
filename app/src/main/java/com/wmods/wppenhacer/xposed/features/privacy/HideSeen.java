@@ -10,6 +10,7 @@ import com.wmods.wppenhacer.xposed.utils.ReflectionUtils;
 
 import java.lang.reflect.Array;
 import java.lang.reflect.Method;
+import java.util.Objects;
 import java.util.Set;
 
 import de.robv.android.xposed.XC_MethodHook;
@@ -53,6 +54,7 @@ public class HideSeen extends Feature {
                 if (jid == null) return;
                 var number = WppCore.stripJID(jid);
                 var privacy = CustomPrivacy.getJSON(number);
+
                 var customHideRead = privacy.optBoolean("HideSeen", hideread);
 
                 if (WppCore.isGroup(jid)) {
@@ -78,16 +80,20 @@ public class HideSeen extends Feature {
         Method hideViewMethod = Unobfuscator.loadHideViewMethod(classLoader);
         logDebug(Unobfuscator.getMethodDescriptor(hideViewMethod));
 
+        var method3 = Unobfuscator.loadReceiptOutsideChat(classLoader);
+        logDebug("Outside Chat: " + Unobfuscator.getMethodDescriptor(method3));
+
+
         XposedBridge.hookMethod(hideViewMethod, new XC_MethodHook() {
             @Override
             protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
-                if (!ReflectionUtils.isCalledFromMethod(hideViewInChatMethod)) return;
-                if (param.args[4] == null || !param.args[4].equals("read")) return;
+                if (ReflectionUtils.isCalledFromMethod(method3) || !ReflectionUtils.isCalledFromMethod(hideViewInChatMethod))
+                    return;
+                if (!Objects.equals("read", param.args[4])) return;
                 var jid = WppCore.getCurrentRawJID();
                 var number = WppCore.stripJID(jid);
                 var privacy = CustomPrivacy.getJSON(number);
                 var customHideRead = privacy.optBoolean("HideSeen", hideread);
-
                 if (WppCore.isGroup(jid)) {
                     if (privacy.optBoolean("HideSeen", hideread_group))
                         param.args[4] = null;
