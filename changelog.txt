@@ -1,15 +1,9 @@
-[NEWS]
-* Added a function to show an icon for received broadcast messages (works with old messages) [General -> Conversation Screen]
-* Added broadcast groups to separate groups (Previously, group transmitters were not appearing anywhere after using the separate group function)
+[BUGS FIXED]
+* Fixed bug in receiving messages in Tasker (within the chat)
+* Fixed bug between hiding receiving and reading messages
+* Fixed bug in the main bar where the name and biography do not appear
+* Fixed bug when blocking calls on the blacklist
+* Fixed bug where icons don't appear to view status in the latest versions of whatsapp
 
-[IMPROVED]
-* Improvement in the "Delete for everyone" option, which now only appears for a maximum of 3 days (limitation of WhatsApp itself)
-
-[FIXED BUGS]
-* Fixed a critical bug that prevented the update check button from being reactivated
-* Fixed the colors in chat bubbles not appearing correctly (This includes the borders on media and also on stickers)
-* Fixed an issue that prevented call blocking from working on current versions of WhatsApp
-* Fixed a bug when showing name and biography on the home screen in WhatsApp Business
-
-[WHATSAPP / WA BUSINESS]
-* Added support for beta version 2.25.1.XX
+[WHATSAPP]
+* Added support for version 2.25.2.XX
