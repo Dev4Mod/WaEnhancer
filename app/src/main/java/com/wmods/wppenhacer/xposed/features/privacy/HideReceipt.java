@@ -35,8 +35,6 @@ public class HideReceipt extends Feature {
             protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
                 if (!ReflectionUtils.isCalledFromMethod(method2) && !ReflectionUtils.isCalledFromMethod(mInChat))
                     return;
-                logDebug("HideReceipt 1:" + ReflectionUtils.isCalledFromMethod(method2));
-                logDebug("HideReceipt 2:" + ReflectionUtils.isCalledFromMethod(mInChat));
                 var messageKey = new FMessageWpp.Key(param.args[3]);
                 var userJid = messageKey.remoteJid;
                 var rawJid = WppCore.getRawString(userJid);
@@ -46,7 +44,6 @@ public class HideReceipt extends Feature {
                 var customHideRead = privacy.optBoolean("HideSeen", hideread);
                 if (param.args[4] != "sender" && (customHideReceipt || ghostmode)) {
                     if (!ReflectionUtils.isCalledFromMethod(method2) && ReflectionUtils.isCalledFromMethod(mInChat) && !customHideRead) {
-                        log("Called from In Chat");
                         return;
                     }
                     param.args[4] = "inactive";
