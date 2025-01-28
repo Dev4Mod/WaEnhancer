@@ -759,6 +759,12 @@ public class Unobfuscator {
                     matcher(new MethodMatcher()
                             .addUsingString("xFamilyGating").
                             addUsingString("xFamilyCrosspostManager")));
+            if (result.isEmpty()) result = dexkit.findMethod(new FindMethod().
+                    searchInClass(classData).
+                    matcher(new MethodMatcher().
+                            paramCount(2).
+                            paramTypes(null, statusPlaybackClass).
+                            returnType(void.class)));
             if (result.isEmpty()) throw new Exception("UnknownStatusPlayback method not found");
             return result.get(0).getMethodInstance(loader);
         });
