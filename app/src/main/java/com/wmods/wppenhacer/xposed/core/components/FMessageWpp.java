@@ -24,11 +24,26 @@ public class FMessageWpp {
     private static Method getOriginalMessageKey;
     private static Class abstractMediaMessageClass;
     private static Field broadcastField;
-    private final Object fmessage;
+    private Object fmessage;
 
     public FMessageWpp(Object fMessage) {
         if (fMessage == null) throw new RuntimeException("fMessage is null");
-        this.fmessage = fMessage;
+
+        try {
+            keyMessage = Unobfuscator.loadMessageKeyField(fMessage.getClass().getClassLoader());
+
+            if (keyMessage.getDeclaringClass() != fMessage.getClass()) {
+                Field fMessageField = ReflectionUtils.getFieldByType(
+                        fMessage.getClass(), keyMessage.getDeclaringClass());
+                fmessage = fMessageField.get(fMessage);
+            }
+        } catch (Exception ignored) {
+            // XposedBridge.log(e);
+        }
+
+        if (fmessage == null)
+            this.fmessage = fMessage;
+
         try {
             init(fMessage.getClass().getClassLoader());
         } catch (Exception e) {
