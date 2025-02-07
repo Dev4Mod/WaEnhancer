@@ -28,7 +28,6 @@ import com.wmods.wppenhacer.xposed.utils.ReflectionUtils;
 import com.wmods.wppenhacer.xposed.utils.ResId;
 import com.wmods.wppenhacer.xposed.utils.Utils;
 
-import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.Objects;
 
@@ -54,6 +53,9 @@ public class ShowEditMessage extends Feature {
         var onMessageEdit = Unobfuscator.loadMessageEditMethod(classLoader);
         logDebug(Unobfuscator.getMethodDescriptor(onMessageEdit));
 
+        var callerMessageEditMethod = Unobfuscator.loadCallerMessageEditMethod(classLoader);
+        logDebug(Unobfuscator.getMethodDescriptor(callerMessageEditMethod));
+
         var getEditMessage = Unobfuscator.loadGetEditMessageMethod(classLoader);
         logDebug(Unobfuscator.getMethodDescriptor(getEditMessage));
 
@@ -66,12 +68,10 @@ public class ShowEditMessage extends Feature {
         XposedBridge.hookMethod(onMessageEdit, new XC_MethodHook() {
             @Override
             protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
-                // for 21.xx, getEditMessage is static
-                var editMessage = Modifier.isStatic(getEditMessage.getModifiers())
-                        ? getEditMessage.invoke(null, param.args[0])
-                        : getEditMessage.invoke(param.args[0]);
+                var editMessage = getEditMessage.invoke(null, param.args[0]);
                 if (editMessage == null) return;
-                long timestamp = XposedHelpers.getLongField(editMessage, "A00");
+                var invoked = callerMessageEditMethod.invoke(null, param.args[0]);
+                long timestamp = XposedHelpers.getLongField(invoked, "A00");
                 var fMessage = new FMessageWpp(param.args[0]);
                 long id = fMessage.getRowId();
                 var origMessage = MessageStore.getInstance().getCurrentMessageByID(id);

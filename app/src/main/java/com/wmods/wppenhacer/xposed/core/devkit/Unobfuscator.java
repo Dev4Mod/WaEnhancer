@@ -1047,6 +1047,26 @@ public class Unobfuscator {
         });
     }
 
+    public synchronized static Method loadCallerMessageEditMethod(ClassLoader loader) throws Exception {
+        return UnobfuscatorCache.getInstance().getMethod(loader, () -> {
+            var methodData1 = dexkit.getMethodData(loadMessageEditMethod(loader));
+            var FMessage = loadFMessageClass(loader);
+            var invokes = methodData1.getInvokes();
+            for (var methodData : invokes) {
+                if (methodData.isConstructor()) continue;
+                var method = methodData.getMethodInstance(loader);
+                if (Modifier.isStatic(method.getModifiers()) &&
+                        method.getParameterCount() == 1 && method.getParameterTypes()[0].equals(FMessage) &&
+                        !method.getReturnType().isPrimitive()
+                ) {
+                    return methodData.getMethodInstance(loader);
+                }
+            }
+            throw new RuntimeException("CallerMessageEdit method not found");
+        });
+    }
+
+
     public synchronized static Method loadGetEditMessageMethod(ClassLoader loader) throws Exception {
         return UnobfuscatorCache.getInstance().getMethod(loader, () -> {
             var method = findFirstMethodUsingStrings(loader, StringMatchType.Contains, "MessageEditInfoStore/insertEditInfo/missing");
