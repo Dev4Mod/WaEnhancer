@@ -754,11 +754,12 @@ public class Unobfuscator {
         return UnobfuscatorCache.getInstance().getMethod(loader, () -> {
             var statusPlaybackClass = XposedHelpers.findClass("com.whatsapp.status.playback.fragment.StatusPlaybackContactFragment", loader);
             var classData = List.of(dexkit.getClassData(statusPlaybackClass));
-            var result = dexkit.findMethod(new FindMethod().
+            var result = dexkit.findMethod(FindMethod.create().
                     searchInClass(classData).
-                    matcher(new MethodMatcher()
-                            .addUsingString("xFamilyGating").
-                            addUsingString("xFamilyCrosspostManager")));
+                    matcher(MethodMatcher.create().
+                            paramCount(2).
+                            paramTypes(null, statusPlaybackClass).
+                            returnType(void.class)));
             if (result.isEmpty()) throw new Exception("UnknownStatusPlayback method not found");
             return result.get(0).getMethodInstance(loader);
         });

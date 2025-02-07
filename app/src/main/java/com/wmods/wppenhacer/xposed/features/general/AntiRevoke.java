@@ -61,7 +61,6 @@ public class AntiRevoke extends Feature {
                 var fMessage = new FMessageWpp(param.args[0]);
                 var messageKey = fMessage.getKey();
                 var deviceJid = fMessage.getDeviceJid();
-                var id = fMessage.getRowId();
                 var messageID = (String) XposedHelpers.getObjectField(fMessage.getObject(), "A01");
                 // Caso o proprio usuario tenha deletado o status
                 if (WppCore.getPrivBoolean(messageID + "_delpass", false)) {
@@ -99,6 +98,10 @@ public class AntiRevoke extends Feature {
             protected void afterHookedMethod(MethodHookParam param) throws Throwable {
                 var obj = param.args[1];
                 var objMessage = param.args[0];
+                if (!FMessageWpp.TYPE.isInstance(objMessage)) {
+                    var field = ReflectionUtils.findFieldUsingFilter(objMessage.getClass(), field1 -> field1.getType() == FMessageWpp.TYPE);
+                    objMessage = field.get(objMessage);
+                }
                 Object objView = statusPlaybackField.get(obj);
                 var textViews = ReflectionUtils.getFieldsByType(statusPlaybackField.getType(), TextView.class);
                 if (textViews.isEmpty()) {
