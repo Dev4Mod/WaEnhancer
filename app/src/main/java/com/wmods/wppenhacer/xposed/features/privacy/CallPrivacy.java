@@ -109,8 +109,11 @@ public class CallPrivacy extends Feature {
         super(loader, preferences);
     }
 
-    public boolean checkCallBlock(Object userJid, PrivacyType type) throws IllegalAccessException, InvocationTargetException {
-        var rawPhoneNumber = WppCore.getRawString(userJid);
+    public boolean checkCallBlock(Object jid, PrivacyType type) throws IllegalAccessException, InvocationTargetException {
+        var rawPhoneNumber = WppCore.getRawString(jid);
+        rawPhoneNumber = rawPhoneNumber.replaceFirst("\\.[\\d:]+@", "@");
+        var userJid = WppCore.createUserJid(rawPhoneNumber);
+
         var phoneNumber = WppCore.stripJID(rawPhoneNumber);
 
         if (phoneNumber == null) return false;
@@ -129,7 +132,7 @@ public class CallPrivacy extends Feature {
             case ONLY_UNKNOWN:
                 if (customprivacy.optBoolean("BlockCall", false)) return true;
                 phoneNumber += "@s.whatsapp.net";
-                var contactName = WppCore.getSContactName(WppCore.createUserJid(phoneNumber), true);
+                var contactName = WppCore.getSContactName(userJid, true);
                 return TextUtils.isEmpty(contactName) || contactName.equals(phoneNumber);
             case BACKLIST:
                 if (customprivacy.optBoolean("BlockCall", false)) return true;
