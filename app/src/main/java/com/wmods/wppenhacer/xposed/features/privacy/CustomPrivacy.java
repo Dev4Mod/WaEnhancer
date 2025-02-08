@@ -2,13 +2,17 @@ package com.wmods.wppenhacer.xposed.features.privacy;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
-import android.content.Context;
 import android.content.SharedPreferences;
+import android.graphics.drawable.Drawable;
 import android.text.TextUtils;
+import android.util.TypedValue;
 import android.view.Menu;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.ListView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -53,7 +57,6 @@ public class CustomPrivacy extends Feature {
 
         Class<?> ContactInfoActivityClass = XposedHelpers.findClass("com.whatsapp.chatinfo.ContactInfoActivity", classLoader);
         Class<?> GroupInfoActivityClass = XposedHelpers.findClass("com.whatsapp.group.GroupChatInfoActivity", classLoader);
-        Class<?> listItemWithLeftIconClass = XposedHelpers.findClass("com.whatsapp.ListItemWithLeftIcon", classLoader);
         Class<?> userJidClass = XposedHelpers.findClass("com.whatsapp.jid.UserJid", classLoader);
         Class<?> groupJidClass = XposedHelpers.findClass("com.whatsapp.jid.GroupJid", classLoader);
 
@@ -74,11 +77,9 @@ public class CustomPrivacy extends Feature {
                         if (activity.findViewById(0x7f0a9999) != null) return;
                         int id = Utils.getID("contact_info_security_card_layout", "id");
                         ViewGroup infoLayout = activity.getWindow().findViewById(id);
-                        View itemView = (View) listItemWithLeftIconClass.getConstructor(Context.class).newInstance(activity);
+                        Drawable icon = activity.getDrawable(ResId.drawable.ic_privacy);
+                        View itemView = createItemView(activity, activity.getString(ResId.string.custom_privacy), activity.getString(ResId.string.custom_privacy_sum), icon);
                         itemView.setId(0x7f0a9999);
-                        listItemWithLeftIconClass.getMethod("setTitle", CharSequence.class).invoke(itemView, activity.getString(ResId.string.custom_privacy));
-                        listItemWithLeftIconClass.getMethod("setDescription", CharSequence.class).invoke(itemView, activity.getString(ResId.string.custom_privacy_sum));
-                        listItemWithLeftIconClass.getMethod("setIcon", int.class).invoke(itemView, ResId.drawable.ic_privacy);
                         itemView.setOnClickListener((v) -> showPrivacyDialog(activity, ContactInfoActivityClass.isInstance(activity)));
                         infoLayout.addView(itemView);
                     } catch (Throwable e) {
@@ -114,6 +115,63 @@ public class CustomPrivacy extends Feature {
             showCustomPrivacyList(activity, ContactInfoActivityClass, GroupInfoActivityClass);
             return true;
         }));
+    }
+
+    private View createItemView(Activity activity, String title, String summary, Drawable icon) {
+        LinearLayout mainLayout = new LinearLayout(activity);
+        mainLayout.setLayoutParams(new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT
+        ));
+        mainLayout.setOrientation(LinearLayout.HORIZONTAL);
+        mainLayout.setPadding(16, 16, 16, 16);
+
+        ImageView imageView = new ImageView(activity);
+        LinearLayout.LayoutParams imageParams = new LinearLayout.LayoutParams(
+                Utils.dipToPixels(20),
+                Utils.dipToPixels(20)
+        );
+        imageParams.setMargins(Utils.dipToPixels(20), 0, Utils.dipToPixels(16), Utils.dipToPixels(20));
+        imageView.setLayoutParams(imageParams);
+        icon.setTint(0xff8696a0);
+        imageView.setImageDrawable(icon);
+
+        LinearLayout textContainer = new LinearLayout(activity);
+        LinearLayout.LayoutParams containerParams = new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT
+        );
+        containerParams.setMarginStart(16);
+        textContainer.setLayoutParams(containerParams);
+        textContainer.setOrientation(LinearLayout.VERTICAL);
+
+        TextView titleView = new TextView(activity);
+        LinearLayout.LayoutParams titleParams = new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT
+        );
+        titleView.setLayoutParams(titleParams);
+        titleView.setTextSize(TypedValue.COMPLEX_UNIT_SP, 17);
+        titleView.setText(title);
+        titleView.setTextColor(DesignUtils.getPrimaryTextColor());
+
+        TextView summaryView = new TextView(activity);
+        LinearLayout.LayoutParams summaryParams = new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT
+        );
+        summaryParams.setMarginStart(4);
+        summaryView.setLayoutParams(summaryParams);
+        summaryView.setTextSize(TypedValue.COMPLEX_UNIT_SP, 14);
+        summaryView.setText(summary);
+
+        textContainer.addView(titleView);
+        textContainer.addView(summaryView);
+
+        mainLayout.addView(imageView);
+        mainLayout.addView(textContainer);
+
+        return mainLayout;
     }
 
     private void showCustomPrivacyList(Activity activity, Class<?> contactClass, Class<?> groupClass) {
