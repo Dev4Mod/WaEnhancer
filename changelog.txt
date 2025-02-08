@@ -1,9 +1,12 @@
-[BUGS FIXED]
-* Fixed bug in receiving messages in Tasker (within the chat)
-* Fixed bug between hiding receiving and reading messages
-* Fixed bug in the main bar where the name and biography do not appear
-* Fixed bug when blocking calls on the blacklist
-* Fixed bug where icons don't appear to view status in the latest versions of whatsapp
+[BUGS FIXED 2.25.2.XX]
+* Fixed view once bug in groups
+* Fixed bug in custom privacy button, now works without crashing WhatsApp
+* Fixed bugs in dark icons
+* Fixed bug in messages deleted
+* Fixed bug in edited message history
+
+[IMPROVEMENTS]
+ * The call block whitelist and blacklist are now integrated with WhatsApp (Please re-select your contacts for blocking/unblocking)
 
 [WHATSAPP]
-* Added support for version 2.25.2.XX
+* WhatsApp version: 2.25.3.XX not supported for now, but you can use it by enabling the version check disable (Not recommended)
