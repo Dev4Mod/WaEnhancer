@@ -17,6 +17,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 import de.robv.android.xposed.XC_MethodHook;
@@ -109,7 +110,8 @@ public class CallPrivacy extends Feature {
     }
 
     public boolean checkCallBlock(Object userJid, PrivacyType type) throws IllegalAccessException, InvocationTargetException {
-        var phoneNumber = WppCore.stripJID(WppCore.getRawString(userJid));
+        var rawPhoneNumber = WppCore.getRawString(userJid);
+        var phoneNumber = WppCore.stripJID(rawPhoneNumber);
 
         if (phoneNumber == null) return false;
 
@@ -134,7 +136,7 @@ public class CallPrivacy extends Feature {
                 var callBlockList = prefs.getString("call_block_contacts", "[]");
                 var blockList = Arrays.stream(callBlockList.substring(1, callBlockList.length() - 1).split(", ")).map(String::trim).collect(Collectors.toCollection(ArrayList::new));
                 for (var blockNumber : blockList) {
-                    if (!TextUtils.isEmpty(blockNumber) && phoneNumber.contains(blockNumber)) {
+                    if (!TextUtils.isEmpty(blockNumber) && Objects.equals(rawPhoneNumber, blockNumber)) {
                         return true;
                     }
                 }
@@ -143,7 +145,7 @@ public class CallPrivacy extends Feature {
                 var callWhiteList = prefs.getString("call_white_contacts", "[]");
                 var whiteList = Arrays.stream(callWhiteList.substring(1, callWhiteList.length() - 1).split(", ")).map(String::trim).collect(Collectors.toCollection(ArrayList::new));
                 for (var whiteNumber : whiteList) {
-                    if (!TextUtils.isEmpty(whiteNumber) && phoneNumber.contains(whiteNumber)) {
+                    if (!TextUtils.isEmpty(whiteNumber) && Objects.equals(rawPhoneNumber, whiteNumber)) {
                         return false;
                     }
                 }

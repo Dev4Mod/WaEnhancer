@@ -1852,4 +1852,12 @@ public class Unobfuscator {
             throw new RuntimeException("FMessage Timestamp method not found");
         });
     }
+
+    public static Class<?> loadStatusDistributionClass(ClassLoader classLoader) throws Exception {
+        return UnobfuscatorCache.getInstance().getClass(classLoader, () -> {
+            var clazz = findFirstClassUsingStrings(classLoader, StringMatchType.Equals, "Only set a valid status distribution mode");
+            if (clazz == null) throw new RuntimeException("StatusDistribution not found!");
+            return clazz;
+        });
+    }
 }
