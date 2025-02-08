@@ -9,7 +9,6 @@ import com.wmods.wppenhacer.xposed.utils.Utils;
 
 import java.util.Objects;
 
-import de.robv.android.xposed.XposedBridge;
 import okhttp3.OkHttpClient;
 
 public class UpdateChecker implements Runnable {
@@ -56,8 +55,7 @@ public class UpdateChecker implements Runnable {
                     dialog.show();
                 });
             }
-        } catch (Exception e) {
-            XposedBridge.log(e);
+        } catch (Exception ignored) {
         }
     }
 }
