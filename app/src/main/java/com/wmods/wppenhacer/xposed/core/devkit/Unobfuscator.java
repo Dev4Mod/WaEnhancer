@@ -51,7 +51,6 @@ import java.util.Timer;
 import java.util.TimerTask;
 import java.util.stream.Collectors;
 
-import de.robv.android.xposed.XposedBridge;
 import de.robv.android.xposed.XposedHelpers;
 
 public class Unobfuscator {
@@ -959,13 +958,18 @@ public class Unobfuscator {
         });
     }
 
-    public synchronized static Class<?> loadBlueOnReplayViewButtonOutSideClass(ClassLoader loader) throws Exception {
-        return UnobfuscatorCache.getInstance().getClass(loader, () -> {
-            var clazz = loadBlueOnReplayViewButtonMethod(loader).getDeclaringClass().getName();
-            var outClasses = dexkit.findClass(FindClass.create().matcher(ClassMatcher.create().superClass(clazz)));
-            if (outClasses.isEmpty())
-                throw new RuntimeException("BlueOnReplayViewButtonOutSideMethod method not found");
-            return outClasses.get(0).getInstance(loader);
+    public synchronized static Field loadBlueOnReplayViewButtonOutSideField(ClassLoader loader) throws Exception {
+        return UnobfuscatorCache.getInstance().getField(loader, () -> {
+            var method = loadBlueOnReplayViewButtonMethod(loader);
+            var clazz = method.getDeclaringClass();
+            var methodData = dexkit.getMethodData(method);
+            var fields = methodData.getUsingFields();
+            for (var ufield : fields) {
+                var field = ufield.getField().getFieldInstance(loader);
+                if (clazz.isAssignableFrom(field.getDeclaringClass()) && clazz != field.getDeclaringClass())
+                    return field;
+            }
+            throw new Exception("BlueOnReplayViewButtonOutSide not found!");
         });
     }
 
@@ -1272,18 +1276,19 @@ public class Unobfuscator {
 
     public synchronized static Constructor loadSeeMoreConstructor(ClassLoader loader) throws Exception {
         return UnobfuscatorCache.getInstance().getConstructor(loader, () -> {
-            var classList = dexkit.findClass(new FindClass().matcher(new ClassMatcher().
-                    addMethod(new MethodMatcher().addUsingNumber(16384).addUsingNumber(512).addUsingNumber(64).addUsingNumber(16))
-                    .addMethod(new MethodMatcher().paramCount(2).addParamType(int.class).addParamType(boolean.class))));
+            var classList = dexkit.findClass(FindClass.create().matcher(ClassMatcher.create()
+                    .addMethod(MethodMatcher.create().addUsingNumber(16384).addUsingNumber(512).addUsingNumber(64).addUsingNumber(16))
+                    .addMethod(MethodMatcher.create().paramCount(2).paramTypes(int.class, boolean.class))
+                    .addMethod(MethodMatcher.create().paramCount(2, 3).paramTypes(int.class, int.class, int.class))
+            ));
+
             if (classList.isEmpty()) throw new RuntimeException("SeeMore constructor 1 not found");
             var clazzData = classList.get(0);
-            XposedBridge.log(clazzData.toString());
             for (var method : clazzData.getMethods()) {
-                if (Arrays.asList(2, 3).contains(method.getParamCount()) && method.isConstructor() && method.getParamTypes().stream().allMatch(c -> c.getName().equals(int.class.getName()))) {
+                if (method.getParamCount() > 1 && method.isConstructor() && method.getParamTypes().stream().allMatch(c -> c.getName().equals(int.class.getName()))) {
                     return method.getConstructorInstance(loader);
                 }
             }
-
             throw new RuntimeException("SeeMore constructor 2 not found");
         });
     }
