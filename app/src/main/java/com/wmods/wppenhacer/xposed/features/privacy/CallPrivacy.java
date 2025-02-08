@@ -131,7 +131,6 @@ public class CallPrivacy extends Feature {
         switch (type) {
             case ONLY_UNKNOWN:
                 if (customprivacy.optBoolean("BlockCall", false)) return true;
-                phoneNumber += "@s.whatsapp.net";
                 var contactName = WppCore.getSContactName(userJid, true);
                 return TextUtils.isEmpty(contactName) || contactName.equals(phoneNumber);
             case BACKLIST:
