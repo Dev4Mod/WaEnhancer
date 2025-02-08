@@ -58,10 +58,10 @@ public class AlertDialogWpp {
         }
         try {
             mAlertDialogWpp = getAlertDialog.invoke(null, context);
-            // Remove Default Message
+            // Remove Default Message0
             setMessage(null);
-        } catch (Exception e) {
-            XposedBridge.log(e);
+        } catch (Exception ignored) {
+            throw new RuntimeException("Failed to create AlertDialogWpp");
         }
     }
 
@@ -98,8 +98,7 @@ public class AlertDialogWpp {
         }
         try {
             setMessageMethod.invoke(mAlertDialogWpp, message);
-        } catch (Exception e) {
-            XposedBridge.log(e);
+        } catch (Exception ignored) {
         }
         return this;
     }
@@ -125,8 +124,7 @@ public class AlertDialogWpp {
         }
         try {
             setMultiChoiceItemsMethod.invoke(mAlertDialogWpp, listener, items, checkedItems);
-        } catch (Exception e) {
-            XposedBridge.log(e);
+        } catch (Exception ignored) {
         }
         return this;
     }
@@ -138,8 +136,7 @@ public class AlertDialogWpp {
         }
         try {
             setNegativeButtonMethod.invoke(mAlertDialogWpp, listener, text);
-        } catch (Exception e) {
-            XposedBridge.log(e);
+        } catch (Exception ignored) {
         }
         return this;
     }
@@ -151,8 +148,7 @@ public class AlertDialogWpp {
         }
         try {
             setPositiveButtonMethod.invoke(mAlertDialogWpp, listener, text);
-        } catch (Exception e) {
-            XposedBridge.log(e);
+        } catch (Exception ignored) {
         }
         return this;
     }
