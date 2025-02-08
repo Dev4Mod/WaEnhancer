@@ -13,7 +13,6 @@ import de.robv.android.xposed.XposedHelpers;
 public class FMessageWpp {
 
     public static Class<?> TYPE;
-    private static boolean initialized;
     private static Method userJidMethod;
     private static Field keyMessage;
     private static Field getFieldIdMessage;
@@ -27,32 +26,31 @@ public class FMessageWpp {
     private final Object fmessage;
 
     public FMessageWpp(Object fMessage) {
-        if (fMessage == null) throw new RuntimeException("fMessage is null");
+        if (fMessage == null) throw new RuntimeException("Object fMessage is null");
+        if (!FMessageWpp.TYPE.isInstance(fMessage))
+            throw new RuntimeException("Object fMessage is not a FMessage Instance");
         this.fmessage = fMessage;
-        try {
-            init(fMessage.getClass().getClassLoader());
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
     }
 
-    public static void init(ClassLoader classLoader) throws Exception {
-        if (initialized) return;
-        initialized = true;
-        TYPE = Unobfuscator.loadFMessageClass(classLoader);
-        var userJidClass = classLoader.loadClass("com.whatsapp.jid.UserJid");
-        userJidMethod = ReflectionUtils.findMethodUsingFilter(TYPE, method -> method.getParameterCount() == 0 && method.getReturnType() == userJidClass);
-        keyMessage = Unobfuscator.loadMessageKeyField(classLoader);
-        Key.TYPE = keyMessage.getType();
-        messageMethod = Unobfuscator.loadNewMessageMethod(classLoader);
-        messageWithMediaMethod = Unobfuscator.loadNewMessageWithMediaMethod(classLoader);
-        getFieldIdMessage = Unobfuscator.loadSetEditMessageField(classLoader);
-        var deviceJidClass = XposedHelpers.findClass("com.whatsapp.jid.DeviceJid", classLoader);
-        deviceJidField = ReflectionUtils.findFieldUsingFilter(TYPE, field -> field.getType() == deviceJidClass);
-        mediaTypeField = Unobfuscator.loadMediaTypeField(classLoader);
-        getOriginalMessageKey = Unobfuscator.loadOriginalMessageKey(classLoader);
-        abstractMediaMessageClass = Unobfuscator.loadAbstractMediaMessageClass(classLoader);
-        broadcastField = Unobfuscator.loadBroadcastTagField(classLoader);
+    public static void initialize(ClassLoader classLoader) {
+        try {
+            TYPE = Unobfuscator.loadFMessageClass(classLoader);
+            var userJidClass = classLoader.loadClass("com.whatsapp.jid.UserJid");
+            userJidMethod = ReflectionUtils.findMethodUsingFilter(TYPE, method -> method.getParameterCount() == 0 && method.getReturnType() == userJidClass);
+            keyMessage = Unobfuscator.loadMessageKeyField(classLoader);
+            Key.TYPE = keyMessage.getType();
+            messageMethod = Unobfuscator.loadNewMessageMethod(classLoader);
+            messageWithMediaMethod = Unobfuscator.loadNewMessageWithMediaMethod(classLoader);
+            getFieldIdMessage = Unobfuscator.loadSetEditMessageField(classLoader);
+            var deviceJidClass = XposedHelpers.findClass("com.whatsapp.jid.DeviceJid", classLoader);
+            deviceJidField = ReflectionUtils.findFieldUsingFilter(TYPE, field -> field.getType() == deviceJidClass);
+            mediaTypeField = Unobfuscator.loadMediaTypeField(classLoader);
+            getOriginalMessageKey = Unobfuscator.loadOriginalMessageKey(classLoader);
+            abstractMediaMessageClass = Unobfuscator.loadAbstractMediaMessageClass(classLoader);
+            broadcastField = Unobfuscator.loadBroadcastTagField(classLoader);
+        } catch (Exception e) {
+            XposedBridge.log(e);
+        }
     }
 
     public Object getUserJid() {

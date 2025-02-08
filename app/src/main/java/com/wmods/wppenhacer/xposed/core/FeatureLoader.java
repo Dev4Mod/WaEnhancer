@@ -179,7 +179,7 @@ public class FeatureLoader {
 
     private static void initComponents(ClassLoader loader, XSharedPreferences pref) throws Exception {
         AlertDialogWpp.initDialog(loader);
-        FMessageWpp.init(loader);
+        FMessageWpp.initialize(loader);
         Utils.init(loader);
         WppCore.addListenerActivity((activity, state) -> {
             // Check for Change Preferences
