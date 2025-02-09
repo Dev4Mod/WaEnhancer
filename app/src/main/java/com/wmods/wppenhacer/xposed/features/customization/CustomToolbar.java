@@ -48,7 +48,36 @@ public class CustomToolbar extends Feature {
         XposedHelpers.findAndHookMethod("com.whatsapp.HomeActivity", classLoader, "onCreate", Bundle.class, methodHook);
         Others.propsBoolean.put(6481, false);
         Others.propsBoolean.put(5353, true);
+        Others.propsBoolean.put(8735, false);
         expirationAboutInfo();
+        disableNewLogo();
+
+    }
+
+    private void disableNewLogo() throws Exception {
+        var changeLogoMethod = Unobfuscator.loadChangeTitleLogoMethod(classLoader);
+        var changeLogoField = Unobfuscator.loadChangeTitleLogoField(classLoader);
+
+        XposedBridge.hookMethod(changeLogoMethod, new XC_MethodHook() {
+            @Override
+            protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
+                var idx = ReflectionUtils.findIndexOfType(param.args, Activity.class);
+                var homeActivity = (Activity) param.args[idx];
+                changeLogoField.setAccessible(true);
+                changeLogoField.set(homeActivity, Integer.valueOf(2));
+            }
+
+            @Override
+            protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+                var idx = ReflectionUtils.findIndexOfType(param.args, Activity.class);
+                var homeActivity = (Activity) param.args[idx];
+                var toolbar = (ViewGroup) homeActivity.findViewById(Utils.getID("toolbar", "id"));
+                var logo = toolbar.findViewById(Utils.getID("toolbar_logo_text", "id"));
+                if (logo != null) {
+                    logo.setVisibility(View.GONE);
+                }
+            }
+        });
     }
 
 
@@ -99,6 +128,7 @@ public class CustomToolbar extends Feature {
             this.showBio = showBio;
             this.typeArchive = typeArchive;
         }
+
 
         @Override
         protected void afterHookedMethod(MethodHookParam param) throws Throwable {

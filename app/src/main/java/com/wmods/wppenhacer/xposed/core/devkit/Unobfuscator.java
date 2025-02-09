@@ -1860,4 +1860,33 @@ public class Unobfuscator {
             return clazz;
         });
     }
+
+    public static Method loadChangeTitleLogoMethod(ClassLoader classLoader) throws Exception {
+        return UnobfuscatorCache.getInstance().getMethod(classLoader, () -> {
+            var id = Utils.getID("toolbar_logo", "id");
+            var methodData = dexkit.findMethod(
+                    FindMethod.create()
+                            .matcher(MethodMatcher.create().addUsingNumber(id))
+            );
+            if (methodData.isEmpty())
+                throw new RuntimeException("ChangeTitleLogo method not found");
+            return methodData.get(0).getMethodInstance(classLoader);
+        });
+    }
+
+    public static Field loadChangeTitleLogoField(ClassLoader classLoader) throws Exception {
+        return UnobfuscatorCache.getInstance().getField(classLoader, () -> {
+            var methodData = dexkit.getMethodData(loadChangeTitleLogoMethod(classLoader));
+            var clazz = XposedHelpers.findClass("com.whatsapp.HomeActivity", classLoader);
+            var usingFields = methodData.getUsingFields();
+            for (var uField : usingFields) {
+                var field = uField.getField().getFieldInstance(classLoader);
+                if (field.getDeclaringClass() == clazz && field.getType() == Integer.class) {
+                    return field;
+                }
+            }
+            throw new RuntimeException("ChangeTitleLogo field not found");
+        });
+    }
+
 }
