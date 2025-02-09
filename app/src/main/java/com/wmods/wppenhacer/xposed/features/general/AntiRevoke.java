@@ -96,11 +96,18 @@ public class AntiRevoke extends Feature {
         XposedBridge.hookMethod(unknownStatusPlaybackMethod, new XC_MethodHook() {
             @Override
             protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-                var obj = param.args[1];
-                var objMessage = param.args[0];
-                if (!FMessageWpp.TYPE.isInstance(objMessage)) {
-                    var field = ReflectionUtils.findFieldUsingFilter(objMessage.getClass(), field1 -> field1.getType() == FMessageWpp.TYPE);
-                    objMessage = field.get(objMessage);
+                int idx = ReflectionUtils.findIndexOfType(param.args, statusPlaybackField.getDeclaringClass());
+                Object obj = param.args[idx];
+                var objFMessage = param.args[0];
+                if (!FMessageWpp.TYPE.isInstance(objFMessage)) {
+                    var field = ReflectionUtils.findFieldUsingFilter(objFMessage.getClass(), f -> f.getType() == FMessageWpp.TYPE);
+                    if (field != null) {
+                        objFMessage = field.get(objFMessage);
+                    } else {
+                        var field1 = ReflectionUtils.findFieldUsingFilter(objFMessage.getClass(), f -> f.getType() == FMessageWpp.Key.TYPE);
+                        var key = field1.get(objFMessage);
+                        objFMessage = WppCore.getFMessageFromKey(key);
+                    }
                 }
                 Object objView = statusPlaybackField.get(obj);
                 var textViews = ReflectionUtils.getFieldsByType(statusPlaybackField.getType(), TextView.class);
@@ -112,7 +119,7 @@ public class AntiRevoke extends Feature {
                 for (Field textView : textViews) {
                     TextView textView1 = (TextView) XposedHelpers.getObjectField(objView, textView.getName());
                     if (textView1 == null || textView1.getId() == dateId) {
-                        isMRevoked(objMessage, textView1, "antirevokestatus");
+                        isMRevoked(objFMessage, textView1, "antirevokestatus");
                         break;
                     }
                 }

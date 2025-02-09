@@ -752,15 +752,15 @@ public class Unobfuscator {
     public synchronized static Method loadUnknownStatusPlaybackMethod(ClassLoader loader) throws Exception {
         return UnobfuscatorCache.getInstance().getMethod(loader, () -> {
             var statusPlaybackClass = XposedHelpers.findClass("com.whatsapp.status.playback.fragment.StatusPlaybackContactFragment", loader);
-            var classData = List.of(dexkit.getClassData(statusPlaybackClass));
-            var result = dexkit.findMethod(FindMethod.create().
-                    searchInClass(classData).
-                    matcher(MethodMatcher.create().
-                            paramCount(2).
-                            paramTypes(null, statusPlaybackClass).
-                            returnType(void.class)));
-            if (result.isEmpty()) throw new Exception("UnknownStatusPlayback method not found");
-            return result.get(0).getMethodInstance(loader);
+            var refreshCurrentPage = dexkit.findMethod(FindMethod.create().matcher(MethodMatcher.create().addUsingString("playbackFragment/refreshCurrentPageSubTitle message is empty"))).get(0);
+            var invokes = refreshCurrentPage.getInvokes();
+            for (var invoke : invokes) {
+                var method = invoke.getMethodInstance(loader);
+                if (Modifier.isStatic(method.getModifiers()) && method.getParameterCount() > 1 && List.of(method.getParameterTypes()).contains(statusPlaybackClass) && method.getDeclaringClass() == statusPlaybackClass) {
+                    return method;
+                }
+            }
+            throw new Exception("UnknownStatusPlayback method not found");
         });
     }
 

@@ -188,7 +188,7 @@ public class ReflectionUtils {
                 if (type.isAssignableFrom((Class) args[i])) return i;
                 continue;
             }
-            if (type.isAssignableFrom(args[i].getClass())) return i;
+            if (type.isInstance(args[i])) return i;
         }
         return -1;
     }
