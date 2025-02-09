@@ -277,7 +277,12 @@ public class SeenTick extends Feature {
                             var listStatusField = ReflectionUtils.getFieldByExtendType(fragmentInstance.getClass(), List.class);
                             var listStatus = (List) listStatusField.get(fragmentInstance);
                             for (int i = 0; i < listStatus.size(); i++) {
-                                var fMessage = new FMessageWpp(listStatus.get(i));
+                                var obj = listStatus.get(i);
+                                if (!FMessageWpp.TYPE.isInstance(obj)) {
+                                    var fieldFMessage = ReflectionUtils.getFieldByExtendType(obj.getClass(), FMessageWpp.TYPE);
+                                    obj = fieldFMessage.get(obj);
+                                }
+                                var fMessage = new FMessageWpp(obj);
                                 var messageId = fMessage.getKey().messageID;
                                 if (!fMessage.getKey().isFromMe) {
                                     messages.add(new MessageInfo(fMessage, messageId, null));
