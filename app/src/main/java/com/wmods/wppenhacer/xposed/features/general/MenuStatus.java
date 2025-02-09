@@ -43,6 +43,7 @@ public class MenuStatus extends Feature {
         XposedBridge.hookMethod(menuStatusMethod, new XC_MethodHook() {
             @Override
             protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+                logDebug("MenuStatus method called");
                 var fieldObjects = Arrays.stream(param.method.getDeclaringClass().getDeclaredFields()).map(field -> ReflectionUtils.getObjectField(field, param.thisObject)).filter(Objects::nonNull).collect(Collectors.toList());
 
                 Object fragmentInstance;
@@ -63,7 +64,14 @@ public class MenuStatus extends Feature {
 
                 var index = (int) XposedHelpers.getObjectField(fragmentInstance, "A00");
                 var listStatus = (List) listStatusField.get(fragmentInstance);
-                var fMessage = new FMessageWpp(listStatus.get(index));
+                var object = listStatus.get(index);
+                if (object == null) return;
+                if (!FMessageWpp.TYPE.isInstance(object)) {
+                    var fMessageField = ReflectionUtils.getFieldByExtendType(object.getClass(), FMessageWpp.TYPE);
+                    object = ReflectionUtils.getObjectField(fMessageField, object);
+                }
+
+                var fMessage = new FMessageWpp(object);
 
                 for (MenuItemStatus menuStatus : menuStatuses) {
                     var menuItem = menuStatus.addMenu(menu, fMessage);
