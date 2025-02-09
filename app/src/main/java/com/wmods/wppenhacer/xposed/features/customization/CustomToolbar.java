@@ -50,8 +50,9 @@ public class CustomToolbar extends Feature {
         Others.propsBoolean.put(5353, true);
         Others.propsBoolean.put(8735, false);
         expirationAboutInfo();
-        disableNewLogo();
-
+        if (showName || showBio) {
+            disableNewLogo();
+        }
     }
 
     private void disableNewLogo() throws Exception {
@@ -138,6 +139,7 @@ public class CustomToolbar extends Feature {
             var logo = toolbar.findViewById(Utils.getID("toolbar_logo", "id"));
             var name = WppCore.getMyName();
             var bio = WppCore.getMyBio();
+            var nameWa = homeActivity.getPackageManager().getApplicationLabel(homeActivity.getApplicationInfo()).toString();
 
 
             if (typeArchive.equals("1")) {
@@ -164,9 +166,7 @@ public class CustomToolbar extends Feature {
 
             var methods = Arrays.stream(actionbar.getClass().getDeclaredMethods()).filter(m -> m.getParameterCount() == 1 && m.getParameterTypes()[0] == CharSequence.class).toArray(Method[]::new);
 
-            if (showName) {
-                methods[1].invoke(actionbar, name);
-            }
+            methods[1].invoke(actionbar, showName ? name : nameWa);
 
             if (showBio) {
                 methods[0].invoke(actionbar, bio);
@@ -177,13 +177,13 @@ public class CustomToolbar extends Feature {
                 protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
                     var name = WppCore.getMyName();
                     var bio = WppCore.getMyBio();
-                    if (showBio && (param.args[0] == "" || param.args[0] == "WhatsApp")) {
+                    if (showBio && (param.args[0] == "" || param.args[0] == nameWa)) {
                         ReflectionUtils.callMethod(methods[0], param.thisObject, bio);
                     } else {
                         ReflectionUtils.callMethod(methods[0], param.thisObject, "");
                     }
-                    if (showName && (param.args[0] == "" || param.args[0] == "WhatsApp")) {
-                        param.args[0] = name;
+                    if (param.args[0] == "" || param.args[0] == nameWa) {
+                        param.args[0] = showName ? name : nameWa;
                     }
 
                     var layoutParams = logo.getLayoutParams();
