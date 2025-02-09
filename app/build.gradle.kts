@@ -22,8 +22,7 @@ val gitHash: String = getGitHashCommit().uppercase(Locale.getDefault())
 
 android {
     namespace = "com.wmods.wppenhacer"
-    compileSdk = 34
-    buildToolsVersion = "34.0.0"
+    compileSdk = 35
     ndkVersion = "27.0.11902837 rc2"
 
     defaultConfig {

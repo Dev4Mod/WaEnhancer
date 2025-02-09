@@ -19,7 +19,6 @@ import com.wmods.wppenhacer.xposed.utils.ReflectionUtils;
 import com.wmods.wppenhacer.xposed.utils.Utils;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
@@ -35,8 +34,8 @@ public class SeparateGroup extends Feature {
 
     public static final int CHATS = 200;
     public static final int STATUS = 300;
-    public static final int CALLS = 400;
-    public static final int COMMUNITY = 600;
+    //    public static final int CALLS = 400;
+//    public static final int COMMUNITY = 600;
     public static final int GROUPS = 500;
     public static ArrayList<Integer> tabs = new ArrayList<>();
     public static HashMap<Integer, Object> tabInstances = new HashMap<>();
@@ -295,7 +294,7 @@ public class SeparateGroup extends Feature {
     private void hookTabList(@NonNull Class<?> home) throws Exception {
         var onCreateTabList = Unobfuscator.loadTabListMethod(classLoader);
         logDebug(Unobfuscator.getMethodDescriptor(onCreateTabList));
-        var fieldTabsList = Arrays.stream(home.getDeclaredFields()).filter(f -> f.getType().equals(List.class)).findFirst().orElse(null);
+        var fieldTabsList = ReflectionUtils.getFieldByExtendType(home, List.class);
         if (fieldTabsList == null) {
             throw new NullPointerException("fieldTabList is NULL!");
         }
