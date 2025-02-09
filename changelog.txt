@@ -1,12 +1,7 @@
-[BUGS FIXED 2.25.2.XX]
-* Fixed view once bug in groups
-* Fixed bug in custom privacy button, now works without crashing WhatsApp
-* Fixed bugs in dark icons
-* Fixed bug in messages deleted
-* Fixed bug in edited message history
-
-[IMPROVEMENTS]
- * The call block whitelist and blacklist are now integrated with WhatsApp (Please re-select your contacts for blocking/unblocking)
+[BUGS FIXED]
+* Fixed a bug that prevented buttons from appearing in the status menu
+* Fixed a bug where the user's bio and name did not appear in the home screen
+* Fixed a bug in button seen all statuses
 
 [WHATSAPP]
-* WhatsApp version: 2.25.3.XX not supported for now, but you can use it by enabling the version check disable (Not recommended)
+* Improvements in compatibility with whatsapp beta 2.25.3.XX (however, it will only be added to compatible versions when the stable version is released)
