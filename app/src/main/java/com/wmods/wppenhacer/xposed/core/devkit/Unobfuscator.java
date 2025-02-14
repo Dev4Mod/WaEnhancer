@@ -763,6 +763,11 @@ public class Unobfuscator {
             ClassDataList classView = dexkit.findClass(FindClass.create().matcher(
                     ClassMatcher.create().methodCount(1).addFieldForType(class1)
             ));
+            if (classView.isEmpty()) classView = dexkit.findClass(FindClass.create().matcher(
+                    ClassMatcher.create().methodCount(1, 2)
+                            .addMethod(MethodMatcher.create().paramTypes(View.class, boolean.class, boolean.class))
+                            .addFieldForType(class1)
+            ));
             if (classView.isEmpty()) throw new Exception("StatusPlaybackView field not found");
             Class<?> clsViewStatus = classView.get(0).getInstance(loader);
             Class<?> class2 = XposedHelpers.findClass("com.whatsapp.status.playback.fragment.StatusPlaybackBaseFragment", loader);
