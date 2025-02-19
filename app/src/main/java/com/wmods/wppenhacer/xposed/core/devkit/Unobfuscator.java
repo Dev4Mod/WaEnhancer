@@ -691,7 +691,7 @@ public class Unobfuscator {
 
     public synchronized static Field loadAntiRevokeConvChatField(ClassLoader loader) throws Exception {
         return UnobfuscatorCache.getInstance().getField(loader, () -> {
-            Class<?> chatClass = findFirstClassUsingStrings(loader, StringMatchType.Contains, "payment_chat_composer_entry_nux_shown");
+            Class<?> chatClass = findFirstClassUsingStrings(loader, StringMatchType.Contains, "conversation/createconversation");
             Class<?> conversation = XposedHelpers.findClass("com.whatsapp.Conversation", loader);
             Field field = ReflectionUtils.getFieldByType(conversation, chatClass);
             if (field == null) throw new Exception("AntiRevokeConvChat field not found");
