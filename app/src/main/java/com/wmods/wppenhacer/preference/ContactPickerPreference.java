@@ -11,6 +11,7 @@ import androidx.preference.Preference;
 import androidx.preference.PreferenceManager;
 
 import com.wmods.wppenhacer.R;
+import com.wmods.wppenhacer.xposed.features.others.ActivityController;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -58,7 +59,7 @@ public class ContactPickerPreference extends Preference implements Preference.On
 
     private void startSelectContacts(String packageName) {
         Intent intent = new Intent();
-        intent.setClassName(packageName, "androidx.test.core.app.InstrumentationActivityInvoker$EmptyActivity");
+        intent.setClassName(packageName, ActivityController.EXPORTED_ACTIVITY);
         intent.putExtra("key", getKey());
         intent.putExtra("contact_mode", true);
         intent.putStringArrayListExtra("contacts", mContacts);

@@ -13,6 +13,7 @@ import com.wmods.wppenhacer.preference.ContactPickerPreference;
 import com.wmods.wppenhacer.ui.fragments.base.BasePreferenceFragment;
 
 public class PrivacyFragment extends BasePreferenceFragment {
+
     @Override
     public void onCreatePreferences(@Nullable Bundle savedInstanceState, @Nullable String rootKey) {
         super.onCreatePreferences(savedInstanceState, rootKey);

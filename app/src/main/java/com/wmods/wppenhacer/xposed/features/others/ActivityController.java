@@ -22,18 +22,19 @@ import de.robv.android.xposed.XC_MethodHook;
 import de.robv.android.xposed.XSharedPreferences;
 import de.robv.android.xposed.XposedHelpers;
 
-public class ContactSelector extends Feature {
+public class ActivityController extends Feature {
 
-    private static String Key = "debug";
+    public static final String EXPORTED_ACTIVITY = "com.whatsapp.settings.SettingsNotifications";
+    private static String Key;
 
-    public ContactSelector(@NonNull ClassLoader classLoader, @NonNull XSharedPreferences preferences) {
+    public ActivityController(@NonNull ClassLoader classLoader, @NonNull XSharedPreferences preferences) {
         super(classLoader, preferences);
     }
 
     @Override
     public void doHook() throws Throwable {
 
-        var clazz = XposedHelpers.findClass("androidx.test.core.app.InstrumentationActivityInvoker$EmptyActivity", classLoader);
+        var clazz = XposedHelpers.findClass(EXPORTED_ACTIVITY, classLoader);
         Class<?> statusDistribution = Unobfuscator.loadStatusDistributionClass(classLoader);
 
         XposedHelpers.findAndHookMethod(Activity.class, "onCreate", Bundle.class, new XC_MethodHook() {
@@ -116,8 +117,7 @@ public class ContactSelector extends Feature {
     @NonNull
     @Override
     public String getPluginName() {
-        return "Contact Selector";
+        return "Activity Controller";
     }
-
 
 }
