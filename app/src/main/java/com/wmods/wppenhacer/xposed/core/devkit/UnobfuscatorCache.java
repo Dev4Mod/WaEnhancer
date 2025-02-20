@@ -157,11 +157,11 @@ public class UnobfuscatorCache {
         return id < 1 ? "" : mApplication.getResources().getString(id);
     }
 
-    public Field getField(ClassLoader loader, FunctionCall functionCall) throws Exception {
+    public Field getField(ClassLoader loader, FunctionCall<Field> functionCall) throws Exception {
         var methodName = getKeyName();
         String value = sPrefsCacheHooks.getString(methodName, null);
         if (value == null) {
-            Field result = (Field) functionCall.call();
+            Field result = functionCall.call();
             if (result == null) throw new Exception("Field is null");
             saveField(methodName, result);
             return result;
@@ -171,11 +171,11 @@ public class UnobfuscatorCache {
         return XposedHelpers.findField(cls, ClassAndName[1]);
     }
 
-    public Method getMethod(ClassLoader loader, FunctionCall functionCall) throws Exception {
+    public Method getMethod(ClassLoader loader, FunctionCall<Method> functionCall) throws Exception {
         var methodName = getKeyName();
         String value = sPrefsCacheHooks.getString(methodName, null);
         if (value == null) {
-            Method result = (Method) functionCall.call();
+            Method result = functionCall.call();
             if (result == null) throw new Exception("Method is null");
             saveMethod(methodName, result);
             return result;
@@ -190,11 +190,11 @@ public class UnobfuscatorCache {
         return XposedHelpers.findMethodExact(cls, classAndName[1]);
     }
 
-    public Class<?> getClass(ClassLoader loader, FunctionCall functionCall) throws Exception {
+    public Class<?> getClass(ClassLoader loader, FunctionCall<Class<?>> functionCall) throws Exception {
         var methodName = getKeyName();
         String value = sPrefsCacheHooks.getString(methodName, null);
         if (value == null) {
-            Class<?> result = (Class<?>) functionCall.call();
+            Class<?> result = functionCall.call();
             if (result == null) throw new Exception("Class is null");
             saveClass(methodName, result);
             return result;
@@ -256,8 +256,8 @@ public class UnobfuscatorCache {
         sPrefsCacheHooks.edit().putString(key, value).commit();
     }
 
-    public interface FunctionCall {
-        Object call() throws Exception;
+    public interface FunctionCall<T> {
+        T call() throws Exception;
     }
 
 }
