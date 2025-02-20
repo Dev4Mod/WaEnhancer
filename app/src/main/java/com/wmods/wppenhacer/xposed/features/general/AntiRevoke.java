@@ -219,11 +219,11 @@ public class AntiRevoke extends Feature {
                             });
                         }
                     } catch (Exception e) {
-                        XposedBridge.log(e.getMessage());
+                        logDebug(e);
                     }
                 });
             } catch (Exception e) {
-                XposedBridge.log(e.getMessage());
+                logDebug(e);
             }
         }
         return revokeboolean;

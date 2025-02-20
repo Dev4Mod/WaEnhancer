@@ -185,7 +185,7 @@ public class Utils {
                     return "";
                 }
             } catch (Exception e) {
-                XposedBridge.log(e.getMessage());
+                XposedBridge.log(e);
                 return e.getMessage();
             }
         } else {
@@ -205,7 +205,7 @@ public class Utils {
                     out.write(bArr, 0, read);
                 }
             } catch (Exception e) {
-                XposedBridge.log(e.getMessage());
+                XposedBridge.log(e);
                 return e.getMessage();
             }
         }
