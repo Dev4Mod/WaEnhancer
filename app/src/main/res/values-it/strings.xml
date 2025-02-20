@@ -80,8 +80,8 @@
     <string name="dev4mod">Dev4Mod (Collaboratore)</string>
     <string name="disable_pinned_limit">Disabilita limite chat fissate</string>
     <string name="disable_pinned_limit_sum">Disabilita il limite di 3 chat fissate</string>
-    <string name="delete_for_everyone_all_messages">Increase limit of &quot;Delete for everyone&quot; option</string>
-    <string name="delete_for_everyone_all_messages_sum">Increases the limit to 3 days in the option to delete messages for everyone</string>
+    <string name="delete_for_everyone_all_messages">Aumenta il limite di &quot;Elimina per tutti&quot; opzione</string>
+    <string name="delete_for_everyone_all_messages_sum">Aumenta il limite a 3 giorni nell\'opzione di eliminare i messaggi per tutti</string>
     <string name="antirevoke_buttons_desable">Disabilitato</string>
     <string name="antirevoke_buttons_show_text">Mostra testo</string>
     <string name="antirevoke_buttons_show_icon">Mostra icona</string>
@@ -405,10 +405,11 @@
     <string name="lite_mode">Modalità Lite</string>
     <string name="lite_mode_sum">La Modalità Lite disabilita la maggior parte delle funzioni del tema e il ponte di connessione che mantiene WhatsApp sempre attivo è disattivato.</string>
     <string name="update_check">Controlla Aggiornamenti Automaticamente</string>
-    <string name="update_check_sum">Enable or Disable Auto Check for Update. This will disable the popup inside the WhatsApp Application.</string>
+    <string name="update_check_sum">Abilita o disabilita il controllo automatico dell\'aggiornamento. Questo disabiliterà il popup all\'interno dell\'applicazione WhatsApp.</string>
     <string name="change_default_dpi">Cambia DPI Predefiniti</string>
     <string name="change_default_dpi_sum">Cambia l\'impostazione DPI per l\'applicazione. Usa 0 per reimpostare il valore predefinito.</string>
     <string name="no_contact_with_custom_privacy">Nessun contatto con privacy personalizzata!</string>
-    <string name="show_chat_broadcast_icon">Show chat broadcast icon</string>
-    <string name="show_chat_broadcast_icon_sum">Shows an icon if the contact sent a message via broadcast</string>
+    <string name="show_chat_broadcast_icon">Mostra icona chat broadcast</string>
+    <string name="show_chat_broadcast_icon_sum">Mostra un\'icona se il contatto ha inviato un messaggio tramite broadcast</string>
+    <string name="select_contacts">Select Contacts</string>
 </resources>

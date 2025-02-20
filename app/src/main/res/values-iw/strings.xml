@@ -81,8 +81,8 @@
     <string name="dev4mod">Dev4Mod (תורם)</string>
     <string name="disable_pinned_limit">השבת את מגבלת הצ\'אטים המוצמדים</string>
     <string name="disable_pinned_limit_sum">אפשר לנעוץ צ\'אטים ללא הגבלה</string>
-    <string name="delete_for_everyone_all_messages">Increase limit of &quot;Delete for everyone&quot; option</string>
-    <string name="delete_for_everyone_all_messages_sum">Increases the limit to 3 days in the option to delete messages for everyone</string>
+    <string name="delete_for_everyone_all_messages">הגדל את המגבלה של &quot;מחק לכולם&quot; אופציה</string>
+    <string name="delete_for_everyone_all_messages_sum">מגדיל את המגבלה ל-3 ימים באפשרות של למחוק הודעות לכולם</string>
     <string name="antirevoke_buttons_desable">מושבת</string>
     <string name="antirevoke_buttons_show_text">הצג טקסט</string>
     <string name="antirevoke_buttons_show_icon">הצג אייקון</string>
@@ -407,10 +407,11 @@
     <string name="lite_mode">מצב לייט</string>
     <string name="lite_mode_sum">מצב Lite משבית את רוב תכונות הנושא וגשר החיבור ששומר על WhatsApp תמיד פעיל כבוי.</string>
     <string name="update_check">בדוק אוטומטית אם יש עדכונים</string>
-    <string name="update_check_sum">Enable or Disable Auto Check for Update. This will disable the popup inside the WhatsApp Application.</string>
+    <string name="update_check_sum">הפעל או השבת את בדיקת העדכון האוטומטית. פעולה זו תשבית את החלון הקופץ של העדכונים בתוך הווצאפ.</string>
     <string name="change_default_dpi">שנה את ברירת המחדל של DPI</string>
     <string name="change_default_dpi_sum">שנה את הגדרת DPI עבור היישום. השתמש ב-0 כדי לאפס לברירת המחדל.</string>
     <string name="no_contact_with_custom_privacy">אין קשר עם פרטיות מותאמת אישית!</string>
-    <string name="show_chat_broadcast_icon">Show chat broadcast icon</string>
-    <string name="show_chat_broadcast_icon_sum">Shows an icon if the contact sent a message via broadcast</string>
+    <string name="show_chat_broadcast_icon">הצג סמל של רשימת תפוצה בהודעה</string>
+    <string name="show_chat_broadcast_icon_sum">מציג סמל אם איש הקשר שלח הודעה באמצעות רשימת תפוצה</string>
+    <string name="select_contacts">Select Contacts</string>
 </resources>

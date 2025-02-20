@@ -80,8 +80,8 @@
     <string name="dev4mod">Dev4Mod (Contribuidor)</string>
     <string name="disable_pinned_limit">Desactivar límite de Chats Anclados</string>
     <string name="disable_pinned_limit_sum">Desactivar límite de 3 chats fijados</string>
-    <string name="delete_for_everyone_all_messages">Increase limit of &quot;Delete for everyone&quot; option</string>
-    <string name="delete_for_everyone_all_messages_sum">Increases the limit to 3 days in the option to delete messages for everyone</string>
+    <string name="delete_for_everyone_all_messages">Aumentar el límite de &quot;Eliminar para todos&quot; opción</string>
+    <string name="delete_for_everyone_all_messages_sum">Aumenta el límite a 3 días en la opción de eliminar mensajes para todos</string>
     <string name="antirevoke_buttons_desable">Desactivado</string>
     <string name="antirevoke_buttons_show_text">Mostrar Texto</string>
     <string name="antirevoke_buttons_show_icon">Mostrar Icono</string>
@@ -168,8 +168,8 @@
     <string name="selection_of_call_type_sum">Mostrar una opción para seleccionar si desea una llamada por teléfono o WhatsApp</string>
     <string name="yes">Si</string>
     <string name="no">No</string>
-    <string name="device_model">Modelo del Dispositivo</string>
-    <string name="device_name">Nombre del Dispositivo</string>
+    <string name="device_model">Modelo (Codename)</string>
+    <string name="device_name">Marca</string>
     <string name="disable_metaai">Deshabilitar las funciones Meta Ai</string>
     <string name="disable_metaai_sum">Deshabilite Meta Ai solo para aquellos que lo tengan habilitado de forma predeterminada</string>
     <string name="list_business">WhatsApp Business compatibles:</string>
@@ -405,10 +405,11 @@
     <string name="lite_mode">Modo Lite</string>
     <string name="lite_mode_sum">El Modo Lite desactiva la mayoría de las características de los temas y el puente de conexión que mantiene WhatsApp siempre activo, está desactivado. (Puede que ahorres más batería).</string>
     <string name="update_check">Buscar actualizaciones automáticamente</string>
-    <string name="update_check_sum">Enable or Disable Auto Check for Update. This will disable the popup inside the WhatsApp Application.</string>
+    <string name="update_check_sum">Activar o desactivar la autocomprobación de actualización. Esto desactivará la ventana emergente dentro de la aplicación WhatsApp.</string>
     <string name="change_default_dpi">Cambiar DPI por defecto</string>
     <string name="change_default_dpi_sum">Cambia la configuración DPI de la aplicación. Utilice 0 para restablecer el valor predeterminado.</string>
     <string name="no_contact_with_custom_privacy">¡No hay contacto con privacidad personalizada!</string>
-    <string name="show_chat_broadcast_icon">Show chat broadcast icon</string>
-    <string name="show_chat_broadcast_icon_sum">Shows an icon if the contact sent a message via broadcast</string>
+    <string name="show_chat_broadcast_icon">Mostrar icono de difusión del chat</string>
+    <string name="show_chat_broadcast_icon_sum">Muestra un icono si el contacto ha enviado un mensaje a través del canal de difusión</string>
+    <string name="select_contacts">Select Contacts</string>
 </resources>

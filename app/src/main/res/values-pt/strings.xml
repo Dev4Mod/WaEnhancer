@@ -80,8 +80,8 @@
     <string name="dev4mod">Dev4Mod (Desenvolvedor)</string>
     <string name="disable_pinned_limit">Desativar limite de conversas fixadas</string>
     <string name="disable_pinned_limit_sum">Desative o limite de 3 conversas fixadas</string>
-    <string name="delete_for_everyone_all_messages">Increase limit of &quot;Delete for everyone&quot; option</string>
-    <string name="delete_for_everyone_all_messages_sum">Increases the limit to 3 days in the option to delete messages for everyone</string>
+    <string name="delete_for_everyone_all_messages">Excluir mensagens para todos</string>
+    <string name="delete_for_everyone_all_messages_sum">Limitar a exclusão de mensagens para no máximo 3 dias.</string>
     <string name="antirevoke_buttons_desable">Desativado</string>
     <string name="antirevoke_buttons_show_text">Mostrar texto</string>
     <string name="antirevoke_buttons_show_icon">Exibir Ícone</string>
@@ -405,10 +405,11 @@
     <string name="lite_mode">Modo simples</string>
     <string name="lite_mode_sum">O Modo simples desativa a maioria dos recursos do tema e a ponte de conexão que mantém o WhatsApp sempre ativo fica desligada.</string>
     <string name="update_check">Verificar atualizações automaticamente</string>
-    <string name="update_check_sum">Enable or Disable Auto Check for Update. This will disable the popup inside the WhatsApp Application.</string>
+    <string name="update_check_sum">Ative ou desative a verificação automática por atualização. Isso desativará um pop-up dentro do aplicativo WhatsApp.</string>
     <string name="change_default_dpi">Alterar DPI padrão</string>
     <string name="change_default_dpi_sum">Altere a configuração de DPI do app. Use 0 para redefinir para o padrão.</string>
     <string name="no_contact_with_custom_privacy">Nenhum contato com privacidade personalizada!</string>
-    <string name="show_chat_broadcast_icon">Show chat broadcast icon</string>
-    <string name="show_chat_broadcast_icon_sum">Shows an icon if the contact sent a message via broadcast</string>
+    <string name="show_chat_broadcast_icon">Mostrar ícone de transmissão de chat</string>
+    <string name="show_chat_broadcast_icon_sum">Mostra um ícone se o contato enviou uma mensagem por transmissão.</string>
+    <string name="select_contacts">Select Contacts</string>
 </resources>

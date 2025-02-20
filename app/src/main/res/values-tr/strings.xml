@@ -80,8 +80,8 @@
     <string name="dev4mod">Dev4Mod (Katkıda Bulunan)</string>
     <string name="disable_pinned_limit">Sabitlenmiş Sohbet Sınırını Kaldır</string>
     <string name="disable_pinned_limit_sum">3 sabitlenmiş sohbet sınırını kaldır</string>
-    <string name="delete_for_everyone_all_messages">Increase limit of &quot;Delete for everyone&quot; option</string>
-    <string name="delete_for_everyone_all_messages_sum">Increases the limit to 3 days in the option to delete messages for everyone</string>
+    <string name="delete_for_everyone_all_messages">&quot;Herkes için sil&quot; seçeneğinin sınırını artır</string>
+    <string name="delete_for_everyone_all_messages_sum">Mesajları herkes için silme seçeneğinde sınırı 3 güne çıkar</string>
     <string name="antirevoke_buttons_desable">Devre Dışı</string>
     <string name="antirevoke_buttons_show_text">Metni Göster</string>
     <string name="antirevoke_buttons_show_icon">Simgeyi Göster</string>
@@ -405,10 +405,11 @@
     <string name="lite_mode">Basit Mod</string>
     <string name="lite_mode_sum">Basit Mod çoğu tema özelliğini devre dışı bırakır ve WhatsApp\'ı her zaman aktif tutan bağlantı köprüsü kapatılır.</string>
     <string name="update_check">Güncellemeleri Otomatik Denetle</string>
-    <string name="update_check_sum">Enable or Disable Auto Check for Update. This will disable the popup inside the WhatsApp Application.</string>
+    <string name="update_check_sum">Güncelleme için Otomatik Kontrolü Etkinleştirin veya Devre Dışı Bırakın. Bu, WhatsApp Uygulaması içindeki açılır pencereyi devre dışı bırakacaktır.</string>
     <string name="change_default_dpi">Varsayılan DPI\'ı Değiştir</string>
     <string name="change_default_dpi_sum">Uygulama için DPI ayarını değiştirin. Varsayılana sıfırlamak için 0 kullanın.</string>
     <string name="no_contact_with_custom_privacy">Özel gizlilik ile temas yok!</string>
-    <string name="show_chat_broadcast_icon">Show chat broadcast icon</string>
-    <string name="show_chat_broadcast_icon_sum">Shows an icon if the contact sent a message via broadcast</string>
+    <string name="show_chat_broadcast_icon">Sohbet yayını simgesini göster</string>
+    <string name="show_chat_broadcast_icon_sum">Kişi yayın yoluyla bir mesaj gönderdiyse bir simge gösterir</string>
+    <string name="select_contacts">Select Contacts</string>
 </resources>

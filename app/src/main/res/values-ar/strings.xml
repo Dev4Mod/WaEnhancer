@@ -81,8 +81,8 @@
     <string name="dev4mod">(مساهم)Dev4Mod</string>
     <string name="disable_pinned_limit">تعطيل حد الدردشة المثبتة</string>
     <string name="disable_pinned_limit_sum">تعطيل حد 3 دردشة مثبتة</string>
-    <string name="delete_for_everyone_all_messages">Increase limit of &quot;Delete for everyone&quot; option</string>
-    <string name="delete_for_everyone_all_messages_sum">Increases the limit to 3 days in the option to delete messages for everyone</string>
+    <string name="delete_for_everyone_all_messages">زيادة حد خِيار الحذف للجميع</string>
+    <string name="delete_for_everyone_all_messages_sum">يزيد الحد الأقصى إلى 3 أيام في خِيار حذف الرسائل للجميع</string>
     <string name="antirevoke_buttons_desable">معطل</string>
     <string name="antirevoke_buttons_show_text">إظهار النص</string>
     <string name="antirevoke_buttons_show_icon">إظهار الأيقونة</string>
@@ -141,8 +141,8 @@
     <string name="send">إرسال</string>
     <string name="do_you_want_to_send_sticker">هل تريد إرسال الملصق؟</string>
     <string name="send_sticker">إرسال ملصق</string>
-    <string name="enable_filter_chats">Enable filter chats for type</string>
-    <string name="enable_filter_chats_sum">Show options to filter chats for groups, contacts and unseen messages</string>
+    <string name="enable_filter_chats">تمكين تصفية الدردشات</string>
+    <string name="enable_filter_chats_sum">إظهار الخيارات لتصفية المحادثة للمجموعات وجهات الاتصال والرسائل غير المرئية</string>
     <string name="disable_channels">إخفاء القنوات</string>
     <string name="disable_channels_sum">إخفاء القنوات من علامة تبويب التحديثات</string>
     <string name="chat">الدردشة</string>
@@ -405,11 +405,12 @@
     <string name="download_folder_permission">إذن تحميل المجلد</string>
     <string name="lite_mode">الوضع الخفيف</string>
     <string name="lite_mode_sum">يعطل الوضع الخفيف معظم ميزات الثيمات ويتم إيقاف تشغيل جسر الاتصال الذي يحافظ على WhatsApp نشطًا دائمًا.</string>
-    <string name="update_check">Automatically Check for Update</string>
-    <string name="update_check_sum">Enable or Disable Auto Check for Update. This will disable the popup inside the WhatsApp Application.</string>
+    <string name="update_check">التحقق من التحديثات تلقائيًا</string>
+    <string name="update_check_sum">تمكين أو تعطيل التحقق التلقائي من التحديث. سيؤدي هذا إلى تعطيل النوافذ المنبثقة داخل تطبيق واتساب.</string>
     <string name="change_default_dpi">تغيير DPI الافتراضي</string>
     <string name="change_default_dpi_sum">تغيير إعداد DPI للتطبيق. استخدم 0 لإعادة تعيين الافتراضي.</string>
-    <string name="no_contact_with_custom_privacy">No contact with custom privacy!</string>
-    <string name="show_chat_broadcast_icon">Show chat broadcast icon</string>
-    <string name="show_chat_broadcast_icon_sum">Shows an icon if the contact sent a message via broadcast</string>
+    <string name="no_contact_with_custom_privacy">لا يوجد اتصال بخصوصية مخصصة!</string>
+    <string name="show_chat_broadcast_icon">إظهار أيقونة بث الدردشة</string>
+    <string name="show_chat_broadcast_icon_sum">يظهر رمزًا إذا أرسل جهة الاتصال رسالة عبر البث</string>
+    <string name="select_contacts">Select Contacts</string>
 </resources>

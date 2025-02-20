@@ -423,4 +423,5 @@ Saat Anda mengaktifkan bekukan \"terakhir dilihat dan online\", Anda tidak dapat
     <string name="no_contact_with_custom_privacy">No contact with custom privacy!</string>
     <string name="show_chat_broadcast_icon">Show chat broadcast icon</string>
     <string name="show_chat_broadcast_icon_sum">Shows an icon if the contact sent a message via broadcast</string>
+    <string name="select_contacts">Select Contacts</string>
 </resources>

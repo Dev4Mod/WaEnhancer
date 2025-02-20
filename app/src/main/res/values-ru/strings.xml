@@ -80,8 +80,8 @@
     <string name="dev4mod">Dev4mod (участник)</string>
     <string name="disable_pinned_limit">Отключить лимит закрепленных чатов</string>
     <string name="disable_pinned_limit_sum">Отключить ограничение на 3 закрепленных чата</string>
-    <string name="delete_for_everyone_all_messages">Increase limit of &quot;Delete for everyone&quot; option</string>
-    <string name="delete_for_everyone_all_messages_sum">Increases the limit to 3 days in the option to delete messages for everyone</string>
+    <string name="delete_for_everyone_all_messages">Увеличить предел &quot;Удалить для всех&quot; опций</string>
+    <string name="delete_for_everyone_all_messages_sum">Увеличивает лимит на 3 дня для удаления сообщений для всех</string>
     <string name="antirevoke_buttons_desable">Отключено</string>
     <string name="antirevoke_buttons_show_text">Показать текст</string>
     <string name="antirevoke_buttons_show_icon">Показать иконку</string>
@@ -405,10 +405,11 @@
     <string name="lite_mode">Режим Lite</string>
     <string name="lite_mode_sum">Lite Mode отключает большинство функций темы и мост соединения, который держит WhatsApp всегда активным.</string>
     <string name="update_check">Автоматически проверять наличие обновлений</string>
-    <string name="update_check_sum">Enable or Disable Auto Check for Update. This will disable the popup inside the WhatsApp Application.</string>
+    <string name="update_check_sum">Включение или отключение автопроверки обновления. Это отключит всплывающее окно внутри приложения WhatsApp.</string>
     <string name="change_default_dpi">Изменить DPI по умолчанию</string>
     <string name="change_default_dpi_sum">Измените параметр DPI для приложения. Используйте 0, чтобы сбросить на значения по умолчанию.</string>
     <string name="no_contact_with_custom_privacy">Нет контакта с приватностью!</string>
-    <string name="show_chat_broadcast_icon">Show chat broadcast icon</string>
-    <string name="show_chat_broadcast_icon_sum">Shows an icon if the contact sent a message via broadcast</string>
+    <string name="show_chat_broadcast_icon">Показать значок чата</string>
+    <string name="show_chat_broadcast_icon_sum">Показывает значок, если контакт отправил сообщение через трансляцию</string>
+    <string name="select_contacts">Select Contacts</string>
 </resources>
