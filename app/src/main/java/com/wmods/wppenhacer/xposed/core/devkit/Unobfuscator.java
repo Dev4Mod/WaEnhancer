@@ -226,7 +226,7 @@ public class Unobfuscator {
         return UnobfuscatorCache.getInstance().getField(classLoader, () -> {
             var fmessage = loadFMessageClass(classLoader);
             var clazzData = dexkit.findClass(FindClass.create().matcher(ClassMatcher.create().addUsingString("UPDATE_MESSAGE_MAIN_BROADCAST_SCAN_SQL")));
-            if (clazzData.isEmpty()) return new Exception("BroadcastTag class not found");
+            if (clazzData.isEmpty()) throw new Exception("BroadcastTag class not found");
             var methodData = dexkit.findMethod(FindMethod.create().searchInClass(clazzData).matcher(MethodMatcher.create().usingStrings("participant_hash", "view_mode", "broadcast")));
             if (methodData.isEmpty()) throw new Exception("BroadcastTag method support not found");
             var usingFields = methodData.get(0).getUsingFields();
@@ -700,7 +700,7 @@ public class Unobfuscator {
 
     public synchronized static Field loadAntiRevokeChatJidField(ClassLoader loader) throws Exception {
         return UnobfuscatorCache.getInstance().getField(loader, () -> {
-            Class<?> chatClass = findFirstClassUsingStrings(loader, StringMatchType.Contains, "payment_chat_composer_entry_nux_shown");
+            Class<?> chatClass = findFirstClassUsingStrings(loader, StringMatchType.Contains, "conversation/createconversation");
             Class<?> jidClass = XposedHelpers.findClass("com.whatsapp.jid.Jid", loader);
             Field field = ReflectionUtils.getFieldByExtendType(chatClass, jidClass);
             if (field == null) throw new Exception("AntiRevokeChatJid field not found");
@@ -1585,22 +1585,10 @@ public class Unobfuscator {
     }
 
     public synchronized static Method loadTextStatusComposer(ClassLoader classLoader) throws Exception {
-        return UnobfuscatorCache.getInstance().getMethod(classLoader, () -> {
-            var method1 = View.class.getDeclaredMethod("setBackgroundColor", int.class);
-            Class<?> TextStatusComposerFragmentClass = classLoader.loadClass("com.whatsapp.statuscomposer.composer.TextStatusComposerFragment");
-            var fieldInt = ReflectionUtils.findFieldUsingFilter(TextStatusComposerFragmentClass, field -> field.getType() == int.class);
-            var classData = dexkit.getClassData(TextStatusComposerFragmentClass);
-            if (classData == null) throw new RuntimeException("TextStatusComposer class not found");
-
-            var methods = classData.findMethod(FindMethod.create().matcher(MethodMatcher.create()
-                    .addInvoke(DexSignUtil.getMethodDescriptor(method1))
-                    .addUsingField(DexSignUtil.getFieldDescriptor(fieldInt))
-                    .modifiers(Modifier.PUBLIC | Modifier.STATIC)
-            ));
-            if (methods.isEmpty())
-                throw new RuntimeException("TextStatusComposer method not found");
-            return methods.get(methods.size() - 1).getMethodInstance(classLoader);
-        });
+        var methods = dexkit.findMethod(FindMethod.create().matcher(MethodMatcher.create().addUsingString("background_color_key", StringMatchType.Equals).paramCount(1)));
+        if (methods.isEmpty())
+            return null;
+        return methods.single().getMethodInstance(classLoader);
     }
 
     public synchronized static Method loadTextStatusComposer2(ClassLoader classLoader) throws Exception {

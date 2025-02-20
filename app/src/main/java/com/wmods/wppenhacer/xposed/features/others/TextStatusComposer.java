@@ -1,5 +1,6 @@
 package com.wmods.wppenhacer.xposed.features.others;
 
+import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.EditText;
@@ -11,6 +12,7 @@ import com.wmods.wppenhacer.xposed.core.Feature;
 import com.wmods.wppenhacer.xposed.core.WppCore;
 import com.wmods.wppenhacer.xposed.core.devkit.Unobfuscator;
 import com.wmods.wppenhacer.xposed.utils.ReflectionUtils;
+import com.wmods.wppenhacer.xposed.utils.ResId;
 import com.wmods.wppenhacer.xposed.utils.Utils;
 
 import java.lang.reflect.Field;
@@ -23,6 +25,7 @@ import de.robv.android.xposed.XposedHelpers;
 
 public class TextStatusComposer extends Feature {
     private static final AtomicReference<ColorData> colorData = new AtomicReference<>();
+    private static final AtomicReference<Object> textComposerModel = new AtomicReference<>();
 
     public TextStatusComposer(@NonNull ClassLoader classLoader, @NonNull XSharedPreferences preferences) {
         super(classLoader, preferences);
@@ -34,6 +37,27 @@ public class TextStatusComposer extends Feature {
 
         var setColorTextComposer = Unobfuscator.loadTextStatusComposer(classLoader);
         log("setColorTextComposer: " + Unobfuscator.getMethodDescriptor(setColorTextComposer));
+
+        if (setColorTextComposer != null) {
+            XposedBridge.hookAllConstructors(setColorTextComposer.getDeclaringClass(), new XC_MethodHook() {
+                @Override
+                protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
+                    textComposerModel.set(param.thisObject);
+                }
+            });
+            var arrMethod = ReflectionUtils.findMethodUsingFilter(setColorTextComposer.getDeclaringClass(), method -> method.getParameterCount() == 1 && method.getParameterTypes()[0] == int.class && method.getReturnType() == int.class);
+            XposedBridge.hookMethod(arrMethod, new XC_MethodHook() {
+                @Override
+                protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
+                    try {
+                        param.setResult(XposedBridge.invokeOriginalMethod(param.method, param.thisObject, param.args));
+                    } catch (Exception e) {
+                        param.setResult(ResId.string.app_name);
+                    }
+                }
+            });
+        }
+
         var clazz = XposedHelpers.findClass("com.whatsapp.statuscomposer.composer.TextStatusComposerFragment", classLoader);
         var methodOnCreate = ReflectionUtils.findMethodUsingFilter(clazz, method -> method.getParameterCount() == 2 && method.getParameterTypes()[0] == Bundle.class && method.getParameterTypes()[1] == View.class);
         XposedBridge.hookMethod(methodOnCreate,
@@ -49,9 +73,17 @@ public class TextStatusComposer extends Feature {
                         pickerColor.setOnLongClickListener(v -> {
                             var dialog = new SimpleColorPickerDialog(activity, color -> {
                                 try {
-                                    Field fieldInt = ReflectionUtils.findFieldUsingFilter(param.thisObject.getClass(), field -> field.getType() == int.class);
-                                    fieldInt.setInt(param.thisObject, color);
-                                    ReflectionUtils.callMethod(setColorTextComposer, null, param.thisObject);
+                                    if (setColorTextComposer != null) {
+                                        var mInstance = textComposerModel.get();
+                                        ReflectionUtils.callMethod(setColorTextComposer, mInstance, color);
+                                    } else {
+                                        Field fieldInt = ReflectionUtils.getFieldByType(param.thisObject.getClass(), int.class);
+                                        fieldInt.setInt(param.thisObject, color);
+                                    }
+                                    activity.getWindow().setBackgroundDrawable(new ColorDrawable(color));
+                                    var controls = viewRoot.findViewById(Utils.getID("controls", "id"));
+                                    controls.setBackgroundColor(color);
+
                                 } catch (Exception e) {
                                     log(e);
                                 }
