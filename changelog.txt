@@ -1,7 +1,14 @@
 [BUGS FIXED]
-* Fixed a bug that prevented buttons from appearing in the status menu
-* Fixed a bug where the user's bio and name did not appear in the home screen
-* Fixed a bug in button seen all statuses
+* Fixed bug in deleted status visualization @frknkrc44
+* Fixed bug in pinned chats limit
 
-[WHATSAPP]
-* Improvements in compatibility with whatsapp beta 2.25.3.XX (however, it will only be added to compatible versions when the stable version is released)
+[BUGS FIXED IN WA BETA 2.25.4.XX]
+* Fixed bug when getting contact numbers from chats
+* Fixed bug when changing text color in Text Status
+* Fixed bug in IGStatus where contact data wasn't showing
+
+[IMPROVEMENTS]
+* Disabled new media picker design (This was preventing you from selecting photos using the gallery)
+
+[WA Enhancer]
+* Updated translations
