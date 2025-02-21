@@ -264,4 +264,10 @@ public class ReflectionUtils {
         return false;
     }
 
+    public static <T> T getArg(Object[] args, Class<T> typeClass, int i) {
+        var list = findArrayOfType(args, typeClass);
+        if (list.size() <= i) throw new IllegalArgumentException("Index out of bounds for args");
+        return typeClass.cast(list.get(i).second);
+    }
+
 }
