@@ -307,6 +307,7 @@ public class WppCore {
     public static String getCurrentRawJID() {
         try {
             var conversation = getCurrentConversation();
+            if (conversation == null) return null;
             var chatField = convChatField.get(conversation);
             var chatJidObj = chatJidField.get(chatField);
             return getRawString(chatJidObj);

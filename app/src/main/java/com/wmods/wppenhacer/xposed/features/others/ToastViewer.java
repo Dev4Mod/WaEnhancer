@@ -8,9 +8,12 @@ import androidx.annotation.NonNull;
 
 import com.wmods.wppenhacer.xposed.core.Feature;
 import com.wmods.wppenhacer.xposed.core.WppCore;
+import com.wmods.wppenhacer.xposed.core.components.FMessageWpp;
 import com.wmods.wppenhacer.xposed.core.db.MessageStore;
 import com.wmods.wppenhacer.xposed.core.devkit.Unobfuscator;
 import com.wmods.wppenhacer.xposed.features.general.Tasker;
+import com.wmods.wppenhacer.xposed.utils.DebugUtils;
+import com.wmods.wppenhacer.xposed.utils.ReflectionUtils;
 import com.wmods.wppenhacer.xposed.utils.ResId;
 import com.wmods.wppenhacer.xposed.utils.Utils;
 
@@ -21,6 +24,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicReference;
 
 import de.robv.android.xposed.XC_MethodHook;
 import de.robv.android.xposed.XSharedPreferences;
@@ -47,21 +51,32 @@ public class ToastViewer extends Feature {
         XposedBridge.hookMethod(onInsertReceipt, new XC_MethodHook() {
             @Override
             protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
-                var type = (int) param.args[1];
-                var id = (long) param.args[2];
+                DebugUtils.debugArgs(param.args);
+                int type = ReflectionUtils.getArg(param.args, Integer.class, 0);
+                long id = ReflectionUtils.getArg(param.args, Long.class, 0);
                 if (type != 13) return;
-                var PhoneUserJid = param.args[0];
+                var jidClass = classLoader.loadClass("com.whatsapp.jid.Jid");
+                var PhoneUserJid = ReflectionUtils.getArg(param.args, jidClass, 0);
+                AtomicReference<Object> fmessage = new AtomicReference<>();
+                try {
+                    fmessage.set(ReflectionUtils.getArg(param.args, FMessageWpp.TYPE, 0));
+                } catch (Exception ignored) {
+                }
                 CompletableFuture.runAsync(() -> {
                     var raw = WppCore.getRawString(PhoneUserJid);
                     var UserJid = WppCore.createUserJid(raw);
                     var contactName = WppCore.getContactName(UserJid);
+                    var rowId = id;
 
                     if (TextUtils.isEmpty(contactName)) contactName = WppCore.stripJID(raw);
 
                     var sql = MessageStore.getInstance().getDatabase();
 
-                    checkDataBase(sql, id, contactName, raw, toastViewedMessage, toastViewedStatus);
+                    if (fmessage.get() != null) {
+                        rowId = new FMessageWpp(fmessage.get()).getRowId();
+                    }
 
+                    checkDataBase(sql, rowId, contactName, raw, toastViewedMessage, toastViewedStatus);
                 });
             }
         });
@@ -75,9 +90,12 @@ public class ToastViewer extends Feature {
 
     private synchronized void checkDataBase(SQLiteDatabase sql, long id, String contactName, String raw, boolean toastViewedMessage, boolean toast_viewed_status) {
         try (var result2 = sql.query("message", null, "_id = ?", new String[]{String.valueOf(id)}, null, null, null)) {
+            log(result2);
             if (!result2.moveToNext()) return;
+            log("OK1");
 
             var participantHash = result2.getString(result2.getColumnIndexOrThrow("participant_hash"));
+            log(participantHash);
             if (participantHash != null) {
                 if (toast_viewed_status) {
                     Utils.showToast(Utils.getApplication().getString(ResId.string.viewed_your_status, contactName), Toast.LENGTH_LONG);
