@@ -104,7 +104,7 @@ public class SeenTick extends Feature {
         // hook conversation screen
 
         WppCore.addListenerActivity((activity, type) -> {
-            if (activity.getClass().getSimpleName().equals("Conversation") && (type == WppCore.ActivityChangeState.ChangeType.START || type == WppCore.ActivityChangeState.ChangeType.RESUME)) {
+            if (activity.getClass().getSimpleName().equals("Conversation") && (type == WppCore.ActivityChangeState.ChangeType.STARTED || type == WppCore.ActivityChangeState.ChangeType.RESUMED)) {
                 var jid = WppCore.getCurrentRawJID();
                 if (!Objects.equals(jid, currentJid)) {
                     currentJid = jid;

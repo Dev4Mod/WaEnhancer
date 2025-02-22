@@ -464,7 +464,7 @@ public class WppCore {
         void onChange(Activity activity, ChangeType type);
 
         enum ChangeType {
-            START, END, RESUME, PAUSE
+            CREATED, STARTED, ENDED, RESUMED, PAUSED
         }
     }
 

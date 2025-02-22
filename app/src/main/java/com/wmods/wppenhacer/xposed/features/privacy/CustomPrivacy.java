@@ -71,7 +71,7 @@ public class CustomPrivacy extends Feature {
                 @Override
                 public void onChange(Activity activity, ChangeType type) {
                     try {
-                        if (type != ChangeType.START) return;
+                        if (type != ChangeType.STARTED) return;
                         if (!ContactInfoActivityClass.isInstance(activity) && !GroupInfoActivityClass.isInstance(activity))
                             return;
                         if (activity.findViewById(0x7f0a9999) != null) return;

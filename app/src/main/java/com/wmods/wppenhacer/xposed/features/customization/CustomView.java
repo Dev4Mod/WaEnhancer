@@ -83,6 +83,40 @@ public class CustomView extends Feature {
         super(loader, preferences);
     }
 
+    private static void changeDPI(Activity activity, XSharedPreferences prefs, Properties properties) {
+
+        String dpiStr = null;
+        if (!Objects.equals(prefs.getString("change_dpi", "0"), "0")) {
+            dpiStr = prefs.getString("change_dpi", "0");
+        } else if (properties.getProperty("change_dpi") != null) {
+            dpiStr = properties.getProperty("change_dpi");
+        }
+
+        if (dpiStr == null) return;
+
+        int dpi = 0;
+        try {
+            dpi = Integer.parseInt(dpiStr);
+        } catch (NumberFormatException e) {
+            XposedBridge.log("Error parsing dpi: " + e.getMessage());
+        }
+        if (dpi != 0) {
+            dpi = dpi == 0 ? Integer.parseInt(properties.getProperty("change_dpi")) : dpi;
+            var res = activity.getResources();
+            DisplayMetrics runningMetrics = res.getDisplayMetrics();
+            DisplayMetrics newMetrics;
+            if (runningMetrics != null) {
+                newMetrics = new DisplayMetrics();
+                newMetrics.setTo(runningMetrics);
+            } else {
+                newMetrics = res.getDisplayMetrics();
+            }
+            newMetrics.density = dpi / 160f;
+            newMetrics.densityDpi = dpi;
+            res.getDisplayMetrics().setTo(newMetrics);
+        }
+    }
+
     @Override
     public void doHook() throws Throwable {
 
@@ -97,7 +131,10 @@ public class CustomView extends Feature {
 
         properties = Utils.extractProperties(prefs.getString("custom_css", ""));
 
-        changeDPI();
+        WppCore.addListenerActivity((activity1, type) -> {
+            if (type != WppCore.ActivityChangeState.ChangeType.CREATED) return;
+            changeDPI(activity1, prefs, properties);
+        });
 
         hookDrawableViews();
 
@@ -119,39 +156,6 @@ public class CustomView extends Feature {
 
     }
 
-    private void changeDPI() {
-
-        String dpiStr = null;
-        if (!Objects.equals(prefs.getString("change_dpi", "0"), "0")) {
-            dpiStr = prefs.getString("change_dpi", "0");
-        } else if (properties.getProperty("change_dpi") != null) {
-            dpiStr = properties.getProperty("change_dpi");
-        }
-
-        if (dpiStr == null) return;
-
-        int dpi = 0;
-        try {
-            dpi = Integer.parseInt(dpiStr);
-        } catch (NumberFormatException e) {
-            logDebug("Error parsing dpi: " + e.getMessage());
-        }
-        if (dpi != 0) {
-            dpi = dpi == 0 ? Integer.parseInt(properties.getProperty("change_dpi")) : dpi;
-            var res = Utils.getApplication().getResources();
-            DisplayMetrics runningMetrics = res.getDisplayMetrics();
-            DisplayMetrics newMetrics;
-            if (runningMetrics != null) {
-                newMetrics = new DisplayMetrics();
-                newMetrics.setTo(runningMetrics);
-            } else {
-                newMetrics = res.getDisplayMetrics();
-            }
-            newMetrics.density = dpi / 160f;
-            newMetrics.densityDpi = dpi;
-            res.getDisplayMetrics().setTo(newMetrics);
-        }
-    }
 
     private void hookDrawableViews() {
         XposedHelpers.findAndHookMethod(View.class, "setBackground", Drawable.class, new XC_MethodHook() {

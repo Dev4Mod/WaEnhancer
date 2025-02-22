@@ -184,19 +184,19 @@ public class FeatureLoader {
         Utils.init(loader);
         WppCore.addListenerActivity((activity, state) -> {
             // Check for Change Preferences
-            if (state == WppCore.ActivityChangeState.ChangeType.RESUME) {
+            if (state == WppCore.ActivityChangeState.ChangeType.RESUMED) {
                 checkUpdate(activity);
             }
 
             // Check for WAE Update
             if (App.isOriginalPackage() && pref.getBoolean("update_check", true)) {
-                if (activity.getClass().getSimpleName().equals("HomeActivity") && state == WppCore.ActivityChangeState.ChangeType.START) {
+                if (activity.getClass().getSimpleName().equals("HomeActivity") && state == WppCore.ActivityChangeState.ChangeType.STARTED) {
                     CompletableFuture.runAsync(new UpdateChecker(activity));
                 }
             }
         });
-
     }
+
 
     private static void checkUpdate(@NonNull Activity activity) {
         if (WppCore.getPrivBoolean("need_restart", false)) {

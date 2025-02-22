@@ -9,16 +9,21 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 public class WaCallback implements Application.ActivityLifecycleCallbacks {
+    private static void triggerActivityState(@NonNull Activity activity, WppCore.ActivityChangeState.ChangeType type) {
+        WppCore.listenerAcitivity.forEach((listener) -> listener.onChange(activity, type));
+    }
+
     @Override
     public void onActivityCreated(@NonNull Activity activity, @Nullable Bundle bundle) {
         WppCore.mCurrentActivity = activity;
+        triggerActivityState(activity, WppCore.ActivityChangeState.ChangeType.CREATED);
         WppCore.activities.add(activity);
     }
 
     @Override
     public void onActivityStarted(@NonNull Activity activity) {
         WppCore.mCurrentActivity = activity;
-        triggerActivityState(activity, WppCore.ActivityChangeState.ChangeType.START);
+        triggerActivityState(activity, WppCore.ActivityChangeState.ChangeType.STARTED);
         WppCore.activities.add(activity);
     }
 
@@ -27,24 +32,18 @@ public class WaCallback implements Application.ActivityLifecycleCallbacks {
     public void onActivityResumed(@NonNull Activity activity) {
         WppCore.mCurrentActivity = activity;
         WppCore.activities.add(activity);
-        triggerActivityState(activity, WppCore.ActivityChangeState.ChangeType.RESUME);
+        triggerActivityState(activity, WppCore.ActivityChangeState.ChangeType.RESUMED);
     }
 
     @Override
     public void onActivityPaused(@NonNull Activity activity) {
-        triggerActivityState(activity, WppCore.ActivityChangeState.ChangeType.PAUSE);
+        triggerActivityState(activity, WppCore.ActivityChangeState.ChangeType.PAUSED);
     }
 
     @Override
     public void onActivityStopped(@NonNull Activity activity) {
-        triggerActivityState(activity, WppCore.ActivityChangeState.ChangeType.END);
+        triggerActivityState(activity, WppCore.ActivityChangeState.ChangeType.ENDED);
         WppCore.activities.remove(activity);
-    }
-
-    private static void triggerActivityState(@NonNull Activity activity, WppCore.ActivityChangeState.ChangeType type) {
-        for (WppCore.ActivityChangeState listener : WppCore.listenerAcitivity) {
-            listener.onChange(activity, type);
-        }
     }
 
     @Override
