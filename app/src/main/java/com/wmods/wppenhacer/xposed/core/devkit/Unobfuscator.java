@@ -847,15 +847,12 @@ public class Unobfuscator {
     }
 
     public synchronized static Class<?> loadViewHolder(ClassLoader loader) throws Exception {
-        Class<?> classViewHolder = XposedHelpers.findClassIfExists("com.whatsapp.conversationslist.ViewHolder", loader);
-
-        // for 20.xx, the current implementation returns null
-        if (classViewHolder == null) {
+        return UnobfuscatorCache.getInstance().getClass(loader, () -> {
             Method method = findFirstMethodUsingStrings(loader, StringMatchType.Contains, "conversations/click/jid ");
-            classViewHolder = method.getParameterTypes()[0];
-        }
-
-        return classViewHolder;
+            if (method == null || method.getParameterCount() == 0)
+                throw new RuntimeException("ViewHolder not found!");
+            return method.getParameterTypes()[0];
+        });
     }
 
     public synchronized static Field loadViewHolderField1(ClassLoader loader) throws Exception {
