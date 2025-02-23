@@ -24,6 +24,7 @@ import org.luckypray.dexkit.query.FindMethod;
 import org.luckypray.dexkit.query.enums.StringMatchType;
 import org.luckypray.dexkit.query.matchers.ClassMatcher;
 import org.luckypray.dexkit.query.matchers.MethodMatcher;
+import org.luckypray.dexkit.query.matchers.MethodsMatcher;
 import org.luckypray.dexkit.query.matchers.base.OpCodesMatcher;
 import org.luckypray.dexkit.result.ClassData;
 import org.luckypray.dexkit.result.ClassDataList;
@@ -763,12 +764,20 @@ public class Unobfuscator {
                     ClassMatcher.create().methodCount(1).addFieldForType(class1)
             ));
             if (classView.isEmpty()) classView = dexkit.findClass(FindClass.create().matcher(
-                    ClassMatcher.create().methodCount(1, 2)
-                            .addMethod(MethodMatcher.create().paramTypes(View.class, boolean.class, boolean.class))
+                    ClassMatcher.create()
+                            .addMethod(MethodMatcher.create().invokeMethods(
+                                    MethodsMatcher.create().methods(
+                                            Collections.singletonList(
+                                                    MethodMatcher.create().declaredClass(ClassMatcher.create().addUsingString("INVOKE_RETURN"))
+                                                            .paramTypes(View.class, int.class)
+                                            )
+                                    )
+                            ))
                             .addFieldForType(class1)
             ));
             if (classView.isEmpty()) throw new Exception("StatusPlaybackView field not found");
-            Class<?> clsViewStatus = classView.get(0).getInstance(loader);
+            Class<?> clsViewStatus = classView.single(classData -> classData.getSuperClass().getSimpleName().equals("Object")).getInstance(loader);
+            if (classView.isEmpty()) throw new Exception("StatusPlaybackView field not found 2");
             Class<?> class2 = XposedHelpers.findClass("com.whatsapp.status.playback.fragment.StatusPlaybackBaseFragment", loader);
             return Arrays.stream(class2.getDeclaredFields()).filter(f -> f.getType() == clsViewStatus).findFirst().orElse(null);
         });
@@ -1585,10 +1594,22 @@ public class Unobfuscator {
     }
 
     public synchronized static Method loadTextStatusComposer(ClassLoader classLoader) throws Exception {
-        var methods = dexkit.findMethod(FindMethod.create().matcher(MethodMatcher.create().addUsingString("background_color_key", StringMatchType.Equals).paramCount(1)));
-        if (methods.isEmpty())
-            return null;
-        return methods.single().getMethodInstance(classLoader);
+        return UnobfuscatorCache.getInstance().getMethod(classLoader, () -> {
+            var methods = dexkit.findMethod(FindMethod.create().matcher(MethodMatcher.create().addUsingString("background_color_key", StringMatchType.Equals)));
+            for (MethodData method : methods) {
+                var targetMethod =  method.getDeclaredClass().findMethod(
+                        FindMethod.create().matcher(
+                                MethodMatcher.create().returnType(int.class).paramCount(1)
+                        )
+                );
+
+                if (!targetMethod.isEmpty()) {
+                    return targetMethod.single().getMethodInstance(classLoader);
+                }
+            }
+
+            throw new RuntimeException("TextStatusComposer class not found");
+        });
     }
 
     public synchronized static Method loadTextStatusComposer2(ClassLoader classLoader) throws Exception {

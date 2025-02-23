@@ -47,8 +47,9 @@ public class ToastViewer extends Feature {
         XposedBridge.hookMethod(onInsertReceipt, new XC_MethodHook() {
             @Override
             protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
-                var type = (int) param.args[1];
-                var id = (long) param.args[2];
+                var param1IsInt = param.args[1] instanceof Integer; // true if WA < 25.4
+                var type = (int) param.args[param1IsInt ? 1 : 2];
+                var id = (long) param.args[param1IsInt ? 2 : 3];
                 if (type != 13) return;
                 var PhoneUserJid = param.args[0];
                 CompletableFuture.runAsync(() -> {
