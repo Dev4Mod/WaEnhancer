@@ -1,9 +1,10 @@
 [BUGS FIXED]
 * Fixed bug when selecting DPI that wasn't working.
 * Fixed bug in the message viewing Toast.
+* Fixed bug in text composer not found.
 
 [WHATSAPP]
-* Added support for WhatsApp 2.25.4.XX (thanks for frknkrc44)
+* Added support for WhatsApp Normal and Business 2.25.4.XX (thanks for frknkrc44)
 
 [IMPROVEMENTS]
 * The vertical style button and Facebook style button for stories were removed and unified into a single button.
