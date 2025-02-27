@@ -30,18 +30,23 @@
         <item>2</item>
     </string-array>
 
-    <string-array name="fbstyle_entries">
+    <string-array name="status_style_entries">
         <item>@string/disabled</item>
-        <item>@string/one_row</item>
-        <item>@string/two_row</item>
+        <item>Facebook Style (1 row)</item>
+        <item>Facebook Style (Table)</item>
+        <item>Status Vertical (No Preview)</item>
+        <item>Status Vertical (Circle)</item>
+        <item>Status Vertical (Square)</item>
     </string-array>
 
-    <string-array name="fbstyle_values">
+    <string-array name="status_style_values">
         <item>0</item>
         <item>1</item>
-        <item>2</item>
+        <item>5</item>
+        <item>4</item>
+        <item>3</item>
+        <item>9</item>
     </string-array>
-
 
     <string-array name="tabshide_contents">
         <item>@string/updates</item>

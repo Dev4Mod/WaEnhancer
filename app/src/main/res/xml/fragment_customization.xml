@@ -216,16 +216,11 @@
 
         <ListPreference
             android:defaultValue="0"
-            android:entries="@array/fbstyle_entries"
-            android:entryValues="@array/fbstyle_values"
-            app:key="facebookstyle"
-            app:summary="@string/enable_facebook_style_for_status_sum"
-            app:title="@string/enable_facebook_style_for_status" />
-
-        <rikka.material.preference.MaterialSwitchPreference
-            android:summary="@string/vertical_status_sum"
-            app:key="verticalstatus"
-            app:title="@string/vertical_status" />
+            android:entries="@array/status_style_entries"
+            android:entryValues="@array/status_style_values"
+            app:key="status_style"
+            app:summary="@string/style_of_stories_status_sum"
+            app:title="@string/style_of_stories_status" />
 
         <rikka.material.preference.MaterialSwitchPreference
             app:key="oldstatus"

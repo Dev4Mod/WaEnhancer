@@ -60,7 +60,7 @@ public class Others extends Feature {
         var strokeButtons = prefs.getBoolean("strokebuttons", false);
         var outlinedIcons = prefs.getBoolean("outlinedicons", false);
         var filterSeen = prefs.getBoolean("filterseen", false);
-        var fbstyle = Integer.parseInt(prefs.getString("facebookstyle", "0"));
+        var status_style = Integer.parseInt(prefs.getString("status_style", "0"));
         var metaai = prefs.getBoolean("metaai", false);
         var topnav = prefs.getBoolean("topnav", false);
         var proximity = prefs.getBoolean("proximity_audios", false);
@@ -73,7 +73,6 @@ public class Others extends Feature {
         var audio_transcription = prefs.getBoolean("audio_transcription", false);
         var oldStatus = prefs.getBoolean("oldstatus", false);
         var igstatus = prefs.getBoolean("igstatus", false);
-        var verticalStatus = prefs.getBoolean("verticalstatus", false);
         var animationEmojis = prefs.getBoolean("animation_emojis", false);
 
         propsInteger.put(3877, oldStatus ? igstatus ? 2 : 0 : 2);
@@ -143,14 +142,13 @@ public class Others extends Feature {
             Others.propsBoolean.put(11596, true);
         }
 
-        if (verticalStatus) {
-            propsBoolean.put(6285, true);// fix crash bug in vertical status
-            propsInteger.put(8522, 3);
-            propsInteger.put(8521, 3);
-        } else {
-            propsInteger.put(8522, fbstyle);
-            propsInteger.put(8521, fbstyle);
-        }
+        // Whatsapp Status Style
+        status_style = oldStatus ? 0 : status_style;
+        propsInteger.put(9973, 1);
+        propsBoolean.put(6285, true);
+        propsInteger.put(8522, status_style);
+        propsInteger.put(8521, status_style);
+
 
         hookProps();
         hookMenuOptions(filterChats);
