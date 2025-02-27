@@ -411,5 +411,7 @@
     <string name="no_contact_with_custom_privacy">Nenhum contato com privacidade personalizada!</string>
     <string name="show_chat_broadcast_icon">Mostrar ícone de transmissão de chat</string>
     <string name="show_chat_broadcast_icon_sum">Mostra um ícone se o contato enviou uma mensagem por transmissão.</string>
-    <string name="select_contacts">Select Contacts</string>
+    <string name="select_contacts">Selecionar contatos</string>
+    <string name="style_of_stories_status">Style of Stories/Status</string>
+    <string name="style_of_stories_status_sum">Changes Stories/Status style to some models available on WhatsApp</string>
 </resources>

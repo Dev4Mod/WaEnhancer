@@ -413,5 +413,7 @@
     <string name="no_contact_with_custom_privacy">אין קשר עם פרטיות מותאמת אישית!</string>
     <string name="show_chat_broadcast_icon">הצג סמל של רשימת תפוצה בהודעה</string>
     <string name="show_chat_broadcast_icon_sum">מציג סמל אם איש הקשר שלח הודעה באמצעות רשימת תפוצה</string>
-    <string name="select_contacts">Select Contacts</string>
+    <string name="select_contacts">בחר אנשי קשר</string>
+    <string name="style_of_stories_status">Style of Stories/Status</string>
+    <string name="style_of_stories_status_sum">Changes Stories/Status style to some models available on WhatsApp</string>
 </resources>

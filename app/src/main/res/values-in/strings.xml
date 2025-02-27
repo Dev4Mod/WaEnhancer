@@ -420,5 +420,7 @@ Harap gunakan versi WhatsApp yang didukung!</string>
     <string name="no_contact_with_custom_privacy">Tidak ada kontak dengan privasi khusus!</string>
     <string name="show_chat_broadcast_icon">Tampilkan Ikon Siaran Obrolan</string>
     <string name="show_chat_broadcast_icon_sum">Menampilkan ikon jika kontak mengirim pesan melalui siaran</string>
-    <string name="select_contacts">Select Contacts</string>
+    <string name="select_contacts">Pilih Kontak</string>
+    <string name="style_of_stories_status">Style of Stories/Status</string>
+    <string name="style_of_stories_status_sum">Changes Stories/Status style to some models available on WhatsApp</string>
 </resources>
