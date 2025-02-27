@@ -1591,22 +1591,19 @@ public class Unobfuscator {
     }
 
     public synchronized static Method loadTextStatusComposer(ClassLoader classLoader) throws Exception {
-        return UnobfuscatorCache.getInstance().getMethod(classLoader, () -> {
-            var methods = dexkit.findMethod(FindMethod.create().matcher(MethodMatcher.create().addUsingString("background_color_key", StringMatchType.Equals)));
-            for (MethodData method : methods) {
-                var targetMethod =  method.getDeclaredClass().findMethod(
-                        FindMethod.create().matcher(
-                                MethodMatcher.create().returnType(int.class).paramCount(1)
-                        )
-                );
+        var methods = dexkit.findMethod(FindMethod.create().matcher(MethodMatcher.create().addUsingString("background_color_key", StringMatchType.Equals)));
+        for (MethodData method : methods) {
+            var targetMethod = method.getDeclaredClass().findMethod(
+                    FindMethod.create().matcher(
+                            MethodMatcher.create().returnType(int.class).paramCount(1)
+                    )
+            );
 
-                if (!targetMethod.isEmpty()) {
-                    return targetMethod.single().getMethodInstance(classLoader);
-                }
+            if (!targetMethod.isEmpty()) {
+                return targetMethod.single().getMethodInstance(classLoader);
             }
-
-            throw new RuntimeException("TextStatusComposer class not found");
-        });
+        }
+        return null;
     }
 
     public synchronized static Method loadTextStatusComposer2(ClassLoader classLoader) throws Exception {
