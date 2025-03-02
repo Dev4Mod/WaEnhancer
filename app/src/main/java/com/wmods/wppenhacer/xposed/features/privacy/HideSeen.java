@@ -95,9 +95,9 @@ public class HideSeen extends Feature {
                 var privacy = CustomPrivacy.getJSON(number);
                 var customHideRead = privacy.optBoolean("HideSeen", hideread);
                 if (WppCore.isGroup(jid)) {
-                    if (privacy.optBoolean("HideSeen", hideread_group))
+                    if (privacy.optBoolean("HideSeen", hideread_group) || ghostmode)
                         param.args[4] = null;
-                } else if (customHideRead) {
+                } else if (customHideRead || ghostmode) {
                     param.args[4] = null;
                 }
             }
@@ -110,9 +110,9 @@ public class HideSeen extends Feature {
                 var fMessage = new FMessageWpp(param.args[0]);
                 logDebug("MEDIA TYPE", fMessage.getMediaType());
                 var media_type = fMessage.getMediaType();  // 2 = voice note ; 82 = viewonce note voice; 42 = image view once; 43 = video view once
-                if (hideonceseen && (media_type == 82 || media_type == 42 || media_type == 43)) {
+                if ((hideonceseen || ghostmode) && (media_type == 82 || media_type == 42 || media_type == 43)) {
                     param.setResult(null);
-                } else if (hideaudioseen && media_type == 2) {
+                } else if ((hideaudioseen || ghostmode) && media_type == 2) {
                     param.setResult(null);
                 }
             }
@@ -126,9 +126,9 @@ public class HideSeen extends Feature {
                 if (set != null && !set.isEmpty()) {
                     var fMessage = new FMessageWpp(set.iterator().next());
                     var media_type = fMessage.getMediaType();  // 2 = voice note ; 82 = viewonce note voice; 42 = image view once; 43 = video view once
-                    if (hideonceseen && (media_type == 82 || media_type == 42 || media_type == 43)) {
+                    if ((hideonceseen || ghostmode) && (media_type == 82 || media_type == 42 || media_type == 43)) {
                         param.setResult(null);
-                    } else if (hideaudioseen && media_type == 2) {
+                    } else if ((hideaudioseen || ghostmode) && media_type == 2) {
                         param.setResult(null);
                     }
                 }

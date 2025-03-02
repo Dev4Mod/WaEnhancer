@@ -36,7 +36,6 @@ public class TagMessage extends Feature {
             protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
                 if (!prefs.getBoolean("hidetag", false)) return;
                 var arg = (long) param.args[0];
-                logDebug("arg: " + arg);
                 if (arg == 1) {
                     if (ReflectionUtils.isCalledFromClass(forwardClass)) {
                         param.args[0] = 0;

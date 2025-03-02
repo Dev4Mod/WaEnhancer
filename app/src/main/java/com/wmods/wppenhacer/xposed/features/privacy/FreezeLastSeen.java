@@ -19,7 +19,7 @@ public class FreezeLastSeen extends Feature {
     public void doHook() throws Exception {
         var freezeLastSeen = prefs.getBoolean("freezelastseen", false);
         var freezeLastSeenOption = WppCore.getPrivBoolean("freezelastseen", false);
-        var ghostmode = WppCore.getPrivBoolean("ghostmode", false);
+        var ghostmode = WppCore.getPrivBoolean("ghostmode", false) && prefs.getBoolean("ghostmode", false);
 
         if (freezeLastSeen || freezeLastSeenOption || ghostmode) {
             var method = Unobfuscator.loadFreezeSeenMethod(classLoader);
