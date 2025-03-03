@@ -58,7 +58,7 @@ public class ScopeHook {
                             } catch (Throwable ignored) {
                             }
                             var result = Utils.binderLocalScope(() -> {
-                                var uri = Uri.parse("content://com.wmods.waenhancer.hookprovider");
+                                var uri = Uri.parse("content://" + BuildConfig.APPLICATION_ID + ".hookprovider");
                                 return context.getContentResolver().call(uri, "getHookBinder", null, null);
                             });
                             param.setResult(result);

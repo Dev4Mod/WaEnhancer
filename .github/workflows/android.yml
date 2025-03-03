@@ -31,17 +31,26 @@ jobs:
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
 
-      - name: Build and test app
+      - name: Build all flavor variants
         run: |
-          ./gradlew assembleDebug -Pminify=true
+          ./gradlew assembleWhatsappDebug assembleBusinessDebug -Pminify=true
 
-      - name: Upload artifacts
+      - name: Get short SHA
+        run: echo "SHORT_SHA=`echo ${GITHUB_SHA} | cut -c1-8`" >> $GITHUB_ENV
+
+      - name: Upload WhatsApp flavor artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: debug-app ${{ steps.version.outputs.builddate }}
-          path: app/build/outputs/apk/debug/app-debug.apk
+          name: whatsapp-debug-app-${{ env.SHORT_SHA }}
+          path: app/build/outputs/apk/whatsapp/debug/app-whatsapp-debug.apk
 
-      - name: Post to channel
+      - name: Upload Business flavor artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: business-debug-app-${{ env.SHORT_SHA }}
+          path: app/build/outputs/apk/business/debug/app-business-debug.apk
+
+      - name: Post to Telegram channel
         if: ${{ success() && github.ref == 'refs/heads/master' && github.ref_type != 'tag' }}
         env:
           CHANNEL_ID: ${{ secrets.CHANNEL_ID }}
@@ -51,21 +60,24 @@ jobs:
         run: |
           if [ ! -z "${{ secrets.BOT_TOKEN }}" ]; then
             GITHUB_SHA_SHORT=$(git rev-parse --short HEAD)
-            export output=app/WaEnhancer_debug_$GITHUB_SHA_SHORT.apk
-            cp app/build/outputs/apk/debug/app-debug.apk $output
+            export output_whatsapp=app/WaEnhancer_$GITHUB_SHA_SHORT.apk
+            export output_business=app/WaEnhancer_Business_$GITHUB_SHA_SHORT.apk
+            cp app/build/outputs/apk/whatsapp/debug/app-whatsapp-debug.apk $output_whatsapp
+            cp app/build/outputs/apk/business/debug/app-business-debug.apk $output_business
             export LOG=$(cat changelog.txt)
             ESCAPED=$(python3 -c 'import json,os,urllib.parse; msg = json.dumps(os.getenv("LOG")); print(urllib.parse.quote(msg if len(msg) <= 1024 else json.dumps(os.getenv("COMMIT_URL"))))')
-            curl "https://api.telegram.org/bot${BOT_TOKEN}/sendMediaGroup?chat_id=${CHANNEL_ID}&media=%5B%7B%22type%22%3A%22document%22%2C%20%22media%22%3A%22attach%3A%2F%2Foutput%22%2C%22caption%22:${ESCAPED}%7D%5D" -F output="@$output"
+          
+            # Send WhatsApp variant
+            curl "https://api.telegram.org/bot${BOT_TOKEN}/sendMediaGroup?chat_id=${CHANNEL_ID}&media=%5B%7B%22type%22%3A%22document%22%2C%20%22media%22%3A%22attach%3A%2F%2Fwa%22%7D%2C%7B%22type%22%3A%22document%22%2C%20%22media%22%3A%22attach%3A%2F%2Fw4b%22%2C%22caption%22%3A${ESCAPED}%7D%5D" -F wa="@$output_whatsapp" -F w4b=$output_business
           fi
 
-      - name: Add SHORT_SHA env property with commit short sha
-        run: echo "SHORT_SHA=`echo ${GITHUB_SHA} | cut -c1-8`" >> $GITHUB_ENV
-
-      - name: Upload to release
+      - name: Upload to GitHub release
         uses: softprops/action-gh-release@v2
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           name: WaEnhancer ${{ env.SHORT_SHA }}
           body_path: changelog.txt
-          files: app/build/outputs/apk/debug/app-debug.apk
-          tag_name: pre-release-${{ env.SHORT_SHA }}
+          files: |
+            app/build/outputs/apk/whatsapp/debug/app-whatsapp-debug.apk
+            app/build/outputs/apk/business/debug/app-business-debug.apk
+          tag_name: debug-${{ env.SHORT_SHA }}

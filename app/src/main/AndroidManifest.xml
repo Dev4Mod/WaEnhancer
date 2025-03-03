@@ -90,7 +90,7 @@
 
         <provider
             android:name=".xposed.bridge.providers.HookProvider"
-            android:authorities="com.wmods.waenhancer.hookprovider"
+            android:authorities="${applicationId}.hookprovider"
             android:enabled="true"
             android:exported="true"
             tools:ignore="ExportedContentProvider" />

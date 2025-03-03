@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="scope">
+        <item>com.whatsapp.w4b</item>
+        <item>android</item>
+    </string-array>
+</resources>

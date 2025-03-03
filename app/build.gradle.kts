@@ -25,6 +25,20 @@ android {
     compileSdk = 35
     ndkVersion = "27.0.11902837 rc2"
 
+    flavorDimensions += "version"
+
+    productFlavors {
+        create("whatsapp") {
+            dimension = "version"
+            applicationIdSuffix = ""
+        }
+        create("business") {
+            dimension = "version"
+            applicationIdSuffix = ".w4b"
+            resValue("string", "app_name", "Wa Enhancer Business")
+        }
+    }
+
     defaultConfig {
         applicationId = "com.wmods.wppenhacer"
         minSdk = 28
@@ -153,29 +167,30 @@ configurations.all {
 }
 
 afterEvaluate {
-    tasks.findByName("installDebug")?.doLast {
-        runCatching {
-            runBlocking {
-                exec {
-                    commandLine(
-                        "adb",
-                        "shell",
-                        "am",
-                        "force-stop",
-                        project.properties["debug_package_name"]?.toString()
-                    )
+    listOf("installWhatsappDebug", "installBusinessDebug").forEach { taskName ->
+        tasks.findByName(taskName)?.doLast {
+            runCatching {
+                runBlocking {
+                    exec {
+                        commandLine(
+                            "adb",
+                            "shell",
+                            "am",
+                            "force-stop",
+                            project.properties["debug_package_name"]?.toString()
+                        )
+                    }
+                    delay(500)
+                    exec {
+                        commandLine(
+                            "adb",
+                            "shell",
+                            "am",
+                            "start",
+                            project.properties["debug_package_name"].toString() + "/com.whatsapp.HomeActivity"
+                        )
+                    }
                 }
-                delay(500)
-                exec {
-                    commandLine(
-                        "adb",
-                        "shell",
-                        "am",
-                        "start",
-                        project.properties["debug_package_name"].toString() + "/com.whatsapp.HomeActivity"
-                    )
-                }
-
             }
         }
     }
