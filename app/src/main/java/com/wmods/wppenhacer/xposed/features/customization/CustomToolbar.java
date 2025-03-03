@@ -4,8 +4,11 @@ import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.text.TextUtils;
+import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -15,13 +18,13 @@ import com.wmods.wppenhacer.xposed.core.Feature;
 import com.wmods.wppenhacer.xposed.core.WppCore;
 import com.wmods.wppenhacer.xposed.core.devkit.Unobfuscator;
 import com.wmods.wppenhacer.xposed.features.general.Others;
+import com.wmods.wppenhacer.xposed.utils.DesignUtils;
 import com.wmods.wppenhacer.xposed.utils.ReflectionUtils;
 import com.wmods.wppenhacer.xposed.utils.ResId;
 import com.wmods.wppenhacer.xposed.utils.Utils;
 
 import java.lang.reflect.Method;
 import java.text.SimpleDateFormat;
-import java.util.Arrays;
 import java.util.Date;
 import java.util.Locale;
 import java.util.Objects;
@@ -34,6 +37,7 @@ import de.robv.android.xposed.XposedHelpers;
 public class CustomToolbar extends Feature {
 
     private String mDateExpiration;
+    private static Method onMenuItemSelected;
 
     public CustomToolbar(ClassLoader loader, XSharedPreferences preferences) {
         super(loader, preferences);
@@ -44,41 +48,11 @@ public class CustomToolbar extends Feature {
         var showName = prefs.getBoolean("shownamehome", false);
         var showBio = prefs.getBoolean("showbiohome", false);
         var typeArchive = prefs.getString("typearchive", "0");
+        onMenuItemSelected = Unobfuscator.loadOnMenuItemSelected(classLoader);
         var methodHook = new MethodHook(showName, showBio, typeArchive);
         XposedHelpers.findAndHookMethod("com.whatsapp.HomeActivity", classLoader, "onCreate", Bundle.class, methodHook);
-        Others.propsBoolean.put(6481, false);
-        Others.propsBoolean.put(5353, true);
-        Others.propsBoolean.put(8735, false);
         expirationAboutInfo();
-        if (showName || showBio) {
-            disableNewLogo();
-        }
-    }
-
-    private void disableNewLogo() throws Exception {
-        var changeLogoMethod = Unobfuscator.loadChangeTitleLogoMethod(classLoader);
-        var changeLogoField = Unobfuscator.loadChangeTitleLogoField(classLoader);
-
-        XposedBridge.hookMethod(changeLogoMethod, new XC_MethodHook() {
-            @Override
-            protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
-                var idx = ReflectionUtils.findIndexOfType(param.args, Activity.class);
-                var homeActivity = (Activity) param.args[idx];
-                changeLogoField.setAccessible(true);
-                changeLogoField.set(homeActivity, Integer.valueOf(2));
-            }
-
-            @Override
-            protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-                var idx = ReflectionUtils.findIndexOfType(param.args, Activity.class);
-                var homeActivity = (Activity) param.args[idx];
-                var toolbar = (ViewGroup) homeActivity.findViewById(Utils.getID("toolbar", "id"));
-                var logo = toolbar.findViewById(Utils.getID("toolbar_logo_text", "id"));
-                if (logo != null) {
-                    logo.setVisibility(View.GONE);
-                }
-            }
-        });
+        Others.propsBoolean.put(6481, false);
     }
 
 
@@ -130,17 +104,17 @@ public class CustomToolbar extends Feature {
             this.typeArchive = typeArchive;
         }
 
-
         @Override
         protected void afterHookedMethod(MethodHookParam param) throws Throwable {
             var homeActivity = (Activity) param.thisObject;
-            var actionbar = XposedHelpers.callMethod(homeActivity, "getSupportActionBar");
-            var toolbar = (ViewGroup) homeActivity.findViewById(Utils.getID("toolbar", "id"));
+            var toolbar = homeActivity.findViewById(Utils.getID("toolbar", "id"));
             var logo = toolbar.findViewById(Utils.getID("toolbar_logo", "id"));
             var name = WppCore.getMyName();
             var bio = WppCore.getMyBio();
-            var nameWa = homeActivity.getPackageManager().getApplicationLabel(homeActivity.getApplicationInfo()).toString();
-
+            var window = (ViewGroup) homeActivity.getWindow().getDecorView();
+            var clazz = XposedHelpers.findClass("com.whatsapp.TabsPager", homeActivity.getClassLoader());
+            var fieldTab = ReflectionUtils.getFieldByType(homeActivity.getClass(), clazz);
+            var mTabInstance = fieldTab.get(homeActivity);
 
             if (typeArchive.equals("1")) {
                 var onMultiClickListener = new OnMultiClickListener(5, 500) {
@@ -164,33 +138,40 @@ public class CustomToolbar extends Feature {
 
             if (!showBio && !showName) return;
 
-            var methods = Arrays.stream(actionbar.getClass().getDeclaredMethods()).filter(m -> m.getParameterCount() == 1 && m.getParameterTypes()[0] == CharSequence.class).toArray(Method[]::new);
+            var parent = (ViewGroup) logo.getParent();
+            LinearLayout linearLayout = new LinearLayout(homeActivity);
+            linearLayout.setOrientation(LinearLayout.VERTICAL);
+            parent.addView(linearLayout);
 
-            methods[1].invoke(actionbar, showName ? name : nameWa);
-
+            var mTitle = new TextView(homeActivity);
+            mTitle.setText(showName ? name : "WhatsApp");
+            mTitle.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.MATCH_PARENT, 1f));
+            mTitle.setTextSize(20f);
+            mTitle.setTextColor(DesignUtils.getPrimaryTextColor());
+            linearLayout.addView(mTitle);
             if (showBio) {
-                methods[0].invoke(actionbar, bio);
+                TextView mSubtitle = new TextView(homeActivity);
+                mSubtitle.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.MATCH_PARENT));
+                mSubtitle.setText(bio);
+                mSubtitle.setTextSize(12f);
+                mSubtitle.setTextColor(DesignUtils.getPrimaryTextColor());
+                mSubtitle.setMarqueeRepeatLimit(-1);
+                mSubtitle.setEllipsize(TextUtils.TruncateAt.MARQUEE);
+                mSubtitle.setSingleLine();
+                mSubtitle.setSelected(true);
+                linearLayout.addView(mSubtitle);
+            } else {
+                mTitle.setGravity(Gravity.CENTER);
             }
+            parent.removeView(logo);
+            window.addView(logo);
 
-            XposedBridge.hookMethod(methods[1], new XC_MethodHook() {
+            XposedBridge.hookMethod(onMenuItemSelected, new XC_MethodHook() {
                 @Override
                 protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
-                    var name = WppCore.getMyName();
-                    var bio = WppCore.getMyBio();
-                    if (showBio && (param.args[0] == "" || param.args[0] == nameWa)) {
-                        ReflectionUtils.callMethod(methods[0], param.thisObject, bio);
-                    } else {
-                        ReflectionUtils.callMethod(methods[0], param.thisObject, "");
-                    }
-                    if (param.args[0] == "" || param.args[0] == nameWa) {
-                        param.args[0] = showName ? name : nameWa;
-                    }
-
-                    var layoutParams = logo.getLayoutParams();
-                    layoutParams.width = 1;
-                    layoutParams.height = 1;
-                    logo.setLayoutParams(layoutParams);
-
+                    if (mTabInstance != param.thisObject) return;
+                    var idxAtual = (int) param.args[0];
+                    linearLayout.setVisibility(idxAtual == 0 ? View.VISIBLE : View.GONE);
                 }
             });
         }
