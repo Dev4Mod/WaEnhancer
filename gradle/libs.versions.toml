@@ -1,5 +1,4 @@
 [versions]
-assemblyai-java = "4.0.1"
 bcpkix-jdk18on = "1.80"
 betterypermissionhelper = "1.0.3"
 filepicker = "9.2.5"
@@ -14,7 +13,6 @@ kotlin = "2.1.10"
 
 
 [libraries]
-assemblyai-java = { module = "com.assemblyai:assemblyai-java", version.ref = "assemblyai-java" }
 bcpkix-jdk18on = { module = "org.bouncycastle:bcpkix-jdk18on", version.ref = "bcpkix-jdk18on" }
 betterypermissionhelper = { module = "com.waseemsabir:betterypermissionhelper", version.ref = "betterypermissionhelper" }
 colorpicker = { module = "com.jaredrummler:colorpicker", version.ref = "colorpicker" }

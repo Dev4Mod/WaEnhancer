@@ -57,6 +57,6 @@ public class ChatFilters extends Feature {
     @NonNull
     @Override
     public String getPluginName() {
-        return "";
+        return "Chat Filters";
     }
 }
