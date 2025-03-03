@@ -107,7 +107,7 @@ public class CustomToolbar extends Feature {
         @Override
         protected void afterHookedMethod(MethodHookParam param) throws Throwable {
             var homeActivity = (Activity) param.thisObject;
-            var toolbar = homeActivity.findViewById(Utils.getID("toolbar", "id"));
+            ViewGroup toolbar = homeActivity.findViewById(Utils.getID("toolbar", "id"));
             var logo = toolbar.findViewById(Utils.getID("toolbar_logo", "id"));
             var name = WppCore.getMyName();
             var bio = WppCore.getMyBio();
@@ -141,7 +141,7 @@ public class CustomToolbar extends Feature {
             var parent = (ViewGroup) logo.getParent();
             LinearLayout linearLayout = new LinearLayout(homeActivity);
             linearLayout.setOrientation(LinearLayout.VERTICAL);
-            parent.addView(linearLayout);
+            toolbar.addView(linearLayout, 0);
 
             var mTitle = new TextView(homeActivity);
             mTitle.setText(showName ? name : "WhatsApp");
