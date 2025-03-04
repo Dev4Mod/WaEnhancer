@@ -26,7 +26,7 @@ import com.wmods.wppenhacer.xposed.core.components.SharedPreferencesWrapper;
 import com.wmods.wppenhacer.xposed.core.devkit.Unobfuscator;
 import com.wmods.wppenhacer.xposed.core.devkit.UnobfuscatorCache;
 import com.wmods.wppenhacer.xposed.features.customization.BubbleColors;
-import com.wmods.wppenhacer.xposed.features.customization.CustomTheme;
+import com.wmods.wppenhacer.xposed.features.customization.CustomThemeV2;
 import com.wmods.wppenhacer.xposed.features.customization.CustomTime;
 import com.wmods.wppenhacer.xposed.features.customization.CustomToolbar;
 import com.wmods.wppenhacer.xposed.features.customization.CustomView;
@@ -275,8 +275,8 @@ public class FeatureLoader {
                 BubbleColors.class,
                 CallPrivacy.class,
                 ActivityController.class,
-                CustomTheme.class,
-//                CustomThemeV2.class,
+//                CustomTheme.class,
+                CustomThemeV2.class,
                 ChatLimit.class,
                 SeparateGroup.class,
                 ShowOnline.class,

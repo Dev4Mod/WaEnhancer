@@ -2,6 +2,9 @@ package com.wmods.wppenhacer.xposed.features.customization;
 
 import static com.wmods.wppenhacer.utils.ColorReplacement.replaceColors;
 import static com.wmods.wppenhacer.utils.DrawableColors.replaceColor;
+import static com.wmods.wppenhacer.utils.IColors.backgroundColors;
+import static com.wmods.wppenhacer.utils.IColors.primaryColors;
+import static com.wmods.wppenhacer.utils.IColors.secondaryColors;
 import static de.robv.android.xposed.XposedHelpers.findAndHookConstructor;
 import static de.robv.android.xposed.XposedHelpers.findAndHookMethod;
 
@@ -66,7 +69,7 @@ public class CustomTheme extends Feature {
     @Override
     public void doHook() throws Exception {
         if (prefs.getBoolean("lite_mode", false)) return;
-        properties = Utils.extractProperties(prefs.getString("custom_css", ""));
+        properties = Utils.getProperties(prefs, "custom_css", "custom_filters");
         hookColors();
         hookWallpaper();
     }
@@ -167,38 +170,46 @@ public class CustomTheme extends Feature {
         }
 
         if (prefs.getBoolean("changecolor", false) || (Objects.equals(properties.getProperty("change_colors"), "true") && prefs.getBoolean("custom_filters", false))) {
-            for (var c : IColors.colors.keySet()) {
-                if (!primaryColor.equals("0") && DesignUtils.isValidColor(primaryColor)) {
-                    primaryColor = primaryColor.length() == 9 ? primaryColor : "#ff" + primaryColor.substring(1);
-                    switch (c) {
-                        case "00a884", "1da457", "21c063", "d9fdd3" ->
-                                IColors.colors.put(c, primaryColor.substring(3));
-                        case "#ff00a884", "#ff1da457", "#ff21c063", "#ff1daa61", "#ff25d366",
-                             "#ffd9fdd3", "#ff008069" -> IColors.colors.put(c, primaryColor);
-                        case "#ff103529", "#fff1f2f4" ->
-                                IColors.colors.put(c, "#66" + primaryColor.substring(3));
+            if (!primaryColor.equals("0") && DesignUtils.isValidColor(primaryColor)) {
+                primaryColor = primaryColor.length() == 9 ? primaryColor : "#ff" + primaryColor.substring(1);
+                for (var c : primaryColors.keySet()) {
+                    if (c.length() == 9) {
+                        primaryColors.put(c, primaryColor);
+                    } else {
+                        primaryColors.put(c, primaryColor.substring(3));
                     }
                 }
+            }
 
-                if (!backgroundColor.equals("0") && DesignUtils.isValidColor(backgroundColor)) {
-                    backgroundColor = backgroundColor.length() == 9 ? backgroundColor : "#ff" + backgroundColor.substring(1);
-                    switch (c) {
-                        case "0b141a", "0a1014" ->
-                                IColors.colors.put(c, backgroundColor.substring(3));
-                        case "#ff0b141a", "#ff111b21", "#ff000000", "#ff0a1014", "#ff10161a",
-                             "#ff12181c", "#ff20272b", "#ff3a484f" ->
-                                IColors.colors.put(c, backgroundColor);
+            if (!secondaryColor.equals("0") && DesignUtils.isValidColor(secondaryColor)) {
+                secondaryColor = secondaryColor.length() == 9 ? secondaryColor : "#ff" + secondaryColor.substring(1);
+                for (var c : secondaryColors.keySet()) {
+                    if (c.length() == 9) {
+                        secondaryColors.put(c, secondaryColor);
+                    } else {
+                        secondaryColors.put(c, secondaryColor.substring(3));
                     }
                 }
+            }
 
-                if (!secondaryColor.equals("0") && DesignUtils.isValidColor(secondaryColor)) {
-                    secondaryColor = secondaryColor.length() == 9 ? secondaryColor : "#ff" + secondaryColor.substring(1);
-                    if (c.equals("#ff202c33") || c.equals("#ff2a2f33")) {
-                        IColors.colors.put(c, secondaryColor);
+            if (!backgroundColor.equals("0") && DesignUtils.isValidColor(backgroundColor)) {
+                backgroundColor = backgroundColor.length() == 9 ? backgroundColor : "#ff" + backgroundColor.substring(1);
+                for (var c : backgroundColors.keySet()) {
+                    if (c.length() == 9) {
+                        backgroundColors.put(c, backgroundColor);
+                    } else {
+                        backgroundColors.put(c, backgroundColor.substring(3));
                     }
                 }
             }
         }
+
+        IColors.colors.putAll(primaryColors);
+        IColors.colors.putAll(secondaryColors);
+        IColors.colors.putAll(backgroundColors);
+        primaryColors.clear();
+        secondaryColors.clear();
+        backgroundColors.clear();
 
         findAndHookMethod(Activity.class.getName(), classLoader, "onCreate", Bundle.class, new XC_MethodHook() {
             @Override

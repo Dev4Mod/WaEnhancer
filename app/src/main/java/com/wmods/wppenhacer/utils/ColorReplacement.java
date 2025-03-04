@@ -2,9 +2,7 @@ package com.wmods.wppenhacer.utils;
 
 import static com.wmods.wppenhacer.utils.DrawableColors.replaceColor;
 import static com.wmods.wppenhacer.utils.IColors.parseColor;
-import static com.wmods.wppenhacer.xposed.features.customization.CustomTheme.loader1;
 import static de.robv.android.xposed.XposedHelpers.callMethod;
-import static de.robv.android.xposed.XposedHelpers.findClass;
 
 import android.graphics.PorterDuffColorFilter;
 import android.view.View;
@@ -27,8 +25,6 @@ public class ColorReplacement {
             Group.replace(viewGroup,colors);
         } else if (view instanceof ViewStub viewStub) {
             replaceColor(viewStub.getBackground(), colors);
-        } else if (view.getClass().equals(findClass("com.whatsapp.CircularProgressBar", loader1))) {
-            CircularProgressBar.replace(view,colors);
         }
     }
 

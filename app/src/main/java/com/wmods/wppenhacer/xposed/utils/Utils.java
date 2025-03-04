@@ -250,8 +250,11 @@ public class Utils {
                 });
     }
 
-    public static Properties extractProperties(String text) {
+    public static Properties getProperties(XSharedPreferences prefs, String key, String checkKey) {
         Properties properties = new Properties();
+        if (checkKey != null && !prefs.getBoolean(checkKey, false))
+            return properties;
+        String text = prefs.getString(key, "");
         Pattern pattern = Pattern.compile("^/\\*\\s*(.*?)\\s*\\*/", Pattern.DOTALL);
         Matcher matcher = pattern.matcher(text);
 
@@ -261,9 +264,9 @@ public class Utils {
 
             for (String line : lines) {
                 String[] keyValue = line.split("\\s*=\\s*");
-                String key = keyValue[0].strip();
+                String skey = keyValue[0].strip();
                 String value = keyValue[1].strip().replaceAll("^\"|\"$", ""); // Remove quotes, if any
-                properties.put(key, value);
+                properties.put(skey, value);
             }
         }
 

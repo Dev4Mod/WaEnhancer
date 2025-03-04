@@ -107,12 +107,10 @@ public abstract class BasePreferenceFragment extends PreferenceFragmentCompat im
         var lite_mode = mPrefs.getBoolean("lite_mode", false);
 
         if (lite_mode) {
-            setPreferenceState("changecolor", false);
             setPreferenceState("wallpaper", false);
             setPreferenceState("custom_filters", false);
             setPreferenceState("download_local", false);
         }
-
 
         if (Objects.equals(key, "thememode")) {
             var mode = Integer.parseInt(mPrefs.getString("thememode", "0"));

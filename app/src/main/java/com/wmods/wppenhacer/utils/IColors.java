@@ -7,51 +7,44 @@ import java.util.HashMap;
 public class IColors {
     public static HashMap<String, String> colors = new HashMap<>();
 
+    public static final HashMap<String, String> backgroundColors = new HashMap<>();
+    public static final HashMap<String, String> primaryColors = new HashMap<>();
+    public static final HashMap<String, String> secondaryColors = new HashMap<>();
 
     static {
-        // Primary color
-        colors.put("d9fdd3", "d9fdd3");
-        colors.put("#ff1daa61", "#ff1daa61");
-        colors.put("#ff103529", "#ff103529"); // darkest green color (background of new home buttons)
-        colors.put("1da457", "1da457");
-        colors.put("#ff1da457", "#ff1da457");
-        colors.put("00a884", "00a884");
-        colors.put("#ff00a884", "#ff00a884");
-        colors.put("#21c063", "#21c063");
-        colors.put("#ff21c063", "#ff21c063"); // bagde indicator, message indicator, date color, title color, image color
-        colors.put("#ff000000", "#ff000000"); // background
-        colors.put("#ff25d366", "#ff25d366"); // status indicator
-        colors.put("#ffd9fdd3", "#ffd9fdd3"); // nav bar color in light theme
-        colors.put("#ff15603e", "#ff15603e");  // nav bar color in light theme
-        colors.put("#fff1f2f4", "#fff1f2f4"); // nav bar color in light theme
-        colors.put("#ff008069", "#ff008069"); // header and buttons in light theme
 
-        colors.put("15603e", "15603e");
-//        colors.put("#0b141a", "#ff0b141a");
-
-        // background
-        colors.put("0a1014", "0a1014"); // background green color (above version 22)
-        colors.put("#ff0a1014", "#ff0a1014"); // background green color (above version 22)
-        colors.put("#ff10161a", "#ff10161a"); // background header green color (above version 22)
-        colors.put("#ff12181c", "#ff12181c"); // background header green color (above version 22)
-        colors.put("#ff20272b", "#ff20272b"); // background footer (above version 22)
-        colors.put("#ff3a484f", "#ff3a484f"); // background of Dialogs
-
-        colors.put("#ffffffff", "#ffffffff"); // background color in light theme
-        colors.put("#ff1b8755", "#ff1b8755"); // background toolbar color in light theme
+        // primary colors
+        primaryColors.put("00a884", "00a884");
+        primaryColors.put("1da457", "1da457");
+        primaryColors.put("21c063", "21c063");
+        primaryColors.put("d9fdd3", "d9fdd3");
+        primaryColors.put("#ff00a884", "#ff00a884");
+        primaryColors.put("#ff1da457", "#ff1da457");
+        primaryColors.put("#ff21c063", "#ff21c063");
+        primaryColors.put("#ff1daa61", "#ff1daa61");
+        primaryColors.put("#ff25d366", "#ff25d366");
+        primaryColors.put("#ffd9fdd3", "#ffd9fdd3");
+        primaryColors.put("#ff1b864b", "#ff1b864b");
 
 
-        // Secondary
-        colors.put("#ff202c33", "#ff202c33");
-        colors.put("#ff2a2f33", "#ff2a2f33");
+        // secundary colors
+        secondaryColors.put("#ff202c33", "#ff202c33");
+        secondaryColors.put("#ff2a2f33", "#ff2a2f33");
+        secondaryColors.put("#fff1f2f4", "#fff1f2f4");
+        secondaryColors.put("#ff103529", "#ff103529");
+        secondaryColors.put("#ff144d37", "#ff144d37");
+        secondaryColors.put("#ff1b8755", "#ff1b8755");
+        secondaryColors.put("#ff15603e", "#ff15603e");
 
-        // New theme color
-        colors.put("0b141a", "0b141a");
-        colors.put("#ff0b141a", "#ff0b141a");
-
-        // status bar
-        colors.put("#ff111b21", "#ff111b21");
-
+        // background colors
+        backgroundColors.put("0b141a", "0a1014");
+        backgroundColors.put("#ff0b141a", "#ff111b21");
+        backgroundColors.put("#ff111b21", "#ff111b21");
+        backgroundColors.put("#ff000000", "#ff000000");
+        backgroundColors.put("#ff0a1014", "#ff0a1014");
+        backgroundColors.put("#ff10161a", "#ff10161a");
+        backgroundColors.put("#ff12181c", "#ff12181c");
+        backgroundColors.put("#ff20272b", "#ff20272b");
     }
 
     public static int parseColor(String str) {

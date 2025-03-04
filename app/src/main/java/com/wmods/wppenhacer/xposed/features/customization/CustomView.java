@@ -129,7 +129,7 @@ public class CustomView extends Feature {
         if ((TextUtils.isEmpty(filter_itens) && TextUtils.isEmpty(folder_theme) && TextUtils.isEmpty(custom_css)) || !prefs.getBoolean("custom_filters", true))
             return;
 
-        properties = Utils.extractProperties(prefs.getString("custom_css", ""));
+        properties = Utils.getProperties(prefs, "custom_css", "custom_filters");
 
         WppCore.addListenerActivity((activity1, type) -> {
             if (type != WppCore.ActivityChangeState.ChangeType.CREATED) return;

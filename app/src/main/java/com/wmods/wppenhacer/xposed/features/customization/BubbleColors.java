@@ -42,7 +42,7 @@ public class BubbleColors extends Feature {
 
         if (prefs.getBoolean("lite_mode", false)) return;
 
-        Properties properties = Utils.extractProperties(prefs.getString("custom_css", ""));
+        Properties properties = Utils.getProperties(prefs, "custom_css", "custom_filters");
 
         if (!prefs.getBoolean("bubble_color", false) && !Objects.equals(properties.getProperty("bubble_colors"), "true"))
             return;

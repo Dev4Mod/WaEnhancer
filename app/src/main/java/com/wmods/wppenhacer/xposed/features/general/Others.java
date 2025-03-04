@@ -51,7 +51,7 @@ public class Others extends Feature {
 
         // receivedIncomingTimestamp
 
-        properties = Utils.extractProperties(prefs.getString("custom_css", ""));
+        properties = Utils.getProperties(prefs, "custom_css", "custom_filters");
 
         var novoTema = prefs.getBoolean("novotema", false);
         var menuWIcons = prefs.getBoolean("menuwicon", false);
