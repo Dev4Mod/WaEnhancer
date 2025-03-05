@@ -16,7 +16,6 @@ import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.ShapeDrawable;
 import android.graphics.drawable.shapes.RectShape;
-import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.DisplayMetrics;
 import android.util.Log;
@@ -142,18 +141,64 @@ public class CustomView extends Feature {
         filter_itens += "\n" + custom_css;
         cacheImages = new DrawableCache(Utils.getApplication(), 100 * 1024 * 1024);
         var sheet = CSSFactory.parseString(filter_itens, new URL("https://base.url/"));
+        registerView(sheet);
 
-        XposedHelpers.findAndHookMethod(Activity.class, "onCreate", Bundle.class, new XC_MethodHook() {
+    }
+
+    public void registerView(StyleSheet sheet) {
+        var mapIds = new HashMap<Integer, ArrayList<RuleItem>>();
+
+        try {
+            for (var selector : sheet) {
+                var ruleSet = (RuleSet) selector;
+                for (var selectorItem : ruleSet.getSelectors()) {
+                    var item = selectorItem.get(0);
+                    String className;
+                    String name;
+                    if ((className = item.getClassName()) != null) {
+                        className = className.replaceAll("_", ".").trim();
+                        var clazz = XposedHelpers.findClass(className, classLoader);
+                        if (clazz == null || !clazz.isInstance(WppCore.getCurrentActivity()))
+                            continue;
+                        name = selectorItem.get(1).getIDName().trim();
+                    } else {
+                        name = selectorItem.get(0).getIDName().trim();
+                    }
+                    int id = 0;
+                    if (name.contains("android_")) {
+                        try {
+                            id = android.R.id.class.getField(name.substring(8)).getInt(null);
+                        } catch (NoSuchFieldException | IllegalAccessException ignored) {
+                        }
+                    } else {
+                        id = Utils.getID(name, "id");
+                    }
+                    if (id <= 0) continue;
+                    var list = mapIds.getOrDefault(id, new ArrayList<>());
+                    list.add(new RuleItem(selectorItem, ruleSet));
+                    mapIds.put(id, list);
+                }
+            }
+        } catch (Throwable ignored) {
+        }
+        XposedHelpers.findAndHookMethod(View.class, "invalidate", boolean.class, new XC_MethodHook() {
             @Override
-            protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
-                var activity = (Activity) param.thisObject;
-                View rootView = activity.getWindow().getDecorView().getRootView();
-                rootView.getViewTreeObserver().addOnGlobalLayoutListener(() -> CompletableFuture.runAsync(() -> registerCssRules(activity, (ViewGroup) rootView, sheet), Utils.getExecutor()));
-
-
+            protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+                if (ReflectionUtils.isCalledFromClass(CustomView.class)) return;
+                var view = (View) param.thisObject;
+                var id = view.getId();
+                var list = mapIds.get(id);
+                if (list == null) return;
+                CompletableFuture.runAsync(() -> {
+                    for (var item : list) {
+                        try {
+                            setCssRule(view, item);
+                        } catch (Throwable ignored) {
+                        }
+                    }
+                }, Utils.getExecutor());
             }
         });
-
     }
 
 
@@ -190,44 +235,6 @@ public class CustomView extends Feature {
             }
         });
 
-    }
-
-
-    private void registerCssRules(Activity activity, ViewGroup currenView, StyleSheet sheet) {
-        try {
-            for (var selector : sheet) {
-                var ruleSet = (RuleSet) selector;
-                for (var selectorItem : ruleSet.getSelectors()) {
-                    var item = selectorItem.get(0);
-                    String className;
-                    String name;
-                    if ((className = item.getClassName()) != null) {
-                        className = className.replaceAll("_", ".").trim();
-                        var clazz = XposedHelpers.findClass(className, classLoader);
-                        if (clazz == null || !clazz.isInstance(activity)) continue;
-                        name = selectorItem.get(1).getIDName().trim();
-                    } else {
-                        name = selectorItem.get(0).getIDName().trim();
-                    }
-                    int id = 0;
-                    if (name.contains("android_")) {
-                        try {
-                            id = android.R.id.class.getField(name.substring(8)).getInt(null);
-                        } catch (NoSuchFieldException | IllegalAccessException ignored) {
-                        }
-                    } else {
-                        id = Utils.getID(name, "id");
-                    }
-                    if (id <= 0) continue;
-                    var view = currenView.findViewById(id);
-                    if (view == null || !view.isShown() || view.getVisibility() != View.VISIBLE || !view.isAttachedToWindow())
-                        continue;
-                    var ruleItem = new RuleItem(selectorItem, ruleSet);
-                    setCssRule(view, ruleItem);
-                }
-            }
-        } catch (Throwable ignored) {
-        }
     }
 
     private void setCssRule(View currentView, RuleItem ruleItem) {
@@ -364,6 +371,7 @@ public class CustomView extends Feature {
                         if (value.equals("cover")) {
                             if (view instanceof ImageView imageView) {
                                 imageView.setScaleType(ImageView.ScaleType.CENTER_CROP);
+                                XposedBridge.log("resize ImageView to cover");
                             } else {
                                 var drawable = view.getBackground();
                                 if (!(drawable instanceof BitmapDrawable)) continue;
@@ -371,13 +379,14 @@ public class CustomView extends Feature {
                                 var widthObj = XposedHelpers.getAdditionalInstanceField(view, "mWidth");
                                 var heightObj = XposedHelpers.getAdditionalInstanceField(view, "mHeight");
                                 if (widthObj != null && heightObj != null) {
-                                    if ((int) widthObj == view.getWidth() && (int) heightObj == view.getHeight())
+                                    if (Math.abs((int) widthObj - view.getWidth()) <= 20 && Math.abs((int) heightObj - view.getHeight()) <= 20) {
                                         continue;
+                                    }
                                 }
                                 var resizeDrawable = new BitmapDrawable(view.getContext().getResources(), Bitmap.createScaledBitmap(bitmap, view.getWidth(), view.getHeight(), true));
+                                view.setBackground(resizeDrawable);
                                 XposedHelpers.setAdditionalInstanceField(view, "mHeight", view.getHeight());
                                 XposedHelpers.setAdditionalInstanceField(view, "mWidth", view.getWidth());
-                                view.setBackground(resizeDrawable);
                             }
                         }
                     }
@@ -567,13 +576,16 @@ public class CustomView extends Feature {
         );
     }
 
-    private int getRealValue(TermLength value, int size) {
-        if (value.getUnit() == TermNumeric.Unit.px) {
-            return Utils.dipToPixels(value.getValue().intValue());
-        } else if (value.isPercentage()) {
-            return size * value.getValue().intValue() / 100;
+    private int getRealValue(TermLength pValue, int size) {
+        int value;
+        if (pValue.getUnit() == TermNumeric.Unit.px) {
+            value = Utils.dipToPixels(pValue.getValue().intValue());
+        } else if (pValue.isPercentage()) {
+            value = size * pValue.getValue().intValue() / 100;
+        } else {
+            value = pValue.getValue().intValue();
         }
-        return value.getValue().intValue();
+        return value > 0 ? value : 1;
     }
 
     private void captureSelector(View currentView, CombinedSelector selector, int position, ArrayList<View> resultViews) {
@@ -669,13 +681,14 @@ public class CustomView extends Feature {
                 File file = new File(filePath);
                 Bitmap bitmap;
                 if (!file.canRead()) {
-                    var parcelFile = WppCore.getClientBridge().openFile(filePath, false);
-                    bitmap = BitmapFactory.decodeStream(new FileInputStream(parcelFile.getFileDescriptor()));
+                    try (var parcelFile = WppCore.getClientBridge().openFile(filePath, false)) {
+                        bitmap = BitmapFactory.decodeStream(new FileInputStream(parcelFile.getFileDescriptor()));
+                    }
                 } else {
                     bitmap = BitmapFactory.decodeFile(file.getAbsolutePath());
                 }
-                var newHeight = reqHeight < 10 ? bitmap.getHeight() : Math.min(bitmap.getHeight(), reqHeight);
-                var newWidth = reqWidth < 10 ? bitmap.getWidth() : Math.min(bitmap.getWidth(), reqWidth);
+                var newHeight = reqHeight < 1 ? bitmap.getHeight() : Math.min(bitmap.getHeight(), reqHeight);
+                var newWidth = reqWidth < 1 ? bitmap.getWidth() : Math.min(bitmap.getWidth(), reqWidth);
                 bitmap = Bitmap.createScaledBitmap(bitmap, newWidth, newHeight, true);
                 return new BitmapDrawable(context.getResources(), bitmap);
             } catch (Exception e) {
