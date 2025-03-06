@@ -7,11 +7,6 @@
         app:title="@string/general">
 
         <rikka.material.preference.MaterialSwitchPreference
-            app:key="novotema"
-            app:summary="@string/novotema_sum"
-            app:title="@string/colors_title" />
-
-        <rikka.material.preference.MaterialSwitchPreference
             app:key="changecolor"
             app:summary="@string/colors_customization_sum"
             app:title="@string/colors_customization" />
@@ -36,11 +31,6 @@
             app:key="background_color"
             app:summary="@string/default_color"
             app:title="@string/background_color" />
-
-        <rikka.material.preference.MaterialSwitchPreference
-            app:key="topnav"
-            app:summary="@string/enable_top_navigation_sum"
-            app:title="@string/enable_top_navigation" />
 
         <rikka.material.preference.MaterialSwitchPreference
             app:key="wallpaper"
@@ -173,20 +163,12 @@
         app:iconSpaceReserved="false"
         app:title="@string/home_screen">
 
-        <rikka.material.preference.MaterialSwitchPreference
-            app:key="strokebuttons"
-            app:summary="@string/strokebuttons_sum"
-            app:title="@string/strokebuttons" />
 
         <rikka.material.preference.MaterialSwitchPreference
             app:key="menuwicon"
             app:summary="@string/menuwicon_sum"
             app:title="@string/menuwicon" />
 
-        <rikka.material.preference.MaterialSwitchPreference
-            app:key="outlinedicons"
-            app:summary="@string/outlinedicons_sum"
-            app:title="@string/outlinedicons" />
 
         <rikka.material.preference.MaterialSwitchPreference
             app:key="novaconfig"

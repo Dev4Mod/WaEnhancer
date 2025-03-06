@@ -19,7 +19,6 @@
     <string name="textonahora">Text next to Timestamp</string>
     <string name="viewonce">Unlimited View Once</string>
     <string name="viewonce_sum">Allows you to open view once media multiple times</string>
-    <string name="novotema_sum">Change the color and icon theme to the new WhatsApp theme</string>
     <string name="antirevokestatus">Anti-Delete Status</string>
     <string name="antirevokestatus_sum">View statuses that users have since deleted</string>
     <string name="hidereceipt">Hide Delivered</string>
@@ -31,7 +30,6 @@
     <string name="statusdowload_sum">Shows two buttons to share and download status</string>
     <string name="videoquality">HD Quality Videos</string>
     <string name="videoquality_sum">Send videos in HD quality, by default</string>
-    <string name="colors_title">Colors</string>
     <string name="colors_customization">Customize your colors</string>
     <string name="colors_customization_sum">Change all colors in your WhatsApp (Working only in Dark Theme)</string>
     <string name="general">General</string>
@@ -46,10 +44,6 @@
     <string name="novofiltro_sum">Choose between Search Icon, Search Bar, or No Search</string>
     <string name="menuwicon">Menu Icons</string>
     <string name="menuwicon_sum">Add icons next to menu options across the app</string>
-    <string name="strokebuttons">Buttons Stroke</string>
-    <string name="strokebuttons_sum">Stroke around some buttons on WhatsApp</string>
-    <string name="outlinedicons">Outlined Icons</string>
-    <string name="outlinedicons_sum">New outlined icons style</string>
     <string name="freezelastseen">Freeze Last Seen</string>
     <string name="freezelastseen_sum">Your last seen time will be frozen\n(CAUTION: You will not see any presence updates from other users, like typing, recording, online)</string>
     <string name="removeforwardlimit_sum">Remove forward limit for 5 chats (normal) and 1 chat (multiple times)\n(Note: Use with caution, you may be banned for spam)</string>
@@ -184,8 +178,6 @@
     <string name="enable_restart_button_sum">Add button in Home Screen to Restart App</string>
     <string name="toast_on_delete">Show toast notification on delete message</string>
     <string name="toast_on_delete_sum">Show toast notification if any contact deletes any message</string>
-    <string name="enable_top_navigation">Enable Top Navigation (Obsolete)</string>
-    <string name="enable_top_navigation_sum">Activate the old navigation bar (does not work for versions above Wpp 2.24.24 and will be removed soon)</string>
     <string name="hideread_group">Hide Blue Tick in Groups</string>
     <string name="hideread_group_sum">View messages in groups screen without users knowing</string>
     <string name="show_freezeLastSeen_button">Show Freeze Last Seen Button</string>
