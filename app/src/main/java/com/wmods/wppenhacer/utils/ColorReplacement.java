@@ -1,8 +1,6 @@
 package com.wmods.wppenhacer.utils;
 
 import static com.wmods.wppenhacer.utils.DrawableColors.replaceColor;
-import static com.wmods.wppenhacer.utils.IColors.parseColor;
-import static de.robv.android.xposed.XposedHelpers.callMethod;
 
 import android.graphics.PorterDuffColorFilter;
 import android.view.View;
@@ -11,8 +9,11 @@ import android.view.ViewStub;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.wmods.wppenhacer.xposed.utils.DesignUtils;
+
 import java.util.HashMap;
 
+import de.robv.android.xposed.XposedBridge;
 import de.robv.android.xposed.XposedHelpers;
 
 public class ColorReplacement {
@@ -20,7 +21,7 @@ public class ColorReplacement {
         if (view instanceof ImageView imageView) {
             Image.replace(imageView,colors);
         } else if (view instanceof TextView textView) {
-            Text.replace(textView,colors);
+            Text.replace(textView, colors);
         } else if (view instanceof ViewGroup viewGroup) {
             Group.replace(viewGroup,colors);
         } else if (view instanceof ViewStub viewStub) {
@@ -47,49 +48,30 @@ public class ColorReplacement {
                             view.setColorFilter(IColors.parseColor(sColorSub + newColor));
                     }
                 }
-            }/* else {
-                XposedBridge.log("Image replacement: " + colorFilter.getClass().getName());
-            }*/
-        }
-    }
-
-    public static class CircularProgressBar {
-        static void replace(Object view, HashMap<String, String> colors) {
-            var progressColor = (int) callMethod(view, "getProgressBarColor");
-            var progressBackgroundColor = (int) callMethod(view, "getProgressBarBackgroundColor");
-
-            var pcSColor = IColors.toString(progressColor);
-            var pcbSColor = IColors.toString(progressBackgroundColor);
-
-            var newPColor = colors.get(pcSColor);
-            var newPBColor = colors.get(pcbSColor);
-
-            if (newPColor != null) {
-                callMethod(view, "setProgressBarColor", parseColor(newPColor));
             }
-
-            if (newPBColor != null) {
-                callMethod(view, "setProgressBarBackgroundColor", parseColor(newPBColor));
-            }
-
         }
     }
 
     public static class Text {
         static void replace(TextView view, HashMap<String, String> colors) {
-            replaceColor(view.getBackground(), colors);
             var color = view.getCurrentTextColor();
             var sColor = IColors.toString(color);
+            if (sColor.equals("#ffffffff") && !DesignUtils.isNightMode()) {
+                return;
+            }
+            replaceColor(view.getBackground(), colors);
             var newColor = colors.get(sColor);
             if (newColor != null) {
-//                XposedBridge.log(sColor + "/" + newColor + ": " + view.getText());
                 view.setTextColor(IColors.parseColor(newColor));
+                XposedBridge.log("ColorReplacement.Text.replace: " + sColor + "->" + newColor);
             } else {
                 if (!sColor.startsWith("#ff") && !sColor.startsWith("#0")) {
                     var sColorSub = sColor.substring(0, 3);
                     newColor = colors.get(sColor.substring(3));
-                    if (newColor != null)
+                    if (newColor != null) {
                         view.setTextColor(IColors.parseColor(sColorSub + newColor));
+                        XposedBridge.log("ColorReplacement.Text.replace: " + sColor + "->" + newColor);
+                    }
                 }
             }
         }

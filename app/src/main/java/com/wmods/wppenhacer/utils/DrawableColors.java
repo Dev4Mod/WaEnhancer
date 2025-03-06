@@ -3,25 +3,19 @@ package com.wmods.wppenhacer.utils;
 import android.content.res.ColorStateList;
 import android.graphics.Bitmap;
 import android.graphics.NinePatch;
-import android.graphics.PorterDuff;
-import android.graphics.PorterDuffColorFilter;
-import android.graphics.drawable.ClipDrawable;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.DrawableContainer;
+import android.graphics.drawable.DrawableWrapper;
 import android.graphics.drawable.GradientDrawable;
 import android.graphics.drawable.InsetDrawable;
 import android.graphics.drawable.LayerDrawable;
 import android.graphics.drawable.LevelListDrawable;
 import android.graphics.drawable.NinePatchDrawable;
 import android.graphics.drawable.RippleDrawable;
-import android.graphics.drawable.RotateDrawable;
-import android.graphics.drawable.ScaleDrawable;
 import android.graphics.drawable.ShapeDrawable;
 import android.graphics.drawable.StateListDrawable;
 import android.graphics.drawable.TransitionDrawable;
-
-import com.wmods.wppenhacer.xposed.utils.DesignUtils;
 
 import java.util.HashMap;
 
@@ -34,10 +28,6 @@ public class DrawableColors {
 
     public static void replaceColor(Drawable drawable, HashMap<String, String> colors) {
         if (drawable == null) return;
-
-        if (DesignUtils.isNightMode()) {
-            colors.remove("#ffffffff");
-        }
 
         if (drawable instanceof StateListDrawable stateListDrawable) {
             var count = StateListDrawableCompact.getStateCount(stateListDrawable);
@@ -57,8 +47,8 @@ public class DrawableColors {
                 }
                 gradientDrawable.setColors(gradientColors);
             }
-        } else if (drawable instanceof InsetDrawable insetDrawable) {
-            replaceColor(insetDrawable.getDrawable(), colors);
+        } else if (drawable instanceof DrawableWrapper drawableWrapper) {
+            replaceColor(drawableWrapper.getDrawable(), colors);
         } else if (drawable instanceof NinePatchDrawable ninePatchDrawable) {
             var color = getNinePatchDrawableColor(ninePatchDrawable);
             var newColor = IColors.getFromIntColor(color, colors);
@@ -66,34 +56,14 @@ public class DrawableColors {
             ninePatchDrawable.setTintList(ColorStateList.valueOf(newColor));
         } else if (drawable instanceof ColorDrawable colorDrawable) {
             var color = getColorDrawableColor(colorDrawable);
-            colorDrawable.setColor(IColors.getFromIntColor(color, colors));
+            var newColor = IColors.getFromIntColor(color, colors);
+            if (newColor == color) return;
+            colorDrawable.setColor(newColor);
         } else if (drawable instanceof ShapeDrawable shapeDrawable) {
             var color = getShapeDrawableColor(shapeDrawable);
             var newColor = IColors.getFromIntColor(color, colors);
             if (color == newColor) return;
             shapeDrawable.getPaint().setColor(newColor);
-        } else if (drawable instanceof RippleDrawable rippleDrawable) {
-            var color = getRippleDrawableColor(rippleDrawable);
-            var newColor = IColors.getFromIntColor(color, colors);
-            if (color == newColor) return;
-            rippleDrawable.setColor(ColorStateList.valueOf(newColor));
-
-            // Also handle the content and mask drawables of the ripple
-            Drawable contentDrawable = rippleDrawable.getDrawable(0);
-            if (contentDrawable != null) {
-                replaceColor(contentDrawable, colors);
-            }
-
-            Drawable maskDrawable = rippleDrawable.getDrawable(1);
-            if (maskDrawable != null) {
-                replaceColor(maskDrawable, colors);
-            }
-        } else if (drawable instanceof ClipDrawable clipDrawable) {
-            replaceColor(clipDrawable.getDrawable(), colors);
-        } else if (drawable instanceof RotateDrawable rotateDrawable) {
-            replaceColor(rotateDrawable.getDrawable(), colors);
-        } else if (drawable instanceof ScaleDrawable scaleDrawable) {
-            replaceColor(scaleDrawable.getDrawable(), colors);
         } else if (drawable instanceof LevelListDrawable levelListDrawable) {
             int count = (int) XposedHelpers.callMethod(levelListDrawable, "getNumberOfLevels");
             for (int i = 0; i < count; i++) {
@@ -125,13 +95,7 @@ public class DrawableColors {
             for (var drawable1 : drawables) {
                 replaceColor(drawable1, colors);
             }
-        } else {
-            var color = getColor(drawable);
-            var newColor = IColors.getFromIntColor(color, colors);
-            if (color == newColor) return;
-            drawable.setColorFilter(new PorterDuffColorFilter(newColor, PorterDuff.Mode.SRC_IN));
         }
-
     }
 
     public static int getColor(Drawable drawable) {

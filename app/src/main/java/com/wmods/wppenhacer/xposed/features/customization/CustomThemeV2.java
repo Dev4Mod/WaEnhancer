@@ -48,6 +48,7 @@ public class CustomThemeV2 extends Feature {
     private HashMap<String, String> navAlpha;
     private HashMap<String, String> toolbarAlpha;
     private Properties properties;
+    private View mMainContainer;
 
     public CustomThemeV2(@NonNull ClassLoader classLoader, @NonNull XSharedPreferences preferences) {
         super(classLoader, preferences);
@@ -75,54 +76,19 @@ public class CustomThemeV2 extends Feature {
         hookWallpaper();
     }
 
+    private static HashMap<String, String> revertColors(HashMap<String, String> colors) {
+        HashMap<String, String> newColors = new HashMap<>();
+        for (var c : colors.keySet()) {
+            var color = colors.get(c);
+            newColors.put(color, c);
+        }
+        return newColors;
+    }
+
     private void hookWallpaper() throws Exception {
 
         if (!prefs.getBoolean("wallpaper", false))
             return;
-
-        var clazz = XposedHelpers.findClass("com.whatsapp.HomeActivity", classLoader);
-        XposedHelpers.findAndHookMethod(clazz, "onCreate", Bundle.class, new XC_MethodHook() {
-            @Override
-            protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-                var activity = (Activity) param.thisObject;
-                if (ContextCompat.checkSelfPermission(activity, Manifest.permission.READ_MEDIA_IMAGES) == PackageManager.PERMISSION_GRANTED || ContextCompat.checkSelfPermission(activity, Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
-                    injectWallpaper(activity.findViewById(android.R.id.content));
-                }
-            }
-        });
-
-        var hookFragmentView = Unobfuscator.loadFragmentViewMethod(classLoader);
-
-        XposedBridge.hookMethod(hookFragmentView,
-                new XC_MethodHook() {
-                    @Override
-                    protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-                        if (!checkHomeActivity()) return;
-                        var viewGroup = (ViewGroup) param.getResult();
-                        replaceColors(viewGroup, wallAlpha);
-                    }
-                });
-
-        var loadTabFrameClass = Unobfuscator.loadTabFrameClass(classLoader);
-        XposedHelpers.findAndHookMethod(FrameLayout.class, "onMeasure", int.class, int.class, new XC_MethodHook() {
-            @Override
-            protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-                if (!loadTabFrameClass.isInstance(param.thisObject)) return;
-                if (!checkHomeActivity()) return;
-                var viewGroup = (ViewGroup) param.thisObject;
-                var background = viewGroup.getBackground();
-                try {
-                    var colorfilters = XposedHelpers.getObjectField(background, "A01");
-                    var fields = ReflectionUtils.getFieldsByType(colorfilters.getClass(), ColorStateList.class);
-                    var colorStateList = (ColorStateList) fields.get(0).get(colorfilters);
-                    var newColor = IColors.getFromIntColor(colorStateList.getDefaultColor(), navAlpha);
-                    if (newColor == colorStateList.getDefaultColor()) return;
-                    background.setTint(newColor);
-                } catch (Throwable ignored) {
-                }
-            }
-        });
-
 
         var customWallpaper = prefs.getBoolean("wallpaper", false);
 
@@ -146,6 +112,57 @@ public class CustomThemeV2 extends Feature {
             replaceTransparency(toolbarAlpha, (100 - wallpaperToolbarAlpha) / 100.0f);
         }
 
+        var clazz = XposedHelpers.findClass("com.whatsapp.HomeActivity", classLoader);
+        XposedHelpers.findAndHookMethod(clazz, "onCreate", Bundle.class, new XC_MethodHook() {
+            @Override
+            protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+                var activity = (Activity) param.thisObject;
+                if (ContextCompat.checkSelfPermission(activity, Manifest.permission.READ_MEDIA_IMAGES) == PackageManager.PERMISSION_GRANTED || ContextCompat.checkSelfPermission(activity, Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
+                    injectWallpaper(activity.findViewById(Utils.getID("root_view", "id")));
+                }
+            }
+        });
+
+        var revertWallAlpha = revertColors(wallAlpha);
+
+        var homeClass = XposedHelpers.findClass("com.whatsapp.HomeActivity", classLoader);
+
+        WppCore.addListenerActivity((activity, type) -> {
+            var isHome = homeClass.isInstance(activity);
+            if (WppCore.ActivityChangeState.ChangeType.RESUMED == type && isHome) {
+                mMainContainer = activity.findViewById(android.R.id.content);
+                if (mMainContainer != null) {
+                    replaceColors(mMainContainer, wallAlpha);
+                }
+            } else if (WppCore.ActivityChangeState.ChangeType.CREATED == type && !isHome &&
+                    !activity.getClass().getSimpleName().equals("QuickContactActivity")) {
+                if (mMainContainer != null) {
+                    replaceColors(mMainContainer, revertWallAlpha);
+                }
+            }
+        });
+
+        var loadTabFrameClass = Unobfuscator.loadTabFrameClass(classLoader);
+        XposedHelpers.findAndHookMethod(FrameLayout.class, "onMeasure", int.class, int.class, new XC_MethodHook() {
+            @Override
+            protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+                if (!loadTabFrameClass.isInstance(param.thisObject)) return;
+                var viewGroup = (ViewGroup) param.thisObject;
+                if (checkNotHomeActivity()) return;
+                var background = viewGroup.getBackground();
+                try {
+                    var colorfilters = XposedHelpers.getObjectField(background, "A01");
+                    var fields = ReflectionUtils.getFieldsByType(colorfilters.getClass(), ColorStateList.class);
+                    var colorStateList = (ColorStateList) fields.get(0).get(colorfilters);
+                    var newColor = IColors.getFromIntColor(colorStateList.getDefaultColor(), navAlpha);
+                    if (newColor == colorStateList.getDefaultColor()) return;
+                    background.setTint(newColor);
+                } catch (Throwable ignored) {
+                }
+            }
+        });
+
+
     }
 
     public void hookColors() throws Throwable {
@@ -164,6 +181,7 @@ public class CustomThemeV2 extends Feature {
             backgroundColor = backgroundColorInt == 0 ? "0" : IColors.toString(backgroundColorInt);
         }
 
+
         if (prefs.getBoolean("changecolor", false) || Objects.equals(properties.getProperty("change_colors"), "true")) {
 
             if (!primaryColor.equals("0") && DesignUtils.isValidColor(primaryColor)) {
@@ -178,12 +196,18 @@ public class CustomThemeV2 extends Feature {
                 processColors(backgroundColor, backgroundColors);
             }
         }
+
         IColors.colors.putAll(primaryColors);
         IColors.colors.putAll(secondaryColors);
         IColors.colors.putAll(backgroundColors);
         primaryColors.clear();
         secondaryColors.clear();
 
+        if (!DesignUtils.isNightMode()) {
+            backgroundColors.clear();
+            backgroundColors.put("#ffffffff", "#ffffffff");
+            backgroundColors.put("ffffff", "ffffff");
+        }
 
         XposedBridge.hookAllMethods(AssetManager.class, "getResourceValue", new XC_MethodHook() {
             @Override
@@ -232,7 +256,7 @@ public class CustomThemeV2 extends Feature {
         var hexAlpha = Integer.toHexString((int) Math.ceil(mAlpha * 255));
         hexAlpha = hexAlpha.length() == 1 ? "0" + hexAlpha : hexAlpha;
         for (var c : backgroundColors.keySet()) {
-            var oldColor = wallpaperColors.get(c);
+            var oldColor = wallpaperColors.getOrDefault(c, backgroundColors.get(c));
             if (oldColor == null || oldColor.length() < 9) continue;
             var newColor = "#" + hexAlpha + oldColor.substring(3);
             wallpaperColors.put(c, newColor);
@@ -250,10 +274,10 @@ public class CustomThemeV2 extends Feature {
         rootView.addView(frameLayout, 0);
     }
 
-    private boolean checkHomeActivity() {
+    private boolean checkNotHomeActivity() {
         var homeClass = XposedHelpers.findClass("com.whatsapp.HomeActivity", classLoader);
         var currentActivity = WppCore.getCurrentActivity();
-        return currentActivity != null && homeClass.isInstance(currentActivity);
+        return (currentActivity == null || !homeClass.isInstance(currentActivity));
     }
 
     public static class IntBgColorHook extends XC_MethodHook {
