@@ -1814,13 +1814,14 @@ public class Unobfuscator {
 
     public static Method loadMediaQualitySelectionMethod(ClassLoader classLoader) throws Exception {
         return UnobfuscatorCache.getInstance().getMethod(classLoader, () -> {
-            var methodData = dexkit.findMethod(FindMethod.create().matcher(
-                    MethodMatcher.create().addUsingString("enable_media_quality_tool").
+            var classData = dexkit.getClassData("com.whatsapp.mediacomposer.MediaComposerActivity");
+            var methodData = Objects.requireNonNull(classData).findMethod(FindMethod.create().matcher(
+                    MethodMatcher.create().addUsingNumber(6033).
                             returnType(boolean.class)
             ));
             if (methodData.isEmpty())
                 throw new RuntimeException("MediaQualitySelection method not found");
-            return methodData.get(0).getMethodInstance(classLoader);
+            return methodData.single().getMethodInstance(classLoader);
         });
     }
 
