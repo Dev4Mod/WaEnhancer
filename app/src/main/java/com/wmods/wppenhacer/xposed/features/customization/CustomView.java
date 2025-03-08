@@ -147,39 +147,34 @@ public class CustomView extends Feature {
 
     public void registerView(StyleSheet sheet) {
         var mapIds = new HashMap<Integer, ArrayList<RuleItem>>();
-
-        try {
-            for (var selector : sheet) {
-                var ruleSet = (RuleSet) selector;
-                for (var selectorItem : ruleSet.getSelectors()) {
-                    var item = selectorItem.get(0);
-                    String className;
-                    String name;
-                    if ((className = item.getClassName()) != null) {
-                        className = className.replaceAll("_", ".").trim();
-                        var clazz = XposedHelpers.findClass(className, classLoader);
-                        if (clazz == null || !clazz.isInstance(WppCore.getCurrentActivity()))
-                            continue;
-                        name = selectorItem.get(1).getIDName().trim();
-                    } else {
-                        name = selectorItem.get(0).getIDName().trim();
-                    }
-                    int id = 0;
-                    if (name.contains("android_")) {
-                        try {
-                            id = android.R.id.class.getField(name.substring(8)).getInt(null);
-                        } catch (NoSuchFieldException | IllegalAccessException ignored) {
-                        }
-                    } else {
-                        id = Utils.getID(name, "id");
-                    }
-                    if (id <= 0) continue;
-                    var list = mapIds.getOrDefault(id, new ArrayList<>());
-                    list.add(new RuleItem(selectorItem, ruleSet));
-                    mapIds.put(id, list);
+        for (var selector : sheet) {
+            Class<?> targetClass = null;
+            var ruleSet = (RuleSet) selector;
+            for (var selectorItem : ruleSet.getSelectors()) {
+                var item = selectorItem.get(0);
+                String className;
+                String name;
+                if ((className = item.getClassName()) != null) {
+                    className = className.replaceAll("_", ".").trim();
+                    targetClass = XposedHelpers.findClassIfExists(className, classLoader);
+                    name = selectorItem.get(1).getIDName().trim();
+                } else {
+                    name = selectorItem.get(0).getIDName().trim();
                 }
+                int id = 0;
+                if (name.contains("android_")) {
+                    try {
+                        id = android.R.id.class.getField(name.substring(8)).getInt(null);
+                    } catch (NoSuchFieldException | IllegalAccessException ignored) {
+                    }
+                } else {
+                    id = Utils.getID(name, "id");
+                }
+                if (id <= 0) continue;
+                var list = mapIds.getOrDefault(id, new ArrayList<>());
+                list.add(new RuleItem(selectorItem, ruleSet, targetClass));
+                mapIds.put(id, list);
             }
-        } catch (Throwable ignored) {
         }
         XposedHelpers.findAndHookMethod(View.class, "invalidate", boolean.class, new XC_MethodHook() {
             @Override
@@ -192,6 +187,8 @@ public class CustomView extends Feature {
                 CompletableFuture.runAsync(() -> {
                     for (var item : list) {
                         try {
+                            if (item.targetActivityClass != null && !item.targetActivityClass.isInstance(WppCore.getCurrentActivity()))
+                                continue;
                             setCssRule(view, item);
                         } catch (Throwable ignored) {
                         }
@@ -793,10 +790,12 @@ public class CustomView extends Feature {
     public static class RuleItem {
         public CombinedSelector selector;
         public RuleSet rule;
+        public Class<?> targetActivityClass;
 
-        public RuleItem(CombinedSelector selectorItem, RuleSet ruleSet) {
+        public RuleItem(CombinedSelector selectorItem, RuleSet ruleSet, Class<?> targetActivityClass) {
             this.selector = selectorItem;
             this.rule = ruleSet;
+            this.targetActivityClass = targetActivityClass;
         }
     }
 
