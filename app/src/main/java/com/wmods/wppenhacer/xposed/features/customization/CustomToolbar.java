@@ -9,6 +9,7 @@ import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -164,7 +165,11 @@ public class CustomToolbar extends Feature {
                 mTitle.setGravity(Gravity.CENTER);
             }
             parent.removeView(logo);
-            window.addView(logo);
+            RelativeLayout hideLayout = new RelativeLayout(homeActivity);
+            hideLayout.setLayoutParams(new LinearLayout.LayoutParams(2, 2));
+            hideLayout.setVisibility(View.GONE);
+            window.addView(hideLayout);
+            hideLayout.addView(logo);
 
             XposedBridge.hookMethod(onMenuItemSelected, new XC_MethodHook() {
                 @Override

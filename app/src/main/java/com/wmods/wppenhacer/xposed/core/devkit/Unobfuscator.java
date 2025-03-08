@@ -1816,7 +1816,7 @@ public class Unobfuscator {
 
             if (methodData.isEmpty())
                 throw new RuntimeException("MediaQualitySelection method not found");
-            return methodData.single().getMethodInstance(classLoader);
+            return methodData.get(0).getMethodInstance(classLoader);
         });
     }
 
