@@ -30,7 +30,7 @@ androidx-navigation-ui = { group = "androidx.navigation", name = "navigation-ui"
 okhttp = { module = "com.squareup.okhttp3:okhttp", version.ref = "okhttp" }
 rikkax-appcompat = { module = "dev.rikka.rikkax.appcompat:appcompat", version = "1.6.1" }
 rikkax-core = { module = "dev.rikka.rikkax.core:core", version = "1.4.1" }
-rikkax-material = { module = "dev.rikka.rikkax.material:material", version = "2.7.2" }
+rikkax-material = { module = "dev.rikka.rikkax.material:material", version = "2.7.0" }
 rikkax-material-preference = { module = "dev.rikka.rikkax.material:material-preference", version = "2.0.0" }
 rikkax-widget-borderview = { module = "dev.rikka.rikkax.widget:borderview", version = "1.1.0" }
 material = { module = "com.google.android.material:material", version = "1.12.0" }
