@@ -123,12 +123,14 @@
         <item>2.25.2.xx</item>
         <item>2.25.3.xx</item>
         <item>2.25.4.xx</item>
+        <item>2.25.5.xx</item>
     </string-array>
     <string-array name="supported_versions_business">
         <item>2.25.1.xx</item>
         <item>2.25.2.xx</item>
         <item>2.25.3.xx</item>
         <item>2.25.4.xx</item>
+        <item>2.25.5.xx</item>
     </string-array>
     <string-array name="image_picker">
         <item>image/*</item>
