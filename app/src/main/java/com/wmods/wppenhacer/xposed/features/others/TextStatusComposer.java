@@ -38,14 +38,16 @@ public class TextStatusComposer extends Feature {
         var setColorTextComposer = Unobfuscator.loadTextStatusComposer(classLoader);
         log("setColorTextComposer: " + Unobfuscator.getMethodDescriptor(setColorTextComposer));
 
-        if (setColorTextComposer != null) {
-            XposedBridge.hookAllConstructors(setColorTextComposer.getDeclaringClass(), new XC_MethodHook() {
+        var textModelClass = XposedHelpers.findClassIfExists("com.whatsapp.statuscomposer.composer.TextStatusComposerViewModel", classLoader);
+
+        if (textModelClass != null) {
+            XposedBridge.hookAllConstructors(textModelClass, new XC_MethodHook() {
                 @Override
                 protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
                     textComposerModel.set(param.thisObject);
                 }
             });
-            var arrMethod = ReflectionUtils.findMethodUsingFilter(setColorTextComposer.getDeclaringClass(), method -> method.getParameterCount() == 1 && method.getParameterTypes()[0] == int.class && method.getReturnType() == int.class);
+            var arrMethod = ReflectionUtils.findMethodUsingFilter(textModelClass, method -> method.getParameterCount() == 1 && method.getParameterTypes()[0] == int.class && method.getReturnType() == int.class);
             XposedBridge.hookMethod(arrMethod, new XC_MethodHook() {
                 @Override
                 protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
@@ -73,9 +75,11 @@ public class TextStatusComposer extends Feature {
                         pickerColor.setOnLongClickListener(v -> {
                             var dialog = new SimpleColorPickerDialog(activity, color -> {
                                 try {
-                                    if (setColorTextComposer != null) {
-                                        var mInstance = textComposerModel.get();
-                                        ReflectionUtils.callMethod(setColorTextComposer, mInstance, color);
+                                    if (textModelClass != null) {
+                                        var textModel = textComposerModel.get();
+                                        var mField = ReflectionUtils.getFieldsByType(textModel.getClass(), setColorTextComposer.getDeclaringClass()).get(0);
+                                        var auxInstance = ReflectionUtils.getObjectField(mField, textModel);
+                                        ReflectionUtils.callMethod(setColorTextComposer, auxInstance, "background_color_key", color);
                                     } else {
                                         Field fieldInt = ReflectionUtils.getFieldByType(param.thisObject.getClass(), int.class);
                                         fieldInt.setInt(param.thisObject, color);

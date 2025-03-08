@@ -1591,19 +1591,7 @@ public class Unobfuscator {
     }
 
     public synchronized static Method loadTextStatusComposer(ClassLoader classLoader) throws Exception {
-        var methods = dexkit.findMethod(FindMethod.create().matcher(MethodMatcher.create().addUsingString("background_color_key", StringMatchType.Equals)));
-        for (MethodData method : methods) {
-            var targetMethod = method.getDeclaredClass().findMethod(
-                    FindMethod.create().matcher(
-                            MethodMatcher.create().returnType(int.class).paramCount(1)
-                    )
-            );
-
-            if (!targetMethod.isEmpty()) {
-                return targetMethod.single().getMethodInstance(classLoader);
-            }
-        }
-        return null;
+        return findFirstMethodUsingStrings(classLoader, StringMatchType.Contains, "Can't put value with type");
     }
 
     public synchronized static Method loadTextStatusComposer2(ClassLoader classLoader) throws Exception {
@@ -1814,11 +1802,18 @@ public class Unobfuscator {
 
     public static Method loadMediaQualitySelectionMethod(ClassLoader classLoader) throws Exception {
         return UnobfuscatorCache.getInstance().getMethod(classLoader, () -> {
-            var classData = dexkit.getClassData("com.whatsapp.mediacomposer.MediaComposerActivity");
-            var methodData = Objects.requireNonNull(classData).findMethod(FindMethod.create().matcher(
-                    MethodMatcher.create().addUsingNumber(6033).
+            var methodData = dexkit.findMethod(FindMethod.create().matcher(
+                    MethodMatcher.create().addUsingString("enable_media_quality_tool").
                             returnType(boolean.class)
             ));
+
+            if (methodData.isEmpty()) {
+                methodData = dexkit.findMethod(FindMethod.create().matcher(
+                        MethodMatcher.create().addUsingString("show_media_quality_toggle").
+                                returnType(boolean.class)
+                ));
+            }
+
             if (methodData.isEmpty())
                 throw new RuntimeException("MediaQualitySelection method not found");
             return methodData.single().getMethodInstance(classLoader);
