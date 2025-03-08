@@ -19,7 +19,6 @@
     <string name="textonahora">Текст рядом с меткой времени</string>
     <string name="viewonce">Безлимитный просмотр один раз</string>
     <string name="viewonce_sum">Позволяет вам открывать и просматривать одно и тоже медиа несколько раз</string>
-    <string name="novotema_sum">При активации поменяется цвет и вид значков из новой темы</string>
     <string name="antirevokestatus">Анти удаление статусов</string>
     <string name="antirevokestatus_sum">Просмотреть статусы, которые удалили пользователи</string>
     <string name="hidereceipt">Скрыть получение</string>
@@ -29,7 +28,6 @@
     <string name="statusdowload_sum">Показать две кнопки для обмена и загрузки статуса</string>
     <string name="videoquality">Отправляйте видео в HD качестве</string>
     <string name="videoquality_sum">Отправляйте видео в HD-качестве по умолчанию</string>
-    <string name="colors_title">Цвета</string>
     <string name="colors_customization">Настройка ваших цветов</string>
     <string name="colors_customization_sum">Изменить все цвета в WhatsApp (работает только в темной теме)</string>
     <string name="general">Общие</string>
@@ -44,10 +42,6 @@
     <string name="novofiltro_sum">Выберите между: \"Значок поиска\", \"Панель поиска\" или \"Без поиска\"</string>
     <string name="menuwicon">Значки меню</string>
     <string name="menuwicon_sum">Добавьте значки в пункты меню приложения</string>
-    <string name="strokebuttons">Изменение стиля кнопок</string>
-    <string name="strokebuttons_sum">Создайте обводку вокруг некоторых кнопок в WhatsApp</string>
-    <string name="outlinedicons">Контурные значки</string>
-    <string name="outlinedicons_sum">Новый стиль контурных значков</string>
     <string name="freezelastseen">Заморозка времени последнего посещения</string>
     <string name="freezelastseen_sum">Ваше последнее время посещения будет заморожено\n(Важно: Вы не увидите время присутствия других пользователей, а так же печать текста, запись, статус онлайн)</string>
     <string name="removeforwardlimit_sum">Снимите ограничение на переадресацию для 5 чатов (обычных) и 1 чата (многократных) \n (Примечание: используйте с осторожностью, вас могут забанить за спам)</string>
@@ -182,8 +176,6 @@
     <string name="enable_restart_button_sum">Добавить кнопку на главном экране для перезапуска приложения</string>
     <string name="toast_on_delete">Показывать всплывающее уведомление об удалении сообщения</string>
     <string name="toast_on_delete_sum">Показывать всплывающее уведомление, если какой-либо контакт удаляет какое-либо сообщение</string>
-    <string name="enable_top_navigation">Включить верхнюю навигацию (устарело)</string>
-    <string name="enable_top_navigation_sum">Активировать старую панель навигации (не работает в версиях выше Wpp 2.24.24 и скоро будет удалено)</string>
     <string name="hideread_group">Скрыть синюю метку в группах</string>
     <string name="hideread_group_sum">Просмотр сообщений на экране групп без уведомления пользователей</string>
     <string name="show_freezeLastSeen_button">Показать кнопку \"Скрыть последнее посещение\"</string>
@@ -411,7 +403,7 @@
     <string name="no_contact_with_custom_privacy">Нет контакта с приватностью!</string>
     <string name="show_chat_broadcast_icon">Показать значок чата</string>
     <string name="show_chat_broadcast_icon_sum">Показывает значок, если контакт отправил сообщение через трансляцию</string>
-    <string name="select_contacts">Select Contacts</string>
-    <string name="style_of_stories_status">Style of Stories/Status</string>
-    <string name="style_of_stories_status_sum">Changes Stories/Status style to some models available on WhatsApp</string>
+    <string name="select_contacts">Выбрать контакты</string>
+    <string name="style_of_stories_status">Стиль историй/статуса</string>
+    <string name="style_of_stories_status_sum">Изменяет стиль историй/статуса на некоторые модели, доступные в WhatsApp</string>
 </resources>

@@ -19,7 +19,6 @@
     <string name="textonahora">Texte à côté de l\'horodatage</string>
     <string name="viewonce">Vue unique illimitée</string>
     <string name="viewonce_sum">Permet d\'ouvrir média a vue unique plusieurs fois</string>
-    <string name="novotema_sum">Lors ce qu\'activé, celà vous change la couleure et le thème d\'icône vers le nouveau thème WhatsApp</string>
     <string name="antirevokestatus">Anti-suppression des status</string>
     <string name="antirevokestatus_sum">Lors ce qu\'activé, les status ne seront pas effacés pour vous.</string>
     <string name="hidereceipt">Masquer la réception</string>
@@ -29,7 +28,6 @@
     <string name="statusdowload_sum">Affiche deux boutons pour partager et télécharger statut</string>
     <string name="videoquality">Envoyer les vidéos en qualité HD</string>
     <string name="videoquality_sum">Envoyer les vidéos en qualité HD</string>
-    <string name="colors_title">Couleures</string>
     <string name="colors_customization">Personnalisez vos couleures</string>
     <string name="colors_customization_sum">Changez toutes les couleurs de votre WhatsApp (fonctionne uniquement dans le thème sombre)</string>
     <string name="general">Général</string>
@@ -44,10 +42,6 @@
     <string name="novofiltro_sum">Choisissez entre l\'icône de recherche, la barre de recherche ou aucune recherche</string>
     <string name="menuwicon">Icônes du menu</string>
     <string name="menuwicon_sum">Ajouter des icônes sur les options du menu tout le long de l\'application</string>
-    <string name="strokebuttons">Contour des bouttons</string>
-    <string name="strokebuttons_sum">Créé un contour aux bouttons sur WhatsApp</string>
-    <string name="outlinedicons">Icônes soulignées</string>
-    <string name="outlinedicons_sum">Nouveau style d\'icônes, si vous les aimez, activez les</string>
     <string name="freezelastseen">Geler le dernier affichage</string>
     <string name="freezelastseen_sum">Votre dernière heure de visite sera gelée\n(ATTENTION : vous ne verrez aucune mise à jour de présence des autres utilisateurs, comme la saisie, l\'enregistrement, en ligne)</string>
     <string name="removeforwardlimit_sum">Supprimer la limite de transfert pour 5 discussions (normal) et 1 discussion (plusieurs fois)\n(Remarque : à utiliser avec prudence, vous pourriez être banni pour spam : courrier indésirable)</string>
@@ -182,8 +176,6 @@
     <string name="enable_restart_button_sum">Ajouter un bouton sur l\'écran d\'accueil pour redémarrer l\'application</string>
     <string name="toast_on_delete">Afficher une notification lors de la suppression du message</string>
     <string name="toast_on_delete_sum">Afficher une notification si un contact supprime un message</string>
-    <string name="enable_top_navigation">Enable Top Navigation (Obsolete)</string>
-    <string name="enable_top_navigation_sum">Activate the old navigation bar (does not work for versions above Wpp 2.24.24 and will be removed soon)</string>
     <string name="hideread_group">Masquer la coche bleue dans les groupes</string>
     <string name="hideread_group_sum">Voir les messages dans l\'écran des groupes à l\'insu des utilisateurs</string>
     <string name="show_freezeLastSeen_button">Afficher le bouton Geler la dernière vue</string>

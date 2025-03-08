@@ -19,7 +19,6 @@
     <string name="textonahora">Fügt einen Text neben dem Zeitstempel hinzu</string>
     <string name="viewonce">Unbegrenzte \"Einmal-Ansicht\"</string>
     <string name="viewonce_sum">Erlaubt es Ihnen \"einmalige Ansichten\" unbegrenzt zu öffnen</string>
-    <string name="novotema_sum">Ändern Sie das Farb- und Symbol-Theme auf das neue WhatsApp-Theme</string>
     <string name="antirevokestatus">Anti-Lösch Status</string>
     <string name="antirevokestatus_sum">Gelöschten Status der Kontakte betrachten</string>
     <string name="hidereceipt">Verberge \'Empfangen\' Meldung</string>
@@ -29,7 +28,6 @@
     <string name="statusdowload_sum">Zeigt zwei Schaltflächen zum Teilen und Herunterladen</string>
     <string name="videoquality">Videos in HD Qualität</string>
     <string name="videoquality_sum">Sende Videos standardmäßig in HD-Qualität</string>
-    <string name="colors_title">Farbgebung</string>
     <string name="colors_customization">Farben anpassen</string>
     <string name="colors_customization_sum">Ändern sie alle Farben von WhatsApp (Nur Dark-Theme)</string>
     <string name="general">Sonstiges</string>
@@ -44,10 +42,6 @@
     <string name="novofiltro_sum">Wählen Sie zwischen Suchsymbol, Suchleiste oder ohne Suche</string>
     <string name="menuwicon">Menüsymbole</string>
     <string name="menuwicon_sum">Die Menüoptionen erhalten zusätzlich Symbole in der gesamten App</string>
-    <string name="strokebuttons">Schaltflächen Strich</string>
-    <string name="strokebuttons_sum">Erstellen Sie einen Strich um einige Schaltflächen auf WhatsApp</string>
-    <string name="outlinedicons">Symbole mit Umrandung</string>
-    <string name="outlinedicons_sum">Neuer Symbol-Stil</string>
     <string name="freezelastseen">Friere \"Zuletzt gesehen\" ein</string>
     <string name="freezelastseen_sum">Ihre zuletzt gesehene Zeit wird eingefroren\n (NOTE: Sie werden keine Aktualisierungen von anderen Benutzern, wie Tippen, Sprachaufnahme, online usw., sehen)</string>
     <string name="removeforwardlimit_sum">Entfernt das Weiterleitungslimit von 5 Chats (normal) und 1 Chat (mehrfach)\n(Hinweis: Mit Vorsicht benutzen, sie können wegen Spam gebannt werden)</string>
@@ -182,8 +176,6 @@
     <string name="enable_restart_button_sum">Auf dem Startbildschirm wird eine Schaltfläche zum Neustart von WhatsApp hinzugefügt</string>
     <string name="toast_on_delete">Zeige Toast-Benachrichtigung beim Löschen der Nachricht</string>
     <string name="toast_on_delete_sum">Zeige Toast-Benachrichtigung, wenn ein Kontakt eine Nachricht löscht</string>
-    <string name="enable_top_navigation">Top Navigation aktivieren (veraltet)</string>
-    <string name="enable_top_navigation_sum">Aktiviere die alte Navigationsleiste (funktioniert nicht für Versionen ab Wpp 2.24.24 und wird bald entfernt)</string>
     <string name="hideread_group">Blaue Häkchen in Gruppen ausblenden</string>
     <string name="hideread_group_sum">Nachrichten innerhalb des Chat-Bildschirms anzeigen, ohne das Kontakte informiert werden</string>
     <string name="show_freezeLastSeen_button">\"Zuletzt gesehen\"</string>

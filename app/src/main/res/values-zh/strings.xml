@@ -19,7 +19,6 @@
     <string name="textonahora">时间戳旁的文本</string>
     <string name="viewonce">无限次查看阅后即删</string>
     <string name="viewonce_sum">允许您无限次查看阅后即删的媒体</string>
-    <string name="novotema_sum">将颜色和图标主题更改为新的WhatsApp主题</string>
     <string name="antirevokestatus">防止“动态”删除</string>
     <string name="antirevokestatus_sum">查看联系人已删除的“动态”</string>
     <string name="hidereceipt">不发送两个灰色勾号（消息已送达）</string>
@@ -29,7 +28,6 @@
     <string name="statusdowload_sum">显示两个按钮用于分享和下载“动态”</string>
     <string name="videoquality">高清品质视频</string>
     <string name="videoquality_sum">默认以高清品质发送视频</string>
-    <string name="colors_title">颜色</string>
     <string name="colors_customization">自定义您的颜色</string>
     <string name="colors_customization_sum">更改 WhatsApp 中的所有颜色（仅适用于深色主题）</string>
     <string name="general">一般</string>
@@ -44,10 +42,6 @@
     <string name="novofiltro_sum">在“搜索图标”、“搜索栏”或“无搜索”之间进行选择</string>
     <string name="menuwicon">菜单图标</string>
     <string name="menuwicon_sum">在所有菜单选项旁边添加图标</string>
-    <string name="strokebuttons">按钮边框</string>
-    <string name="strokebuttons_sum">在WhatsApp的一些按钮周围添加边框</string>
-    <string name="outlinedicons">轮廓图标</string>
-    <string name="outlinedicons_sum">新的轮廓图标样式</string>
     <string name="freezelastseen">冻结最后一次在线时间</string>
     <string name="freezelastseen_sum">您最后在线的时间将被冻结\n（注意：您将看不到其他用户的任何状态更新，例如打字、录音、在线）</string>
     <string name="removeforwardlimit_sum">移除5个聊天（正常）和1个聊天（多次）的转发限制\n（警告：请谨慎使用，您可能会因发送垃圾信息而被封禁）</string>
@@ -182,8 +176,6 @@
     <string name="enable_restart_button_sum">在主页中添加按钮用于重启应用程序</string>
     <string name="toast_on_delete">消息删除时显示通知提示</string>
     <string name="toast_on_delete_sum">如果任何联系人删除任何消息，则显示通知提示</string>
-    <string name="enable_top_navigation">Enable Top Navigation (Obsolete)</string>
-    <string name="enable_top_navigation_sum">Activate the old navigation bar (does not work for versions above Wpp 2.24.24 and will be removed soon)</string>
     <string name="hideread_group">不在群组中发送蓝色勾号（已读回执）</string>
     <string name="hideread_group_sum">在其他用户不知情的情况下查看群组中的消息</string>
     <string name="show_freezeLastSeen_button">显示冻结最后上线时间按钮</string>

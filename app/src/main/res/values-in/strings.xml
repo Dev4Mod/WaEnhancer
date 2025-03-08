@@ -19,7 +19,6 @@
     <string name="textonahora">Teks di samping Waktu</string>
     <string name="viewonce">Sekali Lihat Tak Terbatas</string>
     <string name="viewonce_sum">Anda dapat membuka media \"sekali lihat\" berkali-kali</string>
-    <string name="novotema_sum">Ubah warna dan tema ikon menjadi tema WhatsApp baru</string>
     <string name="antirevokestatus">Anti Hapus Status</string>
     <string name="antirevokestatus_sum">Status tidak akan dihapus untuk Anda</string>
     <string name="hidereceipt">Sembunyikan Centang Dua</string>
@@ -30,7 +29,6 @@
     <string name="statusdowload_sum">Tampilkan tombol untuk mengunduh dan bagikan status</string>
     <string name="videoquality">Video Kualitas HD</string>
     <string name="videoquality_sum">Kirim video dalam kualitas HD</string>
-    <string name="colors_title">Warna</string>
     <string name="colors_customization">Ubah Warna WhatsApp Anda</string>
     <string name="colors_customization_sum">Ubah semua warna di WhatsApp Anda (Hanya berfungsi di Tema Gelap)</string>
     <string name="general">Umum</string>
@@ -45,10 +43,6 @@
     <string name="novofiltro_sum">Pilih antara ikon pencarian, bilah pencarian, atau tanpa pencarian</string>
     <string name="menuwicon">Ikon Menu</string>
     <string name="menuwicon_sum">Tambahkan ikon pada opsi menu di aplikasi WhatsApp</string>
-    <string name="strokebuttons">Tombol Guratan</string>
-    <string name="strokebuttons_sum">Buat guratan di sekitar tombol di WhatsApp</string>
-    <string name="outlinedicons">Ikon Kerangka</string>
-    <string name="outlinedicons_sum">Gaya ikon kerangka baru</string>
     <string name="freezelastseen">Bekukan \"terakhir dilihat dan online\"</string>
     <string name="freezelastseen_sum">Waktu \"terakhir dilihat dan online\" Anda akan dibekukan
 (PERHATIAN: Anda tidak dapat melihat pembaruan kehadiran apa pun dari orang lain seperti: mengetik, merekam, terakhir dilihat dan online)</string>
@@ -188,8 +182,6 @@ Harap gunakan versi WhatsApp yang didukung!</string>
     <string name="enable_restart_button_sum">Tampilkan tombol di layar beranda untuk memulai ulang aplikasi</string>
     <string name="toast_on_delete">Notifikasi Saat Pesan/Status Dihapus</string>
     <string name="toast_on_delete_sum">Tampilkan notifikasi mengambang jika ada pesan/status yang dihapus</string>
-    <string name="enable_top_navigation">Aktifkan Navigasi Atas (Usang)</string>
-    <string name="enable_top_navigation_sum">Aktifkan bilah navigasi lama (tidak berfungsi untuk versi di atas Wpp 2.24.24 dan akan segera dihapus)</string>
     <string name="hideread_group">Sembunyikan Centang Biru di Grup</string>
     <string name="hideread_group_sum">Pengirim pesan tidak akan mengetahui bahwa Anda telah membaca pesannya di grup</string>
     <string name="show_freezeLastSeen_button">Tampilkan Tombol Bekukan \"terakhir dilihat dan online\"</string>
@@ -421,6 +413,6 @@ Harap gunakan versi WhatsApp yang didukung!</string>
     <string name="show_chat_broadcast_icon">Tampilkan Ikon Siaran Obrolan</string>
     <string name="show_chat_broadcast_icon_sum">Menampilkan ikon jika kontak mengirim pesan melalui siaran</string>
     <string name="select_contacts">Pilih Kontak</string>
-    <string name="style_of_stories_status">Style of Stories/Status</string>
-    <string name="style_of_stories_status_sum">Changes Stories/Status style to some models available on WhatsApp</string>
+    <string name="style_of_stories_status">Gaya Cerita/Status</string>
+    <string name="style_of_stories_status_sum">Ubah gaya cerita/status ke beberapa model yang tersedia di WhatsApp</string>
 </resources>

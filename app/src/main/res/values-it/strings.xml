@@ -19,7 +19,6 @@
     <string name="textonahora">Testo accanto all\'orario</string>
     <string name="viewonce">Visualizza una volta Illimitato</string>
     <string name="viewonce_sum">Consente di aprire più volte i media visualizzabili una volta sola</string>
-    <string name="novotema_sum">Cambia il colore e il tema delle icone con il nuovo tema di WhatsApp</string>
     <string name="antirevokestatus">Anti-Elimina stato</string>
     <string name="antirevokestatus_sum">Visualizza gli Stati che gli utenti hanno eliminato</string>
     <string name="hidereceipt">Nascondi seconda spunta</string>
@@ -29,7 +28,6 @@
     <string name="statusdowload_sum">Mostra due pulsanti per condividere e scaricare lo Stato</string>
     <string name="videoquality">Video in qualità HD</string>
     <string name="videoquality_sum">Invia i video in qualità HD per impostazione predefinita</string>
-    <string name="colors_title">Colori</string>
     <string name="colors_customization">Personalizza i colori</string>
     <string name="colors_customization_sum">Cambia tutti i colori nel tuo WhatsApp (Funziona solo con il Tema Scuro)</string>
     <string name="general">Generale</string>
@@ -44,10 +42,6 @@
     <string name="novofiltro_sum">Scegli tra Icona di ricerca, Barra di ricerca o Nessuna ricerca</string>
     <string name="menuwicon">Icone nel menù</string>
     <string name="menuwicon_sum">Aggiungi le icone accanto alle opzioni di menù dell\'app</string>
-    <string name="strokebuttons">Bordo pulsanti</string>
-    <string name="strokebuttons_sum">Genera un bordo attorno ad alcuni pulsanti di WhatsApp</string>
-    <string name="outlinedicons">Icone delineate</string>
-    <string name="outlinedicons_sum">Nuovo stile delle icone con bordo</string>
     <string name="freezelastseen">Congela Ultimo accesso</string>
     <string name="freezelastseen_sum">L\'orario del tuo ultimo accesso verrà congelato (ATTENZIONE: Non vedrai alcun aggiornamento sulla presenza degli altri utenti, come digitazione, registrazione, online)</string>
     <string name="removeforwardlimit_sum">Rimuovi il limite di inoltro per 5 chat (normale) e 1 chat (più volte)\n(ATTENZIONE: Utilizzare con cautela, si può essere bannati per spam)</string>
@@ -182,8 +176,6 @@
     <string name="enable_restart_button_sum">Aggiungi un pulsante nella Home per riavviare l\'app</string>
     <string name="toast_on_delete">Mostra toast sui messaggi eliminati</string>
     <string name="toast_on_delete_sum">Mostra una notifica toast quando un qualsiasi contatto elimina un messaggio</string>
-    <string name="enable_top_navigation">Abilita Navigazione Superiore (Obsoleta)</string>
-    <string name="enable_top_navigation_sum">Attiva la vecchia barra di navigazione (non funziona per le versioni sopra Wpp 2.24.24 e verrà rimossa a breve)</string>
     <string name="hideread_group">Nascondi spunte blu nei Gruppi</string>
     <string name="hideread_group_sum">Visualizza i messaggi nei gruppi senza che gli utenti lo sappiano</string>
     <string name="show_freezeLastSeen_button">Mostra pulsante Congela Ultimo accesso</string>
@@ -412,6 +404,6 @@
     <string name="show_chat_broadcast_icon">Mostra icona chat broadcast</string>
     <string name="show_chat_broadcast_icon_sum">Mostra un\'icona se il contatto ha inviato un messaggio tramite broadcast</string>
     <string name="select_contacts">Seleziona Contatti</string>
-    <string name="style_of_stories_status">Style of Stories/Status</string>
-    <string name="style_of_stories_status_sum">Changes Stories/Status style to some models available on WhatsApp</string>
+    <string name="style_of_stories_status">Stile delle Storie/Stato</string>
+    <string name="style_of_stories_status_sum">Cambia lo stile Storie/Stato in alcuni modelli disponibili su WhatsApp</string>
 </resources>

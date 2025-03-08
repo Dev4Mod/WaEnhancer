@@ -19,7 +19,6 @@
     <string name="textonahora">Zaman Damgasının Yanında Metin</string>
     <string name="viewonce">Sınırsız Tek Sefer Görüntüleme</string>
     <string name="viewonce_sum">Tek sefer görüntülenebilir medyayı birden fazla kez açmanıza olanak tanır</string>
-    <string name="novotema_sum">Renk ve simge temasını yeni WhatsApp temasına değiştir</string>
     <string name="antirevokestatus">Durum Silmeyi Engelle</string>
     <string name="antirevokestatus_sum">Kullanıcıların sildiği durumları görüntüle</string>
     <string name="hidereceipt">İletildi Bilgisini Gizle</string>
@@ -29,7 +28,6 @@
     <string name="statusdowload_sum">Durumu paylaşmak ve indirmek için iki düğme gösterir</string>
     <string name="videoquality">HD Kalitesinde Videolar</string>
     <string name="videoquality_sum">Videoları varsayılan olarak HD kalitesinde gönder</string>
-    <string name="colors_title">Renkler</string>
     <string name="colors_customization">Renklerinizi özelleştirin</string>
     <string name="colors_customization_sum">WhatsApp\'taki tüm renkleri değiştirin (Sadece Karanlık Temada çalışır)</string>
     <string name="general">Genel</string>
@@ -44,10 +42,6 @@
     <string name="novofiltro_sum">Arama Simgesi, Arama Çubuğu veya Arama Yok seçenekleri arasında seçim yapın</string>
     <string name="menuwicon">Menü Simgeleri</string>
     <string name="menuwicon_sum">Uygulama genelinde menü seçeneklerinin yanına simgeler ekle</string>
-    <string name="strokebuttons">Düğme Kenarlıkları</string>
-    <string name="strokebuttons_sum">WhatsApp\'taki bazı düğmelerin etrafına kenarlık ekle</string>
-    <string name="outlinedicons">Ana Hat Simgeleri</string>
-    <string name="outlinedicons_sum">Yeni ana hat simge stili</string>
     <string name="freezelastseen">Son Görülmeyi Dondur</string>
     <string name="freezelastseen_sum">Son görülme zamanınız dondurulacak\n(DİKKAT: Diğer kullanıcıların yazıyor, kaydediyor, çevrimiçi gibi durum güncellemelerini göremeyeceksiniz)</string>
     <string name="removeforwardlimit_sum">5 sohbet (normal) ve 1 sohbet (çoklu) için iletme sınırını kaldır\n(Not: Dikkatli kullanın, spam nedeniyle yasaklanabilirsiniz)</string>
@@ -182,8 +176,6 @@
     <string name="enable_restart_button_sum">Ana Ekrana Uygulamayı Yeniden Başlatmak için düğme ekle</string>
     <string name="toast_on_delete">Mesaj silindiğinde bildirim göster</string>
     <string name="toast_on_delete_sum">Herhangi bir kişi herhangi bir mesajı silerse bildirim göster</string>
-    <string name="enable_top_navigation">Üst Gezintiyi Etkinleştir (Eski)</string>
-    <string name="enable_top_navigation_sum">Eski gezinti çubuğunu etkinleştirin (Wpp 2.24.24\'ün üzerindeki sürümler için çalışmaz ve yakında kaldırılacaktır)</string>
     <string name="hideread_group">Gruplarda Mavi Tiki Gizle</string>
     <string name="hideread_group_sum">Grup ekranında mesajları kullanıcılar bilmeden görüntüle</string>
     <string name="show_freezeLastSeen_button">Son Görülmeyi Dondurma Düğmesini Göster</string>
@@ -412,6 +404,6 @@
     <string name="show_chat_broadcast_icon">Sohbet yayını simgesini göster</string>
     <string name="show_chat_broadcast_icon_sum">Kişi yayın yoluyla bir mesaj gönderdiyse bir simge gösterir</string>
     <string name="select_contacts">Kişileri Seçin</string>
-    <string name="style_of_stories_status">Style of Stories/Status</string>
-    <string name="style_of_stories_status_sum">Changes Stories/Status style to some models available on WhatsApp</string>
+    <string name="style_of_stories_status">Hikayelerin Tarzı/Durumu</string>
+    <string name="style_of_stories_status_sum">WhatsApp\'ta bulunan bazı modellerde Hikaye/Durum stilini değiştirir</string>
 </resources>

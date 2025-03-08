@@ -19,7 +19,6 @@
     <string name="textonahora">טקסט ליד חותמת זמן</string>
     <string name="viewonce">צפייה בלתי מוגבלת בהודעה חד פעמית</string>
     <string name="viewonce_sum">מאפשר לך לפתוח הודעה חד פעמית כמה שאתה רוצה</string>
-    <string name="novotema_sum">שנה את נושא הצבע והסמל לנושא החדש של WhatsApp</string>
     <string name="antirevokestatus">חסימת מחיקת סטטוסים</string>
     <string name="antirevokestatus_sum">כשמשתמש מוחק סטטוס, אצלך זה לא יימחק</string>
     <string name="hidereceipt">הסתר וי שני</string>
@@ -29,7 +28,6 @@
     <string name="statusdowload_sum">מציג שני לחצנים לשיתוף והורדה של הסטטוס</string>
     <string name="videoquality">סרטוני וידאו באיכות HD</string>
     <string name="videoquality_sum">שלח סרטונים באיכות HD, כברירת מחדל</string>
-    <string name="colors_title">צבעים</string>
     <string name="colors_customization">התאם אישית את הצבעים שלך</string>
     <string name="colors_customization_sum">שנה את כל הצבעים בווצאפ שלך (עובד רק בעיצוב כהה)</string>
     <string name="general">כללי</string>
@@ -44,10 +42,6 @@
     <string name="novofiltro_sum">בחר בין סמל חיפוש הישן, אייקון החיפוש החדש או ללא חיפוש בכלל</string>
     <string name="menuwicon">אייקוני תפריט</string>
     <string name="menuwicon_sum">הוסף סמלים לצד אפשרויות התפריט בכל האפליקציה</string>
-    <string name="strokebuttons">כפתורים מיוחדים</string>
-    <string name="strokebuttons_sum">אייקונים מיוחדים נוספים בווצאפ</string>
-    <string name="outlinedicons">סמלים מתארים</string>
-    <string name="outlinedicons_sum">סגנון חדש של סמלים מתארים</string>
     <string name="freezelastseen">הקפאת נראה לאחרונה</string>
     <string name="freezelastseen_sum">הזמן שבו נראית לאחרונה יוקפא\n(שים לב: לא תראה את \'\'מקליד\'\', \'\'מקליט\'\' \'\'מחובר\'\' ונראה לאחרונה של המשתמשים האחרים, עד שתבטל את פונקציה זו)</string>
     <string name="removeforwardlimit_sum">בטל את המגבלה שלא מאפשרת העברת הודעה ליותר מ5 צ\'אטים \n(הערה: השתמש בזהירות, ייתכן שתחסם בגלל ספאם)</string>
@@ -183,8 +177,6 @@
     <string name="enable_restart_button_sum">הוסף כפתור במסך הבית כדי להפעיל מחדש את האפליקציה</string>
     <string name="toast_on_delete">הצג התראה קופצת על מחיקת הודעה</string>
     <string name="toast_on_delete_sum">הצג התראה אם איש קשר מוחק הודעה כלשהי</string>
-    <string name="enable_top_navigation">אפשר ניווט עליון (מיושן)</string>
-    <string name="enable_top_navigation_sum">הפעל את סרגל הניווט הישן (לא עובד עם גרסאות מעל 2.24.24 ויוסר בקרוב)</string>
     <string name="hideread_group">הסתר סימון כחול בקבוצות</string>
     <string name="hideread_group_sum">צפה בהודעות בקבוצות מבלי שהמשתמשים ידעו</string>
     <string name="show_freezeLastSeen_button">הצג את לחצן הקפאת הנראה לאחרונה</string>
@@ -414,6 +406,6 @@
     <string name="show_chat_broadcast_icon">הצג סמל של רשימת תפוצה בהודעה</string>
     <string name="show_chat_broadcast_icon_sum">מציג סמל אם איש הקשר שלח הודעה באמצעות רשימת תפוצה</string>
     <string name="select_contacts">בחר אנשי קשר</string>
-    <string name="style_of_stories_status">Style of Stories/Status</string>
-    <string name="style_of_stories_status_sum">Changes Stories/Status style to some models available on WhatsApp</string>
+    <string name="style_of_stories_status">סגנון עיצוב הסטטוס</string>
+    <string name="style_of_stories_status_sum">משנה את סגנון הסטטוס לכמה דגמים שזמינים בווצאפ</string>
 </resources>

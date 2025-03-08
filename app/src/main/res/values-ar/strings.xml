@@ -19,7 +19,6 @@
     <string name="textonahora">النص بجانب الوقت</string>
     <string name="viewonce">عرض غير محدود مرة واحدة</string>
     <string name="viewonce_sum">يسمح لك بفتح عرض مرة واحدة للوسائط عدة مرات</string>
-    <string name="novotema_sum">عند تفعيله، يغير اللون وموضوع الأيقونة إلى موضوع واتساب الجديد</string>
     <string name="antirevokestatus">منع حذف الحالات</string>
     <string name="antirevokestatus_sum">عرض الحالات المحذوفة</string>
     <string name="hidereceipt">إخفاء تم التسليم</string>
@@ -30,7 +29,6 @@
     <string name="statusdowload_sum">يعرض خيارين للمشاركة و حالة التحميل</string>
     <string name="videoquality">إرسال مقاطع الفيديو بجودة HD</string>
     <string name="videoquality_sum">إرسال مقاطع الفيديو بجودة HD</string>
-    <string name="colors_title">الألوان</string>
     <string name="colors_customization">خصص ألوانك</string>
     <string name="colors_customization_sum">تغيير كل الألوان في واتساب الخاص بك (يعمل فقط في السمة الداكنة)</string>
     <string name="general">عام</string>
@@ -45,10 +43,6 @@
     <string name="novofiltro_sum">اختر بين أيقونة البحث، شريط البحث، أو لا بحث</string>
     <string name="menuwicon">أيقونات القائمة</string>
     <string name="menuwicon_sum">إضافة أيقونات بجوار خيارات القائمة عبر التطبيق</string>
-    <string name="strokebuttons">تحديد الأزرار</string>
-    <string name="strokebuttons_sum">إنشاء حد حول بعض الأزرار في واتساب</string>
-    <string name="outlinedicons">أيقونات محددة</string>
-    <string name="outlinedicons_sum">أيقونات جديدة بأسلوب محدد</string>
     <string name="freezelastseen">تجميد آخر ظهور</string>
     <string name="freezelastseen_sum">سيتم تجميد آخر مرة شوهدت فيها (ملاحظة: لن ترى أي تحديثات تتعلق بالتواجد من مستخدمين آخرين، مثل الكتابة والتسجيل والإنترنت)</string>
     <string name="removeforwardlimit_sum">إزالة حد إعادة التوجيه لـ 5 دردشات (عادية) ودردشة واحدة (عدة مرات)\n(ملاحظة: استخدم بحذر، فقد يتم حظرك بسبب الرسائل غير المرغوب فيها)</string>
@@ -183,8 +177,6 @@
     <string name="enable_restart_button_sum">إضافة خيار في الشاشة الرئيسية لإعادة تشغيل التطبيق</string>
     <string name="toast_on_delete">إظهار التنبيهات المنبثقة عند حذف الرسالة</string>
     <string name="toast_on_delete_sum">إظهار التنبيهات المنبثقة إذا قام أي جهة اتصال بحذف أي رسالة</string>
-    <string name="enable_top_navigation">تمكين التنقل العلوي (قديم)</string>
-    <string name="enable_top_navigation_sum">تفعيل شريط التنقل القديم (لا يعمل للإصدارات فوق Wpp 2.24.24 وسيتم إزالتها قريبا)</string>
     <string name="hideread_group">إخفاء العلامة الزرقاء في المجموعات</string>
     <string name="hideread_group_sum">عرض الرسائل في شاشة المجموعات دون علم المستخدمين</string>
     <string name="show_freezeLastSeen_button">إظهار أيقونة تجميد آخر ظهور</string>
@@ -412,7 +404,7 @@
     <string name="no_contact_with_custom_privacy">لا يوجد اتصال بخصوصية مخصصة!</string>
     <string name="show_chat_broadcast_icon">إظهار أيقونة بث الدردشة</string>
     <string name="show_chat_broadcast_icon_sum">يظهر رمزًا إذا أرسل جهة الاتصال رسالة عبر البث</string>
-    <string name="select_contacts">Select Contacts</string>
-    <string name="style_of_stories_status">Style of Stories/Status</string>
-    <string name="style_of_stories_status_sum">Changes Stories/Status style to some models available on WhatsApp</string>
+    <string name="select_contacts">حدد جهة الاتصال</string>
+    <string name="style_of_stories_status">نمط القصص/الحالة</string>
+    <string name="style_of_stories_status_sum">تغيير نمط القصص/الحالات لبعض النماذج المتوفرة على واتساب</string>
 </resources>
