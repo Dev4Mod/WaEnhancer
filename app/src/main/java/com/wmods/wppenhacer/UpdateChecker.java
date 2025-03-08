@@ -31,7 +31,7 @@ public class UpdateChecker implements Runnable {
             var body = response.body();
             if (body == null) return;
             var content = body.string();
-            var indexHash = content.lastIndexOf("WaEnhancer_debug_");
+            var indexHash = content.lastIndexOf("WaEnhancer_");
             var lastindexHash = content.indexOf(".apk", indexHash);
             var hash = content.substring(indexHash + 17, lastindexHash);
             var appInfo = mActivity.getPackageManager().getPackageInfo(BuildConfig.APPLICATION_ID, 0);

@@ -184,9 +184,8 @@ public class FeatureLoader {
         FMessageWpp.initialize(loader);
         Utils.init(loader);
         WppCore.addListenerActivity((activity, state) -> {
-            if (activity.getClass().getSimpleName().equals("HomeActivity") && state == WppCore.ActivityChangeState.ChangeType.CREATED) {
-                WppCore.setPrivBoolean("need_restart", false);
-            } else if (state == WppCore.ActivityChangeState.ChangeType.RESUMED) {
+
+            if (state == WppCore.ActivityChangeState.ChangeType.RESUMED) {
                 checkUpdate(activity);
             }
 
