@@ -1,17 +1,24 @@
 [BUGS FIXED]
-* Fixed bug when selecting DPI that wasn't working.
-* Fixed bug in the message viewing Toast.
-* Fixed bug in text composer not found.
+* Fixed bug in text composer for WhatsApp 2.25.5.72
+* Fixed media quality not working in WhatsApp 2.25.5.72
+* Fixed toolbar issues in WhatsApp 2.25.5.XX
+* Fixed bug in Custom Toolbar
+* Fixed bug in ghostmode
 
 [WHATSAPP]
-* Added support for WhatsApp Normal and Business 2.25.4.XX (thanks for frknkrc44)
+* Added support for WhatsApp Normal and Business 2.25.5.XX
 
 [IMPROVEMENTS]
-* The vertical style button and Facebook style button for stories were removed and unified into a single button.
-* More types of stories/status styles were added: Facebook Style (1 Row), Facebook Style (Table), Vertical Style (No Preview), Vertical Style (Circle), Vertical Style (Square).
+* Added New Custom Theme V2
+* Improved Custom View
+* Improved loading plugins
+* Added product flavors
+* Removed deprecated options
 
-[OBS]
-* WhatsApp removed Facebook Style (2 Rows)
+[TECHNICAL CHANGES]
+* Reverted Rikka Material for compatibility with JAVA 17
+* Removed AssemblyAI dependency
+* Updated dependencies (maven group with 11 updates)
 
 [WA Enhancer]
 * Updated translations
