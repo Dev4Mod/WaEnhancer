@@ -1,24 +1,2 @@
 [BUGS FIXED]
-* Fixed bug in text composer for WhatsApp 2.25.5.72
-* Fixed media quality not working in WhatsApp 2.25.5.72
-* Fixed toolbar issues in WhatsApp 2.25.5.XX
-* Fixed bug in Custom Toolbar
-* Fixed bug in ghostmode
-
-[WHATSAPP]
-* Added support for WhatsApp Normal and Business 2.25.5.XX
-
-[IMPROVEMENTS]
-* Added New Custom Theme V2
-* Improved Custom View
-* Improved loading plugins
-* Added product flavors
-* Removed deprecated options
-
-[TECHNICAL CHANGES]
-* Reverted Rikka Material for compatibility with JAVA 17
-* Removed AssemblyAI dependency
-* Updated dependencies (maven group with 11 updates)
-
-[WA Enhancer]
-* Updated translations
+* Fixed more bugs in WA 2.25.5.XX
