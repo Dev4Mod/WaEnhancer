@@ -9,69 +9,127 @@
 <details closed>
   <summary>Privacy</summary>
 
-  - `Hide Forwarded Tag`
-  - `Remove Forward Limit`
-  - `Disable Pinned Chats Limit`
-  - `Freeze Last Seen`
-  - `Hide Status View`
-  - `Hide Blue Ticks`
-  - `Hide View Once and Audio Seen`
-  - `Hide Delivered`
-  - `Hide Typing`
-  - `Hide Recording Audio`
-  - `Disable View Once`
-  - `Send Blue Ticks upon Reply`
-  - `Delete for everyone on all messages`
-  - `Show Edited Message History`
-  - `Remove See More Button`
-  - `Anti Revoke Status`
-  - `Anti Revoke Message`
+- `Hide Forwarded Tag`
+- `Remove Forward Limit`
+- `Disable Pinned Chats Limit`
+- `Freeze Last Seen`
+- `Hide Status View`
+- `Hide Blue Ticks`
+- `Hide View Once and Audio Seen`
+- `Hide Delivered`
+- `Hide Typing`
+- `Hide Recording Audio`
+- `Disable View Once`
+- `Send Blue Ticks upon Reply`
+- `Delete for everyone on all messages`
+- `Show Edited Message History`
+- `Remove See More Button`
+- `Anti Revoke Status`
+- `Anti Revoke Message`
+- `Anti Disappearing Messages`
+- `Custom Privacy per Contact`
+- `Ghost Mode`
+- `Always Online`
+- `Call Privacy & Blocking`
+- `Call Information`
+- `Call Contact Whitelist/Blocklist`
 </details>
 
 <details closed>
   <summary>Home Screen</summary>
 
-  - `Show Name`
-  - `Show Bio`
-  - `Show DND Button`
-  - `Separate Groups`
-  - `Hide Archived Chats`
-  - `Show Online Dot in Conversation List`
-  - `Remove Channel Recommendations`
-  - `Hide Tabs on Home`
-  - `Enable IGStatus on Home Screen`
-  - `Filter Chats`
+- `Show Name`
+- `Show Bio`
+- `Show DND Button`
+- `Separate Groups`
+- `Hide Archived Chats`
+- `Show Online Dot in Conversation List`
+- `Remove Channel Recommendations`
+- `Hide Tabs on Home`
+- `Enable IGStatus on Home Screen`
+- `Filter Chats`
+- `Wallpaper in Home Screen`
+- `Show Chat Broadcast Icon`
+- `List Animations`
+- `Disable Channels`
 </details>  
 
 <details closed>
   <summary>General</summary>
 
-  - `Time in 12-Hour Format`
-  - `Seconds on Timestamp`
-  - `Buttons Stroke`
-  - `Menu Icons`
-  - `Outlined Icons`
-  - `New Settings Style`
+- `Time in 12-Hour Format`
+- `Seconds on Timestamp`
+- `Buttons Stroke`
+- `Menu Icons`
+- `Outlined Icons`
+- `New Settings Style`
+- `Theme Mode Selection`
+- `Lite Mode`
+- `Force English`
+- `Bootloader Spoofer`
+- `Tasker Automation`
+- `Show Toast on Contact Online`
+- `Toast on Message Delete`
+- `Toast on Viewed Message`
+- `Google Translate Integration`
+- `Double Click to React`
+- `Custom Reaction Emoji`
+- `Disable Auto Status`
+- `Enable Copy Status`
+- `Toast on Viewed Status`
 </details>
-
 
 <details closed>
   <summary>Media</summary>
 
-  - `Download Status`
-  - `Download View Once`
-  - `HD Quality Videos`
-  - `HD Quality Images`
-  - `Send videos in 60FPS`
-  - `Send videos in original resolution`
+- `Download Status`
+- `Download View Once`
+- `HD Quality Videos`
+- `HD Quality Images`
+- `Send videos in 60FPS`
+- `Send videos in original resolution`
+- `Increased Video Size Limit`
+- `Disable Audio Sensor (Proximity)`
+- `Audio Transcription`
+- `Voice Note Speed Control`
+- `Send Audio as Voice/Audio Note`
+- `Enable Media Preview`
+- `Custom Download Location`
+
 </details>
 
-## Use
- <details closed>
-  <summary>Colors</summary>
+<details closed>
+  <summary>Customization</summary>
 
-  - `New WhatsApp theme`
-  - `Customize your colors`
+- `Colors Customization`
+   - `Primary Color`
+   - `Secondary Color`
+   - `Background Color`
+- `Bubble Colors Customization`
+   - `Left Bubble Color`
+   - `Right Bubble Color`
+- `Wallpaper & Transparency Settings`
+- `Hide Tabs`
+- `Custom Filters and Theme`
+- `Custom CSS Themes`
+- `Custom DPI`
+- `Theme Manager`
+- `Animation Emojis`
+- `New Context Menu UI`
+- `Show Admin Group Icon`
+- `Menu with Icons`
+- `Status Style Customization`
+- `Old Statuses UI`
+- `Custom Colors for Text Status`
+</details>
+
+<details closed>
+  <summary>Others</summary>
+
+- `Selection of Call Type`
+- `Confirmation to Send Sticker`
+- `Disable Default Emojis`
+- `Stamp Copied Messages`
 </details>
 
 ## Installation
