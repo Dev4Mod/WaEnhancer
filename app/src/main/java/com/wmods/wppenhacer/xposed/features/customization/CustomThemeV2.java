@@ -310,7 +310,6 @@ public class CustomThemeV2 extends Feature {
                 }
             } else if (param.thisObject instanceof Paint) {
                 if (ReflectionUtils.isCalledFromStrings("getValue") && !ReflectionUtils.isCalledFromStrings("android.view")) {
-                    XposedBridge.log(new Exception());
                     var resultColor = getOriginalColor(sColor);
                     if (resultColor != -1) {
                         param.args[0] = resultColor;
