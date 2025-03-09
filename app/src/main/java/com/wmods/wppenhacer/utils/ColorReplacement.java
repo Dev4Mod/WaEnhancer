@@ -13,7 +13,6 @@ import com.wmods.wppenhacer.xposed.utils.DesignUtils;
 
 import java.util.HashMap;
 
-import de.robv.android.xposed.XposedBridge;
 import de.robv.android.xposed.XposedHelpers;
 
 public class ColorReplacement {
@@ -63,14 +62,12 @@ public class ColorReplacement {
             var newColor = colors.get(sColor);
             if (newColor != null) {
                 view.setTextColor(IColors.parseColor(newColor));
-                XposedBridge.log("ColorReplacement.Text.replace: " + sColor + "->" + newColor);
             } else {
                 if (!sColor.startsWith("#ff") && !sColor.startsWith("#0")) {
                     var sColorSub = sColor.substring(0, 3);
                     newColor = colors.get(sColor.substring(3));
                     if (newColor != null) {
                         view.setTextColor(IColors.parseColor(sColorSub + newColor));
-                        XposedBridge.log("ColorReplacement.Text.replace: " + sColor + "->" + newColor);
                     }
                 }
             }

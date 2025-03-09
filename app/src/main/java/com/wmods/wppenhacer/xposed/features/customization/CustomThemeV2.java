@@ -280,6 +280,20 @@ public class CustomThemeV2 extends Feature {
         return (currentActivity == null || !homeClass.isInstance(currentActivity));
     }
 
+    private static int getOriginalColor(String sColor) {
+        var colors = IColors.colors.keySet();
+        var resultColor = -1;
+        for (var c : colors) {
+            var vColor = IColors.colors.getOrDefault(c, "");
+            if (vColor.length() < 9) continue;
+            if (sColor.equals(vColor)) {
+                resultColor = IColors.parseColor(c);
+                break;
+            }
+        }
+        return resultColor;
+    }
+
     public static class IntBgColorHook extends XC_MethodHook {
 
 
@@ -295,15 +309,12 @@ public class CustomThemeV2 extends Feature {
                     return;
                 }
             } else if (param.thisObject instanceof Paint) {
-                if (ReflectionUtils.isCalledFromStrings("getValue")) {
-                    var colors = IColors.colors.keySet();
-                    for (var c : colors) {
-                        var vColor = IColors.colors.getOrDefault(c, "");
-                        if (vColor.length() < 9) continue;
-                        if (sColor.equals(vColor)) {
-                            param.args[0] = IColors.parseColor(c);
-                            return;
-                        }
+                if (ReflectionUtils.isCalledFromStrings("getValue") && !ReflectionUtils.isCalledFromStrings("android.view")) {
+                    XposedBridge.log(new Exception());
+                    var resultColor = getOriginalColor(sColor);
+                    if (resultColor != -1) {
+                        param.args[0] = resultColor;
+                        return;
                     }
                 }
             }

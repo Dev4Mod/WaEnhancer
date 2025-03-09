@@ -55,6 +55,8 @@ public class IColors {
         var color = Integer.toHexString(i);
         if (color.length() == 7) {
             color = "0" + color;
+        } else if (color.length() == 1) {
+            color = "00000000";
         }
         return "#" + color;
     }
