@@ -176,7 +176,8 @@ public class CustomView extends Feature {
                 mapIds.put(id, list);
             }
         }
-        XposedHelpers.findAndHookMethod(View.class, "invalidate", boolean.class, new XC_MethodHook() {
+
+        XposedHelpers.findAndHookMethod(View.class, "requestLayout", new XC_MethodHook() {
             @Override
             protected void afterHookedMethod(MethodHookParam param) throws Throwable {
                 if (ReflectionUtils.isCalledFromClass(CustomView.class)) return;
@@ -196,6 +197,7 @@ public class CustomView extends Feature {
                 }, Utils.getExecutor());
             }
         });
+
     }
 
 
