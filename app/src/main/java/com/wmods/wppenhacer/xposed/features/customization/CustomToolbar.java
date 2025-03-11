@@ -51,7 +51,7 @@ public class CustomToolbar extends Feature {
         var typeArchive = prefs.getString("typearchive", "0");
         onMenuItemSelected = Unobfuscator.loadOnMenuItemSelected(classLoader);
         var methodHook = new MethodHook(showName, showBio, typeArchive);
-        XposedHelpers.findAndHookMethod("com.whatsapp.HomeActivity", classLoader, "onCreate", Bundle.class, methodHook);
+        XposedHelpers.findAndHookMethod(WppCore.getHomeActivityClass(classLoader), "onCreate", Bundle.class, methodHook);
         expirationAboutInfo();
         Others.propsBoolean.put(6481, false);
     }
@@ -113,7 +113,7 @@ public class CustomToolbar extends Feature {
             var name = WppCore.getMyName();
             var bio = WppCore.getMyBio();
             var window = (ViewGroup) homeActivity.getWindow().getDecorView();
-            var clazz = XposedHelpers.findClass("com.whatsapp.TabsPager", homeActivity.getClassLoader());
+            var clazz = WppCore.getTabsPagerClass(homeActivity.getClassLoader());
             var fieldTab = ReflectionUtils.getFieldByType(homeActivity.getClass(), clazz);
             var mTabInstance = fieldTab.get(homeActivity);
 

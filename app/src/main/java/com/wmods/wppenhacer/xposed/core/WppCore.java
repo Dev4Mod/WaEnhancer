@@ -207,6 +207,22 @@ public class WppCore {
         return mCurrentActivity;
     }
 
+    public synchronized static Class getHomeActivityClass(@NonNull ClassLoader loader) {
+        Class oldHomeClass = XposedHelpers.findClassIfExists("com.whatsapp.HomeActivity", loader);
+
+        return oldHomeClass != null
+                ? oldHomeClass
+                : XposedHelpers.findClass("com.whatsapp.home.ui.HomeActivity", loader);
+    }
+
+    public synchronized static Class getTabsPagerClass(@NonNull ClassLoader loader) {
+        Class oldHomeClass = XposedHelpers.findClassIfExists("com.whatsapp.TabsPager", loader);
+
+        return oldHomeClass != null
+                ? oldHomeClass
+                : XposedHelpers.findClass("com.whatsapp.home.ui.TabsPager", loader);
+    }
+
 //    public static Activity getActivityBySimpleName(String name) {
 //        for (var activity : activities) {
 //            if (activity.getClass().getSimpleName().equals(name)) {
@@ -386,7 +402,7 @@ public class WppCore {
 
         // for tablet UI, they're using HomeActivity instead of Conversation
         // TODO: Add more checks for ConversationFragment
-        Class<?> home = XposedHelpers.findClass("com.whatsapp.HomeActivity", mCurrentActivity.getClassLoader());
+        Class<?> home = getHomeActivityClass(mCurrentActivity.getClassLoader());
         if (mCurrentActivity.getResources().getConfiguration().smallestScreenWidthDp >= 600 && home.isInstance(mCurrentActivity))
             return mCurrentActivity;
         return null;
