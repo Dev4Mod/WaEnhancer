@@ -195,7 +195,7 @@ public class MenuHome extends Feature {
     }
 
     private void hookMenu() {
-        XposedHelpers.findAndHookMethod("com.whatsapp.HomeActivity", classLoader, "onCreateOptionsMenu", Menu.class, new XC_MethodHook() {
+        XposedHelpers.findAndHookMethod(WppCore.getHomeActivityClass(classLoader), "onCreateOptionsMenu", Menu.class, new XC_MethodHook() {
             @Override
             protected void afterHookedMethod(MethodHookParam param) throws Throwable {
                 var menu = (Menu) param.args[0];

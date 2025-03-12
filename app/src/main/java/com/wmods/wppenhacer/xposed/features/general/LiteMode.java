@@ -59,7 +59,7 @@ public class LiteMode extends Feature {
 
         menuItems.add(this::InsertDownloadFolderButton);
 
-        XposedHelpers.findAndHookMethod("com.whatsapp.HomeActivity", classLoader, "onCreate", Bundle.class, new XC_MethodHook() {
+        XposedHelpers.findAndHookMethod(WppCore.getHomeActivityClass(classLoader), "onCreate", Bundle.class, new XC_MethodHook() {
             @Override
             protected void afterHookedMethod(MethodHookParam param) throws Throwable {
                 var activity = (Activity) param.thisObject;
