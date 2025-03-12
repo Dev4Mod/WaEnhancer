@@ -15,6 +15,7 @@ import android.widget.LinearLayout;
 import androidx.annotation.NonNull;
 
 import com.wmods.wppenhacer.xposed.core.Feature;
+import com.wmods.wppenhacer.xposed.core.WppCore;
 import com.wmods.wppenhacer.xposed.core.components.AlertDialogWpp;
 import com.wmods.wppenhacer.xposed.utils.DesignUtils;
 import com.wmods.wppenhacer.xposed.utils.ResId;
@@ -31,7 +32,7 @@ public class NewChat extends Feature {
 
     @Override
     public void doHook() {
-        var homeActivity = findClass("com.whatsapp.HomeActivity", classLoader);
+        var homeActivity = WppCore.getHomeActivityClass(classLoader);
         var action = prefs.getBoolean("buttonaction", true);
         if (!prefs.getBoolean("newchat", true)) return;
 

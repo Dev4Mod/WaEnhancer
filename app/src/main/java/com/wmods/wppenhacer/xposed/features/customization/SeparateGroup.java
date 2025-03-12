@@ -12,6 +12,7 @@ import android.widget.BaseAdapter;
 import androidx.annotation.NonNull;
 
 import com.wmods.wppenhacer.xposed.core.Feature;
+import com.wmods.wppenhacer.xposed.core.WppCore;
 import com.wmods.wppenhacer.xposed.core.db.MessageStore;
 import com.wmods.wppenhacer.xposed.core.devkit.Unobfuscator;
 import com.wmods.wppenhacer.xposed.core.devkit.UnobfuscatorCache;
@@ -47,7 +48,7 @@ public class SeparateGroup extends Feature {
     public void doHook() throws Exception {
 
         var cFragClass = XposedHelpers.findClass("com.whatsapp.conversationslist.ConversationsFragment", classLoader);
-        var homeActivityClass = XposedHelpers.findClass("com.whatsapp.HomeActivity", classLoader);
+        var homeActivityClass = WppCore.getHomeActivityClass(classLoader);
 
         if (!prefs.getBoolean("separategroups", false)) return;
 

@@ -15,6 +15,7 @@ import android.view.ViewGroup;
 import android.widget.FrameLayout;
 import android.widget.TextView;
 
+import com.wmods.wppenhacer.xposed.core.WppCore;
 import com.wmods.wppenhacer.xposed.utils.ReflectionUtils;
 import com.wmods.wppenhacer.xposed.utils.Utils;
 
@@ -1860,7 +1861,7 @@ public class Unobfuscator {
     public static Field loadChangeTitleLogoField(ClassLoader classLoader) throws Exception {
         return UnobfuscatorCache.getInstance().getField(classLoader, () -> {
             var methodData = dexkit.getMethodData(loadChangeTitleLogoMethod(classLoader));
-            var clazz = XposedHelpers.findClass("com.whatsapp.HomeActivity", classLoader);
+            var clazz = WppCore.getHomeActivityClass(classLoader);
             var usingFields = methodData.getUsingFields();
             for (var uField : usingFields) {
                 var field = uField.getField().getFieldInstance(classLoader);

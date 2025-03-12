@@ -105,8 +105,8 @@ public class CustomThemeV2 extends Feature {
             replaceTransparency(toolbarAlpha, (100 - wallpaperToolbarAlpha) / 100.0f);
         }
 
-        var clazz = XposedHelpers.findClass("com.whatsapp.HomeActivity", classLoader);
-        XposedHelpers.findAndHookMethod(clazz, "onCreate", Bundle.class, new XC_MethodHook() {
+        var homeActivityClass = WppCore.getHomeActivityClass(classLoader);
+        XposedHelpers.findAndHookMethod(homeActivityClass, "onCreate", Bundle.class, new XC_MethodHook() {
             @Override
             protected void afterHookedMethod(MethodHookParam param) throws Throwable {
                 var activity = (Activity) param.thisObject;
@@ -118,10 +118,8 @@ public class CustomThemeV2 extends Feature {
 
         var revertWallAlpha = revertColors(wallAlpha);
 
-        var homeClass = XposedHelpers.findClass("com.whatsapp.HomeActivity", classLoader);
-
         WppCore.addListenerActivity((activity, type) -> {
-            var isHome = homeClass.isInstance(activity);
+            var isHome = homeActivityClass.isInstance(activity);
             if (WppCore.ActivityChangeState.ChangeType.RESUMED == type && isHome) {
                 mContent = activity.findViewById(android.R.id.content);
                 if (mContent != null) {
@@ -268,7 +266,7 @@ public class CustomThemeV2 extends Feature {
     }
 
     private boolean checkNotHomeActivity() {
-        var homeClass = XposedHelpers.findClass("com.whatsapp.HomeActivity", classLoader);
+        var homeClass = WppCore.getHomeActivityClass(classLoader);
         var currentActivity = WppCore.getCurrentActivity();
         return (currentActivity == null || !homeClass.isInstance(currentActivity));
     }

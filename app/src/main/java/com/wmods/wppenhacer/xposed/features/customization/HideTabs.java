@@ -10,6 +10,7 @@ import android.widget.FrameLayout;
 import androidx.annotation.NonNull;
 
 import com.wmods.wppenhacer.xposed.core.Feature;
+import com.wmods.wppenhacer.xposed.core.WppCore;
 import com.wmods.wppenhacer.xposed.core.devkit.Unobfuscator;
 import com.wmods.wppenhacer.xposed.utils.ReflectionUtils;
 
@@ -37,7 +38,7 @@ public class HideTabs extends Feature {
         if (hidetabs == null || hidetabs.isEmpty())
             return;
 
-        var home = XposedHelpers.findClass("com.whatsapp.HomeActivity", classLoader);
+        var home = WppCore.getHomeActivityClass(classLoader);
 
         var hideTabsList = hidetabs.stream().map(Integer::valueOf).collect(Collectors.toList());
 
@@ -93,10 +94,10 @@ public class HideTabs extends Feature {
             }
         });
 
-        XposedHelpers.findAndHookMethod("com.whatsapp.HomeActivity", classLoader, "onCreate", Bundle.class, new XC_MethodHook() {
+        XposedHelpers.findAndHookMethod(WppCore.getHomeActivityClass(classLoader), "onCreate", Bundle.class, new XC_MethodHook() {
             @Override
             protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-                Class<?> TabsPagerClass = classLoader.loadClass("com.whatsapp.TabsPager");
+                Class<?> TabsPagerClass = WppCore.getTabsPagerClass(classLoader);
                 var tabsField = ReflectionUtils.getFieldByType(param.thisObject.getClass(), TabsPagerClass);
                 mTabPagerInstance = tabsField.get(param.thisObject);
             }
