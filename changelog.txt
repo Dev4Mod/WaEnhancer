@@ -1,2 +1,14 @@
 [BUGS FIXED]
-* Fixed more bugs in WA 2.25.5.XX
+* Fixed issues with color changes
+* Fixed issues with IGStatus appearing blank
+* Fixed issues with the update checker
+* Fixed issues with themes
+
+[IMPROVEMENTS]
+* Improved theme performance
+
+[WHATSAPP]
+* Added support for WhatsApp 2.25.6.XX (Thanks to frknkrc44)
+
+[WA ENHANCER]
+* Updated translation
