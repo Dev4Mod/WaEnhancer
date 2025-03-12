@@ -71,25 +71,19 @@ public class CustomThemeV2 extends Feature {
     @Override
     public void doHook() throws Throwable {
         properties = Utils.getProperties(prefs, "custom_css", "custom_filters");
-        hookColors();
-        if (prefs.getBoolean("lite_mode", false)) return;
+        hookTheme();
         hookWallpaper();
+        XposedBridge.hookAllMethods(XposedHelpers.findClass("android.app.ActivityThread", classLoader), "handleRelaunchActivity", new XC_MethodHook() {
+            @Override
+            protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
+                loadAndApplyColors();
+                loadAndApplyColorsWallpaper();
+            }
+        });
     }
 
-    private static HashMap<String, String> revertColors(HashMap<String, String> colors) {
-        HashMap<String, String> newColors = new HashMap<>();
-        for (var c : colors.keySet()) {
-            var color = colors.get(c);
-            newColors.put(color, c);
-        }
-        return newColors;
-    }
-
-    private void hookWallpaper() throws Exception {
-
-        if (!prefs.getBoolean("wallpaper", false))
-            return;
-
+    private void loadAndApplyColorsWallpaper() {
+        if (prefs.getBoolean("lite_mode", false)) return;
         var customWallpaper = prefs.getBoolean("wallpaper", false);
 
         if (customWallpaper || properties.containsKey("wallpaper")) {
@@ -107,6 +101,23 @@ public class CustomThemeV2 extends Feature {
             var wallpaperToolbarAlpha = customWallpaper ? prefs.getInt("wallpaper_alpha_toolbar", 30) : Utils.tryParseInt(properties.getProperty("wallpaper_alpha_toolbar"), 30);
             replaceTransparency(toolbarAlpha, (100 - wallpaperToolbarAlpha) / 100.0f);
         }
+    }
+
+    private static HashMap<String, String> revertColors(HashMap<String, String> colors) {
+        HashMap<String, String> newColors = new HashMap<>();
+        for (var c : colors.keySet()) {
+            var color = colors.get(c);
+            newColors.put(color, c);
+        }
+        return newColors;
+    }
+
+    private void hookWallpaper() throws Exception {
+
+        if (!prefs.getBoolean("wallpaper", false))
+            return;
+
+        loadAndApplyColorsWallpaper();
 
         var homeActivityClass = WppCore.getHomeActivityClass(classLoader);
         XposedHelpers.findAndHookMethod(homeActivityClass, "onCreate", Bundle.class, new XC_MethodHook() {
@@ -159,7 +170,50 @@ public class CustomThemeV2 extends Feature {
 
     }
 
-    public void hookColors() throws Throwable {
+
+    public void hookTheme() throws Throwable {
+        loadAndApplyColors();
+
+        XposedBridge.hookAllMethods(AssetManager.class, "getResourceValue", new XC_MethodHook() {
+            @Override
+            protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+                var typedValue = (TypedValue) param.args[2];
+                if (typedValue.type >= TypedValue.TYPE_FIRST_INT
+                        && typedValue.type <= TypedValue.TYPE_LAST_INT) {
+                    if (typedValue.data == 0) return;
+                    if (checkNotApplyColor(typedValue.data)) return;
+                    typedValue.data = IColors.getFromIntColor(typedValue.data, IColors.colors);
+                }
+            }
+        });
+
+        var resourceImpl = XposedHelpers.findClass("android.content.res.ResourcesImpl", classLoader);
+
+        XposedBridge.hookAllMethods(resourceImpl, "loadDrawable", new XC_MethodHook() {
+            @Override
+            protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+                var drawable = (Drawable) param.getResult();
+                DrawableColors.replaceColor(drawable, IColors.colors);
+            }
+        });
+
+        XposedBridge.hookAllMethods(resourceImpl, "loadColorStateList", new XC_MethodHook() {
+            @Override
+            protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+                var colorStateList = (ColorStateList) param.getResult();
+                var mColors = (int[]) XposedHelpers.getObjectField(colorStateList, "mColors");
+                for (var i = 0; i < mColors.length; i++) {
+                    mColors[i] = IColors.getFromIntColor(mColors[i], IColors.colors);
+                }
+            }
+        });
+        var intBgHook = new IntBgColorHook();
+        findAndHookMethod(Paint.class, "setColor", int.class, intBgHook);
+    }
+
+    public void loadAndApplyColors() {
+
+        IColors.initColors();
 
         var primaryColorInt = prefs.getInt("primary_color", 0);
         var secondaryColorInt = prefs.getInt("secondary_color", 0);
@@ -209,42 +263,6 @@ public class CustomThemeV2 extends Feature {
             backgroundColors.put("#ffffffff", "#ffffffff");
             backgroundColors.put("ffffff", "ffffff");
         }
-
-        XposedBridge.hookAllMethods(AssetManager.class, "getResourceValue", new XC_MethodHook() {
-            @Override
-            protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-                var typedValue = (TypedValue) param.args[2];
-                if (typedValue.type >= TypedValue.TYPE_FIRST_INT
-                        && typedValue.type <= TypedValue.TYPE_LAST_INT) {
-                    if (typedValue.data == 0) return;
-                    if (checkNotApplyColor(typedValue.data)) return;
-                    typedValue.data = IColors.getFromIntColor(typedValue.data, IColors.colors);
-                }
-            }
-        });
-
-        var resourceImpl = XposedHelpers.findClass("android.content.res.ResourcesImpl", classLoader);
-
-        XposedBridge.hookAllMethods(resourceImpl, "loadDrawable", new XC_MethodHook() {
-            @Override
-            protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-                var drawable = (Drawable) param.getResult();
-                DrawableColors.replaceColor(drawable, IColors.colors);
-            }
-        });
-
-        XposedBridge.hookAllMethods(resourceImpl, "loadColorStateList", new XC_MethodHook() {
-            @Override
-            protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-                var colorStateList = (ColorStateList) param.getResult();
-                var mColors = (int[]) XposedHelpers.getObjectField(colorStateList, "mColors");
-                for (var i = 0; i < mColors.length; i++) {
-                    mColors[i] = IColors.getFromIntColor(mColors[i], IColors.colors);
-                }
-            }
-        });
-        var intBgHook = new IntBgColorHook();
-        findAndHookMethod(Paint.class, "setColor", int.class, intBgHook);
 
     }
 
