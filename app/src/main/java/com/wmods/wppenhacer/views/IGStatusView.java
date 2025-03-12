@@ -11,12 +11,20 @@ public class IGStatusView extends FrameLayout {
     public HorizontalListView mStatusListView;
 
     public IGStatusAdapter mStatusAdapter;
+    private int mFragmentId;
 
     public IGStatusView(@NonNull Context context) {
         super(context);
         init(context);
     }
 
+    public int getFragmentId() {
+        return mFragmentId;
+    }
+
+    public void setFragmentId(int id) {
+        mFragmentId = id;
+    }
 
     private void init(Context context) {
         mStatusListView = new HorizontalListView(context);
@@ -49,5 +57,9 @@ public class IGStatusView extends FrameLayout {
     public void setAdapter(IGStatusAdapter mStatusAdapter) {
         this.mStatusAdapter = mStatusAdapter;
         mStatusListView.setAdapter(mStatusAdapter);
+    }
+
+    public IGStatusAdapter getAdapter() {
+        return mStatusAdapter;
     }
 }
