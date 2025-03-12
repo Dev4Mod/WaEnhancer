@@ -51,7 +51,6 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Objects;
 import java.util.Properties;
-import java.util.concurrent.CompletableFuture;
 
 import cz.vutbr.web.css.CSSFactory;
 import cz.vutbr.web.css.CombinedSelector;
@@ -177,29 +176,41 @@ public class CustomView extends Feature {
             }
         }
 
+        XposedHelpers.findAndHookMethod(View.class, "invalidate", boolean.class, new XC_MethodHook() {
+            @Override
+            protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+                if (ReflectionUtils.isCalledFromClass(CustomView.class)) return;
+                var view = (View) param.thisObject;
+                requestLayoutChange(view, mapIds);
+            }
+        });
+
         XposedHelpers.findAndHookMethod(View.class, "requestLayout", new XC_MethodHook() {
             @Override
             protected void afterHookedMethod(MethodHookParam param) throws Throwable {
                 if (ReflectionUtils.isCalledFromClass(CustomView.class)) return;
                 var view = (View) param.thisObject;
-                var id = view.getId();
-                var list = mapIds.get(id);
-                if (list == null) return;
-                CompletableFuture.runAsync(() -> {
-                    for (var item : list) {
-                        try {
-                            if (item.targetActivityClass != null && !item.targetActivityClass.isInstance(WppCore.getCurrentActivity()))
-                                continue;
-                            setCssRule(view, item);
-                        } catch (Throwable ignored) {
-                        }
-                    }
-                }, Utils.getExecutor());
+                view.invalidate();
             }
         });
 
+
     }
 
+
+    private void requestLayoutChange(View view, HashMap<Integer, ArrayList<RuleItem>> mapIds) {
+        var id = view.getId();
+        var list = mapIds.get(id);
+        if (list == null) return;
+        for (var item : list) {
+            try {
+                if (item.targetActivityClass != null && !item.targetActivityClass.isInstance(WppCore.getCurrentActivity()))
+                    continue;
+                setCssRule(view, item);
+            } catch (Throwable ignored) {
+            }
+        }
+    }
 
     private void hookDrawableViews() {
         XposedHelpers.findAndHookMethod(View.class, "setBackground", Drawable.class, new XC_MethodHook() {
@@ -244,13 +255,11 @@ public class CustomView extends Feature {
         for (var view : resultViews) {
             if (view == null || !view.isAttachedToWindow())
                 continue;
-            CompletableFuture.runAsync(() -> view.post(() -> {
-                try {
-                    setRuleInView(ruleItem, view);
-                } catch (Throwable e) {
-                    log(e);
-                }
-            }), Utils.getExecutor());
+            try {
+                setRuleInView(ruleItem, view);
+            } catch (Throwable e) {
+                log(e);
+            }
         }
     }
 
@@ -382,6 +391,7 @@ public class CustomView extends Feature {
                                         continue;
                                     }
                                 }
+                                if (view.getWidth() < 1 || view.getHeight() < 1) continue;
                                 var resizeDrawable = new BitmapDrawable(view.getContext().getResources(), Bitmap.createScaledBitmap(bitmap, view.getWidth(), view.getHeight(), true));
                                 view.setBackground(resizeDrawable);
                                 XposedHelpers.setAdditionalInstanceField(view, "mHeight", view.getHeight());
