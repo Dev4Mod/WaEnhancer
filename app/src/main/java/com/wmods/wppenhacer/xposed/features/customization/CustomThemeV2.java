@@ -4,18 +4,21 @@ import static com.wmods.wppenhacer.utils.ColorReplacement.replaceColors;
 import static com.wmods.wppenhacer.utils.IColors.backgroundColors;
 import static com.wmods.wppenhacer.utils.IColors.primaryColors;
 import static com.wmods.wppenhacer.utils.IColors.secondaryColors;
+import static de.robv.android.xposed.XposedHelpers.findAndHookMethod;
 
 import android.Manifest;
 import android.app.Activity;
 import android.content.pm.PackageManager;
 import android.content.res.AssetManager;
 import android.content.res.ColorStateList;
+import android.graphics.Paint;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.util.TypedValue;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.core.content.ContextCompat;
@@ -240,6 +243,8 @@ public class CustomThemeV2 extends Feature {
                 }
             }
         });
+        var intBgHook = new IntBgColorHook();
+        findAndHookMethod(Paint.class, "setColor", int.class, intBgHook);
 
     }
 
@@ -298,5 +303,26 @@ public class CustomThemeV2 extends Feature {
     public String getPluginName() {
         return "Custom Theme V2";
     }
+
+
+    public static class IntBgColorHook extends XC_MethodHook {
+
+
+        @Override
+        protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
+            var color = (int) param.args[0];
+
+            if (param.thisObject instanceof TextView textView) {
+                var id = Utils.getID("conversations_row_message_count", "id");
+                if (textView.getId() == id) {
+                    return;
+                }
+            } else if (param.thisObject instanceof Paint && ReflectionUtils.isCalledFromStrings("getValue")) {
+                return;
+            }
+            param.args[0] = IColors.getFromIntColor(color, IColors.colors);
+        }
+    }
+
 
 }
