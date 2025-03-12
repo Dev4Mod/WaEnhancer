@@ -17,6 +17,7 @@ import android.net.Uri;
 import android.os.Binder;
 import android.os.Handler;
 import android.os.Looper;
+import android.text.TextUtils;
 import android.util.DisplayMetrics;
 import android.util.TypedValue;
 import android.widget.Toast;
@@ -38,6 +39,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Locale;
 import java.util.Objects;
 import java.util.Properties;
@@ -55,6 +57,7 @@ public class Utils {
     private static final ExecutorService executorService = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
     private static final ExecutorService executorCachedService = Executors.newCachedThreadPool();
     public static XSharedPreferences xprefs;
+    private static final HashMap<String, Integer> ids = new HashMap<>();
 
     public static void init(ClassLoader loader) {
         var context = Utils.getApplication();
@@ -90,16 +93,45 @@ public class Utils {
         return true;
     }
 
+    /**
+     * Retrieves the resource ID by name and type.
+     * Uses caching to improve performance for repeated lookups.
+     *
+     * @param name The resource name to look up
+     * @param type The resource type (e.g., "id", "drawable", "layout", "string")
+     * @return The resource ID or -1 if not found or an error occurred
+     */
     @SuppressLint("DiscouragedApi")
     public static int getID(String name, String type) {
+
+        if (TextUtils.isEmpty(name) || TextUtils.isEmpty(type)) {
+            return -1;
+        }
+
+        final String key = type + "_" + name;
+
+        synchronized (ids) {
+            if (ids.containsKey(key)) {
+                Integer cachedId = ids.get(key);
+                return cachedId != null ? cachedId : -1;
+            }
+        }
+
         try {
-            return getApplication().getApplicationContext().getResources().getIdentifier(name, type, getApplication().getPackageName());
+            Application app = getApplication();
+            Context context = app.getApplicationContext();
+            int id = context.getResources().getIdentifier(name, type, app.getPackageName());
+
+            synchronized (ids) {
+                ids.put(key, id);
+            }
+
+            return id;
         } catch (Exception e) {
-            XposedBridge.log("Error while getting ID: " + name + " " + type + " message:" + e);
+            XposedBridge.log("Error getting resource ID: type=" + type + ", name=" + name + ", error: " + e.getMessage());
             return -1;
         }
     }
-
     public static int dipToPixels(float dipValue) {
         DisplayMetrics metrics = FeatureLoader.mApp.getResources().getDisplayMetrics();
         return (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, dipValue, metrics);
