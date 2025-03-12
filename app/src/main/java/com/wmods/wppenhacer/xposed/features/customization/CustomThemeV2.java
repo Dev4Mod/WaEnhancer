@@ -4,21 +4,18 @@ import static com.wmods.wppenhacer.utils.ColorReplacement.replaceColors;
 import static com.wmods.wppenhacer.utils.IColors.backgroundColors;
 import static com.wmods.wppenhacer.utils.IColors.primaryColors;
 import static com.wmods.wppenhacer.utils.IColors.secondaryColors;
-import static de.robv.android.xposed.XposedHelpers.findAndHookMethod;
 
 import android.Manifest;
 import android.app.Activity;
 import android.content.pm.PackageManager;
 import android.content.res.AssetManager;
 import android.content.res.ColorStateList;
-import android.graphics.Paint;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.util.TypedValue;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
-import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.core.content.ContextCompat;
@@ -48,7 +45,7 @@ public class CustomThemeV2 extends Feature {
     private HashMap<String, String> navAlpha;
     private HashMap<String, String> toolbarAlpha;
     private Properties properties;
-    private View mMainContainer;
+    private ViewGroup mContent;
 
     public CustomThemeV2(@NonNull ClassLoader classLoader, @NonNull XSharedPreferences preferences) {
         super(classLoader, preferences);
@@ -104,10 +101,6 @@ public class CustomThemeV2 extends Feature {
 
             toolbarAlpha = new HashMap<>(IColors.colors);
 
-            // Corrigir cor verde na barra de ferramentas
-            var colorOrig = "#ff1b8755";
-            var color = toolbarAlpha.get(colorOrig);
-            if (Objects.equals(colorOrig, color)) toolbarAlpha.put(colorOrig, "#ffffffff");
             var wallpaperToolbarAlpha = customWallpaper ? prefs.getInt("wallpaper_alpha_toolbar", 30) : Utils.tryParseInt(properties.getProperty("wallpaper_alpha_toolbar"), 30);
             replaceTransparency(toolbarAlpha, (100 - wallpaperToolbarAlpha) / 100.0f);
         }
@@ -130,14 +123,14 @@ public class CustomThemeV2 extends Feature {
         WppCore.addListenerActivity((activity, type) -> {
             var isHome = homeClass.isInstance(activity);
             if (WppCore.ActivityChangeState.ChangeType.RESUMED == type && isHome) {
-                mMainContainer = activity.findViewById(android.R.id.content);
-                if (mMainContainer != null) {
-                    replaceColors(mMainContainer, wallAlpha);
+                mContent = activity.findViewById(android.R.id.content);
+                if (mContent != null) {
+                    replaceColors(mContent, wallAlpha);
                 }
             } else if (WppCore.ActivityChangeState.ChangeType.CREATED == type && !isHome &&
-                    !activity.getClass().getSimpleName().equals("QuickContactActivity")) {
-                if (mMainContainer != null) {
-                    replaceColors(mMainContainer, revertWallAlpha);
+                    !activity.getClass().getSimpleName().equals("QuickContactActivity") && !DesignUtils.isNightMode()) {
+                if (mContent != null) {
+                    replaceColors(mContent, revertWallAlpha);
                 }
             }
         });
@@ -181,6 +174,12 @@ public class CustomThemeV2 extends Feature {
             backgroundColor = backgroundColorInt == 0 ? "0" : IColors.toString(backgroundColorInt);
         }
 
+        // Passa as cores de fundo para as cores secundárias no tema claro
+        if (!DesignUtils.isNightMode()) {
+            secondaryColors.clear();
+            secondaryColors.putAll(backgroundColors);
+            backgroundColors.clear();
+        }
 
         if (prefs.getBoolean("changecolor", false) || Objects.equals(properties.getProperty("change_colors"), "true")) {
 
@@ -205,6 +204,7 @@ public class CustomThemeV2 extends Feature {
 
         if (!DesignUtils.isNightMode()) {
             backgroundColors.clear();
+            backgroundColors.put("#ff1b8755", "#ffffffff");
             backgroundColors.put("#ffffffff", "#ffffffff");
             backgroundColors.put("ffffff", "ffffff");
         }
@@ -212,17 +212,13 @@ public class CustomThemeV2 extends Feature {
         XposedBridge.hookAllMethods(AssetManager.class, "getResourceValue", new XC_MethodHook() {
             @Override
             protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-                var id = (int) param.args[0];
-
                 var typedValue = (TypedValue) param.args[2];
-                if ((id >= 0x7f060000 && id <= 0x7f06ffff) || (id >= 0x01010000 && id <= 0x0101ffff)) {
-                    if (typedValue.type >= TypedValue.TYPE_FIRST_INT
-                            && typedValue.type <= TypedValue.TYPE_LAST_INT) {
-                        if (typedValue.data == 0) return;
-                        typedValue.data = IColors.getFromIntColor(typedValue.data, IColors.colors);
-                    }
+                if (typedValue.type >= TypedValue.TYPE_FIRST_INT
+                        && typedValue.type <= TypedValue.TYPE_LAST_INT) {
+                    if (typedValue.data == 0) return;
+                    if (checkNotApplyColor(typedValue.data)) return;
+                    typedValue.data = IColors.getFromIntColor(typedValue.data, IColors.colors);
                 }
-
             }
         });
 
@@ -247,9 +243,6 @@ public class CustomThemeV2 extends Feature {
             }
         });
 
-        var intBgHook = new IntBgColorHook();
-        findAndHookMethod(Paint.class, "setColor", int.class, intBgHook);
-        findAndHookMethod(TextView.class, "setTextColor", int.class, intBgHook);
     }
 
     private void replaceTransparency(HashMap<String, String> wallpaperColors, float mAlpha) {
@@ -294,31 +287,12 @@ public class CustomThemeV2 extends Feature {
         return resultColor;
     }
 
-    public static class IntBgColorHook extends XC_MethodHook {
-
-
-        @Override
-        protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
-            var color = (int) param.args[0];
-            var sColor = IColors.toString(color);
-
-            if (param.thisObject instanceof TextView textView) {
-                var id = Utils.getID("conversations_row_message_count", "id");
-                if (textView.getId() == id) {
-                    param.args[0] = IColors.parseColor("#ff" + sColor.substring(sColor.length() == 9 ? 3 : 1));
-                    return;
-                }
-            } else if (param.thisObject instanceof Paint) {
-                if (ReflectionUtils.isCalledFromStrings("getValue") && !ReflectionUtils.isCalledFromStrings("android.view")) {
-                    var resultColor = getOriginalColor(sColor);
-                    if (resultColor != -1) {
-                        param.args[0] = resultColor;
-                        return;
-                    }
-                }
-            }
-            param.args[0] = IColors.getFromIntColor(color, IColors.colors);
+    private boolean checkNotApplyColor(int color) {
+        var activity = WppCore.getCurrentActivity();
+        if (activity != null && activity.getClass().getSimpleName().equals("Conversation") && ReflectionUtils.isCalledFromStrings("getValue") && !ReflectionUtils.isCalledFromStrings("android.view")) {
+            return color != 0xff12181c;
         }
+        return false;
     }
 
     @NonNull

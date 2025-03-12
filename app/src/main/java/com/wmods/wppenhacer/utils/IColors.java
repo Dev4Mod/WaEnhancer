@@ -26,15 +26,15 @@ public class IColors {
         primaryColors.put("#ffd9fdd3", "#ffd9fdd3");
         primaryColors.put("#ff1b864b", "#ff1b864b");
 
+        primaryColors.put("#ff144d37", "#80144d37");
+        primaryColors.put("#ff1b8755", "#801b8755");
+        primaryColors.put("#ff15603e", "#8015603e");
+        primaryColors.put("#ff103529", "#ff103529");
+
 
         // secundary colors
-        secondaryColors.put("#ff202c33", "#ff202c33");
-        secondaryColors.put("#ff2a2f33", "#ff2a2f33");
-        secondaryColors.put("#fff1f2f4", "#fff1f2f4");
-        secondaryColors.put("#ff103529", "#ff103529");
-        secondaryColors.put("#ff144d37", "#ff144d37");
-        secondaryColors.put("#ff1b8755", "#ff1b8755");
-        secondaryColors.put("#ff15603e", "#ff15603e");
+        secondaryColors.put("#ffeaedee", "#ffeaedee");
+        secondaryColors.put("#fff7f8fa", "#fff7f8fa");
 
         // background colors
         backgroundColors.put("0b141a", "0a1014");
