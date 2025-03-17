@@ -324,7 +324,16 @@ public class WppCore {
         try {
             var conversation = getCurrentConversation();
             if (conversation == null) return null;
-            var chatField = convChatField.get(conversation);
+            Object chatField;
+            if (conversation.getClass().getSimpleName().equals("HomeActivity")) {
+                // tablet mode found
+                var convFragmentMethod = Unobfuscator.loadHomeConversationFragmentMethod(conversation.getClassLoader());
+                var convFragment = convFragmentMethod.invoke(null, conversation);
+                var convField = Unobfuscator.loadAntiRevokeConvFragmentField(conversation.getClassLoader());
+                chatField = convField.get(convFragment);
+            } else {
+                chatField = convChatField.get(conversation);
+            }
             var chatJidObj = chatJidField.get(chatField);
             return getRawString(chatJidObj);
         } catch (Exception e) {
