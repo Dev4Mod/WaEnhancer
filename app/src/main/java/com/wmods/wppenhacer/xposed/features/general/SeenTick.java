@@ -417,7 +417,7 @@ public class SeenTick extends Feature {
             } catch (Throwable e) {
                 XposedBridge.log("Error: " + e.getMessage());
             }
-        });
+        }, Utils.getExecutor());
     }
 
     private void sendBlueTickStatus(String currentJid) {
@@ -437,7 +437,7 @@ public class SeenTick extends Feature {
             } catch (Throwable e) {
                 XposedBridge.log("Error: " + e.getMessage());
             }
-        });
+        }, Utils.getExecutor());
     }
 
     private void sendBlueTickMedia(Object messageObject, boolean clear) {
@@ -464,7 +464,7 @@ public class SeenTick extends Feature {
             } catch (Throwable e) {
                 XposedBridge.log(e);
             }
-        });
+        }, Utils.getExecutor());
     }
 
     @NonNull
