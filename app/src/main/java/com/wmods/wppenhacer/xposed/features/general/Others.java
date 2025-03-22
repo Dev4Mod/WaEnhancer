@@ -257,6 +257,15 @@ public class Others extends Feature {
         var bubbleMethod = Unobfuscator.loadAntiRevokeBubbleMethod(classLoader);
         logDebug(Unobfuscator.getMethodDescriptor(bubbleMethod));
 
+        XposedBridge.hookAllConstructors(bubbleMethod.getDeclaringClass(), new XC_MethodHook() {
+            @Override
+            protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+                var viewGroup = (ViewGroup) param.thisObject;
+                viewGroup.setOnTouchListener(null);
+            }
+        });
+
+
         XposedBridge.hookMethod(bubbleMethod, new XC_MethodHook() {
 
             @Override
