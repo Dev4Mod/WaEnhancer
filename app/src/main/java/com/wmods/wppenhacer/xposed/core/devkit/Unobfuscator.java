@@ -689,6 +689,29 @@ public class Unobfuscator {
         });
     }
 
+    public synchronized static Method loadHomeConversationFragmentMethod(ClassLoader loader) throws Exception {
+        return UnobfuscatorCache.getInstance().getMethod(loader, () -> {
+            var homeClass = WppCore.getHomeActivityClass(loader);
+            var convFragment = XposedHelpers.findClass("com.whatsapp.ConversationFragment", loader);
+            MethodData method = dexkit.findMethod(FindMethod.create()
+                    .searchInClass(
+                            Collections.singletonList(
+                                    dexkit.getClassData(homeClass)))
+                    .matcher(MethodMatcher.create().returnType(convFragment))).singleOrNull();
+            if (method == null) throw new Exception("HomeConversationFragmentMethod not found");
+            return method.getMethodInstance(loader);
+        });
+    }
+
+    public synchronized static Field loadAntiRevokeConvFragmentField(ClassLoader loader) throws Exception {
+        return UnobfuscatorCache.getInstance().getField(loader, () -> {
+            Class<?> chatClass = findFirstClassUsingStrings(loader, StringMatchType.Contains, "conversation/createconversation");
+            Class<?> conversation = XposedHelpers.findClass("com.whatsapp.ConversationFragment", loader);
+            Field field = ReflectionUtils.getFieldByType(conversation, chatClass);
+            if (field == null) throw new Exception("AntiRevokeConvChat field not found");
+            return field;
+        });
+    }
 
     public synchronized static Field loadAntiRevokeConvChatField(ClassLoader loader) throws Exception {
         return UnobfuscatorCache.getInstance().getField(loader, () -> {
