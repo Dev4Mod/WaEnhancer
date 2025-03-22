@@ -26,7 +26,6 @@ import okhttp3.RequestBody;
 
 public class AudioTranscript extends Feature {
 
-
     public AudioTranscript(@NonNull ClassLoader classLoader, @NonNull XSharedPreferences preferences) {
         super(classLoader, preferences);
     }
@@ -44,24 +43,28 @@ public class AudioTranscript extends Feature {
         XposedBridge.hookMethod(transcribeMethod, new XC_MethodHook() {
             @Override
             protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
-                DebugUtils.debugArgs(param.args);
                 var pttTranscriptionRequest = param.args[0];
                 var fieldFMessage = ReflectionUtils.getFieldByExtendType(pttTranscriptionRequest.getClass(), FMessageWpp.TYPE);
                 var fmessageObj = fieldFMessage.get(pttTranscriptionRequest);
                 var fmessage = new FMessageWpp(fmessageObj);
                 File file = fmessage.getMediaFile();
                 var callback = param.args[1];
-                var mEnglishInstance = ReflectionUtils.getFieldByExtendType(unkTranscriptClass, unkTranscriptClass).get(null);
                 var onComplete = ReflectionUtils.findMethodUsingFilter(callback.getClass(), method -> method.getParameterCount() == 4);
                 String transcript = runTranscript(file);
                 var segments = new ArrayList<>();
-                var words = transcript.split(" ");
+                var words = transcript.split("\\s");
                 var totalLength = 0;
                 for (var word : words) {
                     segments.add(XposedHelpers.newInstance(TranscriptionSegmentClass, totalLength, word.length(), 100, -1, -1));
                     totalLength += word.length() + 1;
                 }
-                ReflectionUtils.callMethod(onComplete, callback, mEnglishInstance, fmessageObj, transcript, segments);
+                // In version 2.25.7.80 the language has been changed to an enum, but I will maintain for compatibility with old versions
+                if (unkTranscriptClass != null) {
+                    var mEnglishInstance = ReflectionUtils.getFieldByExtendType(unkTranscriptClass, unkTranscriptClass).get(null);
+                    ReflectionUtils.callMethod(onComplete, callback, mEnglishInstance, fmessageObj, transcript, segments);
+                } else {
+                    ReflectionUtils.callMethod(onComplete, callback, fmessageObj, transcript, segments, 1);
+                }
                 param.setResult(null);
             }
         });

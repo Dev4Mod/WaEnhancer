@@ -1777,7 +1777,6 @@ public class Unobfuscator {
     }
 
     public static synchronized Class loadUnkTranscript(ClassLoader classLoader) throws Exception {
-        return UnobfuscatorCache.getInstance().getClass(classLoader, () -> {
             var loadTranscribe = loadTranscribeMethod(classLoader);
             var callbackClass = loadTranscribe.getParameterTypes()[1];
             var onComplete = ReflectionUtils.findMethodUsingFilter(callbackClass, method -> method.getParameterCount() == 4);
@@ -1785,9 +1784,8 @@ public class Unobfuscator {
             Log.i(TAG, resultTypeClass);
             var classDataList = dexkit.findClass(FindClass.create().matcher(ClassMatcher.create().addUsingString("Unknown").superClass(resultTypeClass)));
             if (classDataList.isEmpty())
-                throw new RuntimeException("UnkTranscript class not found");
+                return null;
             return classDataList.get(0).getInstance(classLoader);
-        });
     }
 
     public static synchronized Class loadTranscriptSegment(ClassLoader classLoader) throws Exception {
