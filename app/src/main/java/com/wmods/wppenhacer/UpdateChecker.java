@@ -5,10 +5,12 @@ import android.app.AlertDialog;
 import android.text.Html;
 
 import com.wmods.wppenhacer.xposed.core.WppCore;
+import com.wmods.wppenhacer.xposed.utils.DebugUtils;
 import com.wmods.wppenhacer.xposed.utils.Utils;
 
 import java.util.Objects;
 
+import de.robv.android.xposed.XposedBridge;
 import okhttp3.OkHttpClient;
 
 public class UpdateChecker implements Runnable {
@@ -31,9 +33,10 @@ public class UpdateChecker implements Runnable {
             var body = response.body();
             if (body == null) return;
             var content = body.string();
-            var indexHash = content.lastIndexOf("WaEnhancer_");
+            var findText = "WaEnhancer_Business_";
+            var indexHash = content.lastIndexOf(findText);
             var lastindexHash = content.indexOf(".apk", indexHash);
-            var hash = content.substring(indexHash + 17, lastindexHash);
+            var hash = content.substring(indexHash + findText.length(), lastindexHash);
             var appInfo = mActivity.getPackageManager().getPackageInfo(BuildConfig.APPLICATION_ID, 0);
             if (!appInfo.versionName.toLowerCase().contains(hash.toLowerCase().trim()) && !Objects.equals(WppCore.getPrivString("ignored_version", ""), hash)) {
                 var changelogIndex = content.indexOf("<div class=\"tgme_widget_message_text js-message_text\" dir=\"auto\">", lastindexHash);
