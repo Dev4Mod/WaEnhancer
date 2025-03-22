@@ -1,14 +1,10 @@
 [BUGS FIXED]
-* Fixed issues with color changes
-* Fixed issues with IGStatus appearing blank
-* Fixed issues with the update checker
-* Fixed issues with themes
+* Fixed issues with background color transparency
+* Fixed issues with send on reply
+* Fixed issues with double tap to reaction
 
 [IMPROVEMENTS]
-* Improved theme performance
+* Improved table mode support (Thanks to frknkrc44)
 
 [WHATSAPP]
-* Added support for WhatsApp 2.25.6.XX (Thanks to frknkrc44)
-
-[WA ENHANCER]
-* Updated translation
+* Added support for WhatsApp 2.25.7.XX
