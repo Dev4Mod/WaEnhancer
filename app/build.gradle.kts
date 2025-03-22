@@ -184,9 +184,10 @@ afterEvaluate {
                         commandLine(
                             "adb",
                             "shell",
-                            "am",
-                            "start",
-                            project.properties["debug_package_name"].toString() + "/com.whatsapp.HomeActivity"
+                            "monkey",
+                            "-p",
+                            project.properties["debug_package_name"].toString(),
+                            "1"
                         )
                     }
                 }
