@@ -64,7 +64,7 @@ public class IColors {
 
         primaryColors.put("#ff144d37", "#ff144d37");
         primaryColors.put("#ff1b8755", "#ff1b8755");
-        primaryColors.put("#ff15603e", "#A015603e");
+        primaryColors.put("#ff15603e", "#ff15603e");
         primaryColors.put("#ff103529", "#ff103529");
 
         // secundary colors

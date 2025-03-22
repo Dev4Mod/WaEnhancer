@@ -1894,4 +1894,14 @@ public class Unobfuscator {
         });
     }
 
+    public static Class<?> loadFilterItemClass(ClassLoader classLoader) throws Exception {
+        return UnobfuscatorCache.getInstance().getClass(classLoader, () -> {
+            var methodList = dexkit.findMethod(FindMethod.create().matcher(
+                    MethodMatcher.create().addUsingNumber(Utils.getID("invisible_height_placeholder","id"))
+                            .addUsingNumber(Utils.getID("container_view","id"))
+            ));
+            if (methodList.isEmpty())throw new RuntimeException("FilterItemClass Not Found");
+            return methodList.get(0).getClassInstance(classLoader);
+        });
+    }
 }

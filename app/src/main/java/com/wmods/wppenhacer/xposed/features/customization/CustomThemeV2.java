@@ -11,6 +11,7 @@ import android.app.Activity;
 import android.content.pm.PackageManager;
 import android.content.res.AssetManager;
 import android.content.res.ColorStateList;
+import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
@@ -209,6 +210,17 @@ public class CustomThemeV2 extends Feature {
         });
         var intBgHook = new IntBgColorHook();
         findAndHookMethod(Paint.class, "setColor", int.class, intBgHook);
+
+        Class<?> filterItemClass = Unobfuscator.loadFilterItemClass(classLoader);
+
+        XposedBridge.hookAllConstructors(filterItemClass, new XC_MethodHook() {
+            @Override
+            protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+                var view = (View) param.args[0];
+                var textView = (TextView) view.findViewById(Utils.getID("text_view", "id"));
+                textView.setTextColor(DesignUtils.getPrimaryTextColor());
+            }
+        });
     }
 
     public void loadAndApplyColors() {
