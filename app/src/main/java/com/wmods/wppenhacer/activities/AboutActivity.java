@@ -12,12 +12,10 @@ import com.wmods.wppenhacer.databinding.ActivityAboutBinding;
 public class AboutActivity extends BaseActivity {
 
 
-    private ActivityAboutBinding binding;
-
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        binding = ActivityAboutBinding.inflate(getLayoutInflater());
+        com.wmods.wppenhacer.databinding.ActivityAboutBinding binding = ActivityAboutBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
         binding.btnTelegram.setOnClickListener(v -> {
             Intent intent = new Intent();

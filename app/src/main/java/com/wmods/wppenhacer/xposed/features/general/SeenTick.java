@@ -34,7 +34,6 @@ import com.wmods.wppenhacer.xposed.utils.ReflectionUtils;
 import com.wmods.wppenhacer.xposed.utils.ResId;
 import com.wmods.wppenhacer.xposed.utils.Utils;
 
-import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -58,7 +57,6 @@ public class SeenTick extends Feature {
     private static String currentJid;
     private static String currentScreen = "none";
     private static final HashMap<String, ImageView> messageMap = new HashMap<>();
-    private Field fMessageField;
 
     public SeenTick(@NonNull ClassLoader loader, @NonNull XSharedPreferences preferences) {
         super(loader, preferences);

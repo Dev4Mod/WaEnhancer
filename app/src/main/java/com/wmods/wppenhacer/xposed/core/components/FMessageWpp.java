@@ -10,6 +10,7 @@ import java.lang.reflect.Method;
 import de.robv.android.xposed.XposedBridge;
 import de.robv.android.xposed.XposedHelpers;
 
+/** @noinspection unused*/
 public class FMessageWpp {
 
     public static Class<?> TYPE;
@@ -104,7 +105,7 @@ public class FMessageWpp {
 
     public boolean isBroadcast() {
         try {
-            return (boolean) broadcastField.get(fmessage);
+            return broadcastField.getBoolean(fmessage);
         } catch (Exception e) {
             XposedBridge.log(e);
         }
@@ -126,6 +127,7 @@ public class FMessageWpp {
         }
     }
 
+    /** @noinspection BooleanMethodIsAlwaysInverted*/
     public boolean isMediaFile() {
         try {
             return abstractMediaMessageClass.isInstance(fmessage);
@@ -153,7 +155,6 @@ public class FMessageWpp {
 
     /**
      * Gets the media type of the message.
-     *
      * Media type values:
      * 2 = Voice note
      * 82 = View once voice note
@@ -176,6 +177,7 @@ public class FMessageWpp {
         return (media_type == 82 || media_type == 42 || media_type == 43);
     }
 
+    /** @noinspection unused*/
     public static class Key {
         public static Class<?> TYPE;
 

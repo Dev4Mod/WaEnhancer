@@ -20,7 +20,6 @@ public class AlertDialogWpp {
 
 
     private static Method getAlertDialog;
-    private static Class<?> alertDialogClass;
     private static Method setItemsMethod;
     private static boolean isAvailable;
     private static Method setMessageMethod;
@@ -35,7 +34,7 @@ public class AlertDialogWpp {
     public static void initDialog(ClassLoader loader) {
         try {
             getAlertDialog = Unobfuscator.loadMaterialAlertDialog(loader);
-            alertDialogClass = getAlertDialog.getReturnType();
+            Class<?> alertDialogClass = getAlertDialog.getReturnType();
             setItemsMethod = ReflectionUtils.findMethodUsingFilter(alertDialogClass, method -> method.getParameterCount() == 2 && method.getParameterTypes()[0].equals(DialogInterface.OnClickListener.class) && method.getParameterTypes()[1].equals(CharSequence[].class));
             setMultiChoiceItemsMethod = ReflectionUtils.findMethodUsingFilter(alertDialogClass, method -> method.getParameterCount() == 3 && method.getParameterTypes()[0].equals(DialogInterface.OnMultiChoiceClickListener.class) && method.getParameterTypes()[1].equals(CharSequence[].class));
             setMessageMethod = ReflectionUtils.findMethodUsingFilter(alertDialogClass, method -> method.getParameterCount() == 1 && method.getParameterTypes()[0].equals(CharSequence.class));
