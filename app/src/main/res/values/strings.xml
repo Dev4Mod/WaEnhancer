@@ -409,4 +409,6 @@
     <string name="select_contacts">Select Contacts</string>
     <string name="style_of_stories_status">Style of Stories/Status</string>
     <string name="style_of_stories_status_sum">Changes Stories/Status style to some models available on WhatsApp</string>
+    <string name="view_seen_tick">View Seen Tick</string>
+    <string name="view_seen_tick_sum">Show an icon if the message view was sent to the recipient or unique view was seen</string>
 </resources>

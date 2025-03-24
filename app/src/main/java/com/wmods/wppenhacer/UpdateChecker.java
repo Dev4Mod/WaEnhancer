@@ -5,12 +5,10 @@ import android.app.AlertDialog;
 import android.text.Html;
 
 import com.wmods.wppenhacer.xposed.core.WppCore;
-import com.wmods.wppenhacer.xposed.utils.DebugUtils;
 import com.wmods.wppenhacer.xposed.utils.Utils;
 
 import java.util.Objects;
 
-import de.robv.android.xposed.XposedBridge;
 import okhttp3.OkHttpClient;
 
 public class UpdateChecker implements Runnable {

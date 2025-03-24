@@ -25,8 +25,10 @@ import androidx.collection.ArraySet;
 import com.wmods.wppenhacer.xposed.core.Feature;
 import com.wmods.wppenhacer.xposed.core.WppCore;
 import com.wmods.wppenhacer.xposed.core.components.FMessageWpp;
+import com.wmods.wppenhacer.xposed.core.db.MessageHistory;
 import com.wmods.wppenhacer.xposed.core.db.MessageStore;
 import com.wmods.wppenhacer.xposed.core.devkit.Unobfuscator;
+import com.wmods.wppenhacer.xposed.features.customization.HideSeenView;
 import com.wmods.wppenhacer.xposed.utils.DesignUtils;
 import com.wmods.wppenhacer.xposed.utils.ReflectionUtils;
 import com.wmods.wppenhacer.xposed.utils.ResId;
@@ -115,7 +117,6 @@ public class SeenTick extends Feature {
         });
 
         // hook messages
-
         XposedBridge.hookMethod(bubbleMethod, new XC_MethodHook() {
             @Override
             protected void afterHookedMethod(MethodHookParam param) {
@@ -255,7 +256,9 @@ public class SeenTick extends Feature {
                 menuItem.setIcon(Utils.getID("ic_notif_mark_read", "drawable"));
                 menuItem.setOnMenuItemClickListener(item -> {
                     Utils.showToast(Utils.getApplication().getString(ResId.string.sending_read_blue_tick), Toast.LENGTH_SHORT);
+                    updateMessageStatus();
                     sendBlueTick(currentJid);
+                    HideSeenView.updateAllBubbleViews();
                     return true;
                 });
             }
@@ -319,8 +322,13 @@ public class SeenTick extends Feature {
                 MenuItem item = menu.add(0, 0, 0, ResId.string.send_blue_tick).setIcon(Utils.getID("ic_notif_mark_read", "drawable"));
                 if (ticktype == 1) item.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
                 item.setOnMenuItemClickListener(item1 -> {
+                    var jid = WppCore.getRawString(fMessage.getKey().remoteJid);
+                    var messageID = fMessage.getKey().messageID;
+                    MessageHistory.getInstance().updateViewedMessage(jid, messageID, MessageHistory.MessageType.VIEW_ONCE_TYPE, true);
+                    MessageHistory.getInstance().updateViewedMessage(jid, messageID, MessageHistory.MessageType.MESSAGE_TYPE, true);
                     sendBlueTickMedia(fMessage.getObject(), true);
                     Utils.showToast(Utils.getApplication().getString(ResId.string.sending_read_blue_tick), Toast.LENGTH_SHORT);
+                    HideSeenView.updateAllBubbleViews();
                     return true;
                 });
             }
@@ -338,10 +346,16 @@ public class SeenTick extends Feature {
                                 var keyClass = FMessageWpp.Key.TYPE;
                                 var fieldType = ReflectionUtils.getFieldByType(param.thisObject.getClass(), keyClass);
                                 var keyMessage = ReflectionUtils.getObjectField(fieldType, param.thisObject);
-                                var fMessage = WppCore.getFMessageFromKey(keyMessage);
-                                if (fMessage == null) return;
-                                sendBlueTickMedia(fMessage, true);
+                                var fMessageObj = WppCore.getFMessageFromKey(keyMessage);
+                                if (fMessageObj == null) return;
+                                var fMessage = new FMessageWpp(fMessageObj);
+                                var jid = WppCore.getRawString(fMessage.getKey().remoteJid);
+                                var messageID = fMessage.getKey().messageID;
+                                MessageHistory.getInstance().updateViewedMessage(jid, messageID, MessageHistory.MessageType.VIEW_ONCE_TYPE, true);
+                                MessageHistory.getInstance().updateViewedMessage(jid, messageID, MessageHistory.MessageType.MESSAGE_TYPE, true);
+                                sendBlueTickMedia(fMessageObj, true);
                                 Utils.showToast(Utils.getApplication().getString(ResId.string.sending_read_blue_tick), Toast.LENGTH_SHORT);
+                                HideSeenView.updateAllBubbleViews();
                             });
                             return true;
                         });
@@ -369,12 +383,22 @@ public class SeenTick extends Feature {
                     MessageStore.getInstance().storeMessageRead(messages.valueAt(0).messageId);
                     var view = messageMap.get(messages.valueAt(0).messageId);
                     if (view != null) view.post(() -> setSeenButton(view, true));
+                    updateMessageStatus();
                     handler.post(() -> sendBlueTickStatus(currentJid));
-                } else handler.post(() -> sendBlueTick(rawJid));
+                } else {
+                    updateMessageStatus();
+                    handler.post(() -> sendBlueTick(rawJid));
+                }
+                HideSeenView.updateAllBubbleViews();
             }
         });
     }
 
+    private static void updateMessageStatus() {
+        for (var msg : messages) {
+            MessageHistory.getInstance().updateViewedMessage(currentJid, msg.messageId, MessageHistory.MessageType.MESSAGE_TYPE, true);
+        }
+    }
 
     private void sendBlueTick(String currentJid) {
         logDebug("messages: " + Arrays.toString(messages.toArray(new MessageInfo[0])));
@@ -399,7 +423,6 @@ public class SeenTick extends Feature {
             if (messages.isEmpty() || currentJid == null || currentJid.contains(Utils.getMyNumber()))
                 return;
             try {
-                logDebug("Blue on Reply: " + currentJid);
                 HashMap<Object, List<String>> map = new HashMap<>();
                 for (var messageInfo : messages) {
                     map.computeIfAbsent(messageInfo.userJid, k -> new ArrayList<>());

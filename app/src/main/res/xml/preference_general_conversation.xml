@@ -41,6 +41,11 @@
             app:title="@string/antidisappearing" />
 
         <rikka.material.preference.MaterialSwitchPreference
+            app:key="hide_seen_view"
+            app:summary="@string/view_seen_tick_sum"
+            app:title="@string/view_seen_tick" />
+
+        <rikka.material.preference.MaterialSwitchPreference
             app:key="broadcast_tag"
             app:summary="@string/show_chat_broadcast_icon_sum"
             app:title="@string/show_chat_broadcast_icon" />

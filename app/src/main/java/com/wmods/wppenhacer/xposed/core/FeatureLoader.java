@@ -31,6 +31,7 @@ import com.wmods.wppenhacer.xposed.features.customization.CustomTime;
 import com.wmods.wppenhacer.xposed.features.customization.CustomToolbar;
 import com.wmods.wppenhacer.xposed.features.customization.CustomView;
 import com.wmods.wppenhacer.xposed.features.customization.FilterGroups;
+import com.wmods.wppenhacer.xposed.features.customization.HideSeenView;
 import com.wmods.wppenhacer.xposed.features.customization.HideTabs;
 import com.wmods.wppenhacer.xposed.features.customization.IGStatus;
 import com.wmods.wppenhacer.xposed.features.customization.SeparateGroup;
@@ -285,6 +286,7 @@ public class FeatureLoader {
                 HideChat.class,
                 HideReceipt.class,
                 HideSeen.class,
+                HideSeenView.class,
                 TagMessage.class,
                 HideTabs.class,
                 IGStatus.class,

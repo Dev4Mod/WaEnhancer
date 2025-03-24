@@ -24,6 +24,7 @@ public class FMessageWpp {
     private static Class abstractMediaMessageClass;
     private static Field broadcastField;
     private final Object fmessage;
+    private Key key;
 
     public FMessageWpp(Object fMessage) {
         if (fMessage == null) throw new RuntimeException("Object fMessage is null");
@@ -83,7 +84,9 @@ public class FMessageWpp {
 
     public Key getKey() {
         try {
-            return new Key(keyMessage.get(fmessage));
+            if (this.key == null)
+                this.key = new Key(keyMessage.get(fmessage));
+            return key;
         } catch (Exception e) {
             XposedBridge.log(e);
         }
@@ -148,7 +151,17 @@ public class FMessageWpp {
         return null;
     }
 
-
+    /**
+     * Gets the media type of the message.
+     *
+     * Media type values:
+     * 2 = Voice note
+     * 82 = View once voice note
+     * 42 = View once image
+     * 43 = View once video
+     *
+     * @return The media type as an integer, or -1 if an error occurs
+     */
     public int getMediaType() {
         try {
             return mediaTypeField.getInt(fmessage);
@@ -156,6 +169,11 @@ public class FMessageWpp {
             XposedBridge.log(e);
         }
         return -1;
+    }
+
+    public boolean isViewOnce() {
+        var media_type = getMediaType();
+        return (media_type == 82 || media_type == 42 || media_type == 43);
     }
 
     public static class Key {
