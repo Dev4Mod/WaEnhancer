@@ -118,7 +118,7 @@ public class CustomToolbar extends Feature {
             var mTabInstance = fieldTab.get(homeActivity);
 
             if (typeArchive.equals("1")) {
-                var onMultiClickListener = new OnMultiClickListener(5, 500) {
+                var onMultiClickListener = new OnMultiClickListener(5, 700) {
 
                     @Override
                     public void onMultiClick(View v) {

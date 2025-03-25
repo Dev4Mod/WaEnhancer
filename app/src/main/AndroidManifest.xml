@@ -67,6 +67,11 @@
                 <category android:name="android.intent.category.LAUNCHER" />
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.SEND" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <data android:mimeType="text/noexist" />
+            </intent-filter>
         </activity>
 
         <activity
@@ -119,6 +124,7 @@
                 <action android:name="com.facebook.GET_PHONE_ID" />
             </intent-filter>
         </receiver>
+
 
     </application>
 

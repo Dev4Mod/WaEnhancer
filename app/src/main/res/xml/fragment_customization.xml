@@ -21,16 +21,16 @@
         <com.jaredrummler.android.colorpicker.ColorPreferenceCompat
             app:cpv_showAlphaSlider="true"
             app:dependency="changecolor"
-            app:key="secondary_color"
+            app:key="background_color"
             app:summary="@string/default_color"
-            app:title="@string/secondary_color" />
+            app:title="@string/background_color" />
 
         <com.jaredrummler.android.colorpicker.ColorPreferenceCompat
             app:cpv_showAlphaSlider="true"
             app:dependency="changecolor"
-            app:key="background_color"
+            app:key="text_color"
             app:summary="@string/default_color"
-            app:title="@string/background_color" />
+            app:title="@string/text_color" />
 
         <rikka.material.preference.MaterialSwitchPreference
             app:key="wallpaper"

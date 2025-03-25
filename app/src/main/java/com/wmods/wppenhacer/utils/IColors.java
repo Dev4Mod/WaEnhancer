@@ -12,7 +12,7 @@ public class IColors {
 
     public static final HashMap<String, String> backgroundColors = new HashMap<>();
     public static final HashMap<String, String> primaryColors = new HashMap<>();
-    public static final HashMap<String, String> secondaryColors = new HashMap<>();
+    public static final HashMap<String, String> textColors = new HashMap<>();
 
     public static int parseColor(String str) {
         return Color.parseColor(str);
@@ -48,7 +48,7 @@ public class IColors {
 
     public static void initColors() {
         primaryColors.clear();
-        secondaryColors.clear();
+        textColors.clear();
         backgroundColors.clear();
         colors.clear();
 
@@ -70,9 +70,9 @@ public class IColors {
         primaryColors.put("#ff15603e", "#ff15603e");
         primaryColors.put("#ff103529", "#ff103529");
 
-        // secundary colors
-        secondaryColors.put("#ffeaedee", "#ffeaedee");
-        secondaryColors.put("#fff7f8fa", "#fff7f8fa");
+        // text colors
+        textColors.put("#ffeaedee", "#ffeaedee");
+        textColors.put("#fff7f8fa", "#fff7f8fa");
 
         // background colors
         backgroundColors.put("0b141a", "0a1014");

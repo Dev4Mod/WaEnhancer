@@ -31,8 +31,6 @@ import de.robv.android.xposed.XposedHelpers;
 
 
 public class HideSeenView extends Feature {
-    private static final HashSet<ViewGroup> bubbles = new HashSet<>();
-    private static final Logger log = LoggerFactory.getLogger(HideSeenView.class);
     private static ListAdapter mAdapter;
 
     public HideSeenView(ClassLoader loader, XSharedPreferences preferences) {

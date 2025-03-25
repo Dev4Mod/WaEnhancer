@@ -37,7 +37,6 @@
     <string name="conversation">Conversation Screen</string>
     <string name="primary_color">Primary Color</string>
     <string name="background_color">Background Color</string>
-    <string name="secondary_color">Secondary Color</string>
     <string name="novaconfig">New Settings Style</string>
     <string name="novaconfig_sum">Enable the new settings style, with profile photo on home screen toolbar</string>
     <string name="novofiltro">Search Functions</string>
@@ -411,4 +410,5 @@
     <string name="style_of_stories_status_sum">Changes Stories/Status style to some models available on WhatsApp</string>
     <string name="view_seen_tick">View Seen Tick</string>
     <string name="view_seen_tick_sum">Show an icon if the message view was sent to the recipient or unique view was seen</string>
+    <string name="text_color">Text Color</string>
 </resources>

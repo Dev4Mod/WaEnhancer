@@ -4,7 +4,7 @@ import static com.wmods.wppenhacer.utils.ColorReplacement.replaceColors;
 import static com.wmods.wppenhacer.utils.IColors.alphacolors;
 import static com.wmods.wppenhacer.utils.IColors.backgroundColors;
 import static com.wmods.wppenhacer.utils.IColors.primaryColors;
-import static com.wmods.wppenhacer.utils.IColors.secondaryColors;
+import static com.wmods.wppenhacer.utils.IColors.textColors;
 import static de.robv.android.xposed.XposedHelpers.findAndHookMethod;
 
 import android.Manifest;
@@ -35,7 +35,6 @@ import com.wmods.wppenhacer.xposed.utils.ReflectionUtils;
 import com.wmods.wppenhacer.xposed.utils.Utils;
 
 import java.lang.reflect.Method;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Objects;
 import java.util.Properties;
@@ -240,23 +239,22 @@ public class CustomThemeV2 extends Feature {
         IColors.initColors();
 
         var primaryColorInt = prefs.getInt("primary_color", 0);
-        var secondaryColorInt = prefs.getInt("secondary_color", 0);
+        var textColorInt = prefs.getInt("text_color", 0);
         var backgroundColorInt = prefs.getInt("background_color", 0);
 
         var primaryColor = DesignUtils.checkSystemColor(properties.getProperty("primary_color", "0"));
-        var secondaryColor = DesignUtils.checkSystemColor(properties.getProperty("secondary_color", "0"));
+        var textColor = DesignUtils.checkSystemColor(properties.getProperty("text_color", "0"));
         var backgroundColor = DesignUtils.checkSystemColor(properties.getProperty("background_color", "0"));
 
         if (prefs.getBoolean("changecolor", false)) {
             primaryColor = primaryColorInt == 0 ? "0" : IColors.toString(primaryColorInt);
-            secondaryColor = secondaryColorInt == 0 ? "0" : IColors.toString(secondaryColorInt);
+            textColor = textColorInt == 0 ? "0" : IColors.toString(textColorInt);
             backgroundColor = backgroundColorInt == 0 ? "0" : IColors.toString(backgroundColorInt);
         }
 
-        // Passa as cores de fundo para as cores secundárias no tema claro
         if (!DesignUtils.isNightMode()) {
-            secondaryColors.clear();
-            secondaryColors.putAll(backgroundColors);
+            textColors.clear();
+            textColors.putAll(backgroundColors);
             backgroundColors.clear();
         }
 
@@ -267,8 +265,8 @@ public class CustomThemeV2 extends Feature {
                 processColors(primaryColor, alphacolors);
             }
 
-            if (!secondaryColor.equals("0") && DesignUtils.isValidColor(secondaryColor)) {
-                processColors(secondaryColor, secondaryColors);
+            if (!textColor.equals("0") && DesignUtils.isValidColor(textColor)) {
+                processColors(textColor, textColors);
             }
 
             if (!backgroundColor.equals("0") && DesignUtils.isValidColor(backgroundColor)) {
@@ -290,10 +288,10 @@ public class CustomThemeV2 extends Feature {
         }
 
         IColors.colors.putAll(primaryColors);
-        IColors.colors.putAll(secondaryColors);
+        IColors.colors.putAll(textColors);
         IColors.colors.putAll(backgroundColors);
         primaryColors.clear();
-        secondaryColors.clear();
+        textColors.clear();
 
         if (!DesignUtils.isNightMode()) {
             backgroundColors.clear();
