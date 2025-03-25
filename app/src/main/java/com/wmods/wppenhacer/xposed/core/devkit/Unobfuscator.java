@@ -85,7 +85,7 @@ public class Unobfuscator {
         for (MethodData methodData : result) {
             if (methodData.isMethod()) return methodData.getMethodInstance(classLoader);
         }
-        throw new NoSuchMethodException();
+        return null;
     }
 
     public synchronized static Method findFirstMethodUsingStringsFilter(ClassLoader classLoader, String packageFilter, StringMatchType type, String... strings) throws Exception {
@@ -173,7 +173,7 @@ public class Unobfuscator {
 
     public synchronized static Method loadReceiptMethod(ClassLoader classLoader) throws Exception {
         return UnobfuscatorCache.getInstance().getMethod(classLoader, () -> {
-            Method[] methods = findAllMethodUsingStrings(classLoader, StringMatchType.Equals, "privacy_token", "false", "receipt");
+            Method[] methods = findAllMethodUsingStrings(classLoader, StringMatchType.Equals, "participant", "type", "recipient");
             var deviceJidClass = XposedHelpers.findClass("com.whatsapp.jid.DeviceJid", classLoader);
             Method bestMethod = Arrays.stream(methods).filter(method -> method.getParameterTypes().length > 1 && method.getParameterTypes()[1] == deviceJidClass).findFirst().orElse(null);
             if (bestMethod == null) throw new Exception("Receipt method not found");
@@ -278,16 +278,8 @@ public class Unobfuscator {
 
     public synchronized static Method loadHideViewInChatMethod(ClassLoader classLoader) throws Exception {
         return UnobfuscatorCache.getInstance().getMethod(classLoader, () -> {
-            Method method = findFirstMethodUsingStrings(classLoader, StringMatchType.Contains, "ReadReceipts/PrivacyTokenDecisionNotComputed");
+            Method method = findFirstMethodUsingStrings(classLoader, StringMatchType.Contains, "ReadReceipts/acknowledgeMessageIfNeeded");
             if (method == null) throw new Exception("HideViewInChat method not found");
-            return method;
-        });
-    }
-
-    public synchronized static Method loadHideViewMethod(ClassLoader classLoader) throws Exception {
-        return UnobfuscatorCache.getInstance().getMethod(classLoader, () -> {
-            Method method = findFirstMethodUsingStrings(classLoader, StringMatchType.Contains, "privacy_token", "false", "recipient");
-            if (method == null) throw new Exception("HideViewMethod method not found");
             return method;
         });
     }
@@ -781,29 +773,18 @@ public class Unobfuscator {
         });
     }
 
-    public synchronized static Field loadStatusPlaybackViewField(ClassLoader loader) throws Exception {
-        return UnobfuscatorCache.getInstance().getField(loader, () -> {
-            Class<?> class1 = XposedHelpers.findClass("com.whatsapp.status.playback.widget.StatusPlaybackProgressView", loader);
-            ClassDataList classView = dexkit.findClass(FindClass.create().matcher(
-                    ClassMatcher.create().methodCount(1).addFieldForType(class1)
-            ));
-            if (classView.isEmpty()) classView = dexkit.findClass(FindClass.create().matcher(
-                    ClassMatcher.create()
-                            .addMethod(MethodMatcher.create().invokeMethods(
-                                    MethodsMatcher.create().methods(
-                                            Collections.singletonList(
-                                                    MethodMatcher.create().declaredClass(ClassMatcher.create().addUsingString("INVOKE_RETURN"))
-                                                            .paramTypes(View.class, int.class)
-                                            )
-                                    )
-                            ))
-                            .addFieldForType(class1)
-            ));
-            if (classView.isEmpty()) throw new Exception("StatusPlaybackView field not found");
-            Class<?> clsViewStatus = classView.single(classData -> classData.getSuperClass().getSimpleName().equals("Object")).getInstance(loader);
-            if (classView.isEmpty()) throw new Exception("StatusPlaybackView field not found 2");
-            Class<?> class2 = XposedHelpers.findClass("com.whatsapp.status.playback.fragment.StatusPlaybackBaseFragment", loader);
-            return Arrays.stream(class2.getDeclaredFields()).filter(f -> f.getType() == clsViewStatus).findFirst().orElse(null);
+    public synchronized static Class loadStatusPlaybackViewClass(ClassLoader loader) throws Exception {
+        return UnobfuscatorCache.getInstance().getClass(loader, () -> {
+            var ids = List.of(Utils.getID("status_header", "id"), Utils.getID("menu", "id"));
+            var clazz = dexkit.findClass(
+                    FindClass.create().matcher(
+                            ClassMatcher.create().addMethod(
+                                    MethodMatcher.create().usingNumbers(ids)
+                            )
+                    )
+            );
+            if (clazz.isEmpty()) throw new Exception("Not Found StatusPlaybackViewClass");
+            return clazz.get(0).getInstance(loader);
         });
     }
 
@@ -1374,7 +1355,7 @@ public class Unobfuscator {
     }
 
     public synchronized static Method loadGroupCheckAdminMethod(ClassLoader loader) throws Exception {
-        var clazz = findFirstClassUsingStrings(loader, StringMatchType.Contains, "[LidGroup]GroupParticipantsManager");
+        var clazz = findFirstClassUsingStrings(loader, StringMatchType.Contains, "saveGroupParticipants/INSERT_GROUP_PARTICIPANT_USER");
         var userJidClass = XposedHelpers.findClass("com.whatsapp.jid.UserJid", loader);
         var methods = ReflectionUtils.findAllMethodsUsingFilter(clazz, m -> m.getParameterCount() == 2 && m.getParameterTypes()[1].equals(userJidClass) && m.getReturnType().equals(boolean.class));
         if (methods == null || methods.length == 0)
@@ -1777,15 +1758,15 @@ public class Unobfuscator {
     }
 
     public static synchronized Class loadUnkTranscript(ClassLoader classLoader) throws Exception {
-            var loadTranscribe = loadTranscribeMethod(classLoader);
-            var callbackClass = loadTranscribe.getParameterTypes()[1];
-            var onComplete = ReflectionUtils.findMethodUsingFilter(callbackClass, method -> method.getParameterCount() == 4);
-            var resultTypeClass = onComplete.getParameterTypes()[0].getName();
-            Log.i(TAG, resultTypeClass);
-            var classDataList = dexkit.findClass(FindClass.create().matcher(ClassMatcher.create().addUsingString("Unknown").superClass(resultTypeClass)));
-            if (classDataList.isEmpty())
-                return null;
-            return classDataList.get(0).getInstance(classLoader);
+        var loadTranscribe = loadTranscribeMethod(classLoader);
+        var callbackClass = loadTranscribe.getParameterTypes()[1];
+        var onComplete = ReflectionUtils.findMethodUsingFilter(callbackClass, method -> method.getParameterCount() == 4);
+        var resultTypeClass = onComplete.getParameterTypes()[0].getName();
+        Log.i(TAG, resultTypeClass);
+        var classDataList = dexkit.findClass(FindClass.create().matcher(ClassMatcher.create().addUsingString("Unknown").superClass(resultTypeClass)));
+        if (classDataList.isEmpty())
+            return null;
+        return classDataList.get(0).getInstance(classLoader);
     }
 
     public static synchronized Class loadTranscriptSegment(ClassLoader classLoader) throws Exception {
@@ -1897,10 +1878,10 @@ public class Unobfuscator {
     public static Class<?> loadFilterItemClass(ClassLoader classLoader) throws Exception {
         return UnobfuscatorCache.getInstance().getClass(classLoader, () -> {
             var methodList = dexkit.findMethod(FindMethod.create().matcher(
-                    MethodMatcher.create().addUsingNumber(Utils.getID("invisible_height_placeholder","id"))
-                            .addUsingNumber(Utils.getID("container_view","id"))
+                    MethodMatcher.create().addUsingNumber(Utils.getID("invisible_height_placeholder", "id"))
+                            .addUsingNumber(Utils.getID("container_view", "id"))
             ));
-            if (methodList.isEmpty())throw new RuntimeException("FilterItemClass Not Found");
+            if (methodList.isEmpty()) throw new RuntimeException("FilterItemClass Not Found");
             return methodList.get(0).getClassInstance(classLoader);
         });
     }

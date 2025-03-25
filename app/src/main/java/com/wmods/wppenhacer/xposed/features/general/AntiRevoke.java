@@ -51,9 +51,8 @@ public class AntiRevoke extends Feature {
         var unknownStatusPlaybackMethod = Unobfuscator.loadUnknownStatusPlaybackMethod(classLoader);
         logDebug(Unobfuscator.getMethodDescriptor(unknownStatusPlaybackMethod));
 
-        var statusPlaybackField = Unobfuscator.loadStatusPlaybackViewField(classLoader);
-        logDebug(Unobfuscator.getFieldDescriptor(statusPlaybackField));
-
+        var statusPlaybackClass = Unobfuscator.loadStatusPlaybackViewClass(classLoader);
+        logDebug(statusPlaybackClass);
 
         XposedBridge.hookMethod(antiRevokeMessageMethod, new XC_MethodHook() {
             @Override
@@ -96,8 +95,7 @@ public class AntiRevoke extends Feature {
         XposedBridge.hookMethod(unknownStatusPlaybackMethod, new XC_MethodHook() {
             @Override
             protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-                int idx = ReflectionUtils.findIndexOfType(param.args, statusPlaybackField.getDeclaringClass());
-                Object obj = param.args[idx];
+                Object obj = ReflectionUtils.getArg(param.args, param.method.getDeclaringClass(), 0);
                 var objFMessage = param.args[0];
                 if (!FMessageWpp.TYPE.isInstance(objFMessage)) {
                     var field = ReflectionUtils.findFieldUsingFilter(objFMessage.getClass(), f -> f.getType() == FMessageWpp.TYPE);
@@ -109,8 +107,9 @@ public class AntiRevoke extends Feature {
                         objFMessage = WppCore.getFMessageFromKey(key);
                     }
                 }
-                Object objView = statusPlaybackField.get(obj);
-                var textViews = ReflectionUtils.getFieldsByType(statusPlaybackField.getType(), TextView.class);
+                var field = ReflectionUtils.getFieldByType(param.method.getDeclaringClass(), statusPlaybackClass);
+                Object objView = field.get(obj);
+                var textViews = ReflectionUtils.getFieldsByType(statusPlaybackClass, TextView.class);
                 if (textViews.isEmpty()) {
                     log("Could not find TextView");
                     return;

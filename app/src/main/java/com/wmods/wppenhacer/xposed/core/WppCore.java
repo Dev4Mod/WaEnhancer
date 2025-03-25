@@ -291,7 +291,7 @@ public class WppCore {
     public static Object getFMessageFromKey(Object messageKey) {
         if (messageKey == null) return null;
         try {
-            var methodResult = ReflectionUtils.findMethodUsingFilter(mCachedMessageStore.getClass(), (method) -> method.getParameterCount() == 1 && FMessageWpp.Key.TYPE.isAssignableFrom(method.getParameterTypes()[0]));
+            var methodResult = ReflectionUtils.findMethodUsingFilter(mCachedMessageStore.getClass(), (method) -> method.getParameterCount() == 1 && FMessageWpp.Key.TYPE.isAssignableFrom(method.getParameterTypes()[0]) && method.getReturnType() == FMessageWpp.TYPE);
             return ReflectionUtils.callMethod(methodResult, mCachedMessageStore, messageKey);
         } catch (Exception e) {
             XposedBridge.log(e);

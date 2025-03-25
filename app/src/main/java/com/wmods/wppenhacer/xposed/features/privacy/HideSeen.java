@@ -94,14 +94,14 @@ public class HideSeen extends Feature {
         Method hideViewInChatMethod = Unobfuscator.loadHideViewInChatMethod(classLoader);
         logDebug("Inside Chat", Unobfuscator.getMethodDescriptor(hideViewInChatMethod));
 
-        Method hideViewMethod = Unobfuscator.loadHideViewMethod(classLoader);
-        logDebug(Unobfuscator.getMethodDescriptor(hideViewMethod));
+        Method ReceiptMethod = Unobfuscator.loadReceiptMethod(classLoader);
+        logDebug(Unobfuscator.getMethodDescriptor(ReceiptMethod));
 
         var method3 = Unobfuscator.loadReceiptOutsideChat(classLoader);
         logDebug("Outside Chat", Unobfuscator.getMethodDescriptor(method3));
 
 
-        XposedBridge.hookMethod(hideViewMethod, new XC_MethodHook() {
+        XposedBridge.hookMethod(ReceiptMethod, new XC_MethodHook() {
             @Override
             protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
                 if (ReflectionUtils.isCalledFromMethod(method3) || !ReflectionUtils.isCalledFromMethod(hideViewInChatMethod))
