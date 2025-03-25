@@ -4,7 +4,11 @@ import android.annotation.SuppressLint;
 import android.graphics.Color;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.CursorAdapter;
+import android.widget.HeaderViewListAdapter;
 import android.widget.ImageView;
+import android.widget.ListAdapter;
+import android.widget.ListView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -13,12 +17,12 @@ import com.wmods.wppenhacer.xposed.core.Feature;
 import com.wmods.wppenhacer.xposed.core.WppCore;
 import com.wmods.wppenhacer.xposed.core.components.FMessageWpp;
 import com.wmods.wppenhacer.xposed.core.db.MessageHistory;
-import com.wmods.wppenhacer.xposed.core.devkit.Unobfuscator;
-import com.wmods.wppenhacer.xposed.utils.ReflectionUtils;
 import com.wmods.wppenhacer.xposed.utils.Utils;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.util.HashSet;
-import java.util.Objects;
 
 import de.robv.android.xposed.XC_MethodHook;
 import de.robv.android.xposed.XSharedPreferences;
@@ -27,8 +31,9 @@ import de.robv.android.xposed.XposedHelpers;
 
 
 public class HideSeenView extends Feature {
-
     private static final HashSet<ViewGroup> bubbles = new HashSet<>();
+    private static final Logger log = LoggerFactory.getLogger(HideSeenView.class);
+    private static ListAdapter mAdapter;
 
     public HideSeenView(ClassLoader loader, XSharedPreferences preferences) {
         super(loader, preferences);
@@ -36,45 +41,39 @@ public class HideSeenView extends Feature {
 
     @Override
     public void doHook() throws Throwable {
-        if (!prefs.getBoolean("hide_seen_view",false))return;
+        if (!prefs.getBoolean("hide_seen_view", false)) return;
 
-        var bubbleMethod = Unobfuscator.loadAntiRevokeBubbleMethod(classLoader);
-        logDebug(Unobfuscator.getMethodDescriptor(bubbleMethod));
-
-        WppCore.addListenerActivity(((activity, type) -> {
-            if (type == WppCore.ActivityChangeState.ChangeType.ENDED && Objects.equals(activity.getClass().getSimpleName(), "Conversation")) {
-                bubbles.clear();
-            }
-        }));
-
-        XposedBridge.hookMethod(bubbleMethod, new XC_MethodHook() {
-
+        XposedHelpers.findAndHookMethod(ListView.class, "setAdapter", ListAdapter.class, new XC_MethodHook() {
             @Override
             protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
-                var viewGroup = (ViewGroup) param.thisObject;
-                var fmessageObj = ReflectionUtils.getArg(param.args, FMessageWpp.TYPE, 0);
-                var fmessage = new FMessageWpp(fmessageObj);
-                if (fmessage.getKey().isFromMe) return;
-                updateBubbleView(fmessage, viewGroup);
-                bubbles.add(viewGroup);
+                if (!WppCore.getCurrentActivity().getClass().getSimpleName().equals("Conversation"))
+                    return;
+                ListAdapter adapter = (ListAdapter) param.args[0];
+                if (adapter instanceof HeaderViewListAdapter) {
+                    adapter = ((HeaderViewListAdapter) adapter).getWrappedAdapter();
+                }
+                mAdapter = adapter;
+                var method = mAdapter.getClass().getDeclaredMethod("getView", int.class, View.class, ViewGroup.class);
+                XposedBridge.hookMethod(method, new XC_MethodHook() {
+                    @Override
+                    protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+                        if (param.thisObject != mAdapter) return;
+                        var position = (int) param.args[0];
+                        var viewGroup = (ViewGroup) param.args[1];
+                        if (viewGroup == null) return;
+                        Object fMessageObj = mAdapter.getItem(position);
+                        var fmessage = new FMessageWpp(fMessageObj);
+                        if (fmessage.getKey().isFromMe) return;
+                        viewGroup.post(() -> updateBubbleView(fmessage, viewGroup));
+                    }
+                });
             }
         });
     }
 
-    /**
-     * Static method to update all bubble views in the HashMap
-     * Call this method whenever you need to refresh all bubble views
-     */
     public static void updateAllBubbleViews() {
-        for (var viewGroup : bubbles) {
-            try {
-                Object messageObj = XposedHelpers.getAdditionalInstanceField(viewGroup, "FMessage");
-                if (messageObj instanceof FMessageWpp fmessage) {
-                    viewGroup.post(() -> updateBubbleView(fmessage, viewGroup));
-                }
-            } catch (Exception e) {
-                XposedBridge.log("Error updating bubble view: " + e.getMessage());
-            }
+        if (mAdapter instanceof CursorAdapter cursorAdapter) {
+            WppCore.getCurrentActivity().runOnUiThread(cursorAdapter::notifyDataSetChanged);
         }
     }
 
@@ -108,7 +107,6 @@ public class HideSeenView extends Feature {
                 status.setVisibility(View.GONE);
             }
         }
-        XposedHelpers.setAdditionalInstanceField(viewGroup, "FMessage", fmessage);
     }
 
 

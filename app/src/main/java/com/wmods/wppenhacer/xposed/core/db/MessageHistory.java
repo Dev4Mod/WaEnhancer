@@ -6,9 +6,16 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
+import androidx.annotation.Nullable;
+
+import com.wmods.wppenhacer.xposed.core.WppCore;
+import com.wmods.wppenhacer.xposed.core.components.FMessageWpp;
 import com.wmods.wppenhacer.xposed.utils.Utils;
 
 import java.util.ArrayList;
+import java.util.List;
+
+import de.robv.android.xposed.XposedHelpers;
 
 public class MessageHistory extends SQLiteOpenHelper {
     private static MessageHistory mInstance;
@@ -61,7 +68,7 @@ public class MessageHistory extends SQLiteOpenHelper {
         return messages;
     }
 
-    public final void insertHideSeenMessage(String jid, String message_id, MessageType type , boolean viewed) {
+    public final void insertHideSeenMessage(String jid, String message_id, MessageType type, boolean viewed) {
         synchronized (this) {
             if (updateViewedMessage(jid, message_id, type, viewed)) {
                 return;
@@ -74,7 +81,7 @@ public class MessageHistory extends SQLiteOpenHelper {
         }
     }
 
-    public boolean updateViewedMessage(String jid, String message_id, MessageType type , boolean viewed) {
+    public boolean updateViewedMessage(String jid, String message_id, MessageType type, boolean viewed) {
         Cursor cursor = dbWrite.query("hide_seen_messages", new String[]{"_id"}, "jid=? AND message_id=? AND type =?", new String[]{jid, message_id, String.valueOf(type.ordinal())}, null, null, null);
         if (!cursor.moveToFirst()) {
             cursor.close();
@@ -90,7 +97,7 @@ public class MessageHistory extends SQLiteOpenHelper {
     }
 
     public MessageSeenItem getHideSeenMessage(String jid, String message_id, MessageType type) {
-        Cursor cursor = dbWrite.query("hide_seen_messages", new String[]{"_id", "jid", "message_id","viewed"}, "jid=? AND message_id=? AND type=?", new String[]{jid, message_id, String.valueOf(type.ordinal())}, null, null, null);
+        Cursor cursor = dbWrite.query("hide_seen_messages", new String[]{"viewed"}, "jid=? AND message_id=? AND type=?", new String[]{jid, message_id, String.valueOf(type.ordinal())}, null, null, null);
         if (!cursor.moveToFirst()) {
             cursor.close();
             return null;
@@ -99,6 +106,22 @@ public class MessageHistory extends SQLiteOpenHelper {
         var message = new MessageSeenItem(jid, message_id, viewed);
         cursor.close();
         return message;
+    }
+
+    public List<MessageSeenItem> getHideSeenMessages(String jid, MessageType type, boolean viewed) {
+        Cursor cursor = dbWrite.query("hide_seen_messages", new String[]{"jid", "message_id", "viewed"}, "jid=? AND type=? AND viewed=?", new String[]{jid, String.valueOf(type.ordinal()), viewed ? "1" : "0"}, null, null, null);
+        if (!cursor.moveToFirst()) {
+            cursor.close();
+            return null;
+        }
+        ArrayList<MessageSeenItem> messages = new ArrayList<>();
+        do {
+            var message_id = cursor.getString(cursor.getColumnIndexOrThrow("message_id"));
+            var message = new MessageSeenItem(jid, message_id, viewed);
+            messages.add(message);
+        } while (cursor.moveToNext());
+        cursor.close();
+        return messages;
     }
 
 
@@ -110,7 +133,7 @@ public class MessageHistory extends SQLiteOpenHelper {
 
     @Override
     public void onUpgrade(SQLiteDatabase sqLiteDatabase, int oldVersion, int newVersion) {
-        if (oldVersion <2){
+        if (oldVersion < 2) {
             sqLiteDatabase.execSQL("create table hide_seen_messages(_id INTEGER PRIMARY KEY AUTOINCREMENT, jid TEXT NOT NULL, message_id TEXT NOT NULL,type INT NOT NULL, viewed INT DEFAULT 0);");
         }
     }
@@ -131,12 +154,29 @@ public class MessageHistory extends SQLiteOpenHelper {
         public String jid;
         public String message;
         public boolean viewed;
+        private FMessageWpp fMessageWpp;
 
         public MessageSeenItem(String jid, String message, boolean viewed) {
             this.jid = jid;
             this.message = message;
             this.viewed = viewed;
         }
+
+        @Nullable
+        public FMessageWpp getFMessage() {
+            if (fMessageWpp == null) {
+                try {
+                    var key = XposedHelpers.newInstance(FMessageWpp.Key.TYPE, WppCore.createUserJid(jid), message, false);
+                    var fmessageObj = WppCore.getFMessageFromKey(key);
+                    fMessageWpp = new FMessageWpp(fmessageObj);
+                } catch (Exception ignored) {
+
+                }
+            }
+            return fMessageWpp;
+        }
+
+
     }
 
 

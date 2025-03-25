@@ -263,4 +263,10 @@ public class ReflectionUtils {
         return typeClass.cast(list.get(i).second);
     }
 
+    public static void setObjectField(Field field, Object instance, Object value) {
+        try {
+            field.set(instance, value);
+        } catch (Exception ignored) {
+        }
+    }
 }
