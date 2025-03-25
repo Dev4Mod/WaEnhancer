@@ -3,6 +3,7 @@ package com.wmods.wppenhacer.utils;
 import android.content.res.ColorStateList;
 import android.graphics.Bitmap;
 import android.graphics.NinePatch;
+import android.graphics.Paint;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.DrawableContainer;
@@ -17,6 +18,10 @@ import android.graphics.drawable.ShapeDrawable;
 import android.graphics.drawable.StateListDrawable;
 import android.graphics.drawable.TransitionDrawable;
 
+import com.wmods.wppenhacer.xposed.core.devkit.Unobfuscator;
+import com.wmods.wppenhacer.xposed.utils.ReflectionUtils;
+import com.wmods.wppenhacer.xposed.utils.Utils;
+
 import java.util.HashMap;
 
 import de.robv.android.xposed.XposedBridge;
@@ -25,10 +30,11 @@ import de.robv.android.xposed.XposedHelpers;
 public class DrawableColors {
 
     private static final HashMap<Bitmap, Integer> ninePatchs = new HashMap<>();
+    private static Class<?> mMaterialShapeDrawableClass;
 
     public static void replaceColor(Drawable drawable, HashMap<String, String> colors) {
         if (drawable == null) return;
-
+        Class cls = null;
         if (drawable instanceof StateListDrawable stateListDrawable) {
             var count = StateListDrawableCompact.getStateCount(stateListDrawable);
             for (int i = 0; i < count; i++) {
@@ -95,7 +101,38 @@ public class DrawableColors {
             for (var drawable1 : drawables) {
                 replaceColor(drawable1, colors);
             }
+        } else if ((cls = getMaterialShapeDrawable()) != null && cls.isInstance(drawable)) {
+            var state = (Drawable.ConstantState) XposedHelpers.callMethod(drawable, "getConstantState");
+            var colorStateListFields = ReflectionUtils.findAllFieldsUsingFilter(cls, field -> field.getType() == ColorStateList.class);
+            for (var colorState : colorStateListFields) {
+                var colorStateList = (ColorStateList) ReflectionUtils.getObjectField(colorState, state);
+                if (colorStateList == null) continue;
+                var color = colorStateList.getDefaultColor();
+                var newColor = IColors.getFromIntColor(color, colors);
+                if (color == newColor) continue;
+                var colorStateListNew = ColorStateList.valueOf(newColor);
+                ReflectionUtils.setObjectField(colorState, state, colorStateListNew);
+            }
+            var paintFields = ReflectionUtils.getFieldsByType(cls, Paint.class);
+            for (var paintField : paintFields) {
+                var paint = (Paint) ReflectionUtils.getObjectField(paintField, drawable);
+                var color = paint.getColor();
+                var newColor = IColors.getFromIntColor(color, colors);
+                if (color == newColor) continue;
+                paint.setColor(newColor);
+            }
         }
+    }
+
+    private static Class getMaterialShapeDrawable() {
+        if (mMaterialShapeDrawableClass == null) {
+            try {
+                mMaterialShapeDrawableClass = Unobfuscator.loadMaterialShapeDrawableClass(Utils.getApplication().getClassLoader());
+            } catch (Exception e) {
+                return null;
+            }
+        }
+        return mMaterialShapeDrawableClass;
     }
 
     public static int getColor(Drawable drawable) {

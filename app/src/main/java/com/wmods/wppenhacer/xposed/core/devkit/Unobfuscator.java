@@ -1904,4 +1904,16 @@ public class Unobfuscator {
             return methodList.get(0).getClassInstance(classLoader);
         });
     }
+
+    public static Method loadActiveButtonNav(ClassLoader classLoader) throws Exception {
+        return UnobfuscatorCache.getInstance().getMethod(classLoader, () -> {
+            var methodList = dexkit.findClass(
+                    FindClass.create().matcher(ClassMatcher.create().addUsingString("NavigationBar", StringMatchType.Equals))
+            ).findMethod(
+                    FindMethod.create().matcher(MethodMatcher.create().name("setActiveIndicatorDrawable"))
+            );
+            return methodList.get(0).getMethodInstance(classLoader);
+        });
+
+    }
 }

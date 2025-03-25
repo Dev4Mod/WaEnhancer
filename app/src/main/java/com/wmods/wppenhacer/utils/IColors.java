@@ -7,6 +7,9 @@ import java.util.HashMap;
 public class IColors {
     public static HashMap<String, String> colors = new HashMap<>();
 
+
+    public static HashMap<String, String> alphacolors = new HashMap<>();
+
     public static final HashMap<String, String> backgroundColors = new HashMap<>();
     public static final HashMap<String, String> primaryColors = new HashMap<>();
     public static final HashMap<String, String> secondaryColors = new HashMap<>();
@@ -80,5 +83,8 @@ public class IColors {
         backgroundColors.put("#ff10161a", "#ff10161a");
         backgroundColors.put("#ff12181c", "#ff12181c");
         backgroundColors.put("#ff20272b", "#ff20272b");
+
+        // Alpha colors
+        alphacolors.put("#ff15603e", "#8015603e");
     }
 }

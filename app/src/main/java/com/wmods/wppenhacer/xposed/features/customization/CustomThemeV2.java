@@ -1,6 +1,7 @@
 package com.wmods.wppenhacer.xposed.features.customization;
 
 import static com.wmods.wppenhacer.utils.ColorReplacement.replaceColors;
+import static com.wmods.wppenhacer.utils.IColors.alphacolors;
 import static com.wmods.wppenhacer.utils.IColors.backgroundColors;
 import static com.wmods.wppenhacer.utils.IColors.primaryColors;
 import static com.wmods.wppenhacer.utils.IColors.secondaryColors;
@@ -11,7 +12,6 @@ import android.app.Activity;
 import android.content.pm.PackageManager;
 import android.content.res.AssetManager;
 import android.content.res.ColorStateList;
-import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
@@ -34,6 +34,8 @@ import com.wmods.wppenhacer.xposed.utils.DesignUtils;
 import com.wmods.wppenhacer.xposed.utils.ReflectionUtils;
 import com.wmods.wppenhacer.xposed.utils.Utils;
 
+import java.lang.reflect.Method;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Objects;
 import java.util.Properties;
@@ -221,6 +223,16 @@ public class CustomThemeV2 extends Feature {
                 textView.setTextColor(DesignUtils.getPrimaryTextColor());
             }
         });
+
+        Method activeButtonNav = Unobfuscator.loadActiveButtonNav(classLoader);
+
+        XposedBridge.hookMethod(activeButtonNav, new XC_MethodHook() {
+            @Override
+            protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
+                var drawable = (Drawable) param.args[0];
+                DrawableColors.replaceColor(drawable, alphacolors);
+            }
+        });
     }
 
     public void loadAndApplyColors() {
@@ -252,6 +264,7 @@ public class CustomThemeV2 extends Feature {
 
             if (!primaryColor.equals("0") && DesignUtils.isValidColor(primaryColor)) {
                 processColors(primaryColor, primaryColors);
+                processColors(primaryColor, alphacolors);
             }
 
             if (!secondaryColor.equals("0") && DesignUtils.isValidColor(secondaryColor)) {
@@ -261,6 +274,19 @@ public class CustomThemeV2 extends Feature {
             if (!backgroundColor.equals("0") && DesignUtils.isValidColor(backgroundColor)) {
                 processColors(backgroundColor, backgroundColors);
             }
+
+            var entries = alphacolors.entrySet();
+            var newAlphaColors = new HashMap<String, String>();
+            for (var entry : entries) {
+                var color = primaryColors.getOrDefault(entry.getKey(), null);
+                if (color == null) {
+                    newAlphaColors.put(entry.getKey(), entry.getValue());
+                    continue;
+                }
+                var realColor = entry.getValue();
+                newAlphaColors.put(color, realColor);
+            }
+            alphacolors = newAlphaColors;
         }
 
         IColors.colors.putAll(primaryColors);
