@@ -57,16 +57,68 @@ public class CustomThemeV2 extends Feature {
     }
 
     private static void processColors(String color, HashMap<String, String> mapColors) {
-        color = color.length() == 9 ? color : "#ff" + color.substring(1);
+        // Ensure input color is in #AARRGGBB format, defaulting alpha to FF
+        String inputColorFull;
+        if (color.length() == 7) { // #RRGGBB
+            inputColorFull = "#ff" + color.substring(1);
+        } else if (color.length() == 9) { // #AARRGGBB
+             // Base the color on input, but force FF alpha
+             inputColorFull = "#ff" + color.substring(3);
+        } else {
+            // Invalid format, ignore
+            return;
+        }
+
+        // Parse the base input color (with FF alpha)
+        int inputR, inputG, inputB;
+        try {
+            inputR = Integer.parseInt(inputColorFull.substring(3, 5), 16);
+            inputG = Integer.parseInt(inputColorFull.substring(5, 7), 16);
+            inputB = Integer.parseInt(inputColorFull.substring(7, 9), 16);
+        } catch (NumberFormatException e) {
+            // Invalid input color format after normalization
+            return;
+        }
+
+
         for (var c : mapColors.keySet()) {
-            if (c.length() == 9) {
-                String value = mapColors.get(c);
-                if (value != null && !value.startsWith("#ff"))
-                    color = value.substring(0, 3) + color.substring(3);
-                mapColors.put(c, color);
-            } else {
-                mapColors.put(c, color.substring(3));
+            String value = mapColors.get(c); // The existing color string in the map
+
+            if (c.length() == 9) { // Key represents a color with alpha (#AARRGGBB)
+                String finalColorStr = inputColorFull; // Default to the input color with FF alpha
+
+                if (value != null && value.length() == 9 && !value.startsWith("#ff")) {
+                    try {
+                        // Existing color 'value' has non-FF alpha. Calculate lightening factor.
+                        int existingAlphaInt = Integer.parseInt(value.substring(1, 3), 16);
+                        float alphaFactor = existingAlphaInt / 255.0f;
+
+                        // Blend the input color (inputR,G,B) with white based on the existing alphaFactor
+                        int newR = (int) (inputR * alphaFactor + 255 * (1 - alphaFactor));
+                        int newG = (int) (inputG * alphaFactor + 255 * (1 - alphaFactor));
+                        int newB = (int) (inputB * alphaFactor + 255 * (1 - alphaFactor));
+
+                        // Clamp values to 0-255
+                        newR = Math.max(0, Math.min(255, newR));
+                        newG = Math.max(0, Math.min(255, newG));
+                        newB = Math.max(0, Math.min(255, newB));
+
+                        // Format the final lightened color string with FF alpha
+                        finalColorStr = String.format("#ff%02x%02x%02x", newR, newG, newB);
+
+                    } catch (NumberFormatException e) {
+                        // Handle potential parsing errors if 'value' is malformed, fallback to inputColorFull
+                        finalColorStr = inputColorFull;
+                    }
+                }
+                // Put the calculated or default color (always with FF alpha)
+                mapColors.put(c, finalColorStr);
+
+            } else if (c.length() == 7) { // Key represents a color without alpha (#RRGGBB)
+                // Put the RGB part of the input color (which already has FF alpha)
+                mapColors.put(c, inputColorFull.substring(3));
             }
+            // Ignore keys with other lengths
         }
     }
 
@@ -223,15 +275,15 @@ public class CustomThemeV2 extends Feature {
             }
         });
 
-        Method activeButtonNav = Unobfuscator.loadActiveButtonNav(classLoader);
-
-        XposedBridge.hookMethod(activeButtonNav, new XC_MethodHook() {
-            @Override
-            protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
-                var drawable = (Drawable) param.args[0];
-                DrawableColors.replaceColor(drawable, alphacolors);
-            }
-        });
+//        Method activeButtonNav = Unobfuscator.loadActiveButtonNav(classLoader);
+//
+//        XposedBridge.hookMethod(activeButtonNav, new XC_MethodHook() {
+//            @Override
+//            protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
+//                var drawable = (Drawable) param.args[0];
+//                DrawableColors.replaceColor(drawable, alphacolors);
+//            }
+//        });
     }
 
     public void loadAndApplyColors() {
