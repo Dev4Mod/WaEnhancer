@@ -76,9 +76,13 @@ public class Others extends Feature {
         propsBoolean.put(4497, menuWIcons);
         propsBoolean.put(4023, newSettings);
         propsBoolean.put(8013, Objects.equals(filterChats, "2")); // lupa sera removida e sera adicionado uma barra no lugar.
-        propsBoolean.put(2358, false);
         propsBoolean.put(2889, floatingMenu);
-        propsBoolean.put(7769, false);
+
+        // change page id
+        propsBoolean.put(2358, false);
+
+        // search contact filter
+        propsBoolean.put(7769, true);
 
         // disable new Media Picker
         propsBoolean.put(9286, false);
@@ -93,14 +97,20 @@ public class Others extends Feature {
         propsBoolean.put(6481, false);
 
         // Enable music in Stories
-        //propsBoolean.put(13280, true);
+//        propsBoolean.put(13591, true);
+//        propsBoolean.put(10024, true);
 
-        propsBoolean.put(6798, true);  // show all status
-        propsBoolean.put(3575, animationEmojis);  // auto play emojis settings
-        propsBoolean.put(9757, animationEmojis);  // auto play emojis settings
-        propsBoolean.put(10639, animationEmojis);  // emojis map 1
-        propsBoolean.put(12495, animationEmojis);  // emojis map 2
-        propsBoolean.put(11066, animationEmojis);  // emojis map 3
+        // show all status
+        propsBoolean.put(6798, true);
+
+        // auto play emojis settings
+        propsBoolean.put(3575, animationEmojis);
+        propsBoolean.put(9757, animationEmojis);
+
+        // emojis maps
+        propsBoolean.put(10639, animationEmojis);
+        propsBoolean.put(12495, animationEmojis);
+        propsBoolean.put(11066, animationEmojis);
 
         propsBoolean.put(7589, true);  // Media select quality
         propsBoolean.put(6972, false); // Media select quality
@@ -111,19 +121,36 @@ public class Others extends Feature {
         propsBoolean.put(8607, true);  // Enable Dialer keyboard
         propsBoolean.put(9578, true);  // Enable Privacy Checkup
         propsInteger.put(8135, 2);  // Call Filters
-        propsBoolean.put(9141, true);  // Enable Translate Message
-        propsBoolean.put(8925, true);  // Enable Translate Message
+
+        // Enable Translate Message
+        propsBoolean.put(9141, true);
+        propsBoolean.put(8925, true);
 
         propsBoolean.put(10380, false); // fix crash bug in Settings/Archived
 
-        propsBoolean.put(10379, true);
-        propsBoolean.put(10388, true);
+        propsBoolean.put(0x34b9, true); // Enable Select People in call
+        propsBoolean.put(0x351c, true); // Enable new colors style in Text Composer
 
+        // Enable show count until viewed
+        propsBoolean.put(0x2289, true);
+        propsBoolean.put(0x373f, true);
+
+        // add yours in stories
+        propsBoolean.put(0x2ce2, true);
+        propsBoolean.put(0x2ce3, true);
+
+        propsBoolean.put(0x345a, true); // new edit profile name
+
+        // new stories selection
+        propsBoolean.put(0x32ca, true);
+        propsBoolean.put(0x32cb, true);
 
         if (metaai) {
             propsBoolean.put(8025, false);
             propsBoolean.put(6251, false);
             propsBoolean.put(7639, false);
+            propsBoolean.put(10379, false);
+            propsBoolean.put(10388, false);
         }
 
         if (audio_transcription) {
@@ -134,6 +161,7 @@ public class Others extends Feature {
             Others.propsBoolean.put(6808, true);
             Others.propsBoolean.put(10286, true);
             Others.propsBoolean.put(11596, true);
+            Others.propsBoolean.put(13949, true);
         }
 
         // Whatsapp Status Style
