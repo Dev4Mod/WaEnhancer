@@ -29,7 +29,6 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.documentfile.provider.DocumentFile;
 
 import com.wmods.wppenhacer.preference.ThemePreference;
 import com.wmods.wppenhacer.utils.IColors;
@@ -74,7 +73,6 @@ public class CustomView extends Feature {
     private DrawableCache cacheImages;
     private static File themeDir;
     private final HashMap<String, Drawable> chacheDrawables = new HashMap<>();
-    private final HashMap<String, DocumentFile> chacheUris = new HashMap<>();
     private Properties properties;
 
     public CustomView(@NonNull ClassLoader loader, @NonNull XSharedPreferences preferences) {
