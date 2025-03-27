@@ -1779,7 +1779,7 @@ public class Unobfuscator {
     }
 
     public static synchronized Method loadCheckSupportLanguage(ClassLoader classLoader) throws Exception {
-        return UnobfuscatorCache.getInstance().getMethod(classLoader, () -> findFirstMethodUsingStrings(classLoader, StringMatchType.Equals, "Unsupported language"));
+        return UnobfuscatorCache.getInstance().getMethod(classLoader, () -> findFirstMethodUsingStrings(classLoader, StringMatchType.Contains, "Unsupported language"));
     }
 
     public static synchronized Class loadUnkTranscript(ClassLoader classLoader) throws Exception {
