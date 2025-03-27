@@ -85,7 +85,7 @@ public class Unobfuscator {
         for (MethodData methodData : result) {
             if (methodData.isMethod()) return methodData.getMethodInstance(classLoader);
         }
-        throw new NoSuchMethodException();
+        return null;
     }
 
     public synchronized static Method findFirstMethodUsingStringsFilter(ClassLoader classLoader, String packageFilter, StringMatchType type, String... strings) throws Exception {
@@ -99,7 +99,7 @@ public class Unobfuscator {
         for (MethodData methodData : result) {
             if (methodData.isMethod()) return methodData.getMethodInstance(classLoader);
         }
-        throw new NoSuchMethodException();
+        return null;
     }
 
     public synchronized static Method[] findAllMethodUsingStrings(ClassLoader classLoader, StringMatchType type, String... strings) {
@@ -176,6 +176,10 @@ public class Unobfuscator {
             Method[] methods = findAllMethodUsingStrings(classLoader, StringMatchType.Equals, "privacy_token", "false", "receipt");
             var deviceJidClass = XposedHelpers.findClass("com.whatsapp.jid.DeviceJid", classLoader);
             Method bestMethod = Arrays.stream(methods).filter(method -> method.getParameterTypes().length > 1 && method.getParameterTypes()[1] == deviceJidClass).findFirst().orElse(null);
+            if (bestMethod == null) { // valid since 2.25.8.xx
+                methods = findAllMethodUsingStrings(classLoader, StringMatchType.Equals, "participant", "recipient", "receipt");
+                bestMethod = Arrays.stream(methods).filter(method -> method.getParameterTypes().length > 1 && method.getParameterTypes()[1] == deviceJidClass).findFirst().orElse(null);
+            }
             if (bestMethod == null) throw new Exception("Receipt method not found");
             return bestMethod;
         });
@@ -279,6 +283,7 @@ public class Unobfuscator {
     public synchronized static Method loadHideViewInChatMethod(ClassLoader classLoader) throws Exception {
         return UnobfuscatorCache.getInstance().getMethod(classLoader, () -> {
             Method method = findFirstMethodUsingStrings(classLoader, StringMatchType.Contains, "ReadReceipts/PrivacyTokenDecisionNotComputed");
+            if (method == null) method = findFirstMethodUsingStrings(classLoader, StringMatchType.Contains, "ReadReceipts/acknowledgeMessageIfNeeded ignoring key=");
             if (method == null) throw new Exception("HideViewInChat method not found");
             return method;
         });
@@ -287,6 +292,7 @@ public class Unobfuscator {
     public synchronized static Method loadHideViewMethod(ClassLoader classLoader) throws Exception {
         return UnobfuscatorCache.getInstance().getMethod(classLoader, () -> {
             Method method = findFirstMethodUsingStrings(classLoader, StringMatchType.Contains, "privacy_token", "false", "recipient");
+            if (method == null) method = loadHideViewInChatMethod(classLoader);
             if (method == null) throw new Exception("HideViewMethod method not found");
             return method;
         });
@@ -793,7 +799,6 @@ public class Unobfuscator {
                                     MethodsMatcher.create().methods(
                                             Collections.singletonList(
                                                     MethodMatcher.create().declaredClass(ClassMatcher.create().addUsingString("INVOKE_RETURN"))
-                                                            .paramTypes(View.class, int.class)
                                             )
                                     )
                             ))
@@ -1374,7 +1379,8 @@ public class Unobfuscator {
     }
 
     public synchronized static Method loadGroupCheckAdminMethod(ClassLoader loader) throws Exception {
-        var clazz = findFirstClassUsingStrings(loader, StringMatchType.Contains, "[LidGroup]GroupParticipantsManager");
+        var clazz = findFirstClassUsingStrings(loader, StringMatchType.Contains, "GET_GROUP_PARTICIPANT_DEVICES_COUNT_SQL");
+        if (clazz == null) clazz = findFirstClassUsingStrings(loader, StringMatchType.Contains, "[LidGroup]GroupParticipantsManager");
         var userJidClass = XposedHelpers.findClass("com.whatsapp.jid.UserJid", loader);
         var methods = ReflectionUtils.findAllMethodsUsingFilter(clazz, m -> m.getParameterCount() == 2 && m.getParameterTypes()[1].equals(userJidClass) && m.getReturnType().equals(boolean.class));
         if (methods == null || methods.length == 0)
