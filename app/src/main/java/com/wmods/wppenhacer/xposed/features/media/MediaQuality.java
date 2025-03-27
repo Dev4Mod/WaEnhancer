@@ -42,8 +42,6 @@ public class MediaQuality extends Feature {
         Others.propsInteger.put(4685, maxSize);
         Others.propsInteger.put(596, maxSize);
 
-        Others.propsBoolean.put(7950, false); // Força o uso do MediaComposer para processar os videos
-
         // Enable Media Quality selection for Stories
         var hookMediaQualitySelection = Unobfuscator.loadMediaQualitySelectionMethod(classLoader);
         XposedBridge.hookMethod(hookMediaQualitySelection, XC_MethodReplacement.returnConstant(true));
@@ -55,17 +53,25 @@ public class MediaQuality extends Feature {
             var jsonProperty = Unobfuscator.loadPropsJsonMethod(classLoader);
 
             AtomicReference<XC_MethodHook.Unhook> jsonPropertyHook = new AtomicReference<>();
+
             var unhooked = XposedBridge.hookMethod(jsonProperty, new XC_MethodHook() {
                 @Override
                 protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-                    var index = ReflectionUtils.findIndexOfType(param.args, Integer.class);
-                    if (index == -1) {
-                        Utils.showToast("PropsJson: index int not found", 0);
-                        jsonPropertyHook.get().unhook();
-                        return;
-                    }
-                    // Disable video profiles (mobile network)
-                    if ((int) param.args[index] == 5550 || (int) param.args[index] == 9705) {
+                    var value = ReflectionUtils.getArg(param.args, Integer.class, 0);
+                    if (value == 5550) {
+                        JSONObject videoBitrateData = new JSONObject();
+                        String[] resolutions = {"360", "480", "720", "1080"};
+                        for (String resolution : resolutions) {
+                            JSONObject resolutionData = new JSONObject();
+                            resolutionData.put("min_bitrate", 3000);
+                            resolutionData.put("max_bitrate", 96000);
+                            resolutionData.put("null_bitrate", 96000);
+                            resolutionData.put("min_bandwidth", 1);
+                            resolutionData.put("max_bandwidth", 1);
+                            videoBitrateData.put(resolution, resolutionData);
+                        }
+                        param.setResult(videoBitrateData);
+                    } else if (value == 9705) {
                         param.setResult(new JSONObject());
                     }
                 }
