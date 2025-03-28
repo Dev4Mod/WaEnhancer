@@ -1255,7 +1255,7 @@ public class Unobfuscator {
 
     public synchronized static Class loadRemoveChannelRecClass(ClassLoader loader) throws Exception {
         return UnobfuscatorCache.getInstance().getClass(loader, () -> {
-            var clazz = findFirstClassUsingStrings(loader, StringMatchType.Contains, "RecommendedNewslettersListDataItem(recommendedNewsletters=");
+            var clazz = findFirstClassUsingStrings(loader, StringMatchType.Contains, "hasNewsletterSubscriptions");
             if (clazz == null) throw new RuntimeException("RemoveChannelRec class not found");
             return clazz;
         });
@@ -1581,7 +1581,7 @@ public class Unobfuscator {
 
     public synchronized static Class loadHeaderChannelItemClass(ClassLoader classLoader) throws Exception {
         return UnobfuscatorCache.getInstance().getClass(classLoader, () -> {
-            var clazz = findFirstClassUsingStrings(classLoader, StringMatchType.Contains, "NewsletterHeaderDataItem");
+            var clazz = findFirstClassUsingStrings(classLoader, StringMatchType.Contains, "statusTilesEnabled");
             if (clazz == null) throw new RuntimeException("HeaderChannelItem class not found");
             return clazz;
         });
@@ -1589,8 +1589,8 @@ public class Unobfuscator {
 
     public synchronized static Class loadListChannelItemClass(ClassLoader classLoader) throws Exception {
         return UnobfuscatorCache.getInstance().getClass(classLoader, () -> {
-            var clazz = findFirstClassUsingStrings(classLoader, StringMatchType.Contains, "NewsletterDataItem", "isMuteIndicatorEnabled");
-            if (clazz == null) throw new RuntimeException("HeaderChannelItem class not found");
+            var clazz = findFirstClassUsingStrings(classLoader, StringMatchType.Contains, "isMuteIndicatorEnabled");
+            if (clazz == null) throw new RuntimeException("NewsletterDataItem class not found");
             return clazz;
         });
     }
