@@ -1,10 +1,14 @@
 [BUGS FIXED]
-* Fixed issues with background color transparency
-* Fixed issues with send on reply
-* Fixed issues with double tap to reaction
+* Fixed issues with Themes and colors
+* Fixed issues with Google translations (Thanks to frknkrc44)
 
 [IMPROVEMENTS]
-* Improved table mode support (Thanks to frknkrc44)
+* Added a new certificate to Bootloader Spoofer
+* Improved Video Quality
+
+[FUNCTIONS]
+* Added New Hide Tick View function (this function will add a tick to contact messages that change color as you view contact messages and this is also true for unique views) [WAE -> Privacy]
+* Enabled beta functions in WA
 
 [WHATSAPP]
-* Added support for WhatsApp 2.25.7.XX
+* Added support for WhatsApp 2.25.8.XX and 2.25.9.XX
