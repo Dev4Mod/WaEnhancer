@@ -56,6 +56,12 @@
             app:title="@string/hideread" />
 
         <rikka.material.preference.MaterialSwitchPreference
+            app:key="hide_seen_view"
+            app:dependency="hideread"
+            app:summary="@string/view_seen_tick_sum"
+            app:title="@string/view_seen_tick" />
+
+        <rikka.material.preference.MaterialSwitchPreference
             app:key="blueonreply"
             app:summary="@string/blueonreply_sum"
             app:title="@string/blueonreply" />
