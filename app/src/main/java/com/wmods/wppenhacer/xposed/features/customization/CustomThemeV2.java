@@ -1,6 +1,7 @@
 package com.wmods.wppenhacer.xposed.features.customization;
 
 import static com.wmods.wppenhacer.utils.ColorReplacement.replaceColors;
+import static com.wmods.wppenhacer.utils.DrawableColors.replaceColor;
 import static com.wmods.wppenhacer.utils.IColors.alphacolors;
 import static com.wmods.wppenhacer.utils.IColors.backgroundColors;
 import static com.wmods.wppenhacer.utils.IColors.primaryColors;
@@ -24,7 +25,6 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.core.content.ContextCompat;
 
-import com.wmods.wppenhacer.utils.DrawableColors;
 import com.wmods.wppenhacer.utils.IColors;
 import com.wmods.wppenhacer.views.WallpaperView;
 import com.wmods.wppenhacer.xposed.core.Feature;
@@ -34,7 +34,6 @@ import com.wmods.wppenhacer.xposed.utils.DesignUtils;
 import com.wmods.wppenhacer.xposed.utils.ReflectionUtils;
 import com.wmods.wppenhacer.xposed.utils.Utils;
 
-import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Objects;
 import java.util.Properties;
@@ -62,8 +61,8 @@ public class CustomThemeV2 extends Feature {
         if (color.length() == 7) { // #RRGGBB
             inputColorFull = "#ff" + color.substring(1);
         } else if (color.length() == 9) { // #AARRGGBB
-             // Base the color on input, but force FF alpha
-             inputColorFull = "#ff" + color.substring(3);
+            // Base the color on input, but force FF alpha
+            inputColorFull = "#ff" + color.substring(3);
         } else {
             // Invalid format, ignore
             return;
@@ -209,15 +208,7 @@ public class CustomThemeV2 extends Feature {
                 var viewGroup = (ViewGroup) param.thisObject;
                 if (checkNotHomeActivity()) return;
                 var background = viewGroup.getBackground();
-                try {
-                    var colorfilters = XposedHelpers.getObjectField(background, "A01");
-                    var fields = ReflectionUtils.getFieldsByType(colorfilters.getClass(), ColorStateList.class);
-                    var colorStateList = (ColorStateList) fields.get(0).get(colorfilters);
-                    var newColor = IColors.getFromIntColor(colorStateList.getDefaultColor(), navAlpha);
-                    if (newColor == colorStateList.getDefaultColor()) return;
-                    background.setTint(newColor);
-                } catch (Throwable ignored) {
-                }
+                replaceColor(background, navAlpha);
             }
         });
 
@@ -247,7 +238,7 @@ public class CustomThemeV2 extends Feature {
             @Override
             protected void afterHookedMethod(MethodHookParam param) throws Throwable {
                 var drawable = (Drawable) param.getResult();
-                DrawableColors.replaceColor(drawable, IColors.colors);
+                replaceColor(drawable, IColors.colors);
             }
         });
 

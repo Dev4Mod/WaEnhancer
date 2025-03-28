@@ -10,6 +10,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.wmods.wppenhacer.xposed.utils.DesignUtils;
+import com.wmods.wppenhacer.xposed.utils.Utils;
 
 import java.util.HashMap;
 
@@ -17,12 +18,14 @@ import de.robv.android.xposed.XposedHelpers;
 
 public class ColorReplacement {
     public static void replaceColors(View view, HashMap<String, String> colors) {
+        if (view == null) return;
+        if (view.getId() == Utils.getID("bottom_nav", "id")) return;
         if (view instanceof ImageView imageView) {
-            Image.replace(imageView,colors);
+            Image.replace(imageView, colors);
         } else if (view instanceof TextView textView) {
             Text.replace(textView, colors);
         } else if (view instanceof ViewGroup viewGroup) {
-            Group.replace(viewGroup,colors);
+            Group.replace(viewGroup, colors);
         } else if (view instanceof ViewStub viewStub) {
             replaceColor(viewStub.getBackground(), colors);
         }
