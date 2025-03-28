@@ -173,7 +173,7 @@ public class Unobfuscator {
 
     public synchronized static Method loadReceiptMethod(ClassLoader classLoader) throws Exception {
         return UnobfuscatorCache.getInstance().getMethod(classLoader, () -> {
-            Method[] methods = findAllMethodUsingStrings(classLoader, StringMatchType.Equals, "participant", "type", "recipient");
+            Method[] methods = findAllMethodUsingStrings(classLoader, StringMatchType.Equals, "receipt");
             var deviceJidClass = XposedHelpers.findClass("com.whatsapp.jid.DeviceJid", classLoader);
             Method bestMethod = Arrays.stream(methods).filter(method -> method.getParameterTypes().length > 1 && method.getParameterTypes()[1] == deviceJidClass).findFirst().orElse(null);
             if (bestMethod == null) throw new Exception("Receipt method not found");
