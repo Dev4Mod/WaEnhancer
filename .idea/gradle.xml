@@ -7,14 +7,13 @@
         <option name="testRunner" value="CHOOSE_PER_TEST" />
         <option name="externalProjectPath" value="$PROJECT_DIR$" />
         <option name="gradleHome" value="$PROJECT_DIR$/../../../../ProgramData/chocolatey/lib/gradle/tools/gradle-8.1" />
-        <option name="gradleJvm" value="jbr-17" />
+        <option name="gradleJvm" value="jbr-21" />
         <option name="modules">
           <set>
             <option value="$PROJECT_DIR$" />
             <option value="$PROJECT_DIR$/app" />
           </set>
         </option>
-        <option name="resolveExternalAnnotations" value="false" />
       </GradleProjectSettings>
     </option>
   </component>
