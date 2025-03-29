@@ -28,14 +28,14 @@ import de.robv.android.xposed.XposedHelpers;
 
 public class LiteMode extends Feature {
 
-    private static final int REQUEST_FOLDER = 852583;
+    public static final int REQUEST_FOLDER = 852583;
 
 
     public LiteMode(@NonNull ClassLoader classLoader, @NonNull XSharedPreferences preferences) {
         super(classLoader, preferences);
     }
 
-    private static Uri getDownloadsUri() {
+    public static Uri getDownloadsUri() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             return MediaStore.Downloads.EXTERNAL_CONTENT_URI;
         } else {
@@ -74,16 +74,23 @@ public class LiteMode extends Feature {
         XposedHelpers.findAndHookMethod(Activity.class, "onActivityResult", int.class, int.class, Intent.class, new XC_MethodHook() {
             @Override
             protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-                super.afterHookedMethod(param);
                 var activity = (Activity) param.thisObject;
-                if ((int) param.args[0] == REQUEST_FOLDER && (int) param.args[1] == Activity.RESULT_OK) {
-                    var uri = ((Intent) param.args[2]).getData();
-                    WppCore.setPrivString("download_folder", uri.toString());
-                    activity.getContentResolver().takePersistableUriPermission(uri, Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
+                var id = (int) param.args[0];
+                var intent = (Intent) param.args[2];
+                if (id == REQUEST_FOLDER && (int) param.args[1] == Activity.RESULT_OK) {
+                    processDownloadResult(activity, intent);
                 }
             }
         });
 
+    }
+
+    public static String processDownloadResult(Activity activity, Intent intent) {
+        var uri = intent.getData();
+        if (uri == null) return null;
+        WppCore.setPrivString("download_folder", uri.toString());
+        activity.getContentResolver().takePersistableUriPermission(uri, Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
+        return uri.toString();
     }
 
     private void InsertDownloadFolderButton(Menu menu, Activity activity) {

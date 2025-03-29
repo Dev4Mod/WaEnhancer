@@ -28,6 +28,9 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.wmods.wppenhacer.App;
 import com.wmods.wppenhacer.R;
 import com.wmods.wppenhacer.utils.FilePicker;
+import com.wmods.wppenhacer.utils.RealPathUtil;
+import com.wmods.wppenhacer.xposed.features.general.LiteMode;
+import com.wmods.wppenhacer.xposed.features.others.ActivityController;
 import com.wmods.wppenhacer.xposed.utils.Utils;
 
 import java.io.File;
@@ -74,6 +77,15 @@ public class FileSelectPreference extends Preference implements Preference.OnPre
 
     @Override
     public boolean onPreferenceClick(@NonNull Preference preference) {
+
+        if (getSharedPreferences().getBoolean("lite_mode", false)) {
+            Intent intent = new Intent();
+            intent.setClassName("com.whatsapp", ActivityController.EXPORTED_ACTIVITY);
+            intent.putExtra("key", getKey());
+            intent.putExtra("download_mode", true);
+            ((Activity) getContext()).startActivityForResult(intent, LiteMode.REQUEST_FOLDER);
+            return true;
+        }
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R && !Environment.isExternalStorageManager()) {
             showAlertPermission();
@@ -181,4 +193,18 @@ public class FileSelectPreference extends Preference implements Preference.OnPre
         });
 
     }
+
+    public void handleActivityResult(int requestCode, int resultCode, Intent data) {
+        if (requestCode == LiteMode.REQUEST_FOLDER && resultCode == Activity.RESULT_OK) {
+            var uri = Uri.parse(data.getStringExtra("path"));
+            try {
+                var realPath = RealPathUtil.getRealFolderPath(getContext(), uri);
+                getSharedPreferences().edit().putString(getKey(), realPath).apply();
+                setSummary(realPath);
+            } catch (Exception ignored) {
+                setSummary(uri.toString());
+            }
+        }
+    }
+
 }

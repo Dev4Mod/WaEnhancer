@@ -109,7 +109,6 @@ public abstract class BasePreferenceFragment extends PreferenceFragmentCompat im
         if (lite_mode) {
             setPreferenceState("wallpaper", false);
             setPreferenceState("custom_filters", false);
-            setPreferenceState("download_local", false);
         }
 
         if (Objects.equals(key, "thememode")) {

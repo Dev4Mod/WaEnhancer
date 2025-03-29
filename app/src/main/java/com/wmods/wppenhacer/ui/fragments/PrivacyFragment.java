@@ -10,7 +10,9 @@ import androidx.annotation.Nullable;
 
 import com.wmods.wppenhacer.R;
 import com.wmods.wppenhacer.preference.ContactPickerPreference;
+import com.wmods.wppenhacer.preference.FileSelectPreference;
 import com.wmods.wppenhacer.ui.fragments.base.BasePreferenceFragment;
+import com.wmods.wppenhacer.xposed.features.general.LiteMode;
 
 public class PrivacyFragment extends BasePreferenceFragment {
 
@@ -30,10 +32,16 @@ public class PrivacyFragment extends BasePreferenceFragment {
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
+        System.out.println("onActivityResult: " + requestCode + " " + resultCode + " " + data);
         if (requestCode == REQUEST_CONTACT_PICKER && resultCode == Activity.RESULT_OK) {
             ContactPickerPreference contactPickerPref = findPreference(data.getStringExtra("key"));
             if (contactPickerPref != null) {
                 contactPickerPref.handleActivityResult(requestCode, resultCode, data);
+            }
+        } else if (requestCode == LiteMode.REQUEST_FOLDER && resultCode == Activity.RESULT_OK) {
+            FileSelectPreference fileSelectPreference = findPreference(data.getStringExtra("key"));
+            if (fileSelectPreference != null) {
+                fileSelectPreference.handleActivityResult(requestCode, resultCode, data);
             }
         }
     }
