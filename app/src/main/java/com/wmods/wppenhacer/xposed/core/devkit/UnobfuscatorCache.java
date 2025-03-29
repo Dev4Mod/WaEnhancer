@@ -8,11 +8,13 @@ import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.widget.Toast;
 
+import com.google.devrel.gmscore.tools.apk.arsc.ArscUtils;
 import com.wmods.wppenhacer.BuildConfig;
 import com.wmods.wppenhacer.xposed.utils.ReflectionUtils;
 import com.wmods.wppenhacer.xposed.utils.ResId;
 import com.wmods.wppenhacer.xposed.utils.Utils;
 
+import java.io.File;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
@@ -87,6 +89,30 @@ public class UnobfuscatorCache {
     }
 
     private void initializeReverseResourceMap() {
+        try {
+            var app = Utils.getApplication();
+            var source = app.getApplicationInfo().sourceDir;
+            var table = ArscUtils.getResourceTable(new File(source));
+            var pool = table.getStringPool();
+            var pkg = table.getPackage(app.getPackageName());
+            var typeChunks = pkg.getTypeChunks("string");
+            var chunk = typeChunks.stream().filter(typeChunk -> typeChunk.getConfiguration().isDefault()).findFirst().orElse(null);
+            var entries = chunk.getEntries();
+            int baseValue = 0x7f12;
+            for (var entry : entries.entrySet()) {
+                int keyHexValue = entry.getKey();
+                int result = baseValue << 16 | keyHexValue;
+                String resourceString = pool.getString(entry.getValue().value().data()).toLowerCase().replaceAll("\\s", "");
+                reverseResourceMap.put(resourceString, String.valueOf(result));
+            }
+        } catch (Exception e) {
+            XposedBridge.log(e);
+            reverseResourceMap.clear();
+            initializeReverseResourceMapBruteForce();
+        }
+    }
+
+    private void initializeReverseResourceMapBruteForce() {
         var currentTime = System.currentTimeMillis();
         int numThreads = Runtime.getRuntime().availableProcessors();
         ExecutorService executor = Executors.newFixedThreadPool(numThreads); // Create a thread pool with 4 threads
@@ -133,6 +159,7 @@ public class UnobfuscatorCache {
     private String getMapIdString(String search) {
         if (reverseResourceMap.isEmpty()) {
             initializeReverseResourceMap();
+            System.gc();
         }
         search = search.toLowerCase().replaceAll("\\s", "");
         XposedBridge.log("need search obsfucate: " + search);

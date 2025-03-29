@@ -156,6 +156,7 @@ dependencies {
     implementation(libs.filepicker)
     implementation(libs.betterypermissionhelper)
     implementation(libs.bcpkix.jdk18on)
+    implementation(libs.arscblamer)
 }
 
 configurations.all {

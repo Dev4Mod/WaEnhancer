@@ -1,4 +1,5 @@
 [versions]
+arscblamer = "1.0"
 bcpkix-jdk18on = "1.80"
 betterypermissionhelper = "1.0.3"
 filepicker = "9.2.5"
@@ -13,6 +14,7 @@ kotlin = "2.1.10"
 
 
 [libraries]
+arscblamer = { module = "com.github.DavidArsene:arscblamer", version.ref = "arscblamer" }
 bcpkix-jdk18on = { module = "org.bouncycastle:bcpkix-jdk18on", version.ref = "bcpkix-jdk18on" }
 betterypermissionhelper = { module = "com.waseemsabir:betterypermissionhelper", version.ref = "betterypermissionhelper" }
 colorpicker = { module = "com.jaredrummler:colorpicker", version.ref = "colorpicker" }
