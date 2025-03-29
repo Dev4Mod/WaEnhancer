@@ -17,6 +17,7 @@ import com.wmods.wppenhacer.xposed.core.Feature;
 import com.wmods.wppenhacer.xposed.core.WppCore;
 import com.wmods.wppenhacer.xposed.core.components.FMessageWpp;
 import com.wmods.wppenhacer.xposed.core.db.MessageHistory;
+import com.wmods.wppenhacer.xposed.utils.ReflectionUtils;
 import com.wmods.wppenhacer.xposed.utils.Utils;
 
 import de.robv.android.xposed.XC_MethodHook;
@@ -45,16 +46,17 @@ public class HideSeenView extends Feature {
                 if (adapter instanceof HeaderViewListAdapter) {
                     adapter = ((HeaderViewListAdapter) adapter).getWrappedAdapter();
                 }
+                if (adapter == null) return;
                 mAdapter = adapter;
                 var method = mAdapter.getClass().getDeclaredMethod("getView", int.class, View.class, ViewGroup.class);
                 XposedBridge.hookMethod(method, new XC_MethodHook() {
                     @Override
                     protected void afterHookedMethod(MethodHookParam param) throws Throwable {
                         if (param.thisObject != mAdapter) return;
-                        var position = (int) param.args[0];
                         var viewGroup = (ViewGroup) param.args[1];
                         if (viewGroup == null) return;
-                        Object fMessageObj = mAdapter.getItem(position);
+                        var field = ReflectionUtils.findFieldUsingFilter(viewGroup.getClass(), field1 -> field1.getType() == FMessageWpp.TYPE);
+                        Object fMessageObj = field.get(viewGroup);
                         var fmessage = new FMessageWpp(fMessageObj);
                         if (fmessage.getKey().isFromMe) return;
                         viewGroup.post(() -> updateBubbleView(fmessage, viewGroup));
