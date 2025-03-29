@@ -50,6 +50,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Objects;
 import java.util.Properties;
+import java.util.concurrent.CompletableFuture;
 
 import cz.vutbr.web.css.CSSFactory;
 import cz.vutbr.web.css.CombinedSelector;
@@ -74,6 +75,7 @@ public class CustomView extends Feature {
     private static File themeDir;
     private final HashMap<String, Drawable> chacheDrawables = new HashMap<>();
     private Properties properties;
+
 
     public CustomView(@NonNull ClassLoader loader, @NonNull XSharedPreferences preferences) {
         super(loader, preferences);
@@ -204,7 +206,7 @@ public class CustomView extends Feature {
             try {
                 if (item.targetActivityClass != null && !item.targetActivityClass.isInstance(WppCore.getCurrentActivity()))
                     continue;
-                setCssRule(view, item);
+                CompletableFuture.runAsync(()-> setCssRule(view, item));
             } catch (Throwable ignored) {
             }
         }
@@ -254,7 +256,9 @@ public class CustomView extends Feature {
             if (view == null || !view.isAttachedToWindow())
                 continue;
             try {
-                setRuleInView(ruleItem, view);
+                currentView.post(()-> {
+                    setRuleInView(ruleItem, view);
+                });
             } catch (Throwable e) {
                 log(e);
             }
