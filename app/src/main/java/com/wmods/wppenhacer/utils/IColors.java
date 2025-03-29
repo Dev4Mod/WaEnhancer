@@ -65,9 +65,9 @@ public class IColors {
         primaryColors.put("#ffd9fdd3", "#ffd9fdd3");
         primaryColors.put("#ff1b864b", "#ff1b864b");
 
-        primaryColors.put("#ff144d37", "#c0144d37");
-        primaryColors.put("#ff1b8755", "#c01b8755");
-        primaryColors.put("#ff15603e", "#c015603e");
+        primaryColors.put("#ff144d37", "#ff144d37");
+        primaryColors.put("#ff1b8755", "#ff1b8755");
+        primaryColors.put("#ff15603e", "#ff15603e");
         primaryColors.put("#ff103529", "#c0103529");
 
         // text colors

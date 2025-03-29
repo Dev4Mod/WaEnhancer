@@ -49,75 +49,62 @@ public class CustomThemeV2 extends Feature {
     private HashMap<String, String> navAlpha;
     private HashMap<String, String> toolbarAlpha;
     private Properties properties;
-    private ViewGroup mContent;
+//    private ViewGroup mContent;
 
     public CustomThemeV2(@NonNull ClassLoader classLoader, @NonNull XSharedPreferences preferences) {
         super(classLoader, preferences);
     }
 
     private static void processColors(String color, HashMap<String, String> mapColors) {
-        // Ensure input color is in #AARRGGBB format, defaulting alpha to FF
         String inputColorFull;
-        if (color.length() == 7) { // #RRGGBB
+        if (color.length() == 7) {
             inputColorFull = "#ff" + color.substring(1);
-        } else if (color.length() == 9) { // #AARRGGBB
-            // Base the color on input, but force FF alpha
+        } else if (color.length() == 9) {
             inputColorFull = "#ff" + color.substring(3);
         } else {
-            // Invalid format, ignore
             return;
         }
 
-        // Parse the base input color (with FF alpha)
         int inputR, inputG, inputB;
         try {
             inputR = Integer.parseInt(inputColorFull.substring(3, 5), 16);
             inputG = Integer.parseInt(inputColorFull.substring(5, 7), 16);
             inputB = Integer.parseInt(inputColorFull.substring(7, 9), 16);
         } catch (NumberFormatException e) {
-            // Invalid input color format after normalization
             return;
         }
 
 
         for (var c : mapColors.keySet()) {
-            String value = mapColors.get(c); // The existing color string in the map
+            String value = mapColors.get(c);
 
-            if (c.length() == 9) { // Key represents a color with alpha (#AARRGGBB)
-                String finalColorStr = inputColorFull; // Default to the input color with FF alpha
+            if (c.length() == 9) {
+                String finalColorStr = inputColorFull;
 
                 if (value != null && value.length() == 9 && !value.startsWith("#ff")) {
                     try {
-                        // Existing color 'value' has non-FF alpha. Calculate lightening factor.
                         int existingAlphaInt = Integer.parseInt(value.substring(1, 3), 16);
                         float alphaFactor = existingAlphaInt / 255.0f;
 
-                        // Blend the input color (inputR,G,B) with white based on the existing alphaFactor
                         int newR = (int) (inputR * alphaFactor + 255 * (1 - alphaFactor));
                         int newG = (int) (inputG * alphaFactor + 255 * (1 - alphaFactor));
                         int newB = (int) (inputB * alphaFactor + 255 * (1 - alphaFactor));
 
-                        // Clamp values to 0-255
                         newR = Math.max(0, Math.min(255, newR));
                         newG = Math.max(0, Math.min(255, newG));
                         newB = Math.max(0, Math.min(255, newB));
 
-                        // Format the final lightened color string with FF alpha
                         finalColorStr = String.format("#ff%02x%02x%02x", newR, newG, newB);
 
                     } catch (NumberFormatException e) {
-                        // Handle potential parsing errors if 'value' is malformed, fallback to inputColorFull
                         finalColorStr = inputColorFull;
                     }
                 }
-                // Put the calculated or default color (always with FF alpha)
                 mapColors.put(c, finalColorStr);
 
-            } else if (c.length() == 7) { // Key represents a color without alpha (#RRGGBB)
-                // Put the RGB part of the input color (which already has FF alpha)
+            } else if (c.length() == 7) {
                 mapColors.put(c, inputColorFull.substring(3));
             }
-            // Ignore keys with other lengths
         }
     }
 
@@ -183,22 +170,34 @@ public class CustomThemeV2 extends Feature {
             }
         });
 
-        var revertWallAlpha = revertColors(wallAlpha);
+//        var revertWallAlpha = revertColors(wallAlpha);
 
-        WppCore.addListenerActivity((activity, type) -> {
-            var isHome = homeActivityClass.isInstance(activity);
-            if (WppCore.ActivityChangeState.ChangeType.RESUMED == type && isHome) {
-                mContent = activity.findViewById(android.R.id.content);
-                if (mContent != null) {
-                    replaceColors(mContent, wallAlpha);
-                }
-            } else if (WppCore.ActivityChangeState.ChangeType.CREATED == type && !isHome &&
-                    !activity.getClass().getSimpleName().equals("QuickContactActivity") && !DesignUtils.isNightMode()) {
-                if (mContent != null) {
-                    replaceColors(mContent, revertWallAlpha);
-                }
-            }
-        });
+//        WppCore.addListenerActivity((activity, type) -> {
+//            var isHome = homeActivityClass.isInstance(activity);
+//            if (WppCore.ActivityChangeState.ChangeType.RESUMED == type && isHome) {
+//                mContent = activity.findViewById(android.R.id.content);
+//                if (mContent != null) {
+//                    replaceColors(mContent, wallAlpha);
+//                }
+//            } else if (WppCore.ActivityChangeState.ChangeType.CREATED == type && !isHome &&
+//                    !activity.getClass().getSimpleName().equals("QuickContactActivity") && !DesignUtils.isNightMode()) {
+//                if (mContent != null) {
+//                    replaceColors(mContent, revertWallAlpha);
+//                }
+//            }
+//        });
+
+        var hookFragmentView = Unobfuscator.loadFragmentViewMethod(classLoader);
+
+        XposedBridge.hookMethod(hookFragmentView,
+                new XC_MethodHook() {
+                    @Override
+                    protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+                        if (checkNotHomeActivity()) return;
+                        var viewGroup = (ViewGroup) param.getResult();
+                        replaceColors(viewGroup, wallAlpha);
+                    }
+                });
 
         var loadTabFrameClass = Unobfuscator.loadTabFrameClass(classLoader);
         XposedHelpers.findAndHookMethod(FrameLayout.class, "onMeasure", int.class, int.class, new XC_MethodHook() {

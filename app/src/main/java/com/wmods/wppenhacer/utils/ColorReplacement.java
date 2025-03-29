@@ -19,7 +19,6 @@ import de.robv.android.xposed.XposedHelpers;
 public class ColorReplacement {
     public static void replaceColors(View view, HashMap<String, String> colors) {
         if (view == null) return;
-        if (view.getId() == Utils.getID("bottom_nav", "id")) return;
         if (view instanceof ImageView imageView) {
             Image.replace(imageView, colors);
         } else if (view instanceof TextView textView) {
