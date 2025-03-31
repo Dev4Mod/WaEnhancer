@@ -42,6 +42,7 @@ public class HideSeenView extends Feature {
             protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
                 if (!WppCore.getCurrentActivity().getClass().getSimpleName().equals("Conversation"))
                     return;
+                if (((ListView)param.thisObject).getId() != android.R.id.list) return;
                 ListAdapter adapter = (ListAdapter) param.args[0];
                 if (adapter instanceof HeaderViewListAdapter) {
                     adapter = ((HeaderViewListAdapter) adapter).getWrappedAdapter();
@@ -57,6 +58,7 @@ public class HideSeenView extends Feature {
                         if (viewGroup == null) return;
                         var field = ReflectionUtils.findFieldUsingFilter(viewGroup.getClass(), field1 -> field1.getType() == FMessageWpp.TYPE);
                         Object fMessageObj = field.get(viewGroup);
+                        if (fMessageObj == null) return;
                         var fmessage = new FMessageWpp(fMessageObj);
                         if (fmessage.getKey().isFromMe) return;
                         viewGroup.post(() -> updateBubbleView(fmessage, viewGroup));
