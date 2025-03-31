@@ -24,6 +24,7 @@ import com.wmods.wppenhacer.xposed.utils.Utils;
 
 import org.json.JSONObject;
 
+import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Objects;
@@ -72,6 +73,7 @@ public class Others extends Feature {
         var oldStatus = prefs.getBoolean("oldstatus", false);
         var igstatus = prefs.getBoolean("igstatus", false);
         var animationEmojis = prefs.getBoolean("animation_emojis", false);
+        var disableProfileStatus = prefs.getBoolean("disable_profile_status", false);
 
         propsInteger.put(3877, oldStatus ? igstatus ? 2 : 0 : 2);
         propsBoolean.put(5171, filterSeen); // filtros de chat e grupos
@@ -83,8 +85,8 @@ public class Others extends Feature {
         // change page id
         propsBoolean.put(2358, false);
 
-        // search contact filter
-        propsBoolean.put(7769, true);
+        // disable contact filter
+        propsBoolean.put(7769, false);
 
         // disable new Media Picker
         propsBoolean.put(9286, false);
@@ -99,8 +101,8 @@ public class Others extends Feature {
         propsBoolean.put(6481, false);
 
         // Enable music in Stories
-//        propsBoolean.put(13591, true);
-//        propsBoolean.put(10024, true);
+        propsBoolean.put(13591, true);
+        propsBoolean.put(10024, true);
 
         // show all status
         propsBoolean.put(6798, true);
@@ -219,44 +221,93 @@ public class Others extends Feature {
 
         callInfo();
 
+        if (disableProfileStatus) {
+            disablePhotoProfileStatus();
+        }
+
+    }
+
+    private void disablePhotoProfileStatus() throws Exception {
+        var refreshStatusClass = Unobfuscator.loadRefreshStatusClass(classLoader);
+        var photoProfileClass = classLoader.loadClass("com.whatsapp.wds.components.profilephoto.WDSProfilePhoto");
+        var convClass = classLoader.loadClass("com.whatsapp.conversationslist.ConversationsFragment");
+        var jidClass = classLoader.loadClass("com.whatsapp.jid.Jid");
+        var method = ReflectionUtils.findMethodUsingFilter(convClass, m -> m.getParameterCount() > 0 && !Modifier.isStatic(m.getModifiers()) && m.getParameterTypes()[0] == View.class && ReflectionUtils.findIndexOfType(m.getParameterTypes(), jidClass) != -1);
+        var field = ReflectionUtils.getFieldByExtendType(convClass, refreshStatusClass);
+        logDebug("disablePhotoProfileStatus", Unobfuscator.getMethodDescriptor(method));
+        XposedBridge.hookMethod(method, new XC_MethodHook() {
+            private Object backup;
+
+            @Override
+            protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
+                this.backup = field.get(param.thisObject);
+                field.set(param.thisObject, null);
+            }
+
+            @Override
+            protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+                field.set(param.thisObject, this.backup);
+            }
+        });
+
+
+        XposedBridge.hookAllMethods(photoProfileClass, "setStatusIndicatorEnabled", new XC_MethodHook() {
+            @Override
+            protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
+                if ((boolean) param.args[0]) {
+                    param.setResult(null);
+                }
+            }
+        });
+    }
+
+    private void disableSensorProximity() throws Exception {
+        log("Disable Sensor");
+        XposedBridge.hookAllMethods(PowerManager.class, "newWakeLock", new XC_MethodHook() {
+            @Override
+            protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
+                log(param.args[1]);
+                if (param.args[0].equals(PowerManager.PROXIMITY_SCREEN_OFF_WAKE_LOCK)) {
+                    param.setResult(null);
+                }
+                log(param.getResult());
+            }
+        });
     }
 
     private void callInfo() throws Exception {
-        if (!prefs.getBoolean("call_info", false))
-            return;
+        if (!prefs.getBoolean("call_info", false)) return;
 
         var clsCallEventCallback = classLoader.loadClass("com.whatsapp.calling.service.VoiceServiceEventCallback");
         Class<?> clsWamCall = classLoader.loadClass("com.whatsapp.fieldstats.events.WamCall");
 
-        XposedBridge.hookAllMethods(clsCallEventCallback, "fieldstatsReady",
-                new XC_MethodHook() {
-                    @Override
-                    protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
-                        if (clsWamCall.isInstance(param.args[0])) {
+        XposedBridge.hookAllMethods(clsCallEventCallback, "fieldstatsReady", new XC_MethodHook() {
+            @Override
+            protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
+                if (clsWamCall.isInstance(param.args[0])) {
 
-                            Object callinfo = XposedHelpers.callMethod(param.thisObject, "getCallInfo");
-                            if (callinfo == null)
-                                return;
-                            var userJid = XposedHelpers.callMethod(callinfo, "getPeerJid");
-                            CompletableFuture.runAsync(() -> {
-                                try {
-                                    showCallInformation(param.args[0], userJid);
-                                } catch (Exception e) {
-                                    logDebug(e);
-                                }
-                            });
+                    Object callinfo = XposedHelpers.callMethod(param.thisObject, "getCallInfo");
+                    if (callinfo == null) return;
+                    var userJid = XposedHelpers.callMethod(callinfo, "getPeerJid");
+                    CompletableFuture.runAsync(() -> {
+                        try {
+                            showCallInformation(param.args[0], userJid);
+                        } catch (Exception e) {
+                            logDebug(e);
                         }
-                    }
-                });
+                    });
+                }
+            }
+        });
     }
 
     private void showCallInformation(Object wamCall, Object userJid) throws Exception {
-        if (WppCore.isGroup(WppCore.getRawString(userJid)))
-            return;
+        if (WppCore.isGroup(WppCore.getRawString(userJid))) return;
         var sb = new StringBuilder();
         var contact = WppCore.getContactName(userJid);
         var number = WppCore.stripJID(WppCore.getRawString(userJid));
-        if (!TextUtils.isEmpty(contact)) sb.append(String.format(Utils.getApplication().getString(ResId.string.contact_s), contact)).append("\n");
+        if (!TextUtils.isEmpty(contact))
+            sb.append(String.format(Utils.getApplication().getString(ResId.string.contact_s), contact)).append("\n");
         sb.append(String.format(Utils.getApplication().getString(ResId.string.phone_number_s), number)).append("\n");
         var ip = (String) XposedHelpers.getObjectField(wamCall, "callPeerIpStr");
         if (ip != null) {
@@ -267,14 +318,14 @@ public class Others extends Feature {
             var json = new JSONObject(content);
             var country = json.getString("country");
             var city = json.getString("city");
-            sb.append(String.format(Utils.getApplication().getString(ResId.string.country_s), country)).append("\n")
-            .append(String.format(Utils.getApplication().getString(ResId.string.city_s), city)).append("\n")
-            .append(String.format(Utils.getApplication().getString(ResId.string.ip_s), ip)).append("\n");
+            sb.append(String.format(Utils.getApplication().getString(ResId.string.country_s), country)).append("\n").append(String.format(Utils.getApplication().getString(ResId.string.city_s), city)).append("\n").append(String.format(Utils.getApplication().getString(ResId.string.ip_s), ip)).append("\n");
         }
         var platform = (String) XposedHelpers.getObjectField(wamCall, "callPeerPlatform");
-        if (platform != null) sb.append(String.format(Utils.getApplication().getString(ResId.string.platform_s), platform)).append("\n");
+        if (platform != null)
+            sb.append(String.format(Utils.getApplication().getString(ResId.string.platform_s), platform)).append("\n");
         var wppVersion = (String) XposedHelpers.getObjectField(wamCall, "callPeerAppVersion");
-        if (wppVersion != null) sb.append(String.format(Utils.getApplication().getString(ResId.string.wpp_version_s), wppVersion)).append("\n");
+        if (wppVersion != null)
+            sb.append(String.format(Utils.getApplication().getString(ResId.string.wpp_version_s), wppVersion)).append("\n");
         Utils.showNotification(Utils.getApplication().getString(ResId.string.call_information), sb.toString());
     }
 
@@ -519,8 +570,7 @@ public class Others extends Feature {
                     // Fix Bug in Settings Data Usage
                     switch (i) {
                         case 4023:
-                            if (ReflectionUtils.isCalledFromClass(dataUsageActivityClass))
-                                return;
+                            if (ReflectionUtils.isCalledFromClass(dataUsageActivityClass)) return;
                             break;
                     }
                     param.setResult(propValue);

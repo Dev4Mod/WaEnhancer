@@ -8,6 +8,8 @@ import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
+
 import com.google.devrel.gmscore.tools.apk.arsc.ArscUtils;
 import com.wmods.wppenhacer.BuildConfig;
 import com.wmods.wppenhacer.xposed.utils.ReflectionUtils;
@@ -18,6 +20,7 @@ import java.io.File;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Locale;
@@ -189,7 +192,7 @@ public class UnobfuscatorCache {
         String value = sPrefsCacheHooks.getString(methodName, null);
         if (value == null) {
             Field result = functionCall.call();
-            if (result == null) throw new Exception("Field is null");
+            if (result == null) throw new Exception("Field is null:" + methodName);
             saveField(methodName, result);
             return result;
         }
@@ -198,15 +201,57 @@ public class UnobfuscatorCache {
         return XposedHelpers.findField(cls, ClassAndName[1]);
     }
 
+    public Field[] getFields(ClassLoader loader, FunctionCall<Field[]> functionCall) throws Exception {
+        var methodName = getKeyName();
+        String value = sPrefsCacheHooks.getString(methodName, null);
+        if (value == null) {
+            Field[] result = functionCall.call();
+            if (result == null) throw new Exception("Fields is null: " + methodName);
+            saveFields(methodName, result);
+            return result;
+        }
+        ArrayList<Field> fields = new ArrayList<>();
+        String[] fieldsString = value.split("&");
+        for (String field : fieldsString) {
+            String[] ClassAndName = field.split(":");
+            Class<?> cls = ReflectionUtils.findClass(ClassAndName[0], loader);
+            fields.add(XposedHelpers.findField(cls, ClassAndName[1]));
+        }
+        return fields.toArray(new Field[0]);
+    }
+
     public Method getMethod(ClassLoader loader, FunctionCall<Method> functionCall) throws Exception {
         var methodName = getKeyName();
         String value = sPrefsCacheHooks.getString(methodName, null);
         if (value == null) {
             Method result = functionCall.call();
-            if (result == null) throw new Exception("Method is null");
+            if (result == null) throw new Exception("Method is null:" + methodName);
             saveMethod(methodName, result);
             return result;
         }
+        return getMethodFromString(loader, value);
+    }
+
+    public Method[] getMethods(ClassLoader loader, FunctionCall<Method[]> functionCall) throws Exception {
+        var methodName = getKeyName();
+        String value = sPrefsCacheHooks.getString(methodName, null);
+        if (value == null) {
+            Method[] result = functionCall.call();
+            if (result == null) throw new Exception("Methods is null:" + methodName);
+            saveMethods(methodName, result);
+            return result;
+        }
+        var methodStrings = value.split("&");
+        ArrayList<Method> methods = new ArrayList<>();
+        for (String methodString : methodStrings) {
+            var method = getMethodFromString(loader, methodString);
+            methods.add(method);
+        }
+        return methods.toArray(new Method[0]);
+    }
+
+    @NonNull
+    private Method getMethodFromString(ClassLoader loader, String value) {
         String[] classAndName = value.split(":");
         Class<?> cls = XposedHelpers.findClass(classAndName[0], loader);
         if (classAndName.length == 3) {
@@ -217,22 +262,49 @@ public class UnobfuscatorCache {
         return XposedHelpers.findMethodExact(cls, classAndName[1]);
     }
 
+
     public Class<?> getClass(ClassLoader loader, FunctionCall<Class<?>> functionCall) throws Exception {
         var methodName = getKeyName();
         String value = sPrefsCacheHooks.getString(methodName, null);
         if (value == null) {
             Class<?> result = functionCall.call();
-            if (result == null) throw new Exception("Class is null");
+            if (result == null) throw new Exception("Class is null: " + methodName);
             saveClass(methodName, result);
             return result;
         }
         return XposedHelpers.findClass(value, loader);
     }
 
+    public Class<?>[] getClasses(ClassLoader loader, FunctionCall<Class<?>[]> functionCall) throws Exception {
+        var methodName = getKeyName();
+        String value = sPrefsCacheHooks.getString(methodName, null);
+        if (value == null) {
+            Class<?>[] result = functionCall.call();
+            if (result == null) throw new Exception("Class is null: " + methodName);
+            saveClasses(methodName, result);
+            return result;
+        }
+        String[] classStrings = value.split("&");
+        ArrayList<Class<?>> classes = new ArrayList<>();
+        for (String classString : classStrings) {
+            classes.add(XposedHelpers.findClass(classString, loader));
+        }
+        return classes.toArray(new Class<?>[0]);
+    }
+
     @SuppressWarnings("ApplySharedPref")
     public void saveField(String key, Field field) {
         String value = field.getDeclaringClass().getName() + ":" + field.getName();
         sPrefsCacheHooks.edit().putString(key, value).commit();
+    }
+
+    @SuppressWarnings("ApplySharedPref")
+    public void saveFields(String key, Field[] fields) {
+        ArrayList<String> values = new ArrayList<>();
+        for (Field field : fields) {
+            values.add(field.getDeclaringClass().getName() + ":" + field.getName());
+        }
+        sPrefsCacheHooks.edit().putString(key, String.join("&", values)).commit();
     }
 
     @SuppressWarnings("ApplySharedPref")
@@ -245,8 +317,30 @@ public class UnobfuscatorCache {
     }
 
     @SuppressWarnings("ApplySharedPref")
+    public void saveMethods(String key, Method[] methods) {
+        ArrayList<String> values = new ArrayList<>();
+        for (Method method : methods) {
+            String value = method.getDeclaringClass().getName() + ":" + method.getName();
+            if (method.getParameterTypes().length > 0) {
+                value += ":" + Arrays.stream(method.getParameterTypes()).map(Class::getName).collect(Collectors.joining(","));
+            }
+            values.add(value);
+        }
+        sPrefsCacheHooks.edit().putString(key, String.join("&", values)).commit();
+    }
+
+    @SuppressWarnings("ApplySharedPref")
     public void saveClass(String message, Class<?> messageClass) {
         sPrefsCacheHooks.edit().putString(message, messageClass.getName()).commit();
+    }
+
+    @SuppressWarnings("ApplySharedPref")
+    public void saveClasses(String message, Class<?>[] messageClass) {
+        ArrayList<String> values = new ArrayList<>();
+        for (Class<?> aClass : messageClass) {
+            values.add(aClass.getName());
+        }
+        sPrefsCacheHooks.edit().putString(message, String.join("&", values)).commit();
     }
 
     private String getKeyName() {

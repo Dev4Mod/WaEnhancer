@@ -16,6 +16,8 @@ import android.view.ViewGroup;
 import android.widget.FrameLayout;
 import android.widget.TextView;
 
+import androidx.annotation.Nullable;
+
 import com.wmods.wppenhacer.xposed.core.WppCore;
 import com.wmods.wppenhacer.xposed.utils.ReflectionUtils;
 import com.wmods.wppenhacer.xposed.utils.Utils;
@@ -26,7 +28,6 @@ import org.luckypray.dexkit.query.FindMethod;
 import org.luckypray.dexkit.query.enums.StringMatchType;
 import org.luckypray.dexkit.query.matchers.ClassMatcher;
 import org.luckypray.dexkit.query.matchers.MethodMatcher;
-import org.luckypray.dexkit.query.matchers.MethodsMatcher;
 import org.luckypray.dexkit.query.matchers.base.OpCodesMatcher;
 import org.luckypray.dexkit.result.ClassData;
 import org.luckypray.dexkit.result.ClassDataList;
@@ -110,13 +111,7 @@ public class Unobfuscator {
         }
         MethodDataList result = dexkit.findMethod(FindMethod.create().matcher(matcher));
         if (result.isEmpty()) return new Method[0];
-        return result.stream().filter(MethodData::isMethod).map(methodData -> {
-            try {
-                return methodData.getMethodInstance(classLoader);
-            } catch (NoSuchMethodException e) {
-                return null;
-            }
-        }).filter(Objects::nonNull).toArray(Method[]::new);
+        return result.stream().filter(MethodData::isMethod).map(methodData -> convertRealMethod(methodData, classLoader)).filter(Objects::nonNull).toArray(Method[]::new);
     }
 
     public synchronized static Class<?> findFirstClassUsingStrings(ClassLoader classLoader, StringMatchType type, String... strings) throws Exception {
@@ -127,6 +122,16 @@ public class Unobfuscator {
         var result = dexkit.findClass(FindClass.create().matcher(matcher));
         if (result.isEmpty()) return null;
         return result.get(0).getInstance(classLoader);
+    }
+
+    public synchronized static Class<?>[] findAllClassUsingStrings(ClassLoader classLoader, StringMatchType type, String... strings) throws Exception {
+        var matcher = new ClassMatcher();
+        for (String string : strings) {
+            matcher.addUsingString(string, type);
+        }
+        var result = dexkit.findClass(FindClass.create().matcher(matcher));
+        if (result.isEmpty()) return null;
+        return result.stream().map(classData -> convertRealClass(classData, classLoader)).filter(Objects::nonNull).toArray(Class[]::new);
     }
 
     public synchronized static Class<?> findFirstClassUsingStringsFilter(ClassLoader classLoader, String packageFilter, StringMatchType type, String... strings) throws Exception {
@@ -152,6 +157,24 @@ public class Unobfuscator {
 
     public synchronized static String getFieldDescriptor(Field field) {
         return field.getDeclaringClass().getName() + "->" + field.getName() + ":" + field.getType().getName();
+    }
+
+    @Nullable
+    public synchronized static Method convertRealMethod(MethodData methodData, ClassLoader classLoader) {
+        try {
+            return methodData.getMethodInstance(classLoader);
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    @Nullable
+    public synchronized static Class<?> convertRealClass(ClassData classData, ClassLoader classLoader) {
+        try {
+            return classData.getInstance(classLoader);
+        } catch (Exception e) {
+            return null;
+        }
     }
 
     // TODO: Classes and Methods for FreezeSeen
@@ -569,29 +592,30 @@ public class Unobfuscator {
     // TODO: Classes and methods to ViewOnce
 
     public synchronized static Method[] loadViewOnceMethod(ClassLoader classLoader) throws Exception {
-        var method = dexkit.findMethod(new FindMethod().matcher(new MethodMatcher().addUsingString("INSERT_VIEW_ONCE_SQL", StringMatchType.Contains)));
-        if (method.isEmpty()) throw new Exception("ViewOnce method not found");
-        var methodData = method.get(0);
-        var listMethods = methodData.getInvokes();
-        var list = new ArrayList<Method>();
-        for (MethodData m : listMethods) {
-            var mInstance = m.getMethodInstance(classLoader);
-            if (mInstance.getDeclaringClass().isInterface() && mInstance.getDeclaringClass().getMethods().length == 2) {
-                ClassDataList listClasses = dexkit.findClass(FindClass.create().matcher(ClassMatcher.create().addInterface(mInstance.getDeclaringClass().getName())));
-                for (ClassData c : listClasses) {
-                    Class<?> clazz = c.getInstance(classLoader);
-                    for (Method m2 : clazz.getDeclaredMethods()) {
-                        if (m2.getParameterCount() != 1 || m2.getParameterTypes()[0] != int.class || m2.getReturnType() != void.class)
-                            continue;
-                        list.add(m2);
+        return UnobfuscatorCache.getInstance().getMethods(classLoader, () -> {
+            var method = dexkit.findMethod(new FindMethod().matcher(new MethodMatcher().addUsingString("INSERT_VIEW_ONCE_SQL", StringMatchType.Contains)));
+            if (method.isEmpty()) throw new Exception("ViewOnce method not found");
+            var methodData = method.get(0);
+            var listMethods = methodData.getInvokes();
+            var list = new ArrayList<Method>();
+            for (MethodData m : listMethods) {
+                var mInstance = m.getMethodInstance(classLoader);
+                if (mInstance.getDeclaringClass().isInterface() && mInstance.getDeclaringClass().getMethods().length == 2) {
+                    ClassDataList listClasses = dexkit.findClass(FindClass.create().matcher(ClassMatcher.create().addInterface(mInstance.getDeclaringClass().getName())));
+                    for (ClassData c : listClasses) {
+                        Class<?> clazz = c.getInstance(classLoader);
+                        for (Method m2 : clazz.getDeclaredMethods()) {
+                            if (m2.getParameterCount() != 1 || m2.getParameterTypes()[0] != int.class || m2.getReturnType() != void.class)
+                                continue;
+                            list.add(m2);
+                        }
                     }
+                    if (list.isEmpty()) throw new Exception("ViewOnce method not found");
+                    return list.toArray(new Method[0]);
                 }
-                if (list.isEmpty()) throw new Exception("ViewOnce method not found");
-                return list.toArray(new Method[0]);
             }
-        }
-        throw new Exception("ViewOnce method not found");
-
+            throw new Exception("ViewOnce method not found");
+        });
     }
 
 
@@ -810,16 +834,19 @@ public class Unobfuscator {
     }
 
     public synchronized static Method[] loadArchiveHideViewMethod(ClassLoader loader) throws Exception {
-        if (cache.containsKey("ArchiveHideView")) return (Method[]) cache.get("ArchiveHideView");
-        var methods = findAllMethodUsingStrings(loader, StringMatchType.Contains, "archive/set-content-indicator-to-empty");
-        if (methods.length == 0) throw new Exception("ArchiveHideView method not found");
-        ArrayList<Method> result = new ArrayList<>();
-        for (var m : methods) {
-            result.add(m.getDeclaringClass().getMethod("setVisibility", boolean.class));
-        }
-        var resultArray = result.toArray(new Method[0]);
-        cache.put("ArchiveHideView", resultArray);
-        return resultArray;
+        return UnobfuscatorCache.getInstance().getMethods(loader, () -> {
+            if (cache.containsKey("ArchiveHideView"))
+                return (Method[]) cache.get("ArchiveHideView");
+            var methods = findAllMethodUsingStrings(loader, StringMatchType.Contains, "archive/set-content-indicator-to-empty");
+            if (methods.length == 0) throw new Exception("ArchiveHideView method not found");
+            ArrayList<Method> result = new ArrayList<>();
+            for (var m : methods) {
+                result.add(m.getDeclaringClass().getMethod("setVisibility", boolean.class));
+            }
+            var resultArray = result.toArray(new Method[0]);
+            cache.put("ArchiveHideView", resultArray);
+            return resultArray;
+        });
     }
 
 
@@ -1335,7 +1362,7 @@ public class Unobfuscator {
         return fieldList.get(0);
     }
 
-    public synchronized static Method loadProximitySensorMethod(ClassLoader loader) throws Exception {
+    public synchronized static Method loadAudioProximitySensorMethod(ClassLoader loader) throws Exception {
         return UnobfuscatorCache.getInstance().getMethod(loader, () -> {
             var method = findFirstMethodUsingStrings(loader, StringMatchType.Contains, "messageaudioplayer/onearproximity");
             if (method == null) throw new RuntimeException("ProximitySensor method not found");
@@ -1727,10 +1754,12 @@ public class Unobfuscator {
         });
     }
 
-    public static synchronized Method[] loadRootDetector(ClassLoader classLoader) {
-        var methods = findAllMethodUsingStrings(classLoader, StringMatchType.Contains, "/system/bin/su");
-        if (methods.length == 0) throw new RuntimeException("RootDetector method not found");
-        return methods;
+    public static synchronized Method[] loadRootDetector(ClassLoader classLoader) throws Exception {
+        return UnobfuscatorCache.getInstance().getMethods(classLoader, () -> {
+            var methods = findAllMethodUsingStrings(classLoader, StringMatchType.Contains, "/system/bin/su");
+            if (methods.length == 0) throw new RuntimeException("RootDetector method not found");
+            return methods;
+        });
     }
 
     public static synchronized Method loadCheckEmulator(ClassLoader classLoader) throws Exception {
@@ -1745,10 +1774,10 @@ public class Unobfuscator {
         return method;
     }
 
-    public static synchronized Class loadGetContactInfoClass(ClassLoader classLoader) throws Exception {
-        return UnobfuscatorCache.getInstance().getClass(classLoader, () -> findFirstClassUsingStrings(classLoader, StringMatchType.Contains, "unknown@unknown"));
-
-    }
+//    public static synchronized Class loadGetContactInfoClass(ClassLoader classLoader) throws Exception {
+//        return UnobfuscatorCache.getInstance().getClass(classLoader, () -> findFirstClassUsingStrings(classLoader, StringMatchType.Contains, "unknown@unknown"));
+//
+//    }
 
     public static synchronized Method loadTranscribeMethod(ClassLoader classLoader) throws Exception {
         return UnobfuscatorCache.getInstance().getMethod(classLoader, () -> findFirstMethodUsingStrings(classLoader, StringMatchType.Contains, "transcribe: starting transcription"));
@@ -1848,33 +1877,33 @@ public class Unobfuscator {
         });
     }
 
-    public static Method loadChangeTitleLogoMethod(ClassLoader classLoader) throws Exception {
-        return UnobfuscatorCache.getInstance().getMethod(classLoader, () -> {
-            var id = Utils.getID("toolbar_logo", "id");
-            var methodData = dexkit.findMethod(
-                    FindMethod.create()
-                            .matcher(MethodMatcher.create().addUsingNumber(id))
-            );
-            if (methodData.isEmpty())
-                throw new RuntimeException("ChangeTitleLogo method not found");
-            return methodData.get(0).getMethodInstance(classLoader);
-        });
-    }
+//    public static Method loadChangeTitleLogoMethod(ClassLoader classLoader) throws Exception {
+//        return UnobfuscatorCache.getInstance().getMethod(classLoader, () -> {
+//            var id = Utils.getID("toolbar_logo", "id");
+//            var methodData = dexkit.findMethod(
+//                    FindMethod.create()
+//                            .matcher(MethodMatcher.create().addUsingNumber(id))
+//            );
+//            if (methodData.isEmpty())
+//                throw new RuntimeException("ChangeTitleLogo method not found");
+//            return methodData.get(0).getMethodInstance(classLoader);
+//        });
+//    }
 
-    public static Field loadChangeTitleLogoField(ClassLoader classLoader) throws Exception {
-        return UnobfuscatorCache.getInstance().getField(classLoader, () -> {
-            var methodData = dexkit.getMethodData(loadChangeTitleLogoMethod(classLoader));
-            var clazz = WppCore.getHomeActivityClass(classLoader);
-            var usingFields = methodData.getUsingFields();
-            for (var uField : usingFields) {
-                var field = uField.getField().getFieldInstance(classLoader);
-                if (field.getDeclaringClass() == clazz && field.getType() == Integer.class) {
-                    return field;
-                }
-            }
-            throw new RuntimeException("ChangeTitleLogo field not found");
-        });
-    }
+//    public static Field loadChangeTitleLogoField(ClassLoader classLoader) throws Exception {
+//        return UnobfuscatorCache.getInstance().getField(classLoader, () -> {
+//            var methodData = dexkit.getMethodData(loadChangeTitleLogoMethod(classLoader));
+//            var clazz = WppCore.getHomeActivityClass(classLoader);
+//            var usingFields = methodData.getUsingFields();
+//            for (var uField : usingFields) {
+//                var field = uField.getField().getFieldInstance(classLoader);
+//                if (field.getDeclaringClass() == clazz && field.getType() == Integer.class) {
+//                    return field;
+//                }
+//            }
+//            throw new RuntimeException("ChangeTitleLogo field not found");
+//        });
+//    }
 
     public static Class<?> loadFilterItemClass(ClassLoader classLoader) throws Exception {
         return UnobfuscatorCache.getInstance().getClass(classLoader, () -> {
@@ -1887,15 +1916,17 @@ public class Unobfuscator {
         });
     }
 
-    public static Method loadActiveButtonNav(ClassLoader classLoader) throws Exception {
-        return UnobfuscatorCache.getInstance().getMethod(classLoader, () -> {
-            var methodList = dexkit.findClass(
-                    FindClass.create().matcher(ClassMatcher.create().addUsingString("NavigationBar", StringMatchType.Equals))
-            ).findMethod(
-                    FindMethod.create().matcher(MethodMatcher.create().name("setActiveIndicatorDrawable"))
-            );
-            return methodList.get(0).getMethodInstance(classLoader);
-        });
+//    public static Method loadActiveButtonNav(ClassLoader classLoader) throws Exception {
+//        return UnobfuscatorCache.getInstance().getMethod(classLoader, () -> {
+//            var methodList = dexkit.findClass(
+//                    FindClass.create().matcher(ClassMatcher.create().addUsingString("NavigationBar", StringMatchType.Equals))
+//            ).findMethod(
+//                    FindMethod.create().matcher(MethodMatcher.create().name("setActiveIndicatorDrawable"))
+//            );
+//            return methodList.get(0).getMethodInstance(classLoader);
+//        });
+//
+//    }
 
     public static Class[] loadProximitySensorListenerClasses(ClassLoader classLoader) throws Exception {
         return UnobfuscatorCache.getInstance().getClasses(classLoader, () -> {
@@ -1904,5 +1935,9 @@ public class Unobfuscator {
             if (classDataList.isEmpty()) throw new Exception("Class SensorEventListener not found");
             return classDataList.stream().map(classData -> convertRealClass(classData, classLoader)).filter(Objects::nonNull).toArray(Class[]::new);
         });
+    }
+
+    public static Class<?> loadRefreshStatusClass(ClassLoader classLoader) throws Exception {
+        return UnobfuscatorCache.getInstance().getClass(classLoader, () -> findFirstClassUsingStrings(classLoader, StringMatchType.Contains, "liveStatusUpdatesActive"));
     }
 }
