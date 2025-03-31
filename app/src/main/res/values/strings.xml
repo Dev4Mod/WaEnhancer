@@ -411,4 +411,6 @@
     <string name="view_seen_tick">View Seen Tick</string>
     <string name="view_seen_tick_sum">Show an icon if the message view was sent to the recipient or unique view was seen</string>
     <string name="text_color">Text Color</string>
+    <string name="disable_the_proximity_sensor">Disable Screen off on proximity sensor</string>
+    <string name="disable_the_proximity_sensor_sum">Disable Screen off on proximity sensor to the whole WhatsApp</string>
 </resources>

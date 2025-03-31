@@ -3,6 +3,7 @@ package com.wmods.wppenhacer.xposed.features.general;
 import android.annotation.SuppressLint;
 import android.os.BaseBundle;
 import android.os.Message;
+import android.os.PowerManager;
 import android.text.TextUtils;
 import android.view.Menu;
 import android.view.View;
@@ -59,7 +60,8 @@ public class Others extends Feature {
         var filterSeen = prefs.getBoolean("filterseen", false);
         var status_style = Integer.parseInt(prefs.getString("status_style", "0"));
         var metaai = prefs.getBoolean("metaai", false);
-        var proximity = prefs.getBoolean("proximity_audios", false);
+        var disable_sensor_proximity = prefs.getBoolean("disable_sensor_proximity", false);
+        var proximity_audios = prefs.getBoolean("proximity_audios", false);
         var showOnline = prefs.getBoolean("showonline", false);
         var floatingMenu = prefs.getBoolean("floatingmenu", false);
         var filter_items = prefs.getString("filter_items", null);
@@ -175,10 +177,17 @@ public class Others extends Feature {
         hookProps();
         hookMenuOptions(filterChats);
 
-        if (proximity) {
-            var proximitySensorMethod = Unobfuscator.loadProximitySensorMethod(classLoader);
-            XposedBridge.hookMethod(proximitySensorMethod, XC_MethodReplacement.DO_NOTHING);
+        if (disable_sensor_proximity) {
+            disableSensorProximity();
         }
+
+        if (proximity_audios) {
+            var classes = Unobfuscator.loadProximitySensorListenerClasses(classLoader);
+            for (var cls : classes) {
+                XposedBridge.hookAllMethods(cls, "onSensorChanged", XC_MethodReplacement.DO_NOTHING);
+            }
+        }
+
 
         if (filter_items != null && prefs.getBoolean("custom_filters", true)) {
             filterItems(filter_items);

@@ -70,6 +70,12 @@
         app:title="@string/title_audio">
 
         <rikka.material.preference.MaterialSwitchPreference
+            app:key="disable_sensor_proximity"
+            app:summary="@string/disable_the_proximity_sensor_sum"
+            app:title="@string/disable_the_proximity_sensor" />
+
+
+        <rikka.material.preference.MaterialSwitchPreference
             app:key="proximity_audios"
             app:summary="@string/disable_audio_sensor_sum"
             app:title="@string/disable_audio_sensor" />

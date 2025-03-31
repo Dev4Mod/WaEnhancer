@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
+import android.hardware.SensorEventListener;
 import android.net.Uri;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -1896,5 +1897,12 @@ public class Unobfuscator {
             return methodList.get(0).getMethodInstance(classLoader);
         });
 
+    public static Class[] loadProximitySensorListenerClasses(ClassLoader classLoader) throws Exception {
+        return UnobfuscatorCache.getInstance().getClasses(classLoader, () -> {
+            var classDataList = dexkit.findClass(
+                    FindClass.create().matcher(ClassMatcher.create().addInterface(SensorEventListener.class.getName())));
+            if (classDataList.isEmpty()) throw new Exception("Class SensorEventListener not found");
+            return classDataList.stream().map(classData -> convertRealClass(classData, classLoader)).filter(Objects::nonNull).toArray(Class[]::new);
+        });
     }
 }
