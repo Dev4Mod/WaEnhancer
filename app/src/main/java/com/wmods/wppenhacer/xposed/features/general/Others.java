@@ -235,6 +235,7 @@ public class Others extends Feature {
         var method = ReflectionUtils.findMethodUsingFilter(convClass, m -> m.getParameterCount() > 0 && !Modifier.isStatic(m.getModifiers()) && m.getParameterTypes()[0] == View.class && ReflectionUtils.findIndexOfType(m.getParameterTypes(), jidClass) != -1);
         var field = ReflectionUtils.getFieldByExtendType(convClass, refreshStatusClass);
         logDebug("disablePhotoProfileStatus", Unobfuscator.getMethodDescriptor(method));
+        logDebug("disablePhotoProfileStatus Field", Unobfuscator.getFieldDescriptor(field));
         XposedBridge.hookMethod(method, new XC_MethodHook() {
             private Object backup;
 

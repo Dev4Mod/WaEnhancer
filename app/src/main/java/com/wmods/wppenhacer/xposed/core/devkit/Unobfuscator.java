@@ -1938,6 +1938,6 @@ public class Unobfuscator {
     }
 
     public static Class<?> loadRefreshStatusClass(ClassLoader classLoader) throws Exception {
-        return UnobfuscatorCache.getInstance().getClass(classLoader, () -> findFirstClassUsingStrings(classLoader, StringMatchType.Contains, "liveStatusUpdatesActive"));
+        return UnobfuscatorCache.getInstance().getClass(classLoader, () -> findFirstClassUsingStrings(classLoader, StringMatchType.Contains, "Report tab open only once per session"));
     }
 }
