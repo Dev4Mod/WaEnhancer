@@ -263,11 +263,9 @@ public class Others extends Feature {
     }
 
     private void disableSensorProximity() throws Exception {
-        log("Disable Sensor");
         XposedBridge.hookAllMethods(PowerManager.class, "newWakeLock", new XC_MethodHook() {
             @Override
             protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
-                log(param.args[1]);
                 if (param.args[0].equals(PowerManager.PROXIMITY_SCREEN_OFF_WAKE_LOCK)) {
                     param.setResult(null);
                 }
