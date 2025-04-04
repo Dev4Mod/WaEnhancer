@@ -54,10 +54,10 @@ public class HideSeenView extends Feature {
                     @Override
                     protected void afterHookedMethod(MethodHookParam param) throws Throwable {
                         if (param.thisObject != mAdapter) return;
+                        var position = (int) param.args[0];
                         var viewGroup = (ViewGroup) param.args[1];
                         if (viewGroup == null) return;
-                        var field = ReflectionUtils.findFieldUsingFilter(viewGroup.getClass(), field1 -> field1.getType() == FMessageWpp.TYPE);
-                        Object fMessageObj = field.get(viewGroup);
+                        Object fMessageObj = mAdapter.getItem(position);
                         if (fMessageObj == null) return;
                         var fmessage = new FMessageWpp(fMessageObj);
                         if (fmessage.getKey().isFromMe) return;
