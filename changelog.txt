@@ -1,14 +1,12 @@
 [BUGS FIXED]
 * Fixed issues with Themes and colors
-* Fixed issues with Google translations (Thanks to frknkrc44)
+* Fixed issues when showing the last seen on the home screen
+* Fixed a bug that caused the audio view to be displayed.
+* Fixed issues with resource loading on HyperOS ROM and possibly other ROMs
 
 [IMPROVEMENTS]
-* Added a new certificate to Bootloader Spoofer
-* Improved Video Quality
-
-[FUNCTIONS]
-* Added New Hide Tick View function (this function will add a tick to contact messages that change color as you view contact messages and this is also true for unique views) [WAE -> Privacy]
-* Enabled beta functions in WA
-
-[WHATSAPP]
-* Added support for WhatsApp 2.25.8.XX and 2.25.9.XX
+* Added the option to load a keybox file to be used as the bootloader spoofer
+* Added the option to disable statuses in contact profile pictures
+* Added the option to disable the proximity sensor during audios and calls
+* Added support for selecting the download folder in lite mode by WAE
+* Improvements in theme loading
