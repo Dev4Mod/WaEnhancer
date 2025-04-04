@@ -66,12 +66,6 @@ public class WppXposed implements IXposedHookLoadPackage, IXposedHookInitPackage
         if ((packageName.equals(FeatureLoader.PACKAGE_WPP) && App.isOriginalPackage()) || packageName.equals(FeatureLoader.PACKAGE_BUSINESS)) {
             XposedBridge.log("[•] This package: " + lpparam.packageName);
 
-            // Inject Booloader Spoofer
-            if (getPref().getBoolean("bootloader_spoofer", false)) {
-                HookBL.hook(lpparam);
-                XposedBridge.log("Bootloader Spoofer is Injected");
-            }
-
             // Load features
             FeatureLoader.start(classLoader, getPref(), lpparam.appInfo.sourceDir);
 

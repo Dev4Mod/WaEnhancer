@@ -44,6 +44,17 @@
             app:key="bootloader_spoofer" />
 
         <rikka.material.preference.MaterialSwitchPreference
+            android:summary="@string/bootloader_spoofer_sum"
+            android:title="Enable Custom KeyBox"
+            app:key="bootloader_spoofer_custom" />
+
+        <com.wmods.wppenhacer.preference.FileReaderPreference
+            android:key="bootloader_spoofer_xml"
+            android:dependency="bootloader_spoofer_custom"
+            android:title="Use Custom keybox.xml file"
+            android:summary="No file selected" />
+
+        <rikka.material.preference.MaterialSwitchPreference
             app:key="ampm"
             app:title="@string/ampm" />
 

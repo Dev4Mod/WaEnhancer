@@ -77,6 +77,7 @@ import com.wmods.wppenhacer.xposed.features.privacy.HideSeen;
 import com.wmods.wppenhacer.xposed.features.privacy.TagMessage;
 import com.wmods.wppenhacer.xposed.features.privacy.TypingPrivacy;
 import com.wmods.wppenhacer.xposed.features.privacy.ViewOnce;
+import com.wmods.wppenhacer.xposed.spoofer.HookBL;
 import com.wmods.wppenhacer.xposed.utils.DesignUtils;
 import com.wmods.wppenhacer.xposed.utils.ResId;
 import com.wmods.wppenhacer.xposed.utils.Utils;
@@ -117,6 +118,12 @@ public class FeatureLoader {
             @SuppressWarnings("deprecation")
             protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
                 mApp = (Application) param.args[0];
+
+                // Inject Booloader Spoofer
+                if (pref.getBoolean("bootloader_spoofer", false)) {
+                    HookBL.hook(loader, pref);
+                    XposedBridge.log("Bootloader Spoofer is Injected");
+                }
 
                 PackageManager packageManager = mApp.getPackageManager();
                 pref.registerOnSharedPreferenceChangeListener((sharedPreferences, s) -> pref.reload());
