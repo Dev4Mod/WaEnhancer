@@ -110,7 +110,7 @@ public class ShowOnline extends Feature {
         logDebug(Unobfuscator.getMethodDescriptor(getStatusUser));
         var sendPresenceMethod = Unobfuscator.loadSendPresenceMethod(classLoader);
         logDebug(Unobfuscator.getMethodDescriptor(sendPresenceMethod));
-
+        var tcTokenMethod = Unobfuscator.loadTcTokenMethod(classLoader);
         var absViewHolderClass = Unobfuscator.loadAbsViewHolder(classLoader);
 
 
@@ -127,6 +127,11 @@ public class ShowOnline extends Feature {
                 mInstancePresence = param.thisObject;
             }
         });
+
+        // load methods
+        var tokenClass = sendPresenceMethod.getParameterTypes()[2];
+        var fieldTokenDBInstance = ReflectionUtils.getFieldByExtendType(sendPresenceMethod.getDeclaringClass(), tcTokenMethod.getDeclaringClass());
+
 
         XposedBridge.hookMethod(onChangeStatus, new XC_MethodHook() {
             @Override
@@ -148,15 +153,12 @@ public class ShowOnline extends Feature {
                 var jidObject = jidFiled.get(object);
                 var jid = WppCore.getRawString(jidObject);
                 if (WppCore.isGroup(jid)) return;
-                Class<?> JidClass = classLoader.loadClass("com.whatsapp.jid.Jid");
-                var method = ReflectionUtils.findMethodUsingFilter(sendPresenceMethod.getDeclaringClass(), method1 -> method1.getParameterCount() == 2 && JidClass.isAssignableFrom(method1.getParameterTypes()[0]) && method1.getParameterTypes()[1] == sendPresenceMethod.getDeclaringClass());
-                var instance = ReflectionUtils.callMethod(method, null, jidObject, mInstancePresence); //XposedHelpers.newInstance(clazz, new Object[]{null, null});
-                // for 22.xx, the parameter count is 4
-                if (sendPresenceMethod.getParameterCount() == 4) {
-                    sendPresenceMethod.invoke(null, jidObject, null, instance, mInstancePresence);
-                } else {
-                    sendPresenceMethod.invoke(null, jidObject, instance, mInstancePresence);
-                }
+
+                var tokenDBInstance = fieldTokenDBInstance.get(mInstancePresence);
+                var tokenData = ReflectionUtils.callMethod(tcTokenMethod, tokenDBInstance, jidObject);
+                var tokenObj = tokenClass.getConstructors()[0].newInstance(tokenData == null ? null : XposedHelpers.getObjectField(tokenData, "A01"));
+                sendPresenceMethod.invoke(null, jidObject, null, tokenObj, mInstancePresence);
+
                 var status = (String) ReflectionUtils.callMethod(getStatusUser, mStatusUser, object, false);
                 var currentPosition = (int) ReflectionUtils.callMethod(getAdapterPositionMethod, viewHolder);
                 if (currentPosition != position) return;

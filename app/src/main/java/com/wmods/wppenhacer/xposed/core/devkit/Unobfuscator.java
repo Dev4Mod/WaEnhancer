@@ -916,22 +916,11 @@ public class Unobfuscator {
 
     public synchronized static Method loadSendPresenceMethod(ClassLoader loader) throws Exception {
         return UnobfuscatorCache.getInstance().getMethod(loader, () -> {
-            var method = findFirstMethodUsingStrings(loader, StringMatchType.Contains, "app/send-presence-subscription jid=");
-            if (method == null) throw new Exception("SendPresence method not found");
-
-            // for 22.xx, method returns wrong one
-            var methodData = dexkit.getMethodData(method);
-            var groupJidClass = XposedHelpers.findClass("com.whatsapp.jid.GroupJid", loader);
-            var classCheckMethod = dexkit.findMethod(FindMethod.create()
-                            .searchInClass(Collections.singletonList(methodData.getDeclaredClass()))
-                            .matcher(MethodMatcher.create().returnType(groupJidClass)))
-                    .singleOrNull();
-            if (classCheckMethod == null) {
-                var newMethod = methodData.getCallers().singleOrNull(method1 -> method1.getParamCount() == 4);
-                if (newMethod == null) throw new Exception("SendPresence method not found 2");
-                return newMethod.getMethodInstance(loader);
-            }
-            return method;
+            var methodData = dexkit.findMethod(FindMethod.create().matcher(MethodMatcher.create().addUsingString("app/send-presence-subscription jid=")));
+            if (methodData.isEmpty()) throw new Exception("SendPresence method not found");
+            var newMethod = methodData.get(0).getCallers().singleOrNull(method1 -> method1.getParamCount() == 4);
+            if (newMethod == null) throw new Exception("SendPresence method not found 2");
+            return newMethod.getMethodInstance(loader);
         });
     }
 
@@ -1939,5 +1928,9 @@ public class Unobfuscator {
 
     public static Class<?> loadRefreshStatusClass(ClassLoader classLoader) throws Exception {
         return UnobfuscatorCache.getInstance().getClass(classLoader, () -> findFirstClassUsingStrings(classLoader, StringMatchType.Contains, "Report tab open only once per session"));
+    }
+
+    public static Method loadTcTokenMethod(ClassLoader classLoader) throws Exception {
+        return UnobfuscatorCache.getInstance().getMethod(classLoader, () -> findFirstMethodUsingStrings(classLoader, StringMatchType.Contains, "GET_RECEIVED_TOKEN_AND_TIMESTAMP_BY_JID"));
     }
 }
