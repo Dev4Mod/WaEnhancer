@@ -394,9 +394,12 @@ public class SeenTick extends Feature {
             }
             if (messages.isEmpty())
                 return;
-            var audioMessages = messages.stream().filter(fMessageWpp -> fMessageWpp.getMediaType() == 2).collect(Collectors.toList());
-            for (var audioMessage : audioMessages) {
-                sendBlueTickMedia(audioMessage);
+
+            if (prefs.getBoolean("hideaudioseen", false)) {
+                var audioMessages = messages.stream().filter(fMessageWpp -> fMessageWpp.getMediaType() == 2).collect(Collectors.toList());
+                for (var audioMessage : audioMessages) {
+                    sendBlueTickMedia(audioMessage);
+                }
             }
             sendBlueTickMsg(jid, messages);
             updateMessageStatusView(jid,messages);
