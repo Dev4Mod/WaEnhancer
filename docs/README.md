@@ -1,8 +1,10 @@
+| **English** | [Português(Brasil)](README.pt-BR.md)
+
 # WaEnhancer
 <div align="center">
-  WaEnhancer is an Xposed module that enhances your WhatsApp experience.<br><br>
-  Warning: This module is intended for educational purposes only, you may have problems with your WhatsApp account, risk of banning! Use it at your own risk.<br><br>
-  Please note that this project is currently in development, so bugs and crashes may occur. If you encounter any issues report them in our group or create an [issues](https://github.com/Dev4Mod/WaEnhancer/issues) here.
+  <p><strong>WaEnhancer is an Xposed module that enhances your WhatsApp experience.</p></strong>
+  <p><strong>Warning:</strong> This module is intended for educational purposes only, you may have problems with your WhatsApp account, risk of banning! Use it at your own risk.</p>
+  <p>Please note that this project is currently in development, so bugs and crashes may occur. If you encounter any issues report them in our group or create an <a href="https://github.com/Dev4Mod/WaEnhancer/issues">issue</a> here.</p>
 </div>
 
 
