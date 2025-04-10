@@ -6,11 +6,11 @@ filepicker = "9.2.5"
 jstyleparser = "4.0.1"
 okhttp = "4.12.0"
 xposed-legacy = "82"
-agp = "8.8.2"
+agp = "8.9.1"
 colorpicker = "1.1.0"
 dexkit = "2.0.3"
-nav = "2.8.8"
-kotlin = "2.1.10"
+nav = "2.8.9"
+kotlin = "2.1.20"
 
 
 [libraries]
