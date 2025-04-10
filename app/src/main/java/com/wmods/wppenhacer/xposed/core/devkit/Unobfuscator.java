@@ -1532,8 +1532,8 @@ public class Unobfuscator {
             if (results.length > 1) {
                 result = findFirstMethodUsingStrings(classLoader, StringMatchType.Contains, "forwardable", "FMessageFactory/newFMessageForForward/thumbnail");
             } else {
-                // 2.24.18.xx returns one method
-                result = results[0];
+                // 2.24.18.xx method is changed
+                result = findFirstMethodUsingStrings(classLoader, StringMatchType.Contains, "Non-forwardable message(");
             }
             return result;
         });
