@@ -16,6 +16,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 import de.robv.android.xposed.XposedHelpers;
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
+import lombok.NoArgsConstructor;
+import lombok.RequiredArgsConstructor;
 
 public class MessageHistory extends SQLiteOpenHelper {
     private static MessageHistory mInstance;
@@ -138,29 +142,20 @@ public class MessageHistory extends SQLiteOpenHelper {
         }
     }
 
+    @AllArgsConstructor
     public static class MessageItem {
         public long id;
         public String message;
         public long timestamp;
-
-        public MessageItem(long id, String message, long timestamp) {
-            this.id = id;
-            this.message = message;
-            this.timestamp = timestamp;
-        }
     }
 
+    @RequiredArgsConstructor
+    @NoArgsConstructor(access = AccessLevel.PRIVATE, force = true)
     public static class MessageSeenItem {
-        public String jid;
-        public String message;
-        public boolean viewed;
+        public final String jid;
+        public final String message;
+        public final boolean viewed;
         private FMessageWpp fMessageWpp;
-
-        public MessageSeenItem(String jid, String message, boolean viewed) {
-            this.jid = jid;
-            this.message = message;
-            this.viewed = viewed;
-        }
 
         @Nullable
         public FMessageWpp getFMessage() {
