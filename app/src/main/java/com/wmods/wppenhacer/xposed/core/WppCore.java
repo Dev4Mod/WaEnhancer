@@ -223,6 +223,14 @@ public class WppCore {
                 : XposedHelpers.findClass("com.whatsapp.home.ui.TabsPager", loader);
     }
 
+    public synchronized static Class getViewOnceViewerActivityClass(@NonNull ClassLoader loader) {
+        Class oldClass = XposedHelpers.findClassIfExists("com.whatsapp.messaging.ViewOnceViewerActivity", loader);
+
+        return oldClass != null
+                ? oldClass
+                : XposedHelpers.findClass("com.whatsapp.viewonce.ui.messaging.ViewOnceViewerActivity", loader);
+    }
+
 //    public static Activity getActivityBySimpleName(String name) {
 //        for (var activity : activities) {
 //            if (activity.getClass().getSimpleName().equals(name)) {
