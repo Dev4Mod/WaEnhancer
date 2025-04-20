@@ -43,7 +43,6 @@ public class MenuStatus extends Feature {
         XposedBridge.hookMethod(menuStatusMethod, new XC_MethodHook() {
             @Override
             protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-                logDebug("MenuStatus method called");
                 var fieldObjects = Arrays.stream(param.method.getDeclaringClass().getDeclaredFields()).map(field -> ReflectionUtils.getObjectField(field, param.thisObject)).filter(Objects::nonNull).collect(Collectors.toList());
 
                 Object fragmentInstance;
@@ -52,7 +51,6 @@ public class MenuStatus extends Feature {
                 } else {
                     fragmentInstance = fieldObjects.stream().filter(StatusPlaybackBaseFragmentClass::isInstance).findFirst().orElse(null);
                 }
-
                 Menu menu;
                 if (param.args.length > 0 && param.args[0] instanceof Menu) {
                     menu = (Menu) param.args[0];
