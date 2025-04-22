@@ -28,12 +28,12 @@ jobs:
       - name: Write key
         if: github.event_name != 'pull_request'
         run: |
-          if [ ! -z "${{ secrets.KEY_STORE }}" ]; then
-            echo androidStorePassword='${{ secrets.KEY_STORE_PASSWORD }}' >> gradle.properties
-            echo androidKeyAlias='${{ secrets.ALIAS }}' >> gradle.properties
-            echo androidKeyPassword='${{ secrets.KEY_PASSWORD }}' >> gradle.properties
-            echo androidStoreFile='key.jks' >> gradle.properties
-            echo ${{ secrets.KEY_STORE }} | base64 --decode > key.jks
+          if [ -n "${{ secrets.KEY_STORE }}" ]; then
+            echo "androidStorePassword=${{ secrets.KEY_STORE_PASSWORD }}" >> gradle.properties
+            echo "androidKeyAlias=${{ secrets.ALIAS }}" >> gradle.properties
+            echo "androidKeyPassword=${{ secrets.KEY_PASSWORD }}" >> gradle.properties
+            echo "androidStoreFile=key.jks" >> gradle.properties
+            echo "${{ secrets.KEY_STORE }}" | base64 --decode > key.jks
           fi
 
       - name: Grant execute permission for gradlew
@@ -67,19 +67,28 @@ jobs:
           COMMIT_URL: ${{ github.event.head_commit.url }}
         run: |
           if [ -n "$BOT_TOKEN" ] && [ -n "$CHANNEL_ID" ]; then
+            echo "Preparing Telegram notification..."
             GITHUB_SHA_SHORT=$(git rev-parse --short HEAD)
             output_whatsapp="app/WaEnhancer_$GITHUB_SHA_SHORT.apk"
             output_business="app/WaEnhancer_Business_$GITHUB_SHA_SHORT.apk"
+            
+            mkdir -p app
             cp app/build/outputs/apk/whatsapp/debug/app-whatsapp-debug.apk "$output_whatsapp"
             cp app/build/outputs/apk/business/debug/app-business-debug.apk "$output_business"
-            LOG=$(cat changelog.txt)
-            ESCAPED=$(python3 -c 'import json,os,urllib.parse; msg = json.dumps(os.getenv("LOG")); print(urllib.parse.quote(msg if len(msg) <= 1024 else json.dumps(os.getenv("COMMIT_URL"))))'
-          
-            curl "https://api.telegram.org/bot${BOT_TOKEN}/sendMediaGroup?chat_id=${CHANNEL_ID}&media=%5B%7B%22type%22%3A%22document%22%2C%20%22media%22%3A%22attach%3A%2F%2Fwa%22%7D%2C%7B%22type%22%3A%22document%22%2C%20%22media%22%3A%22attach%3A%2F%2Fw4b%22%2C%22caption%22%3A${ESCAPED}%7D%5D" \
+            
+            LOG_CONTENT=$(cat changelog.txt)
+            ESCAPED_MSG=$(python3 -c 'import json,os,urllib.parse; msg=json.dumps(os.environ.get("LOG_CONTENT", "")); print(urllib.parse.quote(msg if len(msg) <= 1024 else json.dumps(os.environ.get("COMMIT_URL", ""))))'
+            
+            echo "Sending to Telegram..."
+            curl -f "https://api.telegram.org/bot${BOT_TOKEN}/sendMediaGroup" \
+              -F "chat_id=${CHANNEL_ID}" \
+              -F "media=[{\"type\":\"document\",\"media\":\"attach://wa\"},{\"type\":\"document\",\"media\":\"attach://w4b\",\"caption\":${ESCAPED_MSG}}]" \
               -F "wa=@$output_whatsapp" \
-              -F "w4b=@$output_business"
+              -F "w4b=@$output_business" && \
+            echo "Telegram notification sent successfully!" || \
+            echo "Failed to send Telegram notification"
           else
-            echo "Telegram bot token or channel ID not provided, skipping notification"
+            echo "Skipping Telegram notification: BOT_TOKEN or CHANNEL_ID not set"
           fi
 
       - name: Upload to GitHub release
