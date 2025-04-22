@@ -25,7 +25,7 @@ jobs:
           distribution: 'temurin'
           cache: gradle
 
-      - name: Write key
+      - name: Write key properties
         if: github.event_name != 'pull_request'
         run: |
           if [ -n "${{ secrets.KEY_STORE }}" ]; then
@@ -39,27 +39,26 @@ jobs:
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
 
-      - name: Build all flavor variants
-        run: |
-          ./gradlew assembleWhatsappDebug assembleBusinessDebug -Pminify=true
+      - name: Build with Gradle
+        run: ./gradlew assembleWhatsappDebug assembleBusinessDebug -Pminify=true
 
-      - name: Get short SHA
+      - name: Generate short SHA
         run: echo "SHORT_SHA=$(echo ${GITHUB_SHA} | cut -c1-8)" >> $GITHUB_ENV
 
-      - name: Upload WhatsApp flavor artifacts
+      - name: Upload WhatsApp APK
         uses: actions/upload-artifact@v4
         with:
-          name: whatsapp-debug-app-${{ env.SHORT_SHA }}
+          name: whatsapp-debug-${{ env.SHORT_SHA }}
           path: app/build/outputs/apk/whatsapp/debug/app-whatsapp-debug.apk
 
-      - name: Upload Business flavor artifacts
+      - name: Upload Business APK
         uses: actions/upload-artifact@v4
         with:
-          name: business-debug-app-${{ env.SHORT_SHA }}
+          name: business-debug-${{ env.SHORT_SHA }}
           path: app/build/outputs/apk/business/debug/app-business-debug.apk
 
-      - name: Post to Telegram channel
-        if: ${{ success() && (github.ref == 'refs/heads/master' || github.event_name == 'workflow_dispatch') && github.ref_type != 'tag' }}
+      - name: Notify Telegram
+        if: ${{ success() && (github.ref == 'refs/heads/master' || github.event_name == 'workflow_dispatch') }}
         env:
           CHANNEL_ID: ${{ secrets.CHANNEL_ID }}
           BOT_TOKEN: ${{ secrets.BOT_TOKEN }}
@@ -67,37 +66,41 @@ jobs:
           COMMIT_URL: ${{ github.event.head_commit.url }}
         run: |
           if [ -n "$BOT_TOKEN" ] && [ -n "$CHANNEL_ID" ]; then
-            echo "Preparing Telegram notification..."
-            GITHUB_SHA_SHORT=$(git rev-parse --short HEAD)
-            output_whatsapp="app/WaEnhancer_$GITHUB_SHA_SHORT.apk"
-            output_business="app/WaEnhancer_Business_$GITHUB_SHA_SHORT.apk"
+            echo "➡️ Preparing Telegram notification..."
             
-            mkdir -p app
-            cp app/build/outputs/apk/whatsapp/debug/app-whatsapp-debug.apk "$output_whatsapp"
-            cp app/build/outputs/apk/business/debug/app-business-debug.apk "$output_business"
+            # Prepare APK files
+            SHORT_SHA=$(git rev-parse --short HEAD)
+            OUTPUT_DIR="telegram_uploads"
+            mkdir -p $OUTPUT_DIR
             
-            LOG_CONTENT=$(cat changelog.txt)
-            ESCAPED_MSG=$(python3 -c 'import json,os,urllib.parse; msg=json.dumps(os.environ.get("LOG_CONTENT", "")); print(urllib.parse.quote(msg if len(msg) <= 1024 else json.dumps(os.environ.get("COMMIT_URL", ""))))'
+            cp app/build/outputs/apk/whatsapp/debug/app-whatsapp-debug.apk "$OUTPUT_DIR/WaEnhancer_$SHORT_SHA.apk"
+            cp app/build/outputs/apk/business/debug/app-business-debug.apk "$OUTPUT_DIR/WaEnhancer_Business_$SHORT_SHA.apk"
             
-            echo "Sending to Telegram..."
-            curl -f "https://api.telegram.org/bot${BOT_TOKEN}/sendMediaGroup" \
-              -F "chat_id=${CHANNEL_ID}" \
-              -F "media=[{\"type\":\"document\",\"media\":\"attach://wa\"},{\"type\":\"document\",\"media\":\"attach://w4b\",\"caption\":${ESCAPED_MSG}}]" \
-              -F "wa=@$output_whatsapp" \
-              -F "w4b=@$output_business" && \
-            echo "Telegram notification sent successfully!" || \
-            echo "Failed to send Telegram notification"
+            # Prepare changelog
+            CHANGELOG=$(cat changelog.txt || echo "No changelog provided")
+            ESCAPED_MSG=$(python3 -c 'import json, sys, urllib.parse; print(urllib.parse.quote(json.dumps(sys.argv[1] if len(sys.argv[1]) <= 1024 else "📦 New build available")))' "$CHANGELOG")
+            
+            # Send to Telegram
+            echo "📤 Sending files to Telegram..."
+            curl -f -X POST \
+              "https://api.telegram.org/bot$BOT_TOKEN/sendMediaGroup" \
+              -F "chat_id=$CHANNEL_ID" \
+              -F "media=[{\"type\":\"document\",\"media\":\"attach://whatsapp\"},{\"type\":\"document\",\"media\":\"attach://business\",\"caption\":$ESCAPED_MSG}]" \
+              -F "whatsapp=@$OUTPUT_DIR/WaEnhancer_$SHORT_SHA.apk" \
+              -F "business=@$OUTPUT_DIR/WaEnhancer_Business_$SHORT_SHA.apk" \
+              && echo "✅ Telegram notification sent!" \
+              || echo "❌ Failed to send Telegram notification"
           else
-            echo "Skipping Telegram notification: BOT_TOKEN or CHANNEL_ID not set"
+            echo "⚠️ Skipping Telegram: Missing BOT_TOKEN or CHANNEL_ID"
           fi
 
-      - name: Upload to GitHub release
+      - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
-          name: WaEnhancer ${{ env.SHORT_SHA }}
+          name: "WaEnhancer ${{ env.SHORT_SHA }}"
           body_path: changelog.txt
           files: |
             app/build/outputs/apk/whatsapp/debug/app-whatsapp-debug.apk
             app/build/outputs/apk/business/debug/app-business-debug.apk
-          tag_name: debug-${{ env.SHORT_SHA }}
+          tag_name: "debug-${{ env.SHORT_SHA }}"
