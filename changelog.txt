@@ -1,5 +1,11 @@
-[WHATSAPP]
-* Add support for WhatsApp 2.25.10.XX and 2.25.11.XX (Thanks to frknkrc44)
+[BUGS FIXES]
+* Fix bug in Delete Status
+* Fix bug in View Once on WA 2.25.11.XX+
+* Fix bug on loading strings on Custom ROM
 
 [IMPROVEMENTS]
-* Improved warning in README.md (Thanks to pedroborraz)
+* Add cache for Message History/Viewed Database
+
+[WhatsApp]
+* Add support for WhatsApp 2.25.12.XX
+* Add initial support for WhatsApp 2.25.13.XX
