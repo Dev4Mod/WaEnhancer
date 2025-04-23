@@ -1,9 +1,12 @@
 package com.wmods.wppenhacer.xposed.features.privacy;
 
+import android.view.View;
+
 import androidx.annotation.NonNull;
 
 import com.wmods.wppenhacer.xposed.core.Feature;
 import com.wmods.wppenhacer.xposed.core.devkit.Unobfuscator;
+import com.wmods.wppenhacer.xposed.utils.ReflectionUtils;
 
 import java.util.Objects;
 
@@ -24,16 +27,25 @@ public class HideChat extends Feature {
 
         if (!Objects.equals(prefs.getString("typearchive", "0"), "0")) {
 
-            var archiveHideViewMethod = Unobfuscator.loadArchiveHideViewMethod(classLoader);
-            for (var method : archiveHideViewMethod) {
-                logDebug(Unobfuscator.getMethodDescriptor(method));
-                XposedBridge.hookMethod(method, new XC_MethodHook() {
-                    @Override
-                    protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
-                        param.args[0] = false;
-                    }
-                });
-            }
+            var loadArchiveChatClass = Unobfuscator.loadArchiveChatClass(classLoader);
+
+            var setVisibilityMethod = View.class.getDeclaredMethod("setVisibility", int.class);
+            var viewField = ReflectionUtils.getFieldByType(loadArchiveChatClass, View.class);
+
+            XposedBridge.hookAllConstructors(loadArchiveChatClass, new XC_MethodHook() {
+                @Override
+                protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+                    Object thiz = param.thisObject;
+                    XposedBridge.hookMethod(setVisibilityMethod, new XC_MethodHook() {
+                        @Override
+                        protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
+                            Object view = viewField.get(thiz);
+                            if (view != param.thisObject) return;
+                            param.args[0] = View.GONE;
+                        }
+                    });
+                }
+            });
 
         }
 
@@ -79,6 +91,6 @@ public class HideChat extends Feature {
     @NonNull
     @Override
     public String getPluginName() {
-        return "Hide Archive";
+        return "Hide Chats";
     }
 }

@@ -834,19 +834,11 @@ public class Unobfuscator {
         });
     }
 
-    public synchronized static Method[] loadArchiveHideViewMethod(ClassLoader loader) throws Exception {
-        return UnobfuscatorCache.getInstance().getMethods(loader, () -> {
-            if (cache.containsKey("ArchiveHideView"))
-                return (Method[]) cache.get("ArchiveHideView");
-            var methods = findAllMethodUsingStrings(loader, StringMatchType.Contains, "archive/set-content-indicator-to-empty");
-            if (methods.length == 0) throw new Exception("ArchiveHideView method not found");
-            ArrayList<Method> result = new ArrayList<>();
-            for (var m : methods) {
-                result.add(m.getDeclaringClass().getMethod("setVisibility", boolean.class));
-            }
-            var resultArray = result.toArray(new Method[0]);
-            cache.put("ArchiveHideView", resultArray);
-            return resultArray;
+    public synchronized static Class loadArchiveChatClass(ClassLoader loader) throws Exception {
+        return UnobfuscatorCache.getInstance().getClass(loader, () -> {
+            var clazz = findFirstClassUsingStrings(loader, StringMatchType.Contains, "archive/set-content-indicator-to-empty");
+            if (clazz == null) throw new Exception("ArchiveHideView method not found");
+            return clazz;
         });
     }
 
