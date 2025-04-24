@@ -1,6 +1,9 @@
 package com.wmods.wppenhacer.xposed.utils;
 
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
 
 import de.robv.android.xposed.XC_MethodHook;
 import de.robv.android.xposed.XposedBridge;
@@ -62,8 +65,36 @@ public class DebugUtils {
 
     public static void debugArgs(Object[] args) {
         for (var i = 0; i < args.length; i++) {
-            XposedBridge.log("ARG[" + i + "]: " + (args[i] == null ? null : args[i].getClass().getName()) + " -> VALUE: " + args[i]);
+            XposedBridge.log("ARG[" + i + "]: " + (args[i] == null ? null : args[i].getClass().getName()) + " -> VALUE: " + parseValue(args[i]));
         }
+    }
+
+    public static String parseValue(Object value) {
+        StringBuilder sb = new StringBuilder();
+        if (value == null)
+            return "null";
+        if (value instanceof List list) {
+            sb.append("List[");
+            for (var item : list) {
+                sb.append(parseValue(item)).append(", ");
+            }
+            sb.append("]");
+        } else if (value instanceof Map<?, ?> map) {
+            var keys = map.keySet();
+            sb.append("Map[");
+            for (var key : keys) {
+                sb.append(key).append(": ").append(parseValue(map.get(key))).append(" ");
+            }
+            sb.append("]");
+        } else if (value instanceof byte[] bytes) {
+            try {
+                sb.append(new String(bytes, StandardCharsets.UTF_8));
+            } catch (Exception ignored) {
+            }
+        } else {
+            sb.append(value);
+        }
+        return sb.toString();
     }
 
 

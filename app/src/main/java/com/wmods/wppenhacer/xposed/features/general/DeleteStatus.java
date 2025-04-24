@@ -22,7 +22,6 @@ import de.robv.android.xposed.XSharedPreferences;
 public class DeleteStatus extends Feature {
 
 
-
     public DeleteStatus(@NonNull ClassLoader classLoader, @NonNull XSharedPreferences preferences) {
         super(classLoader, preferences);
     }
@@ -51,11 +50,10 @@ public class DeleteStatus extends Feature {
                     var key = fMessage.getKey();
                     var bundle = getBundle(key);
                     WppCore.setPrivBoolean(key.messageID + "_delpass", true);
-                    log(key.messageID);
                     fieldBundle.set(status, bundle);
-                    showDialogStatus.invoke(status, status, fragmentInstance);
+                    showDialogStatus.invoke(null, status, fragmentInstance);
                 } catch (Exception e) {
-                    log(e);
+                    logDebug(e);
                 }
             }
         };

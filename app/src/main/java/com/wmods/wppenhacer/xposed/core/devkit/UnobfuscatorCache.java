@@ -103,14 +103,19 @@ public class UnobfuscatorCache {
             var entries = chunk.getEntries();
             int baseValue = 0x7f12;
             for (var entry : entries.entrySet()) {
-                int keyHexValue = entry.getKey();
-                int result = baseValue << 16 | keyHexValue;
-                String resourceString = pool.getString(entry.getValue().value().data()).toLowerCase().replaceAll("\\s", "");
-                reverseResourceMap.put(resourceString, String.valueOf(result));
+                try {
+                    int keyHexValue = entry.getKey();
+                    int result = baseValue << 16 | keyHexValue;
+                    String resourceString = pool.getString(entry.getValue().value().data()).toLowerCase().replaceAll("\\s", "");
+                    reverseResourceMap.put(resourceString, String.valueOf(result));
+                } catch (Exception ignored) {
+                }
             }
         } catch (Exception e) {
             XposedBridge.log(e);
             reverseResourceMap.clear();
+        }
+        if (reverseResourceMap.isEmpty()) {
             initializeReverseResourceMapBruteForce();
         }
     }

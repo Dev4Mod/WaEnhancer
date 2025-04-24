@@ -1,7 +1,5 @@
 package com.wmods.wppenhacer.xposed.features.general;
 
-import static de.robv.android.xposed.XposedHelpers.findClass;
-
 import android.app.Activity;
 import android.content.Intent;
 import android.net.Uri;
@@ -34,6 +32,7 @@ public class NewChat extends Feature {
     public void doHook() {
         var homeActivity = WppCore.getHomeActivityClass(classLoader);
         var action = prefs.getBoolean("buttonaction", true);
+
         if (!prefs.getBoolean("newchat", true)) return;
 
         XposedHelpers.findAndHookMethod(homeActivity, "onCreateOptionsMenu", Menu.class, new XC_MethodHook() {
@@ -52,7 +51,9 @@ public class NewChat extends Feature {
                 if (action) {
                     item.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
                 }
+
                 item.setOnMenuItemClickListener(item1 -> {
+
                     var view = new LinearLayout(activity);
                     view.setGravity(Gravity.CENTER);
                     view.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT));
@@ -63,6 +64,7 @@ public class NewChat extends Feature {
                     edt.setTransformationMethod(null);
                     edt.setHint(ResId.string.number_with_country_code);
                     view.addView(edt);
+
                     new AlertDialogWpp(activity)
                             .setTitle(activity.getString(ResId.string.new_chat))
                             .setView(view)
@@ -76,6 +78,7 @@ public class NewChat extends Feature {
                             })
                             .setNegativeButton(activity.getString(ResId.string.cancel), null)
                             .show();
+
                     return true;
                 });
             }

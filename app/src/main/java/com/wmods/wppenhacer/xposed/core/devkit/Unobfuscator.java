@@ -25,6 +25,7 @@ import com.wmods.wppenhacer.xposed.utils.Utils;
 import org.luckypray.dexkit.DexKitBridge;
 import org.luckypray.dexkit.query.FindClass;
 import org.luckypray.dexkit.query.FindMethod;
+import org.luckypray.dexkit.query.enums.OpCodeMatchType;
 import org.luckypray.dexkit.query.enums.StringMatchType;
 import org.luckypray.dexkit.query.matchers.ClassMatcher;
 import org.luckypray.dexkit.query.matchers.MethodMatcher;
@@ -833,19 +834,11 @@ public class Unobfuscator {
         });
     }
 
-    public synchronized static Method[] loadArchiveHideViewMethod(ClassLoader loader) throws Exception {
-        return UnobfuscatorCache.getInstance().getMethods(loader, () -> {
-            if (cache.containsKey("ArchiveHideView"))
-                return (Method[]) cache.get("ArchiveHideView");
-            var methods = findAllMethodUsingStrings(loader, StringMatchType.Contains, "archive/set-content-indicator-to-empty");
-            if (methods.length == 0) throw new Exception("ArchiveHideView method not found");
-            ArrayList<Method> result = new ArrayList<>();
-            for (var m : methods) {
-                result.add(m.getDeclaringClass().getMethod("setVisibility", boolean.class));
-            }
-            var resultArray = result.toArray(new Method[0]);
-            cache.put("ArchiveHideView", resultArray);
-            return resultArray;
+    public synchronized static Class loadArchiveChatClass(ClassLoader loader) throws Exception {
+        return UnobfuscatorCache.getInstance().getClass(loader, () -> {
+            var clazz = findFirstClassUsingStrings(loader, StringMatchType.Contains, "archive/set-content-indicator-to-empty");
+            if (clazz == null) throw new Exception("ArchiveHideView method not found");
+            return clazz;
         });
     }
 
@@ -1113,7 +1106,8 @@ public class Unobfuscator {
     public synchronized static Field loadSetEditMessageField(ClassLoader loader) throws Exception {
         return UnobfuscatorCache.getInstance().getField(loader, () -> {
             var method = findFirstMethodUsingStrings(loader, StringMatchType.Contains, "CoreMessageStore/updateCheckoutMessageWithTransactionInfo");
-            if (method == null) method = findFirstMethodUsingStrings(loader, StringMatchType.Contains, "UPDATE_MESSAGE_ADD_ON_FLAGS_MAIN_SQL");
+            if (method == null)
+                method = findFirstMethodUsingStrings(loader, StringMatchType.Contains, "UPDATE_MESSAGE_ADD_ON_FLAGS_MAIN_SQL");
             var classData = dexkit.getClassData(loadFMessageClass(loader));
             var methodData = dexkit.getMethodData(DexSignUtil.getMethodDescriptor(method));
             var usingFields = methodData.getUsingFields();
@@ -1552,7 +1546,12 @@ public class Unobfuscator {
         return UnobfuscatorCache.getInstance().getMethod(classLoader, () -> {
             var clazz = loadFragmentLoader(classLoader);
             var frag = classLoader.loadClass("androidx.fragment.app.DialogFragment");
-            var result = dexkit.findMethod(new FindMethod().matcher(new MethodMatcher().paramCount(2).addParamType(frag).addParamType(clazz).returnType(void.class).modifiers(Modifier.PUBLIC | Modifier.STATIC)));
+            var result = dexkit.findMethod(FindMethod.create().matcher(
+                            MethodMatcher.create().paramCount(2).addParamType(frag).addParamType(clazz)
+                                    .returnType(void.class).modifiers(Modifier.PUBLIC | Modifier.STATIC)
+                                    .opNames(List.of("iget-boolean", "if-nez"), OpCodeMatchType.Contains)
+                    )
+            );
             if (result.isEmpty()) throw new RuntimeException("showDialogStatus not found");
             return result.get(0).getMethodInstance(classLoader);
         });
