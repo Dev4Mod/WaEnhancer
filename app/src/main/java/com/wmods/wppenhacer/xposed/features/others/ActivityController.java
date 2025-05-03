@@ -3,6 +3,7 @@ package com.wmods.wppenhacer.xposed.features.others;
 import static com.wmods.wppenhacer.xposed.features.general.LiteMode.REQUEST_FOLDER;
 import static com.wmods.wppenhacer.xposed.features.general.LiteMode.getDownloadsUri;
 import static com.wmods.wppenhacer.xposed.features.general.LiteMode.processDownloadResult;
+import static com.wmods.wppenhacer.xposed.utils.Utils.findClassInArray;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -30,7 +31,7 @@ import de.robv.android.xposed.XposedHelpers;
 
 public class ActivityController extends Feature {
 
-    public static final String EXPORTED_ACTIVITY = "com.whatsapp.settings.SettingsNotifications";
+    public static final String[] EXPORTED_ACTIVITY = new String[]{"com.whatsapp.settings.SettingsNotifications", "com.whatsapp.settings.ui.SettingsNotifications"};
     private static String Key;
 
     public ActivityController(@NonNull ClassLoader classLoader, @NonNull XSharedPreferences preferences) {
@@ -40,7 +41,7 @@ public class ActivityController extends Feature {
     @Override
     public void doHook() throws Throwable {
 
-        var clazz = XposedHelpers.findClass(EXPORTED_ACTIVITY, classLoader);
+        var clazz = findClassInArray(classLoader, EXPORTED_ACTIVITY);
         Class<?> statusDistribution = Unobfuscator.loadStatusDistributionClass(classLoader);
 
         XposedHelpers.findAndHookMethod(Activity.class, "onCreate", Bundle.class, new XC_MethodHook() {

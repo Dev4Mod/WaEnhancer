@@ -1,5 +1,7 @@
 package com.wmods.wppenhacer.preference;
 
+import static com.wmods.wppenhacer.xposed.utils.Utils.doesClassExist;
+
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
@@ -59,7 +61,14 @@ public class ContactPickerPreference extends Preference implements Preference.On
 
     private void startSelectContacts(String packageName) {
         Intent intent = new Intent();
-        intent.setClassName(packageName, ActivityController.EXPORTED_ACTIVITY);
+        String className = ActivityController.EXPORTED_ACTIVITY[0];
+        for (String clz : ActivityController.EXPORTED_ACTIVITY) {
+            if (doesClassExist(getContext(), packageName, clz)) {
+                className = clz;
+                break;
+            }
+        }
+        intent.setClassName(packageName, className);
         intent.putExtra("key", getKey());
         intent.putExtra("contact_mode", true);
         intent.putStringArrayListExtra("contacts", mContacts);

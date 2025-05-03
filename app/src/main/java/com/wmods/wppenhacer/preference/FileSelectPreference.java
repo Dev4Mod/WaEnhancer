@@ -1,5 +1,7 @@
 package com.wmods.wppenhacer.preference;
 
+import static com.wmods.wppenhacer.xposed.utils.Utils.doesClassExist;
+
 import android.Manifest;
 import android.app.Activity;
 import android.content.ContentResolver;
@@ -80,7 +82,14 @@ public class FileSelectPreference extends Preference implements Preference.OnPre
 
         if (getSharedPreferences().getBoolean("lite_mode", false)) {
             Intent intent = new Intent();
-            intent.setClassName("com.whatsapp", ActivityController.EXPORTED_ACTIVITY);
+            String className = ActivityController.EXPORTED_ACTIVITY[0];
+            for (String clz : ActivityController.EXPORTED_ACTIVITY) {
+                if (doesClassExist(getContext(), "com.whatsapp", clz)) {
+                    className = clz;
+                    break;
+                }
+            }
+            intent.setClassName("com.whatsapp", className);
             intent.putExtra("key", getKey());
             intent.putExtra("download_mode", true);
             ((Activity) getContext()).startActivityForResult(intent, LiteMode.REQUEST_FOLDER);

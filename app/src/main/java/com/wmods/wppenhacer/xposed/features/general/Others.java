@@ -1,5 +1,7 @@
 package com.wmods.wppenhacer.xposed.features.general;
 
+import static com.wmods.wppenhacer.xposed.utils.Utils.findClassInArray;
+
 import android.annotation.SuppressLint;
 import android.os.BaseBundle;
 import android.os.Message;
@@ -558,7 +560,7 @@ public class Others extends Feature {
     private void hookProps() throws Exception {
         var methodPropsBoolean = Unobfuscator.loadPropsBooleanMethod(classLoader);
         logDebug(Unobfuscator.getMethodDescriptor(methodPropsBoolean));
-        var dataUsageActivityClass = XposedHelpers.findClass("com.whatsapp.settings.SettingsDataUsageActivity", classLoader);
+        var dataUsageActivityClass = findClassInArray(classLoader, "com.whatsapp.settings.SettingsDataUsageActivity", "com.whatsapp.settings.ui.SettingsDataUsageActivity");
         XposedBridge.hookMethod(methodPropsBoolean, new XC_MethodHook() {
             @Override
             protected void afterHookedMethod(MethodHookParam param) throws Throwable {

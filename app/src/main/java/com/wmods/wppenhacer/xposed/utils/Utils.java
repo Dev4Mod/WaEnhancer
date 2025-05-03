@@ -1,5 +1,7 @@
 package com.wmods.wppenhacer.xposed.utils;
 
+import static de.robv.android.xposed.XposedHelpers.findClass;
+
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.Application;
@@ -19,6 +21,7 @@ import android.os.Handler;
 import android.os.Looper;
 import android.text.TextUtils;
 import android.util.DisplayMetrics;
+import android.util.Log;
 import android.util.TypedValue;
 import android.widget.Toast;
 
@@ -51,6 +54,7 @@ import java.util.regex.Pattern;
 
 import de.robv.android.xposed.XSharedPreferences;
 import de.robv.android.xposed.XposedBridge;
+import de.robv.android.xposed.callbacks.XC_LoadPackage;
 
 public class Utils {
 
@@ -365,6 +369,36 @@ public class Utils {
         mActivity.startActivity(browserIntent);
     }
 
+    public static Class<?> findClassInArray(
+            ClassLoader classLoader,
+            String...classes
+    ) {
+        for(String clazz : classes) {
+            try {
+                Class<?> mClazz = findClass(clazz, classLoader);
+                if (mClazz != null) {
+                    return mClazz;
+                }
+            } catch (Throwable ignored) {}
+        }
+        return null;
+    }
+
+    public static boolean doesClassExist(Context context, String packageName, String className) {
+        try {
+            Context otherAppContext = context.createPackageContext(packageName, Context.CONTEXT_INCLUDE_CODE | Context.CONTEXT_IGNORE_SECURITY);
+            ClassLoader classLoader = otherAppContext.getClassLoader();
+            Class<?> loadedClass = Class.forName(className, false, classLoader);
+            return loadedClass != null;
+        } catch (PackageManager.NameNotFoundException e) {
+            Log.e("ClassChecker", "Package not found: " + packageName, e);
+        } catch (ClassNotFoundException e) {
+            Log.e("ClassChecker", "Class not found: " + className, e);
+        } catch (Exception e) {
+            Log.e("ClassChecker", "Exception occurred", e);
+        }
+        return false;
+    }
 
     @FunctionalInterface
     public interface BinderLocalScopeBlock<T> {

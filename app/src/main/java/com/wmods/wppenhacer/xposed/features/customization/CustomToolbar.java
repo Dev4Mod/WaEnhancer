@@ -1,5 +1,7 @@
 package com.wmods.wppenhacer.xposed.features.customization;
 
+import static com.wmods.wppenhacer.xposed.utils.Utils.findClassInArray;
+
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Intent;
@@ -77,7 +79,8 @@ public class CustomToolbar extends Feature {
             }
         });
 
-        XposedHelpers.findAndHookMethod("com.whatsapp.settings.About", classLoader, "onCreate", classLoader.loadClass("android.os.Bundle"),
+        Class<?> aboutClass = findClassInArray(classLoader,"com.whatsapp.settings.ui.About", "com.whatsapp.settings.About");
+        XposedHelpers.findAndHookMethod(aboutClass, "onCreate", classLoader.loadClass("android.os.Bundle"),
                 new XC_MethodHook() {
                     @SuppressLint("SetTextI18n")
                     @Override
