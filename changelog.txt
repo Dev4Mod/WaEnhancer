@@ -1,11 +1,6 @@
-[BUGS FIXES]
-* Fix bug in Delete Status
-* Fix bug in View Once on WA 2.25.11.XX+
-* Fix bug on loading strings on Custom ROM
-
-[IMPROVEMENTS]
-* Add cache for Message History/Viewed Database
+[BUG FIXES]
+* Fixed Audio to Voice Forwarding (Thanks to astola-studio)
 
 [WhatsApp]
-* Add support for WhatsApp 2.25.12.XX
-* Add initial support for WhatsApp 2.25.13.XX
+* Add support for WhatsApp 2.25.14.XX (Thanks to frknkrc44)
+* Add initial support for WhatsApp 2.25.15.XX (Thanks to frknkrc44)
