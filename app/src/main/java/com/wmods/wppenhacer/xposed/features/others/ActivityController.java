@@ -30,7 +30,7 @@ import de.robv.android.xposed.XposedHelpers;
 
 public class ActivityController extends Feature {
 
-    public static final String EXPORTED_ACTIVITY = "com.whatsapp.settings.SettingsNotifications";
+    public static final String EXPORTED_ACTIVITY = WppCore.getSettingsNotificationsActivityClass(ClassLoader.getSystemClassLoader()).getName();
     private static String Key;
 
     public ActivityController(@NonNull ClassLoader classLoader, @NonNull XSharedPreferences preferences) {

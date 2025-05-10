@@ -77,7 +77,7 @@ public class CustomToolbar extends Feature {
             }
         });
 
-        XposedHelpers.findAndHookMethod("com.whatsapp.settings.About", classLoader, "onCreate", classLoader.loadClass("android.os.Bundle"),
+        XposedHelpers.findAndHookMethod(WppCore.getAboutActivityClass(classLoader), "onCreate", classLoader.loadClass("android.os.Bundle"),
                 new XC_MethodHook() {
                     @SuppressLint("SetTextI18n")
                     @Override
