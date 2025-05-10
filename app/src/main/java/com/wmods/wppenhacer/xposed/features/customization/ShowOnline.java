@@ -74,30 +74,51 @@ public class ShowOnline extends Feature {
                 }
                 if (showOnlineIcon) {
                     var contactView = (FrameLayout) view.findViewById(Utils.getID("contact_selector", "id"));
-                    var photoView = (ImageView) contactView.getChildAt(0);
-                    contactView.removeView(photoView);
-
-                    var relativeLayout = new RelativeLayout(context);
-                    relativeLayout.setId(0x7FFF0003);
-                    var params = new RelativeLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
-                    params.addRule(RelativeLayout.CENTER_IN_PARENT);
-                    photoView.setLayoutParams(params);
-                    relativeLayout.addView(photoView);
-                    contactView.addView(relativeLayout);
+                    var firstChild = contactView.getChildAt(0);
                     var isLeftToRight = TextUtilsCompat.getLayoutDirectionFromLocale(Locale.getDefault()) == View.LAYOUT_DIRECTION_LTR;
+                    if (firstChild instanceof ImageView photoView) {
+                        contactView.removeView(photoView);
 
-                    var imageView = new ImageView(context);
-                    imageView.setId(0x7FFF0001);
-                    var params2 = new RelativeLayout.LayoutParams(Utils.dipToPixels(14), Utils.dipToPixels(14));
-                    params2.addRule(RelativeLayout.ALIGN_TOP, contactView.getId());
-                    params2.addRule(isLeftToRight ? RelativeLayout.ALIGN_RIGHT : RelativeLayout.ALIGN_LEFT, photoView.getId());
-                    params2.topMargin = Utils.dipToPixels(5);
-                    imageView.setLayoutParams(params2);
-                    imageView.setImageResource(ResId.drawable.online);
-                    imageView.setAdjustViewBounds(true);
-                    imageView.setScaleType(ImageView.ScaleType.FIT_XY);
-                    imageView.setVisibility(View.INVISIBLE);
-                    relativeLayout.addView(imageView);
+                        var relativeLayout = new RelativeLayout(context);
+                        relativeLayout.setId(0x7FFF0003);
+                        var params = new RelativeLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+                        params.addRule(RelativeLayout.CENTER_IN_PARENT);
+                        photoView.setLayoutParams(params);
+                        relativeLayout.addView(photoView);
+                        contactView.addView(relativeLayout);
+
+                        var imageView = new ImageView(context);
+                        imageView.setId(0x7FFF0001);
+                        var params2 = new RelativeLayout.LayoutParams(Utils.dipToPixels(14), Utils.dipToPixels(14));
+                        params2.addRule(RelativeLayout.ALIGN_TOP, contactView.getId());
+                        params2.addRule(isLeftToRight ? RelativeLayout.ALIGN_RIGHT : RelativeLayout.ALIGN_LEFT, photoView.getId());
+                        params2.topMargin = Utils.dipToPixels(5);
+                        imageView.setLayoutParams(params2);
+                        imageView.setImageResource(ResId.drawable.online);
+                        imageView.setAdjustViewBounds(true);
+                        imageView.setScaleType(ImageView.ScaleType.FIT_XY);
+                        imageView.setVisibility(View.INVISIBLE);
+                        relativeLayout.addView(imageView);
+                    } else if (firstChild instanceof RelativeLayout relativeLayout) {
+                        var photoView = (ImageView) relativeLayout.getChildAt(0);
+
+                        var params = new RelativeLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+                        params.addRule(RelativeLayout.CENTER_IN_PARENT);
+                        photoView.setLayoutParams(params);
+
+                        var imageView = new ImageView(context);
+                        imageView.setId(0x7FFF0001);
+                        var params2 = new RelativeLayout.LayoutParams(Utils.dipToPixels(14), Utils.dipToPixels(14));
+                        params2.addRule(RelativeLayout.ALIGN_TOP, contactView.getId());
+                        params2.addRule(isLeftToRight ? RelativeLayout.ALIGN_RIGHT : RelativeLayout.ALIGN_LEFT, photoView.getId());
+                        params2.topMargin = Utils.dipToPixels(5);
+                        imageView.setLayoutParams(params2);
+                        imageView.setImageResource(ResId.drawable.online);
+                        imageView.setAdjustViewBounds(true);
+                        imageView.setScaleType(ImageView.ScaleType.FIT_XY);
+                        imageView.setVisibility(View.INVISIBLE);
+                        relativeLayout.addView(imageView);
+                    }
                 }
             }
         });
@@ -144,7 +165,7 @@ public class ShowOnline extends Feature {
 
                 var getAdapterPositionMethod = ReflectionUtils.findMethodUsingFilter(absViewHolderClass, method -> method.getParameterCount() == 0 && method.getReturnType() == int.class);
                 var position = (int) ReflectionUtils.callMethod(getAdapterPositionMethod, viewHolder);
-                ImageView csDot = showOnlineIcon ? view.findViewById(0x7FFF0003).findViewById(0x7FFF0001) : null;
+                ImageView csDot = showOnlineIcon ? view.findViewById(0x7FFF0001) : null;
                 if (showOnlineIcon) {
                     csDot.setVisibility(View.INVISIBLE);
                 }

@@ -61,6 +61,7 @@ public class WppCore {
     private static SQLiteDatabase mWaDatabase;
     public static BaseClient client;
     private static Object mCachedMessageStore;
+    private static Class<?> mSettingsNotificationsClass;
 
 
     public static void Initialize(ClassLoader loader, XSharedPreferences pref) throws Exception {
@@ -76,6 +77,9 @@ public class WppCore {
 
         convChatField = Unobfuscator.loadAntiRevokeConvChatField(loader);
         chatJidField = Unobfuscator.loadAntiRevokeChatJidField(loader);
+
+        // Settings notifications activity (required for ActivityController.EXPORTED_ACTIVITY)
+        mSettingsNotificationsClass = getSettingsNotificationsActivityClass(loader);
 
         // StartUpPrefs
         var startPrefsConfig = Unobfuscator.loadStartPrefsConfig(loader);
@@ -229,6 +233,41 @@ public class WppCore {
         return oldClass != null
                 ? oldClass
                 : XposedHelpers.findClass("com.whatsapp.viewonce.ui.messaging.ViewOnceViewerActivity", loader);
+    }
+
+    public synchronized static Class getAboutActivityClass(@NonNull ClassLoader loader) {
+        Class oldClass = XposedHelpers.findClassIfExists("com.whatsapp.settings.About", loader);
+
+        return oldClass != null
+                ? oldClass
+                : XposedHelpers.findClass("com.whatsapp.settings.ui.About", loader);
+    }
+
+    public synchronized static Class getSettingsNotificationsActivityClass(@NonNull ClassLoader loader) {
+        if (mSettingsNotificationsClass != null)
+            return mSettingsNotificationsClass;
+
+        Class oldClass = XposedHelpers.findClassIfExists("com.whatsapp.settings.SettingsNotifications", loader);
+
+        return oldClass != null
+                ? oldClass
+                : XposedHelpers.findClass("com.whatsapp.settings.ui.SettingsNotifications", loader);
+    }
+
+    public synchronized static Class getDataUsageActivityClass(@NonNull ClassLoader loader) {
+        Class oldClass = XposedHelpers.findClassIfExists("com.whatsapp.settings.SettingsDataUsageActivity", loader);
+
+        return oldClass != null
+                ? oldClass
+                : XposedHelpers.findClass("com.whatsapp.settings.ui.SettingsDataUsageActivity", loader);
+    }
+
+    public synchronized static Class getTextStatusComposerFragmentClass(@NonNull ClassLoader loader) {
+        Class oldClass = XposedHelpers.findClassIfExists("com.whatsapp.statuscomposer.composer.TextStatusComposerFragment", loader);
+
+        return oldClass != null
+                ? oldClass
+                : XposedHelpers.findClass("com.whatsapp.status.composer.composer.TextStatusComposerFragment", loader);
     }
 
 //    public static Activity getActivityBySimpleName(String name) {

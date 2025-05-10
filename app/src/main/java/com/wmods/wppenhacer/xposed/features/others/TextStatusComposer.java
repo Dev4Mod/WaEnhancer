@@ -60,7 +60,7 @@ public class TextStatusComposer extends Feature {
             });
         }
 
-        var clazz = XposedHelpers.findClass("com.whatsapp.statuscomposer.composer.TextStatusComposerFragment", classLoader);
+        var clazz = WppCore.getTextStatusComposerFragmentClass(classLoader);
         var methodOnCreate = ReflectionUtils.findMethodUsingFilter(clazz, method -> method.getParameterCount() == 2 && method.getParameterTypes()[0] == Bundle.class && method.getParameterTypes()[1] == View.class);
         XposedBridge.hookMethod(methodOnCreate,
                 new XC_MethodHook() {
