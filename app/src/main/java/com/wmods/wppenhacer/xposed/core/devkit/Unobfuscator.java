@@ -1356,6 +1356,7 @@ public class Unobfuscator {
 
     public synchronized static Method loadGroupAdminMethod(ClassLoader loader) throws Exception {
         var method = findFirstMethodUsingStrings(loader, StringMatchType.Contains, "P Message");
+        if (method == null) method = findFirstMethodUsingStrings(loader, StringMatchType.Contains, "ConversationRow/setUpUsernameInGroupViewContainer/not allowed state");
         if (method == null) throw new RuntimeException("GroupAdmin method not found");
         return method;
     }
@@ -1624,7 +1625,7 @@ public class Unobfuscator {
                             addMethod(MethodMatcher.create().paramCount(1).addParamType(TextDataClass))
             ));
             if (result.isEmpty()) {
-                var tscClazzData = dexkit.getClassData("com.whatsapp.statuscomposer.composer.TextStatusComposerFragment");
+                var tscClazzData = dexkit.getClassData(WppCore.getTextStatusComposerFragmentClass(classLoader));
                 if (tscClazzData != null) {
                     for (var method : tscClazzData.getMethods()) {
                         var tdMethod = method.getInvokes().stream().filter(m -> m.isMethod() && m.getParamCount() == 1 && m.getParamTypes().get(0).equals(dexkit.getClassData(TextDataClass))).findFirst();

@@ -262,6 +262,14 @@ public class WppCore {
                 : XposedHelpers.findClass("com.whatsapp.settings.ui.SettingsDataUsageActivity", loader);
     }
 
+    public synchronized static Class getTextStatusComposerFragmentClass(@NonNull ClassLoader loader) {
+        Class oldClass = XposedHelpers.findClassIfExists("com.whatsapp.statuscomposer.composer.TextStatusComposerFragment", loader);
+
+        return oldClass != null
+                ? oldClass
+                : XposedHelpers.findClass("com.whatsapp.status.composer.composer.TextStatusComposerFragment", loader);
+    }
+
 //    public static Activity getActivityBySimpleName(String name) {
 //        for (var activity : activities) {
 //            if (activity.getClass().getSimpleName().equals(name)) {
