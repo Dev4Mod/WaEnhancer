@@ -24,6 +24,7 @@ import androidx.annotation.Nullable;
 
 import com.wmods.wppenhacer.views.dialog.TabDialogContent;
 import com.wmods.wppenhacer.xposed.core.WppCore;
+import com.wmods.wppenhacer.xposed.core.devkit.Unobfuscator;
 import com.wmods.wppenhacer.xposed.core.devkit.UnobfuscatorCache;
 import com.wmods.wppenhacer.xposed.utils.DesignUtils;
 import com.wmods.wppenhacer.xposed.utils.ReflectionUtils;
@@ -70,8 +71,13 @@ public class IGStatusAdapter extends ArrayAdapter {
                 var tabdialog = new TabDialogContent(activity);
                 tabdialog.setTitle(activity.getString(ResId.string.select_status_type));
                 tabdialog.addTab(UnobfuscatorCache.getInstance().getString("mystatus"), DesignUtils.getIconByName("ic_status", true), (view) -> {
-                    var intent = new Intent(WppCore.getCurrentActivity(), XposedHelpers.findClass("com.whatsapp.status.playback.MyStatusesActivity", getContext().getClassLoader()));
-                    WppCore.getCurrentActivity().startActivity(intent);
+                    try {
+                        var clazz = Unobfuscator.getClassByName("MyStatusesActivity", getContext().getClassLoader());
+                        var intent = new Intent(WppCore.getCurrentActivity(), clazz);
+                        WppCore.getCurrentActivity().startActivity(intent);
+                    } catch (Exception e) {
+                        Utils.showToast(e.getMessage(), 1);
+                    }
                     dialog.dismissDialog();
                 });
 
@@ -79,39 +85,55 @@ public class IGStatusAdapter extends ArrayAdapter {
                 var iconCamera = DesignUtils.getDrawable(ResId.drawable.camera);
                 DesignUtils.coloredDrawable(iconCamera, DesignUtils.isNightMode() ? Color.WHITE : Color.BLACK);
                 tabdialog.addTab(activity.getString(ResId.string.open_camera), iconCamera, (view) -> {
-                    Intent A09 = new Intent();
-                    A09.setClassName(activity.getPackageName(), "com.whatsapp.camera.CameraActivity");
-                    A09.putExtra("jid", "status@broadcast");
-                    A09.putExtra("camera_origin", 4);
-                    A09.putExtra("is_coming_from_chat", false);
-                    A09.putExtra("media_sharing_user_journey_origin", 32);
-                    A09.putExtra("media_sharing_user_journey_start_target", 9);
-                    A09.putExtra("media_sharing_user_journey_chat_type", 4);
-                    activity.startActivity(A09);
+                    try {
+                        Intent intent = new Intent();
+                        var clazz = Unobfuscator.getClassByName("CameraActivity", getContext().getClassLoader());
+                        intent.setClassName(activity.getPackageName(), clazz.getName());
+                        intent.putExtra("jid", "status@broadcast");
+                        intent.putExtra("camera_origin", 4);
+                        intent.putExtra("is_coming_from_chat", false);
+                        intent.putExtra("media_sharing_user_journey_origin", 32);
+                        intent.putExtra("media_sharing_user_journey_start_target", 9);
+                        intent.putExtra("media_sharing_user_journey_chat_type", 4);
+                        activity.startActivity(intent);
+                    } catch (Exception e) {
+                        Utils.showToast(e.getMessage(), 1);
+                    }
                     dialog.dismissDialog();
-
                 });
                 // Botão de editar
                 var iconEdit = DesignUtils.getDrawable(ResId.drawable.edit2);
                 DesignUtils.coloredDrawable(iconEdit, DesignUtils.isNightMode() ? Color.WHITE : Color.BLACK);
 
                 tabdialog.addTab(activity.getString(ResId.string.edit_text), iconEdit, (view) -> {
-                    Intent A09 = new Intent();
-                    if (XposedHelpers.findClassIfExists("com.whatsapp.textstatuscomposer.TextStatusComposerActivity", activity.getClassLoader()) != null) {
-                        A09.setClassName(activity.getPackageName(), "com.whatsapp.textstatuscomposer.TextStatusComposerActivity");
-                    } else {
-                        A09.setClassName(activity.getPackageName(), "com.whatsapp.textstatuscomposer.TextStatusComposerActivityV2");
+                    try {
+                        Intent intent = new Intent();
+                        Class clazz;
+                        try {
+                            clazz = Unobfuscator.getClassByName("TextStatusComposerActivity", activity.getClassLoader());
+                        } catch (Exception ignored) {
+                            clazz = Unobfuscator.getClassByName("ConsolidatedStatusComposerActivity", getContext().getClassLoader());
+                            intent.putExtra("status_composer_mode",2);
+                        }
+                        intent.setClassName(activity.getPackageName(), clazz.getName());
+                        activity.startActivity(intent);
+                    } catch (Exception e) {
+                        Utils.showToast(e.getMessage(), 1);
                     }
-                    activity.startActivity(A09);
                     dialog.dismissDialog();
                 });
                 dialog.setContentView(tabdialog);
                 dialog.showDialog();
                 return;
             }
-            var intent = new Intent(WppCore.getCurrentActivity(), XposedHelpers.findClass("com.whatsapp.status.playback.StatusPlaybackActivity", getContext().getClassLoader()));
-            intent.putExtra("jid", holder.jid);
-            WppCore.getCurrentActivity().startActivity(intent);
+            try {
+                var clazz = Unobfuscator.getClassByName("StatusPlaybackActivity", getContext().getClassLoader());
+                var intent = new Intent(WppCore.getCurrentActivity(), clazz);
+                intent.putExtra("jid", holder.jid);
+                WppCore.getCurrentActivity().startActivity(intent);
+            } catch (Exception e) {
+                Utils.showToast(e.getMessage(), 1);
+            }
         });
 
         return convertView;

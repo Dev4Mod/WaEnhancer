@@ -79,7 +79,7 @@ public class IGStatus extends Feature {
             }
         });
 
-        var clazz2 = XposedHelpers.findClass("com.whatsapp.updates.viewmodels.UpdatesViewModel", classLoader);
+        var clazz2 = Unobfuscator.getClassByName("UpdatesViewModel", classLoader);
         var onUpdateStatusChanged = Unobfuscator.loadOnUpdateStatusChanged(classLoader);
         logDebug(Unobfuscator.getMethodDescriptor(onUpdateStatusChanged));
         var statusInfoClass = Unobfuscator.loadStatusInfoClass(classLoader);

@@ -11,7 +11,7 @@ import androidx.preference.Preference;
 import androidx.preference.PreferenceManager;
 
 import com.wmods.wppenhacer.R;
-import com.wmods.wppenhacer.xposed.features.others.ActivityController;
+import com.wmods.wppenhacer.xposed.utils.Utils;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -58,12 +58,28 @@ public class ContactPickerPreference extends Preference implements Preference.On
     }
 
     private void startSelectContacts(String packageName) {
-        Intent intent = new Intent();
-        intent.setClassName(packageName, ActivityController.EXPORTED_ACTIVITY);
-        intent.putExtra("key", getKey());
-        intent.putExtra("contact_mode", true);
-        intent.putStringArrayListExtra("contacts", mContacts);
-        ((Activity) getContext()).startActivityForResult(intent, REQUEST_CONTACT_PICKER);
+        try {
+            Intent intent = new Intent();
+            var pInfo = getContext().getApplicationContext().getPackageManager().getPackageInfo(packageName, PackageManager.GET_ACTIVITIES);
+            assert pInfo.activities != null;
+            String className = null;
+            for (var activity : pInfo.activities) {
+                if (activity.name.endsWith("SettingsNotifications")) {
+                    className = activity.name;
+                    break;
+                }
+            }
+            if (className == null) {
+                throw new Exception("Class SettingsNotifications not found");
+            }
+            intent.setClassName(packageName, className);
+            intent.putExtra("key", getKey());
+            intent.putExtra("contact_mode", true);
+            intent.putStringArrayListExtra("contacts", mContacts);
+            ((Activity) getContext()).startActivityForResult(intent, REQUEST_CONTACT_PICKER);
+        } catch (Exception e) {
+            Utils.showToast(e.getMessage(), 1);
+        }
     }
 
     private void init(Context context, AttributeSet attrs) {

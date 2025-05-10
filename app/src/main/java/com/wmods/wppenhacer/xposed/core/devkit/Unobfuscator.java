@@ -62,7 +62,7 @@ public class Unobfuscator {
     private static final String TAG = "Unobfuscator";
     private static DexKitBridge dexkit;
 
-    public static final HashMap<String, Object> cache = new HashMap<>();
+    public static final HashMap<String, Class<?>> cacheClasses = new HashMap<>();
 
     static {
         System.loadLibrary("dexkit");
@@ -1217,7 +1217,7 @@ public class Unobfuscator {
 
     public synchronized static Method loadOnUpdateStatusChanged(ClassLoader loader) throws Exception {
         return UnobfuscatorCache.getInstance().getMethod(loader, () -> {
-            var clazz = XposedHelpers.findClass("com.whatsapp.updates.viewmodels.UpdatesViewModel", loader);
+            var clazz = getClassByName("UpdatesViewModel", loader);
             var clazzData = dexkit.getClassData(clazz);
             var methodSeduleche = XposedHelpers.findMethodBestMatch(Timer.class, "schedule", TimerTask.class, long.class, long.class);
             var result = dexkit.findMethod(new FindMethod().searchInClass(List.of(clazzData)).matcher(new MethodMatcher().addInvoke(DexSignUtil.getMethodDescriptor(methodSeduleche))));
@@ -1356,7 +1356,8 @@ public class Unobfuscator {
 
     public synchronized static Method loadGroupAdminMethod(ClassLoader loader) throws Exception {
         var method = findFirstMethodUsingStrings(loader, StringMatchType.Contains, "P Message");
-        if (method == null) method = findFirstMethodUsingStrings(loader, StringMatchType.Contains, "ConversationRow/setUpUsernameInGroupViewContainer/not allowed state");
+        if (method == null)
+            method = findFirstMethodUsingStrings(loader, StringMatchType.Contains, "ConversationRow/setUpUsernameInGroupViewContainer/not allowed state");
         if (method == null) throw new RuntimeException("GroupAdmin method not found");
         return method;
     }
@@ -1934,4 +1935,16 @@ public class Unobfuscator {
     public static Method loadTcTokenMethod(ClassLoader classLoader) throws Exception {
         return UnobfuscatorCache.getInstance().getMethod(classLoader, () -> findFirstMethodUsingStrings(classLoader, StringMatchType.Contains, "GET_RECEIVED_TOKEN_AND_TIMESTAMP_BY_JID"));
     }
+
+    public static Class<?> getClassByName(String className, ClassLoader classLoader) throws ClassNotFoundException {
+        if (cacheClasses.containsKey(className))
+            return cacheClasses.get(className);
+        var classDataList = dexkit.findClass(FindClass.create().matcher(ClassMatcher.create().className(className, StringMatchType.EndsWith)));
+        if (classDataList.isEmpty())
+            throw new RuntimeException("Class " + className + " not found!");
+        var clazz = classDataList.get(0).getInstance(classLoader);
+        cacheClasses.put(className, clazz);
+        return clazz;
+    }
+
 }

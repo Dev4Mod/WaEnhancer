@@ -14,6 +14,7 @@ import androidx.annotation.NonNull;
 import com.wmods.wppenhacer.xposed.core.Feature;
 import com.wmods.wppenhacer.xposed.core.WppCore;
 import com.wmods.wppenhacer.xposed.core.components.FMessageWpp;
+import com.wmods.wppenhacer.xposed.core.devkit.Unobfuscator;
 import com.wmods.wppenhacer.xposed.features.general.MenuStatus;
 import com.wmods.wppenhacer.xposed.utils.MimeTypeUtils;
 import com.wmods.wppenhacer.xposed.utils.ResId;
@@ -74,21 +75,23 @@ public class StatusDownload extends Feature {
     private void sharedStatus(FMessageWpp fMessageWpp) {
         try {
             if (!fMessageWpp.isMediaFile()) {
-
                 Intent intent = new Intent();
-                var textStatusComposerActivity = XposedHelpers.findClassIfExists("com.whatsapp.textstatuscomposer.TextStatusComposerActivity", classLoader);
-                if (textStatusComposerActivity != null) {
-                    intent.setClassName(Utils.getApplication().getPackageName(), "com.whatsapp.textstatuscomposer.TextStatusComposerActivity");
-                } else {
-                    intent.setClassName(Utils.getApplication().getPackageName(), "com.whatsapp.textstatuscomposer.TextStatusComposerActivityV2");
+                Class clazz;
+                try {
+                    clazz = Unobfuscator.getClassByName("TextStatusComposerActivity", classLoader);
+                } catch (Exception ignored) {
+                    clazz = Unobfuscator.getClassByName("ConsolidatedStatusComposerActivity", classLoader);
+                    intent.putExtra("status_composer_mode", 2);
                 }
+                intent.setClassName(Utils.getApplication().getPackageName(), clazz.getName());
                 intent.putExtra("android.intent.extra.TEXT", fMessageWpp.getMessageStr());
                 WppCore.getCurrentActivity().startActivity(intent);
                 return;
             }
             var file = fMessageWpp.getMediaFile();
             Intent intent = new Intent();
-            intent.setClassName(Utils.getApplication().getPackageName(), "com.whatsapp.mediacomposer.MediaComposerActivity");
+            var clazz = Unobfuscator.getClassByName("MediaComposerActivity", classLoader);
+            intent.setClassName(Utils.getApplication().getPackageName(), clazz.getName());
             intent.putExtra("jids", new ArrayList<>(Collections.singleton("status@broadcast")));
             intent.putExtra("android.intent.extra.STREAM", new ArrayList<>(Collections.singleton(Uri.fromFile(file))));
             intent.putExtra("android.intent.extra.TEXT", fMessageWpp.getMessageStr());
