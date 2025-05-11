@@ -20,7 +20,7 @@ public class Patch {
     public static void handleLoadPackage(XC_LoadPackage.LoadPackageParam lpparam, XSharedPreferences prefs) throws Throwable {
         if (!("android".equals(lpparam.packageName)) || !(lpparam.processName.equals("android")))
             return;
-        XC_MethodHook hookDowngrade = new XC_MethodHook() {
+        XC_MethodHook hookDowngradeObject = new XC_MethodHook() {
             @Override
             protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
                 var pkg = (String) XposedHelpers.callMethod(param.args[0], "getPackageName");
@@ -29,7 +29,7 @@ public class Patch {
             }
         };
 
-        XC_MethodHook hookDowngrade2 = new XC_MethodHook() {
+        XC_MethodHook hookDowngradeBoolean = new XC_MethodHook() {
             @Override
             protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
                 var pkg = (String) XposedHelpers.callMethod(param.args[0], "getPackageName");
@@ -40,11 +40,12 @@ public class Patch {
 
 
         switch (Build.VERSION.SDK_INT) {
+            case Build.VERSION_CODES.VANILLA_ICE_CREAM:  // 35
             case Build.VERSION_CODES.UPSIDE_DOWN_CAKE: // 34
                 findAndHookMethod("com.android.server.pm.PackageManagerServiceUtils", lpparam.classLoader,
                         "checkDowngrade",
                         "com.android.server.pm.pkg.AndroidPackage",
-                        "android.content.pm.PackageInfoLite", hookDowngrade
+                        "android.content.pm.PackageInfoLite", hookDowngradeObject
                 );
                 break;
             case Build.VERSION_CODES.TIRAMISU: // 33
@@ -53,7 +54,7 @@ public class Patch {
                         "com.android.server.pm.parsing.pkg.AndroidPackage",
                         "android.content.pm.PackageInfoLite");
                 if (checkDowngrade != null) {
-                    XposedBridge.hookMethod(checkDowngrade, hookDowngrade);
+                    XposedBridge.hookMethod(checkDowngrade, hookDowngradeObject);
                 }
                 break;
             case Build.VERSION_CODES.S_V2: // 32
@@ -67,14 +68,14 @@ public class Patch {
                             "android.content.pm.PackageInfoLite");
                     if (checkDowngrade1 != null) {
                         // 允许降级
-                        XposedBridge.hookMethod(checkDowngrade1, hookDowngrade);
+                        XposedBridge.hookMethod(checkDowngrade1, hookDowngradeObject);
                     }
                     // exists on flyme 9(Android 11) only
                     var flymeCheckDowngrade = XposedHelpers.findMethodExactIfExists(pmService, "checkDowngrade",
                             "android.content.pm.PackageInfoLite",
                             "android.content.pm.PackageInfoLite");
                     if (flymeCheckDowngrade != null)
-                        XposedBridge.hookMethod(flymeCheckDowngrade, hookDowngrade2);
+                        XposedBridge.hookMethod(flymeCheckDowngrade, hookDowngradeBoolean);
                 }
                 break;
             case Build.VERSION_CODES.Q: // 29
