@@ -11,6 +11,7 @@ import com.wmods.wppenhacer.xposed.core.devkit.Unobfuscator;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.Spliterator;
@@ -19,6 +20,8 @@ import de.robv.android.xposed.XC_MethodHook;
 import de.robv.android.xposed.XC_MethodReplacement;
 import de.robv.android.xposed.XSharedPreferences;
 import de.robv.android.xposed.XposedBridge;
+import de.robv.android.xposed.XposedHelpers;
+import lombok.Setter;
 
 public class PinnedLimit extends Feature {
 
@@ -33,11 +36,23 @@ public class PinnedLimit extends Feature {
         var pinnedSetMethod = Unobfuscator.loadPinnedHashSetMethod(classLoader);
         var pinnedInChatMethod = Unobfuscator.loadPinnedInChatMethod(classLoader);
 
+
         // increase pinned limit in chat to 60
         XposedBridge.hookMethod(pinnedInChatMethod, XC_MethodReplacement.returnConstant(60));
 
+        // Fix bug in initialCapacity of LinkedHashSet
+        XposedHelpers.findAndHookConstructor(LinkedHashSet.class, int.class, new XC_MethodHook() {
+            @Override
+            protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
+                if ((int) param.args[0] < 0) {
+                    param.args[0] = Math.abs((int) param.args[0]);
+                }
+            }
+        });
+
         // This creates a modified linkedhashMap to return 0 if the fixed list is less than 60.
         XposedBridge.hookMethod(pinnedSetMethod, new XC_MethodHook() {
+
             @Override
             @SuppressWarnings("unchecked")
             protected void afterHookedMethod(MethodHookParam param) throws Throwable {
@@ -63,14 +78,15 @@ public class PinnedLimit extends Feature {
     }
 
 
+    @Setter
     private static class PinnedLinkedHashMap<T> extends LinkedHashMap<T, T> {
 
         @Override
         public int size() {
             if (super.size() >= limit) {
-                return 3;
+                return super.size();
             }
-            return -60;
+            return -this.limit;
         }
 
         private int limit;
@@ -81,16 +97,12 @@ public class PinnedLimit extends Feature {
             return new PinnedKeySet<>(this, super.keySet());
         }
 
-        public void setLimit(int i) {
-            this.limit = i;
-        }
-
         static class PinnedKeySet<T> implements Set<T> {
 
-            private final Set set;
-            private final PinnedLinkedHashMap pinnedKeySet;
+            private final Set<T> set;
+            private final PinnedLinkedHashMap<T> pinnedKeySet;
 
-            public PinnedKeySet(PinnedLinkedHashMap<T> pinnedKeySet, Set set) {
+            public PinnedKeySet(PinnedLinkedHashMap<T> pinnedKeySet, Set<T> set) {
                 this.pinnedKeySet = pinnedKeySet;
                 this.set = set;
             }
@@ -125,11 +137,11 @@ public class PinnedLimit extends Feature {
             @NonNull
             @Override
             public <T1> T1[] toArray(@NonNull T1[] a) {
-                return (T1[]) set.toArray(a);
+                return set.toArray(a);
             }
 
             @Override
-            public boolean add(Object t) {
+            public boolean add(@Nullable T t) {
                 return set.add(t);
             }
 
