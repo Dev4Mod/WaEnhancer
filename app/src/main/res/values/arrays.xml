@@ -119,12 +119,6 @@
         <item>2</item>
     </string-array>
     <string-array name="supported_versions_wpp">
-        <item>2.25.5.xx</item>
-        <item>2.25.6.xx</item>
-        <item>2.25.7.xx</item>
-        <item>2.25.8.xx</item>
-        <item>2.25.9.xx</item>
-        <item>2.25.10.xx</item>
         <item>2.25.11.xx</item>
         <item>2.25.12.xx</item>
         <item>2.25.13.xx</item>
@@ -132,12 +126,6 @@
         <item>2.25.15.xx</item>
     </string-array>
     <string-array name="supported_versions_business">
-        <item>2.25.5.xx</item>
-        <item>2.25.6.xx</item>
-        <item>2.25.7.xx</item>
-        <item>2.25.8.xx</item>
-        <item>2.25.9.xx</item>
-        <item>2.25.10.xx</item>
         <item>2.25.11.xx</item>
         <item>2.25.12.xx</item>
         <item>2.25.13.xx</item>
