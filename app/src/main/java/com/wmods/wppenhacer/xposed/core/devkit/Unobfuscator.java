@@ -1809,10 +1809,11 @@ public class Unobfuscator {
 
     public static synchronized Class loadAbstractMediaMessageClass(ClassLoader loader) throws Exception {
         return UnobfuscatorCache.getInstance().getClass(loader, () -> {
-            var fMessageClass = findFirstClassUsingStrings(loader, StringMatchType.Contains, "static.whatsapp.net/downloadable?category=PSA");
-            if (fMessageClass == null)
+            var fmessage = loadFMessageClass(loader);
+            var classList = dexkit.findClass(FindClass.create().matcher(ClassMatcher.create().addUsingString("first_viewed_timestamp").superClass(fmessage.getName())));
+            if (classList.isEmpty())
                 throw new RuntimeException("AbstractMediaMessage class not found");
-            return fMessageClass;
+            return classList.get(0).getInstance(loader);
         });
     }
 
