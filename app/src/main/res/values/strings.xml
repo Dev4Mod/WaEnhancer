@@ -40,7 +40,7 @@
     <string name="novaconfig">New Settings Style</string>
     <string name="novaconfig_sum">Enable the new settings style, with profile photo on home screen toolbar</string>
     <string name="novofiltro">Search Functions</string>
-    <string name="novofiltro_sum">Choose between Search Icon, Search Bar, or No Search</string>
+    <string name="novofiltro_sum">Choose between Search Icon, Search Bar, or No Search (Enable Function for Disable Meta AI)</string>
     <string name="menuwicon">Menu Icons</string>
     <string name="menuwicon_sum">Add icons next to menu options across the app</string>
     <string name="freezelastseen">Freeze Last Seen</string>
