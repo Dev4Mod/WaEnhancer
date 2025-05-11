@@ -1,6 +1,16 @@
-[BUG FIXES]
-* Fixed Audio to Voice Forwarding (Thanks to astola-studio)
+[BUG FIXES in WA 2.25.15.XX]
+* Fixed various class not found bugs
+* Fixed bug in the function to remove the pinned chats limit (Caused crash)
+* Fixed bug in the function Block Calling list
+* Fixed bug in the Stories download function
+* Fixed the dependency of disabling Meta AI to use Search functions (magnifying glass, bar or none)
 
-[WhatsApp]
-* Add support for WhatsApp 2.25.14.XX (Thanks to frknkrc44)
-* Add initial support for WhatsApp 2.25.15.XX (Thanks to frknkrc44)
+[IMPROVEMENTS]
+* Improvements in disabling Meta AI functions
+* Added downgrade support on Android 15
+
+[WA]
+* Support for old versions has been removed (< 2.25.11.XX)
+
+NOTE: Old versions now have the possibility to be used even if expired for WhatsApp login purposes.
+If it is the first time installing WhatsApp on a rooted device and you need to go through the login, use version WA 2.25.6.XX.
