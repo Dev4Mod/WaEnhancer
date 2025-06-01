@@ -82,6 +82,9 @@ public class Others extends Feature {
         propsBoolean.put(8013, Objects.equals(filterChats, "2")); // lupa sera removida e sera adicionado uma barra no lugar.
         propsBoolean.put(2889, floatingMenu);
 
+        // new text composer
+        propsBoolean.put(15708, true);
+
         // change page id
         propsBoolean.put(2358, false);
 

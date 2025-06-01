@@ -150,12 +150,6 @@ public class Unobfuscator {
         return method.getDeclaringClass().getName() + "->" + method.getName() + "(" + Arrays.stream(method.getParameterTypes()).map(Class::getName).collect(Collectors.joining(",")) + ")";
     }
 
-
-    public synchronized static String getConstructorDescriptor(Constructor constructor) {
-        if (constructor == null) return null;
-        return constructor.getDeclaringClass().getName() + "->" + constructor.getName() + "(" + Arrays.stream(constructor.getParameterTypes()).map(Class::getName).collect(Collectors.joining(",")) + ")";
-    }
-
     public synchronized static String getFieldDescriptor(Field field) {
         return field.getDeclaringClass().getName() + "->" + field.getName() + ":" + field.getType().getName();
     }
@@ -488,16 +482,6 @@ public class Unobfuscator {
     }
 
     // TODO: Classes and methods to MediaQuality
-
-    private static Class<?> loadMediaQualityClass(ClassLoader classLoader) throws Exception {
-        return UnobfuscatorCache.getInstance().getClass(classLoader, () -> {
-            var clazzMediaClass = findFirstClassUsingStrings(classLoader, StringMatchType.Contains, "getCorrectedResolution");
-            if (clazzMediaClass == null) throw new Exception("MediaQuality class not found");
-            return clazzMediaClass;
-        });
-    }
-
-
     public synchronized static Method loadMediaQualityVideoMethod2(ClassLoader classLoader) throws Exception {
         return UnobfuscatorCache.getInstance().getMethod(classLoader, () -> {
             var method = findFirstMethodUsingStrings(classLoader, StringMatchType.Contains, "getCorrectedResolution");
@@ -651,14 +635,6 @@ public class Unobfuscator {
         return UnobfuscatorCache.getInstance().getClass(loader, () -> {
             var clazz = findFirstClassUsingStrings(loader, StringMatchType.Contains, "Compatibility shadow requested");
             if (clazz == null) throw new Exception("MaterialShapeDrawable class not found");
-            return clazz;
-        });
-    }
-
-    public synchronized static Class<?> loadCustomDrawableClass(ClassLoader loader) throws Exception {
-        return UnobfuscatorCache.getInstance().getClass(loader, () -> {
-            var clazz = findFirstClassUsingStrings(loader, StringMatchType.Contains, "closeIconEnabled");
-            if (clazz == null) throw new Exception("CustomDrawable class not found");
             return clazz;
         });
     }
@@ -1614,36 +1590,18 @@ public class Unobfuscator {
         });
     }
 
-    public synchronized static Method loadTextStatusComposer(ClassLoader classLoader) throws Exception {
-        return findFirstMethodUsingStrings(classLoader, StringMatchType.Contains, "Can't put value with type");
-    }
 
-    public synchronized static Method loadTextStatusComposer2(ClassLoader classLoader) throws Exception {
-        return UnobfuscatorCache.getInstance().getMethod(classLoader, () -> {
-            Class<?> TextDataClass = classLoader.loadClass("com.whatsapp.TextData");
-            var result = dexkit.findClass(FindClass.create().matcher(
-                    ClassMatcher.create().addUsingString("*").
-                            addMethod(MethodMatcher.create().paramCount(1).addParamType(TextDataClass))
-            ));
-            if (result.isEmpty()) {
-                var tscClazzData = dexkit.getClassData(WppCore.getTextStatusComposerFragmentClass(classLoader));
-                if (tscClazzData != null) {
-                    for (var method : tscClazzData.getMethods()) {
-                        var tdMethod = method.getInvokes().stream().filter(m -> m.isMethod() && m.getParamCount() == 1 && m.getParamTypes().get(0).equals(dexkit.getClassData(TextDataClass))).findFirst();
-                        if (tdMethod.isPresent()) {
-                            return tdMethod.get().getMethodInstance(classLoader);
-                        }
-                    }
-                }
+    public synchronized static Method[] loadTextStatusData(ClassLoader classLoader) throws Exception {
+        return UnobfuscatorCache.getInstance().getMethods(classLoader, () -> {
+            var methods = dexkit.findMethod(
+                    FindMethod.create().matcher(
+                            MethodMatcher.create().addParamType("com.whatsapp.TextData")
+                    )
+            );
+            if (methods.isEmpty())
+                throw new RuntimeException("loadTextStatusData method not found");
 
-                throw new RuntimeException("TextStatusComposer2 class not found 1");
-            }
-
-            var foundClass = result.get(0).getInstance(classLoader);
-            var resultMethod = ReflectionUtils.findMethodUsingFilter(foundClass, method -> method.getParameterCount() == 1 && method.getParameterTypes()[0] == TextDataClass);
-            if (resultMethod != null)
-                return resultMethod;
-            throw new RuntimeException("TextStatusComposer2 method not found 2");
+            return methods.stream().filter(MethodData::isMethod).map(methodData -> convertRealMethod(methodData, classLoader)).toArray(Method[]::new);
         });
     }
 
@@ -1765,11 +1723,6 @@ public class Unobfuscator {
         return method;
     }
 
-//    public static synchronized Class loadGetContactInfoClass(ClassLoader classLoader) throws Exception {
-//        return UnobfuscatorCache.getInstance().getClass(classLoader, () -> findFirstClassUsingStrings(classLoader, StringMatchType.Contains, "unknown@unknown"));
-//
-//    }
-
     public static synchronized Method loadTranscribeMethod(ClassLoader classLoader) throws Exception {
         return UnobfuscatorCache.getInstance().getMethod(classLoader, () -> findFirstMethodUsingStrings(classLoader, StringMatchType.Contains, "transcribe: starting transcription"));
     }
@@ -1869,33 +1822,6 @@ public class Unobfuscator {
         });
     }
 
-//    public static Method loadChangeTitleLogoMethod(ClassLoader classLoader) throws Exception {
-//        return UnobfuscatorCache.getInstance().getMethod(classLoader, () -> {
-//            var id = Utils.getID("toolbar_logo", "id");
-//            var methodData = dexkit.findMethod(
-//                    FindMethod.create()
-//                            .matcher(MethodMatcher.create().addUsingNumber(id))
-//            );
-//            if (methodData.isEmpty())
-//                throw new RuntimeException("ChangeTitleLogo method not found");
-//            return methodData.get(0).getMethodInstance(classLoader);
-//        });
-//    }
-
-//    public static Field loadChangeTitleLogoField(ClassLoader classLoader) throws Exception {
-//        return UnobfuscatorCache.getInstance().getField(classLoader, () -> {
-//            var methodData = dexkit.getMethodData(loadChangeTitleLogoMethod(classLoader));
-//            var clazz = WppCore.getHomeActivityClass(classLoader);
-//            var usingFields = methodData.getUsingFields();
-//            for (var uField : usingFields) {
-//                var field = uField.getField().getFieldInstance(classLoader);
-//                if (field.getDeclaringClass() == clazz && field.getType() == Integer.class) {
-//                    return field;
-//                }
-//            }
-//            throw new RuntimeException("ChangeTitleLogo field not found");
-//        });
-//    }
 
     public static Class<?> loadFilterItemClass(ClassLoader classLoader) throws Exception {
         return UnobfuscatorCache.getInstance().getClass(classLoader, () -> {
@@ -1907,18 +1833,6 @@ public class Unobfuscator {
             return methodList.get(0).getClassInstance(classLoader);
         });
     }
-
-//    public static Method loadActiveButtonNav(ClassLoader classLoader) throws Exception {
-//        return UnobfuscatorCache.getInstance().getMethod(classLoader, () -> {
-//            var methodList = dexkit.findClass(
-//                    FindClass.create().matcher(ClassMatcher.create().addUsingString("NavigationBar", StringMatchType.Equals))
-//            ).findMethod(
-//                    FindMethod.create().matcher(MethodMatcher.create().name("setActiveIndicatorDrawable"))
-//            );
-//            return methodList.get(0).getMethodInstance(classLoader);
-//        });
-//
-//    }
 
     public static Class[] loadProximitySensorListenerClasses(ClassLoader classLoader) throws Exception {
         return UnobfuscatorCache.getInstance().getClasses(classLoader, () -> {
