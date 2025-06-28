@@ -134,7 +134,7 @@ public class HideSeen extends Feature {
             }
         });
 
-        var loadSenderPlayed = Unobfuscator.loadSenderPlayed(classLoader);
+        var loadSenderPlayed = Unobfuscator.loadSenderPlayedMethod(classLoader);
         XposedBridge.hookMethod(loadSenderPlayed, new XC_MethodHook() {
             @Override
             protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
