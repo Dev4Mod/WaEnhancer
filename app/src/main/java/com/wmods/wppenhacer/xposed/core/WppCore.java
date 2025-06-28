@@ -264,10 +264,11 @@ public class WppCore {
 
     public synchronized static Class getTextStatusComposerFragmentClass(@NonNull ClassLoader loader) {
         Class oldClass = XposedHelpers.findClassIfExists("com.whatsapp.statuscomposer.composer.TextStatusComposerFragment", loader);
+        if (oldClass == null) oldClass = XposedHelpers.findClassIfExists("com.whatsapp.status.composer.composer.TextStatusComposerFragment", loader);
 
         return oldClass != null
                 ? oldClass
-                : XposedHelpers.findClass("com.whatsapp.status.composer.composer.TextStatusComposerFragment", loader);
+                : XposedHelpers.findClass("com.whatsapp.status.composer.TextStatusComposerFragment", loader);
     }
 
 //    public static Activity getActivityBySimpleName(String name) {

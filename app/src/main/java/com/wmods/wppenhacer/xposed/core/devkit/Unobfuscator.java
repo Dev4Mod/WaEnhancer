@@ -215,7 +215,7 @@ public class Unobfuscator {
     public synchronized static Method loadReceiptInChat(ClassLoader classLoader) throws Exception {
         return UnobfuscatorCache.getInstance().getMethod(classLoader, () -> {
             var method = loadReceiptMethod(classLoader);
-            var methodDataList = dexkit.findMethod(new FindMethod().matcher(new MethodMatcher().addUsingString("callCreatorJid").addUsingString("reject").addUsingNumber(6175).addInvoke(DexSignUtil.getMethodDescriptor(method))));
+            var methodDataList = dexkit.findMethod(new FindMethod().matcher(new MethodMatcher().addUsingString("callCreatorJid").addUsingString("reject").addInvoke(DexSignUtil.getMethodDescriptor(method))));
             if (methodDataList.isEmpty()) throw new Exception("Receipt method not found");
             return methodDataList.get(0).getMethodInstance(classLoader);
         });
@@ -249,6 +249,25 @@ public class Unobfuscator {
             var clazzData = dexkit.findClass(FindClass.create().matcher(ClassMatcher.create().addUsingString("UPDATE_MESSAGE_MAIN_BROADCAST_SCAN_SQL")));
             if (clazzData.isEmpty()) throw new Exception("BroadcastTag class not found");
             var methodData = dexkit.findMethod(FindMethod.create().searchInClass(clazzData).matcher(MethodMatcher.create().usingStrings("participant_hash", "view_mode", "broadcast")));
+
+            // 2.25.18.xx, they splitted method and moved to the fmessage
+            if (methodData.isEmpty()) {
+                methodData = dexkit.findMethod(FindMethod.create().searchInClass(clazzData).matcher(MethodMatcher.create().usingStrings("received_timestamp", "view_mode", "message")));
+                if (!methodData.isEmpty()) {
+                    var calledMethods = methodData.get(0).getInvokes();
+                    for (var cmethod : calledMethods) {
+                        if (Modifier.isStatic(cmethod.getModifiers()) && cmethod.getParamCount() == 2 && fmessage.getName().equals(cmethod.getDeclaredClass().getName())) {
+                            var pTypes = cmethod.getParamTypes();
+                            if (pTypes.get(0).getName().equals(ContentValues.class.getName()) && pTypes.get(1).getName().equals(fmessage.getName())) {
+                                methodData.clear();
+                                methodData.add(cmethod);
+                                break;
+                            }
+                        }
+                    }
+                }
+            }
+
             if (methodData.isEmpty()) throw new Exception("BroadcastTag method support not found");
             var usingFields = methodData.get(0).getUsingFields();
             for (var ufield : usingFields) {
@@ -813,6 +832,7 @@ public class Unobfuscator {
     public synchronized static Class loadArchiveChatClass(ClassLoader loader) throws Exception {
         return UnobfuscatorCache.getInstance().getClass(loader, () -> {
             var clazz = findFirstClassUsingStrings(loader, StringMatchType.Contains, "archive/set-content-indicator-to-empty");
+            if (clazz == null) clazz = findFirstClassUsingStrings(loader, StringMatchType.Contains, "archive/Unsupported mode in ArchivePreviewView:");
             if (clazz == null) throw new Exception("ArchiveHideView method not found");
             return clazz;
         });
@@ -887,7 +907,16 @@ public class Unobfuscator {
         return UnobfuscatorCache.getInstance().getMethod(loader, () -> {
             var methodData = dexkit.findMethod(FindMethod.create().matcher(MethodMatcher.create().addUsingString("app/send-presence-subscription jid=")));
             if (methodData.isEmpty()) throw new Exception("SendPresence method not found");
-            var newMethod = methodData.get(0).getCallers().singleOrNull(method1 -> method1.getParamCount() == 4);
+            var methodCallers = methodData.get(0).getCallers();
+            if (methodCallers.isEmpty()) {
+                var method = methodData.get(0);
+                var superMethodInterfaces = method.getDeclaredClass().getInterfaces();
+                if (superMethodInterfaces.isEmpty()) throw new Exception("SendPresence method interface list empty");
+                var superMethod = superMethodInterfaces.get(0).findMethod(FindMethod.create().matcher(MethodMatcher.create().name(method.getName()))).firstOrNull();
+                if (superMethod == null) throw new Exception("SendPresence method interface method not found");
+                methodCallers = superMethod.getCallers();
+            }
+            var newMethod = methodCallers.firstOrNull(method1 -> method1.getParamCount() == 4);
             if (newMethod == null) throw new Exception("SendPresence method not found 2");
             return newMethod.getMethodInstance(loader);
         });
@@ -1637,21 +1666,53 @@ public class Unobfuscator {
         });
     }
 
-    public synchronized static Method loadSenderPlayed(ClassLoader classLoader) throws Exception {
-        return UnobfuscatorCache.getInstance().getMethod(classLoader, () -> {
+    public synchronized static Class<?> loadSenderPlayedClass(ClassLoader classLoader) throws Exception {
+        return UnobfuscatorCache.getInstance().getClass(classLoader, () -> {
             var clazz = findFirstClassUsingStrings(classLoader, StringMatchType.Contains, "sendmethods/sendClearDirty");
             if (clazz == null) throw new RuntimeException("SenderPlayed class not found");
+            return clazz;
+        });
+    }
+
+    public synchronized static Method loadSenderPlayedMethod(ClassLoader classLoader) throws Exception {
+        return UnobfuscatorCache.getInstance().getMethod(classLoader, () -> {
+            var clazz = loadSenderPlayedClass(classLoader);
             var fmessageClass = loadFMessageClass(classLoader);
-            var methodResult = ReflectionUtils.findMethodUsingFilter(clazz, method -> method.getParameterCount() == 1 && fmessageClass.isAssignableFrom(method.getParameterTypes()[0]));
-            if (methodResult == null) throw new RuntimeException("SenderPlayed method not found");
+            Method methodResult = null;
+            for (var method : clazz.getMethods()) {
+                if (method.getParameterCount() == 1 && fmessageClass.isAssignableFrom(method.getParameterTypes()[0])) {
+                    methodResult = method;
+                    break;
+                }
+            }
+
+            // 2.25.19.xx, they refactored the SenderPlayed class
+            if (methodResult == null) {
+                var method = findFirstMethodUsingStrings(classLoader, StringMatchType.Contains, "mediaHash and fileType not both present for upload URL generation");
+                if (method != null) {
+                    var cMethods = dexkit.getMethodData(method).getInvokes();
+                    Collections.reverse(cMethods);
+                    for (var cmethod : cMethods) {
+                        if (cmethod.isMethod() && cmethod.getParamCount() == 1) {
+                            var cParamType = cmethod.getParamTypes().get(0).getInstance(classLoader);
+                            if (fmessageClass.isAssignableFrom(cParamType)) {
+                                methodResult = cmethod.getMethodInstance(classLoader);
+                                break;
+                            }
+                        }
+                    }
+                }
+            }
+
+            if (methodResult == null) throw new RuntimeException("SenderPlayed method not found 2");
             return methodResult;
         });
     }
 
     public synchronized static Method loadSenderPlayedBusiness(ClassLoader classLoader) throws Exception {
         return UnobfuscatorCache.getInstance().getMethod(classLoader, () -> {
-            var loadSenderPlayed = loadSenderPlayed(classLoader);
-            var foundMethod = ReflectionUtils.findMethodUsingFilter(loadSenderPlayed.getDeclaringClass(), method -> method.getParameterCount() > 0 && method.getParameterTypes()[0] == Set.class);
+            var loadSenderPlayed = loadSenderPlayedClass(classLoader);
+            var foundMethod = ReflectionUtils.findMethodUsingFilter(loadSenderPlayed, method -> method.getParameterCount() > 0 && method.getParameterTypes()[0] == Set.class);
             if (foundMethod == null)
                 throw new RuntimeException("SenderPlayedBusiness method not found");
             return foundMethod;
