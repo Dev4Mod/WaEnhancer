@@ -55,6 +55,7 @@ import java.util.Timer;
 import java.util.TimerTask;
 import java.util.stream.Collectors;
 
+import de.robv.android.xposed.XposedBridge;
 import de.robv.android.xposed.XposedHelpers;
 
 public class Unobfuscator {
@@ -215,7 +216,7 @@ public class Unobfuscator {
     public synchronized static Method loadReceiptInChat(ClassLoader classLoader) throws Exception {
         return UnobfuscatorCache.getInstance().getMethod(classLoader, () -> {
             var method = loadReceiptMethod(classLoader);
-            var methodDataList = dexkit.findMethod(new FindMethod().matcher(new MethodMatcher().addUsingString("callCreatorJid").addUsingString("reject").addUsingNumber(6175).addInvoke(DexSignUtil.getMethodDescriptor(method))));
+            var methodDataList = dexkit.findMethod(new FindMethod().matcher(new MethodMatcher().addUsingString("callCreatorJid").addUsingString("reject").addInvoke(DexSignUtil.getMethodDescriptor(method))));
             if (methodDataList.isEmpty()) throw new Exception("Receipt method not found");
             return methodDataList.get(0).getMethodInstance(classLoader);
         });
@@ -249,6 +250,25 @@ public class Unobfuscator {
             var clazzData = dexkit.findClass(FindClass.create().matcher(ClassMatcher.create().addUsingString("UPDATE_MESSAGE_MAIN_BROADCAST_SCAN_SQL")));
             if (clazzData.isEmpty()) throw new Exception("BroadcastTag class not found");
             var methodData = dexkit.findMethod(FindMethod.create().searchInClass(clazzData).matcher(MethodMatcher.create().usingStrings("participant_hash", "view_mode", "broadcast")));
+
+            // 2.25.18.xx, they splitted method and moved to the fmessage
+            if (methodData.isEmpty()) {
+                methodData = dexkit.findMethod(FindMethod.create().searchInClass(clazzData).matcher(MethodMatcher.create().usingStrings("received_timestamp", "view_mode", "message")));
+                if (!methodData.isEmpty()) {
+                    var calledMethods = methodData.get(0).getInvokes();
+                    for (var cmethod : calledMethods) {
+                        if (Modifier.isStatic(cmethod.getModifiers()) && cmethod.getParamCount() == 2 && fmessage.getName().equals(cmethod.getDeclaredClass().getName())) {
+                            var pTypes = cmethod.getParamTypes();
+                            if (pTypes.get(0).getName().equals(ContentValues.class.getName()) && pTypes.get(1).getName().equals(fmessage.getName())) {
+                                methodData.clear();
+                                methodData.add(cmethod);
+                                break;
+                            }
+                        }
+                    }
+                }
+            }
+
             if (methodData.isEmpty()) throw new Exception("BroadcastTag method support not found");
             var usingFields = methodData.get(0).getUsingFields();
             for (var ufield : usingFields) {
@@ -813,6 +833,7 @@ public class Unobfuscator {
     public synchronized static Class loadArchiveChatClass(ClassLoader loader) throws Exception {
         return UnobfuscatorCache.getInstance().getClass(loader, () -> {
             var clazz = findFirstClassUsingStrings(loader, StringMatchType.Contains, "archive/set-content-indicator-to-empty");
+            if (clazz == null) clazz = findFirstClassUsingStrings(loader, StringMatchType.Contains, "archive/Unsupported mode in ArchivePreviewView:");
             if (clazz == null) throw new Exception("ArchiveHideView method not found");
             return clazz;
         });
