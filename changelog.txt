@@ -1,2 +1,9 @@
 [WA AND WA BUSINESS]
-* Add 2.25.16.xx and 2.25.17.xx to supported versions
+* Add 2.25.18.xx and 2.25.19.xx to supported versions (Thanks to frknkrc44)
+* Add 2.25.20.xx to supported versions
+
+[BUGS FIXED]
+* Fixed bug in Pinned Messages Limit
+
+[IMPROVEMENTS]
+* Improved bridge detection with Whatsapp
