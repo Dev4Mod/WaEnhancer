@@ -86,7 +86,24 @@
             android:name=".activities.ForceStartActivity"
             android:excludeFromRecents="true"
             android:exported="true"
-            android:theme="@android:style/Theme.NoDisplay" />
+            android:theme="@android:style/Theme.NoDisplay">
+
+            <intent-filter>
+                <action android:name="android.intent.action.SEND" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <data android:mimeType="*/*" />
+            </intent-filter>
+
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+
+                <data android:scheme="https" />
+            </intent-filter>
+        </activity>
+
 
         <service
             android:name=".xposed.bridge.service.BridgeService"
@@ -99,6 +116,7 @@
             android:enabled="true"
             android:exported="true"
             tools:ignore="ExportedContentProvider" />
+
 
         <meta-data
             android:name="xposedmodule"
