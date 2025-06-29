@@ -8,6 +8,7 @@ import androidx.annotation.Nullable;
 import com.wmods.wppenhacer.xposed.core.Feature;
 import com.wmods.wppenhacer.xposed.core.devkit.Unobfuscator;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
@@ -49,6 +50,17 @@ public class PinnedLimit extends Feature {
                 }
             }
         });
+
+        // Fix bug in initialCapacity of ArrayList
+        XposedHelpers.findAndHookConstructor(ArrayList.class, int.class, new XC_MethodHook() {
+            @Override
+            protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
+                if ((int) param.args[0] < 0) {
+                    param.args[0] = Math.abs((int) param.args[0]);
+                }
+            }
+        });
+
 
         // This creates a modified linkedhashMap to return 0 if the fixed list is less than 60.
         XposedBridge.hookMethod(pinnedSetMethod, new XC_MethodHook() {
