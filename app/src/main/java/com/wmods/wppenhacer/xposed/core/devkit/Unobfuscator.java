@@ -832,7 +832,8 @@ public class Unobfuscator {
     public synchronized static Class loadArchiveChatClass(ClassLoader loader) throws Exception {
         return UnobfuscatorCache.getInstance().getClass(loader, () -> {
             var clazz = findFirstClassUsingStrings(loader, StringMatchType.Contains, "archive/set-content-indicator-to-empty");
-            if (clazz == null) clazz = findFirstClassUsingStrings(loader, StringMatchType.Contains, "archive/Unsupported mode in ArchivePreviewView:");
+            if (clazz == null)
+                clazz = findFirstClassUsingStrings(loader, StringMatchType.Contains, "archive/Unsupported mode in ArchivePreviewView:");
             if (clazz == null) throw new Exception("ArchiveHideView method not found");
             return clazz;
         });
@@ -911,9 +912,11 @@ public class Unobfuscator {
             if (methodCallers.isEmpty()) {
                 var method = methodData.get(0);
                 var superMethodInterfaces = method.getDeclaredClass().getInterfaces();
-                if (superMethodInterfaces.isEmpty()) throw new Exception("SendPresence method interface list empty");
+                if (superMethodInterfaces.isEmpty())
+                    throw new Exception("SendPresence method interface list empty");
                 var superMethod = superMethodInterfaces.get(0).findMethod(FindMethod.create().matcher(MethodMatcher.create().name(method.getName()))).firstOrNull();
-                if (superMethod == null) throw new Exception("SendPresence method interface method not found");
+                if (superMethod == null)
+                    throw new Exception("SendPresence method interface method not found");
                 methodCallers = superMethod.getCallers();
             }
             var newMethod = methodCallers.firstOrNull(method1 -> method1.getParamCount() == 4);
@@ -1677,16 +1680,28 @@ public class Unobfuscator {
     public synchronized static Method loadSenderPlayedMethod(ClassLoader classLoader) throws Exception {
         return UnobfuscatorCache.getInstance().getMethod(classLoader, () -> {
             var clazz = loadSenderPlayedClass(classLoader);
-            var fmessageClass = loadFMessageClass(classLoader);
+            var abstractMediaMessageClass = Unobfuscator.loadAbstractMediaMessageClass(classLoader);
+            var interfaces = abstractMediaMessageClass.getInterfaces();
+
+            ArrayList<Class> interfacesList = new ArrayList<>();
+            interfacesList.add(abstractMediaMessageClass);
+            interfacesList.addAll(Arrays.asList(interfaces));
+
             Method methodResult = null;
+            main_loop:
             for (var method : clazz.getMethods()) {
-                if (method.getParameterCount() == 1 && fmessageClass.isAssignableFrom(method.getParameterTypes()[0])) {
-                    methodResult = method;
-                    break;
+                if (method.getParameterCount() != 1) continue;
+                var parameterType = method.getParameterTypes()[0];
+                for (var interfaceClass : interfacesList) {
+                    if (interfaceClass.isAssignableFrom(parameterType)) {
+                        methodResult = method;
+                        break main_loop;
+                    }
                 }
             }
 
             // 2.25.19.xx, they refactored the SenderPlayed class
+            var fmessageClass = Unobfuscator.loadFMessageClass(classLoader);
             if (methodResult == null) {
                 var method = findFirstMethodUsingStrings(classLoader, StringMatchType.Contains, "mediaHash and fileType not both present for upload URL generation");
                 if (method != null) {
@@ -1708,7 +1723,6 @@ public class Unobfuscator {
             return methodResult;
         });
     }
-
     public synchronized static Method loadSenderPlayedBusiness(ClassLoader classLoader) throws Exception {
         return UnobfuscatorCache.getInstance().getMethod(classLoader, () -> {
             var loadSenderPlayed = loadSenderPlayedClass(classLoader);

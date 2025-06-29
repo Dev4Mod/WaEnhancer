@@ -10,7 +10,9 @@ import java.lang.reflect.Method;
 import de.robv.android.xposed.XposedBridge;
 import de.robv.android.xposed.XposedHelpers;
 
-/** @noinspection unused*/
+/**
+ * @noinspection unused
+ */
 public class FMessageWpp {
 
     public static Class<?> TYPE;
@@ -54,6 +56,17 @@ public class FMessageWpp {
             XposedBridge.log(e);
         }
     }
+
+    public static boolean checkUnsafeIsFMessage(ClassLoader classLoader, Class<?> clazz) throws Exception {
+        Class<?> FmessageClass = Unobfuscator.loadFMessageClass(classLoader);
+        if (FmessageClass.isAssignableFrom(clazz)) return true;
+        var interfaces = FmessageClass.getInterfaces();
+        for (Class<?> anInterface : interfaces) {
+            if (anInterface == clazz) return true;
+        }
+        return false;
+    }
+
 
     public Object getUserJid() {
         try {
@@ -127,7 +140,9 @@ public class FMessageWpp {
         }
     }
 
-    /** @noinspection BooleanMethodIsAlwaysInverted*/
+    /**
+     * @noinspection BooleanMethodIsAlwaysInverted
+     */
     public boolean isMediaFile() {
         try {
             return abstractMediaMessageClass.isInstance(fmessage);
@@ -177,7 +192,9 @@ public class FMessageWpp {
         return (media_type == 82 || media_type == 42 || media_type == 43);
     }
 
-    /** @noinspection unused*/
+    /**
+     * @noinspection unused
+     */
     public static class Key {
         public static Class<?> TYPE;
 
