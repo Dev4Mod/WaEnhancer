@@ -128,7 +128,7 @@
     <string name="show_button_to_send_blue_tick_sum">Mostre um botão para enviar marca azul (marcar como lido/visualizado)</string>
     <string name="send_blue_tick">Marcar como visto</string>
     <string name="business_in_background">WhatsApp Business em segundo plano</string>
-    <string name="sending_read_blue_tick">Status visualizado</string>
+    <string name="sending_read_blue_tick">Visualizado</string>
     <string name="enable_facebook_style_for_status">Ativar estilo do Facebook para status</string>
     <string name="enable_facebook_style_for_status_sum">Altere o estilo original de status para o estilo do Facebook</string>
     <string name="send">Enviar</string>
@@ -180,7 +180,7 @@
     <string name="hideread_group_sum">Visualize mensagens na tela de grupos sem que os usuários saibam</string>
     <string name="show_freezeLastSeen_button">Mostrar botão de congelar visto por último</string>
     <string name="show_freezeLastSeen_sum">Mostra uma opção para congelar o visto por último na tela inicial</string>
-    <string name="freezelastseen_message">Quando congelar visto por último estiver ativado, você não poderá ver outras pessoas vistas por último ou online.</string>
+    <string name="freezelastseen_message">Congele seu visto por último. \nNOTA: O status digitando e visto por último das outras pessoas não serão visíveis para você.</string>
     <string name="freezelastseen_title">Congelar visto por último</string>
     <string name="wallpaper_transparency">Transparência do papel de parede</string>
     <string name="select_wallpaper">Escolha o papel de parede</string>
@@ -201,8 +201,8 @@
     <string name="deleted_status">excluiu um status</string>
     <string name="remove_limit_edit_message">Remover limite de tempo para editar mensagem</string>
     <string name="remove_limit_edit_message_sum">Remove o limite de 15 minutos para edição de uma mensagem</string>
-    <string name="disable_audio_sensor">Desativar sensor de proximidade</string>
-    <string name="disable_audio_sensor_sum">Desative o sensor de proximidade para que a mensagem de áudio não seja reproduzida pelo alto-falante auricular.</string>
+    <string name="disable_audio_sensor">Desativar troca de áudio</string>
+    <string name="disable_audio_sensor_sum">Desative a troca de áudio com o sensor de proximidade para que a mensagem de áudio não seja reproduzida pelo alto-falante auricular.</string>
     <string name="show_admin_group_icon">Mostrar ícone de administrador</string>
     <string name="show_admin_group_icon_sum">Mostre um ícone ao lado do nome do administrador do grupo.</string>
     <string name="toolbar_transparency">Transparência da barra superior</string>
