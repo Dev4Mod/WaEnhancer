@@ -1456,7 +1456,8 @@ public class Unobfuscator {
 
     public synchronized static Class getFilterView(ClassLoader loader) throws Exception {
         return UnobfuscatorCache.getInstance().getClass(loader, () -> {
-            var results = dexkit.findClass(new FindClass().matcher(new ClassMatcher().addMethod(new MethodMatcher().name("setInboxFilterHelper"))));
+            var filter_id = Utils.getID("conversations_swipe_to_reveal_filters_stub", "id");
+            var results = dexkit.findClass(FindClass.create().matcher(ClassMatcher.create().addMethod(MethodMatcher.create().addUsingNumber(filter_id))));
             if (results.isEmpty()) throw new RuntimeException("FilterView class not found");
             return results.get(0).getInstance(loader);
         });
