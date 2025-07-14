@@ -60,7 +60,7 @@ public class Others extends Feature {
         var filterChats = prefs.getString("chatfilter", null);
         var filterSeen = prefs.getBoolean("filterseen", false);
         var status_style = Integer.parseInt(prefs.getString("status_style", "0"));
-        var metaai = prefs.getBoolean("metaai", false);
+        var disableMetaAI = prefs.getBoolean("metaai", false);
         var disable_sensor_proximity = prefs.getBoolean("disable_sensor_proximity", false);
         var proximity_audios = prefs.getBoolean("proximity_audios", false);
         var showOnline = prefs.getBoolean("showonline", false);
@@ -76,10 +76,11 @@ public class Others extends Feature {
         var disableProfileStatus = prefs.getBoolean("disable_profile_status", false);
 
         propsInteger.put(3877, oldStatus ? igstatus ? 2 : 0 : 2);
-        propsBoolean.put(5171, filterSeen); // filtros de chat e grupos
+        propsBoolean.put(5171, filterSeen);
         propsBoolean.put(4497, menuWIcons);
         propsBoolean.put(4023, newSettings);
-        propsBoolean.put(8013, Objects.equals(filterChats, "2")); // lupa sera removida e sera adicionado uma barra no lugar.
+        if (disableMetaAI)
+            propsBoolean.put(8013, Objects.equals(filterChats, "2"));
         propsBoolean.put(2889, floatingMenu);
 
         // new text composer
@@ -152,7 +153,7 @@ public class Others extends Feature {
         propsBoolean.put(0x32ca, true);
         propsBoolean.put(0x32cb, true);
 
-        if (metaai) {
+        if (disableMetaAI) {
             propsBoolean.put(8025, false);
             propsBoolean.put(6251, false);
             propsBoolean.put(8026, false);
