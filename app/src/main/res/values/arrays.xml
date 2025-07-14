@@ -119,28 +119,16 @@
         <item>2</item>
     </string-array>
     <string-array name="supported_versions_wpp">
-        <item>2.25.11.xx</item>
-        <item>2.25.12.xx</item>
-        <item>2.25.13.xx</item>
-        <item>2.25.14.xx</item>
-        <item>2.25.15.xx</item>
-        <item>2.25.16.xx</item>
-        <item>2.25.17.xx</item>
         <item>2.25.18.xx</item>
         <item>2.25.19.xx</item>
         <item>2.25.20.xx</item>
+        <item>2.25.21.xx</item>
     </string-array>
     <string-array name="supported_versions_business">
-        <item>2.25.11.xx</item>
-        <item>2.25.12.xx</item>
-        <item>2.25.13.xx</item>
-        <item>2.25.14.xx</item>
-        <item>2.25.15.xx</item>
-        <item>2.25.16.xx</item>
-        <item>2.25.17.xx</item>
         <item>2.25.18.xx</item>
         <item>2.25.19.xx</item>
         <item>2.25.20.xx</item>
+        <item>2.25.21.xx</item>
     </string-array>
     <string-array name="image_picker">
         <item>image/*</item>
