@@ -358,7 +358,7 @@ public class SeparateGroup extends Feature {
                 var server = (String) callMethod(jid, "getServer");
                 if (isGroup)
                     return server.equals("broadcast") || server.equals("g.us");
-                return server.equals("s.whatsapp.net");
+                return server.equals("s.whatsapp.net") || server.equals("lid");
             }
             return true;
         }

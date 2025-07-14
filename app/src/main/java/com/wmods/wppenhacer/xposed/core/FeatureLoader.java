@@ -97,6 +97,8 @@ import de.robv.android.xposed.XC_MethodHook;
 import de.robv.android.xposed.XSharedPreferences;
 import de.robv.android.xposed.XposedBridge;
 import de.robv.android.xposed.XposedHelpers;
+import lombok.Getter;
+import lombok.Setter;
 
 public class FeatureLoader {
     public static Application mApp;
@@ -142,12 +144,11 @@ public class FeatureLoader {
                     if (!isSupported) {
                         disableExpirationVersion(mApp.getClassLoader());
                         if (!pref.getBoolean("bypass_version_check", false)) {
-                            StringBuilder sb = new StringBuilder()
-                                    .append("Unsupported version: ")
-                                    .append(packageInfo.versionName)
-                                    .append("\n")
-                                    .append("Only the function of ignoring the expiration of the WhatsApp version has been applied!");
-                            throw new Exception(sb.toString());
+                            String sb = "Unsupported version: " +
+                                    packageInfo.versionName +
+                                    "\n" +
+                                    "Only the function of ignoring the expiration of the WhatsApp version has been applied!";
+                            throw new Exception(sb);
                         }
                     }
                     SharedPreferencesWrapper.hookInit(mApp.getClassLoader());
@@ -307,7 +308,6 @@ public class FeatureLoader {
                 BubbleColors.class,
                 CallPrivacy.class,
                 ActivityController.class,
-//                CustomTheme.class,
                 CustomThemeV2.class,
                 ChatLimit.class,
                 SeparateGroup.class,
@@ -385,6 +385,8 @@ public class FeatureLoader {
         }
     }
 
+    @Getter
+    @Setter
     private static class ErrorItem {
         private String pluginName;
         private String whatsAppVersion;
@@ -402,44 +404,5 @@ public class FeatureLoader {
                     "\nerror='" + getError() + '\'';
         }
 
-        public String getWhatsAppVersion() {
-            return whatsAppVersion;
-        }
-
-        public void setWhatsAppVersion(String whatsAppVersion) {
-            this.whatsAppVersion = whatsAppVersion;
-        }
-
-        public String getError() {
-            return error;
-        }
-
-        public void setError(String error) {
-            this.error = error;
-        }
-
-        public String getPluginName() {
-            return pluginName;
-        }
-
-        public void setPluginName(String pluginName) {
-            this.pluginName = pluginName;
-        }
-
-        public String getModuleVersion() {
-            return moduleVersion;
-        }
-
-        public void setModuleVersion(String moduleVersion) {
-            this.moduleVersion = moduleVersion;
-        }
-
-        public String getMessage() {
-            return message;
-        }
-
-        public void setMessage(String message) {
-            this.message = message;
-        }
     }
 }
