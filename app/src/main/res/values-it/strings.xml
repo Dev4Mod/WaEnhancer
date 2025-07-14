@@ -35,11 +35,10 @@
     <string name="conversation">Conversazione</string>
     <string name="primary_color">Colore primario</string>
     <string name="background_color">Colore di sfondo</string>
-    <string name="secondary_color">Colore secondario</string>
     <string name="novaconfig">Nuovo stile Impostazioni</string>
     <string name="novaconfig_sum">Abilita il nuovo stile delle impostazioni, con la foto del profilo sulla barra degli strumenti della Home</string>
     <string name="novofiltro">Funzioni di ricerca</string>
-    <string name="novofiltro_sum">Scegli tra Icona di ricerca, Barra di ricerca o Nessuna ricerca</string>
+    <string name="novofiltro_sum">Scegli tra Icona di Ricerca, Barra di Ricerca o Nessuna Ricerca (abilita funzione per disabilitare Meta AI)</string>
     <string name="menuwicon">Icone nel menù</string>
     <string name="menuwicon_sum">Aggiungi le icone accanto alle opzioni di menù dell\'app</string>
     <string name="freezelastseen">Congela Ultimo accesso</string>
@@ -406,4 +405,11 @@
     <string name="select_contacts">Seleziona Contatti</string>
     <string name="style_of_stories_status">Stile delle Storie/Stato</string>
     <string name="style_of_stories_status_sum">Cambia lo stile Storie/Stato in alcuni modelli disponibili su WhatsApp</string>
+    <string name="view_seen_tick">Visualizza Spunte Visto</string>
+    <string name="view_seen_tick_sum">Mostra un\'icona se la vista del messaggio è stata inviata al destinatario o è stata visualizzata una vista univoca</string>
+    <string name="text_color">Colore Testo</string>
+    <string name="disable_the_proximity_sensor">Disattiva lo spegnimento dello schermo tramite sensore di prossimità</string>
+    <string name="disable_the_proximity_sensor_sum">Disattivare lo spegnimento dello schermo tramite sensore di prossimità su tutto WhatsApp</string>
+    <string name="disable_status_in_the_profile_photo">Disabilita lo Stato nella foto del profilo</string>
+    <string name="disable_status_in_the_profile_photo_sum">Disabilita il cerchio che appare nella foto del profilo di ogni contatto quando c\'è un nuovo stato</string>
 </resources>

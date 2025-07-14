@@ -35,11 +35,10 @@
     <string name="conversation">聊天界面</string>
     <string name="primary_color">主要颜色</string>
     <string name="background_color">背景颜色</string>
-    <string name="secondary_color">次要颜色</string>
     <string name="novaconfig">新的设置样式</string>
     <string name="novaconfig_sum">启用新的设置样式，在主页工具栏上显示个人资料照片</string>
     <string name="novofiltro">搜索功能</string>
-    <string name="novofiltro_sum">在“搜索图标”、“搜索栏”或“无搜索”之间进行选择</string>
+    <string name="novofiltro_sum">Choose between Search Icon, Search Bar, or No Search (Enable Function for Disable Meta AI)</string>
     <string name="menuwicon">菜单图标</string>
     <string name="menuwicon_sum">在所有菜单选项旁边添加图标</string>
     <string name="freezelastseen">冻结最后一次在线时间</string>
@@ -406,4 +405,11 @@
     <string name="select_contacts">Select Contacts</string>
     <string name="style_of_stories_status">Style of Stories/Status</string>
     <string name="style_of_stories_status_sum">Changes Stories/Status style to some models available on WhatsApp</string>
+    <string name="view_seen_tick">View Seen Tick</string>
+    <string name="view_seen_tick_sum">Show an icon if the message view was sent to the recipient or unique view was seen</string>
+    <string name="text_color">Text Color</string>
+    <string name="disable_the_proximity_sensor">Disable Screen off on proximity sensor</string>
+    <string name="disable_the_proximity_sensor_sum">Disable Screen off on proximity sensor to the whole WhatsApp</string>
+    <string name="disable_status_in_the_profile_photo">Disable Status in the profile photo</string>
+    <string name="disable_status_in_the_profile_photo_sum">Disables the circle that appears in the profile photo of each contact when there is new status</string>
 </resources>

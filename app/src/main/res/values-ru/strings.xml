@@ -35,11 +35,10 @@
     <string name="conversation">Экран Переписки</string>
     <string name="primary_color">Основной цвет</string>
     <string name="background_color">Цвет заднего фона</string>
-    <string name="secondary_color">Дополнительный цвет</string>
     <string name="novaconfig">Новый стиль настроек</string>
     <string name="novaconfig_sum">Включите новый стиль настроек с фотографией профиля на домашней панели</string>
     <string name="novofiltro">Поиск функций</string>
-    <string name="novofiltro_sum">Выберите между: \"Значок поиска\", \"Панель поиска\" или \"Без поиска\"</string>
+    <string name="novofiltro_sum">Выберите между иконкой поиска, панелью поиска или без поиска (включить функцию отключения Meta AI)</string>
     <string name="menuwicon">Значки меню</string>
     <string name="menuwicon_sum">Добавьте значки в пункты меню приложения</string>
     <string name="freezelastseen">Заморозка времени последнего посещения</string>
@@ -406,4 +405,11 @@
     <string name="select_contacts">Выбрать контакты</string>
     <string name="style_of_stories_status">Стиль историй/статуса</string>
     <string name="style_of_stories_status_sum">Изменяет стиль историй/статуса на некоторые модели, доступные в WhatsApp</string>
+    <string name="view_seen_tick">Вид просмотрен</string>
+    <string name="view_seen_tick_sum">Показывать значок, если сообщение было отправлено получателю или виден уникальный вид</string>
+    <string name="text_color">Цвет текста</string>
+    <string name="disable_the_proximity_sensor">Отключить выключение экрана при датчике приближения</string>
+    <string name="disable_the_proximity_sensor_sum">Отключить экран на датчик приближения для всего WhatsApp</string>
+    <string name="disable_status_in_the_profile_photo">Отключить статус на фото профиля</string>
+    <string name="disable_status_in_the_profile_photo_sum">Отключает круг, который появляется в фото профиля каждого контакта, когда есть новый статус</string>
 </resources>

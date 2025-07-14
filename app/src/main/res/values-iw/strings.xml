@@ -35,11 +35,10 @@
     <string name="conversation">מסך שיחה</string>
     <string name="primary_color">צבעי יסוד</string>
     <string name="background_color">צבע רקע</string>
-    <string name="secondary_color">צבע משני</string>
     <string name="novaconfig">סגנון הגדרות חדש</string>
     <string name="novaconfig_sum">אפשר את סגנון ההגדרות החדש, עם תמונת פרופיל במסך הבית</string>
     <string name="novofiltro">פונקציית החיפוש</string>
-    <string name="novofiltro_sum">בחר בין סמל חיפוש הישן, אייקון החיפוש החדש או ללא חיפוש בכלל</string>
+    <string name="novofiltro_sum">בחרו בין סמל חיפוש, סרגל חיפוש או ללא חיפוש (הפעל פונקציה להשבתת מטא AI)</string>
     <string name="menuwicon">אייקוני תפריט</string>
     <string name="menuwicon_sum">הוסף סמלים לצד אפשרויות התפריט בכל האפליקציה</string>
     <string name="freezelastseen">הקפאת נראה לאחרונה</string>
@@ -408,4 +407,11 @@
     <string name="select_contacts">בחר אנשי קשר</string>
     <string name="style_of_stories_status">סגנון עיצוב הסטטוס</string>
     <string name="style_of_stories_status_sum">משנה את סגנון הסטטוס לכמה דגמים שזמינים בווצאפ</string>
+    <string name="view_seen_tick">צפייה נראית טיק</string>
+    <string name="view_seen_tick_sum">הצג סמל אם תצוגת ההודעה נשלחה לנמען או שנראתה תצוגה ייחודית</string>
+    <string name="text_color">צבע טקסט</string>
+    <string name="disable_the_proximity_sensor">השבתת מסך כבוי בחיישן הקרבה</string>
+    <string name="disable_the_proximity_sensor_sum">השבתת מסך כיבוי על חיישן קרבה בכל הוואטסאפ</string>
+    <string name="disable_status_in_the_profile_photo">השבתת סטטוס בתמונת הפרופיל</string>
+    <string name="disable_status_in_the_profile_photo_sum">מבטל את העיגול שמופיע בתמונת הפרופיל של כל איש קשר כאשר יש סטטוס חדש</string>
 </resources>

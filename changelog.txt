@@ -6,3 +6,6 @@
 * Fixed bug in New UI Group Filter
 * Fixed bug icon of Revoked Status
 * Fixed bug in Custom colors for Text Status
+
+[WAE]
+* Updated translations (Thanks to all translators)

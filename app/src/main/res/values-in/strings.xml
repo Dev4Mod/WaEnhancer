@@ -36,11 +36,10 @@
     <string name="conversation">Layar Percakapan</string>
     <string name="primary_color">Warna Primer</string>
     <string name="background_color">Warna latar belakang</string>
-    <string name="secondary_color">Warna Sekunder</string>
     <string name="novaconfig">Gaya Setelan Baru</string>
     <string name="novaconfig_sum">Aktifkan gaya setelan baru dengan foto profil di layar beranda</string>
     <string name="novofiltro">Fungsi Pencarian</string>
-    <string name="novofiltro_sum">Pilih antara ikon pencarian, bilah pencarian, atau tanpa pencarian</string>
+    <string name="novofiltro_sum">Pilih antara Ikon Pencarian, Bilah Pencarian atau Tanpa Pencarian (Aktifkan Fungsi untuk Menonaktifkan Meta AI)</string>
     <string name="menuwicon">Ikon Menu</string>
     <string name="menuwicon_sum">Tambahkan ikon pada opsi menu di aplikasi WhatsApp</string>
     <string name="freezelastseen">Bekukan \"terakhir dilihat dan online\"</string>
@@ -415,4 +414,11 @@ Harap gunakan versi WhatsApp yang didukung!</string>
     <string name="select_contacts">Pilih Kontak</string>
     <string name="style_of_stories_status">Gaya Cerita/Status</string>
     <string name="style_of_stories_status_sum">Ubah gaya cerita/status ke beberapa model yang tersedia di WhatsApp</string>
+    <string name="view_seen_tick">Tanda Centang Dilihat/Dibaca</string>
+    <string name="view_seen_tick_sum">Tampilkan ikon jika tampilan pesan (dibaca/dilihat) atau tampilan unik terkirim ke penerima</string>
+    <string name="text_color">Warna Teks</string>
+    <string name="disable_the_proximity_sensor">Nonaktifkan Layar Mati pada Sensor Jarak</string>
+    <string name="disable_the_proximity_sensor_sum">Nonaktifkan layar mati pada sensor jarak di seluruh WhatsApp</string>
+    <string name="disable_status_in_the_profile_photo">Nonaktifkan Status di Foto Profil</string>
+    <string name="disable_status_in_the_profile_photo_sum">Nonaktifkan lingkaran di foto profil setiap kontak saat ada status baru</string>
 </resources>

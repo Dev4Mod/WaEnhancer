@@ -35,11 +35,10 @@
     <string name="conversation">Tela de conversas</string>
     <string name="primary_color">Cores primárias</string>
     <string name="background_color">Cores de fundo</string>
-    <string name="secondary_color">Cores secundárias</string>
     <string name="novaconfig">Novo estilo de configurações</string>
     <string name="novaconfig_sum">Ativa o novo estilo de configurações, com foto do perfil na tela inicial.</string>
     <string name="novofiltro">Pesquisar funções</string>
-    <string name="novofiltro_sum">Escolha entre Ícone de pesquisa, Barra de pesquisa ou Desativado.</string>
+    <string name="novofiltro_sum">Escolha entre o ícone de pesquisa, barra de pesquisa ou sem pesquisa (Ative a função para desativar o Meta AI)</string>
     <string name="menuwicon">Ícones nos menus</string>
     <string name="menuwicon_sum">Adicione ícones nas opções de menu ao longo do app</string>
     <string name="freezelastseen">Congelar visto por último</string>
@@ -406,4 +405,11 @@
     <string name="select_contacts">Selecionar contatos</string>
     <string name="style_of_stories_status">Estilo dos Stories/Status</string>
     <string name="style_of_stories_status_sum">Quando ativo, permite mudar o estilo dos Stories/Status para alguns modelos disponíveis no WhatsApp.</string>
+    <string name="view_seen_tick">Ver visualização vista</string>
+    <string name="view_seen_tick_sum">Quando ativo, mostra um ícone se a visualização da mensagem foi enviada ao destinatário ou se uma visualização única foi vista.</string>
+    <string name="text_color">Cor do texto</string>
+    <string name="disable_the_proximity_sensor">Desativar tela desligada no sensor de proximidade</string>
+    <string name="disable_the_proximity_sensor_sum">Desativa a tela desligada no sensor de proximidade para todo o WhatsApp</string>
+    <string name="disable_status_in_the_profile_photo">Desativar status na foto do perfil</string>
+    <string name="disable_status_in_the_profile_photo_sum">Quando ativo, o círculo que aparece na foto de perfil de cada contato quando há um novo status é desativado.</string>
 </resources>

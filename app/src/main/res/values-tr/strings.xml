@@ -35,11 +35,10 @@
     <string name="conversation">Sohbet Ekranı</string>
     <string name="primary_color">Ana Renk</string>
     <string name="background_color">Arka Plan Rengi</string>
-    <string name="secondary_color">İkincil Renk</string>
     <string name="novaconfig">Yeni Ayarlar Stili</string>
     <string name="novaconfig_sum">Ana ekran araç çubuğunda profil fotoğrafı ile yeni ayarlar stilini etkinleştir</string>
     <string name="novofiltro">Arama Fonksiyonları</string>
-    <string name="novofiltro_sum">Arama Simgesi, Arama Çubuğu veya Arama Yok seçenekleri arasında seçim yapın</string>
+    <string name="novofiltro_sum">Choose between Search Icon, Search Bar, or No Search (Enable Function for Disable Meta AI)</string>
     <string name="menuwicon">Menü Simgeleri</string>
     <string name="menuwicon_sum">Uygulama genelinde menü seçeneklerinin yanına simgeler ekle</string>
     <string name="freezelastseen">Son Görülmeyi Dondur</string>
@@ -406,4 +405,11 @@
     <string name="select_contacts">Kişileri Seçin</string>
     <string name="style_of_stories_status">Hikayelerin Tarzı/Durumu</string>
     <string name="style_of_stories_status_sum">WhatsApp\'ta bulunan bazı modellerde Hikaye/Durum stilini değiştirir</string>
+    <string name="view_seen_tick">View Seen Tick</string>
+    <string name="view_seen_tick_sum">Show an icon if the message view was sent to the recipient or unique view was seen</string>
+    <string name="text_color">Text Color</string>
+    <string name="disable_the_proximity_sensor">Disable Screen off on proximity sensor</string>
+    <string name="disable_the_proximity_sensor_sum">Disable Screen off on proximity sensor to the whole WhatsApp</string>
+    <string name="disable_status_in_the_profile_photo">Disable Status in the profile photo</string>
+    <string name="disable_status_in_the_profile_photo_sum">Disables the circle that appears in the profile photo of each contact when there is new status</string>
 </resources>
