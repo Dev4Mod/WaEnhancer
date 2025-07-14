@@ -1723,6 +1723,7 @@ public class Unobfuscator {
             return methodResult;
         });
     }
+
     public synchronized static Method loadSenderPlayedBusiness(ClassLoader classLoader) throws Exception {
         return UnobfuscatorCache.getInstance().getMethod(classLoader, () -> {
             var loadSenderPlayed = loadSenderPlayedClass(classLoader);
@@ -1919,7 +1920,12 @@ public class Unobfuscator {
     }
 
     public static Class<?> loadRefreshStatusClass(ClassLoader classLoader) throws Exception {
-        return UnobfuscatorCache.getInstance().getClass(classLoader, () -> findFirstClassUsingStrings(classLoader, StringMatchType.Contains, "Report tab open only once per session"));
+        return UnobfuscatorCache.getInstance().getClass(classLoader, () -> {
+            MethodDataList methods = dexkit.findMethod(FindMethod.create().matcher(MethodMatcher.create().addUsingNumber(8126).addUsingNumber(11917)));
+            if (methods.isEmpty())
+                throw new Exception("Refresh Status Class Not Found!");
+            return methods.get(0).getClassInstance(classLoader);
+        });
     }
 
     public static Method loadTcTokenMethod(ClassLoader classLoader) throws Exception {
