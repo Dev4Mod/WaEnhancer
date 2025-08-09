@@ -1493,9 +1493,14 @@ public class Unobfuscator {
 
     public synchronized static Method loadOnInsertReceipt(ClassLoader classLoader) throws Exception {
         return UnobfuscatorCache.getInstance().getMethod(classLoader, () -> {
-            var method = findFirstMethodUsingStrings(classLoader, StringMatchType.Contains, "ReceiptUserStore/insertOrUpdateUserReceiptForMessage");
-            if (method == null) throw new RuntimeException("OnInsertReceipt method not found");
-            return method;
+            var methods = dexkit.findMethod(FindMethod.create().matcher(MethodMatcher.create().addUsingString("INSERT_RECEIPT_USER")));
+            for (var method : methods) {
+                var params = method.getParamTypeNames();
+                if (!params.isEmpty() && "com.whatsapp.jid.UserJid".equals(params.get(0))) {
+                    return method.getMethodInstance(classLoader);
+                }
+            }
+            throw new RuntimeException("OnInsertReceipt method not found");
         });
 
     }
