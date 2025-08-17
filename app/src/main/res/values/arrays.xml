@@ -179,5 +179,14 @@
         <item>1</item>
         <item>2</item>
     </string-array>
-
+    <string-array name="link_safety_ui_entries">
+        <item>In WhatsApp (dialog)</item>
+        <item>In module (full-screen)</item>
+        <item>Auto</item>
+    </string-array>
+    <string-array name="link_safety_ui_values">
+        <item>wa_dialog</item>
+        <item>module</item>
+        <item>auto</item>
+    </string-array>
 </resources>

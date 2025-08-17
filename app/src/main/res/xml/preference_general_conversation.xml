@@ -1,5 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
-<PreferenceScreen xmlns:app="http://schemas.android.com/apk/res-auto">
+<PreferenceScreen 
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
     <PreferenceCategory
         app:iconSpaceReserved="false"
         app:title="@string/conversation">
@@ -113,6 +116,58 @@
             app:key="google_translate"
             app:summary="@string/google_translate_sum"
             app:title="@string/google_translate" />
+    
+        <rikka.material.preference.MaterialSwitchPreference
+            app:key="link_safety_enabled"
+            app:summary="@string/link_safety_sum"
+            app:title="@string/link_safety" />
+
+        <ListPreference
+            android:key="link_safety_ui_mode"
+            android:title="Link safety screen location"
+            android:summary="%s"
+            android:defaultValue="wa_dialog"
+            android:entries="@array/link_safety_ui_entries"
+            android:entryValues="@array/link_safety_ui_values" />  
+
+        <rikka.material.preference.MaterialSwitchPreference
+            app:dependency="link_safety_enabled"
+            app:key="link_safety_silent_mode"
+            app:summary="@string/link_safety_silent_sum"
+            app:title="@string/link_safety_silent" />
+
+        <rikka.material.preference.MaterialSwitchPreference
+            app:dependency="link_safety_enabled"
+            app:key="link_safety_strip_utm"
+            app:summary="@string/link_safety_strip_utm_sum"
+            app:title="@string/link_safety_strip_utm" />
+
+        <rikka.material.preference.MaterialSwitchPreference
+            app:dependency="link_safety_enabled"
+            app:key="link_safety_warn_shortlinks"
+            app:summary="@string/link_safety_warn_shortlinks_sum"
+            app:title="@string/link_safety_warn_shortlinks" />
+
+        <EditTextPreference
+            app:dependency="link_safety_enabled"
+            app:key="link_safety_blocklist"
+            app:useSimpleSummaryProvider="true"
+            app:summary="@string/link_safety_blocklist_sum"
+            app:title="@string/link_safety_blocklist" />
+
+        <EditTextPreference
+            app:dependency="link_safety_enabled"
+            app:key="link_safety_allowlist"
+            app:useSimpleSummaryProvider="true"
+            app:summary="@string/link_safety_allowlist_sum"
+            app:title="@string/link_safety_allowlist" />
+
+        <EditTextPreference
+            app:dependency="link_safety_enabled"
+            app:key="link_safety_shortlinks_list"
+            app:useSimpleSummaryProvider="true"
+            app:summary="@string/link_safety_shortlinks_list_sum"
+            app:title="@string/link_safety_shortlinks_list" />    
 
     </PreferenceCategory>
 

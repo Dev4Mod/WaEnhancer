@@ -82,6 +82,7 @@ import com.wmods.wppenhacer.xposed.utils.DesignUtils;
 import com.wmods.wppenhacer.xposed.utils.ReflectionUtils;
 import com.wmods.wppenhacer.xposed.utils.ResId;
 import com.wmods.wppenhacer.xposed.utils.Utils;
+import com.wmods.wppenhacer.xposed.features.others.LinkSafety;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -349,7 +350,8 @@ public class FeatureLoader {
                 AntiWa.class,
                 CustomPrivacy.class,
                 AudioTranscript.class,
-                GoogleTranslate.class
+                GoogleTranslate.class,
+                LinkSafety.class
         };
         XposedBridge.log("Loading Plugins");
         var executorService = Executors.newWorkStealingPool(Math.min(Runtime.getRuntime().availableProcessors(), 4));

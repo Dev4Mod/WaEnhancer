@@ -11,6 +11,7 @@
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
     <uses-permission android:name="android.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS" />
     <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
 
     <uses-permission
         android:name="android.permission.READ_EXTERNAL_STORAGE"
@@ -104,6 +105,14 @@
             </intent-filter>
         </activity>
 
+        <activity
+            android:name="com.wmods.wppenhacer.ui.LinkSafetyActivity"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="com.wmods.wppenhacer.action.LINK_PROMPT" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
 
         <service
             android:name=".xposed.bridge.service.BridgeService"
@@ -116,7 +125,6 @@
             android:enabled="true"
             android:exported="true"
             tools:ignore="ExportedContentProvider" />
-
 
         <meta-data
             android:name="xposedmodule"
@@ -143,8 +151,22 @@
             </intent-filter>
         </receiver>
 
+        <receiver
+            android:name="com.wmods.wppenhacer.sync.AllowlistSyncReceiver"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="com.wmods.wppenhacer.action.ADD_TRUSTED_DOMAIN" />
+            </intent-filter>
+        </receiver>
+
+        <receiver
+            android:name="com.wmods.wppenhacer.sync.BlocklistSyncReceiver"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="com.wmods.wppenhacer.action.ADD_BLOCKED_DOMAIN" />
+            </intent-filter>
+        </receiver>
 
     </application>
-
 
 </manifest>
