@@ -154,14 +154,12 @@ public class AntiRevoke extends Feature {
 
 
     private void isMRevoked(Object objMessage, TextView dateTextView, String antirevokeType) {
-        logDebug(dateTextView);
         if (dateTextView == null) return;
         var fMessage = new FMessageWpp(objMessage);
         var key = fMessage.getKey();
         var messageRevokedList = getRevokedMessages(fMessage);
         var id = fMessage.getRowId();
         String keyOrig = null;
-        logDebug("Message ID: " + id);
         if (messageRevokedList.contains(key.messageID) || ((keyOrig = MessageStore.getInstance().getOriginalMessageKey(id)) != null && messageRevokedList.contains(keyOrig))) {
             var timestamp = DelMessageStore.getInstance(Utils.getApplication()).getTimestampByMessageId(keyOrig == null ? key.messageID : keyOrig);
             if (timestamp > 0) {

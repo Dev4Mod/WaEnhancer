@@ -1963,10 +1963,41 @@ public class Unobfuscator {
 
     public static Class<?> loadRefreshStatusClass(ClassLoader classLoader) throws Exception {
         return UnobfuscatorCache.getInstance().getClass(classLoader, () -> {
-            MethodDataList methods = dexkit.findMethod(FindMethod.create().matcher(MethodMatcher.create().addUsingNumber(8126).addUsingNumber(11917)));
-            if (methods.isEmpty())
-                throw new Exception("Refresh Status Class Not Found!");
-            return methods.get(0).getClassInstance(classLoader);
+            var strings = new String[]{"liveStatusUpdatesActive", "Statuses refreshed"};
+            for (var s : strings) {
+                MethodDataList methods = dexkit.findMethod(FindMethod.create().matcher(MethodMatcher.create().addUsingString(s, StringMatchType.Contains)));
+                if (methods.isEmpty())
+                    continue;
+                return methods.get(0).getClassInstance(classLoader);
+            }
+            // Let's look for forcibly on WhatsApp Web (very boring this)
+            var opcodes = List.of(
+                    "invoke-static",
+                    "move-result",
+                    "if-eqz",
+                    "iget-object",
+                    "invoke-static",
+                    "move-result-object",
+                    "check-cast",
+                    "invoke-virtual",
+                    "move-result",
+                    "xor-int/lit8",
+                    "if-eqz",
+                    "if-eqz",
+                    "return",
+                    "const/4",
+                    "goto",
+                    "const/4",
+                    "return"
+            );
+
+            var constant = 0x3684;
+            MethodDataList methods = dexkit.findMethod(FindMethod.create().matcher(MethodMatcher.create().addUsingNumber(constant).opCodes(
+                    OpCodesMatcher.create().opNames(opcodes).matchType(OpCodeMatchType.Contains)
+            )));
+            if (methods.size() == 1)
+                return methods.get(0).getClassInstance(classLoader);
+            throw new Exception("Refresh Status Class Not Found!");
         });
     }
 
