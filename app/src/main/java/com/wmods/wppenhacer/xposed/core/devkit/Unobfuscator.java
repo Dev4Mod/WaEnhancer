@@ -323,7 +323,6 @@ public class Unobfuscator {
 
 
     // TODO: Classes and Methods for HideView
-
     public synchronized static Method loadHideViewSendReadJob(ClassLoader classLoader) throws Exception {
         return UnobfuscatorCache.getInstance().getMethod(classLoader, () -> {
             var classData = dexkit.getClassData(XposedHelpers.findClass("com.whatsapp.jobqueue.job.SendReadReceiptJob", classLoader));
@@ -338,11 +337,14 @@ public class Unobfuscator {
 
     public synchronized static Method loadHideViewInChatMethod(ClassLoader classLoader) throws Exception {
         return UnobfuscatorCache.getInstance().getMethod(classLoader, () -> {
-            Method method = findFirstMethodUsingStrings(classLoader, StringMatchType.Contains, "ReadReceipts/acknowledgeMessageIfNeeded");
-            if (method == null)
-                method = findFirstMethodUsingStrings(classLoader, StringMatchType.Contains, "ReadReceipts/sendDeliveryReceiptIfNotRetry");
-            if (method == null) throw new Exception("HideViewInChat method not found");
-            return method;
+            var strings = new String[]{
+                    "ReadReceipts/sendDeliveryReadReceipt", "ReadReceipts/acknowledgeMessageIfNeeded", "ReadReceipts/sendDeliveryReceiptIfNotRetry"
+            };
+            for (var s : strings) {
+                var method = findFirstMethodUsingStrings(classLoader, StringMatchType.Contains, s);
+                if (method != null) return method;
+            }
+            throw new Exception("HideViewInChat method not found");
         });
     }
 
