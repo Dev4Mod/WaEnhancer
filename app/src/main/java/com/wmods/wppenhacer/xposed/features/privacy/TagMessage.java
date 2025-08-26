@@ -14,8 +14,10 @@ import com.wmods.wppenhacer.xposed.utils.Utils;
 import java.lang.reflect.Method;
 
 import de.robv.android.xposed.XC_MethodHook;
+import de.robv.android.xposed.XC_MethodReplacement;
 import de.robv.android.xposed.XSharedPreferences;
 import de.robv.android.xposed.XposedBridge;
+import de.robv.android.xposed.XposedHelpers;
 
 public class TagMessage extends Feature {
     public TagMessage(ClassLoader loader, XSharedPreferences preferences) {
@@ -53,29 +55,36 @@ public class TagMessage extends Feature {
 
         XposedBridge.hookMethod(method1, new XC_MethodHook() {
             private FMessageWpp.Key keyObj;
+            private Unhook hooked;
 
             @Override
             protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
                 keyObj = null;
-                var fmessage = new FMessageWpp(param.args[0]);
+                var fmessageObj = ReflectionUtils.getArg(param.args, FMessageWpp.TYPE, 0);
+                var fmessage = new FMessageWpp(fmessageObj);
                 var key = fmessage.getKey();
                 if (!key.isFromMe && fmessage.isBroadcast()) {
-                    var view = (ViewGroup) param.thisObject;
-                    var res = view.findViewById((int) param.args[1]);
+                    var id = ReflectionUtils.getArg(param.args, Integer.class, 0);
+                    var view = (ViewGroup) (param.thisObject instanceof ViewGroup ? param.thisObject : param.args[0]);
+                    var res = view.findViewById(id);
                     if (res == null) {
                         var dateWrapper = (ViewGroup) view.findViewById(Utils.getID("date_wrapper", "id"));
                         var broadcast = new ImageView(view.getContext());
-                        broadcast.setId((int) param.args[1]);
+                        broadcast.setId(id);
                         dateWrapper.addView(broadcast, 0);
                     }
                     key.setIsFromMe(true);
                     keyObj = key;
+                    hooked = XposedHelpers.findAndHookMethod(key.remoteJid.getClass(), "getType", XC_MethodReplacement.returnConstant(0));
                 }
             }
 
             protected void afterHookedMethod(MethodHookParam param) throws Throwable {
                 if (keyObj != null) {
                     keyObj.setIsFromMe(false);
+                }
+                if (hooked != null) {
+                    hooked.unhook();
                 }
             }
 

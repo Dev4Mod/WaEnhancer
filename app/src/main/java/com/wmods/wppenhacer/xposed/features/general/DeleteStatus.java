@@ -15,6 +15,8 @@ import com.wmods.wppenhacer.xposed.core.devkit.Unobfuscator;
 import com.wmods.wppenhacer.xposed.utils.ReflectionUtils;
 import com.wmods.wppenhacer.xposed.utils.ResId;
 
+import org.luckypray.dexkit.query.enums.StringMatchType;
+
 import java.lang.reflect.Field;
 
 import de.robv.android.xposed.XSharedPreferences;
@@ -31,7 +33,7 @@ public class DeleteStatus extends Feature {
 
         var fragmentloader = Unobfuscator.loadFragmentLoader(classLoader);
         var showDialogStatus = Unobfuscator.loadShowDialogStatusMethod(classLoader);
-        Class<?> StatusDeleteDialogFragmentClass = classLoader.loadClass("com.whatsapp.status.StatusDeleteDialogFragment");
+        Class<?> StatusDeleteDialogFragmentClass = Unobfuscator.findFirstClassUsingName(classLoader, StringMatchType.EndsWith, "StatusDeleteDialogFragment");
         Field fieldBundle = ReflectionUtils.getFieldByType(fragmentloader, Bundle.class);
 
         var item = new MenuStatus.MenuItemStatus() {

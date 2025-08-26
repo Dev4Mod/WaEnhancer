@@ -57,6 +57,7 @@ public class App extends Application {
         var mode = Integer.parseInt(sharedPreferences.getString("thememode", "0"));
         setThemeMode(mode);
         changeLanguage(this);
+        // criar um banco de dados
     }
 
     public static void setThemeMode(int mode) {

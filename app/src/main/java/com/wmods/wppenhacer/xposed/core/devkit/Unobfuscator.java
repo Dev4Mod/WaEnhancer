@@ -14,6 +14,7 @@ import android.view.MenuInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.Nullable;
@@ -55,6 +56,7 @@ import java.util.Timer;
 import java.util.TimerTask;
 import java.util.stream.Collectors;
 
+import de.robv.android.xposed.XposedBridge;
 import de.robv.android.xposed.XposedHelpers;
 
 public class Unobfuscator {
@@ -125,6 +127,7 @@ public class Unobfuscator {
         return result.get(0).getInstance(classLoader);
     }
 
+
     public synchronized static Class<?>[] findAllClassUsingStrings(ClassLoader classLoader, StringMatchType type, String... strings) throws Exception {
         var matcher = new ClassMatcher();
         for (String string : strings) {
@@ -135,12 +138,19 @@ public class Unobfuscator {
         return result.stream().map(classData -> convertRealClass(classData, classLoader)).filter(Objects::nonNull).toArray(Class[]::new);
     }
 
+
     public synchronized static Class<?> findFirstClassUsingStringsFilter(ClassLoader classLoader, String packageFilter, StringMatchType type, String... strings) throws Exception {
         var matcher = new ClassMatcher();
         for (String string : strings) {
             matcher.addUsingString(string, type);
         }
         var result = dexkit.findClass(FindClass.create().searchPackages(packageFilter).matcher(matcher));
+        if (result.isEmpty()) return null;
+        return result.get(0).getInstance(classLoader);
+    }
+
+    public synchronized static Class<?> findFirstClassUsingName(ClassLoader classLoader, StringMatchType type, String name) throws Exception {
+        var result = dexkit.findClass(FindClass.create().matcher(ClassMatcher.create().className(name, type)));
         if (result.isEmpty()) return null;
         return result.get(0).getInstance(classLoader);
     }
@@ -285,10 +295,22 @@ public class Unobfuscator {
     public synchronized static Method loadBroadcastTagMethod(ClassLoader classLoader) throws Exception {
         return UnobfuscatorCache.getInstance().getMethod(classLoader, () -> {
             var field = loadBroadcastTagField(classLoader);
+            XposedBridge.log(DexSignUtil.getFieldDescriptor(field));
             var clazzData = dexkit.findClass(FindClass.create().matcher(ClassMatcher.create().addUsingString("ConversationRow/setUpUserNameInGroupView")));
             if (clazzData.isEmpty())
                 throw new Exception("BroadcastTag: ConversationRow Class not found");
             var method = dexkit.findMethod(FindMethod.create().searchInClass(clazzData).matcher(MethodMatcher.create().addUsingField(DexSignUtil.getFieldDescriptor(field))));
+            if (method.isEmpty()) {
+                var findViewId = View.class.getDeclaredMethod("findViewById", int.class);
+                var setImageResource = ImageView.class.getDeclaredMethod("setImageResource", int.class);
+                method = dexkit.findMethod(
+                        FindMethod.create().matcher(
+                                MethodMatcher.create().addUsingField(DexSignUtil.getFieldDescriptor(field))
+                                        .addInvoke(DexSignUtil.getMethodDescriptor(findViewId))
+                                        .addInvoke(DexSignUtil.getMethodDescriptor(setImageResource))
+                        )
+                );
+            }
             if (method.isEmpty())
                 throw new Exception("BroadcastTag: ConversationRow Method not found");
             return method.get(0).getMethodInstance(classLoader);
@@ -317,7 +339,8 @@ public class Unobfuscator {
     public synchronized static Method loadHideViewInChatMethod(ClassLoader classLoader) throws Exception {
         return UnobfuscatorCache.getInstance().getMethod(classLoader, () -> {
             Method method = findFirstMethodUsingStrings(classLoader, StringMatchType.Contains, "ReadReceipts/acknowledgeMessageIfNeeded");
-            if (method == null) method = findFirstMethodUsingStrings(classLoader, StringMatchType.Contains, "ReadReceipts/sendDeliveryReceiptIfNotRetry");
+            if (method == null)
+                method = findFirstMethodUsingStrings(classLoader, StringMatchType.Contains, "ReadReceipts/sendDeliveryReceiptIfNotRetry");
             if (method == null) throw new Exception("HideViewInChat method not found");
             return method;
         });
@@ -1399,7 +1422,8 @@ public class Unobfuscator {
 
     public synchronized static Method loadCheckOnlineMethod(ClassLoader loader) throws Exception {
         var method = findFirstMethodUsingStrings(loader, StringMatchType.Contains, "MessageHandler/handleConnectionThreadReady connectionready");
-        if (method == null) method = findFirstMethodUsingStrings(loader, StringMatchType.Contains, "app/xmpp/recv/handle_available");
+        if (method == null)
+            method = findFirstMethodUsingStrings(loader, StringMatchType.Contains, "app/xmpp/recv/handle_available");
         if (method == null) throw new RuntimeException("CheckOnline method not found");
         return method;
     }
