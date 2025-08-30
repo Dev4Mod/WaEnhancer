@@ -1,11 +1,8 @@
 [WA AND WA BUSINESS]
-* Add 2.25.20.xx and 2.25.21.xx to supported versions
-
-[BUGS FIXED]
-* Fixed bug in Separate Chats/Groups
-* Fixed bug in New UI Group Filter
-* Fixed bug icon of Revoked Status
-* Fixed bug in Custom colors for Text Status
+* Add 2.25.22.xx, 2.25.23.xx, 2.25.24.xx to supported versions
 
 [WAE]
 * Updated translations (Thanks to all translators)
+
+[NOTE]
+* Show online icon on the conversation screen is not working yet, wait for a next update.

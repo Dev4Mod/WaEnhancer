@@ -201,7 +201,7 @@
     <string name="remove_limit_edit_message">Remover limite de tempo para editar mensagem</string>
     <string name="remove_limit_edit_message_sum">Remove o limite de 15 minutos para edição de uma mensagem</string>
     <string name="disable_audio_sensor">Desativar troca de áudio</string>
-    <string name="disable_audio_sensor_sum">Desative a troca de áudio com o sensor de proximidade para que a mensagem de áudio não seja reproduzida pelo alto-falante auricular.</string>
+    <string name="disable_audio_sensor_sum">Desative a troca de áudio mediante o sensor de proximidade para que a mensagem de áudio não seja reproduzida pelo alto-falante auricular.</string>
     <string name="show_admin_group_icon">Mostrar ícone de administrador</string>
     <string name="show_admin_group_icon_sum">Mostre um ícone ao lado do nome do administrador do grupo.</string>
     <string name="toolbar_transparency">Transparência da barra superior</string>
@@ -408,8 +408,8 @@
     <string name="view_seen_tick">Ver visualização vista</string>
     <string name="view_seen_tick_sum">Quando ativo, mostra um ícone se a visualização da mensagem foi enviada ao destinatário ou se uma visualização única foi vista.</string>
     <string name="text_color">Cor do texto</string>
-    <string name="disable_the_proximity_sensor">Desativar tela desligada no sensor de proximidade</string>
-    <string name="disable_the_proximity_sensor_sum">Desativa a tela desligada no sensor de proximidade para todo o WhatsApp</string>
+    <string name="disable_the_proximity_sensor">Impedir o desligamento da tela</string>
+    <string name="disable_the_proximity_sensor_sum">Impedir que a tela desligue por meio do sensor de proximidade.</string>
     <string name="disable_status_in_the_profile_photo">Desativar status na foto do perfil</string>
     <string name="disable_status_in_the_profile_photo_sum">Quando ativo, o círculo que aparece na foto de perfil de cada contato quando há um novo status é desativado.</string>
 </resources>
