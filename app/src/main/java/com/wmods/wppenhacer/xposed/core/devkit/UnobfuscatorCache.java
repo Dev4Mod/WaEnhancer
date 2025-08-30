@@ -269,12 +269,15 @@ public class UnobfuscatorCache {
 
 
     public Class<?> getClass(ClassLoader loader, FunctionCall<Class<?>> functionCall) throws Exception {
-        var methodName = getKeyName();
-        String value = sPrefsCacheHooks.getString(methodName, null);
+        return getClass(loader, getKeyName(), functionCall);
+    }
+
+    public Class<?> getClass(ClassLoader loader, String key, FunctionCall<Class<?>> functionCall) throws Exception {
+        String value = sPrefsCacheHooks.getString(key, null);
         if (value == null) {
             Class<?> result = functionCall.call();
-            if (result == null) throw new Exception("Class is null: " + methodName);
-            saveClass(methodName, result);
+            if (result == null) throw new ClassNotFoundException("Class not found: " + key);
+            saveClass(key, result);
             return result;
         }
         return XposedHelpers.findClass(value, loader);

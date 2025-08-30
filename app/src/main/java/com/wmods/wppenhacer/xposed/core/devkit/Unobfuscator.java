@@ -150,9 +150,12 @@ public class Unobfuscator {
     }
 
     public synchronized static Class<?> findFirstClassUsingName(ClassLoader classLoader, StringMatchType type, String name) throws Exception {
-        var result = dexkit.findClass(FindClass.create().matcher(ClassMatcher.create().className(name, type)));
-        if (result.isEmpty()) return null;
-        return result.get(0).getInstance(classLoader);
+        return UnobfuscatorCache.getInstance().getClass(classLoader, name, () -> {
+            var result = dexkit.findClass(FindClass.create().matcher(ClassMatcher.create().className(name, type)));
+            if (result.isEmpty())
+                throw new ClassNotFoundException("Class not found: " + name);
+            return result.get(0).getInstance(classLoader);
+        });
     }
 
     public synchronized static String getMethodDescriptor(Method method) {
@@ -1495,9 +1498,12 @@ public class Unobfuscator {
 
     public synchronized static Class loadActionUser(ClassLoader loader) throws Exception {
         return UnobfuscatorCache.getInstance().getClass(loader, () -> {
-            var results = dexkit.findClass(new FindClass().matcher(new ClassMatcher().addUsingString("UserActions/reportIfBadTime: time=")));
-            if (results.isEmpty()) throw new RuntimeException("ActionUser class not found");
-            return results.get(0).getInstance(loader);
+            for (String s : List.of("UserActions/reportIfBadTime: time=", "UserActions/createFMessageTextFromUserInputs", "UserActions/userActionKeepInChat")) {
+                var clazz = findFirstClassUsingStrings(loader, StringMatchType.Contains, s);
+                if (clazz != null)
+                    return clazz;
+            }
+            throw new ClassNotFoundException("ActionUser class not found");
         });
     }
 
@@ -1533,7 +1539,10 @@ public class Unobfuscator {
 
     public synchronized static Method loadSendAudioTypeMethod(ClassLoader classLoader) throws Exception {
         return UnobfuscatorCache.getInstance().getMethod(classLoader, () -> {
-            var method = classLoader.loadClass("com.whatsapp.status.playback.MessageReplyActivity").getMethod("onActivityResult", int.class, int.class, android.content.Intent.class);
+            var classMsgReplyAct = Unobfuscator.findFirstClassUsingName(classLoader, StringMatchType.EndsWith, "MessageReplyActivity");
+            if (classMsgReplyAct == null)
+                throw new ClassNotFoundException("Class MessageReplyActivity not found");
+            var method = classMsgReplyAct.getMethod("onActivityResult", int.class, int.class, android.content.Intent.class);
             var methodData = Objects.requireNonNull(dexkit.getMethodData(method));
             var invokes = methodData.getInvokes();
             for (var invoke : invokes) {
@@ -1544,7 +1553,7 @@ public class Unobfuscator {
                     return m1;
                 }
             }
-            throw new RuntimeException("SendAudioType method not found");
+            throw new NoSuchMethodException("SendAudioType method not found");
         });
     }
 
@@ -1941,16 +1950,18 @@ public class Unobfuscator {
                     MethodMatcher.create().addUsingNumber(Utils.getID("invisible_height_placeholder", "id"))
                             .addUsingNumber(Utils.getID("container_view", "id"))
             ));
-            if (methodList.isEmpty()) {
-                var applyClazz = findFirstClassUsingStrings(classLoader, StringMatchType.Contains, "has_seen_detected_outcomes_nux");
-                if (applyClazz != null) {
-                    methodList = dexkit.findMethod(FindMethod.create().matcher(
-                            MethodMatcher.create().paramTypes(View.class, applyClazz)
-                    ));
-                }
+            if (!methodList.isEmpty())
+                return methodList.get(0).getClassInstance(classLoader);
+
+            for (var s : List.of("ConversationsFilter/selectFilter", "has_seen_detected_outcomes_nux")) {
+                var applyClazz = findFirstClassUsingStrings(classLoader, StringMatchType.Contains, s);
+                if (applyClazz == null) continue;
+                methodList = dexkit.findMethod(FindMethod.create().matcher(
+                        MethodMatcher.create().paramTypes(View.class, applyClazz)
+                ));
+                if (!methodList.isEmpty()) return methodList.get(0).getClassInstance(classLoader);
             }
-            if (methodList.isEmpty()) throw new RuntimeException("FilterItemClass Not Found");
-            return methodList.get(0).getClassInstance(classLoader);
+            throw new RuntimeException("FilterItemClass Not Found");
         });
     }
 

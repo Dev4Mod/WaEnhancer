@@ -23,6 +23,7 @@ import com.wmods.wppenhacer.xposed.utils.ResId;
 import com.wmods.wppenhacer.xposed.utils.Utils;
 
 import org.json.JSONObject;
+import org.luckypray.dexkit.query.enums.StringMatchType;
 
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
@@ -280,8 +281,8 @@ public class Others extends Feature {
     private void callInfo() throws Exception {
         if (!prefs.getBoolean("call_info", false)) return;
 
-        var clsCallEventCallback = classLoader.loadClass("com.whatsapp.calling.service.VoiceServiceEventCallback");
-        Class<?> clsWamCall = classLoader.loadClass("com.whatsapp.fieldstats.events.WamCall");
+        var clsCallEventCallback = Unobfuscator.findFirstClassUsingName(classLoader, StringMatchType.EndsWith, "VoiceServiceEventCallback");
+        Class<?> clsWamCall = Unobfuscator.findFirstClassUsingName(classLoader, StringMatchType.EndsWith, "WamCall");
 
         XposedBridge.hookAllMethods(clsCallEventCallback, "fieldstatsReady", new XC_MethodHook() {
             @Override
@@ -444,7 +445,7 @@ public class Others extends Feature {
                 }
             }
         });
-        var voicenoteClass = classLoader.loadClass("com.whatsapp.search.views.itemviews.VoiceNoteProfileAvatarView");
+        var voicenoteClass = Unobfuscator.findFirstClassUsingName(classLoader, StringMatchType.EndsWith, "VoiceNoteProfileAvatarView");
         var method = ReflectionUtils.findAllMethodsUsingFilter(voicenoteClass, method1 -> method1.getParameterCount() == 4 && method1.getParameterTypes()[0] == int.class && method1.getReturnType().equals(void.class));
         XposedBridge.hookMethod(method[method.length - 1], new XC_MethodHook() {
             @SuppressLint("SetTextI18n")
@@ -496,7 +497,7 @@ public class Others extends Feature {
 
 
     private void autoNextStatus() throws Exception {
-        Class<?> StatusPlaybackContactFragmentClass = classLoader.loadClass("com.whatsapp.status.playback.fragment.StatusPlaybackContactFragment");
+        Class<?> StatusPlaybackContactFragmentClass = Unobfuscator.findFirstClassUsingName(classLoader, StringMatchType.EndsWith, "StatusPlaybackContactFragment");
         var runNextStatusMethod = Unobfuscator.loadNextStatusRunMethod(classLoader);
         XposedBridge.hookMethod(runNextStatusMethod, new XC_MethodHook() {
             @Override
