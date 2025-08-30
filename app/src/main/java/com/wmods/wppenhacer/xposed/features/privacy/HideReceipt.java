@@ -51,7 +51,6 @@ public class HideReceipt extends Feature {
                     }
                     param.args[4] = "inactive";
                 }
-                logDebug(param.args[4]);
                 if (param.args[4] == "inactive") {
                     Object fmessageObj = WppCore.getFMessageFromKey(key);
                     var fmessage = new FMessageWpp(fmessageObj);

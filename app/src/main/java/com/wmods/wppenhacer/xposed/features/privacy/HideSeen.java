@@ -111,7 +111,6 @@ public class HideSeen extends Feature {
                 var number = WppCore.stripJID(jid);
                 var privacy = CustomPrivacy.getJSON(number);
                 var customHideRead = privacy.optBoolean("HideSeen", hideread);
-                log("Hide Seen:" + customHideRead);
                 if (WppCore.isGroup(jid)) {
                     if (privacy.optBoolean("HideSeen", hideread_group) || ghostmode) {
                         param.args[4] = null;
