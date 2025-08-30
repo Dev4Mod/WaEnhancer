@@ -1983,25 +1983,12 @@ public class Unobfuscator {
                     continue;
                 return methods.get(0).getClassInstance(classLoader);
             }
+
             // Let's look for forcibly on WhatsApp Web (very boring this)
             var opcodes = List.of(
-                    "invoke-static",
-                    "move-result",
-                    "if-eqz",
-                    "iget-object",
-                    "invoke-static",
-                    "move-result-object",
-                    "check-cast",
                     "invoke-virtual",
                     "move-result",
-                    "xor-int/lit8",
-                    "if-eqz",
-                    "if-eqz",
-                    "return",
-                    "const/4",
-                    "goto",
-                    "const/4",
-                    "return"
+                    "xor-int/lit8"
             );
 
             var constant = 0x3684;
