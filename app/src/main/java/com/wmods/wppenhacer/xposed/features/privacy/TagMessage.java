@@ -1,5 +1,6 @@
 package com.wmods.wppenhacer.xposed.features.privacy;
 
+import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 
@@ -64,9 +65,9 @@ public class TagMessage extends Feature {
                 var fmessage = new FMessageWpp(fmessageObj);
                 var key = fmessage.getKey();
                 if (!key.isFromMe && fmessage.isBroadcast()) {
-                    var id = ReflectionUtils.getArg(param.args, Integer.class, 0);
                     var view = (ViewGroup) (param.thisObject instanceof ViewGroup ? param.thisObject : param.args[0]);
-                    var res = view.findViewById(id);
+                    int id = Utils.getID("broadcast_icon", "id");
+                    View res = view.findViewById(id);
                     if (res == null) {
                         var dateWrapper = (ViewGroup) view.findViewById(Utils.getID("date_wrapper", "id"));
                         var broadcast = new ImageView(view.getContext());

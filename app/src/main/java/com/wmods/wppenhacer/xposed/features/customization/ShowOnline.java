@@ -176,14 +176,11 @@ public class ShowOnline extends Feature {
                 if (WppCore.isGroup(jid)) return;
 
                 var tokenDBInstance = fieldTokenDBInstance.get(mInstancePresence);
-                log(tokenDBInstance.getClass().toString());
                 var tokenData = ReflectionUtils.callMethod(tcTokenMethod, tokenDBInstance, jidObject);
                 var tokenObj = tokenClass.getConstructors()[0].newInstance(tokenData == null ? null : XposedHelpers.getObjectField(tokenData, "A01"));
                 sendPresenceMethod.invoke(null, jidObject, null, tokenObj, mInstancePresence);
-                logDebug("sendPresenceMethod", sendPresenceMethod);
 
                 var status = (String) ReflectionUtils.callMethod(getStatusUser, mStatusUser, object, false);
-                log(status);
                 var currentPosition = (int) ReflectionUtils.callMethod(getAdapterPositionMethod, viewHolder);
                 if (currentPosition != position) return;
                 if (!TextUtils.isEmpty(status) && status.trim().equals(UnobfuscatorCache.getInstance().getString("online"))) {
