@@ -1,17 +1,17 @@
 [versions]
 arscblamer = "1.0"
-bcpkix-jdk18on = "1.80"
+bcpkix-jdk18on = "1.81"
 betterypermissionhelper = "1.0.3"
 filepicker = "9.2.5"
 jstyleparser = "4.0.1"
 lombok = "1.18.38"
-okhttp = "4.12.0"
+okhttp = "5.1.0"
 xposed-legacy = "82"
-agp = "8.8.2"
+agp = "8.12.2"
 colorpicker = "1.1.0"
-dexkit = "2.0.4"
-nav = "2.9.0"
-kotlin = "2.1.10"
+dexkit = "2.0.6"
+nav = "2.9.3"
+kotlin = "2.2.10"
 
 
 [libraries]
@@ -26,7 +26,7 @@ libxposed-legacy = { group = "de.robv.android.xposed", name = "api", version.ref
 
 androidx-activity = { module = "androidx.activity:activity", version = "1.10.1" }
 androidx-constraintlayout = { module = "androidx.constraintlayout:constraintlayout", version = "2.2.1" }
-androidx-fragment = { module = "androidx.fragment:fragment", version = "1.8.6" }
+androidx-fragment = { module = "androidx.fragment:fragment", version = "1.8.9" }
 androidx-navigation-fragment = { group = "androidx.navigation", name = "navigation-fragment", version.ref = "nav" }
 androidx-navigation-ui = { group = "androidx.navigation", name = "navigation-ui", version.ref = "nav" }
 
