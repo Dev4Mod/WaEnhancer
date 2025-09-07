@@ -1345,11 +1345,11 @@ public class Unobfuscator {
         });
     }
 
-    public synchronized static Method loadSendStickerMethod(ClassLoader loader) throws Exception {
-        return UnobfuscatorCache.getInstance().getMethod(loader, () -> {
-            var method = findFirstMethodUsingStrings(loader, StringMatchType.Contains, "StickerGridViewItem.StickerLocal");
-            if (method == null) throw new RuntimeException("SendSticker method not found");
-            return method;
+    public synchronized static Method[] loadSendStickerMethods(ClassLoader loader) throws Exception {
+        return UnobfuscatorCache.getInstance().getMethods(loader, () -> {
+            var methods = findAllMethodUsingStrings(loader, StringMatchType.Contains, "StickerGridViewItem.StickerLocal");
+            if (methods == null) throw new RuntimeException("SendSticker method not found");
+            return methods;
         });
 
     }
