@@ -1,8 +1,15 @@
 [WA AND WA BUSINESS]
-* Add 2.25.22.xx, 2.25.23.xx, 2.25.24.xx to supported versions
+* Improve support for 2.25.24.xx
+
+[BUGS FIXED]
+* Fixed bug when deleting someone else's status (only for you)
+* Fixed bug where staying in chat would send the seen receipt as soon as the message arrived
+* Fixed confirmation bug when sending sticker
+* Fixed bug when sending videos in original resolution
+* Fixed bug when downloading contact profile pictures
 
 [WAE]
 * Updated translations (Thanks to all translators)
 
 [NOTE]
-* Show online icon on the conversation screen is not working yet, wait for a next update.
+* Show online icon on the conversation screen is not working yet.
