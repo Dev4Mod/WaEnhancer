@@ -14,7 +14,6 @@ import android.view.MenuInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
-import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.Nullable;
@@ -56,7 +55,6 @@ import java.util.Timer;
 import java.util.TimerTask;
 import java.util.stream.Collectors;
 
-import de.robv.android.xposed.XposedBridge;
 import de.robv.android.xposed.XposedHelpers;
 
 public class Unobfuscator {
@@ -298,31 +296,6 @@ public class Unobfuscator {
                 }
             }
             throw new Exception("BroadcastTag field not found");
-        });
-    }
-
-    public synchronized static Method loadBroadcastTagMethod(ClassLoader classLoader) throws Exception {
-        return UnobfuscatorCache.getInstance().getMethod(classLoader, () -> {
-            var field = loadBroadcastTagField(classLoader);
-            XposedBridge.log(DexSignUtil.getFieldDescriptor(field));
-            var clazzData = dexkit.findClass(FindClass.create().matcher(ClassMatcher.create().addUsingString("ConversationRow/setUpUserNameInGroupView")));
-            if (clazzData.isEmpty())
-                throw new Exception("BroadcastTag: ConversationRow Class not found");
-            var method = dexkit.findMethod(FindMethod.create().searchInClass(clazzData).matcher(MethodMatcher.create().addUsingField(DexSignUtil.getFieldDescriptor(field))));
-            if (method.isEmpty()) {
-                var findViewId = View.class.getDeclaredMethod("findViewById", int.class);
-                var setImageResource = ImageView.class.getDeclaredMethod("setImageResource", int.class);
-                method = dexkit.findMethod(
-                        FindMethod.create().matcher(
-                                MethodMatcher.create().addUsingField(DexSignUtil.getFieldDescriptor(field))
-                                        .addInvoke(DexSignUtil.getMethodDescriptor(findViewId))
-                                        .addInvoke(DexSignUtil.getMethodDescriptor(setImageResource))
-                        )
-                );
-            }
-            if (method.isEmpty())
-                throw new Exception("BroadcastTag: ConversationRow Method not found");
-            return method.get(0).getMethodInstance(classLoader);
         });
     }
 
