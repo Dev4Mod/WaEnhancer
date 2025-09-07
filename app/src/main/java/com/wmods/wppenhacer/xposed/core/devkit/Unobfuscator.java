@@ -205,11 +205,17 @@ public class Unobfuscator {
 
     public synchronized static Method loadReceiptMethod(ClassLoader classLoader) throws Exception {
         return UnobfuscatorCache.getInstance().getMethod(classLoader, () -> {
-            Method[] methods = findAllMethodUsingStrings(classLoader, StringMatchType.Equals, "receipt");
-            var deviceJidClass = XposedHelpers.findClass("com.whatsapp.jid.DeviceJid", classLoader);
-            Method bestMethod = Arrays.stream(methods).filter(method -> method.getParameterTypes().length > 1 && method.getParameterTypes()[1] == deviceJidClass).findFirst().orElse(null);
-            if (bestMethod == null) throw new Exception("Receipt method not found");
-            return bestMethod;
+            var methods = dexkit.findMethod(
+                    FindMethod.create()
+                            .matcher(MethodMatcher.create().addUsingString("receipt")
+                                    .paramCount(2, 6)
+                                    .paramTypes(null, "com.whatsapp.jid.DeviceJid", null, null, null, null)
+                            )
+            );
+            if (methods.isEmpty())
+                throw new NoSuchMethodError("Receipt method not found");
+
+            return methods.get(0).getMethodInstance(classLoader);
         });
     }
 
@@ -341,7 +347,7 @@ public class Unobfuscator {
     public synchronized static Method loadHideViewInChatMethod(ClassLoader classLoader) throws Exception {
         return UnobfuscatorCache.getInstance().getMethod(classLoader, () -> {
             var strings = new String[]{
-                    "ReadReceipts/sendDeliveryReadReceipt", "ReadReceipts/acknowledgeMessageIfNeeded", "ReadReceipts/sendDeliveryReceiptIfNotRetry"
+                    "ReadReceipts/sendReceiptForIncomingMessage", "ReadReceipts/sendDeliveryReadReceipt", "ReadReceipts/acknowledgeMessageIfNeeded", "ReadReceipts/sendDeliveryReceiptIfNotRetry"
             };
             for (var s : strings) {
                 var method = findFirstMethodUsingStrings(classLoader, StringMatchType.Contains, s);
