@@ -88,13 +88,38 @@ public class MediaQuality extends Feature {
                 @Override
                 protected void afterHookedMethod(MethodHookParam param) throws Throwable {
                     var resizeVideo = param.getResult();
-                    if ((int) param.args[1] == 3) {
+                    boolean isHighResolution;
+                    boolean isEnum = false;
+                    if (param.args[0] instanceof Enum<?>) {
+                        isEnum = true;
+                        var hightResolution = Enum.valueOf((Class<Enum>) param.args[0].getClass(), "RESOLUTION_1080P");
+                        isHighResolution = hightResolution == param.args[0];
+                    } else {
+                        isHighResolution = (int) param.args[1] == 3;
+                    }
+                    if (isHighResolution) {
 
                         if (realResolution) {
-                            var width = mediaFields.get("widthPx").getInt(param.args[0]);
-                            var height = mediaFields.get("heightPx").getInt(param.args[0]);
-                            var rotationAngle = mediaFields.get("rotationAngle").getInt(param.args[0]);
+                            int width;
+                            int height;
+                            int rotationAngle;
 
+                            if (mediaFields.isEmpty()) {
+                                if (isEnum) {
+                                    width = (int) param.args[3];
+                                    height = (int) param.args[4];
+                                    rotationAngle = (int) param.args[5];
+                                } else {
+                                    JSONObject mediaFields = (JSONObject) XposedHelpers.callMethod(param.args[0], "A00");
+                                    width = mediaFields.getInt("widthPx");
+                                    height = mediaFields.getInt("heightPx");
+                                    rotationAngle = mediaFields.getInt("rotationAngle");
+                                }
+                            } else {
+                                width = mediaFields.get("widthPx").getInt(param.args[0]);
+                                height = mediaFields.get("heightPx").getInt(param.args[0]);
+                                rotationAngle = mediaFields.get("rotationAngle").getInt(param.args[0]);
+                            }
                             var targetWidthField = mediaTranscodeParams.get("targetWidth");
                             var targetHeightField = mediaTranscodeParams.get("targetHeight");
 

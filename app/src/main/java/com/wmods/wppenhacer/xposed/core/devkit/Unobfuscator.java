@@ -534,7 +534,12 @@ public class Unobfuscator {
 
     public synchronized static HashMap<String, Field> loadMediaQualityOriginalVideoFields(ClassLoader classLoader) throws Exception {
         var method = loadMediaQualityVideoMethod2(classLoader);
-        var methodString = method.getParameterTypes()[0].getDeclaredMethod("toString");
+        Method methodString;
+        try {
+            methodString = method.getParameterTypes()[0].getDeclaredMethod("toString");
+        } catch (Exception e) {
+            return new HashMap<>();
+        }
         var methodData = dexkit.getMethodData(methodString);
         var usingFields = Objects.requireNonNull(methodData).getUsingFields();
         var usingStrings = Objects.requireNonNull(methodData).getUsingStrings();
