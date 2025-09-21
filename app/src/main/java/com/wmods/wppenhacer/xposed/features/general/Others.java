@@ -80,6 +80,8 @@ public class Others extends Feature {
         propsBoolean.put(5171, filterSeen);
         propsBoolean.put(4497, menuWIcons);
         propsBoolean.put(4023, newSettings);
+        propsInteger.put(18564, newSettings ? 1 : 0);
+
         if (disableMetaAI)
             propsBoolean.put(8013, Objects.equals(filterChats, "2"));
         propsBoolean.put(2889, floatingMenu);
