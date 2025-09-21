@@ -1,15 +1,9 @@
 [WA AND WA BUSINESS]
-* Improve support for 2.25.24.xx
+* Add support for 2.25.25.XX
 
-[BUGS FIXED]
-* Fixed bug when deleting someone else's status (only for you)
-* Fixed bug where staying in chat would send the seen receipt as soon as the message arrived
-* Fixed confirmation bug when sending sticker
-* Fixed bug when sending videos in original resolution
-* Fixed bug when downloading contact profile pictures
-
-[WAE]
-* Updated translations (Thanks to all translators)
+[FEATURE]
+* Added a feature to disable WhatsApp's version check. This allows you to remain on a specific WhatsApp version.
+  To prevent automatic updates, you can also go to Lsposed and select the Play Store for WAEnhancer or Disable auto update in the Play Store.
 
 [NOTE]
 * Show online icon on the conversation screen is not working yet.
