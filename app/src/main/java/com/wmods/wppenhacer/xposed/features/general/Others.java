@@ -476,8 +476,8 @@ public class Others extends Feature {
                     return;
                 }
                 var mediaType = results.get(0);
-                if ((int) mediaType.second != 2) return;
                 var audioType = results.get(1);
+                if ((int) mediaType.second != 2 && (int) mediaType.second != 9) return;
                 param.args[audioType.first] = audio_type - 1; // 1 = voice notes || 0 = audio voice
             }
         });

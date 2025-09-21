@@ -7,7 +7,6 @@ import androidx.annotation.NonNull;
 import com.wmods.wppenhacer.xposed.core.Feature;
 import com.wmods.wppenhacer.xposed.core.components.FMessageWpp;
 import com.wmods.wppenhacer.xposed.core.devkit.Unobfuscator;
-import com.wmods.wppenhacer.xposed.utils.DebugUtils;
 import com.wmods.wppenhacer.xposed.utils.ReflectionUtils;
 
 import org.json.JSONObject;
@@ -50,6 +49,8 @@ public class AudioTranscript extends Feature {
                 File file = fmessage.getMediaFile();
                 var callback = param.args[1];
                 var onComplete = ReflectionUtils.findMethodUsingFilter(callback.getClass(), method -> method.getParameterCount() == 4);
+                if (file == null || !file.exists())
+                    return;
                 String transcript = runTranscript(file);
                 var segments = new ArrayList<>();
                 var words = transcript.split("\\s");

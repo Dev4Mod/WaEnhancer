@@ -1482,7 +1482,7 @@ public class Unobfuscator {
 
     public synchronized static Class loadActionUser(ClassLoader loader) throws Exception {
         return UnobfuscatorCache.getInstance().getClass(loader, () -> {
-            for (String s : List.of("UserActions/reportIfBadTime: time=", "UserActions/createFMessageTextFromUserInputs", "UserActions/userActionKeepInChat")) {
+            for (String s : List.of("UserActions/userActionDeleteMessages", "UserActions/reportIfBadTime: time=", "UserActions/createFMessageTextFromUserInputs", "UserActions/userActionKeepInChat")) {
                 var clazz = findFirstClassUsingStrings(loader, StringMatchType.Contains, s);
                 if (clazz != null)
                     return clazz;
@@ -1533,7 +1533,7 @@ public class Unobfuscator {
                 if (!invoke.isMethod()) continue;
                 var m1 = invoke.getMethodInstance(classLoader);
                 var params = Arrays.asList(m1.getParameterTypes());
-                if (params.contains(List.class) && params.contains(int.class) && params.contains(boolean.class) && params.contains(Uri.class)) {
+                if (params.contains(List.class) && params.contains(int.class) && params.contains(Uri.class)) {
                     return m1;
                 }
             }
