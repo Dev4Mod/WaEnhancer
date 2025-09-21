@@ -199,7 +199,7 @@ public class FeatureLoader {
         });
     }
 
-    private static void disableExpirationVersion(ClassLoader classLoader) {
+    public static void disableExpirationVersion(ClassLoader classLoader) {
         var expirationClass = Unobfuscator.loadExpirationClass(classLoader);
         var method = ReflectionUtils.findMethodUsingFilter(expirationClass, m -> m.getReturnType().equals(Date.class));
         XposedBridge.hookMethod(method, new XC_MethodHook() {

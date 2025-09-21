@@ -19,6 +19,12 @@
             app:title="@string/update_check" />
 
         <rikka.material.preference.MaterialSwitchPreference
+            app:defaultValue="true"
+            app:key="disable_expiration"
+            app:summary="Deactivates the expired version of WhatsApp, (Note: Manual Disable to update WhatsApp on the Play Store or mark the Play Store on LSposed)"
+            app:title="Disable WhatsApp Expiration" />
+
+        <rikka.material.preference.MaterialSwitchPreference
             app:key="lite_mode"
             app:summary="@string/lite_mode_sum"
             app:title="@string/lite_mode" />

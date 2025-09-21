@@ -1,5 +1,7 @@
 package com.wmods.wppenhacer.xposed.features.general;
 
+import static com.wmods.wppenhacer.xposed.core.FeatureLoader.disableExpirationVersion;
+
 import android.annotation.SuppressLint;
 import android.os.BaseBundle;
 import android.os.Message;
@@ -75,6 +77,7 @@ public class Others extends Feature {
         var igstatus = prefs.getBoolean("igstatus", false);
         var animationEmojis = prefs.getBoolean("animation_emojis", false);
         var disableProfileStatus = prefs.getBoolean("disable_profile_status", false);
+        var disableExpiration = prefs.getBoolean("disable_expiration", false);
 
         propsInteger.put(3877, oldStatus ? igstatus ? 2 : 0 : 2);
         propsBoolean.put(5171, filterSeen);
@@ -229,6 +232,10 @@ public class Others extends Feature {
 
         if (disableProfileStatus) {
             disablePhotoProfileStatus();
+        }
+
+        if (disableExpiration) {
+            disableExpirationVersion(classLoader);
         }
 
     }
