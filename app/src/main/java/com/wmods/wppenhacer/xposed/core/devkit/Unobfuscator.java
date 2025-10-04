@@ -872,7 +872,7 @@ public class Unobfuscator {
                 if (declaringClassData == null)
                     throw new Exception("OnChangeStatus method not found");
 
-                Class<?> arg1Class = findFirstClassUsingStrings(loader, StringMatchType.Contains, "problematic contact:");
+                Class<?> arg1Class = loadWaContactClass(loader);
                 MethodDataList methodData = declaringClassData.findMethod(
                         FindMethod.create().matcher(MethodMatcher.create().paramCount(6, 8)));
 
@@ -2009,5 +2009,28 @@ public class Unobfuscator {
                 return supclass.getInstance(classLoader);
         }
         throw new ClassNotFoundException("VoipManager Class not found");
+    }
+
+    public static Class loadWaContactClass(ClassLoader classLoader) throws Exception {
+        return UnobfuscatorCache.getInstance().getClass(classLoader, () -> findFirstClassUsingStrings(classLoader, StringMatchType.Contains, "problematic contact:"));
+
+    }
+
+
+    public static Field loadWaContactFromContactInfo(ClassLoader classLoader) throws Exception {
+        return UnobfuscatorCache.getInstance().getField(classLoader, () -> {
+            var classData = dexkit.getClassData("com.whatsapp.chatinfo.ContactInfoActivity");
+            var waContactData = dexkit.getClassData(loadWaContactClass(classLoader));
+            if (waContactData != null && classData != null) {
+                for (var field : classData.getFields()) {
+                    if (field.getTypeName().equals(waContactData.getName())) {
+                        // For some reason Class Contactinfoactivity returns an error when trying to list the available fields
+                        return XposedHelpers.findField(classData.getInstance(classLoader), field.getName());
+                    }
+                }
+            }
+            throw new NoSuchFieldException("WaContact Field not found in ContactInfoActivity");
+        });
+
     }
 }

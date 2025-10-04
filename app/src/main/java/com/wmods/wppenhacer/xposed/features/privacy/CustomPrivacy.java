@@ -21,6 +21,7 @@ import com.wmods.wppenhacer.adapter.CustomPrivacyAdapter;
 import com.wmods.wppenhacer.xposed.core.Feature;
 import com.wmods.wppenhacer.xposed.core.WppCore;
 import com.wmods.wppenhacer.xposed.core.components.AlertDialogWpp;
+import com.wmods.wppenhacer.xposed.core.devkit.Unobfuscator;
 import com.wmods.wppenhacer.xposed.features.others.MenuHome;
 import com.wmods.wppenhacer.xposed.utils.DesignUtils;
 import com.wmods.wppenhacer.xposed.utils.ReflectionUtils;
@@ -29,6 +30,7 @@ import com.wmods.wppenhacer.xposed.utils.Utils;
 
 import org.json.JSONObject;
 
+import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Objects;
@@ -40,6 +42,7 @@ import de.robv.android.xposed.XposedHelpers;
 public class CustomPrivacy extends Feature {
     private Method chatUserJidMethod;
     private Method groupUserJidMethod;
+    private Field waContactField;
 
     public CustomPrivacy(@NonNull ClassLoader classLoader, @NonNull XSharedPreferences preferences) {
         super(classLoader, preferences);
@@ -60,6 +63,7 @@ public class CustomPrivacy extends Feature {
         Class<?> userJidClass = XposedHelpers.findClass("com.whatsapp.jid.UserJid", classLoader);
         Class<?> groupJidClass = XposedHelpers.findClass("com.whatsapp.jid.GroupJid", classLoader);
 
+        waContactField = Unobfuscator.loadWaContactFromContactInfo(classLoader);
         chatUserJidMethod = ReflectionUtils.findMethodUsingFilter(ContactInfoActivityClass, method -> method.getParameterCount() == 0 && userJidClass.isAssignableFrom(method.getReturnType()));
         groupUserJidMethod = ReflectionUtils.findMethodUsingFilter(GroupInfoActivityClass, method -> method.getParameterCount() == 0 && groupJidClass.isAssignableFrom(method.getReturnType()));
 
@@ -224,7 +228,14 @@ public class CustomPrivacy extends Feature {
 
     private Object getUserJid(Activity activity, boolean isChat) {
         if (isChat) {
-            return ReflectionUtils.callMethod(chatUserJidMethod, activity);
+            var userJid = ReflectionUtils.callMethod(chatUserJidMethod, activity);
+            if (Objects.requireNonNullElse(WppCore.getRawString(userJid), "").contains("@lid")) {
+                var waContact = ReflectionUtils.getObjectField(waContactField, activity);
+                Class<?> phoneUserJidClass = XposedHelpers.findClass("com.whatsapp.jid.PhoneUserJid", classLoader);
+                Field phoneUserJidField = ReflectionUtils.getFieldByType(waContact.getClass(), phoneUserJidClass);
+                return ReflectionUtils.getObjectField(phoneUserJidField, waContact);
+            }
+            return userJid;
         } else {
             return ReflectionUtils.callMethod(groupUserJidMethod, activity);
         }
