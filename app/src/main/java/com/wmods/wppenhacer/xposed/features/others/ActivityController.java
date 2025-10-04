@@ -138,6 +138,9 @@ public class ActivityController extends Feature {
         var lists = ReflectionUtils.findArrayOfType(constructor.getParameterTypes(), List.class);
         params[lists.get(0).first] = listContacts;
         params[lists.get(1).first] = new ArrayList();
+        if (lists.size() > 2) {
+            params[lists.get(2).first] = new ArrayList<>();
+        }
         Parcelable instance = (Parcelable) constructor.newInstance(params);
         intent2.putExtra("status_distribution", instance);
         activity.startActivityForResult(intent2, ContactPickerPreference.REQUEST_CONTACT_PICKER);
