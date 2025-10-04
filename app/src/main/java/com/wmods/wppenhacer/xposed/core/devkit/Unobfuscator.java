@@ -2000,4 +2000,14 @@ public class Unobfuscator {
         return clazz;
     }
 
+    public static Class loadVoipManager(ClassLoader classLoader) throws Exception {
+        var superClasses = dexkit.findClass(FindClass.create().matcher(ClassMatcher.create().superClass("com.whatsapp.voipcalling.Voip")));
+        if (superClasses.isEmpty())
+            throw new ClassNotFoundException("VoipManager Class not found");
+        for (var supclass : superClasses) {
+            if (!Modifier.isAbstract(supclass.getModifiers()))
+                return supclass.getInstance(classLoader);
+        }
+        throw new ClassNotFoundException("VoipManager Class not found");
+    }
 }

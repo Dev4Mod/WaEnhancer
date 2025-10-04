@@ -10,11 +10,11 @@ import com.wmods.wppenhacer.xposed.core.Feature;
 import com.wmods.wppenhacer.xposed.core.WppCore;
 import com.wmods.wppenhacer.xposed.core.devkit.Unobfuscator;
 import com.wmods.wppenhacer.xposed.features.general.Tasker;
+import com.wmods.wppenhacer.xposed.utils.DebugUtils;
 import com.wmods.wppenhacer.xposed.utils.ReflectionUtils;
 import com.wmods.wppenhacer.xposed.utils.Utils;
 
 import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Objects;
@@ -27,11 +27,21 @@ import de.robv.android.xposed.XposedHelpers;
 
 public class CallPrivacy extends Feature {
 
+    private Object mVoipManager;
+
     /**
      * @noinspection unchecked
      */
     @Override
     public void doHook() throws Throwable {
+
+        var voipManagerClass = Unobfuscator.loadVoipManager(classLoader);
+        XposedBridge.hookAllConstructors(voipManagerClass, new XC_MethodHook() {
+            @Override
+            protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+                mVoipManager = param.thisObject;
+            }
+        });
 
         var clazzVoip = XposedHelpers.findClass("com.whatsapp.voipcalling.Voip", classLoader);
         var endCallMethod = ReflectionUtils.findMethodUsingFilter(clazzVoip, m -> m.getName().equals("endCall"));
@@ -42,6 +52,7 @@ public class CallPrivacy extends Feature {
         XposedBridge.hookMethod(onCallReceivedMethod, new XC_MethodHook() {
             @Override
             protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
+                DebugUtils.debugArgs(param.args);
                 Object callinfo;
                 Class<?> callInfoClass = XposedHelpers.findClass("com.whatsapp.voipcalling.CallInfo", classLoader);
                 if (param.args[0] instanceof Message) {
@@ -62,25 +73,19 @@ public class CallPrivacy extends Feature {
                 if (!blockCall) return;
                 var rejectType = prefs.getString("call_type", "no_internet");
 
-                // Need Instance of VoipManager from WhatsApp 2.24.24.XX
-                Object voipManager = null;
-                if (!Modifier.isStatic(endCallMethod.getModifiers())) {
-                    var fieldVoipManager = ReflectionUtils.findFieldUsingFilterIfExists(param.thisObject.getClass(), field -> clazzVoip.isInstance(ReflectionUtils.getObjectField(field, param.thisObject)));
-                    voipManager = fieldVoipManager == null ? null : fieldVoipManager.get(param.thisObject);
-                }
                 switch (rejectType) {
                     case "uncallable":
                     case "declined":
                         var params = ReflectionUtils.initArray(rejectCallMethod.getParameterTypes());
                         params[0] = callId;
                         params[1] = "declined".equals(rejectType) ? null : rejectType;
-                        ReflectionUtils.callMethod(rejectCallMethod, voipManager, params);
+                        ReflectionUtils.callMethod(rejectCallMethod, mVoipManager, params);
                         param.setResult(true);
                         break;
                     case "ended":
                         var params1 = ReflectionUtils.initArray(endCallMethod.getParameterTypes());
                         params1[0] = true;
-                        ReflectionUtils.callMethod(endCallMethod, voipManager, params1);
+                        ReflectionUtils.callMethod(endCallMethod, mVoipManager, params1);
                         param.setResult(true);
                         break;
                     default:
