@@ -206,8 +206,8 @@ public class Unobfuscator {
             var methods = dexkit.findMethod(
                     FindMethod.create()
                             .matcher(MethodMatcher.create().addUsingString("receipt")
-                                    .paramCount(2, 6)
-                                    .paramTypes(null, "com.whatsapp.jid.DeviceJid", null, null, null, null)
+                                    .paramCount(2, 7)
+                                    .paramTypes(null, "com.whatsapp.jid.DeviceJid", null, null, null, null, null)
                             )
             );
             if (methods.isEmpty())

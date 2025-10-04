@@ -106,20 +106,21 @@ public class HideSeen extends Feature {
             protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
                 if (ReflectionUtils.isCalledFromMethod(outsideMethod) || !ReflectionUtils.isCalledFromMethod(hideViewInChatMethod))
                     return;
-                if (!Objects.equals("read", param.args[4])) return;
+                var msgTypeIdx = ReflectionUtils.findIndexOfType(param.args, String.class);
+                if (!Objects.equals("read", param.args[msgTypeIdx])) return;
                 var jid = WppCore.getCurrentRawJID();
                 var number = WppCore.stripJID(jid);
                 var privacy = CustomPrivacy.getJSON(number);
                 var customHideRead = privacy.optBoolean("HideSeen", hideread);
                 if (WppCore.isGroup(jid)) {
                     if (privacy.optBoolean("HideSeen", hideread_group) || ghostmode) {
-                        param.args[4] = null;
+                        param.args[msgTypeIdx] = null;
                     }
                 } else if (customHideRead || ghostmode) {
-                    param.args[4] = null;
+                    param.args[msgTypeIdx] = null;
                 }
 
-                if (param.args[4] == null) {
+                if (param.args[msgTypeIdx] == null) {
                     var key = ReflectionUtils.getArg(param.args, FMessageWpp.Key.TYPE, 0);
                     if (key != null) {
                         var fmessage = new FMessageWpp(WppCore.getFMessageFromKey(key));
