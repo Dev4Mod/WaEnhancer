@@ -92,21 +92,23 @@ public class FileSelectPreference extends Preference implements Preference.OnPre
             return true;
         }
 
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            if (ContextCompat.checkSelfPermission(getContext(), Manifest.permission.READ_MEDIA_IMAGES) != PackageManager.PERMISSION_GRANTED) {
+                ((Activity) getContext()).requestPermissions(new String[]{Manifest.permission.READ_MEDIA_IMAGES}, 1);
+                return true;
+            }
+        } else if (ContextCompat.checkSelfPermission(getContext(), Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+            ((Activity) getContext()).requestPermissions(new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, 1);
+            return true;
+        }
+
         FilePicker.setOnFilePickedListener(this);
         if (selectDirectory) {
             showSelectDirectoryDialog();
             return true;
         }
+
         if (mineTypes.length == 1 && mineTypes[0].contains("image")) {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                if (ContextCompat.checkSelfPermission(getContext(), Manifest.permission.READ_MEDIA_IMAGES) != PackageManager.PERMISSION_GRANTED) {
-                    ((Activity) getContext()).requestPermissions(new String[]{Manifest.permission.READ_MEDIA_IMAGES}, 1);
-                    return true;
-                }
-            } else if (ContextCompat.checkSelfPermission(getContext(), Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
-                ((Activity) getContext()).requestPermissions(new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, 1);
-                return true;
-            }
             FilePicker.setOnUriPickedListener(this);
             FilePicker.imageCapture.launch(new PickVisualMediaRequest.Builder().setMediaType(new ActivityResultContracts.PickVisualMedia.SingleMimeType(mineTypes[0])).build());
             return true;
