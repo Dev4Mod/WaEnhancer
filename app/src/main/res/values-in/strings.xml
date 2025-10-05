@@ -39,7 +39,7 @@
     <string name="novaconfig">Gaya Setelan Baru</string>
     <string name="novaconfig_sum">Aktifkan gaya setelan baru dengan foto profil di layar beranda</string>
     <string name="novofiltro">Fungsi Pencarian</string>
-    <string name="novofiltro_sum">Pilih antara Ikon Pencarian, Bilah Pencarian atau Tanpa Pencarian (Aktifkan Fungsi untuk Menonaktifkan Meta AI)</string>
+    <string name="novofiltro_sum">Choose between Search Icon, Search Bar, or No Search</string>
     <string name="menuwicon">Ikon Menu</string>
     <string name="menuwicon_sum">Tambahkan ikon pada opsi menu di aplikasi WhatsApp</string>
     <string name="freezelastseen">Bekukan \"terakhir dilihat dan online\"</string>

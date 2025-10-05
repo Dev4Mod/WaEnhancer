@@ -38,7 +38,7 @@
     <string name="novaconfig">Nuevo estilo del apartado \'Ajustes\'</string>
     <string name="novaconfig_sum">Habilite el nuevo estilo de Ajustes, con una foto de perfil en la barra de herramientas de inicio</string>
     <string name="novofiltro">Buscar Funciones</string>
-    <string name="novofiltro_sum">Elija entre el icono de búsqueda, la barra de búsqueda o ninguna búsqueda (Habilitar función para desactivar Meta-AI)</string>
+    <string name="novofiltro_sum">Choose between Search Icon, Search Bar, or No Search</string>
     <string name="menuwicon">Iconos de menú</string>
     <string name="menuwicon_sum">Agregue íconos en las opciones del menú a lo largo de la aplicación</string>
     <string name="freezelastseen">Congelar Última vez</string>
@@ -405,7 +405,7 @@
     <string name="select_contacts">Seleccionar Contactos</string>
     <string name="style_of_stories_status">Estilo de las Historias/Estados</string>
     <string name="style_of_stories_status_sum">Cambia el estilo de las Historias/Estados a algunos otros modelos disponibles en WhatsApp</string>
-    <string name="view_seen_tick">View Seen Tick</string>
+    <string name="view_seen_tick">Ver tick de visto</string>
     <string name="view_seen_tick_sum">Mostrar un icono si el visto del mensaje fue enviada al destinatario o se vio una única vez</string>
     <string name="text_color">Color del texto</string>
     <string name="disable_the_proximity_sensor">Desactivar \'Apagar pantalla cuando se activa el sensor de proximidad\'</string>

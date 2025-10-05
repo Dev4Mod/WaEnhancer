@@ -38,7 +38,7 @@
     <string name="novaconfig">Neuer Einstellungsstil</string>
     <string name="novaconfig_sum">Aktiviert den neuen Einstellungsstil mit Profilfoto auf der Symbolleiste</string>
     <string name="novofiltro">Suchfunktion</string>
-    <string name="novofiltro_sum">Wählen Sie zwischen Suchsymbol, Suchleiste oder ohne Suche (Deaktiviert Meta-AI)</string>
+    <string name="novofiltro_sum">Choose between Search Icon, Search Bar, or No Search</string>
     <string name="menuwicon">Menüsymbole</string>
     <string name="menuwicon_sum">Die Menüoptionen erhalten zusätzlich Symbole in der gesamten App</string>
     <string name="freezelastseen">Friere \"Zuletzt gesehen\" ein</string>

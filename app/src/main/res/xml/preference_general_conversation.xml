@@ -87,6 +87,7 @@
 
         <rikka.material.preference.MaterialSwitchPreference
             app:key="disable_defemojis"
+            app:enabled="false"
             app:summary="@string/disable_default_emojis_sum"
             app:title="@string/disable_default_emojis" />
 

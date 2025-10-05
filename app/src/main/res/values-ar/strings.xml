@@ -39,9 +39,7 @@
     <string name="novaconfig">نمط الإعدادات الجديدة</string>
     <string name="novaconfig_sum">تمكين نمط الإعدادات الجديدة، مع صورة الملف الشخصي على شريط أدوات الشاشة الرئيسية</string>
     <string name="novofiltro">وظائف البحث</string>
-    <string name="novofiltro_sum">اختر بين أيقونة البحث، أو شريط البحث، أو عدم البحث
-
-(تمكين وظيفة لتعطيل ميتا AI)</string>
+    <string name="novofiltro_sum">Choose between Search Icon, Search Bar, or No Search</string>
     <string name="menuwicon">أيقونات القائمة</string>
     <string name="menuwicon_sum">إضافة أيقونات بجوار خيارات القائمة عبر التطبيق</string>
     <string name="freezelastseen">تجميد آخر ظهور</string>

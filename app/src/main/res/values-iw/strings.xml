@@ -38,7 +38,7 @@
     <string name="novaconfig">סגנון הגדרות חדש</string>
     <string name="novaconfig_sum">אפשר את סגנון ההגדרות החדש, עם תמונת פרופיל במסך הבית</string>
     <string name="novofiltro">פונקציית החיפוש</string>
-    <string name="novofiltro_sum">בחרו בין סמל חיפוש, סרגל חיפוש או ללא חיפוש (הפעל פונקציה להשבתת מטא AI)</string>
+    <string name="novofiltro_sum">Choose between Search Icon, Search Bar, or No Search</string>
     <string name="menuwicon">אייקוני תפריט</string>
     <string name="menuwicon_sum">הוסף סמלים לצד אפשרויות התפריט בכל האפליקציה</string>
     <string name="freezelastseen">הקפאת נראה לאחרונה</string>

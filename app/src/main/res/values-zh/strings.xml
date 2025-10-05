@@ -38,7 +38,7 @@
     <string name="novaconfig">新的设置样式</string>
     <string name="novaconfig_sum">启用新的设置样式，在主页工具栏上显示个人资料照片</string>
     <string name="novofiltro">搜索功能</string>
-    <string name="novofiltro_sum">Choose between Search Icon, Search Bar, or No Search (Enable Function for Disable Meta AI)</string>
+    <string name="novofiltro_sum">Choose between Search Icon, Search Bar, or No Search</string>
     <string name="menuwicon">菜单图标</string>
     <string name="menuwicon_sum">在所有菜单选项旁边添加图标</string>
     <string name="freezelastseen">冻结最后一次在线时间</string>

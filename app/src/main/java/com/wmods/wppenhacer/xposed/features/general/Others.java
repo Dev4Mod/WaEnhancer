@@ -204,9 +204,9 @@ public class Others extends Feature {
             filterItems(filter_items);
         }
 
-        if (disable_defemojis) {
-            disable_defEmojis();
-        }
+//        if (disable_defemojis) {
+//            disable_defEmojis();
+//        }
 
         if (autonext_status) {
             autoNextStatus();
@@ -521,10 +521,10 @@ public class Others extends Feature {
     }
 
 
-    private void disable_defEmojis() throws Exception {
-        var defEmojiClass = Unobfuscator.loadDefEmojiClass(classLoader);
-        XposedBridge.hookMethod(defEmojiClass, XC_MethodReplacement.returnConstant(null));
-    }
+//    private void disable_defEmojis() throws Exception {
+//        var defEmojiClass = Unobfuscator.loadDefEmojiClass(classLoader);
+//        XposedBridge.hookMethod(defEmojiClass, XC_MethodReplacement.returnConstant(null));
+//    }
 
     private void filterItems(String filterItems) {
         var itens = filterItems.split("\n");

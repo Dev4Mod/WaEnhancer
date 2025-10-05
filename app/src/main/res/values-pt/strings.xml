@@ -38,7 +38,7 @@
     <string name="novaconfig">Novo estilo de configurações</string>
     <string name="novaconfig_sum">Ativa o novo estilo de configurações, com foto do perfil na tela inicial.</string>
     <string name="novofiltro">Pesquisar funções</string>
-    <string name="novofiltro_sum">Escolha entre o ícone de pesquisa, barra de pesquisa ou sem pesquisa (Ative a função para desativar o Meta AI)</string>
+    <string name="novofiltro_sum">Choose between Search Icon, Search Bar, or No Search</string>
     <string name="menuwicon">Ícones nos menus</string>
     <string name="menuwicon_sum">Adicione ícones nas opções de menu ao longo do app</string>
     <string name="freezelastseen">Congelar visto por último</string>

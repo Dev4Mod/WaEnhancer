@@ -38,7 +38,7 @@
     <string name="novaconfig">Yeni Ayarlar Stili</string>
     <string name="novaconfig_sum">Ana ekran araç çubuğunda profil fotoğrafı ile yeni ayarlar stilini etkinleştir</string>
     <string name="novofiltro">Arama Fonksiyonları</string>
-    <string name="novofiltro_sum">Arama İkonu, Arama Çubuğu veya Arama Yok arasında seçim yapın (Meta AI\'ı Devre Dışı Bırakma İşlevini Etkinleştir)</string>
+    <string name="novofiltro_sum">Choose between Search Icon, Search Bar, or No Search</string>
     <string name="menuwicon">Menü Simgeleri</string>
     <string name="menuwicon_sum">Uygulama genelinde menü seçeneklerinin yanına simgeler ekle</string>
     <string name="freezelastseen">Son Görülmeyi Dondur</string>

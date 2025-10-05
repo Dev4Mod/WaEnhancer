@@ -38,7 +38,7 @@
     <string name="novaconfig">Nuovo stile Impostazioni</string>
     <string name="novaconfig_sum">Abilita il nuovo stile delle impostazioni, con la foto del profilo sulla barra degli strumenti della Home</string>
     <string name="novofiltro">Funzioni di ricerca</string>
-    <string name="novofiltro_sum">Scegli tra Icona di Ricerca, Barra di Ricerca o Nessuna Ricerca (abilita funzione per disabilitare Meta AI)</string>
+    <string name="novofiltro_sum">Choose between Search Icon, Search Bar, or No Search</string>
     <string name="menuwicon">Icone nel menù</string>
     <string name="menuwicon_sum">Aggiungi le icone accanto alle opzioni di menù dell\'app</string>
     <string name="freezelastseen">Congela Ultimo accesso</string>
