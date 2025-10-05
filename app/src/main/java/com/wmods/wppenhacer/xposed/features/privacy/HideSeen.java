@@ -106,7 +106,7 @@ public class HideSeen extends Feature {
             protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
                 if (ReflectionUtils.isCalledFromMethod(outsideMethod) || !ReflectionUtils.isCalledFromMethod(hideViewInChatMethod))
                     return;
-                var msgTypeIdx = ReflectionUtils.findIndexOfType(param.args, String.class);
+                var msgTypeIdx = ReflectionUtils.findIndexOfType(((Method) param.method).getParameterTypes(), String.class);
                 if (!Objects.equals("read", param.args[msgTypeIdx])) return;
                 var jid = WppCore.getCurrentRawJID();
                 var number = WppCore.stripJID(jid);

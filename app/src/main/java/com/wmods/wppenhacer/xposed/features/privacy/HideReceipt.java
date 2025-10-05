@@ -10,6 +10,8 @@ import com.wmods.wppenhacer.xposed.core.devkit.Unobfuscator;
 import com.wmods.wppenhacer.xposed.features.customization.HideSeenView;
 import com.wmods.wppenhacer.xposed.utils.ReflectionUtils;
 
+import java.lang.reflect.Method;
+
 import de.robv.android.xposed.XC_MethodHook;
 import de.robv.android.xposed.XSharedPreferences;
 import de.robv.android.xposed.XposedBridge;
@@ -45,7 +47,7 @@ public class HideReceipt extends Feature {
                 var privacy = CustomPrivacy.getJSON(number);
                 var customHideReceipt = privacy.optBoolean("HideReceipt", hideReceipt);
                 var customHideRead = privacy.optBoolean("HideSeen", hideread);
-                var msgTypeIdx = ReflectionUtils.findIndexOfType(param.args, String.class);
+                var msgTypeIdx = ReflectionUtils.findIndexOfType(((Method) param.method).getParameterTypes(), String.class);
                 if (param.args[msgTypeIdx] != "sender" && (customHideReceipt || ghostmode)) {
                     if (!ReflectionUtils.isCalledFromMethod(method2) && ReflectionUtils.isCalledFromMethod(mInChat) && !customHideRead) {
                         return;
