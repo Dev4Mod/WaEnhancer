@@ -10,5 +10,8 @@
 * Fixed silent bug in colors that showed several error logs
 * Fixed issue when opening a dialog screen when the activity was no longer active
 
+[COMPATIBILITY]
+* Updated dexkit version to 2.0.7 (now android 16 will no longer notify about the problem with binaries without 16KB)
+
 [NOTES]
 * Disabled the option to use WhatsApp's default emojis, it is now presenting many problems and was a workaround that prevented the loading of emojis (no return date)
