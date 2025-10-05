@@ -2006,6 +2006,11 @@ public class Unobfuscator {
         return UnobfuscatorCache.getInstance().getMethod(classLoader, () -> findFirstMethodUsingStrings(classLoader, StringMatchType.Contains, "HeaderFooterRecyclerViewAdapter/addHeaderViewItemIfNeeded/duplicate-item"));
     }
 
+    public static Method loadMenuSearchMethod(ClassLoader classLoader) throws Exception {
+        return UnobfuscatorCache.getInstance().getMethod(classLoader, () -> dexkit.findMethod(FindMethod.create().matcher(MethodMatcher.create().addUsingNumber(8013).paramCount(0).returnType(boolean.class))).single().getMethodInstance(classLoader));
+    }
+
+
     public static Method loadAddOptionSearchBarMethod(ClassLoader classLoader) throws Exception {
         return UnobfuscatorCache.getInstance().getMethod(classLoader, () -> {
             var classData = Objects.requireNonNull(dexkit.getClassData(WppCore.getHomeActivityClass(classLoader)));
