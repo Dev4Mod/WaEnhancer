@@ -2035,7 +2035,7 @@ public class Unobfuscator {
     }
 
     public static Method loadViewAddSearchBarMethod(ClassLoader classLoader) throws Exception {
-        return UnobfuscatorCache.getInstance().getMethod(classLoader, () -> findFirstMethodUsingStrings(classLoader, StringMatchType.Contains, "ConversationsList/Search/addHeaderView"));
+        return UnobfuscatorCache.getInstance().getMethod(classLoader, () -> findFirstMethodUsingStrings(classLoader, StringMatchType.Contains, "HeaderFooterRecyclerViewAdapter/addHeaderViewItemIfNeeded/duplicate-item"));
     }
 
     public static Method loadAddOptionSearchBarMethod(ClassLoader classLoader) throws Exception {

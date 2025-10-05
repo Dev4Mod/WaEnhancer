@@ -26,6 +26,7 @@ import com.wmods.wppenhacer.xposed.utils.Utils;
 
 import org.json.JSONObject;
 import org.luckypray.dexkit.query.enums.StringMatchType;
+import org.luckypray.dexkit.util.DexSignUtil;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
@@ -604,9 +605,13 @@ public class Others extends Feature {
 
     private void hookSearchbar(String filterChats) throws Exception {
         Method searchbar = Unobfuscator.loadViewAddSearchBarMethod(classLoader);
+        log("ADD HEADER VIEW: " + DexSignUtil.getMethodDescriptor(searchbar));
         XposedBridge.hookMethod(searchbar, new XC_MethodHook() {
             @Override
             protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
+                var view = (View) param.args[0];
+                if (view.getId() != Utils.getID("my_search_bar", "id"))
+                    return;
                 if (!Objects.equals(filterChats, "2")) {
                     param.setResult(null);
                 }
