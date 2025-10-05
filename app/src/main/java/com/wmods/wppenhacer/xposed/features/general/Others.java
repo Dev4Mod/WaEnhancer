@@ -282,7 +282,6 @@ public class Others extends Feature {
                 if (param.args[0].equals(PowerManager.PROXIMITY_SCREEN_OFF_WAKE_LOCK)) {
                     param.setResult(null);
                 }
-                log(param.getResult());
             }
         });
     }
@@ -575,15 +574,14 @@ public class Others extends Feature {
         XposedBridge.hookMethod(methodPropsBoolean, new XC_MethodHook() {
             @Override
             protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-                int i = (int) param.args[param.args.length - 1];
+                var list = ReflectionUtils.findArrayOfType(param.args, Integer.class);
+                int i = (int) list.get(0).second;
 
                 var propValue = propsBoolean.get(i);
                 if (propValue != null) {
                     // Fix Bug in Settings Data Usage
-                    switch (i) {
-                        case 4023:
-                            if (ReflectionUtils.isCalledFromClass(dataUsageActivityClass)) return;
-                            break;
+                    if (i == 4023) {
+                        if (ReflectionUtils.isCalledFromClass(dataUsageActivityClass)) return;
                     }
                     param.setResult(propValue);
                 }
@@ -595,7 +593,8 @@ public class Others extends Feature {
         XposedBridge.hookMethod(methodPropsInteger, new XC_MethodHook() {
             @Override
             protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
-                int i = (int) param.args[param.args.length - 1];
+                var list = ReflectionUtils.findArrayOfType(param.args, Integer.class);
+                int i = (int) list.get(0).second;
                 var propValue = propsInteger.get(i);
                 if (propValue == null) return;
                 param.setResult(propValue);
