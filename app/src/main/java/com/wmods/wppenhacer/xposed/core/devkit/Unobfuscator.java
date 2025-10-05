@@ -232,7 +232,7 @@ public class Unobfuscator {
     public synchronized static Method loadReceiptInChat(ClassLoader classLoader) throws Exception {
         return UnobfuscatorCache.getInstance().getMethod(classLoader, () -> {
             var method = loadReceiptMethod(classLoader);
-            var methodDataList = dexkit.findMethod(new FindMethod().matcher(new MethodMatcher().addUsingString("callCreatorJid").addUsingString("reject").addInvoke(DexSignUtil.getMethodDescriptor(method))));
+            var methodDataList = dexkit.findMethod(FindMethod.create().matcher(MethodMatcher.create().addUsingString("callCreatorJid").addUsingString("reject").addInvoke(DexSignUtil.getMethodDescriptor(method))));
             if (methodDataList.isEmpty()) throw new Exception("Receipt method not found");
             return methodDataList.get(0).getMethodInstance(classLoader);
         });
@@ -243,7 +243,7 @@ public class Unobfuscator {
     public synchronized static Method loadForwardTagMethod(ClassLoader classLoader) throws Exception {
         return UnobfuscatorCache.getInstance().getMethod(classLoader, () -> {
             Class<?> messageInfoClass = loadFMessageClass(classLoader);
-            var methodList = dexkit.findMethod(new FindMethod().matcher(new MethodMatcher().addUsingString("chatInfo/incrementUnseenImportantMessageCount")));
+            var methodList = dexkit.findMethod(FindMethod.create().matcher(MethodMatcher.create().addUsingString("chatInfo/incrementUnseenImportantMessageCount")));
             if (methodList.isEmpty()) throw new Exception("ForwardTag method support not found");
             var invokes = methodList.get(0).getInvokes();
             for (var invoke : invokes) {

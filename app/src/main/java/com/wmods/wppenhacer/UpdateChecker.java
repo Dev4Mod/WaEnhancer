@@ -1,10 +1,10 @@
 package com.wmods.wppenhacer;
 
 import android.app.Activity;
-import android.app.AlertDialog;
 import android.text.Html;
 
 import com.wmods.wppenhacer.xposed.core.WppCore;
+import com.wmods.wppenhacer.xposed.core.components.AlertDialogWpp;
 import com.wmods.wppenhacer.xposed.utils.Utils;
 
 import java.util.Objects;
@@ -42,7 +42,7 @@ public class UpdateChecker implements Runnable {
                 var changelogText = content.substring(changelogIndex, closeTag + 6);
                 var changelog = Html.fromHtml(changelogText, Html.FROM_HTML_MODE_COMPACT).toString();
                 mActivity.runOnUiThread(() -> {
-                    AlertDialog.Builder dialog = new AlertDialog.Builder(mActivity);
+                    var dialog = new AlertDialogWpp(mActivity);
                     dialog.setTitle("WAE - New version available!");
                     dialog.setMessage("Changelog:\n\n" + changelog);
                     dialog.setNegativeButton("Ignore", (dialog1, which) -> {
