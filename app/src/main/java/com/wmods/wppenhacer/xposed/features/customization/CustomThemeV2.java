@@ -261,7 +261,9 @@ public class CustomThemeV2 extends Feature {
             protected void afterHookedMethod(MethodHookParam param) throws Throwable {
                 var view = (View) param.args[0];
                 var textView = (TextView) view.findViewById(Utils.getID("text_view", "id"));
-                textView.setTextColor(DesignUtils.getPrimaryTextColor());
+                if (textView != null) {
+                    textView.setTextColor(DesignUtils.getPrimaryTextColor());
+                }
             }
         });
 
