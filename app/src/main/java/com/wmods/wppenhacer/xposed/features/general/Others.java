@@ -27,6 +27,8 @@ import com.wmods.wppenhacer.xposed.utils.Utils;
 import org.json.JSONObject;
 import org.luckypray.dexkit.query.enums.StringMatchType;
 
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -85,8 +87,6 @@ public class Others extends Feature {
         propsBoolean.put(4023, newSettings);
         propsInteger.put(18564, newSettings ? 1 : 0);
 
-        if (disableMetaAI)
-            propsBoolean.put(8013, Objects.equals(filterChats, "2"));
         propsBoolean.put(2889, floatingMenu);
 
         // new text composer
@@ -186,7 +186,7 @@ public class Others extends Feature {
 
 
         hookProps();
-        hookMenuOptions(filterChats);
+        hookSearchbar(filterChats);
 
         if (disable_sensor_proximity) {
             disableSensorProximity();
@@ -602,7 +602,48 @@ public class Others extends Feature {
         });
     }
 
-    private void hookMenuOptions(String filterChats) {
+    private void hookSearchbar(String filterChats) throws Exception {
+        Method searchbar = Unobfuscator.loadViewAddSearchBarMethod(classLoader);
+        XposedBridge.hookMethod(searchbar, new XC_MethodHook() {
+            @Override
+            protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
+                if (!Objects.equals(filterChats, "2")) {
+                    param.setResult(null);
+                }
+            }
+        });
+
+        Method addSeachBar = Unobfuscator.loadAddOptionSearchBarMethod(classLoader);
+
+        XposedBridge.hookMethod(addSeachBar, new XC_MethodHook() {
+            private Object homeActivity;
+            private Field pageIdField;
+            private int originPageId;
+
+            @Override
+            protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
+                if (!Objects.equals(filterChats, "1"))
+                    return;
+                homeActivity = param.thisObject;
+                if (Modifier.isStatic(param.method.getModifiers())) {
+                    homeActivity = param.args[0];
+                }
+                pageIdField = XposedHelpers.findField(homeActivity.getClass(), "A01");
+                originPageId = 0;
+                if (pageIdField.getType() == int.class) {
+                    originPageId = pageIdField.getInt(homeActivity);
+                    pageIdField.setInt(homeActivity, 1);
+                }
+            }
+
+            @Override
+            protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+                if (originPageId != 0) {
+                    pageIdField.setInt(homeActivity, originPageId);
+                }
+            }
+        });
+
         XposedHelpers.findAndHookMethod(WppCore.getHomeActivityClass(classLoader), "onPrepareOptionsMenu", Menu.class, new XC_MethodHook() {
             @Override
             protected void afterHookedMethod(MethodHookParam param) throws Throwable {

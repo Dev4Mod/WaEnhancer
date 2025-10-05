@@ -2033,4 +2033,24 @@ public class Unobfuscator {
         });
 
     }
+
+    public static Method loadViewAddSearchBarMethod(ClassLoader classLoader) throws Exception {
+        return UnobfuscatorCache.getInstance().getMethod(classLoader, () -> findFirstMethodUsingStrings(classLoader, StringMatchType.Contains, "ConversationsList/Search/addHeaderView"));
+    }
+
+    public static Method loadAddOptionSearchBarMethod(ClassLoader classLoader) throws Exception {
+        return UnobfuscatorCache.getInstance().getMethod(classLoader, () -> {
+            var classData = Objects.requireNonNull(dexkit.getClassData(WppCore.getHomeActivityClass(classLoader)));
+            MethodDataList methodData = classData.findMethod(FindMethod.create()
+                    .matcher(MethodMatcher.create().addUsingNumber(Utils.getID("menuitem_search", "id"))
+                            .addUsingNumber(200)
+                            .paramCount(1)
+                            .addParamType(Menu.class)
+                    ));
+            if (methodData.isEmpty())
+                throw new NoSuchMethodError("MenuSearch not found in HomeActivity");
+
+            return methodData.get(0).getMethodInstance(classLoader);
+        });
+    }
 }

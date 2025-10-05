@@ -76,8 +76,8 @@
         <ListPreference
             app:entries="@array/chatfilter_buttons"
             app:entryValues="@array/chatfilter_values"
+            app:defaultValue="2"
             app:key="chatfilter"
-            app:dependency="metaai"
             app:summary="@string/novofiltro_sum"
             app:title="@string/novofiltro" />
 
