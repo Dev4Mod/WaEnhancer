@@ -1,9 +1,2 @@
 [WA AND WA BUSINESS]
-* Add support for 2.25.25.XX
-
-[FEATURE]
-* Added a feature to disable WhatsApp's version check. This allows you to remain on a specific WhatsApp version.
-  To prevent automatic updates, you can also go to Lsposed and select the Play Store for WAEnhancer or Disable auto update in the Play Store.
-
-[NOTE]
-* Show online icon on the conversation screen is not working yet.
+* Add support for 26,27,28,29
