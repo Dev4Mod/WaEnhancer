@@ -45,13 +45,14 @@ public class HideReceipt extends Feature {
                 var privacy = CustomPrivacy.getJSON(number);
                 var customHideReceipt = privacy.optBoolean("HideReceipt", hideReceipt);
                 var customHideRead = privacy.optBoolean("HideSeen", hideread);
-                if (param.args[4] != "sender" && (customHideReceipt || ghostmode)) {
+                var msgTypeIdx = ReflectionUtils.findIndexOfType(param.args, String.class);
+                if (param.args[msgTypeIdx] != "sender" && (customHideReceipt || ghostmode)) {
                     if (!ReflectionUtils.isCalledFromMethod(method2) && ReflectionUtils.isCalledFromMethod(mInChat) && !customHideRead) {
                         return;
                     }
-                    param.args[4] = "inactive";
+                    param.args[msgTypeIdx] = "inactive";
                 }
-                if (param.args[4] == "inactive") {
+                if (param.args[msgTypeIdx] == "inactive") {
                     Object fmessageObj = WppCore.getFMessageFromKey(key);
                     var fmessage = new FMessageWpp(fmessageObj);
                     var messageId = fmessage.getKey().messageID;
