@@ -37,6 +37,7 @@
     <string name="conversation">Conversation Screen</string>
     <string name="primary_color">Primary Color</string>
     <string name="background_color">Background Color</string>
+    <string name="secondary_color">Secondary Color</string>
     <string name="novaconfig">New Settings Style</string>
     <string name="novaconfig_sum">Enable the new settings style, with profile photo on home screen toolbar</string>
     <string name="novofiltro">Search Functions</string>
