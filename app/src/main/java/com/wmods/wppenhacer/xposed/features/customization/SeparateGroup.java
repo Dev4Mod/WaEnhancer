@@ -16,6 +16,7 @@ import com.wmods.wppenhacer.xposed.core.WppCore;
 import com.wmods.wppenhacer.xposed.core.db.MessageStore;
 import com.wmods.wppenhacer.xposed.core.devkit.Unobfuscator;
 import com.wmods.wppenhacer.xposed.core.devkit.UnobfuscatorCache;
+import com.wmods.wppenhacer.xposed.utils.DebugUtils;
 import com.wmods.wppenhacer.xposed.utils.ReflectionUtils;
 import com.wmods.wppenhacer.xposed.utils.Utils;
 
@@ -24,6 +25,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 import java.util.regex.Pattern;
 
 import de.robv.android.xposed.XC_MethodHook;
@@ -137,37 +139,35 @@ public class SeparateGroup extends Feature {
     private void hookTabIcon() throws Exception {
         var iconTabMethod = Unobfuscator.loadIconTabMethod(classLoader);
         logDebug(Unobfuscator.getMethodDescriptor(iconTabMethod));
-        var iconField = Unobfuscator.loadIconTabField(classLoader);
-        var iconFrameField = Unobfuscator.loadIconTabLayoutField(classLoader);
-        var iconMenuField = Unobfuscator.loadIconMenuField(classLoader);
+        var menuAddAndroidX = Unobfuscator.loadAddMenuAndroidX(classLoader);
+        logDebug(menuAddAndroidX);
 
         XposedBridge.hookMethod(iconTabMethod, new XC_MethodHook() {
-            @SuppressLint("ResourceType")
-            @Override
-            protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-                var obj = param.thisObject;
-                var superClass = obj.getClass().getSuperclass();
 
-                // for 23.xx, superClass != iconTabMethod.getDeclaringClass()
-                if (!(superClass != null && superClass == iconTabMethod.getDeclaringClass())) {
-                    var preIconTabField = Unobfuscator.loadPreIconTabField(classLoader);
-                    var field0 = getObjectField(obj, preIconTabField.getName());
-                    superClass = field0.getClass().getSuperclass();
-                    obj = field0;
-                }
+                    private Unhook hooked;
 
-                var field1 = superClass.getDeclaredField(iconField.getName()).get(obj);
-                var field2 = getObjectField(field1, iconFrameField.getName());
-                if (field2 == null) return;
-                var menu = (Menu) getObjectField(field2, iconMenuField.getName());
-                if (menu == null) return;
-                // add Icon to menu
-                var menuItem = (MenuItem) menu.findItem(GROUPS);
-                if (menuItem != null) {
-                    menuItem.setIcon(Utils.getID("home_tab_communities_selector", "drawable"));
+                    @Override
+                    protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
+                        hooked = XposedBridge.hookMethod(menuAddAndroidX, new XC_MethodHook() {
+                            @Override
+                            protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+                                if (param.args.length > 2 && ((int) param.args[1]) == GROUPS) {
+                                    MenuItem menuItem = (MenuItem) param.getResult();
+                                    menuItem.setIcon(Utils.getID("home_tab_communities_selector", "drawable"));
+                                }
+                            }
+                        });
+                    }
+
+                    @SuppressLint("ResourceType")
+                    @Override
+                    protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+                        if (hooked != null) {
+                            hooked.unhook();
+                        }
+                    }
                 }
-            }
-        });
+        );
     }
 
     @SuppressLint("ResourceType")
@@ -225,7 +225,7 @@ public class SeparateGroup extends Feature {
         XposedBridge.hookMethod(getTabMethod, new XC_MethodHook() {
             @Override
             protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
-                var tabId = ((Number) tabs.get((int) param.args[0])).intValue();
+                var tabId = tabs.get((int) param.args[0]).intValue();
                 if (tabId == GROUPS || tabId == CHATS) {
                     var convFragment = cFrag.newInstance();
                     param.setResult(convFragment);
@@ -234,7 +234,7 @@ public class SeparateGroup extends Feature {
 
             @Override
             protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-                var tabId = ((Number) tabs.get((int) param.args[0])).intValue();
+                var tabId = tabs.get((int) param.args[0]).intValue();
                 tabInstances.remove(tabId);
                 tabInstances.put(tabId, param.getResult());
             }

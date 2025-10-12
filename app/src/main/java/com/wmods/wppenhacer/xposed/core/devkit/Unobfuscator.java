@@ -19,6 +19,7 @@ import android.widget.TextView;
 import androidx.annotation.Nullable;
 
 import com.wmods.wppenhacer.xposed.core.WppCore;
+import com.wmods.wppenhacer.xposed.core.components.FMessageWpp;
 import com.wmods.wppenhacer.xposed.utils.ReflectionUtils;
 import com.wmods.wppenhacer.xposed.utils.Utils;
 
@@ -395,54 +396,6 @@ public class Unobfuscator {
         });
     }
 
-    public synchronized static Field loadPreIconTabField(ClassLoader classLoader) throws Exception {
-        return UnobfuscatorCache.getInstance().getField(classLoader, () -> {
-            Class<?> cls = loadIconTabMethod(classLoader).getDeclaringClass();
-            Class<?> clsType = findFirstClassUsingStringsFilter(classLoader, "X.", StringMatchType.Contains, "Tried to set badge");
-            if (clsType == null) throw new Exception("PreIconTabField not found");
-            Field result = null;
-            for (var field1 : cls.getFields()) {
-                Object checkResult = Arrays.stream(field1.getType().getFields()).filter(f -> f.getType().equals(clsType)).findFirst().orElse(null);
-                if (checkResult != null) {
-                    result = field1;
-                    break;
-                }
-            }
-            if (result == null) throw new Exception("PreIconTabField not found 2");
-            return result;
-        });
-    }
-
-    public synchronized static Field loadIconTabField(ClassLoader classLoader) throws Exception {
-        return UnobfuscatorCache.getInstance().getField(classLoader, () -> {
-            Class<?> cls = loadIconTabMethod(classLoader).getDeclaringClass();
-            Class<?> clsType = findFirstClassUsingStringsFilter(classLoader, "X.", StringMatchType.Contains, "Tried to set badge");
-            if (clsType == null) throw new Exception("IconTabField not found");
-            for (var field1 : cls.getFields()) {
-                var result = Arrays.stream(field1.getType().getFields()).filter(f -> f.getType().equals(clsType)).findFirst().orElse(null);
-                if (result != null) return result;
-            }
-            throw new Exception("IconTabField not found 2");
-        });
-    }
-
-    public synchronized static Field loadIconTabLayoutField(ClassLoader classLoader) throws Exception {
-        return UnobfuscatorCache.getInstance().getField(classLoader, () -> {
-            Class<?> clsType = loadIconTabField(classLoader).getType();
-            Class<?> framelayout = findFirstClassUsingStringsFilter(classLoader, "X.", StringMatchType.Contains, "android:menu:presenters");
-            var result = Arrays.stream(clsType.getFields()).filter(f -> f.getType().equals(framelayout)).findFirst().orElse(null);
-            if (result == null) throw new Exception("IconTabLayoutField not found");
-            return result;
-        });
-    }
-
-    public synchronized static Field loadIconMenuField(ClassLoader classLoader) throws Exception {
-        return UnobfuscatorCache.getInstance().getField(classLoader, () -> {
-            Class<?> clsType = loadIconTabLayoutField(classLoader).getType();
-            Class<?> menuClass = findFirstClassUsingStringsFilter(classLoader, "X.", StringMatchType.Contains, "Maximum number of items");
-            return Arrays.stream(clsType.getFields()).filter(f -> f.getType().equals(menuClass)).findFirst().orElse(null);
-        });
-    }
 
     public synchronized static Method loadTabCountMethod(ClassLoader classLoader) throws Exception {
         return UnobfuscatorCache.getInstance().getMethod(classLoader, () -> {
@@ -1482,7 +1435,7 @@ public class Unobfuscator {
 
     public synchronized static Class loadActionUser(ClassLoader loader) throws Exception {
         return UnobfuscatorCache.getInstance().getClass(loader, () -> {
-            for (String s : List.of("UserActions/userActionDeleteMessages", "UserActions/reportIfBadTime: time=", "UserActions/createFMessageTextFromUserInputs", "UserActions/userActionKeepInChat", "UserActions/userActionSendMediaMessages")) {
+            for (String s : List.of("UserActions/userActionDeleteMessages", "UserActions/reportIfBadTime: time=", "UserActions/createFMessageTextFromUserInputs", "UserActions/userActionKeepInChat", "UserActions/userActionSendMediaMessages", "UserActions/userActionForwardMessage")) {
                 var clazz = findFirstClassUsingStrings(loader, StringMatchType.Contains, s);
                 if (clazz != null)
                     return clazz;
@@ -1867,11 +1820,15 @@ public class Unobfuscator {
 
     public static synchronized Class loadAbstractMediaMessageClass(ClassLoader loader) throws Exception {
         return UnobfuscatorCache.getInstance().getClass(loader, () -> {
-            var fmessage = loadFMessageClass(loader);
-            var classList = dexkit.findClass(FindClass.create().matcher(ClassMatcher.create().addUsingString("first_viewed_timestamp").superClass(fmessage.getName())));
-            if (classList.isEmpty())
-                throw new RuntimeException("AbstractMediaMessage class not found");
-            return classList.get(0).getInstance(loader);
+            for (var str : List.of("first_viewed_timestamp", "Field is set but is null in MediaDataV2")) {
+                var classList = dexkit.findClass(FindClass.create().matcher(ClassMatcher.create().addUsingString(str)));
+                for (var clazz : classList) {
+                    var clazzInstance = clazz.getInstance(loader);
+                    if (FMessageWpp.checkUnsafeIsFMessage(loader, clazzInstance))
+                        return clazzInstance;
+                }
+            }
+            throw new ClassNotFoundException("AbstractMediaMessage Not Found");
         });
     }
 
@@ -2052,5 +2009,9 @@ public class Unobfuscator {
 
             return methodData.get(0).getMethodInstance(classLoader);
         });
+    }
+
+    public static Method loadAddMenuAndroidX(ClassLoader classLoader) throws Exception {
+        return UnobfuscatorCache.getInstance().getMethod(classLoader, () -> findFirstMethodUsingStrings(classLoader, StringMatchType.Contains, "Maximum number of items supported by"));
     }
 }
