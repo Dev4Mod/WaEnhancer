@@ -14,6 +14,8 @@ import com.wmods.wppenhacer.xposed.utils.ReflectionUtils;
 import com.wmods.wppenhacer.xposed.utils.ResId;
 import com.wmods.wppenhacer.xposed.utils.Utils;
 
+import org.luckypray.dexkit.query.enums.StringMatchType;
+
 import de.robv.android.xposed.XC_MethodHook;
 import de.robv.android.xposed.XSharedPreferences;
 import de.robv.android.xposed.XposedHelpers;
@@ -27,7 +29,8 @@ public class DownloadProfile extends Feature {
     @Override
     public void doHook() throws Throwable {
         var loadProfileInfoField = Unobfuscator.loadProfileInfoField(classLoader);
-        XposedHelpers.findAndHookMethod("com.whatsapp.profile.ViewProfilePhoto", classLoader, "onCreateOptionsMenu", Menu.class, new XC_MethodHook() {
+        var profileClass = Unobfuscator.findFirstClassUsingName(classLoader, StringMatchType.EndsWith, "ViewProfilePhoto");
+        XposedHelpers.findAndHookMethod(profileClass, "onCreateOptionsMenu", Menu.class, new XC_MethodHook() {
             @Override
             protected void afterHookedMethod(MethodHookParam param) throws Throwable {
                 var menu = (Menu) param.args[0];
