@@ -1,17 +1,13 @@
 [WA AND WA BUSINESS]
-* Added support for 2.25.26.XX to 2.25.29.XX
+* Improved support to WA 2.25.29.XX
+* Fixed compatibility with WA 2.25.25.XX
+* Removed versions below 2.25.25.XX
 
 [BUGS FIXES]
-* Fixed bug that made whatsapp crash when receiving a message
-* Fixed issue when changing search bar types on the home screen
-* Fixed problem with permission to select download location
-* Fixed issues with contact selection for call blocking
-* Fixed problem with custom privacy that was not working correctly
-* Fixed silent bug in colors that showed several error logs
-* Fixed issue when opening a dialog screen when the activity was no longer active
+* Fixed issue where the message and status view Toast did not appear
+* Fixed issue where the deleted message and status Toast did not appear
+* Fixed issue where call information showed a random number
 
-[COMPATIBILITY]
-* Updated dexkit version to 2.0.7 (now android 16 will no longer notify about the problem with binaries without 16KB)
 
 [NOTES]
 * Disabled the option to use WhatsApp's default emojis, it is now presenting many problems and was a workaround that prevented the loading of emojis (no return date)
