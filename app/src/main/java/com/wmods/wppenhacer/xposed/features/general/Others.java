@@ -301,10 +301,13 @@ public class Others extends Feature {
                     Object callinfo = XposedHelpers.callMethod(param.thisObject, "getCallInfo");
                     if (callinfo == null) return;
                     var userJid = XposedHelpers.callMethod(callinfo, "getPeerJid");
+                    if (WppCore.getRawString(userJid).contains("@lid"))
+                        userJid = WppCore.convertLidToJid(userJid);
 
+                    Object finalUserJid = userJid;
                     CompletableFuture.runAsync(() -> {
                         try {
-                            showCallInformation(param.args[0], userJid);
+                            showCallInformation(param.args[0], finalUserJid);
                         } catch (Exception e) {
                             logDebug(e);
                         }

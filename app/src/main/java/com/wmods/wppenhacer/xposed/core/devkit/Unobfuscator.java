@@ -45,6 +45,7 @@ import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
@@ -56,6 +57,7 @@ import java.util.Timer;
 import java.util.TimerTask;
 import java.util.stream.Collectors;
 
+import de.robv.android.xposed.XposedBridge;
 import de.robv.android.xposed.XposedHelpers;
 
 public class Unobfuscator {
@@ -1462,14 +1464,10 @@ public class Unobfuscator {
 
     public synchronized static Method loadOnInsertReceipt(ClassLoader classLoader) throws Exception {
         return UnobfuscatorCache.getInstance().getMethod(classLoader, () -> {
-            var methods = dexkit.findMethod(FindMethod.create().matcher(MethodMatcher.create().addUsingString("INSERT_RECEIPT_USER")));
-            for (var method : methods) {
-                var params = method.getParamTypeNames();
-                if (!params.isEmpty() && "com.whatsapp.jid.UserJid".equals(params.get(0))) {
-                    return method.getMethodInstance(classLoader);
-                }
-            }
-            throw new RuntimeException("OnInsertReceipt method not found");
+            var method = dexkit.findMethod(FindMethod.create().matcher(MethodMatcher.create().addUsingString("INSERT_RECEIPT_USER").paramCount(1))).singleOrNull();
+            if (method == null)
+                throw new RuntimeException("OnInsertReceipt method not found");
+            return method.getMethodInstance(classLoader);
         });
 
     }
@@ -2013,5 +2011,9 @@ public class Unobfuscator {
 
     public static Method loadAddMenuAndroidX(ClassLoader classLoader) throws Exception {
         return UnobfuscatorCache.getInstance().getMethod(classLoader, () -> findFirstMethodUsingStrings(classLoader, StringMatchType.Contains, "Maximum number of items supported by"));
+    }
+
+    public static Method loadConvertLidToJid(ClassLoader loader) throws Exception {
+        return findFirstMethodUsingStrings(loader, StringMatchType.Contains, "WaJidMapRepository/getJidByExistingAccountUserJidNoCreate");
     }
 }

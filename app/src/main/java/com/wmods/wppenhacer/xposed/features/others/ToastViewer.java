@@ -16,6 +16,8 @@ import com.wmods.wppenhacer.xposed.utils.ReflectionUtils;
 import com.wmods.wppenhacer.xposed.utils.ResId;
 import com.wmods.wppenhacer.xposed.utils.Utils;
 
+import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
@@ -47,38 +49,54 @@ public class ToastViewer extends Feature {
         var toastViewedMessage = prefs.getBoolean("toast_viewed_message", false);
 
         var onInsertReceipt = Unobfuscator.loadOnInsertReceipt(classLoader);
+
         XposedBridge.hookMethod(onInsertReceipt, new XC_MethodHook() {
             @Override
             protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
-                int type = ReflectionUtils.getArg(param.args, Integer.class, 0);
-                long id = ReflectionUtils.getArg(param.args, Long.class, 0);
-                if (type != 13) return;
-                var jidClass = classLoader.loadClass("com.whatsapp.jid.Jid");
-                var PhoneUserJid = ReflectionUtils.getArg(param.args, jidClass, 0);
-                AtomicReference<Object> fmessage = new AtomicReference<>();
-                try {
-                    fmessage.set(ReflectionUtils.getArg(param.args, FMessageWpp.TYPE, 0));
-                } catch (Exception ignored) {
-                }
-                CompletableFuture.runAsync(() -> {
-                    var raw = WppCore.getRawString(PhoneUserJid);
-                    var UserJid = WppCore.createUserJid(raw);
-                    var contactName = WppCore.getContactName(UserJid);
-                    var rowId = id;
-
-                    if (TextUtils.isEmpty(contactName)) contactName = WppCore.stripJID(raw);
-
-                    var sql = MessageStore.getInstance().getDatabase();
-
-                    if (fmessage.get() != null) {
-                        rowId = new FMessageWpp(fmessage.get()).getRowId();
-                    }
-
-                    checkDataBase(sql, rowId, contactName, raw, toastViewedMessage, toastViewedStatus);
-                });
+                processNewWA(param, toastViewedMessage, toastViewedStatus);
             }
         });
     }
+
+    private void processNewWA(XC_MethodHook.MethodHookParam param, boolean toastViewedMessage, boolean toastViewedStatus) throws ClassNotFoundException, IllegalAccessException {
+        Collection collection = Collections.emptyList();
+        if (!(param.args[0] instanceof Collection)){
+            collection = Collections.singleton(param.args[0]);
+        }
+        var jidClass = classLoader.loadClass("com.whatsapp.jid.Jid");
+        for (var messageStatusUpdateReceipt : collection) {
+            var fieldByType = ReflectionUtils.getFieldByType(messageStatusUpdateReceipt.getClass(), int.class);
+            var fieldId = ReflectionUtils.getFieldByType(messageStatusUpdateReceipt.getClass(), long.class);
+            var fieldByUserJid = ReflectionUtils.getFieldByExtendType(messageStatusUpdateReceipt.getClass(), jidClass);
+            var fieldMessage = ReflectionUtils.getFieldByExtendType(messageStatusUpdateReceipt.getClass(), FMessageWpp.TYPE);
+            int type = fieldByType.getInt(messageStatusUpdateReceipt);
+            long id = fieldId.getLong(messageStatusUpdateReceipt);
+            if (type != 13) return;
+            var PhoneUserJid = fieldByUserJid.get(messageStatusUpdateReceipt);
+            AtomicReference<Object> fmessage = new AtomicReference<>();
+            try {
+                fmessage.set(fieldMessage.get(messageStatusUpdateReceipt));
+            } catch (Exception ignored) {
+            }
+            CompletableFuture.runAsync(() -> {
+                var raw = WppCore.getRawString(PhoneUserJid).replace(".0:0", "");
+                var UserJid = WppCore.createUserJid(raw);
+                var contactName = WppCore.getContactName(UserJid);
+                var rowId = id;
+
+                if (TextUtils.isEmpty(contactName)) contactName = WppCore.stripJID(raw);
+
+                var sql = MessageStore.getInstance().getDatabase();
+
+                if (fmessage.get() != null) {
+                    rowId = new FMessageWpp(fmessage.get()).getRowId();
+                }
+
+                checkDataBase(sql, rowId, contactName, raw, toastViewedMessage, toastViewedStatus);
+            });
+        }
+    }
+
 
     @NonNull
     @Override

@@ -62,6 +62,9 @@ public class WppCore {
     public static BaseClient client;
     private static Object mCachedMessageStore;
     private static Class<?> mSettingsNotificationsClass;
+    private static Method convertLidToJid;
+
+    private static Object mWaJidMapRepository;
 
 
     public static void Initialize(ClassLoader loader, XSharedPreferences pref) throws Exception {
@@ -108,6 +111,15 @@ public class WppCore {
             }
         });
 
+        // WaJidMap
+        convertLidToJid = Unobfuscator.loadConvertLidToJid(loader);
+        XposedBridge.hookAllConstructors(convertLidToJid.getDeclaringClass(), new XC_MethodHook() {
+            @Override
+            protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+                mWaJidMapRepository = param.thisObject;
+            }
+        });
+
         // Load wa database
         loadWADatabase();
 
@@ -115,6 +127,17 @@ public class WppCore {
             initBridge(Utils.getApplication());
         }
 
+    }
+
+    public static Object convertLidToJid(Object lid) {
+        if (lid == null) return null;
+        if (!getRawString(lid).contains("@lid")) return lid;
+        try {
+            return ReflectionUtils.callMethod(convertLidToJid, mWaJidMapRepository, lid);
+        } catch (Exception e) {
+            XposedBridge.log(e);
+        }
+        return lid;
     }
 
     public static void initBridge(Context context) throws Exception {
