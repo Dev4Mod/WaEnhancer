@@ -385,7 +385,8 @@ public class WppCore {
         return null;
     }
 
-    public static String getRawString(Object userjid) {
+    @Nullable
+    public static String getRawString(@Nullable Object userjid) {
         if (userjid == null) return null;
         return (String) XposedHelpers.callMethod(userjid, "getRawString");
     }

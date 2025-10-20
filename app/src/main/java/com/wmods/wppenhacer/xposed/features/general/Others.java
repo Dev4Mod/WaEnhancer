@@ -561,8 +561,13 @@ public class Others extends Feature {
                 if (message.arg1 != 5) return;
                 BaseBundle baseBundle = (BaseBundle) message.obj;
                 var jid = baseBundle.getString("jid");
+                var userjid = WppCore.createUserJid(jid);
+                if (jid != null && jid.contains("lid")) {
+                    userjid = WppCore.convertLidToJid(userjid);
+                    jid = WppCore.getRawString(userjid);
+                }
                 if (WppCore.isGroup(jid)) return;
-                var name = WppCore.getContactName(WppCore.createUserJid(jid));
+                var name = WppCore.getContactName(userjid);
                 name = TextUtils.isEmpty(name) ? WppCore.stripJID(jid) : name;
                 if (showOnline)
                     Utils.showToast(String.format(Utils.getApplication().getString(ResId.string.toast_online), name), Toast.LENGTH_SHORT);

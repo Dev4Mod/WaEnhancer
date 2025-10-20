@@ -59,9 +59,11 @@ public class ToastViewer extends Feature {
     }
 
     private void processNewWA(XC_MethodHook.MethodHookParam param, boolean toastViewedMessage, boolean toastViewedStatus) throws ClassNotFoundException, IllegalAccessException {
-        Collection collection = Collections.emptyList();
-        if (!(param.args[0] instanceof Collection)){
+        Collection collection;
+        if (!(param.args[0] instanceof Collection)) {
             collection = Collections.singleton(param.args[0]);
+        } else {
+            collection = (Collection) param.args[0];
         }
         var jidClass = classLoader.loadClass("com.whatsapp.jid.Jid");
         for (var messageStatusUpdateReceipt : collection) {
@@ -79,7 +81,7 @@ public class ToastViewer extends Feature {
             } catch (Exception ignored) {
             }
             CompletableFuture.runAsync(() -> {
-                var raw = WppCore.getRawString(PhoneUserJid).replace(".0:0", "");
+                var raw = Objects.requireNonNull(WppCore.getRawString(PhoneUserJid)).replaceFirst("\\.\\d+:\\d+@", "@");
                 var UserJid = WppCore.createUserJid(raw);
                 var contactName = WppCore.getContactName(UserJid);
                 var rowId = id;
