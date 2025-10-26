@@ -32,6 +32,7 @@ import com.wmods.wppenhacer.xposed.utils.ResId;
 import com.wmods.wppenhacer.xposed.utils.Utils;
 
 import java.lang.reflect.Method;
+import java.util.Arrays;
 import java.util.Objects;
 
 import de.robv.android.xposed.XposedBridge;
@@ -113,7 +114,7 @@ public class IGStatusAdapter extends ArrayAdapter {
                             clazz = Unobfuscator.getClassByName("TextStatusComposerActivity", activity.getClassLoader());
                         } catch (Exception ignored) {
                             clazz = Unobfuscator.getClassByName("ConsolidatedStatusComposerActivity", getContext().getClassLoader());
-                            intent.putExtra("status_composer_mode",2);
+                            intent.putExtra("status_composer_mode", 2);
                         }
                         intent.setClassName(activity.getPackageName(), clazz.getName());
                         activity.startActivity(intent);
@@ -143,7 +144,7 @@ public class IGStatusAdapter extends ArrayAdapter {
         super(context, 0);
         this.clazzImageStatus = XposedHelpers.findClass("com.whatsapp.status.ContactStatusThumbnail", this.getContext().getClassLoader());
         this.statusInfoClazz = statusInfoClazz;
-        this.setCountStatus = ReflectionUtils.findMethodUsingFilter(this.clazzImageStatus, m -> m.getParameterCount() == 2 && m.getParameterTypes()[0].equals(int.class) && m.getParameterTypes()[1].equals(int.class));
+        this.setCountStatus = ReflectionUtils.findMethodUsingFilter(this.clazzImageStatus, m -> m.getParameterCount() == 3 && Arrays.equals(new Class[]{int.class, int.class, int.class}, m.getParameterTypes()));
     }
 
     @Override
@@ -184,7 +185,7 @@ public class IGStatusAdapter extends ArrayAdapter {
         public void setCountStatus(int countUnseen, int total) {
             if (setCountStatus != null) {
                 try {
-                    setCountStatus.invoke(igStatusContactPhoto, countUnseen, total);
+                    setCountStatus.invoke(igStatusContactPhoto, total, countUnseen, total);
                 } catch (Exception e) {
                     XposedBridge.log(e);
                 }
