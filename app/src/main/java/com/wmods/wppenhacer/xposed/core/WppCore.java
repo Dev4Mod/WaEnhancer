@@ -376,7 +376,9 @@ public class WppCore {
     }
 
 
-    public static Object createUserJid(String rawjid) {
+    @Nullable
+    public static Object createUserJid(@Nullable String rawjid) {
+        if (rawjid == null) return null;
         var genInstance = XposedHelpers.newInstance(mGenJidClass);
         try {
             return mGenJidMethod.invoke(genInstance, rawjid);

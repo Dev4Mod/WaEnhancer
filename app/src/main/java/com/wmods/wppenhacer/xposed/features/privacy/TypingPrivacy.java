@@ -29,7 +29,7 @@ public class TypingPrivacy extends Feature {
             @Override
             protected void beforeHookedMethod(MethodHookParam param) {
                 var p1 = (int) param.args[2];
-                var userJid = param.args[1];
+                var userJid = WppCore.resolveJidFromLid(param.args[1]);
                 var number = WppCore.stripJID(WppCore.getRawString(userJid));
                 var privacy = CustomPrivacy.getJSON(number);
                 var customHideTyping = privacy.optBoolean("HideTyping", ghostmode_t);

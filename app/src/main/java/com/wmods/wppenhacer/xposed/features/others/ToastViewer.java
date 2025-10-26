@@ -106,7 +106,7 @@ public class ToastViewer extends Feature {
         return "Toast Viewer";
     }
 
-    private synchronized void checkDataBase(SQLiteDatabase sql, long id, String contactName, String raw, boolean toastViewedMessage, boolean toast_viewed_status) {
+    private synchronized void checkDataBase(SQLiteDatabase sql, long id, String contactName, String rawJid, boolean toastViewedMessage, boolean toast_viewed_status) {
         try (var result2 = sql.query("message", null, "_id = ?", new String[]{String.valueOf(id)}, null, null, null)) {
             if (!result2.moveToNext()) return;
 
@@ -115,25 +115,32 @@ public class ToastViewer extends Feature {
                 if (toast_viewed_status) {
                     Utils.showToast(Utils.getApplication().getString(ResId.string.viewed_your_status, contactName), Toast.LENGTH_LONG);
                 }
-                Tasker.sendTaskerEvent(contactName, WppCore.stripJID(raw), "viewed_status");
+                Tasker.sendTaskerEvent(contactName, WppCore.stripJID(rawJid), "viewed_status");
                 return;
             }
 
-            if (Objects.equals(WppCore.getCurrentRawJID(), raw)) return;
+            if (Objects.equals(WppCore.getCurrentRawJID(), rawJid)) return;
 
             var chat_id = result2.getLong(result2.getColumnIndexOrThrow("chat_row_id"));
             try (var result3 = sql.query("chat", null, "_id = ? AND subject IS NULL", new String[]{String.valueOf(chat_id)}, null, null, null)) {
                 if (!result3.moveToNext()) return;
 
-                var key = raw + "_" + "viewed_message";
+                var key = rawJid + "_" + "viewed_message";
                 long currentTime = System.currentTimeMillis();
                 Long lastEventTime = lastEventTimeMap.get(key);
                 if (lastEventTime == null || (currentTime - lastEventTime) >= MIN_INTERVAL) {
                     lastEventTimeMap.put(key, currentTime);
+                    Tasker.sendTaskerEvent(contactName, WppCore.stripJID(rawJid), "viewed_message");
                     if (toastViewedMessage) {
+                        XposedBridge.log("Call Jid");
+                        var userJid = WppCore.createUserJid(WppCore.getCurrentRawJID());
+                        var jid = WppCore.resolveJidFromLid(userJid);
+                        var rawCurJid = WppCore.getRawString(jid);
+                        if (Objects.equals(rawCurJid, rawJid)) {
+                            return;
+                        }
                         Utils.showToast(Utils.getApplication().getString(ResId.string.viewed_your_message, contactName), Toast.LENGTH_LONG);
                     }
-                    Tasker.sendTaskerEvent(contactName, WppCore.stripJID(raw), "viewed_message");
                 }
             }
         }

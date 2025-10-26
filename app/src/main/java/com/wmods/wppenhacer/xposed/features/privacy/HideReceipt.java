@@ -41,7 +41,7 @@ public class HideReceipt extends Feature {
                     return;
                 var key = ReflectionUtils.getArg(param.args, FMessageWpp.Key.TYPE, 0);
                 var messageKey = new FMessageWpp.Key(key);
-                var userJid = messageKey.remoteJid;
+                var userJid = WppCore.resolveJidFromLid(messageKey.remoteJid);
                 var rawJid = WppCore.getRawString(userJid);
                 var number = WppCore.stripJID(rawJid);
                 var privacy = CustomPrivacy.getJSON(number);

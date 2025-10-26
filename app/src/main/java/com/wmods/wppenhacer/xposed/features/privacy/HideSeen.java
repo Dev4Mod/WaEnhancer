@@ -51,7 +51,9 @@ public class HideSeen extends Feature {
                     WppCore.removePrivKey(firstmessage + "_rpass");
                     return;
                 }
-                var jid = (String) XposedHelpers.getObjectField(srj, "jid");
+                var lid = (String) XposedHelpers.getObjectField(srj, "jid");
+                var ojid = WppCore.createUserJid(lid);
+                var jid = WppCore.getRawString(WppCore.resolveJidFromLid(ojid));
                 if (jid == null) return;
                 var number = WppCore.stripJID(jid);
                 var privacy = CustomPrivacy.getJSON(number);
@@ -108,7 +110,9 @@ public class HideSeen extends Feature {
                     return;
                 var msgTypeIdx = ReflectionUtils.findIndexOfType(((Method) param.method).getParameterTypes(), String.class);
                 if (!Objects.equals("read", param.args[msgTypeIdx])) return;
-                var jid = WppCore.getCurrentRawJID();
+                var lid = WppCore.getCurrentRawJID();
+                var ojid = WppCore.createUserJid(lid);
+                var jid = WppCore.getRawString(WppCore.resolveJidFromLid(ojid));
                 var number = WppCore.stripJID(jid);
                 var privacy = CustomPrivacy.getJSON(number);
                 var customHideRead = privacy.optBoolean("HideSeen", hideread);
