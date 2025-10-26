@@ -111,22 +111,18 @@ public class BridgeClient extends BaseClient implements ServiceConnection {
 
     public void tryReconnect() {
         reconnectSemaphore.acquireUninterruptibly();
-        try {
-            if (service.asBinder().pingBinder()) return;
-            connect().thenAccept(canLoad -> {
-                if (!Boolean.TRUE.equals(canLoad)) {
-                    Log.e("BridgeClient", "failed to reconnect to service, result=" + canLoad);
+        connect().whenComplete((canLoad, ex) -> {
+            try {
+                if (ex != null || !Boolean.TRUE.equals(canLoad)) {
+                    Log.e("BridgeClient", "failed to reconnect to service");
                     Utils.doRestart(context);
                 } else {
                     Utils.showToast("Reconnected to Bridge", Toast.LENGTH_SHORT);
                 }
-            }).exceptionally((e) -> {
-                Utils.doRestart(context);
-                return null;
-            });
-        } finally {
-            reconnectSemaphore.release();
-        }
+            } finally {
+                reconnectSemaphore.release();
+            }
+        });
     }
 
     @Override

@@ -87,22 +87,19 @@ public class ProviderClient extends BaseClient {
 
     @Override
     public void tryReconnect() {
+        if (service != null && service.asBinder().pingBinder()) return;
         reconnectSemaphore.acquireUninterruptibly();
-        try {
-            if (service != null && service.asBinder().pingBinder()) return;
-            connect().thenAccept(canLoad -> {
-                if (!Boolean.TRUE.equals(canLoad)) {
+        connect().whenComplete((canLoad, ex) -> {
+            try {
+                if (ex != null || !canLoad) {
                     Log.e("ProviderClient", "failed to reconnect to service, result=" + canLoad);
                     Utils.doRestart(context);
                 } else {
                     Utils.showToast("Reconnected to Bridge", Toast.LENGTH_SHORT);
                 }
-            }).exceptionally((e) -> {
-                Utils.doRestart(context);
-                return null;
-            });
-        } finally {
-            reconnectSemaphore.release();
-        }
+            } finally {
+                reconnectSemaphore.release();
+            }
+        });
     }
 }
