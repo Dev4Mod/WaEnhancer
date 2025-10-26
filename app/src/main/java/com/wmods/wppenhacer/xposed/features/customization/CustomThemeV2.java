@@ -362,7 +362,7 @@ public class CustomThemeV2 extends Feature {
         var content = (ViewGroup) view;
         var rootView = (ViewGroup) content.getChildAt(0);
 
-        var header = content.findViewById(Utils.getID("header", "id"));
+        var header = content.findViewById(Utils.getID("toolbar", "id"));
         replaceColors(header, toolbarAlpha);
         var frameLayout = new WallpaperView(rootView.getContext(), prefs, properties);
         rootView.addView(frameLayout, 0);
