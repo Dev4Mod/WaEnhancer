@@ -1437,7 +1437,7 @@ public class Unobfuscator {
 
     public synchronized static Class loadActionUser(ClassLoader loader) throws Exception {
         return UnobfuscatorCache.getInstance().getClass(loader, () -> {
-            for (String s : List.of("UserActions/userActionDeleteMessages", "UserActions/reportIfBadTime: time=", "UserActions/createFMessageTextFromUserInputs", "UserActions/userActionKeepInChat", "UserActions/userActionSendMediaMessages", "UserActions/userActionForwardMessage")) {
+            for (String s : List.of("UserActions/userActionDeleteMessages", "UserActions/reportIfBadTime: time=", "UserActions/createFMessageTextFromUserInputs", "UserActions/userActionKeepInChat", "UserActions/userActionSendMediaMessages", "UserActionsStickerMessaging/userActionSendStickerMessage")) {
                 var clazz = findFirstClassUsingStrings(loader, StringMatchType.Contains, s);
                 if (clazz != null)
                     return clazz;
