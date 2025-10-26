@@ -129,9 +129,10 @@ public class WppCore {
 
     }
 
-    public static Object convertLidToJid(Object lid) {
+    public static Object resolveJidFromLid(Object lid) {
         if (lid == null) return null;
-        if (!getRawString(lid).contains("@lid")) return lid;
+        var rawString = getRawString(lid);
+        if (rawString == null || !rawString.contains("@lid")) return lid;
         try {
             return ReflectionUtils.callMethod(convertLidToJid, mWaJidMapRepository, lid);
         } catch (Exception e) {

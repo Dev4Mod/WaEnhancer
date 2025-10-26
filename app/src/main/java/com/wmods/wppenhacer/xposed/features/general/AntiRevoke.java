@@ -229,12 +229,12 @@ public class AntiRevoke extends Feature {
     }
 
     private void showToast(FMessageWpp fMessage) {
-        var jidAuthor = WppCore.getRawString(WppCore.convertLidToJid(fMessage.getKey().remoteJid));
+        var jidAuthor = WppCore.getRawString(WppCore.resolveJidFromLid(fMessage.getKey().remoteJid));
         var messageSuffix = Utils.getApplication().getString(ResId.string.deleted_message);
         var isStatus = Objects.equals(WppCore.stripJID(jidAuthor), "status");
         if (isStatus) {
             messageSuffix = Utils.getApplication().getString(ResId.string.deleted_status);
-            jidAuthor = WppCore.getRawString(WppCore.convertLidToJid(fMessage.getUserJid()));
+            jidAuthor = WppCore.getRawString(WppCore.resolveJidFromLid(fMessage.getUserJid()));
         }
         if (TextUtils.isEmpty(jidAuthor)) return;
         String name = WppCore.getContactName(WppCore.createUserJid(jidAuthor));

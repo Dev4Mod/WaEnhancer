@@ -302,7 +302,7 @@ public class Others extends Feature {
                     if (callinfo == null) return;
                     var userJid = XposedHelpers.callMethod(callinfo, "getPeerJid");
                     if (WppCore.getRawString(userJid).contains("@lid"))
-                        userJid = WppCore.convertLidToJid(userJid);
+                        userJid = WppCore.resolveJidFromLid(userJid);
 
                     Object finalUserJid = userJid;
                     CompletableFuture.runAsync(() -> {
@@ -563,7 +563,7 @@ public class Others extends Feature {
                 var jid = baseBundle.getString("jid");
                 var userjid = WppCore.createUserJid(jid);
                 if (jid != null && jid.contains("lid")) {
-                    userjid = WppCore.convertLidToJid(userjid);
+                    userjid = WppCore.resolveJidFromLid(userjid);
                     jid = WppCore.getRawString(userjid);
                 }
                 if (WppCore.isGroup(jid)) return;

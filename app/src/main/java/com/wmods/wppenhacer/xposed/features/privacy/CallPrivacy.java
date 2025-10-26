@@ -10,7 +10,6 @@ import com.wmods.wppenhacer.xposed.core.Feature;
 import com.wmods.wppenhacer.xposed.core.WppCore;
 import com.wmods.wppenhacer.xposed.core.devkit.Unobfuscator;
 import com.wmods.wppenhacer.xposed.features.general.Tasker;
-import com.wmods.wppenhacer.xposed.utils.DebugUtils;
 import com.wmods.wppenhacer.xposed.utils.ReflectionUtils;
 import com.wmods.wppenhacer.xposed.utils.Utils;
 
@@ -52,7 +51,6 @@ public class CallPrivacy extends Feature {
         XposedBridge.hookMethod(onCallReceivedMethod, new XC_MethodHook() {
             @Override
             protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
-                DebugUtils.debugArgs(param.args);
                 Object callinfo;
                 Class<?> callInfoClass = XposedHelpers.findClass("com.whatsapp.voipcalling.CallInfo", classLoader);
                 if (param.args[0] instanceof Message) {
@@ -65,7 +63,7 @@ public class CallPrivacy extends Feature {
                 }
                 if (callinfo == null || !callInfoClass.isInstance(callinfo)) return;
                 if ((boolean) XposedHelpers.callMethod(callinfo, "isCaller")) return;
-                var userJid = XposedHelpers.callMethod(callinfo, "getPeerJid");
+                var userJid = WppCore.resolveJidFromLid(XposedHelpers.callMethod(callinfo, "getPeerJid"));
                 var callId = XposedHelpers.callMethod(callinfo, "getCallId");
                 var type = Integer.parseInt(prefs.getString("call_privacy", "0"));
                 Tasker.sendTaskerEvent(WppCore.getContactName(userJid), WppCore.stripJID(WppCore.getRawString(userJid)), "call_received");
@@ -97,7 +95,7 @@ public class CallPrivacy extends Feature {
             @Override
             protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
                 if (!prefs.getString("call_type", "no_internet").equals("no_internet")) return;
-                var userJid = param.args[0];
+                var userJid = WppCore.resolveJidFromLid(param.args[0]);
                 var type = Integer.parseInt(prefs.getString("call_privacy", "0"));
                 var block = checkCallBlock(userJid, PrivacyType.getByValue(type));
                 if (block) {
@@ -116,6 +114,7 @@ public class CallPrivacy extends Feature {
 
     public boolean checkCallBlock(Object jid, PrivacyType type) throws IllegalAccessException, InvocationTargetException {
         var rawPhoneNumber = WppCore.getRawString(jid);
+        if (rawPhoneNumber == null) return false;
         rawPhoneNumber = rawPhoneNumber.replaceFirst("\\.[\\d:]+@", "@");
         var userJid = WppCore.createUserJid(rawPhoneNumber);
 
