@@ -140,6 +140,8 @@ public class FeatureLoader {
                 registerReceivers();
                 try {
                     var timemillis = System.currentTimeMillis();
+                    SharedPreferencesWrapper.hookInit(mApp.getClassLoader());
+                    UnobfuscatorCache.init(mApp);
                     boolean isSupported = supportedVersions.stream().anyMatch(s -> packageInfo.versionName.startsWith(s.replace(".xx", "")));
                     if (!isSupported) {
                         disableExpirationVersion(mApp.getClassLoader());
@@ -151,8 +153,6 @@ public class FeatureLoader {
                             throw new Exception(sb);
                         }
                     }
-                    SharedPreferencesWrapper.hookInit(mApp.getClassLoader());
-                    UnobfuscatorCache.init(mApp);
                     WppCore.Initialize(loader, pref);
                     DesignUtils.setPrefs(pref);
                     initComponents(loader, pref);
@@ -199,7 +199,7 @@ public class FeatureLoader {
         });
     }
 
-    public static void disableExpirationVersion(ClassLoader classLoader) {
+    public static void disableExpirationVersion(ClassLoader classLoader) throws Exception {
         var expirationClass = Unobfuscator.loadExpirationClass(classLoader);
         var method = ReflectionUtils.findMethodUsingFilter(expirationClass, m -> m.getReturnType().equals(Date.class));
         XposedBridge.hookMethod(method, new XC_MethodHook() {

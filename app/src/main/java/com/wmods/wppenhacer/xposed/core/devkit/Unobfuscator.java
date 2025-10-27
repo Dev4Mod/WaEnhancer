@@ -33,6 +33,7 @@ import org.luckypray.dexkit.query.matchers.MethodMatcher;
 import org.luckypray.dexkit.query.matchers.base.OpCodesMatcher;
 import org.luckypray.dexkit.result.ClassData;
 import org.luckypray.dexkit.result.ClassDataList;
+import org.luckypray.dexkit.result.FieldData;
 import org.luckypray.dexkit.result.MethodData;
 import org.luckypray.dexkit.result.MethodDataList;
 import org.luckypray.dexkit.result.UsingFieldData;
@@ -417,27 +418,33 @@ public class Unobfuscator {
     }
 
     public synchronized static Constructor loadEnableCountTabConstructor1(ClassLoader classLoader) throws Exception {
-        var countMethod = loadEnableCountTabMethod(classLoader);
-        var indiceClass = countMethod.getParameterTypes()[1];
-        var result = dexkit.findClass(FindClass.create().matcher(ClassMatcher.create().superClass(indiceClass.getName()).addMethod(MethodMatcher.create().paramCount(1))));
-        if (result.isEmpty()) throw new Exception("EnableCountTab method not found");
-        return result.get(0).getInstance(classLoader).getConstructors()[0];
+        return UnobfuscatorCache.getInstance().getConstructor(classLoader, () -> {
+            var countMethod = loadEnableCountTabMethod(classLoader);
+            var indiceClass = countMethod.getParameterTypes()[1];
+            var result = dexkit.findClass(FindClass.create().matcher(ClassMatcher.create().superClass(indiceClass.getName()).addMethod(MethodMatcher.create().paramCount(1))));
+            if (result.isEmpty()) throw new Exception("EnableCountTab method not found");
+            return result.get(0).getInstance(classLoader).getConstructors()[0];
+        });
     }
 
     public synchronized static Constructor loadEnableCountTabConstructor2(ClassLoader classLoader) throws Exception {
-        var countTabConstructor1 = loadEnableCountTabConstructor1(classLoader);
-        var indiceClass = countTabConstructor1.getParameterTypes()[0];
-        var result = dexkit.findClass(FindClass.create().matcher(ClassMatcher.create().superClass(indiceClass.getName()).addMethod(MethodMatcher.create().paramCount(1).addParamType(int.class))));
-        if (result.isEmpty()) throw new Exception("EnableCountTab method not found");
-        return result.get(0).getInstance(classLoader).getConstructors()[0];
+        return UnobfuscatorCache.getInstance().getConstructor(classLoader, () -> {
+            var countTabConstructor1 = loadEnableCountTabConstructor1(classLoader);
+            var indiceClass = countTabConstructor1.getParameterTypes()[0];
+            var result = dexkit.findClass(FindClass.create().matcher(ClassMatcher.create().superClass(indiceClass.getName()).addMethod(MethodMatcher.create().paramCount(1).addParamType(int.class))));
+            if (result.isEmpty()) throw new Exception("EnableCountTab method not found");
+            return result.get(0).getInstance(classLoader).getConstructors()[0];
+        });
     }
 
     public synchronized static Constructor loadEnableCountTabConstructor3(ClassLoader classLoader) throws Exception {
-        var countTabConstructor1 = loadEnableCountTabConstructor1(classLoader);
-        var indiceClass = countTabConstructor1.getParameterTypes()[0];
-        var result = dexkit.findClass(FindClass.create().matcher(ClassMatcher.create().superClass(indiceClass.getName()).addMethod(MethodMatcher.create().paramCount(0))));
-        if (result.isEmpty()) throw new Exception("EnableCountTab method not found");
-        return result.get(0).getInstance(classLoader).getConstructors()[0];
+        return UnobfuscatorCache.getInstance().getConstructor(classLoader, () -> {
+            var countTabConstructor1 = loadEnableCountTabConstructor1(classLoader);
+            var indiceClass = countTabConstructor1.getParameterTypes()[0];
+            var result = dexkit.findClass(FindClass.create().matcher(ClassMatcher.create().superClass(indiceClass.getName()).addMethod(MethodMatcher.create().paramCount(0))));
+            if (result.isEmpty()) throw new Exception("EnableCountTab method not found");
+            return result.get(0).getInstance(classLoader).getConstructors()[0];
+        });
     }
     // TODO: Classes and methods to TimeToSeconds
 
@@ -1317,11 +1324,13 @@ public class Unobfuscator {
     }
 
     public synchronized static Field loadProfileInfoField(ClassLoader loader) throws Exception {
-        var clazz = findFirstClassUsingStrings(loader, StringMatchType.Contains, "[obfuscated]@%s");
-        if (clazz == null) throw new RuntimeException("ProfileInfo class not found");
-        var fieldList = ReflectionUtils.getFieldsByExtendType(clazz, XposedHelpers.findClass("com.whatsapp.jid.Jid", loader));
-        if (fieldList.isEmpty()) throw new RuntimeException("ProfileInfo field not found");
-        return fieldList.get(0);
+        return UnobfuscatorCache.getInstance().getField(loader, () -> {
+            var clazz = findFirstClassUsingStrings(loader, StringMatchType.Contains, "[obfuscated]@%s");
+            if (clazz == null) throw new RuntimeException("ProfileInfo class not found");
+            var fieldList = ReflectionUtils.getFieldsByExtendType(clazz, XposedHelpers.findClass("com.whatsapp.jid.Jid", loader));
+            if (fieldList.isEmpty()) throw new RuntimeException("ProfileInfo field not found");
+            return fieldList.get(0);
+        });
     }
 
     public synchronized static Method loadAudioProximitySensorMethod(ClassLoader loader) throws Exception {
@@ -1333,26 +1342,32 @@ public class Unobfuscator {
     }
 
     public synchronized static Method loadGroupAdminMethod(ClassLoader loader) throws Exception {
-        var method = findFirstMethodUsingStrings(loader, StringMatchType.Contains, "P Message");
-        if (method == null)
-            method = findFirstMethodUsingStrings(loader, StringMatchType.Contains, "ConversationRow/setUpUsernameInGroupViewContainer/not allowed state");
-        if (method == null) throw new RuntimeException("GroupAdmin method not found");
-        return method;
+        return UnobfuscatorCache.getInstance().getMethod(loader, () -> {
+            var method = findFirstMethodUsingStrings(loader, StringMatchType.Contains, "P Message");
+            if (method == null)
+                method = findFirstMethodUsingStrings(loader, StringMatchType.Contains, "ConversationRow/setUpUsernameInGroupViewContainer/not allowed state");
+            if (method == null) throw new RuntimeException("GroupAdmin method not found");
+            return method;
+        });
     }
 
     public synchronized static Method loadJidFactory(ClassLoader loader) throws Exception {
-        var method = findFirstMethodUsingStrings(loader, StringMatchType.Contains, "lid_me", "status_me", "s.whatsapp.net");
-        if (method == null) throw new RuntimeException("JidFactory method not found");
-        return method;
+        return UnobfuscatorCache.getInstance().getMethod(loader, () -> {
+            var method = findFirstMethodUsingStrings(loader, StringMatchType.Contains, "lid_me", "status_me", "s.whatsapp.net");
+            if (method == null) throw new RuntimeException("JidFactory method not found");
+            return method;
+        });
     }
 
     public synchronized static Method loadGroupCheckAdminMethod(ClassLoader loader) throws Exception {
-        var clazz = findFirstClassUsingStrings(loader, StringMatchType.Contains, "saveGroupParticipants/INSERT_GROUP_PARTICIPANT_USER");
-        var userJidClass = XposedHelpers.findClass("com.whatsapp.jid.UserJid", loader);
-        var methods = ReflectionUtils.findAllMethodsUsingFilter(clazz, m -> m.getParameterCount() == 2 && m.getParameterTypes()[1].equals(userJidClass) && m.getReturnType().equals(boolean.class));
-        if (methods == null || methods.length == 0)
-            throw new RuntimeException("GroupCheckAdmin method not found");
-        return methods[methods.length - 1];
+        return UnobfuscatorCache.getInstance().getMethod(loader, () -> {
+            var clazz = findFirstClassUsingStrings(loader, StringMatchType.Contains, "saveGroupParticipants/INSERT_GROUP_PARTICIPANT_USER");
+            var userJidClass = XposedHelpers.findClass("com.whatsapp.jid.UserJid", loader);
+            var methods = ReflectionUtils.findAllMethodsUsingFilter(clazz, m -> m.getParameterCount() == 2 && m.getParameterTypes()[1].equals(userJidClass) && m.getReturnType().equals(boolean.class));
+            if (methods == null || methods.length == 0)
+                throw new RuntimeException("GroupCheckAdmin method not found");
+            return methods[methods.length - 1];
+        });
     }
 
     public synchronized static Constructor loadStartPrefsConfig(ClassLoader loader) throws Exception {
@@ -1365,18 +1380,22 @@ public class Unobfuscator {
     }
 
     public synchronized static Method loadCheckOnlineMethod(ClassLoader loader) throws Exception {
-        var method = findFirstMethodUsingStrings(loader, StringMatchType.Contains, "MessageHandler/handleConnectionThreadReady connectionready");
-        if (method == null)
-            method = findFirstMethodUsingStrings(loader, StringMatchType.Contains, "app/xmpp/recv/handle_available");
-        if (method == null) throw new RuntimeException("CheckOnline method not found");
-        return method;
+        return UnobfuscatorCache.getInstance().getMethod(loader, () -> {
+            var method = findFirstMethodUsingStrings(loader, StringMatchType.Contains, "MessageHandler/handleConnectionThreadReady connectionready");
+            if (method == null)
+                method = findFirstMethodUsingStrings(loader, StringMatchType.Contains, "app/xmpp/recv/handle_available");
+            if (method == null) throw new RuntimeException("CheckOnline method not found");
+            return method;
+        });
     }
 
     public synchronized static Method loadEphemeralInsertdb(ClassLoader loader) throws Exception {
-        var method = dexkit.findMethod(new FindMethod().matcher(new MethodMatcher().addUsingString("expire_timestamp").addUsingString("ephemeral_initiated_by_me").addUsingString("ephemeral_trigger").returnType(ContentValues.class)));
-        if (method.isEmpty()) throw new RuntimeException("FieldExpireTime method not found");
-        var methodData = method.get(0);
-        return methodData.getMethodInstance(loader);
+        return UnobfuscatorCache.getInstance().getMethod(loader, () -> {
+            var method = dexkit.findMethod(FindMethod.create().matcher(MethodMatcher.create().addUsingString("expire_timestamp").addUsingString("ephemeral_initiated_by_me").addUsingString("ephemeral_trigger").returnType(ContentValues.class)));
+            if (method.isEmpty()) throw new RuntimeException("FieldExpireTime method not found");
+            var methodData = method.get(0);
+            return methodData.getMethodInstance(loader);
+        });
     }
 
     public synchronized static Method loadDefEmojiClass(ClassLoader loader) throws Exception {
@@ -1437,12 +1456,15 @@ public class Unobfuscator {
 
     public synchronized static Class loadActionUser(ClassLoader loader) throws Exception {
         return UnobfuscatorCache.getInstance().getClass(loader, () -> {
-            for (String s : List.of("UserActions/userActionDeleteMessages", "UserActions/reportIfBadTime: time=", "UserActions/createFMessageTextFromUserInputs", "UserActions/userActionKeepInChat", "UserActions/userActionSendMediaMessages", "UserActionsStickerMessaging/userActionSendStickerMessage")) {
-                var clazz = findFirstClassUsingStrings(loader, StringMatchType.Contains, s);
-                if (clazz != null)
-                    return clazz;
-            }
-            throw new ClassNotFoundException("ActionUser class not found");
+            var classData = dexkit.getClassData("com.whatsapp.conversation.selection.SingleSelectedMessageActivity");
+            if (classData == null)
+                throw new RuntimeException("SingleSelectedMessage class not found");
+            var fields = classData.getFields().stream().map(FieldData::getType).collect(Collectors.toList());
+            var fmessage = loadFMessageClass(loader);
+            var classResult = dexkit.findClass(FindClass.create().searchIn(fields).matcher(ClassMatcher.create().addMethod(MethodMatcher.create().paramCount(3).paramTypes(fmessage, String.class, boolean.class))));
+            if (classResult.isEmpty())
+                throw new RuntimeException("ActionUser class not found");
+            return classResult.get(0).getInstance(loader);
         });
     }
 
@@ -1617,11 +1639,13 @@ public class Unobfuscator {
         });
     }
 
-    public synchronized static Class<?> loadExpirationClass(ClassLoader classLoader) {
-        var methods = findAllMethodUsingStrings(classLoader, StringMatchType.Contains, "software_forced_expiration");
-        var expirationMethod = Arrays.stream(methods).filter(methodData -> methodData.getReturnType().equals(Date.class)).findFirst().orElse(null);
-        if (expirationMethod == null) throw new RuntimeException("Expiration class not found");
-        return expirationMethod.getDeclaringClass();
+    public synchronized static Class<?> loadExpirationClass(ClassLoader classLoader) throws Exception {
+        return UnobfuscatorCache.getInstance().getClass(classLoader, () -> {
+            var methods = findAllMethodUsingStrings(classLoader, StringMatchType.Contains, "software_forced_expiration");
+            var expirationMethod = Arrays.stream(methods).filter(methodData -> methodData.getReturnType().equals(Date.class)).findFirst().orElse(null);
+            if (expirationMethod == null) throw new RuntimeException("Expiration class not found");
+            return expirationMethod.getDeclaringClass();
+        });
     }
 
 
@@ -1768,15 +1792,19 @@ public class Unobfuscator {
     }
 
     public static synchronized Method loadCheckEmulator(ClassLoader classLoader) throws Exception {
-        var method = findFirstMethodUsingStrings(classLoader, StringMatchType.Contains, "Android SDK built for x86");
-        if (method == null) throw new RuntimeException("CheckEmulator method not found");
-        return method;
+        return UnobfuscatorCache.getInstance().getMethod(classLoader, () -> {
+            var method = findFirstMethodUsingStrings(classLoader, StringMatchType.Contains, "Android SDK built for x86");
+            if (method == null) throw new RuntimeException("CheckEmulator method not found");
+            return method;
+        });
     }
 
     public static synchronized Method loadCheckCustomRom(ClassLoader classLoader) throws Exception {
-        var method = findFirstMethodUsingStrings(classLoader, StringMatchType.Contains, "cyanogen");
-        if (method == null) throw new RuntimeException("CheckCustomRom method not found");
-        return method;
+        return UnobfuscatorCache.getInstance().getMethod(classLoader, () -> {
+            var method = findFirstMethodUsingStrings(classLoader, StringMatchType.Contains, "cyanogen");
+            if (method == null) throw new RuntimeException("CheckCustomRom method not found");
+            return method;
+        });
     }
 
     public static synchronized Method loadTranscribeMethod(ClassLoader classLoader) throws Exception {
@@ -1785,18 +1813,6 @@ public class Unobfuscator {
 
     public static synchronized Method loadCheckSupportLanguage(ClassLoader classLoader) throws Exception {
         return UnobfuscatorCache.getInstance().getMethod(classLoader, () -> findFirstMethodUsingStrings(classLoader, StringMatchType.Contains, "Unsupported language"));
-    }
-
-    public static synchronized Class loadUnkTranscript(ClassLoader classLoader) throws Exception {
-        var loadTranscribe = loadTranscribeMethod(classLoader);
-        var callbackClass = loadTranscribe.getParameterTypes()[1];
-        var onComplete = ReflectionUtils.findMethodUsingFilter(callbackClass, method -> method.getParameterCount() == 4);
-        var resultTypeClass = onComplete.getParameterTypes()[0].getName();
-        Log.i(TAG, resultTypeClass);
-        var classDataList = dexkit.findClass(FindClass.create().matcher(ClassMatcher.create().addUsingString("Unknown").superClass(resultTypeClass)));
-        if (classDataList.isEmpty())
-            return null;
-        return classDataList.get(0).getInstance(classLoader);
     }
 
     public static synchronized Class loadTranscriptSegment(ClassLoader classLoader) throws Exception {
@@ -1956,14 +1972,16 @@ public class Unobfuscator {
     }
 
     public static Class loadVoipManager(ClassLoader classLoader) throws Exception {
-        var superClasses = dexkit.findClass(FindClass.create().matcher(ClassMatcher.create().superClass("com.whatsapp.voipcalling.Voip")));
-        if (superClasses.isEmpty())
+        return UnobfuscatorCache.getInstance().getClass(classLoader, () -> {
+            var superClasses = dexkit.findClass(FindClass.create().matcher(ClassMatcher.create().superClass("com.whatsapp.voipcalling.Voip")));
+            if (superClasses.isEmpty())
+                throw new ClassNotFoundException("VoipManager Class not found");
+            for (var supclass : superClasses) {
+                if (!Modifier.isAbstract(supclass.getModifiers()))
+                    return supclass.getInstance(classLoader);
+            }
             throw new ClassNotFoundException("VoipManager Class not found");
-        for (var supclass : superClasses) {
-            if (!Modifier.isAbstract(supclass.getModifiers()))
-                return supclass.getInstance(classLoader);
-        }
-        throw new ClassNotFoundException("VoipManager Class not found");
+        });
     }
 
     public static Class loadWaContactClass(ClassLoader classLoader) throws Exception {
@@ -1997,6 +2015,6 @@ public class Unobfuscator {
     }
 
     public static Method loadConvertLidToJid(ClassLoader loader) throws Exception {
-        return findFirstMethodUsingStrings(loader, StringMatchType.Contains, "WaJidMapRepository/getJidByExistingAccountUserJidNoCreate");
+        return UnobfuscatorCache.getInstance().getMethod(loader, () -> findFirstMethodUsingStrings(loader, StringMatchType.Contains, "WaJidMapRepository/getJidByExistingAccountUserJidNoCreate"));
     }
 }

@@ -36,7 +36,6 @@ public class AudioTranscript extends Feature {
             return;
 
         var transcribeMethod = Unobfuscator.loadTranscribeMethod(classLoader);
-        var unkTranscriptClass = Unobfuscator.loadUnkTranscript(classLoader);
         Class<?> TranscriptionSegmentClass = Unobfuscator.loadTranscriptSegment(classLoader);
 
         XposedBridge.hookMethod(transcribeMethod, new XC_MethodHook() {
@@ -59,13 +58,7 @@ public class AudioTranscript extends Feature {
                     segments.add(XposedHelpers.newInstance(TranscriptionSegmentClass, totalLength, word.length(), 100, -1, -1));
                     totalLength += word.length() + 1;
                 }
-                // In version 2.25.7.80 the language has been changed to an enum, but I will maintain for compatibility with old versions
-                if (unkTranscriptClass != null) {
-                    var mEnglishInstance = ReflectionUtils.getFieldByExtendType(unkTranscriptClass, unkTranscriptClass).get(null);
-                    ReflectionUtils.callMethod(onComplete, callback, mEnglishInstance, fmessageObj, transcript, segments);
-                } else {
-                    ReflectionUtils.callMethod(onComplete, callback, fmessageObj, transcript, segments, 1);
-                }
+                ReflectionUtils.callMethod(onComplete, callback, fmessageObj, transcript, segments, 1);
                 param.setResult(null);
             }
         });
