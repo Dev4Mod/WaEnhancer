@@ -1,13 +1,14 @@
 [WA AND WA BUSINESS]
-* Improved support to WA 2.25.29.XX
-* Fixed compatibility with WA 2.25.25.XX
-* Removed versions below 2.25.25.XX
+* Add support to WA 2.25.30.XX
 
 [BUGS FIXES]
-* Fixed issue where the message and status view Toast did not appear
-* Fixed issue where the deleted message and status Toast did not appear
-* Fixed issue where call information showed a random number
+* Fixed bugs with Status and Message seen Toast
+* Fixed bugs with online Toast
+* Fixed issue with IGStatus not showing the unread circle
+* Fixed issue with custom Wallpaper
+* Fixed issue with custom privacy
+* Fixed double tap to react
+* Fixed issue with Call Privacy
 
-
-[NOTES]
-* Disabled the option to use WhatsApp's default emojis, it is now presenting many problems and was a workaround that prevented the loading of emojis (no return date)
+[IMPROVED]
+* Improvements to the hooks cache, and now WhatsApp should open much faster
