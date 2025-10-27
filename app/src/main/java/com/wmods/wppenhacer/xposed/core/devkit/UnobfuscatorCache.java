@@ -16,6 +16,9 @@ import com.wmods.wppenhacer.xposed.utils.ReflectionUtils;
 import com.wmods.wppenhacer.xposed.utils.ResId;
 import com.wmods.wppenhacer.xposed.utils.Utils;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.io.File;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
@@ -23,6 +26,7 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.CountDownLatch;
@@ -300,6 +304,69 @@ public class UnobfuscatorCache {
         return classes.toArray(new Class<?>[0]);
     }
 
+    public HashMap<String, Field> getMapField(ClassLoader loader, FunctionCall<HashMap<String, Field>> functionCall) throws Exception {
+        var key = getKeyName();
+        String value = sPrefsCacheHooks.getString(key, null);
+        if (value == null) {
+            var result = functionCall.call();
+            if (result == null) throw new Exception("HashMap is null: " + key);
+            saveHashMap(key, result);
+            return result;
+        }
+        return loadHashMap(loader, key);
+    }
+
+    private void saveHashMap(String key, HashMap<String, Field> map) {
+        // Cria um novo JSONObject para armazenar os pares
+        JSONObject jsonObject = new JSONObject();
+        for (Map.Entry<String, Field> entry : map.entrySet()) {
+            Field field = entry.getValue();
+            String value = field.getDeclaringClass().getName() + ":" + field.getName();
+            try {
+                jsonObject.put(entry.getKey(), value);
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+        }
+        sPrefsCacheHooks.edit().putString(key, jsonObject.toString()).apply();
+    }
+
+    private HashMap<String, Field> loadHashMap(ClassLoader loader, String key) {
+        HashMap<String, Field> map = new HashMap<>();
+        String jsonString = sPrefsCacheHooks.getString(key, null);
+        if (jsonString == null) return map;
+
+        try {
+            JSONObject jsonObject = new JSONObject(jsonString);
+            Iterator<String> keys = jsonObject.keys();
+
+            while (keys.hasNext()) {
+                String mapKey = keys.next();
+                String value = jsonObject.getString(mapKey);
+
+                // Quebra "com.package.Classe:campo"
+                String[] parts = value.split(":");
+                if (parts.length == 2) {
+                    String className = parts[0];
+                    String fieldName = parts[1];
+                    try {
+                        Class<?> clazz = loader.loadClass(className);
+                        Field field = clazz.getDeclaredField(fieldName);
+                        field.setAccessible(true);
+                        map.put(mapKey, field);
+                    } catch (Exception e) {
+                        e.printStackTrace(); // ignora campos inválidos
+                    }
+                }
+            }
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        return map;
+    }
+
+
     @SuppressWarnings("ApplySharedPref")
     public void saveField(String key, Field field) {
         String value = field.getDeclaringClass().getName() + ":" + field.getName();
@@ -384,6 +451,7 @@ public class UnobfuscatorCache {
         }
         sPrefsCacheHooks.edit().putString(key, value).commit();
     }
+
 
     public interface FunctionCall<T> {
         T call() throws Exception;

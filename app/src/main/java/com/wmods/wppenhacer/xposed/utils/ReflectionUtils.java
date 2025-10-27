@@ -1,5 +1,7 @@
 package com.wmods.wppenhacer.xposed.utils;
 
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.util.Pair;
 
 import androidx.annotation.NonNull;
@@ -18,6 +20,19 @@ import de.robv.android.xposed.XposedHelpers;
 
 @SuppressWarnings("unused")
 public class ReflectionUtils {
+
+    private static SharedPreferences cachePrefs;
+
+    /**
+     * Initialize the SharedPreferences for caching reflection results
+     *
+     * @param context Application context
+     */
+    public static void initCache(Context context) {
+        if (cachePrefs == null) {
+            cachePrefs = context.getSharedPreferences("UnobfuscatorCache", Context.MODE_PRIVATE);
+        }
+    }
 
     public static Map<String, Class<?>> primitiveClasses = Map.of(
             "byte", Byte.TYPE,
@@ -131,11 +146,53 @@ public class ReflectionUtils {
     }
 
     public static Field getFieldByExtendType(Class<?> cls, Class<?> type) {
-        return Arrays.stream(cls.getFields()).filter(f -> type.isAssignableFrom(f.getType())).findFirst().orElse(null);
+        if (cachePrefs == null) {
+            return Arrays.stream(cls.getFields()).filter(f -> type.isAssignableFrom(f.getType())).findFirst().orElse(null);
+        }
+
+        String cacheKey = "field_cache_" + cls.getName() + "_" + type.getName();
+
+        String cachedFieldName = cachePrefs.getString(cacheKey, null);
+        if (cachedFieldName != null) {
+            try {
+                return cls.getField(cachedFieldName);
+            } catch (NoSuchFieldException e) {
+                cachePrefs.edit().remove(cacheKey).commit();
+            }
+        }
+
+        Field field = Arrays.stream(cls.getFields()).filter(f -> type.isAssignableFrom(f.getType())).findFirst().orElse(null);
+
+        if (field != null) {
+            cachePrefs.edit().putString(cacheKey, field.getName()).commit();
+        }
+
+        return field;
     }
 
     public static Field getFieldByType(Class<?> cls, Class<?> type) {
-        return Arrays.stream(cls.getFields()).filter(f -> type == f.getType()).findFirst().orElse(null);
+        if (cachePrefs == null) {
+            return Arrays.stream(cls.getFields()).filter(f -> type == f.getType()).findFirst().orElse(null);
+        }
+
+        String cacheKey = "field_cache_direct_" + cls.getName() + "_" + type.getName();
+
+        String cachedFieldName = cachePrefs.getString(cacheKey, null);
+        if (cachedFieldName != null) {
+            try {
+                return cls.getField(cachedFieldName);
+            } catch (NoSuchFieldException e) {
+                cachePrefs.edit().remove(cacheKey).apply();
+            }
+        }
+
+        Field field = Arrays.stream(cls.getFields()).filter(f -> type == f.getType()).findFirst().orElse(null);
+
+        if (field != null) {
+            cachePrefs.edit().putString(cacheKey, field.getName()).apply();
+        }
+
+        return field;
     }
 
     public static Object callMethod(Method method, Object instance, Object... args) {

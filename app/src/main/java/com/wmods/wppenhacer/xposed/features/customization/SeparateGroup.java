@@ -299,8 +299,6 @@ public class SeparateGroup extends Feature {
         if (fieldTabsList == null) {
             throw new NullPointerException("fieldTabList is NULL!");
         }
-        fieldTabsList.setAccessible(true);
-
         XposedBridge.hookMethod(onCreateTabList, new XC_MethodHook() {
             @Override
             @SuppressWarnings("unchecked")

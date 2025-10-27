@@ -480,38 +480,42 @@ public class Unobfuscator {
     }
 
     public synchronized static HashMap<String, Field> loadMediaQualityVideoFields(ClassLoader classLoader) throws Exception {
-        var method = loadMediaQualityVideoMethod2(classLoader);
-        var methodString = method.getReturnType().getDeclaredMethod("toString");
-        var methodData = dexkit.getMethodData(methodString);
-        var usingFields = Objects.requireNonNull(methodData).getUsingFields();
-        var usingStrings = Objects.requireNonNull(methodData).getUsingStrings();
-        var result = new HashMap<String, Field>();
-        for (int i = 0; i < usingStrings.size(); i++) {
-            if (i == usingFields.size()) break;
-            var field = usingFields.get(i).getField().getFieldInstance(classLoader);
-            result.put(usingStrings.get(i), field);
-        }
-        return result;
+        return UnobfuscatorCache.getInstance().getMapField(classLoader, () -> {
+            var method = loadMediaQualityVideoMethod2(classLoader);
+            var methodString = method.getReturnType().getDeclaredMethod("toString");
+            var methodData = dexkit.getMethodData(methodString);
+            var usingFields = Objects.requireNonNull(methodData).getUsingFields();
+            var usingStrings = Objects.requireNonNull(methodData).getUsingStrings();
+            var result = new HashMap<String, Field>();
+            for (int i = 0; i < usingStrings.size(); i++) {
+                if (i == usingFields.size()) break;
+                var field = usingFields.get(i).getField().getFieldInstance(classLoader);
+                result.put(usingStrings.get(i), field);
+            }
+            return result;
+        });
     }
 
     public synchronized static HashMap<String, Field> loadMediaQualityOriginalVideoFields(ClassLoader classLoader) throws Exception {
-        var method = loadMediaQualityVideoMethod2(classLoader);
-        Method methodString;
-        try {
-            methodString = method.getParameterTypes()[0].getDeclaredMethod("toString");
-        } catch (Exception e) {
-            return new HashMap<>();
-        }
-        var methodData = dexkit.getMethodData(methodString);
-        var usingFields = Objects.requireNonNull(methodData).getUsingFields();
-        var usingStrings = Objects.requireNonNull(methodData).getUsingStrings();
-        var result = new HashMap<String, Field>();
-        for (int i = 0; i < usingStrings.size(); i++) {
-            if (i == usingFields.size()) break;
-            var field = usingFields.get(i).getField().getFieldInstance(classLoader);
-            result.put(usingStrings.get(i), field);
-        }
-        return result;
+        return UnobfuscatorCache.getInstance().getMapField(classLoader, () -> {
+            var method = loadMediaQualityVideoMethod2(classLoader);
+            Method methodString;
+            try {
+                methodString = method.getParameterTypes()[0].getDeclaredMethod("toString");
+            } catch (Exception e) {
+                return new HashMap<>();
+            }
+            var methodData = dexkit.getMethodData(methodString);
+            var usingFields = Objects.requireNonNull(methodData).getUsingFields();
+            var usingStrings = Objects.requireNonNull(methodData).getUsingStrings();
+            var result = new HashMap<String, Field>();
+            for (int i = 0; i < usingStrings.size(); i++) {
+                if (i == usingFields.size()) break;
+                var field = usingFields.get(i).getField().getFieldInstance(classLoader);
+                result.put(usingStrings.get(i), field);
+            }
+            return result;
+        });
     }
 
     // TODO: Classes and methods to ShareLimit

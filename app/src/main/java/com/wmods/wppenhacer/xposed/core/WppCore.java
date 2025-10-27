@@ -95,6 +95,7 @@ public class WppCore {
 
         // ActionUser
         var actionUser = Unobfuscator.loadActionUser(loader);
+        XposedBridge.log("ActionUser: " + actionUser.getName());
         XposedBridge.hookAllConstructors(actionUser, new XC_MethodHook() {
             @Override
             protected void afterHookedMethod(MethodHookParam param) throws Throwable {
