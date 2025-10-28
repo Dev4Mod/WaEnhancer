@@ -164,7 +164,9 @@ public class ReflectionUtils {
         Field field = Arrays.stream(cls.getFields()).filter(f -> type.isAssignableFrom(f.getType())).findFirst().orElse(null);
 
         if (field != null) {
-            cachePrefs.edit().putString(cacheKey, field.getName()).commit();
+            if (field.getDeclaringClass() == cls) {
+                cachePrefs.edit().putString(cacheKey, field.getName()).commit();
+            }
         }
 
         return field;
@@ -189,7 +191,9 @@ public class ReflectionUtils {
         Field field = Arrays.stream(cls.getFields()).filter(f -> type == f.getType()).findFirst().orElse(null);
 
         if (field != null) {
-            cachePrefs.edit().putString(cacheKey, field.getName()).apply();
+            if (field.getDeclaringClass() == cls) {
+                cachePrefs.edit().putString(cacheKey, field.getName()).apply();
+            }
         }
 
         return field;

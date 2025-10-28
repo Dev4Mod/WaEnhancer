@@ -110,8 +110,8 @@ public class MediaPreview extends Feature {
                 prevBtn.setOnClickListener((v) -> {
                     var objmessage = XposedHelpers.callMethod(param.thisObject, "getFMessage");
                     var id = new FMessageWpp(objmessage).getRowId();
-                    var userJid = WppCore.getCurrentRawJID();
-                    startPlayer(id, context, userJid != null && userJid.contains("@newsletter"));
+                    var userJid = WppCore.getCurrentUserJid();
+                    startPlayer(id, context, userJid != null && userJid.isNewsletter());
                 });
             }
         });
@@ -160,8 +160,8 @@ public class MediaPreview extends Feature {
                 prevBtn.setOnClickListener((v) -> {
                     var objmessage = XposedHelpers.callMethod(param.thisObject, "getFMessage");
                     var id = new FMessageWpp(objmessage).getRowId();
-                    var userJid = WppCore.getCurrentRawJID();
-                    startPlayer(id, context, userJid != null && userJid.contains("@newsletter"));
+                    var userJid = WppCore.getCurrentUserJid();
+                    startPlayer(id, context, userJid != null && userJid.isNewsletter());
                 });
 
             }

@@ -18,6 +18,7 @@ import androidx.annotation.NonNull;
 import com.wmods.wppenhacer.listeners.OnMultiClickListener;
 import com.wmods.wppenhacer.xposed.core.Feature;
 import com.wmods.wppenhacer.xposed.core.WppCore;
+import com.wmods.wppenhacer.xposed.core.components.FMessageWpp;
 import com.wmods.wppenhacer.xposed.core.devkit.Unobfuscator;
 import com.wmods.wppenhacer.xposed.utils.AnimationUtil;
 import com.wmods.wppenhacer.xposed.utils.ReflectionUtils;
@@ -300,14 +301,10 @@ public class Others extends Feature {
 
                     Object callinfo = XposedHelpers.callMethod(param.thisObject, "getCallInfo");
                     if (callinfo == null) return;
-                    var userJid = XposedHelpers.callMethod(callinfo, "getPeerJid");
-                    if (WppCore.getRawString(userJid).contains("@lid"))
-                        userJid = WppCore.resolveJidFromLid(userJid);
-
-                    Object finalUserJid = userJid;
+                    var userJid = new FMessageWpp.UserJid(XposedHelpers.callMethod(callinfo, "getPeerJid"));
                     CompletableFuture.runAsync(() -> {
                         try {
-                            showCallInformation(param.args[0], finalUserJid);
+                            showCallInformation(param.args[0], userJid);
                         } catch (Exception e) {
                             logDebug(e);
                         }
@@ -317,11 +314,11 @@ public class Others extends Feature {
         });
     }
 
-    private void showCallInformation(Object wamCall, Object userJid) throws Exception {
-        if (WppCore.isGroup(WppCore.getRawString(userJid))) return;
+    private void showCallInformation(Object wamCall, FMessageWpp.UserJid userJid) throws Exception {
+        if (userJid.isGroup()) return;
         var sb = new StringBuilder();
         var contact = WppCore.getContactName(userJid);
-        var number = WppCore.stripJID(WppCore.getRawString(userJid));
+        var number = userJid.getStripJID();
         if (!TextUtils.isEmpty(contact))
             sb.append(String.format(Utils.getApplication().getString(ResId.string.contact_s), contact)).append("\n");
         sb.append(String.format(Utils.getApplication().getString(ResId.string.phone_number_s), number)).append("\n");
@@ -561,14 +558,10 @@ public class Others extends Feature {
                 if (message.arg1 != 5) return;
                 BaseBundle baseBundle = (BaseBundle) message.obj;
                 var jid = baseBundle.getString("jid");
-                var userjid = WppCore.createUserJid(jid);
-                if (jid != null && jid.contains("lid")) {
-                    userjid = WppCore.resolveJidFromLid(userjid);
-                    jid = WppCore.getRawString(userjid);
-                }
-                if (WppCore.isGroup(jid)) return;
+                var userjid = new FMessageWpp.UserJid(jid);
+                if (userjid.isGroup()) return;
                 var name = WppCore.getContactName(userjid);
-                name = TextUtils.isEmpty(name) ? WppCore.stripJID(jid) : name;
+                name = TextUtils.isEmpty(name) ? userjid.getStripJID() : name;
                 if (showOnline)
                     Utils.showToast(String.format(Utils.getApplication().getString(ResId.string.toast_online), name), Toast.LENGTH_SHORT);
                 Tasker.sendTaskerEvent(name, WppCore.stripJID(jid), "contact_online");

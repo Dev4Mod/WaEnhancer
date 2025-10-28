@@ -21,6 +21,7 @@ import com.wmods.wppenhacer.adapter.CustomPrivacyAdapter;
 import com.wmods.wppenhacer.xposed.core.Feature;
 import com.wmods.wppenhacer.xposed.core.WppCore;
 import com.wmods.wppenhacer.xposed.core.components.AlertDialogWpp;
+import com.wmods.wppenhacer.xposed.core.components.FMessageWpp;
 import com.wmods.wppenhacer.xposed.core.devkit.Unobfuscator;
 import com.wmods.wppenhacer.xposed.features.others.MenuHome;
 import com.wmods.wppenhacer.xposed.utils.DesignUtils;
@@ -184,7 +185,7 @@ public class CustomPrivacy extends Feature {
         for (var key : maps.keySet()) {
             if (key.endsWith("_privacy")) {
                 var number = key.replace("_privacy", "");
-                Object userJid = WppCore.createUserJid(number + (number.length() > 14 ? "@g.us" : "@s.whatsapp.net"));
+                var userJid = new FMessageWpp.UserJid(number + (number.length() > 14 ? "@g.us" : "@s.whatsapp.net"));
 
                 var contactName = WppCore.getContactName(userJid);
 
@@ -214,21 +215,17 @@ public class CustomPrivacy extends Feature {
 
 
     private void showPrivacyDialog(Activity activity, boolean isChat) {
-        Object userJid = getUserJid(activity, isChat);
-        if (userJid == null) return;
-
-        String rawJid = WppCore.getRawString(userJid);
-        String number = WppCore.stripJID(rawJid);
-
-        AlertDialogWpp builder = createPrivacyDialog(activity, number);
+        var userJid = getUserJid(activity, isChat);
+        if (!userJid.isPresent()) return;
+        AlertDialogWpp builder = createPrivacyDialog(activity, userJid.getStripJID());
         builder.show();
     }
 
-    private Object getUserJid(Activity activity, boolean isChat) {
+    private FMessageWpp.UserJid getUserJid(Activity activity, boolean isChat) {
         if (isChat) {
-            return WppCore.resolveJidFromLid(ReflectionUtils.callMethod(chatUserJidMethod, activity));
+            return new FMessageWpp.UserJid(ReflectionUtils.callMethod(chatUserJidMethod, activity));
         } else {
-            return ReflectionUtils.callMethod(groupUserJidMethod, activity);
+            return new FMessageWpp.UserJid(ReflectionUtils.callMethod(groupUserJidMethod, activity));
         }
     }
 

@@ -124,8 +124,6 @@ public class FeatureLoader {
             protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
                 mApp = (Application) param.args[0];
 
-                ReflectionUtils.initCache(mApp);
-
                 // Inject Booloader Spoofer
                 if (pref.getBoolean("bootloader_spoofer", false)) {
                     HookBL.hook(loader, pref);
@@ -144,6 +142,7 @@ public class FeatureLoader {
                     var timemillis = System.currentTimeMillis();
                     SharedPreferencesWrapper.hookInit(mApp.getClassLoader());
                     UnobfuscatorCache.init(mApp);
+                    ReflectionUtils.initCache(mApp);
                     boolean isSupported = supportedVersions.stream().anyMatch(s -> packageInfo.versionName.startsWith(s.replace(".xx", "")));
                     if (!isSupported) {
                         disableExpirationVersion(mApp.getClassLoader());

@@ -15,6 +15,7 @@ import androidx.annotation.NonNull;
 import com.wmods.wppenhacer.preference.ContactPickerPreference;
 import com.wmods.wppenhacer.xposed.core.Feature;
 import com.wmods.wppenhacer.xposed.core.WppCore;
+import com.wmods.wppenhacer.xposed.core.components.FMessageWpp;
 import com.wmods.wppenhacer.xposed.core.devkit.Unobfuscator;
 import com.wmods.wppenhacer.xposed.utils.ReflectionUtils;
 import com.wmods.wppenhacer.xposed.utils.ResId;
@@ -85,7 +86,7 @@ public class ActivityController extends Feature {
                     Intent intent2 = new Intent();
                     intent2.putExtra("path", uriStr);
                     intent2.putExtra("key", Key);
-                    logDebug("onActivityResult","Call Download Result");
+                    logDebug("onActivityResult", "Call Download Result");
                     activity.setResult(Activity.RESULT_OK, intent2);
                 }
                 activity.finish();
@@ -99,14 +100,14 @@ public class ActivityController extends Feature {
         var listContactsField = ReflectionUtils.findFieldUsingFilter(instance.getClass(), field -> field.getType() == List.class);
         var listContacts = (List) ReflectionUtils.getObjectField(listContactsField, instance);
         var contacts = new ArrayList<String>();
-        for (Object contact : listContacts) {
-            var rawContacts = WppCore.getRawString(contact);
+        for (Object contactUserJid : listContacts) {
+            var rawContacts = new FMessageWpp.UserJid(contactUserJid).getRawString();
             contacts.add(rawContacts);
         }
         Intent intent2 = new Intent();
         intent2.putStringArrayListExtra("contacts", contacts);
         intent2.putExtra("key", Key);
-        activity.setResult( Activity.RESULT_OK, intent2);
+        activity.setResult(Activity.RESULT_OK, intent2);
     }
 
     private void downloadController(Activity activity, Intent intent2) {

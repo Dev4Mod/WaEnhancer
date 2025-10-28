@@ -24,6 +24,7 @@ import androidx.annotation.Nullable;
 
 import com.wmods.wppenhacer.views.dialog.TabDialogContent;
 import com.wmods.wppenhacer.xposed.core.WppCore;
+import com.wmods.wppenhacer.xposed.core.components.FMessageWpp;
 import com.wmods.wppenhacer.xposed.core.devkit.Unobfuscator;
 import com.wmods.wppenhacer.xposed.core.devkit.UnobfuscatorCache;
 import com.wmods.wppenhacer.xposed.utils.DesignUtils;
@@ -130,7 +131,7 @@ public class IGStatusAdapter extends ArrayAdapter {
             try {
                 var clazz = Unobfuscator.getClassByName("StatusPlaybackActivity", getContext().getClassLoader());
                 var intent = new Intent(WppCore.getCurrentActivity(), clazz);
-                intent.putExtra("jid", holder.jid);
+                intent.putExtra("jid", holder.userJid.getRawLidString());
                 WppCore.getCurrentActivity().startActivity(intent);
             } catch (Exception e) {
                 Utils.showToast(e.getMessage(), 1);
@@ -157,7 +158,7 @@ public class IGStatusAdapter extends ArrayAdapter {
         public RelativeLayout addButton;
         public TextView igStatusContactName;
         public boolean myStatus;
-        private String jid;
+        private FMessageWpp.UserJid userJid;
 
         public void setInfo(Object item) {
 
@@ -170,11 +171,10 @@ public class IGStatusAdapter extends ArrayAdapter {
             }
             var statusInfo = XposedHelpers.getObjectField(item, "A01");
             var field = ReflectionUtils.getFieldByExtendType(statusInfo.getClass(), XposedHelpers.findClass("com.whatsapp.jid.Jid", statusInfoClazz.getClassLoader()));
-            var userJid = ReflectionUtils.getObjectField(field, statusInfo);
-            var contactName = WppCore.getContactName(userJid);
-            jid = WppCore.getRawString(userJid);
+            this.userJid = new FMessageWpp.UserJid(ReflectionUtils.getObjectField(field, statusInfo));
+            var contactName = WppCore.getContactName(this.userJid);
             igStatusContactName.setText(contactName);
-            var profile = WppCore.getContactPhotoDrawable(jid);
+            var profile = WppCore.getContactPhotoDrawable(this.userJid.getRawString());
             if (profile == null) profile = DesignUtils.getDrawableByName("avatar_contact");
             igStatusContactPhoto.setImageDrawable(profile);
             var countUnseen = XposedHelpers.getIntField(statusInfo, "A01");

@@ -60,6 +60,7 @@ public class ToastViewer extends Feature {
 
     private void processNewWA(XC_MethodHook.MethodHookParam param, boolean toastViewedMessage, boolean toastViewedStatus) throws ClassNotFoundException, IllegalAccessException {
         Collection collection;
+        log("Process New WA");
         if (!(param.args[0] instanceof Collection)) {
             collection = Collections.singleton(param.args[0]);
         } else {
@@ -74,27 +75,24 @@ public class ToastViewer extends Feature {
             int type = fieldByType.getInt(messageStatusUpdateReceipt);
             long id = fieldId.getLong(messageStatusUpdateReceipt);
             if (type != 13) return;
-            var PhoneUserJid = fieldByUserJid.get(messageStatusUpdateReceipt);
+            var userJid = new FMessageWpp.UserJid(fieldByUserJid.get(messageStatusUpdateReceipt));
             AtomicReference<Object> fmessage = new AtomicReference<>();
             try {
                 fmessage.set(fieldMessage.get(messageStatusUpdateReceipt));
             } catch (Exception ignored) {
             }
             CompletableFuture.runAsync(() -> {
-                var raw = Objects.requireNonNull(WppCore.getRawString(PhoneUserJid)).replaceFirst("\\.\\d+:\\d+@", "@");
-                var UserJid = WppCore.createUserJid(raw);
-                var contactName = WppCore.getContactName(UserJid);
+                var contactName = WppCore.getContactName(userJid);
                 var rowId = id;
 
-                if (TextUtils.isEmpty(contactName)) contactName = WppCore.stripJID(raw);
+                if (TextUtils.isEmpty(contactName)) contactName = userJid.getStripJID();
 
                 var sql = MessageStore.getInstance().getDatabase();
 
                 if (fmessage.get() != null) {
                     rowId = new FMessageWpp(fmessage.get()).getRowId();
                 }
-
-                checkDataBase(sql, rowId, contactName, raw, toastViewedMessage, toastViewedStatus);
+                checkDataBase(sql, rowId, contactName, userJid.getRawString(), toastViewedMessage, toastViewedStatus);
             });
         }
     }
@@ -119,7 +117,10 @@ public class ToastViewer extends Feature {
                 return;
             }
 
-            if (Objects.equals(WppCore.getCurrentRawJID(), rawJid)) return;
+            var userJid = WppCore.getCurrentUserJid();
+
+            if (rawJid != null && userJid != null && Objects.equals(userJid.getRawString(), rawJid))
+                return;
 
             var chat_id = result2.getLong(result2.getColumnIndexOrThrow("chat_row_id"));
             try (var result3 = sql.query("chat", null, "_id = ? AND subject IS NULL", new String[]{String.valueOf(chat_id)}, null, null, null)) {
@@ -132,16 +133,11 @@ public class ToastViewer extends Feature {
                     lastEventTimeMap.put(key, currentTime);
                     Tasker.sendTaskerEvent(contactName, WppCore.stripJID(rawJid), "viewed_message");
                     if (toastViewedMessage) {
-                        XposedBridge.log("Call Jid");
-                        var userJid = WppCore.createUserJid(WppCore.getCurrentRawJID());
-                        var jid = WppCore.resolveJidFromLid(userJid);
-                        var rawCurJid = WppCore.getRawString(jid);
-                        if (Objects.equals(rawCurJid, rawJid)) {
-                            return;
-                        }
                         Utils.showToast(Utils.getApplication().getString(ResId.string.viewed_your_message, contactName), Toast.LENGTH_LONG);
                     }
                 }
+            } catch (Exception e) {
+                XposedBridge.log(e);
             }
         }
     }

@@ -52,7 +52,7 @@ public class SeenTick extends Feature {
     private static Object mWaJobManager;
     private static Class<?> mSendReadClass;
     private static Method WaJobManagerMethod;
-    private static String currentJid;
+    private static FMessageWpp.UserJid currentJid;
     private static String currentScreen = "none";
     private static final HashMap<String, ImageView> messageMap = new HashMap<>();
 
@@ -103,7 +103,7 @@ public class SeenTick extends Feature {
 
         WppCore.addListenerActivity((activity, type) -> {
             if (activity.getClass().getSimpleName().equals("Conversation") && (type == WppCore.ActivityChangeState.ChangeType.STARTED || type == WppCore.ActivityChangeState.ChangeType.RESUMED)) {
-                var jid = WppCore.getCurrentRawJID();
+                var jid = WppCore.getCurrentUserJid();
                 if (!Objects.equals(jid, currentJid)) {
                     currentJid = jid;
                 }
@@ -135,10 +135,9 @@ public class SeenTick extends Feature {
                     object = fmessageField.get(object);
                 }
                 var fMessage = new FMessageWpp(object);
-                var jid = WppCore.getRawString(fMessage.getUserJid());
                 statuses.clear();
                 statuses.add(fMessage);
-                currentJid = jid;
+                currentJid = fMessage.getUserJid();
                 currentScreen = "status";
             }
         });
@@ -314,10 +313,10 @@ public class SeenTick extends Feature {
                 MenuItem item = menu.add(0, 0, 0, ResId.string.send_blue_tick).setIcon(Utils.getID("ic_notif_mark_read", "drawable"));
                 if (ticktype == 1) item.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
                 item.setOnMenuItemClickListener(item1 -> {
-                    var jid = WppCore.getRawString(fMessage.getKey().remoteJid);
+                    var userJid = fMessage.getKey().remoteJid;
                     var messageID = fMessage.getKey().messageID;
-                    MessageHistory.getInstance().updateViewedMessage(jid, messageID, MessageHistory.MessageType.VIEW_ONCE_TYPE, true);
-                    MessageHistory.getInstance().updateViewedMessage(jid, messageID, MessageHistory.MessageType.MESSAGE_TYPE, true);
+                    MessageHistory.getInstance().updateViewedMessage(userJid.getRawString(), messageID, MessageHistory.MessageType.VIEW_ONCE_TYPE, true);
+                    MessageHistory.getInstance().updateViewedMessage(userJid.getRawString(), messageID, MessageHistory.MessageType.MESSAGE_TYPE, true);
                     sendBlueTickMedia(fMessage);
                     statuses.clear();
                     Utils.showToast(Utils.getApplication().getString(ResId.string.sending_read_blue_tick), Toast.LENGTH_SHORT);
@@ -342,10 +341,10 @@ public class SeenTick extends Feature {
                                 var fMessageObj = WppCore.getFMessageFromKey(keyMessage);
                                 if (fMessageObj == null) return;
                                 var fMessage = new FMessageWpp(fMessageObj);
-                                var jid = WppCore.getRawString(fMessage.getKey().remoteJid);
+                                var rawJid = fMessage.getKey().remoteJid.getRawString();
                                 var messageID = fMessage.getKey().messageID;
-                                MessageHistory.getInstance().updateViewedMessage(jid, messageID, MessageHistory.MessageType.VIEW_ONCE_TYPE, true);
-                                MessageHistory.getInstance().updateViewedMessage(jid, messageID, MessageHistory.MessageType.MESSAGE_TYPE, true);
+                                MessageHistory.getInstance().updateViewedMessage(rawJid, messageID, MessageHistory.MessageType.VIEW_ONCE_TYPE, true);
+                                MessageHistory.getInstance().updateViewedMessage(rawJid, messageID, MessageHistory.MessageType.MESSAGE_TYPE, true);
                                 sendBlueTickMedia(fMessage);
                                 statuses.clear();
                                 Utils.showToast(Utils.getApplication().getString(ResId.string.sending_read_blue_tick), Toast.LENGTH_SHORT);
@@ -370,33 +369,34 @@ public class SeenTick extends Feature {
                 if (!prefs.getBoolean("blueonreply", false)) return;
                 var obj = messageSendClass.cast(param.thisObject);
                 var rawJid = (String) XposedHelpers.getObjectField(obj, "jid");
+                var userJid = new FMessageWpp.UserJid(WppCore.createUserJid(rawJid));
 
-                if (Objects.equals(currentScreen, "status") && !rawJid.contains("status")) {
+                if (Objects.equals(currentScreen, "status") && !userJid.isStatus()) {
                     if (statuses.isEmpty()) return;
                     MessageStore.getInstance().storeMessageRead(statuses.valueAt(0).getKey().messageID);
                     var view = messageMap.get(statuses.valueAt(0).getKey().messageID);
                     if (view != null) view.post(() -> setSeenButton(view, true));
                     sendBlueTickStatus(currentJid);
                 } else {
-                    sendBlueTick(rawJid);
+                    sendBlueTick(userJid);
                 }
                 HideSeenView.updateAllBubbleViews();
             }
         });
     }
 
-    private static void updateMessageStatusView(String jid, List<FMessageWpp> messages) {
+    private static void updateMessageStatusView(String rawJid, List<FMessageWpp> messages) {
         for (var msg : messages) {
-            MessageHistory.getInstance().updateViewedMessage(jid, msg.getKey().messageID, MessageHistory.MessageType.MESSAGE_TYPE, true);
+            MessageHistory.getInstance().updateViewedMessage(rawJid, msg.getKey().messageID, MessageHistory.MessageType.MESSAGE_TYPE, true);
         }
         HideSeenView.updateAllBubbleViews();
     }
 
-    private void sendBlueTick(String jid) {
+    private void sendBlueTick(FMessageWpp.UserJid userJid) {
         CompletableFuture.runAsync(() -> {
-            if (jid == null || jid.contains(Utils.getMyNumber())) return;
+            if (Objects.equals(userJid.getStripJID(), Utils.getMyNumber())) return;
             var messages = new ArrayList<FMessageWpp>();
-            var hideSeenMessagesssages = MessageHistory.getInstance().getHideSeenMessages(currentJid, MessageHistory.MessageType.MESSAGE_TYPE, false);
+            var hideSeenMessagesssages = MessageHistory.getInstance().getHideSeenMessages(userJid.getRawString(), MessageHistory.MessageType.MESSAGE_TYPE, false);
             for (var message : hideSeenMessagesssages) {
                 var fmessage = message.getFMessage();
                 if (fmessage == null) continue;
@@ -411,31 +411,32 @@ public class SeenTick extends Feature {
                     sendBlueTickMedia(audioMessage);
                 }
             }
-            sendBlueTickMsg(jid, messages);
-            updateMessageStatusView(jid,messages);
+            sendBlueTickMsg(userJid, messages);
+            updateMessageStatusView(userJid.getRawString(), messages);
         }, Utils.getExecutor());
     }
 
-    private void sendBlueTickMsg(String jid, ArrayList<FMessageWpp> messages) {
+    private void sendBlueTickMsg(FMessageWpp.UserJid userJid, ArrayList<FMessageWpp> messages) {
         if (messages.isEmpty())
             return;
         try {
-            HashMap<Object, List<String>> messageMap = new HashMap<>();
+            HashMap<FMessageWpp.UserJid, List<String>> messageMap = new HashMap<>();
             for (FMessageWpp message : messages) {
-                var userJid = WppCore.isGroup(jid) ? message.getUserJid() : message.getKey().remoteJid;
-                messageMap.computeIfAbsent(userJid, k -> new ArrayList<>()).add(message.getKey().messageID);
+                var userJidMsg = userJid.isGroup() ? message.getUserJid() : message.getKey().remoteJid;
+                messageMap.computeIfAbsent(userJidMsg, k -> new ArrayList<>()).add(message.getKey().messageID);
             }
-            var userJidTarget = WppCore.createUserJid(jid);
 
-            for (Map.Entry<Object, List<String>> entry : messageMap.entrySet()) {
-                var userJid = entry.getKey();
+            for (var entry : messageMap.entrySet()) {
+                var userJidMsg = entry.getKey();
                 String[] messageIds = entry.getValue().toArray(new String[0]);
-                var participant = WppCore.isGroup(jid) ? userJid : null;
+                var participant = userJid.isGroup() ? userJidMsg.lid : null;
 
                 WppCore.setPrivBoolean(messageIds[0] + "_rpass", true);
 
+                logDebug(userJid);
+
                 Object sendJob = XposedHelpers.newInstance(
-                        mSendReadClass, userJidTarget, participant, null, null, messageIds, -1, 1L, false
+                        mSendReadClass, userJid.lid, participant, null, null, messageIds, -1, 1L, false
                 );
 
                 WaJobManagerMethod.invoke(mWaJobManager, sendJob);
@@ -445,16 +446,15 @@ public class SeenTick extends Feature {
         }
     }
 
-    private void sendBlueTickStatus(String currentJid) {
+    private void sendBlueTickStatus(FMessageWpp.UserJid currentJid) {
         CompletableFuture.runAsync(() -> {
             if (statuses.isEmpty() || currentJid == null || currentJid.equals("status_me")) return;
             try {
                 var arr_s = statuses.stream().map(item -> item.getKey().messageID).toArray(String[]::new);
                 Arrays.stream(arr_s).forEach(s -> MessageStore.getInstance().storeMessageRead(s));
                 var userJidSender = WppCore.createUserJid("status@broadcast");
-                var userJid = WppCore.createUserJid(currentJid);
                 WppCore.setPrivBoolean(arr_s[0] + "_rpass", true);
-                var sendJob = XposedHelpers.newInstance(mSendReadClass, userJidSender, userJid, null, null, arr_s, -1, 0L, false);
+                var sendJob = XposedHelpers.newInstance(mSendReadClass, userJidSender, currentJid.lid, null, null, arr_s, -1, 0L, false);
                 WaJobManagerMethod.invoke(mWaJobManager, sendJob);
                 statuses.clear();
             } catch (Throwable e) {
@@ -467,10 +467,9 @@ public class SeenTick extends Feature {
         CompletableFuture.runAsync(() -> {
             try {
                 var userJid = fMessage.getKey().remoteJid;
-                var rawJid = WppCore.getRawString(userJid);
                 Object participant = null;
-                if (WppCore.isGroup(rawJid)) {
-                    participant = fMessage.getUserJid();
+                if (userJid.isGroup()) {
+                    participant = fMessage.getUserJid().lid;
                 }
                 var sendPlayerClass = XposedHelpers.findClass("com.whatsapp.jobqueue.job.SendPlayedReceiptJobV2", classLoader);
                 var constructor = sendPlayerClass.getDeclaredConstructors()[0];
@@ -478,7 +477,7 @@ public class SeenTick extends Feature {
                 var rowsId = new Long[]{fMessage.getRowId()};
                 var messageId = fMessage.getKey().messageID;
                 constructor = classParticipantInfo.getDeclaredConstructors()[0];
-                var participantInfo = constructor.newInstance(userJid, participant, rowsId, new String[]{messageId});
+                var participantInfo = constructor.newInstance(userJid.lid, participant, rowsId, new String[]{messageId});
                 var sendJob = XposedHelpers.newInstance(sendPlayerClass, participantInfo, false);
                 WaJobManagerMethod.invoke(mWaJobManager, sendJob);
             } catch (Throwable e) {

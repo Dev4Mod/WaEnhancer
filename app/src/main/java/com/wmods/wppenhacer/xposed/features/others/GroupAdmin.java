@@ -44,11 +44,11 @@ public class GroupAdmin extends Feature {
                 var userJidClass = XposedHelpers.findClass("com.whatsapp.jid.UserJid", classLoader);
                 var methodResult = ReflectionUtils.findMethodUsingFilter(fMessage.getClass(), method -> method.getReturnType() == userJidClass && method.getParameterCount() == 0);
                 var userJid = ReflectionUtils.callMethod(methodResult, fMessage);
-                var chatCurrentJid = WppCore.getCurrentRawJID();
-                if (!WppCore.isGroup(chatCurrentJid)) return;
+                var chatCurrentJid = WppCore.getCurrentUserJid();
+                if (!chatCurrentJid.isGroup()) return;
                 var field = ReflectionUtils.getFieldByType(targetObj.getClass(), grpcheckAdmin.getDeclaringClass());
                 var grpParticipants = field.get(targetObj);
-                var jidGrp = jidFactory.invoke(null, chatCurrentJid);
+                var jidGrp = jidFactory.invoke(null, chatCurrentJid.lid);
                 var result = ReflectionUtils.callMethod(grpcheckAdmin, grpParticipants, jidGrp, userJid);
                 var view = (View) targetObj;
                 var context = view.getContext();

@@ -52,21 +52,19 @@ public class HideSeen extends Feature {
                     return;
                 }
                 var lid = (String) XposedHelpers.getObjectField(srj, "jid");
-                var ojid = WppCore.createUserJid(lid);
-                var jid = WppCore.getRawString(WppCore.resolveJidFromLid(ojid));
-                if (jid == null) return;
-                var number = WppCore.stripJID(jid);
-                var privacy = CustomPrivacy.getJSON(number);
+                var userJid = new FMessageWpp.UserJid(lid);
+                if (!userJid.isPresent()) return;
+                var privacy = CustomPrivacy.getJSON(userJid.getStripJID());
 
                 var customHideRead = privacy.optBoolean("HideSeen", hideread);
                 var isHide = false;
 
-                if (WppCore.isGroup(jid)) {
+                if (userJid.isGroup()) {
                     if (privacy.optBoolean("HideSeen", hideread_group) || ghostmode) {
                         param.setResult(null);
                         isHide = true;
                     }
-                } else if (jid.startsWith("status")) {
+                } else if (userJid.isStatus()) {
                     var participant = (String) XposedHelpers.getObjectField(srj, "participant");
                     var customHideStatusView = CustomPrivacy.getJSON(WppCore.stripJID(participant)).optBoolean("HideViewStatus", hidestatusview);
                     if (customHideStatusView || ghostmode) {
@@ -79,12 +77,11 @@ public class HideSeen extends Feature {
                 if (isHide) {
                     var keyClass = FMessageWpp.Key.TYPE;
                     for (String messageId : messageIds) {
-                        MessageHistory.getInstance().insertHideSeenMessage(jid, messageId, MessageHistory.MessageType.MESSAGE_TYPE, false);
-                        var userJid = WppCore.createUserJid(jid);
-                        var key = keyClass.getConstructors()[0].newInstance(userJid, messageId, false);
+                        MessageHistory.getInstance().insertHideSeenMessage(userJid.getRawString(), messageId, MessageHistory.MessageType.MESSAGE_TYPE, false);
+                        var key = keyClass.getConstructors()[0].newInstance(userJid.lid, messageId, false);
                         var fmessage = new FMessageWpp(WppCore.getFMessageFromKey(key));
                         if (fmessage.isViewOnce()) {
-                            MessageHistory.getInstance().insertHideSeenMessage(jid, messageId, MessageHistory.MessageType.VIEW_ONCE_TYPE, false);
+                            MessageHistory.getInstance().insertHideSeenMessage(userJid.getRawString(), messageId, MessageHistory.MessageType.VIEW_ONCE_TYPE, false);
                         }
                         HideSeenView.updateAllBubbleViews();
                     }
@@ -110,13 +107,10 @@ public class HideSeen extends Feature {
                     return;
                 var msgTypeIdx = ReflectionUtils.findIndexOfType(((Method) param.method).getParameterTypes(), String.class);
                 if (!Objects.equals("read", param.args[msgTypeIdx])) return;
-                var lid = WppCore.getCurrentRawJID();
-                var ojid = WppCore.createUserJid(lid);
-                var jid = WppCore.getRawString(WppCore.resolveJidFromLid(ojid));
-                var number = WppCore.stripJID(jid);
-                var privacy = CustomPrivacy.getJSON(number);
+                var currentUserJid = WppCore.getCurrentUserJid();
+                var privacy = CustomPrivacy.getJSON(currentUserJid.getStripJID());
                 var customHideRead = privacy.optBoolean("HideSeen", hideread);
-                if (WppCore.isGroup(jid)) {
+                if (currentUserJid.isGroup()) {
                     if (privacy.optBoolean("HideSeen", hideread_group) || ghostmode) {
                         param.args[msgTypeIdx] = null;
                     }
@@ -129,9 +123,9 @@ public class HideSeen extends Feature {
                     if (key != null) {
                         var fmessage = new FMessageWpp(WppCore.getFMessageFromKey(key));
                         var messageId = fmessage.getKey().messageID;
-                        MessageHistory.getInstance().insertHideSeenMessage(jid, messageId, MessageHistory.MessageType.MESSAGE_TYPE, false);
+                        MessageHistory.getInstance().insertHideSeenMessage(currentUserJid.getRawString(), messageId, MessageHistory.MessageType.MESSAGE_TYPE, false);
                         if (fmessage.isViewOnce()) {
-                            MessageHistory.getInstance().insertHideSeenMessage(jid, messageId, MessageHistory.MessageType.VIEW_ONCE_TYPE, false);
+                            MessageHistory.getInstance().insertHideSeenMessage(currentUserJid.getRawString(), messageId, MessageHistory.MessageType.VIEW_ONCE_TYPE, false);
                         }
                         HideSeenView.updateAllBubbleViews();
                     }
@@ -153,14 +147,14 @@ public class HideSeen extends Feature {
                     isHide = true;
                 }
                 var key = fMessage.getKey();
-                var jid = key.remoteJid;
+                var userJid = key.remoteJid;
                 var messageId = key.messageID;
                 if (isHide) {
-                    MessageHistory.getInstance().insertHideSeenMessage(WppCore.getRawString(jid), messageId, MessageHistory.MessageType.MESSAGE_TYPE, false);
+                    MessageHistory.getInstance().insertHideSeenMessage(userJid.getRawString(), messageId, MessageHistory.MessageType.MESSAGE_TYPE, false);
                 }
                 if (fMessage.isViewOnce() && !hideonceseen && !ghostmode) {
-                    MessageHistory.getInstance().updateViewedMessage(WppCore.getRawString(jid), messageId, MessageHistory.MessageType.VIEW_ONCE_TYPE, true);
-                    MessageHistory.getInstance().updateViewedMessage(WppCore.getRawString(jid), messageId, MessageHistory.MessageType.MESSAGE_TYPE, true);
+                    MessageHistory.getInstance().updateViewedMessage(userJid.getRawString(), messageId, MessageHistory.MessageType.VIEW_ONCE_TYPE, true);
+                    MessageHistory.getInstance().updateViewedMessage(userJid.getRawString(), messageId, MessageHistory.MessageType.MESSAGE_TYPE, true);
                 }
                 HideSeenView.updateAllBubbleViews();
             }
@@ -183,14 +177,14 @@ public class HideSeen extends Feature {
                         isHide = true;
                     }
                     var key = fMessage.getKey();
-                    var jid = key.remoteJid;
+                    var userJid = key.remoteJid;
                     var messageId = key.messageID;
                     if (isHide) {
-                        MessageHistory.getInstance().insertHideSeenMessage(WppCore.getRawString(jid), messageId, MessageHistory.MessageType.MESSAGE_TYPE, false);
+                        MessageHistory.getInstance().insertHideSeenMessage(userJid.getRawString(), messageId, MessageHistory.MessageType.MESSAGE_TYPE, false);
                     }
                     if (fMessage.isViewOnce() && !hideonceseen && !ghostmode) {
-                        MessageHistory.getInstance().updateViewedMessage(WppCore.getRawString(jid), messageId, MessageHistory.MessageType.VIEW_ONCE_TYPE, true);
-                        MessageHistory.getInstance().updateViewedMessage(WppCore.getRawString(jid), messageId, MessageHistory.MessageType.MESSAGE_TYPE, true);
+                        MessageHistory.getInstance().updateViewedMessage(userJid.getRawString(), messageId, MessageHistory.MessageType.VIEW_ONCE_TYPE, true);
+                        MessageHistory.getInstance().updateViewedMessage(userJid.getRawString(), messageId, MessageHistory.MessageType.MESSAGE_TYPE, true);
                     }
                     HideSeenView.updateAllBubbleViews();
                 }

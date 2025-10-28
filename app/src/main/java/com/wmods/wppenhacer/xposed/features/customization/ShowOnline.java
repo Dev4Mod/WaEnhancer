@@ -17,6 +17,7 @@ import androidx.core.text.TextUtilsCompat;
 
 import com.wmods.wppenhacer.xposed.core.Feature;
 import com.wmods.wppenhacer.xposed.core.WppCore;
+import com.wmods.wppenhacer.xposed.core.components.FMessageWpp;
 import com.wmods.wppenhacer.xposed.core.devkit.Unobfuscator;
 import com.wmods.wppenhacer.xposed.core.devkit.UnobfuscatorCache;
 import com.wmods.wppenhacer.xposed.utils.ReflectionUtils;
@@ -172,8 +173,8 @@ public class ShowOnline extends Feature {
                 TextView lastSeenText = showOnlineText ? view.findViewById(0x7FFF0002) : null;
                 var jidFiled = ReflectionUtils.getFieldByExtendType(object.getClass(), XposedHelpers.findClass("com.whatsapp.jid.Jid", classLoader));
                 var jidObject = jidFiled.get(object);
-                var jid = WppCore.getRawString(jidObject);
-                if (WppCore.isGroup(jid)) return;
+                var userJid = new FMessageWpp.UserJid(jidObject);
+                if (userJid.isGroup()) return;
 
                 var tokenDBInstance = fieldTokenDBInstance.get(mInstancePresence);
                 var tokenData = ReflectionUtils.callMethod(tcTokenMethod, tokenDBInstance, jidObject);

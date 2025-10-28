@@ -44,6 +44,7 @@ public class BubbleColors extends Feature {
             @Override
             protected void afterHookedMethod(MethodHookParam param) throws Throwable {
                 var drawable = (Drawable) param.getResult();
+                if (drawable == null)return;
                 var position = (int) param.args[0];
                 if (position == 3) {
                     if (bubbleRightColor == 0) return;
@@ -60,6 +61,7 @@ public class BubbleColors extends Feature {
             @Override
             protected void afterHookedMethod(MethodHookParam param) throws Throwable {
                 var drawable = (Drawable) param.getResult();
+                if (drawable == null)return;
                 var position = (int) param.args[1];
                 if (position == 3) {
                     if (bubbleRightColor == 0) return;

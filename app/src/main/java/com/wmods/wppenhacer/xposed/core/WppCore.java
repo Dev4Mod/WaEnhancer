@@ -65,6 +65,7 @@ public class WppCore {
     private static Method convertLidToJid;
 
     private static Object mWaJidMapRepository;
+    private static Method convertJidToLid;
 
 
     public static void Initialize(ClassLoader loader, XSharedPreferences pref) throws Exception {
@@ -114,6 +115,7 @@ public class WppCore {
 
         // WaJidMap
         convertLidToJid = Unobfuscator.loadConvertLidToJid(loader);
+        convertJidToLid = Unobfuscator.loadConvertJidToLid(loader);
         XposedBridge.hookAllConstructors(convertLidToJid.getDeclaringClass(), new XC_MethodHook() {
             @Override
             protected void afterHookedMethod(MethodHookParam param) throws Throwable {
@@ -132,14 +134,26 @@ public class WppCore {
 
     public static Object resolveJidFromLid(Object lid) {
         if (lid == null) return null;
-        var rawString = getRawString(lid);
-        if (rawString == null || !rawString.contains("@lid")) return lid;
         try {
+            var rawString = (String) XposedHelpers.callMethod(lid, "getRawString");
+            if (rawString == null || !rawString.contains("@lid")) return lid;
             return ReflectionUtils.callMethod(convertLidToJid, mWaJidMapRepository, lid);
         } catch (Exception e) {
             XposedBridge.log(e);
         }
         return lid;
+    }
+
+    public static Object resolveLidFromJid(Object userJid) {
+        if (userJid == null) return null;
+        try {
+            var rawString = (String) XposedHelpers.callMethod(userJid, "getRawString");
+            if (rawString == null || rawString.contains("@lid")) return userJid;
+            return ReflectionUtils.callMethod(convertJidToLid, mWaJidMapRepository, userJid);
+        } catch (Exception e) {
+            XposedBridge.log(e);
+        }
+        return userJid;
     }
 
     public static void initBridge(Context context) throws Exception {
@@ -323,16 +337,16 @@ public class WppCore {
     }
 
     @NonNull
-    public static String getContactName(Object userJid) {
+    public static String getContactName(FMessageWpp.UserJid userJid) {
         loadWADatabase();
-        if (mWaDatabase == null || userJid == null) return "";
+        if (mWaDatabase == null || !userJid.isPresent()) return "";
         String name = getSContactName(userJid, false);
         if (!TextUtils.isEmpty(name)) return name;
         return getWppContactName(userJid);
     }
 
     @NonNull
-    public static String getSContactName(Object userJid, boolean saveOnly) {
+    public static String getSContactName(FMessageWpp.UserJid userJid, boolean saveOnly) {
         loadWADatabase();
         if (mWaDatabase == null || userJid == null) return "";
         String selection;
@@ -342,9 +356,9 @@ public class WppCore {
             selection = "jid = ?";
         }
         String name = null;
-        var rawJid = getRawString(userJid);
+        var rawJid = userJid.getRawString();
         var cursor = mWaDatabase.query("wa_contacts", new String[]{"display_name"}, selection, new String[]{rawJid}, null, null, null);
-        if (cursor != null && cursor.moveToFirst()) {
+        if (cursor.moveToFirst()) {
             name = cursor.getString(0);
             cursor.close();
         }
@@ -352,13 +366,13 @@ public class WppCore {
     }
 
     @NonNull
-    public static String getWppContactName(Object userJid) {
+    public static String getWppContactName(FMessageWpp.UserJid userJid) {
         loadWADatabase();
-        if (mWaDatabase == null || userJid == null) return "";
+        if (mWaDatabase == null || !userJid.isPresent()) return "";
         String name = null;
-        var rawJid = getRawString(userJid);
+        var rawJid = userJid.getRawString();
         var cursor2 = mWaDatabase.query("wa_vnames", new String[]{"verified_name"}, "jid = ?", new String[]{rawJid}, null, null, null);
-        if (cursor2 != null && cursor2.moveToFirst()) {
+        if (cursor2.moveToFirst()) {
             name = cursor2.getString(0);
             cursor2.close();
         }
@@ -390,17 +404,7 @@ public class WppCore {
     }
 
     @Nullable
-    public static String getRawString(@Nullable Object userjid) {
-        if (userjid == null) return null;
-        return (String) XposedHelpers.callMethod(userjid, "getRawString");
-    }
-
-    public static boolean isGroup(String str) {
-        if (str == null) return false;
-        return str.contains("-") || str.contains("@g.us") || (!str.contains("@") && str.length() > 16);
-    }
-
-    public static String getCurrentRawJID() {
+    public static FMessageWpp.UserJid getCurrentUserJid() {
         try {
             var conversation = getCurrentConversation();
             if (conversation == null) return null;
@@ -415,7 +419,7 @@ public class WppCore {
                 chatField = convChatField.get(conversation);
             }
             var chatJidObj = chatJidField.get(chatField);
-            return getRawString(chatJidObj);
+            return new FMessageWpp.UserJid(chatJidObj);
         } catch (Exception e) {
             XposedBridge.log(e);
             return null;

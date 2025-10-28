@@ -71,11 +71,10 @@ public class Tasker extends Feature {
                     return;
                 var fMessage = new FMessageWpp(WppCore.getFMessageFromKey(param.args[3]));
                 var userJid = fMessage.getKey().remoteJid;
-                var rawJid = WppCore.getRawString(userJid);
                 var name = WppCore.getContactName(userJid);
-                var number = WppCore.stripJID(rawJid);
+                var number = userJid.getStripJID();
                 var msg = fMessage.getMessageStr();
-                if (TextUtils.isEmpty(msg) || TextUtils.isEmpty(number) || rawJid.startsWith("status"))
+                if (TextUtils.isEmpty(msg) || TextUtils.isEmpty(number) || userJid.isStatus())
                     return;
                 new Handler(Utils.getApplication().getMainLooper()).post(() -> {
                     Intent intent = new Intent("com.wmods.wppenhacer.MESSAGE_RECEIVED");

@@ -42,7 +42,7 @@ public class HideSeenView extends Feature {
             protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
                 if (!WppCore.getCurrentActivity().getClass().getSimpleName().equals("Conversation"))
                     return;
-                if (((ListView)param.thisObject).getId() != android.R.id.list) return;
+                if (((ListView) param.thisObject).getId() != android.R.id.list) return;
                 ListAdapter adapter = (ListAdapter) param.args[0];
                 if (adapter instanceof HeaderViewListAdapter) {
                     adapter = ((HeaderViewListAdapter) adapter).getWrappedAdapter();
@@ -76,11 +76,11 @@ public class HideSeenView extends Feature {
 
     @SuppressLint("ResourceType")
     private static void updateBubbleView(FMessageWpp fmessage, View viewGroup) {
-        var jid = WppCore.getRawString(fmessage.getKey().remoteJid);
+        var userJid = fmessage.getKey().remoteJid;
         var messageId = fmessage.getKey().messageID;
         ImageView view = viewGroup.findViewById(Utils.getID("view_once_control_icon", "id"));
         if (view != null) {
-            var messageOnce = MessageHistory.getInstance().getHideSeenMessage(jid, messageId, MessageHistory.MessageType.VIEW_ONCE_TYPE);
+            var messageOnce = MessageHistory.getInstance().getHideSeenMessage(userJid.getRawString(), messageId, MessageHistory.MessageType.VIEW_ONCE_TYPE);
             if (messageOnce != null) {
                 view.setColorFilter(messageOnce.viewed ? Color.GREEN : Color.RED);
             } else {
@@ -96,7 +96,7 @@ public class HideSeenView extends Feature {
                 status.setTextSize(8);
                 dateWrapper.addView(status);
             }
-            var message = MessageHistory.getInstance().getHideSeenMessage(jid, messageId, MessageHistory.MessageType.MESSAGE_TYPE);
+            var message = MessageHistory.getInstance().getHideSeenMessage(userJid.getRawString(), messageId, MessageHistory.MessageType.MESSAGE_TYPE);
             if (message != null) {
                 status.setVisibility(View.VISIBLE);
                 status.setText(message.viewed ? "\uD83D\uDFE2" : "\uD83D\uDD34");

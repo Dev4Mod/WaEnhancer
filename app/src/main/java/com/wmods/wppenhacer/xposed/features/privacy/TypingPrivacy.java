@@ -4,6 +4,7 @@ import androidx.annotation.NonNull;
 
 import com.wmods.wppenhacer.xposed.core.Feature;
 import com.wmods.wppenhacer.xposed.core.WppCore;
+import com.wmods.wppenhacer.xposed.core.components.FMessageWpp;
 import com.wmods.wppenhacer.xposed.core.devkit.Unobfuscator;
 
 import java.lang.reflect.Method;
@@ -29,9 +30,8 @@ public class TypingPrivacy extends Feature {
             @Override
             protected void beforeHookedMethod(MethodHookParam param) {
                 var p1 = (int) param.args[2];
-                var userJid = WppCore.resolveJidFromLid(param.args[1]);
-                var number = WppCore.stripJID(WppCore.getRawString(userJid));
-                var privacy = CustomPrivacy.getJSON(number);
+                var userJid = new FMessageWpp.UserJid(param.args[1]);
+                var privacy = CustomPrivacy.getJSON(userJid.getStripJID());
                 var customHideTyping = privacy.optBoolean("HideTyping", ghostmode_t);
                 var customHideRecording = privacy.optBoolean("HideRecording", ghostmode_r);
                 if ((p1 == 1 && (customHideRecording || ghostmode)) || (p1 == 0 && (customHideTyping || ghostmode))) {

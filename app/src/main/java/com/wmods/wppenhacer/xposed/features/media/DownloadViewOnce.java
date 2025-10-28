@@ -29,7 +29,7 @@ public class DownloadViewOnce extends Feature {
         super(classLoader, preferences);
     }
 
-    private static void downloadFile(Object userJid, File file) throws Exception {
+    private static void downloadFile(FMessageWpp.UserJid userJid, File file) throws Exception {
         var dest = Utils.getDestination("View Once");
         var fileExtension = file.getAbsolutePath().substring(file.getAbsolutePath().lastIndexOf(".") + 1);
         var name = Utils.generateName(userJid, fileExtension);

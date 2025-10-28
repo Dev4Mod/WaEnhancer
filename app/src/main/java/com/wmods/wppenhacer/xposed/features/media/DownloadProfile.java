@@ -9,6 +9,7 @@ import androidx.annotation.NonNull;
 
 import com.wmods.wppenhacer.xposed.core.Feature;
 import com.wmods.wppenhacer.xposed.core.WppCore;
+import com.wmods.wppenhacer.xposed.core.components.FMessageWpp;
 import com.wmods.wppenhacer.xposed.core.devkit.Unobfuscator;
 import com.wmods.wppenhacer.xposed.utils.ReflectionUtils;
 import com.wmods.wppenhacer.xposed.utils.ResId;
@@ -45,8 +46,8 @@ public class DownloadProfile extends Feature {
                     }
                     var field = ReflectionUtils.getFieldByType(subCls, loadProfileInfoField.getDeclaringClass());
                     var jidObj = ReflectionUtils.getObjectField(loadProfileInfoField, ReflectionUtils.getObjectField(field, param.thisObject));
-                    var jid = WppCore.stripJID(WppCore.getRawString(jidObj));
-                    var file = WppCore.getContactPhotoFile(jid);
+                    var userJid = new FMessageWpp.UserJid(jidObj);
+                    var file = WppCore.getContactPhotoFile(userJid.getRawString());
                     String destPath;
                     try {
                         destPath = Utils.getDestination("Profile Photo");
@@ -54,7 +55,7 @@ public class DownloadProfile extends Feature {
                         Utils.showToast(e.toString(), 1);
                         return true;
                     }
-                    var name = Utils.generateName(jidObj, "jpg");
+                    var name = Utils.generateName(userJid, "jpg");
                     var error = Utils.copyFile(file, destPath, name);
                     if (TextUtils.isEmpty(error)) {
                         Toast.makeText(Utils.getApplication(), Utils.getApplication().getString(ResId.string.saved_to) + destPath, Toast.LENGTH_LONG).show();

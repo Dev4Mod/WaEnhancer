@@ -8,6 +8,7 @@ import androidx.annotation.NonNull;
 
 import com.wmods.wppenhacer.xposed.core.Feature;
 import com.wmods.wppenhacer.xposed.core.WppCore;
+import com.wmods.wppenhacer.xposed.core.components.FMessageWpp;
 import com.wmods.wppenhacer.xposed.core.devkit.Unobfuscator;
 import com.wmods.wppenhacer.xposed.features.general.Tasker;
 import com.wmods.wppenhacer.xposed.utils.ReflectionUtils;
@@ -63,10 +64,10 @@ public class CallPrivacy extends Feature {
                 }
                 if (callinfo == null || !callInfoClass.isInstance(callinfo)) return;
                 if ((boolean) XposedHelpers.callMethod(callinfo, "isCaller")) return;
-                var userJid = WppCore.resolveJidFromLid(XposedHelpers.callMethod(callinfo, "getPeerJid"));
+                var userJid = new FMessageWpp.UserJid(XposedHelpers.callMethod(callinfo, "getPeerJid"));
                 var callId = XposedHelpers.callMethod(callinfo, "getCallId");
                 var type = Integer.parseInt(prefs.getString("call_privacy", "0"));
-                Tasker.sendTaskerEvent(WppCore.getContactName(userJid), WppCore.stripJID(WppCore.getRawString(userJid)), "call_received");
+                Tasker.sendTaskerEvent(WppCore.getContactName(userJid), userJid.getStripJID(), "call_received");
                 var blockCall = checkCallBlock(userJid, PrivacyType.getByValue(type));
                 if (!blockCall) return;
                 var rejectType = prefs.getString("call_type", "no_internet");
@@ -95,7 +96,7 @@ public class CallPrivacy extends Feature {
             @Override
             protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
                 if (!prefs.getString("call_type", "no_internet").equals("no_internet")) return;
-                var userJid = WppCore.resolveJidFromLid(param.args[0]);
+                var userJid = new FMessageWpp.UserJid(param.args[0]);
                 var type = Integer.parseInt(prefs.getString("call_privacy", "0"));
                 var block = checkCallBlock(userJid, PrivacyType.getByValue(type));
                 if (block) {
@@ -112,13 +113,9 @@ public class CallPrivacy extends Feature {
         super(loader, preferences);
     }
 
-    public boolean checkCallBlock(Object jid, PrivacyType type) throws IllegalAccessException, InvocationTargetException {
-        var rawPhoneNumber = WppCore.getRawString(jid);
-        if (rawPhoneNumber == null) return false;
-        rawPhoneNumber = rawPhoneNumber.replaceFirst("\\.[\\d:]+@", "@");
-        var userJid = WppCore.createUserJid(rawPhoneNumber);
+    public boolean checkCallBlock(FMessageWpp.UserJid userJid, PrivacyType type) throws IllegalAccessException, InvocationTargetException {
 
-        var phoneNumber = WppCore.stripJID(rawPhoneNumber);
+        var phoneNumber = userJid.getStripJID();
 
         if (phoneNumber == null) return false;
 
@@ -142,7 +139,7 @@ public class CallPrivacy extends Feature {
                 var callBlockList = prefs.getString("call_block_contacts", "[]");
                 var blockList = Arrays.stream(callBlockList.substring(1, callBlockList.length() - 1).split(", ")).map(String::trim).collect(Collectors.toCollection(ArrayList::new));
                 for (var blockNumber : blockList) {
-                    if (!TextUtils.isEmpty(blockNumber) && Objects.equals(rawPhoneNumber, blockNumber)) {
+                    if (!TextUtils.isEmpty(blockNumber) && Objects.equals(userJid.getRawString(), blockNumber)) {
                         return true;
                     }
                 }
@@ -151,7 +148,7 @@ public class CallPrivacy extends Feature {
                 var callWhiteList = prefs.getString("call_white_contacts", "[]");
                 var whiteList = Arrays.stream(callWhiteList.substring(1, callWhiteList.length() - 1).split(", ")).map(String::trim).collect(Collectors.toCollection(ArrayList::new));
                 for (var whiteNumber : whiteList) {
-                    if (!TextUtils.isEmpty(whiteNumber) && Objects.equals(rawPhoneNumber, whiteNumber)) {
+                    if (!TextUtils.isEmpty(whiteNumber) && Objects.equals(userJid.getRawString(), whiteNumber)) {
                         return false;
                     }
                 }

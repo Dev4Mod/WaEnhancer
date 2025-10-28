@@ -1,11 +1,16 @@
 package com.wmods.wppenhacer.xposed.core.components;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+
+import com.wmods.wppenhacer.xposed.core.WppCore;
 import com.wmods.wppenhacer.xposed.core.devkit.Unobfuscator;
 import com.wmods.wppenhacer.xposed.utils.ReflectionUtils;
 
 import java.io.File;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.util.Objects;
 
 import de.robv.android.xposed.XposedBridge;
 import de.robv.android.xposed.XposedHelpers;
@@ -68,9 +73,9 @@ public class FMessageWpp {
     }
 
 
-    public Object getUserJid() {
+    public UserJid getUserJid() {
         try {
-            return userJidMethod.invoke(fmessage);
+            return new UserJid(userJidMethod.invoke(fmessage));
         } catch (Exception e) {
             XposedBridge.log(e);
         }
@@ -192,37 +197,130 @@ public class FMessageWpp {
         return (media_type == 82 || media_type == 42 || media_type == 43);
     }
 
-    /**
-     * @noinspection unused
+    /*
+     * Represents the key of a WhatsApp message, containing identifiers for the message.
      */
     public static class Key {
+
+        /**
+         * The class type of the key object.
+         */
         public static Class<?> TYPE;
-
+        /**
+         * The underlying key object from WhatsApp's code.
+         */
         public Object thisObject;
+        /**
+         * The unique identifier for the message.
+         */
         public String messageID;
+        /**
+         * A boolean indicating if the message was sent by the current user.
+         */
         public boolean isFromMe;
-        public Object remoteJid;
+        /**
+         * The JID of whatsapp
+         */
+        public UserJid remoteJid;
 
+        /**
+         * Constructs a new Key instance by wrapping the original WhatsApp message key object.
+         *
+         * @param key The original message key object.
+         */
         public Key(Object key) {
             this.thisObject = key;
             this.messageID = (String) XposedHelpers.getObjectField(key, "A01");
             this.isFromMe = XposedHelpers.getBooleanField(key, "A02");
-            this.remoteJid = XposedHelpers.getObjectField(key, "A00");
+            this.remoteJid = new UserJid(XposedHelpers.getObjectField(key, "A00"));
         }
 
-        public void setIsFromMe(boolean value) {
-            XposedHelpers.setBooleanField(thisObject, "A02", value);
-            this.isFromMe = value;
+    }
+
+    public static class UserJid {
+
+        public Object jid;
+
+        public Object lid;
+
+        public UserJid(@Nullable Object lid, @Nullable Object jid) {
+            this.lid = lid;
+            this.jid = jid;
         }
 
-        public void setRemoteJid(Object value) {
-            XposedHelpers.setObjectField(thisObject, "A00", value);
-            this.remoteJid = value;
+        public UserJid(@Nullable String rawjid) {
+            this.lid = WppCore.createUserJid(rawjid);
+            this.jid = WppCore.resolveJidFromLid(this.lid);
         }
 
-        public void setMessageID(String messageID) {
-            XposedHelpers.setObjectField(thisObject, "A01", messageID);
-            this.messageID = messageID;
+        public UserJid(@Nullable Object lid) {
+            this.lid = lid;
+            this.jid = WppCore.resolveJidFromLid(lid);
+        }
+
+        @Nullable
+        public String getRawString() {
+            if (this.jid == null) return null;
+            String raw = (String) XposedHelpers.callMethod(this.jid, "getRawString");
+            if (raw == null) return null;
+            return raw.replaceFirst("\\.[\\d:]+@", "@");
+        }
+
+        @Nullable
+        public String getRawLidString() {
+            if (this.jid == null) return null;
+            String raw = (String) XposedHelpers.callMethod(this.lid, "getRawString");
+            if (raw == null) return null;
+            return raw.replaceFirst("\\.[\\d:]+@", "@");
+        }
+
+        @Nullable
+        public String getStripJID() {
+            var str = getRawString();
+            try {
+                if (str == null) return null;
+                if (str.contains(".") && str.contains("@") && str.indexOf(".") < str.indexOf("@")) {
+                    return str.substring(0, str.indexOf("."));
+                } else if (str.contains("@g.us") || str.contains("@s.whatsapp.net") || str.contains("@broadcast") || str.contains("@lid")) {
+                    return str.substring(0, str.indexOf("@"));
+                }
+                return str;
+            } catch (Exception e) {
+                XposedBridge.log(e);
+                return str;
+            }
+        }
+
+        public boolean isStatus() {
+            return Objects.equals(getStripJID(), "status");
+        }
+
+        public boolean isNewsletter() {
+            String raw = getRawString();
+            if (raw == null) return false;
+            return raw.contains("@newsletter");
+        }
+
+
+        public boolean isGroup() {
+            if (this.jid == null) return false;
+            String str = getRawString();
+            if (str == null) return false;
+            return str.contains("-") || str.contains("@g.us") || (!str.contains("@") && str.length() > 16);
+        }
+
+
+        public boolean isPresent() {
+            return this.jid != null && this.lid != null;
+        }
+
+        @NonNull
+        @Override
+        public String toString() {
+            return "UserJid{" +
+                    "jid=" + jid +
+                    ", lid=" + lid +
+                    '}';
         }
     }
 
