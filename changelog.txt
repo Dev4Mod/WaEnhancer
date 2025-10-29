@@ -1,14 +1,11 @@
 [WA AND WA BUSINESS]
-* Add support to WA 2.25.30.XX
+* Add support to WA 2.25.31.XX abd 2.25.32.XX (Tested 2.25.32.2)
 
 [BUGS FIXES]
-* Fixed bugs with Status and Message seen Toast
-* Fixed bugs with online Toast
-* Fixed issue with IGStatus not showing the unread circle
-* Fixed issue with custom Wallpaper
-* Fixed issue with custom privacy
-* Fixed double tap to react
-* Fixed issue with Call Privacy
+* Fixed many features that used JID and can now communicate well with LID
+
+[FUNCTIONS]
+* Reactivated the function to use system emojis, but remember that this can make emojis invisible, including animated ones
 
 [IMPROVED]
 * Improvements to the hooks cache, and now WhatsApp should open much faster
