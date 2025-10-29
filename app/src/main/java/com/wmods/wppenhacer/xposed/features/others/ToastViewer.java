@@ -60,7 +60,6 @@ public class ToastViewer extends Feature {
 
     private void processNewWA(XC_MethodHook.MethodHookParam param, boolean toastViewedMessage, boolean toastViewedStatus) throws ClassNotFoundException, IllegalAccessException {
         Collection collection;
-        log("Process New WA");
         if (!(param.args[0] instanceof Collection)) {
             collection = Collections.singleton(param.args[0]);
         } else {

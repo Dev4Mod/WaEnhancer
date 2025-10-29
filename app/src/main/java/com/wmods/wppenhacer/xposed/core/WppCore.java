@@ -30,6 +30,7 @@ import org.json.JSONObject;
 
 import java.io.File;
 import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.Arrays;
@@ -66,6 +67,7 @@ public class WppCore {
 
     private static Object mWaJidMapRepository;
     private static Method convertJidToLid;
+    private static Class actionUser;
 
 
     public static void Initialize(ClassLoader loader, XSharedPreferences pref) throws Exception {
@@ -95,7 +97,7 @@ public class WppCore {
         });
 
         // ActionUser
-        var actionUser = Unobfuscator.loadActionUser(loader);
+        actionUser = Unobfuscator.loadActionUser(loader);
         XposedBridge.log("ActionUser: " + actionUser.getName());
         XposedBridge.hookAllConstructors(actionUser, new XC_MethodHook() {
             @Override
@@ -201,7 +203,7 @@ public class WppCore {
 
     public static void sendMessage(String number, String message) {
         try {
-            var senderMethod = ReflectionUtils.findMethodUsingFilterIfExists(mActionUser.getClass(), (method) -> List.class.isAssignableFrom(method.getReturnType()) && ReflectionUtils.findIndexOfType(method.getParameterTypes(), String.class) != -1);
+            var senderMethod = ReflectionUtils.findMethodUsingFilterIfExists(actionUser, (method) -> List.class.isAssignableFrom(method.getReturnType()) && ReflectionUtils.findIndexOfType(method.getParameterTypes(), String.class) != -1);
             if (senderMethod != null) {
                 var userJid = createUserJid(number + "@s.whatsapp.net");
                 if (userJid == null) {
@@ -217,7 +219,7 @@ public class WppCore {
                 newObject[index] = message;
                 var index2 = ReflectionUtils.findIndexOfType(senderMethod.getParameterTypes(), List.class);
                 newObject[index2] = Collections.singletonList(userJid);
-                senderMethod.invoke(mActionUser, newObject);
+                senderMethod.invoke(getActionUser(), newObject);
                 Utils.showToast("Message sent to " + number, Toast.LENGTH_SHORT);
             }
         } catch (Exception e) {
@@ -228,13 +230,25 @@ public class WppCore {
 
     public static void sendReaction(String s, Object objMessage) {
         try {
-            var senderMethod = ReflectionUtils.findMethodUsingFilter(mActionUser.getClass(), (method) -> method.getParameterCount() == 3 && Arrays.equals(method.getParameterTypes(), new Class[]{FMessageWpp.TYPE, String.class, boolean.class}));
-            senderMethod.invoke(mActionUser, objMessage, s, !TextUtils.isEmpty(s));
+            var senderMethod = ReflectionUtils.findMethodUsingFilter(actionUser, (method) -> method.getParameterCount() == 3 && Arrays.equals(method.getParameterTypes(), new Class[]{FMessageWpp.TYPE, String.class, boolean.class}));
+            senderMethod.invoke(getActionUser(), objMessage, s, !TextUtils.isEmpty(s));
         } catch (Exception e) {
             Utils.showToast("Error in sending reaction:" + e.getMessage(), Toast.LENGTH_SHORT);
             XposedBridge.log(e);
         }
     }
+
+    public static Object getActionUser() {
+        try {
+            if (mActionUser == null) {
+                mActionUser = actionUser.getConstructors()[0].newInstance();
+            }
+        } catch (Exception e) {
+            XposedBridge.log(e);
+        }
+        return mActionUser;
+    }
+
 
     public static void loadWADatabase() {
         if (mWaDatabase != null) return;
