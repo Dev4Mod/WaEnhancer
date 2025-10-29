@@ -71,7 +71,7 @@ public class DeleteStatus extends Feature {
     @NonNull
     private static Bundle getBundle(FMessageWpp.Key key) {
         var bundle = new Bundle();
-        bundle.putString("fMessageKeyJid", key.remoteJid.getRawString());
+        bundle.putString("fMessageKeyJid", key.remoteJid.getRawLidString());
         bundle.putBoolean("fMessageKeyFromMe", key.isFromMe);
         bundle.putString("fMessageKeyId", key.messageID);
         return bundle;
