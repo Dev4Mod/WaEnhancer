@@ -101,7 +101,7 @@ public class Others extends Feature {
         propsBoolean.put(7769, false);
 
         // disable new Media Picker
-        propsBoolean.put(9286, true);
+        propsBoolean.put(9286, false);
 
         // Instant Video
         propsBoolean.put(3354, true);
