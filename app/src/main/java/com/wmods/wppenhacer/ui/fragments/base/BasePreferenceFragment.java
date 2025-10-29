@@ -136,6 +136,8 @@ public abstract class BasePreferenceFragment extends PreferenceFragmentCompat im
 
         var freezelastseen = mPrefs.getBoolean("freezelastseen", false);
         setPreferenceState("show_freezeLastSeen", !freezelastseen);
+        setPreferenceState("showonlinetext", !freezelastseen);
+        setPreferenceState("dotonline", !freezelastseen);
 
 
         var separategroups = mPrefs.getBoolean("separategroups", false);
