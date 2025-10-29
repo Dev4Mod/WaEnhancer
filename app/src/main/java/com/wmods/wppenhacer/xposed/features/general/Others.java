@@ -73,7 +73,7 @@ public class Others extends Feature {
         var showOnline = prefs.getBoolean("showonline", false);
         var floatingMenu = prefs.getBoolean("floatingmenu", false);
         var filter_items = prefs.getString("filter_items", null);
-//        var disable_defemojis = prefs.getBoolean("disable_defemojis", false);
+        var disable_defemojis = prefs.getBoolean("disable_defemojis", false);
         var autonext_status = prefs.getBoolean("autonext_status", false);
         var audio_type = Integer.parseInt(prefs.getString("audio_type", "0"));
         var audio_transcription = prefs.getBoolean("audio_transcription", false);
@@ -206,9 +206,9 @@ public class Others extends Feature {
             filterItems(filter_items);
         }
 
-//        if (disable_defemojis) {
-//            disable_defEmojis();
-//        }
+        if (disable_defemojis) {
+            disable_defEmojis();
+        }
 
         if (autonext_status) {
             autoNextStatus();
@@ -523,10 +523,10 @@ public class Others extends Feature {
     }
 
 
-//    private void disable_defEmojis() throws Exception {
-//        var defEmojiClass = Unobfuscator.loadDefEmojiClass(classLoader);
-//        XposedBridge.hookMethod(defEmojiClass, XC_MethodReplacement.returnConstant(null));
-//    }
+    private void disable_defEmojis() throws Exception {
+        var defEmojiClass = Unobfuscator.loadDefEmojiClass(classLoader);
+        XposedBridge.hookMethod(defEmojiClass, XC_MethodReplacement.returnConstant(null));
+    }
 
     private void filterItems(String filterItems) {
         var itens = filterItems.split("\n");
