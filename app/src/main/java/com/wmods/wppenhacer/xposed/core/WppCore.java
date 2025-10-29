@@ -30,7 +30,6 @@ import org.json.JSONObject;
 
 import java.io.File;
 import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.Arrays;
@@ -353,7 +352,7 @@ public class WppCore {
     @NonNull
     public static String getContactName(FMessageWpp.UserJid userJid) {
         loadWADatabase();
-        if (mWaDatabase == null || !userJid.isPresent()) return "";
+        if (mWaDatabase == null || userJid.isNull()) return "";
         String name = getSContactName(userJid, false);
         if (!TextUtils.isEmpty(name)) return name;
         return getWppContactName(userJid);
@@ -382,7 +381,7 @@ public class WppCore {
     @NonNull
     public static String getWppContactName(FMessageWpp.UserJid userJid) {
         loadWADatabase();
-        if (mWaDatabase == null || !userJid.isPresent()) return "";
+        if (mWaDatabase == null || userJid.isNull()) return "";
         String name = null;
         var rawJid = userJid.getRawString();
         var cursor2 = mWaDatabase.query("wa_vnames", new String[]{"verified_name"}, "jid = ?", new String[]{rawJid}, null, null, null);

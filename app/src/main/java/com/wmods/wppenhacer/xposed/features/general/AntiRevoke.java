@@ -19,7 +19,6 @@ import com.wmods.wppenhacer.xposed.utils.Utils;
 
 import java.lang.reflect.Field;
 import java.text.DateFormat;
-import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -242,7 +241,7 @@ public class AntiRevoke extends Feature {
             name = jidAuthor.getStripJID();
         }
         String message;
-        if (jidAuthor.isGroup() && !fMessage.getUserJid().isPresent()) {
+        if (jidAuthor.isGroup() && fMessage.getUserJid().isNull()) {
             var participantJid = fMessage.getUserJid();
             String participantName = WppCore.getContactName(participantJid);
             if (TextUtils.isEmpty(participantName)) {

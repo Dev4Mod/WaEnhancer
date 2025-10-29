@@ -243,19 +243,26 @@ public class FMessageWpp {
 
         public Object lid;
 
-        public UserJid(@Nullable Object lid, @Nullable Object jid) {
-            this.lid = lid;
-            this.jid = jid;
-        }
-
         public UserJid(@Nullable String rawjid) {
-            this.lid = WppCore.createUserJid(rawjid);
-            this.jid = WppCore.resolveJidFromLid(this.lid);
+            if (rawjid == null) return;
+            if (checkValidLID(rawjid)) {
+                this.lid = WppCore.createUserJid(rawjid);
+                this.jid = WppCore.resolveJidFromLid(this.lid);
+            } else {
+                this.jid = WppCore.createUserJid(rawjid);
+                this.lid = WppCore.resolveLidFromJid(this.jid);
+            }
         }
 
-        public UserJid(@Nullable Object lid) {
-            this.lid = lid;
-            this.jid = WppCore.resolveJidFromLid(lid);
+        public UserJid(@Nullable Object lidOrJid) {
+            if (lidOrJid == null) return;
+            if (checkValidLID((String) XposedHelpers.callMethod(lidOrJid, "getRawString"))) {
+                this.lid = lidOrJid;
+                this.jid = WppCore.resolveJidFromLid(this.lid);
+            } else {
+                this.jid = lidOrJid;
+                this.lid = WppCore.resolveLidFromJid(this.jid);
+            }
         }
 
         @Nullable
@@ -310,8 +317,16 @@ public class FMessageWpp {
         }
 
 
-        public boolean isPresent() {
-            return this.jid != null && this.lid != null;
+        public boolean isNull() {
+            return this.jid == null || this.lid == null;
+        }
+
+        private static boolean checkValidLID(@NonNull String lid) {
+            if (lid.contains("@lid")) {
+                String id = lid.split("@")[0];
+                return lid.length() > 14;
+            }
+            return false;
         }
 
         @NonNull

@@ -53,7 +53,7 @@ public class HideSeen extends Feature {
                 }
                 var lid = (String) XposedHelpers.getObjectField(srj, "jid");
                 var userJid = new FMessageWpp.UserJid(lid);
-                if (!userJid.isPresent()) return;
+                if (userJid.isNull()) return;
                 var privacy = CustomPrivacy.getJSON(userJid.getStripJID());
 
                 var customHideRead = privacy.optBoolean("HideSeen", hideread);

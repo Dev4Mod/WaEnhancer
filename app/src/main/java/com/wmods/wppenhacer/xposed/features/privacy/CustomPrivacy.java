@@ -22,7 +22,6 @@ import com.wmods.wppenhacer.xposed.core.Feature;
 import com.wmods.wppenhacer.xposed.core.WppCore;
 import com.wmods.wppenhacer.xposed.core.components.AlertDialogWpp;
 import com.wmods.wppenhacer.xposed.core.components.FMessageWpp;
-import com.wmods.wppenhacer.xposed.core.devkit.Unobfuscator;
 import com.wmods.wppenhacer.xposed.features.others.MenuHome;
 import com.wmods.wppenhacer.xposed.utils.DesignUtils;
 import com.wmods.wppenhacer.xposed.utils.ReflectionUtils;
@@ -31,7 +30,6 @@ import com.wmods.wppenhacer.xposed.utils.Utils;
 
 import org.json.JSONObject;
 
-import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Objects;
@@ -216,7 +214,7 @@ public class CustomPrivacy extends Feature {
 
     private void showPrivacyDialog(Activity activity, boolean isChat) {
         var userJid = getUserJid(activity, isChat);
-        if (!userJid.isPresent()) return;
+        if (userJid.isNull()) return;
         AlertDialogWpp builder = createPrivacyDialog(activity, userJid.getStripJID());
         builder.show();
     }
