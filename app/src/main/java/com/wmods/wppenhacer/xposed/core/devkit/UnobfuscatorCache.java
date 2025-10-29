@@ -56,16 +56,19 @@ public class UnobfuscatorCache {
             long version = sPrefsCacheHooks.getLong("version", 0);
             long currentVersion = mApplication.getPackageManager().getPackageInfo(mApplication.getPackageName(), 0).getLongVersionCode();
             long savedUpdateTime = sPrefsCacheHooks.getLong("updateTime", 0);
+            String savedVersionName = sPrefsCacheHooks.getString("wae_version_name", "");
+            String versionName = BuildConfig.VERSION_NAME;
             long lastUpdateTime = savedUpdateTime;
             try {
                 lastUpdateTime = mApplication.getPackageManager().getPackageInfo(BuildConfig.APPLICATION_ID, 0).lastUpdateTime;
             } catch (Exception ignored) {
             }
-            if (version != currentVersion || savedUpdateTime != lastUpdateTime) {
+            if (version != currentVersion || savedUpdateTime != lastUpdateTime || !versionName.equals(savedVersionName)) {
                 Utils.showToast(application.getString(ResId.string.starting_cache), Toast.LENGTH_LONG);
                 sPrefsCacheHooks.edit().clear().commit();
                 sPrefsCacheHooks.edit().putLong("version", currentVersion).commit();
                 sPrefsCacheHooks.edit().putLong("updateTime", lastUpdateTime).commit();
+                sPrefsCacheHooks.edit().putString("wae_version_name", versionName).commit();
                 if (version != currentVersion) {
                     sPrefsCacheStrings.edit().clear().commit();
                 }
@@ -78,7 +81,8 @@ public class UnobfuscatorCache {
     }
 
     public static void init(Application mApp) {
-        mInstance = new UnobfuscatorCache(mApp);
+        if (mInstance == null)
+            mInstance = new UnobfuscatorCache(mApp);
     }
 
     public static UnobfuscatorCache getInstance() {
