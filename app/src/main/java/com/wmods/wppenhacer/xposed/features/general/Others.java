@@ -87,6 +87,7 @@ public class Others extends Feature {
         propsBoolean.put(5171, filterSeen);
         propsBoolean.put(4497, menuWIcons);
         propsBoolean.put(4023, newSettings);
+        propsBoolean.put(14862, newSettings);
         propsInteger.put(18564, newSettings ? 1 : 0);
 
         propsBoolean.put(2889, floatingMenu);
