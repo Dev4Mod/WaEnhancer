@@ -11,6 +11,7 @@ import androidx.annotation.NonNull;
 import com.wmods.wppenhacer.xposed.core.Feature;
 import com.wmods.wppenhacer.xposed.core.WppCore;
 import com.wmods.wppenhacer.xposed.core.components.AlertDialogWpp;
+import com.wmods.wppenhacer.xposed.core.components.FMessageWpp;
 import com.wmods.wppenhacer.xposed.core.devkit.Unobfuscator;
 import com.wmods.wppenhacer.xposed.core.devkit.UnobfuscatorCache;
 import com.wmods.wppenhacer.xposed.utils.ReflectionUtils;
@@ -88,7 +89,8 @@ public class CallType extends Feature {
                         case 0:
                             var intent = new Intent();
                             intent.setAction(Intent.ACTION_DIAL);
-                            intent.setData(Uri.parse("tel:+" + WppCore.stripJID(jid)));
+                            var userJid = new FMessageWpp.UserJid(jid);
+                            intent.setData(Uri.parse("tel:+" + userJid.getStripJID()));
                             context.startActivity(intent);
                             break;
                         case 1:
