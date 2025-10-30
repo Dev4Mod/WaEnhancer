@@ -1,11 +1,4 @@
-[WA AND WA BUSINESS]
-* Add support to WA 2.25.31.XX abd 2.25.32.XX (Tested 2.25.32.2)
-
 [BUGS FIXES]
-* Fixed many features that used JID and can now communicate well with LID
-
-[FUNCTIONS]
-* Reactivated the function to use system emojis, but remember that this can make emojis invisible, including animated ones
-
-[IMPROVED]
-* Improvements to the hooks cache, and now WhatsApp should open much faster
+* Fixed issue with privacy settings
+* Fixed issue with IGStatus that was only opening from the first contact
+* Fixed issue with group admin icon not showing up
