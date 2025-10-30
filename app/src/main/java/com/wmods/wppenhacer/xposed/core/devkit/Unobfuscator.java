@@ -1347,11 +1347,10 @@ public class Unobfuscator {
 
     public synchronized static Method loadGroupAdminMethod(ClassLoader loader) throws Exception {
         return UnobfuscatorCache.getInstance().getMethod(loader, () -> {
-            var method = findFirstMethodUsingStrings(loader, StringMatchType.Contains, "P Message");
-            if (method == null)
-                method = findFirstMethodUsingStrings(loader, StringMatchType.Contains, "ConversationRow/setUpUsernameInGroupViewContainer/not allowed state");
-            if (method == null) throw new RuntimeException("GroupAdmin method not found");
-            return method;
+            var method = dexkit.findMethod(FindMethod.create().matcher(MethodMatcher.create().name("setupUsernameInGroupViewContainer")));
+            if (method.isEmpty())
+                throw new RuntimeException("GroupAdmin method not found");
+            return method.get(0).getMethodInstance(loader);
         });
     }
 
@@ -1365,12 +1364,25 @@ public class Unobfuscator {
 
     public synchronized static Method loadGroupCheckAdminMethod(ClassLoader loader) throws Exception {
         return UnobfuscatorCache.getInstance().getMethod(loader, () -> {
-            var clazz = findFirstClassUsingStrings(loader, StringMatchType.Contains, "saveGroupParticipants/INSERT_GROUP_PARTICIPANT_USER");
-            var userJidClass = XposedHelpers.findClass("com.whatsapp.jid.UserJid", loader);
-            var methods = ReflectionUtils.findAllMethodsUsingFilter(clazz, m -> m.getParameterCount() == 2 && m.getParameterTypes()[1].equals(userJidClass) && m.getReturnType().equals(boolean.class));
-            if (methods == null || methods.length == 0)
+            var classData = dexkit.findClass(FindClass.create().matcher(ClassMatcher.create().addUsingString("saveGroupParticipants/INSERT_GROUP_PARTICIPANT_USER")));
+            var resultMethod = classData.findMethod(
+                    FindMethod.create().matcher(MethodMatcher.create().paramCount(2).paramTypes(null, "com.whatsapp.jid.UserJid")
+                            .opNames(List.of(
+                                    "const/4",
+                                    "invoke-static",
+                                    "const/4",
+                                    "invoke-static",
+                                    "invoke-virtual",
+                                    "move-result-object",
+                                    "const/4",
+                                    "invoke-virtual",
+                                    "move-result-object",
+                                    "if-nez"
+                            ), OpCodeMatchType.StartsWith)
+                    )).singleOrNull();
+            if (resultMethod == null)
                 throw new RuntimeException("GroupCheckAdmin method not found");
-            return methods[methods.length - 1];
+            return resultMethod.getMethodInstance(loader);
         });
     }
 
