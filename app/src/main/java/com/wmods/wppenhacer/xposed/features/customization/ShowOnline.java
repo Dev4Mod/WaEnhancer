@@ -174,7 +174,7 @@ public class ShowOnline extends Feature {
                 var jidFiled = ReflectionUtils.getFieldByExtendType(object.getClass(), XposedHelpers.findClass("com.whatsapp.jid.Jid", classLoader));
                 var jidObject = jidFiled.get(object);
                 var userJid = new FMessageWpp.UserJid(jidObject);
-                if (userJid.isGroup()) return;
+                if (userJid.isGroup() || userJid.isNull()) return;
 
                 var tokenDBInstance = fieldTokenDBInstance.get(mInstancePresence);
                 var tokenData = ReflectionUtils.callMethod(tcTokenMethod, tokenDBInstance, jidObject);

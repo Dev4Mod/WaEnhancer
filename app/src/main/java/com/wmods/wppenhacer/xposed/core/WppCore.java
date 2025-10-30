@@ -133,24 +133,26 @@ public class WppCore {
 
     }
 
-    public static Object resolveJidFromLid(Object lid) {
+    public static Object convertLidToJid(Object lid) {
         if (lid == null) return null;
         try {
             var rawString = (String) XposedHelpers.callMethod(lid, "getRawString");
             if (rawString == null || !rawString.contains("@lid")) return lid;
-            return ReflectionUtils.callMethod(convertLidToJid, mWaJidMapRepository, lid);
+            var result = ReflectionUtils.callMethod(convertLidToJid, mWaJidMapRepository, lid);
+            return result == null ? lid : result;
         } catch (Exception e) {
             XposedBridge.log(e);
         }
         return lid;
     }
 
-    public static Object resolveLidFromJid(Object userJid) {
+    public static Object convertJidToLid(Object userJid) {
         if (userJid == null) return null;
         try {
             var rawString = (String) XposedHelpers.callMethod(userJid, "getRawString");
             if (rawString == null || rawString.contains("@lid")) return userJid;
-            return ReflectionUtils.callMethod(convertJidToLid, mWaJidMapRepository, userJid);
+            var result = ReflectionUtils.callMethod(convertJidToLid, mWaJidMapRepository, userJid);
+            return result == null ? userJid : result;
         } catch (Exception e) {
             XposedBridge.log(e);
         }

@@ -247,10 +247,10 @@ public class FMessageWpp {
             if (rawjid == null) return;
             if (checkValidLID(rawjid)) {
                 this.lid = WppCore.createUserJid(rawjid);
-                this.jid = WppCore.resolveJidFromLid(this.lid);
+                this.jid = WppCore.convertLidToJid(this.lid);
             } else {
                 this.jid = WppCore.createUserJid(rawjid);
-                this.lid = WppCore.resolveLidFromJid(this.jid);
+                this.lid = WppCore.convertJidToLid(this.jid);
             }
         }
 
@@ -258,10 +258,10 @@ public class FMessageWpp {
             if (lidOrJid == null) return;
             if (checkValidLID((String) XposedHelpers.callMethod(lidOrJid, "getRawString"))) {
                 this.lid = lidOrJid;
-                this.jid = WppCore.resolveJidFromLid(this.lid);
+                this.jid = WppCore.convertLidToJid(this.lid);
             } else {
                 this.jid = lidOrJid;
-                this.lid = WppCore.resolveLidFromJid(this.jid);
+                this.lid = WppCore.convertJidToLid(this.jid);
             }
         }
 
@@ -318,11 +318,11 @@ public class FMessageWpp {
 
 
         public boolean isNull() {
-            return this.jid == null || this.lid == null;
+            return this.jid == null && this.lid == null;
         }
 
-        private static boolean checkValidLID(@NonNull String lid) {
-            if (lid.contains("@lid")) {
+        private static boolean checkValidLID(String lid) {
+            if (lid != null && lid.contains("@lid")) {
                 String id = lid.split("@")[0];
                 return lid.length() > 14;
             }
