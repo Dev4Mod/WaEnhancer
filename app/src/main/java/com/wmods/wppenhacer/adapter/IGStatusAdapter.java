@@ -63,6 +63,9 @@ public class IGStatusAdapter extends ArrayAdapter {
             holder.setInfo("my_status");
             holder.addButton.setVisibility(View.VISIBLE);
         } else if (statusInfoClazz.isInstance(item)) {
+            if (item instanceof View v) {
+                v.setClickable(false);
+            }
             holder.setInfo(item);
             holder.addButton.setVisibility(View.GONE);
         }
@@ -131,7 +134,7 @@ public class IGStatusAdapter extends ArrayAdapter {
             try {
                 var clazz = Unobfuscator.getClassByName("StatusPlaybackActivity", getContext().getClassLoader());
                 var intent = new Intent(WppCore.getCurrentActivity(), clazz);
-                intent.putExtra("jid", holder.userJid.getRawLidString());
+                intent.putExtra("jid", holder.userJid.getRawString());
                 WppCore.getCurrentActivity().startActivity(intent);
             } catch (Exception e) {
                 Utils.showToast(e.getMessage(), 1);
