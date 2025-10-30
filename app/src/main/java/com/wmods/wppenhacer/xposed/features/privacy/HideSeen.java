@@ -54,7 +54,7 @@ public class HideSeen extends Feature {
                 var lid = (String) XposedHelpers.getObjectField(srj, "jid");
                 var userJid = new FMessageWpp.UserJid(lid);
                 if (userJid.isNull()) return;
-                var privacy = CustomPrivacy.getJSON(userJid.getStripJID());
+                var privacy = CustomPrivacy.getJSON(userJid.getPhoneNumber());
 
                 var customHideRead = privacy.optBoolean("HideSeen", hideread);
                 var isHide = false;
@@ -77,11 +77,11 @@ public class HideSeen extends Feature {
                 if (isHide) {
                     var keyClass = FMessageWpp.Key.TYPE;
                     for (String messageId : messageIds) {
-                        MessageHistory.getInstance().insertHideSeenMessage(userJid.getRawString(), messageId, MessageHistory.MessageType.MESSAGE_TYPE, false);
-                        var key = keyClass.getConstructors()[0].newInstance(userJid.lid, messageId, false);
+                        MessageHistory.getInstance().insertHideSeenMessage(userJid.getPhoneRawString(), messageId, MessageHistory.MessageType.MESSAGE_TYPE, false);
+                        var key = keyClass.getConstructors()[0].newInstance(userJid.userJid, messageId, false);
                         var fmessage = new FMessageWpp(WppCore.getFMessageFromKey(key));
                         if (fmessage.isViewOnce()) {
-                            MessageHistory.getInstance().insertHideSeenMessage(userJid.getRawString(), messageId, MessageHistory.MessageType.VIEW_ONCE_TYPE, false);
+                            MessageHistory.getInstance().insertHideSeenMessage(userJid.getPhoneRawString(), messageId, MessageHistory.MessageType.VIEW_ONCE_TYPE, false);
                         }
                         HideSeenView.updateAllBubbleViews();
                     }
@@ -90,11 +90,12 @@ public class HideSeen extends Feature {
             }
         });
 
-        Method hideViewInChatMethod = Unobfuscator.loadHideViewInChatMethod(classLoader);
-        logDebug("Inside Chat", Unobfuscator.getMethodDescriptor(hideViewInChatMethod));
 
         Method ReceiptMethod = Unobfuscator.loadReceiptMethod(classLoader);
         logDebug(Unobfuscator.getMethodDescriptor(ReceiptMethod));
+
+        Method hideViewInChatMethod = Unobfuscator.loadHideViewInChatMethod(classLoader);
+        logDebug("Inside Chat", Unobfuscator.getMethodDescriptor(hideViewInChatMethod));
 
         var outsideMethod = Unobfuscator.loadReceiptOutsideChat(classLoader);
         logDebug("Outside Chat", Unobfuscator.getMethodDescriptor(outsideMethod));
@@ -108,7 +109,7 @@ public class HideSeen extends Feature {
                 var msgTypeIdx = ReflectionUtils.findIndexOfType(((Method) param.method).getParameterTypes(), String.class);
                 if (!Objects.equals("read", param.args[msgTypeIdx])) return;
                 var currentUserJid = WppCore.getCurrentUserJid();
-                var privacy = CustomPrivacy.getJSON(currentUserJid.getStripJID());
+                var privacy = CustomPrivacy.getJSON(currentUserJid.getPhoneNumber());
                 var customHideRead = privacy.optBoolean("HideSeen", hideread);
                 if (currentUserJid.isGroup()) {
                     if (privacy.optBoolean("HideSeen", hideread_group) || ghostmode) {
@@ -123,9 +124,9 @@ public class HideSeen extends Feature {
                     if (key != null) {
                         var fmessage = new FMessageWpp(WppCore.getFMessageFromKey(key));
                         var messageId = fmessage.getKey().messageID;
-                        MessageHistory.getInstance().insertHideSeenMessage(currentUserJid.getRawString(), messageId, MessageHistory.MessageType.MESSAGE_TYPE, false);
+                        MessageHistory.getInstance().insertHideSeenMessage(currentUserJid.getPhoneRawString(), messageId, MessageHistory.MessageType.MESSAGE_TYPE, false);
                         if (fmessage.isViewOnce()) {
-                            MessageHistory.getInstance().insertHideSeenMessage(currentUserJid.getRawString(), messageId, MessageHistory.MessageType.VIEW_ONCE_TYPE, false);
+                            MessageHistory.getInstance().insertHideSeenMessage(currentUserJid.getPhoneRawString(), messageId, MessageHistory.MessageType.VIEW_ONCE_TYPE, false);
                         }
                         HideSeenView.updateAllBubbleViews();
                     }
@@ -150,11 +151,11 @@ public class HideSeen extends Feature {
                 var userJid = key.remoteJid;
                 var messageId = key.messageID;
                 if (isHide) {
-                    MessageHistory.getInstance().insertHideSeenMessage(userJid.getRawString(), messageId, MessageHistory.MessageType.MESSAGE_TYPE, false);
+                    MessageHistory.getInstance().insertHideSeenMessage(userJid.getPhoneRawString(), messageId, MessageHistory.MessageType.MESSAGE_TYPE, false);
                 }
                 if (fMessage.isViewOnce() && !hideonceseen && !ghostmode) {
-                    MessageHistory.getInstance().updateViewedMessage(userJid.getRawString(), messageId, MessageHistory.MessageType.VIEW_ONCE_TYPE, true);
-                    MessageHistory.getInstance().updateViewedMessage(userJid.getRawString(), messageId, MessageHistory.MessageType.MESSAGE_TYPE, true);
+                    MessageHistory.getInstance().updateViewedMessage(userJid.getPhoneRawString(), messageId, MessageHistory.MessageType.VIEW_ONCE_TYPE, true);
+                    MessageHistory.getInstance().updateViewedMessage(userJid.getPhoneRawString(), messageId, MessageHistory.MessageType.MESSAGE_TYPE, true);
                 }
                 HideSeenView.updateAllBubbleViews();
             }
@@ -180,11 +181,11 @@ public class HideSeen extends Feature {
                     var userJid = key.remoteJid;
                     var messageId = key.messageID;
                     if (isHide) {
-                        MessageHistory.getInstance().insertHideSeenMessage(userJid.getRawString(), messageId, MessageHistory.MessageType.MESSAGE_TYPE, false);
+                        MessageHistory.getInstance().insertHideSeenMessage(userJid.getPhoneRawString(), messageId, MessageHistory.MessageType.MESSAGE_TYPE, false);
                     }
                     if (fMessage.isViewOnce() && !hideonceseen && !ghostmode) {
-                        MessageHistory.getInstance().updateViewedMessage(userJid.getRawString(), messageId, MessageHistory.MessageType.VIEW_ONCE_TYPE, true);
-                        MessageHistory.getInstance().updateViewedMessage(userJid.getRawString(), messageId, MessageHistory.MessageType.MESSAGE_TYPE, true);
+                        MessageHistory.getInstance().updateViewedMessage(userJid.getPhoneRawString(), messageId, MessageHistory.MessageType.VIEW_ONCE_TYPE, true);
+                        MessageHistory.getInstance().updateViewedMessage(userJid.getPhoneRawString(), messageId, MessageHistory.MessageType.MESSAGE_TYPE, true);
                     }
                     HideSeenView.updateAllBubbleViews();
                 }

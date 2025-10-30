@@ -42,7 +42,7 @@ public class HideReceipt extends Feature {
                 var key = ReflectionUtils.getArg(param.args, FMessageWpp.Key.TYPE, 0);
                 var messageKey = new FMessageWpp.Key(key);
                 var userJid = messageKey.remoteJid;
-                var privacy = CustomPrivacy.getJSON(userJid.getStripJID());
+                var privacy = CustomPrivacy.getJSON(userJid.getPhoneNumber());
                 var customHideReceipt = privacy.optBoolean("HideReceipt", hideReceipt);
                 var customHideRead = privacy.optBoolean("HideSeen", hideread);
                 var msgTypeIdx = ReflectionUtils.findIndexOfType(((Method) param.method).getParameterTypes(), String.class);
@@ -56,9 +56,9 @@ public class HideReceipt extends Feature {
                     Object fmessageObj = WppCore.getFMessageFromKey(key);
                     var fmessage = new FMessageWpp(fmessageObj);
                     var messageId = fmessage.getKey().messageID;
-                    MessageHistory.getInstance().insertHideSeenMessage(userJid.getRawString(), messageId, MessageHistory.MessageType.MESSAGE_TYPE, false);
+                    MessageHistory.getInstance().insertHideSeenMessage(userJid.getPhoneRawString(), messageId, MessageHistory.MessageType.MESSAGE_TYPE, false);
                     if (fmessage.isViewOnce()) {
-                        MessageHistory.getInstance().insertHideSeenMessage(userJid.getRawString(), messageId, MessageHistory.MessageType.VIEW_ONCE_TYPE, false);
+                        MessageHistory.getInstance().insertHideSeenMessage(userJid.getPhoneRawString(), messageId, MessageHistory.MessageType.VIEW_ONCE_TYPE, false);
                     }
                     HideSeenView.updateAllBubbleViews();
                 }

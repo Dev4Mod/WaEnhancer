@@ -12,12 +12,9 @@ import com.wmods.wppenhacer.xposed.core.Feature;
 import com.wmods.wppenhacer.xposed.core.WppCore;
 import com.wmods.wppenhacer.xposed.core.components.FMessageWpp;
 import com.wmods.wppenhacer.xposed.core.devkit.Unobfuscator;
-import com.wmods.wppenhacer.xposed.utils.DebugUtils;
 import com.wmods.wppenhacer.xposed.utils.ReflectionUtils;
 import com.wmods.wppenhacer.xposed.utils.ResId;
 import com.wmods.wppenhacer.xposed.utils.Utils;
-
-import java.lang.reflect.Method;
 
 import de.robv.android.xposed.XC_MethodHook;
 import de.robv.android.xposed.XSharedPreferences;
@@ -48,8 +45,8 @@ public class GroupAdmin extends Feature {
                 if (!chatCurrentJid.isGroup()) return;
                 var field = ReflectionUtils.getFieldByType(targetObj.getClass(), grpcheckAdmin.getDeclaringClass());
                 var grpParticipants = field.get(targetObj);
-                var jidGrp = jidFactory.invoke(null, chatCurrentJid.getRawLidString());
-                var result = grpcheckAdmin.invoke(grpParticipants, jidGrp, userJid.jid);
+                var jidGrp = jidFactory.invoke(null, chatCurrentJid.getUserRawString());
+                var result = grpcheckAdmin.invoke(grpParticipants, jidGrp, userJid.phoneJid);
                 var view = (View) targetObj;
                 var context = view.getContext();
                 ImageView iconAdmin;

@@ -133,7 +133,7 @@ public class WppCore {
 
     }
 
-    public static Object convertLidToJid(Object lid) {
+    public static Object getPhoneJidFromUserJid(Object lid) {
         if (lid == null) return null;
         try {
             var rawString = (String) XposedHelpers.callMethod(lid, "getRawString");
@@ -146,7 +146,7 @@ public class WppCore {
         return lid;
     }
 
-    public static Object convertJidToLid(Object userJid) {
+    public static Object getUserJidFromPhoneJid(Object userJid) {
         if (userJid == null) return null;
         try {
             var rawString = (String) XposedHelpers.callMethod(userJid, "getRawString");
@@ -371,7 +371,7 @@ public class WppCore {
             selection = "jid = ?";
         }
         String name = null;
-        var rawJid = userJid.getRawString();
+        var rawJid = userJid.getPhoneRawString();
         var cursor = mWaDatabase.query("wa_contacts", new String[]{"display_name"}, selection, new String[]{rawJid}, null, null, null);
         if (cursor.moveToFirst()) {
             name = cursor.getString(0);
@@ -385,7 +385,7 @@ public class WppCore {
         loadWADatabase();
         if (mWaDatabase == null || userJid.isNull()) return "";
         String name = null;
-        var rawJid = userJid.getRawString();
+        var rawJid = userJid.getPhoneRawString();
         var cursor2 = mWaDatabase.query("wa_vnames", new String[]{"verified_name"}, "jid = ?", new String[]{rawJid}, null, null, null);
         if (cursor2.moveToFirst()) {
             name = cursor2.getString(0);

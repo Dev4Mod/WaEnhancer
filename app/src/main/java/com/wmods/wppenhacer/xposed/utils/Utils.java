@@ -266,7 +266,7 @@ public class Utils {
 
     public static String generateName(FMessageWpp.UserJid userJid, String fileFormat) {
         var contactName = WppCore.getContactName(userJid);
-        var number = userJid.getRawString();
+        var number = userJid.getPhoneRawString();
         return toValidFileName(contactName) + "_" + number + "_" + new SimpleDateFormat("yyyyMMdd-HHmmss", Locale.getDefault()).format(new Date()) + "." + fileFormat;
     }
 

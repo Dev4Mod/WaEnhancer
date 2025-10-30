@@ -72,7 +72,7 @@ public class Tasker extends Feature {
                 var fMessage = new FMessageWpp(WppCore.getFMessageFromKey(param.args[3]));
                 var userJid = fMessage.getKey().remoteJid;
                 var name = WppCore.getContactName(userJid);
-                var number = userJid.getStripJID();
+                var number = userJid.getPhoneNumber();
                 var msg = fMessage.getMessageStr();
                 if (TextUtils.isEmpty(msg) || TextUtils.isEmpty(number) || userJid.isStatus())
                     return;

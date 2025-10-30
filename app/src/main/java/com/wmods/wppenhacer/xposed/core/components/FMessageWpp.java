@@ -239,51 +239,51 @@ public class FMessageWpp {
 
     public static class UserJid {
 
-        public Object jid;
+        public Object phoneJid;
 
-        public Object lid;
+        public Object userJid;
 
         public UserJid(@Nullable String rawjid) {
             if (rawjid == null) return;
             if (checkValidLID(rawjid)) {
-                this.lid = WppCore.createUserJid(rawjid);
-                this.jid = WppCore.convertLidToJid(this.lid);
+                this.userJid = WppCore.createUserJid(rawjid);
+                this.phoneJid = WppCore.getPhoneJidFromUserJid(this.userJid);
             } else {
-                this.jid = WppCore.createUserJid(rawjid);
-                this.lid = WppCore.convertJidToLid(this.jid);
+                this.phoneJid = WppCore.createUserJid(rawjid);
+                this.userJid = WppCore.getUserJidFromPhoneJid(this.phoneJid);
             }
         }
 
         public UserJid(@Nullable Object lidOrJid) {
             if (lidOrJid == null) return;
             if (checkValidLID((String) XposedHelpers.callMethod(lidOrJid, "getRawString"))) {
-                this.lid = lidOrJid;
-                this.jid = WppCore.convertLidToJid(this.lid);
+                this.userJid = lidOrJid;
+                this.phoneJid = WppCore.getPhoneJidFromUserJid(this.userJid);
             } else {
-                this.jid = lidOrJid;
-                this.lid = WppCore.convertJidToLid(this.jid);
+                this.phoneJid = lidOrJid;
+                this.userJid = WppCore.getUserJidFromPhoneJid(this.phoneJid);
             }
         }
 
         @Nullable
-        public String getRawString() {
-            if (this.jid == null) return null;
-            String raw = (String) XposedHelpers.callMethod(this.jid, "getRawString");
+        public String getPhoneRawString() {
+            if (this.phoneJid == null) return null;
+            String raw = (String) XposedHelpers.callMethod(this.phoneJid, "getRawString");
             if (raw == null) return null;
             return raw.replaceFirst("\\.[\\d:]+@", "@");
         }
 
         @Nullable
-        public String getRawLidString() {
-            if (this.jid == null) return null;
-            String raw = (String) XposedHelpers.callMethod(this.lid, "getRawString");
+        public String getUserRawString() {
+            if (this.phoneJid == null) return null;
+            String raw = (String) XposedHelpers.callMethod(this.userJid, "getRawString");
             if (raw == null) return null;
             return raw.replaceFirst("\\.[\\d:]+@", "@");
         }
 
         @Nullable
-        public String getStripJID() {
-            var str = getRawString();
+        public String getPhoneNumber() {
+            var str = getPhoneRawString();
             try {
                 if (str == null) return null;
                 if (str.contains(".") && str.contains("@") && str.indexOf(".") < str.indexOf("@")) {
@@ -299,26 +299,26 @@ public class FMessageWpp {
         }
 
         public boolean isStatus() {
-            return Objects.equals(getStripJID(), "status");
+            return Objects.equals(getPhoneNumber(), "status");
         }
 
         public boolean isNewsletter() {
-            String raw = getRawString();
+            String raw = getPhoneRawString();
             if (raw == null) return false;
             return raw.contains("@newsletter");
         }
 
 
         public boolean isGroup() {
-            if (this.jid == null) return false;
-            String str = getRawString();
+            if (this.phoneJid == null) return false;
+            String str = getPhoneRawString();
             if (str == null) return false;
             return str.contains("-") || str.contains("@g.us") || (!str.contains("@") && str.length() > 16);
         }
 
 
         public boolean isNull() {
-            return this.jid == null && this.lid == null;
+            return this.phoneJid == null && this.userJid == null;
         }
 
         private static boolean checkValidLID(String lid) {
@@ -333,8 +333,8 @@ public class FMessageWpp {
         @Override
         public String toString() {
             return "UserJid{" +
-                    "jid=" + jid +
-                    ", lid=" + lid +
+                    "PhoneJid=" + phoneJid +
+                    ", UserJid=" + userJid +
                     '}';
         }
     }

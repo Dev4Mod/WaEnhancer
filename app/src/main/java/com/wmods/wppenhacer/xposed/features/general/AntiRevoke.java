@@ -135,14 +135,14 @@ public class AntiRevoke extends Feature {
 
     private static void saveRevokedMessage(FMessageWpp fMessage) {
         var messageKey = (String) XposedHelpers.getObjectField(fMessage.getObject(), "A01");
-        var stripJID = fMessage.getKey().remoteJid.getStripJID();
+        var stripJID = fMessage.getKey().remoteJid.getPhoneNumber();
         HashSet<String> messages = getRevokedMessages(fMessage);
         messages.add(messageKey);
         DelMessageStore.getInstance(Utils.getApplication()).insertMessage(stripJID, messageKey, System.currentTimeMillis());
     }
 
     private static HashSet<String> getRevokedMessages(FMessageWpp fMessage) {
-        String stripJID = fMessage.getKey().remoteJid.getStripJID();
+        String stripJID = fMessage.getKey().remoteJid.getPhoneNumber();
         if (messageRevokedMap.containsKey(stripJID)) {
             return messageRevokedMap.get(stripJID);
         }
@@ -196,7 +196,7 @@ public class AntiRevoke extends Feature {
     private int antiRevoke(FMessageWpp fMessage) {
         showToast(fMessage);
         String messageKey = (String) XposedHelpers.getObjectField(fMessage.getObject(), "A01");
-        String stripJID = fMessage.getKey().remoteJid.getStripJID();
+        String stripJID = fMessage.getKey().remoteJid.getPhoneNumber();
         int revokeboolean = stripJID.equals("status") ? Integer.parseInt(prefs.getString("antirevokestatus", "0")) : Integer.parseInt(prefs.getString("antirevoke", "0"));
         if (revokeboolean == 0) return revokeboolean;
         var messageRevokedList = getRevokedMessages(fMessage);
@@ -206,7 +206,7 @@ public class AntiRevoke extends Feature {
                     saveRevokedMessage(fMessage);
                     try {
                         var mConversation = WppCore.getCurrentConversation();
-                        if (mConversation != null && Objects.equals(stripJID, WppCore.getCurrentUserJid().getStripJID())) {
+                        if (mConversation != null && Objects.equals(stripJID, WppCore.getCurrentUserJid().getPhoneNumber())) {
                             mConversation.runOnUiThread(() -> {
                                 if (mConversation.hasWindowFocus()) {
                                     mConversation.startActivity(mConversation.getIntent());
@@ -235,17 +235,17 @@ public class AntiRevoke extends Feature {
             messageSuffix = Utils.getApplication().getString(ResId.string.deleted_status);
             jidAuthor = new FMessageWpp.UserJid(fMessage.getUserJid());
         }
-        if (jidAuthor.lid == null) return;
+        if (jidAuthor.userJid == null) return;
         String name = WppCore.getContactName(jidAuthor);
         if (TextUtils.isEmpty(name)) {
-            name = jidAuthor.getStripJID();
+            name = jidAuthor.getPhoneNumber();
         }
         String message;
         if (jidAuthor.isGroup() && fMessage.getUserJid().isNull()) {
             var participantJid = fMessage.getUserJid();
             String participantName = WppCore.getContactName(participantJid);
             if (TextUtils.isEmpty(participantName)) {
-                participantName = participantJid.getStripJID();
+                participantName = participantJid.getPhoneNumber();
             }
             message = Utils.getApplication().getString(ResId.string.deleted_a_message_in_group, participantName, name);
         } else {
@@ -254,7 +254,7 @@ public class AntiRevoke extends Feature {
         if (prefs.getBoolean("toastdeleted", false)) {
             Utils.showToast(message, Toast.LENGTH_LONG);
         }
-        Tasker.sendTaskerEvent(name, jidAuthor.getStripJID(), jidAuthor.isStatus() ? "deleted_status" : "deleted_message");
+        Tasker.sendTaskerEvent(name, jidAuthor.getPhoneNumber(), jidAuthor.isStatus() ? "deleted_status" : "deleted_message");
     }
 
 }

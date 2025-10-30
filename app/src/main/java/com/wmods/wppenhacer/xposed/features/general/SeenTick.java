@@ -36,7 +36,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
@@ -315,8 +314,8 @@ public class SeenTick extends Feature {
                 item.setOnMenuItemClickListener(item1 -> {
                     var userJid = fMessage.getKey().remoteJid;
                     var messageID = fMessage.getKey().messageID;
-                    MessageHistory.getInstance().updateViewedMessage(userJid.getRawString(), messageID, MessageHistory.MessageType.VIEW_ONCE_TYPE, true);
-                    MessageHistory.getInstance().updateViewedMessage(userJid.getRawString(), messageID, MessageHistory.MessageType.MESSAGE_TYPE, true);
+                    MessageHistory.getInstance().updateViewedMessage(userJid.getPhoneRawString(), messageID, MessageHistory.MessageType.VIEW_ONCE_TYPE, true);
+                    MessageHistory.getInstance().updateViewedMessage(userJid.getPhoneRawString(), messageID, MessageHistory.MessageType.MESSAGE_TYPE, true);
                     sendBlueTickMedia(fMessage);
                     statuses.clear();
                     Utils.showToast(Utils.getApplication().getString(ResId.string.sending_read_blue_tick), Toast.LENGTH_SHORT);
@@ -341,7 +340,7 @@ public class SeenTick extends Feature {
                                 var fMessageObj = WppCore.getFMessageFromKey(keyMessage);
                                 if (fMessageObj == null) return;
                                 var fMessage = new FMessageWpp(fMessageObj);
-                                var rawJid = fMessage.getKey().remoteJid.getRawString();
+                                var rawJid = fMessage.getKey().remoteJid.getPhoneRawString();
                                 var messageID = fMessage.getKey().messageID;
                                 MessageHistory.getInstance().updateViewedMessage(rawJid, messageID, MessageHistory.MessageType.VIEW_ONCE_TYPE, true);
                                 MessageHistory.getInstance().updateViewedMessage(rawJid, messageID, MessageHistory.MessageType.MESSAGE_TYPE, true);
@@ -394,9 +393,9 @@ public class SeenTick extends Feature {
 
     private void sendBlueTick(FMessageWpp.UserJid userJid) {
         CompletableFuture.runAsync(() -> {
-            if (Objects.equals(userJid.getStripJID(), Utils.getMyNumber())) return;
+            if (Objects.equals(userJid.getPhoneNumber(), Utils.getMyNumber())) return;
             var messages = new ArrayList<FMessageWpp>();
-            var hideSeenMessagesssages = MessageHistory.getInstance().getHideSeenMessages(userJid.getRawString(), MessageHistory.MessageType.MESSAGE_TYPE, false);
+            var hideSeenMessagesssages = MessageHistory.getInstance().getHideSeenMessages(userJid.getPhoneRawString(), MessageHistory.MessageType.MESSAGE_TYPE, false);
             for (var message : hideSeenMessagesssages) {
                 var fmessage = message.getFMessage();
                 if (fmessage == null) continue;
@@ -412,7 +411,7 @@ public class SeenTick extends Feature {
                 }
             }
             sendBlueTickMsg(userJid, messages);
-            updateMessageStatusView(userJid.getRawString(), messages);
+            updateMessageStatusView(userJid.getPhoneRawString(), messages);
         }, Utils.getExecutor());
     }
 
@@ -429,14 +428,14 @@ public class SeenTick extends Feature {
             for (var entry : messageMap.entrySet()) {
                 var userJidMsg = entry.getKey();
                 String[] messageIds = entry.getValue().toArray(new String[0]);
-                var participant = userJid.isGroup() ? userJidMsg.lid : null;
+                var participant = userJid.isGroup() ? userJidMsg.userJid : null;
 
                 WppCore.setPrivBoolean(messageIds[0] + "_rpass", true);
 
                 logDebug(userJid);
 
                 Object sendJob = XposedHelpers.newInstance(
-                        mSendReadClass, userJid.lid, participant, null, null, messageIds, -1, 1L, false
+                        mSendReadClass, userJid.userJid, participant, null, null, messageIds, -1, 1L, false
                 );
 
                 WaJobManagerMethod.invoke(mWaJobManager, sendJob);
@@ -454,7 +453,7 @@ public class SeenTick extends Feature {
                 Arrays.stream(arr_s).forEach(s -> MessageStore.getInstance().storeMessageRead(s));
                 var userJidSender = WppCore.createUserJid("status@broadcast");
                 WppCore.setPrivBoolean(arr_s[0] + "_rpass", true);
-                var sendJob = XposedHelpers.newInstance(mSendReadClass, userJidSender, currentJid.lid, null, null, arr_s, -1, 0L, false);
+                var sendJob = XposedHelpers.newInstance(mSendReadClass, userJidSender, currentJid.userJid, null, null, arr_s, -1, 0L, false);
                 WaJobManagerMethod.invoke(mWaJobManager, sendJob);
                 statuses.clear();
             } catch (Throwable e) {
@@ -469,7 +468,7 @@ public class SeenTick extends Feature {
                 var userJid = fMessage.getKey().remoteJid;
                 Object participant = null;
                 if (userJid.isGroup()) {
-                    participant = fMessage.getUserJid().lid;
+                    participant = fMessage.getUserJid().userJid;
                 }
                 var sendPlayerClass = XposedHelpers.findClass("com.whatsapp.jobqueue.job.SendPlayedReceiptJobV2", classLoader);
                 var constructor = sendPlayerClass.getDeclaredConstructors()[0];
@@ -477,7 +476,7 @@ public class SeenTick extends Feature {
                 var rowsId = new Long[]{fMessage.getRowId()};
                 var messageId = fMessage.getKey().messageID;
                 constructor = classParticipantInfo.getDeclaredConstructors()[0];
-                var participantInfo = constructor.newInstance(userJid.lid, participant, rowsId, new String[]{messageId});
+                var participantInfo = constructor.newInstance(userJid.userJid, participant, rowsId, new String[]{messageId});
                 var sendJob = XposedHelpers.newInstance(sendPlayerClass, participantInfo, false);
                 WaJobManagerMethod.invoke(mWaJobManager, sendJob);
             } catch (Throwable e) {

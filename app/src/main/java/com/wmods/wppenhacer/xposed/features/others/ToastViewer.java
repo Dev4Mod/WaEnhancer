@@ -84,14 +84,14 @@ public class ToastViewer extends Feature {
                 var contactName = WppCore.getContactName(userJid);
                 var rowId = id;
 
-                if (TextUtils.isEmpty(contactName)) contactName = userJid.getStripJID();
+                if (TextUtils.isEmpty(contactName)) contactName = userJid.getPhoneNumber();
 
                 var sql = MessageStore.getInstance().getDatabase();
 
                 if (fmessage.get() != null) {
                     rowId = new FMessageWpp(fmessage.get()).getRowId();
                 }
-                checkDataBase(sql, rowId, contactName, userJid.getRawString(), toastViewedMessage, toastViewedStatus);
+                checkDataBase(sql, rowId, contactName, userJid.getPhoneRawString(), toastViewedMessage, toastViewedStatus);
             });
         }
     }
@@ -118,7 +118,7 @@ public class ToastViewer extends Feature {
 
             var userJid = WppCore.getCurrentUserJid();
 
-            if (rawJid != null && userJid != null && Objects.equals(userJid.getRawString(), rawJid))
+            if (rawJid != null && userJid != null && Objects.equals(userJid.getPhoneRawString(), rawJid))
                 return;
 
             var chat_id = result2.getLong(result2.getColumnIndexOrThrow("chat_row_id"));

@@ -319,7 +319,7 @@ public class Others extends Feature {
         if (userJid.isGroup()) return;
         var sb = new StringBuilder();
         var contact = WppCore.getContactName(userJid);
-        var number = userJid.getStripJID();
+        var number = userJid.getPhoneNumber();
         if (!TextUtils.isEmpty(contact))
             sb.append(String.format(Utils.getApplication().getString(ResId.string.contact_s), contact)).append("\n");
         sb.append(String.format(Utils.getApplication().getString(ResId.string.phone_number_s), number)).append("\n");
@@ -562,7 +562,7 @@ public class Others extends Feature {
                 var userjid = new FMessageWpp.UserJid(jid);
                 if (userjid.isGroup()) return;
                 var name = WppCore.getContactName(userjid);
-                name = TextUtils.isEmpty(name) ? userjid.getStripJID() : name;
+                name = TextUtils.isEmpty(name) ? userjid.getPhoneNumber() : name;
                 if (showOnline)
                     Utils.showToast(String.format(Utils.getApplication().getString(ResId.string.toast_online), name), Toast.LENGTH_SHORT);
                 Tasker.sendTaskerEvent(name, WppCore.stripJID(jid), "contact_online");

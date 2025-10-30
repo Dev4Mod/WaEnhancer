@@ -101,7 +101,7 @@ public class ActivityController extends Feature {
         var listContacts = (List) ReflectionUtils.getObjectField(listContactsField, instance);
         var contacts = new ArrayList<String>();
         for (Object contactUserJid : listContacts) {
-            var rawContacts = new FMessageWpp.UserJid(contactUserJid).getRawString();
+            var rawContacts = new FMessageWpp.UserJid(contactUserJid).getPhoneRawString();
             contacts.add(rawContacts);
         }
         Intent intent2 = new Intent();

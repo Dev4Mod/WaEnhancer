@@ -31,7 +31,7 @@ public class TypingPrivacy extends Feature {
             protected void beforeHookedMethod(MethodHookParam param) {
                 var p1 = (int) param.args[2];
                 var userJid = new FMessageWpp.UserJid(param.args[1]);
-                var privacy = CustomPrivacy.getJSON(userJid.getStripJID());
+                var privacy = CustomPrivacy.getJSON(userJid.getPhoneNumber());
                 var customHideTyping = privacy.optBoolean("HideTyping", ghostmode_t);
                 var customHideRecording = privacy.optBoolean("HideRecording", ghostmode_r);
                 if ((p1 == 1 && (customHideRecording || ghostmode)) || (p1 == 0 && (customHideTyping || ghostmode))) {

@@ -16,7 +16,6 @@ import androidx.annotation.NonNull;
 import androidx.core.text.TextUtilsCompat;
 
 import com.wmods.wppenhacer.xposed.core.Feature;
-import com.wmods.wppenhacer.xposed.core.WppCore;
 import com.wmods.wppenhacer.xposed.core.components.FMessageWpp;
 import com.wmods.wppenhacer.xposed.core.devkit.Unobfuscator;
 import com.wmods.wppenhacer.xposed.core.devkit.UnobfuscatorCache;
@@ -179,7 +178,7 @@ public class ShowOnline extends Feature {
                 var tokenDBInstance = fieldTokenDBInstance.get(mInstancePresence);
                 var tokenData = ReflectionUtils.callMethod(tcTokenMethod, tokenDBInstance, jidObject);
                 var tokenObj = tokenClass.getConstructors()[0].newInstance(tokenData == null ? null : XposedHelpers.getObjectField(tokenData, "A01"));
-                sendPresenceMethod.invoke(null, userJid.lid, null, tokenObj, mInstancePresence);
+                sendPresenceMethod.invoke(null, userJid.userJid, null, tokenObj, mInstancePresence);
 
                 var status = (String) ReflectionUtils.callMethod(getStatusUser, mStatusUser, object, false);
                 var currentPosition = (int) ReflectionUtils.callMethod(getAdapterPositionMethod, viewHolder);

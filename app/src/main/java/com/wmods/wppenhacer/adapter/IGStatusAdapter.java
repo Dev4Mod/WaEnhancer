@@ -134,7 +134,7 @@ public class IGStatusAdapter extends ArrayAdapter {
             try {
                 var clazz = Unobfuscator.getClassByName("StatusPlaybackActivity", getContext().getClassLoader());
                 var intent = new Intent(WppCore.getCurrentActivity(), clazz);
-                intent.putExtra("jid", holder.userJid.getRawString());
+                intent.putExtra("jid", holder.userJid.getPhoneRawString());
                 WppCore.getCurrentActivity().startActivity(intent);
             } catch (Exception e) {
                 Utils.showToast(e.getMessage(), 1);
@@ -177,7 +177,7 @@ public class IGStatusAdapter extends ArrayAdapter {
             this.userJid = new FMessageWpp.UserJid(ReflectionUtils.getObjectField(field, statusInfo));
             var contactName = WppCore.getContactName(this.userJid);
             igStatusContactName.setText(contactName);
-            var profile = WppCore.getContactPhotoDrawable(this.userJid.getRawString());
+            var profile = WppCore.getContactPhotoDrawable(this.userJid.getPhoneRawString());
             if (profile == null) profile = DesignUtils.getDrawableByName("avatar_contact");
             igStatusContactPhoto.setImageDrawable(profile);
             var countUnseen = XposedHelpers.getIntField(statusInfo, "A01");

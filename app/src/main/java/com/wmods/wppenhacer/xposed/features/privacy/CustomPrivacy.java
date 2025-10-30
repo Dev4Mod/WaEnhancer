@@ -215,7 +215,7 @@ public class CustomPrivacy extends Feature {
     private void showPrivacyDialog(Activity activity, boolean isChat) {
         var userJid = getUserJid(activity, isChat);
         if (userJid.isNull()) return;
-        AlertDialogWpp builder = createPrivacyDialog(activity, userJid.getStripJID());
+        AlertDialogWpp builder = createPrivacyDialog(activity, userJid.getPhoneNumber());
         builder.show();
     }
 
