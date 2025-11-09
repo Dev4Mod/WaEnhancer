@@ -22,7 +22,7 @@ val gitHash: String = getGitHashCommit().uppercase(Locale.getDefault())
 
 android {
     namespace = "com.wmods.wppenhacer"
-    compileSdk = 35
+    compileSdk = 36
     ndkVersion = "27.0.11902837 rc2"
 
     flavorDimensions += "version"
@@ -168,12 +168,18 @@ configurations.all {
     exclude("org.jetbrains.kotlin", "kotlin-stdlib-jdk8")
 }
 
+interface InjectedExecOps {
+    @get:Inject val execOps: ExecOperations
+}
+
+
 afterEvaluate {
     listOf("installWhatsappDebug", "installBusinessDebug").forEach { taskName ->
         tasks.findByName(taskName)?.doLast {
             runCatching {
+                val injected  = project.objects.newInstance<InjectedExecOps>()
                 runBlocking {
-                    exec {
+                    injected.execOps.exec {
                         commandLine(
                             "adb",
                             "shell",
@@ -183,7 +189,7 @@ afterEvaluate {
                         )
                     }
                     delay(500)
-                    exec {
+                    injected.execOps.exec {
                         commandLine(
                             "adb",
                             "shell",
