@@ -22,6 +22,7 @@ import com.wmods.wppenhacer.xposed.core.components.AlertDialogWpp;
 import com.wmods.wppenhacer.xposed.core.components.FMessageWpp;
 import com.wmods.wppenhacer.xposed.core.devkit.Unobfuscator;
 import com.wmods.wppenhacer.xposed.core.devkit.UnobfuscatorCache;
+import com.wmods.wppenhacer.xposed.utils.DebugUtils;
 import com.wmods.wppenhacer.xposed.utils.ReflectionUtils;
 import com.wmods.wppenhacer.xposed.utils.ResId;
 import com.wmods.wppenhacer.xposed.utils.Utils;
@@ -138,7 +139,9 @@ public class WppCore {
         try {
             var rawString = (String) XposedHelpers.callMethod(lid, "getRawString");
             if (rawString == null || !rawString.contains("@lid")) return lid;
-            var result = ReflectionUtils.callMethod(convertLidToJid, mWaJidMapRepository, lid);
+            rawString = rawString.replaceFirst("\\.[\\d:]+@", "@");
+            var newUser = WppCore.createUserJid(rawString);
+            var result = ReflectionUtils.callMethod(convertLidToJid, mWaJidMapRepository, newUser);
             return result == null ? lid : result;
         } catch (Exception e) {
             XposedBridge.log(e);
@@ -151,7 +154,9 @@ public class WppCore {
         try {
             var rawString = (String) XposedHelpers.callMethod(userJid, "getRawString");
             if (rawString == null || rawString.contains("@lid")) return userJid;
-            var result = ReflectionUtils.callMethod(convertJidToLid, mWaJidMapRepository, userJid);
+            rawString = rawString.replaceFirst("\\.[\\d:]+@", "@");
+            var newUser = WppCore.createUserJid(rawString);
+            var result = ReflectionUtils.callMethod(convertJidToLid, mWaJidMapRepository, newUser);
             return result == null ? userJid : result;
         } catch (Exception e) {
             XposedBridge.log(e);
