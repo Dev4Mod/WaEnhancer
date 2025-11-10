@@ -54,6 +54,7 @@ public class HideReceipt extends Feature {
                 }
                 if (param.args[msgTypeIdx] == "inactive") {
                     Object fmessageObj = WppCore.getFMessageFromKey(key);
+                    if (fmessageObj == null) return;
                     var fmessage = new FMessageWpp(fmessageObj);
                     var messageId = fmessage.getKey().messageID;
                     MessageHistory.getInstance().insertHideSeenMessage(userJid.getPhoneRawString(), messageId, MessageHistory.MessageType.MESSAGE_TYPE, false);

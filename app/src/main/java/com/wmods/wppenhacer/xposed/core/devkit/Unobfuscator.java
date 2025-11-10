@@ -2037,4 +2037,8 @@ public class Unobfuscator {
     public static Method loadConvertJidToLid(ClassLoader loader) throws Exception {
         return UnobfuscatorCache.getInstance().getMethod(loader, () -> findFirstMethodUsingStrings(loader, StringMatchType.Contains, "WaJidMapRepository/getAccountUserJidByPhoneJid"));
     }
+
+    public static Class loadWaContactData(ClassLoader classLoader) throws Exception {
+        return UnobfuscatorCache.getInstance().getClass(classLoader, () -> findFirstClassUsingStrings(classLoader,StringMatchType.EndsWith,"WaContactData"));
+    }
 }

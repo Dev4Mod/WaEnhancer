@@ -16,13 +16,14 @@ import androidx.annotation.NonNull;
 import androidx.core.text.TextUtilsCompat;
 
 import com.wmods.wppenhacer.xposed.core.Feature;
-import com.wmods.wppenhacer.xposed.core.components.FMessageWpp;
+import com.wmods.wppenhacer.xposed.core.components.WaContactWpp;
 import com.wmods.wppenhacer.xposed.core.devkit.Unobfuscator;
 import com.wmods.wppenhacer.xposed.core.devkit.UnobfuscatorCache;
 import com.wmods.wppenhacer.xposed.utils.ReflectionUtils;
 import com.wmods.wppenhacer.xposed.utils.ResId;
 import com.wmods.wppenhacer.xposed.utils.Utils;
 
+import java.lang.reflect.Method;
 import java.util.Locale;
 
 import de.robv.android.xposed.XC_MethodHook;
@@ -130,7 +131,7 @@ public class ShowOnline extends Feature {
         var getStatusUser = Unobfuscator.loadStatusUserMethod(classLoader);
         logDebug(Unobfuscator.getMethodDescriptor(getStatusUser));
         var sendPresenceMethod = Unobfuscator.loadSendPresenceMethod(classLoader);
-        logDebug(Unobfuscator.getMethodDescriptor(sendPresenceMethod));
+        logDebug("sendPresenceMethod", Unobfuscator.getMethodDescriptor(sendPresenceMethod));
         var tcTokenMethod = Unobfuscator.loadTcTokenMethod(classLoader);
         var absViewHolderClass = Unobfuscator.loadAbsViewHolder(classLoader);
 
@@ -160,6 +161,7 @@ public class ShowOnline extends Feature {
             protected void afterHookedMethod(MethodHookParam param) throws Throwable {
                 var viewHolder = field1.get(param.thisObject);
                 var object = param.args[0];
+                var waContact = new WaContactWpp(object);
                 var viewField = ReflectionUtils.findFieldUsingFilter(absViewHolderClass, field -> field.getType() == View.class);
                 var view = (View) viewField.get(viewHolder);
 
@@ -170,41 +172,41 @@ public class ShowOnline extends Feature {
                     csDot.setVisibility(View.INVISIBLE);
                 }
                 TextView lastSeenText = showOnlineText ? view.findViewById(0x7FFF0002) : null;
-                var jidFiled = ReflectionUtils.getFieldByExtendType(object.getClass(), XposedHelpers.findClass("com.whatsapp.jid.Jid", classLoader));
-                var jidObject = jidFiled.get(object);
-                var userJid = new FMessageWpp.UserJid(jidObject);
+                var userJid = waContact.getUserJid();
                 if (userJid.isGroup() || userJid.isNull()) return;
 
                 var tokenDBInstance = fieldTokenDBInstance.get(mInstancePresence);
-                var tokenData = ReflectionUtils.callMethod(tcTokenMethod, tokenDBInstance, jidObject);
+                var tokenData = ReflectionUtils.callMethod(tcTokenMethod, tokenDBInstance, userJid.userJid);
                 var tokenObj = tokenClass.getConstructors()[0].newInstance(tokenData == null ? null : XposedHelpers.getObjectField(tokenData, "A01"));
                 sendPresenceMethod.invoke(null, userJid.userJid, null, tokenObj, mInstancePresence);
-
                 var status = (String) ReflectionUtils.callMethod(getStatusUser, mStatusUser, object, false);
-                var currentPosition = (int) ReflectionUtils.callMethod(getAdapterPositionMethod, viewHolder);
-                if (currentPosition != position) return;
-                if (!TextUtils.isEmpty(status) && status.trim().equals(UnobfuscatorCache.getInstance().getString("online"))) {
-                    if (csDot != null) {
-                        csDot.setVisibility(View.VISIBLE);
-                    }
-                }
-
-                if (lastSeenText != null) {
-                    if (!TextUtils.isEmpty(status)) {
-                        lastSeenText.setText(status);
-                        if (UnobfuscatorCache.getInstance().getString("online").equals(status)) {
-                            lastSeenText.setTextColor(Color.GREEN);
-                        } else {
-                            lastSeenText.setTextColor(0xffcac100);
-                        }
-                    } else {
-                        lastSeenText.setText("");
-                        lastSeenText.setTextColor(Color.GRAY);
-                    }
-                }
-
+                setStatus(getAdapterPositionMethod, viewHolder, position, status, csDot, lastSeenText);
             }
         });
+    }
+
+    private static void setStatus(Method getAdapterPositionMethod, Object viewHolder, int position, String status, ImageView csDot, TextView lastSeenText) {
+        var currentPosition = (int) ReflectionUtils.callMethod(getAdapterPositionMethod, viewHolder);
+        if (currentPosition != position) return;
+        if (!TextUtils.isEmpty(status) && status.trim().equals(UnobfuscatorCache.getInstance().getString("online"))) {
+            if (csDot != null) {
+                csDot.setVisibility(View.VISIBLE);
+            }
+        }
+
+        if (lastSeenText != null) {
+            if (!TextUtils.isEmpty(status)) {
+                lastSeenText.setText(status);
+                if (UnobfuscatorCache.getInstance().getString("online").equals(status)) {
+                    lastSeenText.setTextColor(Color.GREEN);
+                } else {
+                    lastSeenText.setTextColor(0xffcac100);
+                }
+            } else {
+                lastSeenText.setText("");
+                lastSeenText.setTextColor(Color.GRAY);
+            }
+        }
     }
 
     @NonNull

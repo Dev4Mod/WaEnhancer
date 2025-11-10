@@ -23,6 +23,7 @@ import com.wmods.wppenhacer.UpdateChecker;
 import com.wmods.wppenhacer.xposed.core.components.AlertDialogWpp;
 import com.wmods.wppenhacer.xposed.core.components.FMessageWpp;
 import com.wmods.wppenhacer.xposed.core.components.SharedPreferencesWrapper;
+import com.wmods.wppenhacer.xposed.core.components.WaContactWpp;
 import com.wmods.wppenhacer.xposed.core.devkit.Unobfuscator;
 import com.wmods.wppenhacer.xposed.core.devkit.UnobfuscatorCache;
 import com.wmods.wppenhacer.xposed.features.customization.BubbleColors;
@@ -154,8 +155,6 @@ public class FeatureLoader {
                             throw new Exception(sb);
                         }
                     }
-                    WppCore.Initialize(loader, pref);
-                    DesignUtils.setPrefs(pref);
                     initComponents(loader, pref);
                     plugins(loader, pref, packageInfo.versionName);
                     sendEnabledBroadcast(mApp);
@@ -214,9 +213,12 @@ public class FeatureLoader {
     }
 
     private static void initComponents(ClassLoader loader, XSharedPreferences pref) throws Exception {
-        AlertDialogWpp.initDialog(loader);
         FMessageWpp.initialize(loader);
+        WppCore.Initialize(loader, pref);
+        DesignUtils.setPrefs(pref);
         Utils.init(loader);
+        AlertDialogWpp.initDialog(loader);
+        WaContactWpp.initialize(loader);
         WppCore.addListenerActivity((activity, state) -> {
 
             if (state == WppCore.ActivityChangeState.ChangeType.RESUMED) {

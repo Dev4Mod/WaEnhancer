@@ -145,6 +145,12 @@ public class ReflectionUtils {
         return Arrays.stream(cls.getFields()).filter(f -> type == f.getType()).collect(Collectors.toList());
     }
 
+    public static Field getFieldByExtendType(Class<?> cls, String className) {
+        if (cls == null) return null;
+        if (className == null) return null;
+        return getFieldByExtendType(cls, findClass(className,cls.getClassLoader()));
+    }
+
     public static Field getFieldByExtendType(Class<?> cls, Class<?> type) {
         if (cachePrefs == null) {
             return Arrays.stream(cls.getFields()).filter(f -> type.isAssignableFrom(f.getType())).findFirst().orElse(null);
@@ -171,6 +177,13 @@ public class ReflectionUtils {
 
         return field;
     }
+
+    public static Field getFieldByType(Class<?> cls, String className) {
+        if (cls == null) return null;
+        if (className == null) return null;
+        return getFieldByType(cls, findClass(className,cls.getClassLoader()));
+    }
+
 
     public static Field getFieldByType(Class<?> cls, Class<?> type) {
         if (cachePrefs == null) {

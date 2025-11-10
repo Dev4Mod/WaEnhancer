@@ -72,7 +72,6 @@ public class WppCore {
 
     public static void Initialize(ClassLoader loader, XSharedPreferences pref) throws Exception {
         privPrefs = Utils.getApplication().getSharedPreferences("WaGlobal", Context.MODE_PRIVATE);
-        FMessageWpp.initialize(loader);
         // init UserJID
         var mSendReadClass = Unobfuscator.findFirstClassUsingName(loader, StringMatchType.EndsWith,"SendReadReceiptJob");
         var subClass = ReflectionUtils.findConstructorUsingFilter(mSendReadClass, (constructor) -> constructor.getParameterCount() == 8).getParameterTypes()[0];

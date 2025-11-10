@@ -270,6 +270,12 @@ public class FMessageWpp {
             }
         }
 
+        public UserJid(@Nullable Object userJid, Object phoneJid) {
+            this.userJid = userJid;
+            this.phoneJid = phoneJid;
+        }
+
+
         @Nullable
         public String getPhoneRawString() {
             if (this.phoneJid == null) return null;
