@@ -155,6 +155,7 @@ public class AntiRevoke extends Feature {
 
     private void isMRevoked(Object objMessage, TextView dateTextView, String antirevokeType) {
         if (dateTextView == null) return;
+
         var fMessage = new FMessageWpp(objMessage);
         var key = fMessage.getKey();
         var messageRevokedList = getRevokedMessages(fMessage);
@@ -194,7 +195,11 @@ public class AntiRevoke extends Feature {
 
 
     private int antiRevoke(FMessageWpp fMessage) {
-        showToast(fMessage);
+        try {
+            showToast(fMessage);
+        } catch (Exception e) {
+            log(e);
+        }
         String messageKey = (String) XposedHelpers.getObjectField(fMessage.getObject(), "A01");
         String stripJID = fMessage.getKey().remoteJid.getPhoneNumber();
         int revokeboolean = stripJID.equals("status") ? Integer.parseInt(prefs.getString("antirevokestatus", "0")) : Integer.parseInt(prefs.getString("antirevoke", "0"));
@@ -233,7 +238,7 @@ public class AntiRevoke extends Feature {
         var messageSuffix = Utils.getApplication().getString(ResId.string.deleted_message);
         if (jidAuthor.isStatus()) {
             messageSuffix = Utils.getApplication().getString(ResId.string.deleted_status);
-            jidAuthor = new FMessageWpp.UserJid(fMessage.getUserJid());
+            jidAuthor = fMessage.getUserJid();
         }
         if (jidAuthor.userJid == null) return;
         String name = WppCore.getContactName(jidAuthor);
