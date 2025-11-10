@@ -12,7 +12,8 @@ import de.robv.android.xposed.XposedHelpers;
 public class DebugUtils {
     public static void debugFields(Class<?> cls, Object thisObject) {
         if (cls == null) return;
-        XposedBridge.log("DEBUG FIELDS: Class " + cls.getName());
+        XposedBridge.log("------------------------------------");
+        XposedBridge.log("DEBUG FIELDS: Class " + cls.getName() + " -> Object " + thisObject);
         for (var field : cls.getDeclaredFields()) {
             try {
                 field.setAccessible(true);
@@ -21,7 +22,7 @@ public class DebugUtils {
                 if (value != null && value.getClass().isArray()) {
                     value = Arrays.toString((Object[]) value);
                 }
-                XposedBridge.log("FIELD: " + name + " -> VALUE: " + value);
+                XposedBridge.log("FIELD: " + name + " -> TYPE: " + field.getType().getName() + " -> VALUE: " + value);
             } catch (Exception ignored) {
             }
         }
