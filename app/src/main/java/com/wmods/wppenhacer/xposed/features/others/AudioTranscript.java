@@ -8,6 +8,8 @@ import com.wmods.wppenhacer.xposed.core.Feature;
 import com.wmods.wppenhacer.xposed.core.components.FMessageWpp;
 import com.wmods.wppenhacer.xposed.core.devkit.Unobfuscator;
 import com.wmods.wppenhacer.xposed.utils.ReflectionUtils;
+import com.wmods.wppenhacer.xposed.utils.ResId;
+import com.wmods.wppenhacer.xposed.utils.Utils;
 
 import org.json.JSONObject;
 
@@ -32,7 +34,19 @@ public class AudioTranscript extends Feature {
     @Override
     public void doHook() throws Throwable {
 
-        if (!prefs.getBoolean("assemblyai", false) || TextUtils.isEmpty(prefs.getString("assemblyai_key", "")))
+        if (!prefs.getBoolean("audio_transcription", false))
+            return;
+
+        String provider = prefs.getString("transcription_provider", "assemblyai");
+        String apiKey = "";
+
+        if ("groq".equals(provider)) {
+            apiKey = prefs.getString("groq_api_key", "");
+        } else {
+            apiKey = prefs.getString("assemblyai_key", "");
+        }
+
+        if (TextUtils.isEmpty(apiKey))
             return;
 
         var transcribeMethod = Unobfuscator.loadTranscribeMethod(classLoader);
@@ -46,11 +60,23 @@ public class AudioTranscript extends Feature {
                 var fmessageObj = fieldFMessage.get(pttTranscriptionRequest);
                 var fmessage = new FMessageWpp(fmessageObj);
                 File file = fmessage.getMediaFile();
+                if (file == null) {
+                    Utils.showToast(Utils.getApplication().getString(ResId.string.download_not_available), 1);
+                    return;
+                }
                 var callback = param.args[1];
                 var onComplete = ReflectionUtils.findMethodUsingFilter(callback.getClass(), method -> method.getParameterCount() == 4);
                 if (file == null || !file.exists())
                     return;
-                String transcript = runTranscript(file);
+
+                // Choose transcription provider based on user preference
+                String transcript;
+                if ("groq".equals(provider)) {
+                    transcript = transcriptionGroqAI(file);
+                } else {
+                    transcript = transcriptionAssemblyAI(file);
+                }
+
                 var segments = new ArrayList<>();
                 var words = transcript.split("\\s");
                 var totalLength = 0;
@@ -65,7 +91,7 @@ public class AudioTranscript extends Feature {
 
     }
 
-    private String runTranscript(File fileOpus) throws Exception {
+    private String transcriptionAssemblyAI(File fileOpus) throws Exception {
         String apiKey = prefs.getString("assemblyai_key", "");
         if (TextUtils.isEmpty(apiKey)) {
             return "API key not provided";
@@ -138,6 +164,41 @@ public class AudioTranscript extends Feature {
             }
         }
     }
+
+    private String transcriptionGroqAI(File fileAudio) throws Exception {
+        String apiKey = prefs.getString("groq_api_key", "");
+        if (TextUtils.isEmpty(apiKey)) {
+            return "Groq API key not provided";
+        }
+
+        OkHttpClient client = new OkHttpClient();
+
+        // Groq API accepts direct file upload with multipart/form-data
+        RequestBody requestBody = new okhttp3.MultipartBody.Builder()
+                .setType(okhttp3.MultipartBody.FORM)
+                .addFormDataPart("file", fileAudio.getName(),
+                        RequestBody.create(fileAudio, MediaType.parse("audio/ogg")))
+                .addFormDataPart("model", "whisper-large-v3-turbo")
+                .addFormDataPart("response_format", "json")
+                .addFormDataPart("temperature", "0")
+                .build();
+
+        Request transcribeRequest = new Request.Builder()
+                .url("https://api.groq.com/openai/v1/audio/transcriptions")
+                .addHeader("Authorization", "Bearer " + apiKey)
+                .post(requestBody)
+                .build();
+
+        try (okhttp3.Response response = client.newCall(transcribeRequest).execute()) {
+            if (!response.isSuccessful()) {
+                return "Failed to transcribe audio: " + response.code() + " - " + response.message();
+            }
+
+            JSONObject result = new JSONObject(response.body().string());
+            return result.getString("text");
+        }
+    }
+
 
     @NonNull
     @Override
