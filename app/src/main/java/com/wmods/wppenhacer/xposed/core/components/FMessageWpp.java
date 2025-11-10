@@ -4,6 +4,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import com.wmods.wppenhacer.xposed.core.WppCore;
+import com.wmods.wppenhacer.xposed.core.db.MessageStore;
 import com.wmods.wppenhacer.xposed.core.devkit.Unobfuscator;
 import com.wmods.wppenhacer.xposed.utils.ReflectionUtils;
 
@@ -163,8 +164,12 @@ public class FMessageWpp {
                 if (field.getType().isPrimitive()) continue;
                 var fileField = ReflectionUtils.getFieldByType(field.getType(), File.class);
                 if (fileField != null) {
-                    var mediaFile = ReflectionUtils.getObjectField(field, fmessage);
-                    return (File) fileField.get(mediaFile);
+                    var mediaObject = ReflectionUtils.getObjectField(field, fmessage);
+                    var mediaFile = (File) fileField.get(mediaObject);
+                    if (mediaFile != null) return mediaFile;
+                    var filePath = MessageStore.getInstance().getMediaFromID(getRowId());
+                    if (filePath == null) return null;
+                    return new File(filePath);
                 }
             }
         } catch (Exception e) {

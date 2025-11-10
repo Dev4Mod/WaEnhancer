@@ -25,7 +25,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 
 import de.robv.android.xposed.XSharedPreferences;
-import de.robv.android.xposed.XposedHelpers;
 
 public class StatusDownload extends Feature {
 
@@ -89,6 +88,10 @@ public class StatusDownload extends Feature {
                 return;
             }
             var file = fMessageWpp.getMediaFile();
+            if (file == null) {
+                Utils.showToast(Utils.getApplication().getString(ResId.string.download_not_available), 1);
+                return;
+            }
             Intent intent = new Intent();
             var clazz = Unobfuscator.getClassByName("MediaComposerActivity", classLoader);
             intent.setClassName(Utils.getApplication().getPackageName(), clazz.getName());
@@ -104,6 +107,10 @@ public class StatusDownload extends Feature {
     private void downloadFile(FMessageWpp fMessage) {
         try {
             var file = fMessage.getMediaFile();
+            if (file == null) {
+                Utils.showToast(Utils.getApplication().getString(ResId.string.download_not_available), 1);
+                return;
+            }
             var userJid = fMessage.getUserJid();
             var fileType = file.getName().substring(file.getName().lastIndexOf(".") + 1);
             var destination = getStatusDestination(file);

@@ -73,6 +73,10 @@ public class DownloadViewOnce extends Feature {
                     item.setOnMenuItemClickListener(item1 -> {
                         try {
                             var file = fMessage.getMediaFile();
+                            if (file == null) {
+                                Utils.showToast(Utils.getApplication().getString(ResId.string.download_not_available), 1);
+                                return true;
+                            }
                             downloadFile(fMessage.getKey().remoteJid, file);
                         } catch (Exception e) {
                             Utils.showToast(e.getMessage(), Toast.LENGTH_LONG);
@@ -99,6 +103,10 @@ public class DownloadViewOnce extends Feature {
                                     var fmessageObj = WppCore.getFMessageFromKey(keyMessageObj);
                                     var fmessage = new FMessageWpp(fmessageObj);
                                     var file = fmessage.getMediaFile();
+                                    if (file == null) {
+                                        Utils.showToast(Utils.getApplication().getString(ResId.string.download_not_available), 1);
+                                        return;
+                                    }
                                     var userJid = fmessage.getKey().remoteJid;
                                     try {
                                         downloadFile(userJid, file);
