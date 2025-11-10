@@ -22,12 +22,12 @@ import com.wmods.wppenhacer.xposed.core.components.AlertDialogWpp;
 import com.wmods.wppenhacer.xposed.core.components.FMessageWpp;
 import com.wmods.wppenhacer.xposed.core.devkit.Unobfuscator;
 import com.wmods.wppenhacer.xposed.core.devkit.UnobfuscatorCache;
-import com.wmods.wppenhacer.xposed.utils.DebugUtils;
 import com.wmods.wppenhacer.xposed.utils.ReflectionUtils;
 import com.wmods.wppenhacer.xposed.utils.ResId;
 import com.wmods.wppenhacer.xposed.utils.Utils;
 
 import org.json.JSONObject;
+import org.luckypray.dexkit.query.enums.StringMatchType;
 
 import java.io.File;
 import java.lang.reflect.Field;
@@ -74,7 +74,7 @@ public class WppCore {
         privPrefs = Utils.getApplication().getSharedPreferences("WaGlobal", Context.MODE_PRIVATE);
         FMessageWpp.initialize(loader);
         // init UserJID
-        var mSendReadClass = XposedHelpers.findClass("com.whatsapp.jobqueue.job.SendReadReceiptJob", loader);
+        var mSendReadClass = Unobfuscator.findFirstClassUsingName(loader, StringMatchType.EndsWith,"SendReadReceiptJob");
         var subClass = ReflectionUtils.findConstructorUsingFilter(mSendReadClass, (constructor) -> constructor.getParameterCount() == 8).getParameterTypes()[0];
         mGenJidClass = ReflectionUtils.findFieldUsingFilter(subClass, (field) -> Modifier.isStatic(field.getModifiers())).getType();
         mGenJidMethod = ReflectionUtils.findMethodUsingFilter(mGenJidClass, (method) -> method.getParameterCount() == 1 && !Modifier.isStatic(method.getModifiers()));

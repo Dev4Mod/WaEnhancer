@@ -10,6 +10,8 @@ import com.wmods.wppenhacer.xposed.core.devkit.Unobfuscator;
 import com.wmods.wppenhacer.xposed.features.customization.HideSeenView;
 import com.wmods.wppenhacer.xposed.utils.ReflectionUtils;
 
+import org.luckypray.dexkit.query.enums.StringMatchType;
+
 import java.lang.reflect.Method;
 import java.util.Objects;
 import java.util.Set;
@@ -30,7 +32,7 @@ public class HideSeen extends Feature {
 
 
         Method SendReadReceiptJobMethod = Unobfuscator.loadHideViewSendReadJob(classLoader);
-        var sendJob = XposedHelpers.findClass("com.whatsapp.jobqueue.job.SendReadReceiptJob", classLoader);
+        var sendJob = Unobfuscator.findFirstClassUsingName(classLoader, StringMatchType.EndsWith,"SendReadReceiptJob");
         log(Unobfuscator.getMethodDescriptor(SendReadReceiptJobMethod));
 
         var ghostmode = WppCore.getPrivBoolean("ghostmode", false);

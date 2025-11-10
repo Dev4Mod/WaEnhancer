@@ -59,15 +59,19 @@ public class BridgeClient extends BaseClient implements ServiceConnection {
         CompletableFuture<Boolean> future = CompletableFuture.supplyAsync(() -> {
             try {
                 Intent intent = new Intent();
-                intent.setClassName(BuildConfig.APPLICATION_ID, ForceStartActivity.class.getName())
-                        .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_MULTIPLE_TASK);
+                intent.setComponent(new ComponentName(BuildConfig.APPLICATION_ID, ForceStartActivity.class.getName()));
+                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_MULTIPLE_TASK);
                 context.startActivity(intent);
+            } catch (Throwable e) {
+                XposedBridge.log(e);
+            }
 
-                intent.setClassName(BuildConfig.APPLICATION_ID, BridgeService.class.getName());
+            try {
                 if (service != null) {
                     context.unbindService(this);
                 }
-
+                Intent intent = new Intent();
+                intent.setClassName(BuildConfig.APPLICATION_ID, BridgeService.class.getName());
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
                     context.bindService(intent, Context.BIND_AUTO_CREATE, Executors.newSingleThreadExecutor(), this);
                 } else {

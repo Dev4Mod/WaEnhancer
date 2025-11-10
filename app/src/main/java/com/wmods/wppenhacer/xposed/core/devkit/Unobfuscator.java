@@ -311,7 +311,7 @@ public class Unobfuscator {
     // TODO: Classes and Methods for HideView
     public synchronized static Method loadHideViewSendReadJob(ClassLoader classLoader) throws Exception {
         return UnobfuscatorCache.getInstance().getMethod(classLoader, () -> {
-            var classData = dexkit.getClassData(XposedHelpers.findClass("com.whatsapp.jobqueue.job.SendReadReceiptJob", classLoader));
+            var classData = dexkit.getClassData(findFirstClassUsingName(classLoader, StringMatchType.EndsWith,"SendReadReceiptJob"));
             var methodResult = classData.findMethod(new FindMethod().matcher(new MethodMatcher().addUsingString("receipt", StringMatchType.Equals)));
             if (methodResult.isEmpty()) {
                 methodResult = classData.getSuperClass().findMethod(new FindMethod().matcher(new MethodMatcher().addUsingString("receipt", StringMatchType.Equals)));

@@ -31,6 +31,8 @@ import com.wmods.wppenhacer.xposed.utils.ReflectionUtils;
 import com.wmods.wppenhacer.xposed.utils.ResId;
 import com.wmods.wppenhacer.xposed.utils.Utils;
 
+import org.luckypray.dexkit.query.enums.StringMatchType;
+
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -87,7 +89,7 @@ public class SeenTick extends Feature {
 
         WaJobManagerMethod = Unobfuscator.loadBlueOnReplayWaJobManagerMethod(classLoader);
 
-        mSendReadClass = XposedHelpers.findClass("com.whatsapp.jobqueue.job.SendReadReceiptJob", classLoader);
+        mSendReadClass = Unobfuscator.findFirstClassUsingName(classLoader, StringMatchType.EndsWith,"SendReadReceiptJob");
 
         // hook instance of WaJobManager;
 
