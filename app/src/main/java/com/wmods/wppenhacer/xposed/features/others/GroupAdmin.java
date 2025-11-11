@@ -46,7 +46,7 @@ public class GroupAdmin extends Feature {
                 var field = ReflectionUtils.getFieldByType(targetObj.getClass(), grpcheckAdmin.getDeclaringClass());
                 var grpParticipants = field.get(targetObj);
                 var jidGrp = jidFactory.invoke(null, chatCurrentJid.getUserRawString());
-                var result = grpcheckAdmin.invoke(grpParticipants, jidGrp, userJid.phoneJid);
+                var result = grpcheckAdmin.invoke(grpParticipants, jidGrp, userJid.userJid);
                 var view = (View) targetObj;
                 var context = view.getContext();
                 ImageView iconAdmin;

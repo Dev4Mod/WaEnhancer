@@ -8,6 +8,7 @@ import android.graphics.drawable.Drawable;
 import android.hardware.SensorEventListener;
 import android.net.Uri;
 import android.util.Log;
+import android.view.ContextMenu;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -311,7 +312,7 @@ public class Unobfuscator {
     // TODO: Classes and Methods for HideView
     public synchronized static Method loadHideViewSendReadJob(ClassLoader classLoader) throws Exception {
         return UnobfuscatorCache.getInstance().getMethod(classLoader, () -> {
-            var classData = dexkit.getClassData(findFirstClassUsingName(classLoader, StringMatchType.EndsWith,"SendReadReceiptJob"));
+            var classData = dexkit.getClassData(findFirstClassUsingName(classLoader, StringMatchType.EndsWith, "SendReadReceiptJob"));
             var methodResult = classData.findMethod(new FindMethod().matcher(new MethodMatcher().addUsingString("receipt", StringMatchType.Equals)));
             if (methodResult.isEmpty()) {
                 methodResult = classData.getSuperClass().findMethod(new FindMethod().matcher(new MethodMatcher().addUsingString("receipt", StringMatchType.Equals)));
@@ -1364,25 +1365,23 @@ public class Unobfuscator {
 
     public synchronized static Method loadGroupCheckAdminMethod(ClassLoader loader) throws Exception {
         return UnobfuscatorCache.getInstance().getMethod(loader, () -> {
-            var classData = dexkit.findClass(FindClass.create().matcher(ClassMatcher.create().addUsingString("saveGroupParticipants/INSERT_GROUP_PARTICIPANT_USER")));
-            var resultMethod = classData.findMethod(
-                    FindMethod.create().matcher(MethodMatcher.create().paramCount(2).paramTypes(null, "com.whatsapp.jid.UserJid")
-                            .opNames(List.of(
-                                    "const/4",
-                                    "invoke-static",
-                                    "const/4",
-                                    "invoke-static",
-                                    "invoke-virtual",
-                                    "move-result-object",
-                                    "const/4",
-                                    "invoke-virtual",
-                                    "move-result-object",
-                                    "if-nez"
-                            ), OpCodeMatchType.StartsWith)
-                    )).singleOrNull();
-            if (resultMethod == null)
-                throw new RuntimeException("GroupCheckAdmin method not found");
-            return resultMethod.getMethodInstance(loader);
+
+            var classData = dexkit.findClass(FindClass.create().matcher(ClassMatcher.create().addUsingString("saveGroupParticipants/INSERT_GROUP_PARTICIPANT_USER"))).singleOrNull();
+            var GroupChatClass = findFirstClassUsingName(loader, StringMatchType.EndsWith, "GroupChatInfoActivity");
+            var onCreateMenu = ReflectionUtils.findMethodUsingFilter(GroupChatClass, method -> method.getName().equals("onCreateContextMenu"));
+            var onCreateMenuData = dexkit.getMethodData(onCreateMenu);
+            var invokes = onCreateMenuData.getInvokes().stream().filter(m -> Objects.equals(m.getDeclaredClassName(), classData.getName())).collect(Collectors.toList());
+            for (var invoke : invokes) {
+                var invokeMethod = invoke.getMethodInstance(loader);
+                if (invokeMethod.getParameterCount() != 2 || invokeMethod.getReturnType() != boolean.class)
+                    continue;
+                if (invokeMethod.getParameterTypes()[1].getName().equals("com.whatsapp.jid.UserJid")) {
+                    XposedBridge.log("FIND: " + invokeMethod);
+                    return invokeMethod;
+                }
+
+            }
+            throw new RuntimeException("GroupCheckAdmin method not found");
         });
     }
 
@@ -2039,6 +2038,6 @@ public class Unobfuscator {
     }
 
     public static Class loadWaContactData(ClassLoader classLoader) throws Exception {
-        return UnobfuscatorCache.getInstance().getClass(classLoader, () -> findFirstClassUsingStrings(classLoader,StringMatchType.EndsWith,"WaContactData"));
+        return UnobfuscatorCache.getInstance().getClass(classLoader, () -> findFirstClassUsingStrings(classLoader, StringMatchType.EndsWith, "WaContactData"));
     }
 }
