@@ -96,7 +96,9 @@ public class CallPrivacy extends Feature {
             @Override
             protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
                 if (!prefs.getString("call_type", "no_internet").equals("no_internet")) return;
-                var userJid = new FMessageWpp.UserJid(param.args[0]);
+                var jidClass = XposedHelpers.findClass("com.whatsapp.jid.Jid", classLoader);
+                var jidObj = ReflectionUtils.getArg(param.args, jidClass, 0);
+                var userJid = new FMessageWpp.UserJid(jidObj);
                 var type = Integer.parseInt(prefs.getString("call_privacy", "0"));
                 var block = checkCallBlock(userJid, PrivacyType.getByValue(type));
                 if (block) {
