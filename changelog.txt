@@ -1,14 +1,4 @@
-[WhatsApp]
-* Added support for Whatsapp 2.25.33.XX
-
 [BUG FIXES]
-* Fixed bug when fetching PhoneJID from UserJID (finally found the problem)
-* Fixed bug when downloading status videos, this also includes photos
-* Fixed issue with the Bridge connection that sometimes resulted in an error when connecting
-
-[FEATURES]
-* Added transcription via GroqAI which is extremely fast and with the Whisper model the quality is very good (requires creating a key at groq.com)
-NOTE: Do not use if you do not want your audio files to be uploaded to an external server
-
-[NOTES]
-* The call blocking types "Declined" and "Missed" have now become obsolete in WhatsApp and always show the same message (Missed), meaning there is no distinction between them, so this will be removed soon.
+* Fixed Anti revoke Status bug
+* Fixed Show online and last seen on home screen bug
+* Fixed admin icon in groups
