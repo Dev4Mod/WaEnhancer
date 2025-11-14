@@ -10,6 +10,7 @@ import androidx.annotation.NonNull;
 import com.wmods.wppenhacer.xposed.core.Feature;
 import com.wmods.wppenhacer.xposed.core.WppCore;
 import com.wmods.wppenhacer.xposed.core.components.FMessageWpp;
+import com.wmods.wppenhacer.xposed.core.components.WaContactWpp;
 import com.wmods.wppenhacer.xposed.core.devkit.Unobfuscator;
 import com.wmods.wppenhacer.xposed.utils.ReflectionUtils;
 import com.wmods.wppenhacer.xposed.utils.ResId;
@@ -45,9 +46,10 @@ public class DownloadProfile extends Feature {
                         return true;
                     }
                     var field = ReflectionUtils.getFieldByType(subCls, loadProfileInfoField.getDeclaringClass());
-                    var jidObj = ReflectionUtils.getObjectField(loadProfileInfoField, ReflectionUtils.getObjectField(field, param.thisObject));
-                    var userJid = new FMessageWpp.UserJid(jidObj);
-                    var file = WppCore.getContactPhotoFile(userJid.getPhoneRawString());
+                    var fieldObj = ReflectionUtils.getObjectField(field, param.thisObject);
+                    var waContact = new WaContactWpp(fieldObj);
+                    var userJid = waContact.getUserJid();
+                    var file = WppCore.getContactPhotoFile(userJid.getUserRawString());
                     String destPath;
                     try {
                         destPath = Utils.getDestination("Profile Photo");
