@@ -472,7 +472,7 @@ public class SeenTick extends Feature {
                 if (userJid.isGroup()) {
                     participant = fMessage.getUserJid().userJid;
                 }
-                var sendPlayerClass = XposedHelpers.findClass("com.whatsapp.jobqueue.job.SendPlayedReceiptJobV2", classLoader);
+                var sendPlayerClass = Unobfuscator.findFirstClassUsingName(classLoader,StringMatchType.Contains,"SendPlayedReceiptJob");
                 var constructor = sendPlayerClass.getDeclaredConstructors()[0];
                 var classParticipantInfo = constructor.getParameterTypes()[0];
                 var rowsId = new Long[]{fMessage.getRowId()};

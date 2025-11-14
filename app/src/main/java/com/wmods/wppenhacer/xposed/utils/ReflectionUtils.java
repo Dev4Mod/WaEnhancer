@@ -148,7 +148,7 @@ public class ReflectionUtils {
     public static Field getFieldByExtendType(Class<?> cls, String className) {
         if (cls == null) return null;
         if (className == null) return null;
-        return getFieldByExtendType(cls, findClass(className,cls.getClassLoader()));
+        return getFieldByExtendType(cls, findClass(className, cls.getClassLoader()));
     }
 
     public static Field getFieldByExtendType(Class<?> cls, Class<?> type) {
@@ -181,7 +181,7 @@ public class ReflectionUtils {
     public static Field getFieldByType(Class<?> cls, String className) {
         if (cls == null) return null;
         if (className == null) return null;
-        return getFieldByType(cls, findClass(className,cls.getClassLoader()));
+        return getFieldByType(cls, findClass(className, cls.getClassLoader()));
     }
 
 
@@ -333,7 +333,7 @@ public class ReflectionUtils {
 
     public static <T> T getArg(Object[] args, Class<T> typeClass, int i) {
         var list = findArrayOfType(args, typeClass);
-        if (list.size() <= i) throw new IllegalArgumentException("Index out of bounds for args");
+        if (list.size() <= i) return null;
         return typeClass.cast(list.get(i).second);
     }
 

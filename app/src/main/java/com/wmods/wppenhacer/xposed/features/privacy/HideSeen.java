@@ -96,21 +96,14 @@ public class HideSeen extends Feature {
         Method ReceiptMethod = Unobfuscator.loadReceiptMethod(classLoader);
         logDebug(Unobfuscator.getMethodDescriptor(ReceiptMethod));
 
-        Method hideViewInChatMethod = Unobfuscator.loadHideViewInChatMethod(classLoader);
-        logDebug("Inside Chat", Unobfuscator.getMethodDescriptor(hideViewInChatMethod));
-
-        var outsideMethod = Unobfuscator.loadReceiptOutsideChat(classLoader);
-        logDebug("Outside Chat", Unobfuscator.getMethodDescriptor(outsideMethod));
-
-
         XposedBridge.hookMethod(ReceiptMethod, new XC_MethodHook() {
             @Override
             protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
-                if (ReflectionUtils.isCalledFromMethod(outsideMethod) || !ReflectionUtils.isCalledFromMethod(hideViewInChatMethod))
-                    return;
+                var userJid = ReflectionUtils.getArg(param.args, classLoader.loadClass("com.whatsapp.jid.Jid"), 0);
+                if (userJid == null) return;
                 var msgTypeIdx = ReflectionUtils.findIndexOfType(((Method) param.method).getParameterTypes(), String.class);
                 if (!Objects.equals("read", param.args[msgTypeIdx])) return;
-                var currentUserJid = WppCore.getCurrentUserJid();
+                var currentUserJid = new FMessageWpp.UserJid(userJid);
                 var privacy = CustomPrivacy.getJSON(currentUserJid.getPhoneNumber());
                 var customHideRead = privacy.optBoolean("HideSeen", hideread);
                 if (currentUserJid.isGroup()) {
