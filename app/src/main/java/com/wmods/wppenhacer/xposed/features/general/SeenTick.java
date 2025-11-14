@@ -362,7 +362,7 @@ public class SeenTick extends Feature {
 
     private void hookOnSendMessages() throws Exception {
         var messageJobMethod = Unobfuscator.loadBlueOnReplayMessageJobMethod(classLoader);
-        var messageSendClass = XposedHelpers.findClass("com.whatsapp.jobqueue.job.SendE2EMessageJob", classLoader);
+        var messageSendClass = Unobfuscator.findFirstClassUsingName(classLoader,StringMatchType.Contains,"SendE2EMessageJob");
 
         XposedBridge.hookMethod(messageJobMethod, new XC_MethodHook() {
             @Override
