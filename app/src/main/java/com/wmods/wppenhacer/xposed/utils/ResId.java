@@ -20,6 +20,7 @@ public class ResId {
         public static int camera;
         public static int edit2;
         public static int ic_privacy;
+        public static int user_foreground;
     }
 
     public static class string {

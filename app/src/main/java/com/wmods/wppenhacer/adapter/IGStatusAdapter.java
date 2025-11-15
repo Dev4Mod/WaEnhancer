@@ -22,6 +22,7 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import com.wmods.wppenhacer.R;
 import com.wmods.wppenhacer.views.dialog.TabDialogContent;
 import com.wmods.wppenhacer.xposed.core.WppCore;
 import com.wmods.wppenhacer.xposed.core.components.FMessageWpp;
@@ -168,7 +169,10 @@ public class IGStatusAdapter extends ArrayAdapter {
             if (Objects.equals(item, "my_status")) {
                 myStatus = true;
                 igStatusContactName.setText(UnobfuscatorCache.getInstance().getString("mystatus"));
-                igStatusContactPhoto.setImageDrawable(WppCore.getMyPhoto());
+                var profile = WppCore.getMyPhoto();
+                if (profile == null)
+                    profile = Utils.getApplication().getDrawable(ResId.drawable.user_foreground);
+                igStatusContactPhoto.setImageDrawable(profile);
                 setCountStatus(0, 0);
                 return;
             }
@@ -178,7 +182,7 @@ public class IGStatusAdapter extends ArrayAdapter {
             var contactName = WppCore.getContactName(this.userJid);
             igStatusContactName.setText(contactName);
             var profile = WppCore.getContactPhotoDrawable(this.userJid.getPhoneRawString());
-            if (profile == null) profile = DesignUtils.getDrawableByName("avatar_contact");
+            if (profile == null) profile = Utils.getApplication().getDrawable(ResId.drawable.user_foreground);
             igStatusContactPhoto.setImageDrawable(profile);
             var countUnseen = XposedHelpers.getIntField(statusInfo, "A01");
             var total = XposedHelpers.getIntField(statusInfo, "A00");
