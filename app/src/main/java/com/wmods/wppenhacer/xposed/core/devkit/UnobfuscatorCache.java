@@ -204,10 +204,14 @@ public class UnobfuscatorCache {
         var methodName = getKeyName();
         String value = sPrefsCacheHooks.getString(methodName, null);
         if (value == null) {
-            Field result = functionCall.call();
-            if (result == null) throw new Exception("Field is null:" + methodName);
-            saveField(methodName, result);
-            return result;
+            try {
+                Field result = functionCall.call();
+                if (result == null) throw new NoSuchFieldException("Field is null");
+                saveField(methodName, result);
+                return result;
+            } catch (Exception e) {
+                throw new Exception("Error getting field " + methodName + ": " + e.getMessage(), e);
+            }
         }
         String[] ClassAndName = value.split(":");
         Class<?> cls = ReflectionUtils.findClass(ClassAndName[0], loader);
@@ -218,10 +222,14 @@ public class UnobfuscatorCache {
         var methodName = getKeyName();
         String value = sPrefsCacheHooks.getString(methodName, null);
         if (value == null) {
-            Field[] result = functionCall.call();
-            if (result == null) throw new Exception("Fields is null: " + methodName);
-            saveFields(methodName, result);
-            return result;
+            try {
+                Field[] result = functionCall.call();
+                if (result == null) throw new NoSuchFieldException("Fields is null");
+                saveFields(methodName, result);
+                return result;
+            } catch (Exception e) {
+                throw new Exception("Error getting fields " + methodName + ": " + e.getMessage(), e);
+            }
         }
         ArrayList<Field> fields = new ArrayList<>();
         String[] fieldsString = value.split("&");
@@ -237,10 +245,14 @@ public class UnobfuscatorCache {
         var methodName = getKeyName();
         String value = sPrefsCacheHooks.getString(methodName, null);
         if (value == null) {
-            Method result = functionCall.call();
-            if (result == null) throw new Exception("Method is null:" + methodName);
-            saveMethod(methodName, result);
-            return result;
+            try {
+                Method result = functionCall.call();
+                if (result == null) throw new NoSuchMethodException("Method is null");
+                saveMethod(methodName, result);
+                return result;
+            } catch (Exception e) {
+                throw new Exception("Error getting method " + methodName + ": " + e.getMessage(), e);
+            }
         }
         return getMethodFromString(loader, value);
     }
@@ -249,10 +261,14 @@ public class UnobfuscatorCache {
         var methodName = getKeyName();
         String value = sPrefsCacheHooks.getString(methodName, null);
         if (value == null) {
-            Method[] result = functionCall.call();
-            if (result == null) throw new Exception("Methods is null:" + methodName);
-            saveMethods(methodName, result);
-            return result;
+            try {
+                Method[] result = functionCall.call();
+                if (result == null) throw new NoSuchMethodException("Methods is null");
+                saveMethods(methodName, result);
+                return result;
+            } catch (Exception e) {
+                throw new Exception("Error getting methods " + methodName + ": " + e.getMessage(), e);
+            }
         }
         var methodStrings = value.split("&");
         ArrayList<Method> methods = new ArrayList<>();
@@ -283,10 +299,14 @@ public class UnobfuscatorCache {
     public Class<?> getClass(ClassLoader loader, String key, FunctionCall<Class<?>> functionCall) throws Exception {
         String value = sPrefsCacheHooks.getString(key, null);
         if (value == null) {
-            Class<?> result = functionCall.call();
-            if (result == null) throw new ClassNotFoundException("Class not found: " + key);
-            saveClass(key, result);
-            return result;
+            try {
+                Class<?> result = functionCall.call();
+                if (result == null) throw new ClassNotFoundException("Class is null");
+                saveClass(key, result);
+                return result;
+            } catch (Exception e) {
+                throw new Exception("Error getting class " + key + ": " + e.getMessage(), e);
+            }
         }
         return XposedHelpers.findClass(value, loader);
     }
@@ -295,10 +315,14 @@ public class UnobfuscatorCache {
         var methodName = getKeyName();
         String value = sPrefsCacheHooks.getString(methodName, null);
         if (value == null) {
-            Class<?>[] result = functionCall.call();
-            if (result == null) throw new Exception("Class is null: " + methodName);
-            saveClasses(methodName, result);
-            return result;
+            try {
+                Class<?>[] result = functionCall.call();
+                if (result == null) throw new ClassNotFoundException("Classes is null");
+                saveClasses(methodName, result);
+                return result;
+            } catch (Exception e) {
+                throw new Exception("Error getting classes " + methodName + ": " + e.getMessage(), e);
+            }
         }
         String[] classStrings = value.split("&");
         ArrayList<Class<?>> classes = new ArrayList<>();
@@ -312,10 +336,14 @@ public class UnobfuscatorCache {
         var key = getKeyName();
         String value = sPrefsCacheHooks.getString(key, null);
         if (value == null) {
-            var result = functionCall.call();
-            if (result == null) throw new Exception("HashMap is null: " + key);
-            saveHashMap(key, result);
-            return result;
+            try {
+                var result = functionCall.call();
+                if (result == null) throw new Exception("HashMap is null");
+                saveHashMap(key, result);
+                return result;
+            } catch (Exception e) {
+                throw new Exception("Error getting HashMap " + key + ": " + e.getMessage(), e);
+            }
         }
         return loadHashMap(loader, key);
     }
