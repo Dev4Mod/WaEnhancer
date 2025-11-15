@@ -1,4 +1,4 @@
-| [English](README.md) | **Português(Brasil)**
+#### leia em ( [English](README.md) | [Português(Brasil)](README.pt-BR.md) )
 
 # WaEnhancer
 
