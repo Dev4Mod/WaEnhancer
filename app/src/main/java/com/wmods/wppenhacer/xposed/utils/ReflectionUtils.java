@@ -267,19 +267,19 @@ public class ReflectionUtils {
         return -1;
     }
 
-    public static List<Pair<Integer, Object>> findArrayOfType(Object[] args, Class<?> type) {
-        var result = new ArrayList<Pair<Integer, Object>>();
+    public static <T> List<Pair<Integer, T>> findArrayOfType(Object[] args, Class<T> type) {
+        var result = new ArrayList<Pair<Integer, T>>();
         for (int i = 0; i < args.length; i++) {
             var arg = args[i];
             if (arg == null) continue;
-            if (arg instanceof Class) {
-                if (type.isAssignableFrom((Class) arg)) {
-                    result.add(new Pair<>(i, arg));
+            if (arg instanceof Class clazz) {
+                if (type.isAssignableFrom(clazz)) {
+                    result.add(new Pair<>(i, type.cast(clazz)));
                 }
                 continue;
             }
             if (type.isAssignableFrom(arg.getClass()) || type.isInstance(arg)) {
-                result.add(new Pair<>(i, arg));
+                result.add(new Pair<>(i, type.cast(arg)));
             }
         }
         return result;
@@ -334,7 +334,7 @@ public class ReflectionUtils {
     public static <T> T getArg(Object[] args, Class<T> typeClass, int i) {
         var list = findArrayOfType(args, typeClass);
         if (list.size() <= i) return null;
-        return typeClass.cast(list.get(i).second);
+        return list.get(i).second;
     }
 
     public static void setObjectField(Field field, Object instance, Object value) {
