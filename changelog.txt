@@ -1,2 +1,4 @@
 [BUG FIXED]
-* Fixed the bug with the blue tick being seen and sending the tick when replying. (Thanks to user @chainOnfire for taking the time to test the builds and send me the logs of the problem)
+* Fixed bug when sending seen to status
+* Fixed bug in contact picker for call blocking
+* Fixed bug in video media quality
