@@ -1,11 +1,2 @@
-[WHATSAPP]
-* Added support for version 2.25.34.XX
-
-[BUG FIXES]
-* Fixed blue tick bug (actually trying)
-* Fixed bug in Show Edit Message
-* Fixed bug when sending read receipts for view-once messages
-* Fixed bug in downloading profile pictures
-
-[NOTES]
-* For those who have problems with call blocking, try changing from lsposed (the hook is made in a native method and the lsposed version may not support it)
+[BUG FIXED]
+* Fixed the bug with the blue tick being seen and sending the tick when replying. (Thanks to user @chainOnfire for taking the time to test the builds and send me the logs of the problem)
