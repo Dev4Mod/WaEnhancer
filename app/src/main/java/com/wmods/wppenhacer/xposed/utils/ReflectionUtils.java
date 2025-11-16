@@ -267,22 +267,35 @@ public class ReflectionUtils {
         return -1;
     }
 
-    public static <T> List<Pair<Integer, T>> findArrayOfType(Object[] args, Class<T> type) {
+    public static <T> List<Pair<Integer, T>> findInstancesOfType(Object[] args, Class<T> type) {
         var result = new ArrayList<Pair<Integer, T>>();
         for (int i = 0; i < args.length; i++) {
             var arg = args[i];
-            if (arg == null) continue;
-            if (arg instanceof Class clazz) {
-                if (type.isAssignableFrom(clazz)) {
-                    result.add(new Pair<>(i, type.cast(clazz)));
-                }
-                continue;
-            }
-            if (type.isAssignableFrom(arg.getClass()) || type.isInstance(arg)) {
+            if (arg == null || arg instanceof Class) continue;
+
+            if (type.isInstance(arg)) {
                 result.add(new Pair<>(i, type.cast(arg)));
             }
         }
         return result;
+    }
+
+    public static <T> List<Pair<Integer, Class<? extends T>>> findClassesOfType(Class[] args, Class<T> type) {
+        var result = new ArrayList<Pair<Integer, Class<? extends T>>>();
+        for (int i = 0; i < args.length; i++) {
+            var arg = args[i];
+            if (type.isAssignableFrom(arg)) {
+                //noinspection unchecked
+                result.add(new Pair<>(i, (Class<? extends T>) arg));
+            }
+        }
+        return result;
+    }
+
+    public static <T> T getArg(Object[] args, Class<T> typeClass, int i) {
+        var list = findInstancesOfType(args, typeClass);
+        if (list.size() <= i) return null;
+        return list.get(i).second;
     }
 
     public static boolean isCalledFromString(String contains) {
@@ -331,11 +344,6 @@ public class ReflectionUtils {
         return false;
     }
 
-    public static <T> T getArg(Object[] args, Class<T> typeClass, int i) {
-        var list = findArrayOfType(args, typeClass);
-        if (list.size() <= i) return null;
-        return list.get(i).second;
-    }
 
     public static void setObjectField(Field field, Object instance, Object value) {
         try {

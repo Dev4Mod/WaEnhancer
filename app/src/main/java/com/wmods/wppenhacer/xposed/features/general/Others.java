@@ -481,7 +481,7 @@ public class Others extends Feature {
         XposedBridge.hookMethod(sendAudioTypeMethod, new XC_MethodHook() {
             @Override
             protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
-                var results = ReflectionUtils.findArrayOfType(param.args, Integer.class);
+                var results = ReflectionUtils.findInstancesOfType(param.args, Integer.class);
                 if (results.size() < 2) {
                     log("sendAudioTypeMethod size < 2");
                     return;
@@ -578,7 +578,7 @@ public class Others extends Feature {
         XposedBridge.hookMethod(methodPropsBoolean, new XC_MethodHook() {
             @Override
             protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-                var list = ReflectionUtils.findArrayOfType(param.args, Integer.class);
+                var list = ReflectionUtils.findInstancesOfType(param.args, Integer.class);
                 int i = (int) list.get(0).second;
 
                 var propValue = propsBoolean.get(i);
@@ -597,7 +597,7 @@ public class Others extends Feature {
         XposedBridge.hookMethod(methodPropsInteger, new XC_MethodHook() {
             @Override
             protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
-                var list = ReflectionUtils.findArrayOfType(param.args, Integer.class);
+                var list = ReflectionUtils.findInstancesOfType(param.args, Integer.class);
                 int i = (int) list.get(0).second;
                 var propValue = propsInteger.get(i);
                 if (propValue == null) return;

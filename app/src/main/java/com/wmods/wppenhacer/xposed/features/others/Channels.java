@@ -55,7 +55,7 @@ public class Channels extends Feature {
             XposedBridge.hookMethod(listUpdateItems, new XC_MethodHook() {
                 @Override
                 protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
-                    var results = ReflectionUtils.findArrayOfType(param.args, List.class);
+                    var results = ReflectionUtils.findInstancesOfType(param.args, List.class);
                     if (results.isEmpty()) return;
                     var list = (List<?>) results.get(0).second;
                     var arrList = new ArrayList<>(list);
@@ -67,7 +67,7 @@ public class Channels extends Feature {
             XposedBridge.hookAllConstructors(removeChannelRecClass, new XC_MethodHook() {
                 @Override
                 protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
-                    var pairs = ReflectionUtils.findArrayOfType(param.args, List.class);
+                    var pairs = ReflectionUtils.findInstancesOfType(param.args, List.class);
                     for (var pair : pairs) {
                         param.args[pair.first] = new ArrayList<>();
                     }

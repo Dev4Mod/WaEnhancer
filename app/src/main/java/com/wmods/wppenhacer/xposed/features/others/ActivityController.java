@@ -136,7 +136,7 @@ public class ActivityController extends Feature {
         }
         Constructor constructor = ReflectionUtils.findConstructorUsingFilter(statusDistribution, constructor1 -> constructor1.getParameterCount() > 5);
         Object[] params = ReflectionUtils.initArray(constructor.getParameterTypes());
-        var lists = ReflectionUtils.findArrayOfType(constructor.getParameterTypes(), List.class);
+        var lists = ReflectionUtils.findClassesOfType(constructor.getParameterTypes(), List.class);
         params[lists.get(0).first] = listContacts;
         params[lists.get(1).first] = new ArrayList();
         if (lists.size() > 2) {

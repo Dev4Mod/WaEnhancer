@@ -91,7 +91,7 @@ public class MediaQuality extends Feature {
                     boolean isHighResolution;
                     boolean isEnum = false;
                     var enumObj = ReflectionUtils.getArg(param.args, Enum.class, 0);
-                    var intParams = ReflectionUtils.findArrayOfType(param.args, Integer.class);
+                    var intParams = ReflectionUtils.findInstancesOfType(param.args, Integer.class);
                     if (enumObj != null) {
                         isEnum = true;
                         var hightResolution = Enum.valueOf((Class<Enum>) enumObj.getClass(), "RESOLUTION_1080P");
