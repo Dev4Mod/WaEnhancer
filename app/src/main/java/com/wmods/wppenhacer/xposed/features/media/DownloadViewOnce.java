@@ -100,8 +100,7 @@ public class DownloadViewOnce extends Feature {
                                     var keyClass = FMessageWpp.Key.TYPE;
                                     var fieldType = ReflectionUtils.getFieldByType(param.thisObject.getClass(), keyClass);
                                     var keyMessageObj = ReflectionUtils.getObjectField(fieldType, param.thisObject);
-                                    var fmessageObj = WppCore.getFMessageFromKey(keyMessageObj);
-                                    var fmessage = new FMessageWpp(fmessageObj);
+                                    var fmessage = new FMessageWpp.Key(keyMessageObj).getFMessage();
                                     var file = fmessage.getMediaFile();
                                     if (file == null) {
                                         Utils.showToast(Utils.getApplication().getString(ResId.string.download_not_available), 1);

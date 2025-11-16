@@ -242,13 +242,10 @@ public class MessageHistory extends SQLiteOpenHelper {
         public FMessageWpp getFMessage() {
             if (fMessageWpp == null) {
                 try {
-                    var userJid = WppCore.getUserJidFromPhoneJid(WppCore.createUserJid(jid));
-                    if (userJid == null) return null;
-                    var key = XposedHelpers.newInstance(FMessageWpp.Key.TYPE, userJid, message, false);
-                    var fmessageObj = WppCore.getFMessageFromKey(key);
-                    fMessageWpp = new FMessageWpp(fmessageObj);
+                    var userJid = new FMessageWpp.UserJid(jid);
+                    if (userJid.isNull()) return null;
+                    fMessageWpp = new FMessageWpp.Key(message, userJid, false).getFMessage();
                 } catch (Exception ignored) {
-
                 }
             }
             return fMessageWpp;

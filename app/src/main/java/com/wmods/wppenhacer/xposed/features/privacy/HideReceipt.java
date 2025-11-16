@@ -8,6 +8,7 @@ import com.wmods.wppenhacer.xposed.core.components.FMessageWpp;
 import com.wmods.wppenhacer.xposed.core.db.MessageHistory;
 import com.wmods.wppenhacer.xposed.core.devkit.Unobfuscator;
 import com.wmods.wppenhacer.xposed.features.customization.HideSeenView;
+import com.wmods.wppenhacer.xposed.utils.DebugUtils;
 import com.wmods.wppenhacer.xposed.utils.ReflectionUtils;
 
 import java.lang.reflect.Method;
@@ -27,40 +28,32 @@ public class HideReceipt extends Feature {
         var ghostmode = WppCore.getPrivBoolean("ghostmode", false);
         var hideread = prefs.getBoolean("hideread", false);
 
+        logDebug("hideReceipt: " + hideReceipt + ", ghostmode: " + ghostmode + ", hideread: " + hideread);
+
         var method = Unobfuscator.loadReceiptMethod(classLoader);
         logDebug("hook method:" + Unobfuscator.getMethodDescriptor(method));
-        var method2 = Unobfuscator.loadReceiptOutsideChat(classLoader);
-        logDebug("Outside Chat: " + Unobfuscator.getMethodDescriptor(method2));
-        var mInChat = Unobfuscator.loadReceiptInChat(classLoader);
-        logDebug("In Chat: " + Unobfuscator.getMethodDescriptor(mInChat));
 
         XposedBridge.hookMethod(method, new XC_MethodHook() {
             @Override
             protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
-                if (!ReflectionUtils.isCalledFromMethod(method2) && !ReflectionUtils.isCalledFromMethod(mInChat))
-                    return;
+                var userJid = ReflectionUtils.getArg(param.args, classLoader.loadClass("com.whatsapp.jid.Jid"), 0);
+                var currentUserJid = new FMessageWpp.UserJid(userJid);
                 var key = ReflectionUtils.getArg(param.args, FMessageWpp.Key.TYPE, 0);
-                var messageKey = new FMessageWpp.Key(key);
-                var userJid = messageKey.remoteJid;
-                var privacy = CustomPrivacy.getJSON(userJid.getPhoneNumber());
+                var fmessage = new FMessageWpp.Key(key).getFMessage();
+                currentUserJid = fmessage.getKey().remoteJid;
+                if (MessageHistory.getInstance().getHideSeenMessage(fmessage.getKey().remoteJid.getPhoneRawString(), fmessage.getKey().messageID, fmessage.isViewOnce() ? MessageHistory.MessageType.VIEW_ONCE_TYPE : MessageHistory.MessageType.MESSAGE_TYPE) != null) {
+                    return;
+                }
+                var privacy = CustomPrivacy.getJSON(currentUserJid.getPhoneNumber());
                 var customHideReceipt = privacy.optBoolean("HideReceipt", hideReceipt);
-                var customHideRead = privacy.optBoolean("HideSeen", hideread);
                 var msgTypeIdx = ReflectionUtils.findIndexOfType(((Method) param.method).getParameterTypes(), String.class);
+                var customHideRead = privacy.optBoolean("HideSeen", hideread);
                 if (param.args[msgTypeIdx] != "sender" && (customHideReceipt || ghostmode)) {
-                    if (!ReflectionUtils.isCalledFromMethod(method2) && ReflectionUtils.isCalledFromMethod(mInChat) && !customHideRead) {
-                        return;
-                    }
-                    param.args[msgTypeIdx] = "inactive";
+                    if (WppCore.getCurrentConversation() == null || customHideRead)
+                        param.args[msgTypeIdx] = "inactive";
                 }
                 if (param.args[msgTypeIdx] == "inactive") {
-                    Object fmessageObj = WppCore.getFMessageFromKey(key);
-                    if (fmessageObj == null) return;
-                    var fmessage = new FMessageWpp(fmessageObj);
-                    var messageId = fmessage.getKey().messageID;
-                    MessageHistory.getInstance().insertHideSeenMessage(userJid.getPhoneRawString(), messageId, MessageHistory.MessageType.MESSAGE_TYPE, false);
-                    if (fmessage.isViewOnce()) {
-                        MessageHistory.getInstance().insertHideSeenMessage(userJid.getPhoneRawString(), messageId, MessageHistory.MessageType.VIEW_ONCE_TYPE, false);
-                    }
+                    MessageHistory.getInstance().insertHideSeenMessage(currentUserJid.getPhoneRawString(), fmessage.getKey().messageID, fmessage.isViewOnce() ? MessageHistory.MessageType.VIEW_ONCE_TYPE : MessageHistory.MessageType.MESSAGE_TYPE, false);
                     HideSeenView.updateAllBubbleViews();
                 }
             }

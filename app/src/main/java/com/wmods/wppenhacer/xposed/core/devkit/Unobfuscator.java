@@ -7,8 +7,6 @@ import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
 import android.hardware.SensorEventListener;
 import android.net.Uri;
-import android.util.Log;
-import android.view.ContextMenu;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -47,7 +45,6 @@ import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
@@ -1838,12 +1835,12 @@ public class Unobfuscator {
         return UnobfuscatorCache.getInstance().getMethod(classLoader, () -> findFirstMethodUsingStrings(classLoader, StringMatchType.Contains, "presencestatemanager/startTransitionToUnavailable/new-state"));
     }
 
-    public static synchronized Class loadCachedMessageStore(ClassLoader loader) throws Exception {
-        return UnobfuscatorCache.getInstance().getClass(loader, () -> {
-            var cacheMsClass = findFirstClassUsingStrings(loader, StringMatchType.Contains, "CachedMessageStore/getMessage/key");
-            if (cacheMsClass == null)
+    public static synchronized Method loadCachedMessageStoreKey(ClassLoader loader) throws Exception {
+        return UnobfuscatorCache.getInstance().getMethod(loader, () -> {
+            var method = findFirstMethodUsingStrings(loader, StringMatchType.Contains, "CachedMessageStore/getAvailableMessage/key");
+            if (method == null)
                 throw new RuntimeException("CachedMessageStore class not found");
-            return cacheMsClass;
+            return method;
         });
     }
 

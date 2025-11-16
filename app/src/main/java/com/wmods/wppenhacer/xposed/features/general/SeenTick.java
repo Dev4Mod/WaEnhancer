@@ -89,7 +89,7 @@ public class SeenTick extends Feature {
 
         WaJobManagerMethod = Unobfuscator.loadBlueOnReplayWaJobManagerMethod(classLoader);
 
-        mSendReadClass = Unobfuscator.findFirstClassUsingName(classLoader, StringMatchType.EndsWith,"SendReadReceiptJob");
+        mSendReadClass = Unobfuscator.findFirstClassUsingName(classLoader, StringMatchType.EndsWith, "SendReadReceiptJob");
 
         // hook instance of WaJobManager;
 
@@ -339,9 +339,7 @@ public class SeenTick extends Feature {
                                 var keyClass = FMessageWpp.Key.TYPE;
                                 var fieldType = ReflectionUtils.getFieldByType(param.thisObject.getClass(), keyClass);
                                 var keyMessage = ReflectionUtils.getObjectField(fieldType, param.thisObject);
-                                var fMessageObj = WppCore.getFMessageFromKey(keyMessage);
-                                if (fMessageObj == null) return;
-                                var fMessage = new FMessageWpp(fMessageObj);
+                                var fMessage = new FMessageWpp.Key(keyMessage).getFMessage();
                                 var rawJid = fMessage.getKey().remoteJid.getPhoneRawString();
                                 var messageID = fMessage.getKey().messageID;
                                 MessageHistory.getInstance().updateViewedMessage(rawJid, messageID, MessageHistory.MessageType.VIEW_ONCE_TYPE, true);
@@ -362,7 +360,7 @@ public class SeenTick extends Feature {
 
     private void hookOnSendMessages() throws Exception {
         var messageJobMethod = Unobfuscator.loadBlueOnReplayMessageJobMethod(classLoader);
-        var messageSendClass = Unobfuscator.findFirstClassUsingName(classLoader,StringMatchType.Contains,"SendE2EMessageJob");
+        var messageSendClass = Unobfuscator.findFirstClassUsingName(classLoader, StringMatchType.Contains, "SendE2EMessageJob");
 
         XposedBridge.hookMethod(messageJobMethod, new XC_MethodHook() {
             @Override
@@ -434,8 +432,6 @@ public class SeenTick extends Feature {
 
                 WppCore.setPrivBoolean(messageIds[0] + "_rpass", true);
 
-                logDebug(userJid);
-
                 Object sendJob = XposedHelpers.newInstance(
                         mSendReadClass, userJid.userJid, participant, null, null, messageIds, -1, 1L, false
                 );
@@ -472,7 +468,7 @@ public class SeenTick extends Feature {
                 if (userJid.isGroup()) {
                     participant = fMessage.getUserJid().userJid;
                 }
-                var sendPlayerClass = Unobfuscator.findFirstClassUsingName(classLoader,StringMatchType.Contains,"SendPlayedReceiptJob");
+                var sendPlayerClass = Unobfuscator.findFirstClassUsingName(classLoader, StringMatchType.Contains, "SendPlayedReceiptJob");
                 var constructor = sendPlayerClass.getDeclaredConstructors()[0];
                 var classParticipantInfo = constructor.getParameterTypes()[0];
                 var rowsId = new Long[]{fMessage.getRowId()};
