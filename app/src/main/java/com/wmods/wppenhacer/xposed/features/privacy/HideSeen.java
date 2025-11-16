@@ -47,14 +47,12 @@ public class HideSeen extends Feature {
             @Override
             protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
                 if (!sendJob.isInstance(param.thisObject)) return;
-                var srj = sendJob.cast(param.thisObject);
-                var messageIds = (String[]) XposedHelpers.getObjectField(srj, "messageIds");
-                var firstmessage = messageIds[0];
-                if (firstmessage != null && WppCore.getPrivBoolean(firstmessage + "_rpass", false)) {
-                    WppCore.removePrivKey(firstmessage + "_rpass");
+                var sendReadReceiptJob = sendJob.cast(param.thisObject);
+                var messageIds = (String[]) XposedHelpers.getObjectField(sendReadReceiptJob, "messageIds");
+                if (XposedHelpers.getAdditionalInstanceField(sendReadReceiptJob, "blue_on_reply") != null) {
                     return;
                 }
-                var lid = (String) XposedHelpers.getObjectField(srj, "jid");
+                var lid = (String) XposedHelpers.getObjectField(sendReadReceiptJob, "jid");
                 var userJid = new FMessageWpp.UserJid(lid);
                 if (userJid.isNull()) return;
                 var privacy = CustomPrivacy.getJSON(userJid.getPhoneNumber());
@@ -68,7 +66,7 @@ public class HideSeen extends Feature {
                         isHide = true;
                     }
                 } else if (userJid.isStatus()) {
-                    var participant = (String) XposedHelpers.getObjectField(srj, "participant");
+                    var participant = (String) XposedHelpers.getObjectField(sendReadReceiptJob, "participant");
                     var customHideStatusView = CustomPrivacy.getJSON(WppCore.stripJID(participant)).optBoolean("HideViewStatus", hidestatusview);
                     if (customHideStatusView || ghostmode) {
                         param.setResult(null);
@@ -95,13 +93,14 @@ public class HideSeen extends Feature {
         XposedBridge.hookMethod(ReceiptMethod, new XC_MethodHook() {
             @Override
             protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
-                var keyObject = ReflectionUtils.getArg(param.args, FMessageWpp.Key.TYPE, 0);
-                var fmessage = new FMessageWpp.Key(keyObject).getFMessage();
-                var keyMessage = fmessage.getKey();
                 if (WppCore.getCurrentConversation() != WppCore.getCurrentActivity()) return;
-                DebugUtils.debugArgs(param.args);
-                if (MessageHistory.getInstance().getHideSeenMessage(keyMessage.remoteJid.getUserRawString(), keyMessage.messageID, fmessage.isViewOnce() ? MessageHistory.MessageType.VIEW_ONCE_TYPE : MessageHistory.MessageType.MESSAGE_TYPE) != null) {
-                    return;
+                var keyObject = ReflectionUtils.getArg(param.args, FMessageWpp.Key.TYPE, 0);
+                var keyMessage = new FMessageWpp.Key(keyObject);
+                var fmessage = keyMessage.getFMessage();
+                if (fmessage != null) {
+                    if (MessageHistory.getInstance().getHideSeenMessage(keyMessage.remoteJid.getUserRawString(), keyMessage.messageID, fmessage.isViewOnce() ? MessageHistory.MessageType.VIEW_ONCE_TYPE : MessageHistory.MessageType.MESSAGE_TYPE) != null) {
+                        return;
+                    }
                 }
                 var userJid = ReflectionUtils.getArg(param.args, classLoader.loadClass("com.whatsapp.jid.Jid"), 0);
                 if (userJid == null) return;
@@ -117,7 +116,7 @@ public class HideSeen extends Feature {
                     param.args[msgTypeIdx] = null;
                 }
 
-                if (param.args[msgTypeIdx] == null) {
+                if (param.args[msgTypeIdx] == null && fmessage != null) {
                     MessageHistory.getInstance().insertHideSeenMessage(keyMessage.remoteJid.getPhoneRawString(), keyMessage.messageID, fmessage.isViewOnce() ? MessageHistory.MessageType.VIEW_ONCE_TYPE : MessageHistory.MessageType.MESSAGE_TYPE, false);
                     HideSeenView.updateAllBubbleViews();
                 }

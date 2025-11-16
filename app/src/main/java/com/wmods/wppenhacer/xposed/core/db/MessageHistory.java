@@ -9,14 +9,12 @@ import android.util.LruCache;
 
 import androidx.annotation.Nullable;
 
-import com.wmods.wppenhacer.xposed.core.WppCore;
 import com.wmods.wppenhacer.xposed.core.components.FMessageWpp;
 import com.wmods.wppenhacer.xposed.utils.Utils;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import de.robv.android.xposed.XposedHelpers;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;

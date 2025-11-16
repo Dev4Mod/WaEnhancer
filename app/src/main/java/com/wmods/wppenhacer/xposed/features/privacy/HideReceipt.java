@@ -40,9 +40,11 @@ public class HideReceipt extends Feature {
                 var currentUserJid = new FMessageWpp.UserJid(userJid);
                 var key = ReflectionUtils.getArg(param.args, FMessageWpp.Key.TYPE, 0);
                 var fmessage = new FMessageWpp.Key(key).getFMessage();
-                currentUserJid = fmessage.getKey().remoteJid;
-                if (MessageHistory.getInstance().getHideSeenMessage(fmessage.getKey().remoteJid.getPhoneRawString(), fmessage.getKey().messageID, fmessage.isViewOnce() ? MessageHistory.MessageType.VIEW_ONCE_TYPE : MessageHistory.MessageType.MESSAGE_TYPE) != null) {
-                    return;
+                if (fmessage != null) {
+                    currentUserJid = fmessage.getKey().remoteJid;
+                    if (MessageHistory.getInstance().getHideSeenMessage(fmessage.getKey().remoteJid.getPhoneRawString(), fmessage.getKey().messageID, fmessage.isViewOnce() ? MessageHistory.MessageType.VIEW_ONCE_TYPE : MessageHistory.MessageType.MESSAGE_TYPE) != null) {
+                        return;
+                    }
                 }
                 var privacy = CustomPrivacy.getJSON(currentUserJid.getPhoneNumber());
                 var customHideReceipt = privacy.optBoolean("HideReceipt", hideReceipt);

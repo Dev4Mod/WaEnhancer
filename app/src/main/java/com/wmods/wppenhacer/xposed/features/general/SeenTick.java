@@ -430,16 +430,17 @@ public class SeenTick extends Feature {
                 String[] messageIds = entry.getValue().toArray(new String[0]);
                 var participant = userJid.isGroup() ? userJidMsg.userJid : null;
 
-                WppCore.setPrivBoolean(messageIds[0] + "_rpass", true);
 
                 Object sendJob = XposedHelpers.newInstance(
                         mSendReadClass, userJid.userJid, participant, null, null, messageIds, -1, 1L, false
                 );
+                XposedHelpers.setAdditionalInstanceField(sendJob, "blue_on_reply", true);
                 WaJobManagerMethod.invoke(mWaJobManager, sendJob);
 
                 Object sendJob2 = XposedHelpers.newInstance(
                         mSendReadClass, userJid.phoneJid, participant, null, null, messageIds, -1, 1L, false
                 );
+                XposedHelpers.setAdditionalInstanceField(sendJob2, "blue_on_reply", true);
                 WaJobManagerMethod.invoke(mWaJobManager, sendJob2);
             }
         } catch (Throwable e) {
@@ -454,11 +455,15 @@ public class SeenTick extends Feature {
                 var arr_s = statuses.stream().map(item -> item.getKey().messageID).toArray(String[]::new);
                 Arrays.stream(arr_s).forEach(s -> MessageStore.getInstance().storeMessageRead(s));
                 var userJidSender = WppCore.createUserJid("status@broadcast");
-                WppCore.setPrivBoolean(arr_s[0] + "_rpass", true);
+
                 var sendJob = XposedHelpers.newInstance(mSendReadClass, userJidSender, currentJid.phoneJid, null, null, arr_s, -1, 0L, false);
+                XposedHelpers.setAdditionalInstanceField(sendJob, "blue_on_reply", true);
                 WaJobManagerMethod.invoke(mWaJobManager, sendJob);
+
                 var sendJob2 = XposedHelpers.newInstance(mSendReadClass, userJidSender, currentJid.userJid, null, null, arr_s, -1, 0L, false);
+                XposedHelpers.setAdditionalInstanceField(sendJob2, "blue_on_reply", true);
                 WaJobManagerMethod.invoke(mWaJobManager, sendJob2);
+
                 statuses.clear();
             } catch (Throwable e) {
                 XposedBridge.log("Error: " + e.getMessage());
