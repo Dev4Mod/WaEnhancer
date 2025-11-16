@@ -108,9 +108,9 @@ public class MediaQuality extends Feature {
 
                             if (mediaFields.isEmpty()) {
                                 if (isEnum) {
-                                    width = intParams.get(2).second;
-                                    height = intParams.get(3).second;
-                                    rotationAngle = intParams.get(4).second;
+                                    width = intParams.get(0).second;
+                                    height = intParams.get(1).second;
+                                    rotationAngle = intParams.get(2).second;
                                 } else {
                                     JSONObject mediaFields = (JSONObject) XposedHelpers.callMethod(param.args[0], "A00");
                                     width = mediaFields.getInt("widthPx");
