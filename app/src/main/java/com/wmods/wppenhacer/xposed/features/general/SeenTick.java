@@ -435,8 +435,12 @@ public class SeenTick extends Feature {
                 Object sendJob = XposedHelpers.newInstance(
                         mSendReadClass, userJid.userJid, participant, null, null, messageIds, -1, 1L, false
                 );
-
                 WaJobManagerMethod.invoke(mWaJobManager, sendJob);
+
+                Object sendJob2 = XposedHelpers.newInstance(
+                        mSendReadClass, userJid.phoneJid, participant, null, null, messageIds, -1, 1L, false
+                );
+                WaJobManagerMethod.invoke(mWaJobManager, sendJob2);
             }
         } catch (Throwable e) {
             logDebug(e);
@@ -445,14 +449,16 @@ public class SeenTick extends Feature {
 
     private void sendBlueTickStatus(FMessageWpp.UserJid currentJid) {
         CompletableFuture.runAsync(() -> {
-            if (statuses.isEmpty() || currentJid == null || currentJid.equals("status_me")) return;
+            if (statuses.isEmpty() || currentJid == null || "status_me".equals(currentJid)) return;
             try {
                 var arr_s = statuses.stream().map(item -> item.getKey().messageID).toArray(String[]::new);
                 Arrays.stream(arr_s).forEach(s -> MessageStore.getInstance().storeMessageRead(s));
                 var userJidSender = WppCore.createUserJid("status@broadcast");
                 WppCore.setPrivBoolean(arr_s[0] + "_rpass", true);
-                var sendJob = XposedHelpers.newInstance(mSendReadClass, userJidSender, currentJid.userJid, null, null, arr_s, -1, 0L, false);
+                var sendJob = XposedHelpers.newInstance(mSendReadClass, userJidSender, currentJid.phoneJid, null, null, arr_s, -1, 0L, false);
                 WaJobManagerMethod.invoke(mWaJobManager, sendJob);
+                var sendJob2 = XposedHelpers.newInstance(mSendReadClass, userJidSender, currentJid.userJid, null, null, arr_s, -1, 0L, false);
+                WaJobManagerMethod.invoke(mWaJobManager, sendJob2);
                 statuses.clear();
             } catch (Throwable e) {
                 XposedBridge.log("Error: " + e.getMessage());
@@ -477,6 +483,9 @@ public class SeenTick extends Feature {
                 var participantInfo = constructor.newInstance(userJid.userJid, participant, rowsId, new String[]{messageId});
                 var sendJob = XposedHelpers.newInstance(sendPlayerClass, participantInfo, false);
                 WaJobManagerMethod.invoke(mWaJobManager, sendJob);
+                var participantInfo2 = constructor.newInstance(userJid.phoneJid, participant, rowsId, new String[]{messageId});
+                var sendJob2 = XposedHelpers.newInstance(sendPlayerClass, participantInfo2, false);
+                WaJobManagerMethod.invoke(mWaJobManager, sendJob2);
             } catch (Throwable e) {
                 logDebug(e);
             }
