@@ -340,9 +340,7 @@ public class SeenTick extends Feature {
                     }
                 }
                 FMessageWpp fMessage = new FMessageWpp(fmessageObj);
-                var id = fMessage.getMediaType();
-                // check media is view once
-                if (id != 42 && id != 43) return;
+                if (!fMessage.isViewOnce()) return;
                 Menu menu = (Menu) param.args[0];
                 MenuItem item = menu.add(0, 0, 0, ResId.string.send_blue_tick).setIcon(Utils.getID("ic_notif_mark_read", "drawable"));
                 if (ticktype == 1) item.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
@@ -513,9 +511,6 @@ public class SeenTick extends Feature {
                 var participantInfo = constructor.newInstance(userJid.userJid, participant, rowsId, new String[]{messageId});
                 var sendJob = XposedHelpers.newInstance(sendPlayerClass, participantInfo, false);
                 WaJobManagerMethod.invoke(mWaJobManager, sendJob);
-                var participantInfo2 = constructor.newInstance(userJid.phoneJid, participant, rowsId, new String[]{messageId});
-                var sendJob2 = XposedHelpers.newInstance(sendPlayerClass, participantInfo2, false);
-                WaJobManagerMethod.invoke(mWaJobManager, sendJob2);
             } catch (Throwable e) {
                 logDebug(e);
             }
