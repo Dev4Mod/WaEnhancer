@@ -53,8 +53,15 @@ public class HideSeen extends Feature {
                     return;
                 }
                 var lid = (String) XposedHelpers.getObjectField(sendReadReceiptJob, "jid");
-                var userJid = new FMessageWpp.UserJid(lid);
-                if (userJid.isNull()) return;
+                FMessageWpp.UserJid userJid = null;
+                try {
+                    userJid = new FMessageWpp.UserJid(lid);
+                    if (userJid.isNull()) return;
+                } catch (Throwable e) {
+                    // WhatsApp crashes when attempting to create UserJid from MeJid or LidMeJid
+                    // and this issue can be ignored since we don't need to hide something from ourself
+                    return;
+                }
                 var privacy = CustomPrivacy.getJSON(userJid.getPhoneNumber());
 
                 var customHideRead = privacy.optBoolean("HideSeen", hideread);
