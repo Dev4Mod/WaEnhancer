@@ -29,6 +29,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Locale;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -46,6 +47,9 @@ public class UnobfuscatorCache {
 
     private final Map<String, String> reverseResourceMap = new HashMap<>();
     private final SharedPreferences sPrefsCacheStrings;
+
+    // L1 Memory Cache: Stores loaded Class/Method/Field objects to avoid repeated SharedPreferences parsing
+    private final Map<String, Object> memoryCache = new ConcurrentHashMap<>();
 
     @SuppressLint("ApplySharedPref")
     public UnobfuscatorCache(Application application) {
@@ -65,13 +69,14 @@ public class UnobfuscatorCache {
             }
             if (version != currentVersion || savedUpdateTime != lastUpdateTime || !versionName.equals(savedVersionName)) {
                 Utils.showToast(application.getString(ResId.string.starting_cache), Toast.LENGTH_LONG);
-                sPrefsCacheHooks.edit().clear().commit();
-                sPrefsCacheHooks.edit().putLong("version", currentVersion).commit();
-                sPrefsCacheHooks.edit().putLong("updateTime", lastUpdateTime).commit();
-                sPrefsCacheHooks.edit().putString("wae_version_name", versionName).commit();
+                sPrefsCacheHooks.edit().clear().apply();
+                sPrefsCacheHooks.edit().putLong("version", currentVersion).apply();
+                sPrefsCacheHooks.edit().putLong("updateTime", lastUpdateTime).apply();
+                sPrefsCacheHooks.edit().putString("wae_version_name", versionName).apply();
                 if (version != currentVersion) {
-                    sPrefsCacheStrings.edit().clear().commit();
+                    sPrefsCacheStrings.edit().clear().apply();
                 }
+                memoryCache.clear(); // Clear memory cache on version change
             }
             initCacheStrings();
         } catch (Exception e) {
@@ -189,7 +194,7 @@ public class UnobfuscatorCache {
         if (id == null) {
             id = getMapIdString(search);
             if (id != null) {
-                sPrefsCacheStrings.edit().putString(search, id).commit();
+                sPrefsCacheStrings.edit().putString(search, id).apply();
             }
         }
         return id == null ? -1 : Integer.parseInt(id);
@@ -202,12 +207,19 @@ public class UnobfuscatorCache {
 
     public Field getField(ClassLoader loader, FunctionCall<Field> functionCall) throws Exception {
         var methodName = getKeyName();
+        
+        // L1 Cache Check
+        if (memoryCache.containsKey(methodName)) {
+            return (Field) memoryCache.get(methodName);
+        }
+
         String value = sPrefsCacheHooks.getString(methodName, null);
         if (value == null) {
             try {
                 Field result = functionCall.call();
                 if (result == null) throw new NoSuchFieldException("Field is null");
                 saveField(methodName, result);
+                memoryCache.put(methodName, result); // Cache in memory
                 return result;
             } catch (Exception e) {
                 throw new Exception("Error getting field " + methodName + ": " + e.getMessage(), e);
@@ -215,17 +227,26 @@ public class UnobfuscatorCache {
         }
         String[] ClassAndName = value.split(":");
         Class<?> cls = ReflectionUtils.findClass(ClassAndName[0], loader);
-        return XposedHelpers.findField(cls, ClassAndName[1]);
+        Field field = XposedHelpers.findField(cls, ClassAndName[1]);
+        memoryCache.put(methodName, field); // Cache in memory
+        return field;
     }
 
     public Field[] getFields(ClassLoader loader, FunctionCall<Field[]> functionCall) throws Exception {
         var methodName = getKeyName();
+        
+        // L1 Cache Check
+        if (memoryCache.containsKey(methodName)) {
+            return (Field[]) memoryCache.get(methodName);
+        }
+
         String value = sPrefsCacheHooks.getString(methodName, null);
         if (value == null) {
             try {
                 Field[] result = functionCall.call();
                 if (result == null) throw new NoSuchFieldException("Fields is null");
                 saveFields(methodName, result);
+                memoryCache.put(methodName, result); // Cache in memory
                 return result;
             } catch (Exception e) {
                 throw new Exception("Error getting fields " + methodName + ": " + e.getMessage(), e);
@@ -233,38 +254,56 @@ public class UnobfuscatorCache {
         }
         ArrayList<Field> fields = new ArrayList<>();
         String[] fieldsString = value.split("&");
-        for (String field : fieldsString) {
-            String[] ClassAndName = field.split(":");
+        for (String fieldStr : fieldsString) {
+            String[] ClassAndName = fieldStr.split(":");
             Class<?> cls = ReflectionUtils.findClass(ClassAndName[0], loader);
             fields.add(XposedHelpers.findField(cls, ClassAndName[1]));
         }
-        return fields.toArray(new Field[0]);
+        Field[] result = fields.toArray(new Field[0]);
+        memoryCache.put(methodName, result); // Cache in memory
+        return result;
     }
 
     public Method getMethod(ClassLoader loader, FunctionCall<Method> functionCall) throws Exception {
         var methodName = getKeyName();
+        
+        // L1 Cache Check
+        if (memoryCache.containsKey(methodName)) {
+            return (Method) memoryCache.get(methodName);
+        }
+
         String value = sPrefsCacheHooks.getString(methodName, null);
         if (value == null) {
             try {
                 Method result = functionCall.call();
                 if (result == null) throw new NoSuchMethodException("Method is null");
                 saveMethod(methodName, result);
+                memoryCache.put(methodName, result); // Cache in memory
                 return result;
             } catch (Exception e) {
                 throw new Exception("Error getting method " + methodName + ": " + e.getMessage(), e);
             }
         }
-        return getMethodFromString(loader, value);
+        Method method = getMethodFromString(loader, value);
+        memoryCache.put(methodName, method); // Cache in memory
+        return method;
     }
 
     public Method[] getMethods(ClassLoader loader, FunctionCall<Method[]> functionCall) throws Exception {
         var methodName = getKeyName();
+        
+        // L1 Cache Check
+        if (memoryCache.containsKey(methodName)) {
+            return (Method[]) memoryCache.get(methodName);
+        }
+
         String value = sPrefsCacheHooks.getString(methodName, null);
         if (value == null) {
             try {
                 Method[] result = functionCall.call();
                 if (result == null) throw new NoSuchMethodException("Methods is null");
                 saveMethods(methodName, result);
+                memoryCache.put(methodName, result); // Cache in memory
                 return result;
             } catch (Exception e) {
                 throw new Exception("Error getting methods " + methodName + ": " + e.getMessage(), e);
@@ -276,7 +315,9 @@ public class UnobfuscatorCache {
             var method = getMethodFromString(loader, methodString);
             methods.add(method);
         }
-        return methods.toArray(new Method[0]);
+        Method[] result = methods.toArray(new Method[0]);
+        memoryCache.put(methodName, result); // Cache in memory
+        return result;
     }
 
     @NonNull
@@ -297,28 +338,43 @@ public class UnobfuscatorCache {
     }
 
     public Class<?> getClass(ClassLoader loader, String key, FunctionCall<Class<?>> functionCall) throws Exception {
+        // L1 Cache Check
+        if (memoryCache.containsKey(key)) {
+            return (Class<?>) memoryCache.get(key);
+        }
+
         String value = sPrefsCacheHooks.getString(key, null);
         if (value == null) {
             try {
                 Class<?> result = functionCall.call();
                 if (result == null) throw new ClassNotFoundException("Class is null");
                 saveClass(key, result);
+                memoryCache.put(key, result); // Cache in memory
                 return result;
             } catch (Exception e) {
                 throw new Exception("Error getting class " + key + ": " + e.getMessage(), e);
             }
         }
-        return XposedHelpers.findClass(value, loader);
+        Class<?> cls = XposedHelpers.findClass(value, loader);
+        memoryCache.put(key, cls); // Cache in memory
+        return cls;
     }
 
     public Class<?>[] getClasses(ClassLoader loader, FunctionCall<Class<?>[]> functionCall) throws Exception {
         var methodName = getKeyName();
+        
+        // L1 Cache Check
+        if (memoryCache.containsKey(methodName)) {
+            return (Class<?>[]) memoryCache.get(methodName);
+        }
+
         String value = sPrefsCacheHooks.getString(methodName, null);
         if (value == null) {
             try {
                 Class<?>[] result = functionCall.call();
                 if (result == null) throw new ClassNotFoundException("Classes is null");
                 saveClasses(methodName, result);
+                memoryCache.put(methodName, result); // Cache in memory
                 return result;
             } catch (Exception e) {
                 throw new Exception("Error getting classes " + methodName + ": " + e.getMessage(), e);
@@ -329,23 +385,35 @@ public class UnobfuscatorCache {
         for (String classString : classStrings) {
             classes.add(XposedHelpers.findClass(classString, loader));
         }
-        return classes.toArray(new Class<?>[0]);
+        Class<?>[] result = classes.toArray(new Class<?>[0]);
+        memoryCache.put(methodName, result); // Cache in memory
+        return result;
     }
 
     public HashMap<String, Field> getMapField(ClassLoader loader, FunctionCall<HashMap<String, Field>> functionCall) throws Exception {
         var key = getKeyName();
+        
+        // L1 Cache Check
+        if (memoryCache.containsKey(key)) {
+            //noinspection unchecked
+            return (HashMap<String, Field>) memoryCache.get(key);
+        }
+
         String value = sPrefsCacheHooks.getString(key, null);
         if (value == null) {
             try {
                 var result = functionCall.call();
                 if (result == null) throw new Exception("HashMap is null");
                 saveHashMap(key, result);
+                memoryCache.put(key, result); // Cache in memory
                 return result;
             } catch (Exception e) {
                 throw new Exception("Error getting HashMap " + key + ": " + e.getMessage(), e);
             }
         }
-        return loadHashMap(loader, key);
+        HashMap<String, Field> result = loadHashMap(loader, key);
+        memoryCache.put(key, result); // Cache in memory
+        return result;
     }
 
     private void saveHashMap(String key, HashMap<String, Field> map) {
@@ -402,7 +470,7 @@ public class UnobfuscatorCache {
     @SuppressWarnings("ApplySharedPref")
     public void saveField(String key, Field field) {
         String value = field.getDeclaringClass().getName() + ":" + field.getName();
-        sPrefsCacheHooks.edit().putString(key, value).commit();
+        sPrefsCacheHooks.edit().putString(key, value).apply();
     }
 
     @SuppressWarnings("ApplySharedPref")
@@ -411,7 +479,7 @@ public class UnobfuscatorCache {
         for (Field field : fields) {
             values.add(field.getDeclaringClass().getName() + ":" + field.getName());
         }
-        sPrefsCacheHooks.edit().putString(key, String.join("&", values)).commit();
+        sPrefsCacheHooks.edit().putString(key, String.join("&", values)).apply();
     }
 
     @SuppressWarnings("ApplySharedPref")
@@ -420,7 +488,7 @@ public class UnobfuscatorCache {
         if (method.getParameterTypes().length > 0) {
             value += ":" + Arrays.stream(method.getParameterTypes()).map(Class::getName).collect(Collectors.joining(","));
         }
-        sPrefsCacheHooks.edit().putString(key, value).commit();
+        sPrefsCacheHooks.edit().putString(key, value).apply();
     }
 
     @SuppressWarnings("ApplySharedPref")
@@ -433,12 +501,12 @@ public class UnobfuscatorCache {
             }
             values.add(value);
         }
-        sPrefsCacheHooks.edit().putString(key, String.join("&", values)).commit();
+        sPrefsCacheHooks.edit().putString(key, String.join("&", values)).apply();
     }
 
     @SuppressWarnings("ApplySharedPref")
     public void saveClass(String message, Class<?> messageClass) {
-        sPrefsCacheHooks.edit().putString(message, messageClass.getName()).commit();
+        sPrefsCacheHooks.edit().putString(message, messageClass.getName()).apply();
     }
 
     @SuppressWarnings("ApplySharedPref")
@@ -447,7 +515,7 @@ public class UnobfuscatorCache {
         for (Class<?> aClass : messageClass) {
             values.add(aClass.getName());
         }
-        sPrefsCacheHooks.edit().putString(message, String.join("&", values)).commit();
+        sPrefsCacheHooks.edit().putString(message, String.join("&", values)).apply();
     }
 
     private String getKeyName() {
@@ -458,21 +526,32 @@ public class UnobfuscatorCache {
 
     public Constructor getConstructor(ClassLoader loader, FunctionCall functionCall) throws Exception {
         var methodName = getKeyName();
+        
+        // L1 Cache Check
+        if (memoryCache.containsKey(methodName)) {
+            return (Constructor) memoryCache.get(methodName);
+        }
+
         String value = sPrefsCacheHooks.getString(methodName, null);
         if (value == null) {
             var result = (Constructor) functionCall.call();
             if (result == null) throw new Exception("Class is null");
             saveConstructor(methodName, result);
+            memoryCache.put(methodName, result); // Cache in memory
             return result;
         }
         String[] classAndName = value.split(":");
         Class<?> cls = XposedHelpers.findClass(classAndName[0], loader);
+        Constructor constructor;
         if (classAndName.length == 2) {
             String[] params = classAndName[1].split(",");
             Class<?>[] paramTypes = Arrays.stream(params).map(param -> ReflectionUtils.findClass(param, loader)).toArray(Class<?>[]::new);
-            return XposedHelpers.findConstructorExact(cls, paramTypes);
+            constructor = XposedHelpers.findConstructorExact(cls, paramTypes);
+        } else {
+            constructor = XposedHelpers.findConstructorExact(cls);
         }
-        return XposedHelpers.findConstructorExact(cls);
+        memoryCache.put(methodName, constructor); // Cache in memory
+        return constructor;
     }
 
     @SuppressWarnings("ApplySharedPref")
@@ -481,7 +560,7 @@ public class UnobfuscatorCache {
         if (constructor.getParameterTypes().length > 0) {
             value += ":" + Arrays.stream(constructor.getParameterTypes()).map(Class::getName).collect(Collectors.joining(","));
         }
-        sPrefsCacheHooks.edit().putString(key, value).commit();
+        sPrefsCacheHooks.edit().putString(key, value).apply();
     }
 
 

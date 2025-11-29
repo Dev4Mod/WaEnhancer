@@ -31,6 +31,7 @@ import com.wmods.wppenhacer.xposed.core.Feature;
 import com.wmods.wppenhacer.xposed.core.WppCore;
 import com.wmods.wppenhacer.xposed.core.devkit.Unobfuscator;
 import com.wmods.wppenhacer.xposed.utils.DesignUtils;
+import com.wmods.wppenhacer.xposed.utils.MonetColorEngine;
 import com.wmods.wppenhacer.xposed.utils.ReflectionUtils;
 import com.wmods.wppenhacer.xposed.utils.Utils;
 
@@ -290,7 +291,29 @@ public class CustomThemeV2 extends Feature {
         var textColor = DesignUtils.checkSystemColor(properties.getProperty("text_color", "0"));
         var backgroundColor = DesignUtils.checkSystemColor(properties.getProperty("background_color", "0"));
 
-        if (prefs.getBoolean("changecolor", false)) {
+        if (prefs.getBoolean("monet_theme", false)) {
+            try {
+                int sysPrimary = MonetColorEngine.getSystemPrimaryColor(Utils.getApplication());
+                if (sysPrimary != -1) {
+                    primaryColorInt = sysPrimary;
+                    primaryColor = IColors.toString(sysPrimary);
+                }
+                int sysBackground = MonetColorEngine.getSystemBackgroundColor(Utils.getApplication());
+                if (sysBackground != -1) {
+                    backgroundColorInt = sysBackground;
+                    backgroundColor = IColors.toString(sysBackground);
+                }
+                // Assuming text color might be system secondary or we keep default
+                // int sysSecondary = MonetColorEngine.getSystemSecondaryColor(Utils.getApplication());
+                // if (sysSecondary != -1) {
+                //    textColorInt = sysSecondary;
+                //    textColor = IColors.toString(sysSecondary);
+                // }
+            } catch (Exception ignored) {
+            }
+        }
+
+        if (prefs.getBoolean("changecolor", false) || prefs.getBoolean("monet_theme", false)) {
             primaryColor = primaryColorInt == 0 ? "0" : IColors.toString(primaryColorInt);
             textColor = textColorInt == 0 ? "0" : IColors.toString(textColorInt);
             backgroundColor = backgroundColorInt == 0 ? "0" : IColors.toString(backgroundColorInt);
@@ -302,7 +325,7 @@ public class CustomThemeV2 extends Feature {
             backgroundColors.clear();
         }
 
-        if (prefs.getBoolean("changecolor", false) || Objects.equals(properties.getProperty("change_colors"), "true")) {
+        if (prefs.getBoolean("changecolor", false) || Objects.equals(properties.getProperty("change_colors"), "true") || prefs.getBoolean("monet_theme", false)) {
 
             if (!primaryColor.equals("0") && DesignUtils.isValidColor(primaryColor)) {
                 processColors(primaryColor, primaryColors);

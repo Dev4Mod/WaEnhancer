@@ -1,10 +1,11 @@
 package com.wmods.wppenhacer.xposed.utils;
 
 import android.content.Context;
-import android.content.SharedPreferences;
 import android.util.Pair;
 
 import androidx.annotation.NonNull;
+
+import com.wmods.wppenhacer.utils.ReflectionCache;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
@@ -16,22 +17,17 @@ import java.util.Map;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
-import de.robv.android.xposed.XposedHelpers;
-
 @SuppressWarnings("unused")
 public class ReflectionUtils {
 
-    private static SharedPreferences cachePrefs;
-
     /**
-     * Initialize the SharedPreferences for caching reflection results
+     * Initialize the cache. 
+     * Legacy method kept for compatibility, but logic is now handled by ReflectionCache.
      *
      * @param context Application context
      */
     public static void initCache(Context context) {
-        if (cachePrefs == null) {
-            cachePrefs = context.getSharedPreferences("UnobfuscatorCache", Context.MODE_PRIVATE);
-        }
+        // No-op: ReflectionCache handles its own initialization and memory callbacks
     }
 
     public static Map<String, Class<?>> primitiveClasses = Map.of(
@@ -46,7 +42,7 @@ public class ReflectionUtils {
     public static Class<?> findClass(String className, ClassLoader classLoader) {
         var primitive = primitiveClasses.get(className);
         if (primitive != null) return primitive;
-        return XposedHelpers.findClass(className, classLoader);
+        return ReflectionCache.INSTANCE.getClass(className, classLoader);
     }
 
     public static Method findMethodUsingFilter(Class<?> clazz, Predicate<Method> predicate) {
@@ -128,10 +124,10 @@ public class ReflectionUtils {
         try {
             Class<?> superclass = method.getDeclaringClass().getSuperclass();
             if (superclass == null) return false;
-            Method parentMethod = superclass.getMethod(method.getName(), method.getParameterTypes());
+            Method parentMethod = ReflectionCache.INSTANCE.getMethod(superclass, method.getName(), method.getParameterTypes());
             return !parentMethod.equals(method);
 
-        } catch (NoSuchMethodException e) {
+        } catch (Exception e) {
             return false;
         }
     }
@@ -152,30 +148,9 @@ public class ReflectionUtils {
     }
 
     public static Field getFieldByExtendType(Class<?> cls, Class<?> type) {
-        if (cachePrefs == null) {
-            return Arrays.stream(cls.getFields()).filter(f -> type.isAssignableFrom(f.getType())).findFirst().orElse(null);
-        }
-
-        String cacheKey = "field_cache_" + cls.getName() + "_" + type.getName();
-
-        String cachedFieldName = cachePrefs.getString(cacheKey, null);
-        if (cachedFieldName != null) {
-            try {
-                return cls.getField(cachedFieldName);
-            } catch (NoSuchFieldException e) {
-                cachePrefs.edit().remove(cacheKey).commit();
-            }
-        }
-
-        Field field = Arrays.stream(cls.getFields()).filter(f -> type.isAssignableFrom(f.getType())).findFirst().orElse(null);
-
-        if (field != null) {
-            if (field.getDeclaringClass() == cls) {
-                cachePrefs.edit().putString(cacheKey, field.getName()).commit();
-            }
-        }
-
-        return field;
+        // Removed manual SharedPreferences caching for simplicity and performance.
+        // Direct search is cleaner than synchronous disk I/O on main thread.
+        return Arrays.stream(cls.getFields()).filter(f -> type.isAssignableFrom(f.getType())).findFirst().orElse(null);
     }
 
     public static Field getFieldByType(Class<?> cls, String className) {
@@ -186,30 +161,8 @@ public class ReflectionUtils {
 
 
     public static Field getFieldByType(Class<?> cls, Class<?> type) {
-        if (cachePrefs == null) {
-            return Arrays.stream(cls.getFields()).filter(f -> type == f.getType()).findFirst().orElse(null);
-        }
-
-        String cacheKey = "field_cache_direct_" + cls.getName() + "_" + type.getName();
-
-        String cachedFieldName = cachePrefs.getString(cacheKey, null);
-        if (cachedFieldName != null) {
-            try {
-                return cls.getField(cachedFieldName);
-            } catch (NoSuchFieldException e) {
-                cachePrefs.edit().remove(cacheKey).apply();
-            }
-        }
-
-        Field field = Arrays.stream(cls.getFields()).filter(f -> type == f.getType()).findFirst().orElse(null);
-
-        if (field != null) {
-            if (field.getDeclaringClass() == cls) {
-                cachePrefs.edit().putString(cacheKey, field.getName()).apply();
-            }
-        }
-
-        return field;
+        // Removed manual SharedPreferences caching.
+        return Arrays.stream(cls.getFields()).filter(f -> type == f.getType()).findFirst().orElse(null);
     }
 
     public static Object callMethod(Method method, Object instance, Object... args) {

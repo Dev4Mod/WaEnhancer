@@ -355,7 +355,12 @@ public class FeatureLoader {
                 GoogleTranslate.class
         };
         XposedBridge.log("Loading Plugins");
-        var executorService = Executors.newWorkStealingPool(Math.min(Runtime.getRuntime().availableProcessors(), 4));
+        // Use a custom thread factory to set MIN_PRIORITY, reducing CPU contention during app startup
+        var executorService = Executors.newFixedThreadPool(Math.min(Runtime.getRuntime().availableProcessors(), 4), r -> {
+            Thread t = new Thread(r);
+            t.setPriority(Thread.MIN_PRIORITY);
+            return t;
+        });
         var times = new ArrayList<String>();
         for (var classe : classes) {
             CompletableFuture.runAsync(() -> {

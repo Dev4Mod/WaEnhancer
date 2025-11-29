@@ -87,55 +87,70 @@ public class MediaQuality extends Feature {
 
                 @Override
                 protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-                    var resizeVideo = param.getResult();
-                    boolean isHighResolution;
-                    boolean isEnum = false;
-                    var enumObj = ReflectionUtils.getArg(param.args, Enum.class, 0);
-                    var intParams = ReflectionUtils.findInstancesOfType(param.args, Integer.class);
-                    if (enumObj != null) {
-                        isEnum = true;
-                        var hightResolution = Enum.valueOf((Class<Enum>) enumObj.getClass(), "RESOLUTION_1080P");
-                        isHighResolution = hightResolution == enumObj;
-                    } else {
-                        isHighResolution = (int) param.args[1] == 3;
-                    }
-                    if (isHighResolution) {
-
-                        if (realResolution) {
-                            int width;
-                            int height;
-                            int rotationAngle;
-
-                            if (mediaFields.isEmpty()) {
-                                if (isEnum) {
-                                    width = intParams.get(0).second;
-                                    height = intParams.get(1).second;
-                                    rotationAngle = intParams.get(2).second;
-                                } else {
-                                    JSONObject mediaFields = (JSONObject) XposedHelpers.callMethod(param.args[0], "A00");
-                                    width = mediaFields.getInt("widthPx");
-                                    height = mediaFields.getInt("heightPx");
-                                    rotationAngle = mediaFields.getInt("rotationAngle");
-                                }
-                            } else {
-                                width = mediaFields.get("widthPx").getInt(param.args[0]);
-                                height = mediaFields.get("heightPx").getInt(param.args[0]);
-                                rotationAngle = mediaFields.get("rotationAngle").getInt(param.args[0]);
+                    try {
+                        var resizeVideo = param.getResult();
+                        boolean isHighResolution = false;
+                        boolean isEnum = false;
+                        var enumObj = ReflectionUtils.getArg(param.args, Enum.class, 0);
+                        var intParams = ReflectionUtils.findInstancesOfType(param.args, Integer.class);
+                        if (enumObj != null) {
+                            isEnum = true;
+                            try {
+                                var hightResolution = Enum.valueOf((Class<Enum>) enumObj.getClass(), "RESOLUTION_1080P");
+                                isHighResolution = hightResolution == enumObj;
+                            } catch (IllegalArgumentException e) {
+                                // Enum constant might not exist, ignore
                             }
-                            var targetWidthField = mediaTranscodeParams.get("targetWidth");
-                            var targetHeightField = mediaTranscodeParams.get("targetHeight");
+                        } else if (param.args.length > 1 && param.args[1] instanceof Integer) {
+                            isHighResolution = (int) param.args[1] == 3;
+                        }
+                        
+                        if (isHighResolution) {
 
-                            var inverted = rotationAngle == 90 || rotationAngle == 270;
+                            if (realResolution) {
+                                int width;
+                                int height;
+                                int rotationAngle;
 
-                            targetHeightField.setInt(resizeVideo, inverted ? width : height);
-                            targetWidthField.setInt(resizeVideo, inverted ? height : width);
+                                if (mediaFields.isEmpty()) {
+                                    if (isEnum && intParams.size() >= 3) {
+                                        width = intParams.get(0).second;
+                                        height = intParams.get(1).second;
+                                        rotationAngle = intParams.get(2).second;
+                                    } else if (param.args.length > 0) {
+                                        JSONObject mediaFields = (JSONObject) XposedHelpers.callMethod(param.args[0], "A00");
+                                        width = mediaFields.getInt("widthPx");
+                                        height = mediaFields.getInt("heightPx");
+                                        rotationAngle = mediaFields.getInt("rotationAngle");
+                                    } else {
+                                        return;
+                                    }
+                                } else {
+                                    width = mediaFields.get("widthPx").getInt(param.args[0]);
+                                    height = mediaFields.get("heightPx").getInt(param.args[0]);
+                                    rotationAngle = mediaFields.get("rotationAngle").getInt(param.args[0]);
+                                }
+                                var targetWidthField = mediaTranscodeParams.get("targetWidth");
+                                var targetHeightField = mediaTranscodeParams.get("targetHeight");
+
+                                var inverted = rotationAngle == 90 || rotationAngle == 270;
+
+                                if (targetHeightField != null && targetWidthField != null) {
+                                    targetHeightField.setInt(resizeVideo, inverted ? width : height);
+                                    targetWidthField.setInt(resizeVideo, inverted ? height : width);
+                                }
+
+                            }
 
                         }
-
-                    }
-                    if (prefs.getBoolean("video_maxfps", false)) {
-                        var frameRateField = mediaTranscodeParams.get("frameRate");
-                        frameRateField.setInt(resizeVideo, 60);
+                        if (prefs.getBoolean("video_maxfps", false)) {
+                            var frameRateField = mediaTranscodeParams.get("frameRate");
+                            if (frameRateField != null) {
+                                frameRateField.setInt(resizeVideo, 60);
+                            }
+                        }
+                    } catch (Exception e) {
+                        XposedBridge.log("MediaQuality hook error: " + e);
                     }
                 }
             });

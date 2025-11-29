@@ -1,6 +1,8 @@
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
 import java.util.Locale
+import java.nio.charset.StandardCharsets
+import org.gradle.api.tasks.compile.JavaCompile
 
 plugins {
     alias(libs.plugins.androidApplication)
@@ -105,6 +107,9 @@ android {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
     }
+    kotlinOptions {
+        jvmTarget = "17"
+    }
     buildFeatures {
         viewBinding = true
         buildConfig = true
@@ -162,7 +167,7 @@ dependencies {
 }
 
 configurations.all {
-    exclude("org.jetbrains", "annotations")
+    // exclude("org.jetbrains", "annotations") // Removing this exclusion to fix NoClassDefFoundError
     exclude("androidx.appcompat", "appcompat")
     exclude("org.jetbrains.kotlin", "kotlin-stdlib-jdk7")
     exclude("org.jetbrains.kotlin", "kotlin-stdlib-jdk8")
@@ -170,6 +175,54 @@ configurations.all {
 
 interface InjectedExecOps {
     @get:Inject val execOps: ExecOperations
+}
+
+// Task that patches generated AIDL .java files (escapes backslashes in header comment lines).
+val fixAidlGeneratedJava = tasks.register("fixAidlGeneratedJava") {
+    group = "build"
+    description = "Patch AIDL-generated .java files on Windows to escape backslashes in header comments."
+
+    doLast {
+        val genDir = layout.buildDirectory.dir("generated/aidl_source_output_dir").get().asFile
+        if (!genDir.exists()) {
+            println("fixAidlGeneratedJava: no generated AIDL dir at ${genDir.absolutePath}")
+            return@doLast
+        }
+
+        var patchedCount = 0
+        genDir.walkTopDown().filter { it.isFile && it.extension == "java" }.forEach { f ->
+            val text = f.readText(StandardCharsets.UTF_8)
+            var newText = text
+
+            // 1) Escape backslashes on lines that contain "Using:" (aidl header) or "aidl.exe"
+            newText = newText.replace(Regex("(?m)^(\\s*\\*.*Using:.*)$")) { m ->
+                m.value.replace("\\", "\\\\")
+            }
+            newText = newText.replace(Regex("(?m)^(\\s*\\*.*aidl\\.exe.*)$")) { m ->
+                m.value.replace("\\", "\\\\")
+            }
+
+            // 2) Fallback: if file still contains suspicious "\u" sequences inside comments
+            if (newText.contains("""\u""")) {
+                newText = newText.replace(Regex("(?m)^(\\s*\\*.*)$")) { m ->
+                    m.value.replace("\\", "\\\\")
+                }
+            }
+
+            if (newText != text) {
+                f.writeText(newText, StandardCharsets.UTF_8)
+                println("fixAidlGeneratedJava: patched ${f.absolutePath}")
+                patchedCount++
+            }
+        }
+        println("fixAidlGeneratedJava: patched $patchedCount file(s).")
+    }
+}
+
+// Ensure fix runs before Java compilation reads sources:
+tasks.withType(JavaCompile::class.java).configureEach {
+    dependsOn(fixAidlGeneratedJava)
+    options.encoding = "UTF-8"
 }
 
 

@@ -11,6 +11,11 @@
             app:summary="@string/colors_customization_sum"
             app:title="@string/colors_customization" />
 
+        <rikka.material.preference.MaterialSwitchPreference
+            app:key="monet_theme"
+            app:summary="@string/monet_theme_sum"
+            app:title="@string/monet_theme" />
+
         <com.jaredrummler.android.colorpicker.ColorPreferenceCompat
             app:cpv_showAlphaSlider="true"
             app:dependency="changecolor"
