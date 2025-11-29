@@ -1985,7 +1985,8 @@ public class Unobfuscator {
 
     public static Class loadVoipManager(ClassLoader classLoader) throws Exception {
         return UnobfuscatorCache.getInstance().getClass(classLoader, () -> {
-            var superClasses = dexkit.findClass(FindClass.create().matcher(ClassMatcher.create().superClass("com.whatsapp.voipcalling.Voip")));
+            var voipClass = WppCore.getVoipManagerClass(classLoader);
+            var superClasses = dexkit.findClass(FindClass.create().matcher(ClassMatcher.create().superClass(voipClass.getName())));
             if (superClasses.isEmpty())
                 throw new ClassNotFoundException("VoipManager Class not found");
             for (var supclass : superClasses) {
