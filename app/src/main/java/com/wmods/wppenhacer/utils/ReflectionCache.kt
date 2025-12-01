@@ -48,12 +48,22 @@ object ReflectionCache {
     @Volatile
     var PERF_LOGGING = false
 
+    // Thread-safe extensions for LruCache
+    @Synchronized
+    private fun <T> LruCache<String, T>.safeGet(key: String): T? = get(key)
+
+    @Synchronized
+    private fun <T> LruCache<String, T>.safePut(key: String, value: T): T? = put(key, value)
+
     fun clear() = synchronized(this) {
         classCache.evictAll()
         methodCache.evictAll()
         fieldCache.evictAll()
         XposedBridge.log("ReflectionCache: cleared all caches")
     }
+
+    // Manual trigger to clear all caches (alias for clear)
+    fun clearAll() = clear()
 
     fun trimToSize(maxSize: Int) = synchronized(this) {
         // Trim each cache proportionally
@@ -107,7 +117,7 @@ object ReflectionCache {
     @Synchronized
     fun getClass(name: String, loader: ClassLoader? = null): Class<*>? {
         val key = classKey(name, loader)
-        classCache.get(key)?.let { return it }
+        classCache.safeGet(key)?.let { return it }
 
         val start = SystemClock.elapsedRealtime()
         val cls = try {
@@ -121,7 +131,7 @@ object ReflectionCache {
             null
         }
 
-        cls?.let { classCache.put(key, it) }
+        cls?.let { classCache.safePut(key, it) }
 
         if (PERF_LOGGING) {
             val dur = SystemClock.elapsedRealtime() - start
@@ -139,7 +149,7 @@ object ReflectionCache {
     fun getMethod(clazz: Class<*>, name: String, vararg parameterTypes: Class<*>): Method? {
         val sig = parameterTypes.joinToString(",") { it.name }
         val key = methodKey(clazz, name, sig)
-        methodCache.get(key)?.let { return it }
+        methodCache.safeGet(key)?.let { return it }
 
         val start = SystemClock.elapsedRealtime()
         val method = try {
@@ -157,7 +167,7 @@ object ReflectionCache {
             null
         }
 
-        method?.let { methodCache.put(key, it) }
+        method?.let { methodCache.safePut(key, it) }
 
         if (PERF_LOGGING) {
             val dur = SystemClock.elapsedRealtime() - start
@@ -177,7 +187,7 @@ object ReflectionCache {
     @Synchronized
     fun getField(clazz: Class<*>, name: String): Field? {
         val key = fieldKey(clazz, name)
-        fieldCache.get(key)?.let { return it }
+        fieldCache.safeGet(key)?.let { return it }
 
         val start = SystemClock.elapsedRealtime()
         val field = try {
@@ -195,7 +205,7 @@ object ReflectionCache {
             null
         }
 
-        field?.let { fieldCache.put(key, it) }
+        field?.let { fieldCache.safePut(key, it) }
 
         if (PERF_LOGGING) {
             val dur = SystemClock.elapsedRealtime() - start
