@@ -69,9 +69,9 @@ public class ChatLimit extends Feature {
 
                 @Override
                 protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
-                    var list = ReflectionUtils.findArrayOfType(param.args, Set.class);
+                    var list = ReflectionUtils.findInstancesOfType(param.args, Set.class);
                     if (list.isEmpty()) return;
-                    var listMessages = (Set) list.get(0).second;
+                    var listMessages = list.get(0).second;
                     var isExpired = false;
                     for (var fmessageObj : listMessages) {
                         var timestamp = fmessageTimestampMethod.getLong(fmessageObj);

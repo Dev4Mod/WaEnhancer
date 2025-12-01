@@ -105,7 +105,7 @@ public class FMessageWpp {
     public Key getKey() {
         try {
             if (this.key == null)
-                this.key = new Key(keyMessage.get(fmessage));
+                this.key = new Key(keyMessage.get(fmessage), this);
             return key;
         } catch (Exception e) {
             XposedBridge.log(e);
@@ -115,7 +115,7 @@ public class FMessageWpp {
 
     public Key getOriginalKey() {
         try {
-            return new Key(getOriginalMessageKey.invoke(fmessage));
+            return new Key(getOriginalMessageKey.invoke(fmessage), this);
         } catch (Exception e) {
             XposedBridge.log(e);
         }
@@ -211,6 +211,11 @@ public class FMessageWpp {
          * The class type of the key object.
          */
         public static Class<?> TYPE;
+
+        /**
+         * The wrapped FMessageWpp instance associated with this key.
+         */
+        private FMessageWpp fmessage;
         /**
          * The underlying key object from WhatsApp's code.
          */
@@ -238,8 +243,42 @@ public class FMessageWpp {
             this.messageID = (String) XposedHelpers.getObjectField(key, "A01");
             this.isFromMe = XposedHelpers.getBooleanField(key, "A02");
             this.remoteJid = new UserJid(XposedHelpers.getObjectField(key, "A00"));
+            var fmessage = WppCore.getFMessageFromKey(key);
+            if (fmessage != null) {
+                this.fmessage = new FMessageWpp(fmessage);
+            }
         }
 
+        public Key(Object key, FMessageWpp fmessage) {
+            this.thisObject = key;
+            this.messageID = (String) XposedHelpers.getObjectField(key, "A01");
+            this.isFromMe = XposedHelpers.getBooleanField(key, "A02");
+            this.remoteJid = new UserJid(XposedHelpers.getObjectField(key, "A00"));
+            this.fmessage = fmessage;
+        }
+
+        public Key(String messageID, UserJid remoteJid, boolean isFromMe) {
+            this.messageID = messageID;
+            this.isFromMe = isFromMe;
+            this.remoteJid = remoteJid;
+            var key = XposedHelpers.newInstance(FMessageWpp.Key.TYPE, remoteJid.userJid, messageID, false);
+            var fmessage = WppCore.getFMessageFromKey(key);
+            if (fmessage != null) {
+                this.thisObject = key;
+                this.fmessage = new FMessageWpp(fmessage);
+            } else {
+                key = XposedHelpers.newInstance(FMessageWpp.Key.TYPE, remoteJid.phoneJid, messageID, false);
+                fmessage = WppCore.getFMessageFromKey(key);
+                if (fmessage != null) {
+                    this.thisObject = key;
+                    this.fmessage = new FMessageWpp(fmessage);
+                }
+            }
+        }
+
+        public FMessageWpp getFMessage() {
+            return fmessage;
+        }
     }
 
     public static class UserJid {

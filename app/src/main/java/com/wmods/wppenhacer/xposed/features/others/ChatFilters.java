@@ -27,10 +27,10 @@ public class ChatFilters extends Feature {
         XposedBridge.hookAllConstructors(filterAdaperClass, new XC_MethodHook() {
             @Override
             protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
-                var list = ReflectionUtils.findArrayOfType(param.args, List.class);
+                var list = ReflectionUtils.findInstancesOfType(param.args, List.class);
                 if (!list.isEmpty()) {
                     var argResult = list.get(0);
-                    var newList = new ArrayList<Object>((List) argResult.second);
+                    var newList = new ArrayList<Object>(argResult.second);
                     newList.removeIf(item -> {
                         var name = XposedHelpers.getObjectField(item, "A01");
                         return name == null || name == "CONTACTS_FILTER" || name == "GROUP_FILTER";

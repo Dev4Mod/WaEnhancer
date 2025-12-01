@@ -9,14 +9,12 @@ import android.util.LruCache;
 
 import androidx.annotation.Nullable;
 
-import com.wmods.wppenhacer.xposed.core.WppCore;
 import com.wmods.wppenhacer.xposed.core.components.FMessageWpp;
 import com.wmods.wppenhacer.xposed.utils.Utils;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import de.robv.android.xposed.XposedHelpers;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
@@ -242,13 +240,10 @@ public class MessageHistory extends SQLiteOpenHelper {
         public FMessageWpp getFMessage() {
             if (fMessageWpp == null) {
                 try {
-                    var userJid = WppCore.getUserJidFromPhoneJid(WppCore.createUserJid(jid));
-                    if (userJid == null) return null;
-                    var key = XposedHelpers.newInstance(FMessageWpp.Key.TYPE, userJid, message, false);
-                    var fmessageObj = WppCore.getFMessageFromKey(key);
-                    fMessageWpp = new FMessageWpp(fmessageObj);
+                    var userJid = new FMessageWpp.UserJid(jid);
+                    if (userJid.isNull()) return null;
+                    fMessageWpp = new FMessageWpp.Key(message, userJid, false).getFMessage();
                 } catch (Exception ignored) {
-
                 }
             }
             return fMessageWpp;

@@ -69,7 +69,7 @@ public class Tasker extends Feature {
             protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
                 if (param.args[4] == "sender" || param.args[1] == null || param.args[3] == null)
                     return;
-                var fMessage = new FMessageWpp(WppCore.getFMessageFromKey(param.args[3]));
+                var fMessage = new FMessageWpp.Key(param.args[3]).getFMessage();
                 var userJid = fMessage.getKey().remoteJid;
                 var name = WppCore.getContactName(userJid);
                 var number = userJid.getPhoneNumber();

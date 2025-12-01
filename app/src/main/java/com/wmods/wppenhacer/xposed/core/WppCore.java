@@ -68,12 +68,13 @@ public class WppCore {
     private static Object mWaJidMapRepository;
     private static Method convertJidToLid;
     private static Class actionUser;
+    private static Method cachedMessageStoreKey;
 
 
     public static void Initialize(ClassLoader loader, XSharedPreferences pref) throws Exception {
         privPrefs = Utils.getApplication().getSharedPreferences("WaGlobal", Context.MODE_PRIVATE);
         // init UserJID
-        var mSendReadClass = Unobfuscator.findFirstClassUsingName(loader, StringMatchType.EndsWith,"SendReadReceiptJob");
+        var mSendReadClass = Unobfuscator.findFirstClassUsingName(loader, StringMatchType.EndsWith, "SendReadReceiptJob");
         var subClass = ReflectionUtils.findConstructorUsingFilter(mSendReadClass, (constructor) -> constructor.getParameterCount() == 8).getParameterTypes()[0];
         mGenJidClass = ReflectionUtils.findFieldUsingFilter(subClass, (field) -> Modifier.isStatic(field.getModifiers())).getType();
         mGenJidMethod = ReflectionUtils.findMethodUsingFilter(mGenJidClass, (method) -> method.getParameterCount() == 1 && !Modifier.isStatic(method.getModifiers()));
@@ -106,8 +107,8 @@ public class WppCore {
         });
 
         // CachedMessageStore
-        var cachedMessageStore = Unobfuscator.loadCachedMessageStore(loader);
-        XposedBridge.hookAllConstructors(cachedMessageStore, new XC_MethodHook() {
+        cachedMessageStoreKey = Unobfuscator.loadCachedMessageStoreKey(loader);
+        XposedBridge.hookAllConstructors(cachedMessageStoreKey.getDeclaringClass(), new XC_MethodHook() {
             @Override
             protected void afterHookedMethod(MethodHookParam param) throws Throwable {
                 mCachedMessageStore = param.thisObject;
@@ -401,8 +402,11 @@ public class WppCore {
     public static Object getFMessageFromKey(Object messageKey) {
         if (messageKey == null) return null;
         try {
-            var methodResult = ReflectionUtils.findMethodUsingFilter(mCachedMessageStore.getClass(), (method) -> method.getParameterCount() == 1 && FMessageWpp.Key.TYPE.isAssignableFrom(method.getParameterTypes()[0]) && method.getReturnType() == FMessageWpp.TYPE);
-            return ReflectionUtils.callMethod(methodResult, mCachedMessageStore, messageKey);
+            if (mCachedMessageStore == null) {
+                XposedBridge.log("CachedMessageStore is null");
+                return null;
+            }
+            return cachedMessageStoreKey.invoke(mCachedMessageStore, messageKey);
         } catch (Exception e) {
             XposedBridge.log(e);
             return null;

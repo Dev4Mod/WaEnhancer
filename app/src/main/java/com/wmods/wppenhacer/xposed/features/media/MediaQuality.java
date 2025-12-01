@@ -91,7 +91,7 @@ public class MediaQuality extends Feature {
                     boolean isHighResolution;
                     boolean isEnum = false;
                     var enumObj = ReflectionUtils.getArg(param.args, Enum.class, 0);
-                    var intParams = ReflectionUtils.findArrayOfType(param.args, Integer.class);
+                    var intParams = ReflectionUtils.findInstancesOfType(param.args, Integer.class);
                     if (enumObj != null) {
                         isEnum = true;
                         var hightResolution = Enum.valueOf((Class<Enum>) enumObj.getClass(), "RESOLUTION_1080P");
@@ -108,9 +108,9 @@ public class MediaQuality extends Feature {
 
                             if (mediaFields.isEmpty()) {
                                 if (isEnum) {
-                                    width = intParams.get(2).second;
-                                    height = intParams.get(3).second;
-                                    rotationAngle = intParams.get(4).second;
+                                    width = intParams.get(0).second;
+                                    height = intParams.get(1).second;
+                                    rotationAngle = intParams.get(2).second;
                                 } else {
                                     JSONObject mediaFields = (JSONObject) XposedHelpers.callMethod(param.args[0], "A00");
                                     width = mediaFields.getInt("widthPx");
