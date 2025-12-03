@@ -17,6 +17,8 @@ import java.util.Map;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
+import de.robv.android.xposed.XposedBridge;
+
 @SuppressWarnings("unused")
 public class ReflectionUtils {
 
@@ -117,6 +119,28 @@ public class ReflectionUtils {
             var results = Arrays.stream(clazz.getDeclaredFields()).filter(predicate).findFirst();
             if (results.isPresent()) return results.get();
         } while ((clazz = clazz.getSuperclass()) != null);
+        return null;
+    }
+
+    /**
+     * Tries to find a method using a list of candidate names and/or predicates.
+     * Logs which candidate matched.
+     * @param clazz The class to search in.
+     * @param candidates Array of method names to try.
+     * @return The first matching Method, or null if none found.
+     */
+    public static Method tryMethods(Class<?> clazz, String... candidates) {
+        for (String name : candidates) {
+            try {
+                Method m = findMethodUsingFilterIfExists(clazz, method -> method.getName().equals(name));
+                if (m != null) {
+                    XposedBridge.log("ReflectionUtils: matched candidate method: " + name);
+                    return m;
+                }
+            } catch (Exception ignored) {
+            }
+        }
+        XposedBridge.log("ReflectionUtils: no matching method found among candidates: " + Arrays.toString(candidates));
         return null;
     }
 

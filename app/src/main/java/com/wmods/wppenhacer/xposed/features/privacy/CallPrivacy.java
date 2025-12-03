@@ -43,7 +43,7 @@ public class CallPrivacy extends Feature {
             }
         });
 
-        var clazzVoip = XposedHelpers.findClass("com.whatsapp.voipcalling.Voip", classLoader);
+        var clazzVoip = WppCore.getVoipManagerClass(classLoader);
         var endCallMethod = ReflectionUtils.findMethodUsingFilter(clazzVoip, m -> m.getName().equals("endCall"));
         var rejectCallMethod = ReflectionUtils.findMethodUsingFilter(clazzVoip, m -> m.getName().equals("rejectCall"));
 
@@ -53,7 +53,7 @@ public class CallPrivacy extends Feature {
             @Override
             protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
                 Object callinfo;
-                Class<?> callInfoClass = XposedHelpers.findClass("com.whatsapp.voipcalling.CallInfo", classLoader);
+                Class<?> callInfoClass = WppCore.getVoipCallInfoClass(classLoader);
                 if (param.args[0] instanceof Message) {
                     callinfo = ((Message) param.args[0]).obj;
                 } else if (param.args.length > 1 && callInfoClass.isInstance(param.args[1])) {
@@ -92,7 +92,7 @@ public class CallPrivacy extends Feature {
             }
         });
 
-        XposedBridge.hookAllMethods(classLoader.loadClass("com.whatsapp.voipcalling.Voip"), "nativeHandleIncomingXmppOffer", new XC_MethodHook() {
+        XposedBridge.hookAllMethods(WppCore.getVoipManagerClass(classLoader), "nativeHandleIncomingXmppOffer", new XC_MethodHook() {
             @Override
             protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
                 if (!prefs.getString("call_type", "no_internet").equals("no_internet")) return;

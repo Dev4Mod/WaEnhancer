@@ -1262,7 +1262,7 @@ public class Unobfuscator {
 
     public synchronized static Class loadFilterAdaperClass(ClassLoader loader) throws Exception {
         return UnobfuscatorCache.getInstance().getClass(loader, () -> {
-            var clazzList = dexkit.findClass(new FindClass().matcher(new ClassMatcher().addMethod(new MethodMatcher().addUsingString("CONTACTS_FILTER").paramCount(1).addParamType(int.class))));
+            var clazzList = dexkit.findClass(FindClass.create().matcher(ClassMatcher.create().addMethod(MethodMatcher.create().addUsingString("CONTACTS_FILTER").paramCount(1).addParamType(int.class))));
             if (clazzList.isEmpty()) throw new RuntimeException("FilterAdapter class not found");
             return clazzList.get(0).getInstance(loader);
         });
@@ -1440,7 +1440,7 @@ public class Unobfuscator {
         return UnobfuscatorCache.getInstance().getMethod(loader, () -> {
             var filterAdaperClass = Unobfuscator.loadFilterAdaperClass(loader);
             var constructor = filterAdaperClass.getConstructors()[0];
-            var methods = dexkit.findMethod(new FindMethod().matcher(new MethodMatcher().addInvoke(DexSignUtil.getMethodDescriptor(constructor))));
+            var methods = dexkit.findMethod(FindMethod.create().matcher(new MethodMatcher().addInvoke(DexSignUtil.getMethodDescriptor(constructor))));
             if (methods.isEmpty()) throw new RuntimeException("FilterInit method not found");
             var cFrag = XposedHelpers.findClass("com.whatsapp.conversationslist.ConversationsFragment", loader);
             var method = methods.stream().filter(m -> Arrays.asList(1, 2).contains(m.getParamCount()) && m.getParamTypes().get(0).getName().equals(cFrag.getName())).findFirst().orElse(null);
@@ -1528,7 +1528,7 @@ public class Unobfuscator {
 
     public synchronized static Field loadOriginFMessageField(ClassLoader classLoader) throws Exception {
         return UnobfuscatorCache.getInstance().getField(classLoader, () -> {
-            var result = dexkit.findMethod(new FindMethod().matcher(new MethodMatcher().addUsingString("audio/ogg; codecs=opu").paramCount(0).returnType(boolean.class)));
+            var result = dexkit.findMethod(FindMethod.create().matcher(MethodMatcher.create().addUsingString("audio/ogg; codecs=opu").paramCount(0).returnType(boolean.class)));
             var clazz = loadFMessageClass(classLoader);
             if (result.isEmpty()) throw new RuntimeException("OriginFMessageField not found");
             var fields = result.get(0).getUsingFields();
@@ -1985,7 +1985,8 @@ public class Unobfuscator {
 
     public static Class loadVoipManager(ClassLoader classLoader) throws Exception {
         return UnobfuscatorCache.getInstance().getClass(classLoader, () -> {
-            var superClasses = dexkit.findClass(FindClass.create().matcher(ClassMatcher.create().superClass("com.whatsapp.voipcalling.Voip")));
+            var voipClass = WppCore.getVoipManagerClass(classLoader);
+            var superClasses = dexkit.findClass(FindClass.create().matcher(ClassMatcher.create().superClass(voipClass.getName())));
             if (superClasses.isEmpty())
                 throw new ClassNotFoundException("VoipManager Class not found");
             for (var supclass : superClasses) {

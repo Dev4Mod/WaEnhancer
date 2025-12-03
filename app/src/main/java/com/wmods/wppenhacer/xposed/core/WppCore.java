@@ -334,6 +334,32 @@ public class WppCore {
         throw new Exception("TextStatusComposerFragmentClass not found");
     }
 
+    public synchronized static Class getVoipManagerClass(@NonNull ClassLoader loader) throws Exception {
+        var classes = new String[]{
+                "com.whatsapp.voipcalling.Voip",
+                "com.whatsapp.calling.voipcalling.Voip"
+        };
+        Class<?> result = null;
+        for (var clazz : classes) {
+            if ((result = XposedHelpers.findClassIfExists(clazz, loader)) != null)
+                return result;
+        }
+        throw new Exception("VoipManagerClass not found");
+    }
+
+    public synchronized static Class getVoipCallInfoClass(@NonNull ClassLoader loader) throws Exception {
+        var classes = new String[]{
+                "com.whatsapp.voipcalling.CallInfo",
+                "com.whatsapp.calling.infra.voipcalling.CallInfo"
+        };
+        Class<?> result = null;
+        for (var clazz : classes) {
+            if ((result = XposedHelpers.findClassIfExists(clazz, loader)) != null)
+                return result;
+        }
+        throw new Exception("VoipCallInfoClass not found");
+    }
+
 //    public static Activity getActivityBySimpleName(String name) {
 //        for (var activity : activities) {
 //            if (activity.getClass().getSimpleName().equals(name)) {
