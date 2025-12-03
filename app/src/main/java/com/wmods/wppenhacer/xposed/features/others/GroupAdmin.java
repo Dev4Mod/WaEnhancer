@@ -64,6 +64,7 @@ public class GroupAdmin extends Feature {
         XposedBridge.hookMethod(grpAdmin1, hooked);
     }
 
+    @SuppressLint("ResourceType")
     private void setupUsernameInGroupViewContainer(View container, java.lang.reflect.Method jidFactory, java.lang.reflect.Method grpcheckAdmin) {
         try {
             if (container == null) return;
