@@ -66,44 +66,94 @@ public class GroupAdmin extends Feature {
 
     @SuppressLint("ResourceType")
     private void setupUsernameInGroupViewContainer(View container, java.lang.reflect.Method jidFactory, java.lang.reflect.Method grpcheckAdmin) {
+        // WaEnhancer: defensive wrapper added
         try {
-            if (container == null) return;
+            if (container == null) {
+                XposedBridge.log("WaEnhancer: setupUsernameInGroupViewContainer skipped: container is null");
+                return;
+            }
 
-            Object fMessageObj = XposedHelpers.callMethod(container, "getFMessage");
-            var fMessage = new FMessageWpp(fMessageObj);
-            var userJid = fMessage.getUserJid();
-            var chatCurrentJid = WppCore.getCurrentUserJid();
-            if (!chatCurrentJid.isGroup()) return;
-            var field = ReflectionUtils.getFieldByType(container.getClass(), grpcheckAdmin.getDeclaringClass());
-            var grpParticipants = field.get(container);
-            var jidGrp = jidFactory.invoke(null, chatCurrentJid.getUserRawString());
-            var result = grpcheckAdmin.invoke(grpParticipants, jidGrp, userJid.userJid);
-            var context = container.getContext();
-            ImageView iconAdmin;
-            if ((iconAdmin = container.findViewById(0x7fff0010)) == null) {
-                var nameGroup = container.findViewById(Utils.getID("name_in_group", "id"));
-                if (nameGroup == null || !(nameGroup instanceof LinearLayout)) {
-                    XposedBridge.log("WaEnhancer: setupUsernameInGroupViewContainer - nameGroup not found or invalid type");
+            // Safely extract fMessage
+            Object fMessageObj = null;
+            try {
+                fMessageObj = XposedHelpers.callMethod(container, "getFMessage");
+            } catch (Throwable tGetMsg) {
+                XposedBridge.log("WaEnhancer: setupUsernameInGroupViewContainer getFMessage() threw: " + tGetMsg);
+                return;
+            }
+
+            if (fMessageObj == null) {
+                XposedBridge.log("WaEnhancer: setupUsernameInGroupViewContainer skipped: fMessageObj is null");
+                return;
+            }
+
+            // --- ORIGINAL METHOD BODY START ---
+            try {
+                var fMessage = new FMessageWpp(fMessageObj);
+                var userJid = fMessage.getUserJid();
+
+                // Defensive: check chatCurrentJid for null
+                FMessageWpp.UserJid chatCurrentJid = null;
+                try {
+                    chatCurrentJid = WppCore.getCurrentUserJid();
+                } catch (Throwable tJid) {
+                    XposedBridge.log("WaEnhancer: setupUsernameInGroupViewContainer getCurrentUserJid() threw: " + tJid);
                     return;
                 }
-                var nameGroupLayout = (LinearLayout) nameGroup;
-                var view1 = new LinearLayout(context);
-                view1.setOrientation(LinearLayout.HORIZONTAL);
-                view1.setGravity(Gravity.CENTER_VERTICAL);
-                var nametv = nameGroupLayout.getChildAt(0);
-                iconAdmin = new ImageView(context);
-                var size = Utils.dipToPixels(16);
-                iconAdmin.setLayoutParams(new LinearLayout.LayoutParams(size, size));
-                iconAdmin.setImageResource(ResId.drawable.admin);
-                iconAdmin.setId(0x7fff0010);
-                nameGroupLayout.removeView(nametv);
-                view1.addView(nametv);
-                view1.addView(iconAdmin);
-                nameGroupLayout.addView(view1, 0);
+
+                if (chatCurrentJid == null) {
+                    XposedBridge.log("WaEnhancer: setupUsernameInGroupViewContainer skipped: chatCurrentJid is null");
+                    return;
+                }
+
+                // Defensive: check isGroup() for null
+                Boolean isGroup = null;
+                try {
+                    isGroup = chatCurrentJid.isGroup();
+                } catch (Throwable tIsGroup) {
+                    XposedBridge.log("WaEnhancer: setupUsernameInGroupViewContainer isGroup() threw: " + tIsGroup);
+                    return;
+                }
+
+                if (isGroup == null || !isGroup) {
+                    return;
+                }
+
+                var field = ReflectionUtils.getFieldByType(container.getClass(), grpcheckAdmin.getDeclaringClass());
+                var grpParticipants = field.get(container);
+                var jidGrp = jidFactory.invoke(null, chatCurrentJid.getUserRawString());
+                var result = grpcheckAdmin.invoke(grpParticipants, jidGrp, userJid.userJid);
+                var context = container.getContext();
+                ImageView iconAdmin;
+                if ((iconAdmin = container.findViewById(0x7fff0010)) == null) {
+                    var nameGroup = container.findViewById(Utils.getID("name_in_group", "id"));
+                    if (nameGroup == null || !(nameGroup instanceof LinearLayout)) {
+                        XposedBridge.log("WaEnhancer: setupUsernameInGroupViewContainer - nameGroup not found or invalid type");
+                        return;
+                    }
+                    var nameGroupLayout = (LinearLayout) nameGroup;
+                    var view1 = new LinearLayout(context);
+                    view1.setOrientation(LinearLayout.HORIZONTAL);
+                    view1.setGravity(Gravity.CENTER_VERTICAL);
+                    var nametv = nameGroupLayout.getChildAt(0);
+                    iconAdmin = new ImageView(context);
+                    var size = Utils.dipToPixels(16);
+                    iconAdmin.setLayoutParams(new LinearLayout.LayoutParams(size, size));
+                    iconAdmin.setImageResource(ResId.drawable.admin);
+                    iconAdmin.setId(0x7fff0010);
+                    nameGroupLayout.removeView(nametv);
+                    view1.addView(nametv);
+                    view1.addView(iconAdmin);
+                    nameGroupLayout.addView(view1, 0);
+                }
+                iconAdmin.setVisibility(result != null && (boolean) result ? View.VISIBLE : View.GONE);
+            } catch (Throwable inner) {
+                XposedBridge.log("WaEnhancer: setupUsernameInGroupViewContainer inner caught: " + inner);
             }
-            iconAdmin.setVisibility(result != null && (boolean) result ? View.VISIBLE : View.GONE);
-        } catch (Throwable t) {
-            XposedBridge.log("WaEnhancer: setupUsernameInGroupViewContainer caught: " + t);
+            // --- ORIGINAL METHOD BODY END ---
+
+        } catch (Throwable outer) {
+            XposedBridge.log("WaEnhancer: setupUsernameInGroupViewContainer outer caught: " + outer);
         }
     }
 
