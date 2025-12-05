@@ -1,4 +1,4 @@
-| **English** | [Português(Brasil)](README.pt-BR.md)
+#### read in ( [English](README.md) | [Português(Brasil)](README.pt-BR.md) )
 
 # WaEnhancer
 <div align="center">
