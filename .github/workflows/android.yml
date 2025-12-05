@@ -2,7 +2,7 @@ name: Android CI
 
 on:
   push:
-    branches: [ "patch1" ]
+    branches: [ "master" ]
 jobs:
   build:
     permissions: write-all
