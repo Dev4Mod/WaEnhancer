@@ -8,7 +8,6 @@ import com.wmods.wppenhacer.xposed.core.components.FMessageWpp;
 import com.wmods.wppenhacer.xposed.core.db.MessageHistory;
 import com.wmods.wppenhacer.xposed.core.devkit.Unobfuscator;
 import com.wmods.wppenhacer.xposed.features.customization.HideSeenView;
-import com.wmods.wppenhacer.xposed.utils.DebugUtils;
 import com.wmods.wppenhacer.xposed.utils.ReflectionUtils;
 
 import org.luckypray.dexkit.query.enums.StringMatchType;
@@ -53,6 +52,7 @@ public class HideSeen extends Feature {
                     return;
                 }
                 var lid = (String) XposedHelpers.getObjectField(sendReadReceiptJob, "jid");
+                logDebug(lid);
                 FMessageWpp.UserJid userJid = null;
                 try {
                     userJid = new FMessageWpp.UserJid(lid);
@@ -109,7 +109,7 @@ public class HideSeen extends Feature {
                         return;
                     }
                 }
-                var userJid = ReflectionUtils.getArg(param.args, classLoader.loadClass("com.whatsapp.jid.Jid"), 0);
+                var userJid = ReflectionUtils.getArg(param.args, Unobfuscator.findFirstClassUsingName(classLoader, StringMatchType.EndsWith, "jid.Jid"), 0);
                 if (userJid == null) return;
                 var msgTypeIdx = ReflectionUtils.findIndexOfType(((Method) param.method).getParameterTypes(), String.class);
                 if (!Objects.equals("read", param.args[msgTypeIdx])) return;

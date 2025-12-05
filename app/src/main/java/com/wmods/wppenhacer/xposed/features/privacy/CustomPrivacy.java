@@ -60,8 +60,8 @@ public class CustomPrivacy extends Feature {
 
         Class<?> ContactInfoActivityClass = Unobfuscator.findFirstClassUsingName(classLoader, StringMatchType.EndsWith, "ContactInfoActivity");
         Class<?> GroupInfoActivityClass = Unobfuscator.findFirstClassUsingName(classLoader, StringMatchType.EndsWith, "GroupChatInfoActivity");
-        Class<?> userJidClass = XposedHelpers.findClass("com.whatsapp.jid.UserJid", classLoader);
-        Class<?> groupJidClass = XposedHelpers.findClass("com.whatsapp.jid.GroupJid", classLoader);
+        Class<?> userJidClass = Unobfuscator.findFirstClassUsingName(classLoader, StringMatchType.EndsWith, "jid.UserJid");
+        Class<?> groupJidClass = Unobfuscator.findFirstClassUsingName(classLoader, StringMatchType.EndsWith, "jid.GroupJid");
 
         chatUserJidMethod = ReflectionUtils.findMethodUsingFilter(ContactInfoActivityClass, method -> method.getParameterCount() == 0 && userJidClass.isAssignableFrom(method.getReturnType()));
         groupUserJidMethod = ReflectionUtils.findMethodUsingFilter(GroupInfoActivityClass, method -> method.getParameterCount() == 0 && groupJidClass.isAssignableFrom(method.getReturnType()));

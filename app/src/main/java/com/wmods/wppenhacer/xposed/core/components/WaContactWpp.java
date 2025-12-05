@@ -3,6 +3,8 @@ package com.wmods.wppenhacer.xposed.core.components;
 import com.wmods.wppenhacer.xposed.core.devkit.Unobfuscator;
 import com.wmods.wppenhacer.xposed.utils.ReflectionUtils;
 
+import org.luckypray.dexkit.query.enums.StringMatchType;
+
 import java.lang.reflect.Field;
 
 import de.robv.android.xposed.XposedBridge;
@@ -25,15 +27,18 @@ public class WaContactWpp {
     public static void initialize(ClassLoader classLoader) {
         try {
             TYPE = Unobfuscator.loadWaContactClass(classLoader);
-            var phoneUserJid = ReflectionUtils.getFieldByExtendType(TYPE, "com.whatsapp.jid.PhoneUserJid");
+            var classPhoneUserJid = Unobfuscator.findFirstClassUsingName(classLoader, StringMatchType.EndsWith, "jid.PhoneUserJid");
+            var classJid = Unobfuscator.findFirstClassUsingName(classLoader, StringMatchType.EndsWith, "jid.Jid");
+
+            var phoneUserJid = ReflectionUtils.getFieldByExtendType(TYPE, classPhoneUserJid);
             if (phoneUserJid == null) {
                 var contactDataClass = Unobfuscator.loadWaContactData(classLoader);
                 fieldContactData = ReflectionUtils.getFieldByType(TYPE, contactDataClass);
-                fieldUserJid = ReflectionUtils.getFieldByExtendType(contactDataClass, "com.whatsapp.jid.Jid");
-                fieldPhoneUserJid = ReflectionUtils.getFieldByExtendType(contactDataClass, "com.whatsapp.jid.PhoneUserJid");
+                fieldUserJid = ReflectionUtils.getFieldByExtendType(contactDataClass, classJid);
+                fieldPhoneUserJid = ReflectionUtils.getFieldByExtendType(contactDataClass, classPhoneUserJid);
             } else {
-                fieldUserJid = ReflectionUtils.getFieldByExtendType(TYPE, "com.whatsapp.jid.Jid");
-                fieldPhoneUserJid = ReflectionUtils.getFieldByExtendType(TYPE, "com.whatsapp.jid.PhoneUserJid");
+                fieldUserJid = ReflectionUtils.getFieldByExtendType(TYPE, classJid);
+                fieldPhoneUserJid = ReflectionUtils.getFieldByExtendType(TYPE, classPhoneUserJid);
             }
         } catch (Exception e) {
             XposedBridge.log(e);

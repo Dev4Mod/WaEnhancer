@@ -22,7 +22,6 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-import com.wmods.wppenhacer.R;
 import com.wmods.wppenhacer.views.dialog.TabDialogContent;
 import com.wmods.wppenhacer.xposed.core.WppCore;
 import com.wmods.wppenhacer.xposed.core.components.FMessageWpp;
@@ -32,6 +31,8 @@ import com.wmods.wppenhacer.xposed.utils.DesignUtils;
 import com.wmods.wppenhacer.xposed.utils.ReflectionUtils;
 import com.wmods.wppenhacer.xposed.utils.ResId;
 import com.wmods.wppenhacer.xposed.utils.Utils;
+
+import org.luckypray.dexkit.query.enums.StringMatchType;
 
 import java.lang.reflect.Method;
 import java.util.Arrays;
@@ -176,17 +177,23 @@ public class IGStatusAdapter extends ArrayAdapter {
                 setCountStatus(0, 0);
                 return;
             }
-            var statusInfo = XposedHelpers.getObjectField(item, "A01");
-            var field = ReflectionUtils.getFieldByExtendType(statusInfo.getClass(), XposedHelpers.findClass("com.whatsapp.jid.Jid", statusInfoClazz.getClassLoader()));
-            this.userJid = new FMessageWpp.UserJid(ReflectionUtils.getObjectField(field, statusInfo));
-            var contactName = WppCore.getContactName(this.userJid);
-            igStatusContactName.setText(contactName);
-            var profile = WppCore.getContactPhotoDrawable(this.userJid.getPhoneRawString());
-            if (profile == null) profile = Utils.getApplication().getDrawable(ResId.drawable.user_foreground);
-            igStatusContactPhoto.setImageDrawable(profile);
-            var countUnseen = XposedHelpers.getIntField(statusInfo, "A01");
-            var total = XposedHelpers.getIntField(statusInfo, "A00");
-            setCountStatus(countUnseen, total);
+            try {
+                var statusInfo = XposedHelpers.getObjectField(item, "A01");
+                var classJid = Unobfuscator.findFirstClassUsingName(statusInfoClazz.getClassLoader(), StringMatchType.EndsWith, "jid.Jid");
+                var field = ReflectionUtils.getFieldByExtendType(statusInfo.getClass(), classJid);
+                this.userJid = new FMessageWpp.UserJid(ReflectionUtils.getObjectField(field, statusInfo));
+                var contactName = WppCore.getContactName(this.userJid);
+                igStatusContactName.setText(contactName);
+                var profile = WppCore.getContactPhotoDrawable(this.userJid.getPhoneRawString());
+                if (profile == null)
+                    profile = Utils.getApplication().getDrawable(ResId.drawable.user_foreground);
+                igStatusContactPhoto.setImageDrawable(profile);
+                var countUnseen = XposedHelpers.getIntField(statusInfo, "A01");
+                var total = XposedHelpers.getIntField(statusInfo, "A00");
+                setCountStatus(countUnseen, total);
+            } catch (Exception e) {
+                XposedBridge.log(e);
+            }
         }
 
         public void setCountStatus(int countUnseen, int total) {

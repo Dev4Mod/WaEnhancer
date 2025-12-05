@@ -14,6 +14,8 @@ import com.wmods.wppenhacer.xposed.features.general.Tasker;
 import com.wmods.wppenhacer.xposed.utils.ReflectionUtils;
 import com.wmods.wppenhacer.xposed.utils.Utils;
 
+import org.luckypray.dexkit.query.enums.StringMatchType;
+
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -96,7 +98,7 @@ public class CallPrivacy extends Feature {
             @Override
             protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
                 if (!prefs.getString("call_type", "no_internet").equals("no_internet")) return;
-                var jidClass = XposedHelpers.findClass("com.whatsapp.jid.Jid", classLoader);
+                var jidClass = Unobfuscator.findFirstClassUsingName(classLoader, StringMatchType.EndsWith, "jid.Jid");
                 var jidObj = ReflectionUtils.getArg(param.args, jidClass, 0);
                 var userJid = new FMessageWpp.UserJid(jidObj);
                 var type = Integer.parseInt(prefs.getString("call_privacy", "0"));

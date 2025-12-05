@@ -8,8 +8,9 @@ import com.wmods.wppenhacer.xposed.core.components.FMessageWpp;
 import com.wmods.wppenhacer.xposed.core.db.MessageHistory;
 import com.wmods.wppenhacer.xposed.core.devkit.Unobfuscator;
 import com.wmods.wppenhacer.xposed.features.customization.HideSeenView;
-import com.wmods.wppenhacer.xposed.utils.DebugUtils;
 import com.wmods.wppenhacer.xposed.utils.ReflectionUtils;
+
+import org.luckypray.dexkit.query.enums.StringMatchType;
 
 import java.lang.reflect.Method;
 
@@ -36,7 +37,7 @@ public class HideReceipt extends Feature {
         XposedBridge.hookMethod(method, new XC_MethodHook() {
             @Override
             protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
-                var userJid = ReflectionUtils.getArg(param.args, classLoader.loadClass("com.whatsapp.jid.Jid"), 0);
+                var userJid = ReflectionUtils.getArg(param.args, Unobfuscator.findFirstClassUsingName(classLoader, StringMatchType.EndsWith, "jid.Jid"), 0);
                 var currentUserJid = new FMessageWpp.UserJid(userJid);
                 var key = ReflectionUtils.getArg(param.args, FMessageWpp.Key.TYPE, 0);
                 var fmessage = new FMessageWpp.Key(key).getFMessage();

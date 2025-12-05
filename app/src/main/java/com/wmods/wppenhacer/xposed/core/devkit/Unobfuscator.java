@@ -205,11 +205,12 @@ public class Unobfuscator {
 
     public synchronized static Method loadReceiptMethod(ClassLoader classLoader) throws Exception {
         return UnobfuscatorCache.getInstance().getMethod(classLoader, () -> {
+            var classDeviceJid = Unobfuscator.findFirstClassUsingName(classLoader, StringMatchType.EndsWith, "jid.DeviceJid");
             var methods = dexkit.findMethod(
                     FindMethod.create()
                             .matcher(MethodMatcher.create().addUsingString("receipt")
                                     .paramCount(2, 7)
-                                    .paramTypes(null, "com.whatsapp.jid.DeviceJid", null, null, null, null, null)
+                                    .paramTypes(null, classDeviceJid, null, null, null, null, null)
                             )
             );
             if (methods.isEmpty())
@@ -716,7 +717,7 @@ public class Unobfuscator {
     public synchronized static Field loadAntiRevokeChatJidField(ClassLoader loader) throws Exception {
         return UnobfuscatorCache.getInstance().getField(loader, () -> {
             Class<?> chatClass = findFirstClassUsingStrings(loader, StringMatchType.Contains, "conversation/createconversation");
-            Class<?> jidClass = XposedHelpers.findClass("com.whatsapp.jid.Jid", loader);
+            Class<?> jidClass = Unobfuscator.findFirstClassUsingName(loader, StringMatchType.EndsWith, "jid.Jid");
             Field field = ReflectionUtils.getFieldByExtendType(chatClass, jidClass);
             if (field == null) throw new Exception("AntiRevokeChatJid field not found");
             return field;
@@ -1329,7 +1330,7 @@ public class Unobfuscator {
         return UnobfuscatorCache.getInstance().getField(loader, () -> {
             var clazz = findFirstClassUsingStrings(loader, StringMatchType.Contains, "[obfuscated]@%s");
             if (clazz == null) throw new RuntimeException("ProfileInfo class not found");
-            var fieldList = ReflectionUtils.getFieldsByExtendType(clazz, XposedHelpers.findClass("com.whatsapp.jid.Jid", loader));
+            var fieldList = ReflectionUtils.getFieldsByExtendType(clazz, Unobfuscator.findFirstClassUsingName(loader, StringMatchType.EndsWith, "jid.Jid"));
             if (fieldList.isEmpty()) throw new RuntimeException("ProfileInfo field not found");
             return fieldList.get(0);
         });
@@ -1372,7 +1373,7 @@ public class Unobfuscator {
                 var invokeMethod = invoke.getMethodInstance(loader);
                 if (invokeMethod.getParameterCount() != 2 || invokeMethod.getReturnType() != boolean.class)
                     continue;
-                if (invokeMethod.getParameterTypes()[1].getName().equals("com.whatsapp.jid.UserJid")) {
+                if (invokeMethod.getParameterTypes()[1].getName().contains("jid.UserJid")) {
                     XposedBridge.log("FIND: " + invokeMethod);
                     return invokeMethod;
                 }

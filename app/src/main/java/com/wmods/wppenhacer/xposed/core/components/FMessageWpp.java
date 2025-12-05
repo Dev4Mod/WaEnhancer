@@ -8,6 +8,8 @@ import com.wmods.wppenhacer.xposed.core.db.MessageStore;
 import com.wmods.wppenhacer.xposed.core.devkit.Unobfuscator;
 import com.wmods.wppenhacer.xposed.utils.ReflectionUtils;
 
+import org.luckypray.dexkit.query.enums.StringMatchType;
+
 import java.io.File;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
@@ -45,14 +47,14 @@ public class FMessageWpp {
     public static void initialize(ClassLoader classLoader) {
         try {
             TYPE = Unobfuscator.loadFMessageClass(classLoader);
-            var userJidClass = classLoader.loadClass("com.whatsapp.jid.UserJid");
+            var userJidClass = Unobfuscator.findFirstClassUsingName(classLoader, StringMatchType.EndsWith, "jid.UserJid");
             userJidMethod = ReflectionUtils.findMethodUsingFilter(TYPE, method -> method.getParameterCount() == 0 && method.getReturnType() == userJidClass);
             keyMessage = Unobfuscator.loadMessageKeyField(classLoader);
             Key.TYPE = keyMessage.getType();
             messageMethod = Unobfuscator.loadNewMessageMethod(classLoader);
             messageWithMediaMethod = Unobfuscator.loadNewMessageWithMediaMethod(classLoader);
             getFieldIdMessage = Unobfuscator.loadSetEditMessageField(classLoader);
-            var deviceJidClass = XposedHelpers.findClass("com.whatsapp.jid.DeviceJid", classLoader);
+            var deviceJidClass = Unobfuscator.findFirstClassUsingName(classLoader, StringMatchType.EndsWith, "jid.DeviceJid");
             deviceJidField = ReflectionUtils.findFieldUsingFilter(TYPE, field -> field.getType() == deviceJidClass);
             mediaTypeField = Unobfuscator.loadMediaTypeField(classLoader);
             getOriginalMessageKey = Unobfuscator.loadOriginalMessageKey(classLoader);
