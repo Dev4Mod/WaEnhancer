@@ -2,6 +2,7 @@
 arscblamer = "1.0"
 bcpkix-jdk18on = "1.83"
 betterypermissionhelper = "1.0.3"
+documentfile = "1.1.0"
 filepicker = "9.2.5"
 jstyleparser = "4.0.1"
 lombok = "1.18.42"
@@ -15,6 +16,7 @@ kotlin = "2.2.21"
 
 
 [libraries]
+androidx-documentfile = { module = "androidx.documentfile:documentfile", version.ref = "documentfile" }
 arscblamer = { module = "com.github.DavidArsene:arscblamer", version.ref = "arscblamer" }
 bcpkix-jdk18on = { module = "org.bouncycastle:bcpkix-jdk18on", version.ref = "bcpkix-jdk18on" }
 betterypermissionhelper = { module = "com.waseemsabir:betterypermissionhelper", version.ref = "betterypermissionhelper" }

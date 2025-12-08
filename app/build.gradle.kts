@@ -141,6 +141,7 @@ dependencies {
     compileOnly(libs.libxposed.legacy)
 
     implementation(libs.androidx.activity)
+    implementation(libs.androidx.documentfile)
     implementation(libs.androidx.constraintlayout)
     implementation(libs.androidx.fragment)
     implementation(libs.androidx.navigation.fragment)
