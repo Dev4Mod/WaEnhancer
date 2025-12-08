@@ -206,17 +206,22 @@ public class Unobfuscator {
     public synchronized static Method loadReceiptMethod(ClassLoader classLoader) throws Exception {
         return UnobfuscatorCache.getInstance().getMethod(classLoader, () -> {
             var classDeviceJid = Unobfuscator.findFirstClassUsingName(classLoader, StringMatchType.EndsWith, "jid.DeviceJid");
+            var classPhoneUserJid = Unobfuscator.findFirstClassUsingName(classLoader, StringMatchType.EndsWith, "jid.PhoneUserJid");
             var methods = dexkit.findMethod(
                     FindMethod.create()
-                            .matcher(MethodMatcher.create().addUsingString("receipt")
-                                    .paramCount(2, 7)
-                                    .paramTypes(null, classDeviceJid, null, null, null, null, null)
+                            .matcher(MethodMatcher.create()
+                                    .addUsingString("receipt")
+                                    .paramCount(5, 8)
                             )
             );
-            if (methods.isEmpty())
-                throw new NoSuchMethodError("Receipt method not found");
 
-            return methods.get(0).getMethodInstance(classLoader);
+            for (var method : methods) {
+                var params = method.getParamTypeNames();
+                if (params.contains(classDeviceJid.getName()) && params.contains(classPhoneUserJid.getName()))
+                    return method.getMethodInstance(classLoader);
+            }
+
+            throw new NoSuchMethodError("Receipt method not found");
         });
     }
 
