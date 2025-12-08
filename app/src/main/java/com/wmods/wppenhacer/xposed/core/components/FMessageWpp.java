@@ -281,6 +281,17 @@ public class FMessageWpp {
         public FMessageWpp getFMessage() {
             return fmessage;
         }
+
+        @NonNull
+        @Override
+        public String toString() {
+            return "Key{" +
+                    "thisObject=" + thisObject +
+                    ", messageID='" + messageID + '\'' +
+                    ", isFromMe=" + isFromMe +
+                    ", remoteJid=" + remoteJid +
+                    '}';
+        }
     }
 
     public static class UserJid {

@@ -48,7 +48,6 @@ public class HideReceipt extends Feature {
                 var currentUserJid = new FMessageWpp.UserJid(userJidObject);
                 var fmessage = keyMessage.getFMessage();
                 if (fmessage != null) {
-                    currentUserJid = fmessage.getKey().remoteJid;
                     if (MessageHistory.getInstance().getHideSeenMessage(fmessage.getKey().remoteJid.getPhoneRawString(), fmessage.getKey().messageID, fmessage.isViewOnce() ? MessageHistory.MessageType.VIEW_ONCE_TYPE : MessageHistory.MessageType.MESSAGE_TYPE) != null) {
                         return;
                     }

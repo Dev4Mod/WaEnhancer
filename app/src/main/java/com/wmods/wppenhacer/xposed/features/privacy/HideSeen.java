@@ -120,7 +120,7 @@ public class HideSeen extends Feature {
                     return;
                 var fmessage = keyMessage.getFMessage();
                 if (fmessage != null) {
-                    if (MessageHistory.getInstance().getHideSeenMessage(keyMessage.remoteJid.getUserRawString(), keyMessage.messageID, fmessage.isViewOnce() ? MessageHistory.MessageType.VIEW_ONCE_TYPE : MessageHistory.MessageType.MESSAGE_TYPE) != null) {
+                    if (MessageHistory.getInstance().getHideSeenMessage(keyMessage.remoteJid.getPhoneRawString(), keyMessage.messageID, fmessage.isViewOnce() ? MessageHistory.MessageType.VIEW_ONCE_TYPE : MessageHistory.MessageType.MESSAGE_TYPE) != null) {
                         return;
                     }
                 }
