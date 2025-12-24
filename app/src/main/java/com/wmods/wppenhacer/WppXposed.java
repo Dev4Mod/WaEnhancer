@@ -158,5 +158,5 @@ public class WppXposed implements IXposedHookLoadPackage, IXposedHookInitPackage
         });
     }
 
-    }
-                             
+}
+
