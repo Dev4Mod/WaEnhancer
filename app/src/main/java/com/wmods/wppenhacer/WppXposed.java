@@ -5,6 +5,7 @@ import android.content.ContextWrapper;
 import android.content.res.XModuleResources;
 import android.view.Window;
 import android.view.WindowManager;
+import android.view.View; // Added for Visibility
 
 import androidx.annotation.NonNull;
 import androidx.preference.PreferenceManager;
@@ -27,6 +28,7 @@ import de.robv.android.xposed.XposedBridge;
 import de.robv.android.xposed.XposedHelpers;
 import de.robv.android.xposed.callbacks.XC_InitPackageResources;
 import de.robv.android.xposed.callbacks.XC_LoadPackage;
+import de.robv.android.xposed.callbacks.XC_LayoutInflated; // Added for Layout Hooking
 
 public class WppXposed implements IXposedHookLoadPackage, IXposedHookInitPackageResources, IXposedHookZygoteInit {
 
@@ -83,6 +85,7 @@ public class WppXposed implements IXposedHookLoadPackage, IXposedHookInitPackage
         XModuleResources modRes = XModuleResources.createInstance(MODULE_PATH, resparam.res);
         ResParam = resparam;
 
+        // --- EXISTING RESOURCE INJECTION CODE ---
         for (var field : ResId.string.class.getFields()) {
             var field1 = R.string.class.getField(field.getName());
             field.set(null, resparam.res.addResource(modRes, field1.getInt(null)));
@@ -97,6 +100,35 @@ public class WppXposed implements IXposedHookLoadPackage, IXposedHookInitPackage
             var field1 = R.drawable.class.getField(field.getName());
             field.set(null, resparam.res.addResource(modRes, field1.getInt(null)));
         }
+
+        // --- NEW CODE: HIDE PROFILE PICTURE (DP) ---
+        try {
+            // "conversations_row" WhatsApp ki chat list ka layout name hai
+            resparam.res.hookLayout(packageName, "layout", "conversations_row", new XC_LayoutInflated() {
+                @Override
+                public void handleLayoutInflated(LayoutInflatedParam liparam) throws Throwable {
+                    // "contact_photo" DP ka ID hai
+                    int photoId = liparam.res.getIdentifier("contact_photo", "id", packageName);
+                    
+                    if (photoId != 0) {
+                        View photoView = liparam.view.findViewById(photoId);
+                        if (photoView != null) {
+                            // DP ko Gayab (GONE) kar rahe hain
+                            photoView.setVisibility(View.GONE);
+                            
+                            // Optional: Width bhi 0 kar dete hain taki khali jagah na bache
+                            android.view.ViewGroup.LayoutParams params = photoView.getLayoutParams();
+                            params.width = 0;
+                            photoView.setLayoutParams(params);
+                        }
+                    }
+                }
+            });
+            XposedBridge.log("WA Enhancer: DP Hidden Hook Applied");
+        } catch (Throwable t) {
+            XposedBridge.log(t);
+        }
+        // -------------------------------------------
 
     }
 
@@ -126,4 +158,5 @@ public class WppXposed implements IXposedHookLoadPackage, IXposedHookInitPackage
         });
     }
 
-}
+    }
+                             
