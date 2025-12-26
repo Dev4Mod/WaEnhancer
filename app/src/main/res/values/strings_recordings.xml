@@ -1,9 +1,11 @@
 <resources>
-    <!-- ... existing strings ... -->
+    <!-- Recordings Manager strings -->
     <string name="recordings_manager">Recordings</string>
     <string name="no_recordings_found">No recordings found</string>
     <string name="delete_confirmation">Are you sure you want to delete this recording?</string>
+    <string name="delete_multiple_confirmation">Are you sure you want to delete %d recordings?</string>
     <string name="share_recording">Share Recording</string>
+    <string name="share_recordings">Share Recordings</string>
     <string name="permission_required">Permission Required</string>
     <string name="permission_required_desc">Full File Access is required to manage recordings stored in the root folder.</string>
     <string name="grant">Grant</string>
@@ -11,4 +13,57 @@
     <string name="sort_name">Name</string>
     <string name="sort_date">Date</string>
     <string name="sort_duration">Duration</string>
+    <string name="sort_contact">Contact</string>
+    
+    <!-- View modes -->
+    <string name="list_view">List</string>
+    <string name="group_by_contact">By Contact</string>
+    
+    <!-- Selection mode -->
+    <string name="selected_count">%d selected</string>
+    <string name="recordings_select_all">Select All</string>
+    
+    <!-- Contact recordings -->
+    <string name="recordings_for">Recordings for %s</string>
+    <string name="recording_count">%d recording(s)</string>
+    
+    <!-- Audio player -->
+    <string name="play">Play</string>
+    <string name="pause">Pause</string>
+    <string name="play_pause">Play/Pause</string>
+    <string name="close">Close</string>
+    <string name="share">Share</string>
+    <string name="delete">Delete</string>
+    
+    <!-- Preferences -->
+    <string name="call_recording_toast_title">Show Recording Notifications</string>
+    <string name="call_recording_toast_summary">Show toast when recording starts/stops</string>
+    
+    <!-- Call Recording Settings Activity -->
+    <string name="call_recording_settings">Recording Settings</string>
+    <string name="select_recording_mode">Select Recording Mode</string>
+    <string name="recording_mode_description">Choose how call audio is captured. Root mode provides better quality but requires a rooted device.</string>
+    
+    <!-- Root Mode -->
+    <string name="root_mode">🔓 Root Mode (Recommended)</string>
+    <string name="root_mode_description">Uses system-level audio capture for the best recording quality.</string>
+    <string name="root_advantage_1">Records both sides of the conversation</string>
+    <string name="root_advantage_2">Crystal clear audio quality</string>
+    <string name="root_advantage_3">Works with all VoIP apps</string>
+    <string name="root_requirement">⚠️ Requires rooted device with Magisk/SuperSU</string>
+    
+    <!-- Non-Root Mode -->
+    <string name="non_root_mode">📱 Non-Root Mode</string>
+    <string name="non_root_mode_description">Uses standard Android audio APIs. Works on all devices but with limitations.</string>
+    <string name="non_root_advantage_1">No root required</string>
+    <string name="non_root_advantage_2">Works on any Android device</string>
+    <string name="non_root_limitation_1">May only capture your microphone (not the other party)</string>
+    
+    <!-- Common -->
+    <string name="advantages">✓ Advantages</string>
+    <string name="limitations">⚠ Limitations</string>
+    <string name="recording_mode_info">Changes take effect on the next call. Restart WhatsApp after changing settings for best results.</string>
+    <string name="root_access_granted">Root access granted! VOICE_CALL source enabled.</string>
+    <string name="root_access_denied">Root access denied. Falling back to non-root mode.</string>
+    <string name="non_root_mode_enabled">Non-root mode enabled.</string>
 </resources>
