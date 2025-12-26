@@ -16,6 +16,8 @@ import com.wmods.wppenhacer.xposed.utils.ReflectionUtils;
 import com.wmods.wppenhacer.xposed.utils.ResId;
 import com.wmods.wppenhacer.xposed.utils.Utils;
 
+import org.luckypray.dexkit.query.enums.StringMatchType;
+
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -58,14 +60,14 @@ public class ToastViewer extends Feature {
         });
     }
 
-    private void processNewWA(XC_MethodHook.MethodHookParam param, boolean toastViewedMessage, boolean toastViewedStatus) throws ClassNotFoundException, IllegalAccessException {
+    private void processNewWA(XC_MethodHook.MethodHookParam param, boolean toastViewedMessage, boolean toastViewedStatus) throws Exception {
         Collection collection;
         if (!(param.args[0] instanceof Collection)) {
             collection = Collections.singleton(param.args[0]);
         } else {
             collection = (Collection) param.args[0];
         }
-        var jidClass = classLoader.loadClass("com.whatsapp.jid.Jid");
+        var jidClass = Unobfuscator.findFirstClassUsingName(classLoader, StringMatchType.EndsWith, "jid.Jid");
         for (var messageStatusUpdateReceipt : collection) {
             var fieldByType = ReflectionUtils.getFieldByType(messageStatusUpdateReceipt.getClass(), int.class);
             var fieldId = ReflectionUtils.getFieldByType(messageStatusUpdateReceipt.getClass(), long.class);

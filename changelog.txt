@@ -1,4 +1,2 @@
-[BUG FIXED]
-* Fixed bug when sending seen to status
-* Fixed bug in contact picker for call blocking
-* Fixed bug in video media quality
+[WHATSAPP]
+* Added support for version 2.25.37.XX

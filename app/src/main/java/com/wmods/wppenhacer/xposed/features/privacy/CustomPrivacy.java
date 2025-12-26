@@ -22,6 +22,7 @@ import com.wmods.wppenhacer.xposed.core.Feature;
 import com.wmods.wppenhacer.xposed.core.WppCore;
 import com.wmods.wppenhacer.xposed.core.components.AlertDialogWpp;
 import com.wmods.wppenhacer.xposed.core.components.FMessageWpp;
+import com.wmods.wppenhacer.xposed.core.devkit.Unobfuscator;
 import com.wmods.wppenhacer.xposed.features.others.MenuHome;
 import com.wmods.wppenhacer.xposed.utils.DesignUtils;
 import com.wmods.wppenhacer.xposed.utils.ReflectionUtils;
@@ -29,6 +30,7 @@ import com.wmods.wppenhacer.xposed.utils.ResId;
 import com.wmods.wppenhacer.xposed.utils.Utils;
 
 import org.json.JSONObject;
+import org.luckypray.dexkit.query.enums.StringMatchType;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -56,10 +58,10 @@ public class CustomPrivacy extends Feature {
     public void doHook() throws Throwable {
         if (Objects.equals(Utils.xprefs.getString("custom_privacy_type", "0"), "0")) return;
 
-        Class<?> ContactInfoActivityClass = XposedHelpers.findClass("com.whatsapp.chatinfo.ContactInfoActivity", classLoader);
-        Class<?> GroupInfoActivityClass = XposedHelpers.findClass("com.whatsapp.group.GroupChatInfoActivity", classLoader);
-        Class<?> userJidClass = XposedHelpers.findClass("com.whatsapp.jid.UserJid", classLoader);
-        Class<?> groupJidClass = XposedHelpers.findClass("com.whatsapp.jid.GroupJid", classLoader);
+        Class<?> ContactInfoActivityClass = Unobfuscator.findFirstClassUsingName(classLoader, StringMatchType.EndsWith, ".ContactInfoActivity");
+        Class<?> GroupInfoActivityClass = Unobfuscator.findFirstClassUsingName(classLoader, StringMatchType.EndsWith, ".GroupChatInfoActivity");
+        Class<?> userJidClass = Unobfuscator.findFirstClassUsingName(classLoader, StringMatchType.EndsWith, "jid.UserJid");
+        Class<?> groupJidClass = Unobfuscator.findFirstClassUsingName(classLoader, StringMatchType.EndsWith, "jid.GroupJid");
 
         chatUserJidMethod = ReflectionUtils.findMethodUsingFilter(ContactInfoActivityClass, method -> method.getParameterCount() == 0 && userJidClass.isAssignableFrom(method.getReturnType()));
         groupUserJidMethod = ReflectionUtils.findMethodUsingFilter(GroupInfoActivityClass, method -> method.getParameterCount() == 0 && groupJidClass.isAssignableFrom(method.getReturnType()));

@@ -56,7 +56,6 @@ import de.robv.android.xposed.XposedBridge;
 public class Utils {
 
     private static final ExecutorService executorService = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
-    private static final ExecutorService executorCachedService = Executors.newCachedThreadPool();
     public static XSharedPreferences xprefs;
     private static final HashMap<String, Integer> ids = new HashMap<>();
 
@@ -75,10 +74,6 @@ public class Utils {
 
     public static ExecutorService getExecutor() {
         return executorService;
-    }
-
-    public static ExecutorService getExecutorCachedService() {
-        return executorCachedService;
     }
 
     public static boolean doRestart(Context context) {

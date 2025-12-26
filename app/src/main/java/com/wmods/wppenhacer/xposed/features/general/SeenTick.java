@@ -426,7 +426,8 @@ public class SeenTick extends Feature {
 
     private void sendBlueTick(FMessageWpp.UserJid userJid) {
         CompletableFuture.runAsync(() -> {
-            if (Objects.equals(userJid.getPhoneNumber(), Utils.getMyNumber())) return;
+            if (Objects.equals(userJid.getPhoneNumber(), Utils.getMyNumber()) || Objects.requireNonNullElse(userJid.getUserRawString(), "").contains("lid_me"))
+                return;
             var messages = new ArrayList<FMessageWpp>();
             var hideSeenMessagesssages = MessageHistory.getInstance().getHideSeenMessages(userJid.getPhoneRawString(), MessageHistory.MessageType.MESSAGE_TYPE, false);
             for (var message : hideSeenMessagesssages) {

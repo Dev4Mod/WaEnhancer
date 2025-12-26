@@ -1,5 +1,8 @@
 package com.wmods.wppenhacer.xposed.features.privacy;
 
+import android.text.TextUtils;
+import android.util.Pair;
+
 import androidx.annotation.NonNull;
 
 import com.wmods.wppenhacer.xposed.core.Feature;
@@ -8,12 +11,12 @@ import com.wmods.wppenhacer.xposed.core.components.FMessageWpp;
 import com.wmods.wppenhacer.xposed.core.db.MessageHistory;
 import com.wmods.wppenhacer.xposed.core.devkit.Unobfuscator;
 import com.wmods.wppenhacer.xposed.features.customization.HideSeenView;
-import com.wmods.wppenhacer.xposed.utils.DebugUtils;
 import com.wmods.wppenhacer.xposed.utils.ReflectionUtils;
 
 import org.luckypray.dexkit.query.enums.StringMatchType;
 
 import java.lang.reflect.Method;
+import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 
@@ -26,6 +29,19 @@ public class HideSeen extends Feature {
 
     public HideSeen(ClassLoader loader, XSharedPreferences preferences) {
         super(loader, preferences);
+    }
+
+    protected static FMessageWpp.Key getKeyMessage(XC_MethodHook.MethodHookParam param, Object userJidObject, List<Pair<Integer, Class<? extends String>>> strings) {
+        var keyObject = ReflectionUtils.getArg(param.args, FMessageWpp.Key.TYPE, 0);
+        if (keyObject == null) {
+            if (strings.size() < 2)
+                return null;
+            var idMessage = (String) param.args[strings.get(0).first];
+            var userJid = new FMessageWpp.UserJid(userJidObject);
+            return new FMessageWpp.Key(idMessage, userJid, false);
+        } else {
+            return new FMessageWpp.Key(keyObject);
+        }
     }
 
     @Override
@@ -53,15 +69,10 @@ public class HideSeen extends Feature {
                     return;
                 }
                 var lid = (String) XposedHelpers.getObjectField(sendReadReceiptJob, "jid");
-                FMessageWpp.UserJid userJid = null;
-                try {
-                    userJid = new FMessageWpp.UserJid(lid);
-                    if (userJid.isNull()) return;
-                } catch (Throwable e) {
-                    // WhatsApp crashes when attempting to create UserJid from MeJid or LidMeJid
-                    // and this issue can be ignored since we don't need to hide something from ourself
+                if (TextUtils.isEmpty(lid) || lid.contains("lid_me") || lid.contains("status_me"))
                     return;
-                }
+                FMessageWpp.UserJid userJid = new FMessageWpp.UserJid(lid);
+                if (userJid.isNull()) return;
                 var privacy = CustomPrivacy.getJSON(userJid.getPhoneNumber());
 
                 var customHideRead = privacy.optBoolean("HideSeen", hideread);
@@ -95,23 +106,25 @@ public class HideSeen extends Feature {
 
 
         Method ReceiptMethod = Unobfuscator.loadReceiptMethod(classLoader);
-        logDebug(Unobfuscator.getMethodDescriptor(ReceiptMethod));
+        logDebug("ReceiptMethod", Unobfuscator.getMethodDescriptor(ReceiptMethod));
 
         XposedBridge.hookMethod(ReceiptMethod, new XC_MethodHook() {
             @Override
             protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
                 if (WppCore.getCurrentConversation() != WppCore.getCurrentActivity()) return;
-                var keyObject = ReflectionUtils.getArg(param.args, FMessageWpp.Key.TYPE, 0);
-                var keyMessage = new FMessageWpp.Key(keyObject);
+                var userJidObject = ReflectionUtils.getArg(param.args, Unobfuscator.findFirstClassUsingName(classLoader, StringMatchType.EndsWith, "jid.Jid"), 0);
+                if (userJidObject == null) return;
+                var strings = ReflectionUtils.findClassesOfType(((Method) param.method).getParameterTypes(), String.class);
+                FMessageWpp.Key keyMessage = getKeyMessage(param, userJidObject, strings);
+                if (keyMessage == null)
+                    return;
                 var fmessage = keyMessage.getFMessage();
                 if (fmessage != null) {
-                    if (MessageHistory.getInstance().getHideSeenMessage(keyMessage.remoteJid.getUserRawString(), keyMessage.messageID, fmessage.isViewOnce() ? MessageHistory.MessageType.VIEW_ONCE_TYPE : MessageHistory.MessageType.MESSAGE_TYPE) != null) {
+                    if (MessageHistory.getInstance().getHideSeenMessage(keyMessage.remoteJid.getPhoneRawString(), keyMessage.messageID, fmessage.isViewOnce() ? MessageHistory.MessageType.VIEW_ONCE_TYPE : MessageHistory.MessageType.MESSAGE_TYPE) != null) {
                         return;
                     }
                 }
-                var userJid = ReflectionUtils.getArg(param.args, classLoader.loadClass("com.whatsapp.jid.Jid"), 0);
-                if (userJid == null) return;
-                var msgTypeIdx = ReflectionUtils.findIndexOfType(((Method) param.method).getParameterTypes(), String.class);
+                var msgTypeIdx = strings.get(strings.size() - 1).first;
                 if (!Objects.equals("read", param.args[msgTypeIdx])) return;
                 var privacy = CustomPrivacy.getJSON(keyMessage.remoteJid.getPhoneNumber());
                 var customHideRead = privacy.optBoolean("HideSeen", hideread);

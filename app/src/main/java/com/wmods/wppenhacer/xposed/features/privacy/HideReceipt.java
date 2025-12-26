@@ -1,5 +1,7 @@
 package com.wmods.wppenhacer.xposed.features.privacy;
 
+import static com.wmods.wppenhacer.xposed.features.privacy.HideSeen.getKeyMessage;
+
 import androidx.annotation.NonNull;
 
 import com.wmods.wppenhacer.xposed.core.Feature;
@@ -8,8 +10,9 @@ import com.wmods.wppenhacer.xposed.core.components.FMessageWpp;
 import com.wmods.wppenhacer.xposed.core.db.MessageHistory;
 import com.wmods.wppenhacer.xposed.core.devkit.Unobfuscator;
 import com.wmods.wppenhacer.xposed.features.customization.HideSeenView;
-import com.wmods.wppenhacer.xposed.utils.DebugUtils;
 import com.wmods.wppenhacer.xposed.utils.ReflectionUtils;
+
+import org.luckypray.dexkit.query.enums.StringMatchType;
 
 import java.lang.reflect.Method;
 
@@ -36,19 +39,22 @@ public class HideReceipt extends Feature {
         XposedBridge.hookMethod(method, new XC_MethodHook() {
             @Override
             protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
-                var userJid = ReflectionUtils.getArg(param.args, classLoader.loadClass("com.whatsapp.jid.Jid"), 0);
-                var currentUserJid = new FMessageWpp.UserJid(userJid);
-                var key = ReflectionUtils.getArg(param.args, FMessageWpp.Key.TYPE, 0);
-                var fmessage = new FMessageWpp.Key(key).getFMessage();
+                var userJidObject = ReflectionUtils.getArg(param.args, Unobfuscator.findFirstClassUsingName(classLoader, StringMatchType.EndsWith, "jid.Jid"), 0);
+                if (userJidObject == null) return;
+                var strings = ReflectionUtils.findClassesOfType(((Method) param.method).getParameterTypes(), String.class);
+                FMessageWpp.Key keyMessage = getKeyMessage(param, userJidObject, strings);
+                if (keyMessage == null)
+                    return;
+                var currentUserJid = new FMessageWpp.UserJid(userJidObject);
+                var fmessage = keyMessage.getFMessage();
                 if (fmessage != null) {
-                    currentUserJid = fmessage.getKey().remoteJid;
                     if (MessageHistory.getInstance().getHideSeenMessage(fmessage.getKey().remoteJid.getPhoneRawString(), fmessage.getKey().messageID, fmessage.isViewOnce() ? MessageHistory.MessageType.VIEW_ONCE_TYPE : MessageHistory.MessageType.MESSAGE_TYPE) != null) {
                         return;
                     }
                 }
                 var privacy = CustomPrivacy.getJSON(currentUserJid.getPhoneNumber());
                 var customHideReceipt = privacy.optBoolean("HideReceipt", hideReceipt);
-                var msgTypeIdx = ReflectionUtils.findIndexOfType(((Method) param.method).getParameterTypes(), String.class);
+                var msgTypeIdx = strings.get(strings.size() - 1).first;
                 var customHideRead = privacy.optBoolean("HideSeen", hideread);
                 if (param.args[msgTypeIdx] != "sender" && (customHideReceipt || ghostmode)) {
                     if (WppCore.getCurrentConversation() == null || customHideRead)
