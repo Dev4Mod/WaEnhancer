@@ -102,7 +102,7 @@ public class CallRecording extends Feature {
     private synchronized void startRecording() {
         if (isRecording) return;
         try {
-            String packageName = de.robv.android.xposed.AndroidAppHelper.currentPackageName();
+            String packageName = com.wmods.wppenhacer.xposed.core.FeatureLoader.mApp.getPackageName();
             String appName = packageName.contains("w4b") ? "WA Business" : "WhatsApp";
             
             File parentDir;
