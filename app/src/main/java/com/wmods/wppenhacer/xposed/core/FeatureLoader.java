@@ -53,6 +53,7 @@ import com.wmods.wppenhacer.xposed.features.general.Tasker;
 import com.wmods.wppenhacer.xposed.features.listeners.ContactItemListener;
 import com.wmods.wppenhacer.xposed.features.listeners.ConversationItemListener;
 import com.wmods.wppenhacer.xposed.features.listeners.MenuStatusListener;
+import com.wmods.wppenhacer.xposed.features.media.CallRecording;
 import com.wmods.wppenhacer.xposed.features.media.DownloadProfile;
 import com.wmods.wppenhacer.xposed.features.media.DownloadViewOnce;
 import com.wmods.wppenhacer.xposed.features.media.MediaPreview;
@@ -124,82 +125,100 @@ public class FeatureLoader {
         Feature.DEBUG = pref.getBoolean("enablelogs", true);
         Utils.xprefs = pref;
 
-        XposedHelpers.findAndHookMethod(Instrumentation.class, "callApplicationOnCreate", Application.class, new XC_MethodHook() {
-            @SuppressWarnings("deprecation")
-            protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
-                mApp = (Application) param.args[0];
+        XposedHelpers.findAndHookMethod(Instrumentation.class, "callApplicationOnCreate", Application.class,
+                new XC_MethodHook() {
+                    @SuppressWarnings("deprecation")
+                    protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
+                        mApp = (Application) param.args[0];
 
-                // Inject Booloader Spoofer
-                if (pref.getBoolean("bootloader_spoofer", false)) {
-                    HookBL.hook(loader, pref);
-                    XposedBridge.log("Bootloader Spoofer is Injected");
-                }
+                        // Inject Booloader Spoofer
+                        if (pref.getBoolean("bootloader_spoofer", false)) {
+                            HookBL.hook(loader, pref);
+                            XposedBridge.log("Bootloader Spoofer is Injected");
+                        }
 
-                PackageManager packageManager = mApp.getPackageManager();
-                pref.registerOnSharedPreferenceChangeListener((sharedPreferences, s) -> pref.reload());
-                PackageInfo packageInfo = packageManager.getPackageInfo(mApp.getPackageName(), 0);
-                XposedBridge.log(packageInfo.versionName);
-                currentVersion = packageInfo.versionName;
-                supportedVersions = Arrays.asList(mApp.getResources().getStringArray(Objects.equals(mApp.getPackageName(), FeatureLoader.PACKAGE_WPP) ? ResId.array.supported_versions_wpp : ResId.array.supported_versions_business));
-                mApp.registerActivityLifecycleCallbacks(new WaCallback());
-                registerReceivers();
-                try {
-                    var timemillis = System.currentTimeMillis();
-                    UnobfuscatorCache.init(mApp);
-                    SharedPreferencesWrapper.hookInit(mApp.getClassLoader());
-                    ReflectionUtils.initCache(mApp);
-                    boolean isSupported = supportedVersions.stream().anyMatch(s -> packageInfo.versionName.startsWith(s.replace(".xx", "")));
-                    if (!isSupported) {
-                        disableExpirationVersion(mApp.getClassLoader());
-                        if (!pref.getBoolean("bypass_version_check", false)) {
-                            String sb = "Unsupported version: " +
-                                    packageInfo.versionName +
-                                    "\n" +
-                                    "Only the function of ignoring the expiration of the WhatsApp version has been applied!";
-                            throw new Exception(sb);
+                        PackageManager packageManager = mApp.getPackageManager();
+                        pref.registerOnSharedPreferenceChangeListener((sharedPreferences, s) -> pref.reload());
+                        PackageInfo packageInfo = packageManager.getPackageInfo(mApp.getPackageName(), 0);
+                        XposedBridge.log(packageInfo.versionName);
+                        currentVersion = packageInfo.versionName;
+                        supportedVersions = Arrays.asList(mApp.getResources()
+                                .getStringArray(Objects.equals(mApp.getPackageName(), FeatureLoader.PACKAGE_WPP)
+                                        ? ResId.array.supported_versions_wpp
+                                        : ResId.array.supported_versions_business));
+                        mApp.registerActivityLifecycleCallbacks(new WaCallback());
+                        registerReceivers();
+                        try {
+                            var timemillis = System.currentTimeMillis();
+                            UnobfuscatorCache.init(mApp);
+                            SharedPreferencesWrapper.hookInit(mApp.getClassLoader());
+                            ReflectionUtils.initCache(mApp);
+                            boolean isSupported = supportedVersions.stream()
+                                    .anyMatch(s -> packageInfo.versionName.startsWith(s.replace(".xx", "")));
+                            if (!isSupported) {
+                                disableExpirationVersion(mApp.getClassLoader());
+                                if (!pref.getBoolean("bypass_version_check", false)) {
+                                    String sb = "Unsupported version: " +
+                                            packageInfo.versionName +
+                                            "\n" +
+                                            "Only the function of ignoring the expiration of the WhatsApp version has been applied!";
+                                    throw new Exception(sb);
+                                }
+                            }
+                            initComponents(loader, pref);
+                            plugins(loader, pref, packageInfo.versionName);
+                            sendEnabledBroadcast(mApp);
+                            // XposedHelpers.setStaticIntField(XposedHelpers.findClass("com.whatsapp.infra.logging.Log",
+                            // loader), "level", 5);
+                            var timemillis2 = System.currentTimeMillis() - timemillis;
+                            XposedBridge.log("Loaded Hooks in " + timemillis2 + "ms");
+                        } catch (Throwable e) {
+                            XposedBridge.log(e);
+                            var error = new ErrorItem();
+                            error.setPluginName("MainFeatures[Critical]");
+                            error.setWhatsAppVersion(packageInfo.versionName);
+                            error.setModuleVersion(BuildConfig.VERSION_NAME);
+                            error.setMessage(e.getMessage());
+                            error.setError(Arrays.toString(Arrays.stream(e.getStackTrace())
+                                    .filter(s -> !s.getClassName().startsWith("android")
+                                            && !s.getClassName().startsWith("com.android"))
+                                    .map(StackTraceElement::toString).toArray()));
+                            list.add(error);
                         }
                     }
-                    initComponents(loader, pref);
-                    plugins(loader, pref, packageInfo.versionName);
-                    sendEnabledBroadcast(mApp);
-//                    XposedHelpers.setStaticIntField(XposedHelpers.findClass("com.whatsapp.infra.logging.Log", loader), "level", 5);
-                    var timemillis2 = System.currentTimeMillis() - timemillis;
-                    XposedBridge.log("Loaded Hooks in " + timemillis2 + "ms");
-                } catch (Throwable e) {
-                    XposedBridge.log(e);
-                    var error = new ErrorItem();
-                    error.setPluginName("MainFeatures[Critical]");
-                    error.setWhatsAppVersion(packageInfo.versionName);
-                    error.setModuleVersion(BuildConfig.VERSION_NAME);
-                    error.setMessage(e.getMessage());
-                    error.setError(Arrays.toString(Arrays.stream(e.getStackTrace()).filter(s -> !s.getClassName().startsWith("android") && !s.getClassName().startsWith("com.android")).map(StackTraceElement::toString).toArray()));
-                    list.add(error);
-                }
-            }
-        });
+                });
 
-        XposedHelpers.findAndHookMethod(WppCore.getHomeActivityClass(loader), "onCreate", Bundle.class, new XC_MethodHook() {
-            @Override
-            protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-                super.afterHookedMethod(param);
-                if (!list.isEmpty()) {
-                    var activity = (Activity) param.thisObject;
-                    var msg = String.join("\n", list.stream().map(item -> item.getPluginName() + " - " + item.getMessage()).toArray(String[]::new));
+        XposedHelpers.findAndHookMethod(WppCore.getHomeActivityClass(loader), "onCreate", Bundle.class,
+                new XC_MethodHook() {
+                    @Override
+                    protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+                        super.afterHookedMethod(param);
+                        if (!list.isEmpty()) {
+                            var activity = (Activity) param.thisObject;
+                            var msg = String.join("\n",
+                                    list.stream().map(item -> item.getPluginName() + " - " + item.getMessage())
+                                            .toArray(String[]::new));
 
-                    new AlertDialogWpp(activity)
-                            .setTitle(activity.getString(ResId.string.error_detected))
-                            .setMessage(activity.getString(ResId.string.version_error) + msg + "\n\nCurrent Version: " + currentVersion + "\nSupported Versions:\n" + String.join("\n", supportedVersions))
-                            .setPositiveButton(activity.getString(ResId.string.copy_to_clipboard), (dialog, which) -> {
-                                var clipboard = (ClipboardManager) mApp.getSystemService(Context.CLIPBOARD_SERVICE);
-                                ClipData clip = ClipData.newPlainText("text", String.join("\n", list.stream().map(ErrorItem::toString).toArray(String[]::new)));
-                                clipboard.setPrimaryClip(clip);
-                                Toast.makeText(mApp, ResId.string.copied_to_clipboard, Toast.LENGTH_SHORT).show();
-                                dialog.dismiss();
-                            })
-                            .show();
-                }
-            }
-        });
+                            new AlertDialogWpp(activity)
+                                    .setTitle(activity.getString(ResId.string.error_detected))
+                                    .setMessage(activity.getString(ResId.string.version_error) + msg
+                                            + "\n\nCurrent Version: " + currentVersion + "\nSupported Versions:\n"
+                                            + String.join("\n", supportedVersions))
+                                    .setPositiveButton(activity.getString(ResId.string.copy_to_clipboard),
+                                            (dialog, which) -> {
+                                                var clipboard = (ClipboardManager) mApp
+                                                        .getSystemService(Context.CLIPBOARD_SERVICE);
+                                                ClipData clip = ClipData.newPlainText("text", String.join("\n",
+                                                        list.stream().map(ErrorItem::toString).toArray(String[]::new)));
+                                                clipboard.setPrimaryClip(clip);
+                                                Toast.makeText(mApp, ResId.string.copied_to_clipboard,
+                                                        Toast.LENGTH_SHORT).show();
+                                                dialog.dismiss();
+                                            })
+                                    .show();
+                        }
+                    }
+                });
     }
 
     public static void disableExpirationVersion(ClassLoader classLoader) throws Exception {
@@ -229,23 +248,22 @@ public class FeatureLoader {
             }
 
             // Check for WAE Update
-            //noinspection ConstantValue
+            // noinspection ConstantValue
             if (App.isOriginalPackage() && pref.getBoolean("update_check", true)) {
-                if (activity.getClass().getSimpleName().equals("HomeActivity") && state == WppCore.ActivityChangeState.ChangeType.CREATED) {
+                if (activity.getClass().getSimpleName().equals("HomeActivity")
+                        && state == WppCore.ActivityChangeState.ChangeType.CREATED) {
                     CompletableFuture.runAsync(new UpdateChecker(activity));
                 }
             }
         });
     }
 
-
     private static void checkUpdate(@NonNull Activity activity) {
         if (WppCore.getPrivBoolean("need_restart", false)) {
             WppCore.setPrivBoolean("need_restart", false);
             try {
-                new AlertDialogWpp(activity).
-                        setMessage(activity.getString(ResId.string.restart_wpp)).
-                        setPositiveButton(activity.getString(ResId.string.yes), (dialog, which) -> {
+                new AlertDialogWpp(activity).setMessage(activity.getString(ResId.string.restart_wpp))
+                        .setPositiveButton(activity.getString(ResId.string.yes), (dialog, which) -> {
                             if (!Utils.doRestart(activity))
                                 Toast.makeText(activity, "Unable to rebooting activity", Toast.LENGTH_SHORT).show();
                         })
@@ -263,13 +281,15 @@ public class FeatureLoader {
             public void onReceive(Context context, Intent intent) {
                 if (context.getPackageName().equals(intent.getStringExtra("PKG"))) {
                     var appName = context.getPackageManager().getApplicationLabel(context.getApplicationInfo());
-                    Toast.makeText(context, context.getString(ResId.string.rebooting) + " " + appName + "...", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(context, context.getString(ResId.string.rebooting) + " " + appName + "...",
+                            Toast.LENGTH_SHORT).show();
                     if (!Utils.doRestart(context))
                         Toast.makeText(context, "Unable to rebooting " + appName, Toast.LENGTH_SHORT).show();
                 }
             }
         };
-        ContextCompat.registerReceiver(mApp, restartReceiver, new IntentFilter(BuildConfig.APPLICATION_ID + ".WHATSAPP.RESTART"), ContextCompat.RECEIVER_EXPORTED);
+        ContextCompat.registerReceiver(mApp, restartReceiver,
+                new IntentFilter(BuildConfig.APPLICATION_ID + ".WHATSAPP.RESTART"), ContextCompat.RECEIVER_EXPORTED);
 
         /// Wpp receiver
         BroadcastReceiver wppReceiver = new BroadcastReceiver() {
@@ -278,7 +298,8 @@ public class FeatureLoader {
                 sendEnabledBroadcast(context);
             }
         };
-        ContextCompat.registerReceiver(mApp, wppReceiver, new IntentFilter(BuildConfig.APPLICATION_ID + ".CHECK_WPP"), ContextCompat.RECEIVER_EXPORTED);
+        ContextCompat.registerReceiver(mApp, wppReceiver, new IntentFilter(BuildConfig.APPLICATION_ID + ".CHECK_WPP"),
+                ContextCompat.RECEIVER_EXPORTED);
 
         // Dialog receiver restart
         BroadcastReceiver restartManualReceiver = new BroadcastReceiver() {
@@ -287,13 +308,15 @@ public class FeatureLoader {
                 WppCore.setPrivBoolean("need_restart", true);
             }
         };
-        ContextCompat.registerReceiver(mApp, restartManualReceiver, new IntentFilter(BuildConfig.APPLICATION_ID + ".MANUAL_RESTART"), ContextCompat.RECEIVER_EXPORTED);
+        ContextCompat.registerReceiver(mApp, restartManualReceiver,
+                new IntentFilter(BuildConfig.APPLICATION_ID + ".MANUAL_RESTART"), ContextCompat.RECEIVER_EXPORTED);
     }
 
     private static void sendEnabledBroadcast(Context context) {
         try {
             Intent wppIntent = new Intent(BuildConfig.APPLICATION_ID + ".RECEIVER_WPP");
-            wppIntent.putExtra("VERSION", context.getPackageManager().getPackageInfo(context.getPackageName(), 0).versionName);
+            wppIntent.putExtra("VERSION",
+                    context.getPackageManager().getPackageInfo(context.getPackageName(), 0).versionName);
             wppIntent.putExtra("PKG", context.getPackageName());
             wppIntent.setPackage(BuildConfig.APPLICATION_ID);
             context.sendBroadcast(wppIntent);
@@ -301,9 +324,10 @@ public class FeatureLoader {
         }
     }
 
-    private static void plugins(@NonNull ClassLoader loader, @NonNull XSharedPreferences pref, @NonNull String versionWpp) throws Exception {
+    private static void plugins(@NonNull ClassLoader loader, @NonNull XSharedPreferences pref,
+            @NonNull String versionWpp) throws Exception {
 
-        var classes = new Class<?>[]{
+        var classes = new Class<?>[] {
                 DebugFeature.class,
                 ContactItemListener.class,
                 ConversationItemListener.class,
@@ -359,7 +383,8 @@ public class FeatureLoader {
                 AudioTranscript.class,
                 GoogleTranslate.class,
                 ContactBlockedVerify.class,
-                LockedChatsEnhancer.class
+                LockedChatsEnhancer.class,
+                CallRecording.class
         };
         XposedBridge.log("Loading Plugins");
         var executorService = Executors.newWorkStealingPool(Math.min(Runtime.getRuntime().availableProcessors(), 4));
@@ -378,7 +403,9 @@ public class FeatureLoader {
                     error.setWhatsAppVersion(versionWpp);
                     error.setModuleVersion(BuildConfig.VERSION_NAME);
                     error.setMessage(e.getMessage());
-                    error.setError(Arrays.toString(Arrays.stream(e.getStackTrace()).filter(s -> !s.getClassName().startsWith("android") && !s.getClassName().startsWith("com.android")).map(StackTraceElement::toString).toArray()));
+                    error.setError(Arrays.toString(Arrays.stream(e.getStackTrace()).filter(
+                            s -> !s.getClassName().startsWith("android") && !s.getClassName().startsWith("com.android"))
+                            .map(StackTraceElement::toString).toArray()));
                     list.add(error);
                 }
                 var timemillis2 = System.currentTimeMillis() - timemillis;

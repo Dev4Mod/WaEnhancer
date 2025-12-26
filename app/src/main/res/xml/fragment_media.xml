@@ -67,6 +67,29 @@
 
     <PreferenceCategory
         app:iconSpaceReserved="false"
+        app:title="@string/call_recording_title">
+
+        <rikka.material.preference.MaterialSwitchPreference
+            app:key="call_recording_enable"
+            app:summary="@string/call_recording_enable_sum"
+            app:title="@string/call_recording_enable" />
+
+        <com.wmods.wppenhacer.preference.FileSelectPreference
+            android:defaultValue="/sdcard/Music/WaEnhancer/Recordings"
+            app:dependency="call_recording_enable"
+            app:directory="true"
+            app:key="call_recording_path"
+            app:title="@string/call_recording_path" />
+
+        <rikka.material.preference.MaterialSwitchPreference
+            android:enabled="false"
+            app:key="video_call_screen_rec"
+            app:summary="@string/video_call_screen_rec_locked"
+            app:title="@string/video_call_screen_rec" />
+    </PreferenceCategory>
+
+    <PreferenceCategory
+        app:iconSpaceReserved="false"
         app:title="@string/title_audio">
 
         <rikka.material.preference.MaterialSwitchPreference
