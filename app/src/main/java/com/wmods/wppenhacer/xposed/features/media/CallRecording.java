@@ -50,6 +50,7 @@ public class CallRecording extends Feature {
             @Override
             protected void afterHookedMethod(MethodHookParam param) throws Throwable {
                 int source = (int) param.args[0];
+                XposedBridge.log("WaEnhancer: AudioRecord Source " + source);
                 if (source == android.media.MediaRecorder.AudioSource.VOICE_COMMUNICATION) {
                    sampleRate = (int) param.args[1];
                    int channelConfig = (int) param.args[2];
@@ -109,26 +110,34 @@ public class CallRecording extends Feature {
             if (Environment.isExternalStorageManager()) {
                  parentDir = new File(Environment.getExternalStorageDirectory(), "WA Call Recordings");
             } else {
-                 parentDir = new File(outputDir);
+                 // Fallback to safe external storage (Android/data/com.whatsapp/files/Recordings)
+                 parentDir = new File(com.wmods.wppenhacer.xposed.core.FeatureLoader.mApp.getExternalFilesDir(null), "Recordings");
             }
             
-            // Subfolders: Package Name -> Audio (Default, since type detection is complex here)
             File dir = new File(parentDir, appName + "/Audio");
-            if (!dir.exists()) dir.mkdirs();
+            if (!dir.exists()) {
+                boolean created = dir.mkdirs();
+                if (!created) {
+                    XposedBridge.log("WaEnhancer: Failed to create directory: " + dir.getAbsolutePath());
+                    Utils.showToast("WaEnhancer: RW Error " + dir.getAbsolutePath(), android.widget.Toast.LENGTH_LONG);
+                    return;
+                }
+            }
             
             String fileName = "Call_" + new SimpleDateFormat("yyyyMMdd_HHmmss", Locale.US).format(new Date()) + ".wav";
             File file = new File(dir, fileName);
             randomAccessFile = new RandomAccessFile(file, "rw");
             
-            // write placeholder header
-            randomAccessFile.setLength(0); // truncate
+            randomAccessFile.setLength(0); 
             randomAccessFile.write(new byte[44]); 
             
             isRecording = true;
             payloadSize = 0;
-            XposedBridge.log("WaEnhancer: AudioRecord initiated at " + sampleRate + "Hz");
+            XposedBridge.log("WaEnhancer: Recording started: " + file.getAbsolutePath());
+            Utils.showToast("rec: " + file.getName(), android.widget.Toast.LENGTH_SHORT);
         } catch (Exception e) {
             XposedBridge.log(e);
+            Utils.showToast("Rec Error: " + e.getMessage(), android.widget.Toast.LENGTH_LONG);
         }
     }
 
