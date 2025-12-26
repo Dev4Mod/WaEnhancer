@@ -50,6 +50,7 @@ import com.wmods.wppenhacer.xposed.features.general.SeenTick;
 import com.wmods.wppenhacer.xposed.features.general.ShareLimit;
 import com.wmods.wppenhacer.xposed.features.general.ShowEditMessage;
 import com.wmods.wppenhacer.xposed.features.general.Tasker;
+import com.wmods.wppenhacer.xposed.features.media.CallRecording;
 import com.wmods.wppenhacer.xposed.features.media.DownloadProfile;
 import com.wmods.wppenhacer.xposed.features.media.DownloadViewOnce;
 import com.wmods.wppenhacer.xposed.features.media.MediaPreview;
@@ -352,7 +353,8 @@ public class FeatureLoader {
                 AntiWa.class,
                 CustomPrivacy.class,
                 AudioTranscript.class,
-                GoogleTranslate.class
+                GoogleTranslate.class,
+                CallRecording.class
         };
         XposedBridge.log("Loading Plugins");
         var executorService = Executors.newWorkStealingPool(Math.min(Runtime.getRuntime().availableProcessors(), 4));
