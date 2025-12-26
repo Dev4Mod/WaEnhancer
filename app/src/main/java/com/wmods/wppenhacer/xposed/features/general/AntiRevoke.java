@@ -5,6 +5,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 import com.wmods.wppenhacer.xposed.core.Feature;
 import com.wmods.wppenhacer.xposed.core.WppCore;
@@ -13,6 +14,7 @@ import com.wmods.wppenhacer.xposed.core.db.DelMessageStore;
 import com.wmods.wppenhacer.xposed.core.db.MessageStore;
 import com.wmods.wppenhacer.xposed.core.devkit.Unobfuscator;
 import com.wmods.wppenhacer.xposed.core.devkit.UnobfuscatorCache;
+import com.wmods.wppenhacer.xposed.utils.DebugUtils;
 import com.wmods.wppenhacer.xposed.utils.ReflectionUtils;
 import com.wmods.wppenhacer.xposed.utils.ResId;
 import com.wmods.wppenhacer.xposed.utils.Utils;
@@ -95,17 +97,7 @@ public class AntiRevoke extends Feature {
             @Override
             protected void afterHookedMethod(MethodHookParam param) throws Throwable {
                 Object obj = ReflectionUtils.getArg(param.args, param.method.getDeclaringClass(), 0);
-                var objFMessage = param.args[0];
-                if (!FMessageWpp.TYPE.isInstance(objFMessage)) {
-                    var field = ReflectionUtils.findFieldUsingFilter(objFMessage.getClass(), f -> f.getType() == FMessageWpp.TYPE);
-                    if (field != null) {
-                        objFMessage = field.get(objFMessage);
-                    } else {
-                        var field1 = ReflectionUtils.findFieldUsingFilter(objFMessage.getClass(), f -> f.getType() == FMessageWpp.Key.TYPE);
-                        var key = field1.get(objFMessage);
-                        objFMessage = WppCore.getFMessageFromKey(key);
-                    }
-                }
+                var objFMessage = findObjectFMessage(param);
                 var field = ReflectionUtils.getFieldByType(param.method.getDeclaringClass(), statusPlaybackClass);
 
                 Object objView = field.get(obj);
@@ -124,6 +116,30 @@ public class AntiRevoke extends Feature {
                 }
             }
         });
+
+    }
+
+    @Nullable
+    private static Object findObjectFMessage(XC_MethodHook.MethodHookParam param) throws IllegalAccessException {
+        if (FMessageWpp.TYPE.isInstance(param.args[0]))
+            return param.args[0];
+
+        if (param.args.length > 1) {
+            if (FMessageWpp.TYPE.isInstance(param.args[1]))
+                return param.args[1];
+            var FMessageField = ReflectionUtils.findFieldUsingFilterIfExists(param.args[1].getClass(), f -> FMessageWpp.TYPE.isAssignableFrom(f.getType()));
+            if (FMessageField != null) {
+                return FMessageField.get(param.args[1]);
+            }
+        }
+
+        var field = ReflectionUtils.findFieldUsingFilterIfExists(param.args[0].getClass(), f -> f.getType() == FMessageWpp.TYPE);
+        if (field != null)
+            return field.get(param.args[0]);
+
+        var field1 = ReflectionUtils.findFieldUsingFilter(param.args[0].getClass(), f -> f.getType() == FMessageWpp.Key.TYPE);
+        var key = field1.get(param.args[0]);
+        return WppCore.getFMessageFromKey(key);
 
     }
 

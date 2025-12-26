@@ -146,9 +146,9 @@ public class IGStatusAdapter extends ArrayAdapter {
         return convertView;
     }
 
-    public IGStatusAdapter(@NonNull Context context, @NonNull Class<?> statusInfoClazz) {
+    public IGStatusAdapter(@NonNull Context context, @NonNull Class<?> statusInfoClazz) throws Exception {
         super(context, 0);
-        this.clazzImageStatus = XposedHelpers.findClass("com.whatsapp.status.ContactStatusThumbnail", this.getContext().getClassLoader());
+        this.clazzImageStatus = Unobfuscator.findFirstClassUsingName(this.getContext().getClassLoader(), StringMatchType.EndsWith, ".ContactStatusThumbnail");
         this.statusInfoClazz = statusInfoClazz;
         this.setCountStatus = ReflectionUtils.findMethodUsingFilter(this.clazzImageStatus, m -> m.getParameterCount() == 3 && Arrays.equals(new Class[]{int.class, int.class, int.class}, m.getParameterTypes()));
     }

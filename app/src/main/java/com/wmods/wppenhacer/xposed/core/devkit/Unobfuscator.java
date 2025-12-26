@@ -308,7 +308,16 @@ public class Unobfuscator {
     }
 
     public synchronized static Class<?> loadForwardClassMethod(ClassLoader classLoader) throws Exception {
-        return UnobfuscatorCache.getInstance().getClass(classLoader, () -> findFirstClassUsingStrings(classLoader, StringMatchType.Contains, "UserActions/userActionForwardMessage"));
+        return UnobfuscatorCache.getInstance().getClass(classLoader, () -> {
+            for (var s : new String[]{
+                    "UserActions/userActionForwardMessage",
+                    "UserActionsMessageForwarding/userActionForwardMessage"
+            }) {
+                var cls = findFirstClassUsingStrings(classLoader, StringMatchType.Contains, s);
+                if (cls != null) return cls;
+            }
+            throw new ClassNotFoundException("ForwardClass method not found");
+        });
     }
 
 

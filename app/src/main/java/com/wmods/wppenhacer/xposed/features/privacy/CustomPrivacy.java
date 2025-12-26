@@ -58,8 +58,8 @@ public class CustomPrivacy extends Feature {
     public void doHook() throws Throwable {
         if (Objects.equals(Utils.xprefs.getString("custom_privacy_type", "0"), "0")) return;
 
-        Class<?> ContactInfoActivityClass = Unobfuscator.findFirstClassUsingName(classLoader, StringMatchType.EndsWith, "ContactInfoActivity");
-        Class<?> GroupInfoActivityClass = Unobfuscator.findFirstClassUsingName(classLoader, StringMatchType.EndsWith, "GroupChatInfoActivity");
+        Class<?> ContactInfoActivityClass = Unobfuscator.findFirstClassUsingName(classLoader, StringMatchType.EndsWith, ".ContactInfoActivity");
+        Class<?> GroupInfoActivityClass = Unobfuscator.findFirstClassUsingName(classLoader, StringMatchType.EndsWith, ".GroupChatInfoActivity");
         Class<?> userJidClass = Unobfuscator.findFirstClassUsingName(classLoader, StringMatchType.EndsWith, "jid.UserJid");
         Class<?> groupJidClass = Unobfuscator.findFirstClassUsingName(classLoader, StringMatchType.EndsWith, "jid.GroupJid");
 
