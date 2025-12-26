@@ -1,6 +1,6 @@
 package com.wmods.wppenhacer.xposed.spoofer;
 
-import android.app.AndroidAppHelper;
+
 import android.app.Application;
 import android.content.Context;
 import android.content.pm.PackageManager;
@@ -492,7 +492,7 @@ public final class HookBL {
         };
 
         try {
-            Application app = AndroidAppHelper.currentApplication();
+            Application app = com.wmods.wppenhacer.xposed.core.FeatureLoader.mApp;
 
             Class<?> PackageManagerClass, SharedPreferencesClass;
 
