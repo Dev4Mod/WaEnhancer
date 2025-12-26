@@ -1,3 +1,2 @@
 [WHATSAPP]
-* Added support for version 2.25.35.XX (Thanks to frknkrc44)
-* Added support for version 2.25.36.XX
+* Added support for version 2.25.37.XX
