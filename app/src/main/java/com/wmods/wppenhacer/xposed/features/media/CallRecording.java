@@ -102,7 +102,18 @@ public class CallRecording extends Feature {
     private synchronized void startRecording() {
         if (isRecording) return;
         try {
-            File dir = new File(outputDir);
+            String packageName = de.robv.android.xposed.AndroidAppHelper.currentPackageName();
+            String appName = packageName.contains("w4b") ? "WA Business" : "WhatsApp";
+            
+            File parentDir;
+            if (Environment.isExternalStorageManager()) {
+                 parentDir = new File(Environment.getExternalStorageDirectory(), "WA Call Recordings");
+            } else {
+                 parentDir = new File(outputDir);
+            }
+            
+            // Subfolders: Package Name -> Audio (Default, since type detection is complex here)
+            File dir = new File(parentDir, appName + "/Audio");
             if (!dir.exists()) dir.mkdirs();
             
             String fileName = "Call_" + new SimpleDateFormat("yyyyMMdd_HHmmss", Locale.US).format(new Date()) + ".wav";

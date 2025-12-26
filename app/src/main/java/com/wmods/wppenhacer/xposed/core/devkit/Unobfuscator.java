@@ -1543,15 +1543,31 @@ public class Unobfuscator {
 
     public synchronized static Field loadOriginFMessageField(ClassLoader classLoader) throws Exception {
         return UnobfuscatorCache.getInstance().getField(classLoader, () -> {
-            var result = dexkit.findMethod(new FindMethod().matcher(new MethodMatcher().addUsingString("audio/ogg; codecs=opus", StringMatchType.Contains)));
+            String[] commonStrings = new String[]{
+                    "audio/ogg; codecs=opus",
+                    "audio/ogg",
+                    "audio/amr",
+                    "audio/mp4",
+                    "audio/aac"
+            };
+
             var clazz = loadFMessageClass(classLoader);
-            if (result.isEmpty()) throw new RuntimeException("OriginFMessageField not found");
-            var fields = result.get(0).getUsingFields();
-            for (var field : fields) {
-                var f = field.getField().getFieldInstance(classLoader);
-                if (f.getDeclaringClass().equals(clazz)) {
-                    return f;
-                }
+            
+            for (String str : commonStrings) {
+                try {
+                    var result = dexkit.findMethod(new FindMethod().matcher(new MethodMatcher().addUsingString(str, StringMatchType.Contains)));
+                    if (result.isEmpty()) continue;
+                    
+                    for (var m : result) {
+                        var fields = m.getUsingFields();
+                        for (var field : fields) {
+                            var f = field.getField().getFieldInstance(classLoader);
+                            if (f.getDeclaringClass().equals(clazz)) {
+                                return f;
+                            }
+                        }
+                    }
+                } catch (Exception ignored) {}
             }
             throw new RuntimeException("OriginFMessageField not found");
         });

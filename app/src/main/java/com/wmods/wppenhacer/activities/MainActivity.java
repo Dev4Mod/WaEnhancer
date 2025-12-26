@@ -46,6 +46,11 @@ public class MainActivity extends BaseActivity {
         MainPagerAdapter pagerAdapter = new MainPagerAdapter(this);
         binding.viewPager.setAdapter(pagerAdapter);
 
+        var prefs = androidx.preference.PreferenceManager.getDefaultSharedPreferences(this);
+        if (!prefs.getBoolean("call_recording_enable", false)) {
+            binding.navView.getMenu().findItem(R.id.navigation_recordings).setVisible(false);
+        }
+
         binding.navView.setOnItemSelectedListener(new NavigationBarView.OnItemSelectedListener() {
             @SuppressLint("NonConstantResourceId")
             @Override
@@ -69,6 +74,10 @@ public class MainActivity extends BaseActivity {
                     }
                     case R.id.navigation_colors -> {
                         binding.viewPager.setCurrentItem(4);
+                        yield true;
+                    }
+                    case R.id.navigation_recordings -> {
+                        binding.viewPager.setCurrentItem(5);
                         yield true;
                     }
                     default -> false;
