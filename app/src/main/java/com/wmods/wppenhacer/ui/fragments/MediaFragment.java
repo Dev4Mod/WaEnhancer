@@ -40,4 +40,5 @@ public class MediaFragment extends BasePreferenceFragment {
             });
             videoCallScreenRec.setOnPreferenceChangeListener((preference, newValue) -> false); // Prevent toggling
         }
+    }
 }
