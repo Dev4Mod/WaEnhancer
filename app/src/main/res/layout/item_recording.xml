@@ -1,17 +1,29 @@
 <?xml version="1.0" encoding="utf-8"?>
 <com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/card"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_margin="8dp"
     app:cardCornerRadius="12dp"
     app:cardElevation="2dp"
-    app:strokeWidth="0dp">
+    app:strokeWidth="0dp"
+    android:checkable="true">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:padding="16dp">
+
+        <!-- Checkbox for multi-select mode (initially hidden) -->
+        <CheckBox
+            android:id="@+id/checkbox"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:visibility="gone"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
 
         <ImageView
             android:id="@+id/icon"
@@ -19,70 +31,106 @@
             android:layout_height="40dp"
             android:src="@drawable/ic_recording"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintStart_toEndOf="@+id/checkbox"
             app:layout_constraintTop_toTopOf="parent"
+            android:layout_marginStart="0dp"
             app:tint="?attr/colorPrimary" />
 
+        <!-- Contact name (prominent) -->
         <TextView
-            android:id="@+id/name"
+            android:id="@+id/contact_name"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginStart="16dp"
+            android:layout_marginStart="12dp"
             android:layout_marginEnd="8dp"
-            android:ellipsize="middle"
+            android:ellipsize="end"
             android:singleLine="true"
-            android:text="Recording_2025..."
+            android:text="Contact Name"
             android:textAppearance="?attr/textAppearanceSubtitle1"
             android:textColor="?android:attr/textColorPrimary"
             android:textStyle="bold"
-            app:layout_constraintEnd_toStartOf="@+id/btn_play"
+            app:layout_constraintEnd_toStartOf="@+id/duration"
             app:layout_constraintStart_toEndOf="@+id/icon"
             app:layout_constraintTop_toTopOf="parent" />
 
+        <!-- Duration badge -->
+        <TextView
+            android:id="@+id/duration"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/duration_badge_background"
+            android:paddingHorizontal="8dp"
+            android:paddingVertical="2dp"
+            android:text="0:00"
+            android:textAppearance="?attr/textAppearanceCaption"
+            android:textColor="?attr/colorOnPrimary"
+            android:textStyle="bold"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <!-- File name / phone number -->
+        <TextView
+            android:id="@+id/phone_number"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="2dp"
+            android:text="+1234567890"
+            android:textAppearance="?attr/textAppearanceCaption"
+            android:textColor="?android:attr/textColorSecondary"
+            app:layout_constraintEnd_toEndOf="@+id/contact_name"
+            app:layout_constraintStart_toStartOf="@+id/contact_name"
+            app:layout_constraintTop_toBottomOf="@+id/contact_name" />
+
+        <!-- Details: size and date -->
         <TextView
             android:id="@+id/details"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginTop="4dp"
-            android:text="2.5 MB • 02:30 • 26 Dec 2025"
+            android:layout_marginTop="2dp"
+            android:text="2.5 MB • 26 Dec 2025"
             android:textAppearance="?attr/textAppearanceCaption"
             android:textColor="?android:attr/textColorSecondary"
-            app:layout_constraintEnd_toEndOf="@+id/name"
-            app:layout_constraintStart_toStartOf="@+id/name"
-            app:layout_constraintTop_toBottomOf="@+id/name" />
+            app:layout_constraintEnd_toEndOf="@+id/contact_name"
+            app:layout_constraintStart_toStartOf="@+id/contact_name"
+            app:layout_constraintTop_toBottomOf="@+id/phone_number" />
 
-        <ImageButton
-            android:id="@+id/btn_play"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
-            android:background="?attr/selectableItemBackgroundBorderless"
-            android:src="@android:drawable/ic_media_play"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toStartOf="@+id/btn_share"
-            app:layout_constraintTop_toTopOf="parent"
-            app:tint="?attr/colorControlNormal" />
-
-        <ImageButton
-            android:id="@+id/btn_share"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
-            android:background="?attr/selectableItemBackgroundBorderless"
-            android:src="@android:drawable/ic_menu_share"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toStartOf="@+id/btn_delete"
-            app:layout_constraintTop_toTopOf="parent"
-            app:tint="?attr/colorControlNormal" />
-
-        <ImageButton
-            android:id="@+id/btn_delete"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
-            android:background="?attr/selectableItemBackgroundBorderless"
-            android:src="@android:drawable/ic_menu_delete"
-            app:layout_constraintBottom_toBottomOf="parent"
+        <!-- Action buttons container (hidden in multi-select mode) -->
+        <LinearLayout
+            android:id="@+id/actions_container"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginTop="8dp"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:tint="?attr/colorError" />
+            app:layout_constraintTop_toBottomOf="@+id/duration">
+
+            <ImageButton
+                android:id="@+id/btn_play"
+                android:layout_width="36dp"
+                android:layout_height="36dp"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:src="@drawable/ic_play"
+                android:contentDescription="@string/play"
+                app:tint="?attr/colorPrimary" />
+
+            <ImageButton
+                android:id="@+id/btn_share"
+                android:layout_width="36dp"
+                android:layout_height="36dp"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:src="@android:drawable/ic_menu_share"
+                android:contentDescription="@string/share"
+                app:tint="?attr/colorControlNormal" />
+
+            <ImageButton
+                android:id="@+id/btn_delete"
+                android:layout_width="36dp"
+                android:layout_height="36dp"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:src="@android:drawable/ic_menu_delete"
+                android:contentDescription="@string/delete"
+                app:tint="?attr/colorError" />
+        </LinearLayout>
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
