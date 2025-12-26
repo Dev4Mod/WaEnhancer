@@ -1,0 +1,14 @@
+<resources>
+    <!-- ... existing strings ... -->
+    <string name="recordings_manager">Recordings</string>
+    <string name="no_recordings_found">No recordings found</string>
+    <string name="delete_confirmation">Are you sure you want to delete this recording?</string>
+    <string name="share_recording">Share Recording</string>
+    <string name="permission_required">Permission Required</string>
+    <string name="permission_required_desc">Full File Access is required to manage recordings stored in the root folder.</string>
+    <string name="grant">Grant</string>
+    <string name="sort_by">Sort By</string>
+    <string name="sort_name">Name</string>
+    <string name="sort_date">Date</string>
+    <string name="sort_duration">Duration</string>
+</resources>
