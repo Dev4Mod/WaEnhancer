@@ -4,7 +4,7 @@
 <div align="center">
   <p><strong>WaEnhancer is an Xposed module that enhances your WhatsApp experience.</p></strong>
   <p><strong>Warning:</strong> This module is intended for educational purposes only, you may have problems with your WhatsApp account, risk of banning! Use it at your own risk.</p>
-  <p>Please note that this project is currently in development, so bugs and crashes may occur. If you encounter any issues report them in our group or create an <a href="https://github.com/Dev4Mod/WaEnhancer/issues">issue</a> here.</p>
+  <p>Please note that this project is currently in development, so bugs and crashes may occur. If you encounter any issues report them in our group or create an <a href="https://github.com/mubashardev/WaEnhancer/issues">issue</a> here.</p>
 </div>
 
 
@@ -139,7 +139,7 @@
 1. Ensure that your device is rooted.
 2. Install the Xposed Framework (recommend [this](https://github.com/JingMatrix/LSPosed) LPosed) on
    your device.
-3. Download the WaEnhancer from the [Actions](https://github.com/Dev4Mod/WaEnhancer/actions) section.
+3. Download the WaEnhancer from the [Actions](https://github.com/mubashardev/WaEnhancer/actions) section.
 4. Install the WaEnhancer APK.
 5. Enable the WaEnhancer module in the Xposed Installer app.
 

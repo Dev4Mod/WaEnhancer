@@ -216,7 +216,11 @@ public class Others extends Feature {
         }
 
         if (audio_type > 0) {
-            sendAudioType(audio_type);
+            try {
+                sendAudioType(audio_type);
+            } catch (Exception e) {
+                logDebug(e);
+            }
         }
 
         customPlayBackSpeed();
