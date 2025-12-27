@@ -77,12 +77,11 @@ public class TextStatusComposer extends Feature {
         var methodsTextStatus = Unobfuscator.loadTextStatusData(classLoader);
 
         for (var method : methodsTextStatus) {
-            Class<?> textDataClass = classLoader.loadClass("com.whatsapp.TextData");
             logDebug("setColorTextComposer", Unobfuscator.getMethodDescriptor(method));
             XposedBridge.hookMethod(method, new XC_MethodHook() {
                 @Override
                 protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
-                    var textData = ReflectionUtils.getArg(param.args, textDataClass, 0);
+                    var textData = param.args[0];
                     if (textData == null) return;
                     if (colorData.textColor != -1)
                         XposedHelpers.setObjectField(textData, "textColor", colorData.textColor);
