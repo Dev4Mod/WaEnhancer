@@ -245,8 +245,8 @@ public class Others extends Feature {
 
     private void disablePhotoProfileStatus() throws Exception {
         var refreshStatusClass = Unobfuscator.loadRefreshStatusClass(classLoader);
-        var photoProfileClass = classLoader.loadClass("com.whatsapp.wds.components.profilephoto.WDSProfilePhoto");
-        var convClass = classLoader.loadClass("com.whatsapp.conversationslist.ConversationsFragment");
+        var photoProfileClass = Unobfuscator.findFirstClassUsingName(classLoader, StringMatchType.EndsWith, ".WDSProfilePhoto");
+        var convClass = Unobfuscator.findFirstClassUsingName(classLoader, StringMatchType.EndsWith, ".ConversationsFragment");
         var jidClass = Unobfuscator.findFirstClassUsingName(classLoader, StringMatchType.EndsWith, "jid.Jid");
         var method = ReflectionUtils.findMethodUsingFilter(convClass, m -> m.getParameterCount() > 0 && !Modifier.isStatic(m.getModifiers()) && m.getParameterTypes()[0] == View.class && ReflectionUtils.findIndexOfType(m.getParameterTypes(), jidClass) != -1);
         var field = ReflectionUtils.getFieldByExtendType(convClass, refreshStatusClass);
