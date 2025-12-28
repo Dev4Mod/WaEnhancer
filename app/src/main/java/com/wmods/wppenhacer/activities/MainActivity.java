@@ -10,6 +10,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 
 import androidx.annotation.NonNull;
+import androidx.core.app.ActivityOptionsCompat;
 import androidx.fragment.app.Fragment;
 import androidx.viewpager2.widget.ViewPager2;
 
@@ -27,7 +28,6 @@ import java.io.File;
 public class MainActivity extends BaseActivity {
 
     private ActivityMainBinding binding;
-
     private BatteryPermissionHelper batteryPermissionHelper = BatteryPermissionHelper.Companion.getInstance();
 
     @Override
@@ -35,16 +35,20 @@ public class MainActivity extends BaseActivity {
         App.changeLanguage(this);
         super.onCreate(savedInstanceState);
 
-        if (getSupportActionBar() != null) {
-            getSupportActionBar().setDisplayShowHomeEnabled(true);
-            getSupportActionBar().setIcon(R.mipmap.launcher);
-        }
-
         binding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
+        setSupportActionBar(binding.toolbar);
+        if (getSupportActionBar() != null) {
+            getSupportActionBar().setDisplayShowTitleEnabled(false);
+        }
+
+        binding.toolbar.setTitle(R.string.app_name);
+
         MainPagerAdapter pagerAdapter = new MainPagerAdapter(this);
         binding.viewPager.setAdapter(pagerAdapter);
+
+        binding.viewPager.setPageTransformer(new DepthPageTransformer());
 
         binding.navView.setOnItemSelectedListener(new NavigationBarView.OnItemSelectedListener() {
             @SuppressLint("NonConstantResourceId")
@@ -52,23 +56,23 @@ public class MainActivity extends BaseActivity {
             public boolean onNavigationItemSelected(@NonNull MenuItem item) {
                 return switch (item.getItemId()) {
                     case R.id.navigation_chat -> {
-                        binding.viewPager.setCurrentItem(0);
+                        binding.viewPager.setCurrentItem(0, true);
                         yield true;
                     }
                     case R.id.navigation_privacy -> {
-                        binding.viewPager.setCurrentItem(1);
+                        binding.viewPager.setCurrentItem(1, true);
                         yield true;
                     }
                     case R.id.navigation_home -> {
-                        binding.viewPager.setCurrentItem(2);
+                        binding.viewPager.setCurrentItem(2, true);
                         yield true;
                     }
                     case R.id.navigation_media -> {
-                        binding.viewPager.setCurrentItem(3);
+                        binding.viewPager.setCurrentItem(3, true);
                         yield true;
                     }
                     case R.id.navigation_colors -> {
-                        binding.viewPager.setCurrentItem(4);
+                        binding.viewPager.setCurrentItem(4, true);
                         yield true;
                     }
                     default -> false;
@@ -87,7 +91,6 @@ public class MainActivity extends BaseActivity {
         createMainDir();
         FilePicker.registerFilePicker(this);
     }
-
 
     private void createMainDir() {
         var nomedia = new File(App.getWaEnhancerFolder(), ".nomedia");
@@ -118,7 +121,9 @@ public class MainActivity extends BaseActivity {
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         if (item.getItemId() == R.id.menu_about) {
-            startActivity(new Intent(this, AboutActivity.class));
+            var options = ActivityOptionsCompat.makeCustomAnimation(
+                    this, R.anim.slide_in_right, R.anim.slide_out_left);
+            startActivity(new Intent(this, AboutActivity.class), options.toBundle());
             return true;
         } else if (item.getItemId() == R.id.batteryoptimization) {
             if (batteryPermissionHelper.isBatterySaverPermissionAvailable(this, true)) {
@@ -141,5 +146,33 @@ public class MainActivity extends BaseActivity {
     public boolean onSupportNavigateUp() {
         onBackPressed();
         return super.onSupportNavigateUp();
+    }
+
+    private static class DepthPageTransformer implements ViewPager2.PageTransformer {
+        private static final float MIN_SCALE = 0.85f;
+
+        @Override
+        public void transformPage(@NonNull android.view.View page, float position) {
+            int pageWidth = page.getWidth();
+
+            if (position < -1) {
+                page.setAlpha(0f);
+            } else if (position <= 0) {
+                page.setAlpha(1f);
+                page.setTranslationX(0f);
+                page.setTranslationZ(0f);
+                page.setScaleX(1f);
+                page.setScaleY(1f);
+            } else if (position <= 1) {
+                page.setAlpha(1 - position);
+                page.setTranslationX(pageWidth * -position);
+                page.setTranslationZ(-1f);
+                float scaleFactor = MIN_SCALE + (1 - MIN_SCALE) * (1 - Math.abs(position));
+                page.setScaleX(scaleFactor);
+                page.setScaleY(scaleFactor);
+            } else {
+                page.setAlpha(0f);
+            }
+        }
     }
 }

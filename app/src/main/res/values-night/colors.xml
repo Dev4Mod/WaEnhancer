@@ -1,10 +1,23 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="primary_text_material_inverse">@color/abc_primary_text_material_light</color>
-    <color name="primary_text_material">@color/abc_primary_text_material_dark</color>
+    <color name="surface_elevated">#1E1E1E</color>
+    <color name="surface_container">#252525</color>
+    <color name="surface_container_high">#2C2C2C</color>
 
-    <color name="ic_launcher_foreground">#F06292</color>
-    <color name="ic_launcher_background">#E1F5FE</color>
+    <color name="nav_indicator">#1B5E20</color>
+    <color name="nav_background">#121212</color>
 
-    <color name="primary_background">@color/background_dark</color>
+    <color name="ripple_color">#33FFFFFF</color>
+
+    <color name="card_shadow">#00000000</color>
+
+    <color name="text_primary">#FFFFFF</color>
+    <color name="text_secondary">#B3B3B3</color>
+
+    <color name="gradient_start_primary">#26A69A</color>
+    <color name="gradient_end_primary">#00796B</color>
+
+    <color name="whatsapp_green">#25D366</color>
+    <color name="whatsapp_dark_green">#128C7E</color>
+    <color name="whatsapp_teal">#075E54</color>
 </resources>

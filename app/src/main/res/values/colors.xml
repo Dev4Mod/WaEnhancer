@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <color name="primary_text_material_inverse">@color/abc_primary_text_material_dark</color>
-
     <color name="primary_text_material">@color/abc_primary_text_material_light</color>
 
     <color name="ic_launcher_foreground">#FFFFFF</color>
@@ -23,4 +22,35 @@
     <color name="primary_background">@color/background_light</color>
     <color name="codeview_strings">#24D52B</color>
 
+    <color name="gradient_start_primary">#26A69A</color>
+    <color name="gradient_end_primary">#00796B</color>
+    <color name="gradient_start_success">#4CAF50</color>
+    <color name="gradient_end_success">#1B5E20</color>
+    <color name="gradient_start_error">#FF5252</color>
+    <color name="gradient_end_error">#D50000</color>
+    <color name="gradient_start_warning">#FFD740</color>
+    <color name="gradient_end_warning">#FF6D00</color>
+
+    <color name="whatsapp_green">#25D366</color>
+    <color name="whatsapp_dark_green">#128C7E</color>
+    <color name="whatsapp_teal">#075E54</color>
+
+    <color name="surface_elevated">#FAFAFA</color>
+    <color name="surface_container">#F5F5F5</color>
+    <color name="surface_container_high">#EEEEEE</color>
+
+    <color name="nav_indicator">#E8F5E9</color>
+    <color name="nav_background">#FFFFFF</color>
+
+    <color name="ripple_color">#1F000000</color>
+
+    <color name="card_shadow">#14000000</color>
+
+    <color name="status_active">#00E676</color>
+    <color name="status_inactive">#FF5252</color>
+    <color name="status_warning">#FFAB40</color>
+
+    <color name="text_primary">#212121</color>
+    <color name="text_secondary">#757575</color>
+    <color name="text_on_gradient">#FFFFFF</color>
 </resources>

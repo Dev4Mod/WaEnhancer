@@ -1,31 +1,33 @@
 <resources>
 
     <style name="Base.AppTheme.Light" parent="Theme.Material3.DynamicColors.Light.Rikka">
-        <item name="android:windowLightStatusBar">true</item>
+        <item name="android:windowLightStatusBar">false</item>
         <item name="colorPrimaryVariant">@color/primary_dark_light_light_status_bar</item>
-
-        <item name="android:statusBarColor">?android:colorBackground</item>
-
-        <!-- Preference title -->
+        <item name="android:statusBarColor">@color/whatsapp_teal</item>
+        <item name="android:navigationBarColor">@android:color/transparent</item>
+        <item name="android:windowLightNavigationBar">true</item>
         <item name="android:textAppearanceListItem">?textAppearanceSubtitle1</item>
-        <!-- Preference category title -->
         <item name="android:colorAccent">?colorPrimary</item>
-        <!-- Preference switch -->
         <item name="android:colorControlActivated">?colorPrimary</item>
+        <item name="android:windowActivityTransitions">true</item>
+        <item name="android:windowEnterTransition">@android:transition/fade</item>
+        <item name="android:windowExitTransition">@android:transition/fade</item>
+        <item name="toolbarStyle">@style/ModernToolbarStyle</item>
     </style>
 
     <style name="Theme.Light" parent="Base.AppTheme.Light" />
 
     <style name="Base.AppTheme" parent="Theme.Material3.DynamicColors.Dark.Rikka">
-
-        <!-- Preference title -->
         <item name="android:textAppearanceListItem">?textAppearanceSubtitle1</item>
-        <!-- Preference category title -->
         <item name="android:colorAccent">?colorPrimary</item>
-        <!-- Preference switch -->
         <item name="android:colorControlActivated">?colorPrimary</item>
-
         <item name="actionBarStyle">@style/MyActionBar</item>
+        <item name="android:statusBarColor">@color/whatsapp_teal</item>
+        <item name="android:navigationBarColor">@android:color/transparent</item>
+        <item name="android:windowActivityTransitions">true</item>
+        <item name="android:windowEnterTransition">@android:transition/fade</item>
+        <item name="android:windowExitTransition">@android:transition/fade</item>
+        <item name="toolbarStyle">@style/ModernToolbarStyle</item>
     </style>
 
     <style name="MyActionBar" parent="@style/Widget.Material3.ActionBar.Solid">
@@ -39,12 +41,60 @@
         <item name="android:textAlignment">viewStart</item>
         <item name="android:textAppearance">@style/TextAppearance.MaterialComponents.Body1</item>
         <item name="android:textColor">?android:attr/textColorSecondary</item>
+        <item name="android:letterSpacing">0.01</item>
     </style>
 
     <style name="DeviceInfoDialogValue">
         <item name="android:textAlignment">viewStart</item>
         <item name="android:textAppearance">@style/TextAppearance.MaterialComponents.Body2</item>
-        <item name="android:paddingBottom">24dp</item>
+        <item name="android:paddingBottom">@dimen/spacing_large</item>
+    </style>
+
+    <style name="StatusCardStyle" parent="Widget.Material3.CardView.Elevated">
+        <item name="cardCornerRadius">@dimen/card_radius_large</item>
+        <item name="cardElevation">@dimen/card_elevation_high</item>
+        <item name="android:layout_marginBottom">@dimen/spacing_medium</item>
+        <item name="contentPadding">@dimen/spacing_medium</item>
+    </style>
+
+    <style name="StatusCardTitle">
+        <item name="android:textAppearance">?textAppearanceTitleMedium</item>
+        <item name="android:textColor">@color/text_on_gradient</item>
+        <item name="android:fontFamily">sans-serif-medium</item>
+        <item name="android:textSize">16sp</item>
+    </style>
+
+    <style name="StatusCardSummary">
+        <item name="android:textAppearance">?textAppearanceBodyMedium</item>
+        <item name="android:textColor">@color/text_on_gradient</item>
+        <item name="android:alpha">0.9</item>
+    </style>
+
+    <style name="ModernButton" parent="Widget.Material3.Button">
+        <item name="android:minHeight">@dimen/button_height</item>
+        <item name="android:minWidth">@dimen/button_min_width</item>
+        <item name="cornerRadius">@dimen/card_radius_medium</item>
+        <item name="android:textAllCaps">false</item>
+        <item name="android:letterSpacing">0.02</item>
+    </style>
+
+    <style name="ModernButton.Outlined" parent="Widget.Material3.Button.OutlinedButton">
+        <item name="android:minHeight">@dimen/button_height</item>
+        <item name="android:minWidth">@dimen/button_min_width</item>
+        <item name="cornerRadius">@dimen/card_radius_medium</item>
+        <item name="android:textAllCaps">false</item>
+    </style>
+
+    <style name="BottomNavStyle" parent="Widget.Material3.BottomNavigationView">
+        <item name="itemActiveIndicatorStyle">@style/NavActiveIndicator</item>
+        <item name="labelVisibilityMode">labeled</item>
+        <item name="android:minHeight">@dimen/nav_bar_height</item>
+        <item name="elevation">@dimen/card_elevation_high</item>
+    </style>
+
+    <style name="NavActiveIndicator" parent="Widget.Material3.BottomNavigationView.ActiveIndicator">
+        <item name="android:color">?colorPrimaryContainer</item>
+        <item name="shapeAppearance">@style/ShapeAppearance.Material3.Corner.Full</item>
     </style>
 
 </resources>
