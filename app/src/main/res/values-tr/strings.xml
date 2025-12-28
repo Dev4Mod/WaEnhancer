@@ -38,7 +38,7 @@
     <string name="novaconfig">Yeni Ayarlar Stili</string>
     <string name="novaconfig_sum">Ana ekran araç çubuğunda profil fotoğrafı ile yeni ayarlar stilini etkinleştir</string>
     <string name="novofiltro">Arama Fonksiyonları</string>
-    <string name="novofiltro_sum">Choose between Search Icon, Search Bar, or No Search</string>
+    <string name="novofiltro_sum">Arama Simgesi, Arama Çubuğu veya Arama Yok seçenekleri arasında seçim yapın</string>
     <string name="menuwicon">Menü Simgeleri</string>
     <string name="menuwicon_sum">Uygulama genelinde menü seçeneklerinin yanına simgeler ekle</string>
     <string name="freezelastseen">Son Görülmeyi Dondur</string>
@@ -370,10 +370,14 @@
     <string name="custom_privacy_sum">Özel Gizliliği Etkinleştir/Devre Dışı Bırak</string>
     <string name="custom_privacy_per_contact">Kişi başına özel gizlilik</string>
     <string name="custom_privacy_per_contact_sum">Kişi bilgileri ekranında özel gizlilik düğmesini etkinleştirin</string>
+    <string name="transcription_provider">Transcription Provider</string>
+    <string name="transcription_provider_sum">Choose the AI service for audio transcription</string>
     <string name="assemblyai">AssemblyAI\'yi Etkinleştir</string>
     <string name="assemblyai_sum">Varsayılan Whatsapp transkripsiyonunu AssemblyAI ile değiştirir</string>
-    <string name="assemblyai_key">AssemblyAI anahtarı</string>
-    <string name="assemblyai_key_sum">AssemblyAI API erişim anahtarı (Anahtarınızı almak için web sitesine giriş yapın ve bir hesap oluşturun)</string>
+    <string name="assemblyai_key">AssemblyAI API Key</string>
+    <string name="assemblyai_key_sum">AssemblyAI API access key (Get it at assemblyai.com)</string>
+    <string name="groq_api_key">Groq API Key</string>
+    <string name="groq_api_key_sum">Groq API access key (Get it at console.groq.com)</string>
     <string name="google_translate">Google Çeviri\'yi Etkinleştir</string>
     <string name="google_translate_sum">Whatsapp\'ın yerel çevirmenini Google Çeviri ile değiştirir</string>
     <string name="show_contact_info">İletişim bilgilerinde göster</string>
@@ -412,4 +416,5 @@
     <string name="disable_the_proximity_sensor_sum">Yakınlık sensöründe ekran kapatma özelliğini WhatsApp\'ın tamamında devre dışı bırakın</string>
     <string name="disable_status_in_the_profile_photo">Profil fotoğrafındaki Durumu devre dışı bırak</string>
     <string name="disable_status_in_the_profile_photo_sum">Yeni durum olduğunda her kişinin profil fotoğrafında görünen daireyi devre dışı bırakır</string>
+    <string name="download_not_available">Download not available or media has not been fully downloaded</string>
 </resources>

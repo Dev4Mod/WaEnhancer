@@ -38,7 +38,7 @@
     <string name="novaconfig">Nuovo stile Impostazioni</string>
     <string name="novaconfig_sum">Abilita il nuovo stile delle impostazioni, con la foto del profilo sulla barra degli strumenti della Home</string>
     <string name="novofiltro">Funzioni di ricerca</string>
-    <string name="novofiltro_sum">Choose between Search Icon, Search Bar, or No Search</string>
+    <string name="novofiltro_sum">Scegli tra Icona di Ricerca, Barra di Ricerca o Nessuna Ricerca</string>
     <string name="menuwicon">Icone nel menù</string>
     <string name="menuwicon_sum">Aggiungi le icone accanto alle opzioni di menù dell\'app</string>
     <string name="freezelastseen">Congela Ultimo accesso</string>
@@ -370,10 +370,14 @@
     <string name="custom_privacy_sum">Abilita/Disabilita Privacy personalizzata</string>
     <string name="custom_privacy_per_contact">Privacy personalizzata per Contatto</string>
     <string name="custom_privacy_per_contact_sum">Attiva nella schermata delle informazioni del contatto il pulsante Privacy personalizzata</string>
+    <string name="transcription_provider">Transcription Provider</string>
+    <string name="transcription_provider_sum">Choose the AI service for audio transcription</string>
     <string name="assemblyai">Abilita AssemblyAI</string>
     <string name="assemblyai_sum">Sostituisce la trascrizione predefinita di WhatsApp con AssemblyAI</string>
-    <string name="assemblyai_key">AssemblyAI key</string>
-    <string name="assemblyai_key_sum">Chiave di accesso API AssemblyAI (Accedi al sito web e crea un account per ottenere la tua chiave)</string>
+    <string name="assemblyai_key">AssemblyAI API Key</string>
+    <string name="assemblyai_key_sum">AssemblyAI API access key (Get it at assemblyai.com)</string>
+    <string name="groq_api_key">Groq API Key</string>
+    <string name="groq_api_key_sum">Groq API access key (Get it at console.groq.com)</string>
     <string name="google_translate">Abilita Google Translate</string>
     <string name="google_translate_sum">Sostituisce il traduttore nativo di WhatsApp con Google Translate</string>
     <string name="show_contact_info">Mostra nelle informazioni del contatto</string>
@@ -412,4 +416,5 @@
     <string name="disable_the_proximity_sensor_sum">Disattivare lo spegnimento dello schermo tramite sensore di prossimità su tutto WhatsApp</string>
     <string name="disable_status_in_the_profile_photo">Disabilita lo Stato nella foto del profilo</string>
     <string name="disable_status_in_the_profile_photo_sum">Disabilita il cerchio che appare nella foto del profilo di ogni contatto quando c\'è un nuovo stato</string>
+    <string name="download_not_available">Download not available or media has not been fully downloaded</string>
 </resources>

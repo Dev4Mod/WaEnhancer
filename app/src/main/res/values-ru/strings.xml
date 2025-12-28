@@ -370,10 +370,14 @@
     <string name="custom_privacy_sum">Включить/отключить конфиденциальность</string>
     <string name="custom_privacy_per_contact">Пользовательская конфиденциальность на контакт</string>
     <string name="custom_privacy_per_contact_sum">Активировать пользовательскую кнопку конфиденциальности на экране контактной информации</string>
+    <string name="transcription_provider">Transcription Provider</string>
+    <string name="transcription_provider_sum">Choose the AI service for audio transcription</string>
     <string name="assemblyai">Включить AssemblyAI</string>
     <string name="assemblyai_sum">Заменяет стандартную транскрипцию Whatsapp на AssemblyAI</string>
-    <string name="assemblyai_key">AssemblyAI кнопка</string>
-    <string name="assemblyai_key_sum">Ключ доступа к AssemblyAI API (войдите на сайт и создайте учётную запись, чтобы получить ваш ключ)</string>
+    <string name="assemblyai_key">AssemblyAI API Key</string>
+    <string name="assemblyai_key_sum">AssemblyAI API access key (Get it at assemblyai.com)</string>
+    <string name="groq_api_key">Groq API Key</string>
+    <string name="groq_api_key_sum">Groq API access key (Get it at console.groq.com)</string>
     <string name="google_translate">Включить перевод Google</string>
     <string name="google_translate_sum">Заменяет родной переводчик WhatsApp на Google Translate</string>
     <string name="show_contact_info">Показывать в контактах</string>
@@ -412,4 +416,5 @@
     <string name="disable_the_proximity_sensor_sum">Отключить экран на датчик приближения для всего WhatsApp</string>
     <string name="disable_status_in_the_profile_photo">Отключить статус на фото профиля</string>
     <string name="disable_status_in_the_profile_photo_sum">Отключает круг, который появляется в фото профиля каждого контакта, когда есть новый статус</string>
+    <string name="download_not_available">Download not available or media has not been fully downloaded</string>
 </resources>
