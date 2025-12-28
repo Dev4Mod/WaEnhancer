@@ -2,8 +2,8 @@
 <shape xmlns:android="http://schemas.android.com/apk/res/android"
     android:shape="rectangle">
     <gradient
-        android:angle="90"
-        android:endColor="@color/whatsapp_teal"
-        android:startColor="@color/whatsapp_dark_green"
+        android:angle="135"
+        android:endColor="#1B5E20"
+        android:startColor="#4CAF50"
         android:type="linear" />
 </shape>
