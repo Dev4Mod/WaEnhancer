@@ -303,6 +303,7 @@ public class Others extends Feature {
                     Object callinfo = XposedHelpers.callMethod(param.thisObject, "getCallInfo");
                     if (callinfo == null) return;
                     var userJid = new FMessageWpp.UserJid(XposedHelpers.callMethod(callinfo, "getPeerJid"));
+                    if (userJid.isNull()) return;
                     CompletableFuture.runAsync(() -> {
                         try {
                             showCallInformation(param.args[0], userJid);

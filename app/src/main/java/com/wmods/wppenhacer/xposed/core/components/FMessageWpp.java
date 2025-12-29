@@ -301,7 +301,7 @@ public class FMessageWpp {
         public Object userJid;
 
         public UserJid(@Nullable String rawjid) {
-            if (rawjid == null) return;
+            if (isNonValidJid(rawjid)) return;
             if (checkValidLID(rawjid)) {
                 this.userJid = WppCore.createUserJid(rawjid);
                 this.phoneJid = WppCore.getPhoneJidFromUserJid(this.userJid);
@@ -311,9 +311,17 @@ public class FMessageWpp {
             }
         }
 
+
         public UserJid(@Nullable Object lidOrJid) {
             if (lidOrJid == null) return;
-            if (checkValidLID((String) XposedHelpers.callMethod(lidOrJid, "getRawString"))) {
+            String raw;
+            try {
+                raw = (String) XposedHelpers.callMethod(lidOrJid, "getRawString");
+            } catch (Exception ignored) {
+                return;
+            }
+            if (isNonValidJid(raw)) return;
+            if (checkValidLID(raw)) {
                 this.userJid = lidOrJid;
                 this.phoneJid = WppCore.getPhoneJidFromUserJid(this.userJid);
             } else {
@@ -359,6 +367,20 @@ public class FMessageWpp {
                 XposedBridge.log(e);
                 return str;
             }
+        }
+
+        private boolean isNonValidJid(String rawjid) {
+            if (rawjid == null) {
+                return false;
+            }
+            if (!rawjid.contains("@")) {
+                return false;
+            }
+            String[] split = rawjid.split("@");
+            if (split.length != 2) {
+                return false;
+            }
+            return split[1].equals("s.whatsapp.net") || split[1].equals("lid") || split[1].equals("g.us");
         }
 
         public boolean isStatus() {

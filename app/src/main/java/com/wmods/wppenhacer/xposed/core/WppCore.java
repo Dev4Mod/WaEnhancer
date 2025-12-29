@@ -385,7 +385,7 @@ public class WppCore {
     @NonNull
     public static String getContactName(FMessageWpp.UserJid userJid) {
         loadWADatabase();
-        if (mWaDatabase == null || userJid.isNull()) return "";
+        if (mWaDatabase == null || userJid.isNull()) return "Whatsapp Contact";
         String name = getSContactName(userJid, false);
         if (!TextUtils.isEmpty(name)) return name;
         return getWppContactName(userJid);
@@ -490,7 +490,9 @@ public class WppCore {
         }
     }
 
+    @Nullable
     public static Drawable getContactPhotoDrawable(String jid) {
+        if (jid == null) return null;
         var file = getContactPhotoFile(jid);
         if (file == null) return null;
         return Drawable.createFromPath(file.getAbsolutePath());
