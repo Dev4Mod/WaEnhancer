@@ -370,10 +370,14 @@
     <string name="custom_privacy_sum">Activer/Désactiver La confidentialité personnalisée</string>
     <string name="custom_privacy_per_contact">Confidentialité personnalisée par contact</string>
     <string name="custom_privacy_per_contact_sum">Activez le bouton de confidentialité personnalisé sur l\'écran des informations de contact</string>
+    <string name="transcription_provider">Transcription Provider</string>
+    <string name="transcription_provider_sum">Choose the AI service for audio transcription</string>
     <string name="assemblyai">Activer l\'IA d\'assemblage</string>
     <string name="assemblyai_sum">Remplace la transcription WhatsApp par défaut par assemblage IA</string>
-    <string name="assemblyai_key">Clé d\'assemblage IA</string>
-    <string name="assemblyai_key_sum">Clé d\'accès d\'assemblage IA API (Connectez-vous au site Web et créez un compte pour obtenir votre clé)</string>
+    <string name="assemblyai_key">AssemblyAI API Key</string>
+    <string name="assemblyai_key_sum">AssemblyAI API access key (Get it at assemblyai.com)</string>
+    <string name="groq_api_key">Groq API Key</string>
+    <string name="groq_api_key_sum">Groq API access key (Get it at console.groq.com)</string>
     <string name="google_translate">Activer Google Traduction</string>
     <string name="google_translate_sum">Remplace le traducteur natif de Whatsapp par Google Translate</string>
     <string name="show_contact_info">Afficher dans les informations du contact</string>
@@ -412,4 +416,5 @@
     <string name="disable_the_proximity_sensor_sum">Disable Screen off on proximity sensor to the whole WhatsApp</string>
     <string name="disable_status_in_the_profile_photo">Disable Status in the profile photo</string>
     <string name="disable_status_in_the_profile_photo_sum">Disables the circle that appears in the profile photo of each contact when there is new status</string>
+    <string name="download_not_available">Download not available or media has not been fully downloaded</string>
 </resources>

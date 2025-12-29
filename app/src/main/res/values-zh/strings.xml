@@ -370,10 +370,14 @@
     <string name="custom_privacy_sum">启用/禁用自定义隐私设置</string>
     <string name="custom_privacy_per_contact">每个联系人的自定义隐私设置</string>
     <string name="custom_privacy_per_contact_sum">在联系人详情界面上添加自定义隐私设置按钮</string>
+    <string name="transcription_provider">Transcription Provider</string>
+    <string name="transcription_provider_sum">Choose the AI service for audio transcription</string>
     <string name="assemblyai">启用 AssemblyAI</string>
     <string name="assemblyai_sum">使用 AssemblyAI 替换 Whatsapp 默认的语音转文字</string>
-    <string name="assemblyai_key">AssemblyAI 密匙</string>
-    <string name="assemblyai_key_sum">AssemblyAI API 访问密钥（登录网站并创建账户以获取密钥）</string>
+    <string name="assemblyai_key">AssemblyAI API Key</string>
+    <string name="assemblyai_key_sum">AssemblyAI API access key (Get it at assemblyai.com)</string>
+    <string name="groq_api_key">Groq API Key</string>
+    <string name="groq_api_key_sum">Groq API access key (Get it at console.groq.com)</string>
     <string name="google_translate">启用谷歌翻译</string>
     <string name="google_translate_sum">使用谷歌翻译取代 Whatsapp 的原生翻译</string>
     <string name="show_contact_info">在联系人详情中显示</string>
@@ -412,4 +416,5 @@
     <string name="disable_the_proximity_sensor_sum">Disable Screen off on proximity sensor to the whole WhatsApp</string>
     <string name="disable_status_in_the_profile_photo">Disable Status in the profile photo</string>
     <string name="disable_status_in_the_profile_photo_sum">Disables the circle that appears in the profile photo of each contact when there is new status</string>
+    <string name="download_not_available">Download not available or media has not been fully downloaded</string>
 </resources>

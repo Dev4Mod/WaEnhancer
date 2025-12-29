@@ -38,7 +38,7 @@
     <string name="novaconfig">Novo estilo de configurações</string>
     <string name="novaconfig_sum">Ativa o novo estilo de configurações, com foto do perfil na tela inicial.</string>
     <string name="novofiltro">Pesquisar funções</string>
-    <string name="novofiltro_sum">Choose between Search Icon, Search Bar, or No Search</string>
+    <string name="novofiltro_sum">Escolha entre: Ícone de Pesquisa ou Barra de Pesquisa.</string>
     <string name="menuwicon">Ícones nos menus</string>
     <string name="menuwicon_sum">Adicione ícones nas opções de menu ao longo do app</string>
     <string name="freezelastseen">Congelar visto por último</string>
@@ -370,10 +370,14 @@
     <string name="custom_privacy_sum">Ative ou desative a privacidade personalizada</string>
     <string name="custom_privacy_per_contact">Privacidade personalizada por contato</string>
     <string name="custom_privacy_per_contact_sum">Ative o botão de privacidade personalizado na tela de informações de contato</string>
+    <string name="transcription_provider">Transcription Provider</string>
+    <string name="transcription_provider_sum">Choose the AI service for audio transcription</string>
     <string name="assemblyai">Ativar AssemblyAI</string>
     <string name="assemblyai_sum">Substitui a transcrição padrão do WhatsApp por AssemblyAI</string>
-    <string name="assemblyai_key">Chave AssemblyAI</string>
-    <string name="assemblyai_key_sum">Chave de acesso da API AssemblyAI (faça login no site e crie uma conta para obter sua chave)</string>
+    <string name="assemblyai_key">AssemblyAI API Key</string>
+    <string name="assemblyai_key_sum">AssemblyAI API access key (Get it at assemblyai.com)</string>
+    <string name="groq_api_key">Groq API Key</string>
+    <string name="groq_api_key_sum">Groq API access key (Get it at console.groq.com)</string>
     <string name="google_translate">Ativar Google Tradutor</string>
     <string name="google_translate_sum">Substitui o tradutor nativo do WhatsApp pelo Google Tradutor</string>
     <string name="show_contact_info">Mostrar nas informações do contato</string>
@@ -412,4 +416,5 @@
     <string name="disable_the_proximity_sensor_sum">Impedir que a tela desligue por meio do sensor de proximidade.</string>
     <string name="disable_status_in_the_profile_photo">Desativar status na foto do perfil</string>
     <string name="disable_status_in_the_profile_photo_sum">Quando ativo, o círculo que aparece na foto de perfil de cada contato quando há um novo status é desativado.</string>
+    <string name="download_not_available">Download not available or media has not been fully downloaded</string>
 </resources>

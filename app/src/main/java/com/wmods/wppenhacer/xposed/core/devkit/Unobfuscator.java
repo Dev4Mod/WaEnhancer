@@ -1569,7 +1569,7 @@ public class Unobfuscator {
                     }
                 } catch (Exception ignored) {}
             }
-            throw new RuntimeException("OriginFMessageField not found");
+            throw new RuntimeException("OriginFMessageField field not found");
         });
     }
 
@@ -1670,9 +1670,16 @@ public class Unobfuscator {
 
     public synchronized static Method[] loadTextStatusData(ClassLoader classLoader) throws Exception {
         return UnobfuscatorCache.getInstance().getMethods(classLoader, () -> {
+            Class<?> textData;
+            var textDataList = dexkit.findClass(FindClass.create().matcher(ClassMatcher.create().addUsingString("TextData;")));
+            if (textDataList.isEmpty()) {
+                textData = findFirstClassUsingName(classLoader, StringMatchType.EndsWith, "TextData");
+            } else {
+                textData = textDataList.get(0).getInstance(classLoader);
+            }
             var methods = dexkit.findMethod(
                     FindMethod.create().matcher(
-                            MethodMatcher.create().addParamType("com.whatsapp.TextData")
+                            MethodMatcher.create().addParamType(textData)
                     )
             );
             if (methods.isEmpty())

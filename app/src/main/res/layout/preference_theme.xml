@@ -3,11 +3,13 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical"
-    android:padding="16dp">
+    android:padding="@dimen/spacing_medium">
 
     <ScrollView
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:scrollbars="none">
 
         <LinearLayout
             android:id="@+id/folder_list_container"
@@ -20,29 +22,27 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/spacing_medium"
         android:orientation="horizontal">
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/import_theme_button"
-            android:layout_width="wrap_content"
+            style="@style/ModernButton.Outlined"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_gravity="start"
-            android:layout_marginTop="16dp"
-            android:layout_marginEnd="8dp"
+            android:layout_marginEnd="@dimen/spacing_small"
             android:layout_weight="1"
             android:text="@string/import_theme" />
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/create_theme_button"
-            android:layout_width="wrap_content"
+            style="@style/ModernButton"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_gravity="end"
-            android:layout_marginStart="8dp"
-            android:layout_marginTop="16dp"
+            android:layout_marginStart="@dimen/spacing_small"
             android:layout_weight="1"
             android:text="@string/create_new_theme" />
 
     </LinearLayout>
-
 
 </LinearLayout>
