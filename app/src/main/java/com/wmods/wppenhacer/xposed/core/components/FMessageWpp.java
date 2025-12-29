@@ -380,7 +380,8 @@ public class FMessageWpp {
             if (split.length != 2) {
                 return false;
             }
-            return split[1].equals("s.whatsapp.net") || split[1].equals("lid") || split[1].equals("g.us");
+            XposedBridge.log(split[1]);
+            return !split[1].equals("s.whatsapp.net") && !split[1].equals("lid") && !split[1].equals("g.us") && !split[1].equals("broadcast") && !split[1].equals("status");
         }
 
         public boolean isStatus() {
