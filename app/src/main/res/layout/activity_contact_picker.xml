@@ -4,42 +4,59 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:padding="16dp">
+    android:padding="@dimen/spacing_medium">
 
-    <EditText
-        android:id="@+id/searchBar"
+    <com.google.android.material.textfield.TextInputLayout
+        style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginBottom="@dimen/spacing_medium"
         android:hint="@string/search_contacts"
-        android:inputType="text" />
+        app:boxCornerRadiusBottomEnd="@dimen/card_radius_medium"
+        app:boxCornerRadiusBottomStart="@dimen/card_radius_medium"
+        app:boxCornerRadiusTopEnd="@dimen/card_radius_medium"
+        app:boxCornerRadiusTopStart="@dimen/card_radius_medium"
+        app:startIconDrawable="@android:drawable/ic_menu_search">
 
-    <ListView
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/searchBar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:inputType="text" />
+
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/contactListView"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="1" />
+        android:layout_weight="1"
+        android:clipToPadding="false" />
 
-    <androidx.constraintlayout.widget.ConstraintLayout
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/spacing_medium"
+        android:orientation="horizontal">
 
-        <Button
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/selectAllButton"
-            android:layout_width="wrap_content"
+            style="@style/ModernButton.Outlined"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:text="@string/select_all"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            android:layout_marginEnd="@dimen/spacing_small"
+            android:layout_weight="1"
+            android:text="@string/select_all" />
 
-        <Button
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/saveButton"
-            android:layout_width="wrap_content"
+            style="@style/ModernButton"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:text="@string/save"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            android:layout_marginStart="@dimen/spacing_small"
+            android:layout_weight="1"
+            android:text="@string/save" />
 
-    </androidx.constraintlayout.widget.ConstraintLayout>
+    </LinearLayout>
+
 </LinearLayout>

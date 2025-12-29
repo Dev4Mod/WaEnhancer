@@ -38,7 +38,7 @@
     <string name="novaconfig">סגנון הגדרות חדש</string>
     <string name="novaconfig_sum">אפשר את סגנון ההגדרות החדש, עם תמונת פרופיל במסך הבית</string>
     <string name="novofiltro">פונקציית החיפוש</string>
-    <string name="novofiltro_sum">Choose between Search Icon, Search Bar, or No Search</string>
+    <string name="novofiltro_sum">בחר בין סמל החיפוש, סרגל החיפוש או ללא חיפוש בכלל</string>
     <string name="menuwicon">אייקוני תפריט</string>
     <string name="menuwicon_sum">הוסף סמלים לצד אפשרויות התפריט בכל האפליקציה</string>
     <string name="freezelastseen">הקפאת נראה לאחרונה</string>
@@ -372,10 +372,14 @@
     <string name="custom_privacy_sum">הפעל/השבת פרטיות מותאמת אישית</string>
     <string name="custom_privacy_per_contact">פרטיות מותאמת אישית לכל איש קשר</string>
     <string name="custom_privacy_per_contact_sum">הפעל את לחצן הפרטיות המותאמת אישית</string>
+    <string name="transcription_provider">Transcription Provider</string>
+    <string name="transcription_provider_sum">Choose the AI service for audio transcription</string>
     <string name="assemblyai">הפעל את AssemblyAI</string>
     <string name="assemblyai_sum">מחליף את ברירת המחדל של התמלול ב-AssemblyAI</string>
-    <string name="assemblyai_key">מפתח הAssemblyAI</string>
-    <string name="assemblyai_key_sum">מפתח גישה ל-AssemblyAI API (התחבר לאתר וצור חשבון כדי לקבל את המפתח שלך)</string>
+    <string name="assemblyai_key">AssemblyAI API Key</string>
+    <string name="assemblyai_key_sum">AssemblyAI API access key (Get it at assemblyai.com)</string>
+    <string name="groq_api_key">Groq API Key</string>
+    <string name="groq_api_key_sum">Groq API access key (Get it at console.groq.com)</string>
     <string name="google_translate">הפעל את גוגל תרגום</string>
     <string name="google_translate_sum">מחליף את מתרגם ברירת המחדל של ווצאפ בגוגל תרגום</string>
     <string name="show_contact_info">הצג בפרטי יצירת קשר</string>
@@ -414,4 +418,5 @@
     <string name="disable_the_proximity_sensor_sum">השבתת מסך כיבוי על חיישן קרבה בכל הוואטסאפ</string>
     <string name="disable_status_in_the_profile_photo">השבתת סטטוס בתמונת הפרופיל</string>
     <string name="disable_status_in_the_profile_photo_sum">מבטל את העיגול שמופיע בתמונת הפרופיל של כל איש קשר כאשר יש סטטוס חדש</string>
+    <string name="download_not_available">Download not available or media has not been fully downloaded</string>
 </resources>

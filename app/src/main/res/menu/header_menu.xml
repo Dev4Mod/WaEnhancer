@@ -1,12 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
-<menu xmlns:android="http://schemas.android.com/apk/res/android">
-    <item
-        android:id="@+id/menu_about"
-        android:icon="@drawable/about"
-        android:showAsAction="ifRoom"
-        android:title="@string/about" />
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <item
         android:id="@+id/batteryoptimization"
-        android:title="@string/disable_battery_optimization" />
+        android:icon="@drawable/ic_battery_optimization"
+        android:title="@string/disable_battery_optimization"
+        app:iconTint="@color/text_on_gradient"
+        app:showAsAction="ifRoom" />
+
+    <item
+        android:id="@+id/menu_about"
+        android:icon="@drawable/about"
+        android:title="@string/about"
+        app:iconTint="@color/text_on_gradient"
+        app:showAsAction="ifRoom" />
+
 </menu>

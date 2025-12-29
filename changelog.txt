@@ -1,4 +1,9 @@
 [WHATSAPP]
+* Improved support for version 2.25.37.XX
 * Added Call Recording feature (Voice/Video as Audio)
 * Fixed OriginFMessageField not found error
-* Added support for version 2.25.37.XX
+* Add support for version 2.26.1.XX beta
+
+[WAE]
+* Version updated to 1.5.3
+* Improved colors and animations in the interface
