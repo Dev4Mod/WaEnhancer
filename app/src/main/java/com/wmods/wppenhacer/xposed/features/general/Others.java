@@ -326,7 +326,7 @@ public class Others extends Feature {
         sb.append(String.format(Utils.getApplication().getString(ResId.string.phone_number_s), number)).append("\n");
         var ip = (String) XposedHelpers.getObjectField(wamCall, "callPeerIpStr");
         if (ip != null) {
-            var client = new OkHttpClient();
+            var client = new OkHttpClient.Builder().build();
             var url = "http://ip-api.com/json/" + ip;
             var request = new okhttp3.Request.Builder().url(url).build();
             var content = client.newCall(request).execute().body().string();

@@ -471,7 +471,7 @@ public class WppCore {
             return new FMessageWpp.UserJid(chatJidObj);
         } catch (Exception e) {
             XposedBridge.log(e);
-            return null;
+            return new FMessageWpp.UserJid();
         }
     }
 

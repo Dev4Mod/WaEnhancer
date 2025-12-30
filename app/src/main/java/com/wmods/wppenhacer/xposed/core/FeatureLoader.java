@@ -158,7 +158,7 @@ public class FeatureLoader {
                     initComponents(loader, pref);
                     plugins(loader, pref, packageInfo.versionName);
                     sendEnabledBroadcast(mApp);
-//                    XposedHelpers.setStaticIntField(XposedHelpers.findClass("com.whatsapp.util.Log", loader), "level", 5);
+                    XposedHelpers.setStaticIntField(XposedHelpers.findClass("com.whatsapp.infra.logging.Log", loader), "level", 5);
                     var timemillis2 = System.currentTimeMillis() - timemillis;
                     XposedBridge.log("Loaded Hooks in " + timemillis2 + "ms");
                 } catch (Throwable e) {
@@ -171,7 +171,6 @@ public class FeatureLoader {
                     error.setError(Arrays.toString(Arrays.stream(e.getStackTrace()).filter(s -> !s.getClassName().startsWith("android") && !s.getClassName().startsWith("com.android")).map(StackTraceElement::toString).toArray()));
                     list.add(error);
                 }
-
             }
         });
 

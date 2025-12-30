@@ -300,6 +300,10 @@ public class FMessageWpp {
 
         public Object userJid;
 
+        public UserJid() {
+
+        }
+
         public UserJid(@Nullable String rawjid) {
             if (isNonValidJid(rawjid)) return;
             if (checkValidLID(rawjid)) {
@@ -380,7 +384,6 @@ public class FMessageWpp {
             if (split.length != 2) {
                 return false;
             }
-            XposedBridge.log(split[1]);
             return !split[1].equals("s.whatsapp.net") && !split[1].equals("lid") && !split[1].equals("g.us") && !split[1].equals("broadcast") && !split[1].equals("status");
         }
 
