@@ -1,6 +1,6 @@
 package com.wmods.wppenhacer.xposed.features.general;
 
-import static com.wmods.wppenhacer.xposed.features.general.MenuStatus.menuStatuses;
+import static com.wmods.wppenhacer.xposed.features.listeners.MenuStatusListener.menuStatuses;
 
 import android.os.Bundle;
 import android.view.Menu;
@@ -12,6 +12,7 @@ import com.wmods.wppenhacer.xposed.core.Feature;
 import com.wmods.wppenhacer.xposed.core.WppCore;
 import com.wmods.wppenhacer.xposed.core.components.FMessageWpp;
 import com.wmods.wppenhacer.xposed.core.devkit.Unobfuscator;
+import com.wmods.wppenhacer.xposed.features.listeners.MenuStatusListener;
 import com.wmods.wppenhacer.xposed.utils.ReflectionUtils;
 import com.wmods.wppenhacer.xposed.utils.ResId;
 
@@ -36,7 +37,7 @@ public class DeleteStatus extends Feature {
         Class<?> StatusDeleteDialogFragmentClass = Unobfuscator.findFirstClassUsingName(classLoader, StringMatchType.EndsWith, ".StatusDeleteDialogFragment");
         Field fieldBundle = ReflectionUtils.getFieldByType(fragmentloader, Bundle.class);
 
-        var item = new MenuStatus.MenuItemStatus() {
+        var item = new MenuStatusListener.onMenuItemStatusListener() {
 
             @Override
             public MenuItem addMenu(Menu menu, FMessageWpp fMessage) {

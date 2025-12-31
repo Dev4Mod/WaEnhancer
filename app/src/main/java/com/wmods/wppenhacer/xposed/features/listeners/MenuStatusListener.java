@@ -1,4 +1,4 @@
-package com.wmods.wppenhacer.xposed.features.general;
+package com.wmods.wppenhacer.xposed.features.listeners;
 
 import android.view.Menu;
 import android.view.MenuItem;
@@ -21,11 +21,11 @@ import de.robv.android.xposed.XSharedPreferences;
 import de.robv.android.xposed.XposedBridge;
 import de.robv.android.xposed.XposedHelpers;
 
-public class MenuStatus extends Feature {
+public class MenuStatusListener extends Feature {
 
-    public static HashSet<MenuItemStatus> menuStatuses = new HashSet<>();
+    public static HashSet<onMenuItemStatusListener> menuStatuses = new HashSet<>();
 
-    public MenuStatus(@NonNull ClassLoader classLoader, @NonNull XSharedPreferences preferences) {
+    public MenuStatusListener(@NonNull ClassLoader classLoader, @NonNull XSharedPreferences preferences) {
         super(classLoader, preferences);
     }
 
@@ -71,7 +71,7 @@ public class MenuStatus extends Feature {
 
                 var fMessage = new FMessageWpp(object);
 
-                for (MenuItemStatus menuStatus : menuStatuses) {
+                for (onMenuItemStatusListener menuStatus : menuStatuses) {
                     var menuItem = menuStatus.addMenu(menu, fMessage);
                     if (menuItem == null) continue;
                     menuItem.setOnMenuItemClickListener(item -> {
@@ -89,7 +89,7 @@ public class MenuStatus extends Feature {
         return "Menu Status";
     }
 
-    public abstract static class MenuItemStatus {
+    public abstract static class onMenuItemStatusListener {
 
         public abstract MenuItem addMenu(Menu menu, FMessageWpp fMessage);
 

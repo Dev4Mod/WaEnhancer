@@ -681,18 +681,6 @@ public class Unobfuscator {
         return classes.get(0);
     }
 
-    public synchronized static Method loadAntiRevokeOnStartMethod(ClassLoader loader) throws Exception {
-        return UnobfuscatorCache.getInstance().getMethod(loader, () -> {
-            Class<?> conversation = XposedHelpers.findClass("com.whatsapp.Conversation", loader);
-            var classData = loadAntiRevokeImplClass();
-            MethodDataList mdOnStart = dexkit.findMethod(
-                    FindMethod.create().searchInClass(List.of(dexkit.getClassData(conversation)))
-                            .matcher(MethodMatcher.create().addInvoke(Objects.requireNonNull(classData).getDescriptor() + "->onStart()V"))
-            );
-            if (mdOnStart.isEmpty()) throw new Exception("AntiRevokeOnStart method not found");
-            return mdOnStart.get(0).getMethodInstance(loader);
-        });
-    }
 
     public synchronized static Method loadHomeConversationFragmentMethod(ClassLoader loader) throws Exception {
         return UnobfuscatorCache.getInstance().getMethod(loader, () -> {
@@ -1121,40 +1109,6 @@ public class Unobfuscator {
         });
     }
 
-    /**
-     * @noinspection DataFlowIssue
-     */
-    public synchronized static Method loadEditMessageShowMethod(ClassLoader loader) throws Exception {
-        return UnobfuscatorCache.getInstance().getMethod(loader, () -> {
-            var classData = dexkit.findClass(FindClass.create().matcher(ClassMatcher.create().addUsingString("ConversationRow/setUpUsernameInGroupView"))).singleOrNull();
-            var fields = classData.getFields().stream().filter(f -> f.getType().getName().equals(TextView.class.getName())).collect(Collectors.toList());
-            if (fields.isEmpty()) throw new RuntimeException("EditMessageShow fields not found");
-            for (var field : fields) {
-                var result = classData.findMethod(FindMethod.create().matcher(MethodMatcher.create().addUsingField(field.getDescriptor()).paramCount(1))).singleOrNull();
-                if (result != null)
-                    return result.getMethodInstance(loader);
-            }
-            throw new RuntimeException("EditMessageShow method not found");
-        });
-    }
-
-    /**
-     * @noinspection DataFlowIssue
-     */
-    public synchronized static Field loadEditMessageViewField(ClassLoader loader) throws Exception {
-        return UnobfuscatorCache.getInstance().getField(loader, () -> {
-            var method = loadEditMessageShowMethod(loader);
-            var methodData = dexkit.getMethodData(DexSignUtil.getMethodDescriptor(method));
-            var fields = methodData.getUsingFields();
-            for (var ufield : fields) {
-                var field = ufield.getField();
-                if (field.getType().getName().equals(TextView.class.getName())) {
-                    return field.getFieldInstance(loader);
-                }
-            }
-            throw new RuntimeException("EditMessageView method not found");
-        });
-    }
 
     /**
      * @noinspection DataFlowIssue

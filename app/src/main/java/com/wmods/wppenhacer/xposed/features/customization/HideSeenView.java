@@ -5,10 +5,7 @@ import android.graphics.Color;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CursorAdapter;
-import android.widget.HeaderViewListAdapter;
 import android.widget.ImageView;
-import android.widget.ListAdapter;
-import android.widget.ListView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -17,60 +14,37 @@ import com.wmods.wppenhacer.xposed.core.Feature;
 import com.wmods.wppenhacer.xposed.core.WppCore;
 import com.wmods.wppenhacer.xposed.core.components.FMessageWpp;
 import com.wmods.wppenhacer.xposed.core.db.MessageHistory;
+import com.wmods.wppenhacer.xposed.features.listeners.ConversationItemListener;
 import com.wmods.wppenhacer.xposed.utils.Utils;
 
-import de.robv.android.xposed.XC_MethodHook;
 import de.robv.android.xposed.XSharedPreferences;
-import de.robv.android.xposed.XposedBridge;
-import de.robv.android.xposed.XposedHelpers;
 
 
 public class HideSeenView extends Feature {
-    private static ListAdapter mAdapter;
 
     public HideSeenView(ClassLoader loader, XSharedPreferences preferences) {
         super(loader, preferences);
+    }
+
+    public static void updateAllBubbleViews() {
+        var adapter = ConversationItemListener.getAdapter();
+        if (adapter instanceof CursorAdapter cursorAdapter) {
+            WppCore.getCurrentActivity().runOnUiThread(cursorAdapter::notifyDataSetChanged);
+        }
     }
 
     @Override
     public void doHook() throws Throwable {
         if (!prefs.getBoolean("hide_seen_view", false)) return;
 
-        XposedHelpers.findAndHookMethod(ListView.class, "setAdapter", ListAdapter.class, new XC_MethodHook() {
+        // Register listener
+        ConversationItemListener.conversationListeners.add(new ConversationItemListener.OnConversationItemListener() {
             @Override
-            protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
-                if (!WppCore.getCurrentActivity().getClass().getSimpleName().equals("Conversation"))
-                    return;
-                if (((ListView) param.thisObject).getId() != android.R.id.list) return;
-                ListAdapter adapter = (ListAdapter) param.args[0];
-                if (adapter instanceof HeaderViewListAdapter) {
-                    adapter = ((HeaderViewListAdapter) adapter).getWrappedAdapter();
-                }
-                if (adapter == null) return;
-                mAdapter = adapter;
-                var method = mAdapter.getClass().getDeclaredMethod("getView", int.class, View.class, ViewGroup.class);
-                XposedBridge.hookMethod(method, new XC_MethodHook() {
-                    @Override
-                    protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-                        if (param.thisObject != mAdapter) return;
-                        var position = (int) param.args[0];
-                        var viewGroup = (ViewGroup) param.args[1];
-                        if (viewGroup == null) return;
-                        Object fMessageObj = mAdapter.getItem(position);
-                        if (fMessageObj == null) return;
-                        var fmessage = new FMessageWpp(fMessageObj);
-                        if (fmessage.getKey().isFromMe) return;
-                        viewGroup.post(() -> updateBubbleView(fmessage, viewGroup));
-                    }
-                });
+            public void onItemBind(FMessageWpp fMessage, ViewGroup viewGroup) {
+                if (fMessage.getKey().isFromMe) return;
+                updateBubbleView(fMessage, viewGroup);
             }
         });
-    }
-
-    public static void updateAllBubbleViews() {
-        if (mAdapter instanceof CursorAdapter cursorAdapter) {
-            WppCore.getCurrentActivity().runOnUiThread(cursorAdapter::notifyDataSetChanged);
-        }
     }
 
     @SuppressLint("ResourceType")

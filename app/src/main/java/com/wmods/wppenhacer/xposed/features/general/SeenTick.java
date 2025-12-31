@@ -25,6 +25,7 @@ import com.wmods.wppenhacer.xposed.core.db.MessageHistory;
 import com.wmods.wppenhacer.xposed.core.db.MessageStore;
 import com.wmods.wppenhacer.xposed.core.devkit.Unobfuscator;
 import com.wmods.wppenhacer.xposed.features.customization.HideSeenView;
+import com.wmods.wppenhacer.xposed.features.listeners.MenuStatusListener;
 import com.wmods.wppenhacer.xposed.utils.DesignUtils;
 import com.wmods.wppenhacer.xposed.utils.ReflectionUtils;
 import com.wmods.wppenhacer.xposed.utils.ResId;
@@ -242,8 +243,8 @@ public class SeenTick extends Feature {
             });
         } else {
 
-            MenuStatus.menuStatuses.add(
-                    new MenuStatus.MenuItemStatus() {
+            MenuStatusListener.menuStatuses.add(
+                    new MenuStatusListener.onMenuItemStatusListener() {
                         @Override
                         public MenuItem addMenu(Menu menu, FMessageWpp fMessage) {
                             if (menu.findItem(ResId.string.send_blue_tick) != null) return null;
@@ -279,8 +280,8 @@ public class SeenTick extends Feature {
             }
         });
 
-        MenuStatus.menuStatuses.add(
-                new MenuStatus.MenuItemStatus() {
+        MenuStatusListener.menuStatuses.add(
+                new MenuStatusListener.onMenuItemStatusListener() {
                     @Override
                     public MenuItem addMenu(Menu menu, FMessageWpp fMessage) {
                         if (menu.findItem(ResId.string.read_all_mark_as_read) != null) return null;

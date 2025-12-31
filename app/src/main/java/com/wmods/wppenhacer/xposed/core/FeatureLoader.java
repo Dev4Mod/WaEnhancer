@@ -28,7 +28,6 @@ import com.wmods.wppenhacer.xposed.core.devkit.Unobfuscator;
 import com.wmods.wppenhacer.xposed.core.devkit.UnobfuscatorCache;
 import com.wmods.wppenhacer.xposed.features.customization.BubbleColors;
 import com.wmods.wppenhacer.xposed.features.customization.ContactBlockedVerify;
-import com.wmods.wppenhacer.xposed.features.customization.ContactItemListener;
 import com.wmods.wppenhacer.xposed.features.customization.CustomThemeV2;
 import com.wmods.wppenhacer.xposed.features.customization.CustomTime;
 import com.wmods.wppenhacer.xposed.features.customization.CustomToolbar;
@@ -44,7 +43,6 @@ import com.wmods.wppenhacer.xposed.features.general.CallType;
 import com.wmods.wppenhacer.xposed.features.general.ChatLimit;
 import com.wmods.wppenhacer.xposed.features.general.DeleteStatus;
 import com.wmods.wppenhacer.xposed.features.general.LiteMode;
-import com.wmods.wppenhacer.xposed.features.general.MenuStatus;
 import com.wmods.wppenhacer.xposed.features.general.NewChat;
 import com.wmods.wppenhacer.xposed.features.general.Others;
 import com.wmods.wppenhacer.xposed.features.general.PinnedLimit;
@@ -52,6 +50,9 @@ import com.wmods.wppenhacer.xposed.features.general.SeenTick;
 import com.wmods.wppenhacer.xposed.features.general.ShareLimit;
 import com.wmods.wppenhacer.xposed.features.general.ShowEditMessage;
 import com.wmods.wppenhacer.xposed.features.general.Tasker;
+import com.wmods.wppenhacer.xposed.features.listeners.ContactItemListener;
+import com.wmods.wppenhacer.xposed.features.listeners.ConversationItemListener;
+import com.wmods.wppenhacer.xposed.features.listeners.MenuStatusListener;
 import com.wmods.wppenhacer.xposed.features.media.DownloadProfile;
 import com.wmods.wppenhacer.xposed.features.media.DownloadViewOnce;
 import com.wmods.wppenhacer.xposed.features.media.MediaPreview;
@@ -304,6 +305,8 @@ public class FeatureLoader {
         var classes = new Class<?>[]{
                 DebugFeature.class,
                 MenuStatus.class,
+                ContactItemListener.class,
+                MenuStatusListener.class,
                 ShowEditMessage.class,
                 AntiRevoke.class,
                 CustomToolbar.class,
@@ -315,7 +318,6 @@ public class FeatureLoader {
                 CustomThemeV2.class,
                 ChatLimit.class,
                 SeparateGroup.class,
-                ContactItemListener.class,
                 ShowOnline.class,
                 DndMode.class,
                 FreezeLastSeen.class,
