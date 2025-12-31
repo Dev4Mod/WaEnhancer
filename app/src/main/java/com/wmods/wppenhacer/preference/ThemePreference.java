@@ -117,7 +117,7 @@ public class ThemePreference extends Preference implements FilePicker.OnUriPicke
                 }
                 mainDialog.dismiss();
             });
-            ImageButton editButton = itemView.findViewById(R.id.edit_button);
+            View editButton = itemView.findViewById(R.id.edit_button);
             if (folder.equals("Default Theme")) {
                 editButton.setVisibility(View.INVISIBLE);
             } else {

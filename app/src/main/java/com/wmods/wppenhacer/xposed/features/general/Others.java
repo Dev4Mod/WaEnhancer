@@ -86,7 +86,7 @@ public class Others extends Feature {
         propsInteger.put(3877, oldStatus ? igstatus ? 2 : 0 : 2);
         propsBoolean.put(5171, filterSeen);
         propsBoolean.put(4497, menuWIcons);
-        propsBoolean.put(4023, newSettings);
+        propsBoolean.put(4023, false);
         propsBoolean.put(14862, newSettings);
         propsInteger.put(18564, newSettings ? 1 : 0);
 
