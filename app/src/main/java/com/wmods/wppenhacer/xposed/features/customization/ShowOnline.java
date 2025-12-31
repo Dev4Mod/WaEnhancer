@@ -16,7 +16,7 @@ import androidx.annotation.NonNull;
 import androidx.core.text.TextUtilsCompat;
 
 import com.wmods.wppenhacer.xposed.core.Feature;
-import com.wmods.wppenhacer.xposed.core.components.FMessageWpp;
+import com.wmods.wppenhacer.xposed.core.components.WaContactWpp;
 import com.wmods.wppenhacer.xposed.core.devkit.Unobfuscator;
 import com.wmods.wppenhacer.xposed.core.devkit.UnobfuscatorCache;
 import com.wmods.wppenhacer.xposed.utils.ReflectionUtils;
@@ -179,10 +179,11 @@ public class ShowOnline extends Feature {
         ContactItemListener.contactListeners.add(new ContactItemListener.OnContactItemListener() {
             @Override
             @SuppressLint("ResourceType")
-            public void onBind(FMessageWpp.UserJid userJid, View view) {
+            public void onBind(WaContactWpp waContact, View view) {
                 try {
-                    log("Bind Listener called");
-                    log(userJid);
+                    var userJid = waContact.getUserJid();
+                    if (userJid.isGroup()) return;
+
                     ImageView csDot = showOnlineIcon ? view.findViewById(0x7FFF0001) : null;
                     if (showOnlineIcon && csDot != null) {
                         csDot.setVisibility(View.INVISIBLE);
@@ -193,8 +194,7 @@ public class ShowOnline extends Feature {
                     var tokenData = ReflectionUtils.callMethod(tcTokenMethod, tokenDBInstance, userJid.userJid);
                     var tokenObj = tokenClass.getConstructors()[0].newInstance(tokenData == null ? null : XposedHelpers.getObjectField(tokenData, "A01"));
                     sendPresenceMethod.invoke(null, userJid.userJid, null, tokenObj, mInstancePresence);
-                    var status = (String) ReflectionUtils.callMethod(getStatusUser, mStatusUser, userJid.userJid, false);
-                    log(status);
+                    var status = (String) ReflectionUtils.callMethod(getStatusUser, mStatusUser, waContact.getObject(), false);
                     setStatus(status, csDot, lastSeenText);
                 } catch (Exception e) {
                     XposedBridge.log(e);

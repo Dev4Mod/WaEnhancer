@@ -5,7 +5,6 @@ import android.view.View;
 import androidx.annotation.NonNull;
 
 import com.wmods.wppenhacer.xposed.core.Feature;
-import com.wmods.wppenhacer.xposed.core.components.FMessageWpp;
 import com.wmods.wppenhacer.xposed.core.components.WaContactWpp;
 import com.wmods.wppenhacer.xposed.core.devkit.Unobfuscator;
 import com.wmods.wppenhacer.xposed.utils.ReflectionUtils;
@@ -42,11 +41,10 @@ public class ContactItemListener extends Feature {
                 var viewField = ReflectionUtils.findFieldUsingFilter(absViewHolderClass, field -> field.getType() == View.class);
                 var view = (View) viewField.get(viewHolder);
                 var userJid = waContact.getUserJid();
-
-                if (userJid.isGroup() || userJid.isNull()) return;
+                if (userJid.isNull()) return;
 
                 for (OnContactItemListener listener : contactListeners) {
-                    listener.onBind(userJid, view);
+                    listener.onBind(waContact, view);
                 }
             }
         });
@@ -62,9 +60,9 @@ public class ContactItemListener extends Feature {
         /**
          * Called when a contact item is bound in the RecyclerView
          *
-         * @param userJid The user's JID
+         * @param waContact The user contact
          * @param view    The view associated with the item
          */
-        public abstract void onBind(FMessageWpp.UserJid userJid, View view);
+        public abstract void onBind(WaContactWpp waContact, View view);
     }
 }
