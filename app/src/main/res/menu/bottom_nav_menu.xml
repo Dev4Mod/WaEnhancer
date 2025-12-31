@@ -26,5 +26,10 @@
         android:icon="@drawable/ic_dashboard_black_24dp"
         android:title="@string/perso" />
 
+    <item
+        android:id="@+id/navigation_recordings"
+        android:icon="@drawable/ic_recording"
+        android:title="@string/recordings_manager" />
+
 
 </menu>
