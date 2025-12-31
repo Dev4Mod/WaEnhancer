@@ -16,7 +16,7 @@ import androidx.annotation.NonNull;
 import androidx.core.text.TextUtilsCompat;
 
 import com.wmods.wppenhacer.xposed.core.Feature;
-import com.wmods.wppenhacer.xposed.core.components.WaContactWpp;
+import com.wmods.wppenhacer.xposed.core.components.FMessageWpp;
 import com.wmods.wppenhacer.xposed.core.devkit.Unobfuscator;
 import com.wmods.wppenhacer.xposed.core.devkit.UnobfuscatorCache;
 import com.wmods.wppenhacer.xposed.utils.ReflectionUtils;
@@ -35,9 +35,36 @@ public class ShowOnline extends Feature {
 
     private Object mStatusUser;
     private Object mInstancePresence;
+    private Method sendPresenceMethod;
+    private Method tcTokenMethod;
+    private Method getStatusUser;
+    private java.lang.reflect.Field fieldTokenDBInstance;
+    private Class<?> tokenClass;
 
     public ShowOnline(@NonNull ClassLoader loader, @NonNull XSharedPreferences preferences) {
         super(loader, preferences);
+    }
+
+    private static void setStatus(String status, ImageView csDot, TextView lastSeenText) {
+        if (!TextUtils.isEmpty(status) && status.trim().equals(UnobfuscatorCache.getInstance().getString("online"))) {
+            if (csDot != null) {
+                csDot.setVisibility(View.VISIBLE);
+            }
+        }
+
+        if (lastSeenText != null) {
+            if (!TextUtils.isEmpty(status)) {
+                lastSeenText.setText(status);
+                if (UnobfuscatorCache.getInstance().getString("online").equals(status)) {
+                    lastSeenText.setTextColor(Color.GREEN);
+                } else {
+                    lastSeenText.setTextColor(0xffcac100);
+                }
+            } else {
+                lastSeenText.setText("");
+                lastSeenText.setTextColor(Color.GRAY);
+            }
+        }
     }
 
     @Override
@@ -124,17 +151,11 @@ public class ShowOnline extends Feature {
             }
         });
 
-        var onChangeStatus = Unobfuscator.loadOnChangeStatus(classLoader);
-        logDebug(Unobfuscator.getMethodDescriptor(onChangeStatus));
-        var field1 = Unobfuscator.loadViewHolderField1(classLoader);
-        logDebug(Unobfuscator.getFieldDescriptor(field1));
-        var getStatusUser = Unobfuscator.loadStatusUserMethod(classLoader);
+        getStatusUser = Unobfuscator.loadStatusUserMethod(classLoader);
         logDebug(Unobfuscator.getMethodDescriptor(getStatusUser));
-        var sendPresenceMethod = Unobfuscator.loadSendPresenceMethod(classLoader);
+        sendPresenceMethod = Unobfuscator.loadSendPresenceMethod(classLoader);
         logDebug("sendPresenceMethod", Unobfuscator.getMethodDescriptor(sendPresenceMethod));
-        var tcTokenMethod = Unobfuscator.loadTcTokenMethod(classLoader);
-        var absViewHolderClass = Unobfuscator.loadAbsViewHolder(classLoader);
-
+        tcTokenMethod = Unobfuscator.loadTcTokenMethod(classLoader);
 
         XposedBridge.hookAllConstructors(getStatusUser.getDeclaringClass(), new XC_MethodHook() {
             @Override
@@ -151,62 +172,35 @@ public class ShowOnline extends Feature {
         });
 
         // load methods
-        var tokenClass = sendPresenceMethod.getParameterTypes()[2];
-        var fieldTokenDBInstance = ReflectionUtils.getFieldByExtendType(sendPresenceMethod.getDeclaringClass(), tcTokenMethod.getDeclaringClass());
+        tokenClass = sendPresenceMethod.getParameterTypes()[2];
+        fieldTokenDBInstance = ReflectionUtils.getFieldByExtendType(sendPresenceMethod.getDeclaringClass(), tcTokenMethod.getDeclaringClass());
 
-
-        XposedBridge.hookMethod(onChangeStatus, new XC_MethodHook() {
+        // Register listener
+        ContactItemListener.contactListeners.add(new ContactItemListener.OnContactItemListener() {
             @Override
             @SuppressLint("ResourceType")
-            protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-                var viewHolder = field1.get(param.thisObject);
-                var object = param.args[0];
-                var waContact = new WaContactWpp(object);
-                var viewField = ReflectionUtils.findFieldUsingFilter(absViewHolderClass, field -> field.getType() == View.class);
-                var view = (View) viewField.get(viewHolder);
+            public void onBind(FMessageWpp.UserJid userJid, View view) {
+                try {
+                    log("Bind Listener called");
+                    log(userJid);
+                    ImageView csDot = showOnlineIcon ? view.findViewById(0x7FFF0001) : null;
+                    if (showOnlineIcon && csDot != null) {
+                        csDot.setVisibility(View.INVISIBLE);
+                    }
+                    TextView lastSeenText = showOnlineText ? view.findViewById(0x7FFF0002) : null;
 
-                var getAdapterPositionMethod = ReflectionUtils.findMethodUsingFilter(absViewHolderClass, method -> method.getParameterCount() == 0 && method.getReturnType() == int.class);
-                var position = (int) ReflectionUtils.callMethod(getAdapterPositionMethod, viewHolder);
-                ImageView csDot = showOnlineIcon ? view.findViewById(0x7FFF0001) : null;
-                if (showOnlineIcon) {
-                    csDot.setVisibility(View.INVISIBLE);
+                    var tokenDBInstance = fieldTokenDBInstance.get(mInstancePresence);
+                    var tokenData = ReflectionUtils.callMethod(tcTokenMethod, tokenDBInstance, userJid.userJid);
+                    var tokenObj = tokenClass.getConstructors()[0].newInstance(tokenData == null ? null : XposedHelpers.getObjectField(tokenData, "A01"));
+                    sendPresenceMethod.invoke(null, userJid.userJid, null, tokenObj, mInstancePresence);
+                    var status = (String) ReflectionUtils.callMethod(getStatusUser, mStatusUser, userJid.userJid, false);
+                    log(status);
+                    setStatus(status, csDot, lastSeenText);
+                } catch (Exception e) {
+                    XposedBridge.log(e);
                 }
-                TextView lastSeenText = showOnlineText ? view.findViewById(0x7FFF0002) : null;
-                var userJid = waContact.getUserJid();
-                if (userJid.isGroup() || userJid.isNull()) return;
-
-                var tokenDBInstance = fieldTokenDBInstance.get(mInstancePresence);
-                var tokenData = ReflectionUtils.callMethod(tcTokenMethod, tokenDBInstance, userJid.userJid);
-                var tokenObj = tokenClass.getConstructors()[0].newInstance(tokenData == null ? null : XposedHelpers.getObjectField(tokenData, "A01"));
-                sendPresenceMethod.invoke(null, userJid.userJid, null, tokenObj, mInstancePresence);
-                var status = (String) ReflectionUtils.callMethod(getStatusUser, mStatusUser, object, false);
-                setStatus(getAdapterPositionMethod, viewHolder, position, status, csDot, lastSeenText);
             }
         });
-    }
-
-    private static void setStatus(Method getAdapterPositionMethod, Object viewHolder, int position, String status, ImageView csDot, TextView lastSeenText) {
-        var currentPosition = (int) ReflectionUtils.callMethod(getAdapterPositionMethod, viewHolder);
-        if (currentPosition != position) return;
-        if (!TextUtils.isEmpty(status) && status.trim().equals(UnobfuscatorCache.getInstance().getString("online"))) {
-            if (csDot != null) {
-                csDot.setVisibility(View.VISIBLE);
-            }
-        }
-
-        if (lastSeenText != null) {
-            if (!TextUtils.isEmpty(status)) {
-                lastSeenText.setText(status);
-                if (UnobfuscatorCache.getInstance().getString("online").equals(status)) {
-                    lastSeenText.setTextColor(Color.GREEN);
-                } else {
-                    lastSeenText.setTextColor(0xffcac100);
-                }
-            } else {
-                lastSeenText.setText("");
-                lastSeenText.setTextColor(Color.GRAY);
-            }
-        }
     }
 
     @NonNull

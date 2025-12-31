@@ -27,6 +27,7 @@ import com.wmods.wppenhacer.xposed.core.components.WaContactWpp;
 import com.wmods.wppenhacer.xposed.core.devkit.Unobfuscator;
 import com.wmods.wppenhacer.xposed.core.devkit.UnobfuscatorCache;
 import com.wmods.wppenhacer.xposed.features.customization.BubbleColors;
+import com.wmods.wppenhacer.xposed.features.customization.ContactItemListener;
 import com.wmods.wppenhacer.xposed.features.customization.CustomThemeV2;
 import com.wmods.wppenhacer.xposed.features.customization.CustomTime;
 import com.wmods.wppenhacer.xposed.features.customization.CustomToolbar;
@@ -313,6 +314,7 @@ public class FeatureLoader {
                 CustomThemeV2.class,
                 ChatLimit.class,
                 SeparateGroup.class,
+                ContactItemListener.class,
                 ShowOnline.class,
                 DndMode.class,
                 FreezeLastSeen.class,
