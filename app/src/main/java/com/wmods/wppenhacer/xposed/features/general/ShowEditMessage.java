@@ -23,6 +23,7 @@ import com.wmods.wppenhacer.xposed.core.components.FMessageWpp;
 import com.wmods.wppenhacer.xposed.core.db.MessageHistory;
 import com.wmods.wppenhacer.xposed.core.db.MessageStore;
 import com.wmods.wppenhacer.xposed.core.devkit.Unobfuscator;
+import com.wmods.wppenhacer.xposed.features.listeners.ConversationItemListener;
 import com.wmods.wppenhacer.xposed.utils.DesignUtils;
 import com.wmods.wppenhacer.xposed.utils.ReflectionUtils;
 import com.wmods.wppenhacer.xposed.utils.ResId;
@@ -47,9 +48,6 @@ public class ShowEditMessage extends Feature {
 
         if (!prefs.getBoolean("antieditmessages", false)) return;
 
-        var onStartMethod = Unobfuscator.loadAntiRevokeOnStartMethod(classLoader);
-        logDebug(Unobfuscator.getMethodDescriptor(onStartMethod));
-
         var onMessageEdit = Unobfuscator.loadMessageEditMethod(classLoader);
         logDebug(Unobfuscator.getMethodDescriptor(onMessageEdit));
 
@@ -58,12 +56,6 @@ public class ShowEditMessage extends Feature {
 
         var getEditMessage = Unobfuscator.loadGetEditMessageMethod(classLoader);
         logDebug(Unobfuscator.getMethodDescriptor(getEditMessage));
-
-        var editMessageShowMethod = Unobfuscator.loadEditMessageShowMethod(classLoader);
-        logDebug(Unobfuscator.getMethodDescriptor(editMessageShowMethod));
-
-        var editMessageViewField = Unobfuscator.loadEditMessageViewField(classLoader);
-        logDebug(Unobfuscator.getFieldDescriptor(editMessageViewField));
 
         XposedBridge.hookMethod(onMessageEdit, new XC_MethodHook() {
             @Override
@@ -96,31 +88,33 @@ public class ShowEditMessage extends Feature {
             }
         });
 
+        var strEmoji = "\uD83D\uDCDD";
 
-        XposedBridge.hookMethod(editMessageShowMethod, new XC_MethodHook() {
-            @Override
-            protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-                var textView = (TextView) editMessageViewField.get(param.thisObject);
-                if (textView != null && !textView.getText().toString().contains("\uD83D\uDCDD")) {
-                    textView.getPaint().setUnderlineText(true);
-                    textView.append("\uD83D\uDCDD");
-                    textView.setOnClickListener((v) -> {
-                        try {
-                            var messageObj = XposedHelpers.callMethod(param.thisObject, "getFMessage");
-                            var fMesage = new FMessageWpp(messageObj);
-                            long id = fMesage.getRowId();
-                            var messages = MessageHistory.getInstance().getMessages(id);
-                            if (messages == null) {
-                                messages = new ArrayList<>();
-                            }
-                            showBottomDialog(messages);
-                        } catch (Exception exception0) {
-                            logDebug(exception0);
+        ConversationItemListener.conversationListeners.add(
+                new ConversationItemListener.OnConversationItemListener() {
+
+                    @Override
+                    public void onItemBind(FMessageWpp fMessage, ViewGroup viewGroup) {
+                        var textView = (TextView) viewGroup.findViewById(Utils.getID("edit_label", "id"));
+                        if (textView != null && !textView.getText().toString().contains(strEmoji)) {
+                            textView.getPaint().setUnderlineText(true);
+                            textView.append(strEmoji);
+                            textView.setOnClickListener((v) -> {
+                                try {
+                                    long id = fMessage.getRowId();
+                                    var messages = MessageHistory.getInstance().getMessages(id);
+                                    if (messages == null) {
+                                        messages = new ArrayList<>();
+                                    }
+                                    showBottomDialog(messages);
+                                } catch (Exception exception0) {
+                                    logDebug(exception0);
+                                }
+                            });
                         }
-                    });
+                    }
                 }
-            }
-        });
+        );
 
     }
 
