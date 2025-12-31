@@ -105,6 +105,9 @@ public class ResId {
         public static int no_contact_with_custom_privacy;
         public static int select_contacts;
         public static int download_not_available;
+        public static int block_not_detected;
+        public static int possible_block_detected;
+        public static int checking_if_the_contact_is_blocked;
     }
 
     public static class array {

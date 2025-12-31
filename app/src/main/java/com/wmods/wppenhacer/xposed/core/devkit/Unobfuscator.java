@@ -2069,4 +2069,28 @@ public class Unobfuscator {
     public static Class loadWaContactData(ClassLoader classLoader) throws Exception {
         return UnobfuscatorCache.getInstance().getClass(classLoader, () -> findFirstClassUsingStrings(classLoader, StringMatchType.EndsWith, "WaContactData"));
     }
+
+    public static Class<?> loadMeManagerClass(ClassLoader classLoader) throws Exception {
+        return UnobfuscatorCache.getInstance().getClass(classLoader, () -> {
+            var clazz = findFirstClassUsingStrings(classLoader, StringMatchType.StartsWith, "memanager/");
+            if (clazz == null) throw new RuntimeException("MeManager class not found");
+            return clazz;
+        });
+    }
+
+    public static Class<?> loadVerifyKeyClass(ClassLoader classLoader) throws Exception {
+        return UnobfuscatorCache.getInstance().getClass(classLoader, () -> {
+            var classList = dexkit.findClass(FindClass.create().matcher(ClassMatcher.create().addMethod(
+                            MethodMatcher.create().addUsingNumber(2966).paramCount(1).addParamType(int.class)
+                    )
+            )).singleOrNull();
+            if (classList == null)
+                throw new ClassNotFoundException("VerifyKey class not found");
+            return classList.getInstance(classLoader);
+        });
+    }
+
+
+
+
 }

@@ -27,6 +27,7 @@ import com.wmods.wppenhacer.xposed.core.components.WaContactWpp;
 import com.wmods.wppenhacer.xposed.core.devkit.Unobfuscator;
 import com.wmods.wppenhacer.xposed.core.devkit.UnobfuscatorCache;
 import com.wmods.wppenhacer.xposed.features.customization.BubbleColors;
+import com.wmods.wppenhacer.xposed.features.customization.ContactBlockedVerify;
 import com.wmods.wppenhacer.xposed.features.customization.ContactItemListener;
 import com.wmods.wppenhacer.xposed.features.customization.CustomThemeV2;
 import com.wmods.wppenhacer.xposed.features.customization.CustomTime;
@@ -353,7 +354,8 @@ public class FeatureLoader {
                 AntiWa.class,
                 CustomPrivacy.class,
                 AudioTranscript.class,
-                GoogleTranslate.class
+                GoogleTranslate.class,
+                ContactBlockedVerify.class
         };
         XposedBridge.log("Loading Plugins");
         var executorService = Executors.newWorkStealingPool(Math.min(Runtime.getRuntime().availableProcessors(), 4));

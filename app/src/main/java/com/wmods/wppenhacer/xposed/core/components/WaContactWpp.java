@@ -54,9 +54,10 @@ public class WaContactWpp {
         try {
             if (fieldContactData != null) {
                 var coreData = fieldContactData.get(mInstance);
-                return new FMessageWpp.UserJid(fieldUserJid.get(coreData), fieldPhoneUserJid.get(coreData));
+                var userjid = fieldUserJid.get(coreData);
+                return new FMessageWpp.UserJid(userjid);
             }
-            return new FMessageWpp.UserJid(fieldUserJid.get(mInstance), fieldPhoneUserJid.get(mInstance));
+            return new FMessageWpp.UserJid(fieldUserJid.get(mInstance));
         } catch (Exception e) {
             XposedBridge.log(e);
         }

@@ -36,7 +36,6 @@ public class ContactItemListener extends Feature {
             protected void afterHookedMethod(MethodHookParam param) throws Throwable {
                 var viewHolder = field1.get(param.thisObject);
                 var object = param.args[0];
-                log(viewHolder);
                 var waContact = new WaContactWpp(object);
                 var viewField = ReflectionUtils.findFieldUsingFilter(absViewHolderClass, field -> field.getType() == View.class);
                 var view = (View) viewField.get(viewHolder);

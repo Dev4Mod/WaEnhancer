@@ -397,12 +397,27 @@ public class FMessageWpp {
             return raw.contains("@newsletter");
         }
 
+        public boolean isBroadcast() {
+            String raw = getPhoneRawString();
+            if (raw == null) return false;
+            return raw.contains("@broadcast");
+        }
 
         public boolean isGroup() {
             if (this.phoneJid == null) return false;
             String str = getPhoneRawString();
             if (str == null) return false;
             return str.contains("-") || str.contains("@g.us") || (!str.contains("@") && str.length() > 16);
+        }
+
+
+        public boolean isContact() {
+            if (this.userJid != null) {
+                var raw = getUserRawString();
+                return raw != null && raw.contains("@lid");
+            }
+            String str = getPhoneRawString();
+            return str != null && str.contains("@s.whatsapp.net");
         }
 
 
