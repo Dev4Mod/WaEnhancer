@@ -2045,6 +2045,11 @@ public class Unobfuscator {
     }
 
 
-
-
+    public static Method loadMySearchBarMethod(ClassLoader classLoader) throws Exception {
+        return UnobfuscatorCache.getInstance().getMethod(classLoader, () -> {
+            Method method = findFirstMethodUsingStrings(classLoader, StringMatchType.EndsWith, "search_bar_render_start");
+            if (method == null) throw new NoSuchMethodException("MySearchBar method not found");
+            return method;
+        });
+    }
 }

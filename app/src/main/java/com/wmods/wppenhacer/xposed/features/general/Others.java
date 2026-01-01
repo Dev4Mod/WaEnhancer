@@ -611,17 +611,27 @@ public class Others extends Feature {
     private void hookSearchbar(String filterChats) throws Exception {
         Method searchbar = Unobfuscator.loadViewAddSearchBarMethod(classLoader);
         log("ADD HEADER VIEW: " + DexSignUtil.getMethodDescriptor(searchbar));
+        var searchBarID = Utils.getID("my_search_bar", "id");
+
         XposedBridge.hookMethod(searchbar, new XC_MethodHook() {
             @Override
             protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
                 var view = (View) param.args[0];
-                if (view.getId() != Utils.getID("my_search_bar", "id"))
-                    return;
-                if (!Objects.equals(filterChats, "2")) {
+                if ((view.getId() == searchBarID || view.findViewById(searchBarID) != null) && !Objects.equals(filterChats, "2")) {
                     param.setResult(null);
                 }
             }
         });
+
+        try {
+            if (!Objects.equals(filterChats, "2")) {
+                var loadMySearchBar = Unobfuscator.loadMySearchBarMethod(classLoader);
+                XposedBridge.hookMethod(loadMySearchBar, XC_MethodReplacement.DO_NOTHING);
+            }
+        } catch (Exception ignored) {
+        }
+
+
         try {
             Method addSeachBar = Unobfuscator.loadAddOptionSearchBarMethod(classLoader);
             XposedBridge.hookMethod(addSeachBar, new XC_MethodHook() {
