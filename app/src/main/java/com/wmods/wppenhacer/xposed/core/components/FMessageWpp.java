@@ -14,6 +14,7 @@ import java.io.File;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.Objects;
+import java.util.Set;
 
 import de.robv.android.xposed.XposedBridge;
 import de.robv.android.xposed.XposedHelpers;
@@ -36,6 +37,9 @@ public class FMessageWpp {
     private static Field broadcastField;
     private final Object fmessage;
     private Key key;
+    private static final Set<String> VALID_DOMAINS = Set.of(
+            "s.whatsapp.net", "newsletter", "lid", "g.us", "broadcast", "status"
+    );
 
     public FMessageWpp(Object fMessage) {
         if (fMessage == null) throw new RuntimeException("Object fMessage is null");
@@ -374,17 +378,13 @@ public class FMessageWpp {
         }
 
         private boolean isNonValidJid(String rawjid) {
-            if (rawjid == null) {
+            if (rawjid == null) return false;
+            int atIndex = rawjid.indexOf('@');
+            if (atIndex == -1 || atIndex == rawjid.length() - 1) {
                 return false;
             }
-            if (!rawjid.contains("@")) {
-                return false;
-            }
-            String[] split = rawjid.split("@");
-            if (split.length != 2) {
-                return false;
-            }
-            return !split[1].equals("s.whatsapp.net") && !split[1].equals("lid") && !split[1].equals("g.us") && !split[1].equals("broadcast") && !split[1].equals("status");
+            String domain = rawjid.substring(atIndex + 1);
+            return !VALID_DOMAINS.contains(domain);
         }
 
         public boolean isStatus() {

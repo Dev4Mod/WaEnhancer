@@ -14,7 +14,6 @@ public class WaContactWpp {
     public static Class<?> TYPE;
     private static Field fieldContactData;
     private static Field fieldUserJid;
-    private static Field fieldPhoneUserJid;
     private final Object mInstance;
 
 
@@ -35,10 +34,8 @@ public class WaContactWpp {
                 var contactDataClass = Unobfuscator.loadWaContactData(classLoader);
                 fieldContactData = ReflectionUtils.getFieldByType(TYPE, contactDataClass);
                 fieldUserJid = ReflectionUtils.getFieldByExtendType(contactDataClass, classJid);
-                fieldPhoneUserJid = ReflectionUtils.getFieldByExtendType(contactDataClass, classPhoneUserJid);
             } else {
                 fieldUserJid = ReflectionUtils.getFieldByExtendType(TYPE, classJid);
-                fieldPhoneUserJid = ReflectionUtils.getFieldByExtendType(TYPE, classPhoneUserJid);
             }
         } catch (Exception e) {
             XposedBridge.log(e);

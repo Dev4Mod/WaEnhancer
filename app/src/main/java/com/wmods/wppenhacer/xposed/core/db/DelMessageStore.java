@@ -46,18 +46,15 @@ public class DelMessageStore extends SQLiteOpenHelper {
     }
 
     public HashSet<String> getMessagesByJid(String jid) {
-        SQLiteDatabase dbReader = this.getReadableDatabase();
-        Cursor query = dbReader.query("delmessages", new String[]{"_id", "jid", "msgid"}, "jid=?", new String[]{jid}, null, null, null);
         HashSet<String> messages = new HashSet<>();
-        try {
+        if (jid == null) return messages;
+        SQLiteDatabase dbReader = this.getReadableDatabase();
+        try (dbReader; Cursor query = dbReader.query("delmessages", new String[]{"_id", "jid", "msgid"}, "jid=?", new String[]{jid}, null, null, null)) {
             if (query.moveToFirst()) {
                 do {
                     messages.add(query.getString(query.getColumnIndexOrThrow("msgid")));
                 } while (query.moveToNext());
             }
-        } finally {
-            query.close();
-            dbReader.close();
         }
         return messages;
     }

@@ -51,6 +51,7 @@ public class HideSeenView extends Feature {
     private static void updateBubbleView(FMessageWpp fmessage, View viewGroup) {
         var userJid = fmessage.getKey().remoteJid;
         var messageId = fmessage.getKey().messageID;
+        if (userJid.isNull()) return;
         ImageView view = viewGroup.findViewById(Utils.getID("view_once_control_icon", "id"));
         if (view != null) {
             var messageOnce = MessageHistory.getInstance().getHideSeenMessage(userJid.getPhoneRawString(), messageId, MessageHistory.MessageType.VIEW_ONCE_TYPE);
