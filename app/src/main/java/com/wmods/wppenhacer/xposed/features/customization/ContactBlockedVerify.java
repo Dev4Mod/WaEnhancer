@@ -1,5 +1,7 @@
 package com.wmods.wppenhacer.xposed.features.customization;
 
+import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.graphics.Color;
 import android.text.TextUtils;
 import android.view.ViewGroup;
@@ -11,6 +13,7 @@ import com.wmods.wppenhacer.xposed.core.Feature;
 import com.wmods.wppenhacer.xposed.core.FeatureLoader;
 import com.wmods.wppenhacer.xposed.core.WppCore;
 import com.wmods.wppenhacer.xposed.core.devkit.Unobfuscator;
+import com.wmods.wppenhacer.xposed.utils.DesignUtils;
 import com.wmods.wppenhacer.xposed.utils.ReflectionUtils;
 import com.wmods.wppenhacer.xposed.utils.ResId;
 import com.wmods.wppenhacer.xposed.utils.Utils;
@@ -36,6 +39,24 @@ public class ContactBlockedVerify extends Feature {
         super(classLoader, preferences);
     }
 
+    @SuppressLint("ResourceType")
+    @NonNull
+    private static TextView createTextMessageView(Activity activity) {
+        var textView = new TextView(activity);
+        textView.setId(0x7f990001);
+        textView.setEllipsize(TextUtils.TruncateAt.MARQUEE);
+        textView.setSingleLine(true);
+        textView.setMarqueeRepeatLimit(-1);
+        textView.setTextSize(10);
+        textView.setFocusable(true);
+        textView.setFocusableInTouchMode(true);
+        textView.setSelected(true);
+        textView.setTextColor(DesignUtils.getPrimaryTextColor());
+        textView.setText(ResId.string.checking_if_the_contact_is_blocked);
+        return textView;
+    }
+
+    @SuppressLint("ResourceType")
     @Override
     public void doHook() throws Throwable {
         if (!prefs.getBoolean("verify_blocked_contact", false) ||
@@ -66,18 +87,15 @@ public class ContactBlockedVerify extends Feature {
                                     log("User is not a contact or view is null");
                                     return;
                                 }
-                                if (view.findViewById(0x7f990001) != null) return;
-                                var textView = new TextView(activity);
-                                textView.setId(0x7f990001);
-                                textView.setEllipsize(TextUtils.TruncateAt.MARQUEE);
-                                textView.setSingleLine(true);
-                                textView.setMarqueeRepeatLimit(-1);
-                                textView.setTextSize(10);
-                                textView.setFocusable(true);
-                                textView.setFocusableInTouchMode(true);
-                                textView.setSelected(true);
-                                textView.setText(ResId.string.checking_if_the_contact_is_blocked);
-                                view.post(() -> view.addView(textView));
+                                var textView = (TextView) view.findViewById(0x7f990001);
+                                if (textView != null) {
+                                    textView.setText(ResId.string.checking_if_the_contact_is_blocked);
+                                    textView.setTextColor(DesignUtils.getPrimaryTextColor());
+                                    textView.postInvalidate();
+                                } else {
+                                    var textView1 = createTextMessageView(activity);
+                                    view.post(() -> view.addView(textView1));
+                                }
                                 var mePhoneJid = meManagerPhoneJidField.get(meManagerInstance);
                                 var clazzInterface = verifyKeyClass.getDeclaredConstructors()[0].getParameterTypes()[0];
                                 var methodResult = ReflectionUtils.findMethodUsingFilter(clazzInterface, method1 -> method1.getParameterCount() == 1 && method1.getParameterTypes()[0] == Integer.class);
