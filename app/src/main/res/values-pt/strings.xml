@@ -370,14 +370,14 @@
     <string name="custom_privacy_sum">Ative ou desative a privacidade personalizada</string>
     <string name="custom_privacy_per_contact">Privacidade personalizada por contato</string>
     <string name="custom_privacy_per_contact_sum">Ative o botão de privacidade personalizado na tela de informações de contato</string>
-    <string name="transcription_provider">Transcription Provider</string>
-    <string name="transcription_provider_sum">Choose the AI service for audio transcription</string>
+    <string name="transcription_provider">Provedor de transcrição</string>
+    <string name="transcription_provider_sum">Escolha o serviço de IA para transcrição de áudio</string>
     <string name="assemblyai">Ativar AssemblyAI</string>
     <string name="assemblyai_sum">Substitui a transcrição padrão do WhatsApp por AssemblyAI</string>
     <string name="assemblyai_key">AssemblyAI API Key</string>
-    <string name="assemblyai_key_sum">AssemblyAI API access key (Get it at assemblyai.com)</string>
-    <string name="groq_api_key">Groq API Key</string>
-    <string name="groq_api_key_sum">Groq API access key (Get it at console.groq.com)</string>
+    <string name="assemblyai_key_sum">Chave de acesso à API do AssemblyAI (Obtenha-o em assemblyai.com)</string>
+    <string name="groq_api_key">Chave API da Groq</string>
+    <string name="groq_api_key_sum">Chave de acesso Groq API (Obtenha-o em console.groq.com)</string>
     <string name="google_translate">Ativar Google Tradutor</string>
     <string name="google_translate_sum">Substitui o tradutor nativo do WhatsApp pelo Google Tradutor</string>
     <string name="show_contact_info">Mostrar nas informações do contato</string>
@@ -416,5 +416,10 @@
     <string name="disable_the_proximity_sensor_sum">Impedir que a tela desligue por meio do sensor de proximidade.</string>
     <string name="disable_status_in_the_profile_photo">Desativar status na foto do perfil</string>
     <string name="disable_status_in_the_profile_photo_sum">Quando ativo, o círculo que aparece na foto de perfil de cada contato quando há um novo status é desativado.</string>
-    <string name="download_not_available">Download not available or media has not been fully downloaded</string>
+    <string name="download_not_available">O download não está disponível ou a mídia não foi totalmente baixada</string>
+    <string name="possible_block_detected">Possível bloqueio detectado</string>
+    <string name="block_not_detected">Bloqueio não detectado</string>
+    <string name="checking_if_the_contact_is_blocked">Verificando se o contato está bloqueado...</string>
+    <string name="show_contact_blocked">Mostrar Contato Bloqueado na Conversa</string>
+    <string name="show_contact_blocked_sum">Esta opção verifica se o contato pode te ter bloqueado (nota: podem ocorrer falsos positivos).</string>
 </resources>

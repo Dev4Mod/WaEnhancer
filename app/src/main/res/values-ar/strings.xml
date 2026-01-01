@@ -418,4 +418,9 @@
     <string name="disable_status_in_the_profile_photo">تعطيل الحالة في صورة الملف الشخصي</string>
     <string name="disable_status_in_the_profile_photo_sum">يعطل الدائرة التي تظهر في صورة الملف الشخصي لكل جهة اتصال عند وجود حالة جديدة</string>
     <string name="download_not_available">Download not available or media has not been fully downloaded</string>
+    <string name="possible_block_detected">Possible block detected</string>
+    <string name="block_not_detected">Block not detected</string>
+    <string name="checking_if_the_contact_is_blocked">Checking if the contact is blocked...</string>
+    <string name="show_contact_blocked">Show Contact Blocked in Conversation</string>
+    <string name="show_contact_blocked_sum">This option verifies whether the contact may have blocked you (note: false positives may occur).</string>
 </resources>

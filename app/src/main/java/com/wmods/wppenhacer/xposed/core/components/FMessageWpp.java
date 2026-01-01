@@ -309,7 +309,7 @@ public class FMessageWpp {
         }
 
         public UserJid(@Nullable String rawjid) {
-            if (isNonValidJid(rawjid)) return;
+            if (isInvalidJid(rawjid)) return;
             if (checkValidLID(rawjid)) {
                 this.userJid = WppCore.createUserJid(rawjid);
                 this.phoneJid = WppCore.getPhoneJidFromUserJid(this.userJid);
@@ -328,7 +328,7 @@ public class FMessageWpp {
             } catch (Exception ignored) {
                 return;
             }
-            if (isNonValidJid(raw)) return;
+            if (isInvalidJid(raw)) return;
             if (checkValidLID(raw)) {
                 this.userJid = lidOrJid;
                 this.phoneJid = WppCore.getPhoneJidFromUserJid(this.userJid);
@@ -377,7 +377,7 @@ public class FMessageWpp {
             }
         }
 
-        private boolean isNonValidJid(String rawjid) {
+        private boolean isInvalidJid(String rawjid) {
             if (rawjid == null) return false;
             int atIndex = rawjid.indexOf('@');
             if (atIndex == -1 || atIndex == rawjid.length() - 1) {
