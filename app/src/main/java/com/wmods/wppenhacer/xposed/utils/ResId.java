@@ -108,6 +108,7 @@ public class ResId {
         public static int block_not_detected;
         public static int possible_block_detected;
         public static int checking_if_the_contact_is_blocked;
+        public static int block_unverified;
     }
 
     public static class array {

@@ -99,6 +99,7 @@ public class ContactBlockedVerify extends Feature {
                                 var mePhoneJid = meManagerPhoneJidField.get(meManagerInstance);
                                 var clazzInterface = verifyKeyClass.getDeclaredConstructors()[0].getParameterTypes()[0];
                                 var methodResult = ReflectionUtils.findMethodUsingFilter(clazzInterface, method1 -> method1.getParameterCount() == 1 && method1.getParameterTypes()[0] == Integer.class);
+                                long startTime = System.currentTimeMillis();
                                 var clazzProxy = Proxy.newProxyInstance(classLoader,
                                         new Class[]{clazzInterface},
                                         (o, method, objects) -> {
@@ -109,6 +110,10 @@ public class ContactBlockedVerify extends Feature {
                                                     var textView2 = (TextView) view.findViewById(0x7f990001);
                                                     if (textView2 == null) return;
                                                     textView2.setSelected(true);
+                                                    if (System.currentTimeMillis() - startTime < 1000) {
+                                                        textView2.setText(ResId.string.block_unverified);
+                                                        return;
+                                                    }
                                                     if (value == 2) {
                                                         textView2.setText(ResId.string.possible_block_detected);
                                                         textView2.setTextColor(Color.RED);
