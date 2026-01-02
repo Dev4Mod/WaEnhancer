@@ -422,4 +422,5 @@
     <string name="checking_if_the_contact_is_blocked">Verificando se o contato está bloqueado...</string>
     <string name="show_contact_blocked">Mostrar Contato Bloqueado na Conversa</string>
     <string name="show_contact_blocked_sum">Esta opção verifica se o contato pode te ter bloqueado (nota: podem ocorrer falsos positivos).</string>
+    <string name="block_unverified">Block Unverified</string>
 </resources>
