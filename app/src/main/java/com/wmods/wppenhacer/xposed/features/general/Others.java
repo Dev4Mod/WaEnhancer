@@ -82,6 +82,7 @@ public class Others extends Feature {
         var animationEmojis = prefs.getBoolean("animation_emojis", false);
         var disableProfileStatus = prefs.getBoolean("disable_profile_status", false);
         var disableExpiration = prefs.getBoolean("disable_expiration", false);
+        var disableAd = prefs.getBoolean("disable_ads", false);
 
         propsInteger.put(3877, oldStatus ? igstatus ? 2 : 0 : 2);
         propsBoolean.put(5171, filterSeen);
@@ -241,6 +242,16 @@ public class Others extends Feature {
             disableExpirationVersion(classLoader);
         }
 
+        if (disableAd) {
+            disableAds();
+        }
+
+    }
+
+    private void disableAds() throws Exception {
+        propsBoolean.put(22904, true);
+        var loadAd = Unobfuscator.loadAdVerifyMethod(classLoader);
+        XposedBridge.hookMethod(loadAd, XC_MethodReplacement.returnConstant(false));
     }
 
     private void disablePhotoProfileStatus() throws Exception {

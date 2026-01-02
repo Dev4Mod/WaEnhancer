@@ -2032,7 +2032,7 @@ public class Unobfuscator {
         });
     }
 
-    public static Class<?> loadVerifyKeyClass(ClassLoader classLoader) throws Exception {
+    public synchronized static Class<?> loadVerifyKeyClass(ClassLoader classLoader) throws Exception {
         return UnobfuscatorCache.getInstance().getClass(classLoader, () -> {
             var classList = dexkit.findClass(FindClass.create().matcher(ClassMatcher.create().addMethod(
                             MethodMatcher.create().addUsingNumber(2966).paramCount(1).addParamType(int.class)
@@ -2045,10 +2045,21 @@ public class Unobfuscator {
     }
 
 
-    public static Method loadMySearchBarMethod(ClassLoader classLoader) throws Exception {
+    public synchronized static Method loadMySearchBarMethod(ClassLoader classLoader) throws Exception {
         return UnobfuscatorCache.getInstance().getMethod(classLoader, () -> {
             Method method = findFirstMethodUsingStrings(classLoader, StringMatchType.EndsWith, "search_bar_render_start");
             if (method == null) throw new NoSuchMethodException("MySearchBar method not found");
+            return method;
+        });
+    }
+
+    public synchronized static Method loadAdVerifyMethod(ClassLoader classLoader) throws Exception {
+        return UnobfuscatorCache.getInstance().getMethod(classLoader, () -> {
+            var clazz = findFirstClassUsingStrings(classLoader, StringMatchType.Contains, "WamoAccountSettingManager");
+            if (clazz == null)
+                throw new ClassNotFoundException("WamoAccountSettingManager Not Found");
+            var method = ReflectionUtils.findMethodUsingFilter(clazz, method1 -> method1.getParameterCount() == 0 && method1.getReturnType() == boolean.class);
+            if (method == null) throw new NoSuchMethodException("loadAdVerify Not Found");
             return method;
         });
     }
