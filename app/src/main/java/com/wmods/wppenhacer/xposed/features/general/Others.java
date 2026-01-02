@@ -85,7 +85,12 @@ public class Others extends Feature {
         var disableAd = prefs.getBoolean("disable_ads", false);
 
         propsInteger.put(3877, oldStatus ? igstatus ? 2 : 0 : 2);
+
         propsBoolean.put(5171, filterSeen);
+
+        propsBoolean.put(18250, false);
+        propsBoolean.put(11528, false);
+
         propsBoolean.put(4497, menuWIcons);
         propsBoolean.put(4023, false);
         propsBoolean.put(14862, newSettings);
@@ -246,6 +251,15 @@ public class Others extends Feature {
             disableAds();
         }
 
+        if (!filterSeen) {
+            disableHomeFilters();
+        }
+
+    }
+
+    private void disableHomeFilters() throws Exception {
+        Method homeFilters = Unobfuscator.loadHomeFiltersMethod(classLoader);
+        XposedBridge.hookMethod(homeFilters, XC_MethodReplacement.DO_NOTHING);
     }
 
     private void disableAds() throws Exception {
