@@ -110,7 +110,7 @@ public class ContactBlockedVerify extends Feature {
                                                     var textView2 = (TextView) view.findViewById(0x7f990001);
                                                     if (textView2 == null) return;
                                                     textView2.setSelected(true);
-                                                    if (System.currentTimeMillis() - startTime < 1000) {
+                                                    if (System.currentTimeMillis() - startTime < 2000) {
                                                         textView2.setText(ResId.string.block_unverified);
                                                         return;
                                                     }
