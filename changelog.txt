@@ -1,19 +1,12 @@
 [BUGS FIXED]
-* Fixed bug in "Show Edit History" (Logic has been significantly improved, maintaining compatibility with future versions).
-* Fixed bug that caused WhatsApp to crash when navigating between contacts.
-* Fixed bug when hiding the search bar on the home screen.
-* Fixed bug when opening the Theme Manager (Thanks to MohdAfix).
-* Fixed bug in the New Settings Style (Thanks to MohdAfix).
-* Fixed a theme bug that occasionally generated a NullPointer error.
-
-[IMPROVED]
-* Added compatibility with themes created in the 'WA Enhancer Theme' group; it is now possible to import them directly through the manager.
-* Contact and chat lists now use Listeners for easier implementation of new features (For devs).
+* Fixed a bug when hiding the conversation filter on the home screen
+* Removed logs that caused increased memory usage in WhatsApp
 
 [FUNCTION]
-* Added a function to check if a user has blocked you on WhatsApp (A message appears on the conversation screen).
-Note: This function may present a false-positive in certain situations, as it works by verifying if the encryption key between you and your contact is correct. If there is no internet connection, if the key is corrupted, or if other technical issues occur, it may appear as a block even if it is not.
-Acknowledgment: Thanks to gxFs7 for opening issue 487 and explaining this verification method.
+* Added a function to disable ads in WhatsApp Stories (Enable only 1.26.XX or never)
+
+[IMPROVED]
+* Improved validation of blocked contact
 
 [WAE]
 * Translations updated via Crowdin.

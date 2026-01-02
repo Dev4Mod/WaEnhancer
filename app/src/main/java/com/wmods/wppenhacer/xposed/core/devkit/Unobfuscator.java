@@ -2066,7 +2066,7 @@ public class Unobfuscator {
 
     public synchronized static Method loadHomeFiltersMethod(ClassLoader classLoader) throws Exception {
         return UnobfuscatorCache.getInstance().getMethod(classLoader, () -> {
-            var method = findFirstMethodUsingStrings(classLoader, StringMatchType.Contains, "ConversationsFragment/updateHeadersVisibility");
+            var method = findFirstMethodUsingStrings(classLoader, StringMatchType.Contains, "ConversationsFragment/verticalswipetorevealbehavior");
             if (method == null) throw new RuntimeException("HomeFilters method not found");
             return method;
         });
