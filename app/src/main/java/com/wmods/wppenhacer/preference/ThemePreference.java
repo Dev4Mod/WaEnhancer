@@ -15,7 +15,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -37,6 +36,7 @@ import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
@@ -183,16 +183,31 @@ public class ThemePreference extends Preference implements FilePicker.OnUriPicke
             try (var inputStream = getContext().getContentResolver().openInputStream(uri)) {
                 var zipInputStream = new ZipInputStream(inputStream);
                 ZipEntry zipEntry;
+
+                String zipFileName = getZipFileName(uri);
+                
                 while ((zipEntry = zipInputStream.getNextEntry()) != null) {
                     var entryName = zipEntry.getName();
-                    var folderName = entryName.substring(0, entryName.lastIndexOf('/'));
                     var rootDirectory = new File(Environment.getExternalStorageDirectory(), "Download/WaEnhancer/themes");
+
+                    String folderName;
+                    String targetPath;
+
+                    int lastSlashIndex = entryName.lastIndexOf('/');
+                    if (lastSlashIndex > 0) {
+                        folderName = entryName.substring(0, lastSlashIndex);
+                        targetPath = entryName;
+                    } else {
+                        folderName = zipFileName;
+                        targetPath = zipFileName + "/" + entryName;
+                    }
+                    
                     var newFolder = new File(rootDirectory, folderName);
                     if (!newFolder.exists()) {
                         newFolder.mkdirs();
                     }
                     if (entryName.endsWith("/")) continue;
-                    var file = new File(rootDirectory, entryName);
+                    var file = new File(rootDirectory, targetPath);
                     Files.copy(zipInputStream, file.toPath(), StandardCopyOption.REPLACE_EXISTING);
                 }
                 ((Activity) getContext()).runOnUiThread(() -> {
@@ -203,5 +218,35 @@ public class ThemePreference extends Preference implements FilePicker.OnUriPicke
             } catch (Exception ignored) {
             }
         });
+    }
+
+    private String getZipFileName(Uri uri) {
+        String fileName = null;
+
+        if (Objects.equals(uri.getScheme(), "content")) {
+            try (var cursor = getContext().getContentResolver().query(uri, null, null, null, null)) {
+                if (cursor != null && cursor.moveToFirst()) {
+                    int nameIndex = cursor.getColumnIndex(android.provider.OpenableColumns.DISPLAY_NAME);
+                    if (nameIndex >= 0) {
+                        fileName = cursor.getString(nameIndex);
+                    }
+                }
+            } catch (Exception ignored) {
+            }
+        }
+
+        if (fileName == null) {
+            fileName = uri.getLastPathSegment();
+        }
+
+        if (fileName != null && fileName.toLowerCase().endsWith(".zip")) {
+            fileName = fileName.substring(0, fileName.length() - 4);
+        }
+
+        if (fileName == null || fileName.isEmpty()) {
+            fileName = "imported_theme_" + System.currentTimeMillis();
+        }
+
+        return fileName;
     }
 }

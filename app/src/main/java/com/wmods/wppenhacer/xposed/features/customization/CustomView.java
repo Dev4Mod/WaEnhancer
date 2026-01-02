@@ -156,10 +156,12 @@ public class CustomView extends Feature {
                 if ((className = item.getClassName()) != null) {
                     className = className.replaceAll("_", ".").trim();
                     targetClass = XposedHelpers.findClassIfExists(className, classLoader);
-                    name = selectorItem.get(1).getIDName().trim();
+                    name = selectorItem.get(1).getIDName();
                 } else {
-                    name = selectorItem.get(0).getIDName().trim();
+                    name = selectorItem.get(0).getIDName();
                 }
+                if (name == null) continue;
+                name = name.trim();
                 int id = 0;
                 if (name.contains("android_")) {
                     try {
@@ -206,7 +208,7 @@ public class CustomView extends Feature {
             try {
                 if (item.targetActivityClass != null && !item.targetActivityClass.isInstance(WppCore.getCurrentActivity()))
                     continue;
-                CompletableFuture.runAsync(()-> setCssRule(view, item));
+                CompletableFuture.runAsync(() -> setCssRule(view, item));
             } catch (Throwable ignored) {
             }
         }
@@ -256,7 +258,7 @@ public class CustomView extends Feature {
             if (view == null || !view.isAttachedToWindow())
                 continue;
             try {
-                currentView.post(()-> {
+                currentView.post(() -> {
                     setRuleInView(ruleItem, view);
                 });
             } catch (Throwable e) {
