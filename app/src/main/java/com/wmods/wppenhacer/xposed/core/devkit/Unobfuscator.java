@@ -2064,11 +2064,12 @@ public class Unobfuscator {
         });
     }
 
-    public synchronized static Method loadHomeFiltersMethod(ClassLoader classLoader) throws Exception {
-        return UnobfuscatorCache.getInstance().getMethod(classLoader, () -> {
-            var method = findFirstMethodUsingStrings(classLoader, StringMatchType.Contains, "ConversationsFragment/verticalswipetorevealbehavior");
-            if (method == null) throw new RuntimeException("HomeFilters method not found");
-            return method;
+    public synchronized static Class<?> loadChatFilterView(ClassLoader classLoader) throws Exception {
+        return UnobfuscatorCache.getInstance().getClass(classLoader, () -> {
+            int value = Utils.getID("conversations_inbox_filters_stub", "id");
+            var clazz = dexkit.findClass(FindClass.create().matcher(ClassMatcher.create().addMethod(MethodMatcher.create().addUsingNumber(value)))).singleOrNull();
+            if (clazz == null) return null;
+            return clazz.getInstance(classLoader);
         });
     }
 }
