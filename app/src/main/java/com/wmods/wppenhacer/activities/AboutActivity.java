@@ -17,6 +17,7 @@ public class AboutActivity extends BaseActivity {
         super.onCreate(savedInstanceState);
         com.wmods.wppenhacer.databinding.ActivityAboutBinding binding = ActivityAboutBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
+
         binding.btnTelegram.setOnClickListener(v -> {
             Intent intent = new Intent();
             intent.setAction(Intent.ACTION_VIEW);

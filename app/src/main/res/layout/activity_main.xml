@@ -19,9 +19,8 @@
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
             android:background="@drawable/toolbar_background"
+            app:logo="@mipmap/launcher"
             app:menu="@menu/header_menu"
-            app:navigationIcon="@mipmap/launcher"
-            app:navigationIconTint="@null"
             app:title="@string/app_name"
             app:titleCentered="false"
             app:titleTextAppearance="@style/ToolbarTitleStyle" />

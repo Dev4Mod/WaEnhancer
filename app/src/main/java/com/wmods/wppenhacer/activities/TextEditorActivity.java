@@ -57,10 +57,6 @@ public class TextEditorActivity extends BaseActivity {
 
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-        if (getSupportActionBar() != null) {
-            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-            getSupportActionBar().setDisplayShowHomeEnabled(true);
-        }
 
         webView = new WebView(this);
         webView.getSettings().setJavaScriptEnabled(true);
@@ -150,10 +146,6 @@ public class TextEditorActivity extends BaseActivity {
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         switch (item.getItemId()) {
-            case android.R.id.home -> {
-                finish();
-                return true;
-            }
             case R.id.menuitem_save -> {
                 try {
                     getTextareaContentAsync().thenAccept(content -> {
