@@ -76,6 +76,8 @@ public class CustomView extends Feature {
     private final HashMap<String, Drawable> chacheDrawables = new HashMap<>();
     private Properties properties;
 
+    private static final ThreadLocal<Boolean> isApplyingRules = ThreadLocal.withInitial(() -> false);
+
 
     public CustomView(@NonNull ClassLoader loader, @NonNull XSharedPreferences preferences) {
         super(loader, preferences);
@@ -181,7 +183,7 @@ public class CustomView extends Feature {
         XposedHelpers.findAndHookMethod(View.class, "invalidate", boolean.class, new XC_MethodHook() {
             @Override
             protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-                if (ReflectionUtils.isCalledFromClass(CustomView.class)) return;
+                if (Boolean.TRUE.equals(isApplyingRules.get())) return;
                 var view = (View) param.thisObject;
                 requestLayoutChange(view, mapIds);
             }
@@ -190,7 +192,7 @@ public class CustomView extends Feature {
         XposedHelpers.findAndHookMethod(View.class, "requestLayout", new XC_MethodHook() {
             @Override
             protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-                if (ReflectionUtils.isCalledFromClass(CustomView.class)) return;
+                if (isApplyingRules.get()) return;
                 var view = (View) param.thisObject;
                 view.invalidate();
             }
@@ -221,7 +223,7 @@ public class CustomView extends Feature {
                 var view = (View) param.thisObject;
                 var newDrawable = (Drawable) param.args[0];
                 var hookedBackground = XposedHelpers.getAdditionalInstanceField(view, "mHookedBackground");
-                if (ReflectionUtils.isCalledFromClass(CustomView.class)) {
+                if (isApplyingRules.get()) {
                     if (hookedBackground == null || view.getBackground() != newDrawable) {
                         XposedHelpers.setAdditionalInstanceField(view, "mHookedBackground", newDrawable);
                         return;
@@ -237,7 +239,7 @@ public class CustomView extends Feature {
                 var view = (ImageView) param.thisObject;
                 var newDrawable = (Drawable) param.args[0];
                 var mHookedDrawable = XposedHelpers.getAdditionalInstanceField(view, "mHookedDrawable");
-                if (ReflectionUtils.isCalledFromClass(CustomView.class)) {
+                if (isApplyingRules.get()) {
                     if (mHookedDrawable == null || view.getDrawable() != newDrawable) {
                         XposedHelpers.setAdditionalInstanceField(view, "mHookedDrawable", newDrawable);
                         return;
@@ -259,7 +261,12 @@ public class CustomView extends Feature {
                 continue;
             try {
                 currentView.post(() -> {
-                    setRuleInView(ruleItem, view);
+                    try {
+                        isApplyingRules.set(true);
+                        setRuleInView(ruleItem, view);
+                    } finally {
+                        isApplyingRules.set(false);
+                    }
                 });
             } catch (Throwable e) {
                 log(e);
@@ -714,16 +721,28 @@ public class CustomView extends Feature {
         @Nullable
         public Drawable getDrawable(String filePath, int width, int height) {
             File file = filePath.startsWith("/") ? new File(filePath) : new File(themeDir, filePath);
+            String key = file.getAbsolutePath();
+
+            CachedDrawable cachedDrawable = drawableCache.get(key);
+
+            if (cachedDrawable != null) {
+                if (System.currentTimeMillis() - cachedDrawable.lastCheckTime < 2000) {
+                    return cachedDrawable.drawable;
+                }
+            }
 
             if (!file.exists()) {
                 return null;
             }
-            String key = file.getAbsolutePath();
+
             long lastModified = file.lastModified();
-            CachedDrawable cachedDrawable = drawableCache.get(key);
-            if (cachedDrawable != null && cachedDrawable.lastModified == lastModified) {
-                return cachedDrawable.drawable;
+            if (cachedDrawable != null) {
+                cachedDrawable.lastCheckTime = System.currentTimeMillis();
+                if (cachedDrawable.lastModified == lastModified) {
+                    return cachedDrawable.drawable;
+                }
             }
+
             Drawable cachedDrawableFromFile = loadDrawableFromCache(key, lastModified);
             if (cachedDrawableFromFile != null) {
                 cachedDrawable = new CachedDrawable(cachedDrawableFromFile, lastModified);
@@ -792,10 +811,12 @@ public class CustomView extends Feature {
         private static class CachedDrawable {
             Drawable drawable;
             long lastModified;
+            long lastCheckTime;
 
             CachedDrawable(Drawable drawable, long lastModified) {
                 this.drawable = drawable;
                 this.lastModified = lastModified;
+                this.lastCheckTime = System.currentTimeMillis();
             }
         }
     }
