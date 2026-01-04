@@ -422,5 +422,11 @@
     <string name="checking_if_the_contact_is_blocked">Verificando se o contato está bloqueado...</string>
     <string name="show_contact_blocked">Mostrar Contato Bloqueado na Conversa</string>
     <string name="show_contact_blocked_sum">Esta opção verifica se o contato pode te ter bloqueado (nota: podem ocorrer falsos positivos).</string>
-    <string name="block_unverified">Block Unverified</string>
+    <string name="block_unverified">Bloqueio não verificado</string>
+    <string name="disable_whatsapp_expiration">Disable WhatsApp Expiration</string>
+    <string name="disable_whatsapp_expiration_sum">Deactivates the expired version of WhatsApp, (Note: Manual Disable to update WhatsApp on the Play Store or mark the Play Store on LSposed)</string>
+    <string name="disable_ads">Disable Ads</string>
+    <string name="disable_ads_sum">Blocks ads from appearing in WhatsApp</string>
+    <string name="lockedchats_enhancer">Enhanced Locked Chats</string>
+    <string name="lockedchats_enhancer_sum">Improve locked chats by hiding notifications and contacts from the contact list</string>
 </resources>

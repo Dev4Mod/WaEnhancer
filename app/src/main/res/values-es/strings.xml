@@ -417,10 +417,16 @@
     <string name="disable_status_in_the_profile_photo">Desactivar estado en la foto de perfil</string>
     <string name="disable_status_in_the_profile_photo_sum">Deshabilita el círculo que aparece en la foto de perfil de cada contacto cuando hay un nuevo estado</string>
     <string name="download_not_available">La descarga no está disponible o el archivo no se ha descargado completamente</string>
-    <string name="possible_block_detected">Possible block detected</string>
-    <string name="block_not_detected">Block not detected</string>
-    <string name="checking_if_the_contact_is_blocked">Checking if the contact is blocked...</string>
-    <string name="show_contact_blocked">Show Contact Blocked in Conversation</string>
-    <string name="show_contact_blocked_sum">This option verifies whether the contact may have blocked you (note: false positives may occur).</string>
-    <string name="block_unverified">Block Unverified</string>
+    <string name="possible_block_detected">Posible bloqueo detectado</string>
+    <string name="block_not_detected">Bloqueo no detectado</string>
+    <string name="checking_if_the_contact_is_blocked">Comprobando si el contacto te ha bloqueado...</string>
+    <string name="show_contact_blocked">Mostrar contacto bloqueado en conversación</string>
+    <string name="show_contact_blocked_sum">Esta opción verifica si el contacto puede haberlo bloqueado (nota: pueden ocurrir falsos positivos).</string>
+    <string name="block_unverified">Bloqueo no verificado</string>
+    <string name="disable_whatsapp_expiration">Desactivar expiración de WhatsApp</string>
+    <string name="disable_whatsapp_expiration_sum">Desactiva la versión caducada de WhatsApp, (Nota: Desactivar manualmente para actualizar WhatsApp en la Play Store o marcar la Play Store en LSposed)</string>
+    <string name="disable_ads">Desactivar Anuncios</string>
+    <string name="disable_ads_sum">Bloquea anuncios que aparezcan en WhatsApp</string>
+    <string name="lockedchats_enhancer">Enhanced Locked Chats</string>
+    <string name="lockedchats_enhancer_sum">Improve locked chats by hiding notifications and contacts from the contact list</string>
 </resources>
