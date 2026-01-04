@@ -2072,4 +2072,43 @@ public class Unobfuscator {
             return clazz.getInstance(classLoader);
         });
     }
+
+    public static Method loadNotificationMethod(ClassLoader classLoader) throws Exception {
+        return UnobfuscatorCache.getInstance().getMethod(classLoader, () -> {
+            var invokedMethod = dexkit.findMethod(FindMethod.create().matcher(MethodMatcher.create().addUsingString("LastMessageStore/getLastMessagesForNotificationAfterReply"))).singleOrNull();
+            if (invokedMethod == null)
+                throw new RuntimeException("Notification invoked method not found");
+            return invokedMethod.getMethodInstance(classLoader);
+        });
+    }
+
+    public static Method loadLockedChatsMethod(ClassLoader classLoader) throws Exception {
+        return UnobfuscatorCache.getInstance().getMethod(classLoader, () -> {
+            var classData = dexkit.findClass(FindClass.create().matcher(ClassMatcher.create().addUsingString("conversationsmgr/replacecontact"))).singleOrNull();
+            if (classData == null)
+                throw new RuntimeException("ConversationsManager class not found");
+            var invokedMethod = dexkit.getMethodData(loadNotificationMethod(classLoader));
+            var invokes = invokedMethod.getInvokes();
+            for (var invoke : invokes) {
+                if (!invoke.isMethod()) continue;
+                if (!invoke.getClassName().equals(classData.getName())) continue;
+                if (!invoke.getReturnType().getName().equals(ArrayList.class.getName())) continue;
+                return invoke.getMethodInstance(classLoader);
+            }
+            throw new RuntimeException("LockedChats method not found");
+        });
+    }
+
+
+    public static Class<?> loadChatCacheClass(ClassLoader classLoader) throws Exception {
+        return UnobfuscatorCache.getInstance().getClass(classLoader, () -> findFirstClassUsingStrings(classLoader, StringMatchType.StartsWith, "Chatscache/"));
+    }
+
+    public static Method loadLoadedContactsMethod(ClassLoader classLoader) throws Exception {
+        return UnobfuscatorCache.getInstance().getMethod(classLoader, () -> {
+            var methods = dexkit.findMethod(FindMethod.create().matcher(MethodMatcher.create().addUsingNumber(8726).paramCount(1).addParamType(Object.class)));
+            if (methods.isEmpty()) return null;
+            return methods.get(0).getMethodInstance(classLoader);
+        });
+    }
 }

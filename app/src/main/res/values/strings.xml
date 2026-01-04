@@ -430,4 +430,7 @@
     <string name="disable_whatsapp_expiration_sum">Deactivates the expired version of WhatsApp, (Note: Manual Disable to update WhatsApp on the Play Store or mark the Play Store on LSposed)</string>
     <string name="disable_ads">Disable Ads</string>
     <string name="disable_ads_sum">Blocks ads from appearing in WhatsApp</string>
+    <string name="lockedchats_enhancer">Enhanced Locked Chats</string>
+    <string name="lockedchats_enhancer_sum">Improve locked chats by hiding notifications and contacts from the contact list</string>
+
 </resources>

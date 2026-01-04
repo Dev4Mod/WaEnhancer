@@ -78,6 +78,7 @@ import com.wmods.wppenhacer.xposed.features.privacy.FreezeLastSeen;
 import com.wmods.wppenhacer.xposed.features.privacy.HideChat;
 import com.wmods.wppenhacer.xposed.features.privacy.HideReceipt;
 import com.wmods.wppenhacer.xposed.features.privacy.HideSeen;
+import com.wmods.wppenhacer.xposed.features.privacy.LockedChatsEnhancer;
 import com.wmods.wppenhacer.xposed.features.privacy.TagMessage;
 import com.wmods.wppenhacer.xposed.features.privacy.TypingPrivacy;
 import com.wmods.wppenhacer.xposed.features.privacy.ViewOnce;
@@ -357,7 +358,8 @@ public class FeatureLoader {
                 CustomPrivacy.class,
                 AudioTranscript.class,
                 GoogleTranslate.class,
-                ContactBlockedVerify.class
+                ContactBlockedVerify.class,
+                LockedChatsEnhancer.class
         };
         XposedBridge.log("Loading Plugins");
         var executorService = Executors.newWorkStealingPool(Math.min(Runtime.getRuntime().availableProcessors(), 4));

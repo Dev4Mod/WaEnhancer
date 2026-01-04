@@ -20,7 +20,8 @@ public class WaContactWpp {
     public WaContactWpp(Object object) {
         if (TYPE == null) throw new RuntimeException("WaContactWpp not initialized");
         if (object == null) throw new RuntimeException("object is null");
-        this.mInstance = object;
+        if (!TYPE.isInstance(object)) throw new RuntimeException("object is not a WaContactWpp");
+        this.mInstance = TYPE.cast(object);
     }
 
     public static void initialize(ClassLoader classLoader) {
