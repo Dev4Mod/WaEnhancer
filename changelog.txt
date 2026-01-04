@@ -1,12 +1,13 @@
 [BUGS FIXED]
-* Fixed a bug when hiding the conversation filter on the home screen
-* Removed logs that caused increased memory usage in WhatsApp
+* Fixed a bug that caused the option for locked chats not to appear on the home screen
+* Fixed a bug where the toolbar did not appear in the Theme Editor
 
 [FUNCTION]
-* Added a function to disable ads in WhatsApp Stories (Enable only 1.26.XX or never)
+* Added a function to enhance locked chats (notifications do not appear and the contact does not appear in the WhatsApp contact list)
+OPTION: WAE -> Privacy -> Enhanced Locked Chats
 
 [IMPROVED]
-* Improved validation of blocked contact
+* Improved theme loading, making it lighter and faster
 
 [WAE]
 * Translations updated via Crowdin.
