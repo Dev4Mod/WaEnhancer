@@ -544,6 +544,91 @@ public class CustomView extends Feature {
                         }
                     }
                 }
+                case "margin" -> {
+                    if (!(view.getLayoutParams() instanceof ViewGroup.MarginLayoutParams params))
+                        continue;
+                    int left = params.leftMargin;
+                    int top = params.topMargin;
+                    int right = params.rightMargin;
+                    int bottom = params.bottomMargin;
+                    if (declaration.size() == 1) {
+                        int val = getExactValue((TermLength) declaration.get(0), view.getWidth());
+                        left = top = right = bottom = val;
+                    } else if (declaration.size() == 2) {
+                        int vertical = getExactValue((TermLength) declaration.get(0), view.getHeight());
+                        int horizontal = getExactValue((TermLength) declaration.get(1), view.getWidth());
+                        top = bottom = vertical;
+                        left = right = horizontal;
+                    } else if (declaration.size() == 4) {
+                        top = getExactValue((TermLength) declaration.get(0), view.getHeight());
+                        right = getExactValue((TermLength) declaration.get(1), view.getWidth());
+                        bottom = getExactValue((TermLength) declaration.get(2), view.getHeight());
+                        left = getExactValue((TermLength) declaration.get(3), view.getWidth());
+                    }
+                    params.setMargins(left, top, right, bottom);
+                    view.requestLayout();
+                }
+                case "margin-left" -> {
+                    if (!(view.getLayoutParams() instanceof ViewGroup.MarginLayoutParams params))
+                        continue;
+                    params.leftMargin = getExactValue((TermLength) declaration.get(0), view.getWidth());
+                    view.requestLayout();
+                }
+                case "margin-top" -> {
+                    if (!(view.getLayoutParams() instanceof ViewGroup.MarginLayoutParams params))
+                        continue;
+                    params.topMargin = getExactValue((TermLength) declaration.get(0), view.getHeight());
+                    view.requestLayout();
+                }
+                case "margin-right" -> {
+                    if (!(view.getLayoutParams() instanceof ViewGroup.MarginLayoutParams params))
+                        continue;
+                    params.rightMargin = getExactValue((TermLength) declaration.get(0), view.getWidth());
+                    view.requestLayout();
+                }
+                case "margin-bottom" -> {
+                    if (!(view.getLayoutParams() instanceof ViewGroup.MarginLayoutParams params))
+                        continue;
+                    params.bottomMargin = getExactValue((TermLength) declaration.get(0), view.getHeight());
+                    view.requestLayout();
+                }
+                case "padding" -> {
+                    int left = view.getPaddingLeft();
+                    int top = view.getPaddingTop();
+                    int right = view.getPaddingRight();
+                    int bottom = view.getPaddingBottom();
+                    if (declaration.size() == 1) {
+                        int val = getExactValue((TermLength) declaration.get(0), view.getWidth());
+                        left = top = right = bottom = val;
+                    } else if (declaration.size() == 2) {
+                        int vertical = getExactValue((TermLength) declaration.get(0), view.getHeight());
+                        int horizontal = getExactValue((TermLength) declaration.get(1), view.getWidth());
+                        top = bottom = vertical;
+                        left = right = horizontal;
+                    } else if (declaration.size() == 4) {
+                        top = getExactValue((TermLength) declaration.get(0), view.getHeight());
+                        right = getExactValue((TermLength) declaration.get(1), view.getWidth());
+                        bottom = getExactValue((TermLength) declaration.get(2), view.getHeight());
+                        left = getExactValue((TermLength) declaration.get(3), view.getWidth());
+                    }
+                    view.setPadding(left, top, right, bottom);
+                }
+                case "padding-left" -> {
+                    var val = getExactValue((TermLength) declaration.get(0), view.getWidth());
+                    view.setPadding(val, view.getPaddingTop(), view.getPaddingRight(), view.getPaddingBottom());
+                }
+                case "padding-top" -> {
+                    var val = getExactValue((TermLength) declaration.get(0), view.getHeight());
+                    view.setPadding(view.getPaddingLeft(), val, view.getPaddingRight(), view.getPaddingBottom());
+                }
+                case "padding-right" -> {
+                    var val = getExactValue((TermLength) declaration.get(0), view.getWidth());
+                    view.setPadding(view.getPaddingLeft(), view.getPaddingTop(), val, view.getPaddingBottom());
+                }
+                case "padding-bottom" -> {
+                    var val = getExactValue((TermLength) declaration.get(0), view.getHeight());
+                    view.setPadding(view.getPaddingLeft(), view.getPaddingTop(), view.getPaddingRight(), val);
+                }
             }
         }
     }
@@ -606,6 +691,18 @@ public class CustomView extends Feature {
             value = pValue.getValue().intValue();
         }
         return value > 0 ? value : 1;
+    }
+
+    private int getExactValue(TermLength pValue, int size) {
+        int value;
+        if (pValue.getUnit() == TermNumeric.Unit.px) {
+            value = Utils.dipToPixels(pValue.getValue().intValue());
+        } else if (pValue.isPercentage()) {
+            value = size * pValue.getValue().intValue() / 100;
+        } else {
+            value = pValue.getValue().intValue();
+        }
+        return value;
     }
 
     private void captureSelector(View currentView, CombinedSelector selector, int position, ArrayList<View> resultViews) {
