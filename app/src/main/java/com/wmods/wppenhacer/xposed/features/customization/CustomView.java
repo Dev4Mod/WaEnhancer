@@ -9,8 +9,10 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.LinearGradient;
+import android.graphics.Paint;
 import android.graphics.PorterDuff;
 import android.graphics.Shader;
+import android.graphics.Typeface;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
@@ -20,6 +22,7 @@ import android.text.TextUtils;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.util.LruCache;
+import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
@@ -333,7 +336,7 @@ public class CustomView extends Feature {
                     var value = (TermColor) declaration.get(0);
                     textView.setTextColor(value.getValue().getRGB());
                 }
-                case "alpha" -> {
+                case "alpha", "opacity" -> {
                     var value = (TermFloatValue) declaration.get(0);
                     view.setAlpha(value.getValue());
                 }
@@ -539,6 +542,100 @@ public class CustomView extends Feature {
                                 var drawable = view.getBackground();
                                 if (drawable != null) {
                                     drawable.setTintList(null);
+                                }
+                            }
+                        }
+                    }
+                }
+                case "font-weight" -> {
+                    if (!(view instanceof TextView textView)) continue;
+                    String value = declaration.get(0).toString();
+                    Typeface current = textView.getTypeface();
+                    if ("bold".equals(value) || value.equals("700") || value.equals("800") || value.equals("900")) {
+                        textView.setTypeface(current, Typeface.BOLD);
+                    } else if ("normal".equals(value) || value.equals("400")) {
+                        textView.setTypeface(Typeface.create(current, Typeface.NORMAL));
+                    }
+                }
+                case "font-style" -> {
+                    if (!(view instanceof TextView textView)) continue;
+                    String value = declaration.get(0).toString();
+                    Typeface current = textView.getTypeface();
+                    if ("italic".equals(value)) {
+                        textView.setTypeface(current, Typeface.ITALIC);
+                    } else if ("normal".equals(value)) {
+                        textView.setTypeface(Typeface.create(current, Typeface.NORMAL));
+                    }
+                }
+                case "text-decoration" -> {
+                    if (!(view instanceof TextView textView)) continue;
+                    String value = declaration.get(0).toString();
+                    if (value.contains("underline")) {
+                        textView.setPaintFlags(textView.getPaintFlags() | Paint.UNDERLINE_TEXT_FLAG);
+                    }
+                    if (value.contains("line-through")) {
+                        textView.setPaintFlags(textView.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
+                    }
+                    if (value.contains("none")) {
+                        textView.setPaintFlags(textView.getPaintFlags() & (~Paint.UNDERLINE_TEXT_FLAG) & (~Paint.STRIKE_THRU_TEXT_FLAG));
+                    }
+                }
+                case "text-transform" -> {
+                    if (!(view instanceof TextView textView)) continue;
+                    String value = declaration.get(0).toString();
+                    switch (value) {
+                        case "uppercase" -> textView.setAllCaps(true);
+                        case "lowercase" -> {
+                            textView.setAllCaps(false);
+                            textView.setText(textView.getText().toString().toLowerCase());
+                        }
+                        case "none" -> textView.setAllCaps(false);
+                    }
+                }
+                case "text-align" -> {
+                    if (!(view instanceof TextView textView)) continue;
+                    String value = declaration.get(0).toString();
+                    switch (value) {
+                        case "center" -> textView.setGravity(Gravity.CENTER);
+                        case "right", "end" ->
+                                textView.setGravity(Gravity.END | Gravity.CENTER_VERTICAL);
+                        case "left", "start" ->
+                                textView.setGravity(Gravity.START | Gravity.CENTER_VERTICAL);
+                    }
+                }
+                case "box-shadow" -> {
+                    for (Term<?> term : declaration) {
+                        if (term instanceof TermLength) {
+                            float val = getExactValue((TermLength) term, 0);
+                            if (val > 0) view.setElevation(val);
+                            break;
+                        }
+                    }
+                }
+                case "transform" -> {
+                    for (Term<?> term : declaration) {
+                        if (term instanceof TermFunction func) {
+                            String funcName = func.getFunctionName();
+                            var args = func.getValues(true);
+                            if ("rotate".equals(funcName) && !args.isEmpty()) {
+                                Term<?> arg = args.get(0);
+                                if (arg instanceof TermLength) {
+                                    try {
+                                        if (arg.toString().contains("deg")) {
+                                            view.setRotation(Float.parseFloat(arg.toString().replace("deg", "")));
+                                        }
+                                    } catch (Exception ignored) {
+                                    }
+                                }
+                            } else if ("scale".equals(funcName)) {
+                                if (args.size() >= 1) {
+                                    float sx = Float.parseFloat(args.get(0).toString());
+                                    view.setScaleX(sx);
+                                    view.setScaleY(sx);
+                                }
+                                if (args.size() >= 2) {
+                                    float sy = Float.parseFloat(args.get(1).toString());
+                                    view.setScaleY(sy);
                                 }
                             }
                         }

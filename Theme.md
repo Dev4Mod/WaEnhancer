@@ -78,6 +78,13 @@ The following properties can be used inside your CSS rules.
 | **padding**                     | Sets inner spacing within the element.             | `16px` (all), `10px 20px` (Vert Horz), `10px 5px 10px 0px` (Top Right Bottom Left) |
 | **padding-left / -right / ...** | Sets specific padding side.                        | `16px`                                                                             |
 
+### Borders & Radius
+
+| Property          | Description                  | Example                                                       |
+|:------------------|:-----------------------------|:--------------------------------------------------------------|
+| **border-radius** | Sets corner radius.          | `16px`                                                        |
+| **border**        | Sets border width and color. | `2px solid #FF0000` (style is ignored, only width/color used) |
+
 ### Backgrounds & Images
 
 | Property             | Description                             | Example                                                    |
@@ -101,10 +108,23 @@ Example: `linear-gradient(45deg, #FF0000 0%, #00FF00 100%)`
 
 ### Typography (TextViews only)
 
-| Property      | Description          | Example                                      |
-|:--------------|:---------------------|:---------------------------------------------|
-| **color**     | Sets the text color. | `#FFFFFF`                                    |
-| **font-size** | Sets the text size.  | `16px` (treated as scale-independent pixels) |
+| Property            | Description           | Example                             |
+|:--------------------|:----------------------|:------------------------------------|
+| **color**           | Sets the text color.  | `#FFFFFF`                           |
+| **font-size**       | Sets the text size.   | `16px`                              |
+| **font-weight**     | Sets text weight.     | `bold`, `normal`, `700`             |
+| **font-style**      | Sets text style.      | `italic`, `normal`                  |
+| **text-decoration** | Sets text decoration. | `underline`, `line-through`, `none` |
+| **text-transform**  | Transforms text case. | `uppercase`, `lowercase`, `none`    |
+| **text-align**      | Aligns text.          | `center`, `right`, `left`           |
+
+### Effects & Transforms
+
+| Property       | Description                          | Example                                              |
+|:---------------|:-------------------------------------|:-----------------------------------------------------|
+| **opacity**    | Sets transparency (alias for alpha). | `0.5`                                                |
+| **box-shadow** | Sets elevation (shadow).             | `4px 4px 10px #000` (uses first length as elevation) |
+| **transform**  | Applies 2D transformations.          | `rotate(90deg) scale(1.2)`                           |
 
 ## 4. Values & Units
 
