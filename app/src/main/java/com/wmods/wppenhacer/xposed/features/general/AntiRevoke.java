@@ -1,6 +1,7 @@
 package com.wmods.wppenhacer.xposed.features.general;
 
 import android.text.TextUtils;
+import android.view.ViewGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -14,7 +15,7 @@ import com.wmods.wppenhacer.xposed.core.db.DelMessageStore;
 import com.wmods.wppenhacer.xposed.core.db.MessageStore;
 import com.wmods.wppenhacer.xposed.core.devkit.Unobfuscator;
 import com.wmods.wppenhacer.xposed.core.devkit.UnobfuscatorCache;
-import com.wmods.wppenhacer.xposed.utils.DebugUtils;
+import com.wmods.wppenhacer.xposed.features.listeners.ConversationItemListener;
 import com.wmods.wppenhacer.xposed.utils.ReflectionUtils;
 import com.wmods.wppenhacer.xposed.utils.ResId;
 import com.wmods.wppenhacer.xposed.utils.Utils;
@@ -46,9 +47,6 @@ public class AntiRevoke extends Feature {
 
         var antiRevokeMessageMethod = Unobfuscator.loadAntiRevokeMessageMethod(classLoader);
         logDebug(Unobfuscator.getMethodDescriptor(antiRevokeMessageMethod));
-
-        var bubbleMethod = Unobfuscator.loadAntiRevokeBubbleMethod(classLoader);
-        logDebug(Unobfuscator.getMethodDescriptor(bubbleMethod));
 
         var unknownStatusPlaybackMethod = Unobfuscator.loadUnknownStatusPlaybackMethod(classLoader);
         logDebug(Unobfuscator.getMethodDescriptor(unknownStatusPlaybackMethod));
@@ -84,12 +82,12 @@ public class AntiRevoke extends Feature {
         });
 
 
-        XposedBridge.hookMethod(bubbleMethod, new XC_MethodHook() {
+        ConversationItemListener.conversationListeners.add(new ConversationItemListener.OnConversationItemListener() {
             @Override
-            protected void afterHookedMethod(MethodHookParam param) {
-                var objMessage = param.args[2];
-                var dateTextView = (TextView) param.args[1];
-                isMRevoked(objMessage, dateTextView, "antirevoke");
+            public void onItemBind(FMessageWpp fMessage, ViewGroup viewGroup) {
+                if (fMessage.getKey().isFromMe) return;
+                var dateTextView = (TextView) viewGroup.findViewById(Utils.getID("date", "id"));
+                isMRevoked(fMessage, dateTextView, "antirevoke");
             }
         });
 
@@ -110,7 +108,7 @@ public class AntiRevoke extends Feature {
                 for (Field textView : textViews) {
                     TextView textView1 = (TextView) textView.get(objView);
                     if (textView1 != null && textView1.getId() == dateId) {
-                        isMRevoked(objFMessage, textView1, "antirevokestatus");
+                        isMRevoked(new FMessageWpp(objFMessage), textView1, "antirevokestatus");
                         break;
                     }
                 }
@@ -169,10 +167,9 @@ public class AntiRevoke extends Feature {
     }
 
 
-    private void isMRevoked(Object objMessage, TextView dateTextView, String antirevokeType) {
+    private void isMRevoked(FMessageWpp fMessage, TextView dateTextView, String antirevokeType) {
         if (dateTextView == null) return;
 
-        var fMessage = new FMessageWpp(objMessage);
         var key = fMessage.getKey();
         var messageRevokedList = getRevokedMessages(fMessage);
         var id = fMessage.getRowId();

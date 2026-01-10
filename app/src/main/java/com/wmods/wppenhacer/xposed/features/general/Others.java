@@ -20,6 +20,7 @@ import com.wmods.wppenhacer.xposed.core.Feature;
 import com.wmods.wppenhacer.xposed.core.WppCore;
 import com.wmods.wppenhacer.xposed.core.components.FMessageWpp;
 import com.wmods.wppenhacer.xposed.core.devkit.Unobfuscator;
+import com.wmods.wppenhacer.xposed.features.listeners.ConversationItemListener;
 import com.wmods.wppenhacer.xposed.utils.AnimationUtil;
 import com.wmods.wppenhacer.xposed.utils.ReflectionUtils;
 import com.wmods.wppenhacer.xposed.utils.ResId;
@@ -404,10 +405,11 @@ public class Others extends Feature {
 
         var emoji = prefs.getString("doubletap2like_emoji", "👍");
 
-        var bubbleMethod = Unobfuscator.loadAntiRevokeBubbleMethod(classLoader);
-        logDebug(Unobfuscator.getMethodDescriptor(bubbleMethod));
 
-        XposedBridge.hookAllConstructors(bubbleMethod.getDeclaringClass(), new XC_MethodHook() {
+        var conversationRowClass = Unobfuscator.loadConversationRowClass(classLoader);
+        logDebug("Conversation Row", conversationRowClass);
+
+        XposedBridge.hookAllConstructors(conversationRowClass, new XC_MethodHook() {
             @Override
             protected void afterHookedMethod(MethodHookParam param) throws Throwable {
                 var viewGroup = (ViewGroup) param.thisObject;
@@ -415,14 +417,9 @@ public class Others extends Feature {
             }
         });
 
-
-        XposedBridge.hookMethod(bubbleMethod, new XC_MethodHook() {
-
+        ConversationItemListener.conversationListeners.add(new ConversationItemListener.OnConversationItemListener() {
             @Override
-            protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
-                var viewGroup = (View) param.thisObject;
-                if (viewGroup == null) return;
-
+            public void onItemBind(FMessageWpp fMessage, ViewGroup viewGroup) {
                 var onMultiClickListener = new OnMultiClickListener(2, 500) {
                     @Override
                     public void onMultiClick(View view) {
@@ -431,13 +428,13 @@ public class Others extends Feature {
                             for (int i = 0; i < reactionView.getChildCount(); i++) {
                                 if (reactionView.getChildAt(i) instanceof TextView textView) {
                                     if (textView.getText().toString().contains(emoji)) {
-                                        WppCore.sendReaction("", param.args[2]);
+                                        WppCore.sendReaction("", fMessage.getObject());
                                         return;
                                     }
                                 }
                             }
                         }
-                        WppCore.sendReaction(emoji, param.args[2]);
+                        WppCore.sendReaction(emoji, fMessage.getObject());
                     }
                 };
                 viewGroup.setOnClickListener(onMultiClickListener);

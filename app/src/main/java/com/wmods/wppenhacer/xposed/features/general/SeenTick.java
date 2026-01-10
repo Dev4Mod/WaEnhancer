@@ -117,10 +117,6 @@ public class SeenTick extends Feature {
     public void doHook() throws Throwable {
 
 
-        var bubbleMethod = Unobfuscator.loadAntiRevokeBubbleMethod(classLoader);
-        logDebug(Unobfuscator.getMethodDescriptor(bubbleMethod));
-
-
         WaJobManagerMethod = Unobfuscator.loadBlueOnReplayWaJobManagerMethod(classLoader);
 
         mSendReadClass = Unobfuscator.findFirstClassUsingName(classLoader, StringMatchType.EndsWith, "SendReadReceiptJob");

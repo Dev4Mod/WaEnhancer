@@ -11,9 +11,7 @@ import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.FrameLayout;
-import android.widget.TextView;
 
 import androidx.annotation.Nullable;
 
@@ -749,13 +747,13 @@ public class Unobfuscator {
         });
     }
 
-    public synchronized static Method loadAntiRevokeBubbleMethod(ClassLoader loader) throws Exception {
-        return UnobfuscatorCache.getInstance().getMethod(loader, () -> {
-            Class<?> bubbleClass = findFirstClassUsingStrings(loader, StringMatchType.Contains, "ConversationRow/setUpUserNameInGroupView");
-            if (bubbleClass == null) throw new Exception("AntiRevokeBubble method not found");
-            var result = Arrays.stream(bubbleClass.getMethods()).filter(m -> m.getParameterCount() > 1 && m.getParameterTypes()[0] == ViewGroup.class && m.getParameterTypes()[1] == TextView.class).findFirst().orElse(null);
-            if (result == null) throw new Exception("AntiRevokeBubble method not found");
-            return result;
+    public synchronized static Class<?> loadConversationRowClass(ClassLoader loader) throws Exception {
+        return UnobfuscatorCache.getInstance().getClass(loader, () -> {
+            var conversation_header = Utils.getID("conversation_row_participant_header_view_stub", "id");
+            var nameId = Utils.getID("name_in_group", "id");
+            var classData = dexkit.findClass(FindClass.create().matcher(ClassMatcher.create().addMethod(MethodMatcher.create().addUsingNumber(conversation_header).addUsingNumber(nameId)))).singleOrNull();
+            if (classData == null) throw new Exception("ConversationRow class not found");
+            return classData.getInstance(loader);
         });
     }
 
