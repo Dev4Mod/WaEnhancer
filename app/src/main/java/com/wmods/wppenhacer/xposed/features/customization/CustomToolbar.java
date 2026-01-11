@@ -24,6 +24,8 @@ import com.wmods.wppenhacer.xposed.utils.ReflectionUtils;
 import com.wmods.wppenhacer.xposed.utils.ResId;
 import com.wmods.wppenhacer.xposed.utils.Utils;
 
+import org.luckypray.dexkit.query.enums.StringMatchType;
+
 import java.lang.reflect.Method;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -116,6 +118,7 @@ public class CustomToolbar extends Feature {
             var clazz = WppCore.getTabsPagerClass(homeActivity.getClassLoader());
             var fieldTab = ReflectionUtils.getFieldByType(homeActivity.getClass(), clazz);
             var mTabInstance = fieldTab.get(homeActivity);
+            var archivedClass = Unobfuscator.findFirstClassUsingName(homeActivity.getClassLoader(), StringMatchType.EndsWith, "ArchivedConversationsActivity");
 
             if (typeArchive.equals("1")) {
                 var onMultiClickListener = new OnMultiClickListener(5, 700) {
@@ -123,7 +126,7 @@ public class CustomToolbar extends Feature {
                     @Override
                     public void onMultiClick(View v) {
                         Intent intent = new Intent();
-                        intent.setClassName(Utils.getApplication().getPackageName(), "com.whatsapp.conversationslist.ArchivedConversationsActivity");
+                        intent.setClassName(Utils.getApplication().getPackageName(), archivedClass.getName());
                         homeActivity.startActivity(intent);
                     }
                 };
@@ -131,7 +134,7 @@ public class CustomToolbar extends Feature {
             } else if (typeArchive.equals("2")) {
                 toolbar.setOnLongClickListener(v -> {
                     Intent intent = new Intent();
-                    intent.setClassName(Utils.getApplication().getPackageName(), "com.whatsapp.conversationslist.ArchivedConversationsActivity");
+                    intent.setClassName(Utils.getApplication().getPackageName(), archivedClass.getName());
                     homeActivity.startActivity(intent);
                     return true;
                 });
