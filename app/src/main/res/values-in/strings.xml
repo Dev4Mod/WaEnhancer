@@ -438,6 +438,6 @@ Harap gunakan versi WhatsApp yang didukung!</string>
 (CATATAN: Nonaktifkan pembaruan otomatis untuk WhatsApp di Play Store atau tandai Play Store di LSposed)</string>
     <string name="disable_ads">Nonaktifkan Iklan</string>
     <string name="disable_ads_sum">Blokir iklan agar tidak muncul di WhatsApp</string>
-    <string name="lockedchats_enhancer">Enhanced Locked Chats</string>
-    <string name="lockedchats_enhancer_sum">Improve locked chats by hiding notifications and contacts from the contact list</string>
+    <string name="lockedchats_enhancer">Obrolan Terkunci yang Ditingkatkan</string>
+    <string name="lockedchats_enhancer_sum">Tingkatkan keamanan obrolan yang terkunci dengan menyembunyikan notifikasi dan kontak dari daftar kontak</string>
 </resources>

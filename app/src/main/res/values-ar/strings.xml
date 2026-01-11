@@ -418,15 +418,15 @@
     <string name="disable_status_in_the_profile_photo_sum">يعطل الدائرة التي تظهر في صورة الملف الشخصي لكل جهة اتصال عند وجود حالة جديدة</string>
     <string name="download_not_available">التنزيل غير متوفر أو لم يتم تحميل الوسائط بالكامل</string>
     <string name="possible_block_detected">تم اكتشاف كتلة محتملة</string>
-    <string name="block_not_detected">لم يتم اكتشاف الكتلة</string>
+    <string name="block_not_detected">لم يتم اكتشاف حظر</string>
     <string name="checking_if_the_contact_is_blocked">جارٍ التحقق مما إذا كان جهة الاتصال محظورة...</string>
     <string name="show_contact_blocked">إظهار جهة الاتصال المحظورة في المحادثة</string>
-    <string name="show_contact_blocked_sum">يتحقق هذا الخيار مما إذا كان جهة الاتصال قد حظرتك (ملاحظة: قد تحدث نتائج إيجابية خاطئة).</string>
+    <string name="show_contact_blocked_sum">يتحقق هذا الخِيار مما إذا كان جهة الاتصال قد حظرتك (ملاحظة: قد تحدث نتائج إيجابية خاطئة).</string>
     <string name="block_unverified">حظر غير مُتحقق منه</string>
     <string name="disable_whatsapp_expiration">تعطيل انتهاء صلاحية واتساب</string>
-    <string name="disable_whatsapp_expiration_sum">يعطل الإصدار المنتهي الصلاحية من WhatsApp (ملاحظة: قم بالتعطيل يدويًا لتحديث WhatsApp على متجر Play Store أو ضع علامة على متجر Play Store على LSposed)</string>
+    <string name="disable_whatsapp_expiration_sum">يعطل الإصدار المنتهي الصَّلاحِيَة من WhatsApp (ملاحظة: التعطيل يدويًا لتحديث WhatsApp على متجر Play Store أو ضع علامة على متجر Play Store على LSposed)</string>
     <string name="disable_ads">تعطيل الإعلانات</string>
     <string name="disable_ads_sum">منع الإعلانات من الظهور في WhatsApp</string>
-    <string name="lockedchats_enhancer">Enhanced Locked Chats</string>
-    <string name="lockedchats_enhancer_sum">Improve locked chats by hiding notifications and contacts from the contact list</string>
+    <string name="lockedchats_enhancer">محادثات مقفلة محسّنة</string>
+    <string name="lockedchats_enhancer_sum">حسّن المحادثات المقفلة عن طريق إخفاء الإشعارات وجهات الاتصال من قائمة جهات الاتصال</string>
 </resources>

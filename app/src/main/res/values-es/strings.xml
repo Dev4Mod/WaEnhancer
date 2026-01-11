@@ -427,6 +427,6 @@
     <string name="disable_whatsapp_expiration_sum">Desactiva la versión caducada de WhatsApp, (Nota: Desactivar manualmente para actualizar WhatsApp en la Play Store o marcar la Play Store en LSposed)</string>
     <string name="disable_ads">Desactivar Anuncios</string>
     <string name="disable_ads_sum">Bloquea anuncios que aparezcan en WhatsApp</string>
-    <string name="lockedchats_enhancer">Enhanced Locked Chats</string>
-    <string name="lockedchats_enhancer_sum">Improve locked chats by hiding notifications and contacts from the contact list</string>
+    <string name="lockedchats_enhancer">Chats bloqueados mejorados</string>
+    <string name="lockedchats_enhancer_sum">Mejorar los chats bloqueados ocultando notificaciones y contactos de la lista de contactos</string>
 </resources>

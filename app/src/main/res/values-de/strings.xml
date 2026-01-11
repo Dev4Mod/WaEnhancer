@@ -375,9 +375,9 @@
     <string name="assemblyai">AssemblyAI aktivieren</string>
     <string name="assemblyai_sum">Ersetzt die Standard-Whatsapp-Transkription durch AssemblyAI</string>
     <string name="assemblyai_key">AssemblyAI API Key</string>
-    <string name="assemblyai_key_sum">AssemblyAI API access key (Get it at assemblyai.com)</string>
+    <string name="assemblyai_key_sum">AssemblyAI API Access Key (Get it at assemblyai.com)</string>
     <string name="groq_api_key">Groq API Schlüssel</string>
-    <string name="groq_api_key_sum">Groq API access key (Get it at console.groq.com)</string>
+    <string name="groq_api_key_sum">Groq API Zugangsschlüssel (Holen Sie ihn unter console.groq.com)</string>
     <string name="google_translate">Google Translate aktivieren</string>
     <string name="google_translate_sum">Ersetzt den native Übersetzer von WhatsApp durch Google Translate</string>
     <string name="show_contact_info">In Kontaktinfo anzeigen</string>
@@ -423,10 +423,10 @@
     <string name="show_contact_blocked">Zeige blockierten Kontakt im Gespräch</string>
     <string name="show_contact_blocked_sum">Mit dieser Option wird überprüft, ob der Kontakt Sie gesperrt hat (Anmerkung: Falsch/Positiv).</string>
     <string name="block_unverified">Block nicht verifiziert</string>
-    <string name="disable_whatsapp_expiration">Disable WhatsApp Expiration</string>
-    <string name="disable_whatsapp_expiration_sum">Deactivates the expired version of WhatsApp, (Note: Manual Disable to update WhatsApp on the Play Store or mark the Play Store on LSposed)</string>
-    <string name="disable_ads">Disable Ads</string>
-    <string name="disable_ads_sum">Blocks ads from appearing in WhatsApp</string>
-    <string name="lockedchats_enhancer">Enhanced Locked Chats</string>
-    <string name="lockedchats_enhancer_sum">Improve locked chats by hiding notifications and contacts from the contact list</string>
+    <string name="disable_whatsapp_expiration">WhatsApp Ablaufdatum deaktivieren</string>
+    <string name="disable_whatsapp_expiration_sum">Deaktiviert die abgelaufene Version von WhatsApp. (Hinweis: Manuell deaktivieren, um WhatsApp im Play Store zu aktualisieren oder den Play Store auf LSposed)</string>
+    <string name="disable_ads">Werbung deaktivieren</string>
+    <string name="disable_ads_sum">Blockiert Werbung in WhatsApp</string>
+    <string name="lockedchats_enhancer">Verbesserte gesperrte Chats</string>
+    <string name="lockedchats_enhancer_sum">Verbessern Sie die gesperrten Chats, indem Sie Benachrichtigungen und Kontakte aus der Kontaktliste ausblenden</string>
 </resources>
