@@ -1,13 +1,5 @@
-[BUGS FIXED]
-* Fixed a bug that caused the option for locked chats not to appear on the home screen
-* Fixed a bug where the toolbar did not appear in the Theme Editor
-
-[FUNCTION]
-* Added a function to enhance locked chats (notifications do not appear and the contact does not appear in the WhatsApp contact list)
-OPTION: WAE -> Privacy -> Enhanced Locked Chats
-
-[IMPROVED]
-* Improved theme loading, making it lighter and faster
+[WHATSAPP]
+* Fixed version 2.26.1.XXX support
 
 [WAE]
-* Translations updated via Crowdin.
+* Update translations
