@@ -138,7 +138,7 @@ public class HideReceipt extends Feature {
         }
 
         if (customHideReceipt || ghostMode) {
-            return WppCore.getCurrentConversation() == null || customHideRead;
+            return !WppCore.isConversationResumed() || customHideRead || ghostMode;
         }
 
         return false;
