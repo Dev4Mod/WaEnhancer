@@ -149,10 +149,10 @@ public class Unobfuscator {
 
     public synchronized static Class<?> findFirstClassUsingName(ClassLoader classLoader, StringMatchType type, String name) throws Exception {
         return UnobfuscatorCache.getInstance().getClass(classLoader, name, () -> {
-            var result = dexkit.findClass(FindClass.create().matcher(ClassMatcher.create().className(name, type)));
-            if (result.isEmpty())
+            var result = dexkit.findClass(FindClass.create().matcher(ClassMatcher.create().className(name, type))).firstOrNull();
+            if (result == null)
                 throw new ClassNotFoundException("Class not found: " + name);
-            return result.get(0).getInstance(classLoader);
+            return result.getInstance(classLoader);
         });
     }
 
