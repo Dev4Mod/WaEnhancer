@@ -1,4 +1,4 @@
-name: Build WaEnhancer Arbyy
+name: Build WaEnhancer
 
 on:
   push:
