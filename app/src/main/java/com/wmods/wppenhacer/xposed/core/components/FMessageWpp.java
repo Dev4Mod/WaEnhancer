@@ -325,7 +325,7 @@ public class FMessageWpp {
             String raw;
             try {
                 raw = (String) XposedHelpers.callMethod(lidOrJid, "getRawString");
-            } catch (Exception ignored) {
+            } catch (Throwable ignored) {
                 return;
             }
             if (isInvalidJid(raw)) return;
