@@ -123,7 +123,7 @@ public class CustomToolbar extends Feature {
                     @Override
                     public void onMultiClick(View v) {
                         Intent intent = new Intent();
-                        intent.setClassName(Utils.getApplication().getPackageName(), "com.whatsapp.conversationslist.ArchivedConversationsActivity");
+                        intent.setClassName(Utils.getApplication().getPackageName(), "com.whatsapp.conversation.conversationslist.ArchivedConversationsActivity");
                         homeActivity.startActivity(intent);
                     }
                 };
@@ -131,7 +131,7 @@ public class CustomToolbar extends Feature {
             } else if (typeArchive.equals("2")) {
                 toolbar.setOnLongClickListener(v -> {
                     Intent intent = new Intent();
-                    intent.setClassName(Utils.getApplication().getPackageName(), "com.whatsapp.conversationslist.ArchivedConversationsActivity");
+                    intent.setClassName(Utils.getApplication().getPackageName(), "com.whatsapp.conversation.conversationslist.ArchivedConversationsActivity");
                     homeActivity.startActivity(intent);
                     return true;
                 });
