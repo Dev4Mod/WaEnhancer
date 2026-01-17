@@ -123,6 +123,9 @@
         <item>2.25.35.xx</item>
         <item>2.25.36.xx</item>
         <item>2.25.37.xx</item>
+        <item>2.25.38.xx</item>
+        <item>2.25.39.xx</item>
+        <item>2.25.40.xx</item>
         <item>2.26.1.xx</item>
     </string-array>
     <string-array name="supported_versions_business">
@@ -130,6 +133,9 @@
         <item>2.25.35.xx</item>
         <item>2.25.36.xx</item>
         <item>2.25.37.xx</item>
+        <item>2.25.38.xx</item>
+        <item>2.25.39.xx</item>
+        <item>2.25.40.xx</item>
         <item>2.26.1.xx</item>
     </string-array>
     <string-array name="image_picker">

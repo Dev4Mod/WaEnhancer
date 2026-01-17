@@ -83,6 +83,11 @@
             android:theme="@style/AppTheme" />
 
         <activity
+            android:name=".activities.CallRecordingSettingsActivity"
+            android:theme="@style/Theme.Material3.DynamicColors.DayNight.NoActionBar"
+            android:parentActivityName=".activities.MainActivity" />
+
+        <activity
             android:name=".activities.ForceStartActivity"
             android:excludeFromRecents="true"
             android:exported="true"
@@ -114,6 +119,16 @@
             android:name=".xposed.bridge.service.BridgeService"
             android:exported="true"
             tools:ignore="ExportedService" />
+
+        <provider
+            android:name="androidx.core.content.FileProvider"
+            android:authorities="${applicationId}.fileprovider"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/file_paths" />
+        </provider>
 
         <provider
             android:name=".xposed.bridge.providers.HookProvider"
