@@ -27,6 +27,7 @@ import com.wmods.wppenhacer.xposed.core.components.WaContactWpp;
 import com.wmods.wppenhacer.xposed.core.devkit.Unobfuscator;
 import com.wmods.wppenhacer.xposed.core.devkit.UnobfuscatorCache;
 import com.wmods.wppenhacer.xposed.features.customization.BubbleColors;
+import com.wmods.wppenhacer.xposed.features.customization.ContactBlockedVerify;
 import com.wmods.wppenhacer.xposed.features.customization.CustomThemeV2;
 import com.wmods.wppenhacer.xposed.features.customization.CustomTime;
 import com.wmods.wppenhacer.xposed.features.customization.CustomToolbar;
@@ -42,7 +43,6 @@ import com.wmods.wppenhacer.xposed.features.general.CallType;
 import com.wmods.wppenhacer.xposed.features.general.ChatLimit;
 import com.wmods.wppenhacer.xposed.features.general.DeleteStatus;
 import com.wmods.wppenhacer.xposed.features.general.LiteMode;
-import com.wmods.wppenhacer.xposed.features.general.MenuStatus;
 import com.wmods.wppenhacer.xposed.features.general.NewChat;
 import com.wmods.wppenhacer.xposed.features.general.Others;
 import com.wmods.wppenhacer.xposed.features.general.PinnedLimit;
@@ -50,6 +50,9 @@ import com.wmods.wppenhacer.xposed.features.general.SeenTick;
 import com.wmods.wppenhacer.xposed.features.general.ShareLimit;
 import com.wmods.wppenhacer.xposed.features.general.ShowEditMessage;
 import com.wmods.wppenhacer.xposed.features.general.Tasker;
+import com.wmods.wppenhacer.xposed.features.listeners.ContactItemListener;
+import com.wmods.wppenhacer.xposed.features.listeners.ConversationItemListener;
+import com.wmods.wppenhacer.xposed.features.listeners.MenuStatusListener;
 import com.wmods.wppenhacer.xposed.features.media.CallRecording;
 import com.wmods.wppenhacer.xposed.features.media.DownloadProfile;
 import com.wmods.wppenhacer.xposed.features.media.DownloadViewOnce;
@@ -76,6 +79,7 @@ import com.wmods.wppenhacer.xposed.features.privacy.FreezeLastSeen;
 import com.wmods.wppenhacer.xposed.features.privacy.HideChat;
 import com.wmods.wppenhacer.xposed.features.privacy.HideReceipt;
 import com.wmods.wppenhacer.xposed.features.privacy.HideSeen;
+import com.wmods.wppenhacer.xposed.features.privacy.LockedChatsEnhancer;
 import com.wmods.wppenhacer.xposed.features.privacy.TagMessage;
 import com.wmods.wppenhacer.xposed.features.privacy.TypingPrivacy;
 import com.wmods.wppenhacer.xposed.features.privacy.ViewOnce;
@@ -159,7 +163,7 @@ public class FeatureLoader {
                     initComponents(loader, pref);
                     plugins(loader, pref, packageInfo.versionName);
                     sendEnabledBroadcast(mApp);
-//                    XposedHelpers.setStaticIntField(XposedHelpers.findClass("com.whatsapp.util.Log", loader), "level", 5);
+//                    XposedHelpers.setStaticIntField(XposedHelpers.findClass("com.whatsapp.infra.logging.Log", loader), "level", 5);
                     var timemillis2 = System.currentTimeMillis() - timemillis;
                     XposedBridge.log("Loaded Hooks in " + timemillis2 + "ms");
                 } catch (Throwable e) {
@@ -172,7 +176,6 @@ public class FeatureLoader {
                     error.setError(Arrays.toString(Arrays.stream(e.getStackTrace()).filter(s -> !s.getClassName().startsWith("android") && !s.getClassName().startsWith("com.android")).map(StackTraceElement::toString).toArray()));
                     list.add(error);
                 }
-
             }
         });
 
@@ -303,7 +306,9 @@ public class FeatureLoader {
 
         var classes = new Class<?>[]{
                 DebugFeature.class,
-                MenuStatus.class,
+                ContactItemListener.class,
+                ConversationItemListener.class,
+                MenuStatusListener.class,
                 ShowEditMessage.class,
                 AntiRevoke.class,
                 CustomToolbar.class,
@@ -354,6 +359,8 @@ public class FeatureLoader {
                 CustomPrivacy.class,
                 AudioTranscript.class,
                 GoogleTranslate.class,
+                ContactBlockedVerify.class,
+                LockedChatsEnhancer.class,
                 CallRecording.class
         };
         XposedBridge.log("Loading Plugins");

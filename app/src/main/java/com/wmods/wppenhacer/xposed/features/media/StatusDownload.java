@@ -1,6 +1,6 @@
 package com.wmods.wppenhacer.xposed.features.media;
 
-import static com.wmods.wppenhacer.xposed.features.general.MenuStatus.menuStatuses;
+import static com.wmods.wppenhacer.xposed.features.listeners.MenuStatusListener.menuStatuses;
 
 import android.content.Intent;
 import android.net.Uri;
@@ -15,7 +15,7 @@ import com.wmods.wppenhacer.xposed.core.Feature;
 import com.wmods.wppenhacer.xposed.core.WppCore;
 import com.wmods.wppenhacer.xposed.core.components.FMessageWpp;
 import com.wmods.wppenhacer.xposed.core.devkit.Unobfuscator;
-import com.wmods.wppenhacer.xposed.features.general.MenuStatus;
+import com.wmods.wppenhacer.xposed.features.listeners.MenuStatusListener;
 import com.wmods.wppenhacer.xposed.utils.MimeTypeUtils;
 import com.wmods.wppenhacer.xposed.utils.ResId;
 import com.wmods.wppenhacer.xposed.utils.Utils;
@@ -36,7 +36,7 @@ public class StatusDownload extends Feature {
         if (!prefs.getBoolean("downloadstatus", false)) return;
 
 
-        var downloadStatus = new MenuStatus.MenuItemStatus() {
+        var downloadStatus = new MenuStatusListener.onMenuItemStatusListener() {
 
             @Override
             public MenuItem addMenu(Menu menu, FMessageWpp fMessage) {
@@ -54,7 +54,7 @@ public class StatusDownload extends Feature {
         menuStatuses.add(downloadStatus);
 
 
-        var sharedMenu = new MenuStatus.MenuItemStatus() {
+        var sharedMenu = new MenuStatusListener.onMenuItemStatusListener() {
 
             @Override
             public MenuItem addMenu(Menu menu, FMessageWpp fMessage) {

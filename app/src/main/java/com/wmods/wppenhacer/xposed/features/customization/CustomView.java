@@ -9,8 +9,10 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.LinearGradient;
+import android.graphics.Paint;
 import android.graphics.PorterDuff;
 import android.graphics.Shader;
+import android.graphics.Typeface;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
@@ -20,6 +22,7 @@ import android.text.TextUtils;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.util.LruCache;
+import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
@@ -75,6 +78,8 @@ public class CustomView extends Feature {
     private static File themeDir;
     private final HashMap<String, Drawable> chacheDrawables = new HashMap<>();
     private Properties properties;
+
+    private static final ThreadLocal<Boolean> isApplyingRules = ThreadLocal.withInitial(() -> false);
 
 
     public CustomView(@NonNull ClassLoader loader, @NonNull XSharedPreferences preferences) {
@@ -156,10 +161,12 @@ public class CustomView extends Feature {
                 if ((className = item.getClassName()) != null) {
                     className = className.replaceAll("_", ".").trim();
                     targetClass = XposedHelpers.findClassIfExists(className, classLoader);
-                    name = selectorItem.get(1).getIDName().trim();
+                    name = selectorItem.get(1).getIDName();
                 } else {
-                    name = selectorItem.get(0).getIDName().trim();
+                    name = selectorItem.get(0).getIDName();
                 }
+                if (name == null) continue;
+                name = name.trim();
                 int id = 0;
                 if (name.contains("android_")) {
                     try {
@@ -179,7 +186,7 @@ public class CustomView extends Feature {
         XposedHelpers.findAndHookMethod(View.class, "invalidate", boolean.class, new XC_MethodHook() {
             @Override
             protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-                if (ReflectionUtils.isCalledFromClass(CustomView.class)) return;
+                if (Boolean.TRUE.equals(isApplyingRules.get())) return;
                 var view = (View) param.thisObject;
                 requestLayoutChange(view, mapIds);
             }
@@ -188,7 +195,7 @@ public class CustomView extends Feature {
         XposedHelpers.findAndHookMethod(View.class, "requestLayout", new XC_MethodHook() {
             @Override
             protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-                if (ReflectionUtils.isCalledFromClass(CustomView.class)) return;
+                if (isApplyingRules.get()) return;
                 var view = (View) param.thisObject;
                 view.invalidate();
             }
@@ -206,7 +213,7 @@ public class CustomView extends Feature {
             try {
                 if (item.targetActivityClass != null && !item.targetActivityClass.isInstance(WppCore.getCurrentActivity()))
                     continue;
-                CompletableFuture.runAsync(()-> setCssRule(view, item));
+                CompletableFuture.runAsync(() -> setCssRule(view, item));
             } catch (Throwable ignored) {
             }
         }
@@ -219,7 +226,7 @@ public class CustomView extends Feature {
                 var view = (View) param.thisObject;
                 var newDrawable = (Drawable) param.args[0];
                 var hookedBackground = XposedHelpers.getAdditionalInstanceField(view, "mHookedBackground");
-                if (ReflectionUtils.isCalledFromClass(CustomView.class)) {
+                if (isApplyingRules.get()) {
                     if (hookedBackground == null || view.getBackground() != newDrawable) {
                         XposedHelpers.setAdditionalInstanceField(view, "mHookedBackground", newDrawable);
                         return;
@@ -235,7 +242,7 @@ public class CustomView extends Feature {
                 var view = (ImageView) param.thisObject;
                 var newDrawable = (Drawable) param.args[0];
                 var mHookedDrawable = XposedHelpers.getAdditionalInstanceField(view, "mHookedDrawable");
-                if (ReflectionUtils.isCalledFromClass(CustomView.class)) {
+                if (isApplyingRules.get()) {
                     if (mHookedDrawable == null || view.getDrawable() != newDrawable) {
                         XposedHelpers.setAdditionalInstanceField(view, "mHookedDrawable", newDrawable);
                         return;
@@ -256,8 +263,13 @@ public class CustomView extends Feature {
             if (view == null || !view.isAttachedToWindow())
                 continue;
             try {
-                currentView.post(()-> {
-                    setRuleInView(ruleItem, view);
+                currentView.post(() -> {
+                    try {
+                        isApplyingRules.set(true);
+                        setRuleInView(ruleItem, view);
+                    } finally {
+                        isApplyingRules.set(false);
+                    }
                 });
             } catch (Throwable e) {
                 log(e);
@@ -324,7 +336,7 @@ public class CustomView extends Feature {
                     var value = (TermColor) declaration.get(0);
                     textView.setTextColor(value.getValue().getRGB());
                 }
-                case "alpha" -> {
+                case "alpha", "opacity" -> {
                     var value = (TermFloatValue) declaration.get(0);
                     view.setAlpha(value.getValue());
                 }
@@ -535,6 +547,185 @@ public class CustomView extends Feature {
                         }
                     }
                 }
+                case "font-weight" -> {
+                    if (!(view instanceof TextView textView)) continue;
+                    String value = declaration.get(0).toString();
+                    Typeface current = textView.getTypeface();
+                    if ("bold".equals(value) || value.equals("700") || value.equals("800") || value.equals("900")) {
+                        textView.setTypeface(current, Typeface.BOLD);
+                    } else if ("normal".equals(value) || value.equals("400")) {
+                        textView.setTypeface(Typeface.create(current, Typeface.NORMAL));
+                    }
+                }
+                case "font-style" -> {
+                    if (!(view instanceof TextView textView)) continue;
+                    String value = declaration.get(0).toString();
+                    Typeface current = textView.getTypeface();
+                    if ("italic".equals(value)) {
+                        textView.setTypeface(current, Typeface.ITALIC);
+                    } else if ("normal".equals(value)) {
+                        textView.setTypeface(Typeface.create(current, Typeface.NORMAL));
+                    }
+                }
+                case "text-decoration" -> {
+                    if (!(view instanceof TextView textView)) continue;
+                    String value = declaration.get(0).toString();
+                    if (value.contains("underline")) {
+                        textView.setPaintFlags(textView.getPaintFlags() | Paint.UNDERLINE_TEXT_FLAG);
+                    }
+                    if (value.contains("line-through")) {
+                        textView.setPaintFlags(textView.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
+                    }
+                    if (value.contains("none")) {
+                        textView.setPaintFlags(textView.getPaintFlags() & (~Paint.UNDERLINE_TEXT_FLAG) & (~Paint.STRIKE_THRU_TEXT_FLAG));
+                    }
+                }
+                case "text-transform" -> {
+                    if (!(view instanceof TextView textView)) continue;
+                    String value = declaration.get(0).toString();
+                    switch (value) {
+                        case "uppercase" -> textView.setAllCaps(true);
+                        case "lowercase" -> {
+                            textView.setAllCaps(false);
+                            textView.setText(textView.getText().toString().toLowerCase());
+                        }
+                        case "none" -> textView.setAllCaps(false);
+                    }
+                }
+                case "text-align" -> {
+                    if (!(view instanceof TextView textView)) continue;
+                    String value = declaration.get(0).toString();
+                    switch (value) {
+                        case "center" -> textView.setGravity(Gravity.CENTER);
+                        case "right", "end" ->
+                                textView.setGravity(Gravity.END | Gravity.CENTER_VERTICAL);
+                        case "left", "start" ->
+                                textView.setGravity(Gravity.START | Gravity.CENTER_VERTICAL);
+                    }
+                }
+                case "box-shadow" -> {
+                    for (Term<?> term : declaration) {
+                        if (term instanceof TermLength) {
+                            float val = getExactValue((TermLength) term, 0);
+                            if (val > 0) view.setElevation(val);
+                            break;
+                        }
+                    }
+                }
+                case "transform" -> {
+                    for (Term<?> term : declaration) {
+                        if (term instanceof TermFunction func) {
+                            String funcName = func.getFunctionName();
+                            var args = func.getValues(true);
+                            if ("rotate".equals(funcName) && !args.isEmpty()) {
+                                Term<?> arg = args.get(0);
+                                if (arg instanceof TermLength) {
+                                    try {
+                                        if (arg.toString().contains("deg")) {
+                                            view.setRotation(Float.parseFloat(arg.toString().replace("deg", "")));
+                                        }
+                                    } catch (Exception ignored) {
+                                    }
+                                }
+                            } else if ("scale".equals(funcName)) {
+                                if (args.size() >= 1) {
+                                    float sx = Float.parseFloat(args.get(0).toString());
+                                    view.setScaleX(sx);
+                                    view.setScaleY(sx);
+                                }
+                                if (args.size() >= 2) {
+                                    float sy = Float.parseFloat(args.get(1).toString());
+                                    view.setScaleY(sy);
+                                }
+                            }
+                        }
+                    }
+                }
+                case "margin" -> {
+                    if (!(view.getLayoutParams() instanceof ViewGroup.MarginLayoutParams params))
+                        continue;
+                    int left = params.leftMargin;
+                    int top = params.topMargin;
+                    int right = params.rightMargin;
+                    int bottom = params.bottomMargin;
+                    if (declaration.size() == 1) {
+                        int val = getExactValue((TermLength) declaration.get(0), view.getWidth());
+                        left = top = right = bottom = val;
+                    } else if (declaration.size() == 2) {
+                        int vertical = getExactValue((TermLength) declaration.get(0), view.getHeight());
+                        int horizontal = getExactValue((TermLength) declaration.get(1), view.getWidth());
+                        top = bottom = vertical;
+                        left = right = horizontal;
+                    } else if (declaration.size() == 4) {
+                        top = getExactValue((TermLength) declaration.get(0), view.getHeight());
+                        right = getExactValue((TermLength) declaration.get(1), view.getWidth());
+                        bottom = getExactValue((TermLength) declaration.get(2), view.getHeight());
+                        left = getExactValue((TermLength) declaration.get(3), view.getWidth());
+                    }
+                    params.setMargins(left, top, right, bottom);
+                    view.requestLayout();
+                }
+                case "margin-left" -> {
+                    if (!(view.getLayoutParams() instanceof ViewGroup.MarginLayoutParams params))
+                        continue;
+                    params.leftMargin = getExactValue((TermLength) declaration.get(0), view.getWidth());
+                    view.requestLayout();
+                }
+                case "margin-top" -> {
+                    if (!(view.getLayoutParams() instanceof ViewGroup.MarginLayoutParams params))
+                        continue;
+                    params.topMargin = getExactValue((TermLength) declaration.get(0), view.getHeight());
+                    view.requestLayout();
+                }
+                case "margin-right" -> {
+                    if (!(view.getLayoutParams() instanceof ViewGroup.MarginLayoutParams params))
+                        continue;
+                    params.rightMargin = getExactValue((TermLength) declaration.get(0), view.getWidth());
+                    view.requestLayout();
+                }
+                case "margin-bottom" -> {
+                    if (!(view.getLayoutParams() instanceof ViewGroup.MarginLayoutParams params))
+                        continue;
+                    params.bottomMargin = getExactValue((TermLength) declaration.get(0), view.getHeight());
+                    view.requestLayout();
+                }
+                case "padding" -> {
+                    int left = view.getPaddingLeft();
+                    int top = view.getPaddingTop();
+                    int right = view.getPaddingRight();
+                    int bottom = view.getPaddingBottom();
+                    if (declaration.size() == 1) {
+                        int val = getExactValue((TermLength) declaration.get(0), view.getWidth());
+                        left = top = right = bottom = val;
+                    } else if (declaration.size() == 2) {
+                        int vertical = getExactValue((TermLength) declaration.get(0), view.getHeight());
+                        int horizontal = getExactValue((TermLength) declaration.get(1), view.getWidth());
+                        top = bottom = vertical;
+                        left = right = horizontal;
+                    } else if (declaration.size() == 4) {
+                        top = getExactValue((TermLength) declaration.get(0), view.getHeight());
+                        right = getExactValue((TermLength) declaration.get(1), view.getWidth());
+                        bottom = getExactValue((TermLength) declaration.get(2), view.getHeight());
+                        left = getExactValue((TermLength) declaration.get(3), view.getWidth());
+                    }
+                    view.setPadding(left, top, right, bottom);
+                }
+                case "padding-left" -> {
+                    var val = getExactValue((TermLength) declaration.get(0), view.getWidth());
+                    view.setPadding(val, view.getPaddingTop(), view.getPaddingRight(), view.getPaddingBottom());
+                }
+                case "padding-top" -> {
+                    var val = getExactValue((TermLength) declaration.get(0), view.getHeight());
+                    view.setPadding(view.getPaddingLeft(), val, view.getPaddingRight(), view.getPaddingBottom());
+                }
+                case "padding-right" -> {
+                    var val = getExactValue((TermLength) declaration.get(0), view.getWidth());
+                    view.setPadding(view.getPaddingLeft(), view.getPaddingTop(), val, view.getPaddingBottom());
+                }
+                case "padding-bottom" -> {
+                    var val = getExactValue((TermLength) declaration.get(0), view.getHeight());
+                    view.setPadding(view.getPaddingLeft(), view.getPaddingTop(), view.getPaddingRight(), val);
+                }
             }
         }
     }
@@ -597,6 +788,18 @@ public class CustomView extends Feature {
             value = pValue.getValue().intValue();
         }
         return value > 0 ? value : 1;
+    }
+
+    private int getExactValue(TermLength pValue, int size) {
+        int value;
+        if (pValue.getUnit() == TermNumeric.Unit.px) {
+            value = Utils.dipToPixels(pValue.getValue().intValue());
+        } else if (pValue.isPercentage()) {
+            value = size * pValue.getValue().intValue() / 100;
+        } else {
+            value = pValue.getValue().intValue();
+        }
+        return value;
     }
 
     private void captureSelector(View currentView, CombinedSelector selector, int position, ArrayList<View> resultViews) {
@@ -712,16 +915,28 @@ public class CustomView extends Feature {
         @Nullable
         public Drawable getDrawable(String filePath, int width, int height) {
             File file = filePath.startsWith("/") ? new File(filePath) : new File(themeDir, filePath);
+            String key = file.getAbsolutePath();
+
+            CachedDrawable cachedDrawable = drawableCache.get(key);
+
+            if (cachedDrawable != null) {
+                if (System.currentTimeMillis() - cachedDrawable.lastCheckTime < 2000) {
+                    return cachedDrawable.drawable;
+                }
+            }
 
             if (!file.exists()) {
                 return null;
             }
-            String key = file.getAbsolutePath();
+
             long lastModified = file.lastModified();
-            CachedDrawable cachedDrawable = drawableCache.get(key);
-            if (cachedDrawable != null && cachedDrawable.lastModified == lastModified) {
-                return cachedDrawable.drawable;
+            if (cachedDrawable != null) {
+                cachedDrawable.lastCheckTime = System.currentTimeMillis();
+                if (cachedDrawable.lastModified == lastModified) {
+                    return cachedDrawable.drawable;
+                }
             }
+
             Drawable cachedDrawableFromFile = loadDrawableFromCache(key, lastModified);
             if (cachedDrawableFromFile != null) {
                 cachedDrawable = new CachedDrawable(cachedDrawableFromFile, lastModified);
@@ -790,10 +1005,12 @@ public class CustomView extends Feature {
         private static class CachedDrawable {
             Drawable drawable;
             long lastModified;
+            long lastCheckTime;
 
             CachedDrawable(Drawable drawable, long lastModified) {
                 this.drawable = drawable;
                 this.lastModified = lastModified;
+                this.lastCheckTime = System.currentTimeMillis();
             }
         }
     }

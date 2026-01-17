@@ -20,6 +20,7 @@ import com.wmods.wppenhacer.xposed.core.Feature;
 import com.wmods.wppenhacer.xposed.core.WppCore;
 import com.wmods.wppenhacer.xposed.core.components.FMessageWpp;
 import com.wmods.wppenhacer.xposed.core.devkit.Unobfuscator;
+import com.wmods.wppenhacer.xposed.features.listeners.ConversationItemListener;
 import com.wmods.wppenhacer.xposed.utils.AnimationUtil;
 import com.wmods.wppenhacer.xposed.utils.ReflectionUtils;
 import com.wmods.wppenhacer.xposed.utils.ResId;
@@ -82,11 +83,15 @@ public class Others extends Feature {
         var animationEmojis = prefs.getBoolean("animation_emojis", false);
         var disableProfileStatus = prefs.getBoolean("disable_profile_status", false);
         var disableExpiration = prefs.getBoolean("disable_expiration", false);
+        var disableAd = prefs.getBoolean("disable_ads", false);
 
         propsInteger.put(3877, oldStatus ? igstatus ? 2 : 0 : 2);
-        propsBoolean.put(5171, filterSeen);
+
+        propsBoolean.put(18250, false);
+        propsBoolean.put(11528, false);
+
         propsBoolean.put(4497, menuWIcons);
-        propsBoolean.put(4023, newSettings);
+        propsBoolean.put(4023, false);
         propsBoolean.put(14862, newSettings);
         propsInteger.put(18564, newSettings ? 1 : 0);
 
@@ -245,6 +250,49 @@ public class Others extends Feature {
             disableExpirationVersion(classLoader);
         }
 
+        if (disableAd) {
+            disableAds();
+        }
+
+        if (!filterSeen) {
+            disableHomeFilters();
+        }
+
+    }
+
+    private void disableHomeFilters() throws Exception {
+
+        propsBoolean.put(15345, true);
+        propsBoolean.put(13546, false);
+        propsBoolean.put(13408, true);
+
+        Class<?> filterView = Unobfuscator.loadChatFilterView(classLoader);
+        XposedBridge.hookAllConstructors(filterView, new XC_MethodHook() {
+            @Override
+            protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+                var view = (View) param.thisObject;
+                view.setVisibility(View.GONE);
+                XposedHelpers.findAndHookMethod(View.class, "setVisibility", int.class, new XC_MethodHook() {
+                    @Override
+                    protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
+                        if (view == param.thisObject && (int) param.args[0] != View.GONE) {
+                            param.setResult(View.GONE);
+                        }
+                    }
+                });
+            }
+        });
+    }
+
+    private void disableAds() throws Exception {
+        propsBoolean.put(22904, true);
+        propsBoolean.put(14306, false);
+        try {
+            var loadAd = Unobfuscator.loadAdVerifyMethod(classLoader);
+            XposedBridge.hookMethod(loadAd, XC_MethodReplacement.returnConstant(false));
+        } catch (Exception e) {
+            logDebug(e);
+        }
     }
 
     private void disablePhotoProfileStatus() throws Exception {
@@ -307,6 +355,7 @@ public class Others extends Feature {
                     Object callinfo = XposedHelpers.callMethod(param.thisObject, "getCallInfo");
                     if (callinfo == null) return;
                     var userJid = new FMessageWpp.UserJid(XposedHelpers.callMethod(callinfo, "getPeerJid"));
+                    if (userJid.isNull()) return;
                     CompletableFuture.runAsync(() -> {
                         try {
                             showCallInformation(param.args[0], userJid);
@@ -329,7 +378,7 @@ public class Others extends Feature {
         sb.append(String.format(Utils.getApplication().getString(ResId.string.phone_number_s), number)).append("\n");
         var ip = (String) XposedHelpers.getObjectField(wamCall, "callPeerIpStr");
         if (ip != null) {
-            var client = new OkHttpClient();
+            var client = new OkHttpClient.Builder().build();
             var url = "http://ip-api.com/json/" + ip;
             var request = new okhttp3.Request.Builder().url(url).build();
             var content = client.newCall(request).execute().body().string();
@@ -360,10 +409,11 @@ public class Others extends Feature {
 
         var emoji = prefs.getString("doubletap2like_emoji", "👍");
 
-        var bubbleMethod = Unobfuscator.loadAntiRevokeBubbleMethod(classLoader);
-        logDebug(Unobfuscator.getMethodDescriptor(bubbleMethod));
 
-        XposedBridge.hookAllConstructors(bubbleMethod.getDeclaringClass(), new XC_MethodHook() {
+        var conversationRowClass = Unobfuscator.loadConversationRowClass(classLoader);
+        logDebug("Conversation Row", conversationRowClass);
+
+        XposedBridge.hookAllConstructors(conversationRowClass, new XC_MethodHook() {
             @Override
             protected void afterHookedMethod(MethodHookParam param) throws Throwable {
                 var viewGroup = (ViewGroup) param.thisObject;
@@ -371,14 +421,9 @@ public class Others extends Feature {
             }
         });
 
-
-        XposedBridge.hookMethod(bubbleMethod, new XC_MethodHook() {
-
+        ConversationItemListener.conversationListeners.add(new ConversationItemListener.OnConversationItemListener() {
             @Override
-            protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
-                var viewGroup = (View) param.thisObject;
-                if (viewGroup == null) return;
-
+            public void onItemBind(FMessageWpp fMessage, ViewGroup viewGroup) {
                 var onMultiClickListener = new OnMultiClickListener(2, 500) {
                     @Override
                     public void onMultiClick(View view) {
@@ -387,13 +432,13 @@ public class Others extends Feature {
                             for (int i = 0; i < reactionView.getChildCount(); i++) {
                                 if (reactionView.getChildAt(i) instanceof TextView textView) {
                                     if (textView.getText().toString().contains(emoji)) {
-                                        WppCore.sendReaction("", param.args[2]);
+                                        WppCore.sendReaction("", fMessage.getObject());
                                         return;
                                     }
                                 }
                             }
                         }
-                        WppCore.sendReaction(emoji, param.args[2]);
+                        WppCore.sendReaction(emoji, fMessage.getObject());
                     }
                 };
                 viewGroup.setOnClickListener(onMultiClickListener);
@@ -614,17 +659,27 @@ public class Others extends Feature {
     private void hookSearchbar(String filterChats) throws Exception {
         Method searchbar = Unobfuscator.loadViewAddSearchBarMethod(classLoader);
         log("ADD HEADER VIEW: " + DexSignUtil.getMethodDescriptor(searchbar));
+        var searchBarID = Utils.getID("my_search_bar", "id");
+
         XposedBridge.hookMethod(searchbar, new XC_MethodHook() {
             @Override
             protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
                 var view = (View) param.args[0];
-                if (view.getId() != Utils.getID("my_search_bar", "id"))
-                    return;
-                if (!Objects.equals(filterChats, "2")) {
+                if ((view.getId() == searchBarID || view.findViewById(searchBarID) != null) && !Objects.equals(filterChats, "2")) {
                     param.setResult(null);
                 }
             }
         });
+
+        try {
+            if (!Objects.equals(filterChats, "2")) {
+                var loadMySearchBar = Unobfuscator.loadMySearchBarMethod(classLoader);
+                XposedBridge.hookMethod(loadMySearchBar, XC_MethodReplacement.DO_NOTHING);
+            }
+        } catch (Exception ignored) {
+        }
+
+
         try {
             Method addSeachBar = Unobfuscator.loadAddOptionSearchBarMethod(classLoader);
             XposedBridge.hookMethod(addSeachBar, new XC_MethodHook() {

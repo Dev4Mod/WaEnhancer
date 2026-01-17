@@ -29,6 +29,11 @@
             app:summary="@string/always_online_sum"
             app:title="@string/always_online" />
 
+        <rikka.material.preference.MaterialSwitchPreference
+            app:key="lockedchats_enhancer"
+            app:summary="@string/lockedchats_enhancer_sum"
+            app:title="@string/lockedchats_enhancer" />
+
     </PreferenceCategory>
 
 

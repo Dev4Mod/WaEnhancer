@@ -114,6 +114,11 @@
             app:summary="@string/google_translate_sum"
             app:title="@string/google_translate" />
 
+        <rikka.material.preference.MaterialSwitchPreference
+            app:key="verify_blocked_contact"
+            app:summary="@string/show_contact_blocked_sum"
+            app:title="@string/show_contact_blocked" />
+
     </PreferenceCategory>
 
 </PreferenceScreen>

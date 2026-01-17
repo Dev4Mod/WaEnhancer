@@ -1,9 +1,12 @@
 [WHATSAPP]
-* Improved support for version 2.25.37.XX
+* Fixed version 2.26.1.XXX support
 * Added Call Recording feature (Voice/Video as Audio)
-* Fixed OriginFMessageField not found error
-* Add support for version 2.26.1.XX beta
+* Enhanced Locked Chats feature
+* Added Contact Blocked Verification
+* Added Disable Ads feature
+* Improved AntiRevoke functionality
+* Various bug fixes and improvements
 
 [WAE]
-* Version updated to 1.5.3
-* Improved colors and animations in the interface
+* Update translations
+* Merged upstream changes

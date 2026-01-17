@@ -15,6 +15,8 @@ import com.wmods.wppenhacer.xposed.core.devkit.Unobfuscator;
 import com.wmods.wppenhacer.xposed.utils.ReflectionUtils;
 import com.wmods.wppenhacer.xposed.utils.Utils;
 
+import org.luckypray.dexkit.query.enums.StringMatchType;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -22,7 +24,6 @@ import java.util.List;
 import de.robv.android.xposed.XC_MethodHook;
 import de.robv.android.xposed.XSharedPreferences;
 import de.robv.android.xposed.XposedBridge;
-import de.robv.android.xposed.XposedHelpers;
 
 public class IGStatus extends Feature {
     public static ArrayList<Object> itens = new ArrayList<>();
@@ -40,13 +41,18 @@ public class IGStatus extends Feature {
 
         var fabintMethod = Unobfuscator.loadFabMethod(classLoader);
 
+        var archivedFragmentClass = Unobfuscator.findFirstClassUsingName(classLoader, StringMatchType.EndsWith, "ArchivedConversationsFragment");
+        logDebug(archivedFragmentClass);
+        var folderFragmentClass = Unobfuscator.findFirstClassUsingName(classLoader, StringMatchType.EndsWith, "FolderConversationsFragment");
+        log(archivedFragmentClass);
+
         var getViewConversationMethod = Unobfuscator.loadGetViewConversationMethod(classLoader);
         XposedBridge.hookMethod(getViewConversationMethod, new XC_MethodHook() {
             @Override
             protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-                if (XposedHelpers.findClass("com.whatsapp.conversationslist.ArchivedConversationsFragment", classLoader).isInstance(param.thisObject))
+                if (archivedFragmentClass.isInstance(param.thisObject))
                     return;
-                if (XposedHelpers.findClass("com.whatsapp.conversationslist.FolderConversationsFragment", classLoader).isInstance(param.thisObject))
+                if (folderFragmentClass.isInstance(param.thisObject))
                     return;
                 var view = (ViewGroup) param.getResult();
                 if (view == null) return;

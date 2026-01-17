@@ -14,14 +14,14 @@ public class WaContactWpp {
     public static Class<?> TYPE;
     private static Field fieldContactData;
     private static Field fieldUserJid;
-    private static Field fieldPhoneUserJid;
     private final Object mInstance;
 
 
     public WaContactWpp(Object object) {
         if (TYPE == null) throw new RuntimeException("WaContactWpp not initialized");
         if (object == null) throw new RuntimeException("object is null");
-        this.mInstance = object;
+        if (!TYPE.isInstance(object)) throw new RuntimeException("object is not a WaContactWpp");
+        this.mInstance = TYPE.cast(object);
     }
 
     public static void initialize(ClassLoader classLoader) {
@@ -35,10 +35,8 @@ public class WaContactWpp {
                 var contactDataClass = Unobfuscator.loadWaContactData(classLoader);
                 fieldContactData = ReflectionUtils.getFieldByType(TYPE, contactDataClass);
                 fieldUserJid = ReflectionUtils.getFieldByExtendType(contactDataClass, classJid);
-                fieldPhoneUserJid = ReflectionUtils.getFieldByExtendType(contactDataClass, classPhoneUserJid);
             } else {
                 fieldUserJid = ReflectionUtils.getFieldByExtendType(TYPE, classJid);
-                fieldPhoneUserJid = ReflectionUtils.getFieldByExtendType(TYPE, classPhoneUserJid);
             }
         } catch (Exception e) {
             XposedBridge.log(e);
@@ -54,9 +52,10 @@ public class WaContactWpp {
         try {
             if (fieldContactData != null) {
                 var coreData = fieldContactData.get(mInstance);
-                return new FMessageWpp.UserJid(fieldUserJid.get(coreData), fieldPhoneUserJid.get(coreData));
+                var userjid = fieldUserJid.get(coreData);
+                return new FMessageWpp.UserJid(userjid);
             }
-            return new FMessageWpp.UserJid(fieldUserJid.get(mInstance), fieldPhoneUserJid.get(mInstance));
+            return new FMessageWpp.UserJid(fieldUserJid.get(mInstance));
         } catch (Exception e) {
             XposedBridge.log(e);
         }

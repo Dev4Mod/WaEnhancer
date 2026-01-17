@@ -1,6 +1,5 @@
 package com.wmods.wppenhacer.xposed.core;
 
-import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.Application;
 import android.os.Bundle;
@@ -27,7 +26,6 @@ public class WaCallback implements Application.ActivityLifecycleCallbacks {
         WppCore.activities.add(activity);
     }
 
-    @SuppressLint("ApplySharedPref")
     @Override
     public void onActivityResumed(@NonNull Activity activity) {
         WppCore.mCurrentActivity = activity;

@@ -14,6 +14,7 @@ import java.io.File;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.Objects;
+import java.util.Set;
 
 import de.robv.android.xposed.XposedBridge;
 import de.robv.android.xposed.XposedHelpers;
@@ -36,6 +37,9 @@ public class FMessageWpp {
     private static Field broadcastField;
     private final Object fmessage;
     private Key key;
+    private static final Set<String> VALID_DOMAINS = Set.of(
+            "s.whatsapp.net", "newsletter", "lid", "g.us", "broadcast", "status"
+    );
 
     public FMessageWpp(Object fMessage) {
         if (fMessage == null) throw new RuntimeException("Object fMessage is null");
@@ -300,8 +304,12 @@ public class FMessageWpp {
 
         public Object userJid;
 
+        public UserJid() {
+
+        }
+
         public UserJid(@Nullable String rawjid) {
-            if (rawjid == null) return;
+            if (isInvalidJid(rawjid)) return;
             if (checkValidLID(rawjid)) {
                 this.userJid = WppCore.createUserJid(rawjid);
                 this.phoneJid = WppCore.getPhoneJidFromUserJid(this.userJid);
@@ -311,9 +319,17 @@ public class FMessageWpp {
             }
         }
 
+
         public UserJid(@Nullable Object lidOrJid) {
             if (lidOrJid == null) return;
-            if (checkValidLID((String) XposedHelpers.callMethod(lidOrJid, "getRawString"))) {
+            String raw;
+            try {
+                raw = (String) XposedHelpers.callMethod(lidOrJid, "getRawString");
+            } catch (Exception ignored) {
+                return;
+            }
+            if (isInvalidJid(raw)) return;
+            if (checkValidLID(raw)) {
                 this.userJid = lidOrJid;
                 this.phoneJid = WppCore.getPhoneJidFromUserJid(this.userJid);
             } else {
@@ -361,6 +377,16 @@ public class FMessageWpp {
             }
         }
 
+        private boolean isInvalidJid(String rawjid) {
+            if (rawjid == null) return false;
+            int atIndex = rawjid.indexOf('@');
+            if (atIndex == -1 || atIndex == rawjid.length() - 1) {
+                return false;
+            }
+            String domain = rawjid.substring(atIndex + 1);
+            return !VALID_DOMAINS.contains(domain);
+        }
+
         public boolean isStatus() {
             return Objects.equals(getPhoneNumber(), "status");
         }
@@ -371,12 +397,27 @@ public class FMessageWpp {
             return raw.contains("@newsletter");
         }
 
+        public boolean isBroadcast() {
+            String raw = getPhoneRawString();
+            if (raw == null) return false;
+            return raw.contains("@broadcast");
+        }
 
         public boolean isGroup() {
             if (this.phoneJid == null) return false;
             String str = getPhoneRawString();
             if (str == null) return false;
             return str.contains("-") || str.contains("@g.us") || (!str.contains("@") && str.length() > 16);
+        }
+
+
+        public boolean isContact() {
+            if (this.userJid != null) {
+                var raw = getUserRawString();
+                return raw != null && raw.contains("@lid");
+            }
+            String str = getPhoneRawString();
+            return str != null && str.contains("@s.whatsapp.net");
         }
 
 
