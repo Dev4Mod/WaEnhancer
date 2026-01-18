@@ -14,7 +14,7 @@ public class DelMessageStore extends SQLiteOpenHelper {
     private static DelMessageStore mInstance;
 
     private DelMessageStore(@NonNull Context context) {
-        super(context, "delmessages.db", null, 4);
+        super(context, "delmessages.db", null, 5);
     }
 
     public static DelMessageStore getInstance(Context ctx) {
