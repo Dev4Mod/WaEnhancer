@@ -1,5 +1,5 @@
 [WHATSAPP]
-* Fixed version 2.26.1.XXX support
+* Fixed version 2.26.1.XX support
 
 [WAE]
 * Update translations
