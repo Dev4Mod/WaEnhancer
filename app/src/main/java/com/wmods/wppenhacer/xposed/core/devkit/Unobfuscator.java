@@ -11,6 +11,7 @@ import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.FrameLayout;
 
 import androidx.annotation.Nullable;
@@ -1395,10 +1396,22 @@ public class Unobfuscator {
 
     public synchronized static Class loadImageVewContainerClass(ClassLoader loader) throws Exception {
         return UnobfuscatorCache.getInstance().getClass(loader, () -> {
-            var clazzList = dexkit.findClass(new FindClass().matcher(new ClassMatcher().addMethod(new MethodMatcher().addUsingNumber(Utils.getID("hd_invisible_touch", "id")).addUsingNumber(Utils.getID("control_btn", "id")))));
+            var clazzList = dexkit.findClass(FindClass.create().matcher(
+                    ClassMatcher.create()
+                            .addMethod(
+                                    MethodMatcher.create()
+                                            .addUsingNumber(Utils.getID("hd_invisible_touch", "id"))
+                                            .addUsingNumber(Utils.getID("control_btn", "id"))
+                            ))
+            );
             if (clazzList.isEmpty())
                 throw new RuntimeException("ImageViewContainer class not found");
-            return clazzList.get(0).getInstance(loader);
+            for (var clazzData : clazzList) {
+                var clazz = clazzData.getInstance(loader);
+                if (ViewGroup.class.isAssignableFrom(clazz))
+                    return clazz;
+            }
+            throw new ClassNotFoundException("Class ImageViewContainer not Found");
         });
     }
 
