@@ -523,6 +523,15 @@ public class WppCore {
     }
 
     public static File getContactPhotoFile(String jid) {
+        if (jid == null) return null;
+
+        if (jid.contains("@lid")) {
+            Object phone = getPhoneJidFromUserJid(createUserJid(jid));
+            if (phone != null) {
+                jid = (String) XposedHelpers.callMethod(phone, "getRawString");
+            }
+        }
+        
         String datafolder = Utils.getApplication().getCacheDir().getParent() + "/";
         File file = new File(datafolder + "/cache/" + "Profile Pictures" + "/" + stripJID(jid) + ".jpg");
         if (!file.exists())
