@@ -1296,14 +1296,21 @@ public class Unobfuscator {
 
     public synchronized static Constructor loadSeeMoreConstructor(ClassLoader loader) throws Exception {
         return UnobfuscatorCache.getInstance().getConstructor(loader, () -> {
-            var classList = dexkit.findClass(FindClass.create().matcher(ClassMatcher.create()
-                    .addMethod(MethodMatcher.create().addUsingNumber(16384).addUsingNumber(512).addUsingNumber(64).addUsingNumber(16))
-                    .addMethod(MethodMatcher.create().paramCount(2).paramTypes(int.class, boolean.class))
-                    .addMethod(MethodMatcher.create().paramCount(2, 3).paramTypes(int.class, int.class, int.class))
-            ));
 
-            if (classList.isEmpty()) throw new RuntimeException("SeeMore constructor 1 not found");
-            var clazzData = classList.get(0);
+            var commentClass = findFirstClassUsingName(loader, StringMatchType.EndsWith, "CommentTextView");
+            var commentClassData = dexkit.getClassData(commentClass);
+            var methods = commentClassData.getMethods();
+            var arrayList = new ArrayList<ClassData>();
+            methods.forEach((methodData -> {
+                var invokes = methodData.getInvokes();
+                var classes = invokes.stream().map(MethodData::getDeclaredClass).collect(Collectors.toSet());
+                arrayList.addAll(classes);
+            }));
+
+            var clazzData = dexkit.findClass(FindClass.create().searchIn(arrayList).matcher(ClassMatcher.create()
+                    .addMethod(MethodMatcher.create().addUsingNumber(16384).addUsingNumber(512).addUsingNumber(64).addUsingNumber(16))
+            )).singleOrNull();
+            if (clazzData == null) throw new RuntimeException("SeeMore constructor 1 not found");
             for (var method : clazzData.getMethods()) {
                 if (method.getParamCount() > 1 && method.isConstructor() && method.getParamTypes().stream().allMatch(c -> c.getName().equals(int.class.getName()))) {
                     return method.getConstructorInstance(loader);
