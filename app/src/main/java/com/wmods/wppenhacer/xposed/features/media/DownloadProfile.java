@@ -49,7 +49,7 @@ public class DownloadProfile extends Feature {
                     var fieldObj = ReflectionUtils.getObjectField(field, param.thisObject);
                     var waContact = new WaContactWpp(fieldObj);
                     var userJid = waContact.getUserJid();
-                    var file = WppCore.getContactPhotoFile(userJid.getUserRawString());
+                    var file = WppCore.getContactPhotoFile(userJid.getPhoneRawString());
                     String destPath;
                     try {
                         destPath = Utils.getDestination("Profile Photo");
