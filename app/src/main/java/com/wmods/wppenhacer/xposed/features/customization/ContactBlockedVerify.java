@@ -89,9 +89,10 @@ public class ContactBlockedVerify extends Feature {
                                 }
                                 var textView = (TextView) view.findViewById(0x7f990001);
                                 if (textView != null) {
-                                    textView.setText(ResId.string.checking_if_the_contact_is_blocked);
-                                    textView.setTextColor(DesignUtils.getPrimaryTextColor());
-                                    textView.postInvalidate();
+                                    textView.post(() -> {
+                                        textView.setText(ResId.string.checking_if_the_contact_is_blocked);
+                                        textView.setTextColor(DesignUtils.getPrimaryTextColor());
+                                    });
                                 } else {
                                     var textView1 = createTextMessageView(activity);
                                     view.post(() -> view.addView(textView1));

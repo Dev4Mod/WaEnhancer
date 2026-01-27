@@ -325,7 +325,7 @@ public class FMessageWpp {
             String raw;
             try {
                 raw = (String) XposedHelpers.callMethod(lidOrJid, "getRawString");
-            } catch (Exception ignored) {
+            } catch (Throwable ignored) {
                 return;
             }
             if (isInvalidJid(raw)) return;
@@ -394,30 +394,30 @@ public class FMessageWpp {
         public boolean isNewsletter() {
             String raw = getPhoneRawString();
             if (raw == null) return false;
-            return raw.contains("@newsletter");
+            return raw.endsWith("@newsletter");
         }
 
         public boolean isBroadcast() {
             String raw = getPhoneRawString();
             if (raw == null) return false;
-            return raw.contains("@broadcast");
+            return raw.endsWith("@broadcast");
         }
 
         public boolean isGroup() {
             if (this.phoneJid == null) return false;
             String str = getPhoneRawString();
             if (str == null) return false;
-            return str.contains("-") || str.contains("@g.us") || (!str.contains("@") && str.length() > 16);
+            return str.endsWith("@g.us");
         }
 
 
         public boolean isContact() {
             if (this.userJid != null) {
                 var raw = getUserRawString();
-                return raw != null && raw.contains("@lid");
+                return raw != null && raw.endsWith("@lid");
             }
             String str = getPhoneRawString();
-            return str != null && str.contains("@s.whatsapp.net");
+            return str != null && str.endsWith("@s.whatsapp.net");
         }
 
 
@@ -426,11 +426,7 @@ public class FMessageWpp {
         }
 
         private static boolean checkValidLID(String lid) {
-            if (lid != null && lid.contains("@lid")) {
-                String id = lid.split("@")[0];
-                return lid.length() > 14;
-            }
-            return false;
+            return lid != null && lid.endsWith("@lid");
         }
 
         @NonNull
