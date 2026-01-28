@@ -1,5 +1,5 @@
 [WHATSAPP]
-* Fixed version 2.26.1.XXX support
+* Added version 2.26.2.XX support
 * Added Call Recording feature (Voice/Video as Audio)
 * Enhanced Locked Chats feature
 * Added Contact Blocked Verification

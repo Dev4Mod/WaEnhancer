@@ -36,7 +36,6 @@ import java.lang.reflect.Modifier;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
@@ -50,7 +49,6 @@ public class WppCore {
     static final HashSet<ActivityChangeState> listenerAcitivity = new HashSet<>();
     @SuppressLint("StaticFieldLeak")
     static Activity mCurrentActivity;
-    static LinkedHashSet<Activity> activities = new LinkedHashSet<>();
     private static Class<?> mGenJidClass;
     private static Method mGenJidMethod;
     private static Class bottomDialog;
@@ -268,6 +266,32 @@ public class WppCore {
 
     public static Activity getCurrentActivity() {
         return mCurrentActivity;
+    }
+
+    public static ActivityChangeState.ChangeType getActivityState(Activity activity) {
+        return ActivityStateRegistry.getState(activity);
+    }
+
+    public static ActivityChangeState.ChangeType getActivityStateBySimpleName(String simpleName) {
+        return ActivityStateRegistry.getStateBySimpleName(simpleName);
+    }
+
+    public static boolean isConversationResumed() {
+        var state = ActivityStateRegistry.getStateBySimpleName("Conversation");
+        return state == ActivityChangeState.ChangeType.RESUMED;
+    }
+
+    public static boolean isHomeActivityResumed() {
+        var state = ActivityStateRegistry.getStateBySimpleName("HomeActivity");
+        return state == ActivityChangeState.ChangeType.RESUMED;
+    }
+
+    public static ActivityChangeState.ChangeType getCurrentActivityState() {
+        return ActivityStateRegistry.getState(mCurrentActivity);
+    }
+
+    public static Activity getActivityBySimpleName(String simpleName) {
+        return ActivityStateRegistry.getActivityBySimpleName(simpleName);
     }
 
     public synchronized static Class getHomeActivityClass(@NonNull ClassLoader loader) {
