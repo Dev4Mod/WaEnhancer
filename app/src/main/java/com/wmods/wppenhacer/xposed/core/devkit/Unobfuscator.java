@@ -499,10 +499,18 @@ public class Unobfuscator {
             var usingFields = Objects.requireNonNull(methodData).getUsingFields();
             var usingStrings = Objects.requireNonNull(methodData).getUsingStrings();
             var result = new HashMap<String, Field>();
-            for (int i = 0; i < usingStrings.size(); i++) {
-                if (i == usingFields.size()) break;
-                var field = usingFields.get(i).getField().getFieldInstance(classLoader);
-                result.put(usingStrings.get(i), field);
+            var idxStrings = 0;
+            var idxFields = 0;
+            while (idxStrings < usingStrings.size()) {
+                if (idxFields == usingFields.size()) break;
+                if (usingStrings.get(idxStrings).equals("outputAspectRatio")) {
+                    idxStrings++;
+                    continue;
+                }
+                var field = usingFields.get(idxFields).getField().getFieldInstance(classLoader);
+                result.put(usingStrings.get(idxStrings), field);
+                idxStrings++;
+                idxFields++;
             }
             return result;
         });
@@ -525,6 +533,56 @@ public class Unobfuscator {
                 if (i == usingFields.size()) break;
                 var field = usingFields.get(i).getField().getFieldInstance(classLoader);
                 result.put(usingStrings.get(i), field);
+            }
+            return result;
+        });
+    }
+
+    public synchronized static Class<?> loadProcessVideoQualityClass(ClassLoader classLoader) throws Exception {
+        return UnobfuscatorCache.getInstance().getClass(classLoader, () -> {
+            var clazz = findFirstClassUsingStrings(classLoader, StringMatchType.Contains, "ProcessVideoQuality(");
+            if (clazz == null) throw new Exception("ProcessVideoQuality method not found");
+            return clazz;
+        });
+    }
+
+
+    public synchronized static HashMap<String, Field> loadProcessVideoQualityFields(ClassLoader classLoader) throws Exception {
+        return UnobfuscatorCache.getInstance().getMapField(classLoader, () -> {
+            var clazz = loadProcessVideoQualityClass(classLoader);
+            Method methodString;
+            try {
+                methodString = clazz.getDeclaredMethod("toString");
+            } catch (Exception e) {
+                return new HashMap<>();
+            }
+            var methodData = dexkit.getMethodData(methodString);
+            var usingFields = Objects.requireNonNull(methodData).getUsingFields();
+            var usingStrings = Objects.requireNonNull(methodData).getUsingStrings();
+            var result = new HashMap<String, Field>();
+            var idxFields = 0;
+            for (int i = 0; i < usingStrings.size(); i++) {
+                if (idxFields == usingFields.size()) break;
+                var raw = usingStrings.get(i);
+                if (raw == null) continue;
+                var string = raw.strip();
+                if (string.isEmpty()) continue;
+                int eq = string.lastIndexOf('=');
+                if (eq < 0) continue;
+                int start = 0;
+                for (int j = eq - 1; j >= 0; j--) {
+                    char c = string.charAt(j);
+                    if (c == '\'' || c == ',' || c == ' ' || c == '(' || c == ')' || c == ':' || c == '{' || c == '}') {
+                        start = j + 1;
+                        break;
+                    }
+                }
+                if (start >= eq) continue;
+                var name = string.substring(start, eq);
+                if (name.isEmpty()) continue;
+                var field = usingFields.get(idxFields).getField().getFieldInstance(classLoader);
+                result.put(name, field);
+                idxFields++;
             }
             return result;
         });
