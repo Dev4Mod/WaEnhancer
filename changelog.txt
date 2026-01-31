@@ -1,5 +1,8 @@
 [WHATSAPP]
-* Added version 2.26.2.XX support
+* Added version 2.26.3.XX support
+
+[FIXED]
+* Fixed bug when sending videos that caused them to be in landscape
 
 [WAE]
 * Update translations
