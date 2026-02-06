@@ -76,7 +76,7 @@ jobs:
 
       - name: Post to Telegram channel
         if: ${{ success() && github.ref == 'refs/heads/master' && github.ref_type != 'tag' && env.BOT_TOKEN != '' }}
-        uses: Dev4Mod/telegram-github-action@main
+        uses: Dev4Mod/telegram-github-action@master
         with:
           to: ${{ env.CHANNEL_ID }}
           token: ${{ env.BOT_TOKEN }}
