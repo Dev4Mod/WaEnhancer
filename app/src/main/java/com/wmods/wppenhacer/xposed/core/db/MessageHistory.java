@@ -37,7 +37,7 @@ public class MessageHistory extends SQLiteOpenHelper {
     }
 
     public MessageHistory(Context context) {
-        super(context, "MessageHistory.db", null, 2);
+        super(context, "MessageHistory.db", null, 3);
         messagesCache = new LruCache<>(MESSAGE_CACHE_SIZE);
         seenMessageCache = new LruCache<>(SEEN_MESSAGE_CACHE_SIZE);
         seenMessagesListCache = new LruCache<>(SEEN_MESSAGES_LIST_CACHE_SIZE);

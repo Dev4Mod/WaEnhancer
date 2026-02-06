@@ -50,27 +50,6 @@ jobs:
           name: business-debug-app-${{ env.SHORT_SHA }}
           path: app/build/outputs/apk/business/debug/app-business-debug.apk
 
-      - name: Post to Telegram channel
-        if: ${{ success() && github.ref == 'refs/heads/master' && github.ref_type != 'tag' }}
-        env:
-          CHANNEL_ID: ${{ secrets.CHANNEL_ID }}
-          BOT_TOKEN: ${{ secrets.BOT_TOKEN }}
-          COMMIT_MESSAGE: ${{ github.event.head_commit.message }}
-          COMMIT_URL: ${{ github.event.head_commit.url }}
-        run: |
-          if [ ! -z "${{ secrets.BOT_TOKEN }}" ]; then
-            GITHUB_SHA_SHORT=$(git rev-parse --short HEAD)
-            export output_whatsapp=app/WaEnhancer_$GITHUB_SHA_SHORT.apk
-            export output_business=app/WaEnhancer_Business_$GITHUB_SHA_SHORT.apk
-            cp app/build/outputs/apk/whatsapp/debug/app-whatsapp-debug.apk $output_whatsapp
-            cp app/build/outputs/apk/business/debug/app-business-debug.apk $output_business
-            export LOG=$(cat changelog.txt)
-            ESCAPED=$(python3 -c 'import json,os,urllib.parse; msg = json.dumps(os.getenv("LOG")); print(urllib.parse.quote(msg if len(msg) <= 1024 else json.dumps(os.getenv("COMMIT_URL"))))')
-          
-            # Send WhatsApp variant
-            curl "https://api.telegram.org/bot${BOT_TOKEN}/sendMediaGroup?chat_id=${CHANNEL_ID}&media=%5B%7B%22type%22%3A%22document%22%2C%20%22media%22%3A%22attach%3A%2F%2Fwa%22%7D%2C%7B%22type%22%3A%22document%22%2C%20%22media%22%3A%22attach%3A%2F%2Fw4b%22%2C%22caption%22%3A${ESCAPED}%7D%5D" -F wa="@$output_whatsapp" -F w4b="@$output_business"
-          fi
-
       - name: Upload to GitHub release
         uses: softprops/action-gh-release@v2
         with:
@@ -81,3 +60,26 @@ jobs:
             app/build/outputs/apk/whatsapp/debug/app-whatsapp-debug.apk
             app/build/outputs/apk/business/debug/app-business-debug.apk
           tag_name: debug-${{ env.SHORT_SHA }}
+
+      - name: Read changelog
+        if: ${{ success() && github.ref == 'refs/heads/master' && github.ref_type != 'tag' && secrets.BOT_TOKEN != '' }}
+        id: changelog
+        uses: actions/github-script@v8
+        with:
+          script: |
+            const fs = require('fs');
+            const changelog = fs.readFileSync('changelog.txt', 'utf8').trim();
+            core.setOutput('content', changelog);
+
+      - name: Post to Telegram channel
+        if: ${{ success() && github.ref == 'refs/heads/master' && github.ref_type != 'tag' && secrets.BOT_TOKEN != '' }}
+        uses: Dev4Mod/telegram-github-action@main
+        with:
+          to: ${{ secrets.CHANNEL_ID }}
+          token: ${{ secrets.BOT_TOKEN }}
+          format: markdown
+          disable_web_page_preview: true
+          message: |
+            ${{ steps.changelog.outputs.content }}
+
+            Release: https://github.com/${{ github.repository }}/releases/tag/debug-${{ env.SHORT_SHA }}
