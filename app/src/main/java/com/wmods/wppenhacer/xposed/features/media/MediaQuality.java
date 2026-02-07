@@ -46,6 +46,8 @@ public class MediaQuality extends Feature {
         XposedBridge.hookMethod(hookMediaQualitySelection, XC_MethodReplacement.returnConstant(true));
 
         if (videoQuality) {
+            int videoMaxEdge = 1280;
+            int videoBitrateKbps = 8000;
 
             Others.propsBoolean.put(5549, true); // Use bitrate from json to force video high quality
 
@@ -55,10 +57,10 @@ public class MediaQuality extends Feature {
             XposedBridge.hookAllConstructors(processVideoQualityClass, new XC_MethodHook() {
                 @Override
                 protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-                    Field videoMaxEdge = processVideoQualityFields.get("videoMaxEdge");
-                    videoMaxEdge.setInt(param.thisObject, 8000);
+                    Field videoMaxEdgeField = processVideoQualityFields.get("videoMaxEdge");
+                    videoMaxEdgeField.setInt(param.thisObject, videoMaxEdge);
                     Field videoMaxBitrate = processVideoQualityFields.get("videoMaxBitrate");
-                    videoMaxBitrate.setInt(param.thisObject, 96000000);
+                    videoMaxBitrate.setInt(param.thisObject, videoBitrateKbps * 1000);
                 }
             });
 
@@ -158,25 +160,20 @@ public class MediaQuality extends Feature {
             });
 
             // HD video must be sent in maximum resolution (up to 4K)
-            if (realResolution) {
-                Others.propsInteger.put(594, 8000);
-                Others.propsInteger.put(12852, 8000);
-            } else {
-                Others.propsInteger.put(594, 1920);
-                Others.propsInteger.put(12852, 1920);
-            }
+            Others.propsInteger.put(594, videoMaxEdge);
+            Others.propsInteger.put(12852, videoMaxEdge);
 
             // Non-HD video must be sent in HD resolution
-            Others.propsInteger.put(4686, 1280);
-            Others.propsInteger.put(3654, 1280);
-            Others.propsInteger.put(3183, 1280); // Stories
-            Others.propsInteger.put(4685, 1280); // Stories
+            Others.propsInteger.put(4686, videoMaxEdge);
+            Others.propsInteger.put(3654, videoMaxEdge);
+            Others.propsInteger.put(3183, videoMaxEdge); // Stories
+            Others.propsInteger.put(4685, videoMaxEdge); // Stories
 
             // Max bitrate
-            Others.propsInteger.put(3755, 96000);
-            Others.propsInteger.put(3756, 96000);
-            Others.propsInteger.put(3757, 96000);
-            Others.propsInteger.put(3758, 96000);
+            Others.propsInteger.put(3755, videoBitrateKbps);
+            Others.propsInteger.put(3756, videoBitrateKbps);
+            Others.propsInteger.put(3757, videoBitrateKbps);
+            Others.propsInteger.put(3758, videoBitrateKbps);
 
         }
 
