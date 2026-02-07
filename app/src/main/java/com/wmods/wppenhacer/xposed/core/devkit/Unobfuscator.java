@@ -28,6 +28,7 @@ import org.luckypray.dexkit.query.enums.OpCodeMatchType;
 import org.luckypray.dexkit.query.enums.StringMatchType;
 import org.luckypray.dexkit.query.matchers.ClassMatcher;
 import org.luckypray.dexkit.query.matchers.MethodMatcher;
+import org.luckypray.dexkit.query.matchers.MethodsMatcher;
 import org.luckypray.dexkit.query.matchers.base.OpCodesMatcher;
 import org.luckypray.dexkit.result.ClassData;
 import org.luckypray.dexkit.result.ClassDataList;
@@ -53,6 +54,7 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
 import de.robv.android.xposed.XposedBridge;
@@ -1999,28 +2001,20 @@ public class Unobfuscator {
 
     public static Class<?> loadRefreshStatusClass(ClassLoader classLoader) throws Exception {
         return UnobfuscatorCache.getInstance().getClass(classLoader, () -> {
-            var strings = new String[]{"liveStatusUpdatesActive", "Statuses refreshed"};
-            for (var s : strings) {
-                MethodDataList methods = dexkit.findMethod(FindMethod.create().matcher(MethodMatcher.create().addUsingString(s, StringMatchType.Contains)));
-                if (methods.isEmpty())
-                    continue;
-                return methods.get(0).getClassInstance(classLoader);
-            }
+            Method keyset = Map.class.getDeclaredMethod("keySet");
+            ClassMatcher matcher = ClassMatcher.create()
+                    .addMethod(
+                            MethodMatcher.create().returnType(String.class)
+                                    .addInvoke(DexSignUtil.getMethodDescriptor(keyset))
+                                    .addUsingString(",", StringMatchType.Equals)
+                                    .addUsingString("", StringMatchType.Equals)
+                    )
+                    .addMethod(MethodMatcher.create().addUsingNumber(0x3684));
 
-            // Let's look for forcibly on WhatsApp Web (very boring this)
-            var opcodes = List.of(
-                    "invoke-virtual",
-                    "move-result",
-                    "xor-int/lit8"
-            );
-
-            var constant = 0x3684;
-            MethodDataList methods = dexkit.findMethod(FindMethod.create().matcher(MethodMatcher.create().addUsingNumber(constant).opCodes(
-                    OpCodesMatcher.create().opNames(opcodes).matchType(OpCodeMatchType.Contains)
-            )));
-            if (methods.size() == 1)
-                return methods.get(0).getClassInstance(classLoader);
-            throw new Exception("Refresh Status Class Not Found!");
+            List<ClassData> results = dexkit.findClass(FindClass.create().matcher(matcher));
+            if (results.isEmpty())
+                throw new RuntimeException("RefreshStatus Class Not Found");
+            return results.get(0).getInstance(classLoader);
         });
     }
 
