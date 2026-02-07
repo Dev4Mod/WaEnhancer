@@ -1,5 +1,4 @@
-[WHATSAPP]
-* Added version 2.26.4.XX support
+[FIXED]
+* Fixed bug when disabling statuses in the conversation list
+* Fixed bug when sending high-resolution videos
 
-[WAE]
-* Update translations
