@@ -1,4 +1,3 @@
 [FIXED]
-* Fixed bug when disabling statuses in the conversation list
 * Fixed bug when sending high-resolution videos
-
+* Fixed bug in Update Checker
