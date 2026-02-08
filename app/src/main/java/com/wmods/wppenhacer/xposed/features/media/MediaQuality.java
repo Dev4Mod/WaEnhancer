@@ -30,7 +30,7 @@ public class MediaQuality extends Feature {
     public void doHook() throws Exception {
         var videoQuality = prefs.getBoolean("videoquality", false);
         var imageQuality = prefs.getBoolean("imagequality", false);
-        var maxSize = (int) prefs.getFloat("video_limit_size", 60);
+        var maxSize = Math.max((int) prefs.getFloat("video_limit_size", 60), 90);
         var realResolution = prefs.getBoolean("video_real_resolution", false);
 
         // Max video size
@@ -43,11 +43,11 @@ public class MediaQuality extends Feature {
 
         // Enable Media Quality selection for Stories
         var hookMediaQualitySelection = Unobfuscator.loadMediaQualitySelectionMethod(classLoader);
-        XposedBridge.hookMethod(hookMediaQualitySelection, XC_MethodReplacement.returnConstant(true));
+        XposedBridge.hookMethod(hookMediaQualitySelection, XC_MethodReplacement.returnConstant(false));
 
         if (videoQuality) {
             int videoMaxEdge = 1280;
-            int videoBitrateKbps = 8000;
+            int videoBitrateKbps = 7000;
 
             Others.propsBoolean.put(5549, true); // Use bitrate from json to force video high quality
 
