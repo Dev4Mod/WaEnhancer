@@ -39,7 +39,7 @@ jobs:
           ./gradlew assembleWhatsappDebug assembleBusinessDebug -Pminify=true
 
       - name: Get short SHA
-        run: echo "SHORT_SHA=`echo ${GITHUB_SHA} | cut -c1-8`" >> $GITHUB_ENV
+        run: echo "SHORT_SHA=`echo ${GITHUB_SHA} | cut -c1-7`" >> $GITHUB_ENV
 
       - name: Upload WhatsApp flavor artifacts
         uses: actions/upload-artifact@v5
