@@ -22,8 +22,13 @@ public class BackupRestore extends Feature {
     }
 
     @Override
+    public String getPluginName() {
+        return "BackupRestore";
+    }
+
+    @Override
     public void doHook() throws Exception {
-        if (!preferences.getBoolean("force_restore_backup_feature", false)) return;
+        if (!prefs.getBoolean("force_restore_backup_feature", false)) return;
 
         Class<?> settingsDriveClass = Unobfuscator.loadSettingsGoogleDriveActivity(classLoader);
         
