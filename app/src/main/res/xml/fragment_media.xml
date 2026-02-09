@@ -88,11 +88,28 @@
             app:summary="@string/call_recording_toast_summary"
             app:title="@string/call_recording_toast_title" />
 
-        <Preference
+        <ListPreference
+            android:defaultValue="0"
+            android:entries="@array/recording_mode_entries"
+            android:entryValues="@array/recording_mode_values"
             app:dependency="call_recording_enable"
-            app:key="call_recording_settings"
-            app:summary="@string/recording_mode_description"
-            app:title="@string/call_recording_settings" />
+            app:key="call_recording_mode"
+            app:summary="@string/recording_mode_sum"
+            app:title="@string/recording_mode" />
+
+        <com.wmods.wppenhacer.preference.ContactPickerPreference
+            android:key="call_recording_blacklist"
+            android:dependency="call_recording_enable"
+            android:title="@string/recording_excluded_contacts"
+            app:summaryOff="@string/no_contacts_selected"
+            app:summaryOn="@string/contact_were_selected" />
+
+        <com.wmods.wppenhacer.preference.ContactPickerPreference
+            android:key="call_recording_whitelist"
+            android:dependency="call_recording_enable"
+            android:title="@string/recording_included_contacts"
+            app:summaryOff="@string/no_contacts_selected"
+            app:summaryOn="@string/contact_were_selected" />
 
         <rikka.material.preference.MaterialSwitchPreference
             android:enabled="false"

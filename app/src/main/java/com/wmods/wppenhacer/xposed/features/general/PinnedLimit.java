@@ -103,6 +103,10 @@ public class PinnedLimit extends Feature {
 
         private int limit;
 
+        public void setLimit(int limit) {
+            this.limit = limit;
+        }
+
         @NonNull
         @Override
         public Set<T> keySet() {

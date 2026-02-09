@@ -441,4 +441,13 @@
     <string name="lockedchats_enhancer">Enhanced Locked Chats</string>
     <string name="lockedchats_enhancer_sum">Improve locked chats by hiding notifications and contacts from the contact list</string>
 
-</resources>
+    <string name="recording_mode">Recording Mode</string>
+    <string name="recording_mode_sum">Select which calls to record</string>
+    <string name="recording_mode_all">Record All Calls</string>
+    <string name="recording_mode_unknown">Record Unknown Numbers Only</string>
+    <string name="recording_mode_include">Record Only Selected Contacts</string>
+    <string name="recording_mode_exclude">Record All Except Selected</string>
+    <string name="recording_included_contacts">Included Contacts</string>
+    <string name="recording_excluded_contacts">Excluded Contacts</string>
+
+    </resources>

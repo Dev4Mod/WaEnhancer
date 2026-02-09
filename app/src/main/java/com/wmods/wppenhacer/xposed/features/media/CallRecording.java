@@ -26,6 +26,10 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Objects;
+import android.text.TextUtils;
 
 import de.robv.android.xposed.XC_MethodHook;
 import de.robv.android.xposed.XSharedPreferences;
@@ -256,6 +260,11 @@ public class CallRecording extends Feature {
             return;
         }
         
+        if (!shouldRecord(currentPhoneNumber)) {
+             XposedBridge.log("WaEnhancer: Skipping recording due to privacy settings for: " + currentPhoneNumber);
+             return;
+        }
+        
         try {
             if (ContextCompat.checkSelfPermission(FeatureLoader.mApp, Manifest.permission.RECORD_AUDIO) 
                     != PackageManager.PERMISSION_GRANTED) {
@@ -444,6 +453,48 @@ public class CallRecording extends Feature {
         header[43] = (byte) ((payloadSize >> 24) & 0xff);
 
         randomAccessFile.write(header);
+    }
+
+
+    private boolean shouldRecord(String phoneNumber) {
+        try {
+            int mode = Integer.parseInt(prefs.getString("call_recording_mode", "0"));
+            if (mode == 0) return true; // Record All
+
+            if (phoneNumber == null) return true; // Default to record if number not identified yet
+
+            String cleanPhone = phoneNumber.replaceAll("[^0-9]", "");
+            
+            if (mode == 1) { // Record Unknown Only
+                 // Feature not fully implemented without contact check, defaulting to true for now
+                 // or implement bare minimum if possible. 
+                 return true; 
+            } else if (mode == 2) { // Exclude Selected (Blacklist)
+                return !isNumberInList(cleanPhone, prefs.getString("call_recording_blacklist", "[]"));
+            } else if (mode == 3) { // Include Selected (Whitelist)
+                return isNumberInList(cleanPhone, prefs.getString("call_recording_whitelist", "[]"));
+            }
+        } catch (Exception e) {
+            XposedBridge.log("WaEnhancer: shouldRecord check error: " + e.getMessage());
+        }
+        return true;
+    }
+
+    private boolean isNumberInList(String phone, String jsonList) {
+        if (TextUtils.isEmpty(jsonList) || jsonList.equals("[]")) return false;
+        try {
+            String content = jsonList.substring(1, jsonList.length() - 1);
+            if (content.isEmpty()) return false;
+            
+            String[] numbers = content.split(", ");
+            for (String num : numbers) {
+                String cleanNum = num.trim().replaceAll("[^0-9]", "");
+                if (cleanNum.equals(phone)) return true;
+            }
+        } catch (Exception e) {
+            XposedBridge.log("WaEnhancer: Error parsing list: " + e.getMessage());
+        }
+        return false;
     }
 
     @NonNull

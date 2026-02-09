@@ -1,0 +1,38 @@
+02-09 13:16:17.783 16852 16973 I LSPosed-Bridge: BackupRestore: Plan N (Spy Mode) Activated
+02-09 13:16:17.978 16852 16973 I LSPosed-Bridge: BackupRestore: Deep Trace enabled for com.whatsapp.backup.google.GoogleDriveNewUserSetupActivity
+02-09 13:16:18.144 16852 16973 I LSPosed-Bridge: BackupRestore: Deep Trace enabled for com.whatsapp.backup.google.RestoreFromBackupActivity
+02-09 13:16:21.788 16852 16852 I LSPosed-Bridge: * Loaded Plugin BackupRestore in 363ms
+02-09 13:16:41.218 17876 17941 I LSPosed-Bridge: BackupRestore: Plan N (Spy Mode) Activated
+02-09 13:16:41.259 17876 17941 I LSPosed-Bridge: BackupRestore: Deep Trace enabled for com.whatsapp.backup.google.GoogleDriveNewUserSetupActivity
+02-09 13:16:41.315 17876 17941 I LSPosed-Bridge: BackupRestore: Deep Trace enabled for com.whatsapp.backup.google.RestoreFromBackupActivity
+02-09 13:16:41.317 17876 17876 I LSPosed-Bridge: * Loaded Plugin BackupRestore in 98ms
+02-09 13:16:41.617 17876 17876 I LSPosed-Bridge: BackupRestore: [SPY] Pref Write: force_backup_check = true
+02-09 13:16:42.398 17876 17876 I LSPosed-Bridge: BackupRestore: [SPY] startActivity: com.whatsapp.registration.app.EULA
+02-09 13:16:42.398 17876 17876 I LSPosed-Bridge: BackupRestore: [SPY] Action: null
+02-09 13:16:42.398 17876 17876 I LSPosed-Bridge: BackupRestore: [SPY] Extra: _ci_ = PendingIntent{c91bc65: android.os.BinderProxy@c922d3a}
+02-09 13:16:42.398 17876 17876 I LSPosed-Bridge: BackupRestore: [SPY] Extra: show_registration_first_dlg = false
+02-09 13:16:44.032 17876 17876 I LSPosed-Bridge: BackupRestore: [SPY] Pref Write: registration_state = 1
+02-09 13:16:54.408 17876 17876 I LSPosed-Bridge: BackupRestore: [SPY] Pref Write: registration_state = 1
+02-09 13:16:55.021 17876 17876 I LSPosed-Bridge: BackupRestore: [SPY] Pref Write: registration_state = 0
+02-09 13:16:55.139 17876 17876 I LSPosed-Bridge: BackupRestore: [SPY] startActivity: com.whatsapp.registration.app.EULA
+02-09 13:16:55.139 17876 17876 I LSPosed-Bridge: BackupRestore: [SPY] Action: null
+02-09 13:16:55.139 17876 17876 I LSPosed-Bridge: BackupRestore: [SPY] Extra: _ci_ = PendingIntent{11c3cb5: android.os.BinderProxy@c832f4a}
+02-09 13:17:38.511 17876 17876 I LSPosed-Bridge: BackupRestore: [SPY] Pref Write: registration_state = 0
+02-09 13:18:36.966 17876 17876 I LSPosed-Bridge: BackupRestore: [SPY] Pref Write: registration_state = 1
+02-09 13:18:36.982 17876 17876 I LSPosed-Bridge: BackupRestore: [SPY] startActivity: com.whatsapp.registration.app.phonenumberentry.RegisterPhone
+02-09 13:18:36.982 17876 17876 I LSPosed-Bridge: BackupRestore: [SPY] Action: null
+02-09 13:18:36.983 17876 17876 I LSPosed-Bridge: BackupRestore: [SPY] Extra: com.whatsapp.registration.RegisterPhone.clear_phone_number = true
+02-09 13:18:36.983 17876 17876 I LSPosed-Bridge: BackupRestore: [SPY] Extra: com.whatsapp.registration.RegisterPhone.country_code = null
+02-09 13:18:36.983 17876 17876 I LSPosed-Bridge: BackupRestore: [SPY] Extra: _ci_ = PendingIntent{9bc9b2a: android.os.BinderProxy@9110d1b}
+02-09 13:18:36.983 17876 17876 I LSPosed-Bridge: BackupRestore: [SPY] Extra: com.whatsapp.registration.RegisterPhone.phone_number = null
+02-09 13:18:36.983 17876 17876 I LSPosed-Bridge: BackupRestore: [SPY] Extra: com.whatsapp.registration.RegisterPhone.resetstate = true
+02-09 13:19:03.643 17876 17876 I LSPosed-Bridge: BackupRestore: [SPY] Pref Write: registration_state = 0
+02-09 13:19:04.595 17876 17876 I LSPosed-Bridge: BackupRestore: [SPY] Pref Write: registration_state = 1
+02-09 13:20:00.519 21503 21855 I LSPosed-Bridge: BackupRestore: Plan N (Spy Mode) Activated
+02-09 13:20:01.017 21503 21855 I LSPosed-Bridge: BackupRestore: Deep Trace enabled for com.whatsapp.backup.google.GoogleDriveNewUserSetupActivity
+02-09 13:20:01.252 21503 21855 I LSPosed-Bridge: BackupRestore: Deep Trace enabled for com.whatsapp.backup.google.RestoreFromBackupActivity
+02-09 13:20:12.047 21503 21503 I LSPosed-Bridge: * Loaded Plugin BackupRestore in 745ms
+02-09 13:20:20.043 22146 22538 I LSPosed-Bridge: BackupRestore: Plan N (Spy Mode) Activated
+02-09 13:20:20.087 22146 22538 I LSPosed-Bridge: BackupRestore: Deep Trace enabled for com.whatsapp.backup.google.GoogleDriveNewUserSetupActivity
+02-09 13:20:20.143 22146 22538 I LSPosed-Bridge: BackupRestore: Deep Trace enabled for com.whatsapp.backup.google.RestoreFromBackupActivity
+02-09 13:20:20.145 22146 22146 I LSPosed-Bridge: * Loaded Plugin BackupRestore in 102ms

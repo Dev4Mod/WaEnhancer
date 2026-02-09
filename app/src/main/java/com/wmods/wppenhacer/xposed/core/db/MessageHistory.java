@@ -221,20 +221,37 @@ public class MessageHistory extends SQLiteOpenHelper {
         seenMessagesListCache.evictAll();
     }
 
-    @AllArgsConstructor
     public static class MessageItem {
         public long id;
         public String message;
         public long timestamp;
+
+        public MessageItem(long id, String message, long timestamp) {
+            this.id = id;
+            this.message = message;
+            this.timestamp = timestamp;
+        }
+
+        private MessageItem() {}
     }
 
-    @RequiredArgsConstructor
-    @NoArgsConstructor(access = AccessLevel.PRIVATE, force = true)
     public static class MessageSeenItem {
         public final String jid;
         public final String message;
         public final boolean viewed;
         private FMessageWpp fMessageWpp;
+
+        public MessageSeenItem(String jid, String message, boolean viewed) {
+            this.jid = jid;
+            this.message = message;
+            this.viewed = viewed;
+        }
+
+        private MessageSeenItem() {
+            this.jid = null;
+            this.message = null;
+            this.viewed = false;
+        }
 
         @Nullable
         public FMessageWpp getFMessage() {

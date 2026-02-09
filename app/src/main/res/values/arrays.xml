@@ -130,6 +130,7 @@
         <item>2.26.2.xx</item>
         <item>2.26.3.xx</item>
         <item>2.26.4.xx</item>
+        <item>2.26.5.xx</item>
     </string-array>
     <string-array name="supported_versions_business">
         <item>2.25.34.xx</item>
@@ -201,6 +202,20 @@
         <item>0</item>
         <item>1</item>
         <item>2</item>
+    </string-array>
+
+
+    <string-array name="recording_mode_entries">
+        <item>@string/recording_mode_all</item>
+        <item>@string/recording_mode_unknown</item>
+        <item>@string/recording_mode_exclude</item>
+        <item>@string/recording_mode_include</item>
+    </string-array>
+    <string-array name="recording_mode_values">
+        <item>0</item> <!-- Record All -->
+        <item>1</item> <!-- Unknown Only -->
+        <item>2</item> <!-- Exclude / Blacklist -->
+        <item>3</item> <!-- Include / Whitelist -->
     </string-array>
 
 </resources>

@@ -1,5 +1,6 @@
 [WAE]
 * **[EXPERIMENTAL] Use "Force Restore Backup" option in Chat Backup settings to restore backups after login.**
+* **Advanced call recording privacy settings with mode selection and contact-based filtering**
 
 [WHATSAPP]
 * Added version 2.26.5.XX support
