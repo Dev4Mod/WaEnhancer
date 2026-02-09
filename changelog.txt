@@ -1,3 +1,6 @@
+[WAE]
+* **[EXPERIMENTAL] Use "Force Restore Backup" option in Chat Backup settings to restore backups after login.**
+
 [WHATSAPP]
 * Added version 2.26.5.XX support
 
