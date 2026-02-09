@@ -1,16 +1,6 @@
 [WHATSAPP]
-* Added version 2.26.2.XX support
-* Added Call Recording feature (Voice/Video as Audio)
-* Enhanced Locked Chats feature
-* Added Contact Blocked Verification
-* Added Disable Ads feature
-* Improved AntiRevoke functionality
-* Various bug fixes and improvements
+* Added version 2.26.5.XX support
 
 [FIXED]
 * Fixed bug when sending high-resolution videos
 * Fixed bug in Update Checker
-
-[WAE]
-* Update translations
-* Merged upstream changes
