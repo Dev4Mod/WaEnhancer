@@ -904,6 +904,26 @@ public class Unobfuscator {
         });
     }
 
+    public synchronized static Class<?> loadSettingsGoogleDriveActivity(ClassLoader loader) throws Exception {
+        return UnobfuscatorCache.getInstance().getClass(loader, () -> {
+            var cls = findFirstClassUsingStrings(loader, StringMatchType.Contains, "SettingsGoogleDrive");
+            if (cls == null) throw new Exception("SettingsGoogleDriveActivity not found");
+            return cls;
+        });
+    }
+
+    public synchronized static Class<?> loadRestoreBackupActivity(ClassLoader loader) throws Exception {
+        return UnobfuscatorCache.getInstance().getClass(loader, () -> {
+            // Try specific log strings or unique strings used in the activity
+            var strings = new String[]{"RestoreFromBackupActivity", "gdrive/restore/activity", "gdrive_restore_title"};
+            for (String s : strings) {
+                var cls = findFirstClassUsingStrings(loader, StringMatchType.Contains, s);
+                if (cls != null) return cls;
+            }
+            throw new Exception("RestoreBackupActivity not found");
+        });
+    }
+
     public synchronized static Field loadMessageKeyField(ClassLoader loader) throws Exception {
         return UnobfuscatorCache.getInstance().getField(loader, () -> {
             var classList = dexkit.findClass(new FindClass().matcher(new ClassMatcher().fieldCount(3)

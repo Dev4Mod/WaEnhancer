@@ -60,6 +60,7 @@ import com.wmods.wppenhacer.xposed.features.media.MediaPreview;
 import com.wmods.wppenhacer.xposed.features.media.MediaQuality;
 import com.wmods.wppenhacer.xposed.features.media.StatusDownload;
 import com.wmods.wppenhacer.xposed.features.others.ActivityController;
+import com.wmods.wppenhacer.xposed.features.others.BackupRestore;
 import com.wmods.wppenhacer.xposed.features.others.AudioTranscript;
 import com.wmods.wppenhacer.xposed.features.others.Channels;
 import com.wmods.wppenhacer.xposed.features.others.ChatFilters;
@@ -384,7 +385,8 @@ public class FeatureLoader {
                 GoogleTranslate.class,
                 ContactBlockedVerify.class,
                 LockedChatsEnhancer.class,
-                CallRecording.class
+                CallRecording.class,
+                BackupRestore.class
         };
         XposedBridge.log("Loading Plugins");
         var executorService = Executors.newWorkStealingPool(Math.min(Runtime.getRuntime().availableProcessors(), 4));

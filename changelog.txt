@@ -2,6 +2,7 @@
 * Added Monet colors and some others for WAE
 * Added Monet colors for WhatsApp
 * Added Call Recording feature (Voice/Video as Audio)
+* [EXPERIMENTAL] Use "Force Restore Backup" option in Chat Backup settings to restore backups after login.
 
 [Fixed]
 * Fixed compatibility with version 2.26.6.XX

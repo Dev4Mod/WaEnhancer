@@ -1,4 +1,6 @@
 <resources>
+    <string name="force_restore_backup">Force Restore Backup</string>
+    <string name="force_restore_backup_summary">Launch the restore backup screen manually. Use this if you skipped restoration during setup.</string>
     <string name="app_name" translatable="false">Wa Enhancer</string>
     <string name="app_desc">WhatsApp Enhancer Module</string>
     <string name="antirevoke">Anti-Revoke Messages</string>
