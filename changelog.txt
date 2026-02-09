@@ -7,6 +7,10 @@
 * Improved AntiRevoke functionality
 * Various bug fixes and improvements
 
+[FIXED]
+* Fixed bug when sending high-resolution videos
+* Fixed bug in Update Checker
+
 [WAE]
 * Update translations
 * Merged upstream changes

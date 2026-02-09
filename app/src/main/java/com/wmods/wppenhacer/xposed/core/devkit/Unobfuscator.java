@@ -28,6 +28,7 @@ import org.luckypray.dexkit.query.enums.OpCodeMatchType;
 import org.luckypray.dexkit.query.enums.StringMatchType;
 import org.luckypray.dexkit.query.matchers.ClassMatcher;
 import org.luckypray.dexkit.query.matchers.MethodMatcher;
+import org.luckypray.dexkit.query.matchers.MethodsMatcher;
 import org.luckypray.dexkit.query.matchers.base.OpCodesMatcher;
 import org.luckypray.dexkit.result.ClassData;
 import org.luckypray.dexkit.result.ClassDataList;
@@ -53,6 +54,7 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
 import de.robv.android.xposed.XposedBridge;
@@ -499,10 +501,18 @@ public class Unobfuscator {
             var usingFields = Objects.requireNonNull(methodData).getUsingFields();
             var usingStrings = Objects.requireNonNull(methodData).getUsingStrings();
             var result = new HashMap<String, Field>();
-            for (int i = 0; i < usingStrings.size(); i++) {
-                if (i == usingFields.size()) break;
-                var field = usingFields.get(i).getField().getFieldInstance(classLoader);
-                result.put(usingStrings.get(i), field);
+            var idxStrings = 0;
+            var idxFields = 0;
+            while (idxStrings < usingStrings.size()) {
+                if (idxFields == usingFields.size()) break;
+                if (usingStrings.get(idxStrings).equals("outputAspectRatio")) {
+                    idxStrings++;
+                    continue;
+                }
+                var field = usingFields.get(idxFields).getField().getFieldInstance(classLoader);
+                result.put(usingStrings.get(idxStrings), field);
+                idxStrings++;
+                idxFields++;
             }
             return result;
         });
@@ -525,6 +535,56 @@ public class Unobfuscator {
                 if (i == usingFields.size()) break;
                 var field = usingFields.get(i).getField().getFieldInstance(classLoader);
                 result.put(usingStrings.get(i), field);
+            }
+            return result;
+        });
+    }
+
+    public synchronized static Class<?> loadProcessVideoQualityClass(ClassLoader classLoader) throws Exception {
+        return UnobfuscatorCache.getInstance().getClass(classLoader, () -> {
+            var clazz = findFirstClassUsingStrings(classLoader, StringMatchType.Contains, "ProcessVideoQuality(");
+            if (clazz == null) throw new Exception("ProcessVideoQuality method not found");
+            return clazz;
+        });
+    }
+
+
+    public synchronized static HashMap<String, Field> loadProcessVideoQualityFields(ClassLoader classLoader) throws Exception {
+        return UnobfuscatorCache.getInstance().getMapField(classLoader, () -> {
+            var clazz = loadProcessVideoQualityClass(classLoader);
+            Method methodString;
+            try {
+                methodString = clazz.getDeclaredMethod("toString");
+            } catch (Exception e) {
+                return new HashMap<>();
+            }
+            var methodData = dexkit.getMethodData(methodString);
+            var usingFields = Objects.requireNonNull(methodData).getUsingFields();
+            var usingStrings = Objects.requireNonNull(methodData).getUsingStrings();
+            var result = new HashMap<String, Field>();
+            var idxFields = 0;
+            for (int i = 0; i < usingStrings.size(); i++) {
+                if (idxFields == usingFields.size()) break;
+                var raw = usingStrings.get(i);
+                if (raw == null) continue;
+                var string = raw.strip();
+                if (string.isEmpty()) continue;
+                int eq = string.lastIndexOf('=');
+                if (eq < 0) continue;
+                int start = 0;
+                for (int j = eq - 1; j >= 0; j--) {
+                    char c = string.charAt(j);
+                    if (c == '\'' || c == ',' || c == ' ' || c == '(' || c == ')' || c == ':' || c == '{' || c == '}') {
+                        start = j + 1;
+                        break;
+                    }
+                }
+                if (start >= eq) continue;
+                var name = string.substring(start, eq);
+                if (name.isEmpty()) continue;
+                var field = usingFields.get(idxFields).getField().getFieldInstance(classLoader);
+                result.put(name, field);
+                idxFields++;
             }
             return result;
         });
@@ -1238,14 +1298,21 @@ public class Unobfuscator {
 
     public synchronized static Constructor loadSeeMoreConstructor(ClassLoader loader) throws Exception {
         return UnobfuscatorCache.getInstance().getConstructor(loader, () -> {
-            var classList = dexkit.findClass(FindClass.create().matcher(ClassMatcher.create()
-                    .addMethod(MethodMatcher.create().addUsingNumber(16384).addUsingNumber(512).addUsingNumber(64).addUsingNumber(16))
-                    .addMethod(MethodMatcher.create().paramCount(2).paramTypes(int.class, boolean.class))
-                    .addMethod(MethodMatcher.create().paramCount(2, 3).paramTypes(int.class, int.class, int.class))
-            ));
 
-            if (classList.isEmpty()) throw new RuntimeException("SeeMore constructor 1 not found");
-            var clazzData = classList.get(0);
+            var commentClass = findFirstClassUsingName(loader, StringMatchType.EndsWith, "CommentTextView");
+            var commentClassData = dexkit.getClassData(commentClass);
+            var methods = commentClassData.getMethods();
+            var arrayList = new ArrayList<ClassData>();
+            methods.forEach((methodData -> {
+                var invokes = methodData.getInvokes();
+                var classes = invokes.stream().map(MethodData::getDeclaredClass).collect(Collectors.toSet());
+                arrayList.addAll(classes);
+            }));
+
+            var clazzData = dexkit.findClass(FindClass.create().searchIn(arrayList).matcher(ClassMatcher.create()
+                    .addMethod(MethodMatcher.create().addUsingNumber(16384).addUsingNumber(512).addUsingNumber(64).addUsingNumber(16))
+            )).singleOrNull();
+            if (clazzData == null) throw new RuntimeException("SeeMore constructor 1 not found");
             for (var method : clazzData.getMethods()) {
                 if (method.getParamCount() > 1 && method.isConstructor() && method.getParamTypes().stream().allMatch(c -> c.getName().equals(int.class.getName()))) {
                     return method.getConstructorInstance(loader);
@@ -1946,28 +2013,20 @@ public class Unobfuscator {
 
     public static Class<?> loadRefreshStatusClass(ClassLoader classLoader) throws Exception {
         return UnobfuscatorCache.getInstance().getClass(classLoader, () -> {
-            var strings = new String[]{"liveStatusUpdatesActive", "Statuses refreshed"};
-            for (var s : strings) {
-                MethodDataList methods = dexkit.findMethod(FindMethod.create().matcher(MethodMatcher.create().addUsingString(s, StringMatchType.Contains)));
-                if (methods.isEmpty())
-                    continue;
-                return methods.get(0).getClassInstance(classLoader);
-            }
+            Method keyset = Map.class.getDeclaredMethod("keySet");
+            ClassMatcher matcher = ClassMatcher.create()
+                    .addMethod(
+                            MethodMatcher.create().returnType(String.class)
+                                    .addInvoke(DexSignUtil.getMethodDescriptor(keyset))
+                                    .addUsingString(",", StringMatchType.Equals)
+                                    .addUsingString("", StringMatchType.Equals)
+                    )
+                    .addMethod(MethodMatcher.create().addUsingNumber(0x3684));
 
-            // Let's look for forcibly on WhatsApp Web (very boring this)
-            var opcodes = List.of(
-                    "invoke-virtual",
-                    "move-result",
-                    "xor-int/lit8"
-            );
-
-            var constant = 0x3684;
-            MethodDataList methods = dexkit.findMethod(FindMethod.create().matcher(MethodMatcher.create().addUsingNumber(constant).opCodes(
-                    OpCodesMatcher.create().opNames(opcodes).matchType(OpCodeMatchType.Contains)
-            )));
-            if (methods.size() == 1)
-                return methods.get(0).getClassInstance(classLoader);
-            throw new Exception("Refresh Status Class Not Found!");
+            List<ClassData> results = dexkit.findClass(FindClass.create().matcher(matcher));
+            if (results.isEmpty())
+                throw new RuntimeException("RefreshStatus Class Not Found");
+            return results.get(0).getInstance(classLoader);
         });
     }
 
