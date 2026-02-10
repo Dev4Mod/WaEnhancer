@@ -2,6 +2,8 @@
 
 A powerful Xposed/LSPosed module that supercharges your WhatsApp experience with advanced privacy, customization, and utility features. Unlock the full potential of your messaging app with tools designed for power users.
 
+[![Youtube Video](http://thumb.mubashar.dev/?id=BIrojFtTGJ8)](https://www.youtube.com/watch?v=BIrojFtTGJ8)
+
 ## 🚀 Features
 
 ### 🔒 Privacy & Security
