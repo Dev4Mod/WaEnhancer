@@ -2181,4 +2181,8 @@ public class Unobfuscator {
             return methods.get(0).getMethodInstance(classLoader);
         });
     }
+
+    public static Method loadVideoTranscoderStartMethod(ClassLoader classLoader) throws Exception {
+        return UnobfuscatorCache.getInstance().getMethod(classLoader, () -> findFirstMethodUsingStrings(classLoader, StringMatchType.Contains, "VideoTranscoder/transcodeVideoNew/"));
+    }
 }

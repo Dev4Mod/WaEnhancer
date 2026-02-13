@@ -16,6 +16,7 @@ import com.wmods.wppenhacer.xposed.utils.ReflectionUtils;
 import org.json.JSONObject;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.util.concurrent.atomic.AtomicReference;
 
 import de.robv.android.xposed.XC_MethodHook;
@@ -36,19 +37,37 @@ public class MediaQuality extends Feature {
         var maxSize = Math.max((int) prefs.getFloat("video_limit_size", 60), 90);
         var realResolution = prefs.getBoolean("video_real_resolution", false);
 
+        // Disable manual calculation ProcessMediaQuality
+        Others.propsBoolean.put(14447, false);
+
         // Max video size
         Others.propsInteger.put(3185, maxSize);
         Others.propsInteger.put(3656, maxSize);
         Others.propsInteger.put(4155, maxSize);
         Others.propsInteger.put(3659, maxSize);
         Others.propsInteger.put(596, maxSize);
-        Others.propsInteger.put(18173, maxSize);
+        Others.propsInteger.put(4786, maxSize);
 
         // Enable Media Quality selection for Stories
         var hookMediaQualitySelection = Unobfuscator.loadMediaQualitySelectionMethod(classLoader);
         XposedBridge.hookMethod(hookMediaQualitySelection, XC_MethodReplacement.returnConstant(true));
 
         if (videoQuality) {
+
+            // Force Video to processing in Video Transcoder
+            Method VideoTranscoderStart = Unobfuscator.loadVideoTranscoderStartMethod(classLoader);
+            XposedBridge.hookMethod(VideoTranscoderStart, new XC_MethodHook() {
+                @Override
+                protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
+                    var videoProcessor = param.args[0];
+                    DebugUtils.debugObject(videoProcessor);
+                    var booleanParams = ReflectionUtils.getFieldsByType(videoProcessor.getClass(), Boolean.TYPE);
+                    if (booleanParams.size() > 2) {
+                        Field field = booleanParams.get(2);
+                        field.setBoolean(videoProcessor, false);
+                    }
+                }
+            });
 
             Others.propsBoolean.put(5549, true); // Use bitrate from json to force video high quality
 
