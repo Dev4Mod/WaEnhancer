@@ -2217,4 +2217,12 @@ public class Unobfuscator {
             return findFirstMethodUsingStrings(classLoader, StringMatchType.Contains, "ContactManager/getContactFromCacheOrDbByJid");
         });
     }
+
+    public static Class<?>[] loadSharedPreferencesClasses(ClassLoader classLoader) throws Exception {
+        return UnobfuscatorCache.getInstance().getClasses(classLoader, () -> {
+            var classesData = dexkit.findClass(FindClass.create().matcher(ClassMatcher.create().addInterface(SharedPreferences.class.getName())));
+            if (classesData.isEmpty()) return null;
+            return classesData.stream().map(classData -> convertRealClass(classData, classLoader)).toArray(Class[]::new);
+        });
+    }
 }
