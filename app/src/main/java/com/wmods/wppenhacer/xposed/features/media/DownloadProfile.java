@@ -7,9 +7,9 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 
+import com.wmods.wppenhacer.R;
 import com.wmods.wppenhacer.xposed.core.Feature;
 import com.wmods.wppenhacer.xposed.core.WppCore;
-import com.wmods.wppenhacer.xposed.core.components.FMessageWpp;
 import com.wmods.wppenhacer.xposed.core.components.WaContactWpp;
 import com.wmods.wppenhacer.xposed.core.devkit.Unobfuscator;
 import com.wmods.wppenhacer.xposed.utils.ReflectionUtils;
@@ -44,7 +44,7 @@ public class DownloadProfile extends Feature {
                         log(new Exception("SubClass is null"));
                         return true;
                     }
-                    var field = ReflectionUtils.getFieldByType(subCls, FMessageWpp.TYPE);
+                    var field = ReflectionUtils.getFieldByExtendType(subCls, WaContactWpp.TYPE);
                     var fieldObj = ReflectionUtils.getObjectField(field, param.thisObject);
                     var waContact = new WaContactWpp(fieldObj);
                     var userJid = waContact.getUserJid();
