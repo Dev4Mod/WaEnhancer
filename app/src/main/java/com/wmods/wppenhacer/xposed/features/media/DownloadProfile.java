@@ -30,7 +30,6 @@ public class DownloadProfile extends Feature {
 
     @Override
     public void doHook() throws Throwable {
-        var loadProfileInfoField = Unobfuscator.loadProfileInfoField(classLoader);
         var profileClass = Unobfuscator.findFirstClassUsingName(classLoader, StringMatchType.EndsWith, "ViewProfilePhoto");
         XposedHelpers.findAndHookMethod(profileClass, "onCreateOptionsMenu", Menu.class, new XC_MethodHook() {
             @Override
@@ -45,11 +44,11 @@ public class DownloadProfile extends Feature {
                         log(new Exception("SubClass is null"));
                         return true;
                     }
-                    var field = ReflectionUtils.getFieldByType(subCls, loadProfileInfoField.getDeclaringClass());
+                    var field = ReflectionUtils.getFieldByType(subCls, FMessageWpp.TYPE);
                     var fieldObj = ReflectionUtils.getObjectField(field, param.thisObject);
                     var waContact = new WaContactWpp(fieldObj);
                     var userJid = waContact.getUserJid();
-                    var file = WppCore.getContactPhotoFile(userJid.getUserRawString());
+                    var file = waContact.getProfilePhoto();
                     String destPath;
                     try {
                         destPath = Utils.getDestination("Profile Photo");

@@ -6,6 +6,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.Typeface;
+import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.text.TextUtils;
 import android.util.TypedValue;
@@ -25,6 +26,7 @@ import androidx.annotation.Nullable;
 import com.wmods.wppenhacer.views.dialog.TabDialogContent;
 import com.wmods.wppenhacer.xposed.core.WppCore;
 import com.wmods.wppenhacer.xposed.core.components.FMessageWpp;
+import com.wmods.wppenhacer.xposed.core.components.WaContactWpp;
 import com.wmods.wppenhacer.xposed.core.devkit.Unobfuscator;
 import com.wmods.wppenhacer.xposed.core.devkit.UnobfuscatorCache;
 import com.wmods.wppenhacer.xposed.utils.DesignUtils;
@@ -182,9 +184,10 @@ public class IGStatusAdapter extends ArrayAdapter {
                 var classJid = Unobfuscator.findFirstClassUsingName(statusInfoClazz.getClassLoader(), StringMatchType.EndsWith, "jid.Jid");
                 var field = ReflectionUtils.getFieldByExtendType(statusInfo.getClass(), classJid);
                 this.userJid = new FMessageWpp.UserJid(ReflectionUtils.getObjectField(field, statusInfo));
-                var contactName = WppCore.getContactName(this.userJid);
+                var waContact = WaContactWpp.getWaContactFromJid(this.userJid);
+                var contactName = waContact.getDisplayName();
                 igStatusContactName.setText(contactName);
-                var profile = WppCore.getContactPhotoDrawable(this.userJid.getPhoneRawString());
+                var profile = BitmapDrawable.createFromPath(waContact.getProfilePhoto().getAbsolutePath());
                 if (profile == null)
                     profile = Utils.getApplication().getDrawable(ResId.drawable.user_foreground);
                 igStatusContactPhoto.setImageDrawable(profile);
