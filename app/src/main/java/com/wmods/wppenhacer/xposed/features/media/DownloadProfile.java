@@ -7,9 +7,9 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 
+import com.wmods.wppenhacer.R;
 import com.wmods.wppenhacer.xposed.core.Feature;
 import com.wmods.wppenhacer.xposed.core.WppCore;
-import com.wmods.wppenhacer.xposed.core.components.FMessageWpp;
 import com.wmods.wppenhacer.xposed.core.components.WaContactWpp;
 import com.wmods.wppenhacer.xposed.core.devkit.Unobfuscator;
 import com.wmods.wppenhacer.xposed.utils.ReflectionUtils;
@@ -30,7 +30,6 @@ public class DownloadProfile extends Feature {
 
     @Override
     public void doHook() throws Throwable {
-        var loadProfileInfoField = Unobfuscator.loadProfileInfoField(classLoader);
         var profileClass = Unobfuscator.findFirstClassUsingName(classLoader, StringMatchType.EndsWith, "ViewProfilePhoto");
         XposedHelpers.findAndHookMethod(profileClass, "onCreateOptionsMenu", Menu.class, new XC_MethodHook() {
             @Override
@@ -45,11 +44,11 @@ public class DownloadProfile extends Feature {
                         log(new Exception("SubClass is null"));
                         return true;
                     }
-                    var field = ReflectionUtils.getFieldByType(subCls, loadProfileInfoField.getDeclaringClass());
+                    var field = ReflectionUtils.getFieldByExtendType(subCls, WaContactWpp.TYPE);
                     var fieldObj = ReflectionUtils.getObjectField(field, param.thisObject);
                     var waContact = new WaContactWpp(fieldObj);
                     var userJid = waContact.getUserJid();
-                    var file = WppCore.getContactPhotoFile(userJid.getUserRawString());
+                    var file = waContact.getProfilePhoto();
                     String destPath;
                     try {
                         destPath = Utils.getDestination("Profile Photo");

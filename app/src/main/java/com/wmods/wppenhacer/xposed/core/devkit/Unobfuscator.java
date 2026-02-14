@@ -1409,16 +1409,6 @@ public class Unobfuscator {
         });
     }
 
-    public synchronized static Field loadProfileInfoField(ClassLoader loader) throws Exception {
-        return UnobfuscatorCache.getInstance().getField(loader, () -> {
-            var clazz = findFirstClassUsingStrings(loader, StringMatchType.Contains, "[obfuscated]@%s");
-            if (clazz == null) throw new RuntimeException("ProfileInfo class not found");
-            var fieldList = ReflectionUtils.getFieldsByExtendType(clazz, Unobfuscator.findFirstClassUsingName(loader, StringMatchType.EndsWith, "jid.Jid"));
-            if (fieldList.isEmpty()) throw new RuntimeException("ProfileInfo field not found");
-            return fieldList.get(0);
-        });
-    }
-
     public synchronized static Method loadAudioProximitySensorMethod(ClassLoader loader) throws Exception {
         return UnobfuscatorCache.getInstance().getMethod(loader, () -> {
             var method = findFirstMethodUsingStrings(loader, StringMatchType.Contains, "messageaudioplayer/onearproximity");
@@ -2230,6 +2220,10 @@ public class Unobfuscator {
         });
     }
 
+    public static Method loadGetProfilePhotoMethod(ClassLoader classLoader) throws Exception {
+        return UnobfuscatorCache.getInstance().getMethod(classLoader, ()-> findFirstMethodUsingStrings(classLoader, StringMatchType.Contains,"Avatars",".j"));
+    }
+
 
     public static Class<?> loadChatCacheClass(ClassLoader classLoader) throws Exception {
         return UnobfuscatorCache.getInstance().getClass(classLoader, () -> findFirstClassUsingStrings(classLoader, StringMatchType.StartsWith, "Chatscache/"));
@@ -2240,6 +2234,56 @@ public class Unobfuscator {
             var methods = dexkit.findMethod(FindMethod.create().matcher(MethodMatcher.create().addUsingNumber(8726).paramCount(1).addParamType(Object.class)));
             if (methods.isEmpty()) return null;
             return methods.get(0).getMethodInstance(classLoader);
+        });
+    }
+
+    public static Method loadVideoTranscoderStartMethod(ClassLoader classLoader) throws Exception {
+        return UnobfuscatorCache.getInstance().getMethod(classLoader, () -> findFirstMethodUsingStrings(classLoader, StringMatchType.Contains, "VideoTranscoder/transcodeVideoNew/"));
+    }
+
+    public static Field loadWaContactGetWaNameField(ClassLoader classLoader) throws Exception {
+        return UnobfuscatorCache.getInstance().getField(classLoader, () -> {
+            var method = dexkit.findMethod(FindMethod.create().matcher(MethodMatcher.create().addUsingString("ContactManagerDatabase/updateContactWAName"))).singleOrNull();
+            if (method == null)
+                throw new NoSuchMethodException("WaContactGetWaName field not found");
+            var waContact = loadWaContactClass(classLoader).getName();
+            var usingFields = method.getUsingFields();
+            for (var usingField : usingFields) {
+                var field = usingField.getField();
+                if (field.getClassName().equals(waContact) && field.getType().getName().equals(String.class.getName())) {
+                    return field.getFieldInstance(classLoader);
+                }
+            }
+            throw new NoSuchMethodException("WaContactGetWaName field not found");
+        });
+    }
+
+    public static Method loadWaContactDisplayNameMethod(ClassLoader classLoader) throws Exception {
+        return UnobfuscatorCache.getInstance().getMethod(classLoader, () -> {
+            var methods = dexkit.findMethod(FindMethod.create().matcher(MethodMatcher.create().addUsingString("ContactManagerDatabase/updateGroupInfo")));
+            if (methods.isEmpty()) throw new NoSuchMethodException("WaContactDiplayName not found");
+            var invokes = methods.get(0).getInvokes();
+            var waContactClass = loadWaContactClass(classLoader);
+            for (var invoke : invokes) {
+                if (!invoke.getClassName().equals(waContactClass.getName())) continue;
+                if (invoke.getReturnTypeName().equals(String.class.getName()))
+                    return invoke.getMethodInstance(classLoader);
+            }
+            return null;
+        });
+    }
+
+    public static Method loadGetWaContactMethod(ClassLoader classLoader) throws Exception {
+        return UnobfuscatorCache.getInstance().getMethod(classLoader, () -> {
+            return findFirstMethodUsingStrings(classLoader, StringMatchType.Contains, "ContactManager/getContactFromCacheOrDbByJid");
+        });
+    }
+
+    public static Class<?>[] loadSharedPreferencesClasses(ClassLoader classLoader) throws Exception {
+        return UnobfuscatorCache.getInstance().getClasses(classLoader, () -> {
+            var classesData = dexkit.findClass(FindClass.create().matcher(ClassMatcher.create().addInterface(SharedPreferences.class.getName())));
+            if (classesData.isEmpty()) return null;
+            return classesData.stream().map(classData -> convertRealClass(classData, classLoader)).toArray(Class[]::new);
         });
     }
 }

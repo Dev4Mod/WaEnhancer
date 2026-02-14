@@ -147,8 +147,8 @@ public class FeatureLoader {
                 registerReceivers();
                 try {
                     var timemillis = System.currentTimeMillis();
-                    SharedPreferencesWrapper.hookInit(mApp.getClassLoader());
                     UnobfuscatorCache.init(mApp);
+                    SharedPreferencesWrapper.hookInit(mApp.getClassLoader());
                     ReflectionUtils.initCache(mApp);
                     boolean isSupported = supportedVersions.stream().anyMatch(s -> packageInfo.versionName.startsWith(s.replace(".xx", "")));
                     if (!isSupported) {

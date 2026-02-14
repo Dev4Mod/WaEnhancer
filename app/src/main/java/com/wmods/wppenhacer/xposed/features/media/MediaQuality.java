@@ -3,17 +3,21 @@ package com.wmods.wppenhacer.xposed.features.media;
 import android.graphics.Bitmap;
 import android.graphics.RecordingCanvas;
 import android.os.Build;
+import android.os.Debug;
 
 import androidx.annotation.NonNull;
 
 import com.wmods.wppenhacer.xposed.core.Feature;
 import com.wmods.wppenhacer.xposed.core.devkit.Unobfuscator;
 import com.wmods.wppenhacer.xposed.features.general.Others;
+import com.wmods.wppenhacer.xposed.utils.DebugUtils;
 import com.wmods.wppenhacer.xposed.utils.ReflectionUtils;
 
 import org.json.JSONObject;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.Method;
+import java.util.concurrent.atomic.AtomicReference;
 
 import de.robv.android.xposed.XC_MethodHook;
 import de.robv.android.xposed.XC_MethodReplacement;
@@ -33,68 +37,67 @@ public class MediaQuality extends Feature {
         var maxSize = Math.max((int) prefs.getFloat("video_limit_size", 60), 90);
         var realResolution = prefs.getBoolean("video_real_resolution", false);
 
+        // Disable manual calculation ProcessMediaQuality
+        Others.propsBoolean.put(14447, false);
+
         // Max video size
         Others.propsInteger.put(3185, maxSize);
         Others.propsInteger.put(3656, maxSize);
         Others.propsInteger.put(4155, maxSize);
         Others.propsInteger.put(3659, maxSize);
-        Others.propsInteger.put(4685, maxSize);
         Others.propsInteger.put(596, maxSize);
+        Others.propsInteger.put(4786, maxSize);
 
         // Enable Media Quality selection for Stories
         var hookMediaQualitySelection = Unobfuscator.loadMediaQualitySelectionMethod(classLoader);
-        XposedBridge.hookMethod(hookMediaQualitySelection, XC_MethodReplacement.returnConstant(false));
+        XposedBridge.hookMethod(hookMediaQualitySelection, XC_MethodReplacement.returnConstant(true));
 
         if (videoQuality) {
-            int videoMaxEdge = 1280;
-            int videoBitrateKbps = 7000;
 
-            Others.propsBoolean.put(5549, true); // Use bitrate from json to force video high quality
-
-            var processVideoQualityClass = Unobfuscator.loadProcessVideoQualityClass(classLoader);
-            var processVideoQualityFields = Unobfuscator.loadProcessVideoQualityFields(classLoader);
-
-            XposedBridge.hookAllConstructors(processVideoQualityClass, new XC_MethodHook() {
+            // Force Video to processing in Video Transcoder
+            Method VideoTranscoderStart = Unobfuscator.loadVideoTranscoderStartMethod(classLoader);
+            XposedBridge.hookMethod(VideoTranscoderStart, new XC_MethodHook() {
                 @Override
-                protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-                    Field videoMaxEdgeField = processVideoQualityFields.get("videoMaxEdge");
-                    videoMaxEdgeField.setInt(param.thisObject, videoMaxEdge);
-                    Field videoMaxBitrate = processVideoQualityFields.get("videoMaxBitrate");
-                    videoMaxBitrate.setInt(param.thisObject, videoBitrateKbps * 1000);
+                protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
+                    var videoProcessor = param.args[0];
+                    DebugUtils.debugObject(videoProcessor);
+                    var booleanParams = ReflectionUtils.getFieldsByType(videoProcessor.getClass(), Boolean.TYPE);
+                    if (booleanParams.size() > 2) {
+                        Field field = booleanParams.get(2);
+                        field.setBoolean(videoProcessor, false);
+                    }
                 }
             });
 
+            Others.propsBoolean.put(5549, true); // Use bitrate from json to force video high quality
 
-//            var jsonProperty = Unobfuscator.loadPropsJsonMethod(classLoader);
-//
-//            AtomicReference<XC_MethodHook.Unhook> jsonPropertyHook = new AtomicReference<>();
-//
-//            var unhooked = XposedBridge.hookMethod(jsonProperty, new XC_MethodHook() {
-//                @Override
-//                protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-//                    var value = ReflectionUtils.getArg(param.args, Integer.class, 0);
-//                    if (value == 5550) {
-//                        JSONObject videoBitrateData = new JSONObject();
-//                        String[] resolutions = {"360", "480", "720", "1080"};
-//                        int[] minBitrates = {1500, 2500, 10000, 16000};
-//                        int[] maxBitrates = {2500, 4000, 16000, 24000};
-//                        for (int i = 0; i < resolutions.length; i++) {
-//                            String resolution = resolutions[i];
-//                            JSONObject resolutionData = new JSONObject();
-//                            resolutionData.put("min_bitrate", minBitrates[i]);
-//                            resolutionData.put("max_bitrate", maxBitrates[i]);
-//                            resolutionData.put("null_bitrate", maxBitrates[i]);
-//                            resolutionData.put("min_bandwidth", 1);
-//                            resolutionData.put("max_bandwidth", 1);
-//                            videoBitrateData.put(resolution, resolutionData);
-//                        }
-//                        param.setResult(videoBitrateData);
-//                    } else if (value == 9705) {
-//                        param.setResult(new JSONObject());
-//                    }
-//                }
-//            });
-//            jsonPropertyHook.set(unhooked);
+            var jsonProperty = Unobfuscator.loadPropsJsonMethod(classLoader);
+
+            AtomicReference<XC_MethodHook.Unhook> jsonPropertyHook = new AtomicReference<>();
+
+            var unhooked = XposedBridge.hookMethod(jsonProperty, new XC_MethodHook() {
+                @Override
+                protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+                    var value = ReflectionUtils.getArg(param.args, Integer.class, 0);
+                    if (value == 5550) {
+                        JSONObject videoBitrateData = new JSONObject();
+                        String[] resolutions = {"360", "480", "720", "1080"};
+                        for (String resolution : resolutions) {
+                            JSONObject resolutionData = new JSONObject();
+                            resolutionData.put("min_bitrate", 3000);
+                            resolutionData.put("max_bitrate", 96000);
+                            resolutionData.put("null_bitrate", 96000);
+                            resolutionData.put("min_bandwidth", 1);
+                            resolutionData.put("max_bandwidth", 1);
+                            videoBitrateData.put(resolution, resolutionData);
+                        }
+                        param.setResult(videoBitrateData);
+                    } else if (value == 9705) {
+                        param.setResult(new JSONObject());
+                    }
+                }
+            });
+            jsonPropertyHook.set(unhooked);
 
             var videoMethod = Unobfuscator.loadMediaQualityVideoMethod2(classLoader);
             logDebug(Unobfuscator.getMethodDescriptor(videoMethod));
@@ -150,30 +153,35 @@ public class MediaQuality extends Feature {
                             targetWidthField.setInt(resizeVideo, inverted ? height : width);
 
                         }
+
                     }
                     if (prefs.getBoolean("video_maxfps", false)) {
                         var frameRateField = mediaTranscodeParams.get("frameRate");
                         frameRateField.setInt(resizeVideo, 60);
                     }
                 }
-
             });
 
             // HD video must be sent in maximum resolution (up to 4K)
-            Others.propsInteger.put(594, videoMaxEdge);
-            Others.propsInteger.put(12852, videoMaxEdge);
+            if (realResolution) {
+                Others.propsInteger.put(594, 8000);
+                Others.propsInteger.put(12852, 8000);
+            } else {
+                Others.propsInteger.put(594, 1920);
+                Others.propsInteger.put(12852, 1920);
+            }
 
             // Non-HD video must be sent in HD resolution
-            Others.propsInteger.put(4686, videoMaxEdge);
-            Others.propsInteger.put(3654, videoMaxEdge);
-            Others.propsInteger.put(3183, videoMaxEdge); // Stories
-            Others.propsInteger.put(4685, videoMaxEdge); // Stories
+            Others.propsInteger.put(4686, 1280);
+            Others.propsInteger.put(3654, 1280);
+            Others.propsInteger.put(3183, 1280); // Stories
+            Others.propsInteger.put(4685, 1280); // Stories
 
             // Max bitrate
-            Others.propsInteger.put(3755, videoBitrateKbps);
-            Others.propsInteger.put(3756, videoBitrateKbps);
-            Others.propsInteger.put(3757, videoBitrateKbps);
-            Others.propsInteger.put(3758, videoBitrateKbps);
+            Others.propsInteger.put(3755, 96000);
+            Others.propsInteger.put(3756, 96000);
+            Others.propsInteger.put(3757, 96000);
+            Others.propsInteger.put(3758, 96000);
 
         }
 
