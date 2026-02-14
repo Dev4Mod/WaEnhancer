@@ -189,7 +189,155 @@ public abstract class BasePreferenceFragment extends PreferenceFragmentCompat im
             var preference = findPreference(preferenceKey);
             if (preference != null) {
                 scrollToPreference(preference);
+                
+                // Highlight the preference for visibility
+                highlightPreference(preference);
             }
         }, 100);
+    }
+    
+    /**
+     * Highlight a preference with a temporary background color.
+     */
+    private void highlightPreference(androidx.preference.Preference preference) {
+        // Wait longer to ensure RecyclerView has laid out the views after scrolling
+        getView().postDelayed(() -> {
+            androidx.recyclerview.widget.RecyclerView recyclerView = getListView();
+            if (recyclerView == null || preference == null || preference.getKey() == null) return;
+            
+            // Find the preference view by iterating through visible items
+            String targetKey = preference.getKey();
+            boolean found = false;
+            
+            for (int i = 0; i < recyclerView.getChildCount(); i++) {
+                android.view.View child = recyclerView.getChildAt(i);
+                androidx.recyclerview.widget.RecyclerView.ViewHolder holder = recyclerView.getChildViewHolder(child);
+                
+                if (holder instanceof androidx.preference.PreferenceViewHolder) {
+                    androidx.preference.PreferenceViewHolder prefHolder = (androidx.preference.PreferenceViewHolder) holder;
+                    
+                    // Try to match by adapter position
+                    int position = prefHolder.getBindingAdapterPosition();
+                    if (position != androidx.recyclerview.widget.RecyclerView.NO_POSITION) {
+                        try {
+                            // Get all preferences recursively
+                            androidx.preference.Preference pref = findPreferenceAtPosition(getPreferenceScreen(), position);
+                            if (pref != null && pref.getKey() != null && pref.getKey().equals(targetKey)) {
+                                animateHighlight(prefHolder.itemView);
+                                found = true;
+                                break;
+                            }
+                        } catch (Exception e) {
+                            // Continue searching
+                        }
+                    }
+                }
+            }
+            
+            // If not found, try a second time after a longer delay
+            if (!found) {
+                getView().postDelayed(() -> tryHighlightAgain(targetKey), 500);
+            }
+        }, 500);
+    }
+    
+    private void tryHighlightAgain(String targetKey) {
+        androidx.recyclerview.widget.RecyclerView recyclerView = getListView();
+        if (recyclerView == null) return;
+        
+        for (int i = 0; i < recyclerView.getChildCount(); i++) {
+            android.view.View child = recyclerView.getChildAt(i);
+            
+            // Simple approach: check all text views in the item for matching preference
+            if (child instanceof android.view.ViewGroup) {
+                android.view.ViewGroup group = (android.view.ViewGroup) child;
+                // Get the preference at this position and check key
+                androidx.recyclerview.widget.RecyclerView.ViewHolder holder = recyclerView.getChildViewHolder(child);
+                if (holder instanceof androidx.preference.PreferenceViewHolder) {
+                    int position = holder.getBindingAdapterPosition();
+                    if (position != androidx.recyclerview.widget.RecyclerView.NO_POSITION) {
+                        androidx.preference.Preference pref = findPreferenceAtPosition(getPreferenceScreen(), position);
+                        if (pref != null && pref.getKey() != null && pref.getKey().equals(targetKey)) {
+                            animateHighlight(child);
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+    }
+    
+    private androidx.preference.Preference findPreferenceAtPosition(androidx.preference.PreferenceGroup group, int targetPosition) {
+        if (group == null) return null;
+        
+        int currentPosition = 0;
+        for (int i = 0; i < group.getPreferenceCount(); i++) {
+            androidx.preference.Preference pref = group.getPreference(i);
+            if (pref == null) continue;
+            
+            if (currentPosition == targetPosition) {
+                return pref;
+            }
+            currentPosition++;
+            
+            // Recursively check groups
+            if (pref instanceof androidx.preference.PreferenceGroup) {
+                androidx.preference.PreferenceGroup subGroup = (androidx.preference.PreferenceGroup) pref;
+                int subCount = countPreferences(subGroup);
+                if (targetPosition < currentPosition + subCount) {
+                    return findPreferenceAtPosition(subGroup, targetPosition - currentPosition);
+                }
+                currentPosition += subCount;
+            }
+        }
+        return null;
+    }
+    
+    private int countPreferences(androidx.preference.PreferenceGroup group) {
+        int count = 0;
+        for (int i = 0; i < group.getPreferenceCount(); i++) {
+            androidx.preference.Preference pref = group.getPreference(i);
+            if (pref instanceof androidx.preference.PreferenceGroup) {
+                count += countPreferences((androidx.preference.PreferenceGroup) pref);
+            } else {
+                count++;
+            }
+        }
+        return count;
+    }
+    
+    /**
+     * Animate a highlight effect on the view.
+     */
+    private void animateHighlight(android.view.View view) {
+        if (view == null || getContext() == null) return;
+        
+        // Get primary color using android attribute
+        android.util.TypedValue typedValue = new android.util.TypedValue();
+        view.getContext().getTheme().resolveAttribute(android.R.attr.colorPrimary, typedValue, true);
+        int primaryColor = typedValue.data;
+        
+        // Make it 20% opacity (dim)
+        int highlightColor = android.graphics.Color.argb(
+            51, // ~20% of 255
+            android.graphics.Color.red(primaryColor),
+            android.graphics.Color.green(primaryColor),
+            android.graphics.Color.blue(primaryColor)
+        );
+        
+        // Save original background
+        android.graphics.drawable.Drawable originalBackground = view.getBackground();
+        
+        // Set highlight background
+        view.setBackgroundColor(highlightColor);
+        
+        // Fade out after 1.5 seconds
+        view.postDelayed(() -> {
+            if (originalBackground != null) {
+                view.setBackground(originalBackground);
+            } else {
+                view.setBackgroundColor(android.graphics.Color.TRANSPARENT);
+            }
+        }, 1500);
     }
 }
