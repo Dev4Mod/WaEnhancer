@@ -175,25 +175,65 @@ public class BackupRestore extends Feature {
                              XposedBridge.log("BackupRestore: Found ScrollView for fallback injection.");
                              if (scrollView.getChildCount() > 0) {
                                  android.view.View content = scrollView.getChildAt(0);
+                                 
+                                 // Strategy A: Content is already a Vertical LinearLayout -> Just add button
                                  if (content instanceof LinearLayout && ((LinearLayout)content).getOrientation() == LinearLayout.VERTICAL) {
                                       ViewGroup contentVg = (ViewGroup) content;
                                       
                                       // Create button
                                       android.view.View fallbackButton = createRestoreButton(activity);
-                                      
-                                      // Layout Params with margins
-                                      LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
-                                          LinearLayout.LayoutParams.MATCH_PARENT, 
-                                          LinearLayout.LayoutParams.WRAP_CONTENT
-                                      );
+                                      LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
                                       int margin = dpToPx(activity, 16);
                                       lp.setMargins(margin, margin, margin, margin);
                                       fallbackButton.setLayoutParams(lp);
                                       
                                       contentVg.addView(fallbackButton);
-                                      XposedBridge.log("BackupRestore: Injected Fallback Button at bottom.");
-                                 } else {
-                                     XposedBridge.log("BackupRestore: ScrollView child is NOT Vertical LinearLayout. Aborting fallback to avoid overlap.");
+                                      XposedBridge.log("BackupRestore: Injected Fallback Button at bottom (Appended to existing LL).");
+                                 } 
+                                 // Strategy B: Wrapper Strategy (for ConstraintLayout, CoordinatorLayout, etc)
+                                 else {
+                                     XposedBridge.log("BackupRestore: ScrollView child is " + content.getClass().getSimpleName() + ". Using Wrapper Strategy.");
+                                     
+                                     // 1. Remove original content
+                                     scrollView.removeView(content);
+                                     
+                                     // 2. Create wrapper container
+                                     LinearLayout wrapper = new LinearLayout(activity);
+                                     wrapper.setOrientation(LinearLayout.VERTICAL);
+                                     wrapper.setLayoutParams(new android.widget.FrameLayout.LayoutParams(
+                                         android.widget.FrameLayout.LayoutParams.MATCH_PARENT,
+                                         android.widget.FrameLayout.LayoutParams.WRAP_CONTENT
+                                     ));
+                                     
+                                     // 3. Add original content to wrapper
+                                     // Ensure original content params are valid for LL
+                                     ViewGroup.LayoutParams origParams = content.getLayoutParams();
+                                     LinearLayout.LayoutParams lpContent = new LinearLayout.LayoutParams(
+                                         ViewGroup.LayoutParams.MATCH_PARENT, 
+                                         ViewGroup.LayoutParams.WRAP_CONTENT
+                                     );
+                                     if (origParams != null) {
+                                         lpContent.width = origParams.width;
+                                         lpContent.height = origParams.height;
+                                     }
+                                     content.setLayoutParams(lpContent);
+                                     wrapper.addView(content);
+                                     
+                                     // 4. Create and add our button
+                                     android.view.View fallbackButton = createRestoreButton(activity);
+                                     LinearLayout.LayoutParams lpButton = new LinearLayout.LayoutParams(
+                                         LinearLayout.LayoutParams.MATCH_PARENT, 
+                                         LinearLayout.LayoutParams.WRAP_CONTENT
+                                     );
+                                     int margin = dpToPx(activity, 16);
+                                     lpButton.setMargins(margin, margin, margin, margin);
+                                     fallbackButton.setLayoutParams(lpButton);
+                                     wrapper.addView(fallbackButton);
+                                     
+                                     // 5. Put wrapper back into ScrollView
+                                     scrollView.addView(wrapper);
+                                     
+                                     XposedBridge.log("BackupRestore: Injected Fallback Button (Wrapper Strategy Success).");
                                  }
                              }
                         } else {
