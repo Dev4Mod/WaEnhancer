@@ -13,6 +13,8 @@ import java.util.Objects;
 import de.robv.android.xposed.XposedBridge;
 import okhttp3.OkHttpClient;
 
+import io.noties.markwon.Markwon;
+
 public class UpdateChecker implements Runnable {
 
     private static final String LATEST_RELEASE_API = "https://api.github.com/repos/mubashardev/WaEnhancer/releases/latest";
@@ -51,9 +53,10 @@ public class UpdateChecker implements Runnable {
             var appInfo = mActivity.getPackageManager().getPackageInfo(BuildConfig.APPLICATION_ID, 0);
             if (!appInfo.versionName.toLowerCase().contains(hash.toLowerCase().trim()) && !Objects.equals(WppCore.getPrivString("ignored_version", ""), hash)) {
                 mActivity.runOnUiThread(() -> {
+                    var markwon = Markwon.create(mActivity);
                     var dialog = new AlertDialogWpp(mActivity);
                     dialog.setTitle("WAE - New version available!");
-                    dialog.setMessage("Changelog:\n\n" + changelog);
+                    dialog.setMessage(markwon.toMarkdown("Changelog:\n\n" + changelog));
                     dialog.setNegativeButton("Ignore", (dialog1, which) -> {
                         WppCore.setPrivString("ignored_version", hash);
                         dialog1.dismiss();
