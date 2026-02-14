@@ -91,7 +91,7 @@ public class AlertDialogWpp {
         return this;
     }
 
-    public AlertDialogWpp setMessage(String message) {
+    public AlertDialogWpp setMessage(CharSequence message) {
         if (isSystemDialog()) {
             mAlertDialog.setMessage(message);
             return this;

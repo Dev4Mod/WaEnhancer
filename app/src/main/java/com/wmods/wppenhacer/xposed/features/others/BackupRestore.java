@@ -73,17 +73,131 @@ public class BackupRestore extends Feature {
                             return;
                         }
 
-                        // Find the deepest LinearLayout or ScrollView to add the button to
-                        ViewGroup targetContainer = findBestContainer(rootView);
-                        XposedBridge.log("BackupRestore: Target container: " + targetContainer.getClass().getSimpleName());
 
-                        // Create the button (try WDSButton first, fallback to standard button)
-                        android.view.View button = createRestoreButton(activity);
+
+
+
+                        // 1. Try to find the existing "Back up" button directly (e.g. by text)
+                        android.view.View backupButton = findBackupButton(rootView);
                         
-                        if (button != null) {
-                            // Add button to the container
-                            targetContainer.addView(button);
-                            XposedBridge.log("BackupRestore: Button added successfully to " + targetContainer.getClass().getSimpleName());
+                        // 2. If not found, look for "Google Account" anchor to guess location
+                        if (backupButton == null) {
+                            android.view.View anchor = findViewByText(rootView, "Google Account", "Google Drive settings");
+                            if (anchor != null) {
+                                // Walk up to find the main list item container
+                                android.view.View listItem = anchor;
+                                while (listItem.getParent() != null && 
+                                       listItem.getParent() instanceof ViewGroup && 
+                                       !(((ViewGroup)listItem.getParent()) instanceof android.widget.ScrollView)) {
+                                    
+                                    ViewGroup parent = (ViewGroup) listItem.getParent();
+                                    // If we found the specific LinearLayout that holds list items
+                                    if (parent instanceof LinearLayout && ((LinearLayout)parent).getOrientation() == LinearLayout.VERTICAL) {
+                                        // Check if this parent has many children (likely the main list)
+                                        if (parent.getChildCount() > 3) {
+                                            // The item *before* the Google Account item is usually the Backup Button directly
+                                            int index = parent.indexOfChild(listItem);
+                                            if (index > 0) {
+                                                android.view.View prev = parent.getChildAt(index - 1);
+                                                // Verify if it looks like a button (clickable)
+                                                if (prev.isClickable() || (prev instanceof ViewGroup && ((ViewGroup)prev).getChildCount() > 0 && prev.findViewById(android.R.id.button1) != null)) { 
+                                                     // heuristic
+                                                     backupButton = prev;
+                                                } else {
+                                                    // Even if we aren't sure, let's target this position
+                                                    XposedBridge.log("BackupRestore: Approximated Backup Button position at index " + (index - 1));
+                                                    backupButton = prev; 
+                                                }
+                                            } else {
+                                                // If Google Account is first (unlikely), inject before it
+                                                backupButton = null; // Can't merge
+                                            }
+                                        }
+                                        break; // Found the container
+                                    }
+                                    listItem = (android.view.View) parent;
+                                }
+                            }
+                        }
+
+                        if (backupButton != null) {
+                            XposedBridge.log("BackupRestore: Targeting View as Backup Button: " + backupButton.getClass().getName());
+                            
+                            
+                            ViewGroup parent = (ViewGroup) backupButton.getParent();
+                            if (parent != null) {
+                                int index = parent.indexOfChild(backupButton);
+                                
+                                // Ensure strict LinearLayout logic to prevent overlapping
+                                if (parent instanceof LinearLayout || parent.getClass().getName().contains("LinearLayout")) {
+                                    // Save original params and ID
+                                    ViewGroup.LayoutParams originalParams = backupButton.getLayoutParams();
+                                    int originalId = backupButton.getId();
+                                    
+                                    parent.removeView(backupButton);
+                                    
+                                    // Helper container
+                                    LinearLayout container = new LinearLayout(activity);
+                                    container.setId(originalId); // CRITICAL: Inherit ID for Relative/ConstraintLayout
+                                    container.setOrientation(LinearLayout.HORIZONTAL);
+                                    container.setLayoutParams(originalParams);
+                                    
+                                    // p1
+                                    LinearLayout.LayoutParams p1 = new LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1.0f);
+                                    p1.setMargins(0, 0, 8, 0);
+                                    backupButton.setLayoutParams(p1);
+                                    backupButton.setId(android.view.View.NO_ID); // Clear ID from button so container takes precedence? Or keep it?
+                                    // Actually, it's safer to keep ID on container if parent looks for it.
+                                    
+                                    // p2
+                                    android.view.View ourButton = createRestoreButton(activity);
+                                    LinearLayout.LayoutParams p2 = new LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1.0f);
+                                    p2.setMargins(8, 0, 0, 0);
+                                    ourButton.setLayoutParams(p2);
+                                    
+                                    container.addView(backupButton);
+                                    container.addView(ourButton);
+                                    parent.addView(container, index);
+                                    
+                                    XposedBridge.log("BackupRestore: Successfully injected button!");
+                                    return;
+                                } else {
+                                    XposedBridge.log("BackupRestore: Parent is NOT LinearLayout (" + parent.getClass().getSimpleName() + "). Aborting merge to avoid overlap.");
+                                }
+                            }
+                        }
+                        
+                        // Fallback: Just inject at the bottom of the main scroll container
+                        XposedBridge.log("BackupRestore: Attempting Fallback Injection (Bottom of Screen)...");
+                        
+                        android.widget.ScrollView scrollView = findScrollView(rootView);
+                        if (scrollView != null) {
+                             XposedBridge.log("BackupRestore: Found ScrollView for fallback injection.");
+                             if (scrollView.getChildCount() > 0) {
+                                 android.view.View content = scrollView.getChildAt(0);
+                                 if (content instanceof LinearLayout && ((LinearLayout)content).getOrientation() == LinearLayout.VERTICAL) {
+                                      ViewGroup contentVg = (ViewGroup) content;
+                                      
+                                      // Create button
+                                      android.view.View fallbackButton = createRestoreButton(activity);
+                                      
+                                      // Layout Params with margins
+                                      LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
+                                          LinearLayout.LayoutParams.MATCH_PARENT, 
+                                          LinearLayout.LayoutParams.WRAP_CONTENT
+                                      );
+                                      int margin = dpToPx(activity, 16);
+                                      lp.setMargins(margin, margin, margin, margin);
+                                      fallbackButton.setLayoutParams(lp);
+                                      
+                                      contentVg.addView(fallbackButton);
+                                      XposedBridge.log("BackupRestore: Injected Fallback Button at bottom.");
+                                 } else {
+                                     XposedBridge.log("BackupRestore: ScrollView child is NOT Vertical LinearLayout. Aborting fallback to avoid overlap.");
+                                 }
+                             }
+                        } else {
+                            XposedBridge.log("BackupRestore: Could not find ScrollView for fallback.");
                         }
                         
                     } catch (Throwable t) {
@@ -147,72 +261,58 @@ public class BackupRestore extends Feature {
         }
     }
     
-    private ViewGroup findBestContainer(ViewGroup root) {
-        // Recursively find the best container (deepest LinearLayout or main content container)
-        ViewGroup best = root;
+    private android.widget.ScrollView findScrollView(android.view.View view) {
+        if (view instanceof android.widget.ScrollView) return (android.widget.ScrollView) view;
+        if (view instanceof ViewGroup) {
+            ViewGroup vg = (ViewGroup) view;
+            for (int i = 0; i < vg.getChildCount(); i++) {
+                android.widget.ScrollView sv = findScrollView(vg.getChildAt(i));
+                if (sv != null) return sv;
+            }
+        }
+        return null;
+    }
+
+    private int dpToPx(android.content.Context context, int dp) {
+        return (int) (dp * context.getResources().getDisplayMetrics().density);
+    }
+    
+
+
+    private android.view.View findViewByText(android.view.View view, String... variations) {
+        if (view == null) return null;
         
-        for (int i = 0; i < root.getChildCount(); i++) {
-            android.view.View child = root.getChildAt(i);
-            if (child instanceof ViewGroup) {
-                ViewGroup vg = (ViewGroup) child;
-                // Prefer LinearLayout with vertical orientation
-                if (vg instanceof LinearLayout && 
-                    ((LinearLayout) vg).getOrientation() == LinearLayout.VERTICAL &&
-                    vg.getChildCount() > 0) {
-                    best = vg;
-                }
-                // Recurse
-                ViewGroup deeper = findBestContainer(vg);
-                if (deeper != root && deeper.getChildCount() > 0) {
-                    best = deeper;
+        if (view instanceof android.widget.TextView) {
+            CharSequence textCs = ((android.widget.TextView) view).getText();
+            if (textCs != null) {
+                String text = textCs.toString().trim();
+                for (String v : variations) {
+                    if (text.equalsIgnoreCase(v) || text.contains(v)) {
+                        return view;
+                    }
                 }
             }
         }
         
-        return best;
+        if (view instanceof ViewGroup) {
+            ViewGroup vg = (ViewGroup) view;
+            for (int i = 0; i < vg.getChildCount(); i++) {
+                android.view.View found = findViewByText(vg.getChildAt(i), variations);
+                if (found != null) return found;
+            }
+        }
+        return null;
     }
-    
-    // ... createRestoreButton ...
-    private android.view.View createRestoreButton(Activity activity) {
-        // ... (Keep existing implementation)
-        // Just correcting the one we viewed earlier
-        try {
-            Class<?> WDSButtonClass = XposedHelpers.findClass("com.whatsapp.ui.wds.components.button.WDSButton", classLoader);
-            Object wdsButton = XposedHelpers.newInstance(WDSButtonClass, activity, null);
-            XposedHelpers.callMethod(wdsButton, "setText", "Force Restore Backup (Experimental)");
-            
-            XposedHelpers.callMethod(wdsButton, "setOnClickListener", new android.view.View.OnClickListener() {
-                @Override
-                public void onClick(android.view.View v) {
-                    showRestoreDialog(activity);
-                }
-            });
 
-            LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.MATCH_PARENT, 
-                LinearLayout.LayoutParams.WRAP_CONTENT
-            );
-            int dp16 = (int) (16 * activity.getResources().getDisplayMetrics().density);
-            params.setMargins(dp16, dp16, dp16, dp16);
-            ((android.view.View) wdsButton).setLayoutParams(params);
-            return (android.view.View) wdsButton;
-            
-        } catch (Throwable t) {}
-        
-        // Fallback
-        android.widget.Button button = new android.widget.Button(activity);
-        button.setText("Force Restore Backup (Experimental)");
-        button.setAllCaps(false);
-        button.setOnClickListener(v -> showRestoreDialog(activity));
-        
-        LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
-            LinearLayout.LayoutParams.MATCH_PARENT,
-            LinearLayout.LayoutParams.WRAP_CONTENT
-        );
-        int dp16 = (int) (16 * activity.getResources().getDisplayMetrics().density);
-        params.setMargins(dp16, dp16, dp16, dp16);
-        button.setLayoutParams(params);
-        return button;
+
+
+    private void showWarningDialog(Activity activity) {
+        new android.app.AlertDialog.Builder(activity)
+            .setTitle("Warning [Experimental Feature]")
+            .setMessage("This feature is experimental and is under development. This may cause all your chat history to be wiped out.\n\nDo it on your own risk.")
+            .setPositiveButton("Proceed", (dialog, which) -> showRestoreDialog(activity))
+            .setNegativeButton("Cancel", null)
+            .show();
     }
 
     private void showRestoreDialog(Activity activity) {
@@ -281,5 +381,86 @@ public class BackupRestore extends Feature {
             android.widget.Toast.makeText(activity, "Failed to launch Force Restore", android.widget.Toast.LENGTH_SHORT).show();
         }
     }
-    
+
+    private android.view.View findBackupButton(android.view.View view) {
+        if (view == null) return null;
+
+        // 1. Check by ID (most reliable)
+        try {
+            int id = view.getId();
+            if (id != android.view.View.NO_ID) {
+                String resName = view.getResources().getResourceEntryName(id);
+                if (resName != null && (
+                    resName.equals("backup_button") || 
+                    resName.equals("db_backup_button") || 
+                    resName.equals("google_drive_backup_now_btn")
+                )) {
+                    return view;
+                }
+            }
+        } catch (Throwable t) {
+            // Ignore resource errors
+        }
+
+        // 2. Check by Text (if TextView)
+        if (view instanceof android.widget.TextView) {
+            CharSequence textCs = ((android.widget.TextView) view).getText();
+            if (textCs != null) {
+                String text = textCs.toString().trim();
+                // Strict check for "Back up"
+                if (text.equalsIgnoreCase("Back up") || 
+                    text.equalsIgnoreCase("Back Up") || 
+                    text.equalsIgnoreCase("Backup") ||
+                    text.equalsIgnoreCase("Fazer backup") || 
+                    text.equalsIgnoreCase("Copia de seguridad")
+                    ) {
+                    
+                    // Case A: The TextView itself is the button
+                    if (view.isClickable()) {
+                         return view;
+                    }
+                    
+                    // Case B: The TextView is inside a button (e.g. WDSButton layout)
+                    // Check parent
+                    if (view.getParent() instanceof android.view.View) {
+                        android.view.View parent = (android.view.View) view.getParent();
+                        if (parent.isClickable() || parent.getClass().getName().contains("Button")) {
+                            return parent;
+                        }
+                    }
+                }
+            }
+        }
+        
+        // 3. Recursive search
+        if (view instanceof ViewGroup) {
+            ViewGroup vg = (ViewGroup) view;
+            for (int i = 0; i < vg.getChildCount(); i++) {
+                android.view.View found = findBackupButton(vg.getChildAt(i));
+                if (found != null) return found;
+            }
+        }
+        return null;
+    }
+
+    private android.view.View createRestoreButton(Activity activity) {
+        try {
+            Class<?> WDSButtonClass = XposedHelpers.findClass("com.whatsapp.ui.wds.components.button.WDSButton", classLoader);
+            Object wdsButton = XposedHelpers.newInstance(WDSButtonClass, activity, null);
+            XposedHelpers.callMethod(wdsButton, "setText", "Force Restore");
+            XposedHelpers.callMethod(wdsButton, "setOnClickListener", new android.view.View.OnClickListener() {
+                @Override
+                public void onClick(android.view.View v) {
+                    showWarningDialog(activity);
+                }
+            });
+            return (android.view.View) wdsButton;
+        } catch (Throwable t) {}
+        
+        android.widget.Button button = new android.widget.Button(activity);
+        button.setText("Force Restore");
+        button.setAllCaps(false);
+        button.setOnClickListener(v -> showWarningDialog(activity));
+        return button;
+    }
 }

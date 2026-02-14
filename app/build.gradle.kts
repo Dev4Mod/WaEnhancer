@@ -173,6 +173,7 @@ dependencies {
     implementation(libs.arscblamer)
     compileOnly(libs.lombok)
     annotationProcessor(libs.lombok)
+    implementation(libs.markwon.core)
 }
 
 configurations.all {

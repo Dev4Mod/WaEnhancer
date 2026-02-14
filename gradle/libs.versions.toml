@@ -13,7 +13,7 @@ colorpicker = "1.1.0"
 dexkit = "2.0.7"
 nav = "2.9.6"
 kotlin = "2.2.21"
-
+markwon = "4.6.2"
 
 [libraries]
 androidx-documentfile = { module = "androidx.documentfile:documentfile", version.ref = "documentfile" }
@@ -40,9 +40,9 @@ rikkax-material = { module = "dev.rikka.rikkax.material:material", version = "2.
 rikkax-material-preference = { module = "dev.rikka.rikkax.material:material-preference", version = "2.0.0" }
 rikkax-widget-borderview = { module = "dev.rikka.rikkax.widget:borderview", version = "1.1.0" }
 material = { module = "com.google.android.material:material", version = "1.13.0" }
+markwon-core = { module = "io.noties.markwon:core", version.ref = "markwon" }
 
 [plugins]
 androidApplication = { id = "com.android.application", version.ref = "agp" }
 materialthemebuilder = { id = "dev.rikka.tools.materialthemebuilder", version = "1.5.1" }
 kotlinAndroid = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
-
