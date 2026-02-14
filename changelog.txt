@@ -1,9 +1,5 @@
-[WHATSAPP]
-* Added support for WhatsApp 2.26.5.XX
+[NEW FEATURES]
+- Global Search: Added comprehensive search functionality across all app settings and features for easier navigation
 
 [FIXED]
-- Fixed media quality selector
-- Fixed issue when sending high-resolution videos
-- Fixed landscape video issue
-- Fixed profile picture download for old contacts
-- Fixed bug in Update Checker
+- Optimized Initial App Load: Improved app startup performance and reduced loading time
