@@ -3,6 +3,13 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <item
+        android:id="@+id/menu_search"
+        android:icon="@drawable/ic_search"
+        android:title="@string/search_features_title"
+        app:iconTint="@color/text_on_gradient"
+        app:showAsAction="always" />
+
+    <item
         android:id="@+id/batteryoptimization"
         android:icon="@drawable/ic_battery_optimization"
         android:title="@string/disable_battery_optimization"

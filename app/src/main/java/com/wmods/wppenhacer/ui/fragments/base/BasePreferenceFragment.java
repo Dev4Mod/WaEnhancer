@@ -196,4 +196,20 @@ public abstract class BasePreferenceFragment extends PreferenceFragmentCompat im
             actionBar.setDisplayHomeAsUpEnabled(enabled);
         }
     }
+    
+    /**
+     * Scroll to a specific preference by key.
+     * This is called when navigating from search results.
+     */
+    public void scrollToPreference(String preferenceKey) {
+        if (preferenceKey == null) return;
+        
+        // Small delay to ensure preference screen is fully loaded
+        getView().postDelayed(() -> {
+            var preference = findPreference(preferenceKey);
+            if (preference != null) {
+                scrollToPreference(preference);
+            }
+        }, 100);
+    }
 }

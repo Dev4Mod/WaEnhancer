@@ -21,6 +21,22 @@ public class GeneralFragment extends BaseFragment {
         if (savedInstanceState == null) {
             getChildFragmentManager().beginTransaction().add(R.id.frag_container, new GeneralPreferenceFragment()).commitNow();
         }
+        
+        // Handle scroll to preference from search
+        if (getActivity() != null && getActivity().getIntent() != null) {
+            String scrollToKey = getActivity().getIntent().getStringExtra("scroll_to_preference");
+            if (scrollToKey != null) {
+                getView().postDelayed(() -> {
+                    BasePreferenceFragment activeFragment = (BasePreferenceFragment) getChildFragmentManager().findFragmentById(R.id.frag_container);
+                    if (activeFragment != null) {
+                        activeFragment.scrollToPreference(scrollToKey);
+                    }
+                }, 300);
+                // Clear the intent extra
+                getActivity().getIntent().removeExtra("scroll_to_preference");
+            }
+        }
+        
         return root;
     }
 

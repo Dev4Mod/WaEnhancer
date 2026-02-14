@@ -455,4 +455,18 @@
     <string name="video_call_screen_rec">Record Video Calls (Screen)</string>
     <string name="video_call_screen_rec_locked">Coming soon!</string>
     <string name="coming_soon">Coming soon!</string>
+    <string name="recording_mode">Recording Mode</string>
+    <string name="recording_mode_sum">Select which calls to record</string>
+    <string name="recording_mode_all">Record All Calls</string>
+    <string name="recording_mode_unknown">Record Unknown Numbers Only</string>
+    <string name="recording_mode_include">Record Only Selected Contacts</string>
+    <string name="recording_mode_exclude">Record All Except Selected</string>
+    <string name="recording_included_contacts">Included Contacts</string>
+    <string name="recording_excluded_contacts">Excluded Contacts</string>
+    <!-- Search Feature Strings -->
+    <string name="search_features_title">Search Features</string>
+    <string name="search_features_hint">Search for any feature...</string>
+    <string name="search_no_results">No features found</string>
+    <string name="search_try_different_keywords">Try different keywords or browse categories</string>
+    <string name="search_start_typing">Start typing to search features</string>
 </resources>

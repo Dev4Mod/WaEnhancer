@@ -94,6 +94,9 @@ public class MainActivity extends BaseActivity {
         binding.viewPager.setCurrentItem(2, false);
         createMainDir();
         FilePicker.registerFilePicker(this);
+        
+        // Handle incoming navigation from search
+        handleIncomingIntent(getIntent());
     }
 
     private void createMainDir() {
@@ -103,6 +106,28 @@ public class MainActivity extends BaseActivity {
         }
     }
 
+    @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+        handleIncomingIntent(intent);
+    }
+    
+    private void handleIncomingIntent(Intent intent) {
+        if (intent == null) return;
+        
+        int fragmentPosition = intent.getIntExtra("navigate_to_fragment", -1);
+        String preferenceKey = intent.getStringExtra("scroll_to_preference");
+        String parentKey = intent.getStringExtra("parent_preference");
+        
+        if (fragmentPosition >= 0) {
+            // Navigate to the fragment
+            binding.viewPager.setCurrentItem(fragmentPosition, true);
+            
+            // TODO: Scroll to preference will be handled by fragments
+            // For now, just navigate to the fragment
+        }
+    }
+    
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
@@ -124,7 +149,12 @@ public class MainActivity extends BaseActivity {
     @SuppressLint("BatteryLife")
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
-        if (item.getItemId() == R.id.menu_about) {
+        if (item.getItemId() == R.id.menu_search) {
+            var options = ActivityOptionsCompat.makeCustomAnimation(
+                    this, R.anim.slide_in_right, R.anim.slide_out_left);
+            startActivity(new Intent(this, SearchActivity.class), options.toBundle());
+            return true;
+        } else if (item.getItemId() == R.id.menu_about) {
             var options = ActivityOptionsCompat.makeCustomAnimation(
                     this, R.anim.slide_in_right, R.anim.slide_out_left);
             startActivity(new Intent(this, AboutActivity.class), options.toBundle());
