@@ -3,6 +3,7 @@
 * Added Monet colors for WhatsApp
 * Added Call Recording feature (Voice/Video as Audio)
 * [EXPERIMENTAL] Use "Force Restore Backup" option in Chat Backup settings to restore backups after login.
+* Global Search: Added comprehensive search functionality across all app settings and features.
 
 [Fixed]
 * Fixed compatibility with version 2.26.6.XX
@@ -14,3 +15,4 @@
 * Fixed landscape video issue
 * Fixed profile picture download for old contacts
 * Fixed bug in Update Checker
+* Optimized initial app load
