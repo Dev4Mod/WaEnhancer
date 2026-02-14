@@ -9,4 +9,8 @@
 * Fixed high-quality profile picture download
 * Fixed bug in IGStatus where dragging would case the user to switch tabs.
 * Fixed OriginFMessageField not found error
-* Added support for version 2.25.37.XX
+* Fixed media quality selector
+* Fixed issue when sending high-resolution videos
+* Fixed landscape video issue
+* Fixed profile picture download for old contacts
+* Fixed bug in Update Checker

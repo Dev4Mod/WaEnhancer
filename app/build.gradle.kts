@@ -1,6 +1,8 @@
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
 import java.util.Locale
+import java.util.Properties
+import java.io.FileInputStream
 
 plugins {
     alias(libs.plugins.androidApplication)
@@ -50,12 +52,23 @@ android {
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
         signingConfigs.create("config") {
+            val keystorePropertiesFile = rootProject.file("local.properties")
+            val keystoreProperties = Properties()
+            if (keystorePropertiesFile.exists()) {
+                keystoreProperties.load(FileInputStream(keystorePropertiesFile))
+            }
+
             val androidStoreFile = project.findProperty("androidStoreFile") as String?
+                ?: keystoreProperties.getProperty("androidStoreFile")
+
             if (!androidStoreFile.isNullOrEmpty()) {
                 storeFile = rootProject.file(androidStoreFile)
-                storePassword = project.property("androidStorePassword") as String
-                keyAlias = project.property("androidKeyAlias") as String
-                keyPassword = project.property("androidKeyPassword") as String
+                storePassword = project.findProperty("androidStorePassword") as String?
+                    ?: keystoreProperties.getProperty("androidStorePassword")
+                keyAlias = project.findProperty("androidKeyAlias") as String?
+                    ?: keystoreProperties.getProperty("androidKeyAlias")
+                keyPassword = project.findProperty("androidKeyPassword") as String?
+                    ?: keystoreProperties.getProperty("androidKeyPassword")
             }
         }
 
