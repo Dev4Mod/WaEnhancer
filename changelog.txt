@@ -1,3 +1,8 @@
-[FIXED]
-* Fixed bug when sending high-resolution videos
-* Fixed bug in Update Checker
+[WhatsApp]
+* Added support do Whatsapp 2.26.5.XX
+
+[Fixed]
+- Fixed media quality selector
+- Fixed issue when sending high-resolution videos
+- Fixed landscape video issue
+- Fixed profile picture download for old contacts
