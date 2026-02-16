@@ -436,6 +436,15 @@
     <string name="disable_status_in_the_profile_photo">Disable Status in the profile photo</string>
     <string name="disable_status_in_the_profile_photo_sum">Disables the circle that appears in the profile photo of each contact when there is new status</string>
     <string name="download_not_available">Download not available or media has not been fully downloaded</string>
+    <string name="call_recording_title">Call Recording</string>
+    <string name="call_recording_enable">Enable Call Recording</string>
+    <string name="call_recording_enable_sum">Record incoming and outgoing calls (Voice &amp; Video) as audio.</string>
+    <string name="call_recording_path">Recordings Output Folder</string>
+    <string name="call_recording_toast_title">Show Recording Toasts</string>
+    <string name="call_recording_toast_summary">Display toast notifications when recording starts and stops</string>
+    <string name="video_call_screen_rec">Record Video Calls (Screen)</string>
+    <string name="video_call_screen_rec_locked">Coming soon!</string>
+    <string name="coming_soon">Coming soon!</string>
     <string name="possible_block_detected">Possible block detected</string>
     <string name="block_not_detected">Block not detected</string>
     <string name="checking_if_the_contact_is_blocked">Checking if the contact is blocked...</string>
