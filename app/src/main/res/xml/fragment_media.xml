@@ -82,7 +82,7 @@
             app:title="@string/call_recording_path" />
 
         <rikka.material.preference.MaterialSwitchPreference
-            android:defaultValue="true"
+            android:defaultValue="false"
             app:dependency="call_recording_enable"
             app:key="call_recording_toast"
             app:summary="@string/call_recording_toast_summary"

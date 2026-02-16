@@ -426,6 +426,8 @@
     <string name="call_recording_enable">Enable Call Recording</string>
     <string name="call_recording_enable_sum">Record incoming and outgoing calls (Voice &amp; Video) as audio.</string>
     <string name="call_recording_path">Recordings Output Folder</string>
+    <string name="call_recording_toast_title">Show Recording Toasts</string>
+    <string name="call_recording_toast_summary">Display toast notifications when recording starts and stops</string>
     <string name="video_call_screen_rec">Record Video Calls (Screen)</string>
     <string name="video_call_screen_rec_locked">Upcoming feature! Requires 1k+ followers on GitHub (@mubashardev).</string>
     <string name="possible_block_detected">Possible block detected</string>

@@ -1,5 +1,3 @@
 [NEW FEATURES]
 - Global Search: Added comprehensive search functionality across all app settings and features for easier navigation
-
-[FIXED]
-- Optimized Initial App Load: Improved app startup performance and reduced loading time
+- Call Recording Toast Toggle: Added option to show/hide recording toast notifications (default: off)

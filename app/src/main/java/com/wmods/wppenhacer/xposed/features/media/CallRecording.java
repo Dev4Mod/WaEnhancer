@@ -375,7 +375,7 @@ public class CallRecording extends Feature {
             }, "WaEnhancer-RecordingThread");
             recordingThread.start();
             
-            if (prefs.getBoolean("call_recording_toast", true)) {
+            if (prefs.getBoolean("call_recording_toast", false)) {
                 Utils.showToast("Recording started", android.widget.Toast.LENGTH_SHORT);
             }
             
@@ -409,7 +409,7 @@ public class CallRecording extends Feature {
             
             XposedBridge.log("WaEnhancer: Recording stopped, size: " + payloadSize);
             
-            if (prefs.getBoolean("call_recording_toast", true)) {
+            if (prefs.getBoolean("call_recording_toast", false)) {
                 Utils.showToast(payloadSize > 1000 ? "Recording saved!" : "Recording failed", android.widget.Toast.LENGTH_SHORT);
             }
             
