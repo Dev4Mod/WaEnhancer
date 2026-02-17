@@ -476,4 +476,8 @@
     <string name="search_no_results">No features found</string>
     <string name="search_try_different_keywords">Try different keywords or browse categories</string>
     <string name="search_start_typing">Start typing to search features</string>
+    <string name="no_deleted_messages">No deleted messages found</string>
+    <string name="deleted_messages_title">Deleted Messages</string>
+    <string name="restore_message">Restore</string>
+    <string name="deleted_messages_sum">View messages deleted by others</string>
 </resources>

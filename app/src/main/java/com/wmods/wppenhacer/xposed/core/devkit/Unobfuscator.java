@@ -907,7 +907,8 @@ public class Unobfuscator {
     public synchronized static Class<?> loadSettingsGoogleDriveActivity(ClassLoader loader) throws Exception {
         return UnobfuscatorCache.getInstance().getClass(loader, () -> {
             var cls = findFirstClassUsingStrings(loader, StringMatchType.Contains, "SettingsGoogleDrive");
-            if (cls == null) throw new Exception("SettingsGoogleDriveActivity not found");
+            if (cls == null)
+                throw new Exception("SettingsGoogleDriveActivity not found");
             return cls;
         });
     }
@@ -915,10 +916,12 @@ public class Unobfuscator {
     public synchronized static Class<?> loadRestoreBackupActivity(ClassLoader loader) throws Exception {
         return UnobfuscatorCache.getInstance().getClass(loader, () -> {
             // Try specific log strings or unique strings used in the activity
-            var strings = new String[]{"RestoreFromBackupActivity", "gdrive/restore/activity", "gdrive_restore_title"};
+            var strings = new String[] { "RestoreFromBackupActivity", "gdrive/restore/activity",
+                    "gdrive_restore_title" };
             for (String s : strings) {
                 var cls = findFirstClassUsingStrings(loader, StringMatchType.Contains, s);
-                if (cls != null) return cls;
+                if (cls != null)
+                    return cls;
             }
             throw new Exception("RestoreBackupActivity not found");
         });
@@ -1365,14 +1368,17 @@ public class Unobfuscator {
     /**
      * @noinspection DataFlowIssue
      */
+    /**
+     * @noinspection DataFlowIssue
+     */
     public synchronized static Field loadSetEditMessageField(ClassLoader loader) throws Exception {
         return UnobfuscatorCache.getInstance().getField(loader, () -> {
+            var classData = dexkit.getClassData(loadCoreMessageStore(loader));
             var method = findFirstMethodUsingStrings(loader, StringMatchType.Contains,
                     "CoreMessageStore/updateCheckoutMessageWithTransactionInfo");
             if (method == null)
                 method = findFirstMethodUsingStrings(loader, StringMatchType.Contains,
                         "UPDATE_MESSAGE_ADD_ON_FLAGS_MAIN_SQL");
-            var classData = dexkit.getClassData(loadFMessageClass(loader));
             var methodData = dexkit.getMethodData(DexSignUtil.getMethodDescriptor(method));
             var usingFields = methodData.getUsingFields();
             for (var f : usingFields) {
@@ -1383,6 +1389,19 @@ public class Unobfuscator {
                 }
             }
             throw new RuntimeException("SetEditMessage method not found");
+        });
+    }
+
+    public synchronized static Class<?> loadCoreMessageStore(ClassLoader loader) throws Exception {
+        return UnobfuscatorCache.getInstance().getClass(loader, () -> {
+            var clazz = findFirstClassUsingStrings(loader, StringMatchType.Contains,
+                    "CoreMessageStore/updateCheckoutMessageWithTransactionInfo");
+            if (clazz == null)
+                clazz = findFirstClassUsingStrings(loader, StringMatchType.Contains,
+                        "UPDATE_MESSAGE_ADD_ON_FLAGS_MAIN_SQL");
+            if (clazz == null)
+                throw new Exception("CoreMessageStore class not found");
+            return clazz;
         });
     }
 

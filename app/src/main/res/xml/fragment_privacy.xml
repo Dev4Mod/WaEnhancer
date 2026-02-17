@@ -41,6 +41,11 @@
         app:iconSpaceReserved="false"
         app:title="@string/conversation">
 
+        <Preference
+            app:key="open_deleted_messages"
+            app:title="@string/deleted_messages_title"
+            app:summary="@string/deleted_messages_sum" />
+
         <ListPreference
             app:defaultValue="0"
             app:entries="@array/custom_privacy_entries"
