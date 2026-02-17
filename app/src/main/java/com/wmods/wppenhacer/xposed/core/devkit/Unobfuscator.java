@@ -1199,12 +1199,16 @@ public class Unobfuscator {
     /**
      * @noinspection DataFlowIssue
      */
+    /**
+     * @noinspection DataFlowIssue
+     */
     public synchronized static Field loadSetEditMessageField(ClassLoader loader) throws Exception {
         return UnobfuscatorCache.getInstance().getField(loader, () -> {
+            var classData = dexkit.getClassData(loadCoreMessageStore(loader));
             var method = findFirstMethodUsingStrings(loader, StringMatchType.Contains, "CoreMessageStore/updateCheckoutMessageWithTransactionInfo");
             if (method == null)
-                method = findFirstMethodUsingStrings(loader, StringMatchType.Contains, "UPDATE_MESSAGE_ADD_ON_FLAGS_MAIN_SQL");
-            var classData = dexkit.getClassData(loadFMessageClass(loader));
+                 method = findFirstMethodUsingStrings(loader, StringMatchType.Contains, "UPDATE_MESSAGE_ADD_ON_FLAGS_MAIN_SQL");
+            
             var methodData = dexkit.getMethodData(DexSignUtil.getMethodDescriptor(method));
             var usingFields = methodData.getUsingFields();
             for (var f : usingFields) {
@@ -1214,6 +1218,16 @@ public class Unobfuscator {
                 }
             }
             throw new RuntimeException("SetEditMessage method not found");
+        });
+    }
+
+    public synchronized static Class<?> loadCoreMessageStore(ClassLoader loader) throws Exception {
+        return UnobfuscatorCache.getInstance().getClass(loader, () -> {
+            var clazz = findFirstClassUsingStrings(loader, StringMatchType.Contains, "CoreMessageStore/updateCheckoutMessageWithTransactionInfo");
+            if (clazz == null)
+                clazz = findFirstClassUsingStrings(loader, StringMatchType.Contains, "UPDATE_MESSAGE_ADD_ON_FLAGS_MAIN_SQL");
+            if (clazz == null) throw new Exception("CoreMessageStore class not found");
+            return clazz;
         });
     }
 

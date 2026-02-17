@@ -43,6 +43,7 @@ import com.wmods.wppenhacer.xposed.features.general.CallType;
 import com.wmods.wppenhacer.xposed.features.general.ChatLimit;
 import com.wmods.wppenhacer.xposed.features.general.DeleteStatus;
 import com.wmods.wppenhacer.xposed.features.general.LiteMode;
+import com.wmods.wppenhacer.xposed.features.general.RecoverDeleteForMe;
 import com.wmods.wppenhacer.xposed.features.general.NewChat;
 import com.wmods.wppenhacer.xposed.features.general.Others;
 import com.wmods.wppenhacer.xposed.features.general.PinnedLimit;
@@ -72,6 +73,7 @@ import com.wmods.wppenhacer.xposed.features.others.MenuHome;
 import com.wmods.wppenhacer.xposed.features.others.Stickers;
 import com.wmods.wppenhacer.xposed.features.others.TextStatusComposer;
 import com.wmods.wppenhacer.xposed.features.others.ToastViewer;
+import com.wmods.wppenhacer.xposed.features.others.Spy;
 import com.wmods.wppenhacer.xposed.features.privacy.AntiWa;
 import com.wmods.wppenhacer.xposed.features.privacy.CallPrivacy;
 import com.wmods.wppenhacer.xposed.features.privacy.CustomPrivacy;
@@ -368,7 +370,9 @@ public class FeatureLoader {
                 ContactBlockedVerify.class,
                 LockedChatsEnhancer.class,
                 CallRecording.class,
-                BackupRestore.class
+                BackupRestore.class,
+                Spy.class,
+                RecoverDeleteForMe.class
         };
         XposedBridge.log("Loading Plugins");
         var executorService = Executors.newWorkStealingPool(Math.min(Runtime.getRuntime().availableProcessors(), 4));

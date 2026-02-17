@@ -94,6 +94,16 @@
             android:windowSoftInputMode="adjustResize" />
 
         <activity
+            android:name=".activities.DeletedMessagesActivity"
+            android:theme="@style/AppTheme"
+            android:parentActivityName=".activities.MainActivity" />
+
+        <activity
+            android:name=".activities.MessageListActivity"
+            android:theme="@style/AppTheme"
+            android:parentActivityName=".activities.DeletedMessagesActivity" />
+
+        <activity
             android:name=".activities.ForceStartActivity"
             android:excludeFromRecents="true"
             android:exported="true"
