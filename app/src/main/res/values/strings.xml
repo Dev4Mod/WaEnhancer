@@ -32,6 +32,9 @@
     <string name="videoquality_sum">Send videos in HD quality, by default</string>
     <string name="colors_customization">Customize your colors</string>
     <string name="colors_customization_sum">Change all colors in your WhatsApp (Working only in Dark Theme)</string>
+    <string name="changecolor_mode">Color source</string>
+    <string name="changecolor_mode_manual">Color picker</string>
+    <string name="changecolor_mode_monet">Automatic (Monet, Android 12+)</string>
     <string name="general">General</string>
     <string name="restart_whatsapp">Restart WhatsApp</string>
     <string name="conversation">Conversation Screen</string>

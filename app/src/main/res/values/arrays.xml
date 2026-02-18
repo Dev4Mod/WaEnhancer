@@ -70,6 +70,14 @@
         <item>1</item>
         <item>2</item>
     </string-array>
+    <string-array name="changecolor_mode_entries">
+        <item>@string/changecolor_mode_manual</item>
+        <item>@string/changecolor_mode_monet</item>
+    </string-array>
+    <string-array name="changecolor_mode_values">
+        <item>manual</item>
+        <item>monet</item>
+    </string-array>
     <string-array name="wae_color_mode_entries">
         <item>@string/wae_color_mode_preset</item>
         <item>@string/wae_color_mode_auto_monet</item>

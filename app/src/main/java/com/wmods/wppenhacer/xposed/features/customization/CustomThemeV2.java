@@ -13,8 +13,10 @@ import android.app.Activity;
 import android.content.pm.PackageManager;
 import android.content.res.AssetManager;
 import android.content.res.ColorStateList;
+import android.content.res.Resources;
 import android.graphics.Paint;
 import android.graphics.drawable.Drawable;
+import android.os.Build;
 import android.os.Bundle;
 import android.util.TypedValue;
 import android.view.View;
@@ -285,12 +287,25 @@ public class CustomThemeV2 extends Feature {
         var primaryColorInt = prefs.getInt("primary_color", 0);
         var textColorInt = prefs.getInt("text_color", 0);
         var backgroundColorInt = prefs.getInt("background_color", 0);
+        var changeColorEnabled = prefs.getBoolean("changecolor", false);
+        var changeColorMode = prefs.getString("changecolor_mode", "manual");
+        var useMonetColors = changeColorEnabled && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S && Objects.equals(changeColorMode, "monet");
+
+        if (useMonetColors) {
+            var primaryMonetColor = resolveMonetColor(DesignUtils.isNightMode() ? "system_accent1_300" : "system_accent1_600");
+            var textMonetColor = resolveMonetColor(DesignUtils.isNightMode() ? "system_neutral1_100" : "system_neutral1_900");
+            var backgroundMonetColor = resolveMonetColor(DesignUtils.isNightMode() ? "system_neutral1_900" : "system_neutral1_10");
+
+            if (primaryMonetColor != 0) primaryColorInt = primaryMonetColor;
+            if (textMonetColor != 0) textColorInt = textMonetColor;
+            if (backgroundMonetColor != 0) backgroundColorInt = backgroundMonetColor;
+        }
 
         var primaryColor = DesignUtils.checkSystemColor(properties.getProperty("primary_color", "0"));
         var textColor = DesignUtils.checkSystemColor(properties.getProperty("text_color", "0"));
         var backgroundColor = DesignUtils.checkSystemColor(properties.getProperty("background_color", "0"));
 
-        if (prefs.getBoolean("changecolor", false)) {
+        if (changeColorEnabled) {
             primaryColor = primaryColorInt == 0 ? "0" : IColors.toString(primaryColorInt);
             textColor = textColorInt == 0 ? "0" : IColors.toString(textColorInt);
             backgroundColor = backgroundColorInt == 0 ? "0" : IColors.toString(backgroundColorInt);
@@ -302,7 +317,7 @@ public class CustomThemeV2 extends Feature {
             backgroundColors.clear();
         }
 
-        if (prefs.getBoolean("changecolor", false) || Objects.equals(properties.getProperty("change_colors"), "true")) {
+        if (changeColorEnabled || Objects.equals(properties.getProperty("change_colors"), "true")) {
 
             if (!primaryColor.equals("0") && DesignUtils.isValidColor(primaryColor)) {
                 processColors(primaryColor, primaryColors);
@@ -344,6 +359,25 @@ public class CustomThemeV2 extends Feature {
             backgroundColors.put("ffffff", "ffffff");
         }
 
+    }
+
+    private int resolveMonetColor(String resourceName) {
+        var colorRes = Resources.getSystem().getIdentifier(resourceName, "color", "android");
+        if (colorRes == 0) {
+            try {
+                colorRes = android.R.color.class.getField(resourceName).getInt(null);
+            } catch (Throwable ignored) {
+                return 0;
+            }
+        }
+        if (colorRes == 0) {
+            return 0;
+        }
+        try {
+            return ContextCompat.getColor(Utils.getApplication(), colorRes);
+        } catch (Throwable ignored) {
+            return 0;
+        }
     }
 
     private void replaceTransparency(HashMap<String, String> wallpaperColors, float mAlpha) {
