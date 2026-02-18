@@ -104,6 +104,7 @@ public class DeletedMessagesFragment extends Fragment implements DeletedMessages
             if (adapter != null)
                 adapter.notifyDataSetChanged();
         }
+        loadMessages();
     }
 
     private void loadMessages() {
