@@ -5,6 +5,7 @@
 * Call Recording Toast Toggle: Added option to show/hide recording toast notifications (default: off)
 * [EXPERIMENTAL] Use "Force Restore Backup" option in Chat Backup settings to restore backups after login.
 * Global Search: Added comprehensive search functionality across all app settings and features.
+* Recover deleted for me message: Added option to recover deleted for me messages.
 
 [Fixed]
 * Fixed compatibility with version 2.26.6.XX

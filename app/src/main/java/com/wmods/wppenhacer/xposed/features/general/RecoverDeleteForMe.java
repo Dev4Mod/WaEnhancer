@@ -312,7 +312,8 @@ public class RecoverDeleteForMe extends Feature {
             values.put("contact_name", message.getContactName());
             values.put("package_name", message.getPackageName());
 
-            android.net.Uri uri = android.net.Uri.parse("content://com.wmods.wppenhacer.provider/deleted_messages");
+            String authority = com.wmods.wppenhacer.BuildConfig.APPLICATION_ID + ".provider";
+            android.net.Uri uri = android.net.Uri.parse("content://" + authority + "/deleted_messages");
             context.getContentResolver().insert(uri, values);
             XposedBridge.log("WAE: RecoverDeleteForMe saved via Provider: id=" + message.getKeyId() + " text="
                     + message.getTextContent());
