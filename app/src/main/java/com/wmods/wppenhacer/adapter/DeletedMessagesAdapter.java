@@ -141,34 +141,37 @@ public class DeletedMessagesAdapter extends RecyclerView.Adapter<DeletedMessages
         // Avatar (Placeholder)
         // Holder.avatar.setImageDrawable(...)
 
-        // App Badge Logic (New: Fetch Exact Icon)
+        // Avatar (Now App Icon) & App Badge Logic
         String pkg = message.getPackageName();
         if (pkg != null) {
-            holder.appBadge.setVisibility(View.VISIBLE);
+            // Hide the small badge
+            holder.appBadge.setVisibility(View.GONE);
+
+            // Clear any tint on the avatar (xml has tint)
+            holder.avatar.setImageTintList(null);
 
             // Try to load from cache first
             if (iconCache.containsKey(pkg)) {
-                holder.appBadge.setImageDrawable(iconCache.get(pkg));
+                holder.avatar.setImageDrawable(iconCache.get(pkg));
             } else {
                 try {
                     android.content.pm.PackageManager pm = holder.itemView.getContext().getPackageManager();
                     android.graphics.drawable.Drawable icon = pm.getApplicationIcon(pkg);
                     if (icon != null) {
                         iconCache.put(pkg, icon);
-                        holder.appBadge.setImageDrawable(icon);
+                        holder.avatar.setImageDrawable(icon);
                     } else {
-                        // Fallback if icon is null (rare)
-                        holder.appBadge.setVisibility(View.GONE);
+                        // Fallback
+                        holder.avatar.setImageResource(R.drawable.ic_person);
                     }
                 } catch (android.content.pm.PackageManager.NameNotFoundException e) {
                     // App not installed or invalid package name
-                    holder.appBadge.setVisibility(View.GONE);
+                    holder.avatar.setImageResource(R.drawable.ic_person);
                 }
             }
-            // Remove any tint since we want original colors
-            holder.appBadge.setImageTintList(null);
-
         } else {
+            // Fallback if no package name (shouldn't happen for new msgs)
+            holder.avatar.setImageResource(R.drawable.ic_person);
             holder.appBadge.setVisibility(View.GONE);
         }
 
