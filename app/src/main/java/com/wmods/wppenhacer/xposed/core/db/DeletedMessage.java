@@ -12,8 +12,14 @@ public class DeletedMessage {
     private String textContent;
     private String mediaPath;
     private String mediaCaption;
+    private boolean isFromMe;
+    private String contactName;
 
-    public DeletedMessage(long id, String keyId, String chatJid, String senderJid, long timestamp, int mediaType, String textContent, String mediaPath, String mediaCaption) {
+    public DeletedMessage(long id, String keyId, String chatJid, String senderJid, long timestamp, int mediaType, String textContent, String mediaPath, String mediaCaption, boolean isFromMe) {
+        this(id, keyId, chatJid, senderJid, timestamp, mediaType, textContent, mediaPath, mediaCaption, isFromMe, null);
+    }
+
+    public DeletedMessage(long id, String keyId, String chatJid, String senderJid, long timestamp, int mediaType, String textContent, String mediaPath, String mediaCaption, boolean isFromMe, String contactName) {
         this.id = id;
         this.keyId = keyId;
         this.chatJid = chatJid;
@@ -23,6 +29,8 @@ public class DeletedMessage {
         this.textContent = textContent;
         this.mediaPath = mediaPath;
         this.mediaCaption = mediaCaption;
+        this.isFromMe = isFromMe;
+        this.contactName = contactName;
     }
 
     public DeletedMessage() {
@@ -100,6 +108,22 @@ public class DeletedMessage {
         this.mediaCaption = mediaCaption;
     }
 
+    public boolean isFromMe() {
+        return isFromMe;
+    }
+
+    public void setFromMe(boolean fromMe) {
+        isFromMe = fromMe;
+    }
+
+    public String getContactName() {
+        return contactName;
+    }
+
+    public void setContactName(String contactName) {
+        this.contactName = contactName;
+    }
+
     @NonNull
     @Override
     public String toString() {
@@ -113,6 +137,8 @@ public class DeletedMessage {
                 ", textContent='" + textContent + '\'' +
                 ", mediaPath='" + mediaPath + '\'' +
                 ", mediaCaption='" + mediaCaption + '\'' +
+                ", isFromMe=" + isFromMe +
+                ", contactName='" + contactName + '\'' +
                 '}';
     }
 }

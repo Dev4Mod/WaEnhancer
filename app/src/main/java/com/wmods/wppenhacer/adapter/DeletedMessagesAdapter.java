@@ -5,6 +5,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.content.Context;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
@@ -24,6 +25,7 @@ public class DeletedMessagesAdapter extends RecyclerView.Adapter<DeletedMessages
 
     public interface OnItemClickListener {
         void onItemClick(DeletedMessage message);
+        void onRestoreClick(DeletedMessage message);
     }
 
     public DeletedMessagesAdapter(OnItemClickListener listener) {
@@ -38,7 +40,7 @@ public class DeletedMessagesAdapter extends RecyclerView.Adapter<DeletedMessages
     @NonNull
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_deleted_message_contact, parent, false);
+        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_contact_row, parent, false);
         return new ViewHolder(view);
     }
 
@@ -47,26 +49,57 @@ public class DeletedMessagesAdapter extends RecyclerView.Adapter<DeletedMessages
         DeletedMessage message = messages.get(position);
 
         // Contact Name
-        String contactName = WppCore.getContactName(new com.wmods.wppenhacer.xposed.core.components.FMessageWpp.UserJid(message.getChatJid()));
-        holder.contactName.setText(contactName != null ? contactName : message.getChatJid());
+        Context context = holder.itemView.getContext();
+        String displayJid = message.getChatJid();
+        
+        // Priority 1: Use Persisted Contact Name (from DB)
+        String contactName = message.getContactName();
+        
+        // Priority 2: Runtime Lookup (if not in DB or changed)
+        if (contactName == null && displayJid != null) {
+             contactName = com.wmods.wppenhacer.utils.ContactHelper.getContactName(context, displayJid);
+        }
+
+        String displayText;
+        if (contactName != null) {
+            displayText = contactName;
+        } else {
+            // Fallback to formatted JID
+            displayText = displayJid;
+            if (displayText != null) {
+                displayText = displayText.replace("@s.whatsapp.net", "").replace("@g.us", "");
+                if (displayText.contains("@")) displayText = displayText.split("@")[0];
+            } else {
+                displayText = "Unknown";
+            }
+        }
+        
+        holder.contactName.setText(displayText);
 
         // Timestamp
         holder.timestamp.setText(Utils.getDateTimeFromMillis(message.getTimestamp()));
 
-        // Last Message Content
-        String content = message.getTextContent();
-        if (content == null || content.isEmpty()) {
+        // Message Preview
+        String text = message.getTextContent();
+        String senderPrefix = "";
+        if (message.isFromMe()) {
+            senderPrefix = "You: ";
+        }
+        
+        if (text == null || text.isEmpty()) {
             if (message.getMediaType() != -1) {
-                content = "Media (" + message.getMediaType() + ")";
-                if (message.getMediaCaption() != null && !message.getMediaCaption().isEmpty()) {
-                     content += ": " + message.getMediaCaption();
-                }
+                text = "📷 Photo"; 
+                if (message.getMediaType() == 2) text = "🔊 Audio";
+                if (message.getMediaType() == 3) text = "🎥 Video";
             } else {
-                content = "Deleted Message";
+                text = "Message deleted";
             }
         }
-        holder.lastMessage.setText(content);
+        holder.lastMessage.setText(senderPrefix + text);
 
+        // Avatar (Placeholder)
+        // Holder.avatar.setImageDrawable(...)
+        
         holder.itemView.setOnClickListener(v -> listener.onItemClick(message));
     }
 
@@ -76,17 +109,17 @@ public class DeletedMessagesAdapter extends RecyclerView.Adapter<DeletedMessages
     }
 
     static class ViewHolder extends RecyclerView.ViewHolder {
+        ImageView avatar;
         TextView contactName;
-        TextView timestamp;
+        TextView timestamp; // Date
         TextView lastMessage;
-        ImageView icon;
 
         ViewHolder(View itemView) {
             super(itemView);
+            avatar = itemView.findViewById(R.id.avatar);
             contactName = itemView.findViewById(R.id.contact_name);
             timestamp = itemView.findViewById(R.id.timestamp);
             lastMessage = itemView.findViewById(R.id.last_message);
-            icon = itemView.findViewById(R.id.icon);
         }
     }
 }

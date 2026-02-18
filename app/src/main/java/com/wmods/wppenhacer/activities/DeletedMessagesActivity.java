@@ -24,10 +24,27 @@ public class DeletedMessagesActivity extends BaseActivity {
         }
 
         if (savedInstanceState == null) {
-            getSupportFragmentManager().beginTransaction()
-                    .replace(R.id.fragment_container, new DeletedMessagesFragment())
-                    .commit();
+            setupViewPager();
         }
+    }
+
+    private void setupViewPager() {
+        binding.viewPager.setAdapter(new androidx.viewpager2.adapter.FragmentStateAdapter(this) {
+            @androidx.annotation.NonNull
+            @Override
+            public androidx.fragment.app.Fragment createFragment(int position) {
+                return DeletedMessagesFragment.newInstance(position == 1); // 0 = Individual, 1 = Group
+            }
+
+            @Override
+            public int getItemCount() {
+                return 2;
+            }
+        });
+
+        new com.google.android.material.tabs.TabLayoutMediator(binding.tabLayout, binding.viewPager, (tab, position) -> {
+            tab.setText(position == 0 ? "Individuals" : "Groups");
+        }).attach();
     }
 
     @Override

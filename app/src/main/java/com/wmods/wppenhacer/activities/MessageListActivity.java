@@ -39,7 +39,11 @@ public class MessageListActivity extends BaseActivity implements MessageListAdap
         setSupportActionBar(binding.toolbar);
         if (getSupportActionBar() != null) {
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-            String title = WppCore.stripJID(chatJid);
+            String title = chatJid;
+            if (title != null) {
+                 title = title.replace("@s.whatsapp.net", "").replace("@g.us", "");
+                 if (title.contains("@")) title = title.split("@")[0];
+            }
             getSupportActionBar().setTitle(title);
         }
 
@@ -79,6 +83,6 @@ public class MessageListActivity extends BaseActivity implements MessageListAdap
 
     @Override
     public void onRestoreClick(DeletedMessage message) {
-        com.wmods.wppenhacer.xposed.features.general.RecoverDeleteForMe.restoreMessage(this, message);
+        Toast.makeText(this, "Restore feature coming soon!", Toast.LENGTH_SHORT).show();
     }
 }

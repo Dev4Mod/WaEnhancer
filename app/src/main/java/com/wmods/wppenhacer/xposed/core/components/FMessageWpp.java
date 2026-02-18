@@ -43,10 +43,8 @@ public class FMessageWpp {
 
     public FMessageWpp(Object fMessage) {
         if (fMessage == null) throw new RuntimeException("Object fMessage is null");
-        if (!FMessageWpp.TYPE.isInstance(fMessage)) {
-            XposedBridge.log("WAE: Warning - Object fMessage is not a FMessage Instance (Expected: " + FMessageWpp.TYPE.getName() + ", Actual: " + fMessage.getClass().getName() + ")");
-            // throw new RuntimeException("Object fMessage is not a FMessage Instance");
-        }
+        if (!FMessageWpp.TYPE.isInstance(fMessage))
+            throw new RuntimeException("Object fMessage is not a FMessage Instance");
         this.fmessage = fMessage;
     }
 
@@ -198,6 +196,7 @@ public class FMessageWpp {
      */
     public int getMediaType() {
         try {
+            if (mediaTypeField == null) return -1;
             return mediaTypeField.getInt(fmessage);
         } catch (Exception e) {
             XposedBridge.log(e);

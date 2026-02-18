@@ -11,6 +11,7 @@
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
     <uses-permission android:name="android.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS" />
     <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
+    <uses-permission android:name="android.permission.READ_CONTACTS" />
 
     <uses-permission
         android:name="android.permission.READ_EXTERNAL_STORAGE"
@@ -56,6 +57,11 @@
                 android:value="" />
         </service>
 
+
+        <provider
+            android:name=".provider.DeletedMessagesProvider"
+            android:authorities="com.wmods.wppenhacer.provider"
+            android:exported="true" />
 
         <activity
             android:name=".activities.MainActivity"
