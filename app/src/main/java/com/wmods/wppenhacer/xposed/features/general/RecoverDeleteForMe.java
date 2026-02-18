@@ -364,18 +364,45 @@ public class RecoverDeleteForMe extends Feature {
                          // Check this object for a "name" or "subject" string
                          String possibleName = getPrivString(fieldVal, "name");
                          if (possibleName == null) possibleName = getPrivString(fieldVal, "subject");
-                         if (possibleName == null) possibleName = getPrivString(fieldVal, "A0X"); // Obfuscated name?
+                         if (possibleName == null) possibleName = getPrivString(fieldVal, "subjectRaw");
+                         if (possibleName == null) possibleName = getPrivString(fieldVal, "subject_raw");
+                         if (possibleName == null) possibleName = getPrivString(fieldVal, "displayName");
+                         if (possibleName == null) possibleName = getPrivString(fieldVal, "nickname");
+                         if (possibleName == null) possibleName = getPrivString(fieldVal, "verifiedName");
+                         if (possibleName == null) possibleName = getPrivString(fieldVal, "vName");
+                         if (possibleName == null) possibleName = getPrivString(fieldVal, "A0X"); 
                          if (possibleName == null) possibleName = getPrivString(fieldVal, "A0W"); 
+                         if (possibleName == null) possibleName = getPrivString(fieldVal, "A0V"); 
+                         if (possibleName == null) possibleName = getPrivString(fieldVal, "A0Z"); 
                          
+                         // Ultimate Fallback: If this object's class looks like a Contact/Chat, scan all string fields
+                         if (possibleName == null && (f.getType().getName().contains("Chat") || f.getType().getName().contains("Contact"))) {
+                              possibleName = findBestNamePattern(fieldVal);
+                         }
+
                          // Validation: Names usually don't have @ or are not JIDs
-                         if (possibleName != null && !possibleName.contains("@") && possibleName.length() > 0) {
-                             XposedBridge.log("WAE: Potentially found name via reflection: " + possibleName);
+                         if (possibleName != null && !possibleName.contains("@") && possibleName.length() > 0 && possibleName.length() < 100) {
+                             XposedBridge.log("WAE: Potentially found name via reflection: " + possibleName + " in field " + f.getName() + " of class " + fieldVal.getClass().getName());
                              return possibleName;
+                         }
+
+                         // Second level: Scan fields of THIS fieldVal
+                         if (f.getType().getName().startsWith("com.whatsapp")) {
+                             String subName = findLongestString(fieldVal);
+                             if (subName != null && !subName.contains("@") && subName.length() > 2 && subName.length() < 50) {
+                                 // Check if it's likely a name (no dots, no slashes)
+                                 if (!subName.contains(".") && !subName.contains("/") && !subName.contains(":")) {
+                                     XposedBridge.log("WAE: Found potential sub-name via findLongestString: " + subName);
+                                     return subName;
+                                 }
+                             }
                          }
                      }
                 }
                 msgClass = msgClass.getSuperclass();
             }
+            
+            XposedBridge.log("WAE: resolveWaContactName failed to find name via reflection for " + chatJid);
             
             // Strategy 2: If we failed to find it in msg, fall back to ContactsContract (for individuals)
             // But strict cleaning of JID
@@ -394,6 +421,29 @@ public class RecoverDeleteForMe extends Feature {
             Field f = findField(obj.getClass(), name);
             if (f != null) return (String) f.get(obj);
         } catch(Exception e) {}
+        return null;
+    }
+
+    private String findBestNamePattern(Object obj) {
+        if (obj == null) return null;
+        Class<?> cls = obj.getClass();
+        while (cls != null && cls != Object.class) {
+            for (Field f : cls.getDeclaredFields()) {
+                if (f.getType() == String.class) {
+                    f.setAccessible(true);
+                    try {
+                        String s = (String) f.get(obj);
+                        if (s != null && s.length() > 0 && s.length() < 50) {
+                            // Heuristic: Name usually doesn't have @, :, /, \ and is not a number
+                            if (!s.contains("@") && !s.contains("/") && !s.contains(":") && !s.matches("\\d+")) {
+                                 return s;
+                            }
+                        }
+                    } catch (Exception e) {}
+                }
+            }
+            cls = cls.getSuperclass();
+        }
         return null;
     }
 
