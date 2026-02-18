@@ -41,8 +41,9 @@ public class MessageListActivity extends BaseActivity implements MessageListAdap
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
             String title = chatJid;
             if (title != null) {
-                 title = title.replace("@s.whatsapp.net", "").replace("@g.us", "");
-                 if (title.contains("@")) title = title.split("@")[0];
+                title = title.replace("@s.whatsapp.net", "").replace("@g.us", "");
+                if (title.contains("@"))
+                    title = title.split("@")[0];
             }
             getSupportActionBar().setTitle(title);
         }
@@ -73,9 +74,31 @@ public class MessageListActivity extends BaseActivity implements MessageListAdap
     }
 
     @Override
+    protected void onResume() {
+        super.onResume();
+        loadMessages();
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(android.view.Menu menu) {
+        getMenuInflater().inflate(R.menu.menu_message_list, menu);
+        return true;
+    }
+
+    @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         if (item.getItemId() == android.R.id.home) {
             onBackPressed();
+            return true;
+        } else if (item.getItemId() == R.id.action_info) {
+            new androidx.appcompat.app.AlertDialog.Builder(this)
+                    .setTitle("Chat Info")
+                    .setMessage(
+                            "This identifier (JID) or number is shown because the contact name could not be resolved at the time of deletion.\n\n"
+                                    +
+                                    "This happens if the contact is not saved in your address book or if the name wasn't available in the database when the message was processed.")
+                    .setPositiveButton("OK", null)
+                    .show();
             return true;
         }
         return super.onOptionsItemSelected(item);
