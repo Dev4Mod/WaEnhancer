@@ -88,37 +88,28 @@ public class RecoverDeleteForMe extends Feature {
         if (msg == null) return;
         Class<?> msgClass = msg.getClass();
 
-        // 1. Find Key Field (Scan for first NON-NULL field of Key type)
+        // 1. Find Key Field
         Object key = null;
         if (FMessageWpp.Key.TYPE != null) {
             key = getFirstNonNullFieldByType(msg, FMessageWpp.Key.TYPE);
         }
-        
-        // Fallback: search by name "key" if type search failed or key type unknown
         if (key == null) {
             Field keyField = findField(msgClass, "key");
              if (keyField != null) key = keyField.get(msg);
         }
-
         if (key == null) return;
         
-        // 2. Extract Message ID
-        String msgId = getStr(key, "id");
-        if (msgId == null) msgId = getStr(key, "A01"); // Obfuscated ID
-        if (msgId == null) {
-             XposedBridge.log("WAE: msgId not found on Key " + key.getClass().getName());
-             return;
-        }
+        // 2. Extract Message ID (Key ID)
+        String keyId = getStr(key, "id");
+        if (keyId == null) keyId = getStr(key, "A01"); 
+        if (keyId == null) return;
 
         // 3. Extract RemoteJid / ChatJid
         String chatJid = null;
         Object jidObj = getObj(key, "remoteJid");
         if (jidObj == null) jidObj = getObj(key, "chatJid");
-        if (jidObj == null) jidObj = getObj(key, "A00"); // Obfuscated RemoteJid
-        
+        if (jidObj == null) jidObj = getObj(key, "A00"); 
         if (jidObj != null) chatJid = jidObj.toString();
-        
-        // Fix: Ensure JID isn't "false" or "true" due to bad reflection
         if (chatJid != null && (chatJid.equalsIgnoreCase("false") || chatJid.equalsIgnoreCase("true"))) {
             chatJid = null;
         }
@@ -127,20 +118,18 @@ public class RecoverDeleteForMe extends Feature {
         boolean fromMe = false;
         Field fmField = findField(key.getClass(), "fromMe");
         if (fmField == null) fmField = findField(key.getClass(), "isFromMe");
-        if (fmField == null) fmField = findField(key.getClass(), "A02"); // Obfuscated fromMe
-        
+        if (fmField == null) fmField = findField(key.getClass(), "A02");
         if (fmField != null) {
             Object v = fmField.get(key);
             if (v instanceof Boolean) fromMe = (Boolean) v;
         }
 
         // 5. Extract Text Body
-        String text = getStr(msg, "text");
-        if (text == null) text = getStr(msg, "body");
-        if (text == null) text = getStr(msg, "A0Q");
+        String textContent = getStr(msg, "text");
+        if (textContent == null) textContent = getStr(msg, "body");
+        if (textContent == null) textContent = getStr(msg, "A0Q");
         
-        // Scan for all strings to find the text
-        if (text == null) {
+        if (textContent == null) {
              String bestCandidate = null;
              Class<?> cls = msgClass;
              while (cls != null && cls != Object.class) {
@@ -159,9 +148,7 @@ public class RecoverDeleteForMe extends Feature {
                 }
                 cls = cls.getSuperclass();
             }
-            if (bestCandidate != null) {
-                text = bestCandidate;
-            }
+            if (bestCandidate != null) textContent = bestCandidate;
         }
 
         // 6. Media Type
@@ -171,12 +158,12 @@ public class RecoverDeleteForMe extends Feature {
         if (mtf != null) {
             try { mediaType = mtf.getInt(msg); } catch (Exception ignored) {}
         }
-
+        
+        // 7. Sender JID
         String senderJid = fromMe ? "Me" : chatJid;
         Object participant = getObj(msg, "participant");
         if (participant == null) participant = getObj(msg, "senderJid");
         if (participant == null) participant = getObj(msg, "A0b"); 
-        
         if (participant != null) {
              String val = participant.toString();
              if (!val.equalsIgnoreCase("false") && !val.equalsIgnoreCase("true")) {
@@ -184,65 +171,29 @@ public class RecoverDeleteForMe extends Feature {
              }
         }
 
-        // 5. Extract Text Content
-        String textContent = null;
-        if (msgObj != null) {
-            textContent = findLongestString(msgObj);
-        }
-
-        // 6. Extract Media (if any)
-        int mediaType = -1;
-        String mediaCaption = null;
+        // 8. Media Details
         String mediaPath = null;
-        
-        // Original media extraction logic
-        Field mtf = findField(msgClass, "mediaType");
-        if (mtf == null) mtf = findField(msgClass, "media_wa_type");
-        if (mtf != null) {
-            try { mediaType = mtf.getInt(msgObj); } catch (Exception ignored) {}
-        }
-
-        Object mf = getObj(msgObj, "mediaData");
-        if (mf == null) mf = getObj(msgObj, "mediaFile");
+        Object mf = getObj(msg, "mediaData");
+        if (mf == null) mf = getObj(msg, "mediaFile");
         if (mf instanceof File && ((File) mf).exists()) {
             mediaPath = ((File) mf).getAbsolutePath();
         }
 
-        String caption = getStr(msgObj, "caption");
-        if (caption == null) caption = getStr(msgObj, "mediaCaption");
-        if (caption == null) caption = getStr(msgObj, "A03"); 
-        mediaCaption = caption; // Assign to mediaCaption
+        String mediaCaption = getStr(msg, "caption");
+        if (mediaCaption == null) mediaCaption = getStr(msg, "mediaCaption");
+        if (mediaCaption == null) mediaCaption = getStr(msg, "A03"); 
 
-        long timestamp = System.currentTimeMillis(); // Assuming current time for deleted message
+        long timestamp = System.currentTimeMillis();
 
-        // --- NEW: Contact Name Resolution ---
+        // 9. Contact Name Resolution
         String contactName = null;
         try {
-            if (chatJid != null) {
-                if (chatJid.contains("@g.us")) {
-                    // Group Chat: Try to get Subject
-                    // We can try to find the "subject" or "name" field in the chat object if available, 
-                    // or use a utility if we can find one. 
-                    // For now, let's try a common trick: query the Contacts database for the Group JID (WaEnhancer often syncs groups)
-                    // OR better: use the same ContactHelper logic but inside the hook context
-                    contactName = getContactName(context, chatJid);
-                } else {
-                    // Individual Chat: Resolve from ContactsContract
-                    contactName = getContactName(context, chatJid);
-                }
-            }
-            if (contactName == null && senderJid != null && chatJid.contains("@g.us")) {
-                 // If in group and sender is known, maybe we want sender name? 
-                 // But UI wants Title to be Group Name. 
-                 // We will leave contactName as null if Group Name not found, 
-                 // and let UI handle Sender Name for the bubble separately (or we can save sender name too?)
-                 // For now, let's stick to Chat Title.
-            }
+            contactName = resolveWaContactName(context, msg, chatJid);
         } catch (Throwable t) {
             t.printStackTrace();
         }
 
-        // Save to Database
+        // Create and Save
         DeletedMessage deletedMessage = new DeletedMessage(
                 0, keyId, chatJid, senderJid, timestamp, mediaType, textContent, mediaPath, mediaCaption, fromMe, contactName
         );
@@ -366,6 +317,28 @@ public class RecoverDeleteForMe extends Feature {
             return v instanceof String ? (String) v : null;
         } catch (Exception e) { return null; }
     }
+    
+    // New utility: Get string by scanning all fields
+    private String findLongestString(Object obj) {
+        if (obj == null) return null;
+        String best = null;
+        Class<?> cls = obj.getClass();
+        while(cls != null && cls != Object.class) {
+            for (Field f : cls.getDeclaredFields()) {
+                if (f.getType() == String.class) {
+                    f.setAccessible(true);
+                    try {
+                        String s = (String) f.get(obj);
+                        if (s != null && s.length() > 0) {
+                             if (best == null || s.length() > best.length()) best = s;
+                        }
+                    } catch(Exception e) {}
+                }
+            }
+            cls = cls.getSuperclass();
+        }
+        return best;
+    }
 
     private Object getObj(Object obj, String name) {
         try {
@@ -373,6 +346,55 @@ public class RecoverDeleteForMe extends Feature {
             if (f == null) return null;
             return f.get(obj);
         } catch (Exception e) { return null; }
+    }
+    
+    // Internal WA Contact Resolution Helper
+    private String resolveWaContactName(Context context, Object msgObj, String chatJid) {
+        try {
+            // Strategy 1: Look for a "name" or "subject" field directly in a Chat/Contact object attached to msg
+            // Often msg has a field 'A0J' or similar that is the Contact/ChatInfo
+            
+            // Scan fields of msgObj for objects that might be "Contact" or "Chat"
+            Class<?> msgClass = msgObj.getClass();
+            while (msgClass != null && msgClass != Object.class) {
+                for (Field f : msgClass.getDeclaredFields()) {
+                     f.setAccessible(true);
+                     Object fieldVal = f.get(msgObj);
+                     if (fieldVal != null && !f.getType().isPrimitive() && !f.getType().getName().startsWith("java.lang")) {
+                         // Check this object for a "name" or "subject" string
+                         String possibleName = getPrivString(fieldVal, "name");
+                         if (possibleName == null) possibleName = getPrivString(fieldVal, "subject");
+                         if (possibleName == null) possibleName = getPrivString(fieldVal, "A0X"); // Obfuscated name?
+                         if (possibleName == null) possibleName = getPrivString(fieldVal, "A0W"); 
+                         
+                         // Validation: Names usually don't have @ or are not JIDs
+                         if (possibleName != null && !possibleName.contains("@") && possibleName.length() > 0) {
+                             XposedBridge.log("WAE: Potentially found name via reflection: " + possibleName);
+                             return possibleName;
+                         }
+                     }
+                }
+                msgClass = msgClass.getSuperclass();
+            }
+            
+            // Strategy 2: If we failed to find it in msg, fall back to ContactsContract (for individuals)
+            // But strict cleaning of JID
+            if (chatJid != null && !chatJid.contains("@g.us")) {
+                 return getContactName(context, chatJid);
+            }
+            
+        } catch (Exception e) {
+            XposedBridge.log("WAE: ResolveWaContactName Error: " + e.getMessage());
+        }
+        return null;
+    }
+    
+    private String getPrivString(Object obj, String name) {
+        try {
+            Field f = findField(obj.getClass(), name);
+            if (f != null) return (String) f.get(obj);
+        } catch(Exception e) {}
+        return null;
     }
 
     @Override

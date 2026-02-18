@@ -75,7 +75,15 @@ public class DelMessageStore extends SQLiteOpenHelper {
                 "UNIQUE(key_id, chat_jid))");
     }
 
-    // ... (insertMessage remains same)
+    public void insertMessage(String jid, String msgid, long timestamp) {
+        try (SQLiteDatabase dbWrite = this.getWritableDatabase()) {
+            ContentValues values = new ContentValues();
+            values.put("jid", jid);
+            values.put("msgid", msgid);
+            values.put("timestamp", timestamp);
+            dbWrite.insertWithOnConflict("delmessages", null, values, SQLiteDatabase.CONFLICT_IGNORE);
+        }
+    }
 
     public void insertDeletedMessage(DeletedMessage message) {
         try (SQLiteDatabase dbWrite = this.getWritableDatabase()) {
