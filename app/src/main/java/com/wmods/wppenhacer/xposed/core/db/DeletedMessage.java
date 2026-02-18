@@ -14,12 +14,23 @@ public class DeletedMessage {
     private String mediaCaption;
     private boolean isFromMe;
     private String contactName;
+    private String packageName;
 
-    public DeletedMessage(long id, String keyId, String chatJid, String senderJid, long timestamp, int mediaType, String textContent, String mediaPath, String mediaCaption, boolean isFromMe) {
-        this(id, keyId, chatJid, senderJid, timestamp, mediaType, textContent, mediaPath, mediaCaption, isFromMe, null);
+    public DeletedMessage(long id, String keyId, String chatJid, String senderJid, long timestamp, int mediaType,
+            String textContent, String mediaPath, String mediaCaption, boolean isFromMe) {
+        this(id, keyId, chatJid, senderJid, timestamp, mediaType, textContent, mediaPath, mediaCaption, isFromMe, null,
+                null);
     }
 
-    public DeletedMessage(long id, String keyId, String chatJid, String senderJid, long timestamp, int mediaType, String textContent, String mediaPath, String mediaCaption, boolean isFromMe, String contactName) {
+    public DeletedMessage(long id, String keyId, String chatJid, String senderJid, long timestamp, int mediaType,
+            String textContent, String mediaPath, String mediaCaption, boolean isFromMe, String contactName) {
+        this(id, keyId, chatJid, senderJid, timestamp, mediaType, textContent, mediaPath, mediaCaption, isFromMe,
+                contactName, null);
+    }
+
+    public DeletedMessage(long id, String keyId, String chatJid, String senderJid, long timestamp, int mediaType,
+            String textContent, String mediaPath, String mediaCaption, boolean isFromMe, String contactName,
+            String packageName) {
         this.id = id;
         this.keyId = keyId;
         this.chatJid = chatJid;
@@ -31,6 +42,7 @@ public class DeletedMessage {
         this.mediaCaption = mediaCaption;
         this.isFromMe = isFromMe;
         this.contactName = contactName;
+        this.packageName = packageName;
     }
 
     public DeletedMessage() {
@@ -124,6 +136,14 @@ public class DeletedMessage {
         this.contactName = contactName;
     }
 
+    public String getPackageName() {
+        return packageName;
+    }
+
+    public void setPackageName(String packageName) {
+        this.packageName = packageName;
+    }
+
     @NonNull
     @Override
     public String toString() {
@@ -139,6 +159,7 @@ public class DeletedMessage {
                 ", mediaCaption='" + mediaCaption + '\'' +
                 ", isFromMe=" + isFromMe +
                 ", contactName='" + contactName + '\'' +
+                ", packageName='" + packageName + '\'' +
                 '}';
     }
 }

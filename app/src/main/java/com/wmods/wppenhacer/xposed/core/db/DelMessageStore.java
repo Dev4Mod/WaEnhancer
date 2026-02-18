@@ -13,7 +13,7 @@ import java.util.HashSet;
 public class DelMessageStore extends SQLiteOpenHelper {
     private static DelMessageStore mInstance;
 
-    private static final int DATABASE_VERSION = 8;
+    private static final int DATABASE_VERSION = 9;
     public static final String TABLE_DELETED_FOR_ME = "deleted_for_me";
 
     private DelMessageStore(@NonNull Context context) {
@@ -40,18 +40,29 @@ public class DelMessageStore extends SQLiteOpenHelper {
             createDeletedForMeTable(sqLiteDatabase);
         }
         if (oldVersion < 7) {
-             if (!checkColumnExists(sqLiteDatabase, TABLE_DELETED_FOR_ME, "is_from_me")) {
+            if (!checkColumnExists(sqLiteDatabase, TABLE_DELETED_FOR_ME, "is_from_me")) {
                 try {
-                    sqLiteDatabase.execSQL("ALTER TABLE " + TABLE_DELETED_FOR_ME + " ADD COLUMN is_from_me INTEGER DEFAULT 0;");
+                    sqLiteDatabase.execSQL(
+                            "ALTER TABLE " + TABLE_DELETED_FOR_ME + " ADD COLUMN is_from_me INTEGER DEFAULT 0;");
                 } catch (Exception e) {
                     // Ignore if fails
                 }
             }
         }
         if (oldVersion < 8) {
-             if (!checkColumnExists(sqLiteDatabase, TABLE_DELETED_FOR_ME, "contact_name")) {
+            if (!checkColumnExists(sqLiteDatabase, TABLE_DELETED_FOR_ME, "contact_name")) {
                 try {
                     sqLiteDatabase.execSQL("ALTER TABLE " + TABLE_DELETED_FOR_ME + " ADD COLUMN contact_name TEXT;");
+                } catch (Exception e) {
+                    // Ignore if fails
+                }
+            }
+        }
+        if (oldVersion < 9) {
+            if (!checkColumnExists(sqLiteDatabase, TABLE_DELETED_FOR_ME, "package_name")) {
+                try {
+                    sqLiteDatabase.execSQL("ALTER TABLE " + TABLE_DELETED_FOR_ME
+                            + " ADD COLUMN package_name TEXT DEFAULT 'com.whatsapp';");
                 } catch (Exception e) {
                     // Ignore if fails
                 }
@@ -72,6 +83,7 @@ public class DelMessageStore extends SQLiteOpenHelper {
                 "media_caption TEXT, " +
                 "is_from_me INTEGER DEFAULT 0, " +
                 "contact_name TEXT, " +
+                "package_name TEXT, " +
                 "UNIQUE(key_id, chat_jid))");
     }
 
@@ -98,6 +110,7 @@ public class DelMessageStore extends SQLiteOpenHelper {
             values.put("media_caption", message.getMediaCaption());
             values.put("is_from_me", message.isFromMe() ? 1 : 0);
             values.put("contact_name", message.getContactName());
+            values.put("package_name", message.getPackageName());
             dbWrite.insertWithOnConflict(TABLE_DELETED_FOR_ME, null, values, SQLiteDatabase.CONFLICT_REPLACE);
         }
     }
@@ -105,7 +118,9 @@ public class DelMessageStore extends SQLiteOpenHelper {
     public java.util.ArrayList<DeletedMessage> getDeletedMessagesByChat(String chatJid) {
         java.util.ArrayList<DeletedMessage> messages = new java.util.ArrayList<>();
         SQLiteDatabase dbReader = this.getReadableDatabase();
-        try (dbReader; Cursor cursor = dbReader.query(TABLE_DELETED_FOR_ME, null, "chat_jid=?", new String[]{chatJid}, null, null, "timestamp ASC")) { 
+        try (dbReader;
+                Cursor cursor = dbReader.query(TABLE_DELETED_FOR_ME, null, "chat_jid=?", new String[] { chatJid }, null,
+                        null, "timestamp ASC")) {
             if (cursor.moveToFirst()) {
                 do {
                     messages.add(new DeletedMessage(
@@ -119,8 +134,8 @@ public class DelMessageStore extends SQLiteOpenHelper {
                             cursor.getString(cursor.getColumnIndexOrThrow("media_path")),
                             cursor.getString(cursor.getColumnIndexOrThrow("media_caption")),
                             cursor.getInt(cursor.getColumnIndexOrThrow("is_from_me")) == 1,
-                            cursor.getString(cursor.getColumnIndexOrThrow("contact_name"))
-                    ));
+                            cursor.getString(cursor.getColumnIndexOrThrow("contact_name")),
+                            cursor.getString(cursor.getColumnIndexOrThrow("package_name"))));
                 } while (cursor.moveToNext());
             }
         }
@@ -135,7 +150,9 @@ public class DelMessageStore extends SQLiteOpenHelper {
         java.util.ArrayList<DeletedMessage> messages = new java.util.ArrayList<>();
         SQLiteDatabase dbReader = this.getReadableDatabase();
         String selection = isGroup ? "chat_jid LIKE '%@g.us'" : "chat_jid NOT LIKE '%@g.us'";
-        try (dbReader; Cursor cursor = dbReader.query(TABLE_DELETED_FOR_ME, null, selection, null, null, null, "timestamp DESC")) {
+        try (dbReader;
+                Cursor cursor = dbReader.query(TABLE_DELETED_FOR_ME, null, selection, null, null, null,
+                        "timestamp DESC")) {
             if (cursor.moveToFirst()) {
                 do {
                     messages.add(new DeletedMessage(
@@ -149,8 +166,8 @@ public class DelMessageStore extends SQLiteOpenHelper {
                             cursor.getString(cursor.getColumnIndexOrThrow("media_path")),
                             cursor.getString(cursor.getColumnIndexOrThrow("media_caption")),
                             cursor.getInt(cursor.getColumnIndexOrThrow("is_from_me")) == 1,
-                            cursor.getString(cursor.getColumnIndexOrThrow("contact_name"))
-                    ));
+                            cursor.getString(cursor.getColumnIndexOrThrow("contact_name")),
+                            cursor.getString(cursor.getColumnIndexOrThrow("package_name"))));
                 } while (cursor.moveToNext());
             }
         }
@@ -160,7 +177,8 @@ public class DelMessageStore extends SQLiteOpenHelper {
     public java.util.ArrayList<DeletedMessage> getAllDeletedMessagesInternal() {
         java.util.ArrayList<DeletedMessage> messages = new java.util.ArrayList<>();
         SQLiteDatabase dbReader = this.getReadableDatabase();
-        try (dbReader; Cursor cursor = dbReader.query(TABLE_DELETED_FOR_ME, null, null, null, null, null, "timestamp DESC")) {
+        try (dbReader;
+                Cursor cursor = dbReader.query(TABLE_DELETED_FOR_ME, null, null, null, null, null, "timestamp DESC")) {
             if (cursor.moveToFirst()) {
                 do {
                     messages.add(new DeletedMessage(
@@ -174,8 +192,8 @@ public class DelMessageStore extends SQLiteOpenHelper {
                             cursor.getString(cursor.getColumnIndexOrThrow("media_path")),
                             cursor.getString(cursor.getColumnIndexOrThrow("media_caption")),
                             cursor.getInt(cursor.getColumnIndexOrThrow("is_from_me")) == 1,
-                            cursor.getString(cursor.getColumnIndexOrThrow("contact_name"))
-                    ));
+                            cursor.getString(cursor.getColumnIndexOrThrow("contact_name")),
+                            cursor.getString(cursor.getColumnIndexOrThrow("package_name"))));
                 } while (cursor.moveToNext());
             }
         }
@@ -184,16 +202,18 @@ public class DelMessageStore extends SQLiteOpenHelper {
 
     public void deleteMessage(String keyId) {
         try (SQLiteDatabase dbWrite = this.getWritableDatabase()) {
-            dbWrite.delete(TABLE_DELETED_FOR_ME, "key_id=?", new String[]{keyId});
+            dbWrite.delete(TABLE_DELETED_FOR_ME, "key_id=?", new String[] { keyId });
         }
     }
 
-
     public HashSet<String> getMessagesByJid(String jid) {
         HashSet<String> messages = new HashSet<>();
-        if (jid == null) return messages;
+        if (jid == null)
+            return messages;
         SQLiteDatabase dbReader = this.getReadableDatabase();
-        try (dbReader; Cursor query = dbReader.query("delmessages", new String[]{"_id", "jid", "msgid"}, "jid=?", new String[]{jid}, null, null, null)) {
+        try (dbReader;
+                Cursor query = dbReader.query("delmessages", new String[] { "_id", "jid", "msgid" }, "jid=?",
+                        new String[] { jid }, null, null, null)) {
             if (query.moveToFirst()) {
                 do {
                     messages.add(query.getString(query.getColumnIndexOrThrow("msgid")));
@@ -205,13 +225,16 @@ public class DelMessageStore extends SQLiteOpenHelper {
 
     @Override
     public void onCreate(SQLiteDatabase sqLiteDatabase) {
-        sqLiteDatabase.execSQL("CREATE TABLE IF NOT EXISTS delmessages (_id INTEGER PRIMARY KEY AUTOINCREMENT, jid TEXT, msgid TEXT, timestamp INTEGER DEFAULT 0, UNIQUE(jid, msgid))");
+        sqLiteDatabase.execSQL(
+                "CREATE TABLE IF NOT EXISTS delmessages (_id INTEGER PRIMARY KEY AUTOINCREMENT, jid TEXT, msgid TEXT, timestamp INTEGER DEFAULT 0, UNIQUE(jid, msgid))");
         createDeletedForMeTable(sqLiteDatabase);
     }
 
     public long getTimestampByMessageId(String msgid) {
         SQLiteDatabase dbReader = this.getReadableDatabase();
-        try (dbReader; Cursor query = dbReader.query("delmessages", new String[]{"timestamp"}, "msgid=?", new String[]{msgid}, null, null, null)) {
+        try (dbReader;
+                Cursor query = dbReader.query("delmessages", new String[] { "timestamp" }, "msgid=?",
+                        new String[] { msgid }, null, null, null)) {
             if (query.moveToFirst()) {
                 return query.getLong(query.getColumnIndexOrThrow("timestamp"));
             }
