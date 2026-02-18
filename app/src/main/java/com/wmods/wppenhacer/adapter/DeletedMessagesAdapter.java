@@ -17,10 +17,13 @@ import com.wmods.wppenhacer.xposed.utils.Utils;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.HashMap;
 
 public class DeletedMessagesAdapter extends RecyclerView.Adapter<DeletedMessagesAdapter.ViewHolder> {
 
     private List<DeletedMessage> messages = new ArrayList<>();
+    private final Map<String, android.graphics.drawable.Drawable> iconCache = new HashMap<>();
     private final OnItemClickListener listener;
 
     public interface OnItemClickListener {
@@ -60,12 +63,11 @@ public class DeletedMessagesAdapter extends RecyclerView.Adapter<DeletedMessages
         if (contactName == null && displayJid != null) {
             contactName = com.wmods.wppenhacer.utils.ContactHelper.getContactName(context, displayJid);
         }
-
         String displayText;
         if (contactName != null) {
             displayText = contactName;
         } else {
-            // Fallback to formatted JID
+            // Fallback to formatted JID if contact name is missing
             displayText = displayJid;
             if (displayText != null) {
                 displayText = displayText.replace("@s.whatsapp.net", "").replace("@g.us", "");
@@ -75,13 +77,13 @@ public class DeletedMessagesAdapter extends RecyclerView.Adapter<DeletedMessages
                 displayText = "Unknown";
             }
         }
-
         holder.contactName.setText(displayText);
 
-        // Timestamp
-        holder.timestamp.setText(Utils.getDateTimeFromMillis(message.getTimestamp()));
+        java.text.SimpleDateFormat sdf = new java.text.SimpleDateFormat("dd/MM/yyyy hh:mm a",
+                java.util.Locale.getDefault());
+        holder.timestamp.setText(sdf.format(new java.util.Date(message.getTimestamp())));
 
-        // Message Preview
+        // Message Preview Logic... (unchanged)
         String text = message.getTextContent();
         String senderPrefix = "";
         if (message.isFromMe()) {
@@ -89,7 +91,6 @@ public class DeletedMessagesAdapter extends RecyclerView.Adapter<DeletedMessages
         }
 
         // Sanitize text for media messages (Fix for weird strings/URLs)
-        // If it's a media message, ignore text if it looks like a URL or Hash
         if (message.getMediaType() > 0 && text != null) {
             if (text.startsWith("http") || (text.length() > 20 && !text.contains(" "))) {
                 text = null;
@@ -126,7 +127,7 @@ public class DeletedMessagesAdapter extends RecyclerView.Adapter<DeletedMessages
                         break;
                     case 42:
                         text = "🔄 Status Reply";
-                        break; // Sometimes seen
+                        break;
                     default:
                         text = "📁 Media";
                         break;
@@ -140,19 +141,33 @@ public class DeletedMessagesAdapter extends RecyclerView.Adapter<DeletedMessages
         // Avatar (Placeholder)
         // Holder.avatar.setImageDrawable(...)
 
-        // App Badge
+        // App Badge Logic (New: Fetch Exact Icon)
         String pkg = message.getPackageName();
         if (pkg != null) {
             holder.appBadge.setVisibility(View.VISIBLE);
-            if (pkg.equals("com.whatsapp.w4b")) {
-                // WhatsApp Business - Teal
-                holder.appBadge.setImageTintList(
-                        android.content.res.ColorStateList.valueOf(android.graphics.Color.parseColor("#00BFA5")));
+
+            // Try to load from cache first
+            if (iconCache.containsKey(pkg)) {
+                holder.appBadge.setImageDrawable(iconCache.get(pkg));
             } else {
-                // WhatsApp - Green
-                holder.appBadge.setImageTintList(
-                        android.content.res.ColorStateList.valueOf(android.graphics.Color.parseColor("#25D366")));
+                try {
+                    android.content.pm.PackageManager pm = holder.itemView.getContext().getPackageManager();
+                    android.graphics.drawable.Drawable icon = pm.getApplicationIcon(pkg);
+                    if (icon != null) {
+                        iconCache.put(pkg, icon);
+                        holder.appBadge.setImageDrawable(icon);
+                    } else {
+                        // Fallback if icon is null (rare)
+                        holder.appBadge.setVisibility(View.GONE);
+                    }
+                } catch (android.content.pm.PackageManager.NameNotFoundException e) {
+                    // App not installed or invalid package name
+                    holder.appBadge.setVisibility(View.GONE);
+                }
             }
+            // Remove any tint since we want original colors
+            holder.appBadge.setImageTintList(null);
+
         } else {
             holder.appBadge.setVisibility(View.GONE);
         }

@@ -60,7 +60,7 @@
 
         <provider
             android:name=".provider.DeletedMessagesProvider"
-            android:authorities="com.wmods.wppenhacer.provider"
+            android:authorities="${applicationId}.provider"
             android:exported="true" />
 
         <activity
