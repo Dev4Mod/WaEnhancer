@@ -4,6 +4,7 @@ import android.content.Context;
 
 import com.wmods.wppenhacer.xposed.core.Feature;
 import com.wmods.wppenhacer.xposed.core.components.FMessageWpp;
+import com.wmods.wppenhacer.xposed.core.components.WaContactWpp;
 import com.wmods.wppenhacer.xposed.core.db.DelMessageStore;
 import com.wmods.wppenhacer.xposed.core.db.DeletedMessage;
 import com.wmods.wppenhacer.xposed.core.devkit.Unobfuscator;
@@ -136,14 +137,35 @@ public class RecoverDeleteForMe extends Feature {
                 fromMe = (Boolean) v;
         }
 
-        // 5. Extract Text Body
+        // 5. Media Type (Moved up to prioritize detection)
+        int mediaType = -1;
+        Field mtf = findField(msgClass, "mediaType");
+        if (mtf == null)
+            mtf = findField(msgClass, "media_wa_type");
+        if (mtf != null) {
+            try {
+                mediaType = mtf.getInt(msg);
+            } catch (Exception ignored) {
+            }
+        }
+
+        // 6. Extract Text Body
         String textContent = getStr(msg, "text");
         if (textContent == null)
             textContent = getStr(msg, "body");
         if (textContent == null)
             textContent = getStr(msg, "A0Q");
 
-        if (textContent == null) {
+        // Safety check: If it's a media message, discard "text" if it looks like a URL
+        // or Hash
+        if (mediaType > 0 && textContent != null) {
+            if (textContent.startsWith("http") || (textContent.length() > 20 && !textContent.contains(" "))) {
+                textContent = null;
+            }
+        }
+
+        // Heuristic search: Only if text is null AND it's NOT a media message
+        if (textContent == null && mediaType <= 0) {
             String bestCandidate = null;
             Class<?> cls = msgClass;
             while (cls != null && cls != Object.class) {
@@ -153,9 +175,15 @@ public class RecoverDeleteForMe extends Feature {
                         try {
                             String val = (String) f.get(msg);
                             if (val != null && !val.isEmpty()) {
-                                if (bestCandidate == null || val.length() > bestCandidate.length()) {
-                                    if (val.length() > 1)
-                                        bestCandidate = val;
+                                // Determine if this value is safe (not a URL, not a hash)
+                                boolean isUrl = val.startsWith("http") || val.startsWith("www.");
+                                boolean isHash = val.length() > 20 && !val.contains(" ");
+
+                                if (!isUrl && !isHash) {
+                                    if (bestCandidate == null || val.length() > bestCandidate.length()) {
+                                        if (val.length() > 1)
+                                            bestCandidate = val;
+                                    }
                                 }
                             }
                         } catch (IllegalAccessException e) {
@@ -166,18 +194,6 @@ public class RecoverDeleteForMe extends Feature {
             }
             if (bestCandidate != null)
                 textContent = bestCandidate;
-        }
-
-        // 6. Media Type
-        int mediaType = -1;
-        Field mtf = findField(msgClass, "mediaType");
-        if (mtf == null)
-            mtf = findField(msgClass, "media_wa_type");
-        if (mtf != null) {
-            try {
-                mediaType = mtf.getInt(msg);
-            } catch (Exception ignored) {
-            }
         }
 
         // 7. Sender JID
@@ -216,11 +232,28 @@ public class RecoverDeleteForMe extends Feature {
         try {
             // Priority 1: Current Chat Room Title (Most Reliable as per User Suggestion)
             contactName = com.wmods.wppenhacer.xposed.core.WppCore.getCurrentChatTitle();
-            if (contactName != null) {
-                XposedBridge.log("WAE: Captured chat title from Activity: " + contactName);
+
+            // Priority 2: WaContactWpp Internal Lookup (New Reliable Fallback)
+            if (contactName == null && chatJid != null) {
+                try {
+                    XposedBridge.log("WAE: Attempting WaContactWpp lookup for " + chatJid);
+                    FMessageWpp.UserJid userJidObj = new FMessageWpp.UserJid(chatJid);
+                    WaContactWpp waContact = WaContactWpp.getWaContactFromJid(userJidObj);
+                    if (waContact != null) {
+                        contactName = waContact.getDisplayName();
+                        if (contactName == null || contactName.isEmpty()) {
+                            contactName = waContact.getWaName();
+                        }
+                        XposedBridge.log("WAE: WaContact result: " + contactName);
+                    } else {
+                        XposedBridge.log("WAE: WaContactWpp returned null for " + chatJid);
+                    }
+                } catch (Throwable t) {
+                    XposedBridge.log("WAE: WaContactWpp lookup failed: " + t.getMessage());
+                }
             }
 
-            // Priority 2: Simple ContactsContract lookup (Fallback)
+            // Priority 3: Simple ContactsContract lookup (Fallback)
             if (contactName == null && chatJid != null && !chatJid.contains("@g.us")) {
                 contactName = getContactName(context, chatJid);
             }
@@ -228,10 +261,13 @@ public class RecoverDeleteForMe extends Feature {
             XposedBridge.log("WAE: Error in contact resolution: " + t.getMessage());
         }
 
+        // Capture Package Name
+        String packageName = context.getPackageName();
+
         // Create and Save
         DeletedMessage deletedMessage = new DeletedMessage(
                 0, keyId, chatJid, senderJid, timestamp, mediaType, textContent, mediaPath, mediaCaption, fromMe,
-                contactName);
+                contactName, packageName);
 
         saveToDatabase(context, deletedMessage);
     }
@@ -273,7 +309,8 @@ public class RecoverDeleteForMe extends Feature {
             values.put("media_path", message.getMediaPath());
             values.put("media_caption", message.getMediaCaption());
             values.put("is_from_me", message.isFromMe() ? 1 : 0);
-            values.put("contact_name", message.getContactName()); // New field
+            values.put("contact_name", message.getContactName());
+            values.put("package_name", message.getPackageName());
 
             android.net.Uri uri = android.net.Uri.parse("content://com.wmods.wppenhacer.provider/deleted_messages");
             context.getContentResolver().insert(uri, values);

@@ -38,24 +38,41 @@ public class DeletedMessagesFragment extends Fragment implements DeletedMessages
         return fragment;
     }
 
+    private int currentFilter = R.id.filter_all;
+
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         if (getArguments() != null) {
             isGroup = getArguments().getBoolean("is_group");
         }
+        setHasOptionsMenu(true);
     }
 
     @Nullable
     @Override
-    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
+            @Nullable Bundle savedInstanceState) {
         return inflater.inflate(R.layout.fragment_deleted_messages, container, false);
     }
 
-    private View permissionBanner;
-    private android.widget.Button btnGrantPermission;
+    @Override
+    public void onCreateOptionsMenu(@NonNull android.view.Menu menu, @NonNull android.view.MenuInflater inflater) {
+        inflater.inflate(R.menu.menu_deleted_messages, menu);
+        super.onCreateOptionsMenu(menu, inflater);
+    }
 
-    private static final int PERMISSION_REQUEST_CONTACTS = 1001;
+    @Override
+    public boolean onOptionsItemSelected(@NonNull android.view.MenuItem item) {
+        if (item.getItemId() == R.id.filter_all || item.getItemId() == R.id.filter_whatsapp
+                || item.getItemId() == R.id.filter_whatsapp_business) {
+            currentFilter = item.getItemId();
+            item.setChecked(true);
+            loadMessages();
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
@@ -63,8 +80,6 @@ public class DeletedMessagesFragment extends Fragment implements DeletedMessages
 
         recyclerView = view.findViewById(R.id.recyclerView);
         emptyView = view.findViewById(R.id.empty_view);
-        permissionBanner = view.findViewById(R.id.permission_banner);
-        btnGrantPermission = view.findViewById(R.id.btn_grant_permission);
 
         delMessageStore = DelMessageStore.getInstance(requireContext());
         adapter = new DeletedMessagesAdapter(this);
@@ -72,48 +87,48 @@ public class DeletedMessagesFragment extends Fragment implements DeletedMessages
         recyclerView.setLayoutManager(new LinearLayoutManager(requireContext()));
         recyclerView.setAdapter(adapter);
 
-        btnGrantPermission.setOnClickListener(v -> requestPermissions(new String[]{android.Manifest.permission.READ_CONTACTS}, PERMISSION_REQUEST_CONTACTS));
+        // Check for updates to names if permission is already granted, but don't ask
+        if (requireContext().checkSelfPermission(
+                android.Manifest.permission.READ_CONTACTS) == android.content.pm.PackageManager.PERMISSION_GRANTED) {
+            adapter.notifyDataSetChanged();
+        }
 
-        checkPermissions();
         loadMessages();
     }
 
     @Override
     public void onResume() {
         super.onResume();
-        checkPermissions();
-    }
-
-    private void checkPermissions() {
-        if (requireContext().checkSelfPermission(android.Manifest.permission.READ_CONTACTS) == android.content.pm.PackageManager.PERMISSION_GRANTED) {
-            permissionBanner.setVisibility(View.GONE);
-            if (adapter != null) adapter.notifyDataSetChanged(); // Refresh names
-        } else {
-            permissionBanner.setVisibility(View.VISIBLE);
-        }
-    }
-
-    @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        if (requestCode == PERMISSION_REQUEST_CONTACTS) {
-            if (grantResults.length > 0 && grantResults[0] == android.content.pm.PackageManager.PERMISSION_GRANTED) {
-                checkPermissions();
-            }
+        if (requireContext().checkSelfPermission(
+                android.Manifest.permission.READ_CONTACTS) == android.content.pm.PackageManager.PERMISSION_GRANTED) {
+            if (adapter != null)
+                adapter.notifyDataSetChanged();
         }
     }
 
     private void loadMessages() {
         new Thread(() -> {
-            List<DeletedMessage> allMessages = delMessageStore.getDeletedMessages(isGroup);
+            List<DeletedMessage> allMessages = delMessageStore.getDeletedMessages(isGroup); // Fetch ALL first, then
+                                                                                            // filter
             Map<String, DeletedMessage> latestMessagesMap = new HashMap<>();
 
             for (DeletedMessage msg : allMessages) {
+                // Apps Filter Logic
+                boolean matchesFilter = true;
+                if (currentFilter == R.id.filter_whatsapp) {
+                    matchesFilter = "com.whatsapp".equals(msg.getPackageName());
+                } else if (currentFilter == R.id.filter_whatsapp_business) {
+                    matchesFilter = "com.whatsapp.w4b".equals(msg.getPackageName());
+                }
+
+                if (!matchesFilter)
+                    continue;
+
                 if (!latestMessagesMap.containsKey(msg.getChatJid())) {
                     latestMessagesMap.put(msg.getChatJid(), msg);
                 } else {
                     if (msg.getTimestamp() > latestMessagesMap.get(msg.getChatJid()).getTimestamp()) {
-                         latestMessagesMap.put(msg.getChatJid(), msg);
+                        latestMessagesMap.put(msg.getChatJid(), msg);
                     }
                 }
             }
@@ -136,7 +151,8 @@ public class DeletedMessagesFragment extends Fragment implements DeletedMessages
 
     @Override
     public void onItemClick(DeletedMessage message) {
-        android.content.Intent intent = new android.content.Intent(requireContext(), com.wmods.wppenhacer.activities.MessageListActivity.class);
+        android.content.Intent intent = new android.content.Intent(requireContext(),
+                com.wmods.wppenhacer.activities.MessageListActivity.class);
         intent.putExtra("chat_jid", message.getChatJid());
         startActivity(intent);
     }
