@@ -28,6 +28,9 @@ public class MessageListAdapter extends RecyclerView.Adapter<MessageListAdapter.
         void onRestoreClick(DeletedMessage message);
     }
 
+    private static final int VIEW_TYPE_SENT = 1;
+    private static final int VIEW_TYPE_RECEIVED = 2;
+
     public MessageListAdapter(OnRestoreClickListener listener) {
         this.listener = listener;
     }
@@ -37,10 +40,17 @@ public class MessageListAdapter extends RecyclerView.Adapter<MessageListAdapter.
         notifyDataSetChanged();
     }
 
+    @Override
+    public int getItemViewType(int position) {
+        DeletedMessage message = messages.get(position);
+        return message.isFromMe() ? VIEW_TYPE_SENT : VIEW_TYPE_RECEIVED;
+    }
+
     @NonNull
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_deleted_message, parent, false);
+        int layoutId = (viewType == VIEW_TYPE_SENT) ? R.layout.item_message_sent : R.layout.item_message_received;
+        View view = LayoutInflater.from(parent.getContext()).inflate(layoutId, parent, false);
         return new ViewHolder(view);
     }
 
@@ -48,35 +58,61 @@ public class MessageListAdapter extends RecyclerView.Adapter<MessageListAdapter.
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         DeletedMessage message = messages.get(position);
 
-        holder.senderName.setText(message.getSenderJid()); 
+        // Sender Name (Only for received messages, and usually specific to groups)
+        if (holder.senderName != null) {
+            boolean showName = !message.isFromMe() && message.getChatJid().contains("@g.us");
+            
+            if (showName) {
+               String contactName = message.getContactName(); // Try persisted name first
+               if (contactName == null) {
+                   contactName = com.wmods.wppenhacer.utils.ContactHelper.getContactName(holder.itemView.getContext(), message.getSenderJid());
+               }
+               
+               if (contactName != null) {
+                   holder.senderName.setText(contactName);
+                   holder.senderName.setVisibility(View.VISIBLE);
+               } else {
+                   String senderJid = message.getSenderJid();
+                   if (senderJid != null) {
+                       senderJid = senderJid.replace("@s.whatsapp.net", "").replace("@g.us", "");
+                       if (senderJid.contains("@")) senderJid = senderJid.split("@")[0];
+                       holder.senderName.setText(senderJid);
+                       holder.senderName.setVisibility(View.VISIBLE);
+                   } else {
+                       holder.senderName.setVisibility(View.GONE);
+                   }
+               }
+            } else {
+               holder.senderName.setVisibility(View.GONE);
+            }
+        }
+
+        // Timestamp
         holder.timestamp.setText(Utils.getDateTimeFromMillis(message.getTimestamp()));
 
-        if (message.getTextContent() != null && !message.getTextContent().isEmpty()) {
-            holder.messageContent.setText(message.getTextContent());
+        // Message Content
+        String text = message.getTextContent();
+        if (text != null && !text.isEmpty()) {
+            holder.messageContent.setText(text);
             holder.messageContent.setVisibility(View.VISIBLE);
         } else {
-            holder.messageContent.setVisibility(View.GONE);
+             // Placeholder for media
+             String type = "Message";
+             if (message.getMediaType() != -1) {
+                 if (message.getMediaType() == 1) type = "📷 Photo";
+                 else if (message.getMediaType() == 2) type = "🔊 Audio";
+                 else if (message.getMediaType() == 3) type = "🎥 Video";
+                 else type = "📁 Media (" + message.getMediaType() + ")";
+             } 
+             
+             if (message.getMediaCaption() != null && !message.getMediaCaption().isEmpty()) {
+                 type += "\n" + message.getMediaCaption();
+             }
+             holder.messageContent.setText(type);
+             holder.messageContent.setVisibility(View.VISIBLE);
         }
 
-        if (message.getMediaPath() != null) {
-            holder.mediaContainer.setVisibility(View.VISIBLE);
-            File mediaFile = new File(message.getMediaPath());
-            if (mediaFile.exists()) {
-                 holder.mediaPreview.setImageURI(Uri.fromFile(mediaFile));
-            } else {
-                holder.mediaPreview.setImageResource(android.R.drawable.ic_menu_report_image);
-            }
-
-            if (message.getMediaCaption() != null && !message.getMediaCaption().isEmpty()) {
-                holder.mediaCaption.setText(message.getMediaCaption());
-                holder.mediaCaption.setVisibility(View.VISIBLE);
-            } else {
-                holder.mediaCaption.setVisibility(View.GONE);
-            }
-        } else {
-            holder.mediaContainer.setVisibility(View.GONE);
-        }
-
+        // Restore Button
         holder.btnRestore.setOnClickListener(v -> listener.onRestoreClick(message));
     }
 
@@ -86,22 +122,16 @@ public class MessageListAdapter extends RecyclerView.Adapter<MessageListAdapter.
     }
 
     static class ViewHolder extends RecyclerView.ViewHolder {
-        TextView senderName;
+        TextView senderName; // Nullable (only in received)
         TextView timestamp;
         TextView messageContent;
-        View mediaContainer;
-        ImageView mediaPreview;
-        TextView mediaCaption;
-        MaterialButton btnRestore;
+        View btnRestore;
 
         ViewHolder(View itemView) {
             super(itemView);
             senderName = itemView.findViewById(R.id.sender_name);
             timestamp = itemView.findViewById(R.id.timestamp);
             messageContent = itemView.findViewById(R.id.message_content);
-            mediaContainer = itemView.findViewById(R.id.media_container);
-            mediaPreview = itemView.findViewById(R.id.media_preview);
-            mediaCaption = itemView.findViewById(R.id.media_caption);
             btnRestore = itemView.findViewById(R.id.btn_restore);
         }
     }

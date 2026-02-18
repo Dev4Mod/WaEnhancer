@@ -461,8 +461,8 @@
     <string name="enable_spy_sum">Logs internal events to Xposed log for debugging.</string>
 
     <string name="no_deleted_messages">No deleted messages found</string>
-    <string name="deleted_messages_title">Deleted Messages</string>
+    <string name="deleted_messages_title">Deleted By Me</string>
     <string name="restore_message">Restore</string>
-    <string name="deleted_messages_sum">View messages deleted by others</string>
+    <string name="deleted_messages_sum">View messages deleted by me</string>
 
     </resources>
