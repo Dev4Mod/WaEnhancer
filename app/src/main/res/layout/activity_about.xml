@@ -16,7 +16,7 @@
             android:layout_width="match_parent"
             android:layout_height="200dp"
             android:fitsSystemWindows="true"
-            app:contentScrim="@color/whatsapp_teal"
+            app:contentScrim="?attr/colorPrimary"
             app:expandedTitleGravity="bottom|start"
             app:expandedTitleMarginBottom="@dimen/spacing_medium"
             app:expandedTitleMarginStart="@dimen/spacing_medium"
@@ -166,7 +166,7 @@
                         style="@style/ModernButton"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:backgroundTint="@color/whatsapp_dark_green"
+                        android:backgroundTint="?attr/colorPrimary"
                         android:text="@string/go_to_telegram"
                         app:icon="@drawable/ic_telegram"
                         app:iconGravity="start"
@@ -182,7 +182,7 @@
                         app:icon="@drawable/ic_github"
                         app:iconGravity="start"
                         app:iconPadding="@dimen/spacing_small"
-                        app:strokeColor="@color/whatsapp_dark_green" />
+                        app:strokeColor="?attr/colorPrimary" />
 
                     <com.google.android.material.button.MaterialButton
                         android:id="@+id/btnDonate"
@@ -194,7 +194,7 @@
                         app:icon="@drawable/ic_donate"
                         app:iconGravity="start"
                         app:iconPadding="@dimen/spacing_small"
-                        app:strokeColor="@color/whatsapp_dark_green" />
+                        app:strokeColor="?attr/colorPrimary" />
 
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>

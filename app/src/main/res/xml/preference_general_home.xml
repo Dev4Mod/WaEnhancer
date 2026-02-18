@@ -11,7 +11,23 @@
             app:key="thememode"
             app:summary="%s"
             app:title="@string/theme_mode" />
-            
+
+        <ListPreference
+            app:defaultValue="preset"
+            app:entries="@array/wae_color_mode_entries"
+            app:entryValues="@array/wae_color_mode_values"
+            app:key="wae_color_mode"
+            app:summary="%s"
+            app:title="@string/wae_color_mode" />
+
+        <ListPreference
+            app:defaultValue="green"
+            app:entries="@array/wae_color_preset_entries"
+            app:entryValues="@array/wae_color_preset_values"
+            app:key="wae_color_preset"
+            app:summary="%s"
+            app:title="@string/wae_color_preset" />
+
         <rikka.material.preference.MaterialSwitchPreference
             app:key="update_check"
             app:defaultValue="true"

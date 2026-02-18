@@ -1,4 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <style name="ThemeOverlay.MaterialGreen" parent="ThemeOverlay.Light.MaterialGreen"/>
+    <style name="ThemeOverlay.MaterialBlue" parent="ThemeOverlay.Light.MaterialBlue"/>
+    <style name="ThemeOverlay.MaterialCyan" parent="ThemeOverlay.Light.MaterialCyan"/>
+    <style name="ThemeOverlay.MaterialPurple" parent="ThemeOverlay.Light.MaterialPurple"/>
+    <style name="ThemeOverlay.MaterialOrange" parent="ThemeOverlay.Light.MaterialOrange"/>
+    <style name="ThemeOverlay.MaterialRed" parent="ThemeOverlay.Light.MaterialRed"/>
+    <style name="ThemeOverlay.MaterialPink" parent="ThemeOverlay.Light.MaterialPink"/>
 </resources>

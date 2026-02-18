@@ -70,6 +70,32 @@
         <item>1</item>
         <item>2</item>
     </string-array>
+    <string-array name="wae_color_mode_entries">
+        <item>@string/wae_color_mode_preset</item>
+        <item>@string/wae_color_mode_auto_monet</item>
+    </string-array>
+    <string-array name="wae_color_mode_values">
+        <item>preset</item>
+        <item>monet</item>
+    </string-array>
+    <string-array name="wae_color_preset_entries">
+        <item>@string/color_preset_green</item>
+        <item>@string/color_preset_blue</item>
+        <item>@string/color_preset_cyan</item>
+        <item>@string/color_preset_purple</item>
+        <item>@string/color_preset_orange</item>
+        <item>@string/color_preset_red</item>
+        <item>@string/color_preset_pink</item>
+    </string-array>
+    <string-array name="wae_color_preset_values">
+        <item>green</item>
+        <item>blue</item>
+        <item>cyan</item>
+        <item>purple</item>
+        <item>orange</item>
+        <item>red</item>
+        <item>pink</item>
+    </string-array>
     <string-array name="chatfilter_buttons">
         <item>@string/chatfilter_no_search</item>
         <item>@string/chatfilter_search_icon</item>

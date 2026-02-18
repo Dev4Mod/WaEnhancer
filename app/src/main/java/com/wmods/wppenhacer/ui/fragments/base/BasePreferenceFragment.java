@@ -116,6 +116,16 @@ public abstract class BasePreferenceFragment extends PreferenceFragmentCompat im
             App.setThemeMode(mode);
         }
 
+        var colorMode = mPrefs.getString("wae_color_mode", "preset");
+        var useMonet = Objects.equals(colorMode, "monet") && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S;
+        setPreferenceState("wae_color_preset", !useMonet);
+
+        if (Objects.equals(key, "wae_color_mode") || Objects.equals(key, "wae_color_preset")) {
+            if (getActivity() != null) {
+                getActivity().recreate();
+            }
+        }
+
         if (Objects.equals(key, "force_english")) {
             mPrefs.edit().commit();
             Utils.doRestart(requireContext());
