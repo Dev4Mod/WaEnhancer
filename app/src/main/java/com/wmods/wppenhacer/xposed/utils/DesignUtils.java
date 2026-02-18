@@ -120,6 +120,12 @@ public class DesignUtils {
     // Colors
     public static int getPrimaryTextColor() {
         var textColor = mPrefs.getInt("text_color", 0);
+        if (shouldUseMonetColors()) {
+            var monetTextColor = resolveMonetColor(isNightMode() ? "system_neutral1_100" : "system_neutral1_900");
+            if (monetTextColor != 0) {
+                textColor = monetTextColor;
+            }
+        }
         if (textColor == 0 || !mPrefs.getBoolean("changecolor", false)) {
             return DesignUtils.isNightMode() ? 0xfffffffe : 0xff000001;
         }
@@ -129,6 +135,12 @@ public class DesignUtils {
 
     public static int getUnSeenColor() {
         var primaryColor = mPrefs.getInt("primary_color", 0);
+        if (shouldUseMonetColors()) {
+            var monetPrimaryColor = resolveMonetColor(isNightMode() ? "system_accent1_300" : "system_accent1_600");
+            if (monetPrimaryColor != 0) {
+                primaryColor = monetPrimaryColor;
+            }
+        }
         if (primaryColor == 0 || !mPrefs.getBoolean("changecolor", false)) {
             return 0xFF25d366;
         }
@@ -137,6 +149,12 @@ public class DesignUtils {
 
     public static int getPrimarySurfaceColor() {
         var backgroundColor = mPrefs.getInt("background_color", 0);
+        if (shouldUseMonetColors()) {
+            var monetBackgroundColor = resolveMonetColor(isNightMode() ? "system_neutral1_900" : "system_neutral1_10");
+            if (monetBackgroundColor != 0) {
+                backgroundColor = monetBackgroundColor;
+            }
+        }
         if (backgroundColor == 0 || !mPrefs.getBoolean("changecolor", false)) {
             return DesignUtils.isNightMode() ? 0xff121212 : 0xfffffffe;
         }
@@ -146,6 +164,12 @@ public class DesignUtils {
     public static Drawable generatePrimaryColorDrawable(Drawable drawable) {
         if (drawable == null) return null;
         var primaryColorInt = mPrefs.getInt("primary_color", 0);
+        if (shouldUseMonetColors()) {
+            var monetPrimaryColor = resolveMonetColor(isNightMode() ? "system_accent1_300" : "system_accent1_600");
+            if (monetPrimaryColor != 0) {
+                primaryColorInt = monetPrimaryColor;
+            }
+        }
         if (primaryColorInt != 0 && mPrefs.getBoolean("changecolor", false)) {
             var bitmap = drawableToBitmap(drawable);
             var color = getDominantColor(bitmap);
@@ -203,6 +227,28 @@ public class DesignUtils {
             XposedBridge.log("Error: " + e);
         }
         return "0";
+    }
+
+    private static boolean shouldUseMonetColors() {
+        if (mPrefs == null || Build.VERSION.SDK_INT < Build.VERSION_CODES.S) {
+            return false;
+        }
+        if (!mPrefs.getBoolean("changecolor", false)) {
+            return false;
+        }
+        return "monet".equals(mPrefs.getString("changecolor_mode", "manual"));
+    }
+
+    private static int resolveMonetColor(String resourceName) {
+        var color = checkSystemColor("color_" + resourceName);
+        if (!isValidColor(color)) {
+            return 0;
+        }
+        try {
+            return Color.parseColor(color);
+        } catch (Exception ignored) {
+            return 0;
+        }
     }
 
     public static Bitmap drawableToBitmap(Drawable drawable) {
