@@ -50,8 +50,20 @@ public class DeletedMessagesProvider extends ContentProvider {
     @Nullable
     @Override
     public Uri insert(@NonNull Uri uri, @Nullable ContentValues values) {
-        if (uriMatcher.match(uri) == DELETED_MESSAGES) {
+        if (uriMatcher.match(uri) == DELETED_MESSAGES && values != null) {
             SQLiteDatabase db = dbHelper.getWritableDatabase();
+            
+            // --- NEW: Propagate Contact Name to all messages in this chat ---
+            String chatJid = values.getAsString("chat_jid");
+            String contactName = values.getAsString("contact_name");
+            
+            if (chatJid != null && contactName != null && !contactName.isEmpty()) {
+                ContentValues updateValues = new ContentValues();
+                updateValues.put("contact_name", contactName);
+                db.update(DelMessageStore.TABLE_DELETED_FOR_ME, updateValues, "chat_jid = ?", new String[]{chatJid});
+            }
+            // ----------------------------------------------------------------
+            
             long id = db.insertWithOnConflict(DelMessageStore.TABLE_DELETED_FOR_ME, null, values, SQLiteDatabase.CONFLICT_REPLACE);
             if (id > 0) {
                 return Uri.withAppendedPath(CONTENT_URI, String.valueOf(id));
