@@ -1,4 +1,2 @@
-[NEW FEATURES]
-- Recover deleted for me message: Added option to recover deleted for me messages
-- Global Search: Added comprehensive search functionality across all app settings and features for easier navigation
-- Call Recording Toast Toggle: Added option to show/hide recording toast notifications (default: off)
+[IMPROVEMENTS]
+- Original timestamp: Added option to show original timestamp of **Delete for me** messages

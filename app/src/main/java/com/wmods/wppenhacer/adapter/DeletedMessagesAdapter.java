@@ -23,11 +23,14 @@ import java.util.HashMap;
 public class DeletedMessagesAdapter extends RecyclerView.Adapter<DeletedMessagesAdapter.ViewHolder> {
 
     private List<DeletedMessage> messages = new ArrayList<>();
+    private java.util.Set<String> selectedItems = new java.util.HashSet<>();
     private final Map<String, android.graphics.drawable.Drawable> iconCache = new HashMap<>();
     private final OnItemClickListener listener;
 
     public interface OnItemClickListener {
         void onItemClick(DeletedMessage message);
+
+        boolean onItemLongClick(DeletedMessage message);
 
         void onRestoreClick(DeletedMessage message);
     }
@@ -175,7 +178,54 @@ public class DeletedMessagesAdapter extends RecyclerView.Adapter<DeletedMessages
             holder.appBadge.setVisibility(View.GONE);
         }
 
-        holder.itemView.setOnClickListener(v -> listener.onItemClick(message));
+        // Selection Logic
+        if (selectedItems.contains(message.getChatJid())) {
+            holder.itemView.setBackgroundColor(
+                    holder.itemView.getContext().getResources().getColor(R.color.selected_item_color, null)); // You
+                                                                                                              // might
+                                                                                                              // need to
+                                                                                                              // define
+                                                                                                              // this
+                                                                                                              // color
+        } else {
+            android.util.TypedValue outValue = new android.util.TypedValue();
+            holder.itemView.getContext().getTheme().resolveAttribute(android.R.attr.selectableItemBackground, outValue,
+                    true);
+            holder.itemView.setBackgroundResource(outValue.resourceId);
+        }
+
+        holder.itemView.setOnClickListener(v -> {
+            if (listener != null)
+                listener.onItemClick(message);
+        });
+
+        holder.itemView.setOnLongClickListener(v -> {
+            if (listener != null)
+                return listener.onItemLongClick(message);
+            return false;
+        });
+    }
+
+    public void toggleSelection(String chatJid) {
+        if (selectedItems.contains(chatJid)) {
+            selectedItems.remove(chatJid);
+        } else {
+            selectedItems.add(chatJid);
+        }
+        notifyDataSetChanged();
+    }
+
+    public void clearSelection() {
+        selectedItems.clear();
+        notifyDataSetChanged();
+    }
+
+    public int getSelectedCount() {
+        return selectedItems.size();
+    }
+
+    public java.util.List<String> getSelectedItems() {
+        return new ArrayList<>(selectedItems);
     }
 
     @Override

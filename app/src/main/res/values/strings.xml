@@ -465,4 +465,7 @@
     <string name="restore_message">Restore</string>
     <string name="deleted_messages_sum">View messages deleted by me</string>
 
-    </resources>
+        <string name="restore_feature_title">Restore Feature</string>
+    <string name="restore_feature_desc">"This feature is coming soon! You can follow the developer to speed up the process."</string>
+    <string name="action_follow_developer">Follow Developer</string>
+</resources>
