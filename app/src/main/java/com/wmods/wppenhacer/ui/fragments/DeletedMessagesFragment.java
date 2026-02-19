@@ -150,16 +150,95 @@ public class DeletedMessagesFragment extends Fragment implements DeletedMessages
         }).start();
     }
 
+    private androidx.appcompat.view.ActionMode actionMode;
+    private final androidx.appcompat.view.ActionMode.Callback actionModeCallback = new androidx.appcompat.view.ActionMode.Callback() {
+        @Override
+        public boolean onCreateActionMode(androidx.appcompat.view.ActionMode mode, android.view.Menu menu) {
+            mode.getMenuInflater().inflate(R.menu.menu_context_delete, menu); // Need to create this menu
+            return true;
+        }
+
+        @Override
+        public boolean onPrepareActionMode(androidx.appcompat.view.ActionMode mode, android.view.Menu menu) {
+            return false;
+        }
+
+        @Override
+        public boolean onActionItemClicked(androidx.appcompat.view.ActionMode mode, android.view.MenuItem item) {
+            if (item.getItemId() == R.id.action_delete) {
+                deleteSelectedChats();
+                mode.finish();
+                return true;
+            }
+            return false;
+        }
+
+        @Override
+        public void onDestroyActionMode(androidx.appcompat.view.ActionMode mode) {
+            adapter.clearSelection();
+            actionMode = null;
+        }
+    };
+
+    private void deleteSelectedChats() {
+        List<String> selected = adapter.getSelectedItems();
+        if (selected.isEmpty())
+            return;
+
+        new androidx.appcompat.app.AlertDialog.Builder(requireContext())
+                .setTitle("Delete Chats?")
+                .setMessage("Are you sure you want to delete " + selected.size() + " chat(s)? This cannot be undone.")
+                .setPositiveButton("Delete", (dialog, which) -> {
+                    new Thread(() -> {
+                        for (String jid : selected) {
+                            delMessageStore.deleteMessagesByChat(jid);
+                        }
+                        requireActivity().runOnUiThread(() -> {
+                            loadMessages();
+                            android.widget.Toast
+                                    .makeText(requireContext(), "Chats deleted", android.widget.Toast.LENGTH_SHORT)
+                                    .show();
+                        });
+                    }).start();
+                })
+                .setNegativeButton("Cancel", null)
+                .show();
+    }
+
     @Override
     public void onItemClick(DeletedMessage message) {
-        android.content.Intent intent = new android.content.Intent(requireContext(),
-                com.wmods.wppenhacer.activities.MessageListActivity.class);
-        intent.putExtra("chat_jid", message.getChatJid());
-        startActivity(intent);
+        if (actionMode != null) {
+            toggleSelection(message.getChatJid());
+        } else {
+            android.content.Intent intent = new android.content.Intent(requireContext(),
+                    com.wmods.wppenhacer.activities.MessageListActivity.class);
+            intent.putExtra("chat_jid", message.getChatJid());
+            startActivity(intent);
+        }
+    }
+
+    @Override
+    public boolean onItemLongClick(DeletedMessage message) {
+        if (actionMode == null) {
+            actionMode = ((androidx.appcompat.app.AppCompatActivity) requireActivity())
+                    .startSupportActionMode(actionModeCallback);
+        }
+        toggleSelection(message.getChatJid());
+        return true;
+    }
+
+    private void toggleSelection(String chatJid) {
+        adapter.toggleSelection(chatJid);
+        int count = adapter.getSelectedCount();
+        if (count == 0) {
+            actionMode.finish();
+        } else {
+            actionMode.setTitle(count + " selected");
+        }
     }
 
     @Override
     public void onRestoreClick(DeletedMessage message) {
-        // Not used in this fragment anymore (removed from adapter view)
+        // Not used
     }
 }

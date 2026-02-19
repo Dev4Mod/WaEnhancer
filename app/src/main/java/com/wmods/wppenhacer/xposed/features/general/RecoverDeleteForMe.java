@@ -264,9 +264,49 @@ public class RecoverDeleteForMe extends Feature {
         // Capture Package Name
         String packageName = context.getPackageName();
 
+        // Capture original timestamp
+        long originalTimestamp = 0;
+        try {
+            // 1. Try finding 'timestamp' (long)
+            Field tsField = findField(msgClass, "timestamp");
+            if (tsField == null)
+                tsField = findField(msgClass, "g"); // Common obfuscation
+
+            if (tsField != null) {
+                Object val = tsField.get(msg);
+                if (val instanceof Long) {
+                    originalTimestamp = (Long) val;
+                }
+            }
+
+            // 2. Fallback: Search for any long field that looks like a timestamp (e.g. >
+            // 1600000000000)
+            if (originalTimestamp == 0) {
+                Class<?> cls = msgClass;
+                while (cls != null && cls != Object.class) {
+                    for (Field f : cls.getDeclaredFields()) {
+                        if (f.getType() == long.class) {
+                            f.setAccessible(true);
+                            long val = f.getLong(msg);
+                            if (val > 1500000000000L && val < System.currentTimeMillis() + 86400000L) {
+                                originalTimestamp = val;
+                                break;
+                            }
+                        }
+                    }
+                    if (originalTimestamp != 0)
+                        break;
+                    cls = cls.getSuperclass();
+                }
+            }
+        } catch (Exception e) {
+            XposedBridge.log("WAE: Error extracting original timestamp: " + e.getMessage());
+        }
+
         // Create and Save
         DeletedMessage deletedMessage = new DeletedMessage(
-                0, keyId, chatJid, senderJid, timestamp, mediaType, textContent, mediaPath, mediaCaption, fromMe,
+                0, keyId, chatJid, senderJid, timestamp, originalTimestamp, mediaType, textContent, mediaPath,
+                mediaCaption, fromMe,
                 contactName, packageName);
 
         saveToDatabase(context, deletedMessage);
@@ -304,6 +344,7 @@ public class RecoverDeleteForMe extends Feature {
             values.put("chat_jid", message.getChatJid());
             values.put("sender_jid", message.getSenderJid());
             values.put("timestamp", message.getTimestamp());
+            values.put("original_timestamp", message.getOriginalTimestamp());
             values.put("media_type", message.getMediaType());
             values.put("text_content", message.getTextContent());
             values.put("media_path", message.getMediaPath());

@@ -13,7 +13,7 @@ import java.util.HashSet;
 public class DelMessageStore extends SQLiteOpenHelper {
     private static DelMessageStore mInstance;
 
-    private static final int DATABASE_VERSION = 9;
+    private static final int DATABASE_VERSION = 10;
     public static final String TABLE_DELETED_FOR_ME = "deleted_for_me";
 
     private DelMessageStore(@NonNull Context context) {
@@ -68,6 +68,16 @@ public class DelMessageStore extends SQLiteOpenHelper {
                 }
             }
         }
+        if (oldVersion < 10) {
+            if (!checkColumnExists(sqLiteDatabase, TABLE_DELETED_FOR_ME, "original_timestamp")) {
+                try {
+                    sqLiteDatabase.execSQL("ALTER TABLE " + TABLE_DELETED_FOR_ME
+                            + " ADD COLUMN original_timestamp INTEGER DEFAULT 0;");
+                } catch (Exception e) {
+                    // Ignore if fails
+                }
+            }
+        }
     }
 
     private void createDeletedForMeTable(SQLiteDatabase db) {
@@ -77,6 +87,7 @@ public class DelMessageStore extends SQLiteOpenHelper {
                 "chat_jid TEXT, " +
                 "sender_jid TEXT, " +
                 "timestamp INTEGER, " +
+                "original_timestamp INTEGER DEFAULT 0, " +
                 "media_type INTEGER, " +
                 "text_content TEXT, " +
                 "media_path TEXT, " +
@@ -104,6 +115,7 @@ public class DelMessageStore extends SQLiteOpenHelper {
             values.put("chat_jid", message.getChatJid());
             values.put("sender_jid", message.getSenderJid());
             values.put("timestamp", message.getTimestamp());
+            values.put("original_timestamp", message.getOriginalTimestamp());
             values.put("media_type", message.getMediaType());
             values.put("text_content", message.getTextContent());
             values.put("media_path", message.getMediaPath());
@@ -118,17 +130,22 @@ public class DelMessageStore extends SQLiteOpenHelper {
     public java.util.ArrayList<DeletedMessage> getDeletedMessagesByChat(String chatJid) {
         java.util.ArrayList<DeletedMessage> messages = new java.util.ArrayList<>();
         SQLiteDatabase dbReader = this.getReadableDatabase();
-        try (dbReader;
-                Cursor cursor = dbReader.query(TABLE_DELETED_FOR_ME, null, "chat_jid=?", new String[] { chatJid }, null,
-                        null, "timestamp ASC")) {
+        try (Cursor cursor = dbReader.query(TABLE_DELETED_FOR_ME, null, "chat_jid=?", new String[] { chatJid }, null,
+                null, "timestamp ASC")) {
             if (cursor.moveToFirst()) {
                 do {
+                    long originalTs = 0;
+                    if (cursor.getColumnIndex("original_timestamp") != -1) {
+                        originalTs = cursor.getLong(cursor.getColumnIndexOrThrow("original_timestamp"));
+                    }
+
                     messages.add(new DeletedMessage(
                             cursor.getLong(cursor.getColumnIndexOrThrow("_id")),
                             cursor.getString(cursor.getColumnIndexOrThrow("key_id")),
                             cursor.getString(cursor.getColumnIndexOrThrow("chat_jid")),
                             cursor.getString(cursor.getColumnIndexOrThrow("sender_jid")),
                             cursor.getLong(cursor.getColumnIndexOrThrow("timestamp")),
+                            originalTs,
                             cursor.getInt(cursor.getColumnIndexOrThrow("media_type")),
                             cursor.getString(cursor.getColumnIndexOrThrow("text_content")),
                             cursor.getString(cursor.getColumnIndexOrThrow("media_path")),
@@ -150,17 +167,22 @@ public class DelMessageStore extends SQLiteOpenHelper {
         java.util.ArrayList<DeletedMessage> messages = new java.util.ArrayList<>();
         SQLiteDatabase dbReader = this.getReadableDatabase();
         String selection = isGroup ? "chat_jid LIKE '%@g.us'" : "chat_jid NOT LIKE '%@g.us'";
-        try (dbReader;
-                Cursor cursor = dbReader.query(TABLE_DELETED_FOR_ME, null, selection, null, null, null,
-                        "timestamp DESC")) {
+
+        try (Cursor cursor = dbReader.query(TABLE_DELETED_FOR_ME, null, selection, null, null, null,
+                "timestamp DESC")) {
             if (cursor.moveToFirst()) {
                 do {
+                    long originalTs = 0;
+                    if (cursor.getColumnIndex("original_timestamp") != -1) {
+                        originalTs = cursor.getLong(cursor.getColumnIndexOrThrow("original_timestamp"));
+                    }
                     messages.add(new DeletedMessage(
                             cursor.getLong(cursor.getColumnIndexOrThrow("_id")),
                             cursor.getString(cursor.getColumnIndexOrThrow("key_id")),
                             cursor.getString(cursor.getColumnIndexOrThrow("chat_jid")),
                             cursor.getString(cursor.getColumnIndexOrThrow("sender_jid")),
                             cursor.getLong(cursor.getColumnIndexOrThrow("timestamp")),
+                            originalTs,
                             cursor.getInt(cursor.getColumnIndexOrThrow("media_type")),
                             cursor.getString(cursor.getColumnIndexOrThrow("text_content")),
                             cursor.getString(cursor.getColumnIndexOrThrow("media_path")),
@@ -181,12 +203,17 @@ public class DelMessageStore extends SQLiteOpenHelper {
                 Cursor cursor = dbReader.query(TABLE_DELETED_FOR_ME, null, null, null, null, null, "timestamp DESC")) {
             if (cursor.moveToFirst()) {
                 do {
+                    long originalTs = 0;
+                    if (cursor.getColumnIndex("original_timestamp") != -1) {
+                        originalTs = cursor.getLong(cursor.getColumnIndexOrThrow("original_timestamp"));
+                    }
                     messages.add(new DeletedMessage(
                             cursor.getLong(cursor.getColumnIndexOrThrow("_id")),
                             cursor.getString(cursor.getColumnIndexOrThrow("key_id")),
                             cursor.getString(cursor.getColumnIndexOrThrow("chat_jid")),
                             cursor.getString(cursor.getColumnIndexOrThrow("sender_jid")),
                             cursor.getLong(cursor.getColumnIndexOrThrow("timestamp")),
+                            originalTs,
                             cursor.getInt(cursor.getColumnIndexOrThrow("media_type")),
                             cursor.getString(cursor.getColumnIndexOrThrow("text_content")),
                             cursor.getString(cursor.getColumnIndexOrThrow("media_path")),
@@ -203,6 +230,26 @@ public class DelMessageStore extends SQLiteOpenHelper {
     public void deleteMessage(String keyId) {
         try (SQLiteDatabase dbWrite = this.getWritableDatabase()) {
             dbWrite.delete(TABLE_DELETED_FOR_ME, "key_id=?", new String[] { keyId });
+        }
+    }
+
+    public void deleteMessages(java.util.List<String> keyIds) {
+        if (keyIds == null || keyIds.isEmpty())
+            return;
+        try (SQLiteDatabase dbWrite = this.getWritableDatabase()) {
+            StringBuilder args = new StringBuilder();
+            for (int i = 0; i < keyIds.size(); i++) {
+                args.append("?,");
+            }
+            if (args.length() > 0)
+                args.setLength(args.length() - 1); // remove last comma
+            dbWrite.delete(TABLE_DELETED_FOR_ME, "key_id IN (" + args.toString() + ")", keyIds.toArray(new String[0]));
+        }
+    }
+
+    public void deleteMessagesByChat(String chatJid) {
+        try (SQLiteDatabase dbWrite = this.getWritableDatabase()) {
+            dbWrite.delete(TABLE_DELETED_FOR_ME, "chat_jid=?", new String[] { chatJid });
         }
     }
 

@@ -480,4 +480,7 @@
     <string name="deleted_messages_title">Deleted By Me</string>
     <string name="restore_message">Restore</string>
     <string name="deleted_messages_sum">View messages deleted by others</string>
+    <string name="restore_feature_title">Restore Feature</string>
+    <string name="restore_feature_desc">"Coming soon!"</string>
+    <string name="action_follow_developer">Coming soon!</string>
 </resources>

@@ -21,11 +21,16 @@ import java.util.List;
 
 public class MessageListAdapter extends RecyclerView.Adapter<MessageListAdapter.ViewHolder> {
 
+    private java.util.Set<String> selectedItems = new java.util.HashSet<>();
     private List<DeletedMessage> messages = new ArrayList<>();
     private final OnRestoreClickListener listener;
 
     public interface OnRestoreClickListener {
         void onRestoreClick(DeletedMessage message);
+
+        boolean onItemLongClick(DeletedMessage message);
+
+        void onItemClick(DeletedMessage message);
     }
 
     private static final int VIEW_TYPE_SENT = 1;
@@ -56,39 +61,48 @@ public class MessageListAdapter extends RecyclerView.Adapter<MessageListAdapter.
 
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
+        // ... (existing binding logic)
         DeletedMessage message = messages.get(position);
 
-        // Sender Name (Only for received messages, and usually specific to groups)
+        // ... (Sender Name logic - keep existing)
         if (holder.senderName != null) {
             boolean showName = !message.isFromMe() && message.getChatJid().contains("@g.us");
-            
+
             if (showName) {
-               String contactName = message.getContactName(); // Try persisted name first
-               if (contactName == null) {
-                   contactName = com.wmods.wppenhacer.utils.ContactHelper.getContactName(holder.itemView.getContext(), message.getSenderJid());
-               }
-               
-               if (contactName != null) {
-                   holder.senderName.setText(contactName);
-                   holder.senderName.setVisibility(View.VISIBLE);
-               } else {
-                   String senderJid = message.getSenderJid();
-                   if (senderJid != null) {
-                       senderJid = senderJid.replace("@s.whatsapp.net", "").replace("@g.us", "");
-                       if (senderJid.contains("@")) senderJid = senderJid.split("@")[0];
-                       holder.senderName.setText(senderJid);
-                       holder.senderName.setVisibility(View.VISIBLE);
-                   } else {
-                       holder.senderName.setVisibility(View.GONE);
-                   }
-               }
+                String contactName = message.getContactName(); // Try persisted name first
+                if (contactName == null) {
+                    contactName = com.wmods.wppenhacer.utils.ContactHelper.getContactName(holder.itemView.getContext(),
+                            message.getSenderJid());
+                }
+
+                if (contactName != null) {
+                    holder.senderName.setText(contactName);
+                    holder.senderName.setVisibility(View.VISIBLE);
+                } else {
+                    String senderJid = message.getSenderJid();
+                    if (senderJid != null) {
+                        senderJid = senderJid.replace("@s.whatsapp.net", "").replace("@g.us", "");
+                        if (senderJid.contains("@"))
+                            senderJid = senderJid.split("@")[0];
+                        holder.senderName.setText(senderJid);
+                        holder.senderName.setVisibility(View.VISIBLE);
+                    } else {
+                        holder.senderName.setVisibility(View.GONE);
+                    }
+                }
             } else {
-               holder.senderName.setVisibility(View.GONE);
+                holder.senderName.setVisibility(View.GONE);
             }
         }
 
         // Timestamp
-        holder.timestamp.setText(Utils.getDateTimeFromMillis(message.getTimestamp()));
+        // Timestamp
+        String timeText = "Deleted:\t" + Utils.getDateTimeFromMillis(message.getTimestamp());
+
+        if (message.getOriginalTimestamp() > 0) {
+            timeText = "Original:\t" + Utils.getDateTimeFromMillis(message.getOriginalTimestamp()) + "\n" + timeText;
+        }
+        holder.timestamp.setText(timeText);
 
         // Message Content
         String text = message.getTextContent();
@@ -96,24 +110,71 @@ public class MessageListAdapter extends RecyclerView.Adapter<MessageListAdapter.
             holder.messageContent.setText(text);
             holder.messageContent.setVisibility(View.VISIBLE);
         } else {
-             // Placeholder for media
-             String type = "Message";
-             if (message.getMediaType() != -1) {
-                 if (message.getMediaType() == 1) type = "📷 Photo";
-                 else if (message.getMediaType() == 2) type = "🔊 Audio";
-                 else if (message.getMediaType() == 3) type = "🎥 Video";
-                 else type = "📁 Media (" + message.getMediaType() + ")";
-             } 
-             
-             if (message.getMediaCaption() != null && !message.getMediaCaption().isEmpty()) {
-                 type += "\n" + message.getMediaCaption();
-             }
-             holder.messageContent.setText(type);
-             holder.messageContent.setVisibility(View.VISIBLE);
+            // Placeholder for media
+            String type = "Message";
+            if (message.getMediaType() != -1) {
+                if (message.getMediaType() == 1)
+                    type = "📷 Photo";
+                else if (message.getMediaType() == 2)
+                    type = "🔊 Audio";
+                else if (message.getMediaType() == 3)
+                    type = "🎥 Video";
+                else
+                    type = "📁 Media (" + message.getMediaType() + ")";
+            }
+
+            if (message.getMediaCaption() != null && !message.getMediaCaption().isEmpty()) {
+                type += "\n" + message.getMediaCaption();
+            }
+            holder.messageContent.setText(type);
+            holder.messageContent.setVisibility(View.VISIBLE);
         }
 
         // Restore Button
         holder.btnRestore.setOnClickListener(v -> listener.onRestoreClick(message));
+
+        // Selection Logic
+        if (selectedItems.contains(message.getKeyId())) {
+            android.util.TypedValue typedValue = new android.util.TypedValue();
+            holder.itemView.getContext().getTheme().resolveAttribute(android.R.attr.colorControlHighlight, typedValue,
+                    true);
+            holder.itemView.setBackgroundColor(typedValue.data);
+        } else {
+            holder.itemView.setBackgroundColor(android.graphics.Color.TRANSPARENT);
+        }
+
+        holder.itemView.setOnClickListener(v -> {
+            if (listener != null)
+                listener.onItemClick(message);
+        });
+
+        holder.itemView.setOnLongClickListener(v -> {
+            if (listener != null)
+                return listener.onItemLongClick(message);
+            return false;
+        });
+    }
+
+    public void toggleSelection(String keyId) {
+        if (selectedItems.contains(keyId)) {
+            selectedItems.remove(keyId);
+        } else {
+            selectedItems.add(keyId);
+        }
+        notifyDataSetChanged();
+    }
+
+    public void clearSelection() {
+        selectedItems.clear();
+        notifyDataSetChanged();
+    }
+
+    public int getSelectedCount() {
+        return selectedItems.size();
+    }
+
+    public java.util.List<String> getSelectedItems() {
+        return new ArrayList<>(selectedItems);
     }
 
     @Override

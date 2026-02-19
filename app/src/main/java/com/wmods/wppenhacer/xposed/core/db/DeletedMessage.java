@@ -8,6 +8,7 @@ public class DeletedMessage {
     private String chatJid;
     private String senderJid;
     private long timestamp;
+    private long originalTimestamp;
     private int mediaType;
     private String textContent;
     private String mediaPath;
@@ -18,17 +19,19 @@ public class DeletedMessage {
 
     public DeletedMessage(long id, String keyId, String chatJid, String senderJid, long timestamp, int mediaType,
             String textContent, String mediaPath, String mediaCaption, boolean isFromMe) {
-        this(id, keyId, chatJid, senderJid, timestamp, mediaType, textContent, mediaPath, mediaCaption, isFromMe, null,
+        this(id, keyId, chatJid, senderJid, timestamp, 0, mediaType, textContent, mediaPath, mediaCaption, isFromMe,
+                null,
                 null);
     }
 
     public DeletedMessage(long id, String keyId, String chatJid, String senderJid, long timestamp, int mediaType,
             String textContent, String mediaPath, String mediaCaption, boolean isFromMe, String contactName) {
-        this(id, keyId, chatJid, senderJid, timestamp, mediaType, textContent, mediaPath, mediaCaption, isFromMe,
+        this(id, keyId, chatJid, senderJid, timestamp, 0, mediaType, textContent, mediaPath, mediaCaption, isFromMe,
                 contactName, null);
     }
 
-    public DeletedMessage(long id, String keyId, String chatJid, String senderJid, long timestamp, int mediaType,
+    public DeletedMessage(long id, String keyId, String chatJid, String senderJid, long timestamp,
+            long originalTimestamp, int mediaType,
             String textContent, String mediaPath, String mediaCaption, boolean isFromMe, String contactName,
             String packageName) {
         this.id = id;
@@ -36,6 +39,7 @@ public class DeletedMessage {
         this.chatJid = chatJid;
         this.senderJid = senderJid;
         this.timestamp = timestamp;
+        this.originalTimestamp = originalTimestamp;
         this.mediaType = mediaType;
         this.textContent = textContent;
         this.mediaPath = mediaPath;
@@ -86,6 +90,14 @@ public class DeletedMessage {
 
     public void setTimestamp(long timestamp) {
         this.timestamp = timestamp;
+    }
+
+    public long getOriginalTimestamp() {
+        return originalTimestamp;
+    }
+
+    public void setOriginalTimestamp(long originalTimestamp) {
+        this.originalTimestamp = originalTimestamp;
     }
 
     public int getMediaType() {

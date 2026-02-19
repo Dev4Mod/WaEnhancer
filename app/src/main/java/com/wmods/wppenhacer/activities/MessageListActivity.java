@@ -51,7 +51,9 @@ public class MessageListActivity extends BaseActivity implements MessageListAdap
         delMessageStore = DelMessageStore.getInstance(this);
         adapter = new MessageListAdapter(this);
 
-        binding.recyclerView.setLayoutManager(new LinearLayoutManager(this));
+        LinearLayoutManager layoutManager = new LinearLayoutManager(this);
+        layoutManager.setStackFromEnd(true);
+        binding.recyclerView.setLayoutManager(layoutManager);
         binding.recyclerView.setAdapter(adapter);
 
         loadMessages();
@@ -68,6 +70,7 @@ public class MessageListActivity extends BaseActivity implements MessageListAdap
                     binding.emptyView.setVisibility(View.GONE);
                     binding.recyclerView.setVisibility(View.VISIBLE);
                     adapter.setMessages(messages);
+                    binding.recyclerView.scrollToPosition(messages.size() - 1);
                 }
             });
         }).start();
@@ -104,8 +107,97 @@ public class MessageListActivity extends BaseActivity implements MessageListAdap
         return super.onOptionsItemSelected(item);
     }
 
+    private androidx.appcompat.view.ActionMode actionMode;
+    private final androidx.appcompat.view.ActionMode.Callback actionModeCallback = new androidx.appcompat.view.ActionMode.Callback() {
+        @Override
+        public boolean onCreateActionMode(androidx.appcompat.view.ActionMode mode, android.view.Menu menu) {
+            mode.getMenuInflater().inflate(R.menu.menu_context_delete, menu);
+            return true;
+        }
+
+        @Override
+        public boolean onPrepareActionMode(androidx.appcompat.view.ActionMode mode, android.view.Menu menu) {
+            return false;
+        }
+
+        @Override
+        public boolean onActionItemClicked(androidx.appcompat.view.ActionMode mode, android.view.MenuItem item) {
+            if (item.getItemId() == R.id.action_delete) {
+                deleteSelectedMessages();
+                mode.finish();
+                return true;
+            }
+            return false;
+        }
+
+        @Override
+        public void onDestroyActionMode(androidx.appcompat.view.ActionMode mode) {
+            adapter.clearSelection();
+            actionMode = null;
+        }
+    };
+
+    private void deleteSelectedMessages() {
+        List<String> selected = adapter.getSelectedItems();
+        if (selected.isEmpty())
+            return;
+
+        new androidx.appcompat.app.AlertDialog.Builder(this)
+                .setTitle("Delete Messages?")
+                .setMessage("Are you sure you want to delete " + selected.size() + " message(s)?")
+                .setPositiveButton("Delete", (dialog, which) -> {
+                    new Thread(() -> {
+                        delMessageStore.deleteMessages(selected);
+                        runOnUiThread(() -> {
+                            loadMessages();
+                            Toast.makeText(this, "Messages deleted", Toast.LENGTH_SHORT).show();
+                        });
+                    }).start();
+                })
+                .setNegativeButton("Cancel", null)
+                .show();
+    }
+
     @Override
     public void onRestoreClick(DeletedMessage message) {
-        Toast.makeText(this, "Restore feature coming soon!", Toast.LENGTH_SHORT).show();
+        com.google.android.material.bottomsheet.BottomSheetDialog bottomSheetDialog = new com.google.android.material.bottomsheet.BottomSheetDialog(
+                this);
+        View sheetView = getLayoutInflater().inflate(R.layout.layout_restore_coming_soon, null);
+        bottomSheetDialog.setContentView(sheetView);
+
+        sheetView.findViewById(R.id.btn_follow_dev).setOnClickListener(v -> {
+            android.content.Intent intent = new android.content.Intent(android.content.Intent.ACTION_VIEW);
+            intent.setData(android.net.Uri.parse("https://github.com/mubashardev"));
+            startActivity(intent);
+            bottomSheetDialog.dismiss();
+        });
+
+        bottomSheetDialog.show();
+    }
+
+    @Override
+    public boolean onItemLongClick(DeletedMessage message) {
+        if (actionMode == null) {
+            actionMode = startSupportActionMode(actionModeCallback);
+        }
+        toggleSelection(message.getKeyId());
+        return true;
+    }
+
+    @Override
+    public void onItemClick(DeletedMessage message) {
+        if (actionMode != null) {
+            toggleSelection(message.getKeyId());
+        }
+    }
+
+    private void toggleSelection(String keyId) {
+        adapter.toggleSelection(keyId);
+        int count = adapter.getSelectedCount();
+        if (count == 0) {
+            actionMode.finish();
+        } else {
+            actionMode.setTitle(count + " selected");
+        }
     }
 }

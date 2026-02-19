@@ -27,7 +27,7 @@ public class AboutActivity extends BaseActivity {
         binding.btnGithub.setOnClickListener(view -> {
             Intent intent = new Intent();
             intent.setAction(Intent.ACTION_VIEW);
-            intent.setData(Uri.parse("https://github.com/mubashardev/WaEnhancer"));
+            intent.setData(Uri.parse("https://github.com/Dev4Mod/WaEnhancer"));
             startActivity(intent);
         });
         binding.btnDonate.setOnClickListener(view -> {

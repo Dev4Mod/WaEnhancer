@@ -7,6 +7,9 @@
 * Global Search: Added comprehensive search functionality across all app settings and features.
 * Recover deleted for me message: Added option to recover deleted for me messages.
 
+[IMPROVEMENTS]
+- Original timestamp: Added option to show original timestamp of **Delete for me** messages.
+
 [Fixed]
 * Fixed compatibility with version 2.26.6.XX
 * Fixed high-quality profile picture download

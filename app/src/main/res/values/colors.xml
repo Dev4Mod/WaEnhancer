@@ -58,4 +58,5 @@
     <color name="background_color">#FAFAFA</color>
     <color name="surface_color">#FFFFFF</color>
     <color name="primary_color">#00796B</color>
+    <color name="selected_item_color">#4D2196F3</color> <!-- Light Blue with transparency -->
 </resources>
