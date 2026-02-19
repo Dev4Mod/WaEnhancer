@@ -62,9 +62,21 @@ public class DeletedMessagesAdapter extends RecyclerView.Adapter<DeletedMessages
         // Priority 1: Use Persisted Contact Name (from DB)
         String contactName = message.getContactName();
 
-        // Priority 2: Runtime Lookup (if not in DB or changed)
-        if (contactName == null && displayJid != null) {
+        // Check if DB value is invalid (Generic App Name)
+        if (contactName != null
+                && (contactName.equalsIgnoreCase("WhatsApp") || contactName.equalsIgnoreCase("WhatsApp Business"))) {
+            contactName = null;
+        }
+
+        // Priority 2: Runtime Lookup (if not in DB or was invalid)
+        if ((contactName == null || contactName.isEmpty()) && displayJid != null) {
             contactName = com.wmods.wppenhacer.utils.ContactHelper.getContactName(context, displayJid);
+        }
+
+        // Final Check: If Runtime Lookup also returned Generic App Name
+        if (contactName != null
+                && (contactName.equalsIgnoreCase("WhatsApp") || contactName.equalsIgnoreCase("WhatsApp Business"))) {
+            contactName = null;
         }
         String displayText;
         if (contactName != null) {
