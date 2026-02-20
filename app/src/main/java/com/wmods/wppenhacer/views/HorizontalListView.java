@@ -8,6 +8,7 @@ import android.util.AttributeSet;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.ViewParent;
 import android.widget.AdapterView;
 import android.widget.ListAdapter;
 import android.widget.Scroller;
@@ -302,7 +303,20 @@ public class HorizontalListView extends AdapterView<ListAdapter> {
 
     @Override
     public boolean dispatchTouchEvent(MotionEvent ev) {
+        var action = ev.getActionMasked();
+        if (action == MotionEvent.ACTION_DOWN) {
+            requestParentIntercept(false);
+        } else if (action == MotionEvent.ACTION_UP || action == MotionEvent.ACTION_CANCEL) {
+            requestParentIntercept(true);
+        }
         return mGesture.onTouchEvent(ev);
+    }
+
+    private void requestParentIntercept(boolean allowIntercept) {
+        ViewParent parent = getParent();
+        if (parent != null) {
+            parent.requestDisallowInterceptTouchEvent(!allowIntercept);
+        }
     }
 
     protected boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX,

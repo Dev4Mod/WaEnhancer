@@ -859,6 +859,8 @@ public class Unobfuscator {
 
     public synchronized static Class<?> loadConversationRowClass(ClassLoader loader) throws Exception {
         return UnobfuscatorCache.getInstance().getClass(loader, () -> {
+            var clazz = findFirstClassUsingStrings(loader, StringMatchType.Contains, "ConversationRow/setupUserNameInGroupView/");
+            if (clazz != null) return clazz;
             var conversation_header = Utils.getID("conversation_row_participant_header_view_stub", "id");
             var nameId = Utils.getID("name_in_group", "id");
             var classData = dexkit.findClass(FindClass.create().matcher(ClassMatcher.create().addMethod(MethodMatcher.create().addUsingNumber(conversation_header).addUsingNumber(nameId)))).singleOrNull();
@@ -968,10 +970,16 @@ public class Unobfuscator {
 
     public synchronized static Class<?> loadViewHolder(ClassLoader loader) throws Exception {
         return UnobfuscatorCache.getInstance().getClass(loader, () -> {
-            Method method = findFirstMethodUsingStrings(loader, StringMatchType.Contains, "conversations/click/jid ");
-            if (method == null || method.getParameterCount() == 0)
-                throw new RuntimeException("ViewHolder not found!");
-            return method.getParameterTypes()[0];
+            var methodMatcher = MethodMatcher.create();
+            methodMatcher.usingNumbers(
+                    Utils.getID("conversations_row_header_stub", "id"),
+                    Utils.getID("pin_indicator", "id"),
+                    Utils.getID("mute_indicator", "id"),
+                    Utils.getID("contact_photo", "id")
+            );
+            var methods = dexkit.findMethod(FindMethod.create().matcher(methodMatcher)).stream().filter(methodData -> methodData.getParamTypes().get(0).getName().equals(Context.class.getName())).collect(Collectors.toList());
+            if (methods.isEmpty()) throw new ClassNotFoundException("View Holder not found!");
+            return methods.get(0).getMethodInstance(loader).getDeclaringClass();
         });
     }
 
@@ -2237,6 +2245,12 @@ public class Unobfuscator {
     public static Method loadGetProfilePhotoMethod(ClassLoader classLoader) throws Exception {
         return UnobfuscatorCache.getInstance().getMethod(classLoader, ()-> findFirstMethodUsingStrings(classLoader, StringMatchType.Contains,"Avatars",".j"));
     }
+
+
+    public static Method loadGetProfilePhotoHighQMethod(ClassLoader classLoader) throws Exception {
+        return UnobfuscatorCache.getInstance().getMethod(classLoader, () -> findFirstMethodUsingStrings(classLoader, StringMatchType.Contains, "me.jpg", "Profile Pictures"));
+    }
+
 
 
     public static Class<?> loadChatCacheClass(ClassLoader classLoader) throws Exception {

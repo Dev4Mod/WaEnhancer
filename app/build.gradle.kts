@@ -132,7 +132,13 @@ android {
     materialThemeBuilder {
         themes {
             for ((name, color) in listOf(
-                "Green" to "4FAF50"
+                "Green" to "4FAF50",
+                "Blue" to "3B82F6",
+                "Cyan" to "06B6D4",
+                "Purple" to "8B5CF6",
+                "Orange" to "F97316",
+                "Red" to "EF4444",
+                "Pink" to "EC4899"
             )) {
                 create("Material$name") {
                     lightThemeFormat = "ThemeOverlay.Light.%s"

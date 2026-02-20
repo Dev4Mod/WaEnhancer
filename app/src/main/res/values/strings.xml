@@ -34,6 +34,9 @@
     <string name="videoquality_sum">Send videos in HD quality, by default</string>
     <string name="colors_customization">Customize your colors</string>
     <string name="colors_customization_sum">Change all colors in your WhatsApp (Working only in Dark Theme)</string>
+    <string name="changecolor_mode">Color source</string>
+    <string name="changecolor_mode_manual">Color picker</string>
+    <string name="changecolor_mode_monet">Automatic (Monet, Android 12+)</string>
     <string name="general">General</string>
     <string name="restart_whatsapp">Restart WhatsApp</string>
     <string name="conversation">Conversation Screen</string>
@@ -229,6 +232,17 @@
     <string name="disable_default_emojis">Disable Default Emojis</string>
     <string name="theme_mode">Dark Theme Wa Enhancer</string>
     <string name="theme_mode_sum">Force a theme mode in the Wa Enhancer</string>
+    <string name="wae_color_mode">WAE color mode</string>
+    <string name="wae_color_preset">Preset color</string>
+    <string name="wae_color_mode_preset">Preset</string>
+    <string name="wae_color_mode_auto_monet">Automatic (Monet)</string>
+    <string name="color_preset_green">Green</string>
+    <string name="color_preset_blue">Blue</string>
+    <string name="color_preset_cyan">Cyan</string>
+    <string name="color_preset_purple">Purple</string>
+    <string name="color_preset_orange">Orange</string>
+    <string name="color_preset_red">Red</string>
+    <string name="color_preset_pink">Pink</string>
     <string name="disable_default_emojis_sum">Disables Whatsapp\'s default emojis and uses system emojis\n(NOTE: Whatsapp emojis will disappear from the selector, use the keyboard to insert).</string>
     <string name="other">Other</string>
     <string name="enable_media_preview">Enable Media Preview</string>

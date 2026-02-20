@@ -71,6 +71,40 @@
         <item>1</item>
         <item>2</item>
     </string-array>
+    <string-array name="changecolor_mode_entries">
+        <item>@string/changecolor_mode_manual</item>
+        <item>@string/changecolor_mode_monet</item>
+    </string-array>
+    <string-array name="changecolor_mode_values">
+        <item>manual</item>
+        <item>monet</item>
+    </string-array>
+    <string-array name="wae_color_mode_entries">
+        <item>@string/wae_color_mode_preset</item>
+        <item>@string/wae_color_mode_auto_monet</item>
+    </string-array>
+    <string-array name="wae_color_mode_values">
+        <item>preset</item>
+        <item>monet</item>
+    </string-array>
+    <string-array name="wae_color_preset_entries">
+        <item>@string/color_preset_green</item>
+        <item>@string/color_preset_blue</item>
+        <item>@string/color_preset_cyan</item>
+        <item>@string/color_preset_purple</item>
+        <item>@string/color_preset_orange</item>
+        <item>@string/color_preset_red</item>
+        <item>@string/color_preset_pink</item>
+    </string-array>
+    <string-array name="wae_color_preset_values">
+        <item>green</item>
+        <item>blue</item>
+        <item>cyan</item>
+        <item>purple</item>
+        <item>orange</item>
+        <item>red</item>
+        <item>pink</item>
+    </string-array>
     <string-array name="chatfilter_buttons">
         <item>@string/chatfilter_no_search</item>
         <item>@string/chatfilter_search_icon</item>
@@ -132,6 +166,7 @@
         <item>2.26.3.xx</item>
         <item>2.26.4.xx</item>
         <item>2.26.5.xx</item>
+        <item>2.26.6.xx</item>
     </string-array>
     <string-array name="supported_versions_business">
         <item>2.25.34.xx</item>
@@ -146,6 +181,7 @@
         <item>2.26.3.xx</item>
         <item>2.26.4.xx</item>
         <item>2.26.5.xx</item>
+        <item>2.26.6.xx</item>
     </string-array>
     <string-array name="image_picker">
         <item>image/*</item>

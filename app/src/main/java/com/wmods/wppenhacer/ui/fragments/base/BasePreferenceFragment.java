@@ -111,9 +111,29 @@ public abstract class BasePreferenceFragment extends PreferenceFragmentCompat im
             setPreferenceState("custom_filters", false);
         }
 
+        var changeColorEnabled = mPrefs.getBoolean("changecolor", false);
+        var changeColorMode = mPrefs.getString("changecolor_mode", "manual");
+        var monetAvailable = Build.VERSION.SDK_INT >= Build.VERSION_CODES.S;
+        var useMonetColors = changeColorEnabled && monetAvailable && Objects.equals(changeColorMode, "monet");
+
+        setPreferenceState("changecolor_mode", changeColorEnabled && monetAvailable);
+        setPreferenceState("primary_color", changeColorEnabled && !useMonetColors);
+        setPreferenceState("background_color", changeColorEnabled && !useMonetColors);
+        setPreferenceState("text_color", changeColorEnabled && !useMonetColors);
+
         if (Objects.equals(key, "thememode")) {
             var mode = Integer.parseInt(mPrefs.getString("thememode", "0"));
             App.setThemeMode(mode);
+        }
+
+        var colorMode = mPrefs.getString("wae_color_mode", "preset");
+        var useMonet = Objects.equals(colorMode, "monet") && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S;
+        setPreferenceState("wae_color_preset", !useMonet);
+
+        if (Objects.equals(key, "wae_color_mode") || Objects.equals(key, "wae_color_preset")) {
+            if (getActivity() != null) {
+                getActivity().recreate();
+            }
         }
 
         if (Objects.equals(key, "force_english")) {

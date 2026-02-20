@@ -11,6 +11,15 @@
             app:summary="@string/colors_customization_sum"
             app:title="@string/colors_customization" />
 
+        <ListPreference
+            app:defaultValue="manual"
+            app:dependency="changecolor"
+            app:entries="@array/changecolor_mode_entries"
+            app:entryValues="@array/changecolor_mode_values"
+            app:key="changecolor_mode"
+            app:summary="%s"
+            app:title="@string/changecolor_mode" />
+
         <com.jaredrummler.android.colorpicker.ColorPreferenceCompat
             app:cpv_showAlphaSlider="true"
             app:dependency="changecolor"

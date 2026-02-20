@@ -5,7 +5,7 @@
         <item name="windowNoTitle">true</item>
         <item name="android:windowLightStatusBar">false</item>
         <item name="colorPrimaryVariant">@color/primary_dark_light_light_status_bar</item>
-        <item name="android:statusBarColor">#1B5E20</item>
+        <item name="android:statusBarColor">?colorPrimary</item>
         <item name="android:navigationBarColor">@android:color/transparent</item>
         <item name="android:windowLightNavigationBar">true</item>
         <item name="android:textAppearanceListItem">?textAppearanceSubtitle1</item>
@@ -25,7 +25,7 @@
         <item name="android:textAppearanceListItem">?textAppearanceSubtitle1</item>
         <item name="android:colorAccent">?colorPrimary</item>
         <item name="android:colorControlActivated">?colorPrimary</item>
-        <item name="android:statusBarColor">#1B5E20</item>
+        <item name="android:statusBarColor">?colorPrimaryContainer</item>
         <item name="android:navigationBarColor">@android:color/transparent</item>
         <item name="android:windowActivityTransitions">true</item>
         <item name="android:windowEnterTransition">@android:transition/fade</item>
