@@ -921,10 +921,16 @@ public class Unobfuscator {
 
     public synchronized static Class<?> loadViewHolder(ClassLoader loader) throws Exception {
         return UnobfuscatorCache.getInstance().getClass(loader, () -> {
-            Method method = findFirstMethodUsingStrings(loader, StringMatchType.Contains, "conversations/click/jid ");
-            if (method == null || method.getParameterCount() == 0)
-                throw new RuntimeException("ViewHolder not found!");
-            return method.getParameterTypes()[0];
+            var methodMatcher = MethodMatcher.create();
+            methodMatcher.usingNumbers(
+                    Utils.getID("conversations_row_header_stub", "id"),
+                    Utils.getID("pin_indicator", "id"),
+                    Utils.getID("mute_indicator", "id"),
+                    Utils.getID("contact_photo", "id")
+            );
+            var methods = dexkit.findMethod(FindMethod.create().matcher(methodMatcher)).stream().filter(methodData -> methodData.getParamTypes().get(0).getName().equals(Context.class.getName())).collect(Collectors.toList());
+            if (methods.isEmpty()) throw new ClassNotFoundException("View Holder not found!");
+            return methods.get(0).getMethodInstance(loader).getDeclaringClass();
         });
     }
 
