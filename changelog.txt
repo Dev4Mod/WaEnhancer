@@ -1,8 +1,8 @@
-[WhatsApp]
-* Added support do Whatsapp 2.26.5.XX
+[ADDED]
+* Added Monet colors and some others for WAE
+* Added Monet colors for WhatsApp
 
 [Fixed]
-- Fixed media quality selector
-- Fixed issue when sending high-resolution videos
-- Fixed landscape video issue
-- Fixed profile picture download for old contacts
+* Fixed compatibility with version 2.26.6.XX
+* Fixed high-quality profile picture download
+* Fixed bug in IGStatus where dragging would case the user to switch tabs.
