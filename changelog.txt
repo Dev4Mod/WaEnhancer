@@ -2,9 +2,6 @@
 * Added Monet colors and some others for WAE
 * Added Monet colors for WhatsApp
 
-[IMPROVEMENTS]
-- Original timestamp: Added option to show original timestamp of **Delete for me** messages
-
 [Fixed]
 * Fixed compatibility with version 2.26.6.XX
 * Fixed high-quality profile picture download
