@@ -33,9 +33,12 @@
 - `Custom Privacy per Contact`
 - `Ghost Mode`
 - `Always Online`
+- `Call Recording`
 - `Call Privacy & Blocking`
 - `Call Information`
 - `Call Contact Whitelist/Blocklist`
+- `Global Search`
+- `Recover Deleted Messages`
 </details>
 
 <details closed>
@@ -98,6 +101,7 @@
 - `Send Audio as Voice/Audio Note`
 - `Enable Media Preview`
 - `Custom Download Location`
+- `Force Restore Cloud Backup`
 
 </details>
 
