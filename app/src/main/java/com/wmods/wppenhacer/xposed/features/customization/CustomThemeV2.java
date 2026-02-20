@@ -51,7 +51,7 @@ public class CustomThemeV2 extends Feature {
     private HashMap<String, String> navAlpha;
     private HashMap<String, String> toolbarAlpha;
     private Properties properties;
-//    private ViewGroup mContent;
+    // private ViewGroup mContent;
 
     public CustomThemeV2(@NonNull ClassLoader classLoader, @NonNull XSharedPreferences preferences) {
         super(classLoader, preferences);
@@ -75,7 +75,6 @@ public class CustomThemeV2 extends Feature {
         } catch (NumberFormatException e) {
             return;
         }
-
 
         for (var c : mapColors.keySet()) {
             String value = mapColors.get(c);
@@ -115,32 +114,37 @@ public class CustomThemeV2 extends Feature {
         properties = Utils.getProperties(prefs, "custom_css", "custom_filters");
         hookTheme();
         hookWallpaper();
-        XposedBridge.hookAllMethods(XposedHelpers.findClass("android.app.ActivityThread", classLoader), "handleRelaunchActivity", new XC_MethodHook() {
-            @Override
-            protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
-                loadAndApplyColors();
-                loadAndApplyColorsWallpaper();
-            }
-        });
+        XposedBridge.hookAllMethods(XposedHelpers.findClass("android.app.ActivityThread", classLoader),
+                "handleRelaunchActivity", new XC_MethodHook() {
+                    @Override
+                    protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
+                        loadAndApplyColors();
+                        loadAndApplyColorsWallpaper();
+                    }
+                });
     }
 
     private void loadAndApplyColorsWallpaper() {
-        if (prefs.getBoolean("lite_mode", false)) return;
+        if (prefs.getBoolean("lite_mode", false))
+            return;
         var customWallpaper = prefs.getBoolean("wallpaper", false);
 
         if (customWallpaper || properties.containsKey("wallpaper")) {
 
             wallAlpha = new HashMap<>(IColors.colors);
-            var wallpaperAlpha = customWallpaper ? prefs.getInt("wallpaper_alpha", 30) : Utils.tryParseInt(properties.getProperty("wallpaper_alpha"), 30);
+            var wallpaperAlpha = customWallpaper ? prefs.getInt("wallpaper_alpha", 30)
+                    : Utils.tryParseInt(properties.getProperty("wallpaper_alpha"), 30);
             replaceTransparency(wallAlpha, (100 - wallpaperAlpha) / 100.0f);
 
             navAlpha = new HashMap<>(IColors.colors);
-            var wallpaperAlphaNav = customWallpaper ? prefs.getInt("wallpaper_alpha_navigation", 30) : Utils.tryParseInt(properties.getProperty("wallpaper_alpha_navigation"), 30);
+            var wallpaperAlphaNav = customWallpaper ? prefs.getInt("wallpaper_alpha_navigation", 30)
+                    : Utils.tryParseInt(properties.getProperty("wallpaper_alpha_navigation"), 30);
             replaceTransparency(navAlpha, (100 - wallpaperAlphaNav) / 100.0f);
 
             toolbarAlpha = new HashMap<>(IColors.colors);
 
-            var wallpaperToolbarAlpha = customWallpaper ? prefs.getInt("wallpaper_alpha_toolbar", 30) : Utils.tryParseInt(properties.getProperty("wallpaper_alpha_toolbar"), 30);
+            var wallpaperToolbarAlpha = customWallpaper ? prefs.getInt("wallpaper_alpha_toolbar", 30)
+                    : Utils.tryParseInt(properties.getProperty("wallpaper_alpha_toolbar"), 30);
             replaceTransparency(toolbarAlpha, (100 - wallpaperToolbarAlpha) / 100.0f);
         }
     }
@@ -166,28 +170,33 @@ public class CustomThemeV2 extends Feature {
             @Override
             protected void afterHookedMethod(MethodHookParam param) throws Throwable {
                 var activity = (Activity) param.thisObject;
-                if (ContextCompat.checkSelfPermission(activity, Manifest.permission.READ_MEDIA_IMAGES) == PackageManager.PERMISSION_GRANTED || ContextCompat.checkSelfPermission(activity, Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
+                if (ContextCompat.checkSelfPermission(activity,
+                        Manifest.permission.READ_MEDIA_IMAGES) == PackageManager.PERMISSION_GRANTED
+                        || ContextCompat.checkSelfPermission(activity,
+                                Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
                     injectWallpaper(activity.findViewById(Utils.getID("root_view", "id")));
                 }
             }
         });
 
-//        var revertWallAlpha = revertColors(wallAlpha);
+        // var revertWallAlpha = revertColors(wallAlpha);
 
-//        WppCore.addListenerActivity((activity, type) -> {
-//            var isHome = homeActivityClass.isInstance(activity);
-//            if (WppCore.ActivityChangeState.ChangeType.RESUMED == type && isHome) {
-//                mContent = activity.findViewById(android.R.id.content);
-//                if (mContent != null) {
-//                    replaceColors(mContent, wallAlpha);
-//                }
-//            } else if (WppCore.ActivityChangeState.ChangeType.CREATED == type && !isHome &&
-//                    !activity.getClass().getSimpleName().equals("QuickContactActivity") && !DesignUtils.isNightMode()) {
-//                if (mContent != null) {
-//                    replaceColors(mContent, revertWallAlpha);
-//                }
-//            }
-//        });
+        // WppCore.addListenerActivity((activity, type) -> {
+        // var isHome = homeActivityClass.isInstance(activity);
+        // if (WppCore.ActivityChangeState.ChangeType.RESUMED == type && isHome) {
+        // mContent = activity.findViewById(android.R.id.content);
+        // if (mContent != null) {
+        // replaceColors(mContent, wallAlpha);
+        // }
+        // } else if (WppCore.ActivityChangeState.ChangeType.CREATED == type && !isHome
+        // &&
+        // !activity.getClass().getSimpleName().equals("QuickContactActivity") &&
+        // !DesignUtils.isNightMode()) {
+        // if (mContent != null) {
+        // replaceColors(mContent, revertWallAlpha);
+        // }
+        // }
+        // });
 
         var hookFragmentView = Unobfuscator.loadFragmentViewMethod(classLoader);
 
@@ -195,7 +204,8 @@ public class CustomThemeV2 extends Feature {
                 new XC_MethodHook() {
                     @Override
                     protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-                        if (checkNotHomeActivity()) return;
+                        if (checkNotHomeActivity())
+                            return;
                         var viewGroup = (ViewGroup) param.getResult();
                         replaceColors(viewGroup, wallAlpha);
                     }
@@ -205,17 +215,17 @@ public class CustomThemeV2 extends Feature {
         XposedHelpers.findAndHookMethod(FrameLayout.class, "onMeasure", int.class, int.class, new XC_MethodHook() {
             @Override
             protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-                if (!loadTabFrameClass.isInstance(param.thisObject)) return;
+                if (!loadTabFrameClass.isInstance(param.thisObject))
+                    return;
                 var viewGroup = (ViewGroup) param.thisObject;
-                if (checkNotHomeActivity()) return;
+                if (checkNotHomeActivity())
+                    return;
                 var background = viewGroup.getBackground();
                 replaceColor(background, navAlpha);
             }
         });
 
-
     }
-
 
     public void hookTheme() throws Throwable {
         loadAndApplyColors();
@@ -226,8 +236,10 @@ public class CustomThemeV2 extends Feature {
                 var typedValue = (TypedValue) param.args[2];
                 if (typedValue.type >= TypedValue.TYPE_FIRST_INT
                         && typedValue.type <= TypedValue.TYPE_LAST_INT) {
-                    if (typedValue.data == 0) return;
-                    if (checkNotApplyColor(typedValue.data)) return;
+                    if (typedValue.data == 0)
+                        return;
+                    if (checkNotApplyColor(typedValue.data))
+                        return;
                     typedValue.data = IColors.getFromIntColor(typedValue.data, IColors.colors);
                 }
             }
@@ -269,15 +281,15 @@ public class CustomThemeV2 extends Feature {
             }
         });
 
-//        Method activeButtonNav = Unobfuscator.loadActiveButtonNav(classLoader);
-//
-//        XposedBridge.hookMethod(activeButtonNav, new XC_MethodHook() {
-//            @Override
-//            protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
-//                var drawable = (Drawable) param.args[0];
-//                DrawableColors.replaceColor(drawable, alphacolors);
-//            }
-//        });
+        // Method activeButtonNav = Unobfuscator.loadActiveButtonNav(classLoader);
+        //
+        // XposedBridge.hookMethod(activeButtonNav, new XC_MethodHook() {
+        // @Override
+        // protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
+        // var drawable = (Drawable) param.args[0];
+        // DrawableColors.replaceColor(drawable, alphacolors);
+        // }
+        // });
     }
 
     public void loadAndApplyColors() {
@@ -289,16 +301,24 @@ public class CustomThemeV2 extends Feature {
         var backgroundColorInt = prefs.getInt("background_color", 0);
         var changeColorEnabled = prefs.getBoolean("changecolor", false);
         var changeColorMode = prefs.getString("changecolor_mode", "manual");
-        var useMonetColors = changeColorEnabled && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S && Objects.equals(changeColorMode, "monet");
+        var useMonetColors = changeColorEnabled && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S
+                && Objects.equals(changeColorMode, "monet");
 
         if (useMonetColors) {
-            var primaryMonetColor = resolveMonetColor(DesignUtils.isNightMode() ? "system_accent1_300" : "system_accent1_600");
-            var textMonetColor = resolveMonetColor(DesignUtils.isNightMode() ? "system_neutral1_100" : "system_neutral1_900");
-            var backgroundMonetColor = resolveMonetColor(DesignUtils.isNightMode() ? "system_neutral1_900" : "system_neutral1_10");
+            var primaryMonetColor = resolveMonetColor(
+                    DesignUtils.isNightMode() ? "system_accent1_300" : "system_accent1_600");
+            var textMonetColor = resolveMonetColor(
+                    DesignUtils.isNightMode() ? "system_neutral1_100" : "system_neutral1_900");
+            var backgroundMonetColor = resolveMonetColor(
+                    DesignUtils.isNightMode() ? "system_neutral1_900" : "system_neutral1_10");
 
-            if (primaryMonetColor != 0) primaryColorInt = primaryMonetColor;
-            if (textMonetColor != 0) textColorInt = textMonetColor;
-            if (backgroundMonetColor != 0) backgroundColorInt = backgroundMonetColor;
+            if (primaryMonetColor != 0)
+                primaryColorInt = primaryMonetColor;
+            if (textMonetColor != 0)
+                textColorInt = textMonetColor;
+            if (backgroundMonetColor != 0)
+                backgroundColorInt = backgroundMonetColor;
+
         }
 
         var primaryColor = DesignUtils.checkSystemColor(properties.getProperty("primary_color", "0"));
@@ -385,7 +405,8 @@ public class CustomThemeV2 extends Feature {
         hexAlpha = hexAlpha.length() == 1 ? "0" + hexAlpha : hexAlpha;
         for (var c : backgroundColors.keySet()) {
             var oldColor = wallpaperColors.getOrDefault(c, backgroundColors.get(c));
-            if (oldColor == null || oldColor.length() < 9) continue;
+            if (oldColor == null || oldColor.length() < 9)
+                continue;
             var newColor = "#" + hexAlpha + oldColor.substring(3);
             wallpaperColors.put(c, newColor);
             wallpaperColors.put(oldColor, newColor);
@@ -413,7 +434,8 @@ public class CustomThemeV2 extends Feature {
         var resultColor = -1;
         for (var c : colors) {
             var vColor = IColors.colors.getOrDefault(c, "");
-            if (vColor.length() < 9) continue;
+            if (vColor.length() < 9)
+                continue;
             if (sColor.equals(vColor)) {
                 resultColor = IColors.parseColor(c);
                 break;
@@ -424,7 +446,9 @@ public class CustomThemeV2 extends Feature {
 
     private boolean checkNotApplyColor(int color) {
         var activity = WppCore.getCurrentActivity();
-        if (activity != null && activity.getClass().getSimpleName().equals("Conversation") && ReflectionUtils.isCalledFromStrings("getValue") && !ReflectionUtils.isCalledFromStrings("android.view")) {
+        if (activity != null && activity.getClass().getSimpleName().equals("Conversation")
+                && ReflectionUtils.isCalledFromStrings("getValue")
+                && !ReflectionUtils.isCalledFromStrings("android.view")) {
             return color != 0xff12181c;
         }
         return false;
@@ -436,9 +460,7 @@ public class CustomThemeV2 extends Feature {
         return "Custom Theme V2";
     }
 
-
     public static class IntBgColorHook extends XC_MethodHook {
-
 
         @Override
         protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
@@ -455,6 +477,5 @@ public class CustomThemeV2 extends Feature {
             param.args[0] = IColors.getFromIntColor(color, IColors.colors);
         }
     }
-
 
 }

@@ -906,22 +906,54 @@ public class Unobfuscator {
 
     public synchronized static Class<?> loadSettingsGoogleDriveActivity(ClassLoader loader) throws Exception {
         return UnobfuscatorCache.getInstance().getClass(loader, () -> {
-            var cls = findFirstClassUsingStrings(loader, StringMatchType.Contains, "SettingsGoogleDrive");
-            if (cls == null)
-                throw new Exception("SettingsGoogleDriveActivity not found");
-            return cls;
+            var classes = findAllClassUsingStrings(loader, StringMatchType.Contains, "SettingsGoogleDrive");
+            if (classes == null)
+                throw new Exception("SettingsGoogleDriveActivity not found (No classes with string)");
+
+            StringBuilder candidates = new StringBuilder();
+            for (var cls : classes) {
+                String name = cls.getName();
+                if (name.contains("com.whatsapp.deeplink"))
+                    continue;
+
+                candidates.append(name).append(", ");
+
+                // Check for onCreate method (Standard for Activity/Fragment)
+                try {
+                    // Check declared methods for "onCreate"
+                    for (Method m : cls.getDeclaredMethods()) {
+                        if (m.getName().equals("onCreate")) {
+                            return cls;
+                        }
+                    }
+                } catch (Throwable t) {
+                    // Ignore reflection errors
+                }
+            }
+            throw new Exception("SettingsGoogleDriveActivity not found. Candidates checked: " + candidates.toString());
+
         });
     }
 
     public synchronized static Class<?> loadRestoreBackupActivity(ClassLoader loader) throws Exception {
         return UnobfuscatorCache.getInstance().getClass(loader, () -> {
-            // Try specific log strings or unique strings used in the activity
             var strings = new String[] { "RestoreFromBackupActivity", "gdrive/restore/activity",
                     "gdrive_restore_title" };
             for (String s : strings) {
-                var cls = findFirstClassUsingStrings(loader, StringMatchType.Contains, s);
-                if (cls != null)
-                    return cls;
+                var classes = findAllClassUsingStrings(loader, StringMatchType.Contains, s);
+                if (classes != null) {
+                    for (var cls : classes) {
+                        try {
+                            for (Method m : cls.getDeclaredMethods()) {
+                                if (m.getName().equals("onCreate")) {
+                                    return cls;
+                                }
+                            }
+                        } catch (Throwable t) {
+                        }
+                    }
+                }
+
             }
             throw new Exception("RestoreBackupActivity not found");
         });
@@ -1379,6 +1411,10 @@ public class Unobfuscator {
             if (method == null)
                 method = findFirstMethodUsingStrings(loader, StringMatchType.Contains,
                         "UPDATE_MESSAGE_ADD_ON_FLAGS_MAIN_SQL");
+<<<<<<< HEAD
+=======
+
+>>>>>>> 63e0b350 (feat: Add new color themes, improve profile photo retrieval, and refine custom theme and wallpaper handling.)
             var methodData = dexkit.getMethodData(DexSignUtil.getMethodDescriptor(method));
             var usingFields = methodData.getUsingFields();
             for (var f : usingFields) {
@@ -1410,12 +1446,12 @@ public class Unobfuscator {
      */
     public synchronized static Class loadDialogViewClass(ClassLoader loader) throws Exception {
         return UnobfuscatorCache.getInstance().getClass(loader, () -> {
-            var id = Utils.getID("touch_outside", "id");
-            var result = dexkit.findMethod(
-                    new FindMethod().matcher(new MethodMatcher().addUsingNumber(id).returnType(FrameLayout.class)));
-            if (result.isEmpty())
-                throw new RuntimeException("DialogView class not found");
-            return result.get(0).getDeclaredClass().getInstance(loader);
+            var results = dexkit.findMethod(
+                    new FindMethod()
+                            .matcher(new MethodMatcher().addUsingString("touch_outside", StringMatchType.Full)));
+            if (results.isEmpty())
+                throw new Exception("DialogView class not found");
+            return results.get(0).getDeclaringClass().getInstance(loader);
         });
     }
 

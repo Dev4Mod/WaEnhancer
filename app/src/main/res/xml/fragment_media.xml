@@ -97,7 +97,7 @@
         <rikka.material.preference.MaterialSwitchPreference
             android:enabled="false"
             app:key="video_call_screen_rec"
-            app:summary="@string/video_call_screen_rec_locked"
+            app:summary="@string/coming_soon"
             app:title="@string/video_call_screen_rec" />
     </PreferenceCategory>
 

@@ -34,31 +34,30 @@ public class DesignUtils {
 
     private static SharedPreferences mPrefs;
 
-
     @SuppressLint("UseCompatLoadingForDrawables")
     public static Drawable getDrawable(int id) {
         return Utils.getApplication().getDrawable(id);
     }
 
-
     @Nullable
     public static Drawable getDrawableByName(String name) {
         var id = Utils.getID(name, "drawable");
-        if (id == 0) return null;
+        if (id == 0)
+            return null;
         return DesignUtils.getDrawable(id);
     }
 
     @Nullable
     public static Drawable getIconByName(String name, boolean isTheme) {
         var id = Utils.getID(name, "drawable");
-        if (id == 0) return null;
+        if (id == 0)
+            return null;
         var icon = DesignUtils.getDrawable(id);
         if (isTheme && icon != null) {
             return DesignUtils.coloredDrawable(icon, isNightMode() ? Color.WHITE : Color.BLACK);
         }
         return icon;
     }
-
 
     @NonNull
     public static Drawable coloredDrawable(Drawable drawable, int color) {
@@ -69,7 +68,6 @@ public class DesignUtils {
         }
         return drawable;
     }
-
 
     @SuppressLint("UseCompatLoadingForDrawables")
     public static Drawable alphaDrawable(Drawable drawable, int primaryTextColor, int i) {
@@ -83,25 +81,28 @@ public class DesignUtils {
         switch (type) {
             case "rc_dialog_bg" -> {
                 var border = Utils.dipToPixels(12.0f);
-                var shapeDrawable = new ShapeDrawable(new RoundRectShape(new float[]{border, border, border, border, 0, 0, 0, 0}, null, null));
+                var shapeDrawable = new ShapeDrawable(
+                        new RoundRectShape(new float[] { border, border, border, border, 0, 0, 0, 0 }, null, null));
                 shapeDrawable.getPaint().setColor(color);
                 return shapeDrawable;
             }
             case "selector_bg" -> {
                 var border = Utils.dipToPixels(18.0f);
-                ShapeDrawable selectorBg = new ShapeDrawable(new RoundRectShape(new float[]{border, border, border, border, border, border, border, border}, null, null));
+                ShapeDrawable selectorBg = new ShapeDrawable(new RoundRectShape(
+                        new float[] { border, border, border, border, border, border, border, border }, null, null));
                 selectorBg.getPaint().setColor(color);
                 return selectorBg;
             }
             case "rc_dotline_dialog" -> {
                 var border = Utils.dipToPixels(16.0f);
-                ShapeDrawable shapeDrawable = new ShapeDrawable(new RoundRectShape(new float[]{border, border, border, border, border, border, border, border}, null, null));
+                ShapeDrawable shapeDrawable = new ShapeDrawable(new RoundRectShape(
+                        new float[] { border, border, border, border, border, border, border, border }, null, null));
                 shapeDrawable.getPaint().setColor(color);
                 return shapeDrawable;
             }
             case "stroke_border" -> {
                 float radius = Utils.dipToPixels(18.0f);
-                float[] outerRadii = new float[]{radius, radius, radius, radius, radius, radius, radius, radius};
+                float[] outerRadii = new float[] { radius, radius, radius, radius, radius, radius, radius, radius };
                 RoundRectShape roundRectShape = new RoundRectShape(outerRadii, null, null);
                 ShapeDrawable shapeDrawable = new ShapeDrawable(roundRectShape);
                 Paint paint = shapeDrawable.getPaint();
@@ -132,7 +133,6 @@ public class DesignUtils {
         return textColor;
     }
 
-
     public static int getUnSeenColor() {
         var primaryColor = mPrefs.getInt("primary_color", 0);
         if (shouldUseMonetColors()) {
@@ -162,7 +162,8 @@ public class DesignUtils {
     }
 
     public static Drawable generatePrimaryColorDrawable(Drawable drawable) {
-        if (drawable == null) return null;
+        if (drawable == null)
+            return null;
         var primaryColorInt = mPrefs.getInt("primary_color", 0);
         if (shouldUseMonetColors()) {
             var monetPrimaryColor = resolveMonetColor(isNightMode() ? "system_accent1_300" : "system_accent1_600");
@@ -180,13 +181,15 @@ public class DesignUtils {
     }
 
     public static void setReplacementDrawable(String name, Drawable replacement) {
-        if (WppXposed.ResParam == null) return;
-        WppXposed.ResParam.res.setReplacement(Utils.getApplication().getPackageName(), "drawable", name, new XResources.DrawableLoader() {
-            @Override
-            public Drawable newDrawable(XResources res, int id) throws Throwable {
-                return replacement;
-            }
-        });
+        if (WppXposed.ResParam == null)
+            return;
+        WppXposed.ResParam.res.setReplacement(Utils.getApplication().getPackageName(), "drawable", name,
+                new XResources.DrawableLoader() {
+                    @Override
+                    public Drawable newDrawable(XResources res, int id) throws Throwable {
+                        return replacement;
+                    }
+                });
     }
 
     public static boolean isNightMode() {
@@ -196,7 +199,6 @@ public class DesignUtils {
     public static boolean isNightModeBySystem() {
         return (Utils.getApplication().getResources().getConfiguration().uiMode & 48) == 32;
     }
-
 
     public static void setPrefs(SharedPreferences mPrefs) {
         DesignUtils.mPrefs = mPrefs;
@@ -256,7 +258,8 @@ public class DesignUtils {
             return ((BitmapDrawable) drawable).getBitmap();
         }
 
-        Bitmap bitmap = Bitmap.createBitmap(drawable.getIntrinsicWidth(), drawable.getIntrinsicHeight(), Bitmap.Config.ARGB_8888);
+        Bitmap bitmap = Bitmap.createBitmap(drawable.getIntrinsicWidth(), drawable.getIntrinsicHeight(),
+                Bitmap.Config.ARGB_8888);
         Canvas canvas = new Canvas(bitmap);
         drawable.setBounds(0, 0, canvas.getWidth(), canvas.getHeight());
         drawable.draw(canvas);

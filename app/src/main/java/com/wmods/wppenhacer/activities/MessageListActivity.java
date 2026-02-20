@@ -160,19 +160,7 @@ public class MessageListActivity extends BaseActivity implements MessageListAdap
 
     @Override
     public void onRestoreClick(DeletedMessage message) {
-        com.google.android.material.bottomsheet.BottomSheetDialog bottomSheetDialog = new com.google.android.material.bottomsheet.BottomSheetDialog(
-                this);
-        View sheetView = getLayoutInflater().inflate(R.layout.layout_restore_coming_soon, null);
-        bottomSheetDialog.setContentView(sheetView);
-
-        sheetView.findViewById(R.id.btn_follow_dev).setOnClickListener(v -> {
-            android.content.Intent intent = new android.content.Intent(android.content.Intent.ACTION_VIEW);
-            intent.setData(android.net.Uri.parse("https://github.com/mubashardev"));
-            startActivity(intent);
-            bottomSheetDialog.dismiss();
-        });
-
-        bottomSheetDialog.show();
+        Toast.makeText(this, "Restore coming soon!", Toast.LENGTH_SHORT).show();
     }
 
     @Override

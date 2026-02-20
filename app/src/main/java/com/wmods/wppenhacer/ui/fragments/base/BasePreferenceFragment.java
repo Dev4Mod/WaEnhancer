@@ -28,7 +28,8 @@ import java.util.Objects;
 
 import rikka.material.preference.MaterialSwitchPreference;
 
-public abstract class BasePreferenceFragment extends PreferenceFragmentCompat implements SharedPreferences.OnSharedPreferenceChangeListener {
+public abstract class BasePreferenceFragment extends PreferenceFragmentCompat
+        implements SharedPreferences.OnSharedPreferenceChangeListener {
     protected SharedPreferences mPrefs;
 
     @Override
@@ -49,7 +50,8 @@ public abstract class BasePreferenceFragment extends PreferenceFragmentCompat im
 
     @NonNull
     @Override
-    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
+            @Nullable Bundle savedInstanceState) {
         chanceStates(null);
         monitorPreference();
         return super.onCreateView(inflater, container, savedInstanceState);
@@ -93,7 +95,10 @@ public abstract class BasePreferenceFragment extends PreferenceFragmentCompat im
 
     private boolean checkStoragePermission(Object newValue) {
         if (newValue instanceof Boolean && (Boolean) newValue) {
-            if ((Build.VERSION.SDK_INT >= Build.VERSION_CODES.R && !Environment.isExternalStorageManager()) || (Build.VERSION.SDK_INT < Build.VERSION_CODES.R && ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED)) {
+            if ((Build.VERSION.SDK_INT >= Build.VERSION_CODES.R && !Environment.isExternalStorageManager())
+                    || (Build.VERSION.SDK_INT < Build.VERSION_CODES.R
+                            && ContextCompat.checkSelfPermission(requireContext(),
+                                    Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED)) {
                 App.showRequestStoragePermission(requireActivity());
                 return false;
             }
@@ -159,13 +164,11 @@ public abstract class BasePreferenceFragment extends PreferenceFragmentCompat im
         setPreferenceState("showonlinetext", !freezelastseen);
         setPreferenceState("dotonline", !freezelastseen);
 
-
         var separategroups = mPrefs.getBoolean("separategroups", false);
         setPreferenceState("filtergroups", !separategroups);
 
         var filtergroups = mPrefs.getBoolean("filtergroups", false);
         setPreferenceState("separategroups", !filtergroups);
-
 
         var callBlockContacts = findPreference("call_block_contacts");
         var callWhiteContacts = findPreference("call_white_contacts");
@@ -190,32 +193,34 @@ public abstract class BasePreferenceFragment extends PreferenceFragmentCompat im
     }
 
     public void setDisplayHomeAsUpEnabled(boolean enabled) {
-        if (getActivity() == null) return;
+        if (getActivity() == null)
+            return;
         var actionBar = ((AppCompatActivity) getActivity()).getSupportActionBar();
         if (actionBar != null) {
             actionBar.setDisplayHomeAsUpEnabled(enabled);
         }
     }
-    
+
     /**
      * Scroll to a specific preference by key.
      * This is called when navigating from search results.
      */
     public void scrollToPreference(String preferenceKey) {
-        if (preferenceKey == null) return;
-        
+        if (preferenceKey == null)
+            return;
+
         // Small delay to ensure preference screen is fully loaded
         getView().postDelayed(() -> {
             var preference = findPreference(preferenceKey);
             if (preference != null) {
                 scrollToPreference(preference);
-                
+
                 // Highlight the preference for visibility
                 highlightPreference(preference);
             }
         }, 100);
     }
-    
+
     /**
      * Highlight a preference with a temporary background color.
      */
@@ -223,25 +228,27 @@ public abstract class BasePreferenceFragment extends PreferenceFragmentCompat im
         // Wait longer to ensure RecyclerView has laid out the views after scrolling
         getView().postDelayed(() -> {
             androidx.recyclerview.widget.RecyclerView recyclerView = getListView();
-            if (recyclerView == null || preference == null || preference.getKey() == null) return;
-            
+            if (recyclerView == null || preference == null || preference.getKey() == null)
+                return;
+
             // Find the preference view by iterating through visible items
             String targetKey = preference.getKey();
             boolean found = false;
-            
+
             for (int i = 0; i < recyclerView.getChildCount(); i++) {
                 android.view.View child = recyclerView.getChildAt(i);
                 androidx.recyclerview.widget.RecyclerView.ViewHolder holder = recyclerView.getChildViewHolder(child);
-                
+
                 if (holder instanceof androidx.preference.PreferenceViewHolder) {
                     androidx.preference.PreferenceViewHolder prefHolder = (androidx.preference.PreferenceViewHolder) holder;
-                    
+
                     // Try to match by adapter position
                     int position = prefHolder.getBindingAdapterPosition();
                     if (position != androidx.recyclerview.widget.RecyclerView.NO_POSITION) {
                         try {
                             // Get all preferences recursively
-                            androidx.preference.Preference pref = findPreferenceAtPosition(getPreferenceScreen(), position);
+                            androidx.preference.Preference pref = findPreferenceAtPosition(getPreferenceScreen(),
+                                    position);
                             if (pref != null && pref.getKey() != null && pref.getKey().equals(targetKey)) {
                                 animateHighlight(prefHolder.itemView);
                                 found = true;
@@ -253,21 +260,22 @@ public abstract class BasePreferenceFragment extends PreferenceFragmentCompat im
                     }
                 }
             }
-            
+
             // If not found, try a second time after a longer delay
             if (!found) {
                 getView().postDelayed(() -> tryHighlightAgain(targetKey), 500);
             }
         }, 500);
     }
-    
+
     private void tryHighlightAgain(String targetKey) {
         androidx.recyclerview.widget.RecyclerView recyclerView = getListView();
-        if (recyclerView == null) return;
-        
+        if (recyclerView == null)
+            return;
+
         for (int i = 0; i < recyclerView.getChildCount(); i++) {
             android.view.View child = recyclerView.getChildAt(i);
-            
+
             // Simple approach: check all text views in the item for matching preference
             if (child instanceof android.view.ViewGroup) {
                 android.view.ViewGroup group = (android.view.ViewGroup) child;
@@ -286,20 +294,23 @@ public abstract class BasePreferenceFragment extends PreferenceFragmentCompat im
             }
         }
     }
-    
-    private androidx.preference.Preference findPreferenceAtPosition(androidx.preference.PreferenceGroup group, int targetPosition) {
-        if (group == null) return null;
-        
+
+    private androidx.preference.Preference findPreferenceAtPosition(androidx.preference.PreferenceGroup group,
+            int targetPosition) {
+        if (group == null)
+            return null;
+
         int currentPosition = 0;
         for (int i = 0; i < group.getPreferenceCount(); i++) {
             androidx.preference.Preference pref = group.getPreference(i);
-            if (pref == null) continue;
-            
+            if (pref == null)
+                continue;
+
             if (currentPosition == targetPosition) {
                 return pref;
             }
             currentPosition++;
-            
+
             // Recursively check groups
             if (pref instanceof androidx.preference.PreferenceGroup) {
                 androidx.preference.PreferenceGroup subGroup = (androidx.preference.PreferenceGroup) pref;
@@ -312,7 +323,7 @@ public abstract class BasePreferenceFragment extends PreferenceFragmentCompat im
         }
         return null;
     }
-    
+
     private int countPreferences(androidx.preference.PreferenceGroup group) {
         int count = 0;
         for (int i = 0; i < group.getPreferenceCount(); i++) {
@@ -325,32 +336,32 @@ public abstract class BasePreferenceFragment extends PreferenceFragmentCompat im
         }
         return count;
     }
-    
+
     /**
      * Animate a highlight effect on the view.
      */
     private void animateHighlight(android.view.View view) {
-        if (view == null || getContext() == null) return;
-        
+        if (view == null || getContext() == null)
+            return;
+
         // Get primary color using android attribute
         android.util.TypedValue typedValue = new android.util.TypedValue();
         view.getContext().getTheme().resolveAttribute(android.R.attr.colorPrimary, typedValue, true);
         int primaryColor = typedValue.data;
-        
+
         // Make it 20% opacity (dim)
         int highlightColor = android.graphics.Color.argb(
-            51, // ~20% of 255
-            android.graphics.Color.red(primaryColor),
-            android.graphics.Color.green(primaryColor),
-            android.graphics.Color.blue(primaryColor)
-        );
-        
+                51, // ~20% of 255
+                android.graphics.Color.red(primaryColor),
+                android.graphics.Color.green(primaryColor),
+                android.graphics.Color.blue(primaryColor));
+
         // Save original background
         android.graphics.drawable.Drawable originalBackground = view.getBackground();
-        
+
         // Set highlight background
         view.setBackgroundColor(highlightColor);
-        
+
         // Fade out after 1.5 seconds
         view.postDelayed(() -> {
             if (originalBackground != null) {

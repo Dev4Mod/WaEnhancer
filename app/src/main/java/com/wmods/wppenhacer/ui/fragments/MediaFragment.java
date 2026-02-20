@@ -24,7 +24,6 @@ public class MediaFragment extends BasePreferenceFragment {
         setDisplayHomeAsUpEnabled(false);
     }
 
-
     @Override
     public void onCreatePreferences(@Nullable Bundle savedInstanceState, @Nullable String rootKey) {
         super.onCreatePreferences(savedInstanceState, rootKey);
@@ -42,17 +41,7 @@ public class MediaFragment extends BasePreferenceFragment {
 
         var videoCallScreenRec = findPreference("video_call_screen_rec");
         if (videoCallScreenRec != null) {
-            videoCallScreenRec.setEnabled(true);
-            videoCallScreenRec.setOnPreferenceClickListener(preference -> {
-                try {
-                     var intent = new android.content.Intent(android.content.Intent.ACTION_VIEW, android.net.Uri.parse("https://github.com/mubashardev"));
-                     startActivity(intent);
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-                return true;
-            });
-            videoCallScreenRec.setOnPreferenceChangeListener((preference, newValue) -> false); // Prevent toggling
+            videoCallScreenRec.setEnabled(false);
         }
     }
 }

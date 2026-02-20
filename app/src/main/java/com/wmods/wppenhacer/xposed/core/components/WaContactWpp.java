@@ -94,7 +94,6 @@ public record WaContactWpp(Object mInstance) {
             getProfilePhoto = Unobfuscator.loadGetProfilePhotoMethod(classLoader);
             getProfilePhotoHighQuality = Unobfuscator.loadGetProfilePhotoHighQMethod(classLoader);
 
-
             XposedBridge.hookAllConstructors(getProfilePhoto.getDeclaringClass(), new XC_MethodHook() {
                 @Override
                 protected void afterHookedMethod(MethodHookParam param) throws Throwable {
@@ -174,17 +173,18 @@ public record WaContactWpp(Object mInstance) {
     public File getProfilePhoto() {
         try {
             File file = (File) getProfilePhotoHighQuality.invoke(mInstanceGetProfilePhoto, mInstance);
-            if (file != null && file.exists()) return file;
+            if (file != null && file.exists())
+                return file;
         } catch (Exception e) {
             XposedBridge.log(e);
         }
         try {
             return (File) getProfilePhoto.invoke(mInstanceGetProfilePhoto, mInstance);
-        } catch (
-                Exception e) {
+        } catch (Exception e) {
             XposedBridge.log(e);
         }
         return null;
+
     }
 
 }
