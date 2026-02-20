@@ -1411,10 +1411,6 @@ public class Unobfuscator {
             if (method == null)
                 method = findFirstMethodUsingStrings(loader, StringMatchType.Contains,
                         "UPDATE_MESSAGE_ADD_ON_FLAGS_MAIN_SQL");
-<<<<<<< HEAD
-=======
-
->>>>>>> 63e0b350 (feat: Add new color themes, improve profile photo retrieval, and refine custom theme and wallpaper handling.)
             var methodData = dexkit.getMethodData(DexSignUtil.getMethodDescriptor(method));
             var usingFields = methodData.getUsingFields();
             for (var f : usingFields) {
@@ -1448,10 +1444,10 @@ public class Unobfuscator {
         return UnobfuscatorCache.getInstance().getClass(loader, () -> {
             var results = dexkit.findMethod(
                     new FindMethod()
-                            .matcher(new MethodMatcher().addUsingString("touch_outside", StringMatchType.Full)));
+                            .matcher(new MethodMatcher().addUsingString("touch_outside", StringMatchType.Equals)));
             if (results.isEmpty())
                 throw new Exception("DialogView class not found");
-            return results.get(0).getDeclaringClass().getInstance(loader);
+            return results.get(0).getDeclaredClass().getInstance(loader);
         });
     }
 
