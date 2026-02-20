@@ -810,6 +810,8 @@ public class Unobfuscator {
 
     public synchronized static Class<?> loadConversationRowClass(ClassLoader loader) throws Exception {
         return UnobfuscatorCache.getInstance().getClass(loader, () -> {
+            var clazz = findFirstClassUsingStrings(loader, StringMatchType.Contains, "ConversationRow/setupUserNameInGroupView/");
+            if (clazz != null) return clazz;
             var conversation_header = Utils.getID("conversation_row_participant_header_view_stub", "id");
             var nameId = Utils.getID("name_in_group", "id");
             var classData = dexkit.findClass(FindClass.create().matcher(ClassMatcher.create().addMethod(MethodMatcher.create().addUsingNumber(conversation_header).addUsingNumber(nameId)))).singleOrNull();
