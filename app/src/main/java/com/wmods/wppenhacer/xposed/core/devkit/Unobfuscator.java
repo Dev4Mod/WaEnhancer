@@ -2166,6 +2166,12 @@ public class Unobfuscator {
     }
 
 
+    public static Method loadGetProfilePhotoHighQMethod(ClassLoader classLoader) throws Exception {
+        return UnobfuscatorCache.getInstance().getMethod(classLoader, () -> findFirstMethodUsingStrings(classLoader, StringMatchType.Contains, "me.jpg", "Profile Pictures"));
+    }
+
+
+
     public static Class<?> loadChatCacheClass(ClassLoader classLoader) throws Exception {
         return UnobfuscatorCache.getInstance().getClass(classLoader, () -> findFirstClassUsingStrings(classLoader, StringMatchType.StartsWith, "Chatscache/"));
     }

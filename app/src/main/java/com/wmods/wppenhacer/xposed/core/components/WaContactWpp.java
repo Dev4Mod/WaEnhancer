@@ -25,6 +25,7 @@ public record WaContactWpp(Object mInstance) {
     private static Method getWaContactMethod;
     private static Method methodGetDisplayName;
     private static Method getProfilePhoto;
+    private static Method getProfilePhotoHighQuality;
 
     // Instances
     private static Object mInstanceGetWaContact;
@@ -63,6 +64,8 @@ public record WaContactWpp(Object mInstance) {
                 }
             });
             getProfilePhoto = Unobfuscator.loadGetProfilePhotoMethod(classLoader);
+            getProfilePhotoHighQuality = Unobfuscator.loadGetProfilePhotoHighQMethod(classLoader);
+
 
             XposedBridge.hookAllConstructors(getProfilePhoto.getDeclaringClass(), new XC_MethodHook() {
                 @Override
@@ -124,8 +127,15 @@ public record WaContactWpp(Object mInstance) {
 
     public File getProfilePhoto() {
         try {
-            return (File) getProfilePhoto.invoke(mInstanceGetProfilePhoto, mInstance);
+            File file = (File) getProfilePhotoHighQuality.invoke(mInstanceGetProfilePhoto, mInstance);
+            if (file != null && file.exists()) return file;
         } catch (Exception e) {
+            XposedBridge.log(e);
+        }
+        try {
+            return (File) getProfilePhoto.invoke(mInstanceGetProfilePhoto, mInstance);
+        } catch (
+                Exception e) {
             XposedBridge.log(e);
         }
         return null;
