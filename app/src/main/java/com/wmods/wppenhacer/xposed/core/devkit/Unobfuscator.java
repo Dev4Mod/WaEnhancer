@@ -1442,9 +1442,9 @@ public class Unobfuscator {
      */
     public synchronized static Class loadDialogViewClass(ClassLoader loader) throws Exception {
         return UnobfuscatorCache.getInstance().getClass(loader, () -> {
+            var id = Utils.getID("touch_outside", "id");
             var results = dexkit.findMethod(
-                    new FindMethod()
-                            .matcher(new MethodMatcher().addUsingString("touch_outside", StringMatchType.Equals)));
+                    new FindMethod().matcher(new MethodMatcher().addUsingNumber(id).returnType(FrameLayout.class)));
             if (results.isEmpty())
                 throw new Exception("DialogView class not found");
             return results.get(0).getDeclaredClass().getInstance(loader);
