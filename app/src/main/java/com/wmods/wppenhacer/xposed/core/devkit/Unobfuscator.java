@@ -1400,23 +1400,17 @@ public class Unobfuscator {
     /**
      * @noinspection DataFlowIssue
      */
-    /**
-     * @noinspection DataFlowIssue
-     */
     public synchronized static Field loadSetEditMessageField(ClassLoader loader) throws Exception {
         return UnobfuscatorCache.getInstance().getField(loader, () -> {
-            var classData = dexkit.getClassData(loadCoreMessageStore(loader));
-            var method = findFirstMethodUsingStrings(loader, StringMatchType.Contains,
-                    "CoreMessageStore/updateCheckoutMessageWithTransactionInfo");
+            var method = findFirstMethodUsingStrings(loader, StringMatchType.Contains, "CoreMessageStore/updateCheckoutMessageWithTransactionInfo");
             if (method == null)
-                method = findFirstMethodUsingStrings(loader, StringMatchType.Contains,
-                        "UPDATE_MESSAGE_ADD_ON_FLAGS_MAIN_SQL");
+                method = findFirstMethodUsingStrings(loader, StringMatchType.Contains, "UPDATE_MESSAGE_ADD_ON_FLAGS_MAIN_SQL");
+            var classData = dexkit.getClassData(loadFMessageClass(loader));
             var methodData = dexkit.getMethodData(DexSignUtil.getMethodDescriptor(method));
             var usingFields = methodData.getUsingFields();
             for (var f : usingFields) {
                 var field = f.getField();
-                if (field.getDeclaredClass().equals(classData)
-                        && field.getType().getName().equals(long.class.getName())) {
+                if (field.getDeclaredClass().equals(classData) && field.getType().getName().equals(long.class.getName())) {
                     return field.getFieldInstance(loader);
                 }
             }
@@ -1504,15 +1498,11 @@ public class Unobfuscator {
 
     public synchronized static Method loadOnUpdateStatusChanged(ClassLoader loader) throws Exception {
         return UnobfuscatorCache.getInstance().getMethod(loader, () -> {
-            var clazz = getClassByName("UpdatesViewModel", loader);
-            var clazzData = dexkit.getClassData(clazz);
-            var methodSeduleche = XposedHelpers.findMethodBestMatch(Timer.class, "schedule", TimerTask.class,
-                    long.class, long.class);
-            var result = dexkit.findMethod(new FindMethod().searchInClass(List.of(clazzData))
-                    .matcher(new MethodMatcher().addInvoke(DexSignUtil.getMethodDescriptor(methodSeduleche))));
+            var clazzData = dexkit.findClass(FindClass.create().matcher(ClassMatcher.create().addUsingString("UpdatesViewModel/"))).firstOrNull();
+            var methodSeduleche = XposedHelpers.findMethodBestMatch(Timer.class, "schedule", TimerTask.class, long.class, long.class);
+            var result = clazzData.findMethod(FindMethod.create().matcher(MethodMatcher.create().addInvoke(DexSignUtil.getMethodDescriptor(methodSeduleche))));
             if (result.isEmpty())
-                result = dexkit.findMethod(new FindMethod().searchInClass(List.of(clazzData)).matcher(
-                        new MethodMatcher().addUsingString("UpdatesViewModel/Scheduled updates list refresh")));
+                result = dexkit.findMethod(FindMethod.create().matcher(MethodMatcher.create().addUsingString("UpdatesViewModel/Scheduled updates list refresh")));
             if (result.isEmpty())
                 throw new RuntimeException("OnUpdateStatusChanged method not found");
             return result.get(0).getMethodInstance(loader);

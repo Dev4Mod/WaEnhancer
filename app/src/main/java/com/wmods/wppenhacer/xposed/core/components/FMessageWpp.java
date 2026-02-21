@@ -57,13 +57,13 @@ public class FMessageWpp {
             Key.TYPE = keyMessage.getType();
             messageMethod = Unobfuscator.loadNewMessageMethod(classLoader);
             messageWithMediaMethod = Unobfuscator.loadNewMessageWithMediaMethod(classLoader);
-            getFieldIdMessage = Unobfuscator.loadSetEditMessageField(classLoader);
             var deviceJidClass = Unobfuscator.findFirstClassUsingName(classLoader, StringMatchType.EndsWith, "jid.DeviceJid");
             deviceJidField = ReflectionUtils.findFieldUsingFilter(TYPE, field -> field.getType() == deviceJidClass);
             mediaTypeField = Unobfuscator.loadMediaTypeField(classLoader);
             getOriginalMessageKey = Unobfuscator.loadOriginalMessageKey(classLoader);
             abstractMediaMessageClass = Unobfuscator.loadAbstractMediaMessageClass(classLoader);
             broadcastField = Unobfuscator.loadBroadcastTagField(classLoader);
+            getFieldIdMessage = Unobfuscator.loadSetEditMessageField(classLoader);
         } catch (Exception e) {
             XposedBridge.log(e);
         }

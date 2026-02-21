@@ -287,12 +287,12 @@ public class Others extends Feature {
     private void disableAds() throws Exception {
         propsBoolean.put(22904, true);
         propsBoolean.put(14306, false);
-        try {
-            var loadAd = Unobfuscator.loadAdVerifyMethod(classLoader);
-            XposedBridge.hookMethod(loadAd, XC_MethodReplacement.returnConstant(false));
-        } catch (Exception e) {
-            logDebug(e);
-        }
+//        try {
+//            var loadAd = Unobfuscator.loadAdVerifyMethod(classLoader);
+//            XposedBridge.hookMethod(loadAd, XC_MethodReplacement.returnConstant(false));
+//        } catch (Exception e) {
+//            logDebug(e);
+//        }
     }
 
     private void disablePhotoProfileStatus() throws Exception {

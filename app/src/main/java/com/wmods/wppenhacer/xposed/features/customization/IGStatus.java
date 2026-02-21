@@ -17,6 +17,7 @@ import com.wmods.wppenhacer.xposed.utils.Utils;
 
 import org.luckypray.dexkit.query.enums.StringMatchType;
 
+import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -86,13 +87,15 @@ public class IGStatus extends Feature {
             }
         });
 
-        var clazz2 = Unobfuscator.getClassByName("UpdatesViewModel", classLoader);
         var onUpdateStatusChanged = Unobfuscator.loadOnUpdateStatusChanged(classLoader);
         logDebug(Unobfuscator.getMethodDescriptor(onUpdateStatusChanged));
         var statusInfoClass = Unobfuscator.loadStatusInfoClass(classLoader);
         logDebug(statusInfoClass);
 
-        XposedBridge.hookAllConstructors(clazz2, new XC_MethodHook() {
+        var updateModel = onUpdateStatusChanged.getDeclaringClass();
+        logDebug(updateModel);
+
+        XposedBridge.hookAllConstructors(updateModel, new XC_MethodHook() {
             @Override
             protected void afterHookedMethod(MethodHookParam param) throws Throwable {
                 itens.add(0, null);
