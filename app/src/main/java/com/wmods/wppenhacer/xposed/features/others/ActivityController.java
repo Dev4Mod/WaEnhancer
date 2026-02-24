@@ -20,6 +20,8 @@ import com.wmods.wppenhacer.xposed.core.devkit.Unobfuscator;
 import com.wmods.wppenhacer.xposed.utils.ReflectionUtils;
 import com.wmods.wppenhacer.xposed.utils.ResId;
 
+import org.luckypray.dexkit.query.enums.StringMatchType;
+
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
@@ -31,7 +33,6 @@ import de.robv.android.xposed.XposedHelpers;
 
 public class ActivityController extends Feature {
 
-    public static final String EXPORTED_ACTIVITY = WppCore.getSettingsNotificationsActivityClass(ClassLoader.getSystemClassLoader()).getName();
     private static String Key;
 
     public ActivityController(@NonNull ClassLoader classLoader, @NonNull XSharedPreferences preferences) {
@@ -41,7 +42,7 @@ public class ActivityController extends Feature {
     @Override
     public void doHook() throws Throwable {
 
-        var clazz = XposedHelpers.findClass(EXPORTED_ACTIVITY, classLoader);
+        var clazz = Unobfuscator.findFirstClassUsingName(classLoader, StringMatchType.EndsWith,".SettingsNotifications");
         Class<?> statusDistribution = Unobfuscator.loadStatusDistributionClass(classLoader);
 
         XposedHelpers.findAndHookMethod(Activity.class, "onCreate", Bundle.class, new XC_MethodHook() {

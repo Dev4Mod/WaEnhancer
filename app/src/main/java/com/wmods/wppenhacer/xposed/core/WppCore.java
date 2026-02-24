@@ -60,7 +60,6 @@ public class WppCore {
     private static SQLiteDatabase mWaDatabase;
     public static BaseClient client;
     private static Object mCachedMessageStore;
-    private static Class<?> mSettingsNotificationsClass;
     private static Method convertLidToJid;
 
     private static Object mWaJidMapRepository;
@@ -85,10 +84,6 @@ public class WppCore {
 
         convChatField = Unobfuscator.loadAntiRevokeConvChatField(loader);
         chatJidField = Unobfuscator.loadAntiRevokeChatJidField(loader);
-
-        // Settings notifications activity (required for
-        // ActivityController.EXPORTED_ACTIVITY)
-        mSettingsNotificationsClass = getSettingsNotificationsActivityClass(loader);
 
         // StartUpPrefs
         var startPrefsConfig = Unobfuscator.loadStartPrefsConfig(loader);
@@ -337,17 +332,6 @@ public class WppCore {
         return oldClass != null
                 ? oldClass
                 : XposedHelpers.findClass("com.whatsapp.settings.ui.About", loader);
-    }
-
-    public synchronized static Class getSettingsNotificationsActivityClass(@NonNull ClassLoader loader) {
-        if (mSettingsNotificationsClass != null)
-            return mSettingsNotificationsClass;
-
-        Class oldClass = XposedHelpers.findClassIfExists("com.whatsapp.settings.SettingsNotifications", loader);
-
-        return oldClass != null
-                ? oldClass
-                : XposedHelpers.findClass("com.whatsapp.settings.ui.SettingsNotifications", loader);
     }
 
     public synchronized static Class getDataUsageActivityClass(@NonNull ClassLoader loader) {

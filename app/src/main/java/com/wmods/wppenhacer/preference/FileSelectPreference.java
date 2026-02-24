@@ -5,10 +5,12 @@ import android.app.Activity;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Environment;
+import android.provider.Settings;
 import android.util.AttributeSet;
 import android.widget.Toast;
 
@@ -66,7 +68,7 @@ public class FileSelectPreference extends Preference implements Preference.OnPre
         builder.setTitle(R.string.storage_permission);
         builder.setMessage(R.string.permission_storage);
         builder.setPositiveButton(R.string.allow, (dialog, which) -> {
-            Intent intent = new Intent(android.provider.Settings.ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION);
+            Intent intent = new Intent(Settings.ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION);
             intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             intent.setData(Uri.fromParts("package", getContext().getPackageName(), null));
             getContext().startActivity(intent);
@@ -79,8 +81,34 @@ public class FileSelectPreference extends Preference implements Preference.OnPre
     public boolean onPreferenceClick(@NonNull Preference preference) {
 
         if (getSharedPreferences().getBoolean("lite_mode", false)) {
+            String packageName = "";
+            PackageInfo packageInfo = null;
+            for (var possiblePackage : new String[]{"com.whatsapp", "com.whatsapp.w4b"}) {
+                try {
+                    packageInfo = getContext().getApplicationContext().getPackageManager().getPackageInfo(possiblePackage, PackageManager.GET_ACTIVITIES);
+                    packageName = possiblePackage;
+                    break;
+                } catch (PackageManager.NameNotFoundException ignored) {
+                }
+            }
+            if (packageInfo == null) {
+                Utils.showToast("Unable to find WhatsApp package, please select the folder manually in the next screen", Toast.LENGTH_LONG);
+                return true;
+            }
+
+            String className = null;
+            for (var activity : packageInfo.activities) {
+                if (activity.name.endsWith("SettingsNotifications")) {
+                    className = activity.name;
+                    break;
+                }
+            }
+            if (className == null) {
+                Utils.showToast("Unable to find the activity to select folder, please select it manually in the next screen", Toast.LENGTH_LONG);
+                return true;
+            }
             Intent intent = new Intent();
-            intent.setClassName("com.whatsapp", ActivityController.EXPORTED_ACTIVITY);
+            intent.setClassName(packageName, className);
             intent.putExtra("key", getKey());
             intent.putExtra("download_mode", true);
             ((Activity) getContext()).startActivityForResult(intent, LiteMode.REQUEST_FOLDER);
