@@ -80,6 +80,22 @@ public class DelMessageStore extends SQLiteOpenHelper {
         }
     }
 
+    @Override
+    public void onDowngrade(SQLiteDatabase sqLiteDatabase, int oldVersion, int newVersion) {
+        // Called when a lower-versioned fork (e.g. original Dev4Mod using version 5)
+        // opens
+        // a database previously created by this fork (version 10).
+        // SQLite does not support schema downgrade natively, so we drop all tables and
+        // recreate the base schema. This clears the deleted-message history stored by
+        // this fork, but WhatsApp's own data is in a separate database and is
+        // unaffected.
+        android.util.Log.w("WaEnhancer",
+                "delmessages.db downgrade from " + oldVersion + " to " + newVersion + ". Recreating schema.");
+        sqLiteDatabase.execSQL("DROP TABLE IF EXISTS " + TABLE_DELETED_FOR_ME);
+        sqLiteDatabase.execSQL("DROP TABLE IF EXISTS delmessages");
+        onCreate(sqLiteDatabase);
+    }
+
     private void createDeletedForMeTable(SQLiteDatabase db) {
         db.execSQL("CREATE TABLE IF NOT EXISTS " + TABLE_DELETED_FOR_ME + " (" +
                 "_id INTEGER PRIMARY KEY AUTOINCREMENT, " +
