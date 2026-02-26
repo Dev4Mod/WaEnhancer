@@ -1,17 +1,12 @@
 [ADDED]
-* Added Monet colors and some others for WAE
-* Added Monet colors for WhatsApp
 * Added Call Recording feature (Voice/Video as Audio) (Thanks to @mubashardev)
 * Call Recording Toast Toggle: Added option to show/hide recording toast notifications (default: off) (Thanks to @mubashardev)
 * [EXPERIMENTAL] Use "Force Restore Backup" option in Chat Backup settings to restore backups after login (Thanks to @mubashardev)
 * Global Search: Added comprehensive search functionality across all app settings and features. (Thanks to @mubashardev)
 * Recover deleted for me message: Added option to recover deleted for me messages. (Thanks to @mubashardev)
-* Added Contributors section in About page to acknowledge the efforts of contributors. (Thanks to @mubashardev)
-
-[IMPROVEMENTS]
-- Original timestamp: Added option to show original timestamp of **Delete for me** messages.
+* Added Contributors section in About page to acknowledge the efforts of contributors.
+* Added Support for WA/WB 2.26.7.xx
 
 [Fixed]
-* Fixed OriginFMessageField not found error
 * Fixed profile picture download for old contacts
 * Optimized initial app load
