@@ -184,17 +184,35 @@
                         app:iconPadding="@dimen/spacing_small"
                         app:strokeColor="?attr/colorPrimary" />
 
-                    <com.google.android.material.button.MaterialButton
-                        android:id="@+id/btnDonate"
-                        style="@style/ModernButton.Outlined"
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <com.google.android.material.card.MaterialCardView
+                style="@style/CardInfoStyle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="@dimen/spacing_medium"
+                app:cardBackgroundColor="@color/surface_container">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="@dimen/spacing_medium">
+
+                    <com.google.android.material.textview.MaterialTextView
+                        android:id="@+id/tvContributors"
+                        style="@style/SectionTitle"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@string/contributors" />
+
+                    <LinearLayout
+                        android:id="@+id/contributorsContainer"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="@dimen/spacing_small"
-                        android:text="@string/donate"
-                        app:icon="@drawable/ic_donate"
-                        app:iconGravity="start"
-                        app:iconPadding="@dimen/spacing_small"
-                        app:strokeColor="?attr/colorPrimary" />
+                        android:orientation="vertical" />
 
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>

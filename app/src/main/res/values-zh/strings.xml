@@ -283,7 +283,6 @@
     <string name="installation_desc">1. 确保您的设备已获取 root 权限。\n2. 在您的设备上安装 Xposed 框架。\n3. 从Github的“Actions”部分下载 Wa Enhancer。\n4. 安装 Wa Enhancer APK。\n5. 在 Xposed 框架中启用 Wa Enhancer 模块。</string>
     <string name="go_to_telegram">前往Telegram</string>
     <string name="go_to_github">前往Github</string>
-    <string name="donate">捐赠</string>
     <string name="support">支持</string>
     <string name="support_desc">如果您遇到任何问题或对 Wa Enhancer 有疑问，请访问 Telegram。</string>
     <string name="license">执照</string>

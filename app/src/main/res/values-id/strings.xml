@@ -295,7 +295,6 @@ Saat Anda mengaktifkan bekukan \"terakhir dilihat dan online\", Anda tidak dapat
     <string name="installation_desc">1. Pastikan perangkat Anda telah di-root.\n2. Instal Xposed Framework di perangkat Anda.\n3. Unduh Wa Enhancer dari bagian Actions.\n4. Instal APK Wa Enhancer.\n5. Aktifkan modul Wa Enhancer di aplikasi Xposed Installer.</string>
     <string name="go_to_telegram">Pergi ke Telegram</string>
     <string name="go_to_github">Kunjungi GitHub</string>
-    <string name="donate">Donasi</string>
     <string name="support">Dukungan</string>
     <string name="support_desc">Jika Anda mengalami masalah atau memiliki pertanyaan tentang Wa Enhancer, silakan kunjungi Telegram.</string>
     <string name="license">Lisensi</string>

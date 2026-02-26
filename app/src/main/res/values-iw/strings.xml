@@ -284,7 +284,6 @@
     <string name="installation_desc">1. ודא שהמכשיר שלך מושרש.\n2.  התקן את Xposed Framework במכשיר שלך.\n3.  הורד את Wa Enhancer מקטע הפעולות.\n4.  התקן את ה-APK של Wa Enhancer.\n5.  הפעל את מודול Wa Enhancer באפליקציית Xposed Installer.</string>
     <string name="go_to_telegram">לך לטלגרם</string>
     <string name="go_to_github">לך לאתר GitHub</string>
-    <string name="donate">תרום</string>
     <string name="support">תמיכה</string>
     <string name="support_desc">אם אתה נתקל בבעיות כלשהן או שיש לך שאלות והערות לגבי המודול Wa Enhancer, אנא בקר בטלגרם שלנו.
 תורגם לעברית ע\'\'י אורי.</string>

@@ -283,7 +283,6 @@
     <string name="installation_desc">1. تأكد من أن جهازك متجذر.\n2. قم بتثبيت إطار عمل Xposed Framework على جهازك.\n3. قم بتنزيل Wa Enhancer من قسم الإجراءات.\n4. قم بتثبيت ملف Wa Enhancer APK.\n5. قم بتمكين وحدة Wa Enhancer في تطبيق Xposed Installe.</string>
     <string name="go_to_telegram">الذهاب إلى تيليجرام</string>
     <string name="go_to_github">الذهاب إلى GitHub</string>
-    <string name="donate">تبرّع</string>
     <string name="support">الدعم</string>
     <string name="support_desc">إذا واجهت أي مشكلات أو لديك أسئلة حول Wa Enhancer، يرجى زيارة Telegram.</string>
     <string name="license">التَرْخِيصْ</string>

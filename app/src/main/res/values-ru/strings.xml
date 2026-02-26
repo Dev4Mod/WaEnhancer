@@ -283,7 +283,6 @@
     <string name="installation_desc">1. Убедитесь, что ваше устройство имеет root.\n2. Установите Xposed Framework на ваше устройство.\n3. Загрузите плагин Wa Enhancer в разделе Действия.\n4. Установите Wa Enhancer APK.\n5. Включите модуль Wa Enhancer в приложении Xposed Installer.</string>
     <string name="go_to_telegram">Перейти в Telegram</string>
     <string name="go_to_github">Перейти на GitHub</string>
-    <string name="donate">Пожертвовать</string>
     <string name="support">Поддержка</string>
     <string name="support_desc">Если у вас возникли какие-либо проблемы или у вас есть вопросы о Wa Enhancer, пожалуйста, посетите Telegram.</string>
     <string name="license">Лицензия</string>

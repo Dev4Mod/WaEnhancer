@@ -292,7 +292,6 @@ Harap gunakan versi WhatsApp yang didukung!</string>
     <string name="installation_desc">1. Pastikan perangkat Anda telah di-root.\n2. Instal Xposed Framework di perangkat Anda.\n3. Unduh Wa Enhancer dari bagian Tindakan.\n4. Instal APK Wa Enhancer.\n5. Aktifkan modul Wa Enhancer di aplikasi Xpose Installer.</string>
     <string name="go_to_telegram">Buka Telegram</string>
     <string name="go_to_github">Buka GitHub</string>
-    <string name="donate">Donasi</string>
     <string name="support">Dukungan</string>
     <string name="support_desc">Jika Anda mengalami masalah apa pun atau memiliki pertanyaan tentang Wa Enhancer, silahkan kunjungi Telegram.</string>
     <string name="license">Lisensi</string>
