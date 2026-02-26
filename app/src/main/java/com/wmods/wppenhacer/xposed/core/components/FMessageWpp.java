@@ -196,6 +196,7 @@ public class FMessageWpp {
      */
     public int getMediaType() {
         try {
+            if (mediaTypeField == null) return -1;
             return mediaTypeField.getInt(fmessage);
         } catch (Exception e) {
             XposedBridge.log(e);

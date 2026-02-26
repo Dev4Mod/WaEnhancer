@@ -1,4 +1,6 @@
 <resources>
+    <string name="force_restore_backup">Force Restore Backup</string>
+    <string name="force_restore_backup_summary">Launch the restore backup screen manually. Use this if you skipped restoration during setup.</string>
     <string name="app_name" translatable="false">Wa Enhancer</string>
     <string name="app_desc">WhatsApp Enhancer Module</string>
     <string name="antirevoke">Anti-Revoke Messages</string>
@@ -446,5 +448,34 @@
     <string name="disable_ads_sum">Blocks ads from appearing in WhatsApp</string>
     <string name="lockedchats_enhancer">Enhanced Locked Chats</string>
     <string name="lockedchats_enhancer_sum">Improve locked chats by hiding notifications and contacts from the contact list</string>
-
+    <string name="call_recording_title">Call Recording</string>
+    <string name="call_recording_enable">Enable Call Recording</string>
+    <string name="call_recording_enable_sum">Record incoming and outgoing calls (Voice &amp; Video) as audio.</string>
+    <string name="call_recording_path">Recordings Output Folder</string>
+    <string name="video_call_screen_rec">Record Video Calls (Screen)</string>
+    <string name="video_call_screen_rec_locked">Coming soon!</string>
+    <string name="coming_soon">Coming soon!</string>
+    <string name="recording_mode">Recording Mode</string>
+    <string name="recording_mode_sum">Select which calls to record</string>
+    <string name="recording_mode_all">Record All Calls</string>
+    <string name="recording_mode_unknown">Record Unknown Numbers Only</string>
+    <string name="recording_mode_include">Record Only Selected Contacts</string>
+    <string name="recording_mode_exclude">Record All Except Selected</string>
+    <string name="recording_included_contacts">Included Contacts</string>
+    <string name="recording_excluded_contacts">Excluded Contacts</string>
+    <!-- Search Feature Strings -->
+    <string name="search_features_title">Search Features</string>
+    <string name="search_features_hint">Search for any feature...</string>
+    <string name="search_no_results">No features found</string>
+    <string name="search_try_different_keywords">Try different keywords or browse categories</string>
+    <string name="search_start_typing">Start typing to search features</string>
+    <string name="no_deleted_messages">No deleted messages found</string>
+    <string name="deleted_messages_title">Deleted By Me</string>
+    <string name="restore_message">Restore</string>
+    <string name="deleted_messages_sum">View messages deleted by others</string>
+    <string name="restore_feature_title">Restore Feature</string>
+    <string name="restore_feature_desc">"Coming soon!"</string>
+    <string name="action_follow_developer">Coming soon!</string>
+    <string name="enable_spy">Enable Spy Tool</string>
+    <string name="enable_spy_sum">Logs internal events to Xposed log for debugging.</string>
 </resources>

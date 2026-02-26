@@ -21,6 +21,9 @@ import com.wmods.wppenhacer.R;
 import com.wmods.wppenhacer.activities.base.BaseActivity;
 import com.wmods.wppenhacer.adapter.MainPagerAdapter;
 import com.wmods.wppenhacer.databinding.ActivityMainBinding;
+import com.wmods.wppenhacer.ui.fragments.GeneralFragment;
+import com.wmods.wppenhacer.ui.fragments.HomeFragment;
+import com.wmods.wppenhacer.ui.fragments.base.BasePreferenceFragment;
 import com.wmods.wppenhacer.utils.FilePicker;
 
 import java.io.File;
@@ -29,6 +32,9 @@ public class MainActivity extends BaseActivity {
 
     private ActivityMainBinding binding;
     private BatteryPermissionHelper batteryPermissionHelper = BatteryPermissionHelper.Companion.getInstance();
+    private String pendingScrollToPreference = null;
+    private int pendingScrollToFragment = -1;
+    private String pendingParentKey = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -44,6 +50,11 @@ public class MainActivity extends BaseActivity {
         binding.viewPager.setAdapter(pagerAdapter);
 
         binding.viewPager.setPageTransformer(new DepthPageTransformer());
+
+        var prefs = androidx.preference.PreferenceManager.getDefaultSharedPreferences(this);
+        if (!prefs.getBoolean("call_recording_enable", false)) {
+            binding.navView.getMenu().findItem(R.id.navigation_recordings).setVisible(false);
+        }
 
         binding.navView.setOnItemSelectedListener(new NavigationBarView.OnItemSelectedListener() {
             @SuppressLint("NonConstantResourceId")
@@ -70,6 +81,10 @@ public class MainActivity extends BaseActivity {
                         binding.viewPager.setCurrentItem(4, true);
                         yield true;
                     }
+                    case R.id.navigation_recordings -> {
+                        binding.viewPager.setCurrentItem(5);
+                        yield true;
+                    }
                     default -> false;
                 };
             }
@@ -80,11 +95,28 @@ public class MainActivity extends BaseActivity {
             public void onPageSelected(int position) {
                 super.onPageSelected(position);
                 binding.navView.getMenu().getItem(position).setChecked(true);
+                
+                // Handle pending scroll after page change
+                if (pendingScrollToFragment == position && pendingScrollToPreference != null) {
+                    final String scrollKey = pendingScrollToPreference;
+                    final String parentKey = pendingParentKey;
+                    pendingScrollToPreference = null;
+                    pendingScrollToFragment = -1;
+                    pendingParentKey = null;
+                    
+                    // Wait for fragment to be ready
+                    binding.viewPager.postDelayed(() -> {
+                        scrollToPreferenceInCurrentFragment(scrollKey, parentKey);
+                    }, 300);
+                }
             }
         });
         binding.viewPager.setCurrentItem(2, false);
         createMainDir();
         FilePicker.registerFilePicker(this);
+        
+        // Handle incoming navigation from search
+        handleIncomingIntent(getIntent());
     }
 
     private void createMainDir() {
@@ -94,6 +126,100 @@ public class MainActivity extends BaseActivity {
         }
     }
 
+    @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+        handleIncomingIntent(intent);
+    }
+    
+    private void handleIncomingIntent(Intent intent) {
+        if (intent == null) return;
+        
+        int fragmentPosition = intent.getIntExtra("navigate_to_fragment", -1);
+        String preferenceKey = intent.getStringExtra("scroll_to_preference");
+        String parentKey = intent.getStringExtra("parent_preference");
+        
+        if (fragmentPosition >= 0 && preferenceKey != null) {
+            // Store the scroll target
+            pendingScrollToPreference = preferenceKey;
+            pendingScrollToFragment = fragmentPosition;
+            pendingParentKey = parentKey;
+            
+            // Navigate to the fragment (onPageSelected will handle the scroll)
+            binding.viewPager.setCurrentItem(fragmentPosition, false);
+            
+            // Clear intent extras
+            intent.removeExtra("navigate_to_fragment");
+            intent.removeExtra("scroll_to_preference");
+            intent.removeExtra("parent_preference");
+        } else if (fragmentPosition >= 0) {
+            // Just navigate without scrolling
+            binding.viewPager.setCurrentItem(fragmentPosition, true);
+        }
+    }
+    
+    private void scrollToPreferenceInCurrentFragment(String preferenceKey, String parentKey) {
+        // Get the current fragment from the ViewPager
+        int currentItem = binding.viewPager.getCurrentItem();
+        Fragment fragment = getSupportFragmentManager().findFragmentByTag("f" + currentItem);
+        
+        if (fragment == null) return;
+        
+        // Handle different fragment types
+        if (fragment instanceof GeneralFragment || fragment instanceof HomeFragment) {
+            // These fragments have child fragments
+            if (parentKey != null && !parentKey.isEmpty()) {
+                // Navigate to sub-fragment first, then scroll
+                navigateToSubFragmentAndScroll(fragment, parentKey, preferenceKey);
+            } else {
+                // Direct scroll in current child fragment
+                scrollInChildFragment(fragment, preferenceKey);
+            }
+        } else if (fragment instanceof BasePreferenceFragment) {
+            // Direct preference fragments (no nesting)
+            ((BasePreferenceFragment) fragment).scrollToPreference(preferenceKey);
+        }
+    }
+    
+    private void navigateToSubFragmentAndScroll(Fragment parentFragment, String parentKey, String childPreferenceKey) {
+        // Directly instantiate the sub-fragment
+        Fragment subFragment = null;
+        
+        switch (parentKey) {
+            case "general_home":
+                subFragment = new GeneralFragment.HomeGeneralPreference();
+                break;
+            case "homescreen":
+                subFragment = new GeneralFragment.HomeScreenGeneralPreference();
+                break;
+            case "conversation":
+                subFragment = new GeneralFragment.ConversationGeneralPreference();
+                break;
+        }
+        
+        if (subFragment != null && parentFragment.getView() != null) {
+            final Fragment finalSubFragment = subFragment;
+            // Replace the current child fragment
+            parentFragment.getChildFragmentManager().beginTransaction()
+                .replace(R.id.frag_container, subFragment)
+                .commitNow();
+            
+            // Wait for fragment to be ready, then scroll
+            parentFragment.getView().postDelayed(() -> {
+                if (finalSubFragment instanceof BasePreferenceFragment) {
+                    ((BasePreferenceFragment) finalSubFragment).scrollToPreference(childPreferenceKey);
+                }
+            }, 400);
+        }
+    }
+    
+    private void scrollInChildFragment(Fragment parentFragment, String preferenceKey) {
+        Fragment childFragment = parentFragment.getChildFragmentManager().findFragmentById(R.id.frag_container);
+        if (childFragment instanceof BasePreferenceFragment) {
+            ((BasePreferenceFragment) childFragment).scrollToPreference(preferenceKey);
+        }
+    }
+    
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
@@ -115,7 +241,12 @@ public class MainActivity extends BaseActivity {
     @SuppressLint("BatteryLife")
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
-        if (item.getItemId() == R.id.menu_about) {
+        if (item.getItemId() == R.id.menu_search) {
+            var options = ActivityOptionsCompat.makeCustomAnimation(
+                    this, R.anim.slide_in_right, R.anim.slide_out_left);
+            startActivity(new Intent(this, SearchActivity.class), options.toBundle());
+            return true;
+        } else if (item.getItemId() == R.id.menu_about) {
             var options = ActivityOptionsCompat.makeCustomAnimation(
                     this, R.anim.slide_in_right, R.anim.slide_out_left);
             startActivity(new Intent(this, AboutActivity.class), options.toBundle());

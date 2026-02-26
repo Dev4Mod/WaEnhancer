@@ -35,6 +35,11 @@
             app:summary="@string/toast_on_viewed_status_sum"
             app:title="@string/toast_on_viewed_status" />
 
+        <rikka.material.preference.MaterialSwitchPreference
+            app:key="enable_spy"
+            app:summary="@string/enable_spy_sum"
+            app:title="@string/enable_spy" />
+
     </PreferenceCategory>
 
 

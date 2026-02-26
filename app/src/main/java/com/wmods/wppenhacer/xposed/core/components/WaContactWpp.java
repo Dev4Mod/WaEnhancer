@@ -31,18 +31,21 @@ public record WaContactWpp(Object mInstance) {
     private static Object mInstanceGetWaContact;
     private static Object mInstanceGetProfilePhoto;
 
-
     public WaContactWpp(Object mInstance) {
-        if (TYPE == null) throw new RuntimeException("WaContactWpp not initialized");
-        if (mInstance == null) throw new RuntimeException("object is null");
-        if (!TYPE.isInstance(mInstance)) throw new RuntimeException("object is not a WaContactWpp");
+        if (TYPE == null)
+            throw new RuntimeException("WaContactWpp not initialized");
+        if (mInstance == null)
+            throw new RuntimeException("object is null");
+        if (!TYPE.isInstance(mInstance))
+            throw new RuntimeException("object is not a WaContactWpp");
         this.mInstance = TYPE.cast(mInstance);
     }
 
     public static void initialize(ClassLoader classLoader) {
         try {
             TYPE = Unobfuscator.loadWaContactClass(classLoader);
-            var classPhoneUserJid = Unobfuscator.findFirstClassUsingName(classLoader, StringMatchType.EndsWith, "jid.PhoneUserJid");
+            var classPhoneUserJid = Unobfuscator.findFirstClassUsingName(classLoader, StringMatchType.EndsWith,
+                    "jid.PhoneUserJid");
             var classJid = Unobfuscator.findFirstClassUsingName(classLoader, StringMatchType.EndsWith, "jid.Jid");
 
             var phoneUserJid = ReflectionUtils.getFieldByExtendType(TYPE, classPhoneUserJid);
@@ -57,15 +60,39 @@ public record WaContactWpp(Object mInstance) {
             fieldGetWaName = Unobfuscator.loadWaContactGetWaNameField(classLoader);
 
             getWaContactMethod = Unobfuscator.loadGetWaContactMethod(classLoader);
-            XposedBridge.hookAllConstructors(getWaContactMethod.getDeclaringClass(), new XC_MethodHook() {
-                @Override
-                protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-                    mInstanceGetWaContact = param.thisObject;
+            Class<?> contactManagerClass = getWaContactMethod.getDeclaringClass();
+
+            // Try to find existing instance via static method (getInstance pattern)
+            for (Method m : contactManagerClass.getDeclaredMethods()) {
+                if (java.lang.reflect.Modifier.isStatic(m.getModifiers())
+                        && m.getReturnType() == contactManagerClass
+                        && m.getParameterCount() == 0) {
+                    try {
+                        Object instance = m.invoke(null);
+                        if (instance != null) {
+                            mInstanceGetWaContact = instance;
+                            XposedBridge.log("WAE: WaContactWpp: Captured instance via static method: " + m.getName());
+                            break;
+                        }
+                    } catch (Exception ignored) {
+                    }
                 }
-            });
+            }
+
+            if (mInstanceGetWaContact == null) {
+                XposedBridge.hookAllConstructors(contactManagerClass, new XC_MethodHook() {
+                    @Override
+                    protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+                        mInstanceGetWaContact = param.thisObject;
+                        XposedBridge.log("WAE: WaContactWpp: Captured instance via constructor");
+                    }
+                });
+            } else {
+                XposedBridge.log("WAE: WaContactWpp: Instance already captured, skipping constructor hook");
+            }
+
             getProfilePhoto = Unobfuscator.loadGetProfilePhotoMethod(classLoader);
             getProfilePhotoHighQuality = Unobfuscator.loadGetProfilePhotoHighQMethod(classLoader);
-
 
             XposedBridge.hookAllConstructors(getProfilePhoto.getDeclaringClass(), new XC_MethodHook() {
                 @Override
@@ -82,7 +109,6 @@ public record WaContactWpp(Object mInstance) {
     public Object getObject() {
         return mInstance;
     }
-
 
     public FMessageWpp.UserJid getUserJid() {
         try {
@@ -117,8 +143,27 @@ public record WaContactWpp(Object mInstance) {
     }
 
     public static WaContactWpp getWaContactFromJid(FMessageWpp.UserJid userJid) {
+        if (mInstanceGetWaContact == null) {
+            XposedBridge.log("WAE: WaContactWpp: mInstanceGetWaContact is NULL. ContactManager not initialized?");
+            return null;
+        }
         try {
-            return new WaContactWpp(getWaContactMethod.invoke(mInstanceGetWaContact, userJid.userJid));
+            Object contact = null;
+            if (userJid.userJid != null) {
+                contact = getWaContactMethod.invoke(mInstanceGetWaContact, userJid.userJid);
+            }
+
+            // Fallback to phoneJid if userJid lookup failed or userJid was null
+            if (contact == null && userJid.phoneJid != null) {
+                XposedBridge.log("WAE: WaContactWpp: userJid lookup failed, trying phoneJid");
+                contact = getWaContactMethod.invoke(mInstanceGetWaContact, userJid.phoneJid);
+            }
+
+            if (contact != null) {
+                return new WaContactWpp(contact);
+            } else {
+                XposedBridge.log("WAE: WaContactWpp: Contact lookup returned null for " + userJid);
+            }
         } catch (Exception e) {
             XposedBridge.log(e);
         }
@@ -128,17 +173,18 @@ public record WaContactWpp(Object mInstance) {
     public File getProfilePhoto() {
         try {
             File file = (File) getProfilePhotoHighQuality.invoke(mInstanceGetProfilePhoto, mInstance);
-            if (file != null && file.exists()) return file;
+            if (file != null && file.exists())
+                return file;
         } catch (Exception e) {
             XposedBridge.log(e);
         }
         try {
             return (File) getProfilePhoto.invoke(mInstanceGetProfilePhoto, mInstance);
-        } catch (
-                Exception e) {
+        } catch (Exception e) {
             XposedBridge.log(e);
         }
         return null;
+
     }
 
 }

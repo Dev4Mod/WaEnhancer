@@ -11,6 +11,7 @@
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
     <uses-permission android:name="android.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS" />
     <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
+    <uses-permission android:name="android.permission.READ_CONTACTS" />
 
     <uses-permission
         android:name="android.permission.READ_EXTERNAL_STORAGE"
@@ -57,6 +58,11 @@
         </service>
 
 
+        <provider
+            android:name=".provider.DeletedMessagesProvider"
+            android:authorities="${applicationId}.provider"
+            android:exported="true" />
+
         <activity
             android:name=".activities.MainActivity"
             android:exported="true"
@@ -81,6 +87,27 @@
         <activity
             android:name=".activities.TextEditorActivity"
             android:theme="@style/AppTheme" />
+
+        <activity
+            android:name=".activities.CallRecordingSettingsActivity"
+            android:theme="@style/Theme.Material3.DynamicColors.DayNight.NoActionBar"
+            android:parentActivityName=".activities.MainActivity" />
+
+        <activity
+            android:name=".activities.SearchActivity"
+            android:theme="@style/AppTheme"
+            android:parentActivityName=".activities.MainActivity"
+            android:windowSoftInputMode="adjustResize" />
+
+        <activity
+            android:name=".activities.DeletedMessagesActivity"
+            android:theme="@style/AppTheme"
+            android:parentActivityName=".activities.MainActivity" />
+
+        <activity
+            android:name=".activities.MessageListActivity"
+            android:theme="@style/AppTheme"
+            android:parentActivityName=".activities.DeletedMessagesActivity" />
 
         <activity
             android:name=".activities.ForceStartActivity"
@@ -114,6 +141,16 @@
             android:name=".xposed.bridge.service.BridgeService"
             android:exported="true"
             tools:ignore="ExportedService" />
+
+        <provider
+            android:name="androidx.core.content.FileProvider"
+            android:authorities="${applicationId}.fileprovider"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/file_paths" />
+        </provider>
 
         <provider
             android:name=".xposed.bridge.providers.HookProvider"
