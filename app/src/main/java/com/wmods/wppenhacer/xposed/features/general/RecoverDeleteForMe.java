@@ -118,8 +118,22 @@ public class RecoverDeleteForMe extends Feature {
             jidObj = getObj(key, "chatJid");
         if (jidObj == null)
             jidObj = getObj(key, "A00");
-        if (jidObj != null)
-            chatJid = jidObj.toString();
+        if (jidObj != null) {
+            // Prefer getRawString() — WhatsApp JID object toString() may return display
+            // name,
+            // not the raw 'number@domain' form needed for the group filter query.
+            try {
+                Object rawStr = jidObj.getClass().getMethod("getRawString").invoke(jidObj);
+                if (rawStr instanceof String && !((String) rawStr).isEmpty()) {
+                    chatJid = (String) rawStr;
+                }
+            } catch (Throwable ignored) {
+            }
+            // Fallback to toString() if getRawString() unavailable
+            if (chatJid == null) {
+                chatJid = jidObj.toString();
+            }
+        }
         if (chatJid != null && (chatJid.equalsIgnoreCase("false") || chatJid.equalsIgnoreCase("true"))) {
             chatJid = null;
         }
@@ -197,17 +211,35 @@ public class RecoverDeleteForMe extends Feature {
         }
 
         // 7. Sender JID
-        String senderJid = fromMe ? "Me" : chatJid;
+        // For personal chats: senderJid = "Me" (if fromMe) or the contact's chatJid.
+        // For group chats: senderJid = the individual participant JID (not the group
+        // JID).
+        String senderJid = fromMe ? "Me" : null;
         Object participant = getObj(msg, "participant");
         if (participant == null)
             participant = getObj(msg, "senderJid");
         if (participant == null)
             participant = getObj(msg, "A0b");
         if (participant != null) {
-            String val = participant.toString();
-            if (!val.equalsIgnoreCase("false") && !val.equalsIgnoreCase("true")) {
+            String val = null;
+            // Try getRawString() first to get 'number@s.whatsapp.net'
+            try {
+                Object rawStr = participant.getClass().getMethod("getRawString").invoke(participant);
+                if (rawStr instanceof String && !((String) rawStr).isEmpty()) {
+                    val = (String) rawStr;
+                }
+            } catch (Throwable ignored) {
+            }
+            if (val == null)
+                val = participant.toString();
+            if (!val.equalsIgnoreCase("false") && !val.equalsIgnoreCase("true") && !val.isEmpty()) {
                 senderJid = val;
             }
+        }
+        // Final fallback: use chatJid only for non-group personal chats
+        if (senderJid == null) {
+            boolean isGroupChat = chatJid != null && chatJid.endsWith("@g.us");
+            senderJid = isGroupChat ? "Unknown" : chatJid;
         }
 
         // 8. Media Details

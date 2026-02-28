@@ -10,6 +10,7 @@ import android.view.MenuItem;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.core.content.FileProvider;
 
 import com.wmods.wppenhacer.xposed.core.Feature;
 import com.wmods.wppenhacer.xposed.core.WppCore;
@@ -24,26 +25,38 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
 
+import de.robv.android.xposed.XposedBridge;
 import de.robv.android.xposed.XSharedPreferences;
 
 public class StatusDownload extends Feature {
+
+    // Use dedicated unique IDs that won't collide with WhatsApp's
+    // dynamically-resolved
+    // string resource IDs (which are unpredictable across WA versions/obfuscation
+    // passes).
+    private static final int MENU_ID_DOWNLOAD = 0x7EAD0001;
+    private static final int MENU_ID_SHARE_STATUS = 0x7EAD0002;
 
     public StatusDownload(ClassLoader loader, XSharedPreferences preferences) {
         super(loader, preferences);
     }
 
     public void doHook() throws Exception {
-        if (!prefs.getBoolean("downloadstatus", false)) return;
-
+        if (!prefs.getBoolean("downloadstatus", false))
+            return;
 
         var downloadStatus = new MenuStatusListener.onMenuItemStatusListener() {
 
             @Override
             public MenuItem addMenu(Menu menu, FMessageWpp fMessage) {
-                if (menu.findItem(ResId.string.download) != null) return null;
-                if (fMessage.getKey().isFromMe) return null;
-                if (!fMessage.isMediaFile()) return null;
-                return menu.add(0, ResId.string.download, 0, ResId.string.download);
+                // Guard against duplicate entries using our own unique ID
+                if (menu.findItem(MENU_ID_DOWNLOAD) != null)
+                    return null;
+                if (fMessage.getKey().isFromMe)
+                    return null;
+                if (!fMessage.isMediaFile())
+                    return null;
+                return menu.add(0, MENU_ID_DOWNLOAD, 0, ResId.string.download);
             }
 
             @Override
@@ -53,14 +66,16 @@ public class StatusDownload extends Feature {
         };
         menuStatuses.add(downloadStatus);
 
-
         var sharedMenu = new MenuStatusListener.onMenuItemStatusListener() {
 
             @Override
             public MenuItem addMenu(Menu menu, FMessageWpp fMessage) {
-                if (fMessage.getKey().isFromMe) return null;
-                if (menu.findItem(ResId.string.share_as_status) != null) return null;
-                return menu.add(0, ResId.string.share_as_status, 0, ResId.string.share_as_status);
+                if (fMessage.getKey().isFromMe)
+                    return null;
+                // Guard against duplicate entries using our own unique ID
+                if (menu.findItem(MENU_ID_SHARE_STATUS) != null)
+                    return null;
+                return menu.add(0, MENU_ID_SHARE_STATUS, 0, ResId.string.share_as_status);
             }
 
             @Override
@@ -74,6 +89,7 @@ public class StatusDownload extends Feature {
     private void sharedStatus(FMessageWpp fMessageWpp) {
         try {
             if (!fMessageWpp.isMediaFile()) {
+                // Text-only status: open the text status composer
                 Intent intent = new Intent();
                 Class clazz;
                 try {
@@ -87,19 +103,43 @@ public class StatusDownload extends Feature {
                 WppCore.getCurrentActivity().startActivity(intent);
                 return;
             }
+
             var file = fMessageWpp.getMediaFile();
             if (file == null) {
                 Utils.showToast(Utils.getApplication().getString(ResId.string.download_not_available), 1);
                 return;
             }
+
+            // Build a content:// URI via FileProvider so Android 7+ doesn't block it.
+            // The FileProvider in AndroidManifest covers external-path "." so all WA
+            // media files under external storage are reachable.
+            Uri mediaUri;
+            try {
+                String authority = Utils.getApplication().getPackageName() + ".fileprovider";
+                mediaUri = FileProvider.getUriForFile(Utils.getApplication(), authority, file);
+            } catch (IllegalArgumentException e) {
+                // Fallback: if file is outside FileProvider paths, use file:// URI
+                // (works on root devices and Android < 7, better than silently failing)
+                XposedBridge
+                        .log("WaEnhancer: FileProvider failed for " + file.getAbsolutePath() + ": " + e.getMessage());
+                mediaUri = Uri.fromFile(file);
+            }
+
             Intent intent = new Intent();
             var clazz = Unobfuscator.getClassByName("MediaComposerActivity", classLoader);
             intent.setClassName(Utils.getApplication().getPackageName(), clazz.getName());
             intent.putExtra("jids", new ArrayList<>(Collections.singleton("status@broadcast")));
-            intent.putExtra("android.intent.extra.STREAM", new ArrayList<>(Collections.singleton(Uri.fromFile(file))));
-            intent.putExtra("android.intent.extra.TEXT", fMessageWpp.getMessageStr());
+            intent.putExtra("android.intent.extra.STREAM", new ArrayList<>(Collections.singleton(mediaUri)));
+            // Carry caption text if present
+            String caption = fMessageWpp.getMessageStr();
+            if (!TextUtils.isEmpty(caption)) {
+                intent.putExtra("android.intent.extra.TEXT", caption);
+            }
+            // Grant read permission to WhatsApp so it can read the content:// URI
+            intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
             WppCore.getCurrentActivity().startActivity(intent);
         } catch (Throwable e) {
+            XposedBridge.log("WaEnhancer: sharedStatus error: " + e.getMessage());
             Utils.showToast(e.getMessage(), Toast.LENGTH_SHORT);
         }
     }
@@ -117,10 +157,12 @@ public class StatusDownload extends Feature {
             var name = Utils.generateName(userJid, fileType);
             var error = Utils.copyFile(file, destination, name);
             if (TextUtils.isEmpty(error)) {
-                Utils.showToast(Utils.getApplication().getString(ResId.string.saved_to) + destination, Toast.LENGTH_SHORT);
+                Utils.showToast(Utils.getApplication().getString(ResId.string.saved_to) + destination,
+                        Toast.LENGTH_SHORT);
             } else {
-
-                Utils.showToast(Utils.getApplication().getString(ResId.string.error_when_saving_try_again) + ": " + error, Toast.LENGTH_SHORT);
+                Utils.showToast(
+                        Utils.getApplication().getString(ResId.string.error_when_saving_try_again) + ": " + error,
+                        Toast.LENGTH_SHORT);
             }
         } catch (Throwable e) {
             Utils.showToast(e.getMessage(), Toast.LENGTH_SHORT);
@@ -132,7 +174,6 @@ public class StatusDownload extends Feature {
     public String getPluginName() {
         return "Download Status";
     }
-
 
     @NonNull
     private String getStatusDestination(@NonNull File f) throws Exception {
