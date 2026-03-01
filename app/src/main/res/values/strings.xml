@@ -478,4 +478,6 @@
     <string name="action_follow_developer">Coming soon!</string>
     <string name="enable_spy">Enable Spy Tool</string>
     <string name="enable_spy_sum">Logs internal events to Xposed log for debugging.</string>
+    <string name="video_note_attachment">Video Note Attachment</string>
+    <string name="video_note_attachment_sum">Add a "Video Note" button to the chat attachment menu to easily send instant videos.</string>
 </resources>
