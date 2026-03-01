@@ -180,6 +180,10 @@ dependencies {
     compileOnly(libs.lombok)
     annotationProcessor(libs.lombok)
     implementation(libs.markwon.core)
+
+    implementation("com.github.bumptech.glide:glide:4.16.0")
+    implementation("com.google.code.gson:gson:2.11.0")
+    implementation("com.facebook.shimmer:shimmer:0.5.0")
 }
 
 configurations.all {

@@ -207,12 +207,14 @@
                         android:layout_height="wrap_content"
                         android:text="@string/contributors" />
 
-                    <LinearLayout
-                        android:id="@+id/contributorsContainer"
+                    <androidx.recyclerview.widget.RecyclerView
+                        android:id="@+id/rvContributors"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="@dimen/spacing_small"
-                        android:orientation="vertical" />
+                        app:layoutManager="androidx.recyclerview.widget.GridLayoutManager"
+                        app:spanCount="3"
+                        android:nestedScrollingEnabled="false" />
 
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>

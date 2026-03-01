@@ -119,6 +119,12 @@
             app:summary="@string/show_contact_blocked_sum"
             app:title="@string/show_contact_blocked" />
 
+        <rikka.material.preference.MaterialSwitchPreference
+            app:key="video_note_attachment"
+            app:title="@string/video_note_attachment"
+            app:summary="@string/video_note_attachment_sum"
+            app:allowDividerBelow="true" />
+
     </PreferenceCategory>
 
 </PreferenceScreen>
