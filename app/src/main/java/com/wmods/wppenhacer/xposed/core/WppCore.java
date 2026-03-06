@@ -18,7 +18,6 @@ import com.wmods.wppenhacer.xposed.bridge.WaeIIFace;
 import com.wmods.wppenhacer.xposed.bridge.client.BaseClient;
 import com.wmods.wppenhacer.xposed.bridge.client.BridgeClient;
 import com.wmods.wppenhacer.xposed.bridge.client.ProviderClient;
-import com.wmods.wppenhacer.xposed.core.components.AlertDialogWpp;
 import com.wmods.wppenhacer.xposed.core.components.FMessageWpp;
 import com.wmods.wppenhacer.xposed.core.devkit.Unobfuscator;
 import com.wmods.wppenhacer.xposed.core.devkit.UnobfuscatorCache;
@@ -38,6 +37,7 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.TimeUnit;
 
 import de.robv.android.xposed.XC_MethodHook;
 import de.robv.android.xposed.XSharedPreferences;
@@ -680,23 +680,35 @@ public class WppCore {
     }
 
     public static WaeIIFace getClientBridge() throws Exception {
-        if (client == null || client.getService() == null || !client.getService().asBinder().isBinderAlive()
-                || !client.getService().asBinder().pingBinder()) {
-            WppCore.getCurrentActivity().runOnUiThread(() -> {
-                var dialog = new AlertDialogWpp(WppCore.getCurrentActivity());
-                dialog.setTitle("Bridge Error");
-                dialog.setMessage(
-                        "The Connection with WaEnhancer was lost, it is necessary to reconnect with WaEnhancer in order to reestablish the connection.");
-                dialog.setPositiveButton("reconnect", (dialog1, which) -> {
-                    client.tryReconnect();
-                    dialog.dismiss();
-                });
-                dialog.setNegativeButton("cancel", null);
-                dialog.show();
-            });
-            throw new Exception("Failed connect to Bridge");
+        if (!isBridgeConnected()) {
+            synchronized (WppCore.class) {
+                if (!isBridgeConnected()) {
+                    if (client == null) {
+                        throw new Exception("Bridge client not initialized");
+                    }
+                    XposedBridge.log("Bridge disconnected. Trying automatic synchronous reconnect");
+                    boolean reconnected = false;
+                    try {
+                        reconnected = Boolean.TRUE.equals(client.connect().get(4, TimeUnit.SECONDS));
+                    } catch (Throwable e) {
+                        XposedBridge.log(e);
+                    }
+                    if (!reconnected || !isBridgeConnected()) {
+                        throw new Exception("Failed connect to Bridge");
+                    }
+                }
+            }
         }
         return client.getService();
+    }
+
+    private static boolean isBridgeConnected() {
+        var currentClient = client;
+        if (currentClient == null) {
+            return false;
+        }
+        var service = currentClient.getService();
+        return service != null && service.asBinder().isBinderAlive() && service.asBinder().pingBinder();
     }
 
     public interface ActivityChangeState {
