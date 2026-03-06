@@ -167,6 +167,7 @@ public class Others extends Feature {
         propsBoolean.put(0x32cb, true);
 
         if (disableMetaAI) {
+            propsInteger.put(15535, 0);
             propsBoolean.put(8025, false);
             propsBoolean.put(6251, false);
             propsBoolean.put(8026, false);
