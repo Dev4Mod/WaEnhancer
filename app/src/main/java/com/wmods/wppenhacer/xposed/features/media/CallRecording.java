@@ -1,32 +1,44 @@
 package com.wmods.wppenhacer.xposed.features.media;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.pm.PackageManager;
 import android.media.AudioFormat;
 import android.media.AudioRecord;
 import android.media.MediaRecorder;
+import android.os.Environment;
+import android.os.ParcelFileDescriptor;
 import android.text.TextUtils;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.core.content.ContextCompat;
 
+import com.wmods.wppenhacer.xposed.bridge.WaeIIFace;
 import com.wmods.wppenhacer.xposed.core.Feature;
 import com.wmods.wppenhacer.xposed.core.FeatureLoader;
+import com.wmods.wppenhacer.xposed.core.WppCore;
+import com.wmods.wppenhacer.xposed.core.components.FMessageWpp;
 import com.wmods.wppenhacer.xposed.core.devkit.Unobfuscator;
 import com.wmods.wppenhacer.xposed.utils.Utils;
 
 import org.luckypray.dexkit.query.enums.StringMatchType;
 
 import java.io.File;
-import java.io.RandomAccessFile;
+import java.io.FileOutputStream;
 import java.io.IOException;
-import java.lang.reflect.Field;
-import java.lang.reflect.Method;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
+import java.util.Map;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicLong;
+import java.util.concurrent.atomic.AtomicReference;
 
 import de.robv.android.xposed.XC_MethodHook;
 import de.robv.android.xposed.XSharedPreferences;
@@ -37,12 +49,20 @@ public class CallRecording extends Feature {
 
     private final AtomicBoolean isRecording = new AtomicBoolean(false);
     private final AtomicBoolean isCallConnected = new AtomicBoolean(false);
-    private AudioRecord audioRecord;
-    private RandomAccessFile randomAccessFile;
-    private Thread recordingThread;
-    private int payloadSize = 0;
-    private volatile String currentPhoneNumber = null;
-    private static boolean permissionGranted = false;
+    private final AtomicReference<AudioRecord> audioRecordRef = new AtomicReference<>();
+    private final AtomicReference<Thread> recordingThreadRef = new AtomicReference<>();
+    private final AtomicReference<ParcelFileDescriptor> outputPfdRef = new AtomicReference<>();
+    private final AtomicReference<FileOutputStream> outputStreamRef = new AtomicReference<>();
+    private final AtomicReference<File> outputFileRef = new AtomicReference<>();
+    private final AtomicReference<String> currentPhoneNumber = new AtomicReference<>();
+    private final AtomicReference<ScheduledFuture<?>> delayedStartFuture = new AtomicReference<>();
+    private final AtomicLong payloadSize = new AtomicLong(0L);
+    private final ScheduledExecutorService delayedStartScheduler = Executors.newSingleThreadScheduledExecutor(r -> {
+        Thread thread = new Thread(r, "WaEnhancer-CallDelayedStart");
+        thread.setDaemon(true);
+        return thread;
+    });
+    private static final AtomicBoolean permissionGranted = new AtomicBoolean(false);
 
     private static final int SAMPLE_RATE = 48000;
     private static final int CHANNEL_CONFIG = AudioFormat.CHANNEL_IN_MONO;
@@ -74,50 +94,28 @@ public class CallRecording extends Feature {
             if (clsCallEventCallback != null) {
                 XposedBridge.log("WaEnhancer: Found VoiceServiceEventCallback: " + clsCallEventCallback.getName());
 
-                // Hook ALL methods to discover which ones fire during call
-                for (Method method : clsCallEventCallback.getDeclaredMethods()) {
-                    final String methodName = method.getName();
-                    try {
-                        XposedBridge.hookAllMethods(clsCallEventCallback, methodName, new XC_MethodHook() {
-                            @Override
-                            protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-                                XposedBridge.log("WaEnhancer: VoiceCallback." + methodName + "()");
-
-                                // Handle call end
-                                if (methodName.equals("fieldstatsReady")) {
-                                    isCallConnected.set(false);
-                                    stopRecording();
-                                }
-                            }
-                        });
-                        hooksInstalled++;
-                    } catch (Throwable ignored) {
-                    }
+                try {
+                    XposedBridge.hookAllMethods(clsCallEventCallback, "fieldstatsReady", new XC_MethodHook() {
+                        @Override
+                        protected void afterHookedMethod(MethodHookParam param) {
+                            handleCallEnded("fieldstatsReady");
+                        }
+                    });
+                    hooksInstalled++;
+                } catch (Throwable e) {
+                    XposedBridge.log("WaEnhancer: Could not hook fieldstatsReady: " + e.getMessage());
                 }
 
-                // Hook soundPortCreated with 3 second delay to wait for call connection
                 XposedBridge.hookAllMethods(clsCallEventCallback, "soundPortCreated", new XC_MethodHook() {
                     @Override
-                    protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+                    protected void afterHookedMethod(MethodHookParam param) {
                         XposedBridge.log("WaEnhancer: soundPortCreated - will record after 3s");
                         extractPhoneNumberFromCallback(param.thisObject);
-
-                        final Object callback = param.thisObject;
-                        new Thread(() -> {
-                            try {
-                                Thread.sleep(3000);
-                                if (!isRecording.get()) {
-                                    XposedBridge.log("WaEnhancer: Starting recording after delay");
-                                    extractPhoneNumberFromCallback(callback);
-                                    isCallConnected.set(true);
-                                    startRecording();
-                                }
-                            } catch (Exception e) {
-                                XposedBridge.log("WaEnhancer: Delay error: " + e.getMessage());
-                            }
-                        }).start();
+                        isCallConnected.set(true);
+                        scheduleDelayedStart();
                     }
                 });
+                hooksInstalled++;
             }
         } catch (Throwable e) {
             XposedBridge.log("WaEnhancer: Could not hook VoiceServiceEventCallback: " + e.getMessage());
@@ -132,10 +130,8 @@ public class CallRecording extends Feature {
 
                 XposedBridge.hookAllMethods(voipActivityClass, "onDestroy", new XC_MethodHook() {
                     @Override
-                    protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
-                        XposedBridge.log("WaEnhancer: VoipActivity.onDestroy");
-                        isCallConnected.set(false);
-                        stopRecording();
+                    protected void beforeHookedMethod(MethodHookParam param) {
+                        handleCallEnded("VoipActivity.onDestroy");
                     }
                 });
                 hooksInstalled++;
@@ -147,93 +143,69 @@ public class CallRecording extends Feature {
         XposedBridge.log("WaEnhancer: Call Recording initialized with " + hooksInstalled + " hooks");
     }
 
+    private void handleCallEnded(@NonNull String reason) {
+        XposedBridge.log("WaEnhancer: Call ended by " + reason);
+        isCallConnected.set(false);
+        cancelDelayedStart();
+        stopRecording();
+    }
+
+    private void scheduleDelayedStart() {
+        cancelDelayedStart();
+        ScheduledFuture<?> future = delayedStartScheduler.schedule(() -> {
+            if (!isCallConnected.get()) {
+                XposedBridge.log("WaEnhancer: Delayed start cancelled, call not connected");
+                return;
+            }
+            if (isRecording.get()) {
+                XposedBridge.log("WaEnhancer: Delayed start ignored, already recording");
+                return;
+            }
+            startRecording();
+        }, 3, TimeUnit.SECONDS);
+        delayedStartFuture.set(future);
+    }
+
+    private void cancelDelayedStart() {
+        ScheduledFuture<?> future = delayedStartFuture.getAndSet(null);
+        if (future != null) {
+            future.cancel(true);
+        }
+    }
+
     private void extractPhoneNumberFromCallback(Object callback) {
         try {
             Object callInfo = XposedHelpers.callMethod(callback, "getCallInfo");
             if (callInfo == null)
                 return;
 
-            // Try to get peerJid and resolve LID to phone number
-            try {
-                Object peerJid = XposedHelpers.getObjectField(callInfo, "peerJid");
-                if (peerJid != null) {
-                    String peerStr = peerJid.toString();
-                    XposedBridge.log("WaEnhancer: peerJid = " + peerStr);
-
-                    // Check if it's a LID format
-                    if (peerStr.contains("@lid")) {
-                        // Try to get phone from the Jid object
-                        try {
-                            Object userMethod = XposedHelpers.callMethod(peerJid, "getUser");
-                            XposedBridge.log("WaEnhancer: peerJid.getUser() = " + userMethod);
-                        } catch (Throwable ignored) {
-                        }
-
-                        // Try toPhoneNumber or similar
-                        try {
-                            Object phone = XposedHelpers.callMethod(peerJid, "toPhoneNumber");
-                            if (phone != null) {
-                                currentPhoneNumber = "+" + phone.toString();
-                                XposedBridge.log("WaEnhancer: Found phone from toPhoneNumber: " + currentPhoneNumber);
-                                return;
-                            }
-                        } catch (Throwable ignored) {
-                        }
-                    }
-
-                    // Check if it's already a phone number format
-                    if (peerStr.contains("@s.whatsapp.net") || peerStr.contains("@c.us")) {
-                        String number = peerStr.split("@")[0];
-                        if (number.matches("\\d{6,15}")) {
-                            currentPhoneNumber = "+" + number;
-                            XposedBridge.log("WaEnhancer: Found phone: " + currentPhoneNumber);
-                            return;
-                        }
+            Object peerJid = XposedHelpers.getObjectField(callInfo, "peerJid");
+            var userJid = new FMessageWpp.UserJid(peerJid);
+            if (!userJid.isNull()) {
+                String phone = "+" + userJid.getPhoneNumber();
+                currentPhoneNumber.set(phone);
+                XposedBridge.log("WaEnhancer: Found phone from UserJid: " + phone);
+                return;
+            }
+            Object participantsObj = XposedHelpers.getObjectField(callInfo, "participants");
+            if (participantsObj instanceof Map participants) {
+                for (Object key : participants.keySet()) {
+                    var userJid2 = new FMessageWpp.UserJid(key);
+                    if (!userJid2.isNull()) {
+                        String phone = "+" + userJid2.getPhoneNumber();
+                        currentPhoneNumber.set(phone);
+                        XposedBridge.log("WaEnhancer: Found phone from single participant: " + phone);
+                        return;
                     }
                 }
-            } catch (Throwable ignored) {
             }
-
-            // Search participants map for phone numbers
-            try {
-                Object participants = XposedHelpers.getObjectField(callInfo, "participants");
-                if (participants != null) {
-                    XposedBridge.log("WaEnhancer: Participants = " + participants.toString());
-
-                    if (participants instanceof java.util.Map) {
-                        java.util.Map<?, ?> map = (java.util.Map<?, ?>) participants;
-                        for (Object key : map.keySet()) {
-                            String keyStr = key.toString();
-                            XposedBridge.log("WaEnhancer: Participant key = " + keyStr);
-
-                            // Check if key contains phone number
-                            if (keyStr.contains("@s.whatsapp.net") || keyStr.contains("@c.us")) {
-                                String number = keyStr.split("@")[0];
-                                if (number.matches("\\d{6,15}")) {
-                                    // Skip if it's the self number (creatorJid)
-                                    Object creatorJid = XposedHelpers.getObjectField(callInfo, "creatorJid");
-                                    if (creatorJid != null && keyStr.equals(creatorJid.toString())) {
-                                        continue;
-                                    }
-                                    currentPhoneNumber = "+" + number;
-                                    XposedBridge
-                                            .log("WaEnhancer: Found phone from participants: " + currentPhoneNumber);
-                                    return;
-                                }
-                            }
-                        }
-                    }
-                }
-            } catch (Throwable ignored) {
-            }
-
         } catch (Throwable e) {
             XposedBridge.log("WaEnhancer: extractPhoneNumber error: " + e.getMessage());
         }
     }
 
     private void grantVoiceCallPermission() {
-        if (permissionGranted)
+        if (permissionGranted.get())
             return;
 
         try {
@@ -247,7 +219,7 @@ public class CallRecording extends Feature {
 
             for (String cmd : commands) {
                 try {
-                    Process process = Runtime.getRuntime().exec(new String[] { "su", "-c", cmd });
+                    Process process = Runtime.getRuntime().exec(new String[]{"su", "-c", cmd});
                     int exitCode = process.waitFor();
                     XposedBridge.log("WaEnhancer: " + cmd + " exit: " + exitCode);
                 } catch (Exception e) {
@@ -255,7 +227,7 @@ public class CallRecording extends Feature {
                 }
             }
 
-            permissionGranted = true;
+            permissionGranted.set(true);
         } catch (Throwable e) {
             XposedBridge.log("WaEnhancer: grantVoiceCallPermission error: " + e.getMessage());
         }
@@ -267,11 +239,18 @@ public class CallRecording extends Feature {
             return;
         }
 
-        if (!shouldRecord(currentPhoneNumber)) {
-            XposedBridge.log("WaEnhancer: Skipping recording due to privacy settings for: " + currentPhoneNumber);
+        String phoneNumber = currentPhoneNumber.get();
+        if (!shouldRecord(phoneNumber)) {
+            XposedBridge.log("WaEnhancer: Skipping recording due to privacy settings for: " + phoneNumber);
             return;
         }
 
+        if (!isCallConnected.get()) {
+            XposedBridge.log("WaEnhancer: Skipping recording, call is not connected");
+            return;
+        }
+
+        AudioRecord selectedAudioRecord = null;
         try {
             if (ContextCompat.checkSelfPermission(FeatureLoader.mApp,
                     Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED) {
@@ -279,36 +258,38 @@ public class CallRecording extends Feature {
                 return;
             }
 
+            WaeIIFace bridge = WppCore.getClientBridge();
             String packageName = FeatureLoader.mApp.getPackageName();
             String appName = packageName.contains("w4b") ? "WA Business" : "WhatsApp";
+            String settingsPath = prefs.getString("call_recording_path",
+                    Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS).getAbsolutePath());
+            File parentDir = new File(settingsPath, "WA Call Recordings");
+            File appDir = new File(parentDir, appName);
 
-            File parentDir;
-            if (android.os.Environment.isExternalStorageManager()) {
-                parentDir = new File(android.os.Environment.getExternalStorageDirectory(), "WA Call Recordings");
-            } else {
-                String settingsPath = prefs.getString("call_recording_path", null);
-                if (settingsPath != null && !settingsPath.isEmpty()) {
-                    parentDir = new File(settingsPath, "WA Call Recordings");
-                } else {
-                    parentDir = new File(FeatureLoader.mApp.getExternalFilesDir(null), "Recordings");
+            if (!appDir.exists() && !appDir.mkdirs()) {
+                boolean dirCreated = bridge.createDir(appDir.getAbsolutePath());
+                if (!dirCreated && !appDir.exists()) {
+                    throw new IOException("Could not create output directory: " + appDir.getAbsolutePath());
                 }
             }
 
-            File dir = new File(parentDir, appName + "/Voice");
-            if (!dir.exists() && !dir.mkdirs()) {
-                dir = new File(FeatureLoader.mApp.getExternalFilesDir(null), "Recordings/" + appName + "/Voice");
-                dir.mkdirs();
-            }
-
             String timestamp = new SimpleDateFormat("yyyyMMdd_HHmmss", Locale.US).format(new Date());
-            String fileName = (currentPhoneNumber != null && !currentPhoneNumber.isEmpty())
-                    ? "Call_" + currentPhoneNumber.replaceAll("[^+0-9]", "") + "_" + timestamp + ".wav"
+            String fileName = (phoneNumber != null && !phoneNumber.isEmpty())
+                    ? "Call_" + phoneNumber.replaceAll("[^+0-9]", "") + "_" + timestamp + ".wav"
                     : "Call_" + timestamp + ".wav";
 
-            File file = new File(dir, fileName);
-            randomAccessFile = new RandomAccessFile(file, "rw");
-            randomAccessFile.setLength(0);
-            randomAccessFile.write(new byte[44]);
+            File file = new File(appDir, fileName);
+            ParcelFileDescriptor parcelFileDescriptor = bridge.openFile(file.getAbsolutePath(), true);
+            if (parcelFileDescriptor == null) {
+                throw new IOException("Bridge openFile returned null for " + file.getAbsolutePath());
+            }
+            FileOutputStream outputStream = new FileOutputStream(parcelFileDescriptor.getFileDescriptor());
+            outputStream.write(new byte[44]);
+            outputStream.flush();
+
+            outputFileRef.set(file);
+            outputPfdRef.set(parcelFileDescriptor);
+            outputStreamRef.set(outputStream);
 
             boolean useRoot = prefs.getBoolean("call_recording_use_root", false);
             if (useRoot) {
@@ -316,34 +297,29 @@ public class CallRecording extends Feature {
             }
 
             int minBufferSize = AudioRecord.getMinBufferSize(SAMPLE_RATE, CHANNEL_CONFIG, AUDIO_FORMAT);
+            if (minBufferSize <= 0) {
+                minBufferSize = SAMPLE_RATE;
+            }
             int bufferSize = minBufferSize * 6;
             XposedBridge.log("WaEnhancer: Buffer: " + bufferSize + ", useRoot: " + useRoot);
 
-            // VOICE_UPLINK(2)=remote side, VOICE_DOWNLINK(3)=local side, VOICE_CALL(4)=both
-            // sides
-            int[] audioSources = useRoot
-                    ? new int[] { MediaRecorder.AudioSource.VOICE_CALL, MediaRecorder.AudioSource.VOICE_UPLINK,
-                            MediaRecorder.AudioSource.VOICE_DOWNLINK, 6, MediaRecorder.AudioSource.VOICE_COMMUNICATION,
-                            MediaRecorder.AudioSource.MIC }
-                    : new int[] { MediaRecorder.AudioSource.VOICE_CALL, MediaRecorder.AudioSource.VOICE_UPLINK,
-                            MediaRecorder.AudioSource.VOICE_DOWNLINK, 6, MediaRecorder.AudioSource.VOICE_COMMUNICATION,
-                            MediaRecorder.AudioSource.MIC };
-            String[] sourceNames = useRoot
-                    ? new String[] { "VOICE_CALL", "VOICE_UPLINK", "VOICE_DOWNLINK", "VOICE_RECOGNITION",
-                            "VOICE_COMMUNICATION", "MIC" }
-                    : new String[] { "VOICE_CALL", "VOICE_UPLINK", "VOICE_DOWNLINK", "VOICE_RECOGNITION",
-                            "VOICE_COMMUNICATION", "MIC" };
+            int[] audioSources = new int[]{MediaRecorder.AudioSource.VOICE_CALL, MediaRecorder.AudioSource.VOICE_UPLINK,
+                    MediaRecorder.AudioSource.VOICE_DOWNLINK, 6, MediaRecorder.AudioSource.VOICE_COMMUNICATION,
+                    MediaRecorder.AudioSource.MIC};
+            String[] sourceNames = new String[]{"VOICE_CALL", "VOICE_UPLINK", "VOICE_DOWNLINK", "VOICE_RECOGNITION",
+                    "VOICE_COMMUNICATION", "MIC"};
 
-            audioRecord = null;
             String usedSource = "none";
 
             for (int i = 0; i < audioSources.length; i++) {
                 try {
                     XposedBridge.log("WaEnhancer: Trying " + sourceNames[i]);
+                    @SuppressLint("MissingPermission")
                     AudioRecord testRecord = new AudioRecord(audioSources[i], SAMPLE_RATE, CHANNEL_CONFIG, AUDIO_FORMAT,
                             bufferSize);
+
                     if (testRecord.getState() == AudioRecord.STATE_INITIALIZED) {
-                        audioRecord = testRecord;
+                        selectedAudioRecord = testRecord;
                         usedSource = sourceNames[i];
                         XposedBridge.log("WaEnhancer: SUCCESS " + sourceNames[i]);
                         break;
@@ -355,96 +331,187 @@ public class CallRecording extends Feature {
                 }
             }
 
-            if (audioRecord == null) {
+            if (selectedAudioRecord == null) {
                 XposedBridge.log("WaEnhancer: All audio sources failed");
+                closeOutputResources(false);
                 return;
             }
 
-            isRecording.set(true);
-            payloadSize = 0;
-            audioRecord.startRecording();
+            audioRecordRef.set(selectedAudioRecord);
+            if (!isRecording.compareAndSet(false, true)) {
+                selectedAudioRecord.release();
+                audioRecordRef.set(null);
+                closeOutputResources(false);
+                return;
+            }
+
+            payloadSize.set(0L);
+            selectedAudioRecord.startRecording();
             XposedBridge.log("WaEnhancer: Recording started (" + usedSource + "): " + file.getAbsolutePath());
 
             final int finalBufferSize = bufferSize;
-            recordingThread = new Thread(() -> {
+            Thread recordThread = new Thread(() -> {
                 byte[] buffer = new byte[finalBufferSize];
                 XposedBridge.log("WaEnhancer: Recording thread started");
 
-                while (isRecording.get() && audioRecord != null) {
+                while (isRecording.get()) {
                     try {
-                        int read = audioRecord.read(buffer, 0, buffer.length);
+                        AudioRecord record = audioRecordRef.get();
+                        FileOutputStream stream = outputStreamRef.get();
+                        if (record == null || stream == null) {
+                            break;
+                        }
+
+                        int read = record.read(buffer, 0, buffer.length);
                         if (read > 0) {
-                            synchronized (CallRecording.this) {
-                                if (randomAccessFile != null) {
-                                    randomAccessFile.write(buffer, 0, read);
-                                    payloadSize += read;
-                                }
-                            }
+                            stream.write(buffer, 0, read);
+                            payloadSize.addAndGet(read);
                         } else if (read < 0) {
+                            XposedBridge.log("WaEnhancer: Audio read error code: " + read);
                             break;
                         }
                     } catch (IOException e) {
+                        XposedBridge.log("WaEnhancer: Recording write error: " + e.getMessage());
+                        break;
+                    } catch (Throwable t) {
+                        XposedBridge.log("WaEnhancer: Recording thread error: " + t.getMessage());
                         break;
                     }
                 }
-                XposedBridge.log("WaEnhancer: Recording thread ended, bytes: " + payloadSize);
+                XposedBridge.log("WaEnhancer: Recording thread ended, bytes: " + payloadSize.get());
             }, "WaEnhancer-RecordingThread");
-            recordingThread.start();
+            recordingThreadRef.set(recordThread);
+            recordThread.start();
 
             if (prefs.getBoolean("call_recording_toast", false)) {
-                Utils.showToast("Recording started", android.widget.Toast.LENGTH_SHORT);
+                Utils.showToast("Recording started", Toast.LENGTH_SHORT);
             }
 
         } catch (Exception e) {
             XposedBridge.log("WaEnhancer: startRecording error: " + e.getMessage());
+            isRecording.set(false);
+            if (selectedAudioRecord != null) {
+                try {
+                    selectedAudioRecord.release();
+                } catch (Throwable ignored) {
+                }
+            }
+            audioRecordRef.set(null);
+            recordingThreadRef.set(null);
+            closeOutputResources(true);
+            payloadSize.set(0L);
         }
     }
 
     private synchronized void stopRecording() {
-        if (!isRecording.get())
+        cancelDelayedStart();
+        if (!isRecording.getAndSet(false))
             return;
 
-        isRecording.set(false);
-
         try {
+            AudioRecord audioRecord = audioRecordRef.getAndSet(null);
             if (audioRecord != null) {
                 try {
                     audioRecord.stop();
                 } catch (Exception ignored) {
                 }
                 audioRecord.release();
-                audioRecord = null;
             }
 
-            if (recordingThread != null) {
+            Thread recordingThread = recordingThreadRef.getAndSet(null);
+            if (recordingThread != null && recordingThread != Thread.currentThread()) {
                 recordingThread.join(2000);
-                recordingThread = null;
             }
 
-            if (randomAccessFile != null) {
-                writeWavHeader();
-                randomAccessFile.close();
-                randomAccessFile = null;
-            }
+            long writtenBytes = payloadSize.get();
+            boolean saved = finalizeRecordingFile(writtenBytes);
+            File outputFile = outputFileRef.getAndSet(null);
 
-            XposedBridge.log("WaEnhancer: Recording stopped, size: " + payloadSize);
+            XposedBridge.log("WaEnhancer: Recording stopped, size: " + writtenBytes +
+                    ", file=" + (outputFile != null ? outputFile.getAbsolutePath() : "unknown"));
 
             if (prefs.getBoolean("call_recording_toast", false)) {
-                Utils.showToast(payloadSize > 1000 ? "Recording saved!" : "Recording failed",
-                        android.widget.Toast.LENGTH_SHORT);
+                Utils.showToast(saved ? "Recording saved!" : "Recording failed", Toast.LENGTH_SHORT);
             }
 
-            currentPhoneNumber = null;
+            currentPhoneNumber.set(null);
+            payloadSize.set(0L);
         } catch (Exception e) {
             XposedBridge.log("WaEnhancer: stopRecording error: " + e.getMessage());
+            closeOutputResources(false);
+            outputFileRef.set(null);
         }
     }
 
-    private void writeWavHeader() throws IOException {
-        long totalDataLen = payloadSize + 36;
+    private boolean finalizeRecordingFile(long writtenBytes) {
+        FileOutputStream stream = outputStreamRef.getAndSet(null);
+        ParcelFileDescriptor pfd = outputPfdRef.getAndSet(null);
+        File outputFile = outputFileRef.get();
+        if (stream == null) {
+            if (pfd != null) {
+                try {
+                    pfd.close();
+                } catch (IOException ignored) {
+                }
+            }
+            return false;
+        }
+
+        boolean success = writtenBytes > 0;
+        try {
+            writeWavHeader(stream, writtenBytes);
+            stream.flush();
+        } catch (IOException e) {
+            XposedBridge.log("WaEnhancer: Failed to write WAV header: " + e.getMessage());
+            success = false;
+        } finally {
+            try {
+                stream.close();
+            } catch (IOException ignored) {
+            }
+            if (pfd != null) {
+                try {
+                    pfd.close();
+                } catch (IOException ignored) {
+                }
+            }
+        }
+
+        if (success && outputFile != null) {
+            Utils.scanFile(outputFile);
+        }
+        return success;
+    }
+
+    private void closeOutputResources(boolean deleteOutputFile) {
+        FileOutputStream stream = outputStreamRef.getAndSet(null);
+        ParcelFileDescriptor pfd = outputPfdRef.getAndSet(null);
+        File outputFile = outputFileRef.getAndSet(null);
+
+        if (stream != null) {
+            try {
+                stream.close();
+            } catch (IOException ignored) {
+            }
+        }
+        if (pfd != null) {
+            try {
+                pfd.close();
+            } catch (IOException ignored) {
+            }
+        }
+
+        if (deleteOutputFile && outputFile != null && outputFile.exists() && !outputFile.delete()) {
+            XposedBridge.log("WaEnhancer: Could not delete incomplete recording: " + outputFile.getAbsolutePath());
+        }
+    }
+
+    private void writeWavHeader(@NonNull FileOutputStream stream, long dataSize) throws IOException {
+        long clampedDataSize = Math.min(dataSize, 0xFFFFFFFFL);
+        long totalDataLen = clampedDataSize + 36;
         long byteRate = (long) SAMPLE_RATE * CHANNELS * BITS_PER_SAMPLE / 8;
 
-        randomAccessFile.seek(0);
+        stream.getChannel().position(0);
         byte[] header = new byte[44];
 
         header[0] = 'R';
@@ -487,12 +554,12 @@ public class CallRecording extends Feature {
         header[37] = 'a';
         header[38] = 't';
         header[39] = 'a';
-        header[40] = (byte) (payloadSize & 0xff);
-        header[41] = (byte) ((payloadSize >> 8) & 0xff);
-        header[42] = (byte) ((payloadSize >> 16) & 0xff);
-        header[43] = (byte) ((payloadSize >> 24) & 0xff);
+        header[40] = (byte) (clampedDataSize & 0xff);
+        header[41] = (byte) ((clampedDataSize >> 8) & 0xff);
+        header[42] = (byte) ((clampedDataSize >> 16) & 0xff);
+        header[43] = (byte) ((clampedDataSize >> 24) & 0xff);
 
-        randomAccessFile.write(header);
+        stream.write(header);
     }
 
     private boolean shouldRecord(String phoneNumber) {

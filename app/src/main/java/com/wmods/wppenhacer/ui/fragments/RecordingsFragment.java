@@ -26,11 +26,12 @@ import com.wmods.wppenhacer.model.Recording;
 import com.wmods.wppenhacer.ui.dialogs.AudioPlayerDialog;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Comparator;
-import java.util.HashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Map;
+import java.util.Set;
 
 public class RecordingsFragment extends Fragment implements RecordingsAdapter.OnRecordingActionListener {
 
@@ -89,59 +90,101 @@ public class RecordingsFragment extends Fragment implements RecordingsAdapter.On
         // Sort FAB
         binding.fabSort.setOnClickListener(v -> showSortMenu());
 
+        binding.swipeRefresh.setOnRefreshListener(() -> {
+            initializeBaseDirs();
+            loadRecordings();
+        });
+
+        loadRecordings();
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        if (binding == null) return;
+        initializeBaseDirs();
         loadRecordings();
     }
 
     private void initializeBaseDirs() {
         var prefs = PreferenceManager.getDefaultSharedPreferences(requireContext());
-        String path = prefs.getString("call_recording_path", null);
-        
+        String configuredPath = prefs.getString("call_recording_path", null);
+
         baseDirs.clear();
-        
-        // 1. Root folder if MANAGE_EXTERNAL_STORAGE
-        if (Environment.isExternalStorageManager()) {
-            baseDirs.add(new File(Environment.getExternalStorageDirectory(), "WA Call Recordings"));
+        Set<String> addedPaths = new LinkedHashSet<>();
+
+        // 1. Current default location used by CallRecording
+        addBaseDir(addedPaths, new File(
+                Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS),
+                "WA Call Recordings"
+        ));
+
+        // 2. User configured location from shared preferences
+        if (configuredPath != null && !configuredPath.isEmpty()) {
+            addBaseDir(addedPaths, new File(configuredPath, "WA Call Recordings"));
         }
-        
-        // 2. Settings path
-        if (path != null && !path.isEmpty()) {
-            baseDirs.add(new File(path, "WA Call Recordings"));
+
+        // 3. Legacy root folder from older versions
+        addBaseDir(addedPaths, new File(Environment.getExternalStorageDirectory(), "WA Call Recordings"));
+
+        // 4. WhatsApp app external files
+        addBaseDir(addedPaths, new File("/sdcard/Android/data/com.whatsapp/files/Recordings"));
+        addBaseDir(addedPaths, new File("/sdcard/Android/data/com.whatsapp.w4b/files/Recordings"));
+
+        // 5. Legacy fallback
+        addBaseDir(addedPaths, new File(Environment.getExternalStorageDirectory(), "Music/WaEnhancer/Recordings"));
+    }
+
+    private void addBaseDir(@NonNull Set<String> addedPaths, @NonNull File dir) {
+        String normalizedPath = normalizePath(dir);
+        if (addedPaths.add(normalizedPath)) {
+            baseDirs.add(dir);
         }
-        
-        // 3. WhatsApp app external files
-        baseDirs.add(new File("/sdcard/Android/data/com.whatsapp/files/Recordings"));
-        baseDirs.add(new File("/sdcard/Android/data/com.whatsapp.w4b/files/Recordings"));
-        
-        // 4. Legacy fallback
-        baseDirs.add(new File(Environment.getExternalStorageDirectory(), "Music/WaEnhancer/Recordings"));
+    }
+
+    @NonNull
+    private String normalizePath(@NonNull File dir) {
+        try {
+            return dir.getCanonicalPath();
+        } catch (IOException ignored) {
+            return dir.getAbsolutePath();
+        }
     }
 
     private void loadRecordings() {
-        allRecordings.clear();
-        
-        for (File baseDir : baseDirs) {
-            if (baseDir.exists() && baseDir.isDirectory()) {
-                traverseDirectory(baseDir);
-            }
+        if (binding == null) {
+            return;
         }
 
-        if (allRecordings.isEmpty()) {
-            binding.emptyView.setVisibility(View.VISIBLE);
-            binding.recyclerView.setVisibility(View.GONE);
-        } else {
-            binding.emptyView.setVisibility(View.GONE);
-            binding.recyclerView.setVisibility(View.VISIBLE);
-            
-            // Apply sorting
-            applySort();
-            
-            if (isGroupByContact) {
-                // For group by contact, we'll navigate to ContactRecordingsActivity when a contact is clicked
-                // For now, just show sorted list (full group UI needs ContactRecordingsActivity)
-                adapter.setRecordings(allRecordings);
-            } else {
-                adapter.setRecordings(allRecordings);
+        allRecordings.clear();
+
+        try {
+            for (File baseDir : baseDirs) {
+                if (baseDir.exists() && baseDir.isDirectory()) {
+                    traverseDirectory(baseDir);
+                }
             }
+
+            if (allRecordings.isEmpty()) {
+                binding.emptyView.setVisibility(View.VISIBLE);
+                binding.recyclerView.setVisibility(View.GONE);
+            } else {
+                binding.emptyView.setVisibility(View.GONE);
+                binding.recyclerView.setVisibility(View.VISIBLE);
+
+                // Apply sorting
+                applySort();
+
+                if (isGroupByContact) {
+                    // For group by contact, we'll navigate to ContactRecordingsActivity when a contact is clicked
+                    // For now, just show sorted list (full group UI needs ContactRecordingsActivity)
+                    adapter.setRecordings(allRecordings);
+                } else {
+                    adapter.setRecordings(allRecordings);
+                }
+            }
+        } finally {
+            binding.swipeRefresh.setRefreshing(false);
         }
     }
 
