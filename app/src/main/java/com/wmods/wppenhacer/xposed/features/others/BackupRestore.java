@@ -3,17 +3,19 @@ package com.wmods.wppenhacer.xposed.features.others;
 import android.app.Activity;
 import android.content.Intent;
 import android.view.Menu;
-import android.view.MenuItem;
 import android.widget.Toast;
 
 import com.wmods.wppenhacer.xposed.core.Feature;
+import com.wmods.wppenhacer.xposed.core.components.AlertDialogWpp;
 import com.wmods.wppenhacer.xposed.core.devkit.Unobfuscator;
+import com.wmods.wppenhacer.xposed.utils.ResId;
 import com.wmods.wppenhacer.xposed.utils.Utils;
+
+import org.luckypray.dexkit.query.enums.StringMatchType;
 
 import de.robv.android.xposed.XC_MethodHook;
 import de.robv.android.xposed.XSharedPreferences;
 import de.robv.android.xposed.XposedBridge;
-import de.robv.android.xposed.XposedHelpers;
 
 public class BackupRestore extends Feature {
 
@@ -30,39 +32,39 @@ public class BackupRestore extends Feature {
     public void doHook() throws Exception {
         if (!prefs.getBoolean("force_restore_backup_feature", false)) return;
 
-        Class<?> settingsDriveClass = Unobfuscator.loadSettingsGoogleDriveActivity(classLoader);
-        
-        XposedHelpers.findAndHookMethod(settingsDriveClass, "onPrepareOptionsMenu", Menu.class, new XC_MethodHook() {
+        var restoreFromBackupClass = Unobfuscator.findFirstClassUsingName(classLoader, StringMatchType.EndsWith, "RestoreFromBackupActivity");
+
+        XposedBridge.hookAllMethods(Activity.class, "onPrepareOptionsMenu", new XC_MethodHook() {
             @Override
             protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+                var name = param.thisObject.getClass().getSimpleName().toLowerCase();
+                if (!(name.contains("drive") && name.contains("google"))) return;
                 Menu menu = (Menu) param.args[0];
-                // Hardcoding string to ensure it appears without resource injection issues
-                String title = "Force Restore Backup (Experimental)";
-                
-                // Use a high ID to avoid conflicts
-                if (menu.findItem(10001) == null) {
-                    menu.add(0, 10001, 0, title);
-                }
+                if (menu.findItem(10001) != null) return;
+                var menuItem = menu.add(0, 10001, 0, ResId.string.force_restore_backup_experimental);
+                Activity activity = (Activity) param.thisObject;
+                menuItem.setOnMenuItemClickListener((item) -> {
+                    new AlertDialogWpp(activity)
+                            .setTitle(ResId.string.force_restore_backup)
+                            .setMessage(activity.getString(ResId.string.warning_restore))
+                            .setPositiveButton(activity.getString(ResId.string.yes), (dialog, which) -> {
+                                try {
+                                    Intent intent = new Intent(activity, restoreFromBackupClass);
+                                    intent.setAction("action_show_restore_one_time_setup");
+                                    activity.startActivityForResult(intent, 10001);
+                                } catch (Exception e) {
+                                    XposedBridge.log(e);
+                                    Utils.showToast("Error launching restore activity: " + e.getMessage(), Toast.LENGTH_LONG);
+                                }
+                            })
+                            .setNegativeButton(activity.getString(ResId.string.no), null)
+                            .show();
+
+                    return true;
+                });
+
             }
         });
 
-        XposedHelpers.findAndHookMethod(settingsDriveClass, "onOptionsItemSelected", MenuItem.class, new XC_MethodHook() {
-            @Override
-            protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
-                MenuItem item = (MenuItem) param.args[0];
-                if (item.getItemId() == 10001) {
-                    Activity activity = (Activity) param.thisObject;
-                    try {
-                        Class<?> restoreClass = Unobfuscator.loadRestoreBackupActivity(classLoader);
-                        Intent intent = new Intent(activity, restoreClass);
-                        activity.startActivity(intent);
-                        param.setResult(true);
-                    } catch (Exception e) {
-                        Utils.showToast("Error launching restore activity: " + e.getMessage(), Toast.LENGTH_LONG);
-                        XposedBridge.log(e);
-                    }
-                }
-            }
-        });
     }
 }

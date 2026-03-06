@@ -476,4 +476,6 @@
     <string name="action_follow_developer">Coming soon!</string>
     <string name="enable_spy">Enable Spy Tool</string>
     <string name="enable_spy_sum">Logs internal events to Xposed log for debugging.</string>
+    <string name="warning_restore">When restoring the backup all messages after the backup will be lost, are you sure you want to continue?</string>
+    <string name="force_restore_backup_experimental">Force Restore Backup (Experimental)</string>
 </resources>

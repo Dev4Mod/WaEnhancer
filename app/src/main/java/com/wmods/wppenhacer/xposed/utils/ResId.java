@@ -109,6 +109,9 @@ public class ResId {
         public static int possible_block_detected;
         public static int checking_if_the_contact_is_blocked;
         public static int block_unverified;
+        public static int warning_restore;
+        public static int force_restore_backup_experimental;
+        public static int force_restore_backup;
     }
 
     public static class array {
