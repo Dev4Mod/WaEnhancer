@@ -52,8 +52,6 @@ public class WppCore {
     private static Class<?> mGenJidClass;
     private static Method mGenJidMethod;
     private static Class bottomDialog;
-    private static Field convChatField;
-    private static Field chatJidField;
     private static SharedPreferences privPrefs;
     private static Object mStartUpConfig;
     private static Object mActionUser;
@@ -66,6 +64,8 @@ public class WppCore {
     private static Method convertJidToLid;
     private static Class actionUser;
     private static Method cachedMessageStoreKey;
+    private static Field conversationDelegateField;
+    private static Field conversationJidField;
 
     public static void Initialize(ClassLoader loader, XSharedPreferences pref) throws Exception {
         privPrefs = Utils.getApplication().getSharedPreferences("WaGlobal", Context.MODE_PRIVATE);
@@ -82,8 +82,8 @@ public class WppCore {
         // Bottom Dialog
         bottomDialog = Unobfuscator.loadDialogViewClass(loader);
 
-        convChatField = Unobfuscator.loadAntiRevokeConvChatField(loader);
-        chatJidField = Unobfuscator.loadAntiRevokeChatJidField(loader);
+        conversationDelegateField = Unobfuscator.loadConversationDelegateField(loader);
+        conversationJidField = Unobfuscator.loadUserJidConversationDelegate(loader);
 
         // StartUpPrefs
         var startPrefsConfig = Unobfuscator.loadStartPrefsConfig(loader);
@@ -481,24 +481,26 @@ public class WppCore {
         return null;
     }
 
-    @Nullable
+    @NonNull
     public static FMessageWpp.UserJid getCurrentUserJid() {
         try {
             var conversation = getCurrentConversation();
-            if (conversation == null)
-                return null;
-            Object chatField;
+            if (conversation == null) return new FMessageWpp.UserJid();
+            Object conversationDelegate;
             if (conversation.getClass().getSimpleName().equals("HomeActivity")) {
-                // tablet mode found
                 var convFragmentMethod = Unobfuscator.loadHomeConversationFragmentMethod(conversation.getClassLoader());
                 var convFragment = convFragmentMethod.invoke(null, conversation);
                 var convField = Unobfuscator.loadAntiRevokeConvFragmentField(conversation.getClassLoader());
-                chatField = convField.get(convFragment);
+                conversationDelegate = convField.get(convFragment);
             } else {
-                chatField = convChatField.get(conversation);
+                if (conversation.getClass().isAssignableFrom(conversationDelegateField.getDeclaringClass())) {
+                    conversationDelegate = conversationDelegateField.get(conversation);
+                } else {
+                    var fieldObject = ReflectionUtils.getFieldByType(conversation.getClass(), conversationDelegateField.getDeclaringClass());
+                    conversationDelegate = conversationDelegateField.get(fieldObject.get(conversation));
+                }
             }
-            var chatJidObj = chatJidField.get(chatField);
-            return new FMessageWpp.UserJid(chatJidObj);
+            return new FMessageWpp.UserJid(conversationJidField.get(conversationDelegate));
         } catch (Exception e) {
             XposedBridge.log(e);
             return new FMessageWpp.UserJid();

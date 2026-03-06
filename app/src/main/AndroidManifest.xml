@@ -34,6 +34,7 @@
 
 
     <application
+        android:forceQueryable="true"
         android:name=".App"
         android:allowBackup="true"
         android:icon="@mipmap/launcher"
@@ -41,7 +42,7 @@
         android:requestLegacyExternalStorage="true"
         android:roundIcon="@mipmap/launcher"
         android:supportsRtl="true"
-        tools:targetApi="q">
+        tools:targetApi="30">
 
         <!--suppress AndroidDomInspection -->
         <service

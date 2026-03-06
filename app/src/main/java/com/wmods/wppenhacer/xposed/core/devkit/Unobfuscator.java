@@ -28,7 +28,6 @@ import org.luckypray.dexkit.query.enums.OpCodeMatchType;
 import org.luckypray.dexkit.query.enums.StringMatchType;
 import org.luckypray.dexkit.query.matchers.ClassMatcher;
 import org.luckypray.dexkit.query.matchers.MethodMatcher;
-import org.luckypray.dexkit.query.matchers.MethodsMatcher;
 import org.luckypray.dexkit.query.matchers.base.OpCodesMatcher;
 import org.luckypray.dexkit.result.ClassData;
 import org.luckypray.dexkit.result.ClassDataList;
@@ -49,12 +48,12 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.Timer;
 import java.util.TimerTask;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
 import de.robv.android.xposed.XposedBridge;
@@ -537,16 +536,19 @@ public class Unobfuscator {
 
     public synchronized static Method loadTimeToSecondsMethod(ClassLoader classLoader) throws Exception {
         return UnobfuscatorCache.getInstance().getMethod(classLoader, () -> {
-            Class<?> cls = findFirstClassUsingStrings(classLoader, StringMatchType.Contains, "aBhHKm");
-            if (cls == null)
-                throw new Exception("TimeToSeconds class not found");
-            var clsData = dexkit.getClassData(cls);
-            var method = XposedHelpers.findMethodBestMatch(Calendar.class, "setTimeInMillis", long.class);
-            var result = clsData.findMethod(new FindMethod().matcher(new MethodMatcher()
-                    .addInvoke(DexSignUtil.getMethodDescriptor(method)).returnType(String.class).paramCount(2)));
-            if (result.isEmpty())
-                throw new Exception("TimeToSeconds method not found");
-            return result.get(0).getMethodInstance(classLoader);
+            Method setTimeInMillis = Calendar.class.getDeclaredMethod("setTimeInMillis", long.class);
+            Method getInstance = Calendar.class.getDeclaredMethod("getInstance", Locale.class);
+
+            var result = dexkit.findMethod(FindMethod.create().matcher(MethodMatcher.create()
+                    .addInvoke(DexSignUtil.getMethodDescriptor(setTimeInMillis))
+                    .addInvoke(DexSignUtil.getMethodDescriptor(getInstance))
+                    .modifiers(Modifier.STATIC)
+                    .returnType(String.class).paramCount(2)
+                    .paramTypes(null, long.class)
+
+            )).singleOrNull();
+            if (result == null) throw new Exception("TimeToSeconds method not found");
+            return result.getMethodInstance(classLoader);
         });
     }
 
@@ -861,36 +863,36 @@ public class Unobfuscator {
 
     public synchronized static Field loadAntiRevokeConvFragmentField(ClassLoader loader) throws Exception {
         return UnobfuscatorCache.getInstance().getField(loader, () -> {
-            Class<?> chatClass = findFirstClassUsingStrings(loader, StringMatchType.Contains,
-                    "conversation/createconversation");
+            Class<?> chatClass = findFirstClassUsingStrings(loader, StringMatchType.Contains, "conversation/createconversation");
             Class<?> conversation = XposedHelpers.findClass("com.whatsapp.ConversationFragment", loader);
             Field field = ReflectionUtils.getFieldByType(conversation, chatClass);
-            if (field == null)
-                throw new Exception("AntiRevokeConvChat field not found");
+            if (field == null) throw new Exception("AntiRevokeConvChat field not found");
             return field;
         });
     }
 
-    public synchronized static Field loadAntiRevokeConvChatField(ClassLoader loader) throws Exception {
+    public synchronized static Field loadConversationDelegateField(ClassLoader loader) throws Exception {
         return UnobfuscatorCache.getInstance().getField(loader, () -> {
-            Class<?> chatClass = findFirstClassUsingStrings(loader, StringMatchType.Contains,
-                    "conversation/createconversation");
+            Class<?> conversationDelegateClass = findFirstClassUsingStrings(loader, StringMatchType.Contains, "conversation/createconversation");
             Class<?> conversation = XposedHelpers.findClass("com.whatsapp.Conversation", loader);
-            Field field = ReflectionUtils.getFieldByType(conversation, chatClass);
-            if (field == null)
-                throw new Exception("AntiRevokeConvChat field not found");
-            return field;
+            Field field = ReflectionUtils.getFieldByExtendType(conversation, conversationDelegateClass);
+            if (field != null) return field;
+            for (var f : conversation.getDeclaredFields()) {
+                var clazz = f.getType();
+                if (clazz.isPrimitive()) continue;
+                var field1 = ReflectionUtils.getFieldByExtendType(clazz, conversationDelegateClass);
+                if (field1 != null) return field1;
+            }
+            return null;
         });
     }
 
-    public synchronized static Field loadAntiRevokeChatJidField(ClassLoader loader) throws Exception {
+    public synchronized static Field loadUserJidConversationDelegate(ClassLoader loader) throws Exception {
         return UnobfuscatorCache.getInstance().getField(loader, () -> {
-            Class<?> chatClass = findFirstClassUsingStrings(loader, StringMatchType.Contains,
-                    "conversation/createconversation");
+            Class<?> chatClass = findFirstClassUsingStrings(loader, StringMatchType.Contains, "conversation/createconversation");
             Class<?> jidClass = Unobfuscator.findFirstClassUsingName(loader, StringMatchType.EndsWith, "jid.Jid");
             Field field = ReflectionUtils.getFieldByExtendType(chatClass, jidClass);
-            if (field == null)
-                throw new Exception("AntiRevokeChatJid field not found");
+            if (field == null) throw new Exception("UserJidConversationDelegate field not found");
             return field;
         });
     }
