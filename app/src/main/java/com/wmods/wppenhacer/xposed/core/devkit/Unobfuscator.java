@@ -2665,4 +2665,21 @@ public class Unobfuscator {
                     .toArray(Class[]::new);
         });
     }
+
+    public static Method loadPinnedFilterMethod(ClassLoader classLoader) throws Exception {
+        return UnobfuscatorCache.getInstance().getMethod(classLoader, () -> {
+            var method = findFirstMethodUsingStrings(classLoader, StringMatchType.Contains, "pinSelectedJids");
+            var methodData = dexkit.getMethodData(method);
+            var invokes = methodData.getInvokes();
+            for (var invoke : invokes) {
+                if (!invoke.isMethod()) continue;
+                var methodInstance = invoke.getMethodInstance(classLoader);
+                if (!Set.class.isAssignableFrom(methodInstance.getReturnType()))
+                    continue;
+                if (methodInstance.getParameterCount() == 2 && methodInstance.getParameterTypes()[0] == Iterable.class && methodInstance.getParameterTypes()[1] == Set.class)
+                    return methodInstance;
+            }
+            throw new NoSuchMethodException("PinnedLinkedHashMethod not found");
+        });
+    }
 }

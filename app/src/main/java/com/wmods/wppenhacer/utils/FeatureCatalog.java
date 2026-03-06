@@ -82,14 +82,6 @@ public class FeatureCatalog {
                 "general_home",
                 Arrays.asList("backup", "restore", "force")));
 
-        catalog.add(new SearchableFeature("disable_ads",
-                context.getString(R.string.disable_ads),
-                context.getString(R.string.disable_ads_sum),
-                SearchableFeature.Category.GENERAL_HOME,
-                SearchableFeature.FragmentType.GENERAL,
-                "general_home",
-                Arrays.asList("ads", "advertising", "block")));
-
         catalog.add(new SearchableFeature("lite_mode",
                 context.getString(R.string.lite_mode),
                 context.getString(R.string.lite_mode_sum),
