@@ -1,20 +1,12 @@
 [ADDED]
-* Added Call Recording feature (Voice/Video as Audio) (Thanks to @mubashardev)
-* Call Recording Toast Toggle: Added option to show/hide recording toast notifications (default: off) (Thanks to @mubashardev)
-* [EXPERIMENTAL] Use "Force Restore Backup" option in Chat Backup settings to restore backups after login (Thanks to @mubashardev)
-* Global Search: Added comprehensive search functionality across all app settings and features. (Thanks to @mubashardev)
-* Recover deleted for me message: Added option to recover deleted for me messages. (Thanks to @mubashardev)
-* Added Contributors section in About page to acknowledge the efforts of contributors.
-* Added Support for WA/WB 2.26.7.xx
+* Added Support for WA/WB 2.26.8.xx
+* Added pull-to-refresh in the call recorder manager.
 
-[Fixed]
-* Fixed profile picture download for old contacts
-* Optimized initial app load
-- Call recording filter (whitelist/blacklist) now works correctly
-- Call recording on loudspeaker now captures both sides of the conversation
-- Status download button now shows consistently
-- Sharing someone else's status now correctly carries the media to the composer
-- Anti-revoke now works in group chats
-
-Thanks @grkmcngns for detailed review and highlighting these issues.
-
+[FIXED]
+* Refactored the call recorder for correct microphone recording and saving in the correct folder; internal audio may not work (In the plus version, we have some methods to record internal audio, but it is not 100% compatible with all devices).
+* Fixed bug with duplicated recorded audios.
+* Fixed issue with unknown numbers in recorded calls.
+* Fixed increased limit in pinned chats.
+* Fixed bug in experimental backup restore.
+* Removed the ad-blocking feature, as it was no longer working and will require more time to fix; it may be reimplemented in the future.
+* Fixed the function to disable META AI.
