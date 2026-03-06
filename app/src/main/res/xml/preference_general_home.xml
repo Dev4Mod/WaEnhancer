@@ -47,12 +47,6 @@
             app:title="@string/force_restore_backup" />
 
         <rikka.material.preference.MaterialSwitchPreference
-            app:defaultValue="false"
-            app:key="disable_ads"
-            app:summary="@string/disable_ads_sum"
-            app:title="@string/disable_ads" />
-
-        <rikka.material.preference.MaterialSwitchPreference
             app:key="lite_mode"
             app:summary="@string/lite_mode_sum"
             app:title="@string/lite_mode" />
