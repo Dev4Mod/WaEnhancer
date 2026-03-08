@@ -2,15 +2,17 @@ package com.wmods.wppenhacer.xposed.features.media;
 
 import android.graphics.Bitmap;
 import android.graphics.RecordingCanvas;
+import android.media.MediaCodecInfo;
+import android.media.MediaCodecList;
 import android.os.Build;
-import android.os.Debug;
+import android.util.Pair;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 import com.wmods.wppenhacer.xposed.core.Feature;
 import com.wmods.wppenhacer.xposed.core.devkit.Unobfuscator;
 import com.wmods.wppenhacer.xposed.features.general.Others;
-import com.wmods.wppenhacer.xposed.utils.DebugUtils;
 import com.wmods.wppenhacer.xposed.utils.ReflectionUtils;
 
 import org.json.JSONObject;
@@ -26,6 +28,17 @@ import de.robv.android.xposed.XposedBridge;
 import de.robv.android.xposed.XposedHelpers;
 
 public class MediaQuality extends Feature {
+
+    private static final String VIDEO_MIME_AVC = "video/avc";
+    private static final String VIDEO_MIME_HEVC = "video/hevc";
+    private static final int SAFE_MAX_HD_BITRATE_KBPS = 16000;
+    private static final int SAFE_MAX_NON_HD_BITRATE_KBPS = 10000;
+    private static final int MIN_HD_NON_HD_BITRATE_GAP_KBPS = 2000;
+    private static final int SAFE_MIN_VIDEO_DIMENSION = 2;
+    private static final int SAFE_MAX_VIDEO_EDGE = 3840;
+    private static final int FALLBACK_LANDSCAPE_WIDTH = 1280;
+    private static final int FALLBACK_LANDSCAPE_HEIGHT = 720;
+
     public MediaQuality(ClassLoader loader, XSharedPreferences preferences) {
         super(loader, preferences);
     }
@@ -53,21 +66,6 @@ public class MediaQuality extends Feature {
         XposedBridge.hookMethod(hookMediaQualitySelection, XC_MethodReplacement.returnConstant(true));
 
         if (videoQuality) {
-
-            // Force Video to processing in Video Transcoder
-            Method VideoTranscoderStart = Unobfuscator.loadVideoTranscoderStartMethod(classLoader);
-            XposedBridge.hookMethod(VideoTranscoderStart, new XC_MethodHook() {
-                @Override
-                protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
-                    var videoProcessor = param.args[0];
-                    DebugUtils.debugObject(videoProcessor);
-                    var booleanParams = ReflectionUtils.getFieldsByType(videoProcessor.getClass(), Boolean.TYPE);
-                    if (booleanParams.size() > 2) {
-                        Field field = booleanParams.get(2);
-                        field.setBoolean(videoProcessor, false);
-                    }
-                }
-            });
 
             Others.propsBoolean.put(5549, true); // Use bitrate from json to force video high quality
 
@@ -99,11 +97,78 @@ public class MediaQuality extends Feature {
             });
             jsonPropertyHook.set(unhooked);
 
+            var ProcessVideoQualityClass = Unobfuscator.loadProcessVideoQualityClass(classLoader);
+            var processVideoQualityFields = Unobfuscator.getAllMapFields(ProcessVideoQualityClass);
+
+            var replaceVideoQuality = new XC_MethodHook() {
+                @Override
+                protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+                    var processVideoQuality = param.getResult();
+                    var fieldvideoMaxBitrate = processVideoQualityFields.get("videoMaxBitrate");
+                    var fieldvideoMaxEdge = processVideoQualityFields.get("videoMaxEdge");
+                    var fieldvideoLimitMb = processVideoQualityFields.get("videoLimitMb");
+                    if (fieldvideoLimitMb != null) {
+                        fieldvideoLimitMb.setInt(processVideoQuality, maxSize);
+                    }
+                    var qualityType = ReflectionUtils.getArg(param.args, Integer.class, 0);
+                    if (qualityType == 2) {
+                        if (fieldvideoMaxEdge != null) {
+                            fieldvideoMaxEdge.setInt(processVideoQuality, 3840);
+                        }
+                        if (fieldvideoMaxBitrate != null) {
+                            int bitrateBps = 24000 * 1000;
+                            fieldvideoMaxBitrate.setInt(processVideoQuality, bitrateBps);
+                        }
+                    } else {
+                        if (fieldvideoMaxEdge != null) {
+                            fieldvideoMaxEdge.setInt(processVideoQuality, 1240);
+                        }
+                        if (fieldvideoMaxBitrate != null) {
+                            int bitrateBps = 16000 * 1000;
+                            fieldvideoMaxBitrate.setInt(processVideoQuality, bitrateBps);
+                        }
+                    }
+                }
+            };
+
+            var manualProcessVideoQualityMethod = Unobfuscator.loadManualProcessVideoQualityMethod(classLoader);
+            XposedBridge.hookMethod(manualProcessVideoQualityMethod, replaceVideoQuality);
+            var autoProcessVideoQualityMethod = Unobfuscator.loadAutoProcessVideoQualityMethod(classLoader);
+            XposedBridge.hookMethod(autoProcessVideoQualityMethod, replaceVideoQuality);
+
+            var MediaDataVideoConfiguration = Unobfuscator.loadMediaDataVideoConfigurationClass(classLoader);
+            var fieldsMediaDataVideoConfiguration = Unobfuscator.getAllMapFields(MediaDataVideoConfiguration);
+
+            Method VideoTranscoderStart = Unobfuscator.loadVideoTranscoderStartMethod(classLoader);
+            XposedBridge.hookMethod(VideoTranscoderStart, new XC_MethodHook() {
+                @Override
+                protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
+                    var videoProcessor = param.args[0];
+                    var booleanParams = ReflectionUtils.getFieldsByType(videoProcessor.getClass(), Boolean.TYPE);
+                    if (booleanParams.size() > 2) {
+                        Field field = booleanParams.get(2);
+                        field.setBoolean(videoProcessor, false);
+                    }
+                    var fieldMediaDataVideoConfiguration = ReflectionUtils.getFieldByType(videoProcessor.getClass(), MediaDataVideoConfiguration);
+                    var mediaDataVideoConfiguration = fieldMediaDataVideoConfiguration.get(videoProcessor);
+                    var fieldforceSingleTranscoding = fieldsMediaDataVideoConfiguration.get("forceSingleTranscoding");
+                    fieldforceSingleTranscoding.setBoolean(mediaDataVideoConfiguration, true);
+                }
+            });
+
+
             var videoMethod = Unobfuscator.loadMediaQualityVideoMethod2(classLoader);
             logDebug(Unobfuscator.getMethodDescriptor(videoMethod));
 
             var mediaFields = Unobfuscator.loadMediaQualityOriginalVideoFields(classLoader);
             var mediaTranscodeParams = Unobfuscator.loadMediaQualityVideoFields(classLoader);
+
+            EncoderVideoCapabilities encoderVideoCapabilities = getPreferredEncoderCapabilities(VIDEO_MIME_AVC);
+            if (encoderVideoCapabilities == null) {
+                encoderVideoCapabilities = getPreferredEncoderCapabilities(VIDEO_MIME_HEVC);
+            }
+
+            final EncoderVideoCapabilities finalEncoderVideoCapabilities = encoderVideoCapabilities;
 
             XposedBridge.hookMethod(videoMethod, new XC_MethodHook() {
 
@@ -149,11 +214,20 @@ public class MediaQuality extends Feature {
 
                             var inverted = rotationAngle == 90 || rotationAngle == 270;
 
-                            targetHeightField.setInt(resizeVideo, inverted ? width : height);
-                            targetWidthField.setInt(resizeVideo, inverted ? height : width);
+                            int targetWidth = inverted ? height : width;
+                            int targetHeight = inverted ? width : height;
+
+                            var sanitizedTargetSize = sanitizeVideoSize(targetWidth, targetHeight, finalEncoderVideoCapabilities);
+                            if (sanitizedTargetSize != null) {
+                                if (targetWidthField != null) {
+                                    targetWidthField.setInt(resizeVideo, sanitizedTargetSize.first);
+                                }
+                                if (targetHeightField != null) {
+                                    targetHeightField.setInt(resizeVideo, sanitizedTargetSize.second);
+                                }
+                            }
 
                         }
-
                     }
                     if (prefs.getBoolean("video_maxfps", false)) {
                         var frameRateField = mediaTranscodeParams.get("frameRate");
@@ -219,6 +293,260 @@ public class MediaQuality extends Feature {
 
         }
     }
+
+    @Nullable
+    private EncoderVideoCapabilities getPreferredEncoderCapabilities(@NonNull String mimeType) {
+        MediaCodecList codecList = new MediaCodecList(MediaCodecList.REGULAR_CODECS);
+        MediaCodecInfo[] codecInfos = codecList.getCodecInfos();
+
+        EncoderVideoCapabilities fallback = null;
+        for (MediaCodecInfo info : codecInfos) {
+            if (!info.isEncoder()) {
+                continue;
+            }
+
+            for (String type : info.getSupportedTypes()) {
+                if (!type.equalsIgnoreCase(mimeType)) {
+                    continue;
+                }
+
+                try {
+                    MediaCodecInfo.CodecCapabilities caps = info.getCapabilitiesForType(type);
+                    MediaCodecInfo.VideoCapabilities videoCaps = caps.getVideoCapabilities();
+                    if (videoCaps == null) {
+                        continue;
+                    }
+
+                    int minWidth = Math.max(SAFE_MIN_VIDEO_DIMENSION, videoCaps.getSupportedWidths().getLower());
+                    int maxWidth = Math.max(minWidth, videoCaps.getSupportedWidths().getUpper());
+                    int minHeight = Math.max(SAFE_MIN_VIDEO_DIMENSION, videoCaps.getSupportedHeights().getLower());
+                    int maxHeight = Math.max(minHeight, videoCaps.getSupportedHeights().getUpper());
+                    int widthAlignment = Math.max(2, videoCaps.getWidthAlignment());
+                    int heightAlignment = Math.max(2, videoCaps.getHeightAlignment());
+                    int maxBitrateKbps = Math.max(2000, videoCaps.getBitrateRange().getUpper() / 1000);
+
+                    EncoderVideoCapabilities candidate = new EncoderVideoCapabilities(
+                            info.getName(),
+                            minWidth,
+                            maxWidth,
+                            minHeight,
+                            maxHeight,
+                            widthAlignment,
+                            heightAlignment,
+                            maxBitrateKbps,
+                            videoCaps
+                    );
+
+                    if (fallback == null) {
+                        fallback = candidate;
+                    }
+
+                    if (!isSoftwareCodec(info.getName())) {
+                        return candidate;
+                    }
+                } catch (Exception e) {
+                    logDebug("Failed to read encoder capabilities", e);
+                }
+                break;
+            }
+        }
+
+        return fallback;
+    }
+
+    private boolean isSoftwareCodec(@Nullable String codecName) {
+        if (codecName == null || codecName.isEmpty()) {
+            return true;
+        }
+        String lowerName = codecName.toLowerCase();
+        return lowerName.startsWith("omx.google.")
+                || lowerName.startsWith("c2.android.")
+                || lowerName.contains("software")
+                || lowerName.contains(".sw.");
+    }
+
+    private record EncoderVideoCapabilities(
+            @NonNull String codecName,
+            int minWidth,
+            int maxWidth,
+            int minHeight,
+            int maxHeight,
+            int widthAlignment,
+            int heightAlignment,
+            int maxBitrateKbps,
+            @NonNull MediaCodecInfo.VideoCapabilities videoCapabilities
+    ) {
+    }
+
+    private int clampInt(int value, int min, int max) {
+        return Math.max(min, Math.min(value, max));
+    }
+
+    @Nullable
+    private Pair<Integer, Integer> sanitizeVideoSize(int width, int height, @Nullable EncoderVideoCapabilities encoderVideoCapabilities) {
+        if (width <= 0 || height <= 0) {
+            return null;
+        }
+
+        Pair<Integer, Integer> boundedSize = fitToMaxEdge(width, height, SAFE_MAX_VIDEO_EDGE);
+        width = boundedSize.first;
+        height = boundedSize.second;
+
+        if (encoderVideoCapabilities == null) {
+            int safeWidth = makeEven(width);
+            int safeHeight = makeEven(height);
+            return new Pair<>(Math.max(SAFE_MIN_VIDEO_DIMENSION, safeWidth), Math.max(SAFE_MIN_VIDEO_DIMENSION, safeHeight));
+        }
+
+        int safeWidth = clampInt(width, encoderVideoCapabilities.minWidth, encoderVideoCapabilities.maxWidth);
+        int safeHeight = clampInt(height, encoderVideoCapabilities.minHeight, encoderVideoCapabilities.maxHeight);
+
+        safeWidth = alignToNearest(safeWidth, encoderVideoCapabilities.widthAlignment, encoderVideoCapabilities.minWidth, encoderVideoCapabilities.maxWidth);
+        safeHeight = alignToNearest(safeHeight, encoderVideoCapabilities.heightAlignment, encoderVideoCapabilities.minHeight, encoderVideoCapabilities.maxHeight);
+
+        Pair<Integer, Integer> supportedSize = findSupportedSize(safeWidth, safeHeight, encoderVideoCapabilities);
+        if (supportedSize != null) {
+            return supportedSize;
+        }
+
+        int fallbackWidth = alignToNearest(
+                clampInt(Math.min(width, 1280), encoderVideoCapabilities.minWidth, encoderVideoCapabilities.maxWidth),
+                encoderVideoCapabilities.widthAlignment,
+                encoderVideoCapabilities.minWidth,
+                encoderVideoCapabilities.maxWidth
+        );
+        int fallbackHeight = alignToNearest(
+                clampInt(Math.min(height, 720), encoderVideoCapabilities.minHeight, encoderVideoCapabilities.maxHeight),
+                encoderVideoCapabilities.heightAlignment,
+                encoderVideoCapabilities.minHeight,
+                encoderVideoCapabilities.maxHeight
+        );
+
+        if (isSizeSupported(encoderVideoCapabilities, fallbackWidth, fallbackHeight)) {
+            return new Pair<>(fallbackWidth, fallbackHeight);
+        }
+
+        boolean isLandscape = width >= height;
+        int conservativeWidth = isLandscape ? FALLBACK_LANDSCAPE_WIDTH : FALLBACK_LANDSCAPE_HEIGHT;
+        int conservativeHeight = isLandscape ? FALLBACK_LANDSCAPE_HEIGHT : FALLBACK_LANDSCAPE_WIDTH;
+
+        conservativeWidth = alignToNearest(
+                clampInt(conservativeWidth, encoderVideoCapabilities.minWidth, encoderVideoCapabilities.maxWidth),
+                encoderVideoCapabilities.widthAlignment,
+                encoderVideoCapabilities.minWidth,
+                encoderVideoCapabilities.maxWidth
+        );
+        conservativeHeight = alignToNearest(
+                clampInt(conservativeHeight, encoderVideoCapabilities.minHeight, encoderVideoCapabilities.maxHeight),
+                encoderVideoCapabilities.heightAlignment,
+                encoderVideoCapabilities.minHeight,
+                encoderVideoCapabilities.maxHeight
+        );
+
+        return new Pair<>(conservativeWidth, conservativeHeight);
+    }
+
+    @Nullable
+    private Pair<Integer, Integer> findSupportedSize(int width, int height, @NonNull EncoderVideoCapabilities encoderVideoCapabilities) {
+        if (isSizeSupported(encoderVideoCapabilities, width, height)) {
+            return new Pair<>(width, height);
+        }
+
+        float aspectRatio = (float) width / (float) height;
+        int currentWidth = width;
+        int currentHeight = height;
+
+        for (int attempt = 0; attempt < 80; attempt++) {
+            if (currentWidth >= currentHeight) {
+                currentWidth = alignDown(currentWidth - encoderVideoCapabilities.widthAlignment, encoderVideoCapabilities.widthAlignment);
+                if (currentWidth < encoderVideoCapabilities.minWidth) {
+                    break;
+                }
+                int scaledHeight = Math.round(currentWidth / aspectRatio);
+                currentHeight = alignToNearest(
+                        clampInt(scaledHeight, encoderVideoCapabilities.minHeight, encoderVideoCapabilities.maxHeight),
+                        encoderVideoCapabilities.heightAlignment,
+                        encoderVideoCapabilities.minHeight,
+                        encoderVideoCapabilities.maxHeight
+                );
+            } else {
+                currentHeight = alignDown(currentHeight - encoderVideoCapabilities.heightAlignment, encoderVideoCapabilities.heightAlignment);
+                if (currentHeight < encoderVideoCapabilities.minHeight) {
+                    break;
+                }
+                int scaledWidth = Math.round(currentHeight * aspectRatio);
+                currentWidth = alignToNearest(
+                        clampInt(scaledWidth, encoderVideoCapabilities.minWidth, encoderVideoCapabilities.maxWidth),
+                        encoderVideoCapabilities.widthAlignment,
+                        encoderVideoCapabilities.minWidth,
+                        encoderVideoCapabilities.maxWidth
+                );
+            }
+
+            if (isSizeSupported(encoderVideoCapabilities, currentWidth, currentHeight)) {
+                return new Pair<>(currentWidth, currentHeight);
+            }
+        }
+
+        return null;
+    }
+
+    private boolean isSizeSupported(@NonNull EncoderVideoCapabilities encoderVideoCapabilities, int width, int height) {
+        try {
+            return encoderVideoCapabilities.videoCapabilities.isSizeSupported(width, height);
+        } catch (Exception ignored) {
+            return false;
+        }
+    }
+
+    private int alignToNearest(int value, int alignment, int min, int max) {
+        if (alignment <= 1) {
+            return clampInt(value, min, max);
+        }
+
+        int minAligned = ((min + alignment - 1) / alignment) * alignment;
+        int maxAligned = (max / alignment) * alignment;
+        if (minAligned > maxAligned) {
+            return clampInt(value, min, max);
+        }
+
+        int clamped = clampInt(value, minAligned, maxAligned);
+        int down = alignDown(clamped, alignment);
+        int up = Math.min(maxAligned, down + alignment);
+        if (down == up) {
+            return down;
+        }
+        return (clamped - down < up - clamped) ? down : up;
+    }
+
+    private int alignDown(int value, int alignment) {
+        if (alignment <= 1) {
+            return value;
+        }
+        if (value <= 0) {
+            return 0;
+        }
+        return (value / alignment) * alignment;
+    }
+
+    private int makeEven(int value) {
+        return (value & 1) == 0 ? value : value + 1;
+    }
+
+    @NonNull
+    private Pair<Integer, Integer> fitToMaxEdge(int width, int height, int maxEdge) {
+        int longestEdge = Math.max(width, height);
+        if (longestEdge <= maxEdge || maxEdge <= 0) {
+            return new Pair<>(width, height);
+        }
+
+        float scale = (float) maxEdge / (float) longestEdge;
+        int scaledWidth = Math.max(SAFE_MIN_VIDEO_DIMENSION, Math.round(width * scale));
+        int scaledHeight = Math.max(SAFE_MIN_VIDEO_DIMENSION, Math.round(height * scale));
+        return new Pair<>(scaledWidth, scaledHeight);
+    }
+
+
 
     @NonNull
     @Override

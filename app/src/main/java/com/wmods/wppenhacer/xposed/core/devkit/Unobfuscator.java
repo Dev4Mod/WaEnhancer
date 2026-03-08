@@ -2636,4 +2636,79 @@ public class Unobfuscator {
             return method;
         });
     }
+
+    public static Method loadManualProcessVideoQualityMethod(ClassLoader classLoader) throws Exception {
+        return UnobfuscatorCache.getInstance().getMethod(classLoader, () -> {
+            var processVideoQuality = Unobfuscator.loadProcessVideoQualityClass(classLoader);
+            var methods = dexkit.findMethod(FindMethod.create().matcher(MethodMatcher.create().addUsingString("dimensions_are_zero").returnType(processVideoQuality)));
+            if (methods.isEmpty())
+                throw new NoSuchMethodException("ManualProcessVideoQuality method not found");
+            return methods.get(0).getMethodInstance(classLoader);
+        });
+
+    }
+
+    public static Method loadAutoProcessVideoQualityMethod(ClassLoader classLoader) throws Exception {
+        return UnobfuscatorCache.getInstance().getMethod(classLoader, () -> {
+            var processVideoQuality = Unobfuscator.loadProcessVideoQualityClass(classLoader);
+            var methods = dexkit.findMethod(FindMethod.create().matcher(MethodMatcher.create().addUsingString("min_bandwidth").addUsingString("network_types").returnType(processVideoQuality)));
+            if (methods.isEmpty())
+                throw new NoSuchMethodException("ManualProcessVideoQuality method not found");
+            return methods.get(0).getMethodInstance(classLoader);
+        });
+
+    }
+
+
+    public static HashMap<String, Field> getAllMapFields(Class<?> clazz) throws Exception {
+        var cache = UnobfuscatorCache.getInstance();
+        var classLoader = clazz.getClassLoader();
+        if (cache != null && classLoader != null) {
+            var cacheKey = "getAllMapFields:" + clazz.getName();
+            return cache.getMapField(classLoader, cacheKey, () -> buildAllMapFields(clazz));
+        }
+        return buildAllMapFields(clazz);
+    }
+
+    private static HashMap<String, Field> buildAllMapFields(Class<?> clazz) throws Exception {
+        Method methodString;
+        try {
+            methodString = clazz.getDeclaredMethod("toString");
+        } catch (Exception e) {
+            return new HashMap<>();
+        }
+        var methodData = dexkit.getMethodData(methodString);
+        var usingFields = Objects.requireNonNull(methodData).getUsingFields();
+        var usingStrings = Objects.requireNonNull(methodData).getUsingStrings();
+        var result = new HashMap<String, Field>();
+        var idxFields = 0;
+        for (int i = 0; i < usingStrings.size(); i++) {
+            if (idxFields == usingFields.size()) break;
+            var raw = usingStrings.get(i);
+            if (raw == null) continue;
+            var string = raw.strip();
+            if (string.isEmpty()) continue;
+            int eq = string.lastIndexOf('=');
+            if (eq < 0) continue;
+            int start = 0;
+            for (int j = eq - 1; j >= 0; j--) {
+                char c = string.charAt(j);
+                if (c == '\'' || c == ',' || c == ' ' || c == '(' || c == ')' || c == ':' || c == '{' || c == '}') {
+                    start = j + 1;
+                    break;
+                }
+            }
+            if (start >= eq) continue;
+            var name = string.substring(start, eq);
+            var field = usingFields.get(idxFields).getField().getFieldInstance(clazz.getClassLoader());
+            result.put(name, field);
+            idxFields++;
+        }
+        return result;
+    }
+
+    public static Class<?> loadMediaDataVideoConfigurationClass(ClassLoader classLoader) throws Exception {
+        return UnobfuscatorCache.getInstance().getClass(classLoader, () -> findFirstClassUsingStrings(classLoader, StringMatchType.Contains, "MediaDataVideoConfiguration("));
+    }
+
 }

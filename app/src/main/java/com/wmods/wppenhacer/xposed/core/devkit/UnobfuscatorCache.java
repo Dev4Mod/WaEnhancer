@@ -333,7 +333,10 @@ public class UnobfuscatorCache {
     }
 
     public HashMap<String, Field> getMapField(ClassLoader loader, FunctionCall<HashMap<String, Field>> functionCall) throws Exception {
-        var key = getKeyName();
+        return getMapField(loader, getKeyName(), functionCall);
+    }
+
+    public HashMap<String, Field> getMapField(ClassLoader loader, String key, FunctionCall<HashMap<String, Field>> functionCall) throws Exception {
         String value = sPrefsCacheHooks.getString(key, null);
         if (value == null) {
             try {
