@@ -1,12 +1,4 @@
-[ADDED]
-* Added Support for WA/WB 2.26.8.xx
-* Added pull-to-refresh in the call recorder manager.
-
 [FIXED]
-* Refactored the call recorder for correct microphone recording and saving in the correct folder; internal audio may not work (In the plus version, we have some methods to record internal audio, but it is not 100% compatible with all devices).
-* Fixed bug with duplicated recorded audios.
-* Fixed issue with unknown numbers in recorded calls.
-* Fixed increased limit in pinned chats.
-* Fixed bug in experimental backup restore.
-* Removed the ad-blocking feature, as it was no longer working and will require more time to fix; it may be reimplemented in the future.
-* Fixed the function to disable META AI.
+* Fixed a bug where pinning a contact on the home screen would cause it to be unpinned after a while
+* Fixed a bug in the contact picker that was not being displayed correctly in WAE
+* Fixed a bug in the Call Recorder that was not recording correctly (WARNING: Most devices do not support internal audio call recording)
