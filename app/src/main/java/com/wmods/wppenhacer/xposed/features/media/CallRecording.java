@@ -258,7 +258,12 @@ public class CallRecording extends Feature {
                 return;
             }
 
-            WaeIIFace bridge = WppCore.getClientBridge();
+            WaeIIFace bridge = null;
+            try {
+                bridge = WppCore.getClientBridge();
+            } catch (Throwable t) {
+                XposedBridge.log("WaEnhancer: Could not get client bridge, using app context storage: " + t.getMessage());
+            }
             String packageName = FeatureLoader.mApp.getPackageName();
             String appName = packageName.contains("w4b") ? "WA Business" : "WhatsApp";
             String settingsPath = prefs.getString("call_recording_path",
@@ -266,10 +271,12 @@ public class CallRecording extends Feature {
             File parentDir = new File(settingsPath, "WA Call Recordings");
             File appDir = new File(parentDir, appName);
 
-            if (!appDir.exists() && !appDir.mkdirs()) {
-                boolean dirCreated = bridge.createDir(appDir.getAbsolutePath());
-                if (!dirCreated && !appDir.exists()) {
-                    throw new IOException("Could not create output directory: " + appDir.getAbsolutePath());
+            if (bridge != null) {
+                if (!appDir.exists() && !appDir.mkdirs()) {
+                    boolean dirCreated = bridge.createDir(appDir.getAbsolutePath());
+                    if (!dirCreated && !appDir.exists()) {
+                        throw new IOException("Could not create output directory: " + appDir.getAbsolutePath());
+                    }
                 }
             }
 
@@ -278,12 +285,10 @@ public class CallRecording extends Feature {
                     ? "Call_" + phoneNumber.replaceAll("[^+0-9]", "") + "_" + timestamp + ".wav"
                     : "Call_" + timestamp + ".wav";
 
-            File file = new File(appDir, fileName);
-            ParcelFileDescriptor parcelFileDescriptor = bridge.openFile(file.getAbsolutePath(), true);
-            if (parcelFileDescriptor == null) {
-                throw new IOException("Bridge openFile returned null for " + file.getAbsolutePath());
-            }
-            FileOutputStream outputStream = new FileOutputStream(parcelFileDescriptor.getFileDescriptor());
+            OutputTarget outputTarget = openOutputTarget(bridge, appDir, fileName);
+            File file = outputTarget.file;
+            ParcelFileDescriptor parcelFileDescriptor = outputTarget.parcelFileDescriptor;
+            FileOutputStream outputStream = outputTarget.outputStream;
             outputStream.write(new byte[44]);
             outputStream.flush();
 
@@ -503,6 +508,51 @@ public class CallRecording extends Feature {
 
         if (deleteOutputFile && outputFile != null && outputFile.exists() && !outputFile.delete()) {
             XposedBridge.log("WaEnhancer: Could not delete incomplete recording: " + outputFile.getAbsolutePath());
+        }
+    }
+
+    @NonNull
+    private OutputTarget openOutputTarget(WaeIIFace bridge, @NonNull File preferredDir, @NonNull String fileName) throws IOException {
+        File preferredFile = new File(preferredDir, fileName);
+        if (bridge != null) {
+            try {
+                ParcelFileDescriptor parcelFileDescriptor = bridge.openFile(preferredFile.getAbsolutePath(), true);
+                if (parcelFileDescriptor != null) {
+                    FileOutputStream outputStream = new FileOutputStream(parcelFileDescriptor.getFileDescriptor());
+                    return new OutputTarget(preferredFile, parcelFileDescriptor, outputStream);
+                }
+                XposedBridge.log("WaEnhancer: Bridge openFile returned null, fallback to Android/data path");
+            } catch (Throwable t) {
+                XposedBridge.log("WaEnhancer: Bridge openFile failed, fallback to Android/data path: " + t.getMessage());
+            }
+        }
+
+        File appExternalDir = FeatureLoader.mApp.getExternalFilesDir(null);
+        if (appExternalDir == null) {
+            throw new IOException("Could not resolve app external files directory");
+        }
+        File fallbackDir = new File(appExternalDir, "Recordings");
+        if (!fallbackDir.exists() && !fallbackDir.mkdirs()) {
+            throw new IOException("Could not create fallback recording directory: " + fallbackDir.getAbsolutePath());
+        }
+
+        File fallbackFile = new File(fallbackDir, fileName);
+        FileOutputStream fallbackStream = new FileOutputStream(fallbackFile);
+        XposedBridge.log("WaEnhancer: Recording fallback path in Android/data: " + fallbackFile.getAbsolutePath());
+        return new OutputTarget(fallbackFile, null, fallbackStream);
+    }
+
+    private static final class OutputTarget {
+        @NonNull
+        private final File file;
+        private final ParcelFileDescriptor parcelFileDescriptor;
+        @NonNull
+        private final FileOutputStream outputStream;
+
+        private OutputTarget(@NonNull File file, ParcelFileDescriptor parcelFileDescriptor, @NonNull FileOutputStream outputStream) {
+            this.file = file;
+            this.parcelFileDescriptor = parcelFileDescriptor;
+            this.outputStream = outputStream;
         }
     }
 
