@@ -7,14 +7,16 @@ import androidx.annotation.Nullable;
 
 import com.wmods.wppenhacer.xposed.core.Feature;
 import com.wmods.wppenhacer.xposed.core.devkit.Unobfuscator;
-import com.wmods.wppenhacer.xposed.utils.DebugUtils;
+import com.wmods.wppenhacer.xposed.utils.ReflectionUtils;
 
+import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.Spliterator;
 
@@ -37,8 +39,21 @@ public class PinnedLimit extends Feature {
         var pinnedHashSetMethod = Unobfuscator.loadPinnedHashSetMethod(classLoader);
         var pinnedInChatMethod = Unobfuscator.loadPinnedInChatMethod(classLoader);
 
+
         // increase pinned limit in chat to 60
         XposedBridge.hookMethod(pinnedInChatMethod, XC_MethodReplacement.returnConstant(60));
+
+        if (prefs.getBoolean("pinnedlimit", false)) {
+            // Disable pinned called by Server to prevent it from clearing the pinned list
+            var setPinnedLimitMethod = Unobfuscator.loadSetPinnedLimitMethod(classLoader);
+            XposedBridge.hookMethod(setPinnedLimitMethod, new XC_MethodHook() {
+                @Override
+                protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
+                    if (ReflectionUtils.isCalledFromString("SyncResponseHandler"))
+                        param.setResult(null);
+                }
+            });
+        }
 
         // Fix bug in initialCapacity of LinkedHashSet
         XposedHelpers.findAndHookConstructor(LinkedHashSet.class, int.class, new XC_MethodHook() {
@@ -60,7 +75,6 @@ public class PinnedLimit extends Feature {
             }
         });
 
-
         // This creates a modified linkedhashMap to return 0 if the fixed list is less than 60.
         XposedBridge.hookMethod(pinnedHashSetMethod, new XC_MethodHook() {
 
@@ -68,6 +82,8 @@ public class PinnedLimit extends Feature {
             @SuppressWarnings("unchecked")
             protected void afterHookedMethod(MethodHookParam param) throws Throwable {
                 var map = (Map) param.getResult();
+                var thisObject = Modifier.isStatic(param.method.getModifiers()) ? param.args[0] : param.thisObject;
+
                 PinnedLinkedHashMap<Object> pinnedMod;
                 if (!(map instanceof PinnedLinkedHashMap)) {
                     pinnedMod = new PinnedLinkedHashMap<>();
@@ -77,6 +93,16 @@ public class PinnedLimit extends Feature {
                     pinnedMod = (PinnedLinkedHashMap<Object>) map;
                 }
                 pinnedMod.setLimit(prefs.getBoolean("pinnedlimit", false) ? 60 : 3);
+                var keySet = map.keySet();
+                var sets = ReflectionUtils.getFieldsByType(thisObject.getClass(), Set.class);
+                for (var setField : sets) {
+                    var set = (Set) setField.get(thisObject);
+                    if (Objects.equals(set, keySet)) {
+                        var newKeySet = pinnedMod.keySet();
+                        newKeySet.setDisableInterator(false);
+                        setField.set(thisObject, newKeySet);
+                    }
+                }
             }
         });
 

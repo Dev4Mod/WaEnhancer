@@ -2627,4 +2627,13 @@ public class Unobfuscator {
             throw new NoSuchMethodException("PinnedLinkedHashMethod not found");
         });
     }
+
+    public static Method loadSetPinnedLimitMethod(ClassLoader classLoader) throws Exception {
+        return UnobfuscatorCache.getInstance().getMethod(classLoader, () -> {
+            var method = findFirstMethodUsingStrings(classLoader, StringMatchType.Contains, "ChatSettingsStore/setPin");
+            if (method == null)
+                throw new NoSuchMethodException("SetPinnedLimit method not found");
+            return method;
+        });
+    }
 }
