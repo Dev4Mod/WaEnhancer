@@ -2711,4 +2711,13 @@ public class Unobfuscator {
         return UnobfuscatorCache.getInstance().getClass(classLoader, () -> findFirstClassUsingStrings(classLoader, StringMatchType.Contains, "MediaDataVideoConfiguration("));
     }
 
+    public static Method loadStatusStyleMethod(ClassLoader classLoader) throws Exception {
+        return UnobfuscatorCache.getInstance().getMethod(classLoader, () -> {
+            var method = dexkit.findMethod(FindMethod.create().matcher(MethodMatcher.create().addUsingNumber(8522).returnType(int.class))).singleOrNull();
+            if (method == null)
+                throw new NoSuchMethodException("StatusStyle method not found");
+            return method.getMethodInstance(classLoader);
+        });
+    }
+
 }

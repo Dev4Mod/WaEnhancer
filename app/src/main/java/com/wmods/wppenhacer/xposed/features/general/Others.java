@@ -186,6 +186,8 @@ public class Others extends Feature {
         }
 
         // Whatsapp Status Style
+        var retStatusStyle = Unobfuscator.loadStatusStyleMethod(classLoader);
+        XposedBridge.hookMethod(retStatusStyle, XC_MethodReplacement.returnConstant(status_style));
         status_style = oldStatus ? 0 : status_style;
         propsInteger.put(9973, 1);
         propsBoolean.put(6285, true);
