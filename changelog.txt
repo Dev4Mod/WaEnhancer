@@ -1,4 +1,3 @@
 [FIXED]
-* Fixed a bug where pinning a contact on the home screen would cause it to be unpinned after a while
-* Fixed a bug in the contact picker that was not being displayed correctly in WAE
-* Fixed a bug in the Call Recorder that was not recording correctly (WARNING: Most devices do not support internal audio call recording)
+* Fixed bugs that sent videos in low quality
+* Fixed bug when selecting Story styles ("Facebook table" style was removed, WhatsApp no longer supports this style)
