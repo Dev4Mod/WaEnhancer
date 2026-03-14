@@ -37,8 +37,10 @@ import com.wmods.wppenhacer.xposed.utils.ReflectionUtils;
 import com.wmods.wppenhacer.xposed.utils.Utils;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Objects;
 import java.util.Properties;
+import java.util.Set;
 
 import de.robv.android.xposed.XC_MethodHook;
 import de.robv.android.xposed.XSharedPreferences;
@@ -401,12 +403,19 @@ public class CustomThemeV2 extends Feature {
     }
 
     private void replaceTransparency(HashMap<String, String> wallpaperColors, float mAlpha) {
-        var hexAlpha = Integer.toHexString((int) Math.ceil(mAlpha * 255));
+        if (wallpaperColors == null) return;
+        float clampedAlpha = Math.max(0f, Math.min(1f, mAlpha));
+        int alphaInt = Math.round(clampedAlpha * 255);
+
+        var hexAlpha = Integer.toHexString(alphaInt);
         hexAlpha = hexAlpha.length() == 1 ? "0" + hexAlpha : hexAlpha;
-        for (var c : backgroundColors.keySet()) {
+        Set<String> keysToIterate = new HashSet<>(backgroundColors.keySet());
+
+        for (var c : keysToIterate) {
             var oldColor = wallpaperColors.getOrDefault(c, backgroundColors.get(c));
-            if (oldColor == null || oldColor.length() < 9)
+            if (oldColor == null || oldColor.length() < 9 || !oldColor.startsWith("#")) {
                 continue;
+            }
             var newColor = "#" + hexAlpha + oldColor.substring(3);
             wallpaperColors.put(c, newColor);
             wallpaperColors.put(oldColor, newColor);
@@ -417,8 +426,35 @@ public class CustomThemeV2 extends Feature {
         var content = (ViewGroup) view;
         var rootView = (ViewGroup) content.getChildAt(0);
 
-        var header = content.findViewById(Utils.getID("toolbar", "id"));
-        replaceColors(header, toolbarAlpha);
+        var header = (ViewGroup) content.findViewById(Utils.getID("header", "id"));
+        header.setBackground(null);
+        header.setBackgroundTintList(null);
+        var toolbarContainer = (ViewGroup) content.findViewById(Utils.getID("toolbar_container", "id"));
+        if (toolbarContainer != null) {
+            toolbarContainer.setBackground(null);
+            toolbarContainer.setBackgroundTintList(null);
+        }
+        var toolbar = content.findViewById(Utils.getID("toolbar", "id"));
+        var firstChild = header.getChildAt(0);
+        if (firstChild != null && toolbar != firstChild) {
+            firstChild.setBackground(null);
+            firstChild.setBackgroundTintList(null);
+        }
+        toolbar.setBackground(null);
+        toolbar.setBackgroundTintList(null);
+        replaceColors(toolbar, toolbarAlpha);
+        XposedHelpers.findAndHookMethod(View.class, "setBackgroundColor", int.class,
+                new XC_MethodHook() {
+                    @Override
+                    protected void beforeHookedMethod(MethodHookParam param) {
+                        if (param.thisObject == toolbarContainer || param.thisObject == toolbar) {
+                            var color = toolbarAlpha.get(IColors.toString((int) param.args[0]));
+                            if (color != null) {
+                                param.args[0] = IColors.parseColor(color);
+                            }
+                        }
+                    }
+                });
         var frameLayout = new WallpaperView(rootView.getContext(), prefs, properties);
         rootView.addView(frameLayout, 0);
     }
