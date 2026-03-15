@@ -81,7 +81,7 @@ public class Unobfuscator {
 
     // TODO: Functions to find classes and methods
     public synchronized static Method findFirstMethodUsingStrings(ClassLoader classLoader, StringMatchType type,
-            String... strings) throws Exception {
+                                                                  String... strings) throws Exception {
         MethodMatcher matcher = new MethodMatcher();
         for (String string : strings) {
             matcher.addUsingString(string, type);
@@ -97,7 +97,7 @@ public class Unobfuscator {
     }
 
     public synchronized static Method findFirstMethodUsingStringsFilter(ClassLoader classLoader, String packageFilter,
-            StringMatchType type, String... strings) throws Exception {
+                                                                        StringMatchType type, String... strings) throws Exception {
         MethodMatcher matcher = new MethodMatcher();
         for (String string : strings) {
             matcher.addUsingString(string, type);
@@ -114,7 +114,7 @@ public class Unobfuscator {
     }
 
     public synchronized static Method[] findAllMethodUsingStrings(ClassLoader classLoader, StringMatchType type,
-            String... strings) {
+                                                                  String... strings) {
         MethodMatcher matcher = new MethodMatcher();
         for (String string : strings) {
             matcher.addUsingString(string, type);
@@ -128,7 +128,7 @@ public class Unobfuscator {
     }
 
     public synchronized static Class<?> findFirstClassUsingStrings(ClassLoader classLoader, StringMatchType type,
-            String... strings) throws Exception {
+                                                                   String... strings) throws Exception {
         var matcher = new ClassMatcher();
         for (String string : strings) {
             matcher.addUsingString(string, type);
@@ -140,7 +140,7 @@ public class Unobfuscator {
     }
 
     public synchronized static Class<?>[] findAllClassUsingStrings(ClassLoader classLoader, StringMatchType type,
-            String... strings) throws Exception {
+                                                                   String... strings) throws Exception {
         var matcher = new ClassMatcher();
         for (String string : strings) {
             matcher.addUsingString(string, type);
@@ -153,7 +153,7 @@ public class Unobfuscator {
     }
 
     public synchronized static Class<?> findFirstClassUsingStringsFilter(ClassLoader classLoader, String packageFilter,
-            StringMatchType type, String... strings) throws Exception {
+                                                                         StringMatchType type, String... strings) throws Exception {
         var matcher = new ClassMatcher();
         for (String string : strings) {
             matcher.addUsingString(string, type);
@@ -165,7 +165,7 @@ public class Unobfuscator {
     }
 
     public synchronized static Class<?> findFirstClassUsingName(ClassLoader classLoader, StringMatchType type,
-            String name) throws Exception {
+                                                                String name) throws Exception {
         return UnobfuscatorCache.getInstance().getClass(classLoader, name, () -> {
             var result = dexkit.findClass(FindClass.create().matcher(ClassMatcher.create().className(name, type)))
                     .firstOrNull();
@@ -291,7 +291,7 @@ public class Unobfuscator {
                 var method = invoke.getMethodInstance(classLoader);
                 if (method.getParameterCount() == 1
                         && (method.getParameterTypes()[0] == int.class
-                                || method.getParameterTypes()[0] == long.class)
+                        || method.getParameterTypes()[0] == long.class)
                         && method.getDeclaringClass() == messageInfoClass
                         && method.getReturnType() == void.class) {
                     return method;
@@ -348,7 +348,7 @@ public class Unobfuscator {
 
     public synchronized static Class<?> loadForwardClassMethod(ClassLoader classLoader) throws Exception {
         return UnobfuscatorCache.getInstance().getClass(classLoader, () -> {
-            for (var s : new String[] {
+            for (var s : new String[]{
                     "UserActions/userActionForwardMessage",
                     "UserActionsMessageForwarding/userActionForwardMessage"
             }) {
@@ -379,7 +379,7 @@ public class Unobfuscator {
 
     public synchronized static Method loadHideViewInChatMethod(ClassLoader classLoader) throws Exception {
         return UnobfuscatorCache.getInstance().getMethod(classLoader, () -> {
-            var strings = new String[] {
+            var strings = new String[]{
                     "ReadReceipts/sendReceiptForIncomingMessage", "ReadReceipts/sendDeliveryReadReceipt",
                     "ReadReceipts/acknowledgeMessageIfNeeded", "ReadReceipts/sendDeliveryReceiptIfNotRetry"
             };
@@ -1418,7 +1418,7 @@ public class Unobfuscator {
         return UnobfuscatorCache.getInstance().getMethod(loader, () -> {
             var clazz = XposedHelpers.findClass("com.whatsapp.conversationslist.ConversationsFragment", loader);
             var method = Arrays.stream(clazz.getDeclaredMethods()).filter(m -> m.getParameterCount() == 3
-                    && m.getReturnType().equals(View.class) && m.getParameterTypes()[1].equals(LayoutInflater.class))
+                            && m.getReturnType().equals(View.class) && m.getParameterTypes()[1].equals(LayoutInflater.class))
                     .findFirst().orElse(null);
             if (method == null)
                 throw new RuntimeException("GetViewConversation method not found");
@@ -1532,8 +1532,8 @@ public class Unobfuscator {
             }));
 
             var clazzData = dexkit.findClass(FindClass.create().searchIn(arrayList).matcher(ClassMatcher.create()
-                    .addMethod(MethodMatcher.create().addUsingNumber(16384).addUsingNumber(512).addUsingNumber(64)
-                            .addUsingNumber(16))))
+                            .addMethod(MethodMatcher.create().addUsingNumber(16384).addUsingNumber(512).addUsingNumber(64)
+                                    .addUsingNumber(16))))
                     .singleOrNull();
             if (clazzData == null)
                 throw new RuntimeException("SeeMore constructor 1 not found");
@@ -1836,7 +1836,7 @@ public class Unobfuscator {
 
     public synchronized static Field loadOriginFMessageField(ClassLoader classLoader) throws Exception {
         return UnobfuscatorCache.getInstance().getField(classLoader, () -> {
-            String[] commonStrings = new String[] {
+            String[] commonStrings = new String[]{
                     "audio/ogg; codecs=opus",
                     "audio/ogg",
                     "audio/amr",
@@ -2065,7 +2065,8 @@ public class Unobfuscator {
             interfacesList.addAll(Arrays.asList(interfaces));
 
             Method methodResult = null;
-            main_loop: for (var method : clazz.getMethods()) {
+            main_loop:
+            for (var method : clazz.getMethods()) {
                 if (method.getParameterCount() != 1)
                     continue;
                 var parameterType = method.getParameterTypes()[0];
@@ -2720,4 +2721,12 @@ public class Unobfuscator {
         });
     }
 
+    public static Class loadProcessImageQualityClass(ClassLoader classLoader) throws Exception {
+        return UnobfuscatorCache.getInstance().getClass(classLoader, () -> {
+            var classDataList = dexkit.findClass(FindClass.create().matcher(ClassMatcher.create().addUsingString("ProcessImageQuality(")));
+            if (classDataList.isEmpty())
+                throw new RuntimeException("ProcessImageQuality class not found");
+            return classDataList.get(0).getInstance(classLoader);
+        });
+    }
 }

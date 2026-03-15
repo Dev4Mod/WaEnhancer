@@ -19,7 +19,6 @@ import org.json.JSONObject;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
-import java.util.concurrent.atomic.AtomicReference;
 
 import de.robv.android.xposed.XC_MethodHook;
 import de.robv.android.xposed.XC_MethodReplacement;
@@ -53,88 +52,35 @@ public class MediaQuality extends Feature {
         // Disable manual calculation ProcessMediaQuality
         Others.propsBoolean.put(14447, false);
 
-        // Max video size
-        Others.propsInteger.put(3185, maxSize);
-        Others.propsInteger.put(3656, maxSize);
-        Others.propsInteger.put(4155, maxSize);
-        Others.propsInteger.put(3659, maxSize);
-        Others.propsInteger.put(596, maxSize);
-        Others.propsInteger.put(4786, maxSize);
-
         // Enable Media Quality selection for Stories
         var hookMediaQualitySelection = Unobfuscator.loadMediaQualitySelectionMethod(classLoader);
         XposedBridge.hookMethod(hookMediaQualitySelection, XC_MethodReplacement.returnConstant(true));
 
         if (videoQuality) {
-
-            Others.propsBoolean.put(5549, true); // Use bitrate from json to force video high quality
-
-            var jsonProperty = Unobfuscator.loadPropsJsonMethod(classLoader);
-
-            AtomicReference<XC_MethodHook.Unhook> jsonPropertyHook = new AtomicReference<>();
-
-            var unhooked = XposedBridge.hookMethod(jsonProperty, new XC_MethodHook() {
-                @Override
-                protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-                    var value = ReflectionUtils.getArg(param.args, Integer.class, 0);
-                    if (value == 5550) {
-                        JSONObject videoBitrateData = new JSONObject();
-                        String[] resolutions = {"360", "480", "720", "1080"};
-                        for (String resolution : resolutions) {
-                            JSONObject resolutionData = new JSONObject();
-                            resolutionData.put("min_bitrate", 3000);
-                            resolutionData.put("max_bitrate", 96000);
-                            resolutionData.put("null_bitrate", 96000);
-                            resolutionData.put("min_bandwidth", 1);
-                            resolutionData.put("max_bandwidth", 1);
-                            videoBitrateData.put(resolution, resolutionData);
-                        }
-                        param.setResult(videoBitrateData);
-                    } else if (value == 9705) {
-                        param.setResult(new JSONObject());
-                    }
-                }
-            });
-            jsonPropertyHook.set(unhooked);
+            Others.propsBoolean.put(5549, true);
 
             var ProcessVideoQualityClass = Unobfuscator.loadProcessVideoQualityClass(classLoader);
             var processVideoQualityFields = Unobfuscator.getAllMapFields(ProcessVideoQualityClass);
 
-            var replaceVideoQuality = new XC_MethodHook() {
+            XposedBridge.hookAllConstructors(ProcessVideoQualityClass, new XC_MethodHook() {
                 @Override
                 protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-                    var processVideoQuality = param.getResult();
+                    var processVideoQuality = param.thisObject;
                     var fieldvideoMaxBitrate = processVideoQualityFields.get("videoMaxBitrate");
                     var fieldvideoMaxEdge = processVideoQualityFields.get("videoMaxEdge");
                     var fieldvideoLimitMb = processVideoQualityFields.get("videoLimitMb");
                     if (fieldvideoLimitMb != null) {
                         fieldvideoLimitMb.setInt(processVideoQuality, maxSize);
                     }
-                    var qualityType = ReflectionUtils.getArg(param.args, Integer.class, 0);
-                    if (qualityType == 2) {
-                        if (fieldvideoMaxEdge != null) {
-                            fieldvideoMaxEdge.setInt(processVideoQuality, 3840);
-                        }
-                        if (fieldvideoMaxBitrate != null) {
-                            int bitrateBps = 24000 * 1000;
-                            fieldvideoMaxBitrate.setInt(processVideoQuality, bitrateBps);
-                        }
-                    } else {
-                        if (fieldvideoMaxEdge != null) {
-                            fieldvideoMaxEdge.setInt(processVideoQuality, 1240);
-                        }
-                        if (fieldvideoMaxBitrate != null) {
-                            int bitrateBps = 16000 * 1000;
-                            fieldvideoMaxBitrate.setInt(processVideoQuality, bitrateBps);
-                        }
+                    if (fieldvideoMaxEdge != null) {
+                        fieldvideoMaxEdge.setInt(processVideoQuality, 3840);
+                    }
+                    if (fieldvideoMaxBitrate != null) {
+                        int bitrateBps = 24000 * 1000;
+                        fieldvideoMaxBitrate.setInt(processVideoQuality, bitrateBps);
                     }
                 }
-            };
-
-            var manualProcessVideoQualityMethod = Unobfuscator.loadManualProcessVideoQualityMethod(classLoader);
-            XposedBridge.hookMethod(manualProcessVideoQualityMethod, replaceVideoQuality);
-            var autoProcessVideoQualityMethod = Unobfuscator.loadAutoProcessVideoQualityMethod(classLoader);
-            XposedBridge.hookMethod(autoProcessVideoQualityMethod, replaceVideoQuality);
+            });
 
             var MediaDataVideoConfiguration = Unobfuscator.loadMediaDataVideoConfigurationClass(classLoader);
             var fieldsMediaDataVideoConfiguration = Unobfuscator.getAllMapFields(MediaDataVideoConfiguration);
@@ -235,56 +181,31 @@ public class MediaQuality extends Feature {
                     }
                 }
             });
-
-            // HD video must be sent in maximum resolution (up to 4K)
-            if (realResolution) {
-                Others.propsInteger.put(594, 8000);
-                Others.propsInteger.put(12852, 8000);
-            } else {
-                Others.propsInteger.put(594, 1920);
-                Others.propsInteger.put(12852, 1920);
-            }
-
-            // Non-HD video must be sent in HD resolution
-            Others.propsInteger.put(4686, 1280);
-            Others.propsInteger.put(3654, 1280);
-            Others.propsInteger.put(3183, 1280); // Stories
-            Others.propsInteger.put(4685, 1280); // Stories
-
-            // Max bitrate
-            Others.propsInteger.put(3755, 96000);
-            Others.propsInteger.put(3756, 96000);
-            Others.propsInteger.put(3757, 96000);
-            Others.propsInteger.put(3758, 96000);
-
         }
 
         if (imageQuality) {
 
-            // Image Max Size
-            int maxImageSize = 50 * 1024; // 50MB
-            Others.propsInteger.put(1577, maxImageSize);
-            Others.propsInteger.put(6030, maxImageSize);
-            Others.propsInteger.put(2656, maxImageSize);
+            var processImageQualityClass = Unobfuscator.loadProcessImageQualityClass(classLoader);
+            var fieldsProcessImageQuality = Unobfuscator.getAllMapFields(processImageQualityClass);
 
-            // Image Quality
-            int imageMaxQuality = 100;
-            Others.propsInteger.put(1581, imageMaxQuality);
-            Others.propsInteger.put(1575, imageMaxQuality);
-            Others.propsInteger.put(1578, imageMaxQuality);
-            Others.propsInteger.put(6029, imageMaxQuality);
-            Others.propsInteger.put(2655, imageMaxQuality);
-
-            // HD image must be sent in maximum 4K resolution
-            Others.propsBoolean.put(6033, true);
-            Others.propsInteger.put(2654, 6000); // Only HD images
-            Others.propsInteger.put(6032, 6000); // Only HD images
-
-            // Non-HD image must be sent in HD resolution
-            Others.propsInteger.put(1580, 4160);
-            Others.propsInteger.put(1574, 4160);
-            Others.propsInteger.put(1576, 4160);
-            Others.propsInteger.put(12902, 4160);
+            XposedBridge.hookAllConstructors(processImageQualityClass, new XC_MethodHook() {
+                @Override
+                protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+                    var processImageQuality = param.thisObject;
+                    var fieldimageMaxSize = fieldsProcessImageQuality.get("maxKb");
+                    var fieldimageMaxQuality = fieldsProcessImageQuality.get("quality");
+                    var fieldimageMaxEdge = fieldsProcessImageQuality.get("maxEdge");
+                    if (fieldimageMaxSize != null) {
+                        fieldimageMaxSize.setInt(processImageQuality, 50 * 1024);
+                    }
+                    if (fieldimageMaxQuality != null) {
+                        fieldimageMaxQuality.setInt(processImageQuality, 100);
+                    }
+                    if (fieldimageMaxEdge != null) {
+                        fieldimageMaxEdge.setInt(processImageQuality, 6000);
+                    }
+                }
+            });
 
             // Prevent crashes in Media preview
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
@@ -545,7 +466,6 @@ public class MediaQuality extends Feature {
         int scaledHeight = Math.max(SAFE_MIN_VIDEO_DIMENSION, Math.round(height * scale));
         return new Pair<>(scaledWidth, scaledHeight);
     }
-
 
 
     @NonNull
