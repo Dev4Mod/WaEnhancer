@@ -487,6 +487,48 @@ public class UnobfuscatorCache {
         sPrefsCacheHooks.edit().putString(key, value).commit();
     }
 
+    public Number getNumber(ClassLoader loader, FunctionCall<Number> functionCall) throws Exception {
+        var methodName = getKeyName();
+        String value = sPrefsCacheHooks.getString(methodName, null);
+        if (value == null) {
+            try {
+                Number result = functionCall.call();
+                if (result == null) throw new Exception("Number is null");
+                saveNumber(methodName, result);
+                return result;
+            } catch (Exception e) {
+                throw new Exception("Error getting number " + methodName + ": " + e.getMessage(), e);
+            }
+        }
+        return loadNumber(value);
+    }
+
+    @SuppressWarnings("ApplySharedPref")
+    private void saveNumber(String key, Number number) {
+        String value = number.getClass().getName() + ":" + number;
+        sPrefsCacheHooks.edit().putString(key, value).commit();
+    }
+
+    private Number loadNumber(String value) {
+        String[] parts = value.split(":", 2);
+        String className = parts.length == 2 ? parts[0] : Integer.class.getName();
+        String numberValue = parts.length == 2 ? parts[1] : value;
+
+        return switch (className) {
+            case "java.lang.Integer" -> Integer.valueOf(numberValue);
+            case "java.lang.Long" -> Long.valueOf(numberValue);
+            case "java.lang.Float" -> Float.valueOf(numberValue);
+            case "java.lang.Double" -> Double.valueOf(numberValue);
+            case "java.lang.Short" -> Short.valueOf(numberValue);
+            case "java.lang.Byte" -> Byte.valueOf(numberValue);
+            default -> {
+                if (numberValue.contains(".")) {
+                    yield Double.valueOf(numberValue);
+                }
+                yield Long.valueOf(numberValue);
+            }
+        };
+    }
 
     public interface FunctionCall<T> {
         T call() throws Exception;

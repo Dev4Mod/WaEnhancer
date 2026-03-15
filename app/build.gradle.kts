@@ -1,8 +1,8 @@
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
+import java.io.FileInputStream
 import java.util.Locale
 import java.util.Properties
-import java.io.FileInputStream
 
 plugins {
     alias(libs.plugins.androidApplication)
@@ -156,7 +156,8 @@ android {
 
 dependencies {
     implementation(libs.colorpicker)
-    implementation(libs.dexkit)
+    implementation(files("libs/dexkit-android.aar"))
+    implementation(libs.flatbuffers)
     compileOnly(libs.libxposed.legacy)
 
     implementation(libs.androidx.activity)

@@ -66,6 +66,8 @@ public class WppCore {
     private static Method cachedMessageStoreKey;
     private static Field conversationDelegateField;
     private static Field conversationJidField;
+    private static Field meManagerPhoneJidField;
+    private static Object meManagerInstance;
 
     public static void Initialize(ClassLoader loader, XSharedPreferences pref) throws Exception {
         privPrefs = Utils.getApplication().getSharedPreferences("WaGlobal", Context.MODE_PRIVATE);
@@ -122,6 +124,18 @@ public class WppCore {
                 mWaJidMapRepository = param.thisObject;
             }
         });
+
+        // load me current PhoneJid
+
+        Class<?> meManagerClass = Unobfuscator.loadMeManagerClass(loader);
+        meManagerPhoneJidField = ReflectionUtils.getFieldByType(meManagerClass, FMessageWpp.UserJid.TYPE_PHONEUSERJID);
+        XposedBridge.hookAllConstructors(meManagerClass, new XC_MethodHook() {
+            @Override
+            protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
+                meManagerInstance = param.thisObject;
+            }
+        });
+
 
         // Load wa database
         loadWADatabase();
@@ -709,6 +723,15 @@ public class WppCore {
         }
         var service = currentClient.getService();
         return service != null && service.asBinder().isBinderAlive() && service.asBinder().pingBinder();
+    }
+
+    public static FMessageWpp.UserJid getMyUserJid() {
+        try {
+            return new FMessageWpp.UserJid(meManagerPhoneJidField.get(meManagerInstance));
+        } catch (Exception e) {
+            XposedBridge.log(e);
+            return null;
+        }
     }
 
     public interface ActivityChangeState {

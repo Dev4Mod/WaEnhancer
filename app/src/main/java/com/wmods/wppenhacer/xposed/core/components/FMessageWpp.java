@@ -51,6 +51,10 @@ public class FMessageWpp {
     public static void initialize(ClassLoader classLoader) {
         try {
             TYPE = Unobfuscator.loadFMessageClass(classLoader);
+            UserJid.TYPE_USERJID = Unobfuscator.findFirstClassUsingName(classLoader, StringMatchType.EndsWith, "jid.UserJid");
+            UserJid.TYPE_JID = Unobfuscator.findFirstClassUsingName(classLoader, StringMatchType.EndsWith, "jid.Jid");
+            UserJid.TYPE_PHONEUSERJID = Unobfuscator.findFirstClassUsingName(classLoader, StringMatchType.EndsWith, "jid.PhoneUserJid");
+            UserJid.TYPE_DEVICEJID = Unobfuscator.findFirstClassUsingName(classLoader, StringMatchType.EndsWith, "jid.DeviceJid");
             var userJidClass = Unobfuscator.findFirstClassUsingName(classLoader, StringMatchType.EndsWith, "jid.UserJid");
             userJidMethod = ReflectionUtils.findMethodUsingFilter(TYPE, method -> method.getParameterCount() == 0 && method.getReturnType() == userJidClass);
             keyMessage = Unobfuscator.loadMessageKeyField(classLoader);
@@ -300,6 +304,11 @@ public class FMessageWpp {
     }
 
     public static class UserJid {
+
+        public static Class<?> TYPE_DEVICEJID;
+        public static Class<?> TYPE_USERJID;
+        public static Class<?> TYPE_JID;
+        public static Class<?> TYPE_PHONEUSERJID;
 
         public Object phoneJid;
 

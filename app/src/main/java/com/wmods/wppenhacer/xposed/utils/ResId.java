@@ -112,6 +112,7 @@ public class ResId {
         public static int warning_restore;
         public static int force_restore_backup_experimental;
         public static int force_restore_backup;
+        public static int contact_probably_not_added;
     }
 
     public static class array {

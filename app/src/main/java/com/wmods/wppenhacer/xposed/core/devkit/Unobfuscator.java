@@ -2443,13 +2443,67 @@ public class Unobfuscator {
         });
     }
 
-    public synchronized static Class<?> loadVerifyKeyClass(ClassLoader classLoader) throws Exception {
+    public static Class<?> loadVerifyKeyClass(ClassLoader classLoader) throws Exception {
         return UnobfuscatorCache.getInstance().getClass(classLoader, () -> {
-            var classList = dexkit.findClass(FindClass.create().matcher(ClassMatcher.create().addMethod(
-                    MethodMatcher.create().addUsingNumber(2966).paramCount(1).addParamType(int.class)))).singleOrNull();
+            var methodMatcher = MethodMatcher.create().addUsingNumber(2966).paramCount(1).addParamType(int.class);
+            var result = dexkit.findMethod(FindMethod.create().matcher(methodMatcher));
+            if (result.isEmpty())
+                throw new RuntimeException("VerifyKey class not found");
+            var classList = result.get(0).getDeclaredClass();
             if (classList == null)
                 throw new ClassNotFoundException("VerifyKey class not found");
             return classList.getInstance(classLoader);
+        });
+    }
+
+    public static Constructor<?> loadVerifyKeyRunnableConstructor(ClassLoader classLoader) throws Exception {
+        return UnobfuscatorCache.getInstance().getConstructor(classLoader, () -> {
+            var data = dexkit.findMethod(
+                    FindMethod.create().matcher(MethodMatcher.create()
+                            .usingStrings("deviceidentityverifier/verify Primary")
+                    )
+            ).singleOrNull();
+            var clazz = data.getDeclaredClass().getInstance(classLoader);
+            return ReflectionUtils.findConstructorUsingFilter(clazz, c -> c.getParameterCount() == 2);
+        });
+    }
+
+    public static Number loadVerifyKeyInt(ClassLoader classLoader) throws Exception {
+        return UnobfuscatorCache.getInstance().getNumber(classLoader, () -> {
+            var method = loadVerifyKeyItemConstructor(classLoader);
+            var callers = dexkit.getMethodData(method).getCallers();
+            var resultMethod = callers.stream().filter(i -> i.isMethod() && i.getDeclaredClassName().contains("IdentityVerificationActivity")).findFirst().orElse(null);
+            var usingNumbers = resultMethod.getUsingNumbers();
+            var findMagicNumber = false;
+            for (var i = 0; i < usingNumbers.size(); i++) {
+                var n = usingNumbers.get(i);
+                if (n.intValue() == 2966) {
+                    findMagicNumber = true;
+                } else if (findMagicNumber) {
+                    return n;
+                }
+            }
+            throw new RuntimeException("VerifyKey int not found");
+        });
+    }
+
+    public static Constructor<?> loadVerifyKeyItemConstructor(ClassLoader classLoader) throws Exception {
+        return UnobfuscatorCache.getInstance().getConstructor(classLoader, () -> {
+            var clazz = dexkit.findClass(FindClass.create().matcher(ClassMatcher.create().className("IdentityVerificationActivity", StringMatchType.EndsWith))).singleOrNull();
+            var methodResult = dexkit.findMethod(
+                    FindMethod.create().matcher(MethodMatcher.create()
+                            .addUsingNumber(2966)
+                    ).searchInClass(List.of(clazz))
+            ).singleOrNull();
+            var invokes = methodResult.getInvokes();
+            for (var invoke : invokes) {
+                if (!invoke.isConstructor()) continue;
+                var paramTypes = invoke.getParamTypes();
+                if (paramTypes.size() != 2) continue;
+                if (!paramTypes.get(1).getSimpleName().equals("List")) continue;
+                return invoke.getConstructorInstance(classLoader);
+            }
+            throw new RuntimeException("VerifyKey constructor not found");
         });
     }
 
@@ -2728,5 +2782,13 @@ public class Unobfuscator {
                 throw new RuntimeException("ProcessImageQuality class not found");
             return classDataList.get(0).getInstance(classLoader);
         });
+    }
+
+    public static Class<?> loadGetProfilePhoto(ClassLoader classLoader) throws Exception {
+        return UnobfuscatorCache.getInstance().getClass(classLoader, () -> findFirstClassUsingStrings(classLoader, StringMatchType.Contains, "ProfilePhotoManager/sendGetProfilePhoto"));
+    }
+
+    public static Class<?> loadDialerProfilePictureLoader(ClassLoader classLoader) throws Exception {
+        return UnobfuscatorCache.getInstance().getClass(classLoader, () -> findFirstClassUsingStrings(classLoader, StringMatchType.Contains, "DialerProfilePictureLoader/syncFetchProfilePhoto/onPhotoReceived"));
     }
 }
