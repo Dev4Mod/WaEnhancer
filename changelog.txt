@@ -1,3 +1,7 @@
+[ADDED]
+* Added support for WA/WB 2.26.9.xx
+* Added check to the block checker to see if the user deleted your contact.
+
 [FIXED]
-* Fixed bugs that sent videos in low quality
-* Fixed bug when selecting Story styles ("Facebook table" style was removed, WhatsApp no longer supports this style)
+* Fixed issue when sending media in high quality.
+* Fixed issue with header transparency when Wallpaper is enabled.
