@@ -626,7 +626,7 @@ public class Unobfuscator {
 
     public synchronized static Class<?> loadProcessVideoQualityClass(ClassLoader classLoader) throws Exception {
         return UnobfuscatorCache.getInstance().getClass(classLoader, () -> {
-            var clazz = findFirstClassUsingStrings(classLoader, StringMatchType.Contains, "ProcessVideoQuality(");
+            var clazz = findFirstClassUsingStrings(classLoader, StringMatchType.StartsWith, "ProcessVideoQuality(");
             if (clazz == null)
                 throw new Exception("ProcessVideoQuality method not found");
             return clazz;
@@ -2777,7 +2777,7 @@ public class Unobfuscator {
 
     public static Class loadProcessImageQualityClass(ClassLoader classLoader) throws Exception {
         return UnobfuscatorCache.getInstance().getClass(classLoader, () -> {
-            var classDataList = dexkit.findClass(FindClass.create().matcher(ClassMatcher.create().addUsingString("ProcessImageQuality(")));
+            var classDataList = dexkit.findClass(FindClass.create().matcher(ClassMatcher.create().addUsingString("ProcessImageQuality(", StringMatchType.StartsWith)));
             if (classDataList.isEmpty())
                 throw new RuntimeException("ProcessImageQuality class not found");
             return classDataList.get(0).getInstance(classLoader);
