@@ -1,0 +1,69 @@
+<resources>
+    <!-- Recordings Manager strings -->
+    <string name="recordings_manager">Registrazioni</string>
+    <string name="no_recordings_found">Nessuna registrazione trovata</string>
+    <string name="delete_confirmation">Sei sicuro di voler eliminare questa registrazione?</string>
+    <string name="delete_multiple_confirmation">Sei sicuro di voler eliminare %d registrazioni?</string>
+    <string name="share_recording">Condividi Registrazione</string>
+    <string name="share_recordings">Condividi Registrazioni</string>
+    <string name="permission_required">Autorizzazione Necessaria</string>
+    <string name="permission_required_desc">Per gestire le registrazioni memorizzate nella cartella principale è necessario disporre dell\'accesso completo ai file.</string>
+    <string name="grant">Concedi</string>
+    <string name="sort_by">Ordina Per</string>
+    <string name="sort_name">Nome</string>
+    <string name="sort_date">Data</string>
+    <string name="sort_duration">Durata</string>
+    <string name="sort_contact">Contatto</string>
+    
+    <!-- View modes -->
+    <string name="list_view">Lista</string>
+    <string name="group_by_contact">Per Contatto</string>
+    
+    <!-- Selection mode -->
+    <string name="selected_count">%d selezionato</string>
+    <string name="recordings_select_all">Seleziona Tutto</string>
+    
+    <!-- Contact recordings -->
+    <string name="recordings_for">Registrazioni per %s</string>
+    <string name="recording_count">%d registrazioni</string>
+    
+    <!-- Audio player -->
+    <string name="play">Riproduci</string>
+    <string name="pause">Pausa</string>
+    <string name="play_pause">Riproduci/Pausa</string>
+    <string name="close">Chiudi</string>
+    <string name="share">Condividi</string>
+    <string name="delete">Elimina</string>
+    
+    <!-- Preferences -->
+    <string name="call_recording_toast_title">Mostra le notifiche di registrazione</string>
+    <string name="call_recording_toast_summary">Mostra un messaggio a comparsa all'avvio e all\'arresto della registrazione.</string>
+    
+    <!-- Call Recording Settings Activity -->
+    <string name="call_recording_settings">Impostazioni Registrazione</string>
+    <string name="select_recording_mode">Seleziona Modalità Registrazione</string>
+    <string name="recording_mode_description">Scegli come viene registrato l\'audio delle chiamate. La modalità root offre una qualità migliore ma richiede un dispositivo con permessi di root.</string>
+    
+    <!-- Root Mode -->
+    <string name="root_mode">🔓 Modalità Root (Consigliata)</string>
+    <string name="root_mode_description">Utilizza l\'acquisizione audio a livello di sistema per la migliore qualità di registrazione.</string>
+    <string name="root_advantage_1">Registrazione di entrambe le parti della conversazione</string>
+    <string name="root_advantage_2">Qualità audio cristallina</string>
+    <string name="root_advantage_3">Compatibile con tutte le app VoIP</string>
+    <string name="root_requirement">⚠️ Richiede un dispositivo con permessi di root e Magisk/SuperSU installato.</string>
+    
+    <!-- Non-Root Mode -->
+    <string name="non_root_mode">📱 Modalità Non-Root</string>
+    <string name="non_root_mode_description">Utilizza le API audio standard di Android. Funziona su tutti i dispositivi, ma con alcune limitazioni.</string>
+    <string name="non_root_advantage_1">Root non necessario</string>
+    <string name="non_root_advantage_2">Funziona su qualsiasi dispositivo Android</string>
+    <string name="non_root_limitation_1">Potrebbe registrare solo il tuo microfono (non quello dell\'altra persona).</string>
+    
+    <!-- Common -->
+    <string name="advantages">✓ Vantaggi</string>
+    <string name="limitations">⚠ Limitazioni</string>
+    <string name="recording_mode_info">Le modifiche avranno effetto dalla chiamata successiva. Per ottenere risultati ottimali, riavvia WhatsApp dopo aver modificato le impostazioni.</string>
+    <string name="root_access_granted">Accesso root consentito! Sorgente VOICE_CALL abilitata.</string>
+    <string name="root_access_denied">Accesso root negato. Ripristino alla modalità non root.</string>
+    <string name="non_root_mode_enabled">Modalità non root abilitata.</string>
+</resources>
