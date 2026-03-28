@@ -2383,9 +2383,15 @@ public class Unobfuscator {
 
     }
 
+
     public static Method loadViewAddSearchBarMethod(ClassLoader classLoader) throws Exception {
-        return UnobfuscatorCache.getInstance().getMethod(classLoader, () -> findFirstMethodUsingStrings(classLoader,
-                StringMatchType.Contains, "HeaderFooterRecyclerViewAdapter/addHeaderViewItemIfNeeded/duplicate-item"));
+        return UnobfuscatorCache.getInstance().getMethod(classLoader, () -> {
+            for (var str : List.of("HeaderFooterRecyclerViewAdapter/addHeaderViewItemIfNeeded", "HeaderFooterRecyclerViewAdapter/addFooterViewItemAtPositionIfNeeded")) {
+                var method = findFirstMethodUsingStrings(classLoader, StringMatchType.Contains, str);
+                if (method != null) return method;
+            }
+            throw new RuntimeException("ViewAddSearchBar method not found");
+        });
     }
 
     public static Method loadMenuSearchMethod(ClassLoader classLoader) throws Exception {

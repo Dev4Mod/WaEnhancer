@@ -652,7 +652,18 @@ public class Others extends Feature {
         XposedBridge.hookMethod(searchbar, new XC_MethodHook() {
             @Override
             protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
-                var view = (View) param.args[0];
+                View view = null;
+                if (param.args[0] instanceof View) {
+                    view = (View) param.args[0];
+                } else {
+                    var auxFace = ((Method) param.method).getParameterTypes()[0];
+                    var method = ReflectionUtils.findMethodUsingFilter(auxFace, m -> m.getReturnType() == View.class);
+                    if (method != null) {
+                        var currentActivity = WppCore.getCurrentActivity();
+                        view = (View) method.invoke(param.args[0], currentActivity);
+                    }
+                }
+
                 if ((view.getId() == searchBarID || view.findViewById(searchBarID) != null) && !Objects.equals(filterChats, "2")) {
                     param.setResult(null);
                 }

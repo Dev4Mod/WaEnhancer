@@ -280,10 +280,11 @@ public class ReflectionUtils {
         return result;
     }
 
-    public static <T> List<Pair<Integer, Class<? extends T>>> findClassesOfType(Class[] args, Class<T> type) {
-        var result = new ArrayList<Pair<Integer, Class<? extends T>>>();
+    public static <T> List<Pair<Integer, Class<? extends T>>> findClassesOfType(Class<?>[] args, Class<T> type) {
+        List<Pair<Integer, Class<? extends T>>> result = new ArrayList<>();
+
         for (int i = 0; i < args.length; i++) {
-            var arg = args[i];
+            Class<?> arg = args[i];
             if (type.isAssignableFrom(arg)) {
                 //noinspection unchecked
                 result.add(new Pair<>(i, (Class<? extends T>) arg));
