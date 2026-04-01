@@ -1,9 +1,2 @@
 [ADDED]
-* Added support for WA/WB 2.26.10.xx
-* Added support for other architectures (x86, x86_64, armv7).
-
-[IMPROVED]
-* Improvements when using custom themes; now flashing icons and some other visual elements no longer lag
-
-[FIXED]
-* Fixed issue when sending media in high quality.
+* Added support for WA/WB 2.26.11.xx

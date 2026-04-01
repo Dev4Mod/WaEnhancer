@@ -8,6 +8,7 @@ import android.graphics.PorterDuff;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.GradientDrawable;
+import android.util.Pair;
 import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -34,9 +35,10 @@ import com.wmods.wppenhacer.xposed.utils.Utils;
 import org.luckypray.dexkit.query.enums.StringMatchType;
 
 import java.lang.ref.WeakReference;
+import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Objects;
@@ -434,63 +436,142 @@ public class SeenTick extends Feature {
             }
             if (messages.isEmpty())
                 return;
-
-            if (prefs.getBoolean("hideaudioseen", false)) {
-                for (var m : messages) {
-                    if (m.getMediaType() == 2) sendBlueTickMedia(m);
-                }
+            for (var m : messages) {
+                if (m.getMediaType() == 2) sendBlueTickMedia(m);
             }
-            sendBlueTickMsg(userJid, messages);
-            updateMessageStatusView(userJid.getPhoneRawString(), messages);
+            var sendedMessages = sendBlueTickMsg(userJid, messages);
+            updateMessageStatusView(userJid.getPhoneRawString(), sendedMessages);
         }, Utils.getExecutor());
     }
 
-    private void sendBlueTickMsg(FMessageWpp.UserJid userJid, ArrayList<FMessageWpp> messages) {
-        if (messages.isEmpty())
-            return;
+    private List<FMessageWpp> sendBlueTickMsg(FMessageWpp.UserJid userJid, ArrayList<FMessageWpp> messages) {
+        int totalMessages = messages.size();
+        if (totalMessages == 0)
+            return messages;
+
+        var sentMessages = new ArrayList<FMessageWpp>(totalMessages);
+
+        List<? extends Pair<Integer, ? extends Class<?>>> jidIndexes;
+        Constructor<?> sendJobConstrutor;
+        int messageIdIndex;
+        Object[] args;
+
         try {
-            HashMap<FMessageWpp.UserJid, List<String>> groupedMap = new HashMap<>();
-            for (FMessageWpp message : messages) {
-                var userJidMsg = userJid.isGroup() ? message.getUserJid() : message.getKey().remoteJid;
-                groupedMap.computeIfAbsent(userJidMsg, k -> new ArrayList<>()).add(message.getKey().messageID);
+            sendJobConstrutor = mSendReadClass.getConstructors()[0];
+            var paramTypes = sendJobConstrutor.getParameterTypes();
+            jidIndexes = ReflectionUtils.findClassesOfType(paramTypes, FMessageWpp.UserJid.TYPE_JID);
+            if (jidIndexes.size() < 2) {
+                logDebug("Failed to find JID indexes for SendReadReceiptJob");
+                return Collections.emptyList();
+            }
+            messageIdIndex = ReflectionUtils.findIndexOfType(paramTypes, String[].class);
+            if (messageIdIndex == -1) {
+                logDebug("Failed to find messageId index for SendReadReceiptJob");
+                return Collections.emptyList();
             }
 
-            for (var entry : groupedMap.entrySet()) {
-                var userJidMsg = entry.getKey();
-                String[] messageIds = entry.getValue().toArray(new String[0]);
-                var participant = userJid.isGroup() ? userJidMsg.userJid : null;
+            args = ReflectionUtils.initArray(paramTypes);
+            args[jidIndexes.get(0).first] = userJid.userJid;
 
-
-                Object sendJob = XposedHelpers.newInstance(
-                        mSendReadClass, userJid.userJid, participant, null, null, messageIds, -1, 1L, false
-                );
-                XposedHelpers.setAdditionalInstanceField(sendJob, "blue_on_reply", true);
-                WaJobManagerMethod.invoke(mWaJobManager, sendJob);
-            }
         } catch (Exception e) {
             logDebug(e);
+            return Collections.emptyList();
         }
+
+        HashMap<FMessageWpp.UserJid, List<FMessageWpp>> groupedMap = new HashMap<>(4);
+        boolean isGroup = userJid.isGroup();
+
+        for (int i = 0; i < totalMessages; i++) {
+            FMessageWpp message = messages.get(i);
+            var userJidMsg = isGroup ? message.getUserJid() : message.getKey().remoteJid;
+            List<FMessageWpp> groupList = groupedMap.computeIfAbsent(userJidMsg, k -> new ArrayList<>(isGroup ? 4 : totalMessages));
+            groupList.add(message);
+        }
+
+        for (var entry : groupedMap.entrySet()) {
+            try {
+                var userJidMsg = entry.getKey();
+                List<FMessageWpp> groupMessages = entry.getValue();
+                int groupSize = groupMessages.size();
+
+                String[] messageIds = new String[groupSize];
+                for (int i = 0; i < groupSize; i++) {
+                    messageIds[i] = groupMessages.get(i).getKey().messageID;
+                }
+
+                args[jidIndexes.get(1).first] = isGroup ? userJidMsg.userJid : null;
+                args[messageIdIndex] = messageIds;
+
+                Object sendJob = sendJobConstrutor.newInstance(args);
+                XposedHelpers.setAdditionalInstanceField(sendJob, "blue_on_reply", true);
+                WaJobManagerMethod.invoke(mWaJobManager, sendJob);
+
+                sentMessages.addAll(groupMessages);
+
+            } catch (Exception ex) {
+                logDebug(ex);
+            }
+        }
+
+        return sentMessages;
     }
 
     private void sendBlueTickStatus(FMessageWpp.UserJid currentJid) {
-        CompletableFuture.runAsync(() -> {
-            if (statuses.isEmpty() || currentJid == null || "status_me".equals(currentJid.getPhoneNumber()))
-                return;
-            try {
-                var arr_s = statuses.stream().map(item -> item.getKey().messageID).toArray(String[]::new);
-                Arrays.stream(arr_s).forEach(s -> MessageStore.getInstance().storeMessageRead(s));
-                var userJidSender = WppCore.createUserJid("status@broadcast");
+        if (statuses.isEmpty() || currentJid == null || "status_me".equals(currentJid.getPhoneNumber())) {
+            return;
+        }
 
-                var sendJob2 = XposedHelpers.newInstance(mSendReadClass, userJidSender, currentJid.phoneJid, null, null, arr_s, -1, 0L, false);
+        List<FMessageWpp> snapshot = new ArrayList<>(statuses);
+
+        snapshot.forEach(statuses::remove);
+
+        if (snapshot.isEmpty()) return;
+
+        CompletableFuture.runAsync(() -> {
+            try {
+                int size = snapshot.size();
+
+                Constructor<?> sendJobConstrutor = mSendReadClass.getConstructors()[0];
+                Class<?>[] paramTypes = sendJobConstrutor.getParameterTypes();
+
+                var jidIndexes = ReflectionUtils.findClassesOfType(paramTypes, FMessageWpp.UserJid.TYPE_JID);
+                if (jidIndexes.size() < 2) {
+                    logDebug("Failed to find JID indexes for SendReadReceiptJob (Status)");
+                    return;
+                }
+
+                int messageIdIndex = ReflectionUtils.findIndexOfType(paramTypes, String[].class);
+                if (messageIdIndex == -1) {
+                    logDebug("Failed to find messageId index for SendReadReceiptJob (Status)");
+                    return;
+                }
+
+                String[] arr_s = new String[size];
+                MessageStore store = MessageStore.getInstance();
+
+                for (int i = 0; i < size; i++) {
+                    String msgId = snapshot.get(i).getKey().messageID;
+                    arr_s[i] = msgId;
+                    store.storeMessageRead(msgId);
+                }
+
+                var userJidSender = WppCore.createUserJid("status@broadcast");
+                Object[] args = ReflectionUtils.initArray(paramTypes);
+
+                args[jidIndexes.get(0).first] = userJidSender;
+                args[jidIndexes.get(1).first] = currentJid.phoneJid;
+                args[messageIdIndex] = arr_s;
+
+                Object sendJob2 = sendJobConstrutor.newInstance(args);
                 XposedHelpers.setAdditionalInstanceField(sendJob2, "blue_on_reply", true);
                 WaJobManagerMethod.invoke(mWaJobManager, sendJob2);
 
-                statuses.clear();
             } catch (Exception e) {
                 logDebug(e);
             }
         }, Utils.getExecutor());
     }
+
 
     private void sendBlueTickMedia(FMessageWpp fMessage) {
         CompletableFuture.runAsync(() -> {
