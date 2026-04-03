@@ -13,10 +13,16 @@ jobs:
     if: github.event_name == 'push' && !contains(github.event.head_commit.message, 'Merge')
     steps:
       - uses: actions/checkout@v6
-      - name: set up JDK 17
+
+      - name: Set up Node.js 24
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+
+      - name: Set up JDK 21
         uses: actions/setup-java@v5
         with:
-          java-version: '17'
+          java-version: '21'
           distribution: 'temurin'
           cache: gradle
           cache-dependency-path: |
@@ -49,13 +55,13 @@ jobs:
         run: echo "SHORT_SHA=`echo ${GITHUB_SHA} | cut -c1-7`" >> $GITHUB_ENV
 
       - name: Upload WhatsApp flavor artifacts
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v6
         with:
           name: whatsapp-debug-app-${{ env.SHORT_SHA }}
           path: app/build/outputs/apk/whatsapp/debug/app-whatsapp-debug.apk
 
       - name: Upload Business flavor artifacts
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v6
         with:
           name: business-debug-app-${{ env.SHORT_SHA }}
           path: app/build/outputs/apk/business/debug/app-business-debug.apk
@@ -83,7 +89,7 @@ jobs:
 
       - name: Post to Telegram channel
         if: ${{ success() && github.ref == 'refs/heads/master' && github.ref_type != 'tag' && env.BOT_TOKEN != '' }}
-        uses: Dev4Mod/telegram-github-action@master
+        uses: appleboy/telegram-action@master
         with:
           to: ${{ env.CHANNEL_ID }}
           token: ${{ env.BOT_TOKEN }}
@@ -93,3 +99,4 @@ jobs:
             ${{ steps.changelog.outputs.content }}
 
             Release: https://github.com/${{ github.repository }}/releases/tag/debug-${{ env.SHORT_SHA }}
+            
