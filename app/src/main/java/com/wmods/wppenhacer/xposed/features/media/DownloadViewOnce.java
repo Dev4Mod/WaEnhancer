@@ -51,18 +51,7 @@ public class DownloadViewOnce extends Feature {
                 @Override
                 @SuppressLint("DiscouragedApi")
                 protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-                    var fmessageField = ReflectionUtils.getFieldByExtendType(param.thisObject.getClass(), FMessageWpp.TYPE);
-                    Object fmessageObj = null;
-                    if (fmessageField != null) {
-                        fmessageObj = fmessageField.get(param.thisObject);
-                    }
-                    if (fmessageObj == null) {
-                        var keyField = ReflectionUtils.getFieldByExtendType(param.thisObject.getClass(), FMessageWpp.Key.TYPE);
-                        if (keyField != null) {
-                            var keyObj = keyField.get(param.thisObject);
-                            fmessageObj = WppCore.getFMessageFromKey(keyObj);
-                        }
-                    }
+                    var fmessageObj = ReflectionUtils.getArg(param.args, FMessageWpp.TYPE, 0);
                     FMessageWpp fMessage = new FMessageWpp(fmessageObj);
 
                     // check media is view once

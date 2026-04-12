@@ -326,18 +326,7 @@ public class SeenTick extends Feature {
             @Override
             @SuppressLint("DiscouragedApi")
             protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-                var messageField = ReflectionUtils.getFieldByExtendType(menuMethod.getDeclaringClass(), FMessageWpp.TYPE);
-                Object fmessageObj = null;
-                if (messageField != null) {
-                    fmessageObj = messageField.get(param.thisObject);
-                }
-                if (fmessageObj == null) {
-                    var keyField = ReflectionUtils.getFieldByExtendType(param.thisObject.getClass(), FMessageWpp.Key.TYPE);
-                    if (keyField != null) {
-                        var keyObj = keyField.get(param.thisObject);
-                        fmessageObj = WppCore.getFMessageFromKey(keyObj);
-                    }
-                }
+                var fmessageObj = ReflectionUtils.getArg(param.args, FMessageWpp.TYPE, 0);
                 FMessageWpp fMessage = new FMessageWpp(fmessageObj);
                 if (!fMessage.isViewOnce()) return;
                 Menu menu = (Menu) param.args[0];

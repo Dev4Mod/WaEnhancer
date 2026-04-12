@@ -227,25 +227,39 @@ public class Unobfuscator {
 
     // TODO: Classes and Methods for Receipt
 
-    public synchronized static Method loadReceiptMethod(ClassLoader classLoader) throws Exception {
+    public static Method loadReceiptMethod(ClassLoader classLoader) throws Exception {
         return UnobfuscatorCache.getInstance().getMethod(classLoader, () -> {
-            var classDeviceJid = Unobfuscator.findFirstClassUsingName(classLoader, StringMatchType.EndsWith,
-                    "jid.DeviceJid");
-            var classPhoneUserJid = Unobfuscator.findFirstClassUsingName(classLoader, StringMatchType.EndsWith,
-                    "jid.PhoneUserJid");
+            var classDeviceJid = Unobfuscator.findFirstClassUsingName(
+                    classLoader, StringMatchType.EndsWith, "jid.DeviceJid");
+            var classPhoneUserJid = Unobfuscator.findFirstClassUsingName(
+                    classLoader, StringMatchType.EndsWith, "jid.PhoneUserJid");
+            var classProtocolTreeNode = findFirstClassUsingStrings(
+                    classLoader, StringMatchType.Contains, "ProtocolTreeNode/getAttributeJid");
+
             var methods = dexkit.findMethod(
                     FindMethod.create()
                             .matcher(MethodMatcher.create()
                                     .addUsingString("receipt")
-                                    .paramCount(5, 8)));
+                                    .returnType(classProtocolTreeNode))
+            );
 
             for (var method : methods) {
                 var params = method.getParamTypeNames();
-                if (params.contains(classDeviceJid.getName()) && params.contains(classPhoneUserJid.getName()))
-                    return method.getMethodInstance(classLoader);
+
+                boolean hasRequiredParams =
+                        params.contains(classDeviceJid.getName()) &&
+                                params.contains(classPhoneUserJid.getName());
+
+                if (!hasRequiredParams) continue;
+
+                return method.getMethodInstance(classLoader);
             }
 
-            throw new NoSuchMethodError("Receipt method not found");
+            throw new NoSuchMethodError(
+                    "Receipt method not found. returnType=" + classProtocolTreeNode.getName()
+                            + ", requiredParams=[" + classDeviceJid.getName()
+                            + ", " + classPhoneUserJid.getName() + "]"
+            );
         });
     }
 
@@ -929,22 +943,19 @@ public class Unobfuscator {
         });
     }
 
-    public synchronized static Class<?> loadConversationRowClass(ClassLoader loader) throws Exception {
+
+    public static Class<?> loadConversationRowClass(ClassLoader loader) throws Exception {
         return UnobfuscatorCache.getInstance().getClass(loader, () -> {
-            var clazz = findFirstClassUsingStrings(loader, StringMatchType.Contains,
-                    "ConversationRow/setupUserNameInGroupView/");
-            if (clazz != null)
-                return clazz;
-            var conversation_header = Utils.getID("conversation_row_participant_header_view_stub", "id");
-            var nameId = Utils.getID("name_in_group", "id");
-            var classData = dexkit
-                    .findClass(FindClass.create()
-                            .matcher(ClassMatcher.create().addMethod(
-                                    MethodMatcher.create().addUsingNumber(conversation_header).addUsingNumber(nameId))))
-                    .singleOrNull();
-            if (classData == null)
-                throw new Exception("ConversationRow class not found");
-            return classData.getInstance(loader);
+            var clazz = findFirstClassUsingStrings(loader, StringMatchType.Contains, "ConversationRow/setupUserNameInGroupView/");
+            if (clazz != null) return clazz;
+            var conversation_header = Utils.getID("name_in_group", "id");
+            var classData = dexkit.findClass(FindClass.create().matcher(ClassMatcher.create().addMethod(MethodMatcher.create().addUsingNumber(conversation_header))));
+            for (ClassData c : classData) {
+                var clazzInstance = c.getInstance(loader);
+                if (ViewGroup.class.isAssignableFrom(clazzInstance))
+                    return clazzInstance;
+            }
+            return null;
         });
     }
 
@@ -1886,13 +1897,19 @@ public class Unobfuscator {
         });
     }
 
-    public synchronized static Method loadPlaybackSpeed(ClassLoader classLoader) throws Exception {
+    public static Method loadPlaybackSpeed(ClassLoader classLoader) throws Exception {
         return UnobfuscatorCache.getInstance().getMethod(classLoader, () -> {
-            var method = findFirstMethodUsingStrings(classLoader, StringMatchType.Contains,
-                    "heroaudioplayer/setPlaybackSpeed");
-            if (method == null)
-                throw new RuntimeException("PlaybackSpeed method not found");
-            return method;
+            var method = findFirstMethodUsingStrings(classLoader, StringMatchType.Contains, "heroaudioplayer/setPlaybackSpeed");
+            if (method != null) return method;
+
+            var methodData = dexkit.findMethod(
+                    FindMethod.create().matcher(
+                            MethodMatcher.create().addUsingString("setPlaybackSpeed", StringMatchType.Equals).addUsingString("newSpeed")
+                    )
+            ).singleOrNull();
+
+            if (methodData == null) throw new RuntimeException("PlaybackSpeed method not found");
+            return methodData.getMethodInstance(classLoader);
         });
     }
 
@@ -2771,5 +2788,9 @@ public class Unobfuscator {
 
     public static Class<?> loadDialerProfilePictureLoader(ClassLoader classLoader) throws Exception {
         return UnobfuscatorCache.getInstance().getClass(classLoader, () -> findFirstClassUsingStrings(classLoader, StringMatchType.Contains, "DialerProfilePictureLoader/syncFetchProfilePhoto/onPhotoReceived"));
+    }
+
+    public static Class<?> loadBottomBarConfigClass(ClassLoader classLoader) throws Exception {
+        return UnobfuscatorCache.getInstance().getClass(classLoader, () -> findFirstClassUsingStrings(classLoader, StringMatchType.Contains, "BottomBarConfig("));
     }
 }

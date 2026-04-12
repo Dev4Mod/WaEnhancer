@@ -53,8 +53,23 @@ public class MediaQuality extends Feature {
         Others.propsBoolean.put(14447, false);
 
         // Enable Media Quality selection for Stories
-        var hookMediaQualitySelection = Unobfuscator.loadMediaQualitySelectionMethod(classLoader);
-        XposedBridge.hookMethod(hookMediaQualitySelection, XC_MethodReplacement.returnConstant(true));
+        try {
+            var hookMediaQualitySelection = Unobfuscator.loadMediaQualitySelectionMethod(classLoader);
+            XposedBridge.hookMethod(hookMediaQualitySelection, XC_MethodReplacement.returnConstant(true));
+        } catch (Exception ignored) {
+            var BottomBarConfigClass = Unobfuscator.loadBottomBarConfigClass(classLoader);
+            var fieldsBottomBarConfig = Unobfuscator.getAllMapFields(BottomBarConfigClass);
+
+            XposedBridge.hookAllConstructors(BottomBarConfigClass, new XC_MethodHook() {
+                @Override
+                protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+                    var supportsHdQuality = fieldsBottomBarConfig.get("supportsHdQuality");
+                    if (supportsHdQuality != null) {
+                        supportsHdQuality.set(param.thisObject, true);
+                    }
+                }
+            });
+        }
 
         if (videoQuality) {
             Others.propsBoolean.put(5549, true);
