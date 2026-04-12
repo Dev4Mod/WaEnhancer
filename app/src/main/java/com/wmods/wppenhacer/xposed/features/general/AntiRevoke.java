@@ -1,6 +1,7 @@
 package com.wmods.wppenhacer.xposed.features.general;
 
 import android.text.TextUtils;
+import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -149,10 +150,10 @@ public class AntiRevoke extends Feature {
 
         ConversationItemListener.conversationListeners.add(new ConversationItemListener.OnConversationItemListener() {
             @Override
-            public void onItemBind(FMessageWpp fMessage, ViewGroup viewGroup) {
+            public void onItemBind(FMessageWpp fMessage, ViewGroup view, int position, View convertView) {
                 if (fMessage.getKey().isFromMe)
                     return;
-                var dateTextView = (TextView) viewGroup.findViewById(Utils.getID("date", "id"));
+                var dateTextView = (TextView) view.findViewById(Utils.getID("date", "id"));
                 bindRevokedMessageUI(fMessage, dateTextView, "antirevoke");
             }
         });

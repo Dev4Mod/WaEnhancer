@@ -407,7 +407,7 @@ public class Others extends Feature {
 
         ConversationItemListener.conversationListeners.add(new ConversationItemListener.OnConversationItemListener() {
             @Override
-            public void onItemBind(FMessageWpp fMessage, ViewGroup viewGroup) {
+            public void onItemBind(FMessageWpp fMessage, ViewGroup view, int position, View convertView) {
                 var onMultiClickListener = new OnMultiClickListener(2, 500) {
                     @Override
                     public void onMultiClick(View view) {
@@ -425,7 +425,7 @@ public class Others extends Feature {
                         WppCore.sendReaction(emoji, fMessage.getObject());
                     }
                 };
-                viewGroup.setOnClickListener(onMultiClickListener);
+                view.setOnClickListener(onMultiClickListener);
             }
         });
     }

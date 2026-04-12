@@ -202,6 +202,10 @@ public class MessageHistory extends SQLiteOpenHelper {
         }
     }
 
+    @Override
+    public void onDowngrade(SQLiteDatabase db, int oldVersion, int newVersion) {
+    }
+
     private String createSeenMessageCacheKey(String jid, String message_id, MessageType type) {
         return jid + "_" + message_id + "_" + type.ordinal();
     }

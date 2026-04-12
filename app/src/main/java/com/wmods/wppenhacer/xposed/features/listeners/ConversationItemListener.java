@@ -1,5 +1,6 @@
 package com.wmods.wppenhacer.xposed.features.listeners;
 
+import android.app.Activity;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.HeaderViewListAdapter;
@@ -13,7 +14,6 @@ import com.wmods.wppenhacer.xposed.core.WppCore;
 import com.wmods.wppenhacer.xposed.core.components.FMessageWpp;
 
 import java.util.HashSet;
-import java.util.Objects;
 
 import de.robv.android.xposed.XC_MethodHook;
 import de.robv.android.xposed.XSharedPreferences;
@@ -22,7 +22,7 @@ import de.robv.android.xposed.XposedHelpers;
 
 public class ConversationItemListener extends Feature {
 
-    public static HashSet<OnConversationItemListener> conversationListeners = new HashSet<>();
+    public static final HashSet<OnConversationItemListener> conversationListeners = new HashSet<>();
     private static ListAdapter mAdapter;
     private static XC_MethodHook.Unhook hooked;
 
@@ -39,33 +39,59 @@ public class ConversationItemListener extends Feature {
         XposedHelpers.findAndHookMethod(ListView.class, "setAdapter", ListAdapter.class, new XC_MethodHook() {
             @Override
             protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
-                if (!WppCore.getCurrentActivity().getClass().getSimpleName().equals("Conversation"))
+                Activity currentActivity = WppCore.getCurrentActivity();
+                if (currentActivity == null || !currentActivity.getClass().getSimpleName().equals("Conversation")) {
                     return;
-                if (((ListView) param.thisObject).getId() != android.R.id.list) return;
+                }
+
+                ListView listView = (ListView) param.thisObject;
+                if (listView.getId() != android.R.id.list) {
+                    return;
+                }
+
                 ListAdapter adapter = (ListAdapter) param.args[0];
                 if (adapter instanceof HeaderViewListAdapter) {
                     adapter = ((HeaderViewListAdapter) adapter).getWrappedAdapter();
                 }
-                if (adapter == null) return;
+
+                if (adapter == null) {
+                    return;
+                }
+
                 mAdapter = adapter;
-                if (hooked != null) hooked.unhook();
+
+                for (OnConversationItemListener listener : conversationListeners) {
+                    listener.onAttachAdapter(mAdapter);
+                }
+
+                if (hooked != null) {
+                    hooked.unhook();
+                }
+
                 var method = mAdapter.getClass().getDeclaredMethod("getView", int.class, View.class, ViewGroup.class);
                 hooked = XposedBridge.hookMethod(method, new XC_MethodHook() {
                     @Override
                     protected void afterHookedMethod(MethodHookParam param) throws Throwable {
                         if (param.thisObject != mAdapter) return;
+
                         var position = (int) param.args[0];
+                        var convertView = (View) param.args[1];
                         var viewGroup = (ViewGroup) param.getResult();
+
                         if (viewGroup == null) return;
+
                         Object fMessageObj = mAdapter.getItem(position);
                         if (fMessageObj == null) return;
+
                         var fMessage = new FMessageWpp(fMessageObj);
-                        var extraFMessage = XposedHelpers.getAdditionalInstanceField(param.thisObject, "fMessage");
-                        if (Objects.equals(fMessage, extraFMessage)) return;
+
                         for (OnConversationItemListener listener : conversationListeners) {
-                            viewGroup.post(() -> listener.onItemBind(fMessage, viewGroup));
+                            try {
+                                listener.onItemBind(fMessage, viewGroup, position, convertView);
+                            } catch (Throwable e) {
+                                logDebug(e);
+                            }
                         }
-                        XposedHelpers.setAdditionalInstanceField(param.thisObject, "fMessage", fMessage);
                     }
                 });
             }
@@ -82,9 +108,16 @@ public class ConversationItemListener extends Feature {
         /**
          * Called when a message item is rendered in the conversation
          *
-         * @param fMessage  The message
-         * @param viewGroup The view associated with the item
+         * @param fMessage The message
+         * @param view     The view associated with the item
+         * @param position The position
+         * @param convertView The view from the adapter
+         * @throws Throwable Errors caught in the hook
          */
-        public abstract void onItemBind(FMessageWpp fMessage, ViewGroup viewGroup);
+        public abstract void onItemBind(FMessageWpp fMessage, ViewGroup view, int position, View convertView) throws Throwable;
+
+        public void onAttachAdapter(ListAdapter adapter) {
+
+        }
     }
 }

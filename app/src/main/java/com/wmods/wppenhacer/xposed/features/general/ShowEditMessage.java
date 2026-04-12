@@ -94,8 +94,8 @@ public class ShowEditMessage extends Feature {
                 new ConversationItemListener.OnConversationItemListener() {
 
                     @Override
-                    public void onItemBind(FMessageWpp fMessage, ViewGroup viewGroup) {
-                        var textView = (TextView) viewGroup.findViewById(Utils.getID("edit_label", "id"));
+                    public void onItemBind(FMessageWpp fMessage, ViewGroup view, int position, View convertView) {
+                        var textView = (TextView) view.findViewById(Utils.getID("edit_label", "id"));
                         if (textView != null && !textView.getText().toString().contains(strEmoji)) {
                             textView.getPaint().setUnderlineText(true);
                             textView.append(strEmoji);

@@ -9,7 +9,7 @@ import android.hardware.SensorEventListener;
 import android.net.Uri;
 import android.view.LayoutInflater;
 import android.view.Menu;
-import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
@@ -780,14 +780,19 @@ public class Unobfuscator {
      */
     public synchronized static Method loadViewOnceDownloadMenuMethod(ClassLoader classLoader) throws Exception {
         return UnobfuscatorCache.getInstance().getMethod(classLoader, () -> {
-            var clazz = XposedHelpers.findClass("com.whatsapp.mediaview.MediaViewFragment", classLoader);
-            var method = Arrays.stream(clazz.getDeclaredMethods()).filter(m -> m.getParameterCount() == 2 &&
-                    Objects.equals(m.getParameterTypes()[0], Menu.class) &&
-                    Objects.equals(m.getParameterTypes()[1], MenuInflater.class) &&
-                    m.getDeclaringClass() == clazz).findFirst();
-            if (!method.isPresent())
-                throw new Exception("ViewOnceDownloadMenu method not found");
-            return method.get();
+            var id1 = Utils.getID("ic_viewonce", "drawable");
+            var setShowAsAction = MenuItem.class.getDeclaredMethod("setShowAsAction", int.class);
+            var methodData = dexkit.findMethod(
+                    FindMethod.create().matcher(MethodMatcher.create()
+                            .addUsingNumber(id1)
+                            .addInvoke(DexSignUtil.getMethodDescriptor(setShowAsAction))
+                    )
+            );
+            var result = methodData.stream().filter(m -> m.getParamCount() > 1 &&
+                    m.getParamTypeNames().contains(Menu.class.getName())
+            ).findFirst();
+            if (!result.isPresent()) throw new Exception("ViewOnceDownloadMenu method not found");
+            return result.get().getMethodInstance(classLoader);
         });
     }
 
@@ -1582,36 +1587,6 @@ public class Unobfuscator {
         });
     }
 
-    public synchronized static Method loadGetIntPreferences(ClassLoader loader) throws Exception {
-        return UnobfuscatorCache.getInstance().getMethod(loader, () -> {
-            var methodList = dexkit.findMethod(new FindMethod().matcher(
-                    new MethodMatcher().paramCount(2).addParamType(SharedPreferences.class).addParamType(String.class)
-                            .modifiers(Modifier.STATIC | Modifier.PUBLIC).returnType(int.class)));
-            if (methodList.isEmpty())
-                throw new RuntimeException("CallConfirmationLimit method not found");
-            return methodList.get(0).getMethodInstance(loader);
-        });
-    }
-
-    public synchronized static Method loadAudioProximitySensorMethod(ClassLoader loader) throws Exception {
-        return UnobfuscatorCache.getInstance().getMethod(loader, () -> {
-            var method = findFirstMethodUsingStrings(loader, StringMatchType.Contains,
-                    "messageaudioplayer/onearproximity");
-            if (method == null)
-                throw new RuntimeException("ProximitySensor method not found");
-            return method;
-        });
-    }
-
-    public synchronized static Method loadGroupAdminMethod(ClassLoader loader) throws Exception {
-        return UnobfuscatorCache.getInstance().getMethod(loader, () -> {
-            var method = dexkit.findMethod(
-                    FindMethod.create().matcher(MethodMatcher.create().name("setupUsernameInGroupViewContainer")));
-            if (method.isEmpty())
-                throw new RuntimeException("GroupAdmin method not found");
-            return method.get(0).getMethodInstance(loader);
-        });
-    }
 
     public synchronized static Method loadJidFactory(ClassLoader loader) throws Exception {
         return UnobfuscatorCache.getInstance().getMethod(loader, () -> {

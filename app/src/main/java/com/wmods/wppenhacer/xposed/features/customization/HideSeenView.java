@@ -40,9 +40,9 @@ public class HideSeenView extends Feature {
         // Register listener
         ConversationItemListener.conversationListeners.add(new ConversationItemListener.OnConversationItemListener() {
             @Override
-            public void onItemBind(FMessageWpp fMessage, ViewGroup viewGroup) {
+            public void onItemBind(FMessageWpp fMessage, ViewGroup view, int position, View convertView) {
                 if (fMessage.getKey().isFromMe) return;
-                updateBubbleView(fMessage, viewGroup);
+                updateBubbleView(fMessage, view);
             }
         });
     }
