@@ -153,9 +153,7 @@ public class ShowOnline extends Feature {
         });
 
         getStatusUser = Unobfuscator.loadStatusUserMethod(classLoader);
-        logDebug(Unobfuscator.getMethodDescriptor(getStatusUser));
         sendPresenceMethod = Unobfuscator.loadSendPresenceMethod(classLoader);
-        logDebug("sendPresenceMethod", Unobfuscator.getMethodDescriptor(sendPresenceMethod));
         tcTokenMethod = Unobfuscator.loadTcTokenMethod(classLoader);
 
         XposedBridge.hookAllConstructors(getStatusUser.getDeclaringClass(), new XC_MethodHook() {

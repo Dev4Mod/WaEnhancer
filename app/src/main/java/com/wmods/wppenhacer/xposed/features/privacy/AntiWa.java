@@ -25,11 +25,9 @@ public class AntiWa extends Feature {
         if (!prefs.getBoolean("bootloader_spoofer", false)) return;
         var rootDetector = Unobfuscator.loadRootDetector(classLoader);
         for (var detector : rootDetector) {
-            logDebug("Root", detector);
             XposedBridge.hookMethod(detector, XC_MethodReplacement.returnConstant(false));
         }
         var settingsGetInt = Settings.Global.class.getDeclaredMethod("getInt", ContentResolver.class, String.class, int.class);
-        logDebug("Adb", settingsGetInt);
         XposedBridge.hookMethod(settingsGetInt, new XC_MethodHook() {
             @Override
             protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
@@ -40,7 +38,6 @@ public class AntiWa extends Feature {
             }
         });
         var checkEmulator = Unobfuscator.loadCheckEmulator(classLoader);
-        logDebug("Emulator", checkEmulator);
         XposedBridge.hookMethod(checkEmulator, XC_MethodReplacement.returnConstant(false));
         // File Check
         var FileConstructor = File.class.getConstructor(String.class);
@@ -57,7 +54,6 @@ public class AntiWa extends Feature {
         });
 
         var checkCustomRom = Unobfuscator.loadCheckCustomRom(classLoader);
-        logDebug("CustomRom", checkCustomRom);
         XposedBridge.hookMethod(checkCustomRom, XC_MethodReplacement.returnConstant(false));
     }
 

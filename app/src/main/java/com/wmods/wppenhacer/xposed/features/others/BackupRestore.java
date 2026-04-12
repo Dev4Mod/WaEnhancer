@@ -5,6 +5,8 @@ import android.content.Intent;
 import android.view.Menu;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
+
 import com.wmods.wppenhacer.xposed.core.Feature;
 import com.wmods.wppenhacer.xposed.core.components.AlertDialogWpp;
 import com.wmods.wppenhacer.xposed.core.devkit.Unobfuscator;
@@ -23,6 +25,7 @@ public class BackupRestore extends Feature {
         super(loader, preferences);
     }
 
+    @NonNull
     @Override
     public String getPluginName() {
         return "BackupRestore";

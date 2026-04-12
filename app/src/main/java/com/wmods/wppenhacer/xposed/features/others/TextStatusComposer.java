@@ -37,7 +37,6 @@ public class TextStatusComposer extends Feature {
 
                     @Override
                     protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-                        logDebug("afterHookedMethod", "TextStatusComposer");
                         var activity = WppCore.getCurrentActivity();
                         var viewRoot = (View) param.args[1];
                         var pickerColor = viewRoot.findViewById(Utils.getID("color_picker_btn", "id"));
@@ -77,7 +76,6 @@ public class TextStatusComposer extends Feature {
         var methodsTextStatus = Unobfuscator.loadTextStatusData(classLoader);
 
         for (var method : methodsTextStatus) {
-            logDebug("setColorTextComposer", Unobfuscator.getMethodDescriptor(method));
             XposedBridge.hookMethod(method, new XC_MethodHook() {
                 @Override
                 protected void beforeHookedMethod(MethodHookParam param) throws Throwable {

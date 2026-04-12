@@ -59,10 +59,6 @@ public class HideReceipt extends Feature {
         Method hideViewInChatMethod = Unobfuscator.loadHideViewInChatMethod(classLoader);
         Method outsideMethod = Unobfuscator.loadReceiptOutsideChat(classLoader);
 
-        logDebug("hook method:" + Unobfuscator.getMethodDescriptor(receiptMethod));
-        logDebug("Inside Chat", Unobfuscator.getMethodDescriptor(hideViewInChatMethod));
-        logDebug("Outside Chat", Unobfuscator.getMethodDescriptor(outsideMethod));
-
         XposedBridge.hookMethod(receiptMethod, new XC_MethodHook() {
             @Override
             protected void beforeHookedMethod(MethodHookParam param) throws Throwable {

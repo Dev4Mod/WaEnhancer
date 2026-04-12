@@ -98,7 +98,6 @@ public class ContactBlockedVerify extends Feature {
         } catch (Exception ignored) {
             Constructor<?> verifyKeyItemConstructor = Unobfuscator.loadVerifyKeyItemConstructor(classLoader);
             Constructor<?> verifyKeyRunnableConstructor = Unobfuscator.loadVerifyKeyRunnableConstructor(classLoader);
-            log(verifyKeyRunnableConstructor);
             var number = Unobfuscator.loadVerifyKeyInt(classLoader);
             var callbackInterface = verifyKeyItemConstructor.getParameterTypes()[0];
             VerifyKeyInvoker invoker = (proxyInstance, jids) -> {

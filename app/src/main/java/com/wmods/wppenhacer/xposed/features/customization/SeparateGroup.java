@@ -5,7 +5,6 @@ import static de.robv.android.xposed.XposedHelpers.getObjectField;
 
 import android.annotation.SuppressLint;
 import android.os.Bundle;
-import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.BaseAdapter;
 
@@ -16,7 +15,6 @@ import com.wmods.wppenhacer.xposed.core.WppCore;
 import com.wmods.wppenhacer.xposed.core.db.MessageStore;
 import com.wmods.wppenhacer.xposed.core.devkit.Unobfuscator;
 import com.wmods.wppenhacer.xposed.core.devkit.UnobfuscatorCache;
-import com.wmods.wppenhacer.xposed.utils.DebugUtils;
 import com.wmods.wppenhacer.xposed.utils.ReflectionUtils;
 import com.wmods.wppenhacer.xposed.utils.Utils;
 
@@ -25,7 +23,6 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Objects;
-import java.util.Set;
 import java.util.regex.Pattern;
 
 import de.robv.android.xposed.XC_MethodHook;
@@ -173,7 +170,6 @@ public class SeparateGroup extends Feature {
     @SuppressLint("ResourceType")
     private void hookTabName() throws Exception {
         var tabNameMethod = Unobfuscator.loadTabNameMethod(classLoader);
-        logDebug("TAB NAME", Unobfuscator.getMethodDescriptor(tabNameMethod));
         XposedBridge.hookMethod(tabNameMethod, new XC_MethodHook() {
             @Override
             protected void beforeHookedMethod(MethodHookParam param) throws Throwable {

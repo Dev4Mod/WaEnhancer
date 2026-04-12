@@ -28,7 +28,6 @@ import com.wmods.wppenhacer.xposed.utils.Utils;
 
 import org.json.JSONObject;
 import org.luckypray.dexkit.query.enums.StringMatchType;
-import org.luckypray.dexkit.util.DexSignUtil;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
@@ -290,8 +289,6 @@ public class Others extends Feature {
         var jidClass = Unobfuscator.findFirstClassUsingName(classLoader, StringMatchType.EndsWith, "jid.Jid");
         var method = ReflectionUtils.findMethodUsingFilter(convClass, m -> m.getParameterCount() > 0 && !Modifier.isStatic(m.getModifiers()) && m.getParameterTypes()[0] == View.class && ReflectionUtils.findIndexOfType(m.getParameterTypes(), jidClass) != -1);
         var field = ReflectionUtils.getFieldByExtendType(convClass, refreshStatusClass);
-        logDebug("disablePhotoProfileStatus", Unobfuscator.getMethodDescriptor(method));
-        logDebug("disablePhotoProfileStatus Field", Unobfuscator.getFieldDescriptor(field));
         XposedBridge.hookMethod(method, new XC_MethodHook() {
             private Object backup;
 
@@ -399,7 +396,6 @@ public class Others extends Feature {
 
 
         var conversationRowClass = Unobfuscator.loadConversationRowClass(classLoader);
-        logDebug("Conversation Row", conversationRowClass);
 
         XposedBridge.hookAllConstructors(conversationRowClass, new XC_MethodHook() {
             @Override
@@ -514,7 +510,6 @@ public class Others extends Feature {
 
     private void sendAudioType(int audio_type) throws Exception {
         var sendAudioTypeMethod = Unobfuscator.loadSendAudioTypeMethod(classLoader);
-        log(Unobfuscator.getMethodDescriptor(sendAudioTypeMethod));
         XposedBridge.hookMethod(sendAudioTypeMethod, new XC_MethodHook() {
             @Override
             protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
@@ -646,7 +641,6 @@ public class Others extends Feature {
 
     private void hookSearchbar(String filterChats) throws Exception {
         Method searchbar = Unobfuscator.loadViewAddSearchBarMethod(classLoader);
-        log("ADD HEADER VIEW: " + DexSignUtil.getMethodDescriptor(searchbar));
         var searchBarID = Utils.getID("my_search_bar", "id");
 
         XposedBridge.hookMethod(searchbar, new XC_MethodHook() {
@@ -664,7 +658,7 @@ public class Others extends Feature {
                     }
                 }
 
-                if ((view.getId() == searchBarID || view.findViewById(searchBarID) != null) && !Objects.equals(filterChats, "2")) {
+                if (view != null && (view.getId() == searchBarID || view.findViewById(searchBarID) != null) && !Objects.equals(filterChats, "2")) {
                     param.setResult(null);
                 }
             }

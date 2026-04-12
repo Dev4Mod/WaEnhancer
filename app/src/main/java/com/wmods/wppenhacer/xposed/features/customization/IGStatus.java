@@ -17,7 +17,6 @@ import com.wmods.wppenhacer.xposed.utils.Utils;
 
 import org.luckypray.dexkit.query.enums.StringMatchType;
 
-import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -43,9 +42,7 @@ public class IGStatus extends Feature {
         var fabintMethod = Unobfuscator.loadFabMethod(classLoader);
 
         var archivedFragmentClass = Unobfuscator.findFirstClassUsingName(classLoader, StringMatchType.EndsWith, "ArchivedConversationsFragment");
-        logDebug(archivedFragmentClass);
         var folderFragmentClass = Unobfuscator.findFirstClassUsingName(classLoader, StringMatchType.EndsWith, "FolderConversationsFragment");
-        log(archivedFragmentClass);
 
         var getViewConversationMethod = Unobfuscator.loadGetViewConversationMethod(classLoader);
         XposedBridge.hookMethod(getViewConversationMethod, new XC_MethodHook() {

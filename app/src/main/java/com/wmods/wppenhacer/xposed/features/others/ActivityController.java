@@ -87,7 +87,6 @@ public class ActivityController extends Feature {
                     Intent intent2 = new Intent();
                     intent2.putExtra("path", uriStr);
                     intent2.putExtra("key", Key);
-                    logDebug("onActivityResult", "Call Download Result");
                     activity.setResult(Activity.RESULT_OK, intent2);
                 }
                 activity.finish();
