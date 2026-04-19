@@ -8,13 +8,13 @@ import android.widget.LinearLayout;
 
 import androidx.annotation.NonNull;
 
-import com.wmods.wppenhacer.R;
 import com.wmods.wppenhacer.xposed.core.Feature;
 import com.wmods.wppenhacer.xposed.core.WppCore;
 import com.wmods.wppenhacer.xposed.core.components.FMessageWpp;
 import com.wmods.wppenhacer.xposed.core.devkit.Unobfuscator;
 import com.wmods.wppenhacer.xposed.features.listeners.ConversationItemListener;
 import com.wmods.wppenhacer.xposed.utils.ReflectionUtils;
+import com.wmods.wppenhacer.xposed.utils.ResId;
 import com.wmods.wppenhacer.xposed.utils.Utils;
 
 import de.robv.android.xposed.XSharedPreferences;
@@ -53,7 +53,7 @@ public class GroupAdmin extends Feature {
                     iconAdmin = new ImageView(context);
                     var size = Utils.dipToPixels(16);
                     iconAdmin.setLayoutParams(new LinearLayout.LayoutParams(size, size));
-                    iconAdmin.setImageResource(R.drawable.admin);
+                    iconAdmin.setImageResource(ResId.drawable.admin);
                     iconAdmin.setTag("admin_icon");
                     nameGroup.removeView(nametv);
                     view1.addView(nametv);
