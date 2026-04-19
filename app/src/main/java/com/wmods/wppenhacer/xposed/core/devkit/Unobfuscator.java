@@ -14,6 +14,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import com.wmods.wppenhacer.xposed.core.WppCore;
@@ -480,13 +481,23 @@ public class Unobfuscator {
         });
     }
 
-    public synchronized static Method loadIconTabMethod(ClassLoader classLoader) throws Exception {
+    public static Method loadIconTabMethod(ClassLoader classLoader) throws Exception {
         return UnobfuscatorCache.getInstance().getMethod(classLoader, () -> {
-            Method result = findFirstMethodUsingStringsFilter(classLoader, "X.", StringMatchType.Contains,
-                    "homeFabManager");
-            if (result == null)
-                throw new Exception("IconTab method not found");
-            return result;
+            var id1 = Utils.getID("home_tab_communities_selector", "drawable");
+            var id2 = Utils.getID("home_tab_calls_selector", "drawable");
+            var id3 = Utils.getID("home_tab_chats_selector", "drawable");
+
+            var methodData = dexkit.findMethod(
+                    FindMethod.create()
+                            .searchPackages("X.")
+                            .matcher(MethodMatcher.create()
+                                    .addUsingNumber(id1)
+                                    .addUsingNumber(id2)
+                                    .addUsingNumber(id3)
+                            )
+            ).singleOrNull();
+            if (methodData == null) throw new Exception("IconTab method not found");
+            return methodData.getMethodInstance(classLoader);
         });
     }
 
@@ -2792,5 +2803,25 @@ public class Unobfuscator {
 
     public static Class<?> loadBottomBarConfigClass(ClassLoader classLoader) throws Exception {
         return UnobfuscatorCache.getInstance().getClass(classLoader, () -> findFirstClassUsingStrings(classLoader, StringMatchType.Contains, "BottomBarConfig("));
+    }
+
+
+    public static Field loadHomeTabBarDelegateListField(ClassLoader classLoader) throws Exception {
+        return UnobfuscatorCache.getInstance().getField(classLoader, () -> {
+            var clazz = findFirstClassUsingStrings(classLoader, StringMatchType.Contains, "HomeTabBarDelegate/updateNavigationBarVisibility");
+            if (clazz == null) return null;
+            for (var field : clazz.getDeclaredFields()) {
+                if (List.class.isAssignableFrom(field.getType()))
+                    return field;
+            }
+            throw new RuntimeException("HomeTabBarDelegateListField not found");
+        });
+    }
+
+    public static Field loadHomeTabListField(@NonNull ClassLoader classLoader) throws Exception {
+        return UnobfuscatorCache.getInstance().getField(classLoader, () -> {
+            var homeClass = WppCore.getHomeActivityClass(classLoader);
+            return ReflectionUtils.getFieldByType(homeClass, List.class);
+        });
     }
 }

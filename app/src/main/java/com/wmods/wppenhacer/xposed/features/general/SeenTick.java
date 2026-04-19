@@ -329,7 +329,7 @@ public class SeenTick extends Feature {
                 var fmessageObj = ReflectionUtils.getArg(param.args, FMessageWpp.TYPE, 0);
                 FMessageWpp fMessage = new FMessageWpp(fmessageObj);
                 if (!fMessage.isViewOnce()) return;
-                Menu menu = (Menu) param.args[0];
+                Menu menu = ReflectionUtils.getArg(param.args, Menu.class, 0);
                 MenuItem item = menu.add(0, 0, 0, ResId.string.send_blue_tick).setIcon(Utils.getID("ic_notif_mark_read", "drawable"));
                 if (ticktype == 1) item.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
                 item.setOnMenuItemClickListener(item1 -> {

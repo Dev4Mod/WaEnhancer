@@ -1,5 +1,7 @@
 package com.wmods.wppenhacer.xposed.features.customization;
 
+import static com.wmods.wppenhacer.xposed.features.customization.SeparateGroup.getArrayListTab;
+import static com.wmods.wppenhacer.xposed.features.customization.SeparateGroup.loadTabListField;
 import static com.wmods.wppenhacer.xposed.features.customization.SeparateGroup.tabs;
 
 import android.os.Bundle;
@@ -38,22 +40,19 @@ public class HideTabs extends Feature {
         if (hidetabs == null || hidetabs.isEmpty())
             return;
 
-        var home = WppCore.getHomeActivityClass(classLoader);
-
         var hideTabsList = hidetabs.stream().map(Integer::valueOf).collect(Collectors.toList());
 
         var onCreateTabList = Unobfuscator.loadTabListMethod(classLoader);
         logDebug(Unobfuscator.getMethodDescriptor(onCreateTabList));
-        var ListField = ReflectionUtils.getFieldByType(home, List.class);
+        var tabListField = loadTabListField(classLoader);
 
         XposedBridge.hookMethod(onCreateTabList, new XC_MethodHook() {
             @Override
-            @SuppressWarnings("unchecked")
             protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-                var list = (List<Integer>) XposedHelpers.getStaticObjectField(home, ListField.getName());
+                var tabs = getArrayListTab(tabListField);
                 for (var item : hideTabsList) {
                     if (item != SeparateGroup.STATUS || !igstatus) {
-                        list.remove(item);
+                        tabs.remove(item);
                     }
                 }
             }
@@ -148,4 +147,6 @@ public class HideTabs extends Feature {
         if (newIndex >= tabs.size()) return indexAtual;
         return getNewTabIndex(hidetabs, indexAtual, newIndex);
     }
+
+
 }
