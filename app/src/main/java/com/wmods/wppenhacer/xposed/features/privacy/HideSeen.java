@@ -150,6 +150,7 @@ public class HideSeen extends Feature {
         String[] messageIds = (String[]) XposedHelpers.getObjectField(sendReadReceiptJob, "messageIds");
         for (String messageId : messageIds) {
             FMessageWpp fMessage = new FMessageWpp.Key(messageId, userJid, false).getFMessage();
+            if (fMessage == null) continue;
             MessageHistory.MessageType type = fMessage.isViewOnce()
                     ? MessageHistory.MessageType.VIEW_ONCE_TYPE
                     : MessageHistory.MessageType.MESSAGE_TYPE;

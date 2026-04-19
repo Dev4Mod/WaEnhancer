@@ -2224,8 +2224,7 @@ public class Unobfuscator {
 
     public static synchronized Method loadCachedMessageStoreKey(ClassLoader loader) throws Exception {
         return UnobfuscatorCache.getInstance().getMethod(loader, () -> {
-            var method = findFirstMethodUsingStrings(loader, StringMatchType.Contains,
-                    "CachedMessageStore/getAvailableMessage/key");
+            var method = findFirstMethodUsingStrings(loader, StringMatchType.Contains, "CachedMessageStore/getMessage/key");
             if (method == null)
                 throw new RuntimeException("CachedMessageStore class not found");
             return method;
