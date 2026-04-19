@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_desc">أداة تخصيص الواتساب</string>
+    <string name="force_restore_backup">Force Restore Backup</string>
+    <string name="force_restore_backup_summary">Launch the restore backup screen manually. Use this if you skipped restoration during setup.</string>
+    <string name="app_desc">أداة تخصيص WhatsApp</string>
     <string name="antirevoke">منع حذف الرسائل</string>
     <string name="antirevoke_sum">عند التنشيط، لن يتم حذف الرسائل نيابةً عنك.</string>
     <string name="ghostmode">إخفاء جارية الكتابة</string>
@@ -30,6 +32,9 @@
     <string name="videoquality_sum">إرسال مقاطع الفيديو بجودة HD</string>
     <string name="colors_customization">خصص ألوانك</string>
     <string name="colors_customization_sum">تغيير كل الألوان في واتساب الخاص بك (يعمل فقط في السمة الداكنة)</string>
+    <string name="changecolor_mode">Color source</string>
+    <string name="changecolor_mode_manual">Color picker</string>
+    <string name="changecolor_mode_monet">Automatic (Monet, Android 12+)</string>
     <string name="general">عام</string>
     <string name="restart_whatsapp">إعادة تشغيل واتساب</string>
     <string name="conversation">شاشة المحادثة</string>
@@ -114,7 +119,7 @@
     <string name="tools">أدوات</string>
     <string name="title_home">الصفحة الرئيسية</string>
     <string name="privacy">الخصوصية</string>
-    <string name="module_enabled">تم تمكين الوحدة✔️</string>
+    <string name="module_enabled">تم تمكين الوحدة🇸🇾تعريب عبدالله تريسي🇸🇾</string>
     <string name="version_s">الإصدار %s</string>
     <string name="module_disabled">الوحدة معطلة🚫</string>
     <string name="whatsapp_in_background">واتساب في الخلفية</string>
@@ -225,6 +230,17 @@
     <string name="disable_default_emojis">تعطيل الرموز التعبيرية الافتراضية</string>
     <string name="theme_mode">سمة داكنة</string>
     <string name="theme_mode_sum">تحديد سمة Wa Enhancer</string>
+    <string name="wae_color_mode">WAE color mode</string>
+    <string name="wae_color_preset">Preset color</string>
+    <string name="wae_color_mode_preset">Preset</string>
+    <string name="wae_color_mode_auto_monet">Automatic (Monet)</string>
+    <string name="color_preset_green">Green</string>
+    <string name="color_preset_blue">Blue</string>
+    <string name="color_preset_cyan">Cyan</string>
+    <string name="color_preset_purple">Purple</string>
+    <string name="color_preset_orange">Orange</string>
+    <string name="color_preset_red">Red</string>
+    <string name="color_preset_pink">Pink</string>
     <string name="disable_default_emojis_sum">تعطيل الرموز التعبيرية الافتراضية لواتساب واستخدام الرموز التعبيرية للنظام \n(ملاحظة: ستختفي الرموز التعبيرية لواتساب من المحدد، استخدم لوحة المفاتيح لإدراجها).</string>
     <string name="other">غير ذلك</string>
     <string name="enable_media_preview">تمكين معاينة الوسائط</string>
@@ -283,6 +299,7 @@
     <string name="installation_desc">1. تأكد من أن جهازك متجذر.\n2. قم بتثبيت إطار عمل Xposed Framework على جهازك.\n3. قم بتنزيل Wa Enhancer من قسم الإجراءات.\n4. قم بتثبيت ملف Wa Enhancer APK.\n5. قم بتمكين وحدة Wa Enhancer في تطبيق Xposed Installe.</string>
     <string name="go_to_telegram">الذهاب إلى تيليجرام</string>
     <string name="go_to_github">الذهاب إلى GitHub</string>
+    <string name="contributors">Contributors</string>
     <string name="support">الدعم</string>
     <string name="support_desc">إذا واجهت أي مشكلات أو لديك أسئلة حول Wa Enhancer، يرجى زيارة Telegram.</string>
     <string name="license">التَرْخِيصْ</string>
@@ -416,7 +433,7 @@
     <string name="disable_status_in_the_profile_photo">تعطيل الحالة في صورة الملف الشخصي</string>
     <string name="disable_status_in_the_profile_photo_sum">يعطل الدائرة التي تظهر في صورة الملف الشخصي لكل جهة اتصال عند وجود حالة جديدة</string>
     <string name="download_not_available">التنزيل غير متوفر أو لم يتم تحميل الوسائط بالكامل</string>
-    <string name="possible_block_detected">تم اكتشاف كتلة محتملة</string>
+    <string name="possible_block_detected">تم الكشف عن حظر مُحتمل</string>
     <string name="block_not_detected">لم يتم اكتشاف حظر</string>
     <string name="checking_if_the_contact_is_blocked">جارٍ التحقق مما إذا كان جهة الاتصال محظورة...</string>
     <string name="show_contact_blocked">إظهار جهة الاتصال المحظورة في المحادثة</string>
@@ -424,8 +441,39 @@
     <string name="block_unverified">حظر غير مُتحقق منه</string>
     <string name="disable_whatsapp_expiration">تعطيل انتهاء صلاحية واتساب</string>
     <string name="disable_whatsapp_expiration_sum">يعطل الإصدار المنتهي الصَّلاحِيَة من WhatsApp (ملاحظة: التعطيل يدويًا لتحديث WhatsApp على متجر Play Store أو ضع علامة على متجر Play Store على LSposed)</string>
-    <string name="disable_ads">تعطيل الإعلانات</string>
-    <string name="disable_ads_sum">منع الإعلانات من الظهور في WhatsApp</string>
     <string name="lockedchats_enhancer">محادثات مقفلة محسّنة</string>
     <string name="lockedchats_enhancer_sum">حسّن المحادثات المقفلة عن طريق إخفاء الإشعارات وجهات الاتصال من قائمة جهات الاتصال</string>
+    <string name="call_recording_title">Call Recording</string>
+    <string name="call_recording_enable">Enable Call Recording</string>
+    <string name="call_recording_enable_sum">Record incoming and outgoing calls (Voice &amp; Video) as audio.</string>
+    <string name="call_recording_path">Recordings Output Folder</string>
+    <string name="video_call_screen_rec">Record Video Calls (Screen)</string>
+    <string name="video_call_screen_rec_locked">Coming soon!</string>
+    <string name="coming_soon">Coming soon!</string>
+    <string name="recording_mode">Recording Mode</string>
+    <string name="recording_mode_sum">Select which calls to record</string>
+    <string name="recording_mode_all">Record All Calls</string>
+    <string name="recording_mode_unknown">Record Unknown Numbers Only</string>
+    <string name="recording_mode_include">Record Only Selected Contacts</string>
+    <string name="recording_mode_exclude">Record All Except Selected</string>
+    <string name="recording_included_contacts">Included Contacts</string>
+    <string name="recording_excluded_contacts">Excluded Contacts</string>
+    <!-- Search Feature Strings -->
+    <string name="search_features_title">Search Features</string>
+    <string name="search_features_hint">Search for any feature...</string>
+    <string name="search_no_results">No features found</string>
+    <string name="search_try_different_keywords">Try different keywords or browse categories</string>
+    <string name="search_start_typing">Start typing to search features</string>
+    <string name="no_deleted_messages">No deleted messages found</string>
+    <string name="deleted_messages_title">Deleted By Me</string>
+    <string name="restore_message">Restore</string>
+    <string name="deleted_messages_sum">View messages deleted by others</string>
+    <string name="restore_feature_title">Restore Feature</string>
+    <string name="restore_feature_desc">"Coming soon!"</string>
+    <string name="action_follow_developer">Coming soon!</string>
+    <string name="enable_spy">Enable Spy Tool</string>
+    <string name="enable_spy_sum">Logs internal events to Xposed log for debugging.</string>
+    <string name="warning_restore">When restoring the backup all messages after the backup will be lost, are you sure you want to continue?</string>
+    <string name="force_restore_backup_experimental">Force Restore Backup (Experimental)</string>
+    <string name="contact_probably_not_added">Contact probably didn\'t add you!</string>
 </resources>
