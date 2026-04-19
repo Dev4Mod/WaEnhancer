@@ -177,11 +177,15 @@ public class FMessageWpp {
                     var mediaObject = ReflectionUtils.getObjectField(field, fmessage);
                     var mediaFile = (File) fileField.get(mediaObject);
                     if (mediaFile != null) return mediaFile;
-                    var filePath = MessageStore.getInstance().getMediaFromID(getRowId());
-                    if (filePath == null) return null;
-                    return new File(filePath);
+
                 }
             }
+            var filePath = MessageStore.getInstance().getMediaFromID(getRowId());
+            if (filePath == null) return null;
+            if (!filePath.startsWith("file://") && !filePath.startsWith("/")) {
+                return new File(WppCore.getRootWhatsAppDir(), filePath);
+            }
+            return new File(filePath);
         } catch (Exception e) {
             XposedBridge.log(e);
         }

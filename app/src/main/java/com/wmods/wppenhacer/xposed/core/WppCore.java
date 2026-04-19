@@ -7,6 +7,7 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.database.sqlite.SQLiteDatabase;
 import android.graphics.drawable.Drawable;
+import android.os.Environment;
 import android.text.TextUtils;
 import android.widget.Toast;
 
@@ -724,6 +725,17 @@ public class WppCore {
             XposedBridge.log(e);
             return null;
         }
+    }
+
+
+    public static File getRootWhatsAppDir() {
+        var mediaDirs = Utils.getApplication().getExternalMediaDirs();
+        var appName = Utils.getApplication().getPackageManager().getApplicationLabel(Utils.getApplication().getApplicationInfo());
+        if (mediaDirs.length > 0) {
+            var rootDir = new File(mediaDirs[0], appName.toString());
+            if (rootDir.exists()) return rootDir;
+        }
+        return new File(Environment.getExternalStorageDirectory(), appName.toString());
     }
 
     public interface ActivityChangeState {
