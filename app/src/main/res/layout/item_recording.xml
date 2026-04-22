@@ -68,19 +68,6 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
-        <!-- File name / phone number -->
-        <TextView
-            android:id="@+id/phone_number"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="2dp"
-            android:text="+1234567890"
-            android:textAppearance="?attr/textAppearanceCaption"
-            android:textColor="?android:attr/textColorSecondary"
-            app:layout_constraintEnd_toEndOf="@+id/contact_name"
-            app:layout_constraintStart_toStartOf="@+id/contact_name"
-            app:layout_constraintTop_toBottomOf="@+id/contact_name" />
-
         <!-- Details: size and date -->
         <TextView
             android:id="@+id/details"
@@ -92,7 +79,7 @@
             android:textColor="?android:attr/textColorSecondary"
             app:layout_constraintEnd_toEndOf="@+id/contact_name"
             app:layout_constraintStart_toStartOf="@+id/contact_name"
-            app:layout_constraintTop_toBottomOf="@+id/phone_number" />
+            app:layout_constraintTop_toBottomOf="@+id/contact_name" />
 
         <!-- Action buttons container (hidden in multi-select mode) -->
         <LinearLayout
