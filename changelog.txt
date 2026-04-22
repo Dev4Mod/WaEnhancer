@@ -1,12 +1,10 @@
-[ADDED]
-* Added support for WA/WB 2.26.14.xx
-
 [FIXED]
-* Fixed bug that the group separation icon was not visible
-* Fixed bug that when receiving edited message, it was shown as viewed even hiding the seen
-* Fixed bug that the group admin icon did not appear
-* Fixed bug that the download button in single view messages did not appear
-* Fixed bug that it was not possible to download status videos in some situations.
+* Fixed the timing of recorded call audios not being displayed correctly
+* Fixed bug of the online marker appearing in yellow
+* Fixed crash bug when having the "You" tab and the group separator active
 
-[NOTE]
-* Call recording even with root has restrictions, not all devices can record internal audio, for this it is necessary internal permissions to work.
+[IMPROVED]
+* Call recording improvements, now records in AAC to save space and the contact's name appears in the recording list
+
+[WAE]
+* Update Translations (Thanks for all translators in Crowdin)
