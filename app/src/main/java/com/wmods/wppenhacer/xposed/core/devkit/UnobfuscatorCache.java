@@ -69,9 +69,7 @@ public class UnobfuscatorCache {
                 sPrefsCacheHooks.edit().putLong("version", currentVersion).commit();
                 sPrefsCacheHooks.edit().putLong("updateTime", lastUpdateTime).commit();
                 sPrefsCacheHooks.edit().putString("wae_version_name", versionName).commit();
-                if (version != currentVersion) {
-                    sPrefsCacheStrings.edit().clear().commit();
-                }
+                sPrefsCacheStrings.edit().clear().commit();
             }
             initCacheStrings();
         } catch (Exception e) {
@@ -115,6 +113,7 @@ public class UnobfuscatorCache {
                     int keyHexValue = entry.getKey();
                     int result = baseValue << 16 | keyHexValue;
                     String resourceString = pool.getString(entry.getValue().value().data()).toLowerCase().replaceAll("\\s", "");
+                    if (reverseResourceMap.containsKey(resourceString)) continue;
                     reverseResourceMap.put(resourceString, String.valueOf(result));
                 } catch (Exception ignored) {
                 }
@@ -154,7 +153,9 @@ public class UnobfuscatorCache {
                         for (int i = threadStartId; i <= threadEndId; i++) {
                             try {
                                 String resourceString = resources.getString(i);
-                                reverseResourceMap.put(resourceString.toLowerCase().replaceAll("\\s", ""), String.valueOf(i));
+                                String key = resourceString.toLowerCase().replaceAll("\\s", "");
+                                if (reverseResourceMap.containsKey(key)) continue;
+                                reverseResourceMap.put(key, String.valueOf(i));
                             } catch (Resources.NotFoundException ignored) {
                             }
                         }
