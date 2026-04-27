@@ -1,7 +1,5 @@
 package com.wmods.wppenhacer.xposed.features.customization;
 
-import static com.wmods.wppenhacer.xposed.features.customization.SeparateGroup.getArrayListTab;
-import static com.wmods.wppenhacer.xposed.features.customization.SeparateGroup.loadTabListField;
 import static com.wmods.wppenhacer.xposed.features.customization.SeparateGroup.tabs;
 
 import android.os.Bundle;
@@ -44,12 +42,11 @@ public class HideTabs extends Feature {
 
         var onCreateTabList = Unobfuscator.loadTabListMethod(classLoader);
         logDebug(Unobfuscator.getMethodDescriptor(onCreateTabList));
-        var tabListField = loadTabListField(classLoader);
 
         XposedBridge.hookMethod(onCreateTabList, new XC_MethodHook() {
             @Override
             protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-                var tabs = getArrayListTab(tabListField);
+                var tabs = (ArrayList<Integer>) param.getResult();
                 for (var item : hideTabsList) {
                     if (item != SeparateGroup.STATUS || !igstatus) {
                         tabs.remove(item);

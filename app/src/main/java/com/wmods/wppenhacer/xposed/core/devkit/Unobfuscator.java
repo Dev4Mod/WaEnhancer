@@ -14,7 +14,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
 
-import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import com.wmods.wppenhacer.xposed.core.WppCore;
@@ -32,7 +31,6 @@ import org.luckypray.dexkit.query.matchers.MethodMatcher;
 import org.luckypray.dexkit.query.matchers.base.OpCodesMatcher;
 import org.luckypray.dexkit.result.ClassData;
 import org.luckypray.dexkit.result.ClassDataList;
-import org.luckypray.dexkit.result.FieldData;
 import org.luckypray.dexkit.result.MethodData;
 import org.luckypray.dexkit.result.MethodDataList;
 import org.luckypray.dexkit.result.UsingFieldData;
@@ -419,18 +417,19 @@ public class Unobfuscator {
 
     // TODO: Classes and Methods for XChatFilter
 
-    public synchronized static Method loadTabListMethod(ClassLoader classLoader) throws Exception {
+    public static Method loadTabListMethod(ClassLoader classLoader) throws Exception {
         return UnobfuscatorCache.getInstance().getMethod(classLoader, () -> {
-            var classData = dexkit.findClass(FindClass.create().searchPackages("X.")
-                    .matcher(ClassMatcher.create().addUsingString("mainContainer")));
-            if (classData.isEmpty())
-                throw new Exception("mainContainer class not found");
-            var classMain = classData.get(0).getInstance(classLoader);
-            Method method = Arrays.stream(classMain.getDeclaredMethods()).parallel()
-                    .filter(m -> m.getName().equals("onCreate")).findFirst().orElse(null);
-            if (method == null)
-                throw new Exception("onCreate method not found");
-            return method;
+            var result = dexkit.findMethod(
+                    FindMethod.create()
+                            .matcher(
+                                    MethodMatcher.create()
+                                            .addUsingNumber(200)
+                                            .addUsingNumber(300)
+                                            .returnType(ArrayList.class)
+                            )
+            ).singleOrNull();
+            if (result == null) throw new Exception("TabList method not found");
+            return result.getMethodInstance(classLoader);
         });
     }
 
@@ -901,23 +900,11 @@ public class Unobfuscator {
         });
     }
 
-    public synchronized static Field loadConversationDelegateField(ClassLoader loader) throws Exception {
-        return UnobfuscatorCache.getInstance().getField(loader, () -> {
-            Class<?> conversationDelegateClass = findFirstClassUsingStrings(loader, StringMatchType.Contains, "conversation/createconversation");
-            Class<?> conversation = XposedHelpers.findClass("com.whatsapp.Conversation", loader);
-            Field field = ReflectionUtils.getFieldByExtendType(conversation, conversationDelegateClass);
-            if (field != null) return field;
-            for (var f : conversation.getDeclaredFields()) {
-                var clazz = f.getType();
-                if (clazz.isPrimitive()) continue;
-                var field1 = ReflectionUtils.getFieldByExtendType(clazz, conversationDelegateClass);
-                if (field1 != null) return field1;
-            }
-            return null;
-        });
+    public static Class<?> loadConversationDelegateClass(ClassLoader loader) throws Exception {
+        return UnobfuscatorCache.getInstance().getClass(loader, () -> findFirstClassUsingStrings(loader, StringMatchType.Contains, "conversation/createconversation"));
     }
 
-    public synchronized static Field loadUserJidConversationDelegate(ClassLoader loader) throws Exception {
+    public static Field loadUserJidConversationDelegate(ClassLoader loader) throws Exception {
         return UnobfuscatorCache.getInstance().getField(loader, () -> {
             Class<?> chatClass = findFirstClassUsingStrings(loader, StringMatchType.Contains, "conversation/createconversation");
             Class<?> jidClass = Unobfuscator.findFirstClassUsingName(loader, StringMatchType.EndsWith, "jid.Jid");
@@ -926,6 +913,7 @@ public class Unobfuscator {
             return field;
         });
     }
+
 
     public synchronized static Method loadAntiRevokeMessageMethod(ClassLoader loader) throws Exception {
         return UnobfuscatorCache.getInstance().getMethod(loader, () -> {
@@ -1759,19 +1747,20 @@ public class Unobfuscator {
         });
     }
 
-    public synchronized static Class loadActionUser(ClassLoader loader) throws Exception {
+    public static Class<?> loadActionUser(ClassLoader loader) throws Exception {
         return UnobfuscatorCache.getInstance().getClass(loader, () -> {
-            var classData = dexkit.getClassData("com.whatsapp.conversation.selection.SingleSelectedMessageActivity");
-            if (classData == null)
-                throw new RuntimeException("SingleSelectedMessage class not found");
-            var fields = classData.getFields().stream().map(FieldData::getType).collect(Collectors.toList());
-            var fmessage = loadFMessageClass(loader);
-            var classResult = dexkit
-                    .findClass(FindClass.create().searchIn(fields).matcher(ClassMatcher.create().addMethod(
-                            MethodMatcher.create().paramCount(3).paramTypes(fmessage, String.class, boolean.class))));
-            if (classResult.isEmpty())
-                throw new RuntimeException("ActionUser class not found");
-            return classResult.get(0).getInstance(loader);
+            var fMessageClass = loadFMessageClass(loader);
+            var result = dexkit.findMethod(
+                    FindMethod.create()
+                            .matcher(
+                                    MethodMatcher.create()
+                                            .paramTypes(fMessageClass, String.class, boolean.class)
+                                            .modifiers(Modifier.PUBLIC | Modifier.FINAL)
+                                            .returnType(boolean.class)
+                            )
+            ).singleOrNull();
+            if (result == null) throw new RuntimeException("ActionUser class not found");
+            return result.getDeclaredClass().getInstance(loader);
         });
     }
 
@@ -2444,9 +2433,8 @@ public class Unobfuscator {
 
     public static Class<?> loadMeManagerClass(ClassLoader classLoader) throws Exception {
         return UnobfuscatorCache.getInstance().getClass(classLoader, () -> {
-            var clazz = findFirstClassUsingStrings(classLoader, StringMatchType.StartsWith, "memanager/");
-            if (clazz == null)
-                throw new RuntimeException("MeManager class not found");
+            var clazz = findFirstClassUsingStrings(classLoader, StringMatchType.StartsWith, "memanager/setMe");
+            if (clazz == null) throw new RuntimeException("MeManager class not found");
             return clazz;
         });
     }
@@ -2804,23 +2792,4 @@ public class Unobfuscator {
         return UnobfuscatorCache.getInstance().getClass(classLoader, () -> findFirstClassUsingStrings(classLoader, StringMatchType.Contains, "BottomBarConfig("));
     }
 
-
-    public static Field loadHomeTabBarDelegateListField(ClassLoader classLoader) throws Exception {
-        return UnobfuscatorCache.getInstance().getField(classLoader, () -> {
-            var clazz = findFirstClassUsingStrings(classLoader, StringMatchType.Contains, "HomeTabBarDelegate/updateNavigationBarVisibility");
-            if (clazz == null) return null;
-            for (var field : clazz.getDeclaredFields()) {
-                if (List.class.isAssignableFrom(field.getType()))
-                    return field;
-            }
-            throw new RuntimeException("HomeTabBarDelegateListField not found");
-        });
-    }
-
-    public static Field loadHomeTabListField(@NonNull ClassLoader classLoader) throws Exception {
-        return UnobfuscatorCache.getInstance().getField(classLoader, () -> {
-            var homeClass = WppCore.getHomeActivityClass(classLoader);
-            return ReflectionUtils.getFieldByType(homeClass, List.class);
-        });
-    }
 }

@@ -19,7 +19,6 @@ import com.wmods.wppenhacer.xposed.utils.Utils;
 
 import org.luckypray.dexkit.query.enums.StringMatchType;
 
-import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -290,12 +289,11 @@ public class SeparateGroup extends Feature {
     private void hookTabList() throws Exception {
         var onCreateTabList = Unobfuscator.loadTabListMethod(classLoader);
         logDebug(Unobfuscator.getMethodDescriptor(onCreateTabList));
-        var fieldTabsList = loadTabListField(classLoader);
 
         XposedBridge.hookMethod(onCreateTabList, new XC_MethodHook() {
             @Override
             protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-                tabs = getArrayListTab(fieldTabsList);
+                tabs = (ArrayList<Integer>) param.getResult();
                 if (tabs == null) return;
                 if (!tabs.contains(GROUPS)) {
                     tabs.add(tabs.isEmpty() ? 0 : 1, GROUPS);
@@ -349,26 +347,6 @@ public class SeparateGroup extends Feature {
                 return server.equals("s.whatsapp.net") || server.equals("lid");
             }
             return true;
-        }
-    }
-
-    public static Field loadTabListField(ClassLoader classLoader) throws Exception {
-        try {
-            return Unobfuscator.loadHomeTabBarDelegateListField(classLoader);
-        } catch (Exception ignored) {
-            return Unobfuscator.loadHomeTabListField(classLoader);
-        }
-    }
-
-    @SuppressWarnings("unchecked")
-    public static ArrayList<Integer> getArrayListTab(Field listField) throws Exception {
-        var list = (List<Integer>) listField.get(null);
-        if (list instanceof ArrayList<Integer> arrayList) {
-            return arrayList;
-        } else {
-            var tabs = new ArrayList<>(list);
-            listField.set(null, tabs);
-            return tabs;
         }
     }
 

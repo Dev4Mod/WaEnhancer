@@ -62,10 +62,10 @@ public class WppCore {
     private static Method convertJidToLid;
     private static Class actionUser;
     private static Method cachedMessageStoreKey;
-    private static Field conversationDelegateField;
     private static Field conversationJidField;
     private static Field meManagerPhoneJidField;
     private static Object meManagerInstance;
+    private static Object mConversationDelegate;
 
     public static void Initialize(ClassLoader loader, XSharedPreferences pref) throws Exception {
         privPrefs = Utils.getApplication().getSharedPreferences("WaGlobal", Context.MODE_PRIVATE);
@@ -78,8 +78,13 @@ public class WppCore {
         // Bottom Dialog
         bottomDialog = Unobfuscator.loadDialogViewClass(loader);
 
-        conversationDelegateField = Unobfuscator.loadConversationDelegateField(loader);
         conversationJidField = Unobfuscator.loadUserJidConversationDelegate(loader);
+        XposedBridge.hookAllConstructors(conversationJidField.getDeclaringClass(), new XC_MethodHook() {
+            @Override
+            protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+                mConversationDelegate = param.thisObject;
+            }
+        });
 
         // StartUpPrefs
         var startPrefsConfig = Unobfuscator.loadStartPrefsConfig(loader);
@@ -488,31 +493,24 @@ public class WppCore {
         return null;
     }
 
-    @NonNull
+    @Nullable
     public static FMessageWpp.UserJid getCurrentUserJid() {
         try {
             var conversation = getCurrentConversation();
-            if (conversation == null) return new FMessageWpp.UserJid();
-            Object conversationDelegate;
+            if (conversation == null) return null;
+            Object conversationDelegate = mConversationDelegate;
             if (conversation.getClass().getSimpleName().equals("HomeActivity")) {
                 var convFragmentMethod = Unobfuscator.loadHomeConversationFragmentMethod(conversation.getClassLoader());
                 var convFragment = convFragmentMethod.invoke(null, conversation);
                 var convField = Unobfuscator.loadAntiRevokeConvFragmentField(conversation.getClassLoader());
                 conversationDelegate = convField.get(convFragment);
-            } else {
-                if (conversation.getClass().isAssignableFrom(conversationDelegateField.getDeclaringClass())) {
-                    conversationDelegate = conversationDelegateField.get(conversation);
-                } else {
-                    var fieldObject = ReflectionUtils.getFieldByType(conversation.getClass(), conversationDelegateField.getDeclaringClass());
-                    conversationDelegate = conversationDelegateField.get(fieldObject.get(conversation));
-                }
             }
             return new FMessageWpp.UserJid(conversationJidField.get(conversationDelegate));
         } catch (Exception e) {
-            XposedBridge.log(e);
             return new FMessageWpp.UserJid();
         }
     }
+
 
     public static String stripJID(String str) {
         try {
