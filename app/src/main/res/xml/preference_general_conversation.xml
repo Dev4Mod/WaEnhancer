@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<PreferenceScreen xmlns:app="http://schemas.android.com/apk/res-auto">
+<PreferenceScreen xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:android="http://schemas.android.com/apk/res/android">
     <PreferenceCategory
         app:iconSpaceReserved="false"
         app:title="@string/conversation">
@@ -19,6 +20,14 @@
             app:title="@string/presence_tracker_contacts"
             app:summaryOff="@string/no_contacts_selected"
             app:summaryOn="@string/contact_were_selected" />
+
+        <Preference
+            android:title="@string/view_presence_logs"
+            android:summary="@string/view_presence_logs_sum">
+            <intent
+                android:targetPackage="com.wmods.wppenhacer"
+                android:targetClass="com.wmods.wppenhacer.activities.PresenceLogsActivity" />
+        </Preference>
 
         <rikka.material.preference.MaterialSwitchPreference
             app:key="toastdeleted"

@@ -64,6 +64,11 @@
             android:authorities="${applicationId}.provider"
             android:exported="true" />
 
+        <provider
+            android:name=".provider.PresenceLogProvider"
+            android:authorities="${applicationId}.presence"
+            android:exported="true" />
+
         <activity
             android:name=".activities.MainActivity"
             android:exported="true"
@@ -102,6 +107,11 @@
 
         <activity
             android:name=".activities.DeletedMessagesActivity"
+            android:theme="@style/AppTheme"
+            android:parentActivityName=".activities.MainActivity" />
+
+        <activity
+            android:name=".activities.PresenceLogsActivity"
             android:theme="@style/AppTheme"
             android:parentActivityName=".activities.MainActivity" />
 

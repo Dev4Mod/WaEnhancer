@@ -10,8 +10,11 @@ import androidx.annotation.NonNull;
 
 import com.wmods.wppenhacer.xposed.core.Feature;
 import com.wmods.wppenhacer.xposed.core.components.FMessageWpp;
-import com.wmods.wppenhacer.xposed.core.db.PresenceLogStore;
 import com.wmods.wppenhacer.xposed.core.devkit.Unobfuscator;
+import com.wmods.wppenhacer.xposed.utils.Utils;
+import android.content.ContentValues;
+import android.net.Uri;
+import com.wmods.wppenhacer.BuildConfig;
 
 import de.robv.android.xposed.XC_MethodHook;
 import de.robv.android.xposed.XSharedPreferences;
@@ -37,7 +40,18 @@ public class PresenceTracker extends Feature {
         super(classLoader, preferences);
         tracker = new PresenceStateTracker(
                 System::currentTimeMillis,
-                (contactId, status, timestamp) -> PresenceLogStore.getInstance().insertEvent(contactId, status, timestamp),
+                (contactId, status, timestamp) -> {
+                    try {
+                        ContentValues values = new ContentValues();
+                        values.put("contact_id", contactId);
+                        values.put("status", status.name());
+                        values.put("timestamp", timestamp);
+                        Uri uri = Uri.parse("content://com.wmods.wppenhacer.presence/logs");
+                        Utils.getApplication().getContentResolver().insert(uri, values);
+                    } catch (Exception e) {
+                        XposedBridge.log("WAE: Failed to insert presence log: " + e.getMessage());
+                    }
+                },
                 OFFLINE_TIMEOUT_MS);
     }
 

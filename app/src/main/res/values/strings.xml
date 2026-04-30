@@ -221,6 +221,8 @@
     <string name="presence_tracker">Contact Online Activity Tracker</string>
     <string name="presence_tracker_sum">Logs online and offline activity for selected contacts</string>
     <string name="presence_tracker_contacts">Tracked Contacts</string>
+    <string name="view_presence_logs">View Presence Logs</string>
+    <string name="view_presence_logs_sum">View recent online and offline activity</string>
     <string name="new_context_menu_ui">New Context Menu UI</string>
     <string name="new_context_menu_ui_sum">The new iOS-style message context menu will be enabled.</string>
     <string name="filter_items_by_id">Filter Items By ID</string>

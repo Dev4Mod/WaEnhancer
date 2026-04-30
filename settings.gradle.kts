@@ -16,7 +16,8 @@ dependencyResolutionManagement {
     repositories {
         google()
         mavenCentral()
-        maven("https://api.xposed.info/")
+        // maven("https://api.xposed.info/")
+        maven("https://maven.aliyun.com/repository/public")
         maven("https://jitpack.io")
     }
 }
