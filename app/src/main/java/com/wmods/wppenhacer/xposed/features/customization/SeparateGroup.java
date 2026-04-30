@@ -78,10 +78,9 @@ public class SeparateGroup extends Feature {
         logDebug(Unobfuscator.getMethodDescriptor(runMethod));
 
         var enableCountMethod = Unobfuscator.loadEnableCountTabMethod(classLoader);
-        var constructor1 = Unobfuscator.loadEnableCountTabConstructor1(classLoader);
-        var constructor2 = Unobfuscator.loadEnableCountTabConstructor2(classLoader);
-        var constructor3 = Unobfuscator.loadEnableCountTabConstructor3(classLoader);
-        constructor3.setAccessible(true);
+        var badgeWrapperConstructor = Unobfuscator.loadEnableCountTabBadgeWrapper(classLoader);
+        var badgeItemConstructor = Unobfuscator.loadEnableCountTabBadgeItem(classLoader);
+        var emptyBadgeClass = Unobfuscator.loadEnableCountTabEmptyBadgeClass(classLoader);
 
         logDebug(Unobfuscator.getMethodDescriptor(enableCountMethod));
         XposedBridge.hookMethod(enableCountMethod, new XC_MethodHook() {
@@ -90,7 +89,6 @@ public class SeparateGroup extends Feature {
             protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
                 var indexTab = (int) param.args[2];
                 if (indexTab == tabs.indexOf(CHATS)) {
-
                     var chatCount = 0;
                     var groupCount = 0;
                     synchronized (SeparateGroup.class) {
@@ -118,14 +116,11 @@ public class SeparateGroup extends Feature {
                         cursor.close();
                     }
                     if (tabs.contains(CHATS) && tabInstances.containsKey(CHATS)) {
-                        var instance12 = chatCount <= 0 ? constructor3.newInstance() : constructor2.newInstance(chatCount);
-                        var instance22 = constructor1.newInstance(instance12);
-                        param.args[1] = instance22;
+                        param.args[1] = chatCount <= 0 ? XposedHelpers.getStaticObjectField(emptyBadgeClass, "A00") : badgeWrapperConstructor.newInstance(badgeItemConstructor.newInstance(chatCount));
                     }
                     if (tabs.contains(GROUPS) && tabInstances.containsKey(GROUPS)) {
-                        var instance2 = groupCount <= 0 ? constructor3.newInstance() : constructor2.newInstance(groupCount);
-                        var instance1 = constructor1.newInstance(instance2);
-                        enableCountMethod.invoke(param.thisObject, param.args[0], instance1, tabs.indexOf(GROUPS));
+                        var chatsBadge = groupCount <= 0 ? XposedHelpers.getStaticObjectField(emptyBadgeClass, "A00") : badgeWrapperConstructor.newInstance(badgeItemConstructor.newInstance(groupCount));
+                        XposedBridge.invokeOriginalMethod(param.method, param.thisObject, new Object[]{param.args[0], chatsBadge, tabs.indexOf(GROUPS)});
                     }
                 }
             }

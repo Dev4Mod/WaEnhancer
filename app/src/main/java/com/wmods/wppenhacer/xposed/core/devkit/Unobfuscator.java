@@ -510,50 +510,41 @@ public class Unobfuscator {
         });
     }
 
-    public synchronized static Method loadEnableCountTabMethod(ClassLoader classLoader) throws Exception {
+    public static Method loadEnableCountTabMethod(ClassLoader classLoader) throws Exception {
         return UnobfuscatorCache.getInstance().getMethod(classLoader, () -> {
-            var result = findFirstMethodUsingStrings(classLoader, StringMatchType.Contains,
-                    "Tried to set badge for invalid");
-            if (result == null)
-                throw new Exception("EnableCountTab method not found");
+            var result = findFirstMethodUsingStrings(classLoader, StringMatchType.Contains, "Tried to set badge for invalid");
+            if (result == null) throw new Exception("EnableCountTab method not found");
             return result;
         });
     }
 
-    public synchronized static Constructor loadEnableCountTabConstructor1(ClassLoader classLoader) throws Exception {
+    public static Constructor<?> loadEnableCountTabBadgeWrapper(ClassLoader classLoader) throws Exception {
         return UnobfuscatorCache.getInstance().getConstructor(classLoader, () -> {
             var countMethod = loadEnableCountTabMethod(classLoader);
             var indiceClass = countMethod.getParameterTypes()[1];
-            var result = dexkit.findClass(FindClass.create().matcher(ClassMatcher.create()
-                    .superClass(indiceClass.getName()).addMethod(MethodMatcher.create().paramCount(1))));
-            if (result.isEmpty())
-                throw new Exception("EnableCountTab method not found");
+            var result = dexkit.findClass(FindClass.create().matcher(ClassMatcher.create().superClass(indiceClass.getName()).addMethod(MethodMatcher.create().paramCount(1))));
+            if (result.isEmpty()) throw new Exception("EnableCountTab method not found");
             return result.get(0).getInstance(classLoader).getConstructors()[0];
         });
     }
 
-    public synchronized static Constructor loadEnableCountTabConstructor2(ClassLoader classLoader) throws Exception {
+    public static Constructor<?> loadEnableCountTabBadgeItem(ClassLoader classLoader) throws Exception {
         return UnobfuscatorCache.getInstance().getConstructor(classLoader, () -> {
-            var countTabConstructor1 = loadEnableCountTabConstructor1(classLoader);
+            var countTabConstructor1 = loadEnableCountTabBadgeWrapper(classLoader);
             var indiceClass = countTabConstructor1.getParameterTypes()[0];
-            var result = dexkit
-                    .findClass(FindClass.create().matcher(ClassMatcher.create().superClass(indiceClass.getName())
-                            .addMethod(MethodMatcher.create().paramCount(1).addParamType(int.class))));
-            if (result.isEmpty())
-                throw new Exception("EnableCountTab method not found");
+            var result = dexkit.findClass(FindClass.create().matcher(ClassMatcher.create().superClass(indiceClass.getName()).addMethod(MethodMatcher.create().paramCount(1).addParamType(int.class))));
+            if (result.isEmpty()) throw new Exception("EnableCountTab method not found");
             return result.get(0).getInstance(classLoader).getConstructors()[0];
         });
     }
 
-    public synchronized static Constructor loadEnableCountTabConstructor3(ClassLoader classLoader) throws Exception {
-        return UnobfuscatorCache.getInstance().getConstructor(classLoader, () -> {
-            var countTabConstructor1 = loadEnableCountTabConstructor1(classLoader);
-            var indiceClass = countTabConstructor1.getParameterTypes()[0];
-            var result = dexkit.findClass(FindClass.create().matcher(ClassMatcher.create()
-                    .superClass(indiceClass.getName()).addMethod(MethodMatcher.create().paramCount(0))));
-            if (result.isEmpty())
-                throw new Exception("EnableCountTab method not found");
-            return result.get(0).getInstance(classLoader).getConstructors()[0];
+    public static Class<?> loadEnableCountTabEmptyBadgeClass(ClassLoader classLoader) throws Exception {
+        return UnobfuscatorCache.getInstance().getClass(classLoader, () -> {
+            var countMethod = loadEnableCountTabMethod(classLoader);
+            var indiceClass = countMethod.getParameterTypes()[1];
+            var result = dexkit.findClass(FindClass.create().matcher(ClassMatcher.create().superClass(indiceClass.getName()).addMethod(MethodMatcher.create().paramCount(0))));
+            if (result.isEmpty()) throw new Exception("EnableCountTab method not found");
+            return result.get(0).getInstance(classLoader);
         });
     }
     // TODO: Classes and methods to TimeToSeconds
