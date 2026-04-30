@@ -473,9 +473,9 @@
     <string name="restore_feature_title">תכונת שחזור</string>
     <string name="restore_feature_desc">"בקרוב!"</string>
     <string name="action_follow_developer">בקרוב!</string>
-    <string name="enable_spy">הפעל את כלי הריגול</string>
-    <string name="enable_spy_sum">רישום אירועים פנימיים ליומן Xposed לצורך ניפוי שגיאות.</string>
     <string name="warning_restore">בעת שחזור הגיבוי כל ההודעות לאחר הגיבוי יאבדו, האם אתה בטוח שברצונך להמשיך?</string>
     <string name="force_restore_backup_experimental">שחזור גיבוי בכפייה (ניסיוני)</string>
     <string name="contact_probably_not_added">כנראה שה-Contact לא הוסיף אותך!</string>
+    <string name="jump_first_message">Jump to First Message</string>
+    <string name="jump_first_message_sum">Add a button to skip the first message in the conversations screen</string>
 </resources>

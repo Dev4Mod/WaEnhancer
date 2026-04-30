@@ -471,9 +471,9 @@
     <string name="restore_feature_title">Funktion wiederherstellen</string>
     <string name="restore_feature_desc">"In Kürze verfügbar!"</string>
     <string name="action_follow_developer">In Kürze verfügbar!</string>
-    <string name="enable_spy">Spy-Tool aktivieren</string>
-    <string name="enable_spy_sum">Protokolliert interne Ereignisse im Xposed-Protokoll zu Debugging-Zwecken.</string>
     <string name="warning_restore">Beim Wiederherstellen des Backups gehen alle Nachrichten nach dem Backup verloren. Sind Sie sicher, dass Sie fortfahren möchten?</string>
     <string name="force_restore_backup_experimental">Sicherung erzwingen (experimentell)</string>
     <string name="contact_probably_not_added">Der Kontakt hat Sie wahrscheinlich nicht hinzugefügt!</string>
+    <string name="jump_first_message">Jump to First Message</string>
+    <string name="jump_first_message_sum">Add a button to skip the first message in the conversations screen</string>
 </resources>

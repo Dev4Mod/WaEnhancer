@@ -471,9 +471,9 @@
     <string name="restore_feature_title">Ripristina Funzionalità</string>
     <string name="restore_feature_desc">"Prossimamente!"</string>
     <string name="action_follow_developer">Prossimamente!</string>
-    <string name="enable_spy">Abilita Strumento Spia</string>
-    <string name="enable_spy_sum">Registra gli eventi interni al log Xposed per il debug.</string>
     <string name="warning_restore">Quando si ripristina il backup, tutti i messaggi successivi al backup verranno eliminati, sei sicuro di voler continuare?</string>
     <string name="force_restore_backup_experimental">Forza il ripristino del backup (sperimentale)</string>
     <string name="contact_probably_not_added">Il contatto probabilmente non ti ha aggiunto!</string>
+    <string name="jump_first_message">Jump to First Message</string>
+    <string name="jump_first_message_sum">Add a button to skip the first message in the conversations screen</string>
 </resources>

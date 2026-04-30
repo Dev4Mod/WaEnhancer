@@ -471,9 +471,9 @@
     <string name="restore_feature_title">Geri Yükleme Özelliği</string>
     <string name="restore_feature_desc">"Çok yakında!"</string>
     <string name="action_follow_developer">Çok yakında!</string>
-    <string name="enable_spy">Casus Aracını Etkinleştir</string>
-    <string name="enable_spy_sum">Hata ayıklama için dahili olayları Xposed günlüğüne kaydeder.</string>
     <string name="warning_restore">Yedek geri yüklendiğinde, yedekleme sonrasındaki tüm mesajlar kaybolacaktır. Devam etmek istediğinize emin misiniz?</string>
     <string name="force_restore_backup_experimental">Yedeği Zorla Geri Yükle (Deneysel)</string>
     <string name="contact_probably_not_added">Kişi sizi eklememiş olabilir!</string>
+    <string name="jump_first_message">Jump to First Message</string>
+    <string name="jump_first_message_sum">Add a button to skip the first message in the conversations screen</string>
 </resources>

@@ -471,9 +471,9 @@
     <string name="restore_feature_title">Восстановить функцию</string>
     <string name="restore_feature_desc">"Скоро будет доступно!"</string>
     <string name="action_follow_developer">Скоро будет доступно!</string>
-    <string name="enable_spy">Включить инструмент слежения</string>
-    <string name="enable_spy_sum">Журнит внутренние события в журнал Xposed для отладки.</string>
     <string name="warning_restore">При восстановлении резервной копии все сообщения после резервной копии будут потеряны, Вы уверены, что хотите продолжить?</string>
     <string name="force_restore_backup_experimental">Принудительное восстановление резервной копии (экспериментально)</string>
     <string name="contact_probably_not_added">Вероятно, контакт вас не добавил!</string>
+    <string name="jump_first_message">Jump to First Message</string>
+    <string name="jump_first_message_sum">Add a button to skip the first message in the conversations screen</string>
 </resources>

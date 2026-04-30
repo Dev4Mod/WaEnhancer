@@ -482,9 +482,9 @@ Harap gunakan versi WhatsApp yang didukung!</string>
     <string name="restore_feature_title">Pulihkan Fitur</string>
     <string name="restore_feature_desc">"Segera hadir!"</string>
     <string name="action_follow_developer">Segera hadir!</string>
-    <string name="enable_spy">Aktifkan Alat Mata-Mata</string>
-    <string name="enable_spy_sum">Catat kejadian internal ke log Xposed untuk debugging</string>
     <string name="warning_restore">Saat memulihkan cadangan, semua pesan setelah pencadangan akan hilang. Apakah Anda yakin ingin melanjutkan?</string>
     <string name="force_restore_backup_experimental">Paksa Pulihkan Cadangan (Eksperimental)</string>
     <string name="contact_probably_not_added">Sepertinya kontak belum menambahkan Anda!</string>
+    <string name="jump_first_message">Jump to First Message</string>
+    <string name="jump_first_message_sum">Add a button to skip the first message in the conversations screen</string>
 </resources>

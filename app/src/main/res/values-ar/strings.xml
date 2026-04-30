@@ -471,9 +471,9 @@
     <string name="restore_feature_title">استعادة المِيزة</string>
     <string name="restore_feature_desc">"قريباً!"</string>
     <string name="action_follow_developer">قريباً!</string>
-    <string name="enable_spy">تمكين أداة المراقبة</string>
-    <string name="enable_spy_sum">يسجل الأحداث الداخلية في سجل Xposed لأغراض التصحيح.</string>
     <string name="warning_restore">عند استعادة النسخة الاحتياطية، سيتم فقدان جميع الرسائل التي تأتي بعد النسخة الاحتياطية، هل أنت متأكد من رغبتك في الاستمرار؟</string>
     <string name="force_restore_backup_experimental">استعادة النسخة الاحتياطية بالقوة (تجريبي)</string>
     <string name="contact_probably_not_added">ربما لم تتم إضافتك من قبل جهات الاتصال!</string>
+    <string name="jump_first_message">Jump to First Message</string>
+    <string name="jump_first_message_sum">Add a button to skip the first message in the conversations screen</string>
 </resources>
