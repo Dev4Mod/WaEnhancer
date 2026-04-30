@@ -282,7 +282,23 @@ public class FeatureCatalog {
                 SearchableFeature.Category.GENERAL_CONVERSATION,
                 SearchableFeature.FragmentType.GENERAL,
                 "conversation",
-                Arrays.asList("toast", "online", "notification")));
+                Arrays.asList("toast", "online")));
+
+        catalog.add(new SearchableFeature("presence_tracker",
+                context.getString(R.string.presence_tracker),
+                context.getString(R.string.presence_tracker_sum),
+                SearchableFeature.Category.GENERAL_CONVERSATION,
+                SearchableFeature.FragmentType.GENERAL,
+                "conversation",
+                Arrays.asList("presence", "online", "offline", "tracker", "activity", "log")));
+
+        catalog.add(new SearchableFeature("presence_tracker_contacts",
+                context.getString(R.string.presence_tracker_contacts),
+                context.getString(R.string.no_contacts_selected),
+                SearchableFeature.Category.GENERAL_CONVERSATION,
+                SearchableFeature.FragmentType.GENERAL,
+                "conversation",
+                Arrays.asList("presence", "contacts", "tracked", "online", "offline")));
 
         catalog.add(new SearchableFeature("toastdeleted",
                 context.getString(R.string.toast_on_delete),
