@@ -45,6 +45,7 @@ import com.wmods.wppenhacer.xposed.features.general.DeleteStatus;
 import com.wmods.wppenhacer.xposed.features.general.LiteMode;
 import com.wmods.wppenhacer.xposed.features.general.NewChat;
 import com.wmods.wppenhacer.xposed.features.general.Others;
+import com.wmods.wppenhacer.xposed.features.general.PresenceTracker;
 import com.wmods.wppenhacer.xposed.features.general.PinnedLimit;
 import com.wmods.wppenhacer.xposed.features.general.RecoverDeleteForMe;
 import com.wmods.wppenhacer.xposed.features.general.SeenTick;
@@ -365,6 +366,7 @@ public class FeatureLoader {
                 LiteMode.class,
                 MediaQuality.class,
                 NewChat.class,
+                PresenceTracker.class,
                 Others.class,
                 PinnedLimit.class,
                 CustomTime.class,
