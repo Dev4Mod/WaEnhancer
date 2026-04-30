@@ -181,6 +181,7 @@ dependencies {
     compileOnly(libs.lombok)
     annotationProcessor(libs.lombok)
     implementation(libs.markwon.core)
+    testImplementation(libs.junit)
 }
 
 configurations.all {
