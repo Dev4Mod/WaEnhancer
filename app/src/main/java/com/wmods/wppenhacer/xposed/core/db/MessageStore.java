@@ -1,7 +1,9 @@
 package com.wmods.wppenhacer.xposed.core.db;
 
+import android.annotation.SuppressLint;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.text.TextUtils;
 
 import com.wmods.wppenhacer.xposed.utils.Utils;
 
@@ -206,4 +208,45 @@ public class MessageStore {
     public SQLiteDatabase getDatabase() {
         return sqLiteDatabase;
     }
+
+
+    @SuppressLint("Recycle")
+    public synchronized MessageInfo getFirstMessageInfoByChatRawJid(String rawJid) {
+        var db = getDatabase();
+        if (db == null || TextUtils.isEmpty(rawJid)) {
+            return null;
+        }
+
+        var sql = "WITH resolved(jid_row_id) AS (" +
+                " SELECT _id FROM jid WHERE raw_string=?" +
+                " UNION" +
+                " SELECT jm.jid_row_id FROM jid_map jm" +
+                " INNER JOIN jid j ON j._id = jm.lid_row_id" +
+                " WHERE j.raw_string=?" +
+                " UNION" +
+                " SELECT jm.lid_row_id FROM jid_map jm" +
+                " INNER JOIN jid j ON j._id = jm.jid_row_id" +
+                " WHERE j.raw_string=?" +
+                "), chat_target AS (" +
+                " SELECT _id FROM chat WHERE jid_row_id IN (SELECT jid_row_id FROM resolved)" +
+                ")" +
+                " SELECT m._id, m.sort_id, m.chat_row_id" +
+                " FROM message m" +
+                " INNER JOIN chat_target c ON c._id = m.chat_row_id" +
+                " ORDER BY m.sort_id ASC, m._id ASC" +
+                " LIMIT 1";
+
+        try (var cursor = db.rawQuery(sql, new String[]{rawJid, rawJid, rawJid})) {
+            if (cursor.moveToFirst()) {
+                return new MessageInfo(cursor.getLong(0), cursor.getLong(1), cursor.getLong(2));
+            }
+        }
+        return null;
+    }
+
+    public record MessageInfo(long rowId, long sortId, long chatRowId) {
+
+    }
+
+
 }

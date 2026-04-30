@@ -2783,4 +2783,10 @@ public class Unobfuscator {
         return UnobfuscatorCache.getInstance().getClass(classLoader, () -> findFirstClassUsingStrings(classLoader, StringMatchType.Contains, "BottomBarConfig("));
     }
 
+    public static Method loadOnCreatedMenuConversation(ClassLoader loader) throws Exception {
+        return UnobfuscatorCache.getInstance().getMethod(loader, () -> {
+            var conversationClass = Unobfuscator.findFirstClassUsingName(loader, StringMatchType.EndsWith, "Conversation");
+            return ReflectionUtils.findMethodUsingFilter(conversationClass, m -> m.getParameterCount() == 1 && m.getParameterTypes()[0].equals(Menu.class));
+        });
+    }
 }

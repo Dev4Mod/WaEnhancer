@@ -43,10 +43,10 @@ import com.wmods.wppenhacer.xposed.features.general.CallType;
 import com.wmods.wppenhacer.xposed.features.general.ChatLimit;
 import com.wmods.wppenhacer.xposed.features.general.DeleteStatus;
 import com.wmods.wppenhacer.xposed.features.general.LiteMode;
-import com.wmods.wppenhacer.xposed.features.general.RecoverDeleteForMe;
 import com.wmods.wppenhacer.xposed.features.general.NewChat;
 import com.wmods.wppenhacer.xposed.features.general.Others;
 import com.wmods.wppenhacer.xposed.features.general.PinnedLimit;
+import com.wmods.wppenhacer.xposed.features.general.RecoverDeleteForMe;
 import com.wmods.wppenhacer.xposed.features.general.SeenTick;
 import com.wmods.wppenhacer.xposed.features.general.ShareLimit;
 import com.wmods.wppenhacer.xposed.features.general.ShowEditMessage;
@@ -61,19 +61,19 @@ import com.wmods.wppenhacer.xposed.features.media.MediaPreview;
 import com.wmods.wppenhacer.xposed.features.media.MediaQuality;
 import com.wmods.wppenhacer.xposed.features.media.StatusDownload;
 import com.wmods.wppenhacer.xposed.features.others.ActivityController;
-import com.wmods.wppenhacer.xposed.features.others.BackupRestore;
 import com.wmods.wppenhacer.xposed.features.others.AudioTranscript;
+import com.wmods.wppenhacer.xposed.features.others.BackupRestore;
 import com.wmods.wppenhacer.xposed.features.others.Channels;
 import com.wmods.wppenhacer.xposed.features.others.ChatFilters;
 import com.wmods.wppenhacer.xposed.features.others.CopyStatus;
 import com.wmods.wppenhacer.xposed.features.others.DebugFeature;
 import com.wmods.wppenhacer.xposed.features.others.GoogleTranslate;
 import com.wmods.wppenhacer.xposed.features.others.GroupAdmin;
+import com.wmods.wppenhacer.xposed.features.others.JumpFirstMessage;
 import com.wmods.wppenhacer.xposed.features.others.MenuHome;
 import com.wmods.wppenhacer.xposed.features.others.Stickers;
 import com.wmods.wppenhacer.xposed.features.others.TextStatusComposer;
 import com.wmods.wppenhacer.xposed.features.others.ToastViewer;
-import com.wmods.wppenhacer.xposed.features.others.Spy;
 import com.wmods.wppenhacer.xposed.features.privacy.AntiWa;
 import com.wmods.wppenhacer.xposed.features.privacy.CallPrivacy;
 import com.wmods.wppenhacer.xposed.features.privacy.CustomPrivacy;
@@ -333,9 +333,9 @@ public class FeatureLoader {
     }
 
     private static void plugins(@NonNull ClassLoader loader, @NonNull XSharedPreferences pref,
-            @NonNull String versionWpp) throws Exception {
+                                @NonNull String versionWpp) throws Exception {
 
-        var classes = new Class<?>[] {
+        var classes = new Class<?>[]{
                 DebugFeature.class,
                 ContactItemListener.class,
                 ConversationItemListener.class,
@@ -394,8 +394,8 @@ public class FeatureLoader {
                 LockedChatsEnhancer.class,
                 CallRecording.class,
                 BackupRestore.class,
-                Spy.class,
-                RecoverDeleteForMe.class
+                RecoverDeleteForMe.class,
+                JumpFirstMessage.class
         };
         XposedBridge.log("Loading Plugins");
         var executorService = Executors.newWorkStealingPool(Math.min(Runtime.getRuntime().availableProcessors(), 4));
@@ -415,7 +415,7 @@ public class FeatureLoader {
                     error.setModuleVersion(BuildConfig.VERSION_NAME);
                     error.setMessage(e.getMessage());
                     error.setError(Arrays.toString(Arrays.stream(e.getStackTrace()).filter(
-                            s -> !s.getClassName().startsWith("android") && !s.getClassName().startsWith("com.android"))
+                                    s -> !s.getClassName().startsWith("android") && !s.getClassName().startsWith("com.android"))
                             .map(StackTraceElement::toString).toArray()));
                     list.add(error);
                 }
