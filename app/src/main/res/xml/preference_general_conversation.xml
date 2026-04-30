@@ -10,6 +10,17 @@
             app:title="@string/show_toast_on_contact_online" />
 
         <rikka.material.preference.MaterialSwitchPreference
+            app:key="presence_tracker"
+            app:summary="@string/presence_tracker_sum"
+            app:title="@string/presence_tracker" />
+
+        <com.wmods.wppenhacer.preference.ContactPickerPreference
+            app:key="presence_tracker_contacts"
+            app:title="@string/presence_tracker_contacts"
+            app:summaryOff="@string/no_contacts_selected"
+            app:summaryOn="@string/contact_were_selected" />
+
+        <rikka.material.preference.MaterialSwitchPreference
             app:key="toastdeleted"
             app:summary="@string/toast_on_delete_sum"
             app:title="@string/toast_on_delete" />

@@ -11,6 +11,11 @@ import androidx.annotation.Nullable;
 import com.wmods.wppenhacer.R;
 import com.wmods.wppenhacer.ui.fragments.base.BaseFragment;
 import com.wmods.wppenhacer.ui.fragments.base.BasePreferenceFragment;
+import static com.wmods.wppenhacer.preference.ContactPickerPreference.REQUEST_CONTACT_PICKER;
+
+import android.app.Activity;
+import android.content.Intent;
+import com.wmods.wppenhacer.preference.ContactPickerPreference;
 
 public class GeneralFragment extends BaseFragment {
 
@@ -78,6 +83,17 @@ public class GeneralFragment extends BaseFragment {
             super.onCreatePreferences(savedInstanceState, rootKey);
             setPreferencesFromResource(R.xml.preference_general_conversation, rootKey);
             setDisplayHomeAsUpEnabled(true);
+        }
+
+        @Override
+        public void onActivityResult(int requestCode, int resultCode, Intent data) {
+            super.onActivityResult(requestCode, resultCode, data);
+            if (requestCode == REQUEST_CONTACT_PICKER && resultCode == Activity.RESULT_OK && data != null) {
+                ContactPickerPreference contactPickerPref = findPreference(data.getStringExtra("key"));
+                if (contactPickerPref != null) {
+                    contactPickerPref.handleActivityResult(requestCode, resultCode, data);
+                }
+            }
         }
     }
 
