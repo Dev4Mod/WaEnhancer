@@ -20,7 +20,7 @@ import com.wmods.wppenhacer.views.NoScrollListView;
 import com.wmods.wppenhacer.xposed.core.Feature;
 import com.wmods.wppenhacer.xposed.core.WppCore;
 import com.wmods.wppenhacer.xposed.core.components.FMessageWpp;
-import com.wmods.wppenhacer.xposed.core.db.MessageHistory;
+import com.wmods.wppenhacer.xposed.core.db.MessageHistoryStore;
 import com.wmods.wppenhacer.xposed.core.db.MessageStore;
 import com.wmods.wppenhacer.xposed.core.devkit.Unobfuscator;
 import com.wmods.wppenhacer.xposed.features.listeners.ConversationItemListener;
@@ -77,11 +77,11 @@ public class ShowEditMessage extends Feature {
                     if (newMessage == null) return;
                 }
                 try {
-                    var message = MessageHistory.getInstance().getMessages(id);
+                    var message = MessageHistoryStore.getInstance().getMessages(id);
                     if (message == null) {
-                        MessageHistory.getInstance().insertMessage(id, origMessage, 0);
+                        MessageHistoryStore.getInstance().insertMessage(id, origMessage, 0);
                     }
-                    MessageHistory.getInstance().insertMessage(id, newMessage, timestamp);
+                    MessageHistoryStore.getInstance().insertMessage(id, newMessage, timestamp);
                 } catch (Exception e) {
                     logDebug(e);
                 }
@@ -102,7 +102,7 @@ public class ShowEditMessage extends Feature {
                             textView.setOnClickListener((v) -> {
                                 try {
                                     long id = fMessage.getRowId();
-                                    var messages = MessageHistory.getInstance().getMessages(id);
+                                    var messages = MessageHistoryStore.getInstance().getMessages(id);
                                     if (messages == null) {
                                         messages = new ArrayList<>();
                                     }
@@ -119,7 +119,7 @@ public class ShowEditMessage extends Feature {
     }
 
     @SuppressLint("SetTextI18n")
-    private void showBottomDialog(ArrayList<MessageHistory.MessageItem> messages) {
+    private void showBottomDialog(ArrayList<MessageHistoryStore.MessageItem> messages) {
         Objects.requireNonNull(WppCore.getCurrentConversation()).runOnUiThread(() -> {
             var ctx = (Context) WppCore.getCurrentConversation();
 

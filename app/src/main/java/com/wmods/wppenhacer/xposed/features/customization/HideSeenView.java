@@ -13,7 +13,7 @@ import androidx.annotation.NonNull;
 import com.wmods.wppenhacer.xposed.core.Feature;
 import com.wmods.wppenhacer.xposed.core.WppCore;
 import com.wmods.wppenhacer.xposed.core.components.FMessageWpp;
-import com.wmods.wppenhacer.xposed.core.db.MessageHistory;
+import com.wmods.wppenhacer.xposed.core.db.MessageHistoryStore;
 import com.wmods.wppenhacer.xposed.features.listeners.ConversationItemListener;
 import com.wmods.wppenhacer.xposed.utils.Utils;
 
@@ -54,7 +54,7 @@ public class HideSeenView extends Feature {
         if (userJid.isNull()) return;
         ImageView view = viewGroup.findViewById(Utils.getID("view_once_control_icon", "id"));
         if (view != null) {
-            var messageOnce = MessageHistory.getInstance().getHideSeenMessage(userJid.getPhoneRawString(), messageId, MessageHistory.MessageType.VIEW_ONCE_TYPE);
+            var messageOnce = MessageHistoryStore.getInstance().getHideSeenMessage(userJid.getPhoneRawString(), messageId, MessageHistoryStore.ReceiptType.PLAYED);
             if (messageOnce != null) {
                 view.setColorFilter(messageOnce.viewed ? Color.GREEN : Color.RED);
             } else {
@@ -70,7 +70,7 @@ public class HideSeenView extends Feature {
                 status.setTextSize(8);
                 dateWrapper.addView(status);
             }
-            var message = MessageHistory.getInstance().getHideSeenMessage(userJid.getPhoneRawString(), messageId, MessageHistory.MessageType.MESSAGE_TYPE);
+            var message = MessageHistoryStore.getInstance().getHideSeenMessage(userJid.getPhoneRawString(), messageId, MessageHistoryStore.ReceiptType.READ);
             if (message != null) {
                 status.setVisibility(View.VISIBLE);
                 status.setText(message.viewed ? "\uD83D\uDFE2" : "\uD83D\uDD34");

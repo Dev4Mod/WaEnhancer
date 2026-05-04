@@ -7,7 +7,7 @@ import androidx.annotation.NonNull;
 import com.wmods.wppenhacer.xposed.core.Feature;
 import com.wmods.wppenhacer.xposed.core.components.FMessageWpp;
 import com.wmods.wppenhacer.xposed.core.components.WaContactWpp;
-import com.wmods.wppenhacer.xposed.core.db.DeletedMessage;
+import com.wmods.wppenhacer.xposed.core.db.entity.DeletedMessage;
 import com.wmods.wppenhacer.xposed.core.devkit.Unobfuscator;
 import com.wmods.wppenhacer.xposed.utils.Utils;
 
@@ -339,7 +339,7 @@ public class RecoverDeleteForMe extends Feature {
         // Create and Save
         DeletedMessage deletedMessage = new DeletedMessage(
                 0, keyId, chatJid, senderJid, timestamp, originalTimestamp, mediaType, textContent, mediaPath,
-                mediaCaption, fromMe,
+                mediaCaption, fromMe ? 1 : 0,
                 contactName, packageName);
 
         saveToDatabase(context, deletedMessage);
@@ -356,7 +356,7 @@ public class RecoverDeleteForMe extends Feature {
             android.net.Uri uri = android.net.Uri.withAppendedPath(
                     android.provider.ContactsContract.PhoneLookup.CONTENT_FILTER_URI,
                     android.net.Uri.encode(phoneNumber));
-            String[] projection = new String[] { android.provider.ContactsContract.PhoneLookup.DISPLAY_NAME };
+            String[] projection = new String[]{android.provider.ContactsContract.PhoneLookup.DISPLAY_NAME};
 
             try (android.database.Cursor cursor = context.getContentResolver().query(uri, projection, null, null,
                     null)) {

@@ -1,21 +1,17 @@
 package com.wmods.wppenhacer.adapter;
 
-import android.net.Uri;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.google.android.material.button.MaterialButton;
 import com.wmods.wppenhacer.R;
-import com.wmods.wppenhacer.xposed.core.db.DeletedMessage;
+import com.wmods.wppenhacer.xposed.core.db.entity.DeletedMessage;
 import com.wmods.wppenhacer.xposed.utils.Utils;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 

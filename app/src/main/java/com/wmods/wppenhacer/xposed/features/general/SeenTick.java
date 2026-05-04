@@ -22,7 +22,7 @@ import androidx.annotation.NonNull;
 import com.wmods.wppenhacer.xposed.core.Feature;
 import com.wmods.wppenhacer.xposed.core.WppCore;
 import com.wmods.wppenhacer.xposed.core.components.FMessageWpp;
-import com.wmods.wppenhacer.xposed.core.db.MessageHistory;
+import com.wmods.wppenhacer.xposed.core.db.MessageHistoryStore;
 import com.wmods.wppenhacer.xposed.core.db.MessageStore;
 import com.wmods.wppenhacer.xposed.core.devkit.Unobfuscator;
 import com.wmods.wppenhacer.xposed.features.customization.HideSeenView;
@@ -335,8 +335,8 @@ public class SeenTick extends Feature {
                 item.setOnMenuItemClickListener(item1 -> {
                     var userJid = fMessage.getKey().remoteJid;
                     var messageID = fMessage.getKey().messageID;
-                    MessageHistory.getInstance().updateViewedMessage(userJid.getPhoneRawString(), messageID, MessageHistory.MessageType.VIEW_ONCE_TYPE, true);
-                    MessageHistory.getInstance().updateViewedMessage(userJid.getPhoneRawString(), messageID, MessageHistory.MessageType.MESSAGE_TYPE, true);
+                    MessageHistoryStore.getInstance().updateViewedMessage(userJid.getPhoneRawString(), messageID, MessageHistoryStore.ReceiptType.READ, true);
+                    MessageHistoryStore.getInstance().updateViewedMessage(userJid.getPhoneRawString(), messageID, MessageHistoryStore.ReceiptType.PLAYED, true);
                     sendBlueTickMedia(fMessage);
                     statuses.clear();
                     Utils.showToast(Utils.getApplication().getString(ResId.string.sending_read_blue_tick), Toast.LENGTH_SHORT);
@@ -361,8 +361,8 @@ public class SeenTick extends Feature {
                                 var fMessage = new FMessageWpp.Key(keyMessage).getFMessage();
                                 var rawJid = fMessage.getKey().remoteJid.getPhoneRawString();
                                 var messageID = fMessage.getKey().messageID;
-                                MessageHistory.getInstance().updateViewedMessage(rawJid, messageID, MessageHistory.MessageType.VIEW_ONCE_TYPE, true);
-                                MessageHistory.getInstance().updateViewedMessage(rawJid, messageID, MessageHistory.MessageType.MESSAGE_TYPE, true);
+                                MessageHistoryStore.getInstance().updateViewedMessage(rawJid, messageID, MessageHistoryStore.ReceiptType.PLAYED, true);
+                                MessageHistoryStore.getInstance().updateViewedMessage(rawJid, messageID, MessageHistoryStore.ReceiptType.READ, true);
                                 sendBlueTickMedia(fMessage);
                                 statuses.clear();
                                 Utils.showToast(Utils.getApplication().getString(ResId.string.sending_read_blue_tick), Toast.LENGTH_SHORT);
@@ -407,7 +407,7 @@ public class SeenTick extends Feature {
 
     private static void updateMessageStatusView(String rawJid, List<FMessageWpp> messages) {
         for (var msg : messages) {
-            MessageHistory.getInstance().updateViewedMessage(rawJid, msg.getKey().messageID, MessageHistory.MessageType.MESSAGE_TYPE, true);
+            MessageHistoryStore.getInstance().updateViewedMessage(rawJid, msg.getKey().messageID, MessageHistoryStore.ReceiptType.READ, true);
         }
         HideSeenView.updateAllBubbleViews();
     }
@@ -417,19 +417,22 @@ public class SeenTick extends Feature {
             if (Objects.equals(userJid.getPhoneNumber(), Utils.getMyNumber()) || Objects.requireNonNullElse(userJid.getUserRawString(), "").contains("lid_me"))
                 return;
             var messages = new ArrayList<FMessageWpp>();
-            var hideSeenMessagesssages = MessageHistory.getInstance().getHideSeenMessages(userJid.getPhoneRawString(), MessageHistory.MessageType.MESSAGE_TYPE, false);
-            for (var message : hideSeenMessagesssages) {
+            var hideSeenMessages = MessageHistoryStore.getInstance().getHideSeenMessages(userJid.getPhoneRawString(), MessageHistoryStore.ReceiptType.READ, false);
+            if (hideSeenMessages == null) return;
+
+            for (var message : hideSeenMessages) {
                 var fmessage = message.getFMessage();
                 if (fmessage == null) continue;
                 messages.add(fmessage);
             }
+
             if (messages.isEmpty())
                 return;
             for (var m : messages) {
                 if (m.getMediaType() == 2) sendBlueTickMedia(m);
             }
-            var sendedMessages = sendBlueTickMsg(userJid, messages);
-            updateMessageStatusView(userJid.getPhoneRawString(), sendedMessages);
+            var sentMessages = sendBlueTickMsg(userJid, messages);
+            updateMessageStatusView(userJid.getPhoneRawString(), sentMessages);
         }, Utils.getExecutor());
     }
 

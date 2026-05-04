@@ -14,7 +14,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.wmods.wppenhacer.R;
 import com.wmods.wppenhacer.adapter.DeletedMessagesAdapter;
 import com.wmods.wppenhacer.xposed.core.db.DelMessageStore;
-import com.wmods.wppenhacer.xposed.core.db.DeletedMessage;
+import com.wmods.wppenhacer.xposed.core.db.entity.DeletedMessage;
 
 import java.util.ArrayList;
 import java.util.HashMap;

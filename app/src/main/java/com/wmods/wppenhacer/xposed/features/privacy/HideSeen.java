@@ -8,7 +8,7 @@ import androidx.annotation.NonNull;
 import com.wmods.wppenhacer.xposed.core.Feature;
 import com.wmods.wppenhacer.xposed.core.WppCore;
 import com.wmods.wppenhacer.xposed.core.components.FMessageWpp;
-import com.wmods.wppenhacer.xposed.core.db.MessageHistory;
+import com.wmods.wppenhacer.xposed.core.db.MessageHistoryStore;
 import com.wmods.wppenhacer.xposed.core.devkit.Unobfuscator;
 import com.wmods.wppenhacer.xposed.features.customization.HideSeenView;
 import com.wmods.wppenhacer.xposed.utils.ReflectionUtils;
@@ -151,10 +151,7 @@ public class HideSeen extends Feature {
         for (String messageId : messageIds) {
             FMessageWpp fMessage = new FMessageWpp.Key(messageId, userJid, false).getFMessage();
             if (fMessage == null) continue;
-            MessageHistory.MessageType type = fMessage.isViewOnce()
-                    ? MessageHistory.MessageType.VIEW_ONCE_TYPE
-                    : MessageHistory.MessageType.MESSAGE_TYPE;
-            MessageHistory.getInstance().insertHideSeenMessage(userJid.getPhoneRawString(), messageId, type, false);
+            MessageHistoryStore.getInstance().insertHideSeenMessage(userJid.getPhoneRawString(), messageId, MessageHistoryStore.ReceiptType.READ, false);
         }
         HideSeenView.updateAllBubbleViews();
     }
@@ -196,11 +193,8 @@ public class HideSeen extends Feature {
 
     private boolean isAlreadyHidden(FMessageWpp.Key keyMessage, FMessageWpp fMessage) {
         if (fMessage == null) return false;
-        MessageHistory.MessageType type = fMessage.isViewOnce()
-                ? MessageHistory.MessageType.VIEW_ONCE_TYPE
-                : MessageHistory.MessageType.MESSAGE_TYPE;
-        return MessageHistory.getInstance().getHideSeenMessage(
-                keyMessage.remoteJid.getPhoneRawString(), keyMessage.messageID, type) != null;
+        return MessageHistoryStore.getInstance().getHideSeenMessage(
+                keyMessage.remoteJid.getPhoneRawString(), keyMessage.messageID, MessageHistoryStore.ReceiptType.READ) != null;
     }
 
     private void processReceiptHiding(XC_MethodHook.MethodHookParam param, FMessageWpp.Key keyMessage,
@@ -213,11 +207,8 @@ public class HideSeen extends Feature {
         }
 
         if (param.args[msgTypeIdx] == null && fMessage != null) {
-            MessageHistory.MessageType type = fMessage.isViewOnce()
-                    ? MessageHistory.MessageType.VIEW_ONCE_TYPE
-                    : MessageHistory.MessageType.MESSAGE_TYPE;
-            MessageHistory.getInstance().insertHideSeenMessage(
-                    keyMessage.remoteJid.getPhoneRawString(), keyMessage.messageID, type, false);
+            MessageHistoryStore.getInstance().insertHideSeenMessage(
+                    keyMessage.remoteJid.getPhoneRawString(), keyMessage.messageID, MessageHistoryStore.ReceiptType.READ, false);
             HideSeenView.updateAllBubbleViews();
         }
     }
@@ -270,8 +261,8 @@ public class HideSeen extends Feature {
 
         FMessageWpp.Key key = fMessage.getKey();
         if (isHide) {
-            MessageHistory.getInstance().insertHideSeenMessage(
-                    key.remoteJid.getPhoneRawString(), key.messageID, MessageHistory.MessageType.MESSAGE_TYPE, false);
+            MessageHistoryStore.getInstance().insertHideSeenMessage(
+                    key.remoteJid.getPhoneRawString(), key.messageID, MessageHistoryStore.ReceiptType.PLAYED, false);
         }
 
         handleViewOnceViewed(fMessage, key);
@@ -290,8 +281,8 @@ public class HideSeen extends Feature {
         if (fMessage.isViewOnce() && !hideOnceSeen && !ghostMode) {
             String phoneRaw = key.remoteJid.getPhoneRawString();
             String messageId = key.messageID;
-            MessageHistory.getInstance().updateViewedMessage(phoneRaw, messageId, MessageHistory.MessageType.VIEW_ONCE_TYPE, true);
-            MessageHistory.getInstance().updateViewedMessage(phoneRaw, messageId, MessageHistory.MessageType.MESSAGE_TYPE, true);
+            MessageHistoryStore.getInstance().updateViewedMessage(phoneRaw, messageId, MessageHistoryStore.ReceiptType.READ, true);
+            MessageHistoryStore.getInstance().updateViewedMessage(phoneRaw, messageId, MessageHistoryStore.ReceiptType.PLAYED, true);
         }
     }
 
