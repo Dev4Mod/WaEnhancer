@@ -484,7 +484,7 @@ class FeatureLoader {
             executorService.shutdown()
             executorService.awaitTermination(15, TimeUnit.SECONDS)
 
-            if (DebugFeature.DEBUG) {
+            if (Feature.DEBUG) {
                 times.forEach { XposedBridge.log(it) }
             }
         }

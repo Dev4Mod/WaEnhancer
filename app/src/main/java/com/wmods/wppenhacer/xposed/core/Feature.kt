@@ -1,55 +1,77 @@
-package com.wmods.wppenhacer.xposed.core;
+package com.wmods.wppenhacer.xposed.core
 
-import android.util.Log;
+import android.util.Log
+import de.robv.android.xposed.XSharedPreferences
+import de.robv.android.xposed.XposedBridge
 
-import androidx.annotation.NonNull;
+abstract class Feature(
+    @JvmField val classLoader: ClassLoader,
+    @JvmField val prefs: XSharedPreferences
+) {
 
-import de.robv.android.xposed.XSharedPreferences;
-import de.robv.android.xposed.XposedBridge;
-
-public abstract class Feature {
-
-    public final ClassLoader classLoader;
-    public final XSharedPreferences prefs;
-    public static boolean DEBUG = false;
-
-    public Feature(@NonNull ClassLoader classLoader, @NonNull XSharedPreferences preferences) {
-        this.classLoader = classLoader;
-        this.prefs = preferences;
+    companion object {
+        @JvmField
+        var DEBUG = false
     }
 
-    public abstract void doHook() throws Throwable;
+    @Throws(Throwable::class)
+    abstract fun doHook()
 
-    @NonNull
-    public abstract String getPluginName();
+    abstract fun getPluginName(): String
 
-    public void logDebug(Object object) {
-        if (!DEBUG) return;
-        log(object);
-        if (object instanceof Throwable th) {
-            Log.i("WAE", this.getPluginName() + "-> " + th.getMessage(), th);
+    private fun formatObject(obj: Any?): String {
+        if (obj == null) return "null"
+
+        if (obj.javaClass.isArray) {
+            return when (obj) {
+                is Array<*> -> obj.contentToString()
+                is IntArray -> obj.contentToString()
+                is ByteArray -> obj.contentToString()
+                is ShortArray -> obj.contentToString()
+                is LongArray -> obj.contentToString()
+                is FloatArray -> obj.contentToString()
+                is DoubleArray -> obj.contentToString()
+                is BooleanArray -> obj.contentToString()
+                is CharArray -> obj.contentToString()
+                else -> obj.toString()
+            }
+        }
+        return if (obj is Throwable) obj.stackTraceToString() else obj.toString()
+    }
+
+    fun logDebug(obj: Any?) {
+        if (!DEBUG) return
+
+        // Passamos o objeto formatado para o log do XposedBridge
+        val formattedStr = formatObject(obj)
+        log(formattedStr)
+
+        if (obj is Throwable) {
+            Log.i("Vector-lsposed", "${getPluginName()}-> ${obj.message}", obj)
         } else {
-            Log.i("WAE", this.getPluginName() + "-> " + object);
+            Log.i("Vector-lsposed", "${getPluginName()}-> $formattedStr")
         }
     }
 
-    public void logDebug(String title, Object object) {
-        if (!DEBUG) return;
-        log(title + ": " + object);
-        if (object instanceof Throwable th) {
-            Log.i("WAE", this.getPluginName() + "-> " + title + ": " + th.getMessage(), th);
+    fun logDebug(title: String, obj: Any?) {
+        if (!DEBUG) return
+
+        val formattedStr = formatObject(obj)
+        log("$title: $formattedStr")
+
+        if (obj is Throwable) {
+            Log.i("WAE", "${getPluginName()}-> $title: ${obj.message}", obj)
         } else {
-            Log.i("WAE", this.getPluginName() + "-> " + title + ": " + object);
+            Log.i("WAE", "${getPluginName()}-> $title: $formattedStr")
         }
     }
 
-
-    public void log(Object object) {
-        if (object instanceof Throwable) {
-            XposedBridge.log(String.format("[%s] Error:", this.getPluginName()));
-            XposedBridge.log((Throwable) object);
+    fun log(obj: Any?) {
+        if (obj is Throwable) {
+            XposedBridge.log(String.format("[%s] Error:", getPluginName()))
+            XposedBridge.log(obj)
         } else {
-            XposedBridge.log(String.format("[%s] %s", this.getPluginName(), object));
+            XposedBridge.log(String.format("[%s] %s", getPluginName(), formatObject(obj)))
         }
     }
 }
