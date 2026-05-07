@@ -46,6 +46,11 @@ public class HookBinder extends WaeIIFace.Stub {
     }
 
     @Override
+    public boolean exists(String path) throws RemoteException {
+        return new File(path).exists();
+    }
+
+    @Override
     public List listFiles(String path) throws RemoteException {
         var files = new File(path).listFiles();
         if (files == null) {
