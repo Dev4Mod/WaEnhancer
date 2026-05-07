@@ -91,6 +91,7 @@ public class MediaPreview extends Feature {
                 var view = (View) param.thisObject;
                 var context = view.getContext();
                 var surface = (ViewGroup) view.findViewById(Utils.getID("invisible_press_surface", "id"));
+                if (surface == null) return;
                 var controlFrame = surface.getChildAt(0);
                 surface.removeViewAt(0);
                 var linearLayout = new LinearLayout(context);

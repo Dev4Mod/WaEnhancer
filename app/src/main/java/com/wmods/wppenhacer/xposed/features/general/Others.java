@@ -1,7 +1,5 @@
 package com.wmods.wppenhacer.xposed.features.general;
 
-import static com.wmods.wppenhacer.xposed.core.FeatureLoader.disableExpirationVersion;
-
 import android.annotation.SuppressLint;
 import android.os.BaseBundle;
 import android.os.Message;
@@ -17,6 +15,7 @@ import androidx.annotation.NonNull;
 
 import com.wmods.wppenhacer.listeners.OnMultiClickListener;
 import com.wmods.wppenhacer.xposed.core.Feature;
+import com.wmods.wppenhacer.xposed.core.FeatureLoader;
 import com.wmods.wppenhacer.xposed.core.WppCore;
 import com.wmods.wppenhacer.xposed.core.components.FMessageWpp;
 import com.wmods.wppenhacer.xposed.core.devkit.Unobfuscator;
@@ -248,7 +247,7 @@ public class Others extends Feature {
         }
 
         if (disableExpiration) {
-            disableExpirationVersion(classLoader);
+            FeatureLoader.disableExpirationVersion(classLoader);
         }
 
         if (!filterSeen) {

@@ -76,8 +76,8 @@ public class JumpFirstMessage extends Feature {
             Class<?> conversationClass = Unobfuscator.findFirstClassUsingName(classLoader, StringMatchType.EndsWith, "Conversation");
             Intent intent = new Intent(activity, conversationClass);
             intent.putExtra("jid", rawJid);
-            intent.putExtra("sort_id", firstMessageInfo.sortId());
-            intent.putExtra("row_id", firstMessageInfo.rowId());
+            intent.putExtra("sort_id", firstMessageInfo.getSortId());
+            intent.putExtra("row_id", firstMessageInfo.getRowId());
             intent.putExtra("start_t", SystemClock.uptimeMillis());
             intent.putExtra("mat_entry_point", 64);
             intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NO_ANIMATION);

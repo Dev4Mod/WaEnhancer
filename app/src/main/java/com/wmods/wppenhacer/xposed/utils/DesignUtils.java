@@ -181,9 +181,9 @@ public class DesignUtils {
     }
 
     public static void setReplacementDrawable(String name, Drawable replacement) {
-        if (WppXposed.ResParam == null)
+        if (WppXposed.getResParam() == null)
             return;
-        WppXposed.ResParam.res.setReplacement(Utils.getApplication().getPackageName(), "drawable", name,
+        WppXposed.getResParam().res.setReplacement(Utils.getApplication().getPackageName(), "drawable", name,
                 new XResources.DrawableLoader() {
                     @Override
                     public Drawable newDrawable(XResources res, int id) throws Throwable {
