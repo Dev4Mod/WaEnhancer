@@ -59,6 +59,7 @@ class WppXposed : IXposedHookLoadPackage, IXposedHookInitPackageResources, IXpos
                 "isXposedEnabled",
                 XC_MethodReplacement.returnConstant(true)
             )
+            @Suppress("DEPRECATION")
             XposedHelpers.findAndHookMethod(
                 PreferenceManager::class.java.name,
                 classLoader,

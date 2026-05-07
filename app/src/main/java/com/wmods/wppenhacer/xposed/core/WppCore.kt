@@ -14,8 +14,8 @@ import androidx.core.content.edit
 import com.wmods.wppenhacer.views.dialog.BottomDialogWpp
 import com.wmods.wppenhacer.xposed.bridge.WaeIIFace
 import com.wmods.wppenhacer.xposed.bridge.client.BaseClient
-import com.wmods.wppenhacer.xposed.bridge.client.BridgeClient
-import com.wmods.wppenhacer.xposed.bridge.client.ProviderClient
+import com.wmods.wppenhacer.xposed.bridge.client.BridgeClientKt
+import com.wmods.wppenhacer.xposed.bridge.client.ProviderClientKt
 import com.wmods.wppenhacer.xposed.core.components.FMessageWpp
 import com.wmods.wppenhacer.xposed.core.devkit.Unobfuscator
 import com.wmods.wppenhacer.xposed.core.devkit.UnobfuscatorCache
@@ -34,7 +34,6 @@ import java.util.Arrays
 import java.util.Collections
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.ConcurrentHashMap
-import java.util.concurrent.TimeUnit
 
 @SuppressLint("StaticFieldLeak")
 object WppCore {
@@ -192,16 +191,16 @@ object WppCore {
 
         var connected = false
         if (preferredOrder == 0) {
-            if (tryConnectBridge(ProviderClient(context))) {
+            if (tryConnectBridge(ProviderClientKt(context))) {
                 connected = true
-            } else if (tryConnectBridge(BridgeClient(context))) {
+            } else if (tryConnectBridge(BridgeClientKt(context))) {
                 connected = true
                 preferredOrder = 1 // Update preference to BridgeClient first
             }
         } else {
-            if (tryConnectBridge(BridgeClient(context))) {
+            if (tryConnectBridge(BridgeClientKt(context))) {
                 connected = true
-            } else if (tryConnectBridge(ProviderClient(context))) {
+            } else if (tryConnectBridge(ProviderClientKt(context))) {
                 connected = true
                 preferredOrder = 0 // Update preference to ProviderClient first
             }
@@ -720,14 +719,8 @@ object WppCore {
                     if (client == null) {
                         throw Exception("Bridge client not initialized")
                     }
-                    XposedBridge.log("Bridge disconnected. Trying automatic synchronous reconnect")
-                    var reconnected = false
-                    try {
-                        reconnected = client!!.connect().get(4, TimeUnit.SECONDS) == true
-                    } catch (e: Throwable) {
-                        XposedBridge.log(e)
-                    }
-                    if (!reconnected || !isBridgeConnected()) {
+                    client?.tryReconnect()
+                    if (!isBridgeConnected()) {
                         throw Exception("Failed connect to Bridge")
                     }
                 }
