@@ -474,6 +474,6 @@
     <string name="warning_restore">Quando si ripristina il backup, tutti i messaggi successivi al backup verranno eliminati, sei sicuro di voler continuare?</string>
     <string name="force_restore_backup_experimental">Forza il ripristino del backup (sperimentale)</string>
     <string name="contact_probably_not_added">Il contatto probabilmente non ti ha aggiunto!</string>
-    <string name="jump_first_message">Jump to First Message</string>
-    <string name="jump_first_message_sum">Add a button to skip the first message in the conversations screen</string>
+    <string name="jump_first_message">Vai al Primo Messaggio</string>
+    <string name="jump_first_message_sum">Aggiungi un pulsante per saltare il primo messaggio nella schermata delle conversazioni</string>
 </resources>

@@ -474,6 +474,6 @@
     <string name="warning_restore">Beim Wiederherstellen des Backups gehen alle Nachrichten nach dem Backup verloren. Sind Sie sicher, dass Sie fortfahren möchten?</string>
     <string name="force_restore_backup_experimental">Sicherung erzwingen (experimentell)</string>
     <string name="contact_probably_not_added">Der Kontakt hat Sie wahrscheinlich nicht hinzugefügt!</string>
-    <string name="jump_first_message">Jump to First Message</string>
-    <string name="jump_first_message_sum">Add a button to skip the first message in the conversations screen</string>
+    <string name="jump_first_message">Zur ersten Nachricht springen</string>
+    <string name="jump_first_message_sum">Fügen Sie einen Button hinzu, um die erste Nachricht im Chat-Bildschirm zu überspringen</string>
 </resources>
