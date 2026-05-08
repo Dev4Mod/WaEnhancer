@@ -37,8 +37,6 @@ import de.robv.android.xposed.XposedHelpers;
 public class FilterGroups extends Feature {
     private Method methodSetFilter;
     private Object mFilterInstance;
-    private Object mConversationFragment;
-    private Method methodInitFilter;
     private TextView tabConversas;
     private TextView tabGrupos;
 
@@ -63,17 +61,6 @@ public class FilterGroups extends Feature {
                 mFilterInstance = param.thisObject;
             }
         });
-
-        var cFrag = XposedHelpers.findClass("com.whatsapp.conversationslist.ConversationsFragment", classLoader);
-
-        XposedBridge.hookAllConstructors(cFrag, new XC_MethodHook() {
-            @Override
-            protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-                mConversationFragment = param.thisObject;
-            }
-        });
-
-        methodInitFilter = Unobfuscator.getFilterInitMethod(classLoader);
 
         var filterView = Unobfuscator.getFilterView(classLoader);
 
@@ -190,7 +177,6 @@ public class FilterGroups extends Feature {
 
     private void setFilter(int position) {
         try {
-            ReflectionUtils.callMethod(methodInitFilter, null, mConversationFragment);
             if (mFilterInstance == null) return;
             var listField = ReflectionUtils.getFieldByExtendType(mFilterInstance.getClass(), List.class);
             var list = (List) ReflectionUtils.getObjectField(listField, mFilterInstance);
