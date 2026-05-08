@@ -6,6 +6,7 @@ import com.wmods.wppenhacer.xposed.core.Feature;
 import com.wmods.wppenhacer.xposed.core.devkit.Unobfuscator;
 
 import org.json.JSONArray;
+import org.luckypray.dexkit.query.enums.StringMatchType;
 
 import java.io.IOException;
 import java.lang.reflect.Method;
@@ -19,7 +20,6 @@ import de.robv.android.xposed.XC_MethodHook;
 import de.robv.android.xposed.XC_MethodReplacement;
 import de.robv.android.xposed.XSharedPreferences;
 import de.robv.android.xposed.XposedBridge;
-import de.robv.android.xposed.XposedHelpers;
 import okhttp3.Call;
 import okhttp3.Callback;
 import okhttp3.OkHttpClient;
@@ -28,7 +28,7 @@ import okhttp3.Response;
 
 public class GoogleTranslate extends Feature {
 
-    private final OkHttpClient client = new OkHttpClient();
+    private OkHttpClient client = null;
 
     public GoogleTranslate(@NonNull ClassLoader classLoader, @NonNull XSharedPreferences preferences) {
         super(classLoader, preferences);
@@ -49,46 +49,34 @@ public class GoogleTranslate extends Feature {
             }
         });
 
-        Class<?> translatorClazz = XposedHelpers.findClass("com.whatsapp.messagetranslation.UnityMessageTranslation", classLoader);
+        Class<?> translatorClazz = Unobfuscator.findFirstClassUsingName(classLoader, StringMatchType.EndsWith, "UnityMessageTranslation");
 
-        var pre21Method = XposedHelpers.findMethodExactIfExists(translatorClazz, "translate", String.class);
-        if (pre21Method != null) {
-            XposedHelpers.findAndHookMethod(translatorClazz, pre21Method.getName(), String.class, new XC_MethodReplacement() {
-                @Override
-                protected Object replaceHookedMethod(MethodHookParam param) throws Throwable {
-                    var texto = (String) param.args[0];
-                    var currentMethod = (Method) param.method;
-                    var unityTranslationResultClass = currentMethod.getReturnType();
-                    var translation = translateGoogle(texto, Locale.getDefault().getLanguage()).get();
+        XposedBridge.hookAllMethods(translatorClazz, "translate", new XC_MethodReplacement() {
+            @Override
+            protected Object replaceHookedMethod(MethodHookParam param) throws Throwable {
+                var currentMethod = (Method) param.method;
+                var unityTranslationResultClass = currentMethod.getReturnType();
+                if (currentMethod.getParameterTypes()[0] == String.class) {
+                    var text = (String) param.args[0];
+                    var translation = translateGoogle(text, Locale.getDefault().getLanguage()).get();
                     return unityTranslationResultClass.getConstructor(String.class, float.class, int.class).newInstance(translation, 1, 0);
-                }
-            });
-        }
-
-        var newMethod = XposedHelpers.findMethodExactIfExists(translatorClazz, "translate", List.class);
-        if (newMethod != null) {
-            XposedHelpers.findAndHookMethod(translatorClazz, "translate", List.class, new XC_MethodReplacement() {
-                @Override
-                protected Object replaceHookedMethod(MethodHookParam param) throws Throwable {
+                } else {
                     var list = (List) param.args[0];
                     var translated = new ArrayList<String>();
-
-                    for (var texto : list) {
-                        var translation = translateGoogle((String) texto, Locale.getDefault().getLanguage()).get();
+                    for (var text : list) {
+                        var translation = translateGoogle((String) text, Locale.getDefault().getLanguage()).get();
                         translated.add(translation);
                     }
-
-                    var currentMethod = (Method) param.method;
-                    var unityTranslationResultClass = currentMethod.getReturnType();
                     return unityTranslationResultClass.getConstructor(String[].class, float.class, int.class).newInstance(translated.toArray(new String[0]), 1, 0);
                 }
-            });
-        }
-
-        if (pre21Method == null && newMethod == null) throw new Exception("GoogleTranslate method not found");
+            }
+        });
     }
 
     public CompletableFuture<String> translateGoogle(String text, String languageDest) {
+        if (client == null) {
+            client = new OkHttpClient();
+        }
         CompletableFuture<String> future = new CompletableFuture<>();
         String url;
         try {
