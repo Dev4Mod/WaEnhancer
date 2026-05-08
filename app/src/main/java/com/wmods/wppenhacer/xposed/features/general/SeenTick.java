@@ -242,16 +242,16 @@ public class SeenTick extends Feature {
         } else {
 
             MenuStatusListener.menuStatuses.add(
-                    new MenuStatusListener.onMenuItemStatusListener() {
+                    new MenuStatusListener.OnMenuItemStatusListener() {
                         @Override
-                        public MenuItem addMenu(Menu menu, FMessageWpp fMessage) {
+                        public MenuItem addMenu(@NonNull Menu menu, @NonNull FMessageWpp fMessage) {
                             if (menu.findItem(ResId.string.send_blue_tick) != null) return null;
                             if (fMessage.getKey().isFromMe) return null;
                             return menu.add(0, ResId.string.send_blue_tick, 0, ResId.string.send_blue_tick);
                         }
 
                         @Override
-                        public void onClick(MenuItem item, Object fragmentInstance, FMessageWpp fMessageWpp) {
+                        public void onClick(@NonNull MenuItem item, @NonNull Object fragmentInstance, @NonNull FMessageWpp fMessageWpp) {
                             sendBlueTickStatus(currentJid);
                             Utils.showToast(Utils.getApplication().getString(ResId.string.sending_read_blue_tick), Toast.LENGTH_SHORT);
                         }
@@ -279,16 +279,16 @@ public class SeenTick extends Feature {
         });
 
         MenuStatusListener.menuStatuses.add(
-                new MenuStatusListener.onMenuItemStatusListener() {
+                new MenuStatusListener.OnMenuItemStatusListener() {
                     @Override
-                    public MenuItem addMenu(Menu menu, FMessageWpp fMessage) {
+                    public MenuItem addMenu(@NonNull Menu menu, @NonNull FMessageWpp fMessage) {
                         if (menu.findItem(ResId.string.read_all_mark_as_read) != null) return null;
                         if (fMessage.getKey().isFromMe) return null;
                         return menu.add(0, ResId.string.read_all_mark_as_read, 0, ResId.string.read_all_mark_as_read);
                     }
 
                     @Override
-                    public void onClick(MenuItem item, Object fragmentInstance, FMessageWpp fMessageWpp) {
+                    public void onClick(@NonNull MenuItem item, @NonNull Object fragmentInstance, @NonNull FMessageWpp fMessageWpp) {
                         try {
                             statuses.clear();
                             var listStatusField = ReflectionUtils.getFieldByExtendType(fragmentInstance.getClass(), List.class);

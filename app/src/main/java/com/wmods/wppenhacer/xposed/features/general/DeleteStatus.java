@@ -37,17 +37,17 @@ public class DeleteStatus extends Feature {
         Class<?> StatusDeleteDialogFragmentClass = Unobfuscator.findFirstClassUsingName(classLoader, StringMatchType.EndsWith, ".StatusDeleteDialogFragment");
         Field fieldBundle = ReflectionUtils.getFieldByType(fragmentloader, Bundle.class);
 
-        var item = new MenuStatusListener.onMenuItemStatusListener() {
+        var item = new MenuStatusListener.OnMenuItemStatusListener() {
 
             @Override
-            public MenuItem addMenu(Menu menu, FMessageWpp fMessage) {
+            public MenuItem addMenu(Menu menu, @NonNull FMessageWpp fMessage) {
                 if (menu.findItem(ResId.string.delete_for_me) != null) return null;
                 if (fMessage.getKey().isFromMe) return null;
                 return menu.add(0, ResId.string.delete_for_me, 0, ResId.string.delete_for_me);
             }
 
             @Override
-            public void onClick(MenuItem item, Object fragmentInstance, FMessageWpp fMessage) {
+            public void onClick(@NonNull MenuItem item, @NonNull Object fragmentInstance, @NonNull FMessageWpp fMessage) {
                 try {
                     var status = StatusDeleteDialogFragmentClass.newInstance();
                     var key = fMessage.getKey();

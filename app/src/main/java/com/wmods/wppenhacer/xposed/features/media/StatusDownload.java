@@ -25,8 +25,8 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
 
-import de.robv.android.xposed.XposedBridge;
 import de.robv.android.xposed.XSharedPreferences;
+import de.robv.android.xposed.XposedBridge;
 
 public class StatusDownload extends Feature {
 
@@ -45,11 +45,10 @@ public class StatusDownload extends Feature {
         if (!prefs.getBoolean("downloadstatus", false))
             return;
 
-        var downloadStatus = new MenuStatusListener.onMenuItemStatusListener() {
+        var downloadStatus = new MenuStatusListener.OnMenuItemStatusListener() {
 
             @Override
-            public MenuItem addMenu(Menu menu, FMessageWpp fMessage) {
-                // Guard against duplicate entries using our own unique ID
+            public MenuItem addMenu(Menu menu, @NonNull FMessageWpp fMessage) {
                 if (menu.findItem(MENU_ID_DOWNLOAD) != null)
                     return null;
                 if (fMessage.getKey().isFromMe)
@@ -60,26 +59,25 @@ public class StatusDownload extends Feature {
             }
 
             @Override
-            public void onClick(MenuItem item, Object fragmentInstance, FMessageWpp fMessageWpp) {
+            public void onClick(@NonNull MenuItem item, @NonNull Object fragmentInstance, @NonNull FMessageWpp fMessageWpp) {
                 downloadFile(fMessageWpp);
             }
         };
         menuStatuses.add(downloadStatus);
 
-        var sharedMenu = new MenuStatusListener.onMenuItemStatusListener() {
+        var sharedMenu = new MenuStatusListener.OnMenuItemStatusListener() {
 
             @Override
-            public MenuItem addMenu(Menu menu, FMessageWpp fMessage) {
+            public MenuItem addMenu(@NonNull Menu menu, FMessageWpp fMessage) {
                 if (fMessage.getKey().isFromMe)
                     return null;
-                // Guard against duplicate entries using our own unique ID
                 if (menu.findItem(MENU_ID_SHARE_STATUS) != null)
                     return null;
                 return menu.add(0, MENU_ID_SHARE_STATUS, 0, ResId.string.share_as_status);
             }
 
             @Override
-            public void onClick(MenuItem item, Object fragmentInstance, FMessageWpp fMessageWpp) {
+            public void onClick(@NonNull MenuItem item, @NonNull Object fragmentInstance, @NonNull FMessageWpp fMessageWpp) {
                 sharedStatus(fMessageWpp);
             }
         };

@@ -1,98 +1,149 @@
-package com.wmods.wppenhacer.xposed.features.listeners;
+package com.wmods.wppenhacer.xposed.features.listeners
 
-import android.view.Menu;
-import android.view.MenuItem;
+import android.view.Menu
+import android.view.MenuItem
+import android.widget.Toast
+import com.wmods.wppenhacer.xposed.core.Feature
+import com.wmods.wppenhacer.xposed.core.WppCore
+import com.wmods.wppenhacer.xposed.core.components.FMessageWpp
+import com.wmods.wppenhacer.xposed.core.devkit.Unobfuscator
+import com.wmods.wppenhacer.xposed.utils.ReflectionUtils
+import com.wmods.wppenhacer.xposed.utils.Utils
+import de.robv.android.xposed.XC_MethodHook
+import de.robv.android.xposed.XSharedPreferences
+import de.robv.android.xposed.XposedBridge
+import de.robv.android.xposed.XposedHelpers
 
-import androidx.annotation.NonNull;
+class MenuStatusListener(
+    classLoader: ClassLoader,
+    preferences: XSharedPreferences
+) : Feature(classLoader, preferences) {
 
-import com.wmods.wppenhacer.xposed.core.Feature;
-import com.wmods.wppenhacer.xposed.core.components.FMessageWpp;
-import com.wmods.wppenhacer.xposed.core.devkit.Unobfuscator;
-import com.wmods.wppenhacer.xposed.utils.ReflectionUtils;
+    @Throws(Throwable::class)
+    override fun doHook() {
+        val menuStatusMethod = Unobfuscator.loadMenuStatusMethod(classLoader)
+        logDebug("MenuStatus method: ${menuStatusMethod.name}")
 
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Objects;
-import java.util.stream.Collectors;
+        val menuManagerClass = Unobfuscator.loadMenuManagerClass(classLoader)
 
-import de.robv.android.xposed.XC_MethodHook;
-import de.robv.android.xposed.XSharedPreferences;
-import de.robv.android.xposed.XposedBridge;
-import de.robv.android.xposed.XposedHelpers;
+        val statusPlaybackBaseFragmentClass =
+            classLoader.loadClass("com.whatsapp.status.playback.fragment.StatusPlaybackBaseFragment")
 
-public class MenuStatusListener extends Feature {
+        val statusPlaybackContactFragmentClass =
+            classLoader.loadClass("com.whatsapp.status.playback.fragment.StatusPlaybackContactFragment")
 
-    public static HashSet<onMenuItemStatusListener> menuStatuses = new HashSet<>();
+        val listStatusField =
+            ReflectionUtils.getFieldsByExtendType(
+                statusPlaybackContactFragmentClass,
+                List::class.java
+            )[0]
 
-    public MenuStatusListener(@NonNull ClassLoader classLoader, @NonNull XSharedPreferences preferences) {
-        super(classLoader, preferences);
-    }
+        XposedBridge.hookMethod(
+            menuStatusMethod,
+            object : XC_MethodHook() {
+                @Throws(Throwable::class)
+                override fun afterHookedMethod(param: MethodHookParam) {
 
-    @Override
-    public void doHook() throws Throwable {
 
-        var menuStatusMethod = Unobfuscator.loadMenuStatusMethod(classLoader);
-        logDebug("MenuStatus method: " + menuStatusMethod.getName());
-        var menuManagerClass = Unobfuscator.loadMenuManagerClass(classLoader);
+                    val fieldObjects = param.method.declaringClass.declaredFields
+                        .mapNotNull { field ->
+                            ReflectionUtils.getObjectField(field, param.thisObject)
+                        }
 
-        Class<?> StatusPlaybackBaseFragmentClass = classLoader.loadClass("com.whatsapp.status.playback.fragment.StatusPlaybackBaseFragment");
-        Class<?> StatusPlaybackContactFragmentClass = classLoader.loadClass("com.whatsapp.status.playback.fragment.StatusPlaybackContactFragment");
-        var listStatusField = ReflectionUtils.getFieldsByExtendType(StatusPlaybackContactFragmentClass, List.class).get(0);
+                    val fragmentInstance = resolveFragmentInstance(
+                        thisObject = param.thisObject,
+                        fieldObjects = fieldObjects,
+                        contactFragmentClass = statusPlaybackContactFragmentClass,
+                        baseFragmentClass = statusPlaybackBaseFragmentClass
+                    ) ?: return
 
-        XposedBridge.hookMethod(menuStatusMethod, new XC_MethodHook() {
-            @Override
-            protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-                var fieldObjects = Arrays.stream(param.method.getDeclaringClass().getDeclaredFields()).map(field -> ReflectionUtils.getObjectField(field, param.thisObject)).filter(Objects::nonNull).collect(Collectors.toList());
+                    val menu = resolveMenu(
+                        args = param.args,
+                        fieldObjects = fieldObjects,
+                        menuManagerClass = menuManagerClass
+                    ) ?: return
 
-                Object fragmentInstance;
-                if (param.thisObject != null && StatusPlaybackContactFragmentClass.isInstance(param.thisObject)) {
-                    fragmentInstance = param.thisObject;
-                } else {
-                    fragmentInstance = fieldObjects.stream().filter(StatusPlaybackBaseFragmentClass::isInstance).findFirst().orElse(null);
-                }
-                Menu menu;
-                if (param.args.length > 0 && param.args[0] instanceof Menu) {
-                    menu = (Menu) param.args[0];
-                } else {
-                    var menuManager = fieldObjects.stream().filter(menuManagerClass::isInstance).findFirst().orElse(null);
-                    var menuField = ReflectionUtils.getFieldByExtendType(menuManagerClass, Menu.class);
-                    menu = (Menu) ReflectionUtils.getObjectField(menuField, menuManager);
-                }
+                    val index = XposedHelpers.getObjectField(fragmentInstance, "A00") as Int
+                    val listStatus = listStatusField.get(fragmentInstance) as List<*>
 
-                var index = (int) XposedHelpers.getObjectField(fragmentInstance, "A00");
-                var listStatus = (List) listStatusField.get(fragmentInstance);
-                var object = listStatus.get(index);
-                if (object == null) return;
-                if (!FMessageWpp.TYPE.isInstance(object)) {
-                    var fMessageField = ReflectionUtils.getFieldByExtendType(object.getClass(), FMessageWpp.TYPE);
-                    object = ReflectionUtils.getObjectField(fMessageField, object);
-                }
+                    var messageObject = listStatus.getOrNull(index) ?: return
 
-                var fMessage = new FMessageWpp(object);
+                    if (!FMessageWpp.TYPE.isInstance(messageObject)) {
+                        val methods =
+                            ReflectionUtils.findAllMethodsUsingFilter(messageObject.javaClass) { m ->
+                                m.returnType == FMessageWpp.Key.TYPE && m.parameterCount == 0
+                            }
+                        val result = methods.firstNotNullOfOrNull { f ->
+                            f.invoke(messageObject)?.let { WppCore.getFMessageFromKey(it) }
+                        }
+                        if (result == null) {
+                            Utils.showToast("FMessage not found in Story/Status", Toast.LENGTH_LONG)
+                            return
+                        }
+                        messageObject = result
+                    }
 
-                for (onMenuItemStatusListener menuStatus : menuStatuses) {
-                    var menuItem = menuStatus.addMenu(menu, fMessage);
-                    if (menuItem == null) continue;
-                    menuItem.setOnMenuItemClickListener(item -> {
-                        menuStatus.onClick(item, fragmentInstance, fMessage);
-                        return true;
-                    });
+                    val fMessage = FMessageWpp(messageObject)
+
+                    menuStatuses.forEach { menuStatus ->
+                        val menuItem = menuStatus.addMenu(menu, fMessage) ?: return@forEach
+                        menuItem.setOnMenuItemClickListener { item ->
+                            menuStatus.onClick(item, fragmentInstance, fMessage)
+                            true
+                        }
+                    }
                 }
             }
-        });
+        )
     }
 
-    @NonNull
-    @Override
-    public String getPluginName() {
-        return "Menu Status";
+    override fun getPluginName(): String {
+        return "Menu Status"
     }
 
-    public abstract static class onMenuItemStatusListener {
+    private fun resolveFragmentInstance(
+        thisObject: Any?,
+        fieldObjects: List<Any>,
+        contactFragmentClass: Class<*>,
+        baseFragmentClass: Class<*>
+    ): Any? {
+        return when {
+            thisObject != null && contactFragmentClass.isInstance(thisObject) -> thisObject
+            else -> fieldObjects.firstOrNull { baseFragmentClass.isInstance(it) }
+        }
+    }
 
-        public abstract MenuItem addMenu(Menu menu, FMessageWpp fMessage);
+    private fun resolveMenu(
+        args: Array<Any?>,
+        fieldObjects: List<Any>,
+        menuManagerClass: Class<*>
+    ): Menu? {
+        args.firstOrNull()?.let { firstArg ->
+            if (firstArg is Menu) return firstArg
+        }
 
-        public abstract void onClick(MenuItem item, Object fragmentInstance, FMessageWpp fMessageWpp);
+        val menuManager = fieldObjects.firstOrNull { menuManagerClass.isInstance(it) }
+            ?: return null
+
+        val menuField = ReflectionUtils.getFieldByExtendType(menuManagerClass, Menu::class.java)
+
+        return ReflectionUtils.getObjectField(menuField, menuManager) as? Menu
+    }
+
+    abstract class OnMenuItemStatusListener {
+
+        abstract fun addMenu(menu: Menu, fMessage: FMessageWpp): MenuItem?
+
+        abstract fun onClick(
+            item: MenuItem,
+            fragmentInstance: Any,
+            fMessageWpp: FMessageWpp
+        )
+    }
+
+    companion object {
+        @JvmField
+        val menuStatuses: HashSet<OnMenuItemStatusListener> = HashSet()
+
     }
 }
