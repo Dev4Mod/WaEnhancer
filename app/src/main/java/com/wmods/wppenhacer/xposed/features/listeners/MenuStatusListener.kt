@@ -13,40 +13,42 @@ import de.robv.android.xposed.XC_MethodHook
 import de.robv.android.xposed.XSharedPreferences
 import de.robv.android.xposed.XposedBridge
 import de.robv.android.xposed.XposedHelpers
+import org.luckypray.dexkit.query.enums.StringMatchType
+import java.lang.reflect.Field
 
 class MenuStatusListener(
-    classLoader: ClassLoader,
-    preferences: XSharedPreferences
+    classLoader: ClassLoader, preferences: XSharedPreferences
 ) : Feature(classLoader, preferences) {
+
+    private lateinit var statusPlaybackContactFragmentClass: Class<*>
+
+    private val listStatusField: Field? by lazy {
+        ReflectionUtils.getFieldsByExtendType(
+            statusPlaybackContactFragmentClass, List::class.java
+        ).first()
+    }
 
     @Throws(Throwable::class)
     override fun doHook() {
         val menuStatusMethod = Unobfuscator.loadMenuStatusMethod(classLoader)
-        logDebug("MenuStatus method: ${menuStatusMethod.name}")
 
         val menuManagerClass = Unobfuscator.loadMenuManagerClass(classLoader)
 
-        val statusPlaybackBaseFragmentClass =
-            classLoader.loadClass("com.whatsapp.status.playback.fragment.StatusPlaybackBaseFragment")
+        val statusPlaybackBaseFragmentClass = Unobfuscator.findFirstClassUsingName(
+            classLoader, StringMatchType.EndsWith, ".StatusPlaybackBaseFragment"
+        )
 
-        val statusPlaybackContactFragmentClass =
-            classLoader.loadClass("com.whatsapp.status.playback.fragment.StatusPlaybackContactFragment")
-
-        val listStatusField =
-            ReflectionUtils.getFieldsByExtendType(
-                statusPlaybackContactFragmentClass,
-                List::class.java
-            )[0]
+        statusPlaybackContactFragmentClass = Unobfuscator.findFirstClassUsingName(
+            classLoader, StringMatchType.EndsWith, ".StatusPlaybackContactFragment"
+        )
 
         XposedBridge.hookMethod(
-            menuStatusMethod,
-            object : XC_MethodHook() {
+            menuStatusMethod, object : XC_MethodHook() {
                 @Throws(Throwable::class)
                 override fun afterHookedMethod(param: MethodHookParam) {
 
-
-                    val fieldObjects = param.method.declaringClass.declaredFields
-                        .mapNotNull { field ->
+                    val fieldObjects =
+                        param.method.declaringClass.declaredFields.mapNotNull { field ->
                             ReflectionUtils.getObjectField(field, param.thisObject)
                         }
 
@@ -63,19 +65,18 @@ class MenuStatusListener(
                         menuManagerClass = menuManagerClass
                     ) ?: return
 
-                    val index = XposedHelpers.getObjectField(fragmentInstance, "A00") as Int
-                    val listStatus = listStatusField.get(fragmentInstance) as List<*>
+                    val index = XposedHelpers.getIntField(fragmentInstance, "A00")
+                    val listStatus = listStatusField?.get(fragmentInstance) as List<*>
 
                     var messageObject = listStatus.getOrNull(index) ?: return
 
                     if (!FMessageWpp.TYPE.isInstance(messageObject)) {
-                        val methods =
+                        val result =
                             ReflectionUtils.findAllMethodsUsingFilter(messageObject.javaClass) { m ->
                                 m.returnType == FMessageWpp.Key.TYPE && m.parameterCount == 0
+                            }.firstNotNullOfOrNull { f ->
+                                f.invoke(messageObject)?.let { WppCore.getFMessageFromKey(it) }
                             }
-                        val result = methods.firstNotNullOfOrNull { f ->
-                            f.invoke(messageObject)?.let { WppCore.getFMessageFromKey(it) }
-                        }
                         if (result == null) {
                             Utils.showToast("FMessage not found in Story/Status", Toast.LENGTH_LONG)
                             return
@@ -93,8 +94,7 @@ class MenuStatusListener(
                         }
                     }
                 }
-            }
-        )
+            })
     }
 
     override fun getPluginName(): String {
@@ -114,16 +114,14 @@ class MenuStatusListener(
     }
 
     private fun resolveMenu(
-        args: Array<Any?>,
-        fieldObjects: List<Any>,
-        menuManagerClass: Class<*>
+        args: Array<Any?>, fieldObjects: List<Any>, menuManagerClass: Class<*>
     ): Menu? {
         args.firstOrNull()?.let { firstArg ->
             if (firstArg is Menu) return firstArg
         }
 
-        val menuManager = fieldObjects.firstOrNull { menuManagerClass.isInstance(it) }
-            ?: return null
+        val menuManager =
+            fieldObjects.firstOrNull { menuManagerClass.isInstance(it) } ?: return null
 
         val menuField = ReflectionUtils.getFieldByExtendType(menuManagerClass, Menu::class.java)
 
@@ -135,9 +133,7 @@ class MenuStatusListener(
         abstract fun addMenu(menu: Menu, fMessage: FMessageWpp): MenuItem?
 
         abstract fun onClick(
-            item: MenuItem,
-            fragmentInstance: Any,
-            fMessageWpp: FMessageWpp
+            item: MenuItem, fragmentInstance: Any, fMessageWpp: FMessageWpp
         )
     }
 

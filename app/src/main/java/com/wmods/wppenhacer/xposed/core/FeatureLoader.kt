@@ -87,10 +87,12 @@ import com.wmods.wppenhacer.xposed.utils.DesignUtils
 import com.wmods.wppenhacer.xposed.utils.ReflectionUtils
 import com.wmods.wppenhacer.xposed.utils.ResId
 import com.wmods.wppenhacer.xposed.utils.Utils
+import de.robv.android.xposed.SELinuxHelper
 import de.robv.android.xposed.XC_MethodHook
 import de.robv.android.xposed.XSharedPreferences
 import de.robv.android.xposed.XposedBridge
 import de.robv.android.xposed.XposedHelpers
+import de.robv.android.xposed.services.BaseService
 import java.util.Calendar
 import java.util.Collections
 import java.util.Date
@@ -271,11 +273,30 @@ class FeatureLoader {
                         checkUpdate(activity)
                     }
 
+                    if (type == WppCore.ActivityChangeState.ChangeType.CREATED && activity.javaClass.simpleName == "HomeActivity") {
+                        checkPrefsLoad(pref, activity)
+                    }
+
                     if (App.isOriginalPackage() && pref.getBoolean("update_check", true)) {
                         if (activity.javaClass.simpleName == "HomeActivity" && type == WppCore.ActivityChangeState.ChangeType.RESUMED) {
                             activity.window.decorView.postDelayed({
                                 CompletableFuture.runAsync(UpdateChecker(activity))
                             }, 2000)
+                        }
+                    }
+                }
+
+                private fun checkPrefsLoad(prefs: XSharedPreferences, activity: Activity) {
+                    val fileService = SELinuxHelper.getAppDataFileService()
+                    if (fileService.checkFileExists(prefs.file.absolutePath) &&
+                        !fileService.checkFileAccess(prefs.file.absolutePath, BaseService.R_OK)
+                    ) {
+                        activity.runOnUiThread {
+                            Toast.makeText(
+                                activity,
+                                "[ERROR-PREFS]Unable to read WAE preferences. Contact the Developer",
+                                Toast.LENGTH_LONG
+                            ).show()
                         }
                     }
                 }
