@@ -1,190 +1,181 @@
-package com.wmods.wppenhacer.xposed.core.components;
+package com.wmods.wppenhacer.xposed.core.components
 
-import com.wmods.wppenhacer.xposed.core.devkit.Unobfuscator;
-import com.wmods.wppenhacer.xposed.utils.ReflectionUtils;
+import com.wmods.wppenhacer.xposed.core.devkit.Unobfuscator
+import com.wmods.wppenhacer.xposed.utils.ReflectionUtils
+import de.robv.android.xposed.XC_MethodHook
+import de.robv.android.xposed.XposedBridge
+import org.luckypray.dexkit.query.enums.StringMatchType
+import java.io.File
+import java.lang.reflect.Field
+import java.lang.reflect.Method
 
-import org.luckypray.dexkit.query.enums.StringMatchType;
+class WaContactWpp(mInstance: Any?) {
 
-import java.io.File;
-import java.lang.reflect.Field;
-import java.lang.reflect.Method;
+    val instance: Any
 
-import de.robv.android.xposed.XC_MethodHook;
-import de.robv.android.xposed.XposedBridge;
-
-public record WaContactWpp(Object mInstance) {
-
-    public static Class<?> TYPE;
-
-    // Fields
-    private static Field fieldContactData;
-    private static Field fieldUserJid;
-    private static Field fieldGetWaName;
-
-    // Methods
-    private static Method getWaContactMethod;
-    private static Method methodGetDisplayName;
-    private static Method getProfilePhoto;
-    private static Method getProfilePhotoHighQuality;
-
-    // Instances
-    private static Object mInstanceGetWaContact;
-    private static Object mInstanceGetProfilePhoto;
-
-    public WaContactWpp(Object mInstance) {
-        if (TYPE == null)
-            throw new RuntimeException("WaContactWpp not initialized");
-        if (mInstance == null)
-            throw new RuntimeException("object is null");
-        if (!TYPE.isInstance(mInstance))
-            throw new RuntimeException("object is not a WaContactWpp");
-        this.mInstance = TYPE.cast(mInstance);
+    init {
+        val type = TYPE ?: throw RuntimeException("WaContactWpp not initialized")
+        val obj = mInstance ?: throw RuntimeException("object is null")
+        if (!type.isInstance(obj)) {
+            throw RuntimeException("object is not a WaContactWpp")
+        }
+        this.instance = obj
     }
 
-    public static void initialize(ClassLoader classLoader) {
-        try {
-            TYPE = Unobfuscator.loadWaContactClass(classLoader);
-            var classPhoneUserJid = Unobfuscator.findFirstClassUsingName(classLoader, StringMatchType.EndsWith,
-                    "jid.PhoneUserJid");
-            var classJid = Unobfuscator.findFirstClassUsingName(classLoader, StringMatchType.EndsWith, "jid.Jid");
-
-            var phoneUserJid = ReflectionUtils.getFieldByExtendType(TYPE, classPhoneUserJid);
-            if (phoneUserJid == null) {
-                var contactDataClass = Unobfuscator.loadWaContactData(classLoader);
-                fieldContactData = ReflectionUtils.getFieldByType(TYPE, contactDataClass);
-                fieldUserJid = ReflectionUtils.getFieldByExtendType(contactDataClass, classJid);
-            } else {
-                fieldUserJid = ReflectionUtils.getFieldByExtendType(TYPE, classJid);
+    val userJid: FMessageWpp.UserJid?
+        get() {
+            return try {
+                val fieldContact = fieldContactData
+                if (fieldContact != null) {
+                    val coreData = fieldContact.get(instance)
+                    val userJidObj = fieldUserJid?.get(coreData)
+                    userJidObj?.let { FMessageWpp.UserJid(it) }
+                } else {
+                    val userJidObj = fieldUserJid?.get(instance)
+                    userJidObj?.let { FMessageWpp.UserJid(it) }
+                }
+            } catch (e: Exception) {
+                XposedBridge.log(e)
+                null
             }
-            methodGetDisplayName = Unobfuscator.loadWaContactDisplayNameMethod(classLoader);
-            fieldGetWaName = Unobfuscator.loadWaContactGetWaNameField(classLoader);
+        }
 
-            getWaContactMethod = Unobfuscator.loadGetWaContactMethod(classLoader);
-            Class<?> contactManagerClass = getWaContactMethod.getDeclaringClass();
+    val displayName: String?
+        get() {
+            return try {
+                fieldGetDisplayName?.get(fieldContactData?.get(instance)) as? String
+            } catch (e: Exception) {
+                XposedBridge.log(e)
+                null
+            }
+        }
 
-            // Try to find existing instance via static method (getInstance pattern)
-            for (Method m : contactManagerClass.getDeclaredMethods()) {
-                if (java.lang.reflect.Modifier.isStatic(m.getModifiers())
-                        && m.getReturnType() == contactManagerClass
-                        && m.getParameterCount() == 0) {
-                    try {
-                        Object instance = m.invoke(null);
-                        if (instance != null) {
-                            mInstanceGetWaContact = instance;
-                            XposedBridge.log("WAE: WaContactWpp: Captured instance via static method: " + m.getName());
-                            break;
-                        }
-                    } catch (Exception ignored) {
+    val waName: String?
+        get() {
+            return try {
+                val contactData = fieldContactData
+                val getWaNameField = fieldGetWaName
+                if (contactData != null && getWaNameField != null) {
+                    if (contactData.type.isAssignableFrom(getWaNameField.declaringClass)) {
+                        return getWaNameField.get(contactData.get(mInstanceGetWaContact)) as? String
                     }
                 }
+                getWaNameField?.get(instance) as? String
+            } catch (e: Exception) {
+                XposedBridge.log(e)
+                null
             }
+        }
 
-            if (mInstanceGetWaContact == null) {
-                XposedBridge.hookAllConstructors(contactManagerClass, new XC_MethodHook() {
-                    @Override
-                    protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-                        mInstanceGetWaContact = param.thisObject;
-                        XposedBridge.log("WAE: WaContactWpp: Captured instance via constructor");
-                    }
-                });
-            } else {
-                XposedBridge.log("WAE: WaContactWpp: Instance already captured, skipping constructor hook");
+    val profilePhoto: File?
+        get() {
+            try {
+                val file =
+                    getProfilePhotoHighQuality?.invoke(mInstanceGetProfilePhoto, instance) as? File
+                if (file != null && file.exists()) return file
+            } catch (e: Exception) {
+                XposedBridge.log(e)
             }
+            return try {
+                getProfilePhoto?.invoke(mInstanceGetProfilePhoto, instance) as? File
+            } catch (e: Exception) {
+                XposedBridge.log(e)
+                null
+            }
+        }
 
-            getProfilePhoto = Unobfuscator.loadGetProfilePhotoMethod(classLoader);
-            getProfilePhotoHighQuality = Unobfuscator.loadGetProfilePhotoHighQMethod(classLoader);
+    fun getObject(): Any {
+        return instance
+    }
 
-            XposedBridge.hookAllConstructors(getProfilePhoto.getDeclaringClass(), new XC_MethodHook() {
-                @Override
-                protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-                    mInstanceGetProfilePhoto = param.thisObject;
+    companion object {
+        @JvmField
+        var TYPE: Class<*>? = null
+
+        private var fieldContactData: Field? = null
+        private var fieldUserJid: Field? = null
+        private var fieldGetWaName: Field? = null
+
+        private var getWaContactMethod: Method? = null
+        private var fieldGetDisplayName: Field? = null
+        private var getProfilePhoto: Method? = null
+        private var getProfilePhotoHighQuality: Method? = null
+
+        private var mInstanceGetWaContact: Any? = null
+        private var mInstanceGetProfilePhoto: Any? = null
+
+        @JvmStatic
+        fun initialize(classLoader: ClassLoader) {
+            try {
+                TYPE = Unobfuscator.loadWaContactClass(classLoader)
+                val classPhoneUserJid = Unobfuscator.findFirstClassUsingName(
+                    classLoader, StringMatchType.EndsWith, "jid.PhoneUserJid"
+                )
+                val classJid = Unobfuscator.findFirstClassUsingName(
+                    classLoader, StringMatchType.EndsWith, "jid.Jid"
+                )
+
+                val phoneUserJidField =
+                    ReflectionUtils.getFieldByExtendType(TYPE, classPhoneUserJid)
+                if (phoneUserJidField == null) {
+                    val contactDataClass = Unobfuscator.loadWaContactData(classLoader)
+                    fieldContactData = ReflectionUtils.getFieldByType(TYPE, contactDataClass)
+                    fieldUserJid = ReflectionUtils.getFieldByExtendType(contactDataClass, classJid)
+                } else {
+                    fieldUserJid = ReflectionUtils.getFieldByExtendType(TYPE, classJid)
                 }
-            });
 
-        } catch (Exception e) {
-            XposedBridge.log(e);
-        }
-    }
+                getWaContactMethod = Unobfuscator.loadGetWaContactMethod(classLoader)
+                getWaContactMethod?.let { method ->
+                    XposedBridge.hookAllConstructors(
+                        method.declaringClass,
+                        object : XC_MethodHook() {
+                            override fun afterHookedMethod(param: MethodHookParam) {
+                                mInstanceGetWaContact = param.thisObject
+                            }
+                        })
+                }
 
-    public Object getObject() {
-        return mInstance;
-    }
+                fieldGetDisplayName = Unobfuscator.loadWaContactDataDisplayNameMethod(classLoader)
+                fieldGetWaName = Unobfuscator.loadWaContactGetWaNameField(classLoader)
 
-    public FMessageWpp.UserJid getUserJid() {
-        try {
-            if (fieldContactData != null) {
-                var coreData = fieldContactData.get(mInstance);
-                var userjid = fieldUserJid.get(coreData);
-                return new FMessageWpp.UserJid(userjid);
+                getProfilePhoto = Unobfuscator.loadGetProfilePhotoMethod(classLoader)
+                getProfilePhotoHighQuality =
+                    Unobfuscator.loadGetProfilePhotoHighQMethod(classLoader)
+
+                getProfilePhoto?.let { method ->
+                    XposedBridge.hookAllConstructors(
+                        method.declaringClass,
+                        object : XC_MethodHook() {
+                            override fun afterHookedMethod(param: MethodHookParam) {
+                                mInstanceGetProfilePhoto = param.thisObject
+                            }
+                        })
+                }
+
+            } catch (e: Exception) {
+                XposedBridge.log(e)
             }
-            return new FMessageWpp.UserJid(fieldUserJid.get(mInstance));
-        } catch (Exception e) {
-            XposedBridge.log(e);
         }
-        return null;
-    }
 
-    public String getDisplayName() {
-        try {
-            return (String) methodGetDisplayName.invoke(mInstance);
-        } catch (Exception e) {
-            XposedBridge.log(e);
-        }
-        return null;
-    }
-
-    public String getWaName() {
-        try {
-            return (String) fieldGetWaName.get(mInstance);
-        } catch (Exception e) {
-            XposedBridge.log(e);
-        }
-        return null;
-    }
-
-    public static WaContactWpp getWaContactFromJid(FMessageWpp.UserJid userJid) {
-        if (mInstanceGetWaContact == null) {
-            XposedBridge.log("WAE: WaContactWpp: mInstanceGetWaContact is NULL. ContactManager not initialized?");
-            return null;
-        }
-        try {
-            Object contact = null;
-            if (userJid.userJid != null) {
-                contact = getWaContactMethod.invoke(mInstanceGetWaContact, userJid.userJid);
+        @JvmStatic
+        fun getWaContactFromJid(userJid: FMessageWpp.UserJid): WaContactWpp? {
+            return try {
+                val method = getWaContactMethod
+                val instance = mInstanceGetWaContact
+                if (instance != null && method != null) {
+                    var jid = userJid.userJid
+                    if (!method.parameterTypes[0].isInstance(jid)) {
+                        jid = FMessageWpp.UserJid.forceConverter(jid).userJid
+                    }
+                    val contact = method.invoke(instance, jid)
+                    if (contact != null) WaContactWpp(contact) else null
+                } else null
+            } catch (e: Exception) {
+                XposedBridge.log(e)
+                null
             }
-
-            // Fallback to phoneJid if userJid lookup failed or userJid was null
-            if (contact == null && userJid.phoneJid != null) {
-                XposedBridge.log("WAE: WaContactWpp: userJid lookup failed, trying phoneJid");
-                contact = getWaContactMethod.invoke(mInstanceGetWaContact, userJid.phoneJid);
-            }
-
-            if (contact != null) {
-                return new WaContactWpp(contact);
-            } else {
-                XposedBridge.log("WAE: WaContactWpp: Contact lookup returned null for " + userJid);
-            }
-        } catch (Exception e) {
-            XposedBridge.log(e);
         }
-        return null;
-    }
-
-    public File getProfilePhoto() {
-        try {
-            File file = (File) getProfilePhotoHighQuality.invoke(mInstanceGetProfilePhoto, mInstance);
-            if (file != null && file.exists())
-                return file;
-        } catch (Exception e) {
-            XposedBridge.log(e);
-        }
-        try {
-            return (File) getProfilePhoto.invoke(mInstanceGetProfilePhoto, mInstance);
-        } catch (Exception e) {
-            XposedBridge.log(e);
-        }
-        return null;
 
     }
-
 }

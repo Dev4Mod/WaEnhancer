@@ -374,6 +374,7 @@ class FMessageWpp(fMessage: Any?) {
                 )
             }
 
+            @JvmStatic
             fun forceConverter(lidOrJid: Any?): UserJid {
                 val raw = try {
                     XposedHelpers.callMethod(lidOrJid, "getRawString") as? String

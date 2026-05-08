@@ -2598,18 +2598,21 @@ public class Unobfuscator {
 
     public static Field loadWaContactGetWaNameField(ClassLoader classLoader) throws Exception {
         return UnobfuscatorCache.getInstance().getField(classLoader, () -> {
-            var method = dexkit
-                    .findMethod(FindMethod.create().matcher(
-                            MethodMatcher.create().addUsingString("ContactManagerDatabase/updateContactWAName")))
-                    .singleOrNull();
+            var method = dexkit.findMethod(FindMethod.create().matcher(MethodMatcher.create().addUsingString("ContactManagerDatabase/updateContactWAName"))).singleOrNull();
             if (method == null)
                 throw new NoSuchMethodException("WaContactGetWaName field not found");
             var waContact = loadWaContactClass(classLoader).getName();
             var usingFields = method.getUsingFields();
             for (var usingField : usingFields) {
                 var field = usingField.getField();
-                if (field.getClassName().equals(waContact)
-                        && field.getType().getName().equals(String.class.getName())) {
+                if (field.getClassName().equals(waContact) && field.getType().getName().equals(String.class.getName())) {
+                    return field.getFieldInstance(classLoader);
+                }
+            }
+            var waContactData = loadWaContactDataClass(classLoader).getName();
+            for (var usingField : usingFields) {
+                var field = usingField.getField();
+                if (field.getClassName().equals(waContactData) && field.getType().getName().equals(String.class.getName())) {
                     return field.getFieldInstance(classLoader);
                 }
             }
@@ -2617,29 +2620,42 @@ public class Unobfuscator {
         });
     }
 
-    public static Method loadWaContactDisplayNameMethod(ClassLoader classLoader) throws Exception {
-        return UnobfuscatorCache.getInstance().getMethod(classLoader, () -> {
-            var methods = dexkit.findMethod(FindMethod.create()
-                    .matcher(MethodMatcher.create().addUsingString("ContactManagerDatabase/updateGroupInfo")));
-            if (methods.isEmpty())
-                throw new NoSuchMethodException("WaContactDiplayName not found");
+    public static Class<?> loadWaContactDataClass(ClassLoader classLoader) throws Exception {
+        return UnobfuscatorCache.getInstance().getClass(classLoader, () -> findFirstClassUsingStrings(classLoader, StringMatchType.EndsWith, "WaContactData"));
+    }
+
+    public static Field loadWaContactDataDisplayNameMethod(ClassLoader classLoader) throws Exception {
+        return UnobfuscatorCache.getInstance().getField(classLoader, () -> {
+            var methods = dexkit.findMethod(FindMethod.create().matcher(MethodMatcher.create().addUsingString("ContactManagerDatabase/updateGroupInfo")));
+            if (methods.isEmpty()) throw new NoSuchMethodException("WaContactDiplayName not found");
+            var waContactDataClassName = loadWaContactDataClass(classLoader).getName();
+            var waContactClassName = loadWaContactClass(classLoader).getName();
             var invokes = methods.get(0).getInvokes();
-            var waContactClass = loadWaContactClass(classLoader);
             for (var invoke : invokes) {
-                if (!invoke.getClassName().equals(waContactClass.getName()))
+                if (!invoke.getClassName().equals(waContactClassName)) continue;
+                if (invoke.getReturnTypeName().equals(String.class.getName())) {
+                    var usingFields2 = invoke.getUsingFields();
+                    for (var usingFieldData : usingFields2) {
+                        if (!usingFieldData.getField().getDeclaredClassName().equals(waContactDataClassName))
+                            continue;
+                        if (usingFieldData.getField().getTypeName().equals(String.class.getName()))
+                            return usingFieldData.getField().getFieldInstance(classLoader);
+                    }
+                }
+            }
+            var usingFields = methods.get(0).getUsingFields();
+            for (var usingFieldData : usingFields) {
+                if (!usingFieldData.getField().getDeclaredClassName().equals(waContactDataClassName))
                     continue;
-                if (invoke.getReturnTypeName().equals(String.class.getName()))
-                    return invoke.getMethodInstance(classLoader);
+                if (usingFieldData.getField().getTypeName().equals(String.class.getName()))
+                    return usingFieldData.getField().getFieldInstance(classLoader);
             }
             return null;
         });
     }
 
     public static Method loadGetWaContactMethod(ClassLoader classLoader) throws Exception {
-        return UnobfuscatorCache.getInstance().getMethod(classLoader, () -> {
-            return findFirstMethodUsingStrings(classLoader, StringMatchType.Contains,
-                    "ContactManager/getContactFromCacheOrDbByJid");
-        });
+        return UnobfuscatorCache.getInstance().getMethod(classLoader, () -> findFirstMethodUsingStrings(classLoader, StringMatchType.Contains, "ContactManager/getContactFromCacheOrDbByJid"));
     }
 
     public static Class<?>[] loadSharedPreferencesClasses(ClassLoader classLoader) throws Exception {
