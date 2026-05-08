@@ -1,349 +1,376 @@
-package com.wmods.wppenhacer.xposed.features.customization;
+package com.wmods.wppenhacer.xposed.features.customization
 
-import static de.robv.android.xposed.XposedHelpers.callMethod;
-import static de.robv.android.xposed.XposedHelpers.getObjectField;
+import android.annotation.SuppressLint
+import android.os.Bundle
+import android.view.MenuItem
+import android.widget.BaseAdapter
+import com.wmods.wppenhacer.xposed.core.Feature
+import com.wmods.wppenhacer.xposed.core.db.MessageStore
+import com.wmods.wppenhacer.xposed.core.devkit.Unobfuscator
+import com.wmods.wppenhacer.xposed.core.devkit.UnobfuscatorCache
+import com.wmods.wppenhacer.xposed.utils.ReflectionUtils
+import com.wmods.wppenhacer.xposed.utils.Utils
+import de.robv.android.xposed.XC_MethodHook
+import de.robv.android.xposed.XC_MethodReplacement
+import de.robv.android.xposed.XSharedPreferences
+import de.robv.android.xposed.XposedBridge
+import de.robv.android.xposed.XposedHelpers
+import de.robv.android.xposed.XposedHelpers.callMethod
+import de.robv.android.xposed.XposedHelpers.getObjectField
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import org.luckypray.dexkit.query.enums.StringMatchType
+import java.util.regex.Pattern
 
-import android.annotation.SuppressLint;
-import android.os.Bundle;
-import android.view.MenuItem;
-import android.widget.BaseAdapter;
+class SeparateGroup(loader: ClassLoader, preferences: XSharedPreferences) :
+    Feature(loader, preferences) {
 
-import androidx.annotation.NonNull;
+    companion object {
+        const val CHATS = 200
+        const val STATUS = 300
+        const val GROUPS = 500
 
-import com.wmods.wppenhacer.xposed.core.Feature;
-import com.wmods.wppenhacer.xposed.core.db.MessageStore;
-import com.wmods.wppenhacer.xposed.core.devkit.Unobfuscator;
-import com.wmods.wppenhacer.xposed.core.devkit.UnobfuscatorCache;
-import com.wmods.wppenhacer.xposed.utils.ReflectionUtils;
-import com.wmods.wppenhacer.xposed.utils.Utils;
-
-import org.luckypray.dexkit.query.enums.StringMatchType;
-
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Objects;
-import java.util.regex.Pattern;
-
-import de.robv.android.xposed.XC_MethodHook;
-import de.robv.android.xposed.XC_MethodReplacement;
-import de.robv.android.xposed.XSharedPreferences;
-import de.robv.android.xposed.XposedBridge;
-import de.robv.android.xposed.XposedHelpers;
-
-public class SeparateGroup extends Feature {
-
-    public static final int CHATS = 200;
-    public static final int STATUS = 300;
-    public static final int GROUPS = 500;
-    public static ArrayList<Integer> tabs = new ArrayList<>();
-    public static HashMap<Integer, Object> tabInstances = new HashMap<>();
-
-    public SeparateGroup(ClassLoader loader, XSharedPreferences preferences) {
-        super(loader, preferences);
+        @JvmField
+        var tabs = ArrayList<Int>()
+        var tabInstances = HashMap<Int, Any>()
     }
 
-    public void doHook() throws Exception {
-        if (!prefs.getBoolean("separategroups", false)) return;
+    override fun doHook() {
+        if (!prefs.getBoolean("separategroups", false)) return
 
-        var bottomNavigationViewCls = Unobfuscator.findFirstClassUsingName(classLoader, StringMatchType.EndsWith, ".BottomNavigationView");
-        XposedHelpers.findAndHookMethod(bottomNavigationViewCls, "getMaxItemCount", XC_MethodReplacement.returnConstant(6));
+        val bottomNavigationViewCls = Unobfuscator.findFirstClassUsingName(
+            classLoader,
+            StringMatchType.EndsWith,
+            ".BottomNavigationView"
+        )
+        XposedHelpers.findAndHookMethod(
+            bottomNavigationViewCls,
+            "getMaxItemCount",
+            XC_MethodReplacement.returnConstant(6)
+        )
 
         // Modifying tab list order
-        hookTabList();
+        hookTabList()
 
         // Setting group icon
-        hookTabIcon();
+        hookTabIcon()
 
         // Setting up fragments
-        hookTabInstance();
+        hookTabInstance()
 
         // Setting group tab name
-        hookTabName();
+        hookTabName()
 
         // Setting tab count
-        hookTabCount();
+        hookTabCount()
     }
 
-    @NonNull
-    @Override
-    public String getPluginName() {
-        return "Separate Group";
+    override fun getPluginName(): String {
+        return "Separate Group"
     }
 
-    private void hookTabCount() throws Exception {
+    private fun hookTabCount() {
+        val runMethod = Unobfuscator.loadTabCountMethod(classLoader)
+        logDebug(Unobfuscator.getMethodDescriptor(runMethod))
 
-        var runMethod = Unobfuscator.loadTabCountMethod(classLoader);
-        logDebug(Unobfuscator.getMethodDescriptor(runMethod));
+        val enableCountMethod = Unobfuscator.loadEnableCountTabMethod(classLoader)
+        val badgeWrapperConstructor = Unobfuscator.loadEnableCountTabBadgeWrapper(classLoader)
+        val badgeItemConstructor = Unobfuscator.loadEnableCountTabBadgeItem(classLoader)
+        val emptyBadgeClass = Unobfuscator.loadEnableCountTabEmptyBadgeClass(classLoader)
+        logDebug(Unobfuscator.getMethodDescriptor(enableCountMethod))
 
-        var enableCountMethod = Unobfuscator.loadEnableCountTabMethod(classLoader);
-        var badgeWrapperConstructor = Unobfuscator.loadEnableCountTabBadgeWrapper(classLoader);
-        var badgeItemConstructor = Unobfuscator.loadEnableCountTabBadgeItem(classLoader);
-        var emptyBadgeClass = Unobfuscator.loadEnableCountTabEmptyBadgeClass(classLoader);
-
-        logDebug(Unobfuscator.getMethodDescriptor(enableCountMethod));
-        XposedBridge.hookMethod(enableCountMethod, new XC_MethodHook() {
-            @Override
-            @SuppressLint({"Range", "Recycle"})
-            protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
-                var indexTab = (int) param.args[2];
+        XposedBridge.hookMethod(enableCountMethod, object : XC_MethodHook() {
+            @SuppressLint("Range", "Recycle")
+            override fun beforeHookedMethod(param: MethodHookParam) {
+                val indexTab = param.args[2] as Int
                 if (indexTab == tabs.indexOf(CHATS)) {
-                    var chatCount = 0;
-                    var groupCount = 0;
-                    synchronized (SeparateGroup.class) {
-                        var db = MessageStore.getInstance().getDatabase();
-                        var sql = "SELECT * FROM chat WHERE unseen_message_count != 0";
-                        var cursor = db.rawQuery(sql, null);
-                        while (cursor.moveToNext()) {
-                            int jid = cursor.getInt(cursor.getColumnIndex("jid_row_id"));
-                            int groupType = cursor.getInt(cursor.getColumnIndex("group_type"));
-                            int archived = cursor.getInt(cursor.getColumnIndex("archived"));
-                            int chatLocked = cursor.getInt(cursor.getColumnIndex("chat_lock"));
-                            if (archived != 0 || (groupType != 0 && groupType != 6) || chatLocked != 0)
-                                continue;
-                            var sql2 = "SELECT * FROM jid WHERE _id == ?";
-                            var cursor1 = db.rawQuery(sql2, new String[]{String.valueOf(jid)});
-                            if (!cursor1.moveToFirst()) continue;
-                            var server = cursor1.getString(cursor1.getColumnIndex("server"));
-                            if (server.equals("g.us")) {
-                                groupCount++;
-                            } else {
-                                chatCount++;
+                    param.result = null
+
+                    CoroutineScope(Dispatchers.IO).launch {
+                        var chatCount = 0
+                        var groupCount = 0
+                        val db = MessageStore.getInstance().getDatabase()
+                        val sql = "SELECT * FROM chat WHERE unseen_message_count != 0"
+                        db?.rawQuery(sql, null)?.use { cursor ->
+                            while (cursor.moveToNext()) {
+                                val jid = cursor.getInt(cursor.getColumnIndex("jid_row_id"))
+                                val groupType = cursor.getInt(cursor.getColumnIndex("group_type"))
+                                val archived = cursor.getInt(cursor.getColumnIndex("archived"))
+                                val chatLocked = cursor.getInt(cursor.getColumnIndex("chat_lock"))
+                                if (archived != 0 || (groupType != 0 && groupType != 6) || chatLocked != 0) {
+                                    continue
+                                }
+                                val sql2 = "SELECT * FROM jid WHERE _id == ?"
+                                db.rawQuery(sql2, arrayOf(jid.toString())).use { cursor1 ->
+                                    if (!cursor1.moveToFirst()) continue
+                                    val server = cursor1.getString(cursor1.getColumnIndex("server"))
+                                    if (server == "g.us") {
+                                        groupCount++
+                                    } else {
+                                        chatCount++
+                                    }
+                                }
                             }
-                            cursor1.close();
+
                         }
-                        cursor.close();
-                    }
-                    if (tabs.contains(CHATS) && tabInstances.containsKey(CHATS)) {
-                        param.args[1] = chatCount <= 0 ? XposedHelpers.getStaticObjectField(emptyBadgeClass, "A00") : badgeWrapperConstructor.newInstance(badgeItemConstructor.newInstance(chatCount));
-                    }
-                    if (tabs.contains(GROUPS) && tabInstances.containsKey(GROUPS)) {
-                        var chatsBadge = groupCount <= 0 ? XposedHelpers.getStaticObjectField(emptyBadgeClass, "A00") : badgeWrapperConstructor.newInstance(badgeItemConstructor.newInstance(groupCount));
-                        XposedBridge.invokeOriginalMethod(param.method, param.thisObject, new Object[]{param.args[0], chatsBadge, tabs.indexOf(GROUPS)});
+                        if (tabs.contains(CHATS) && tabInstances.containsKey(CHATS)) {
+                            param.args[1] = if (chatCount <= 0) {
+                                XposedHelpers.getStaticObjectField(emptyBadgeClass, "A00")
+                            } else {
+                                badgeWrapperConstructor.newInstance(
+                                    badgeItemConstructor.newInstance(
+                                        chatCount
+                                    )
+                                )
+                            }
+                        }
+                        if (tabs.contains(GROUPS) && tabInstances.containsKey(GROUPS)) {
+                            val chatsBadge = if (groupCount <= 0) {
+                                XposedHelpers.getStaticObjectField(emptyBadgeClass, "A00")
+                            } else {
+                                badgeWrapperConstructor.newInstance(
+                                    badgeItemConstructor.newInstance(
+                                        groupCount
+                                    )
+                                )
+                            }
+                            withContext(Dispatchers.Main) {
+                                XposedBridge.invokeOriginalMethod(
+                                    param.method,
+                                    param.thisObject,
+                                    arrayOf(param.args[0], chatsBadge, tabs.indexOf(GROUPS))
+                                )
+                            }
+                        }
                     }
                 }
             }
-        });
+        })
     }
 
-    private void hookTabIcon() throws Exception {
-        var iconTabMethod = Unobfuscator.loadIconTabMethod(classLoader);
-        logDebug(Unobfuscator.getMethodDescriptor(iconTabMethod));
-        var menuAddAndroidX = Unobfuscator.loadAddMenuAndroidX(classLoader);
-        logDebug(menuAddAndroidX);
+    private fun hookTabIcon() {
+        val iconTabMethod = Unobfuscator.loadIconTabMethod(classLoader)
+        logDebug(Unobfuscator.getMethodDescriptor(iconTabMethod))
+        val menuAddAndroidX = Unobfuscator.loadAddMenuAndroidX(classLoader)
+        logDebug(menuAddAndroidX.toString())
 
-        XposedBridge.hookMethod(iconTabMethod, new XC_MethodHook() {
-
-            @Override
-            protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
-                var hooked = XposedBridge.hookMethod(menuAddAndroidX, new XC_MethodHook() {
-                    @Override
-                    protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-                        if (param.args.length > 2 && ((int) param.args[1]) == GROUPS) {
-                            MenuItem menuItem = (MenuItem) param.getResult();
-                            menuItem.setIcon(Utils.getID("home_tab_communities_selector", "drawable"));
+        XposedBridge.hookMethod(iconTabMethod, object : XC_MethodHook() {
+            override fun beforeHookedMethod(param: MethodHookParam) {
+                val hooked = XposedBridge.hookMethod(menuAddAndroidX, object : XC_MethodHook() {
+                    override fun afterHookedMethod(innerParam: MethodHookParam) {
+                        if (innerParam.args.size > 2 && (innerParam.args[1] as Int) == GROUPS) {
+                            val menuItem = innerParam.result as MenuItem
+                            menuItem.setIcon(
+                                Utils.getID(
+                                    "home_tab_communities_selector",
+                                    "drawable"
+                                )
+                            )
                         }
                     }
-                });
-                param.setObjectExtra("hooked", hooked);
+                })
+                param.setObjectExtra("hooked", hooked)
             }
 
             @SuppressLint("ResourceType")
-            @Override
-            protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-                var hooked = (Unhook) param.getObjectExtra("hooked");
-                if (hooked != null) hooked.unhook();
+            override fun afterHookedMethod(param: MethodHookParam) {
+                val hooked = param.getObjectExtra("hooked") as? Unhook
+                hooked?.unhook()
             }
-        });
+        })
     }
 
     @SuppressLint("ResourceType")
-    private void hookTabName() throws Exception {
-        var tabNameMethod = Unobfuscator.loadTabNameMethod(classLoader);
-        XposedBridge.hookMethod(tabNameMethod, new XC_MethodHook() {
-            @Override
-            protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
-                var tab = (int) param.args[0];
+    private fun hookTabName() {
+        val tabNameMethod = Unobfuscator.loadTabNameMethod(classLoader)
+        XposedBridge.hookMethod(tabNameMethod, object : XC_MethodHook() {
+            override fun beforeHookedMethod(param: MethodHookParam) {
+                val tab = param.args[0] as Int
                 if (tab == GROUPS) {
-                    param.setResult(UnobfuscatorCache.getInstance().getString("groups"));
+                    param.result = UnobfuscatorCache.getInstance().getString("groups")
                 }
             }
-        });
+        })
     }
 
-    private void hookTabInstance() throws Exception {
-        var cFragClass = Unobfuscator.findFirstClassUsingName(classLoader, StringMatchType.EndsWith, ".ConversationsFragment");
+    private fun hookTabInstance() {
+        val cFragClass = Unobfuscator.findFirstClassUsingName(
+            classLoader,
+            StringMatchType.EndsWith,
+            ".ConversationsFragment"
+        )
 
-        var getTabMethod = Unobfuscator.loadGetTabMethod(classLoader);
-        logDebug(Unobfuscator.getMethodDescriptor(getTabMethod));
+        val getTabMethod = Unobfuscator.loadGetTabMethod(classLoader)
+        logDebug(Unobfuscator.getMethodDescriptor(getTabMethod))
 
-        var methodTabInstance = Unobfuscator.loadTabFragmentMethod(classLoader);
-        logDebug(Unobfuscator.getMethodDescriptor(methodTabInstance));
+        val methodTabInstance = Unobfuscator.loadTabFragmentMethod(classLoader)
+        logDebug(Unobfuscator.getMethodDescriptor(methodTabInstance))
 
-        var recreateFragmentMethod = Unobfuscator.loadRecreateFragmentConstructor(classLoader);
+        val recreateFragmentMethod = Unobfuscator.loadRecreateFragmentConstructor(classLoader)
 
-        var pattern = Pattern.compile("android:switcher:\\d+:(\\d+)");
+        val pattern = Pattern.compile("android:switcher:\\d+:(\\d+)")
 
-        Class<?> FragmentClass = Unobfuscator.loadFragmentClass(classLoader);
+        val fragmentClass = Unobfuscator.loadFragmentClass(classLoader)
 
-        XposedBridge.hookMethod(recreateFragmentMethod, new XC_MethodHook() {
-            @Override
-            protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-                var string = "";
-                if (param.args[0] instanceof Bundle bundle) {
-                    var state = bundle.getParcelable("state");
-                    if (state == null) return;
-                    string = state.toString();
+        XposedBridge.hookMethod(recreateFragmentMethod, object : XC_MethodHook() {
+            override fun afterHookedMethod(param: MethodHookParam) {
+                val string: String
+                val arg0 = param.args[0]
+                if (arg0 is Bundle) {
+                    @Suppress("DEPRECATION")
+                    val state = arg0.getParcelable<android.os.Parcelable>("state") ?: return
+                    string = state.toString()
                 } else {
-                    string = param.args[2].toString();
+                    string = param.args[2].toString()
                 }
-                var matcher = pattern.matcher(string);
+                val matcher = pattern.matcher(string)
                 if (matcher.find()) {
-                    var tabId = Integer.parseInt(matcher.group(1));
+                    val tabId = matcher.group(1)?.toIntOrNull() ?: return
                     if (tabId == GROUPS || tabId == CHATS) {
-                        var fragmentField = ReflectionUtils.getFieldByType(param.thisObject.getClass(), FragmentClass);
-                        var convFragment = ReflectionUtils.getObjectField(fragmentField, param.thisObject);
-                        tabInstances.remove(tabId);
-                        tabInstances.put(tabId, convFragment);
+                        val fragmentField = ReflectionUtils.getFieldByType(
+                            param.thisObject.javaClass,
+                            fragmentClass
+                        )
+                        val convFragment =
+                            ReflectionUtils.getObjectField(fragmentField, param.thisObject)
+                        tabInstances.remove(tabId)
+                        if (convFragment != null) {
+                            tabInstances[tabId] = convFragment
+                        }
                     }
                 }
             }
-        });
+        })
 
-        XposedBridge.hookMethod(getTabMethod, new XC_MethodHook() {
-            @Override
-            protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
-                var tabId = tabs.get((int) param.args[0]);
+        XposedBridge.hookMethod(getTabMethod, object : XC_MethodHook() {
+            override fun beforeHookedMethod(param: MethodHookParam) {
+                val tabId = tabs[param.args[0] as Int]
                 if (tabId == GROUPS || tabId == CHATS) {
-                    var convFragment = cFragClass.newInstance();
-                    param.setResult(convFragment);
+                    val convFragment = cFragClass.declaredConstructors.first {
+                        it.parameterCount == 0
+                    }.newInstance()
+                    param.result = convFragment
                 }
             }
 
-            @Override
-            protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-                var tabId = tabs.get((int) param.args[0]);
-                tabInstances.remove(tabId);
-                tabInstances.put(tabId, param.getResult());
+            override fun afterHookedMethod(param: MethodHookParam) {
+                val tabId = tabs[param.args[0] as Int]
+                tabInstances.remove(tabId)
+                param.result?.let { tabInstances[tabId] = it }
             }
-        });
+        })
 
-        XposedBridge.hookMethod(methodTabInstance, new XC_MethodHook() {
-            @Override
-            protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-                var chatsList = (List) param.getResult();
-                var resultList = filterChat(param.thisObject, chatsList);
-                param.setResult(resultList);
+        XposedBridge.hookMethod(methodTabInstance, object : XC_MethodHook() {
+            override fun afterHookedMethod(param: MethodHookParam) {
+                val chatsList = param.result as List<*>
+                val resultList = filterChat(param.thisObject, chatsList)
+                param.result = resultList
             }
-        });
+        })
 
-        var fabintMethod = Unobfuscator.loadFabMethod(classLoader);
-        logDebug(Unobfuscator.getMethodDescriptor(fabintMethod));
+        val fabintMethod = Unobfuscator.loadFabMethod(classLoader)
+        logDebug(Unobfuscator.getMethodDescriptor(fabintMethod))
 
-        XposedBridge.hookMethod(fabintMethod, new XC_MethodHook() {
-            @Override
-            protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-                if (Objects.equals(tabInstances.get(GROUPS), param.thisObject)) {
-                    param.setResult(GROUPS);
+        XposedBridge.hookMethod(fabintMethod, object : XC_MethodHook() {
+            override fun afterHookedMethod(param: MethodHookParam) {
+                if (tabInstances[GROUPS] == param.thisObject) {
+                    param.result = GROUPS
                 }
             }
-        });
+        })
 
-        var publishResultsMethod = Unobfuscator.loadGetFiltersMethod(classLoader);
-        logDebug(Unobfuscator.getMethodDescriptor(publishResultsMethod));
+        val publishResultsMethod = Unobfuscator.loadGetFiltersMethod(classLoader)
+        logDebug(Unobfuscator.getMethodDescriptor(publishResultsMethod))
 
-        XposedBridge.hookMethod(publishResultsMethod, new XC_MethodHook() {
-            @Override
-            protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
-                var filters = param.args[1];
-                var chatsList = (List) XposedHelpers.getObjectField(filters, "values");
-                var baseField = ReflectionUtils.getFieldByExtendType(publishResultsMethod.getDeclaringClass(), BaseAdapter.class);
-                if (baseField == null) return;
-                var convField = ReflectionUtils.getFieldByType(baseField.getType(), cFragClass);
-                Object thiz = convField.get(baseField.get(param.thisObject));
-                if (thiz == null) return;
-                var resultList = filterChat(thiz, chatsList);
-                XposedHelpers.setObjectField(filters, "values", resultList);
-                XposedHelpers.setIntField(filters, "count", resultList.size());
+        XposedBridge.hookMethod(publishResultsMethod, object : XC_MethodHook() {
+            override fun beforeHookedMethod(param: MethodHookParam) {
+                val filters = param.args[1]
+                val chatsList = XposedHelpers.getObjectField(filters, "values") as List<*>
+                val baseField = ReflectionUtils.getFieldByExtendType(
+                    publishResultsMethod.declaringClass,
+                    BaseAdapter::class.java
+                ) ?: return
+                val convField = ReflectionUtils.getFieldByType(baseField.type, cFragClass)
+                val thiz = convField.get(baseField.get(param.thisObject)) ?: return
+                val resultList = filterChat(thiz, chatsList)
+                XposedHelpers.setObjectField(filters, "values", resultList)
+                XposedHelpers.setIntField(filters, "count", resultList.size)
             }
-        });
+        })
     }
 
-    private List filterChat(Object thiz, List chatsList) {
-        var tabChat = tabInstances.get(CHATS);
-        var tabGroup = tabInstances.get(GROUPS);
-        if (!Objects.equals(tabChat, thiz) && !Objects.equals(tabGroup, thiz)) {
-            return chatsList;
+    private fun filterChat(thiz: Any, chatsList: List<*>): List<*> {
+        val tabChat = tabInstances[CHATS]
+        val tabGroup = tabInstances[GROUPS]
+
+        if (tabChat != thiz && tabGroup != thiz) {
+            return chatsList
         }
-        var editableChatList = new ArrayListFilter(Objects.equals(tabGroup, thiz));
-        editableChatList.addAll(chatsList);
-        return editableChatList;
+
+        val editableChatList = ArrayListFilter(tabGroup == thiz)
+        @Suppress("UNCHECKED_CAST")
+        editableChatList.addAll(chatsList as Collection<Any>)
+        return editableChatList
     }
 
-    private void hookTabList() throws Exception {
-        var onCreateTabList = Unobfuscator.loadTabListMethod(classLoader);
-        logDebug(Unobfuscator.getMethodDescriptor(onCreateTabList));
+    private fun hookTabList() {
+        val onCreateTabList = Unobfuscator.loadTabListMethod(classLoader)
+        logDebug(Unobfuscator.getMethodDescriptor(onCreateTabList))
 
-        XposedBridge.hookMethod(onCreateTabList, new XC_MethodHook() {
-            @Override
-            protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-                tabs = (ArrayList<Integer>) param.getResult();
-                if (tabs == null) return;
+        XposedBridge.hookMethod(onCreateTabList, object : XC_MethodHook() {
+            @Suppress("UNCHECKED_CAST")
+            override fun afterHookedMethod(param: MethodHookParam) {
+                val resultTabs = param.result as? ArrayList<Int> ?: return
+                tabs = resultTabs
                 if (!tabs.contains(GROUPS)) {
-                    tabs.add(tabs.isEmpty() ? 0 : 1, GROUPS);
+                    tabs.add(if (tabs.isEmpty()) 0 else 1, GROUPS)
                 }
             }
-        });
+        })
     }
 
+    class ArrayListFilter(private val isGroup: Boolean) : ArrayList<Any>() {
 
-    public static class ArrayListFilter extends ArrayList<Object> {
-
-        private final boolean isGroup;
-
-        public ArrayListFilter(boolean isGroup) {
-            this.isGroup = isGroup;
-        }
-
-
-        @Override
-        public void add(int index, Object element) {
+        override fun add(index: Int, element: Any) {
             if (checkGroup(element)) {
-                super.add(index, element);
+                super.add(index, element)
             }
         }
 
-        @Override
-        public boolean add(Object object) {
-            if (checkGroup(object)) {
-                return super.add(object);
+        override fun add(element: Any): Boolean {
+            if (checkGroup(element)) {
+                return super.add(element)
             }
-            return true;
+            return true
         }
 
-        @Override
-        public boolean addAll(@NonNull Collection c) {
-            for (var chat : c) {
+        override fun addAll(elements: Collection<Any>): Boolean {
+            for (chat in elements) {
                 if (checkGroup(chat)) {
-                    super.add(chat);
+                    super.add(chat)
                 }
             }
-            return true;
+            return true
         }
 
-        private boolean checkGroup(Object chat) {
-            var jid = getObjectField(chat, "A00");
-            if (jid == null) jid = getObjectField(chat, "A01");
-            if (jid == null) return true;
-            if (XposedHelpers.findMethodExactIfExists(jid.getClass(), "getServer") != null) {
-                var server = (String) callMethod(jid, "getServer");
-                if (isGroup) return server.equals("broadcast") || server.equals("g.us");
-                return server.equals("s.whatsapp.net") || server.equals("lid");
+        private fun checkGroup(chat: Any?): Boolean {
+            if (chat == null) return true
+
+            var jid = getObjectField(chat, "A00")
+            if (jid == null) jid = getObjectField(chat, "A01")
+            if (jid == null) return true
+
+            if (XposedHelpers.findMethodExactIfExists(jid.javaClass, "getServer") != null) {
+                val server = callMethod(jid, "getServer") as? String ?: return true
+                return if (isGroup) {
+                    server == "broadcast" || server == "g.us"
+                } else {
+                    server == "s.whatsapp.net" || server == "lid"
+                }
             }
-            return true;
+            return true
         }
     }
-
-
 }
