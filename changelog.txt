@@ -1,6 +1,8 @@
 [ADDED]
-* Added support to WA 2.26.16.xx
-* Added button to go to the first message of a conversation (WAE->General->Conversation Screen)
+* Added support to WA 2.26.17.xx
+
+[IMPROVED]
+* Converted some of the core classes to kotlin (For better compatibility and code security)
 
 [WAE]
 * Update translations from crowdin
