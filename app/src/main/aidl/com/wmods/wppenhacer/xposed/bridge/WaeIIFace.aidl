@@ -17,4 +17,6 @@ interface WaeIIFace {
 
     List listFiles(String path);
 
+    boolean exists(String path);
+
 }
