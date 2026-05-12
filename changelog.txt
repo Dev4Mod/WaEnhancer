@@ -1,8 +1,18 @@
 [ADDED]
-* Added support to WA 2.26.17.xx
+* Added support to WA 2.26.18.xx
+
+[FIXED]
+* Fixed bug in status options (Download, Repost, delete for me) that was not showing up for some users
+* Fixed bug in AntiRevoke Status (Thanks for @Ronco7 for testing in the plus version group) that was not working up for some users
+* Fixed bug in hiding first tick and second tick
+* Fixed bug in delete status option (for me), now works normally
+* Fixed bug in bio not appearing on the home screen
 
 [IMPROVED]
-* Converted some of the core classes to kotlin (For better compatibility and code security)
+* The Mark Icon as seen in the Status now appears in the correct location, along with the other buttons
+
+[NOTE]
+* This is a backport that comes from WAE Plus to the community and contains only the bug fixes and compatibility improvements.
 
 [WAE]
 * Update translations from crowdin
