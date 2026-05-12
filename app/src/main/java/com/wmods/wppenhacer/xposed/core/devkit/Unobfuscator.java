@@ -2449,7 +2449,7 @@ public class Unobfuscator {
                     )
             ).singleOrNull();
             var clazz = data.getDeclaredClass().getInstance(classLoader);
-            return ReflectionUtils.findConstructorUsingFilter(clazz, c -> c.getParameterCount() == 2);
+            return ReflectionUtils.findConstructorUsingFilter(clazz, c -> c.getParameterCount() == 2 && c.getParameterTypes()[0].getSimpleName().equals("Object"));
         });
     }
 
