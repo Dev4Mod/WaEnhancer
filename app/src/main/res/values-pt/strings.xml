@@ -474,6 +474,6 @@
     <string name="warning_restore">Atenção: Mensagens recentes serão perdidas ao restaurar o backup. Confirmar restauração?</string>
     <string name="force_restore_backup_experimental">Forçar restauração de backup (Experimental)</string>
     <string name="contact_probably_not_added">O contato provavelmente não te adicionou!</string>
-    <string name="jump_first_message">Ir ao topo</string>
+    <string name="jump_first_message">Ir ao topo da conversa</string>
     <string name="jump_first_message_sum">Adicione uma opção para ir ao topo de uma conversa</string>
 </resources>
