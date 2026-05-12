@@ -72,6 +72,10 @@ public class Utils {
         return FeatureLoader.mApp == null ? App.getInstance() : FeatureLoader.mApp;
     }
 
+    public static String getString(int id) {
+        return Utils.getApplication().getString(id);
+    }
+
     public static ExecutorService getExecutor() {
         return executorService;
     }

@@ -14,6 +14,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import com.wmods.wppenhacer.xposed.core.WppCore;
@@ -230,8 +231,6 @@ public class Unobfuscator {
         return UnobfuscatorCache.getInstance().getMethod(classLoader, () -> {
             var classDeviceJid = Unobfuscator.findFirstClassUsingName(
                     classLoader, StringMatchType.EndsWith, "jid.DeviceJid");
-            var classPhoneUserJid = Unobfuscator.findFirstClassUsingName(
-                    classLoader, StringMatchType.EndsWith, "jid.PhoneUserJid");
             var classProtocolTreeNode = findFirstClassUsingStrings(
                     classLoader, StringMatchType.Contains, "ProtocolTreeNode/getAttributeJid");
 
@@ -246,9 +245,7 @@ public class Unobfuscator {
                 var params = method.getParamTypeNames();
 
                 boolean hasRequiredParams =
-                        params.contains(classDeviceJid.getName()) &&
-                                params.contains(classPhoneUserJid.getName());
-
+                        params.contains(classDeviceJid.getName());
                 if (!hasRequiredParams) continue;
 
                 return method.getMethodInstance(classLoader);
@@ -257,7 +254,7 @@ public class Unobfuscator {
             throw new NoSuchMethodError(
                     "Receipt method not found. returnType=" + classProtocolTreeNode.getName()
                             + ", requiredParams=[" + classDeviceJid.getName()
-                            + ", " + classPhoneUserJid.getName() + "]"
+                            + "]"
             );
         });
     }
@@ -908,10 +905,11 @@ public class Unobfuscator {
 
     public synchronized static Method loadAntiRevokeMessageMethod(ClassLoader loader) throws Exception {
         return UnobfuscatorCache.getInstance().getMethod(loader, () -> {
-            Method method = findFirstMethodUsingStrings(loader, StringMatchType.Contains, "msgstore/edit/revoke");
-            if (method == null)
-                throw new Exception("AntiRevokeMessage method not found");
-            return method;
+            for (var s : List.of("msgstore/edit/revoke", "msgstore/revoking/")) {
+                Method method = findFirstMethodUsingStrings(loader, StringMatchType.Contains, s);
+                if (method != null) return method;
+            }
+            return null;
         });
     }
 
@@ -2803,6 +2801,73 @@ public class Unobfuscator {
         return UnobfuscatorCache.getInstance().getMethod(loader, () -> {
             var conversationClass = Unobfuscator.findFirstClassUsingName(loader, StringMatchType.EndsWith, "Conversation");
             return ReflectionUtils.findMethodUsingFilter(conversationClass, m -> m.getParameterCount() == 1 && m.getParameterTypes()[0].equals(Menu.class));
+        });
+    }
+
+    public static @NonNull Class<?> loadFStatusKeyClass(ClassLoader classLoader) throws Exception {
+        return UnobfuscatorCache.getInstance().getClass(classLoader, () -> dexkit.findClass(FindClass.create().matcher(
+                        ClassMatcher.create()
+                                .addUsingString("Key(id=").
+                                addUsingString("senderJid")))
+                .first().getInstance(classLoader));
+    }
+
+    public static @NonNull Class<?> loadFStatusClass(@NonNull ClassLoader classLoader) throws Exception {
+        return UnobfuscatorCache.getInstance().getClass(classLoader, () -> {
+            return findFirstClassUsingStrings(classLoader, StringMatchType.Contains, "FStatus state");
+        });
+    }
+
+    public static Method loadAntiRevokeFStatusMethod(@NonNull ClassLoader classLoader) throws Exception {
+        return UnobfuscatorCache.getInstance().getMethod(classLoader, () -> {
+            var fStatusKeyClass = loadFStatusKeyClass(classLoader);
+            var clazz = findFirstClassUsingStrings(classLoader, StringMatchType.Contains, "RevokeStatusManager/failed");
+            return ReflectionUtils.findMethodUsingFilter(clazz, method -> method.getParameterCount() > 0 && fStatusKeyClass.isAssignableFrom(method.getParameterTypes()[0]));
+        });
+    }
+
+    public static @NonNull Method loadGetStatusByKey(@NonNull ClassLoader classLoader) throws Exception {
+        return UnobfuscatorCache.getInstance().getMethod(classLoader, () -> findFirstMethodUsingStrings(classLoader, StringMatchType.Contains, "StatusStore/GET_STATUS_BY_KEY"));
+    }
+
+    public static Method loadFStatusToFMessage(@NonNull ClassLoader classLoader) throws Exception {
+        return UnobfuscatorCache.getInstance().getMethod(classLoader, () -> findFirstMethodUsingStrings(
+                classLoader,
+                StringMatchType.Contains,
+                "mapFStatusToFMessageForForwarding"
+        ));
+    }
+
+    public static Method loadStatusPlaybackReplyContainer(@NonNull ClassLoader classLoader) throws Exception {
+        return UnobfuscatorCache.getInstance().getMethod(classLoader, () -> {
+            var clazz = findFirstClassUsingStrings(
+                    classLoader,
+                    StringMatchType.Contains,
+                    "replyContainer",
+                    "bottomSheet",
+                    "contentSheet"
+            );
+            var clazzData = dexkit.getClassData(clazz);
+            var methodData = clazzData.findMethod(FindMethod.create().matcher(MethodMatcher.create().addUsingString("replyContainer")));
+            if (methodData.isEmpty())
+                throw new RuntimeException("StatusPlaybackReply method not found");
+            return methodData.get(0).getMethodInstance(classLoader);
+        });
+    }
+
+    public static @NonNull Class<?> loadProtocolTreeNodeClass(@NonNull ClassLoader classLoader) throws Exception {
+        return UnobfuscatorCache.getInstance().getClass(classLoader, () -> {
+            return findFirstClassUsingStrings(
+                    classLoader,
+                    StringMatchType.Contains,
+                    "ProtocolTreeNode/getAttributeJid"
+            );
+        });
+    }
+
+    public static Class<?> loadKeyValueClass(ClassLoader classLoader) throws Exception {
+        return UnobfuscatorCache.getInstance().getClass(classLoader, () -> {
+            return findFirstClassUsingStrings(classLoader, StringMatchType.Contains, "KeyValue{key=");
         });
     }
 }

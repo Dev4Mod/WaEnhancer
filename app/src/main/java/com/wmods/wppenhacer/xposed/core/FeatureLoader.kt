@@ -18,6 +18,8 @@ import com.wmods.wppenhacer.BuildConfig
 import com.wmods.wppenhacer.UpdateChecker
 import com.wmods.wppenhacer.xposed.core.components.AlertDialogWpp
 import com.wmods.wppenhacer.xposed.core.components.FMessageWpp
+import com.wmods.wppenhacer.xposed.core.components.FStatusWpp
+import com.wmods.wppenhacer.xposed.core.components.ProtocolTreeNodeWpp
 import com.wmods.wppenhacer.xposed.core.components.SharedPreferencesWrapper
 import com.wmods.wppenhacer.xposed.core.components.WaContactWpp
 import com.wmods.wppenhacer.xposed.core.devkit.Unobfuscator
@@ -76,7 +78,6 @@ import com.wmods.wppenhacer.xposed.features.privacy.CustomPrivacy
 import com.wmods.wppenhacer.xposed.features.privacy.DndMode
 import com.wmods.wppenhacer.xposed.features.privacy.FreezeLastSeen
 import com.wmods.wppenhacer.xposed.features.privacy.HideChat
-import com.wmods.wppenhacer.xposed.features.privacy.HideReceipt
 import com.wmods.wppenhacer.xposed.features.privacy.HideSeen
 import com.wmods.wppenhacer.xposed.features.privacy.LockedChatsEnhancer
 import com.wmods.wppenhacer.xposed.features.privacy.TagMessage
@@ -258,11 +259,13 @@ class FeatureLoader {
         @Throws(Exception::class)
         private fun initComponents(loader: ClassLoader, pref: XSharedPreferences) {
             FMessageWpp.initialize(loader)
+            FStatusWpp.initialize(loader)
+            ProtocolTreeNodeWpp.initialize(loader)
+            AlertDialogWpp.initDialog(loader)
+            WaContactWpp.initialize(loader)
             WppCore.Initialize(loader, pref)
             DesignUtils.setPrefs(pref)
             Utils.init(loader)
-            AlertDialogWpp.initDialog(loader)
-            WaContactWpp.initialize(loader)
 
             WppCore.addListenerActivity(object : WppCore.ActivityChangeState {
                 override fun onChange(
@@ -422,7 +425,6 @@ class FeatureLoader {
                 FreezeLastSeen::class.java,
                 TypingPrivacy::class.java,
                 HideChat::class.java,
-                HideReceipt::class.java,
                 HideSeen::class.java,
                 HideSeenView::class.java,
                 TagMessage::class.java,

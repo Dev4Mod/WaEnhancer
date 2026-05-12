@@ -38,6 +38,7 @@ import java.util.concurrent.ConcurrentHashMap
 @SuppressLint("StaticFieldLeak")
 object WppCore {
 
+
     @JvmStatic
     val listenerActivity = ConcurrentHashMap.newKeySet<ActivityChangeState>()
 
@@ -64,6 +65,8 @@ object WppCore {
     private var meManagerPhoneJidField: Field? = null
     private var meManagerInstance: Any? = null
     private var mConversationDelegate: Any? = null
+    private var statusToMessageMethod: Method? = null
+    private var statusToMessageMapper: Any? = null
 
     @JvmStatic
     @Throws(Exception::class)
@@ -142,10 +145,23 @@ object WppCore {
 
         // Load wa database
         loadWADatabase()
+        hookStatusToMessageMapper(loader)
 
         if (!pref.getBoolean("lite_mode", false)) {
             initBridge(Utils.getApplication())
         }
+    }
+
+    private fun hookStatusToMessageMapper(loader: ClassLoader) {
+        statusToMessageMethod = Unobfuscator.loadFStatusToFMessage(loader)
+        XposedBridge.hookAllConstructors(
+            statusToMessageMethod?.declaringClass,
+            object : XC_MethodHook() {
+                @Throws(Throwable::class)
+                override fun afterHookedMethod(param: MethodHookParam) {
+                    statusToMessageMapper = param.thisObject
+                }
+            })
     }
 
     @JvmStatic
@@ -223,7 +239,7 @@ object WppCore {
             val canLoadFuture: CompletableFuture<Boolean> = baseClient.connect()
             val canLoad = canLoadFuture.get()
             if (!canLoad) throw Exception()
-        } catch (e: Exception) {
+        } catch (_: Exception) {
             return false
         }
         return true
@@ -310,38 +326,6 @@ object WppCore {
     @JvmStatic
     fun getCurrentActivity(): Activity? {
         return mCurrentActivity
-    }
-
-    @JvmStatic
-    fun getActivityState(activity: Activity): ActivityChangeState.ChangeType? {
-        return ActivityStateRegistry.getState(activity)
-    }
-
-    @JvmStatic
-    fun getActivityStateBySimpleName(simpleName: String): ActivityChangeState.ChangeType? {
-        return ActivityStateRegistry.getStateBySimpleName(simpleName)
-    }
-
-    @JvmStatic
-    fun isConversationResumed(): Boolean {
-        val state = ActivityStateRegistry.getStateBySimpleName("Conversation")
-        return state == ActivityChangeState.ChangeType.RESUMED
-    }
-
-    @JvmStatic
-    fun isHomeActivityResumed(): Boolean {
-        val state = ActivityStateRegistry.getStateBySimpleName("HomeActivity")
-        return state == ActivityChangeState.ChangeType.RESUMED
-    }
-
-    @JvmStatic
-    fun getCurrentActivityState(): ActivityChangeState.ChangeType? {
-        return ActivityStateRegistry.getState(mCurrentActivity)
-    }
-
-    @JvmStatic
-    fun getActivityBySimpleName(simpleName: String): Activity? {
-        return ActivityStateRegistry.getActivityBySimpleName(simpleName)
     }
 
     @JvmStatic
@@ -533,7 +517,7 @@ object WppCore {
                 conversationDelegate = convField.get(convFragment)
             }
             FMessageWpp.UserJid(conversationJidField?.get(conversationDelegate))
-        } catch (e: Exception) {
+        } catch (_: Exception) {
             FMessageWpp.UserJid()
         }
     }
@@ -556,22 +540,6 @@ object WppCore {
         }
     }
 
-    @JvmStatic
-    fun getContactPhotoDrawable(jid: String?): Drawable? {
-        if (jid == null) return null
-        val file = getContactPhotoFile(jid) ?: return null
-        return Drawable.createFromPath(file.absolutePath)
-    }
-
-    @JvmStatic
-    fun getContactPhotoFile(jid: String): File? {
-        val datafolder = Utils.getApplication().cacheDir.parentFile
-        var file = File(datafolder, "cache/Profile Pictures/${stripJID(jid)}.jpg")
-        if (!file.exists()) {
-            file = File(datafolder, "files/Avatars/$jid.j")
-        }
-        return if (file.exists()) file else null
-    }
 
     @JvmStatic
     fun getMyName(): String {
@@ -590,7 +558,11 @@ object WppCore {
     @JvmStatic
     fun getMyBio(): String {
         val mainPrefs = getMainPrefs()
-        return mainPrefs.getString("my_current_status", "") ?: ""
+        val currentStatus = mainPrefs.getString("my_current_status", "").orEmpty()
+        if (currentStatus.trim().isEmpty()) {
+            return mainPrefs.getString("my_current_evolved_about_text", "").orEmpty()
+        }
+        return currentStatus
     }
 
     @JvmStatic
@@ -758,6 +730,32 @@ object WppCore {
         }
         return File(Environment.getExternalStorageDirectory(), appName.toString())
     }
+
+    @JvmStatic
+    fun getFMessageFromFStatus(status: Any?): Any? {
+        if (status == null) return null
+
+        return try {
+            ensureStatusToMessageMapperCreated()
+            val mapper = statusToMessageMapper
+            val mapperMethod = statusToMessageMethod
+            if (mapper == null || mapperMethod == null) {
+                XposedBridge.log("mMapFStatusToFMessage is null")
+                return null
+            }
+            mapperMethod.invoke(mapper, status)
+        } catch (exception: Exception) {
+            XposedBridge.log(exception)
+            null
+        }
+    }
+
+    private fun ensureStatusToMessageMapperCreated() {
+        if (statusToMessageMapper == null) {
+            statusToMessageMethod?.declaringClass?.getDeclaredConstructor()?.newInstance()
+        }
+    }
+
 
     interface ActivityChangeState {
         fun onChange(activity: Activity, type: ChangeType)

@@ -2,144 +2,143 @@ package com.wmods.wppenhacer.xposed.features.listeners
 
 import android.view.Menu
 import android.view.MenuItem
-import android.widget.Toast
 import com.wmods.wppenhacer.xposed.core.Feature
 import com.wmods.wppenhacer.xposed.core.WppCore
 import com.wmods.wppenhacer.xposed.core.components.FMessageWpp
 import com.wmods.wppenhacer.xposed.core.devkit.Unobfuscator
 import com.wmods.wppenhacer.xposed.utils.ReflectionUtils
-import com.wmods.wppenhacer.xposed.utils.Utils
 import de.robv.android.xposed.XC_MethodHook
 import de.robv.android.xposed.XSharedPreferences
 import de.robv.android.xposed.XposedBridge
 import de.robv.android.xposed.XposedHelpers
-import org.luckypray.dexkit.query.enums.StringMatchType
-import java.lang.reflect.Field
+import java.lang.reflect.Method
 
-class MenuStatusListener(
-    classLoader: ClassLoader, preferences: XSharedPreferences
-) : Feature(classLoader, preferences) {
+class MenuStatusListener(classLoader: ClassLoader, preferences: XSharedPreferences) :
+    Feature(classLoader, preferences) {
 
-    private lateinit var statusPlaybackContactFragmentClass: Class<*>
+    private lateinit var fStatusClass: Class<Any>
+    private lateinit var fStatusToFMessage: Method
 
-    private val listStatusField: Field? by lazy {
-        ReflectionUtils.getFieldsByExtendType(
-            statusPlaybackContactFragmentClass, List::class.java
-        ).first()
+    companion object {
+        @JvmStatic
+        val menuStatuses = LinkedHashSet<OnMenuItemStatusListener>()
+
+        @JvmStatic
+        val currentStatusList = ArrayList<FMessageWpp>()
+
+        @JvmField
+        var currentIndex = -1
+
+
+        @JvmStatic
+        fun getFMessageFromStatusData(obj: Any?): FMessageWpp? {
+            if (obj == null) return null
+            var fMessageObj = ReflectionUtils.findFieldUsingFilterIfExists(obj.javaClass) { f ->
+                FMessageWpp.TYPE.isAssignableFrom(f.type)
+            }?.get(obj)
+
+            if (fMessageObj == null) {
+                val classLoader = obj.javaClass.classLoader!!
+                val mapFStatusToFMessage = Unobfuscator.loadFStatusToFMessage(classLoader)
+                val fStatusClass = mapFStatusToFMessage.parameterTypes.first()
+                fMessageObj = ReflectionUtils.findFieldUsingFilterIfExists(obj.javaClass) { f ->
+                    fStatusClass.isAssignableFrom(f.type)
+                }?.let {
+                    WppCore.getFMessageFromFStatus(it.get(obj))
+                }
+            }
+            if (fMessageObj == null) {
+                XposedBridge.log("FMessage not found in Story/Status using StatusData")
+                return null
+            }
+            return FMessageWpp(fMessageObj)
+        }
+
+
     }
 
-    @Throws(Throwable::class)
-    override fun doHook() {
-        val menuStatusMethod = Unobfuscator.loadMenuStatusMethod(classLoader)
 
+    override fun doHook() {
+
+        val menuStatusMethod = Unobfuscator.loadMenuStatusMethod(classLoader)
         val menuManagerClass = Unobfuscator.loadMenuManagerClass(classLoader)
 
-        val statusPlaybackBaseFragmentClass = Unobfuscator.findFirstClassUsingName(
-            classLoader, StringMatchType.EndsWith, ".StatusPlaybackBaseFragment"
+        val statusPlaybackBaseFragmentClass =
+            classLoader.loadClass("com.whatsapp.status.playback.fragment.StatusPlaybackBaseFragment")
+        val statusPlaybackContactFragmentClass =
+            classLoader.loadClass("com.whatsapp.status.playback.fragment.StatusPlaybackContactFragment")
+        val listStatusField = ReflectionUtils.getFieldByExtendType(
+            statusPlaybackContactFragmentClass,
+            List::class.java
         )
 
-        statusPlaybackContactFragmentClass = Unobfuscator.findFirstClassUsingName(
-            classLoader, StringMatchType.EndsWith, ".StatusPlaybackContactFragment"
-        )
+        XposedBridge.hookMethod(menuStatusMethod, object : XC_MethodHook() {
+            @Throws(Throwable::class)
+            override fun afterHookedMethod(param: MethodHookParam) {
+                val fieldObjects = param.method.declaringClass.declaredFields
+                    .mapNotNull { field -> ReflectionUtils.getObjectField(field, param.thisObject) }
 
-        XposedBridge.hookMethod(
-            menuStatusMethod, object : XC_MethodHook() {
-                @Throws(Throwable::class)
-                override fun afterHookedMethod(param: MethodHookParam) {
-
-                    val fieldObjects =
-                        param.method.declaringClass.declaredFields.mapNotNull { field ->
-                            ReflectionUtils.getObjectField(field, param.thisObject)
-                        }
-
-                    val fragmentInstance = resolveFragmentInstance(
-                        thisObject = param.thisObject,
-                        fieldObjects = fieldObjects,
-                        contactFragmentClass = statusPlaybackContactFragmentClass,
-                        baseFragmentClass = statusPlaybackBaseFragmentClass
-                    ) ?: return
-
-                    val menu = resolveMenu(
-                        args = param.args,
-                        fieldObjects = fieldObjects,
-                        menuManagerClass = menuManagerClass
-                    ) ?: return
-
-                    val index = XposedHelpers.getIntField(fragmentInstance, "A00")
-                    val listStatus = listStatusField?.get(fragmentInstance) as List<*>
-
-                    var messageObject = listStatus.getOrNull(index) ?: return
-
-                    if (!FMessageWpp.TYPE.isInstance(messageObject)) {
-                        val result =
-                            ReflectionUtils.findAllMethodsUsingFilter(messageObject.javaClass) { m ->
-                                m.returnType == FMessageWpp.Key.TYPE && m.parameterCount == 0
-                            }.firstNotNullOfOrNull { f ->
-                                f.invoke(messageObject)?.let { WppCore.getFMessageFromKey(it) }
-                            }
-                        if (result == null) {
-                            Utils.showToast("FMessage not found in Story/Status", Toast.LENGTH_LONG)
-                            return
-                        }
-                        messageObject = result
+                val fragmentInstance: Any =
+                    if (param.thisObject != null && statusPlaybackContactFragmentClass.isInstance(
+                            param.thisObject
+                        )
+                    ) {
+                        param.thisObject
+                    } else {
+                        fieldObjects.firstOrNull { statusPlaybackBaseFragmentClass.isInstance(it) }
+                            ?: return
                     }
 
-                    val fMessage = FMessageWpp(messageObject)
+                val menu: Menu = if (param.args.isNotEmpty() && param.args[0] is Menu) {
+                    param.args[0] as Menu
+                } else {
+                    val menuManager = fieldObjects.firstOrNull { menuManagerClass.isInstance(it) }
+                    val menuField =
+                        ReflectionUtils.getFieldByExtendType(menuManagerClass, Menu::class.java)
+                    ReflectionUtils.getObjectField(menuField, menuManager) as Menu
+                }
 
-                    menuStatuses.forEach { menuStatus ->
-                        val menuItem = menuStatus.addMenu(menu, fMessage) ?: return@forEach
-                        menuItem.setOnMenuItemClickListener { item ->
-                            menuStatus.onClick(item, fragmentInstance, fMessage)
-                            true
-                        }
+                val index = XposedHelpers.getObjectField(fragmentInstance, "A00") as Int
+                val listStatus = listStatusField?.get(fragmentInstance) as List<*>
+
+                val fMessageList = listStatus.mapNotNull { obj -> getFMessageFromStatusData(obj) }
+
+                currentStatusList.clear()
+                currentStatusList.addAll(fMessageList)
+
+                currentIndex = index
+
+                if (index < 0 || index >= fMessageList.size) return
+
+                for (menuStatus in menuStatuses) {
+                    val menuItem = menuStatus.addMenu(menu, fMessageList, index) ?: continue
+
+                    menuItem.setOnMenuItemClickListener { item ->
+                        menuStatus.onClick(item, fragmentInstance, fMessageList, index)
+                        true
                     }
                 }
-            })
+            }
+        })
     }
 
     override fun getPluginName(): String {
         return "Menu Status"
     }
 
-    private fun resolveFragmentInstance(
-        thisObject: Any?,
-        fieldObjects: List<Any>,
-        contactFragmentClass: Class<*>,
-        baseFragmentClass: Class<*>
-    ): Any? {
-        return when {
-            thisObject != null && contactFragmentClass.isInstance(thisObject) -> thisObject
-            else -> fieldObjects.firstOrNull { baseFragmentClass.isInstance(it) }
-        }
-    }
-
-    private fun resolveMenu(
-        args: Array<Any?>, fieldObjects: List<Any>, menuManagerClass: Class<*>
-    ): Menu? {
-        args.firstOrNull()?.let { firstArg ->
-            if (firstArg is Menu) return firstArg
-        }
-
-        val menuManager =
-            fieldObjects.firstOrNull { menuManagerClass.isInstance(it) } ?: return null
-
-        val menuField = ReflectionUtils.getFieldByExtendType(menuManagerClass, Menu::class.java)
-
-        return ReflectionUtils.getObjectField(menuField, menuManager) as? Menu
-    }
-
     abstract class OnMenuItemStatusListener {
 
-        abstract fun addMenu(menu: Menu, fMessage: FMessageWpp): MenuItem?
+        abstract fun addMenu(
+            menu: Menu,
+            fMessageList: List<FMessageWpp>,
+            currentIndex: Int
+        ): MenuItem?
 
         abstract fun onClick(
-            item: MenuItem, fragmentInstance: Any, fMessageWpp: FMessageWpp
+            item: MenuItem,
+            fragmentInstance: Any,
+            fMessageList: List<FMessageWpp>,
+            currentIndex: Int
         )
-    }
-
-    companion object {
-        @JvmField
-        val menuStatuses: HashSet<OnMenuItemStatusListener> = HashSet()
-
     }
 }

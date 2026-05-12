@@ -1,598 +1,695 @@
-package com.wmods.wppenhacer.xposed.features.general;
+package com.wmods.wppenhacer.xposed.features.general
 
+import android.annotation.SuppressLint
+import android.graphics.Bitmap
+import android.graphics.Canvas
+import android.graphics.Color
+import android.graphics.PorterDuff
+import android.graphics.drawable.BitmapDrawable
+import android.graphics.drawable.Drawable
+import android.graphics.drawable.GradientDrawable
+import android.util.Pair
+import android.view.Gravity
+import android.view.Menu
+import android.view.MenuItem
+import android.view.View
+import android.widget.FrameLayout
+import android.widget.ImageView
+import android.widget.LinearLayout
+import android.widget.Toast
+import androidx.core.graphics.createBitmap
+import androidx.core.graphics.drawable.toDrawable
+import com.wmods.wppenhacer.xposed.core.Feature
+import com.wmods.wppenhacer.xposed.core.WppCore
+import com.wmods.wppenhacer.xposed.core.components.FMessageWpp
+import com.wmods.wppenhacer.xposed.core.db.MessageHistoryStore
+import com.wmods.wppenhacer.xposed.core.devkit.Unobfuscator
+import com.wmods.wppenhacer.xposed.features.listeners.MenuStatusListener
+import com.wmods.wppenhacer.xposed.utils.DebugUtils
+import com.wmods.wppenhacer.xposed.utils.DesignUtils
+import com.wmods.wppenhacer.xposed.utils.ReflectionUtils
+import com.wmods.wppenhacer.xposed.utils.ResId
+import com.wmods.wppenhacer.xposed.utils.Utils
+import de.robv.android.xposed.XC_MethodHook
+import de.robv.android.xposed.XSharedPreferences
+import de.robv.android.xposed.XposedBridge
+import de.robv.android.xposed.XposedHelpers
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import org.luckypray.dexkit.query.enums.StringMatchType
+import java.lang.ref.WeakReference
+import java.lang.reflect.Constructor
+import java.lang.reflect.Field
+import java.lang.reflect.Method
+import java.util.concurrent.ConcurrentHashMap
 
-import android.annotation.SuppressLint;
-import android.graphics.Bitmap;
-import android.graphics.Color;
-import android.graphics.PorterDuff;
-import android.graphics.drawable.BitmapDrawable;
-import android.graphics.drawable.Drawable;
-import android.graphics.drawable.GradientDrawable;
-import android.util.Pair;
-import android.view.Gravity;
-import android.view.Menu;
-import android.view.MenuItem;
-import android.view.View;
-import android.widget.ImageView;
-import android.widget.LinearLayout;
-import android.widget.Toast;
+class SeenTick(
+    loader: ClassLoader,
+    preferences: XSharedPreferences
+) : Feature(loader, preferences) {
 
-import androidx.annotation.NonNull;
+    private val messageMap = ConcurrentHashMap<String, WeakReference<ImageView>>()
+    val scope = CoroutineScope(Dispatchers.Default + SupervisorJob())
 
-import com.wmods.wppenhacer.xposed.core.Feature;
-import com.wmods.wppenhacer.xposed.core.WppCore;
-import com.wmods.wppenhacer.xposed.core.components.FMessageWpp;
-import com.wmods.wppenhacer.xposed.core.db.MessageHistoryStore;
-import com.wmods.wppenhacer.xposed.core.db.MessageStore;
-import com.wmods.wppenhacer.xposed.core.devkit.Unobfuscator;
-import com.wmods.wppenhacer.xposed.features.customization.HideSeenView;
-import com.wmods.wppenhacer.xposed.features.listeners.MenuStatusListener;
-import com.wmods.wppenhacer.xposed.utils.DesignUtils;
-import com.wmods.wppenhacer.xposed.utils.ReflectionUtils;
-import com.wmods.wppenhacer.xposed.utils.ResId;
-import com.wmods.wppenhacer.xposed.utils.Utils;
+    companion object {
+        private var mWaJobManager: Any? = null
+        private var mSendReadClass: Class<*>? = null
+        private var waJobManagerMethod: Method? = null
 
-import org.luckypray.dexkit.query.enums.StringMatchType;
+        private var cachedSeenDrawable: Drawable? = null
+        private var cachedUnseenDrawable: Drawable? = null
 
-import java.lang.ref.WeakReference;
-import java.lang.reflect.Constructor;
-import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Objects;
-import java.util.Set;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ConcurrentHashMap;
+        private var sendJobConstructor: Constructor<*>? = null
+        private var sendJobParamTypes: Array<Class<*>>? = null
+        private var sendJobJidIndexes: List<Pair<Int, Class<*>>>? = null
+        private var sendJobMessageIdIndex: Int = -1
 
-import de.robv.android.xposed.XC_MethodHook;
-import de.robv.android.xposed.XSharedPreferences;
-import de.robv.android.xposed.XposedBridge;
-import de.robv.android.xposed.XposedHelpers;
+        private var sendPlayedClass: Class<*>? = null
+        private var sendPlayedConstructor: Constructor<*>? = null
+        private var participantInfoConstructor: Constructor<*>? = null
 
-public class SeenTick extends Feature {
-
-    private final Set<FMessageWpp> statuses = ConcurrentHashMap.newKeySet();
-    private static Object mWaJobManager;
-    private static Class<?> mSendReadClass;
-    private static Method WaJobManagerMethod;
-    private static FMessageWpp.UserJid currentJid;
-    private static String currentScreen = "none";
-    private final ConcurrentHashMap<String, WeakReference<ImageView>> messageMap = new ConcurrentHashMap<>();
-
-    public SeenTick(@NonNull ClassLoader loader, @NonNull XSharedPreferences preferences) {
-        super(loader, preferences);
-    }
-
-    public static void setSeenButton(ImageView buttonImage, boolean b) {
-        Drawable originalDrawable = DesignUtils.getDrawableByName("ic_notif_mark_read");
-        if (originalDrawable == null) {
-            buttonImage.setImageResource(Utils.getID("ic_notif_mark_read", "drawable"));
-            if (b) buttonImage.setColorFilter(Color.CYAN, PorterDuff.Mode.SRC_ATOP);
-            return;
-        }
-
-        Drawable clonedDrawable;
-
-        if (originalDrawable instanceof BitmapDrawable bitmapDrawable) {
-            Bitmap bitmap = bitmapDrawable.getBitmap();
-            Bitmap.Config config = bitmap.getConfig() != null ? bitmap.getConfig() : Bitmap.Config.ARGB_8888;
-            Bitmap clonedBitmap;
-            try {
-                clonedBitmap = bitmap.copy(config, true);
-            } catch (Exception ex) {
-                clonedBitmap = Bitmap.createBitmap(bitmap.getWidth(), bitmap.getHeight(), Bitmap.Config.ARGB_8888);
-                try {
-                    android.graphics.Canvas canvas = new android.graphics.Canvas(clonedBitmap);
-                    canvas.drawBitmap(bitmap, 0f, 0f, null);
-                } catch (Exception ignore) {
-                }
+        fun setSeenButton(buttonImage: ImageView, isSeen: Boolean) {
+            if (isSeen && cachedSeenDrawable != null) {
+                buttonImage.setImageDrawable(cachedSeenDrawable)
+                buttonImage.postInvalidate()
+                return
+            } else if (!isSeen && cachedUnseenDrawable != null) {
+                buttonImage.setImageDrawable(cachedUnseenDrawable)
+                buttonImage.postInvalidate()
+                return
             }
-            clonedDrawable = new BitmapDrawable(buttonImage.getResources(), clonedBitmap);
-        } else {
-            var cs = originalDrawable.getConstantState();
-            if (cs != null) {
-                clonedDrawable = cs.newDrawable().mutate();
+
+            val originalDrawable = DesignUtils.getDrawableByName("ic_notif_mark_read")
+            if (originalDrawable == null) {
+                buttonImage.setImageResource(Utils.getID("ic_notif_mark_read", "drawable"))
+                if (isSeen) buttonImage.setColorFilter(Color.CYAN, PorterDuff.Mode.SRC_ATOP)
+                else buttonImage.clearColorFilter()
+                return
+            }
+
+            val clonedDrawable: Drawable = if (originalDrawable is BitmapDrawable) {
+                val bitmap = originalDrawable.bitmap
+                val config = bitmap.config ?: Bitmap.Config.ARGB_8888
+                val clonedBitmap = try {
+                    bitmap.copy(config, true)
+                } catch (_: Exception) {
+                    val fallbackBitmap =
+                        createBitmap(bitmap.width, bitmap.height)
+                    try {
+                        val canvas = Canvas(fallbackBitmap)
+                        canvas.drawBitmap(bitmap, 0f, 0f, null)
+                    } catch (_: Exception) {
+                    }
+                    fallbackBitmap
+                }
+                clonedBitmap.toDrawable(buttonImage.resources)
             } else {
-                clonedDrawable = originalDrawable.mutate();
+                originalDrawable.constantState?.newDrawable()?.mutate() ?: originalDrawable.mutate()
             }
-        }
-        if (b) {
-            clonedDrawable.setColorFilter(Color.CYAN, PorterDuff.Mode.SRC_ATOP);
-        }
-        buttonImage.setImageDrawable(clonedDrawable);
-        buttonImage.postInvalidate();
-    }
 
-    private void registerMessageView(String messageId, ImageView view) {
-        if (messageId == null || view == null) return;
-        messageMap.put(messageId, new WeakReference<>(view));
-    }
-
-    private ImageView getRegisteredView(String messageId) {
-        WeakReference<ImageView> ref = messageMap.get(messageId);
-        return ref == null ? null : ref.get();
-    }
-
-    @Override
-    public void doHook() throws Throwable {
-
-
-        WaJobManagerMethod = Unobfuscator.loadBlueOnReplayWaJobManagerMethod(classLoader);
-
-        mSendReadClass = Unobfuscator.findFirstClassUsingName(classLoader, StringMatchType.EndsWith, "SendReadReceiptJob");
-
-        // hook instance of WaJobManager;
-
-        XposedBridge.hookAllConstructors(WaJobManagerMethod.getDeclaringClass(), new XC_MethodHook() {
-            @Override
-            protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-                mWaJobManager = param.thisObject;
+            if (isSeen) {
+                @Suppress("DEPRECATION")
+                clonedDrawable.setColorFilter(Color.CYAN, PorterDuff.Mode.SRC_ATOP)
+                cachedSeenDrawable = clonedDrawable
+            } else {
+                clonedDrawable.clearColorFilter()
+                cachedUnseenDrawable = clonedDrawable
             }
-        });
 
-        // hook conversation screen
-
-        WppCore.addListenerActivity((activity, type) -> {
-            if (activity.getClass().getSimpleName().equals("Conversation") && (type == WppCore.ActivityChangeState.ChangeType.STARTED || type == WppCore.ActivityChangeState.ChangeType.RESUMED)) {
-                var jid = WppCore.getCurrentUserJid();
-                if (!Objects.equals(jid, currentJid)) {
-                    currentJid = jid;
-                }
-                currentScreen = "conversation";
-            }
-        });
-
-        // hook messages
-        hookOnSendMessages();
-
-        // Send Seen functions
-        var ticktype = Integer.parseInt(prefs.getString("seentick", "0"));
-        if (ticktype == 0) return;
-
-        // hook current status
-
-        var setPageActiveMethod = Unobfuscator.loadStatusActivePage(classLoader);
-        logDebug(Unobfuscator.getMethodDescriptor(setPageActiveMethod));
-        var fieldList = ReflectionUtils.getFieldByType(setPageActiveMethod.getDeclaringClass(), List.class);
-
-        XposedBridge.hookMethod(setPageActiveMethod, new XC_MethodHook() {
-            @Override
-            protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
-                var position = (int) param.args[1];
-                var list = (List<?>) XposedHelpers.getObjectField(param.args[0], fieldList.getName());
-                var object = list.get(position);
-                if (!FMessageWpp.TYPE.isInstance(object)) {
-                    var fmessageField = ReflectionUtils.findFieldUsingFilter(object.getClass(), field -> FMessageWpp.TYPE.isAssignableFrom(field.getType()));
-                    object = fmessageField.get(object);
-                }
-                var fMessage = new FMessageWpp(object);
-                statuses.clear();
-                statuses.add(fMessage);
-                currentJid = fMessage.getUserJid();
-                currentScreen = "status";
-            }
-        });
-
-        // Add button to send Seen in conversation
-        hookConversationScreen(ticktype);
-
-        /// Add button to send View Once to target
-        hookViewOnceScreen(ticktype);
-
-        // Add button to send Seen in status
-        hookStatusScreen(ticktype);
-
-    }
-
-    private void hookStatusScreen(int ticktype) throws Exception {
-        var viewButtonMethod = Unobfuscator.loadBlueOnReplayViewButtonMethod(classLoader);
-        logDebug(Unobfuscator.getMethodDescriptor(viewButtonMethod));
-        var viewStatusField = Unobfuscator.loadBlueOnReplayViewButtonOutSideField(classLoader);
-        if (ticktype == 1) {
-            XposedBridge.hookMethod(viewButtonMethod, new XC_MethodHook() {
-                @Override
-                protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-                    if (!prefs.getBoolean("hidestatusview", false)) return;
-                    var fMessageField = ReflectionUtils.getFieldByExtendType(viewStatusField.getDeclaringClass(), FMessageWpp.TYPE);
-                    var fMessageObj = ReflectionUtils.getObjectField(fMessageField, param.thisObject);
-                    if (fMessageObj == null) {
-                        var instance = ReflectionUtils.getObjectField(viewStatusField, param.thisObject);
-                        fMessageField = ReflectionUtils.findFieldUsingFilterIfExists(instance.getClass(), field1 -> FMessageWpp.TYPE.isAssignableFrom(field1.getType()));
-                        if (fMessageField != null) {
-                            fMessageObj = ReflectionUtils.getObjectField(fMessageField, instance);
-                        }
-                    }
-                    if (fMessageObj == null) {
-                        logDebug("Failed to find fMessageField");
-                        return;
-                    }
-                    var fMessage = new FMessageWpp(fMessageObj);
-                    var key = fMessage.getKey();
-                    if (key.isFromMe) return;
-                    var view = (View) param.getResult();
-                    var contentView = (LinearLayout) view.findViewById(Utils.getID("bottom_sheet", "id"));
-                    var buttonImage = new ImageView(view.getContext());
-                    LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(Utils.dipToPixels(32), Utils.dipToPixels(32));
-                    params.gravity = Gravity.CENTER_VERTICAL;
-                    params.setMargins(Utils.dipToPixels(5), Utils.dipToPixels(5), 0, 0);
-                    buttonImage.setLayoutParams(params);
-                    buttonImage.setImageResource(Utils.getID("ic_notif_mark_read", "drawable"));
-                    GradientDrawable border = new GradientDrawable();
-                    border.setShape(GradientDrawable.RECTANGLE);
-                    border.setStroke(1, Color.WHITE);
-                    border.setCornerRadius(20);
-                    border.setColor(Color.parseColor("#80000000"));
-                    buttonImage.setBackground(border);
-                    contentView.setOrientation(LinearLayout.HORIZONTAL);
-                    contentView.addView(buttonImage, 0);
-                    registerMessageView(key.messageID, buttonImage);
-                    buttonImage.setOnClickListener(v -> CompletableFuture.runAsync(() -> {
-                        Utils.showToast(view.getContext().getString(ResId.string.sending_read_blue_tick), Toast.LENGTH_SHORT);
-                        sendBlueTickStatus(currentJid);
-                        buttonImage.post(() -> setSeenButton(buttonImage, true));
-                    }));
-                    CompletableFuture.runAsync(() -> {
-                        var seen = MessageStore.getInstance().isReadMessageStatus(key.messageID);
-                        buttonImage.post(() -> setSeenButton(buttonImage, seen));
-                    });
-                }
-            });
-        } else {
-
-            MenuStatusListener.menuStatuses.add(
-                    new MenuStatusListener.OnMenuItemStatusListener() {
-                        @Override
-                        public MenuItem addMenu(@NonNull Menu menu, @NonNull FMessageWpp fMessage) {
-                            if (menu.findItem(ResId.string.send_blue_tick) != null) return null;
-                            if (fMessage.getKey().isFromMe) return null;
-                            return menu.add(0, ResId.string.send_blue_tick, 0, ResId.string.send_blue_tick);
-                        }
-
-                        @Override
-                        public void onClick(@NonNull MenuItem item, @NonNull Object fragmentInstance, @NonNull FMessageWpp fMessageWpp) {
-                            sendBlueTickStatus(currentJid);
-                            Utils.showToast(Utils.getApplication().getString(ResId.string.sending_read_blue_tick), Toast.LENGTH_SHORT);
-                        }
-                    });
+            buttonImage.setImageDrawable(clonedDrawable)
+            buttonImage.postInvalidate()
         }
     }
 
-    private void hookConversationScreen(int ticktype) throws Exception {
-        var onCreateMenuConversationMethod = Unobfuscator.loadBlueOnReplayCreateMenuConversationMethod(classLoader);
-        logDebug(Unobfuscator.getMethodDescriptor(onCreateMenuConversationMethod));
-        XposedBridge.hookMethod(onCreateMenuConversationMethod, new XC_MethodHook() {
-            @Override
-            protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-                var menu = (Menu) param.args[0];
-                var menuItem = menu.add(0, 0, 0, ResId.string.send_blue_tick);
-                if (ticktype == 1) menuItem.setShowAsAction(2);
-                menuItem.setIcon(Utils.getID("ic_notif_mark_read", "drawable"));
-                menuItem.setOnMenuItemClickListener(item -> {
-                    sendBlueTick(currentJid);
-                    Utils.showToast(Utils.getApplication().getString(ResId.string.sending_read_blue_tick), Toast.LENGTH_SHORT);
-                    HideSeenView.updateAllBubbleViews();
-                    return true;
-                });
-            }
-        });
-
-        MenuStatusListener.menuStatuses.add(
-                new MenuStatusListener.OnMenuItemStatusListener() {
-                    @Override
-                    public MenuItem addMenu(@NonNull Menu menu, @NonNull FMessageWpp fMessage) {
-                        if (menu.findItem(ResId.string.read_all_mark_as_read) != null) return null;
-                        if (fMessage.getKey().isFromMe) return null;
-                        return menu.add(0, ResId.string.read_all_mark_as_read, 0, ResId.string.read_all_mark_as_read);
-                    }
-
-                    @Override
-                    public void onClick(@NonNull MenuItem item, @NonNull Object fragmentInstance, @NonNull FMessageWpp fMessageWpp) {
-                        try {
-                            statuses.clear();
-                            var listStatusField = ReflectionUtils.getFieldByExtendType(fragmentInstance.getClass(), List.class);
-                            var listStatus = (List) listStatusField.get(fragmentInstance);
-                            for (int i = 0; i < listStatus.size(); i++) {
-                                var obj = listStatus.get(i);
-                                if (!FMessageWpp.TYPE.isInstance(obj)) {
-                                    var fieldFMessage = ReflectionUtils.getFieldByExtendType(obj.getClass(), FMessageWpp.TYPE);
-                                    obj = fieldFMessage.get(obj);
-                                }
-                                var fMessage = new FMessageWpp(obj);
-                                var messageId = fMessage.getKey().messageID;
-                                if (!fMessage.getKey().isFromMe) {
-                                    statuses.add(fMessage);
-                                }
-                                var view = getRegisteredView(messageId);
-                                if (view != null) {
-                                    view.post(() -> setSeenButton(view, true));
-                                }
-                            }
-                        } catch (Exception e) {
-                            log(e);
-                        }
-                        sendBlueTickStatus(currentJid);
-                        Utils.showToast(Utils.getApplication().getString(ResId.string.sending_read_blue_tick), Toast.LENGTH_SHORT);
-                    }
-                });
+    private fun registerMessageView(messageId: String?, view: ImageView?) {
+        if (messageId == null || view == null) return
+        messageMap[messageId] = WeakReference(view)
     }
 
-    private void hookViewOnceScreen(int ticktype) throws Exception {
-        var menuMethod = Unobfuscator.loadViewOnceDownloadMenuMethod(classLoader);
-        logDebug(Unobfuscator.getMethodDescriptor(menuMethod));
-
-        XposedBridge.hookMethod(menuMethod, new XC_MethodHook() {
-            @Override
-            @SuppressLint("DiscouragedApi")
-            protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-                var fmessageObj = ReflectionUtils.getArg(param.args, FMessageWpp.TYPE, 0);
-                FMessageWpp fMessage = new FMessageWpp(fmessageObj);
-                if (!fMessage.isViewOnce()) return;
-                Menu menu = ReflectionUtils.getArg(param.args, Menu.class, 0);
-                MenuItem item = menu.add(0, 0, 0, ResId.string.send_blue_tick).setIcon(Utils.getID("ic_notif_mark_read", "drawable"));
-                if (ticktype == 1) item.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
-                item.setOnMenuItemClickListener(item1 -> {
-                    var userJid = fMessage.getKey().remoteJid;
-                    var messageID = fMessage.getKey().messageID;
-                    MessageHistoryStore.getInstance().updateViewedMessage(userJid.getPhoneRawString(), messageID, MessageHistoryStore.ReceiptType.READ, true);
-                    MessageHistoryStore.getInstance().updateViewedMessage(userJid.getPhoneRawString(), messageID, MessageHistoryStore.ReceiptType.PLAYED, true);
-                    sendBlueTickMedia(fMessage);
-                    statuses.clear();
-                    Utils.showToast(Utils.getApplication().getString(ResId.string.sending_read_blue_tick), Toast.LENGTH_SHORT);
-                    HideSeenView.updateAllBubbleViews();
-                    return true;
-                });
-            }
-        });
-
-        XposedHelpers.findAndHookMethod(WppCore.getViewOnceViewerActivityClass(classLoader), "onCreateOptionsMenu", classLoader.loadClass("android.view.Menu"),
-                new XC_MethodHook() {
-                    @Override
-                    protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-                        Menu menu = (Menu) param.args[0];
-                        MenuItem item = menu.add(0, 0, 0, ResId.string.send_blue_tick).setIcon(Utils.getID("ic_notif_mark_read", "drawable"));
-                        if (ticktype == 1) item.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
-                        item.setOnMenuItemClickListener(item1 -> {
-                            CompletableFuture.runAsync(() -> {
-                                var keyClass = FMessageWpp.Key.TYPE;
-                                var fieldType = ReflectionUtils.getFieldByType(param.thisObject.getClass(), keyClass);
-                                var keyMessage = ReflectionUtils.getObjectField(fieldType, param.thisObject);
-                                var fMessage = new FMessageWpp.Key(keyMessage).getFMessage();
-                                var rawJid = fMessage.getKey().remoteJid.getPhoneRawString();
-                                var messageID = fMessage.getKey().messageID;
-                                MessageHistoryStore.getInstance().updateViewedMessage(rawJid, messageID, MessageHistoryStore.ReceiptType.PLAYED, true);
-                                MessageHistoryStore.getInstance().updateViewedMessage(rawJid, messageID, MessageHistoryStore.ReceiptType.READ, true);
-                                sendBlueTickMedia(fMessage);
-                                statuses.clear();
-                                Utils.showToast(Utils.getApplication().getString(ResId.string.sending_read_blue_tick), Toast.LENGTH_SHORT);
-                                HideSeenView.updateAllBubbleViews();
-                            });
-                            return true;
-                        });
-
-                    }
-                });
-
-
+    private fun getRegisteredView(messageId: String?): ImageView? {
+        return messageMap[messageId]?.get()
     }
 
-    private void hookOnSendMessages() throws Exception {
-        var messageJobMethod = Unobfuscator.loadBlueOnReplayMessageJobMethod(classLoader);
-        var messageSendClass = Unobfuscator.findFirstClassUsingName(classLoader, StringMatchType.Contains, "SendE2EMessageJob");
-
-        XposedBridge.hookMethod(messageJobMethod, new XC_MethodHook() {
-            @Override
-            protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
-                if (!prefs.getBoolean("blueonreply", false)) return;
-                var obj = messageSendClass.cast(param.thisObject);
-                var rawJid = (String) XposedHelpers.getObjectField(obj, "jid");
-                var userJid = new FMessageWpp.UserJid(WppCore.createUserJid(rawJid));
-
-                if (Objects.equals(currentScreen, "status") && !userJid.isStatus()) {
-                    if (statuses.isEmpty()) return;
-                    var first = statuses.stream().findFirst().orElse(null);
-                    if (first == null) return;
-                    MessageStore.getInstance().storeMessageRead(first.getKey().messageID);
-                    var view = getRegisteredView(first.getKey().messageID);
-                    if (view != null) view.post(() -> setSeenButton(view, true));
-                    sendBlueTickStatus(currentJid);
-                } else {
-                    sendBlueTick(userJid);
-                }
-                HideSeenView.updateAllBubbleViews();
-            }
-        });
-    }
-
-    private static void updateMessageStatusView(String rawJid, List<FMessageWpp> messages) {
-        for (var msg : messages) {
-            MessageHistoryStore.getInstance().updateViewedMessage(rawJid, msg.getKey().messageID, MessageHistoryStore.ReceiptType.READ, true);
-        }
-        HideSeenView.updateAllBubbleViews();
-    }
-
-    private void sendBlueTick(FMessageWpp.UserJid userJid) {
-        CompletableFuture.runAsync(() -> {
-            if (Objects.equals(userJid.getPhoneNumber(), Utils.getMyNumber()) || Objects.requireNonNullElse(userJid.getUserRawString(), "").contains("lid_me"))
-                return;
-            var messages = new ArrayList<FMessageWpp>();
-            var hideSeenMessages = MessageHistoryStore.getInstance().getHideSeenMessages(userJid.getPhoneRawString(), MessageHistoryStore.ReceiptType.READ, false);
-            if (hideSeenMessages == null) return;
-
-            for (var message : hideSeenMessages) {
-                var fmessage = message.getFMessage();
-                if (fmessage == null) continue;
-                messages.add(fmessage);
-            }
-
-            if (messages.isEmpty())
-                return;
-            for (var m : messages) {
-                if (m.getMediaType() == 2) sendBlueTickMedia(m);
-            }
-            var sentMessages = sendBlueTickMsg(userJid, messages);
-            updateMessageStatusView(userJid.getPhoneRawString(), sentMessages);
-        }, Utils.getExecutor());
-    }
-
-    private List<FMessageWpp> sendBlueTickMsg(FMessageWpp.UserJid userJid, ArrayList<FMessageWpp> messages) {
-        int totalMessages = messages.size();
-        if (totalMessages == 0)
-            return messages;
-
-        var sentMessages = new ArrayList<FMessageWpp>(totalMessages);
-
-        List<? extends Pair<Integer, ? extends Class<?>>> jidIndexes;
-        Constructor<?> sendJobConstrutor;
-        int messageIdIndex;
-        Object[] args;
+    override fun doHook() {
+        waJobManagerMethod = Unobfuscator.loadBlueOnReplayWaJobManagerMethod(classLoader)
+        mSendReadClass = Unobfuscator.findFirstClassUsingName(
+            classLoader,
+            StringMatchType.EndsWith,
+            "SendReadReceiptJob"
+        )
 
         try {
-            sendJobConstrutor = mSendReadClass.getConstructors()[0];
-            var paramTypes = sendJobConstrutor.getParameterTypes();
-            jidIndexes = ReflectionUtils.findClassesOfType(paramTypes, FMessageWpp.UserJid.TYPE_JID);
-            if (jidIndexes.size() < 2) {
-                logDebug("Failed to find JID indexes for SendReadReceiptJob");
-                return Collections.emptyList();
-            }
-            messageIdIndex = ReflectionUtils.findIndexOfType(paramTypes, String[].class);
-            if (messageIdIndex == -1) {
-                logDebug("Failed to find messageId index for SendReadReceiptJob");
-                return Collections.emptyList();
+            mSendReadClass?.let { cls ->
+                sendJobConstructor = cls.constructors.firstOrNull()
+                sendJobConstructor?.let { constr ->
+                    val paramTypes = constr.parameterTypes
+                    sendJobParamTypes = paramTypes
+
+                    @Suppress("UNCHECKED_CAST")
+                    sendJobJidIndexes = ReflectionUtils.findClassesOfType(
+                        paramTypes as Array<Class<*>>,
+                        FMessageWpp.UserJid.TYPE_JID
+                    ) as List<Pair<Int, Class<*>>>
+
+                    @Suppress("UNCHECKED_CAST")
+                    sendJobMessageIdIndex = ReflectionUtils.findIndexOfType(
+                        paramTypes as Array<Any?>,
+                        Array<String>::class.java
+                    )
+                }
             }
 
-            args = ReflectionUtils.initArray(paramTypes);
-            args[jidIndexes.get(0).first] = userJid.userJid;
-
-        } catch (Exception e) {
-            logDebug(e);
-            return Collections.emptyList();
+            sendPlayedClass = Unobfuscator.findFirstClassUsingName(
+                classLoader,
+                StringMatchType.Contains,
+                "SendPlayedReceiptJob"
+            )
+            sendPlayedClass?.let { cls ->
+                sendPlayedConstructor = cls.declaredConstructors.firstOrNull()
+                val classParticipantInfo = sendPlayedConstructor?.parameterTypes?.firstOrNull()
+                participantInfoConstructor =
+                    classParticipantInfo?.declaredConstructors?.firstOrNull()
+            }
+        } catch (e: Exception) {
+            logDebug("Error caching reflection: ${e.message}")
         }
 
-        HashMap<FMessageWpp.UserJid, List<FMessageWpp>> groupedMap = new HashMap<>(4);
-        boolean isGroup = userJid.isGroup();
+        XposedBridge.hookAllConstructors(
+            waJobManagerMethod?.declaringClass,
+            object : XC_MethodHook() {
+                override fun afterHookedMethod(param: MethodHookParam) {
+                    mWaJobManager = param.thisObject
+                }
+            })
 
-        for (int i = 0; i < totalMessages; i++) {
-            FMessageWpp message = messages.get(i);
-            var userJidMsg = isGroup ? message.getUserJid() : message.getKey().remoteJid;
-            List<FMessageWpp> groupList = groupedMap.computeIfAbsent(userJidMsg, k -> new ArrayList<>(isGroup ? 4 : totalMessages));
-            groupList.add(message);
+        hookOnSendMessages()
+
+        val ticktype = prefs.getString("seentick", "0")?.toIntOrNull() ?: 0
+        if (ticktype == 0) return
+
+        hookConversationScreen(ticktype)
+        hookViewOnceScreen(ticktype)
+        hookStatusScreen(ticktype)
+    }
+
+
+    private fun hookStatusScreen(ticktype: Int) {
+        val viewButtonMethod = Unobfuscator.loadBlueOnReplayViewButtonMethod(classLoader)
+        var viewStatusField: Field? = null
+        val ifaceKeyStatusItemClass =
+            Unobfuscator.loadUnknownStatusPlaybackMethod(classLoader).parameterTypes.first()
+        val replyContainerMethod = Unobfuscator.loadStatusPlaybackReplyContainer(classLoader)
+
+        if (ticktype == 1) {
+            XposedBridge.hookMethod(viewButtonMethod, object : XC_MethodHook() {
+                override fun afterHookedMethod(param: MethodHookParam) {
+                    if (!prefs.getBoolean("hidestatusview", false)) return
+
+                    if (viewStatusField == null) {
+                        viewStatusField =
+                            ReflectionUtils.findFieldUsingFilter(param.thisObject.javaClass) { f ->
+                                f.type == ifaceKeyStatusItemClass
+                            }
+                    }
+                    val ifaceStatusItem = viewStatusField.get(param.thisObject)
+                    val fMessage = MenuStatusListener.getFMessageFromStatusData(ifaceStatusItem)
+
+                    if (fMessage == null) {
+                        log("FMessage is null")
+                        return
+                    }
+
+                    val key = fMessage.key
+                    if (key.isFromMe) return
+
+                    val fieldViewContainer =
+                        ReflectionUtils.findFieldUsingFilter(param.thisObject.javaClass) {
+                            replyContainerMethod.declaringClass.isAssignableFrom(it.type)
+                        }
+                    val replyContainer =
+                        replyContainerMethod.invoke(fieldViewContainer.get(param.thisObject))
+                    val replyView = XposedHelpers.callMethod(replyContainer, "A01") as View
+                    val contentView =
+                        replyView.findViewById<LinearLayout>(
+                            Utils.getID(
+                                "reply_bar_tappable",
+                                "id"
+                            )
+                        )
+
+                    val replyBarBackground =
+                        replyView.findViewById<View>(Utils.getID("reply_bar_background", "id"))
+
+                    val buttonImage = ImageView(replyView.context)
+
+                    val iconSize = Utils.dipToPixels(32f)
+
+                    buttonImage.setImageResource(Utils.getID("ic_notif_mark_read", "drawable"))
+
+                    val containerButton = FrameLayout(replyView.context).apply {
+                        background = GradientDrawable().apply {
+                            shape = GradientDrawable.OVAL
+                            setColor(DesignUtils.getPrimarySurfaceColor())
+                        }
+                    }
+
+                    containerButton.addView(
+                        buttonImage,
+                        FrameLayout.LayoutParams(iconSize, iconSize).apply {
+                            gravity = Gravity.CENTER
+                        }
+                    )
+
+                    replyBarBackground.post {
+                        val containerSize = replyBarBackground.height
+
+                        containerButton.layoutParams = FrameLayout.LayoutParams(
+                            containerSize,
+                            containerSize,
+                        ).apply {
+                            setMargins(0, 0, Utils.dipToPixels(5f), 0)
+                        }
+
+                        val position = contentView.indexOfChild(replyBarBackground)
+                        contentView.addView(containerButton, position + 1)
+                    }
+
+                    registerMessageView(key.messageID, buttonImage)
+
+                    buttonImage.setOnClickListener {
+                        scope.launch {
+                            Utils.showToast(
+                                replyView.context.getString(ResId.string.sending_read_blue_tick),
+                                Toast.LENGTH_SHORT
+                            )
+                            sendBlueTickStatus(
+                                listOf(fMessage)
+                            )
+                            withContext(Dispatchers.Main) {
+                                setSeenButton(buttonImage, true)
+                            }
+                        }
+                    }
+
+                    scope.launch(Dispatchers.IO) {
+                        val item = MessageHistoryStore.getInstance().getHideSeenMessage(
+                            "status@broadcast",
+                            key.messageID,
+                            MessageHistoryStore.ReceiptType.READ
+                        )
+                        withContext(Dispatchers.Main) {
+                            setSeenButton(buttonImage, item?.viewed ?: false)
+                        }
+                    }
+
+                }
+            })
+        } else {
+            MenuStatusListener.menuStatuses.add(object :
+                MenuStatusListener.OnMenuItemStatusListener() {
+
+                override fun addMenu(
+                    menu: Menu,
+                    fMessageList: List<FMessageWpp>,
+                    currentIndex: Int
+                ): MenuItem? {
+                    if (menu.findItem(ResId.string.send_blue_tick) != null) return null
+                    val fMessage = fMessageList[currentIndex]
+                    if (fMessage.key.isFromMe) return null
+                    return menu.add(0, ResId.string.send_blue_tick, 0, ResId.string.send_blue_tick)
+                }
+
+                override fun onClick(
+                    item: MenuItem,
+                    fragmentInstance: Any,
+                    fMessageList: List<FMessageWpp>,
+                    currentIndex: Int
+                ) {
+                    val fMessage = fMessageList[currentIndex]
+                    DebugUtils.debugObject(fMessage)
+                    sendBlueTickStatus(listOf(fMessage))
+                    Utils.showToast(
+                        Utils.getString(ResId.string.sending_read_blue_tick),
+                        Toast.LENGTH_SHORT
+                    )
+                }
+            })
+        }
+    }
+
+    private fun hookConversationScreen(ticktype: Int) {
+        val onCreateMenuConversationMethod = Unobfuscator.loadOnCreatedMenuConversation(classLoader)
+
+        XposedBridge.hookMethod(onCreateMenuConversationMethod, object : XC_MethodHook() {
+            override fun afterHookedMethod(param: MethodHookParam) {
+                val menu = param.args[0] as Menu
+                val menuItem = menu.add(0, 0, 0, ResId.string.send_blue_tick)
+                if (ticktype == 1) menuItem.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS)
+                menuItem.setIcon(Utils.getID("ic_notif_mark_read", "drawable"))
+                menuItem.setOnMenuItemClickListener {
+                    val currentUserJid = WppCore.getCurrentUserJid()
+                    currentUserJid?.let { jid -> sendBlueTick(jid) }
+                    Utils.showToast(
+                        Utils.getString(ResId.string.sending_read_blue_tick),
+                        Toast.LENGTH_SHORT
+                    )
+                    true
+                }
+            }
+        })
+
+        MenuStatusListener.menuStatuses.add(object : MenuStatusListener.OnMenuItemStatusListener() {
+            override fun addMenu(
+                menu: Menu,
+                fMessageList: List<FMessageWpp>,
+                currentIndex: Int
+            ): MenuItem? {
+                if (menu.findItem(ResId.string.read_all_mark_as_read) != null) return null
+                val fMessage = fMessageList[currentIndex]
+                if (fMessage.key.isFromMe) return null
+                return menu.add(
+                    0,
+                    ResId.string.read_all_mark_as_read,
+                    0,
+                    ResId.string.read_all_mark_as_read
+                )
+            }
+
+            override fun onClick(
+                item: MenuItem,
+                fragmentInstance: Any,
+                fMessageList: List<FMessageWpp>,
+                currentIndex: Int
+            ) {
+                MenuStatusListener.currentStatusList.forEach { fMessage ->
+                    val view = getRegisteredView(fMessage.key.messageID)
+                    view?.post {
+                        setSeenButton(view, true)
+                    }
+                }
+                sendBlueTickStatus(MenuStatusListener.currentStatusList)
+                Utils.showToast(
+                    Utils.getString(ResId.string.sending_read_blue_tick),
+                    Toast.LENGTH_SHORT
+                )
+            }
+        })
+    }
+
+    private fun hookViewOnceScreen(ticktype: Int) {
+        val menuMethod = Unobfuscator.loadViewOnceDownloadMenuMethod(classLoader)
+
+        XposedBridge.hookMethod(menuMethod, object : XC_MethodHook() {
+            @SuppressLint("DiscouragedApi")
+            override fun afterHookedMethod(param: MethodHookParam) {
+                val fmessageObj = ReflectionUtils.getArg(param.args, FMessageWpp.TYPE, 0) ?: return
+                val fMessage = FMessageWpp(fmessageObj)
+                if (!fMessage.isViewOnce) return
+
+                val menu = ReflectionUtils.getArg(param.args, Menu::class.java, 0)
+                if (menu == null) {
+                    logDebug("Menu is null")
+                    return
+                }
+
+                val item = menu.add(0, 0, 0, ResId.string.send_blue_tick)
+                    .setIcon(Utils.getID("ic_notif_mark_read", "drawable"))
+                if (ticktype == 1) item.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS)
+
+                item.setOnMenuItemClickListener {
+                    val userJid = fMessage.key.remoteJid
+                    val messageID = fMessage.key.messageID
+                    MessageHistoryStore.getInstance().updateViewedMessage(
+                        userJid.phoneRawString,
+                        messageID,
+                        MessageHistoryStore.ReceiptType.PLAYED,
+                        true
+                    )
+                    MessageHistoryStore.getInstance().updateViewedMessage(
+                        userJid.phoneRawString,
+                        messageID,
+                        MessageHistoryStore.ReceiptType.READ,
+                        true
+                    )
+                    sendBlueTickMedia(fMessage)
+                    Utils.showToast(
+                        Utils.getString(ResId.string.sending_read_blue_tick),
+                        Toast.LENGTH_SHORT
+                    )
+                    true
+                }
+            }
+        })
+
+        XposedHelpers.findAndHookMethod(
+            WppCore.getViewOnceViewerActivityClass(classLoader),
+            "onCreateOptionsMenu",
+            Menu::class.java,
+            object : XC_MethodHook() {
+                override fun afterHookedMethod(param: MethodHookParam) {
+                    val menu = param.args[0] as Menu
+                    val item = menu.add(0, 0, 0, ResId.string.send_blue_tick)
+                        .setIcon(Utils.getID("ic_notif_mark_read", "drawable"))
+                    if (ticktype == 1) item.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS)
+
+                    item.setOnMenuItemClickListener {
+                        scope.launch(Dispatchers.IO) {
+                            val keyClass = FMessageWpp.Key.TYPE
+                            val fieldType =
+                                ReflectionUtils.getFieldByType(param.thisObject.javaClass, keyClass)
+                            val keyMessage =
+                                ReflectionUtils.getObjectField(fieldType, param.thisObject)
+                            val fMessage = FMessageWpp.Key(keyMessage).fMessage ?: return@launch
+                            val rawJid = fMessage.key.remoteJid.phoneRawString
+                            val messageID = fMessage.key.messageID
+
+                            MessageHistoryStore.getInstance().updateViewedMessage(
+                                rawJid,
+                                messageID,
+                                MessageHistoryStore.ReceiptType.PLAYED,
+                                true
+                            )
+                            MessageHistoryStore.getInstance().updateViewedMessage(
+                                rawJid,
+                                messageID,
+                                MessageHistoryStore.ReceiptType.READ,
+                                true
+                            )
+                            sendBlueTickMedia(fMessage)
+                            Utils.showToast(
+                                Utils.getString(ResId.string.sending_read_blue_tick),
+                                Toast.LENGTH_SHORT
+                            )
+                        }
+                        true
+                    }
+                }
+            }
+        )
+    }
+
+    private fun hookOnSendMessages() {
+
+        val messageJobMethod = Unobfuscator.loadBlueOnReplayMessageJobMethod(classLoader)
+        val messageSendClass = Unobfuscator.findFirstClassUsingName(
+            classLoader,
+            StringMatchType.Contains,
+            "SendE2EMessageJob"
+        )
+        val blueOnReplayEnabled = prefs.getBoolean("blueonreply", false)
+
+        XposedBridge.hookMethod(messageJobMethod, object : XC_MethodHook() {
+            override fun beforeHookedMethod(param: MethodHookParam) {
+                if (!blueOnReplayEnabled) return
+                val obj = messageSendClass.cast(param.thisObject)
+                val rawJid = XposedHelpers.getObjectField(obj, "jid") as String
+                val userJid = FMessageWpp.UserJid(rawJid)
+
+                if (userJid.isStatus) {
+                    MenuStatusListener.currentStatusList.forEach { fMessage ->
+                        val view = getRegisteredView(fMessage.key.messageID)
+                        view?.post {
+                            setSeenButton(view, true)
+                        }
+                    }
+                    sendBlueTickStatus(MenuStatusListener.currentStatusList)
+                } else {
+                    sendBlueTick(userJid)
+                }
+            }
+        })
+    }
+
+    private fun sendBlueTick(userJid: FMessageWpp.UserJid) {
+
+        scope.launch {
+            val phoneNumber = userJid.phoneNumber
+            val userRaw = userJid.userRawString ?: ""
+            if (phoneNumber == Utils.getMyNumber() || userRaw.contains("lid_me")) return@launch
+
+            val messages = ArrayList<FMessageWpp>()
+            val hiddenMessages = MessageHistoryStore.getInstance()
+                .getHideSeenMessages(
+                    userJid.phoneRawString,
+                    MessageHistoryStore.ReceiptType.READ,
+                    false
+                )
+
+            hiddenMessages?.forEach { message ->
+                message.fMessage?.let { messages.add(it) }
+            }
+
+            if (messages.isEmpty()) return@launch
+
+            messages.forEach { m ->
+                if (m.mediaType == 2) {
+                    MessageHistoryStore.getInstance().updateViewedMessage(
+                        userJid.phoneRawString,
+                        m.key.messageID,
+                        MessageHistoryStore.ReceiptType.PLAYED,
+                        true
+                    )
+                    sendBlueTickMedia(m)
+                }
+            }
+
+            messages.forEach { msg ->
+                MessageHistoryStore.getInstance().updateViewedMessage(
+                    userJid.phoneRawString,
+                    msg.key.messageID,
+                    MessageHistoryStore.ReceiptType.READ,
+                    true
+                )
+            }
+
+            sendBlueTickMsg(userJid, messages)
+        }
+    }
+
+    private fun sendBlueTickMsg(userJid: FMessageWpp.UserJid, messages: ArrayList<FMessageWpp>) {
+
+        if (messages.isEmpty()) return
+
+        val constr = sendJobConstructor ?: return
+        val jidIndexes = sendJobJidIndexes ?: return
+
+        val paramTypes = sendJobParamTypes ?: return
+
+        if (jidIndexes.size < 2 || sendJobMessageIdIndex == -1) return
+
+        @Suppress("UNCHECKED_CAST")
+        val args = ReflectionUtils.initArray(paramTypes)
+        args[jidIndexes[0].first] = userJid.userJid
+
+        val groupedMap = HashMap<FMessageWpp.UserJid, MutableList<FMessageWpp>>(4)
+        val isGroup = userJid.isGroup
+
+        for (message in messages) {
+            val userJidMsg = (if (isGroup) message.userJid else message.key.remoteJid)
+            groupedMap.computeIfAbsent(userJidMsg) { ArrayList(if (isGroup) 4 else messages.size) }
+                .add(message)
         }
 
-        for (var entry : groupedMap.entrySet()) {
+        for ((userJidMsg, groupMessages) in groupedMap) {
             try {
-                var userJidMsg = entry.getKey();
-                List<FMessageWpp> groupMessages = entry.getValue();
-                int groupSize = groupMessages.size();
+                val groupSize = groupMessages.size
+                val messageIds = Array(groupSize) { i -> groupMessages[i].key.messageID }
 
-                String[] messageIds = new String[groupSize];
-                for (int i = 0; i < groupSize; i++) {
-                    messageIds[i] = groupMessages.get(i).getKey().messageID;
+                args[jidIndexes[1].first] = if (isGroup) userJidMsg.userJid else null
+                args[sendJobMessageIdIndex] = messageIds
+
+                val sendJob = constr.newInstance(*args)
+                XposedHelpers.setAdditionalInstanceField(sendJob, "blue_on_reply", true)
+                waJobManagerMethod?.invoke(mWaJobManager, sendJob)
+            } catch (ex: Exception) {
+                logDebug(ex)
+            }
+        }
+    }
+
+    private fun sendBlueTickStatus(
+        fMessageList: List<FMessageWpp>
+    ) {
+
+        if (fMessageList.isEmpty()) return
+
+        val currentJidTarget = fMessageList.first().userJid
+
+        scope.launch {
+            try {
+                val size = fMessageList.size
+
+                val constr = sendJobConstructor ?: return@launch
+                val jidIndexes = sendJobJidIndexes ?: return@launch
+
+                val paramTypes = sendJobParamTypes ?: return@launch
+
+                if (jidIndexes.size < 2 || sendJobMessageIdIndex == -1) return@launch
+
+                val arrS = Array(size) { "" }
+                val messageHistory = MessageHistoryStore.getInstance()
+
+                for (i in 0 until size) {
+                    val msgId = fMessageList[i].key.messageID
+                    arrS[i] = msgId
+                    messageHistory.updateViewedMessage(
+                        "status@broadcast",
+                        msgId,
+                        MessageHistoryStore.ReceiptType.READ,
+                        true
+                    )
                 }
 
-                args[jidIndexes.get(1).first] = isGroup ? userJidMsg.userJid : null;
-                args[messageIdIndex] = messageIds;
+                val userJidSender = WppCore.createUserJid("status@broadcast")
 
-                Object sendJob = sendJobConstrutor.newInstance(args);
-                XposedHelpers.setAdditionalInstanceField(sendJob, "blue_on_reply", true);
-                WaJobManagerMethod.invoke(mWaJobManager, sendJob);
+                @Suppress("UNCHECKED_CAST")
+                val args = ReflectionUtils.initArray(paramTypes)
 
-                sentMessages.addAll(groupMessages);
+                args[jidIndexes[0].first] = userJidSender
+                args[jidIndexes[1].first] = currentJidTarget.userJid
+                args[sendJobMessageIdIndex] = arrS
 
-            } catch (Exception ex) {
-                logDebug(ex);
+                val sendJob2 = constr.newInstance(*args)
+                XposedHelpers.setAdditionalInstanceField(sendJob2, "blue_on_reply", true)
+                waJobManagerMethod?.invoke(mWaJobManager, sendJob2)
+            } catch (e: Exception) {
+                logDebug(e)
             }
         }
 
-        return sentMessages;
     }
 
-    private void sendBlueTickStatus(FMessageWpp.UserJid currentJid) {
-        if (statuses.isEmpty() || currentJid == null || "status_me".equals(currentJid.getPhoneNumber())) {
-            return;
+    private fun sendBlueTickMedia(fMessage: FMessageWpp) {
+        scope.launch {
+            try {
+                val userJid = fMessage.key.remoteJid
+                val participant = if (userJid.isGroup) fMessage.userJid.userJid else null
+
+                val sPlayedClass = sendPlayedClass ?: return@launch
+                val pInfoConstructor = participantInfoConstructor ?: return@launch
+
+                val rowsId = arrayOf(fMessage.rowId)
+                val messageId = fMessage.key.messageID
+
+                val participantInfo = pInfoConstructor.newInstance(
+                    userJid.userJid,
+                    participant,
+                    rowsId,
+                    arrayOf(messageId)
+                )
+                val sendJob = XposedHelpers.newInstance(sPlayedClass, participantInfo, false)
+
+                waJobManagerMethod?.invoke(mWaJobManager, sendJob)
+            } catch (e: Throwable) {
+                logDebug(e)
+            }
         }
-
-        List<FMessageWpp> snapshot = new ArrayList<>(statuses);
-
-        snapshot.forEach(statuses::remove);
-
-        if (snapshot.isEmpty()) return;
-
-        CompletableFuture.runAsync(() -> {
-            try {
-                int size = snapshot.size();
-
-                Constructor<?> sendJobConstrutor = mSendReadClass.getConstructors()[0];
-                Class<?>[] paramTypes = sendJobConstrutor.getParameterTypes();
-
-                var jidIndexes = ReflectionUtils.findClassesOfType(paramTypes, FMessageWpp.UserJid.TYPE_JID);
-                if (jidIndexes.size() < 2) {
-                    logDebug("Failed to find JID indexes for SendReadReceiptJob (Status)");
-                    return;
-                }
-
-                int messageIdIndex = ReflectionUtils.findIndexOfType(paramTypes, String[].class);
-                if (messageIdIndex == -1) {
-                    logDebug("Failed to find messageId index for SendReadReceiptJob (Status)");
-                    return;
-                }
-
-                String[] arr_s = new String[size];
-                MessageStore store = MessageStore.getInstance();
-
-                for (int i = 0; i < size; i++) {
-                    String msgId = snapshot.get(i).getKey().messageID;
-                    arr_s[i] = msgId;
-                    store.storeMessageRead(msgId);
-                }
-
-                var userJidSender = WppCore.createUserJid("status@broadcast");
-                Object[] args = ReflectionUtils.initArray(paramTypes);
-
-                args[jidIndexes.get(0).first] = userJidSender;
-                args[jidIndexes.get(1).first] = currentJid.phoneJid;
-                args[messageIdIndex] = arr_s;
-
-                Object sendJob2 = sendJobConstrutor.newInstance(args);
-                XposedHelpers.setAdditionalInstanceField(sendJob2, "blue_on_reply", true);
-                WaJobManagerMethod.invoke(mWaJobManager, sendJob2);
-
-            } catch (Exception e) {
-                logDebug(e);
-            }
-        }, Utils.getExecutor());
     }
 
-
-    private void sendBlueTickMedia(FMessageWpp fMessage) {
-        CompletableFuture.runAsync(() -> {
-            try {
-                var userJid = fMessage.getKey().remoteJid;
-                Object participant = null;
-                if (userJid.isGroup()) {
-                    participant = fMessage.getUserJid().userJid;
-                }
-                var sendPlayerClass = Unobfuscator.findFirstClassUsingName(classLoader, StringMatchType.Contains, "SendPlayedReceiptJob");
-                var constructor = sendPlayerClass.getDeclaredConstructors()[0];
-                var classParticipantInfo = constructor.getParameterTypes()[0];
-                var rowsId = new Long[]{fMessage.getRowId()};
-                var messageId = fMessage.getKey().messageID;
-                constructor = classParticipantInfo.getDeclaredConstructors()[0];
-                var participantInfo = constructor.newInstance(userJid.userJid, participant, rowsId, new String[]{messageId});
-                var sendJob = XposedHelpers.newInstance(sendPlayerClass, participantInfo, false);
-                WaJobManagerMethod.invoke(mWaJobManager, sendJob);
-            } catch (Throwable e) {
-                logDebug(e);
-            }
-        }, Utils.getExecutor());
+    override fun getPluginName(): String {
+        return "Seen Tick"
     }
-
-    @NonNull
-    @Override
-    public String getPluginName() {
-        return "Seen Tick";
-    }
-
-
 }

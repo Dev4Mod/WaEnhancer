@@ -1,321 +1,333 @@
-package com.wmods.wppenhacer.xposed.features.general;
+package com.wmods.wppenhacer.xposed.features.general
 
-import android.text.TextUtils;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.TextView;
-import android.widget.Toast;
+import android.view.View
+import android.view.ViewGroup
+import android.widget.TextView
+import android.widget.Toast
+import com.wmods.wppenhacer.xposed.core.Feature
+import com.wmods.wppenhacer.xposed.core.WppCore
+import com.wmods.wppenhacer.xposed.core.components.FMessageWpp
+import com.wmods.wppenhacer.xposed.core.components.FStatusWpp
+import com.wmods.wppenhacer.xposed.core.components.WaContactWpp
+import com.wmods.wppenhacer.xposed.core.db.DelMessageStore
+import com.wmods.wppenhacer.xposed.core.db.MessageStore
+import com.wmods.wppenhacer.xposed.core.devkit.Unobfuscator
+import com.wmods.wppenhacer.xposed.core.devkit.UnobfuscatorCache
+import com.wmods.wppenhacer.xposed.features.listeners.ConversationItemListener
+import com.wmods.wppenhacer.xposed.features.listeners.MenuStatusListener
+import com.wmods.wppenhacer.xposed.utils.ReflectionUtils
+import com.wmods.wppenhacer.xposed.utils.ResId
+import com.wmods.wppenhacer.xposed.utils.Utils
+import de.robv.android.xposed.XC_MethodHook
+import de.robv.android.xposed.XSharedPreferences
+import de.robv.android.xposed.XposedBridge
+import de.robv.android.xposed.XposedHelpers
+import java.text.DateFormat
+import java.util.Collections
+import java.util.Date
+import java.util.concurrent.CompletableFuture
+import java.util.concurrent.ConcurrentHashMap
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
+class AntiRevoke(loader: ClassLoader, preferences: XSharedPreferences) :
+    Feature(loader, preferences) {
 
-import com.wmods.wppenhacer.xposed.core.Feature;
-import com.wmods.wppenhacer.xposed.core.WppCore;
-import com.wmods.wppenhacer.xposed.core.components.FMessageWpp;
-import com.wmods.wppenhacer.xposed.core.db.DelMessageStore;
-import com.wmods.wppenhacer.xposed.core.db.MessageStore;
-import com.wmods.wppenhacer.xposed.core.devkit.Unobfuscator;
-import com.wmods.wppenhacer.xposed.core.devkit.UnobfuscatorCache;
-import com.wmods.wppenhacer.xposed.features.listeners.ConversationItemListener;
-import com.wmods.wppenhacer.xposed.utils.ReflectionUtils;
-import com.wmods.wppenhacer.xposed.utils.ResId;
-import com.wmods.wppenhacer.xposed.utils.Utils;
+    companion object {
+        private val messageRevokedMap = ConcurrentHashMap<String, MutableSet<String>>()
 
-import java.lang.reflect.Field;
-import java.text.DateFormat;
-import java.util.Collections;
-import java.util.Date;
-import java.util.Objects;
-import java.util.Set;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ConcurrentHashMap;
+        private val dateFormatThreadLocal = ThreadLocal.withInitial {
+            DateFormat.getDateTimeInstance(
+                DateFormat.SHORT,
+                DateFormat.SHORT,
+                Utils.getApplication().resources.configuration.locales[0]
+            )
+        }
 
-import de.robv.android.xposed.XC_MethodHook;
-import de.robv.android.xposed.XSharedPreferences;
-import de.robv.android.xposed.XposedBridge;
-import de.robv.android.xposed.XposedHelpers;
+        private fun findObjectFMessage(param: XC_MethodHook.MethodHookParam): FMessageWpp? {
+            val safeArgs = param.args?.filterNotNull() ?: return null
+            safeArgs.firstOrNull { FMessageWpp.TYPE.isInstance(it) }?.let { return FMessageWpp(it) }
+            val arg0 = param.args?.getOrNull(0) ?: return null
+            return MenuStatusListener.getFMessageFromStatusData(arg0)
+        }
 
-public class AntiRevoke extends Feature {
 
-    private static final ConcurrentHashMap<String, Set<String>> messageRevokedMap = new ConcurrentHashMap<>();
-    private static final ThreadLocal<DateFormat> DATE_FORMAT_THREAD_LOCAL = ThreadLocal
-            .withInitial(() -> DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.SHORT,
-                    Utils.getApplication().getResources().getConfiguration().getLocales().get(0)));
-
-    public AntiRevoke(ClassLoader loader, XSharedPreferences preferences) {
-        super(loader, preferences);
-    }
-
-    @Nullable
-    private static Object findObjectFMessage(XC_MethodHook.MethodHookParam param) throws IllegalAccessException {
-        if (param.args == null || param.args.length == 0)
-            return null;
-
-        if (FMessageWpp.TYPE.isInstance(param.args[0]))
-            return param.args[0];
-
-        if (param.args.length > 1) {
-            if (FMessageWpp.TYPE.isInstance(param.args[1]))
-                return param.args[1];
-            var FMessageField = ReflectionUtils.findFieldUsingFilterIfExists(param.args[1].getClass(),
-                    f -> FMessageWpp.TYPE.isAssignableFrom(f.getType()));
-            if (FMessageField != null) {
-                return FMessageField.get(param.args[1]);
+        private fun getRevokedMessagesForJid(fMessage: FMessageWpp): MutableSet<String> {
+            val stripJID =
+                fMessage.key.remoteJid.phoneNumber ?: return Collections.synchronizedSet(HashSet())
+            return messageRevokedMap.getOrPut(stripJID) {
+                val messages =
+                    DelMessageStore.getInstance(Utils.getApplication()).getMessagesByJid(stripJID)
+                Collections.synchronizedSet(messages ?: HashSet())
             }
         }
 
-        var field = ReflectionUtils.findFieldUsingFilterIfExists(param.args[0].getClass(),
-                f -> f.getType() == FMessageWpp.TYPE);
-        if (field != null)
-            return field.get(param.args[0]);
-
-        var field1 = ReflectionUtils.findFieldUsingFilter(param.args[0].getClass(),
-                f -> f.getType() == FMessageWpp.Key.TYPE);
-        if (field1 != null) {
-            var key = field1.get(param.args[0]);
-            return WppCore.getFMessageFromKey(key);
+        private fun persistRevokedMessage(fMessage: FMessageWpp, messageID: String) {
+            val stripJID = fMessage.key.remoteJid.phoneNumber!!
+            val messages = getRevokedMessagesForJid(fMessage)
+            messages.add(messageID)
+            DelMessageStore.getInstance(Utils.getApplication()).insertMessage(
+                stripJID,
+                messageID,
+                System.currentTimeMillis()
+            )
         }
-        return null;
-
     }
 
-    private static void persistRevokedMessage(FMessageWpp fMessage) {
-        var messageKey = (String) XposedHelpers.getObjectField(fMessage.getObject(), "A01");
-        var stripJID = fMessage.getKey().remoteJid.getPhoneNumber();
-        Set<String> messages = getRevokedMessagesForJid(fMessage);
-        messages.add(messageKey);
-        DelMessageStore.getInstance(Utils.getApplication()).insertMessage(stripJID, messageKey,
-                System.currentTimeMillis());
-    }
+    override fun doHook() {
+        val antiRevokeMessageMethod = Unobfuscator.loadAntiRevokeMessageMethod(classLoader)
+        val unknownStatusPlaybackMethod = Unobfuscator.loadUnknownStatusPlaybackMethod(classLoader)
+        val statusPlaybackClass = Unobfuscator.loadStatusPlaybackViewClass(classLoader)
+        val antiRevokeFStatusMethod = Unobfuscator.loadAntiRevokeFStatusMethod(classLoader)
 
-    private static Set<String> getRevokedMessagesForJid(FMessageWpp fMessage) {
-        String stripJID = fMessage.getKey().remoteJid.getPhoneNumber();
-        if (stripJID == null)
-            return Collections.synchronizedSet(new java.util.HashSet<>());
-        return messageRevokedMap.computeIfAbsent(stripJID, k -> {
-            var messages = DelMessageStore.getInstance(Utils.getApplication()).getMessagesByJid(k);
-            if (messages == null)
-                return Collections.synchronizedSet(new java.util.HashSet<>());
-            return Collections.synchronizedSet(messages);
-        });
-    }
+        XposedBridge.hookMethod(antiRevokeFStatusMethod, object : XC_MethodHook() {
 
-    @Override
-    public void doHook() throws Exception {
-
-        var antiRevokeMessageMethod = Unobfuscator.loadAntiRevokeMessageMethod(classLoader);
-        logDebug(Unobfuscator.getMethodDescriptor(antiRevokeMessageMethod));
-
-        var unknownStatusPlaybackMethod = Unobfuscator.loadUnknownStatusPlaybackMethod(classLoader);
-        logDebug(Unobfuscator.getMethodDescriptor(unknownStatusPlaybackMethod));
-
-        Class<?> statusPlaybackClass = Unobfuscator.loadStatusPlaybackViewClass(classLoader);
-        logDebug(statusPlaybackClass);
-
-        XposedBridge.hookMethod(antiRevokeMessageMethod, new XC_MethodHook() {
-            @Override
-            protected void beforeHookedMethod(MethodHookParam param) throws Exception {
-                if (param.args == null || param.args.length == 0 || param.args[0] == null)
-                    return;
-
-                var fMessage = new FMessageWpp(param.args[0]);
-                var messageKey = fMessage.getKey();
-                var deviceJid = fMessage.getDeviceJid();
-                var messageID = (String) XposedHelpers.getObjectField(fMessage.getObject(), "A01");
-
-                if (WppCore.getPrivBoolean(messageID + "_delpass", false)) {
-                    WppCore.removePrivKey(messageID + "_delpass");
-                    var activity = WppCore.getCurrentActivity();
-                    Class<?> StatusPlaybackActivityClass = classLoader
-                            .loadClass("com.whatsapp.status.playback.StatusPlaybackActivity");
-                    if (activity != null && StatusPlaybackActivityClass.isInstance(activity)) {
-                        activity.finish();
-                    }
-                    return;
-                }
-                // For group messages: intercept any non-self revocation regardless of
-                // deviceJid.
-                // Previously the deviceJid != null guard caused all group revocations where
-                // deviceJid is null (the common case for other participants) to be silently
-                // skipped.
-                if (messageKey.remoteJid.isGroup()) {
-                    if (!messageKey.isFromMe && handleRevocationAttempt(fMessage) != 0) {
-                        param.setResult(true);
-                    }
-                } else if (!messageKey.isFromMe && handleRevocationAttempt(fMessage) != 0) {
-                    param.setResult(true);
+            override fun beforeHookedMethod(param: MethodHookParam) {
+                val fStatusKey = FStatusWpp.FStatusKey(param.args[1])
+                val fstatus = fStatusKey.fStatus
+                if (fstatus == null) return
+                val fMessage = fstatus.fMessage
+                if (fMessage == null) return
+                if (!fStatusKey.isFromMe && handleRevocationAttempt(
+                        fMessage,
+                        fStatusKey.messageID
+                    ) != 0
+                ) {
+                    param.result = 0
                 }
             }
-        });
 
-        ConversationItemListener.conversationListeners.add(new ConversationItemListener.OnConversationItemListener() {
-            @Override
-            public void onItemBind(FMessageWpp fMessage, ViewGroup view, int position, View convertView) {
-                if (fMessage.getKey().isFromMe)
-                    return;
-                var dateTextView = (TextView) view.findViewById(Utils.getID("date", "id"));
-                bindRevokedMessageUI(fMessage, dateTextView, "antirevoke");
+        })
+
+        XposedBridge.hookMethod(antiRevokeMessageMethod, object : XC_MethodHook() {
+            override fun beforeHookedMethod(param: MethodHookParam) {
+                val args = param.args ?: return
+                val fMessageObj = ReflectionUtils.getArg(args, FMessageWpp.TYPE, 0)
+                if (fMessageObj == null) {
+                    logDebug("FMessageObj is null in revoke!")
+                    return
+                }
+                val fMessage = FMessageWpp(fMessageObj)
+                val messageKey = fMessage.key
+                val deviceJid = fMessage.deviceJid
+                val messageId = XposedHelpers.getObjectField(fMessage.getObject(), "A01") as String
+
+
+                if (messageKey.remoteJid.isGroup) {
+                    if (deviceJid != null && handleRevocationAttempt(fMessage, messageId) != 0) {
+                        param.result = true
+                    }
+                } else if (!messageKey.isFromMe && handleRevocationAttempt(
+                        fMessage,
+                        messageId
+                    ) != 0
+                ) {
+                    param.result = true
+                }
             }
-        });
+        })
 
-        XposedBridge.hookMethod(unknownStatusPlaybackMethod, new XC_MethodHook() {
-            @Override
-            protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-                Object obj = ReflectionUtils.getArg(param.args, param.method.getDeclaringClass(), 0);
-                var objFMessage = findObjectFMessage(param);
-                var field = ReflectionUtils.getFieldByType(param.method.getDeclaringClass(), statusPlaybackClass);
+        ConversationItemListener.conversationListeners.add(object :
+            ConversationItemListener.OnConversationItemListener() {
+            override fun onItemBind(
+                fMessage: FMessageWpp,
+                viewGroup: ViewGroup,
+                position: Int,
+                convertView: View?
+            ) {
+                val dateTextView = viewGroup.findViewById<TextView>(Utils.getID("date", "id"))
+                bindRevokedMessageUI(fMessage, dateTextView, "antirevoke")
+            }
+        })
 
-                if (obj == null || field == null || objFMessage == null)
-                    return;
+        XposedBridge.hookMethod(unknownStatusPlaybackMethod, object : XC_MethodHook() {
+            override fun afterHookedMethod(param: MethodHookParam) {
+                val obj = ReflectionUtils.getArg(param.args, param.method.declaringClass, 0)
+                val fMessage = findObjectFMessage(param)
+                val field =
+                    ReflectionUtils.getFieldByType(param.method.declaringClass, statusPlaybackClass)
 
-                Object objView = field.get(obj);
-                if (objView == null)
-                    return;
+                if (obj == null || field == null || fMessage == null) {
+                    logDebug("Invalid parameters")
+                    return
+                }
 
-                var textViews = ReflectionUtils.getFieldsByType(statusPlaybackClass, TextView.class);
+                val objView = field.get(obj) ?: return
+                val textViews =
+                    ReflectionUtils.getFieldsByType(statusPlaybackClass, TextView::class.java)
+
                 if (textViews.isEmpty()) {
-                    log("Could not find TextView");
-                    return;
+                    logDebug("No text views found")
+                    return
                 }
-                int dateId = Utils.getID("date", "id");
-                for (Field textView : textViews) {
-                    TextView textView1 = (TextView) textView.get(objView);
-                    if (textView1 != null && textView1.getId() == dateId) {
-                        bindRevokedMessageUI(new FMessageWpp(objFMessage), textView1, "antirevokestatus");
-                        break;
+
+                val dateId = Utils.getID("date", "id")
+                for (textViewField in textViews) {
+                    val textView = textViewField.get(objView) as? TextView
+                    if (textView != null && textView.id == dateId) {
+                        bindRevokedMessageUI(fMessage, textView, "antirevokestatus")
+                        break
                     }
                 }
             }
-        });
-
+        })
     }
 
-    private void bindRevokedMessageUI(FMessageWpp fMessage, TextView dateTextView, String antirevokeType) {
-        if (dateTextView == null)
-            return;
+    private fun bindRevokedMessageUI(
+        fMessage: FMessageWpp,
+        dateTextView: TextView?,
+        antirevokeType: String
+    ) {
+        if (dateTextView == null) return
 
-        var key = fMessage.getKey();
-        var messageRevokedList = getRevokedMessagesForJid(fMessage);
-        var id = fMessage.getRowId();
-        String keyOrig = null;
-        if (messageRevokedList.contains(key.messageID)
-                || ((keyOrig = MessageStore.getInstance().getOriginalMessageKey(id)) != null
-                        && messageRevokedList.contains(keyOrig))) {
-            var timestamp = DelMessageStore.getInstance(Utils.getApplication())
-                    .getTimestampByMessageId(keyOrig == null ? key.messageID : keyOrig);
+        val key = fMessage.key
+        val messageRevokedList = getRevokedMessagesForJid(fMessage)
+        val originalMessage =
+            XposedHelpers.getAdditionalInstanceField(dateTextView, "originalMessage") as? String
+
+        val messageID = if (messageRevokedList.contains(key.messageID)) {
+            key.messageID
+        } else {
+            MessageStore.getInstance().getOriginalMessageKey(fMessage.rowId)
+                .takeIf { messageRevokedList.contains(it) }
+        }
+
+        if (messageID != null) {
+            val appInstance = Utils.getApplication()
+            val timestamp =
+                DelMessageStore.getInstance(appInstance).getTimestampByMessageId(messageID)
             if (timestamp > 0) {
-                var date = Objects.requireNonNull(DATE_FORMAT_THREAD_LOCAL.get()).format(new Date(timestamp));
-                dateTextView.getPaint().setUnderlineText(true);
-                dateTextView.setOnClickListener(v -> Utils.showToast(
-                        String.format(Utils.getApplication().getString(ResId.string.message_removed_on), date),
-                        Toast.LENGTH_LONG));
+                val date = dateFormatThreadLocal.get()?.format(Date(timestamp))
+                dateTextView.paint.isUnderlineText = true
+                dateTextView.setOnClickListener {
+                    val toastMessage =
+                        Utils.getApplication().getString(ResId.string.message_removed_on)
+                            .format(date)
+                    Utils.showToast(toastMessage, Toast.LENGTH_LONG)
+                }
             }
-            var antirevokeValue = Integer.parseInt(prefs.getString(antirevokeType, "0"));
-            if (antirevokeValue == 1) {
-                var newTextData = UnobfuscatorCache.getInstance().getString("messagedeleted") + " | "
-                        + dateTextView.getText();
-                dateTextView.setText(newTextData);
-            } else if (antirevokeValue == 2) {
-                var drawable = Utils.getApplication().getDrawable(ResId.drawable.deleted);
-                dateTextView.setCompoundDrawablesWithIntrinsicBounds(null, null, drawable, null);
-                dateTextView.setCompoundDrawablePadding(5);
+
+            val antirevokeValue = prefs.getString(antirevokeType, "0")?.toIntOrNull() ?: 0
+
+            when (antirevokeValue) {
+                1 -> {
+                    val messageText = originalMessage ?: dateTextView.text
+                    val newTextData = "${
+                        UnobfuscatorCache.getInstance().getString("messagedeleted")
+                    } | $messageText"
+                    dateTextView.text = newTextData
+                    XposedHelpers.setAdditionalInstanceField(
+                        dateTextView,
+                        "originalMessage",
+                        messageText.toString()
+                    )
+                }
+
+                2 -> {
+                    val drawable = Utils.getApplication().getDrawable(ResId.drawable.deleted)
+                    dateTextView.setCompoundDrawablesWithIntrinsicBounds(null, null, drawable, null)
+                    dateTextView.compoundDrawablePadding = 5
+                }
             }
         } else {
-            dateTextView.setCompoundDrawables(null, null, null, null);
-            var revokeNotice = UnobfuscatorCache.getInstance().getString("messagedeleted") + " | ";
-            var dateText = dateTextView.getText().toString();
-            if (dateText.contains(revokeNotice)) {
-                dateTextView.setText(dateText.replace(revokeNotice, ""));
+            dateTextView.setCompoundDrawables(null, null, null, null)
+            if (originalMessage != null) {
+                dateTextView.text = originalMessage
             }
-            dateTextView.getPaint().setUnderlineText(false);
-            dateTextView.setOnClickListener(null);
+            dateTextView.paint.isUnderlineText = false
+            dateTextView.setOnClickListener(null)
         }
     }
 
-    private int handleRevocationAttempt(FMessageWpp fMessage) {
+    private fun handleRevocationAttempt(fMessage: FMessageWpp, messageId: String): Int {
         try {
-            showRevocationToast(fMessage);
-        } catch (Exception e) {
-            log(e);
+            handleRevocationAlert(fMessage)
+        } catch (e: Exception) {
+            log(e)
         }
-        String messageKey = (String) XposedHelpers.getObjectField(fMessage.getObject(), "A01");
-        String stripJID = fMessage.getKey().remoteJid.getPhoneNumber();
-        int revokeboolean = stripJID.equals("status") ? Integer.parseInt(prefs.getString("antirevokestatus", "0"))
-                : Integer.parseInt(prefs.getString("antirevoke", "0"));
-        if (revokeboolean == 0)
-            return revokeboolean;
-        var messageRevokedList = getRevokedMessagesForJid(fMessage);
-        if (!messageRevokedList.contains(messageKey)) {
-            try {
-                CompletableFuture.runAsync(() -> {
-                    persistRevokedMessage(fMessage);
-                    try {
-                        var mConversation = WppCore.getCurrentConversation();
-                        if (mConversation != null
-                                && Objects.equals(stripJID, WppCore.getCurrentUserJid().getPhoneNumber())) {
-                            mConversation.runOnUiThread(() -> {
-                                if (mConversation.hasWindowFocus()) {
-                                    mConversation.startActivity(mConversation.getIntent());
-                                    mConversation.overridePendingTransition(0, 0);
-                                    mConversation.getWindow().getDecorView().findViewById(android.R.id.content)
-                                            .postInvalidate();
-                                } else {
-                                    mConversation.recreate();
-                                }
-                            });
+
+        val revokeBoolean = prefs.getString(
+            if (fMessage.key.remoteJid.isStatus) "antirevokestatus" else "antirevoke",
+            "0"
+        )?.toIntOrNull() ?: 0
+
+        if (revokeBoolean == 0) return 0
+
+        val messageRevokedList = getRevokedMessagesForJid(fMessage)
+        if (!messageRevokedList.contains(messageId)) {
+            CompletableFuture.runAsync {
+                try {
+                    persistRevokedMessage(fMessage, messageId)
+                    val mConversation = WppCore.getCurrentConversation()
+                    if (mConversation != null && fMessage.key.remoteJid.phoneNumber == WppCore.getCurrentUserJid()?.phoneNumber) {
+                        mConversation.runOnUiThread {
+                            if (mConversation.hasWindowFocus()) {
+                                mConversation.startActivity(mConversation.intent)
+                                @Suppress("DEPRECATION")
+                                mConversation.overridePendingTransition(0, 0)
+                                mConversation.window.decorView.findViewById<View>(android.R.id.content)
+                                    .postInvalidate()
+                            } else {
+                                mConversation.recreate()
+                            }
                         }
-                    } catch (Exception e) {
-                        logDebug(e);
                     }
-                });
-            } catch (Exception e) {
-                logDebug(e);
+                } catch (e: Exception) {
+                    logDebug(e)
+                }
             }
         }
-        return revokeboolean;
+        return revokeBoolean
     }
 
-    private void showRevocationToast(FMessageWpp fMessage) {
-        var jidAuthor = fMessage.getKey().remoteJid;
-        var messageSuffix = Utils.getApplication().getString(ResId.string.deleted_message);
-        if (jidAuthor.isStatus()) {
-            messageSuffix = Utils.getApplication().getString(ResId.string.deleted_status);
-            jidAuthor = fMessage.getUserJid();
+    private fun formatRevocationMessage(fMessage: FMessageWpp): String? {
+        var jidAuthor = fMessage.key.remoteJid
+        var messageSuffix = Utils.getApplication().getString(ResId.string.deleted_message)
+
+        if (jidAuthor.isStatus) {
+            messageSuffix = Utils.getApplication().getString(ResId.string.deleted_status)
+            jidAuthor = fMessage.userJid
         }
-        if (jidAuthor.userJid == null)
-            return;
-        String name = WppCore.getContactName(jidAuthor);
-        if (TextUtils.isEmpty(name)) {
-            name = jidAuthor.getPhoneNumber();
-        }
-        String message;
-        // Show "Participant deleted a message in GroupName" for group messages where we
-        // know
-        // who the sender is (!isNull). The old condition was inverted — it showed this
-        // only
-        // when getUserJid().isNull() which is exactly when we do NOT know the
-        // participant.
-        if (jidAuthor.isGroup() && !fMessage.getUserJid().isNull()) {
-            var participantJid = fMessage.getUserJid();
-            String participantName = WppCore.getContactName(participantJid);
-            if (TextUtils.isEmpty(participantName)) {
-                participantName = participantJid.getPhoneNumber();
+        val waContact = WaContactWpp.getWaContactFromJid(jidAuthor)
+
+        val name = waContact?.displayName
+            ?: jidAuthor.phoneNumber
+
+        return if (jidAuthor.isGroup) {
+            var participantJid = fMessage.userJid
+            if (participantJid.isNull) {
+                val deletedAdminUser = XposedHelpers.getObjectField(fMessage.getObject(), "A00")
+                if (deletedAdminUser != null) {
+                    participantJid = FMessageWpp.UserJid(deletedAdminUser)
+                }
             }
-            message = Utils.getApplication().getString(ResId.string.deleted_a_message_in_group, participantName, name);
+            val participantWaContact = WaContactWpp.getWaContactFromJid(participantJid)
+
+            val participantName = participantWaContact?.displayName
+                ?: participantJid.phoneNumber
+
+            Utils.getApplication()
+                .getString(ResId.string.deleted_a_message_in_group, participantName, name)
         } else {
-            message = name + " " + messageSuffix;
+            "$name $messageSuffix"
         }
+    }
+
+    private fun handleRevocationAlert(fMessage: FMessageWpp) {
+        val message = formatRevocationMessage(fMessage) ?: return
+
+        val jidAuthor = fMessage.key.remoteJid
+        val actualAuthor = if (jidAuthor.isStatus) fMessage.userJid else jidAuthor
+        val waContact = WaContactWpp.getWaContactFromJid(actualAuthor)
+
+        val name = waContact?.displayName ?: actualAuthor.phoneNumber
+
+        val taskerAction = if (jidAuthor.isStatus) "deleted_status" else "deleted_message"
+
         if (prefs.getBoolean("toastdeleted", false)) {
-            Utils.showToast(message, Toast.LENGTH_LONG);
+            Utils.showToast(message, Toast.LENGTH_LONG)
         }
-        Tasker.sendTaskerEvent(name, jidAuthor.getPhoneNumber(),
-                jidAuthor.isStatus() ? "deleted_status" : "deleted_message");
+
+        Tasker.sendTaskerEvent(name, jidAuthor.phoneNumber, taskerAction)
     }
 
-    @NonNull
-    @Override
-    public String getPluginName() {
-        return "Anti Revoke";
-    }
-
+    override fun getPluginName(): String = "Anti Revoke"
 }

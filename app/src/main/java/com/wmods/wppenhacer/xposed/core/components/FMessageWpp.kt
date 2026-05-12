@@ -44,7 +44,7 @@ class FMessageWpp(fMessage: Any?) {
                 userJidMethod =
                     ReflectionUtils.findMethodUsingFilter(TYPE) { method -> method.parameterCount == 0 && method.returnType == UserJid.TYPE_USERJID }
                 keyMessage = Unobfuscator.loadMessageKeyField(classLoader)
-                Key.TYPE = keyMessage?.type
+                Key.TYPE = keyMessage!!.type
                 messageMethod = Unobfuscator.loadNewMessageMethod(classLoader)
                 messageWithMediaMethod = Unobfuscator.loadNewMessageWithMediaMethod(classLoader)
                 getFieldIdMessage = Unobfuscator.loadSetEditMessageField(classLoader)
@@ -87,13 +87,13 @@ class FMessageWpp(fMessage: Any?) {
         this.fmessage = fMessage
     }
 
-    val userJid: UserJid?
+    val userJid: UserJid
         get() {
             return try {
                 UserJid(userJidMethod?.invoke(fmessage))
             } catch (e: Exception) {
                 XposedBridge.log(e)
-                null
+                UserJid()
             }
         }
 
@@ -183,7 +183,7 @@ class FMessageWpp(fMessage: Any?) {
         get() {
             return try {
                 abstractMediaMessageClass?.isInstance(fmessage) ?: false
-            } catch (_: Exception) {
+            } catch (e: Exception) {
                 false
             }
         }
@@ -243,8 +243,7 @@ class FMessageWpp(fMessage: Any?) {
             /**
              * The class type of the key object.
              */
-            @JvmField
-            var TYPE: Class<*>? = null
+            lateinit var TYPE: Class<*>
         }
 
         /**
@@ -374,11 +373,10 @@ class FMessageWpp(fMessage: Any?) {
                 )
             }
 
-            @JvmStatic
             fun forceConverter(lidOrJid: Any?): UserJid {
                 val raw = try {
                     XposedHelpers.callMethod(lidOrJid, "getRawString") as? String
-                } catch (_: Throwable) {
+                } catch (ignored: Throwable) {
                     null
                 }
                 raw?.let {
@@ -417,7 +415,7 @@ class FMessageWpp(fMessage: Any?) {
             var raw: String? = null
             try {
                 raw = XposedHelpers.callMethod(lidOrJid, "getRawString") as? String
-            } catch (_: Throwable) {
+            } catch (ignored: Throwable) {
                 return
             }
             if (isInvalidJid(raw)) return

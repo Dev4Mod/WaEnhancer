@@ -1,8 +1,6 @@
 package com.wmods.wppenhacer.xposed.features.general;
 
-import static com.wmods.wppenhacer.xposed.features.listeners.MenuStatusListener.menuStatuses;
 
-import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 
@@ -11,14 +9,14 @@ import androidx.annotation.NonNull;
 import com.wmods.wppenhacer.xposed.core.Feature;
 import com.wmods.wppenhacer.xposed.core.WppCore;
 import com.wmods.wppenhacer.xposed.core.components.FMessageWpp;
+import com.wmods.wppenhacer.xposed.core.db.MessageStore;
 import com.wmods.wppenhacer.xposed.core.devkit.Unobfuscator;
 import com.wmods.wppenhacer.xposed.features.listeners.MenuStatusListener;
-import com.wmods.wppenhacer.xposed.utils.ReflectionUtils;
 import com.wmods.wppenhacer.xposed.utils.ResId;
 
 import org.luckypray.dexkit.query.enums.StringMatchType;
 
-import java.lang.reflect.Field;
+import java.util.List;
 
 import de.robv.android.xposed.XSharedPreferences;
 
@@ -32,49 +30,38 @@ public class DeleteStatus extends Feature {
     @Override
     public void doHook() throws Throwable {
 
-        var fragmentloader = Unobfuscator.loadFragmentLoader(classLoader);
-        var showDialogStatus = Unobfuscator.loadShowDialogStatusMethod(classLoader);
-        Class<?> StatusDeleteDialogFragmentClass = Unobfuscator.findFirstClassUsingName(classLoader, StringMatchType.EndsWith, ".StatusDeleteDialogFragment");
-        Field fieldBundle = ReflectionUtils.getFieldByType(fragmentloader, Bundle.class);
+        var StatusPlaybackActivityClass = Unobfuscator.findFirstClassUsingName(classLoader, StringMatchType.EndsWith, "StatusPlaybackActivity");
 
         var item = new MenuStatusListener.OnMenuItemStatusListener() {
 
             @Override
-            public MenuItem addMenu(Menu menu, @NonNull FMessageWpp fMessage) {
+            public MenuItem addMenu(Menu menu, List<FMessageWpp> fMessageWppList, int currentIndex) {
                 if (menu.findItem(ResId.string.delete_for_me) != null) return null;
+                var fMessage = fMessageWppList.get(currentIndex);
                 if (fMessage.getKey().isFromMe) return null;
                 return menu.add(0, ResId.string.delete_for_me, 0, ResId.string.delete_for_me);
             }
 
             @Override
-            public void onClick(@NonNull MenuItem item, @NonNull Object fragmentInstance, @NonNull FMessageWpp fMessage) {
+            public void onClick(MenuItem item, Object fragmentInstance, List<FMessageWpp> fMessageWppList, int currentIndex) {
                 try {
-                    var status = StatusDeleteDialogFragmentClass.newInstance();
-                    var key = fMessage.getKey();
-                    var bundle = getBundle(key);
-                    WppCore.setPrivBoolean(key.messageID + "_delpass", true);
-                    fieldBundle.set(status, bundle);
-                    showDialogStatus.invoke(null, status, fragmentInstance);
+                    var key = fMessageWppList.get(currentIndex).getKey();
+                    MessageStore.getInstance().deleteStatusByMessageKey(key.messageID);
+                    var activity = WppCore.getCurrentActivity();
+                    if (activity != null && StatusPlaybackActivityClass.isInstance(activity)) {
+                        activity.recreate();
+                    }
                 } catch (Exception e) {
                     logDebug(e);
                 }
             }
         };
-        menuStatuses.add(item);
+        MenuStatusListener.getMenuStatuses().add(item);
     }
 
     @NonNull
     @Override
     public String getPluginName() {
         return "Delete Status";
-    }
-
-    @NonNull
-    private static Bundle getBundle(FMessageWpp.Key key) {
-        var bundle = new Bundle();
-        bundle.putString("fMessageKeyJid", key.remoteJid.getUserRawString());
-        bundle.putBoolean("fMessageKeyFromMe", key.isFromMe);
-        bundle.putString("fMessageKeyId", key.messageID);
-        return bundle;
     }
 }
