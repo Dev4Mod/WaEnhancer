@@ -23,6 +23,7 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import com.wmods.wppenhacer.R;
 import com.wmods.wppenhacer.views.dialog.TabDialogContent;
 import com.wmods.wppenhacer.xposed.core.WppCore;
 import com.wmods.wppenhacer.xposed.core.components.FMessageWpp;
@@ -31,7 +32,6 @@ import com.wmods.wppenhacer.xposed.core.devkit.Unobfuscator;
 import com.wmods.wppenhacer.xposed.core.devkit.UnobfuscatorCache;
 import com.wmods.wppenhacer.xposed.utils.DesignUtils;
 import com.wmods.wppenhacer.xposed.utils.ReflectionUtils;
-import com.wmods.wppenhacer.xposed.utils.ResId;
 import com.wmods.wppenhacer.xposed.utils.Utils;
 
 import org.luckypray.dexkit.query.enums.StringMatchType;
@@ -78,7 +78,7 @@ public class IGStatusAdapter extends ArrayAdapter {
                 var activity = WppCore.getCurrentActivity();
                 var dialog = WppCore.createBottomDialog(activity);
                 var tabdialog = new TabDialogContent(activity);
-                tabdialog.setTitle(activity.getString(ResId.string.select_status_type));
+                tabdialog.setTitle(activity.getString(R.string.select_status_type));
                 tabdialog.addTab(UnobfuscatorCache.getInstance().getString("mystatus"), DesignUtils.getIconByName("ic_status", true), (view) -> {
                     try {
                         var clazz = Unobfuscator.getClassByName("MyStatusesActivity", getContext().getClassLoader());
@@ -91,9 +91,9 @@ public class IGStatusAdapter extends ArrayAdapter {
                 });
 
                 // Botão da camera
-                var iconCamera = DesignUtils.getDrawable(ResId.drawable.camera);
+                var iconCamera = DesignUtils.getDrawable(R.drawable.camera);
                 DesignUtils.coloredDrawable(iconCamera, DesignUtils.isNightMode() ? Color.WHITE : Color.BLACK);
-                tabdialog.addTab(activity.getString(ResId.string.open_camera), iconCamera, (view) -> {
+                tabdialog.addTab(activity.getString(R.string.open_camera), iconCamera, (view) -> {
                     try {
                         Intent intent = new Intent();
                         var clazz = Unobfuscator.getClassByName("CameraActivity", getContext().getClassLoader());
@@ -111,10 +111,10 @@ public class IGStatusAdapter extends ArrayAdapter {
                     dialog.dismissDialog();
                 });
                 // Botão de editar
-                var iconEdit = DesignUtils.getDrawable(ResId.drawable.edit2);
+                var iconEdit = DesignUtils.getDrawable(R.drawable.edit2);
                 DesignUtils.coloredDrawable(iconEdit, DesignUtils.isNightMode() ? Color.WHITE : Color.BLACK);
 
-                tabdialog.addTab(activity.getString(ResId.string.edit_text), iconEdit, (view) -> {
+                tabdialog.addTab(activity.getString(R.string.edit_text), iconEdit, (view) -> {
                     try {
                         Intent intent = new Intent();
                         Class clazz;
@@ -174,7 +174,7 @@ public class IGStatusAdapter extends ArrayAdapter {
                 igStatusContactName.setText(UnobfuscatorCache.getInstance().getString("mystatus"));
                 var profile = WppCore.getMyPhoto();
                 if (profile == null)
-                    profile = Utils.getApplication().getDrawable(ResId.drawable.user_foreground);
+                    profile = Utils.getApplication().getDrawable(R.drawable.user_foreground);
                 igStatusContactPhoto.setImageDrawable(profile);
                 setCountStatus(0, 0);
                 return;
@@ -189,7 +189,7 @@ public class IGStatusAdapter extends ArrayAdapter {
                 igStatusContactName.setText(contactName);
                 var profile = BitmapDrawable.createFromPath(waContact.getProfilePhoto().getAbsolutePath());
                 if (profile == null)
-                    profile = Utils.getApplication().getDrawable(ResId.drawable.user_foreground);
+                    profile = Utils.getApplication().getDrawable(R.drawable.user_foreground);
                 igStatusContactPhoto.setImageDrawable(profile);
                 var countUnseen = XposedHelpers.getIntField(statusInfo, "A01");
                 var total = XposedHelpers.getIntField(statusInfo, "A00");

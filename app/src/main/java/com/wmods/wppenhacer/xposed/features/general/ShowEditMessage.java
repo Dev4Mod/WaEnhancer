@@ -15,6 +15,7 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.core.widget.NestedScrollView;
 
+import com.wmods.wppenhacer.R;
 import com.wmods.wppenhacer.adapter.MessageAdapter;
 import com.wmods.wppenhacer.views.NoScrollListView;
 import com.wmods.wppenhacer.xposed.core.Feature;
@@ -26,7 +27,6 @@ import com.wmods.wppenhacer.xposed.core.devkit.Unobfuscator;
 import com.wmods.wppenhacer.xposed.features.listeners.ConversationItemListener;
 import com.wmods.wppenhacer.xposed.utils.DesignUtils;
 import com.wmods.wppenhacer.xposed.utils.ReflectionUtils;
-import com.wmods.wppenhacer.xposed.utils.ResId;
 import com.wmods.wppenhacer.xposed.utils.Utils;
 
 import java.util.ArrayList;
@@ -150,7 +150,7 @@ public class ShowEditMessage extends Feature {
             titleView.setTextSize(16.0f);
             titleView.setTextColor(DesignUtils.getPrimaryTextColor());
             titleView.setTypeface(null, Typeface.BOLD);
-            titleView.setText(ResId.string.edited_history);
+            titleView.setText(R.string.edited_history);
 
             // List View
             var adapter = new MessageAdapter(ctx, messages);

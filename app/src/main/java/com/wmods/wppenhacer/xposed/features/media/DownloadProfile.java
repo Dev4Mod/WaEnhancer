@@ -7,11 +7,11 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 
+import com.wmods.wppenhacer.R;
 import com.wmods.wppenhacer.xposed.core.Feature;
 import com.wmods.wppenhacer.xposed.core.components.WaContactWpp;
 import com.wmods.wppenhacer.xposed.core.devkit.Unobfuscator;
 import com.wmods.wppenhacer.xposed.utils.ReflectionUtils;
-import com.wmods.wppenhacer.xposed.utils.ResId;
 import com.wmods.wppenhacer.xposed.utils.Utils;
 
 import org.luckypray.dexkit.query.enums.StringMatchType;
@@ -33,9 +33,9 @@ public class DownloadProfile extends Feature {
             @Override
             protected void afterHookedMethod(MethodHookParam param) throws Throwable {
                 var menu = (Menu) param.args[0];
-                var item = menu.add(0, 0, 0, ResId.string.download);
+                var item = menu.add(0, 0, 0, R.string.download);
                 item.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
-                item.setIcon(ResId.drawable.download);
+                item.setIcon(R.drawable.download);
                 item.setOnMenuItemClickListener(menuItem -> {
                     var subCls = param.thisObject.getClass().getSuperclass();
                     if (subCls == null) {
@@ -57,9 +57,9 @@ public class DownloadProfile extends Feature {
                     var name = Utils.generateName(userJid, "jpg");
                     var error = Utils.copyFile(file, destPath, name);
                     if (TextUtils.isEmpty(error)) {
-                        Toast.makeText(Utils.getApplication(), Utils.getApplication().getString(ResId.string.saved_to) + destPath, Toast.LENGTH_LONG).show();
+                        Toast.makeText(Utils.getApplication(), Utils.getApplication().getString(R.string.saved_to) + destPath, Toast.LENGTH_LONG).show();
                     } else {
-                        Toast.makeText(Utils.getApplication(), Utils.getApplication().getString(ResId.string.error_when_saving_try_again) + " " + error, Toast.LENGTH_LONG).show();
+                        Toast.makeText(Utils.getApplication(), Utils.getApplication().getString(R.string.error_when_saving_try_again) + " " + error, Toast.LENGTH_LONG).show();
                     }
                     return true;
                 });

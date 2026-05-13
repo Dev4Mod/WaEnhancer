@@ -7,11 +7,11 @@ import android.view.Menu;
 
 import androidx.annotation.NonNull;
 
+import com.wmods.wppenhacer.R;
 import com.wmods.wppenhacer.xposed.core.Feature;
 import com.wmods.wppenhacer.xposed.core.WppCore;
 import com.wmods.wppenhacer.xposed.core.db.MessageStore;
 import com.wmods.wppenhacer.xposed.core.devkit.Unobfuscator;
-import com.wmods.wppenhacer.xposed.utils.ResId;
 
 import org.luckypray.dexkit.query.enums.StringMatchType;
 
@@ -34,10 +34,10 @@ public class JumpFirstMessage extends Feature {
             protected void afterHookedMethod(MethodHookParam param) {
                 try {
                     var menu = (Menu) param.args[0];
-                    if (menu.findItem(ResId.string.jump_first_message) != null) {
+                    if (menu.findItem(R.string.jump_first_message) != null) {
                         return;
                     }
-                    var menuItem = menu.add(0, ResId.string.jump_first_message, 0, ResId.string.jump_first_message);
+                    var menuItem = menu.add(0, R.string.jump_first_message, 0, R.string.jump_first_message);
                     menuItem.setOnMenuItemClickListener(item -> {
                         var activity = WppCore.getCurrentActivity();
                         if (activity == null) {

@@ -12,13 +12,13 @@ import android.provider.DocumentsContract;
 
 import androidx.annotation.NonNull;
 
+import com.wmods.wppenhacer.R;
 import com.wmods.wppenhacer.preference.ContactPickerPreference;
 import com.wmods.wppenhacer.xposed.core.Feature;
 import com.wmods.wppenhacer.xposed.core.WppCore;
 import com.wmods.wppenhacer.xposed.core.components.FMessageWpp;
 import com.wmods.wppenhacer.xposed.core.devkit.Unobfuscator;
 import com.wmods.wppenhacer.xposed.utils.ReflectionUtils;
-import com.wmods.wppenhacer.xposed.utils.ResId;
 
 import org.luckypray.dexkit.query.enums.StringMatchType;
 
@@ -67,7 +67,7 @@ public class ActivityController extends Feature {
                 if (intent.getBooleanExtra("contact_mode", false)) {
                     var toolbar = XposedHelpers.callMethod(activity, "getSupportActionBar");
                     var methods = ReflectionUtils.findAllMethodsUsingFilter(toolbar.getClass(), method -> method.getParameterCount() == 1 && method.getParameterTypes()[0] == CharSequence.class);
-                    ReflectionUtils.callMethod(methods[1], toolbar, activity.getString(ResId.string.select_contacts));
+                    ReflectionUtils.callMethod(methods[1], toolbar, activity.getString(R.string.select_contacts));
                 }
             }
         });

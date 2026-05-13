@@ -19,6 +19,7 @@ import android.widget.LinearLayout
 import android.widget.Toast
 import androidx.core.graphics.createBitmap
 import androidx.core.graphics.drawable.toDrawable
+import com.wmods.wppenhacer.R
 import com.wmods.wppenhacer.xposed.core.Feature
 import com.wmods.wppenhacer.xposed.core.WppCore
 import com.wmods.wppenhacer.xposed.core.components.FMessageWpp
@@ -28,7 +29,6 @@ import com.wmods.wppenhacer.xposed.features.listeners.MenuStatusListener
 import com.wmods.wppenhacer.xposed.utils.DebugUtils
 import com.wmods.wppenhacer.xposed.utils.DesignUtils
 import com.wmods.wppenhacer.xposed.utils.ReflectionUtils
-import com.wmods.wppenhacer.xposed.utils.ResId
 import com.wmods.wppenhacer.xposed.utils.Utils
 import de.robv.android.xposed.XC_MethodHook
 import de.robv.android.xposed.XSharedPreferences
@@ -282,7 +282,7 @@ class SeenTick(
                     buttonImage.setOnClickListener {
                         scope.launch {
                             Utils.showToast(
-                                replyView.context.getString(ResId.string.sending_read_blue_tick),
+                                replyView.context.getString(R.string.sending_read_blue_tick),
                                 Toast.LENGTH_SHORT
                             )
                             sendBlueTickStatus(
@@ -316,10 +316,10 @@ class SeenTick(
                     fMessageList: List<FMessageWpp>,
                     currentIndex: Int
                 ): MenuItem? {
-                    if (menu.findItem(ResId.string.send_blue_tick) != null) return null
+                    if (menu.findItem(R.string.send_blue_tick) != null) return null
                     val fMessage = fMessageList[currentIndex]
                     if (fMessage.key.isFromMe) return null
-                    return menu.add(0, ResId.string.send_blue_tick, 0, ResId.string.send_blue_tick)
+                    return menu.add(0, R.string.send_blue_tick, 0, R.string.send_blue_tick)
                 }
 
                 override fun onClick(
@@ -332,7 +332,7 @@ class SeenTick(
                     DebugUtils.debugObject(fMessage)
                     sendBlueTickStatus(listOf(fMessage))
                     Utils.showToast(
-                        Utils.getString(ResId.string.sending_read_blue_tick),
+                        Utils.getString(R.string.sending_read_blue_tick),
                         Toast.LENGTH_SHORT
                     )
                 }
@@ -346,14 +346,14 @@ class SeenTick(
         XposedBridge.hookMethod(onCreateMenuConversationMethod, object : XC_MethodHook() {
             override fun afterHookedMethod(param: MethodHookParam) {
                 val menu = param.args[0] as Menu
-                val menuItem = menu.add(0, 0, 0, ResId.string.send_blue_tick)
+                val menuItem = menu.add(0, 0, 0, R.string.send_blue_tick)
                 if (ticktype == 1) menuItem.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS)
                 menuItem.setIcon(Utils.getID("ic_notif_mark_read", "drawable"))
                 menuItem.setOnMenuItemClickListener {
                     val currentUserJid = WppCore.getCurrentUserJid()
                     currentUserJid?.let { jid -> sendBlueTick(jid) }
                     Utils.showToast(
-                        Utils.getString(ResId.string.sending_read_blue_tick),
+                        Utils.getString(R.string.sending_read_blue_tick),
                         Toast.LENGTH_SHORT
                     )
                     true
@@ -367,14 +367,14 @@ class SeenTick(
                 fMessageList: List<FMessageWpp>,
                 currentIndex: Int
             ): MenuItem? {
-                if (menu.findItem(ResId.string.read_all_mark_as_read) != null) return null
+                if (menu.findItem(R.string.read_all_mark_as_read) != null) return null
                 val fMessage = fMessageList[currentIndex]
                 if (fMessage.key.isFromMe) return null
                 return menu.add(
                     0,
-                    ResId.string.read_all_mark_as_read,
+                    R.string.read_all_mark_as_read,
                     0,
-                    ResId.string.read_all_mark_as_read
+                    R.string.read_all_mark_as_read
                 )
             }
 
@@ -392,7 +392,7 @@ class SeenTick(
                 }
                 sendBlueTickStatus(MenuStatusListener.currentStatusList)
                 Utils.showToast(
-                    Utils.getString(ResId.string.sending_read_blue_tick),
+                    Utils.getString(R.string.sending_read_blue_tick),
                     Toast.LENGTH_SHORT
                 )
             }
@@ -415,7 +415,7 @@ class SeenTick(
                     return
                 }
 
-                val item = menu.add(0, 0, 0, ResId.string.send_blue_tick)
+                val item = menu.add(0, 0, 0, R.string.send_blue_tick)
                     .setIcon(Utils.getID("ic_notif_mark_read", "drawable"))
                 if (ticktype == 1) item.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS)
 
@@ -436,7 +436,7 @@ class SeenTick(
                     )
                     sendBlueTickMedia(fMessage)
                     Utils.showToast(
-                        Utils.getString(ResId.string.sending_read_blue_tick),
+                        Utils.getString(R.string.sending_read_blue_tick),
                         Toast.LENGTH_SHORT
                     )
                     true
@@ -451,7 +451,7 @@ class SeenTick(
             object : XC_MethodHook() {
                 override fun afterHookedMethod(param: MethodHookParam) {
                     val menu = param.args[0] as Menu
-                    val item = menu.add(0, 0, 0, ResId.string.send_blue_tick)
+                    val item = menu.add(0, 0, 0, R.string.send_blue_tick)
                         .setIcon(Utils.getID("ic_notif_mark_read", "drawable"))
                     if (ticktype == 1) item.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS)
 
@@ -480,7 +480,7 @@ class SeenTick(
                             )
                             sendBlueTickMedia(fMessage)
                             Utils.showToast(
-                                Utils.getString(ResId.string.sending_read_blue_tick),
+                                Utils.getString(R.string.sending_read_blue_tick),
                                 Toast.LENGTH_SHORT
                             )
                         }

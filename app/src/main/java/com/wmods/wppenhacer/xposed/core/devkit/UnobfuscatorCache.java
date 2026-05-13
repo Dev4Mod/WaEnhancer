@@ -12,8 +12,8 @@ import androidx.annotation.NonNull;
 
 import com.google.devrel.gmscore.tools.apk.arsc.ArscUtils;
 import com.wmods.wppenhacer.BuildConfig;
+import com.wmods.wppenhacer.R;
 import com.wmods.wppenhacer.xposed.utils.ReflectionUtils;
-import com.wmods.wppenhacer.xposed.utils.ResId;
 import com.wmods.wppenhacer.xposed.utils.Utils;
 
 import org.json.JSONException;
@@ -64,7 +64,7 @@ public class UnobfuscatorCache {
             } catch (Exception ignored) {
             }
             if (version != currentVersion || savedUpdateTime != lastUpdateTime || !versionName.equals(savedVersionName)) {
-                Utils.showToast(application.getString(ResId.string.starting_cache), Toast.LENGTH_LONG);
+                Utils.showToast(application.getString(R.string.starting_cache), Toast.LENGTH_LONG);
                 sPrefsCacheHooks.edit().clear().commit();
                 sPrefsCacheHooks.edit().putLong("version", currentVersion).commit();
                 sPrefsCacheHooks.edit().putLong("updateTime", lastUpdateTime).commit();

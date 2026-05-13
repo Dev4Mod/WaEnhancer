@@ -9,11 +9,11 @@ import android.view.MenuItem;
 import androidx.annotation.NonNull;
 
 import com.wmods.wppenhacer.BuildConfig;
+import com.wmods.wppenhacer.R;
 import com.wmods.wppenhacer.xposed.core.Feature;
 import com.wmods.wppenhacer.xposed.core.WppCore;
 import com.wmods.wppenhacer.xposed.core.components.AlertDialogWpp;
 import com.wmods.wppenhacer.xposed.utils.DesignUtils;
-import com.wmods.wppenhacer.xposed.utils.ResId;
 import com.wmods.wppenhacer.xposed.utils.Utils;
 
 import java.util.HashSet;
@@ -57,7 +57,7 @@ public class MenuHome extends Feature {
     private void InsertOpenWae(Menu menu, Activity activity) {
         var waeMenu = prefs.getBoolean("open_wae", true);
         if (!waeMenu) return;
-        var itemMenu = menu.add(0, 0, 9999, " " + activity.getString(ResId.string.app_name));
+        var itemMenu = menu.add(0, 0, 9999, " " + activity.getString(R.string.app_name));
         var iconDraw = DesignUtils.getDrawableByName("ic_settings");
         iconDraw.setTint(0xff8696a0);
         itemMenu.setIcon(iconDraw);
@@ -78,9 +78,9 @@ public class MenuHome extends Feature {
             }
             return;
         }
-        var itemMenu = menu.add(0, 0, 0, ResId.string.ghost_mode);
+        var itemMenu = menu.add(0, 0, 0, R.string.ghost_mode);
 
-        var iconDraw = activity.getDrawable(ghostmode ? ResId.drawable.ghost_enabled : ResId.drawable.ghost_disabled);
+        var iconDraw = activity.getDrawable(ghostmode ? R.drawable.ghost_enabled : R.drawable.ghost_disabled);
         if (iconDraw != null) {
             iconDraw.setTint(newSettings ? DesignUtils.getPrimaryTextColor() : 0xff8696a0);
             itemMenu.setIcon(iconDraw);
@@ -89,13 +89,13 @@ public class MenuHome extends Feature {
             itemMenu.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
         }
         itemMenu.setOnMenuItemClickListener(item -> {
-            new AlertDialogWpp(activity).setTitle(activity.getString(ResId.string.ghost_mode_s, (ghostmode ? "ON" : "OFF"))).
-                    setMessage(activity.getString(ResId.string.ghost_mode_message))
-                    .setPositiveButton(activity.getString(ResId.string.disable), (dialog, which) -> {
+            new AlertDialogWpp(activity).setTitle(activity.getString(R.string.ghost_mode_s, (ghostmode ? "ON" : "OFF"))).
+                    setMessage(activity.getString(R.string.ghost_mode_message))
+                    .setPositiveButton(activity.getString(R.string.disable), (dialog, which) -> {
                         WppCore.setPrivBoolean("ghostmode", false);
                         Utils.doRestart(activity);
                     })
-                    .setNegativeButton(activity.getString(ResId.string.enable), (dialog, which) -> {
+                    .setNegativeButton(activity.getString(R.string.enable), (dialog, which) -> {
                         WppCore.setPrivBoolean("ghostmode", true);
                         Utils.doRestart(activity);
                     }).show();
@@ -106,9 +106,9 @@ public class MenuHome extends Feature {
 
     private void InsertRestartButton(Menu menu, Activity activity, boolean newSettings) {
         if (!prefs.getBoolean("restartbutton", true)) return;
-        var iconDraw = activity.getDrawable(ResId.drawable.refresh);
+        var iconDraw = activity.getDrawable(R.drawable.refresh);
         iconDraw.setTint(newSettings ? DesignUtils.getPrimaryTextColor() : 0xff8696a0);
-        var itemMenu = menu.add(0, 0, 0, ResId.string.restart_whatsapp).setIcon(iconDraw);
+        var itemMenu = menu.add(0, 0, 0, R.string.restart_whatsapp).setIcon(iconDraw);
         if (newSettings) {
             itemMenu.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
         }
@@ -128,8 +128,8 @@ public class MenuHome extends Feature {
             }
             return;
         }
-        var item = menu.add(0, 0, 0, activity.getString(ResId.string.dnd_mode_title));
-        var drawable = Utils.getApplication().getDrawable(dndmode ? ResId.drawable.airplane_enabled : ResId.drawable.airplane_disabled);
+        var item = menu.add(0, 0, 0, activity.getString(R.string.dnd_mode_title));
+        var drawable = Utils.getApplication().getDrawable(dndmode ? R.drawable.airplane_enabled : R.drawable.airplane_disabled);
         if (drawable != null) {
             drawable.setTint(newSettings ? DesignUtils.getPrimaryTextColor() : 0xff8696a0);
             item.setIcon(drawable);
@@ -140,13 +140,13 @@ public class MenuHome extends Feature {
         item.setOnMenuItemClickListener(menuItem -> {
             if (!dndmode) {
                 new AlertDialogWpp(activity)
-                        .setTitle(activity.getString(ResId.string.dnd_mode_title))
-                        .setMessage(activity.getString(ResId.string.dnd_message))
-                        .setPositiveButton(activity.getString(ResId.string.activate), (dialog, which) -> {
+                        .setTitle(activity.getString(R.string.dnd_mode_title))
+                        .setMessage(activity.getString(R.string.dnd_message))
+                        .setPositiveButton(activity.getString(R.string.activate), (dialog, which) -> {
                             WppCore.setPrivBoolean("dndmode", true);
                             Utils.doRestart(activity);
                         })
-                        .setNegativeButton(activity.getString(ResId.string.cancel), (dialog, which) -> dialog.dismiss())
+                        .setNegativeButton(activity.getString(R.string.cancel), (dialog, which) -> dialog.dismiss())
                         .create().show();
                 return true;
             }
@@ -166,8 +166,8 @@ public class MenuHome extends Feature {
             return;
         }
 
-        MenuItem item = menu.add(0, 0, 0, activity.getString(ResId.string.freezelastseen_title));
-        var drawable = Utils.getApplication().getDrawable(freezelastseen ? ResId.drawable.eye_disabled : ResId.drawable.eye_enabled);
+        MenuItem item = menu.add(0, 0, 0, activity.getString(R.string.freezelastseen_title));
+        var drawable = Utils.getApplication().getDrawable(freezelastseen ? R.drawable.eye_disabled : R.drawable.eye_enabled);
         if (drawable != null) {
             drawable.setTint(newSettings ? DesignUtils.getPrimaryTextColor() : 0xff8696a0);
             item.setIcon(drawable);
@@ -178,13 +178,13 @@ public class MenuHome extends Feature {
         item.setOnMenuItemClickListener(menuItem -> {
             if (!freezelastseen) {
                 new AlertDialogWpp(activity)
-                        .setTitle(activity.getString(ResId.string.freezelastseen_title))
-                        .setMessage(activity.getString(ResId.string.freezelastseen_message))
-                        .setPositiveButton(activity.getString(ResId.string.activate), (dialog, which) -> {
+                        .setTitle(activity.getString(R.string.freezelastseen_title))
+                        .setMessage(activity.getString(R.string.freezelastseen_message))
+                        .setPositiveButton(activity.getString(R.string.activate), (dialog, which) -> {
                             WppCore.setPrivBoolean("freezelastseen", true);
                             Utils.doRestart(activity);
                         })
-                        .setNegativeButton(activity.getString(ResId.string.cancel), (dialog, which) -> dialog.dismiss())
+                        .setNegativeButton(activity.getString(R.string.cancel), (dialog, which) -> dialog.dismiss())
                         .create().show();
                 return true;
             }

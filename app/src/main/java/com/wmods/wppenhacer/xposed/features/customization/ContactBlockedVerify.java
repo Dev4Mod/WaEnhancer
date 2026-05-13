@@ -11,6 +11,7 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 
+import com.wmods.wppenhacer.R;
 import com.wmods.wppenhacer.xposed.core.Feature;
 import com.wmods.wppenhacer.xposed.core.WppCore;
 import com.wmods.wppenhacer.xposed.core.components.FMessageWpp;
@@ -18,7 +19,6 @@ import com.wmods.wppenhacer.xposed.core.devkit.Unobfuscator;
 import com.wmods.wppenhacer.xposed.features.general.Others;
 import com.wmods.wppenhacer.xposed.utils.DesignUtils;
 import com.wmods.wppenhacer.xposed.utils.ReflectionUtils;
-import com.wmods.wppenhacer.xposed.utils.ResId;
 import com.wmods.wppenhacer.xposed.utils.Utils;
 
 import java.lang.reflect.Constructor;
@@ -61,7 +61,7 @@ public class ContactBlockedVerify extends Feature {
         textView.setFocusableInTouchMode(true);
         textView.setSelected(true);
         textView.setTextColor(DesignUtils.getPrimaryTextColor());
-        textView.setText(ResId.string.checking_if_the_contact_is_blocked);
+        textView.setText(R.string.checking_if_the_contact_is_blocked);
         return textView;
     }
 
@@ -230,7 +230,7 @@ public class ContactBlockedVerify extends Feature {
 
     private void showChecking(TextView textView) {
         textView.post(() -> {
-            textView.setText(ResId.string.checking_if_the_contact_is_blocked);
+            textView.setText(R.string.checking_if_the_contact_is_blocked);
             textView.setTextColor(DesignUtils.getPrimaryTextColor());
         });
     }
@@ -238,27 +238,27 @@ public class ContactBlockedVerify extends Feature {
     private void showNotBlocked(TextView textView) {
         textView.post(() -> {
             textView.setTextColor(Color.GREEN);
-            textView.setText(ResId.string.block_not_detected);
+            textView.setText(R.string.block_not_detected);
         });
     }
 
     private void showProbablyNotAdded(TextView textView) {
         textView.post(() -> {
             textView.setTextColor(Color.YELLOW);
-            textView.setText(ResId.string.contact_probably_not_added);
+            textView.setText(R.string.contact_probably_not_added);
         });
     }
 
     private void showPossibleBlocked(TextView textView) {
         textView.post(() -> {
-            textView.setText(ResId.string.possible_block_detected);
+            textView.setText(R.string.possible_block_detected);
             textView.setTextColor(Color.RED);
         });
     }
 
     private void showUnverified(TextView textView) {
         textView.post(() -> {
-            textView.setText(ResId.string.block_unverified);
+            textView.setText(R.string.block_unverified);
             textView.setTextColor(DesignUtils.getPrimaryTextColor());
         });
     }

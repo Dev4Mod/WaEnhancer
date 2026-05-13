@@ -9,10 +9,10 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 
+import com.wmods.wppenhacer.R;
 import com.wmods.wppenhacer.xposed.core.Feature;
 import com.wmods.wppenhacer.xposed.core.components.AlertDialogWpp;
 import com.wmods.wppenhacer.xposed.core.devkit.Unobfuscator;
-import com.wmods.wppenhacer.xposed.utils.ResId;
 import com.wmods.wppenhacer.xposed.utils.Utils;
 
 import de.robv.android.xposed.XC_MethodHook;
@@ -47,7 +47,7 @@ public class Stickers extends Feature {
                             param.args[0] = (View.OnClickListener) v -> {
                                 var context = view.getContext();
                                 var dialog = new AlertDialogWpp(view.getContext());
-                                dialog.setTitle(context.getString(ResId.string.send_sticker));
+                                dialog.setTitle(context.getString(R.string.send_sticker));
 
                                 var stickerView = (ImageView) view.findViewById(Utils.getID("sticker", "id"));
                                 LinearLayout linearLayout = new LinearLayout(context);
@@ -64,14 +64,14 @@ public class Stickers extends Feature {
                                 linearLayout.addView(image);
 
                                 TextView text = new TextView(context);
-                                text.setText(context.getString(ResId.string.do_you_want_to_send_sticker));
+                                text.setText(context.getString(R.string.do_you_want_to_send_sticker));
                                 text.setTextAlignment(View.TEXT_ALIGNMENT_CENTER);
                                 linearLayout.addView(text);
 
 
                                 dialog.setView(linearLayout);
-                                dialog.setPositiveButton(context.getString(ResId.string.send), (dialog1, which) -> mCaptureOnClickListener.onClick(view));
-                                dialog.setNegativeButton(context.getString(ResId.string.cancel), null);
+                                dialog.setPositiveButton(context.getString(R.string.send), (dialog1, which) -> mCaptureOnClickListener.onClick(view));
+                                dialog.setNegativeButton(context.getString(R.string.cancel), null);
                                 dialog.show();
                             };
                         }

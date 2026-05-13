@@ -11,6 +11,7 @@ import android.os.Environment
 import android.text.TextUtils
 import android.widget.Toast
 import androidx.core.content.edit
+import com.wmods.wppenhacer.R
 import com.wmods.wppenhacer.views.dialog.BottomDialogWpp
 import com.wmods.wppenhacer.xposed.bridge.WaeIIFace
 import com.wmods.wppenhacer.xposed.bridge.client.BaseClient
@@ -20,7 +21,6 @@ import com.wmods.wppenhacer.xposed.core.components.FMessageWpp
 import com.wmods.wppenhacer.xposed.core.devkit.Unobfuscator
 import com.wmods.wppenhacer.xposed.core.devkit.UnobfuscatorCache
 import com.wmods.wppenhacer.xposed.utils.ReflectionUtils
-import com.wmods.wppenhacer.xposed.utils.ResId
 import com.wmods.wppenhacer.xposed.utils.Utils
 import de.robv.android.xposed.XC_MethodHook
 import de.robv.android.xposed.XSharedPreferences
@@ -223,7 +223,7 @@ object WppCore {
         }
 
         if (!connected) {
-            throw Exception(context.getString(ResId.string.bridge_error))
+            throw Exception(context.getString(R.string.bridge_error))
         }
 
         // Update the preferred order if it changed

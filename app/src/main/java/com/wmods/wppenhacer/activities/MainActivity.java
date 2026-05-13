@@ -60,33 +60,27 @@ public class MainActivity extends BaseActivity {
             @SuppressLint("NonConstantResourceId")
             @Override
             public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-                return switch (item.getItemId()) {
-                    case R.id.navigation_chat -> {
-                        binding.viewPager.setCurrentItem(0, true);
-                        yield true;
-                    }
-                    case R.id.navigation_privacy -> {
-                        binding.viewPager.setCurrentItem(1, true);
-                        yield true;
-                    }
-                    case R.id.navigation_home -> {
-                        binding.viewPager.setCurrentItem(2, true);
-                        yield true;
-                    }
-                    case R.id.navigation_media -> {
-                        binding.viewPager.setCurrentItem(3, true);
-                        yield true;
-                    }
-                    case R.id.navigation_colors -> {
-                        binding.viewPager.setCurrentItem(4, true);
-                        yield true;
-                    }
-                    case R.id.navigation_recordings -> {
-                        binding.viewPager.setCurrentItem(5);
-                        yield true;
-                    }
-                    default -> false;
-                };
+                int itemId = item.getItemId();
+                if (itemId == R.id.navigation_chat) {
+                    binding.viewPager.setCurrentItem(0, true);
+                    return true;
+                } else if (itemId == R.id.navigation_privacy) {
+                    binding.viewPager.setCurrentItem(1, true);
+                    return true;
+                } else if (itemId == R.id.navigation_home) {
+                    binding.viewPager.setCurrentItem(2, true);
+                    return true;
+                } else if (itemId == R.id.navigation_media) {
+                    binding.viewPager.setCurrentItem(3, true);
+                    return true;
+                } else if (itemId == R.id.navigation_colors) {
+                    binding.viewPager.setCurrentItem(4, true);
+                    return true;
+                } else if (itemId == R.id.navigation_recordings) {
+                    binding.viewPager.setCurrentItem(5);
+                    return true;
+                }
+                return false;
             }
         });
 

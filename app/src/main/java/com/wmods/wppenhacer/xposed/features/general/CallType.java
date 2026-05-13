@@ -8,13 +8,13 @@ import android.os.BaseBundle;
 
 import androidx.annotation.NonNull;
 
+import com.wmods.wppenhacer.R;
 import com.wmods.wppenhacer.xposed.core.Feature;
 import com.wmods.wppenhacer.xposed.core.components.AlertDialogWpp;
 import com.wmods.wppenhacer.xposed.core.components.FMessageWpp;
 import com.wmods.wppenhacer.xposed.core.components.SharedPreferencesWrapper;
 import com.wmods.wppenhacer.xposed.core.devkit.UnobfuscatorCache;
 import com.wmods.wppenhacer.xposed.utils.ReflectionUtils;
-import com.wmods.wppenhacer.xposed.utils.ResId;
 
 import java.util.Objects;
 
@@ -81,7 +81,7 @@ public class CallType extends Feature {
                 var context = origDialog.getContext();
                 var mAlertDialog = new AlertDialogWpp(origDialog.getContext());
                 mAlertDialog.setTitle(UnobfuscatorCache.getInstance().getString("selectcalltype"));
-                mAlertDialog.setItems(new String[]{context.getString(ResId.string.phone_call), context.getString(ResId.string.whatsapp_call)}, (dialog, which) -> {
+                mAlertDialog.setItems(new String[]{context.getString(R.string.phone_call), context.getString(R.string.whatsapp_call)}, (dialog, which) -> {
                     newDialog.dismiss();
                     switch (which) {
                         case 0:

@@ -7,10 +7,10 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 
+import com.wmods.wppenhacer.R;
 import com.wmods.wppenhacer.xposed.core.Feature;
 import com.wmods.wppenhacer.xposed.core.components.AlertDialogWpp;
 import com.wmods.wppenhacer.xposed.core.devkit.Unobfuscator;
-import com.wmods.wppenhacer.xposed.utils.ResId;
 import com.wmods.wppenhacer.xposed.utils.Utils;
 
 import org.luckypray.dexkit.query.enums.StringMatchType;
@@ -44,13 +44,13 @@ public class BackupRestore extends Feature {
                 if (!(name.contains("drive") && name.contains("google"))) return;
                 Menu menu = (Menu) param.args[0];
                 if (menu.findItem(10001) != null) return;
-                var menuItem = menu.add(0, 10001, 0, ResId.string.force_restore_backup_experimental);
+                var menuItem = menu.add(0, 10001, 0, R.string.force_restore_backup_experimental);
                 Activity activity = (Activity) param.thisObject;
                 menuItem.setOnMenuItemClickListener((item) -> {
                     new AlertDialogWpp(activity)
-                            .setTitle(ResId.string.force_restore_backup)
-                            .setMessage(activity.getString(ResId.string.warning_restore))
-                            .setPositiveButton(activity.getString(ResId.string.yes), (dialog, which) -> {
+                            .setTitle(R.string.force_restore_backup)
+                            .setMessage(activity.getString(R.string.warning_restore))
+                            .setPositiveButton(activity.getString(R.string.yes), (dialog, which) -> {
                                 try {
                                     Intent intent = new Intent(activity, restoreFromBackupClass);
                                     intent.setAction("action_show_restore_one_time_setup");
@@ -60,7 +60,7 @@ public class BackupRestore extends Feature {
                                     Utils.showToast("Error launching restore activity: " + e.getMessage(), Toast.LENGTH_LONG);
                                 }
                             })
-                            .setNegativeButton(activity.getString(ResId.string.no), null)
+                            .setNegativeButton(activity.getString(R.string.no), null)
                             .show();
 
                     return true;

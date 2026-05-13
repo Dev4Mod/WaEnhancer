@@ -17,6 +17,7 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 
+import com.wmods.wppenhacer.R;
 import com.wmods.wppenhacer.adapter.CustomPrivacyAdapter;
 import com.wmods.wppenhacer.xposed.core.Feature;
 import com.wmods.wppenhacer.xposed.core.WppCore;
@@ -26,7 +27,6 @@ import com.wmods.wppenhacer.xposed.core.devkit.Unobfuscator;
 import com.wmods.wppenhacer.xposed.features.others.MenuHome;
 import com.wmods.wppenhacer.xposed.utils.DesignUtils;
 import com.wmods.wppenhacer.xposed.utils.ReflectionUtils;
-import com.wmods.wppenhacer.xposed.utils.ResId;
 import com.wmods.wppenhacer.xposed.utils.Utils;
 
 import org.json.JSONObject;
@@ -80,8 +80,8 @@ public class CustomPrivacy extends Feature {
                         if (activity.findViewById(0x7f0a9999) != null) return;
                         int id = Utils.getID("contact_info_security_card_layout", "id");
                         ViewGroup infoLayout = activity.getWindow().findViewById(id);
-                        Drawable icon = activity.getDrawable(ResId.drawable.ic_privacy);
-                        View itemView = createItemView(activity, activity.getString(ResId.string.custom_privacy), activity.getString(ResId.string.custom_privacy_sum), icon);
+                        Drawable icon = activity.getDrawable(R.drawable.ic_privacy);
+                        View itemView = createItemView(activity, activity.getString(R.string.custom_privacy), activity.getString(R.string.custom_privacy_sum), icon);
                         itemView.setId(0x7f0a9999);
                         itemView.setOnClickListener((v) -> showPrivacyDialog(activity, ContactInfoActivityClass.isInstance(activity)));
                         infoLayout.addView(itemView);
@@ -98,8 +98,8 @@ public class CustomPrivacy extends Feature {
                 protected void afterHookedMethod(MethodHookParam param) throws Throwable {
                     var menu = (Menu) param.args[0];
                     var activity = (Activity) param.thisObject;
-                    var customPrivacy = menu.add(0, 0, 0, ResId.string.custom_privacy);
-                    customPrivacy.setIcon(ResId.drawable.ic_privacy);
+                    var customPrivacy = menu.add(0, 0, 0, R.string.custom_privacy);
+                    customPrivacy.setIcon(R.drawable.ic_privacy);
                     customPrivacy.setOnMenuItemClickListener(item -> {
                         showPrivacyDialog(activity, ContactInfoActivityClass.isInstance(activity));
                         return true;
@@ -112,9 +112,9 @@ public class CustomPrivacy extends Feature {
 
         if (type == 0) return;
 
-        var icon = DesignUtils.resizeDrawable(DesignUtils.getDrawable(ResId.drawable.ic_privacy), Utils.dipToPixels(24), Utils.dipToPixels(24));
+        var icon = DesignUtils.resizeDrawable(DesignUtils.getDrawable(R.drawable.ic_privacy), Utils.dipToPixels(24), Utils.dipToPixels(24));
         icon.setTint(0xff8696a0);
-        MenuHome.menuItems.add((menu, activity) -> menu.add(0, 0, 0, ResId.string.custom_privacy).setIcon(icon).setOnMenuItemClickListener(item -> {
+        MenuHome.menuItems.add((menu, activity) -> menu.add(0, 0, 0, R.string.custom_privacy).setIcon(icon).setOnMenuItemClickListener(item -> {
             showCustomPrivacyList(activity, ContactInfoActivityClass, GroupInfoActivityClass);
             return true;
         }));
@@ -201,12 +201,12 @@ public class CustomPrivacy extends Feature {
         }
 
         if (list.isEmpty()) {
-            Utils.showToast(activity.getString(ResId.string.no_contact_with_custom_privacy), Toast.LENGTH_SHORT);
+            Utils.showToast(activity.getString(R.string.no_contact_with_custom_privacy), Toast.LENGTH_SHORT);
             return;
         }
 
         AlertDialogWpp builder = new AlertDialogWpp(activity);
-        builder.setTitle(ResId.string.custom_privacy);
+        builder.setTitle(R.string.custom_privacy);
         ListView listView = new ListView(activity);
         listView.setAdapter(new CustomPrivacyAdapter(activity, pprefs, list, contactClass, groupClass));
         builder.setView(listView);
@@ -231,15 +231,15 @@ public class CustomPrivacy extends Feature {
 
     private AlertDialogWpp createPrivacyDialog(Activity activity, String number) {
         AlertDialogWpp builder = new AlertDialogWpp(activity);
-        builder.setTitle(ResId.string.custom_privacy);
+        builder.setTitle(R.string.custom_privacy);
 
         String[] items = {
-                activity.getString(ResId.string.hideread),
-                activity.getString(ResId.string.hidestatusview),
-                activity.getString(ResId.string.hidereceipt),
-                activity.getString(ResId.string.ghostmode),
-                activity.getString(ResId.string.ghostmode_r),
-                activity.getString(ResId.string.block_call)
+                activity.getString(R.string.hideread),
+                activity.getString(R.string.hidestatusview),
+                activity.getString(R.string.hidereceipt),
+                activity.getString(R.string.ghostmode),
+                activity.getString(R.string.ghostmode_r),
+                activity.getString(R.string.block_call)
         };
 
         String[] itemsKeys = {
@@ -250,7 +250,7 @@ public class CustomPrivacy extends Feature {
 
         builder.setMultiChoiceItems(items, checkedItems, (dialog, which, isChecked) -> checkedItems[which] = isChecked);
         builder.setPositiveButton("OK", (dialog, which) -> savePreferences(number, itemsKeys, checkedItems));
-        builder.setNegativeButton(activity.getString(ResId.string.cancel), null);
+        builder.setNegativeButton(activity.getString(R.string.cancel), null);
 
         return builder;
     }

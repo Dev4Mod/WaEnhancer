@@ -15,6 +15,7 @@ import android.widget.Toast
 import androidx.core.content.ContextCompat
 import com.wmods.wppenhacer.App
 import com.wmods.wppenhacer.BuildConfig
+import com.wmods.wppenhacer.R
 import com.wmods.wppenhacer.UpdateChecker
 import com.wmods.wppenhacer.xposed.core.components.AlertDialogWpp
 import com.wmods.wppenhacer.xposed.core.components.FMessageWpp
@@ -86,7 +87,6 @@ import com.wmods.wppenhacer.xposed.features.privacy.ViewOnce
 import com.wmods.wppenhacer.xposed.spoofer.HookBL
 import com.wmods.wppenhacer.xposed.utils.DesignUtils
 import com.wmods.wppenhacer.xposed.utils.ReflectionUtils
-import com.wmods.wppenhacer.xposed.utils.ResId
 import com.wmods.wppenhacer.xposed.utils.Utils
 import de.robv.android.xposed.SELinuxHelper
 import de.robv.android.xposed.XC_MethodHook
@@ -145,9 +145,9 @@ class FeatureLoader {
                         currentVersion = packageInfo.versionName
 
                         val resIdArray = if (application.packageName == PACKAGE_WPP)
-                            ResId.array.supported_versions_wpp
+                            R.array.supported_versions_wpp
                         else
-                            ResId.array.supported_versions_business
+                            R.array.supported_versions_business
 
                         supportedVersions =
                             application.resources.getStringArray(resIdArray).toList()
@@ -211,15 +211,15 @@ class FeatureLoader {
                             val msg = list.joinToString("\n") { "${it.pluginName} - ${it.message}" }
 
                             AlertDialogWpp(activity)
-                                .setTitle(activity.getString(ResId.string.error_detected))
+                                .setTitle(activity.getString(R.string.error_detected))
                                 .setMessage(
-                                    "${activity.getString(ResId.string.version_error)}$msg\n\nCurrent Version: $currentVersion\nSupported Versions:\n${
+                                    "${activity.getString(R.string.version_error)}$msg\n\nCurrent Version: $currentVersion\nSupported Versions:\n${
                                         supportedVersions?.joinToString(
                                             "\n"
                                         )
                                     }"
                                 )
-                                .setPositiveButton(activity.getString(ResId.string.copy_to_clipboard)) { dialog, _ ->
+                                .setPositiveButton(activity.getString(R.string.copy_to_clipboard)) { dialog, _ ->
                                     val clipboard =
                                         mApp?.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
                                     val clip = ClipData.newPlainText(
@@ -228,7 +228,7 @@ class FeatureLoader {
                                     clipboard.setPrimaryClip(clip)
                                     Toast.makeText(
                                         mApp,
-                                        ResId.string.copied_to_clipboard,
+                                        R.string.copied_to_clipboard,
                                         Toast.LENGTH_SHORT
                                     ).show()
                                     dialog.dismiss()
@@ -314,8 +314,8 @@ class FeatureLoader {
                 WppCore.setPrivBoolean("need_restart", false)
                 try {
                     AlertDialogWpp(activity)
-                        .setMessage(activity.getString(ResId.string.restart_wpp))
-                        .setPositiveButton(activity.getString(ResId.string.yes)) { _, _ ->
+                        .setMessage(activity.getString(R.string.restart_wpp))
+                        .setPositiveButton(activity.getString(R.string.yes)) { _, _ ->
                             if (!Utils.doRestart(activity)) {
                                 Toast.makeText(
                                     activity,
@@ -324,7 +324,7 @@ class FeatureLoader {
                                 ).show()
                             }
                         }
-                        .setNegativeButton(activity.getString(ResId.string.no), null)
+                        .setNegativeButton(activity.getString(R.string.no), null)
                         .show()
                 } catch (ignored: Throwable) {
                 }
@@ -343,7 +343,7 @@ class FeatureLoader {
                             context.packageManager.getApplicationLabel(context.applicationInfo)
                         Toast.makeText(
                             context,
-                            "${context.getString(ResId.string.rebooting)} $appName...",
+                            "${context.getString(R.string.rebooting)} $appName...",
                             Toast.LENGTH_SHORT
                         ).show()
                         if (!Utils.doRestart(context)) {

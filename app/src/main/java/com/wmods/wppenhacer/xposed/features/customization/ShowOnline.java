@@ -15,13 +15,13 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.core.text.TextUtilsCompat;
 
+import com.wmods.wppenhacer.R;
 import com.wmods.wppenhacer.xposed.core.Feature;
 import com.wmods.wppenhacer.xposed.core.components.WaContactWpp;
 import com.wmods.wppenhacer.xposed.core.devkit.Unobfuscator;
 import com.wmods.wppenhacer.xposed.core.devkit.UnobfuscatorCache;
 import com.wmods.wppenhacer.xposed.features.listeners.ContactItemListener;
 import com.wmods.wppenhacer.xposed.utils.ReflectionUtils;
-import com.wmods.wppenhacer.xposed.utils.ResId;
 import com.wmods.wppenhacer.xposed.utils.Utils;
 
 import java.lang.reflect.Method;
@@ -123,7 +123,7 @@ public class ShowOnline extends Feature {
                         params2.addRule(isLeftToRight ? RelativeLayout.ALIGN_RIGHT : RelativeLayout.ALIGN_LEFT, photoView.getId());
                         params2.topMargin = Utils.dipToPixels(5);
                         imageView.setLayoutParams(params2);
-                        imageView.setImageResource(ResId.drawable.online);
+                        imageView.setImageResource(R.drawable.online);
                         imageView.setAdjustViewBounds(true);
                         imageView.setScaleType(ImageView.ScaleType.FIT_XY);
                         imageView.setVisibility(View.INVISIBLE);
@@ -142,7 +142,7 @@ public class ShowOnline extends Feature {
                         params2.addRule(isLeftToRight ? RelativeLayout.ALIGN_RIGHT : RelativeLayout.ALIGN_LEFT, photoView.getId());
                         params2.topMargin = Utils.dipToPixels(5);
                         imageView.setLayoutParams(params2);
-                        imageView.setImageResource(ResId.drawable.online);
+                        imageView.setImageResource(R.drawable.online);
                         imageView.setAdjustViewBounds(true);
                         imageView.setScaleType(ImageView.ScaleType.FIT_XY);
                         imageView.setVisibility(View.INVISIBLE);

@@ -14,6 +14,7 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 
+import com.wmods.wppenhacer.R;
 import com.wmods.wppenhacer.listeners.OnMultiClickListener;
 import com.wmods.wppenhacer.xposed.core.Feature;
 import com.wmods.wppenhacer.xposed.core.WppCore;
@@ -21,7 +22,6 @@ import com.wmods.wppenhacer.xposed.core.devkit.Unobfuscator;
 import com.wmods.wppenhacer.xposed.features.general.Others;
 import com.wmods.wppenhacer.xposed.utils.DesignUtils;
 import com.wmods.wppenhacer.xposed.utils.ReflectionUtils;
-import com.wmods.wppenhacer.xposed.utils.ResId;
 import com.wmods.wppenhacer.xposed.utils.Utils;
 
 import org.luckypray.dexkit.query.enums.StringMatchType;
@@ -116,7 +116,7 @@ public class CustomToolbar extends Feature {
                         var version = (TextView) viewRoot.findViewById(Utils.getID("version", "id"));
 
                         if (version != null) {
-                            var expirationText = activity.getString(ResId.string.expiration, mDateExpiration);
+                            var expirationText = activity.getString(R.string.expiration, mDateExpiration);
                             version.setText(version.getText() + " " + expirationText);
                         }
                     }

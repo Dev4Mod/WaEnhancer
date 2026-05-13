@@ -16,7 +16,6 @@ import com.wmods.wppenhacer.xposed.core.components.FMessageWpp;
 import com.wmods.wppenhacer.xposed.core.devkit.Unobfuscator;
 import com.wmods.wppenhacer.xposed.features.listeners.MenuStatusListener;
 import com.wmods.wppenhacer.xposed.utils.MimeTypeUtils;
-import com.wmods.wppenhacer.xposed.utils.ResId;
 import com.wmods.wppenhacer.xposed.utils.Utils;
 
 import org.luckypray.dexkit.query.enums.StringMatchType;
@@ -42,11 +41,11 @@ public class StatusDownload extends Feature {
 
             @Override
             public MenuItem addMenu(Menu menu, List<FMessageWpp> fMessageWppList, int currentIndex) {
-                if (menu.findItem(ResId.string.download) != null) return null;
+                if (menu.findItem(R.string.download) != null) return null;
                 var fMessage = fMessageWppList.get(currentIndex);
                 if (fMessage.getKey().isFromMe) return null;
                 if (!fMessage.isMediaFile()) return null;
-                return menu.add(0, ResId.string.download, 0, ResId.string.download);
+                return menu.add(0, R.string.download, 0, R.string.download);
             }
 
             @Override
@@ -64,8 +63,8 @@ public class StatusDownload extends Feature {
             public MenuItem addMenu(Menu menu, List<FMessageWpp> fMessageWppList, int currentIndex) {
                 var fMessage = fMessageWppList.get(currentIndex);
                 if (fMessage.getKey().isFromMe) return null;
-                if (menu.findItem(ResId.string.share_as_status) != null) return null;
-                return menu.add(0, ResId.string.share_as_status, 0, ResId.string.share_as_status);
+                if (menu.findItem(R.string.share_as_status) != null) return null;
+                return menu.add(0, R.string.share_as_status, 0, R.string.share_as_status);
             }
 
             @Override

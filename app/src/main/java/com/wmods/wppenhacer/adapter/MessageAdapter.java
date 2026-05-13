@@ -9,9 +9,9 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 
+import com.wmods.wppenhacer.R;
 import com.wmods.wppenhacer.xposed.core.db.MessageHistoryStore;
 import com.wmods.wppenhacer.xposed.utils.DesignUtils;
-import com.wmods.wppenhacer.xposed.utils.ResId;
 import com.wmods.wppenhacer.xposed.utils.Utils;
 
 import java.util.List;
@@ -55,7 +55,7 @@ public class MessageAdapter extends ArrayAdapter<MessageHistoryStore.MessageItem
         textView1.setTypeface(null, Typeface.ITALIC);
         textView1.setTextColor(DesignUtils.getPrimaryTextColor());
         var timestamp = this.items.get(position).timestamp;
-        textView1.setText((timestamp == 0L ? context.getString(ResId.string.message_original) : "✏️ " + Utils.getDateTimeFromMillis(timestamp)));
+        textView1.setText((timestamp == 0L ? context.getString(R.string.message_original) : "✏️ " + Utils.getDateTimeFromMillis(timestamp)));
         return view1;
     }
 

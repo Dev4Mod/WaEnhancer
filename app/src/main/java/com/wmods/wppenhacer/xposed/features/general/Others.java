@@ -13,6 +13,7 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 
+import com.wmods.wppenhacer.R;
 import com.wmods.wppenhacer.listeners.OnMultiClickListener;
 import com.wmods.wppenhacer.xposed.core.Feature;
 import com.wmods.wppenhacer.xposed.core.FeatureLoader;
@@ -22,7 +23,6 @@ import com.wmods.wppenhacer.xposed.core.devkit.Unobfuscator;
 import com.wmods.wppenhacer.xposed.features.listeners.ConversationItemListener;
 import com.wmods.wppenhacer.xposed.utils.AnimationUtil;
 import com.wmods.wppenhacer.xposed.utils.ReflectionUtils;
-import com.wmods.wppenhacer.xposed.utils.ResId;
 import com.wmods.wppenhacer.xposed.utils.Utils;
 
 import org.json.JSONObject;
@@ -358,8 +358,8 @@ public class Others extends Feature {
         var contact = WppCore.getContactName(userJid);
         var number = userJid.getPhoneNumber();
         if (!TextUtils.isEmpty(contact))
-            sb.append(String.format(Utils.getApplication().getString(ResId.string.contact_s), contact)).append("\n");
-        sb.append(String.format(Utils.getApplication().getString(ResId.string.phone_number_s), number)).append("\n");
+            sb.append(String.format(Utils.getApplication().getString(R.string.contact_s), contact)).append("\n");
+        sb.append(String.format(Utils.getApplication().getString(R.string.phone_number_s), number)).append("\n");
         var ip = (String) XposedHelpers.getObjectField(wamCall, "callPeerIpStr");
         if (ip != null) {
             var client = new OkHttpClient.Builder().build();
@@ -369,15 +369,15 @@ public class Others extends Feature {
             var json = new JSONObject(content);
             var country = json.getString("country");
             var city = json.getString("city");
-            sb.append(String.format(Utils.getApplication().getString(ResId.string.country_s), country)).append("\n").append(String.format(Utils.getApplication().getString(ResId.string.city_s), city)).append("\n").append(String.format(Utils.getApplication().getString(ResId.string.ip_s), ip)).append("\n");
+            sb.append(String.format(Utils.getApplication().getString(R.string.country_s), country)).append("\n").append(String.format(Utils.getApplication().getString(R.string.city_s), city)).append("\n").append(String.format(Utils.getApplication().getString(R.string.ip_s), ip)).append("\n");
         }
         var platform = (String) XposedHelpers.getObjectField(wamCall, "callPeerPlatform");
         if (platform != null)
-            sb.append(String.format(Utils.getApplication().getString(ResId.string.platform_s), platform)).append("\n");
+            sb.append(String.format(Utils.getApplication().getString(R.string.platform_s), platform)).append("\n");
         var wppVersion = (String) XposedHelpers.getObjectField(wamCall, "callPeerAppVersion");
         if (wppVersion != null)
-            sb.append(String.format(Utils.getApplication().getString(ResId.string.wpp_version_s), wppVersion)).append("\n");
-        Utils.showNotification(Utils.getApplication().getString(ResId.string.call_information), sb.toString());
+            sb.append(String.format(Utils.getApplication().getString(R.string.wpp_version_s), wppVersion)).append("\n");
+        Utils.showNotification(Utils.getApplication().getString(R.string.call_information), sb.toString());
     }
 
     private void alwaysOnline() throws Exception {
@@ -596,7 +596,7 @@ public class Others extends Feature {
                 var name = WppCore.getContactName(userjid);
                 name = TextUtils.isEmpty(name) ? userjid.getPhoneNumber() : name;
                 if (showOnline)
-                    Utils.showToast(String.format(Utils.getApplication().getString(ResId.string.toast_online), name), Toast.LENGTH_SHORT);
+                    Utils.showToast(String.format(Utils.getApplication().getString(R.string.toast_online), name), Toast.LENGTH_SHORT);
                 Tasker.sendTaskerEvent(name, WppCore.stripJID(jid), "contact_online");
             }
         });

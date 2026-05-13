@@ -11,7 +11,6 @@ import com.wmods.wppenhacer.xposed.AntiUpdater
 import com.wmods.wppenhacer.xposed.bridge.ScopeHook
 import com.wmods.wppenhacer.xposed.core.FeatureLoader
 import com.wmods.wppenhacer.xposed.downgrade.Patch
-import com.wmods.wppenhacer.xposed.utils.ResId
 import de.robv.android.xposed.IXposedHookInitPackageResources
 import de.robv.android.xposed.IXposedHookLoadPackage
 import de.robv.android.xposed.IXposedHookZygoteInit
@@ -21,6 +20,7 @@ import de.robv.android.xposed.XSharedPreferences
 import de.robv.android.xposed.XposedBridge
 import de.robv.android.xposed.XposedHelpers
 import de.robv.android.xposed.callbacks.XC_InitPackageResources
+import de.robv.android.xposed.callbacks.XC_InitPackageResources.InitPackageResourcesParam
 import de.robv.android.xposed.callbacks.XC_LoadPackage
 
 class WppXposed : IXposedHookLoadPackage, IXposedHookInitPackageResources, IXposedHookZygoteInit {
@@ -86,7 +86,7 @@ class WppXposed : IXposedHookLoadPackage, IXposedHookInitPackageResources, IXpos
     }
 
     @Throws(Throwable::class)
-    override fun handleInitPackageResources(resparam: XC_InitPackageResources.InitPackageResourcesParam) {
+    override fun handleInitPackageResources(resparam: InitPackageResourcesParam) {
         val packageName = resparam.packageName
 
         if (packageName != FeatureLoader.PACKAGE_WPP && packageName != FeatureLoader.PACKAGE_BUSINESS) {
@@ -95,34 +95,52 @@ class WppXposed : IXposedHookLoadPackage, IXposedHookInitPackageResources, IXpos
 
         val modRes = XModuleResources.createInstance(MODULE_PATH, resparam.res)
         ResParam = resparam
-
-        for (field in ResId.string::class.java.fields) {
-            try {
-                val field1 = R.string::class.java.getField(field.name)
-                field.set(null, resparam.res.addResource(modRes, field1.getInt(null)))
-            } catch (e: Exception) {
-                XposedBridge.log("Error loading string resource: ${field.name}")
-            }
+        val resourceClasses = listOf(
+            R.array::class.java,
+            R.string::class.java,
+            R.drawable::class.java
+        )
+        resourceClasses.forEach {
+            injectResources(it, modRes, resparam)
         }
 
-        for (field in ResId.array::class.java.fields) {
-            try {
-                val field1 = R.array::class.java.getField(field.name)
-                field.set(null, resparam.res.addResource(modRes, field1.getInt(null)))
-            } catch (e: Exception) {
-                XposedBridge.log("Error loading array resource: ${field.name}")
-            }
-        }
-
-        for (field in ResId.drawable::class.java.fields) {
-            try {
-                val field1 = R.drawable::class.java.getField(field.name)
-                field.set(null, resparam.res.addResource(modRes, field1.getInt(null)))
-            } catch (e: Exception) {
-                XposedBridge.log("Error loading drawable resource: ${field.name}")
-            }
-        }
     }
+
+    private fun injectResources(
+        clazz: Class<*>,
+        modRes: XModuleResources?,
+        resparam: InitPackageResourcesParam
+    ) {
+        var count = 0
+        for (field in clazz.declaredFields) {
+            try {
+                field.isAccessible = true
+
+                if (field.type === Int::class.javaPrimitiveType) {
+                    val resId = field.getInt(null)
+                    if (resId > 0x7f000000) {
+                        count++
+                        val replacementId = resparam.res.addResource(modRes, resId)
+                        field.set(null, replacementId)
+                    }
+                } else if (field.type === IntArray::class.java) {
+                    val resIds = field.get(null) as IntArray?
+                    if (resIds != null) {
+                        for (i in resIds.indices) {
+                            if (resIds[i] > 0x7f000000) {
+                                count++
+                                resIds[i] = resparam.res.addResource(modRes, resIds[i])
+                            }
+                        }
+                    }
+                }
+            } catch (_: Exception) {
+
+            }
+        }
+        XposedBridge.log("Injected " + count + " resources for " + clazz.getSimpleName())
+    }
+
 
     @Throws(Throwable::class)
     override fun initZygote(startupParam: IXposedHookZygoteInit.StartupParam) {

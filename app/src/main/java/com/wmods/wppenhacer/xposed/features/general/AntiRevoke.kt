@@ -4,6 +4,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import android.widget.Toast
+import com.wmods.wppenhacer.R
 import com.wmods.wppenhacer.xposed.core.Feature
 import com.wmods.wppenhacer.xposed.core.WppCore
 import com.wmods.wppenhacer.xposed.core.components.FMessageWpp
@@ -16,7 +17,6 @@ import com.wmods.wppenhacer.xposed.core.devkit.UnobfuscatorCache
 import com.wmods.wppenhacer.xposed.features.listeners.ConversationItemListener
 import com.wmods.wppenhacer.xposed.features.listeners.MenuStatusListener
 import com.wmods.wppenhacer.xposed.utils.ReflectionUtils
-import com.wmods.wppenhacer.xposed.utils.ResId
 import com.wmods.wppenhacer.xposed.utils.Utils
 import de.robv.android.xposed.XC_MethodHook
 import de.robv.android.xposed.XSharedPreferences
@@ -199,7 +199,7 @@ class AntiRevoke(loader: ClassLoader, preferences: XSharedPreferences) :
                 dateTextView.paint.isUnderlineText = true
                 dateTextView.setOnClickListener {
                     val toastMessage =
-                        Utils.getApplication().getString(ResId.string.message_removed_on)
+                        Utils.getApplication().getString(R.string.message_removed_on)
                             .format(date)
                     Utils.showToast(toastMessage, Toast.LENGTH_LONG)
                 }
@@ -222,7 +222,7 @@ class AntiRevoke(loader: ClassLoader, preferences: XSharedPreferences) :
                 }
 
                 2 -> {
-                    val drawable = Utils.getApplication().getDrawable(ResId.drawable.deleted)
+                    val drawable = Utils.getApplication().getDrawable(R.drawable.deleted)
                     dateTextView.setCompoundDrawablesWithIntrinsicBounds(null, null, drawable, null)
                     dateTextView.compoundDrawablePadding = 5
                 }
@@ -280,10 +280,10 @@ class AntiRevoke(loader: ClassLoader, preferences: XSharedPreferences) :
 
     private fun formatRevocationMessage(fMessage: FMessageWpp): String? {
         var jidAuthor = fMessage.key.remoteJid
-        var messageSuffix = Utils.getApplication().getString(ResId.string.deleted_message)
+        var messageSuffix = Utils.getApplication().getString(R.string.deleted_message)
 
         if (jidAuthor.isStatus) {
-            messageSuffix = Utils.getApplication().getString(ResId.string.deleted_status)
+            messageSuffix = Utils.getApplication().getString(R.string.deleted_status)
             jidAuthor = fMessage.userJid
         }
         val waContact = WaContactWpp.getWaContactFromJid(jidAuthor)
@@ -305,7 +305,7 @@ class AntiRevoke(loader: ClassLoader, preferences: XSharedPreferences) :
                 ?: participantJid.phoneNumber
 
             Utils.getApplication()
-                .getString(ResId.string.deleted_a_message_in_group, participantName, name)
+                .getString(R.string.deleted_a_message_in_group, participantName, name)
         } else {
             "$name $messageSuffix"
         }
