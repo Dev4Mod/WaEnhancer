@@ -27,10 +27,10 @@ public class UpdateChecker implements Runnable {
     // Singleton OkHttpClient - expensive to create, reuse across all checks
     private static OkHttpClient httpClient;
 
-    private final Activity mActivity;
+    private final java.lang.ref.WeakReference<Activity> mActivityRef;
 
     public UpdateChecker(Activity activity) {
-        this.mActivity = activity;
+        this.mActivityRef = new java.lang.ref.WeakReference<>(activity);
     }
 
     /**
@@ -49,6 +49,11 @@ public class UpdateChecker implements Runnable {
 
     @Override
     public void run() {
+        Activity activity = mActivityRef.get();
+        if (activity == null || activity.isFinishing() || activity.isDestroyed()) {
+            return;
+        }
+
         try {
 
             var request = new okhttp3.Request.Builder()
@@ -83,7 +88,7 @@ public class UpdateChecker implements Runnable {
                 return;
             }
 
-            var appInfo = mActivity.getPackageManager().getPackageInfo(BuildConfig.APPLICATION_ID, 0);
+            var appInfo = activity.getPackageManager().getPackageInfo(BuildConfig.APPLICATION_ID, 0);
             boolean isNewVersion = !appInfo.versionName.toLowerCase().contains(hash.toLowerCase().trim());
             boolean isIgnored = Objects.equals(WppCore.getPrivString("ignored_version", ""), hash);
 
@@ -93,7 +98,7 @@ public class UpdateChecker implements Runnable {
                 final String finalChangelog = changelog;
                 final String finalPublishedAt = publishedAt;
 
-                mActivity.runOnUiThread(() -> {
+                activity.runOnUiThread(() -> {
                     showUpdateDialog(finalHash, finalChangelog, finalPublishedAt);
                 });
             }
@@ -103,9 +108,14 @@ public class UpdateChecker implements Runnable {
     }
 
     private void showUpdateDialog(String hash, String changelog, String publishedAt) {
+        Activity activity = mActivityRef.get();
+        if (activity == null || activity.isFinishing() || activity.isDestroyed()) {
+            return;
+        }
+
         try {
-            var markwon = Markwon.create(mActivity);
-            var dialog = new AlertDialogWpp(mActivity);
+            var markwon = Markwon.create(activity);
+            var dialog = new AlertDialogWpp(activity);
 
             // Format the published date
             String formattedDate = formatPublishedDate(publishedAt);
@@ -125,7 +135,7 @@ public class UpdateChecker implements Runnable {
                 dialog1.dismiss();
             });
             dialog.setPositiveButton("Update Now", (dialog1, which) -> {
-                Utils.openLink(mActivity, TELEGRAM_UPDATE_URL);
+                Utils.openLink(activity, TELEGRAM_UPDATE_URL);
                 dialog1.dismiss();
             });
             dialog.show();

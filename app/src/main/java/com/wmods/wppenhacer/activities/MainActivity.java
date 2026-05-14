@@ -113,6 +113,13 @@ public class MainActivity extends BaseActivity {
         handleIncomingIntent(getIntent());
     }
 
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        FilePicker.cleanup();
+        binding = null;
+    }
+
     private void createMainDir() {
         var nomedia = new File(App.getWaEnhancerFolder(), ".nomedia");
         if (nomedia.exists()) {

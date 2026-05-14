@@ -12,7 +12,7 @@ import java.io.File;
 public class FilePicker {
 
     private static OnFilePickedListener mOnFilePickedListener;
-    private static AppCompatActivity mActivity;
+    private static java.lang.ref.WeakReference<AppCompatActivity> mActivityRef;
     public static ActivityResultLauncher<String> fileSalve;
     private static OnUriPickedListener mOnUriPickedListener;
     public static ActivityResultLauncher<String[]> fileCapture;
@@ -20,7 +20,7 @@ public class FilePicker {
     public static ActivityResultLauncher<PickVisualMediaRequest> imageCapture;
 
     public static void registerFilePicker(AppCompatActivity activity) {
-        mActivity = activity;
+        mActivityRef = new java.lang.ref.WeakReference<>(activity);
         fileCapture = activity.registerForActivityResult(new ActivityResultContracts.OpenDocument(), FilePicker::setFile);
         imageCapture = activity.registerForActivityResult(new ActivityResultContracts.PickVisualMedia(), FilePicker::setFile);
         directoryCapture = activity.registerForActivityResult(new ActivityResultContracts.OpenDocumentTree(), FilePicker::setDirectory);
@@ -37,9 +37,11 @@ public class FilePicker {
 
         if (mOnFilePickedListener != null) {
             String realPath = null;
+            AppCompatActivity activity = mActivityRef != null ? mActivityRef.get() : null;
+            if (activity == null) return;
             try {
-                realPath = RealPathUtil.getRealFilePath(mActivity, uri);
-            }catch (Exception ignored) {
+                realPath = RealPathUtil.getRealFilePath(activity, uri);
+            } catch (Exception ignored) {
             }
             if (realPath == null) return;
             mOnFilePickedListener.onFilePicked(new File(realPath));
@@ -50,15 +52,17 @@ public class FilePicker {
     private static void setDirectory(Uri uri) {
         if (uri == null) return;
 
-        if (mOnFilePickedListener == null) {
+        if (mOnFilePickedListener == null && mOnUriPickedListener != null) {
             mOnUriPickedListener.onUriPicked(uri);
             mOnUriPickedListener = null;
         }
 
         if (mOnFilePickedListener != null) {
             String realPath = null;
+            AppCompatActivity activity = mActivityRef != null ? mActivityRef.get() : null;
+            if (activity == null) return;
             try {
-                realPath = RealPathUtil.getRealFolderPath(mActivity, uri);
+                realPath = RealPathUtil.getRealFolderPath(activity, uri);
             } catch (Exception ignored) {
             }
             if (realPath == null) return;
@@ -75,6 +79,19 @@ public class FilePicker {
     public static void setOnUriPickedListener(OnUriPickedListener onFilePickedListener) {
         mOnUriPickedListener = onFilePickedListener;
         mOnFilePickedListener = null;
+    }
+
+    public static void cleanup() {
+        if (mActivityRef != null) {
+            mActivityRef.clear();
+            mActivityRef = null;
+        }
+        fileCapture = null;
+        imageCapture = null;
+        directoryCapture = null;
+        fileSalve = null;
+        mOnFilePickedListener = null;
+        mOnUriPickedListener = null;
     }
 
 
