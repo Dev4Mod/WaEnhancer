@@ -11,13 +11,12 @@ import androidx.annotation.NonNull;
 
 import com.wmods.wppenhacer.R;
 import com.wmods.wppenhacer.xposed.core.Feature;
+import com.wmods.wppenhacer.xposed.core.WppCore;
 import com.wmods.wppenhacer.xposed.core.components.AlertDialogWpp;
-import com.wmods.wppenhacer.xposed.core.devkit.Unobfuscator;
 import com.wmods.wppenhacer.xposed.utils.Utils;
 
 import de.robv.android.xposed.XC_MethodHook;
 import de.robv.android.xposed.XSharedPreferences;
-import de.robv.android.xposed.XposedBridge;
 import de.robv.android.xposed.XposedHelpers;
 
 public class Stickers extends Feature {
@@ -27,21 +26,37 @@ public class Stickers extends Feature {
 
     @Override
     public void doHook() throws Throwable {
-        if (!prefs.getBoolean("alertsticker", false)) return;
+        if (!prefs.getBoolean("alertsticker", true)) return;
+
+        int stickerId = Utils.getID("sticker", "id");
 
         XposedHelpers.findAndHookMethod(View.class, "setOnClickListener", View.OnClickListener.class, new XC_MethodHook() {
             @Override
             protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
-                View view = (View) param.thisObject;
-                View.OnClickListener originalListener = (View.OnClickListener) param.args[0];
+                var view = (View) param.thisObject;
+                var listener = (View.OnClickListener) param.args[0];
 
-                if (originalListener == null || originalListener.getClass().getName().contains("com.wmods.wppenhacer")) {
+                if (listener == null || XposedHelpers.getAdditionalInstanceField(listener, "wae_wrapped") != null) {
                     return;
                 }
 
-                // Identify sticker view by its specific ID efficiently
-                int stickerId = Utils.getID("sticker", "id");
-                if (view.getId() == stickerId || (view instanceof ViewGroup && view.findViewById(stickerId) != null)) {
+                var activity = WppCore.getCurrentActivity();
+                if (activity == null) return;
+                String actName = activity.getClass().getName();
+                if (!actName.contains("Conversation") && !actName.contains("Sticker")) {
+                    return;
+                }
+
+                if (XposedHelpers.getAdditionalInstanceField(view, "wae_sticker_checked") != null) {
+                    return;
+                }
+
+                boolean isStickerView = view.getId() == stickerId;
+                if (!isStickerView && view instanceof ViewGroup) {
+                    isStickerView = view.findViewById(stickerId) != null;
+                }
+
+                if (isStickerView) {
                     param.args[0] = (View.OnClickListener) v -> {
                         var context = v.getContext();
                         var dialog = new AlertDialogWpp(context);
@@ -70,10 +85,13 @@ public class Stickers extends Feature {
                         linearLayout.addView(text);
 
                         dialog.setView(linearLayout);
-                        dialog.setPositiveButton(context.getString(R.string.send), (d, w) -> originalListener.onClick(v));
-                        dialog.setNegativeButton(context.getString(R.string.cancel), null);
+                        dialog.setPositiveButton(context.getString(R.string.send), (d, w) -> listener.onClick(v));
+                        dialog.setNegativeButton(context.getString(R.string.cancel), (d, w) -> d.dismiss());
                         dialog.show();
                     };
+                    XposedHelpers.setAdditionalInstanceField(param.args[0], "wae_wrapped", true);
+                } else {
+                    XposedHelpers.setAdditionalInstanceField(view, "wae_sticker_checked", true);
                 }
             }
         });

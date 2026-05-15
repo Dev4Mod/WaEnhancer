@@ -33,6 +33,7 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Objects;
 import java.util.Properties;
 import java.util.concurrent.CompletableFuture;
@@ -562,7 +563,7 @@ public class Others extends Feature {
 
     private void filterItems(String filterItems) {
         var itens = filterItems.split("\n");
-        var idsFilter = new ArrayList<Integer>();
+        var idsFilter = new HashSet<Integer>();
         for (String item : itens) {
             var id = Utils.getID(item, "id");
             if (id > 0) {
