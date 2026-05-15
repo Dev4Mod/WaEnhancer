@@ -569,13 +569,27 @@ public class Others extends Feature {
                 idsFilter.add(id);
             }
         }
-        XposedHelpers.findAndHookMethod(View.class, "invalidate", boolean.class, new XC_MethodHook() {
+        if (idsFilter.isEmpty()) return;
+        XposedHelpers.findAndHookMethod(View.class, "onAttachedToWindow", new XC_MethodHook() {
             @Override
             protected void afterHookedMethod(MethodHookParam param) throws Throwable {
                 var view = (View) param.thisObject;
-                var id = view.getId();
-                if (id > 0 && idsFilter.contains(id) && view.getVisibility() == View.VISIBLE) {
+                int id = view.getId();
+                if (id > 0 && idsFilter.contains(id)) {
                     view.setVisibility(View.GONE);
+                }
+            }
+        });
+
+        XposedHelpers.findAndHookMethod(View.class, "setVisibility", int.class, new XC_MethodHook() {
+            @Override
+            protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
+                if ((int) param.args[0] == View.VISIBLE) {
+                    var view = (View) param.thisObject;
+                    int id = view.getId();
+                    if (id > 0 && idsFilter.contains(id)) {
+                        param.args[0] = View.GONE;
+                    }
                 }
             }
         });

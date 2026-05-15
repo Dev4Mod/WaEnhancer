@@ -482,9 +482,7 @@ public class CustomThemeV2 extends Feature {
 
     private boolean checkNotApplyColor(int color) {
         var activity = WppCore.getCurrentActivity();
-        if (activity != null && activity.getClass().getSimpleName().equals("Conversation")
-                && ReflectionUtils.isCalledFromStrings("getValue")
-                && !ReflectionUtils.isCalledFromStrings("android.view")) {
+        if (activity != null && activity.getClass().getSimpleName().equals("Conversation")) {
             return color != 0xff12181c;
         }
         return false;
@@ -507,7 +505,7 @@ public class CustomThemeV2 extends Feature {
                 if (textView.getId() == id) {
                     return;
                 }
-            } else if (param.thisObject instanceof Paint && ReflectionUtils.isCalledFromStrings("getValue")) {
+            } else if (param.thisObject instanceof Paint) {
                 return;
             }
             param.args[0] = IColors.getFromIntColor(color, IColors.colors);

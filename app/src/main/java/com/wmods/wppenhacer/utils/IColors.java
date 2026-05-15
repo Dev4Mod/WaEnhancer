@@ -29,21 +29,28 @@ public class IColors {
     }
 
 
+    public static final HashMap<Integer, Integer> intColors = new HashMap<>();
+
     public static int getFromIntColor(int color, HashMap<String, String> colors) {
+        Integer cached = intColors.get(color);
+        if (cached != null) return cached;
+
         var sColor = IColors.toString(color);
         var newColor = colors.get(sColor);
+        int result = color;
         if (newColor != null && newColor.length() == 9) {
-            return IColors.parseColor(newColor);
+            result = IColors.parseColor(newColor);
         } else {
             if (!sColor.startsWith("#ff")) {
                 var sColorSub = sColor.substring(0, 3);
                 newColor = colors.get(sColor.substring(3));
                 if (newColor != null) {
-                    return IColors.parseColor(sColorSub + newColor);
+                    result = IColors.parseColor(sColorSub + newColor);
                 }
             }
         }
-        return color;
+        intColors.put(color, result);
+        return result;
     }
 
     public static void initColors() {
@@ -51,6 +58,7 @@ public class IColors {
         textColors.clear();
         backgroundColors.clear();
         colors.clear();
+        intColors.clear();
 
         // primary colors
         primaryColors.put("00a884", "00a884");

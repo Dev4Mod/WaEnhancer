@@ -28,62 +28,55 @@ public class Stickers extends Feature {
     @Override
     public void doHook() throws Throwable {
         if (!prefs.getBoolean("alertsticker", false)) return;
-        var sendStickerMethods = Unobfuscator.loadSendStickerMethods(classLoader);
-        for (var method : sendStickerMethods) {
-            XposedBridge.hookMethod(method, new XC_MethodHook() {
-                private Unhook unhooked;
 
-                @Override
-                protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
-                    unhooked = XposedHelpers.findAndHookMethod(View.class, "setOnClickListener", View.OnClickListener.class, new XC_MethodHook() {
-                        @Override
-                        protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
-                            View.OnClickListener mCaptureOnClickListener = (View.OnClickListener) param.args[0];
-                            if (mCaptureOnClickListener == null) return;
-                            if (!(param.thisObject instanceof ViewGroup)) return;
-                            var view = (View) param.thisObject;
-                            if (view.findViewById(Utils.getID("sticker", "id")) == null) return;
+        XposedHelpers.findAndHookMethod(View.class, "setOnClickListener", View.OnClickListener.class, new XC_MethodHook() {
+            @Override
+            protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
+                View view = (View) param.thisObject;
+                View.OnClickListener originalListener = (View.OnClickListener) param.args[0];
 
-                            param.args[0] = (View.OnClickListener) v -> {
-                                var context = view.getContext();
-                                var dialog = new AlertDialogWpp(view.getContext());
-                                dialog.setTitle(context.getString(R.string.send_sticker));
+                if (originalListener == null || originalListener.getClass().getName().contains("com.wmods.wppenhacer")) {
+                    return;
+                }
 
-                                var stickerView = (ImageView) view.findViewById(Utils.getID("sticker", "id"));
-                                LinearLayout linearLayout = new LinearLayout(context);
-                                linearLayout.setOrientation(LinearLayout.VERTICAL);
-                                linearLayout.setGravity(Gravity.CENTER_HORIZONTAL);
-                                var padding = Utils.dipToPixels(16);
-                                linearLayout.setPadding(padding, padding, padding, padding);
-                                var image = new ImageView(context);
-                                var size = Utils.dipToPixels(72);
-                                var params = new LinearLayout.LayoutParams(size, size);
-                                params.bottomMargin = padding;
-                                image.setLayoutParams(params);
-                                image.setImageDrawable(stickerView.getDrawable());
-                                linearLayout.addView(image);
+                // Identify sticker view by its specific ID efficiently
+                int stickerId = Utils.getID("sticker", "id");
+                if (view.getId() == stickerId || (view instanceof ViewGroup && view.findViewById(stickerId) != null)) {
+                    param.args[0] = (View.OnClickListener) v -> {
+                        var context = v.getContext();
+                        var dialog = new AlertDialogWpp(context);
+                        dialog.setTitle(context.getString(R.string.send_sticker));
 
-                                TextView text = new TextView(context);
-                                text.setText(context.getString(R.string.do_you_want_to_send_sticker));
-                                text.setTextAlignment(View.TEXT_ALIGNMENT_CENTER);
-                                linearLayout.addView(text);
+                        LinearLayout linearLayout = new LinearLayout(context);
+                        linearLayout.setOrientation(LinearLayout.VERTICAL);
+                        linearLayout.setGravity(Gravity.CENTER_HORIZONTAL);
+                        var padding = Utils.dipToPixels(16);
+                        linearLayout.setPadding(padding, padding, padding, padding);
 
-
-                                dialog.setView(linearLayout);
-                                dialog.setPositiveButton(context.getString(R.string.send), (dialog1, which) -> mCaptureOnClickListener.onClick(view));
-                                dialog.setNegativeButton(context.getString(R.string.cancel), null);
-                                dialog.show();
-                            };
+                        var stickerView = (ImageView) (v.getId() == stickerId ? v : v.findViewById(stickerId));
+                        if (stickerView != null) {
+                            var image = new ImageView(context);
+                            var size = Utils.dipToPixels(72);
+                            var params = new LinearLayout.LayoutParams(size, size);
+                            params.bottomMargin = padding;
+                            image.setLayoutParams(params);
+                            image.setImageDrawable(stickerView.getDrawable());
+                            linearLayout.addView(image);
                         }
-                    });
-                }
 
-                @Override
-                protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-                    unhooked.unhook();
+                        TextView text = new TextView(context);
+                        text.setText(context.getString(R.string.do_you_want_to_send_sticker));
+                        text.setTextAlignment(View.TEXT_ALIGNMENT_CENTER);
+                        linearLayout.addView(text);
+
+                        dialog.setView(linearLayout);
+                        dialog.setPositiveButton(context.getString(R.string.send), (d, w) -> originalListener.onClick(v));
+                        dialog.setNegativeButton(context.getString(R.string.cancel), null);
+                        dialog.show();
+                    };
                 }
-            });
-        }
+            }
+        });
     }
 
     @NonNull
