@@ -177,6 +177,8 @@ class AntiRevoke(loader: ClassLoader, preferences: XSharedPreferences) :
         antirevokeType: String
     ) {
         if (dateTextView == null) return
+        val antirevokeValue = prefs.getString(antirevokeType, "0")?.toIntOrNull() ?: 0
+        if (antirevokeValue == 0) return
 
         val key = fMessage.key
         val messageRevokedList = getRevokedMessagesForJid(fMessage)
@@ -204,8 +206,6 @@ class AntiRevoke(loader: ClassLoader, preferences: XSharedPreferences) :
                     Utils.showToast(toastMessage, Toast.LENGTH_LONG)
                 }
             }
-
-            val antirevokeValue = prefs.getString(antirevokeType, "0")?.toIntOrNull() ?: 0
 
             when (antirevokeValue) {
                 1 -> {
