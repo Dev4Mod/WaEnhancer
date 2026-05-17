@@ -155,13 +155,18 @@ class HideSeen(loader: ClassLoader, preferences: XSharedPreferences) :
 
                 val fmessageKey = generateFMessageKey(protocolTreeNodeWpp) ?: return
 
-                val isAlreadyHidden = MessageHistoryStore.getInstance().getHideSeenMessage(
+                val hideSeenItem = MessageHistoryStore.getInstance().getHideSeenMessage(
                     fmessageKey.remoteJid.phoneRawString,
                     fmessageKey.messageID,
                     MessageHistoryStore.ReceiptType.READ
-                )?.viewed ?: false
+                )
 
-                if (isAlreadyHidden) return
+                if (hideSeenItem?.viewed ?: false) return
+
+                hideSeenItem?.let {
+                    param.result = null
+                    return
+                }
 
                 val hideSeen = checkPrivacyAndHideSeen(fmessageKey)
                 val hideReceipt = checkPrivacyAndHideReceipt(fmessageKey)
