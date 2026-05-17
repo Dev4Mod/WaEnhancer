@@ -283,6 +283,7 @@ class FeatureLoader {
 
                     if (App.isOriginalPackage() && pref.getBoolean("update_check", true)) {
                         if (activity.javaClass.simpleName == "HomeActivity" && type == WppCore.ActivityChangeState.ChangeType.RESUMED) {
+                            if (pref.getBoolean("lite_mode",false)) return
                             activity.window.decorView.postDelayed({
                                 CompletableFuture.runAsync(UpdateChecker(activity))
                             }, 2000)
