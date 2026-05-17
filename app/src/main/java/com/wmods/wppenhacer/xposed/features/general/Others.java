@@ -90,7 +90,7 @@ public class Others extends Feature {
         propsBoolean.put(4497, menuWIcons);
         propsBoolean.put(4023, false);
 
-        propsBoolean.put(28919, true); // For enable Toolbar button
+        propsBoolean.put(28919, newSettings); // For enable Toolbar button
         propsBoolean.put(14862, newSettings);
         propsInteger.put(18564, newSettings ? 2 : 0);
 
