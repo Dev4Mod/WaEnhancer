@@ -2879,4 +2879,15 @@ public class Unobfuscator {
     public static Method loadLockedAuthCheckMethod(@NotNull ClassLoader classLoader) throws Exception {
         return UnobfuscatorCache.getInstance().getMethod(classLoader, ()-> findFirstMethodUsingStrings(classLoader,StringMatchType.Contains,"privacy_fingerprint_enabled","app_lock_auth_needed"));
     }
+
+    public static Field loadGetCurrentPageInHomeField(@NotNull ClassLoader classLoader) throws Exception {
+        return UnobfuscatorCache.getInstance().getField(classLoader, ()-> {
+            var method = dexkit.getMethodData(loadAddOptionSearchBarMethod(classLoader));
+            for (var uField: method.getUsingFields()){
+                if (uField.getField().getDeclaredClassName().equals(method.getDeclaredClassName()) && uField.getField().getTypeName().equals("int"))
+                    return uField.getField().getFieldInstance(classLoader);
+            }
+            throw new NoSuchFieldException("CurrentPageInHome field not found");
+        });
+    }
 }

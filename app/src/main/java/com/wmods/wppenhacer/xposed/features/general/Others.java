@@ -89,8 +89,10 @@ public class Others extends Feature {
 
         propsBoolean.put(4497, menuWIcons);
         propsBoolean.put(4023, false);
+
+        propsBoolean.put(28919, true); // For enable Toolbar button
         propsBoolean.put(14862, newSettings);
-        propsInteger.put(18564, newSettings ? 1 : 0);
+        propsInteger.put(18564, newSettings ? 2 : 0);
 
         propsBoolean.put(2889, floatingMenu);
 
@@ -672,39 +674,34 @@ public class Others extends Feature {
         }
 
 
-        try {
-            Method addSeachBar = Unobfuscator.loadAddOptionSearchBarMethod(classLoader);
-            XposedBridge.hookMethod(addSeachBar, new XC_MethodHook() {
-                private Object homeActivity;
-                private Field pageIdField;
-                private int originPageId;
+        Method addSeachBar = Unobfuscator.loadAddOptionSearchBarMethod(classLoader);
+        Field curPageField = Unobfuscator.loadGetCurrentPageInHomeField(classLoader);
 
-                @Override
-                protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
-                    if (!Objects.equals(filterChats, "1"))
-                        return;
-                    homeActivity = param.thisObject;
-                    if (Modifier.isStatic(param.method.getModifiers())) {
-                        homeActivity = param.args[0];
-                    }
-                    pageIdField = XposedHelpers.findField(homeActivity.getClass(), "A01");
-                    originPageId = 0;
-                    if (pageIdField.getType() == int.class) {
-                        originPageId = pageIdField.getInt(homeActivity);
-                        pageIdField.setInt(homeActivity, 1);
-                    }
+        XposedBridge.hookMethod(addSeachBar, new XC_MethodHook() {
+            private Object homeActivity;
+            private int originPageId;
+
+            @Override
+            protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
+                if (!Objects.equals(filterChats, "1")) return;
+                homeActivity = param.thisObject;
+                if (Modifier.isStatic(param.method.getModifiers())) {
+                    homeActivity = param.args[0];
                 }
-
-                @Override
-                protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-                    if (originPageId != 0) {
-                        pageIdField.setInt(homeActivity, originPageId);
-                    }
+                originPageId = 0;
+                if (curPageField.getType() == int.class) {
+                    originPageId = curPageField.getInt(homeActivity);
+                    curPageField.setInt(homeActivity, 1);
                 }
-            });
-        } catch (Throwable ignored) {
-        }
+            }
 
+            @Override
+            protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+                if (originPageId != 0) {
+                    curPageField.setInt(homeActivity, originPageId);
+                }
+            }
+        });
         XposedHelpers.findAndHookMethod(WppCore.getHomeActivityClass(classLoader), "onPrepareOptionsMenu", Menu.class, new XC_MethodHook() {
             @Override
             protected void afterHookedMethod(MethodHookParam param) throws Throwable {
