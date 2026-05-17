@@ -23,6 +23,7 @@ import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
 
 import com.wmods.wppenhacer.WppXposed;
+import com.wmods.wppenhacer.utils.IColors;
 import com.wmods.wppenhacer.xposed.core.WppCore;
 
 import java.util.HashMap;
@@ -320,4 +321,10 @@ public class DesignUtils {
         icon.draw(canvas);
         return new BitmapDrawable(Utils.getApplication().getResources(), bitmap);
     }
+
+    public static int getBackgroundColorFromMap(String color) {
+        var newcolor = IColors.backgroundColors.getOrDefault(color, color);
+        return IColors.parseColor(newcolor);
+    }
+
 }

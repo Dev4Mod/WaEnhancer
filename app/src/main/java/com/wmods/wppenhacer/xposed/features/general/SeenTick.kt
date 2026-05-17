@@ -252,7 +252,7 @@ class SeenTick(
                     val containerButton = FrameLayout(replyView.context).apply {
                         background = GradientDrawable().apply {
                             shape = GradientDrawable.OVAL
-                            setColor(DesignUtils.getPrimarySurfaceColor())
+                            setColor(DesignUtils.getBackgroundColorFromMap("#ff20272b"))
                         }
                     }
 
