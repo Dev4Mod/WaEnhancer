@@ -299,18 +299,28 @@ public class ReflectionUtils {
         return list.get(i).second;
     }
 
-    public static boolean isCalledFromString(String contains) {
-        var trace = Thread.currentThread().getStackTrace();
-        var text = Arrays.toString(trace);
-        return text.contains(contains);
-    }
-
-    public static boolean isCalledFromStrings(String... contains) {
-        var trace = Thread.currentThread().getStackTrace();
-        var text = Arrays.toString(trace);
-        for (String s : contains) {
-            if (text.contains(s)) return true;
+    public static boolean isCalledFromStrings(String... fragments) {
+        for (String fragment : fragments) {
+            if (fragment == null || fragment.trim().isEmpty()) {
+                throw new IllegalArgumentException("Stack trace fragments must not be blank.");
+            }
         }
+
+        StackTraceElement[] trace = new Throwable().getStackTrace();
+        int limit = Math.min(trace.length, 20);
+
+        for (int i = 2; i < limit; i++) {
+            StackTraceElement frame = trace[i];
+            String className = frame.getClassName();
+            String methodName = frame.getMethodName();
+
+            for (String fragment : fragments) {
+                if (className.contains(fragment) || methodName.contains(fragment)) {
+                    return true;
+                }
+            }
+        }
+
         return false;
     }
 
@@ -327,21 +337,31 @@ public class ReflectionUtils {
         return false;
     }
 
-    public synchronized static boolean isCalledFromClass(Class<?> cls) {
-        var trace = Thread.currentThread().getStackTrace();
-        for (StackTraceElement stackTraceElement : trace) {
-            if (stackTraceElement.getClassName().equals(cls.getName()))
+    public static boolean isCalledFromClass(Class<?> cls) {
+        String className = cls.getName();
+        StackTraceElement[] stacks = new Throwable().getStackTrace();
+
+        for (int i = 2; i < stacks.length; i++) {
+            if (stacks[i].getClassName().equals(className)) {
                 return true;
+            }
         }
+
         return false;
     }
 
-    public synchronized static boolean isCalledFromMethod(Method method) {
-        var trace = Thread.currentThread().getStackTrace();
-        for (StackTraceElement stackTraceElement : trace) {
-            if (stackTraceElement.getClassName().equals(method.getDeclaringClass().getName()) && stackTraceElement.getMethodName().equals(method.getName()))
+    public static boolean isCalledFromMethod(Method method) {
+        String declaringClassName = method.getDeclaringClass().getName();
+        String methodName = method.getName();
+        StackTraceElement[] stacks = new Throwable().getStackTrace();
+
+        for (int i = 2; i < stacks.length; i++) {
+            if (stacks[i].getClassName().equals(declaringClassName)
+                    && stacks[i].getMethodName().equals(methodName)) {
                 return true;
+            }
         }
+
         return false;
     }
 
