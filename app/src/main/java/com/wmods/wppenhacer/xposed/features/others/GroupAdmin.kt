@@ -1,107 +1,116 @@
-package com.wmods.wppenhacer.xposed.features.others;
+package com.wmods.wppenhacer.xposed.features.others
 
-import android.view.Gravity;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.ImageView;
-import android.widget.LinearLayout;
+import android.view.Gravity
+import android.view.View
+import android.view.ViewGroup
+import android.widget.ImageView
+import android.widget.LinearLayout
+import com.wmods.wppenhacer.R
+import com.wmods.wppenhacer.xposed.core.Feature
+import com.wmods.wppenhacer.xposed.core.WppCore
+import com.wmods.wppenhacer.xposed.core.components.FMessageWpp
+import com.wmods.wppenhacer.xposed.core.devkit.Unobfuscator
+import com.wmods.wppenhacer.xposed.features.listeners.ConversationItemListener
+import com.wmods.wppenhacer.xposed.utils.ReflectionUtils
+import com.wmods.wppenhacer.xposed.utils.Utils
+import de.robv.android.xposed.XSharedPreferences
+import java.lang.reflect.Method
 
-import androidx.annotation.NonNull;
+class GroupAdmin(classLoader: ClassLoader, preferences: XSharedPreferences) : Feature(classLoader, preferences) {
 
-import com.wmods.wppenhacer.R;
-import com.wmods.wppenhacer.xposed.core.Feature;
-import com.wmods.wppenhacer.xposed.core.WppCore;
-import com.wmods.wppenhacer.xposed.core.components.FMessageWpp;
-import com.wmods.wppenhacer.xposed.core.devkit.Unobfuscator;
-import com.wmods.wppenhacer.xposed.features.listeners.ConversationItemListener;
-import com.wmods.wppenhacer.xposed.utils.ReflectionUtils;
-import com.wmods.wppenhacer.xposed.utils.Utils;
+    override fun doHook() {
+        if (!prefs.getBoolean("admin_grp", false)) return
 
-import de.robv.android.xposed.XSharedPreferences;
+        val jidFactory = Unobfuscator.loadJidFactory(classLoader)
+        val grpcheckAdmin = Unobfuscator.loadGroupCheckAdminMethod(classLoader)
 
-public class GroupAdmin extends Feature {
+        ConversationItemListener.conversationListeners.add(object :
+            ConversationItemListener.OnConversationItemListener() {
 
-    public GroupAdmin(@NonNull ClassLoader classLoader, @NonNull XSharedPreferences preferences) {
-        super(classLoader, preferences);
-    }
+            override fun onItemBind(fMessage: FMessageWpp, view: ViewGroup, position: Int, convertView: View?) {
+                val chatCurrentJid = WppCore.getCurrentUserJid()
+                if (chatCurrentJid == null || !chatCurrentJid.isGroup) return
 
-    @Override
-    public void doHook() throws Throwable {
-        if (!prefs.getBoolean("admin_grp", false)) return;
+                val grpcheckAdminClass = grpcheckAdmin.declaringClass
+                val field = ReflectionUtils.findFieldUsingFilter(view.javaClass) { f ->
+                    f.type.isAssignableFrom(grpcheckAdminClass)
+                }
+                field.isAccessible = true
 
-        var jidFactory = Unobfuscator.loadJidFactory(classLoader);
-        var grpcheckAdmin = Unobfuscator.loadGroupCheckAdminMethod(classLoader);
+                val grpParticipants = field.get(view)
+                val context = view.context
 
-        ConversationItemListener.conversationListeners.add(new ConversationItemListener.OnConversationItemListener() {
-            @Override
-            public void onItemBind(FMessageWpp fMessage, ViewGroup view, int position, View convertView) throws Throwable {
-                var chatCurrentJid = WppCore.getCurrentUserJid();
-                if (chatCurrentJid == null || !chatCurrentJid.isGroup()) return;
-                var grpcheckAdminClass = grpcheckAdmin.getDeclaringClass();
-                var field = ReflectionUtils.findFieldUsingFilter(view.getClass(), f -> f.getType().isAssignableFrom(grpcheckAdminClass));
-                field.setAccessible(true);
-                var grpParticipants = field.get(view);
-                var context = view.getContext();
-                ImageView iconAdmin;
-                if ((iconAdmin = view.findViewWithTag("admin_icon")) == null) {
-                    var nameGroup = (LinearLayout) view.findViewById(Utils.getID("name_in_group", "id"));
-                    if (nameGroup == null) return;
-                    var view1 = new LinearLayout(context);
-                    view1.setOrientation(LinearLayout.HORIZONTAL);
-                    view1.setGravity(Gravity.CENTER_VERTICAL);
-                    var nametv = nameGroup.getChildAt(0);
-                    iconAdmin = new ImageView(context);
-                    var size = Utils.dipToPixels(16);
-                    iconAdmin.setLayoutParams(new LinearLayout.LayoutParams(size, size));
-                    iconAdmin.setImageResource(R.drawable.admin);
-                    iconAdmin.setTag("admin_icon");
-                    nameGroup.removeView(nametv);
-                    view1.addView(nametv);
-                    view1.addView(iconAdmin);
-                    nameGroup.addView(view1, 0);
+                var iconAdmin = view.findViewWithTag<ImageView>("admin_icon")
+                if (iconAdmin == null) {
+                    val nameGroup = view.findViewById<LinearLayout>(Utils.getID("name_in_group", "id")) ?: return
+
+                    val view1 = LinearLayout(context).apply {
+                        orientation = LinearLayout.HORIZONTAL
+                        gravity = Gravity.CENTER_VERTICAL
+                    }
+
+                    val nametv = nameGroup.getChildAt(0)
+                    var lpparams =  nametv.layoutParams
+                    if (lpparams !is LinearLayout.LayoutParams){
+                        lpparams = LinearLayout.LayoutParams(lpparams)
+                    }
+
+                    val size = Utils.dipToPixels(16)
+                    iconAdmin = ImageView(context).apply {
+                        layoutParams = LinearLayout.LayoutParams(size, size)
+                        setImageResource(R.drawable.admin)
+                        tag = "admin_icon"
+                    }
+                    nameGroup.removeView(nametv)
+                    nametv.layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT,
+                        LinearLayout.LayoutParams.WRAP_CONTENT)
+                    view1.addView(nametv)
+                    view1.addView(iconAdmin)
+                    nameGroup.addView(view1, 0, lpparams)
                 }
 
-                var groupRawJid = chatCurrentJid.getPhoneRawString();
+                val groupRawJid = chatCurrentJid.phoneRawString
                 if (groupRawJid == null) {
-                    iconAdmin.setVisibility(View.GONE);
-                    return;
+                    iconAdmin.visibility = View.GONE
+                    return
                 }
 
-                var jidGrp = jidFactory.invoke(null, groupRawJid);
-                var participantJid = resolveParticipantJidForAdminCheck(fMessage.getUserJid(), grpcheckAdmin);
+                val jidGrp = jidFactory.invoke(null, groupRawJid)
+                val participantJid = resolveParticipantJidForAdminCheck(fMessage.userJid, grpcheckAdmin)
+
                 if (participantJid == null) {
-                    iconAdmin.setVisibility(View.GONE);
-                    return;
+                    iconAdmin.visibility = View.GONE
+                    return
                 }
 
-                var result = grpcheckAdmin.invoke(grpParticipants, jidGrp, participantJid);
-                iconAdmin.setVisibility(result != null && (boolean) result ? View.VISIBLE : View.GONE);
+                val result = grpcheckAdmin.invoke(grpParticipants, jidGrp, participantJid)
+                iconAdmin.visibility = if (result != null && result as Boolean) View.VISIBLE else View.GONE
             }
-        });
-
+        })
     }
 
-    private Object resolveParticipantJidForAdminCheck(FMessageWpp.UserJid userJid, java.lang.reflect.Method grpcheckAdmin) {
-        if (userJid == null) return null;
-        var expectedType = grpcheckAdmin.getParameterTypes()[1];
+    private fun resolveParticipantJidForAdminCheck(userJid: FMessageWpp.UserJid?, grpcheckAdmin: Method): Any? {
+        if (userJid == null) return null
+
+        val expectedType = grpcheckAdmin.parameterTypes[1]
+
         if (userJid.userJid != null && expectedType.isInstance(userJid.userJid)) {
-            return userJid.userJid;
+            return userJid.userJid
         }
         if (userJid.phoneJid != null && expectedType.isInstance(userJid.phoneJid)) {
-            return userJid.phoneJid;
+            return userJid.phoneJid
         }
         if (userJid.userJid != null) {
-            return userJid.userJid;
+            return userJid.userJid
         }
         if (userJid.phoneJid != null) {
-            return userJid.phoneJid;
+            return userJid.phoneJid
         }
-        return null;
+
+        return null
     }
 
-    @NonNull
-    @Override
-    public String getPluginName() {
-        return "GroupAdmin";
+    override fun getPluginName(): String {
+        return "GroupAdmin"
     }
 }

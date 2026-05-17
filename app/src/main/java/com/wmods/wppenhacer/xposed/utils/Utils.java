@@ -133,6 +133,12 @@ public class Utils {
         }
     }
 
+    public static int dipToPixels(int dipValue) {
+        DisplayMetrics metrics = FeatureLoader.mApp.getResources().getDisplayMetrics();
+        return (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, dipValue, metrics);
+    }
+
+
     public static int dipToPixels(float dipValue) {
         DisplayMetrics metrics = FeatureLoader.mApp.getResources().getDisplayMetrics();
         return (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, dipValue, metrics);
