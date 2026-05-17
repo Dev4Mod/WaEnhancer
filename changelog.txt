@@ -1,4 +1,2 @@
 [FIXED]
-* Fixed missing camera icon
-* Added Lite mode check to prevent crashes during package info retrieval
-* Fixed NullPointerException in ThreadWriter
+* Fixed missing WA Settings icon

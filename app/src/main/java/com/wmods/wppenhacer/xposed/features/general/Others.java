@@ -89,8 +89,16 @@ public class Others extends Feature {
 
         propsBoolean.put(4497, menuWIcons);
         propsBoolean.put(4023, false);
+        propsBoolean.put(16250, false);
 
-        propsBoolean.put(28919, newSettings); // For enable Toolbar button
+        if (newSettings){
+            SharedPreferencesWrapper.addHook((key, value) -> {
+                if (Objects.equals(key,"is_biz_alerts_eligible"))
+                    return true;
+                return value;
+            });
+        }
+        propsBoolean.put(21632, newSettings); // For enable Toolbar button
         propsBoolean.put(14862, newSettings);
         propsInteger.put(18564, newSettings ? 2 : 0);
 
