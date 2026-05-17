@@ -90,7 +90,10 @@ public class MediaPreview extends Feature {
                 if (param.args.length < 2) return;
                 var view = (View) param.thisObject;
                 var context = view.getContext();
-                var surface = (ViewGroup) view.findViewById(Utils.getID("invisible_press_surface", "id"));
+                ViewGroup surface = view.findViewById(Utils.getID("video_control_frame_view", "id"));
+                if (surface == null){
+                    surface = view.findViewById(Utils.getID("invisible_press_surface", "id"));
+                }
                 if (surface == null) return;
                 var controlFrame = surface.getChildAt(0);
                 surface.removeViewAt(0);
@@ -127,7 +130,12 @@ public class MediaPreview extends Feature {
 
 
                 ViewGroup mediaContainer = view.findViewById(Utils.getID("media_container", "id"));
+                if (mediaContainer == null)return;
                 ViewGroup controlFrame = view.findViewById(Utils.getID("control_frame", "id"));
+                if (controlFrame == null || controlFrame.getVisibility() != View.VISIBLE) {
+                    controlFrame = view.findViewById(Utils.getID("control_frame_new", "id"));
+                }
+                if (controlFrame == null) return;
 
                 LinearLayout linearLayout = new LinearLayout(context);
                 linearLayout.setLayoutParams(new FrameLayout.LayoutParams(
@@ -153,9 +161,10 @@ public class MediaPreview extends Feature {
                 prevBtn.setScaleType(ImageView.ScaleType.FIT_CENTER);
                 linearLayout.addView(prevBtn);
                 prevBtn.setVisibility(controlFrame.getVisibility());
+                ViewGroup finalControlFrame = controlFrame;
                 controlFrame.getViewTreeObserver().addOnGlobalLayoutListener(() -> {
-                    if (prevBtn.getVisibility() != controlFrame.getVisibility())
-                        prevBtn.setVisibility(controlFrame.getVisibility());
+                    if (prevBtn.getVisibility() != finalControlFrame.getVisibility())
+                        prevBtn.setVisibility(finalControlFrame.getVisibility());
                 });
 
                 prevBtn.setOnClickListener((v) -> {
