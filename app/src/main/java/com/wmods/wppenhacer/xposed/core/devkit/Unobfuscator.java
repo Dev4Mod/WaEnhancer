@@ -258,6 +258,34 @@ public class Unobfuscator {
                             + "]"
             );
         });
+
+    }
+
+    public static Method loadReceiptMainCallerMethod(ClassLoader classLoader)throws Exception{
+        return UnobfuscatorCache.getInstance().getMethod(classLoader, () -> {
+            var methodReceipt = dexkit.getMethodData(loadReceiptMethod(classLoader));
+            var classData = methodReceipt.getDeclaredClass();
+            var methodData = classData.findMethod(FindMethod.create().matcher(MethodMatcher.create()
+                    .addInvoke(methodReceipt.getDescriptor())
+                    .addUsingString("class")
+            )).single();
+            return methodData.getMethodInstance(classLoader);
+        });
+    }
+
+
+    public static Method[] loadReceiptCallersMethod(ClassLoader classLoader) throws Exception {
+        return UnobfuscatorCache.getInstance().getMethods(classLoader, () -> {
+            var methodData = dexkit.getMethodData(loadReceiptMainCallerMethod(classLoader));
+            ArrayList<Method> methods = new ArrayList<>();
+            for (var methodCaller: methodData.getCallers()){
+                if (methodCaller.getParamCount() > 1 && methodCaller.getParamTypes().get(0).getSimpleName().equals("Message")){
+                    methods.add(methodCaller.getMethodInstance(classLoader));
+                }
+            }
+            if (methods.isEmpty())return null;
+            return methods.toArray(new Method[0]);
+        });
     }
 
     public synchronized static Method loadReceiptOutsideChat(ClassLoader classLoader) throws Exception {

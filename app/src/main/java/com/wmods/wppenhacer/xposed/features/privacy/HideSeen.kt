@@ -1,5 +1,6 @@
 package com.wmods.wppenhacer.xposed.features.privacy
 
+import android.os.Message
 import com.wmods.wppenhacer.xposed.core.Feature
 import com.wmods.wppenhacer.xposed.core.WppCore
 import com.wmods.wppenhacer.xposed.core.components.FMessageWpp
@@ -142,6 +143,19 @@ class HideSeen(loader: ClassLoader, preferences: XSharedPreferences) :
     private fun hookReceiptMethod() {
 
         val receiptMethod = Unobfuscator.loadReceiptMethod(classLoader)
+        val receiptMainCallerMethod = Unobfuscator.loadReceiptMainCallerMethod(classLoader);
+        val receiptCallerMethods = Unobfuscator.loadReceiptCallersMethod(classLoader);
+        val hookCallerMethod = object : XC_MethodHook(){
+            override fun beforeHookedMethod(param: MethodHookParam) {
+                val firstArg = param.args[0] as? Message ?: return
+                if (firstArg.arg1 != 419 && firstArg.arg1 != 89)return
+                val obj = firstArg.obj
+                val checkResult = receiptMainCallerMethod.invoke(null, obj);
+                if (checkResult == null)
+                    param.result = null;
+            }
+        }
+        receiptCallerMethods.forEach { XposedBridge.hookMethod(it, hookCallerMethod) }
 
         XposedBridge.hookMethod(receiptMethod, object : XC_MethodHook() {
 
