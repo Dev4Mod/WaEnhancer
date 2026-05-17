@@ -1,6 +1,10 @@
 [ADDED]
-* Added support to WA 2.26.18.xx
+* New Contact Picker for Call Privacy Blocker
 
 [FIXED]
-* Fixed error in the Download status notification
-
+* Fixed lag issues on the Stickers screen
+* Fixed the “Mark as Seen” button color in Status/Stories while using the light theme
+* Fixed delayed message issues when enabling Hide Seen
+* Fixed the group admin icon alignment
+* Fixed the search icon not appearing on the WA home screen
+* Fixed profile photo on the WA home screen in WA 2.26.18.xx
