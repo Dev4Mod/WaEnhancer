@@ -50,6 +50,28 @@ abstract class DelMessageDatabase : RoomDatabase() {
             }
         }
 
+        private val MIGRATION_5_6 = object : Migration(5, 6) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL(
+                    "CREATE TABLE IF NOT EXISTS deleted_for_me (" +
+                            "_id INTEGER PRIMARY KEY AUTOINCREMENT, " +
+                            "key_id TEXT, " +
+                            "chat_jid TEXT, " +
+                            "sender_jid TEXT, " +
+                            "timestamp INTEGER, " +
+                            "original_timestamp INTEGER DEFAULT 0, " +
+                            "media_type INTEGER, " +
+                            "text_content TEXT, " +
+                            "media_path TEXT, " +
+                            "media_caption TEXT, " +
+                            "is_from_me INTEGER DEFAULT 0, " +
+                            "contact_name TEXT, " +
+                            "package_name TEXT, " +
+                            "UNIQUE(key_id, chat_jid))"
+                )
+            }
+        }
+
         private val MIGRATION_6_7 = object : Migration(6, 7) {
             override fun migrate(db: SupportSQLiteDatabase) {
                 try {
@@ -146,6 +168,7 @@ abstract class DelMessageDatabase : RoomDatabase() {
                     .addMigrations(
                         MIGRATION_1_4,
                         MIGRATION_4_6,
+                        MIGRATION_5_6,
                         MIGRATION_6_7,
                         MIGRATION_7_8,
                         MIGRATION_8_9,
