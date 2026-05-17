@@ -22,6 +22,7 @@ import com.wmods.wppenhacer.xposed.core.components.FMessageWpp;
 import com.wmods.wppenhacer.xposed.utils.ReflectionUtils;
 import com.wmods.wppenhacer.xposed.utils.Utils;
 
+import org.jetbrains.annotations.NotNull;
 import org.luckypray.dexkit.DexKitBridge;
 import org.luckypray.dexkit.query.FindClass;
 import org.luckypray.dexkit.query.FindMethod;
@@ -2566,7 +2567,11 @@ public class Unobfuscator {
 
     public static Method loadGetProfilePhotoMethod(ClassLoader classLoader) throws Exception {
         return UnobfuscatorCache.getInstance().getMethod(classLoader,
-                () -> findFirstMethodUsingStrings(classLoader, StringMatchType.Contains, "Avatars", ".j"));
+                () ->  findFirstMethodUsingStrings(
+                        classLoader,
+                        StringMatchType.Contains,
+                        "contactPhotosBitmapManager/getphotostream/"
+                ));
     }
 
     public static Method loadGetProfilePhotoHighQMethod(ClassLoader classLoader) throws Exception {
@@ -2869,5 +2874,9 @@ public class Unobfuscator {
         return UnobfuscatorCache.getInstance().getClass(classLoader, () -> {
             return findFirstClassUsingStrings(classLoader, StringMatchType.Contains, "KeyValue{key=");
         });
+    }
+
+    public static Method loadLockedAuthCheckMethod(@NotNull ClassLoader classLoader) throws Exception {
+        return UnobfuscatorCache.getInstance().getMethod(classLoader, ()-> findFirstMethodUsingStrings(classLoader,StringMatchType.Contains,"privacy_fingerprint_enabled","app_lock_auth_needed"));
     }
 }

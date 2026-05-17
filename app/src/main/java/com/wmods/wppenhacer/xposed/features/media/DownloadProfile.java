@@ -46,7 +46,7 @@ public class DownloadProfile extends Feature {
                     var fieldObj = ReflectionUtils.getObjectField(field, param.thisObject);
                     var waContact = new WaContactWpp(fieldObj);
                     var userJid = waContact.getUserJid();
-                    var file = waContact.getProfilePhoto();
+                    var inputStream = waContact.getProfilePhoto(true);
                     String destPath;
                     try {
                         destPath = Utils.getDestination("Profile Photo");
@@ -55,7 +55,7 @@ public class DownloadProfile extends Feature {
                         return true;
                     }
                     var name = Utils.generateName(userJid, "jpg");
-                    var error = Utils.copyFile(file, destPath, name);
+                    var error = Utils.copyFile(inputStream, destPath, name);
                     if (TextUtils.isEmpty(error)) {
                         Toast.makeText(Utils.getApplication(), Utils.getApplication().getString(R.string.saved_to) + destPath, Toast.LENGTH_LONG).show();
                     } else {
