@@ -37,6 +37,7 @@ import com.wmods.wppenhacer.xposed.features.customization.HideTabs
 import com.wmods.wppenhacer.xposed.features.customization.IGStatus
 import com.wmods.wppenhacer.xposed.features.customization.SeparateGroup
 import com.wmods.wppenhacer.xposed.features.customization.ShowOnline
+import com.wmods.wppenhacer.xposed.features.general.AboutContactPicker
 import com.wmods.wppenhacer.xposed.features.general.AntiRevoke
 import com.wmods.wppenhacer.xposed.features.general.CallType
 import com.wmods.wppenhacer.xposed.features.general.ChatLimit
@@ -463,7 +464,8 @@ class FeatureLoader {
                 CallRecording::class.java,
                 BackupRestore::class.java,
                 RecoverDeleteForMe::class.java,
-                JumpFirstMessage::class.java
+                JumpFirstMessage::class.java,
+                AboutContactPicker::class.java
             )
 
             XposedBridge.log("Loading Plugins")

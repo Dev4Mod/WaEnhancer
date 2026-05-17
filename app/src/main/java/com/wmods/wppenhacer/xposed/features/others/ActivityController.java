@@ -1,39 +1,33 @@
 package com.wmods.wppenhacer.xposed.features.others;
 
-import static com.wmods.wppenhacer.xposed.features.general.LiteMode.REQUEST_FOLDER;
-import static com.wmods.wppenhacer.xposed.features.general.LiteMode.getDownloadsUri;
-import static com.wmods.wppenhacer.xposed.features.general.LiteMode.processDownloadResult;
 
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
-import android.os.Parcelable;
-import android.provider.DocumentsContract;
 
 import androidx.annotation.NonNull;
 
-import com.wmods.wppenhacer.R;
+import com.wmods.wppenhacer.model.ContactPickerResult;
 import com.wmods.wppenhacer.preference.ContactPickerPreference;
+import com.wmods.wppenhacer.utils.WhatsAppContactPickerLauncher;
 import com.wmods.wppenhacer.xposed.core.Feature;
 import com.wmods.wppenhacer.xposed.core.WppCore;
-import com.wmods.wppenhacer.xposed.core.components.FMessageWpp;
 import com.wmods.wppenhacer.xposed.core.devkit.Unobfuscator;
-import com.wmods.wppenhacer.xposed.utils.ReflectionUtils;
 
 import org.luckypray.dexkit.query.enums.StringMatchType;
 
-import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
-import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import de.robv.android.xposed.XC_MethodHook;
 import de.robv.android.xposed.XSharedPreferences;
+import de.robv.android.xposed.XposedBridge;
 import de.robv.android.xposed.XposedHelpers;
 
 public class ActivityController extends Feature {
 
     private static String Key;
+    private final AtomicBoolean disableAuth = new AtomicBoolean(false);
 
     public ActivityController(@NonNull ClassLoader classLoader, @NonNull XSharedPreferences preferences) {
         super(classLoader, preferences);
@@ -42,8 +36,23 @@ public class ActivityController extends Feature {
     @Override
     public void doHook() throws Throwable {
 
-        var clazz = Unobfuscator.findFirstClassUsingName(classLoader, StringMatchType.EndsWith,".SettingsNotifications");
-        Class<?> statusDistribution = Unobfuscator.loadStatusDistributionClass(classLoader);
+        var clazz = Unobfuscator.findFirstClassUsingName(classLoader, StringMatchType.EndsWith, ".SettingsNotifications");
+
+        var authCheckMethod = Unobfuscator.loadLockedAuthCheckMethod(classLoader);
+
+        XposedBridge.hookMethod(authCheckMethod, new XC_MethodHook() {
+            @Override
+            protected void beforeHookedMethod(MethodHookParam param) {
+                if (disableAuth.get())
+                    param.setResult(false);
+            }
+        });
+
+        WppCore.addListenerActivity((activity, type) -> {
+            if (clazz.isAssignableFrom(activity.getClass()) && type == WppCore.ActivityChangeState.ChangeType.ENDED) {
+                disableAuth.set(false);
+            }
+        });
 
         XposedHelpers.findAndHookMethod(Activity.class, "onCreate", Bundle.class, new XC_MethodHook() {
             @Override
@@ -52,22 +61,8 @@ public class ActivityController extends Feature {
                 var activity = (Activity) param.thisObject;
                 var intent = activity.getIntent();
                 if (intent.getBooleanExtra("contact_mode", false)) {
-                    contactController(intent, activity, statusDistribution);
-                } else if (intent.getBooleanExtra("download_mode", false)) {
-                    downloadController(activity, intent);
-                }
-            }
-        });
-
-        XposedHelpers.findAndHookMethod("com.whatsapp.status.audienceselector.StatusTemporalRecipientsActivity", classLoader, "onCreate", Bundle.class, new XC_MethodHook() {
-            @Override
-            protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-                var activity = (Activity) param.thisObject;
-                var intent = activity.getIntent();
-                if (intent.getBooleanExtra("contact_mode", false)) {
-                    var toolbar = XposedHelpers.callMethod(activity, "getSupportActionBar");
-                    var methods = ReflectionUtils.findAllMethodsUsingFilter(toolbar.getClass(), method -> method.getParameterCount() == 1 && method.getParameterTypes()[0] == CharSequence.class);
-                    ReflectionUtils.callMethod(methods[1], toolbar, activity.getString(R.string.select_contacts));
+                    disableAuth.set(true);
+                    contactController(intent, activity);
                 }
             }
         });
@@ -75,19 +70,14 @@ public class ActivityController extends Feature {
 
         XposedHelpers.findAndHookMethod(Activity.class, "onActivityResult", int.class, int.class, Intent.class, new XC_MethodHook() {
             @Override
-            protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+            protected void afterHookedMethod(MethodHookParam param) {
+                disableAuth.set(false);
                 if (clazz != param.thisObject.getClass()) return;
                 var activity = (Activity) param.thisObject;
                 var id = (int) param.args[0];
                 Intent intent = (Intent) param.args[2];
                 if (id == ContactPickerPreference.REQUEST_CONTACT_PICKER && intent != null) {
                     processResultContact(intent, activity);
-                } else if (id == REQUEST_FOLDER && (int) param.args[1] == Activity.RESULT_OK) {
-                    var uriStr = processDownloadResult(activity, intent);
-                    Intent intent2 = new Intent();
-                    intent2.putExtra("path", uriStr);
-                    intent2.putExtra("key", Key);
-                    activity.setResult(Activity.RESULT_OK, intent2);
                 }
                 activity.finish();
             }
@@ -96,54 +86,24 @@ public class ActivityController extends Feature {
     }
 
     private static void processResultContact(Intent intent, Activity activity) {
-        var instance = intent.getExtras().get("status_distribution");
-        var listContactsField = ReflectionUtils.findFieldUsingFilter(instance.getClass(), field -> field.getType() == List.class);
-        var listContacts = (List) ReflectionUtils.getObjectField(listContactsField, instance);
-        var contacts = new ArrayList<String>();
-        for (Object contactUserJid : listContacts) {
-            var rawContacts = new FMessageWpp.UserJid(contactUserJid).getPhoneRawString();
-            contacts.add(rawContacts);
+        if (!intent.hasExtra("key") && Key != null) {
+            intent.putExtra("key", Key);
         }
-        Intent intent2 = new Intent();
-        intent2.putStringArrayListExtra("contacts", contacts);
-        intent2.putExtra("key", Key);
-        activity.setResult(Activity.RESULT_OK, intent2);
+        if (!intent.hasExtra("contacts")) {
+            intent.putStringArrayListExtra("contacts", new ArrayList<>());
+        }
+        if (!intent.hasExtra("picker_contacts")) {
+            intent.putExtra("picker_contacts", new ArrayList<ContactPickerResult>());
+        }
+        activity.setResult(Activity.RESULT_OK, intent);
     }
 
-    private void downloadController(Activity activity, Intent intent2) {
-        Key = intent2.getStringExtra("key");
-        Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT_TREE);
-        intent.putExtra(DocumentsContract.EXTRA_INITIAL_URI, getDownloadsUri());
-        activity.startActivityForResult(intent, REQUEST_FOLDER);
-    }
 
-    private static void contactController(Intent intent, Activity activity, Class<?> statusDistribution) throws IllegalAccessException, InstantiationException, InvocationTargetException {
+    private static void contactController(Intent intent, Activity activity) throws Exception {
         Key = intent.getStringExtra("key");
         var contacts = intent.getStringArrayListExtra("contacts");
-        var intent2 = new Intent();
-        intent2.setClassName(activity.getPackageName(), "com.whatsapp.status.audienceselector.StatusTemporalRecipientsActivity");
-        intent2.putExtra("contact_mode", true);
-        intent2.putExtra("is_black_list", false);
-        List<Object> listContacts = new ArrayList<>();
-        if (contacts != null) {
-            for (String contact : contacts) {
-                try {
-                    Object jid = WppCore.createUserJid(contact);
-                    listContacts.add(jid);
-                } catch (Exception ignored) {
-                }
-            }
-        }
-        Constructor constructor = ReflectionUtils.findConstructorUsingFilter(statusDistribution, constructor1 -> constructor1.getParameterCount() > 5);
-        Object[] params = ReflectionUtils.initArray(constructor.getParameterTypes());
-        var lists = ReflectionUtils.findClassesOfType(constructor.getParameterTypes(), List.class);
-        for (int i = 0; i < lists.size(); i++) {
-            params[lists.get(i).first] = new ArrayList<>();
-        }
-        params[lists.get(0).first] = listContacts;
-        Parcelable instance = (Parcelable) constructor.newInstance(params);
-        intent2.putExtra("status_distribution", instance);
-        activity.startActivityForResult(intent2, ContactPickerPreference.REQUEST_CONTACT_PICKER);
+        var pickerIntent = WhatsAppContactPickerLauncher.createAboutPickerIntent(activity, activity.getPackageName(), Key == null ? "" : Key, contacts);
+        activity.startActivityForResult(pickerIntent, ContactPickerPreference.REQUEST_CONTACT_PICKER);
     }
 
 

@@ -479,4 +479,11 @@
     <string name="contact_probably_not_added">Contact probably didn\'t add you!</string>
     <string name="jump_first_message">Jump to First Message</string>
     <string name="jump_first_message_sum">Add a button to skip the first message in the conversations screen</string>
+    <string name="picker_loading_contacts">Loading contacts…</string>
+    <string name="mode_all">All</string>
+    <string name="picker_contacts">Contacts</string>
+    <string name="groups">Groups</string>
+    <string name="picker_no_results">No contacts found</string>
+    <string name="picker_group">Group</string>
+    <string name="picker_contact">Contact</string>
 </resources>

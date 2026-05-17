@@ -756,6 +756,11 @@ object WppCore {
         }
     }
 
+    @JvmStatic
+    fun getWaDatabase(): SQLiteDatabase? {
+        loadWADatabase()
+        return mWaDatabase
+    }
 
     interface ActivityChangeState {
         fun onChange(activity: Activity, type: ChangeType)

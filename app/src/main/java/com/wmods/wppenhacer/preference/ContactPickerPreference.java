@@ -3,19 +3,19 @@ package com.wmods.wppenhacer.preference;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
-import android.content.pm.PackageManager;
 import android.util.AttributeSet;
 
 import androidx.annotation.NonNull;
 import androidx.preference.Preference;
 import androidx.preference.PreferenceManager;
 
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.wmods.wppenhacer.R;
+import com.wmods.wppenhacer.utils.WhatsAppContactPickerLauncher;
 import com.wmods.wppenhacer.xposed.utils.Utils;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
 import java.util.stream.Collectors;
 
 public class ContactPickerPreference extends Preference implements Preference.OnPreferenceClickListener {
@@ -43,39 +43,40 @@ public class ContactPickerPreference extends Preference implements Preference.On
 
     @Override
     public boolean onPreferenceClick(@NonNull Preference preference) {
-        PackageManager pm = getContext().getPackageManager();
-        for (var pkg : List.of("com.whatsapp", "com.whatsapp.w4b")) {
-            try {
-                if (pm.getPackageInfo(pkg, 0) != null) {
-                    startSelectContacts(pkg);
-                    break;
-                }
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
+        String preferenceKey = getKey();
+        ArrayList<String> selectedContacts = mContacts == null ? new ArrayList<>() : new ArrayList<>(mContacts);
+        var installedPackages = WhatsAppContactPickerLauncher.getInstalledWhatsAppPackages(getContext());
+        if (installedPackages.size() == 1) {
+            startSelectContacts(installedPackages.get(0), preferenceKey, selectedContacts);
+        } else if (installedPackages.size() > 1) {
+            showPackageSelectionDialog(installedPackages, preferenceKey, selectedContacts);
         }
         return true;
     }
 
-    private void startSelectContacts(String packageName) {
+    private void showPackageSelectionDialog(@NonNull ArrayList<String> installedPackages,
+                                            @NonNull String preferenceKey,
+                                            @NonNull ArrayList<String> selectedContacts) {
+        CharSequence[] items = new CharSequence[installedPackages.size()];
+        for (int i = 0; i < installedPackages.size(); i++) {
+            items[i] = WhatsAppContactPickerLauncher.getPackageLabel(installedPackages.get(i));
+        }
+
+        new MaterialAlertDialogBuilder(getContext())
+                .setTitle("Select WhatsApp app")
+                .setItems(items, (dialog, which) -> startSelectContacts(
+                        installedPackages.get(which),
+                        preferenceKey,
+                        new ArrayList<>(selectedContacts)
+                ))
+                .show();
+    }
+
+    private void startSelectContacts(@NonNull String packageName,
+                                     @NonNull String preferenceKey,
+                                     @NonNull ArrayList<String> selectedContacts) {
         try {
-            Intent intent = new Intent();
-            var pInfo = getContext().getApplicationContext().getPackageManager().getPackageInfo(packageName, PackageManager.GET_ACTIVITIES);
-            assert pInfo.activities != null;
-            String className = null;
-            for (var activity : pInfo.activities) {
-                if (activity.name.endsWith("SettingsNotifications")) {
-                    className = activity.name;
-                    break;
-                }
-            }
-            if (className == null) {
-                throw new Exception("Class SettingsNotifications not found");
-            }
-            intent.setClassName(packageName, className);
-            intent.putExtra("key", getKey());
-            intent.putExtra("contact_mode", true);
-            intent.putStringArrayListExtra("contacts", mContacts);
+            Intent intent = WhatsAppContactPickerLauncher.createPickerIntent(getContext(), packageName, preferenceKey, selectedContacts);
             ((Activity) getContext()).startActivityForResult(intent, REQUEST_CONTACT_PICKER);
         } catch (Exception e) {
             Utils.showToast(e.getMessage(), 1);
