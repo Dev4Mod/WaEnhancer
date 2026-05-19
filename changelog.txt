@@ -1,2 +1,3 @@
 [FIXED]
 * Fixed missing WA Settings icon
+* Fixed crash when opening status or groups
