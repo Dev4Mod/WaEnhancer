@@ -1,3 +1,6 @@
+[ADDED
+* Add compatibility with WA 2.16.19.xx
+
 [FIXED]
 * Fixed missing WA Settings icon
-* Fixed crash when opening status or groups
+* Fixed status buttons not appearing (now a waiting icon appears on videos, until the video is completely downloaded)
