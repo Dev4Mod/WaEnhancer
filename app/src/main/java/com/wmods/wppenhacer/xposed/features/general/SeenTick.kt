@@ -23,6 +23,7 @@ import com.wmods.wppenhacer.R
 import com.wmods.wppenhacer.xposed.core.Feature
 import com.wmods.wppenhacer.xposed.core.WppCore
 import com.wmods.wppenhacer.xposed.core.components.FMessageWpp
+import com.wmods.wppenhacer.xposed.core.components.StatusItemWpp
 import com.wmods.wppenhacer.xposed.core.db.MessageHistoryStore
 import com.wmods.wppenhacer.xposed.core.devkit.Unobfuscator
 import com.wmods.wppenhacer.xposed.features.listeners.MenuStatusListener
@@ -215,15 +216,14 @@ class SeenTick(
                             }
                     }
                     val ifaceStatusItem = viewStatusField.get(param.thisObject)
-                    val fMessage = MenuStatusListener.getFMessageFromStatusData(ifaceStatusItem)
+                    val fstatus = StatusItemWpp.from(ifaceStatusItem)
 
-                    if (fMessage == null) {
+                    if (fstatus == null) {
                         log("FMessage is null")
                         return
                     }
 
-                    val key = fMessage.key
-                    if (key.isFromMe) return
+                    if (fstatus.isFromMe) return
 
                     val fieldViewContainer =
                         ReflectionUtils.findFieldUsingFilter(param.thisObject.javaClass) {
@@ -277,7 +277,7 @@ class SeenTick(
                         contentView.addView(containerButton, position + 1)
                     }
 
-                    registerMessageView(key.messageID, buttonImage)
+                    registerMessageView(fstatus.messageID, buttonImage)
 
                     buttonImage.setOnClickListener {
                         scope.launch {
@@ -286,7 +286,7 @@ class SeenTick(
                                 Toast.LENGTH_SHORT
                             )
                             sendBlueTickStatus(
-                                listOf(fMessage)
+                                listOf(fstatus)
                             )
                             withContext(Dispatchers.Main) {
                                 setSeenButton(buttonImage, true)
@@ -297,7 +297,7 @@ class SeenTick(
                     scope.launch(Dispatchers.IO) {
                         val item = MessageHistoryStore.getInstance().getHideSeenMessage(
                             "status@broadcast",
-                            key.messageID,
+                            fstatus.messageID,
                             MessageHistoryStore.ReceiptType.READ
                         )
                         withContext(Dispatchers.Main) {
@@ -313,24 +313,18 @@ class SeenTick(
 
                 override fun addMenu(
                     menu: Menu,
-                    fMessageList: List<FMessageWpp>,
-                    currentIndex: Int
+                    statusData: MenuStatusListener.StatusData,
                 ): MenuItem? {
                     if (menu.findItem(R.string.send_blue_tick) != null) return null
-                    val fMessage = fMessageList[currentIndex]
-                    if (fMessage.key.isFromMe) return null
+                    if (statusData.currentItem.isFromMe) return null
                     return menu.add(0, R.string.send_blue_tick, 0, R.string.send_blue_tick)
                 }
 
                 override fun onClick(
                     item: MenuItem,
-                    fragmentInstance: Any,
-                    fMessageList: List<FMessageWpp>,
-                    currentIndex: Int
+                    statusData: MenuStatusListener.StatusData
                 ) {
-                    val fMessage = fMessageList[currentIndex]
-                    DebugUtils.debugObject(fMessage)
-                    sendBlueTickStatus(listOf(fMessage))
+                    sendBlueTickStatus(listOf(statusData.currentItem))
                     Utils.showToast(
                         Utils.getString(R.string.sending_read_blue_tick),
                         Toast.LENGTH_SHORT
@@ -343,33 +337,13 @@ class SeenTick(
     private fun hookConversationScreen(ticktype: Int) {
         val onCreateMenuConversationMethod = Unobfuscator.loadOnCreatedMenuConversation(classLoader)
 
-        XposedBridge.hookMethod(onCreateMenuConversationMethod, object : XC_MethodHook() {
-            override fun afterHookedMethod(param: MethodHookParam) {
-                val menu = param.args[0] as Menu
-                val menuItem = menu.add(0, 0, 0, R.string.send_blue_tick)
-                if (ticktype == 1) menuItem.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS)
-                menuItem.setIcon(Utils.getID("ic_notif_mark_read", "drawable"))
-                menuItem.setOnMenuItemClickListener {
-                    val currentUserJid = WppCore.getCurrentUserJid()
-                    currentUserJid?.let { jid -> sendBlueTick(jid) }
-                    Utils.showToast(
-                        Utils.getString(R.string.sending_read_blue_tick),
-                        Toast.LENGTH_SHORT
-                    )
-                    true
-                }
-            }
-        })
-
         MenuStatusListener.menuStatuses.add(object : MenuStatusListener.OnMenuItemStatusListener() {
             override fun addMenu(
                 menu: Menu,
-                fMessageList: List<FMessageWpp>,
-                currentIndex: Int
+                statusData: MenuStatusListener.StatusData
             ): MenuItem? {
                 if (menu.findItem(R.string.read_all_mark_as_read) != null) return null
-                val fMessage = fMessageList[currentIndex]
-                if (fMessage.key.isFromMe) return null
+                if (statusData.currentItem.isFromMe) return null
                 return menu.add(
                     0,
                     R.string.read_all_mark_as_read,
@@ -380,17 +354,16 @@ class SeenTick(
 
             override fun onClick(
                 item: MenuItem,
-                fragmentInstance: Any,
-                fMessageList: List<FMessageWpp>,
-                currentIndex: Int
+                statusData: MenuStatusListener.StatusData
             ) {
-                MenuStatusListener.currentStatusList.forEach { fMessage ->
-                    val view = getRegisteredView(fMessage.key.messageID)
+                val listStatus = statusData.getCurrentItemList()
+                listStatus.forEach { fStatus ->
+                    val view = getRegisteredView(fStatus.messageID)
                     view?.post {
                         setSeenButton(view, true)
                     }
                 }
-                sendBlueTickStatus(MenuStatusListener.currentStatusList)
+                sendBlueTickStatus(listStatus)
                 Utils.showToast(
                     Utils.getString(R.string.sending_read_blue_tick),
                     Toast.LENGTH_SHORT
@@ -503,19 +476,22 @@ class SeenTick(
 
         XposedBridge.hookMethod(messageJobMethod, object : XC_MethodHook() {
             override fun beforeHookedMethod(param: MethodHookParam) {
-                if (!blueOnReplayEnabled) return
+                if (!blueOnReplayEnabled) {
+                    return
+                }
                 val obj = messageSendClass.cast(param.thisObject)
                 val rawJid = XposedHelpers.getObjectField(obj, "jid") as String
                 val userJid = FMessageWpp.UserJid(rawJid)
-
                 if (userJid.isStatus) {
-                    MenuStatusListener.currentStatusList.forEach { fMessage ->
-                        val view = getRegisteredView(fMessage.key.messageID)
+                    val listStatus = MenuStatusListener.statusData.getCurrentItemList()
+
+                    listStatus.forEach { fstatus ->
+                        val view = getRegisteredView(fstatus.messageID)
                         view?.post {
                             setSeenButton(view, true)
                         }
                     }
-                    sendBlueTickStatus(MenuStatusListener.currentStatusList)
+                    sendBlueTickStatus(listStatus)
                 } else {
                     sendBlueTick(userJid)
                 }
@@ -611,16 +587,16 @@ class SeenTick(
     }
 
     private fun sendBlueTickStatus(
-        fMessageList: List<FMessageWpp>
+        fstatus: List<StatusItemWpp>
     ) {
 
-        if (fMessageList.isEmpty()) return
+        if (fstatus.isEmpty()) return
 
-        val currentJidTarget = fMessageList.first().userJid
+        val currentJidTarget = fstatus.first().senderJid ?: return
 
         scope.launch {
             try {
-                val size = fMessageList.size
+                val size = fstatus.size
 
                 val constr = sendJobConstructor ?: return@launch
                 val jidIndexes = sendJobJidIndexes ?: return@launch
@@ -633,7 +609,7 @@ class SeenTick(
                 val messageHistory = MessageHistoryStore.getInstance()
 
                 for (i in 0 until size) {
-                    val msgId = fMessageList[i].key.messageID
+                    val msgId = fstatus[i].messageID
                     arrS[i] = msgId
                     messageHistory.updateViewedMessage(
                         "status@broadcast",

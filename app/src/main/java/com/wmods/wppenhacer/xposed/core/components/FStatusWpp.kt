@@ -6,13 +6,15 @@ import com.wmods.wppenhacer.xposed.utils.ReflectionUtils
 import de.robv.android.xposed.XC_MethodHook
 import de.robv.android.xposed.XposedBridge
 import de.robv.android.xposed.XposedHelpers
+import java.io.File
 import java.lang.reflect.Field
 import java.lang.reflect.Method
 
-class FStatusWpp(fstatus: Any?) {
+class FStatusWpp(val fstatus: Any?) {
 
     companion object {
 
+        private lateinit var classFMediaStatus: Class<*>
         private lateinit var methodGetStatusByKey: Method
 
         lateinit var TYPE: Class<*>
@@ -34,6 +36,7 @@ class FStatusWpp(fstatus: Any?) {
                         mStatusStore = param.thisObject
                     }
                 })
+            classFMediaStatus = Unobfuscator.loadFMediaStatusClass(classLoader)
         }
 
         @JvmStatic
@@ -59,14 +62,16 @@ class FStatusWpp(fstatus: Any?) {
             throw RuntimeException("Object is not a FStatus Instance")
     }
 
+    val isMediaFile by lazy {
+        classFMediaStatus.isInstance(fstatus)
+    }
+
 
     val fStatusKey by lazy {
-        try {
-            FStatusKey(fieldFStatusKey.get(fstatus))
-        } catch (e: Exception) {
-            XposedBridge.log(e)
-        }
+        FStatusKey(fieldFStatusKey.get(fstatus))
     }
+
+
 
     val fMessage: FMessageWpp? by lazy {
         try {
@@ -75,6 +80,18 @@ class FStatusWpp(fstatus: Any?) {
             XposedBridge.log(e)
             null
         }
+    }
+
+    fun getMediaFile(): File? {
+        if (!isMediaFile) return null
+        val item = classFMediaStatus.getField("A00").get(fstatus) ?: return null
+        return item.javaClass.declaredMethods.first {
+            it.returnType == File::class.java
+        }.apply { isAccessible = true }.invoke(item) as? File
+    }
+
+    override fun toString(): String {
+        return "FStatusWpp(fstatus=$fstatus, isMedia=$isMediaFile, fStatusKey=$fStatusKey)"
     }
 
     class FStatusKey {
@@ -93,7 +110,7 @@ class FStatusWpp(fstatus: Any?) {
         }
 
         @JvmField
-        var senderJid: Any? = null
+        var senderJid: FMessageWpp.UserJid
 
         /**
          * The underlying key object from WhatsApp's code.

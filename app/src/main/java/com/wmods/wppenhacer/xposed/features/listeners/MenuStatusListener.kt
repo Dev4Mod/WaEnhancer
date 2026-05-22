@@ -3,58 +3,24 @@ package com.wmods.wppenhacer.xposed.features.listeners
 import android.view.Menu
 import android.view.MenuItem
 import com.wmods.wppenhacer.xposed.core.Feature
-import com.wmods.wppenhacer.xposed.core.WppCore
-import com.wmods.wppenhacer.xposed.core.components.FMessageWpp
+import com.wmods.wppenhacer.xposed.core.components.StatusItemWpp
 import com.wmods.wppenhacer.xposed.core.devkit.Unobfuscator
 import com.wmods.wppenhacer.xposed.utils.ReflectionUtils
 import de.robv.android.xposed.XC_MethodHook
 import de.robv.android.xposed.XSharedPreferences
 import de.robv.android.xposed.XposedBridge
 import de.robv.android.xposed.XposedHelpers
-import java.lang.reflect.Method
+import org.luckypray.dexkit.query.enums.StringMatchType
 
 class MenuStatusListener(classLoader: ClassLoader, preferences: XSharedPreferences) :
     Feature(classLoader, preferences) {
-
-    private lateinit var fStatusClass: Class<Any>
-    private lateinit var fStatusToFMessage: Method
 
     companion object {
         @JvmStatic
         val menuStatuses = LinkedHashSet<OnMenuItemStatusListener>()
 
         @JvmStatic
-        val currentStatusList = ArrayList<FMessageWpp>()
-
-        @JvmField
-        var currentIndex = -1
-
-
-        @JvmStatic
-        fun getFMessageFromStatusData(obj: Any?): FMessageWpp? {
-            if (obj == null) return null
-            var fMessageObj = ReflectionUtils.findFieldUsingFilterIfExists(obj.javaClass) { f ->
-                FMessageWpp.TYPE.isAssignableFrom(f.type)
-            }?.get(obj)
-
-            if (fMessageObj == null) {
-                val classLoader = obj.javaClass.classLoader!!
-                val mapFStatusToFMessage = Unobfuscator.loadFStatusToFMessage(classLoader)
-                val fStatusClass = mapFStatusToFMessage.parameterTypes.first()
-                fMessageObj = ReflectionUtils.findFieldUsingFilterIfExists(obj.javaClass) { f ->
-                    fStatusClass.isAssignableFrom(f.type)
-                }?.let {
-                    WppCore.getFMessageFromFStatus(it.get(obj))
-                }
-            }
-            if (fMessageObj == null) {
-                XposedBridge.log("FMessage not found in Story/Status using StatusData")
-                return null
-            }
-            return FMessageWpp(fMessageObj)
-        }
-
-
+        lateinit var statusData: StatusData
     }
 
 
@@ -63,16 +29,15 @@ class MenuStatusListener(classLoader: ClassLoader, preferences: XSharedPreferenc
         val menuStatusMethod = Unobfuscator.loadMenuStatusMethod(classLoader)
         val menuManagerClass = Unobfuscator.loadMenuManagerClass(classLoader)
 
-        val statusPlaybackBaseFragmentClass =
-            classLoader.loadClass("com.whatsapp.status.playback.fragment.StatusPlaybackBaseFragment")
-        val statusPlaybackContactFragmentClass =
-            classLoader.loadClass("com.whatsapp.status.playback.fragment.StatusPlaybackContactFragment")
+        val statusPlaybackBaseFragmentClass =Unobfuscator.findFirstClassUsingName(classLoader, StringMatchType.EndsWith,"StatusPlaybackBaseFragment")
+        val statusPlaybackContactFragmentClass = Unobfuscator.findFirstClassUsingName(classLoader, StringMatchType.EndsWith,"StatusPlaybackContactFragment")
         val listStatusField = ReflectionUtils.getFieldByExtendType(
             statusPlaybackContactFragmentClass,
             List::class.java
         )
 
         XposedBridge.hookMethod(menuStatusMethod, object : XC_MethodHook() {
+
             @Throws(Throwable::class)
             override fun afterHookedMethod(param: MethodHookParam) {
                 val fieldObjects = param.method.declaringClass.declaredFields
@@ -98,23 +63,15 @@ class MenuStatusListener(classLoader: ClassLoader, preferences: XSharedPreferenc
                     ReflectionUtils.getObjectField(menuField, menuManager) as Menu
                 }
 
-                val index = XposedHelpers.getObjectField(fragmentInstance, "A00") as Int
                 val listStatus = listStatusField?.get(fragmentInstance) as List<*>
 
-                val fMessageList = listStatus.mapNotNull { obj -> getFMessageFromStatusData(obj) }
-
-                currentStatusList.clear()
-                currentStatusList.addAll(fMessageList)
-
-                currentIndex = index
-
-                if (index < 0 || index >= fMessageList.size) return
+                statusData = StatusData(listStatus, fragmentInstance)
 
                 for (menuStatus in menuStatuses) {
-                    val menuItem = menuStatus.addMenu(menu, fMessageList, index) ?: continue
+                    val menuItem = menuStatus.addMenu(menu, statusData) ?: continue
 
                     menuItem.setOnMenuItemClickListener { item ->
-                        menuStatus.onClick(item, fragmentInstance, fMessageList, index)
+                        menuStatus.onClick(item, statusData)
                         true
                     }
                 }
@@ -126,19 +83,33 @@ class MenuStatusListener(classLoader: ClassLoader, preferences: XSharedPreferenc
         return "Menu Status"
     }
 
+    open class StatusData(private val listStatus: List<*>, private val fragmentInstance: Any) {
+
+        private var cachedItemList: List<StatusItemWpp>? = null
+
+        val currentItem: StatusItemWpp
+            get() = getCurrentItemList()[currentIndex]
+
+        val currentIndex: Int
+            get() = XposedHelpers.getObjectField(fragmentInstance, "A00") as Int
+
+        fun getCurrentItemList(): List<StatusItemWpp> {
+            return cachedItemList ?: listStatus.mapNotNull { obj ->
+                StatusItemWpp.from(obj)
+            }.also { cachedItemList = it }
+        }
+    }
+
     abstract class OnMenuItemStatusListener {
 
         abstract fun addMenu(
             menu: Menu,
-            fMessageList: List<FMessageWpp>,
-            currentIndex: Int
+            statusData: StatusData,
         ): MenuItem?
 
         abstract fun onClick(
             item: MenuItem,
-            fragmentInstance: Any,
-            fMessageList: List<FMessageWpp>,
-            currentIndex: Int
+            statusData: StatusData
         )
     }
 }

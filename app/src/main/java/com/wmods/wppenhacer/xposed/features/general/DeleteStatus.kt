@@ -1,67 +1,47 @@
-package com.wmods.wppenhacer.xposed.features.general;
+package com.wmods.wppenhacer.xposed.features.general
 
+import android.view.Menu
+import android.view.MenuItem
+import com.wmods.wppenhacer.R
+import com.wmods.wppenhacer.xposed.core.Feature
+import com.wmods.wppenhacer.xposed.core.WppCore
+import com.wmods.wppenhacer.xposed.core.db.MessageStore
+import com.wmods.wppenhacer.xposed.core.devkit.Unobfuscator
+import com.wmods.wppenhacer.xposed.features.listeners.MenuStatusListener
+import de.robv.android.xposed.XSharedPreferences
+import org.luckypray.dexkit.query.enums.StringMatchType
 
-import android.view.Menu;
-import android.view.MenuItem;
+class DeleteStatus(classLoader: ClassLoader, preferences: XSharedPreferences) : Feature(classLoader, preferences) {
 
-import androidx.annotation.NonNull;
+    @Throws(Throwable::class)
+    override fun doHook() {
+        val statusPlaybackActivityClass = Unobfuscator.findFirstClassUsingName(classLoader, StringMatchType.EndsWith, "StatusPlaybackActivity")
 
-import com.wmods.wppenhacer.R;
-import com.wmods.wppenhacer.xposed.core.Feature;
-import com.wmods.wppenhacer.xposed.core.WppCore;
-import com.wmods.wppenhacer.xposed.core.components.FMessageWpp;
-import com.wmods.wppenhacer.xposed.core.db.MessageStore;
-import com.wmods.wppenhacer.xposed.core.devkit.Unobfuscator;
-import com.wmods.wppenhacer.xposed.features.listeners.MenuStatusListener;
+        val item = object : MenuStatusListener.OnMenuItemStatusListener() {
 
-import org.luckypray.dexkit.query.enums.StringMatchType;
-
-import java.util.List;
-
-import de.robv.android.xposed.XSharedPreferences;
-
-public class DeleteStatus extends Feature {
-
-
-    public DeleteStatus(@NonNull ClassLoader classLoader, @NonNull XSharedPreferences preferences) {
-        super(classLoader, preferences);
-    }
-
-    @Override
-    public void doHook() throws Throwable {
-
-        var StatusPlaybackActivityClass = Unobfuscator.findFirstClassUsingName(classLoader, StringMatchType.EndsWith, "StatusPlaybackActivity");
-
-        var item = new MenuStatusListener.OnMenuItemStatusListener() {
-
-            @Override
-            public MenuItem addMenu(Menu menu, List<FMessageWpp> fMessageWppList, int currentIndex) {
-                if (menu.findItem(R.string.delete_for_me) != null) return null;
-                var fMessage = fMessageWppList.get(currentIndex);
-                if (fMessage.getKey().isFromMe) return null;
-                return menu.add(0, R.string.delete_for_me, 0, R.string.delete_for_me);
+            override fun addMenu(menu: Menu, statusData: MenuStatusListener.StatusData): MenuItem? {
+                if (menu.findItem(R.string.delete_for_me) != null) return null
+                if (statusData.currentItem.isFromMe) return null
+                return menu.add(0, R.string.delete_for_me, 0, R.string.delete_for_me)
             }
 
-            @Override
-            public void onClick(MenuItem item, Object fragmentInstance, List<FMessageWpp> fMessageWppList, int currentIndex) {
+            override fun onClick(item: MenuItem, statusData: MenuStatusListener.StatusData) {
                 try {
-                    var key = fMessageWppList.get(currentIndex).getKey();
-                    MessageStore.getInstance().deleteStatusByMessageKey(key.messageID);
-                    var activity = WppCore.getCurrentActivity();
-                    if (activity != null && StatusPlaybackActivityClass.isInstance(activity)) {
-                        activity.recreate();
+                    MessageStore.getInstance().deleteStatusByMessageKey(statusData.currentItem.messageID)
+
+                    val activity = WppCore.getCurrentActivity()
+                    if (activity != null && statusPlaybackActivityClass.isInstance(activity)) {
+                        activity.recreate()
                     }
-                } catch (Exception e) {
-                    logDebug(e);
+                } catch (e: Exception) {
+                    logDebug(e)
                 }
             }
-        };
-        MenuStatusListener.getMenuStatuses().add(item);
+        }
+        MenuStatusListener.menuStatuses.add(item)
     }
 
-    @NonNull
-    @Override
-    public String getPluginName() {
-        return "Delete Status";
+    override fun getPluginName(): String {
+        return "Delete Status"
     }
 }

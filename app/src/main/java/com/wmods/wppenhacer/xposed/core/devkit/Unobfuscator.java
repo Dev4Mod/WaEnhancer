@@ -2933,4 +2933,9 @@ public class Unobfuscator {
             throw new NoSuchFieldException("CurrentPageInHome field not found");
         });
     }
+
+    public static @NonNull Class<?> loadFMediaStatusClass(@NonNull ClassLoader classLoader) throws Exception {
+        return UnobfuscatorCache.getInstance().getClass(classLoader, ()-> findFirstClassUsingStrings(classLoader,StringMatchType.Contains,"FStatusMedia/mediaDataV2"));
+
+    }
 }

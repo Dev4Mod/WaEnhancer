@@ -9,6 +9,7 @@ import com.wmods.wppenhacer.xposed.core.Feature
 import com.wmods.wppenhacer.xposed.core.WppCore
 import com.wmods.wppenhacer.xposed.core.components.FMessageWpp
 import com.wmods.wppenhacer.xposed.core.components.FStatusWpp
+import com.wmods.wppenhacer.xposed.core.components.StatusItemWpp
 import com.wmods.wppenhacer.xposed.core.components.WaContactWpp
 import com.wmods.wppenhacer.xposed.core.db.DelMessageStore
 import com.wmods.wppenhacer.xposed.core.db.MessageStore
@@ -46,7 +47,8 @@ class AntiRevoke(loader: ClassLoader, preferences: XSharedPreferences) :
             val safeArgs = param.args?.filterNotNull() ?: return null
             safeArgs.firstOrNull { FMessageWpp.TYPE.isInstance(it) }?.let { return FMessageWpp(it) }
             val arg0 = param.args?.getOrNull(0) ?: return null
-            return MenuStatusListener.getFMessageFromStatusData(arg0)
+            val statusItem = StatusItemWpp.from(arg0) ?: return null
+            return statusItem.fMessage
         }
 
 
