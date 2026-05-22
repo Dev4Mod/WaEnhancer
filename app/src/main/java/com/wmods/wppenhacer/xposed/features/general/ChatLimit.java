@@ -11,8 +11,6 @@ import com.wmods.wppenhacer.xposed.core.db.MessageStore;
 import com.wmods.wppenhacer.xposed.core.devkit.Unobfuscator;
 import com.wmods.wppenhacer.xposed.utils.ReflectionUtils;
 
-import org.luckypray.dexkit.util.DexSignUtil;
-
 import java.util.Set;
 
 import de.robv.android.xposed.XC_MethodHook;
@@ -105,7 +103,6 @@ public class ChatLimit extends Feature {
         }
 
         var seeMoreMethod = Unobfuscator.loadSeeMoreConstructor(classLoader);
-        logDebug("SeenMore Method: ", DexSignUtil.getMethodDescriptor(seeMoreMethod));
 
         XposedBridge.hookMethod(seeMoreMethod, new XC_MethodHook() {
             @Override

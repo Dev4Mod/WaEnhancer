@@ -1,7 +1,5 @@
 package com.wmods.wppenhacer.xposed.features.general;
 
-import static com.wmods.wppenhacer.xposed.core.FeatureLoader.disableExpirationVersion;
-
 import android.annotation.SuppressLint;
 import android.os.BaseBundle;
 import android.os.Message;
@@ -15,20 +13,21 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 
+import com.wmods.wppenhacer.R;
 import com.wmods.wppenhacer.listeners.OnMultiClickListener;
 import com.wmods.wppenhacer.xposed.core.Feature;
+import com.wmods.wppenhacer.xposed.core.FeatureLoader;
 import com.wmods.wppenhacer.xposed.core.WppCore;
 import com.wmods.wppenhacer.xposed.core.components.FMessageWpp;
+import com.wmods.wppenhacer.xposed.core.components.SharedPreferencesWrapper;
 import com.wmods.wppenhacer.xposed.core.devkit.Unobfuscator;
 import com.wmods.wppenhacer.xposed.features.listeners.ConversationItemListener;
 import com.wmods.wppenhacer.xposed.utils.AnimationUtil;
 import com.wmods.wppenhacer.xposed.utils.ReflectionUtils;
-import com.wmods.wppenhacer.xposed.utils.ResId;
 import com.wmods.wppenhacer.xposed.utils.Utils;
 
 import org.json.JSONObject;
 import org.luckypray.dexkit.query.enums.StringMatchType;
-import org.luckypray.dexkit.util.DexSignUtil;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
@@ -83,6 +82,7 @@ public class Others extends Feature {
         var animationEmojis = prefs.getBoolean("animation_emojis", false);
         var disableProfileStatus = prefs.getBoolean("disable_profile_status", false);
         var disableExpiration = prefs.getBoolean("disable_expiration", false);
+        var isAction = prefs.getBoolean("buttonaction", true);
 
         propsInteger.put(3877, oldStatus ? igstatus ? 2 : 0 : 2);
 
@@ -91,8 +91,32 @@ public class Others extends Feature {
 
         propsBoolean.put(4497, menuWIcons);
         propsBoolean.put(4023, false);
+        propsBoolean.put(16250, false);
+
+        if (newSettings){
+            SharedPreferencesWrapper.addHook((key, value) -> {
+                if (Objects.equals(key,"is_biz_alerts_eligible"))
+                    return true;
+                return value;
+            });
+        }
+        propsBoolean.put(21632, newSettings); // For enable Toolbar button
         propsBoolean.put(14862, newSettings);
-        propsInteger.put(18564, newSettings ? 1 : 0);
+        propsInteger.put(18564, newSettings ? 2 : 0);
+
+        if (newSettings) {
+            if (!isAction) {
+                Method hideMeIcon = Unobfuscator.loadHideMeTabIcon(classLoader);
+                XposedBridge.hookMethod(hideMeIcon, XC_MethodReplacement.returnConstant(null));
+                propsBoolean.put(25516, false);
+                propsBoolean.put(23920, false);
+                propsBoolean.put(14862, true);
+                propsInteger.put(18564, 2);
+            }
+        }else {
+            propsBoolean.put(14862, newSettings); // WHATS_HAPPENING_SENDING_ENABLED_CODE
+            propsInteger.put(18564, newSettings ? 2 : 0); // ME_TAB_V2_VARIANTS_CODE
+        }
 
         propsBoolean.put(2889, floatingMenu);
 
@@ -249,7 +273,7 @@ public class Others extends Feature {
         }
 
         if (disableExpiration) {
-            disableExpirationVersion(classLoader);
+            FeatureLoader.disableExpirationVersion(classLoader);
         }
 
         if (!filterSeen) {
@@ -290,8 +314,6 @@ public class Others extends Feature {
         var jidClass = Unobfuscator.findFirstClassUsingName(classLoader, StringMatchType.EndsWith, "jid.Jid");
         var method = ReflectionUtils.findMethodUsingFilter(convClass, m -> m.getParameterCount() > 0 && !Modifier.isStatic(m.getModifiers()) && m.getParameterTypes()[0] == View.class && ReflectionUtils.findIndexOfType(m.getParameterTypes(), jidClass) != -1);
         var field = ReflectionUtils.getFieldByExtendType(convClass, refreshStatusClass);
-        logDebug("disablePhotoProfileStatus", Unobfuscator.getMethodDescriptor(method));
-        logDebug("disablePhotoProfileStatus Field", Unobfuscator.getFieldDescriptor(field));
         XposedBridge.hookMethod(method, new XC_MethodHook() {
             private Object backup;
 
@@ -362,8 +384,8 @@ public class Others extends Feature {
         var contact = WppCore.getContactName(userJid);
         var number = userJid.getPhoneNumber();
         if (!TextUtils.isEmpty(contact))
-            sb.append(String.format(Utils.getApplication().getString(ResId.string.contact_s), contact)).append("\n");
-        sb.append(String.format(Utils.getApplication().getString(ResId.string.phone_number_s), number)).append("\n");
+            sb.append(String.format(Utils.getApplication().getString(R.string.contact_s), contact)).append("\n");
+        sb.append(String.format(Utils.getApplication().getString(R.string.phone_number_s), number)).append("\n");
         var ip = (String) XposedHelpers.getObjectField(wamCall, "callPeerIpStr");
         if (ip != null) {
             var client = new OkHttpClient.Builder().build();
@@ -373,15 +395,15 @@ public class Others extends Feature {
             var json = new JSONObject(content);
             var country = json.getString("country");
             var city = json.getString("city");
-            sb.append(String.format(Utils.getApplication().getString(ResId.string.country_s), country)).append("\n").append(String.format(Utils.getApplication().getString(ResId.string.city_s), city)).append("\n").append(String.format(Utils.getApplication().getString(ResId.string.ip_s), ip)).append("\n");
+            sb.append(String.format(Utils.getApplication().getString(R.string.country_s), country)).append("\n").append(String.format(Utils.getApplication().getString(R.string.city_s), city)).append("\n").append(String.format(Utils.getApplication().getString(R.string.ip_s), ip)).append("\n");
         }
         var platform = (String) XposedHelpers.getObjectField(wamCall, "callPeerPlatform");
         if (platform != null)
-            sb.append(String.format(Utils.getApplication().getString(ResId.string.platform_s), platform)).append("\n");
+            sb.append(String.format(Utils.getApplication().getString(R.string.platform_s), platform)).append("\n");
         var wppVersion = (String) XposedHelpers.getObjectField(wamCall, "callPeerAppVersion");
         if (wppVersion != null)
-            sb.append(String.format(Utils.getApplication().getString(ResId.string.wpp_version_s), wppVersion)).append("\n");
-        Utils.showNotification(Utils.getApplication().getString(ResId.string.call_information), sb.toString());
+            sb.append(String.format(Utils.getApplication().getString(R.string.wpp_version_s), wppVersion)).append("\n");
+        Utils.showNotification(Utils.getApplication().getString(R.string.call_information), sb.toString());
     }
 
     private void alwaysOnline() throws Exception {
@@ -399,7 +421,6 @@ public class Others extends Feature {
 
 
         var conversationRowClass = Unobfuscator.loadConversationRowClass(classLoader);
-        logDebug("Conversation Row", conversationRowClass);
 
         XposedBridge.hookAllConstructors(conversationRowClass, new XC_MethodHook() {
             @Override
@@ -411,7 +432,7 @@ public class Others extends Feature {
 
         ConversationItemListener.conversationListeners.add(new ConversationItemListener.OnConversationItemListener() {
             @Override
-            public void onItemBind(FMessageWpp fMessage, ViewGroup viewGroup) {
+            public void onItemBind(FMessageWpp fMessage, ViewGroup view, int position, View convertView) {
                 var onMultiClickListener = new OnMultiClickListener(2, 500) {
                     @Override
                     public void onMultiClick(View view) {
@@ -429,7 +450,7 @@ public class Others extends Feature {
                         WppCore.sendReaction(emoji, fMessage.getObject());
                     }
                 };
-                viewGroup.setOnClickListener(onMultiClickListener);
+                view.setOnClickListener(onMultiClickListener);
             }
         });
     }
@@ -514,7 +535,6 @@ public class Others extends Feature {
 
     private void sendAudioType(int audio_type) throws Exception {
         var sendAudioTypeMethod = Unobfuscator.loadSendAudioTypeMethod(classLoader);
-        log(Unobfuscator.getMethodDescriptor(sendAudioTypeMethod));
         XposedBridge.hookMethod(sendAudioTypeMethod, new XC_MethodHook() {
             @Override
             protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
@@ -602,7 +622,7 @@ public class Others extends Feature {
                 var name = WppCore.getContactName(userjid);
                 name = TextUtils.isEmpty(name) ? userjid.getPhoneNumber() : name;
                 if (showOnline)
-                    Utils.showToast(String.format(Utils.getApplication().getString(ResId.string.toast_online), name), Toast.LENGTH_SHORT);
+                    Utils.showToast(String.format(Utils.getApplication().getString(R.string.toast_online), name), Toast.LENGTH_SHORT);
                 Tasker.sendTaskerEvent(name, WppCore.stripJID(jid), "contact_online");
             }
         });
@@ -646,7 +666,6 @@ public class Others extends Feature {
 
     private void hookSearchbar(String filterChats) throws Exception {
         Method searchbar = Unobfuscator.loadViewAddSearchBarMethod(classLoader);
-        log("ADD HEADER VIEW: " + DexSignUtil.getMethodDescriptor(searchbar));
         var searchBarID = Utils.getID("my_search_bar", "id");
 
         XposedBridge.hookMethod(searchbar, new XC_MethodHook() {
@@ -664,7 +683,7 @@ public class Others extends Feature {
                     }
                 }
 
-                if ((view.getId() == searchBarID || view.findViewById(searchBarID) != null) && !Objects.equals(filterChats, "2")) {
+                if (view != null && (view.getId() == searchBarID || view.findViewById(searchBarID) != null) && !Objects.equals(filterChats, "2")) {
                     param.setResult(null);
                 }
             }
@@ -679,39 +698,34 @@ public class Others extends Feature {
         }
 
 
-        try {
-            Method addSeachBar = Unobfuscator.loadAddOptionSearchBarMethod(classLoader);
-            XposedBridge.hookMethod(addSeachBar, new XC_MethodHook() {
-                private Object homeActivity;
-                private Field pageIdField;
-                private int originPageId;
+        Method addSeachBar = Unobfuscator.loadAddOptionSearchBarMethod(classLoader);
+        Field curPageField = Unobfuscator.loadGetCurrentPageInHomeField(classLoader);
 
-                @Override
-                protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
-                    if (!Objects.equals(filterChats, "1"))
-                        return;
-                    homeActivity = param.thisObject;
-                    if (Modifier.isStatic(param.method.getModifiers())) {
-                        homeActivity = param.args[0];
-                    }
-                    pageIdField = XposedHelpers.findField(homeActivity.getClass(), "A01");
-                    originPageId = 0;
-                    if (pageIdField.getType() == int.class) {
-                        originPageId = pageIdField.getInt(homeActivity);
-                        pageIdField.setInt(homeActivity, 1);
-                    }
+        XposedBridge.hookMethod(addSeachBar, new XC_MethodHook() {
+            private Object homeActivity;
+            private int originPageId;
+
+            @Override
+            protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
+                if (!Objects.equals(filterChats, "1")) return;
+                homeActivity = param.thisObject;
+                if (Modifier.isStatic(param.method.getModifiers())) {
+                    homeActivity = param.args[0];
                 }
-
-                @Override
-                protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-                    if (originPageId != 0) {
-                        pageIdField.setInt(homeActivity, originPageId);
-                    }
+                originPageId = 0;
+                if (curPageField.getType() == int.class) {
+                    originPageId = curPageField.getInt(homeActivity);
+                    curPageField.setInt(homeActivity, 1);
                 }
-            });
-        } catch (Throwable ignored) {
-        }
+            }
 
+            @Override
+            protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+                if (originPageId != 0) {
+                    curPageField.setInt(homeActivity, originPageId);
+                }
+            }
+        });
         XposedHelpers.findAndHookMethod(WppCore.getHomeActivityClass(classLoader), "onPrepareOptionsMenu", Menu.class, new XC_MethodHook() {
             @Override
             protected void afterHookedMethod(MethodHookParam param) throws Throwable {

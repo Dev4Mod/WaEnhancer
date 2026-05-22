@@ -15,18 +15,18 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.core.widget.NestedScrollView;
 
+import com.wmods.wppenhacer.R;
 import com.wmods.wppenhacer.adapter.MessageAdapter;
 import com.wmods.wppenhacer.views.NoScrollListView;
 import com.wmods.wppenhacer.xposed.core.Feature;
 import com.wmods.wppenhacer.xposed.core.WppCore;
 import com.wmods.wppenhacer.xposed.core.components.FMessageWpp;
-import com.wmods.wppenhacer.xposed.core.db.MessageHistory;
+import com.wmods.wppenhacer.xposed.core.db.MessageHistoryStore;
 import com.wmods.wppenhacer.xposed.core.db.MessageStore;
 import com.wmods.wppenhacer.xposed.core.devkit.Unobfuscator;
 import com.wmods.wppenhacer.xposed.features.listeners.ConversationItemListener;
 import com.wmods.wppenhacer.xposed.utils.DesignUtils;
 import com.wmods.wppenhacer.xposed.utils.ReflectionUtils;
-import com.wmods.wppenhacer.xposed.utils.ResId;
 import com.wmods.wppenhacer.xposed.utils.Utils;
 
 import java.util.ArrayList;
@@ -77,11 +77,11 @@ public class ShowEditMessage extends Feature {
                     if (newMessage == null) return;
                 }
                 try {
-                    var message = MessageHistory.getInstance().getMessages(id);
+                    var message = MessageHistoryStore.getInstance().getMessages(id);
                     if (message == null) {
-                        MessageHistory.getInstance().insertMessage(id, origMessage, 0);
+                        MessageHistoryStore.getInstance().insertMessage(id, origMessage, 0);
                     }
-                    MessageHistory.getInstance().insertMessage(id, newMessage, timestamp);
+                    MessageHistoryStore.getInstance().insertMessage(id, newMessage, timestamp);
                 } catch (Exception e) {
                     logDebug(e);
                 }
@@ -94,15 +94,15 @@ public class ShowEditMessage extends Feature {
                 new ConversationItemListener.OnConversationItemListener() {
 
                     @Override
-                    public void onItemBind(FMessageWpp fMessage, ViewGroup viewGroup) {
-                        var textView = (TextView) viewGroup.findViewById(Utils.getID("edit_label", "id"));
+                    public void onItemBind(FMessageWpp fMessage, ViewGroup view, int position, View convertView) {
+                        var textView = (TextView) view.findViewById(Utils.getID("edit_label", "id"));
                         if (textView != null && !textView.getText().toString().contains(strEmoji)) {
                             textView.getPaint().setUnderlineText(true);
                             textView.append(strEmoji);
                             textView.setOnClickListener((v) -> {
                                 try {
                                     long id = fMessage.getRowId();
-                                    var messages = MessageHistory.getInstance().getMessages(id);
+                                    var messages = MessageHistoryStore.getInstance().getMessages(id);
                                     if (messages == null) {
                                         messages = new ArrayList<>();
                                     }
@@ -119,7 +119,7 @@ public class ShowEditMessage extends Feature {
     }
 
     @SuppressLint("SetTextI18n")
-    private void showBottomDialog(ArrayList<MessageHistory.MessageItem> messages) {
+    private void showBottomDialog(ArrayList<MessageHistoryStore.MessageItem> messages) {
         Objects.requireNonNull(WppCore.getCurrentConversation()).runOnUiThread(() -> {
             var ctx = (Context) WppCore.getCurrentConversation();
 
@@ -150,7 +150,7 @@ public class ShowEditMessage extends Feature {
             titleView.setTextSize(16.0f);
             titleView.setTextColor(DesignUtils.getPrimaryTextColor());
             titleView.setTypeface(null, Typeface.BOLD);
-            titleView.setText(ResId.string.edited_history);
+            titleView.setText(R.string.edited_history);
 
             // List View
             var adapter = new MessageAdapter(ctx, messages);
