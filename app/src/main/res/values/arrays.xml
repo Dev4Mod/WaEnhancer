@@ -6,7 +6,6 @@
         <item>android</item>
     </string-array>
 
-
     <string-array name="antirevoke_entries">
         <item>@string/antirevoke_buttons_desable</item>
         <item>@string/antirevoke_buttons_show_text</item>
@@ -18,13 +17,11 @@
         <item>2</item>
     </string-array>
 
-
     <string-array name="archive_entries">
         <item>@string/disabled</item>
         <item>@string/click_times</item>
         <item>@string/hold_title</item>
     </string-array>
-
     <string-array name="archive_values">
         <item>0</item>
         <item>1</item>
@@ -39,7 +36,6 @@
         <item>Status Vertical (Circle)</item>
         <item>Status Vertical (Square)</item>
     </string-array>
-
     <string-array name="status_style_values">
         <item>0</item>
         <item>1</item>
@@ -61,6 +57,7 @@
         <item>400</item>
         <item>700</item>
     </string-array>
+
     <string-array name="thememode_entries">
         <item>@string/follow_system</item>
         <item>@string/dark_theme_on</item>
@@ -71,6 +68,7 @@
         <item>1</item>
         <item>2</item>
     </string-array>
+
     <string-array name="changecolor_mode_entries">
         <item>@string/changecolor_mode_manual</item>
         <item>@string/changecolor_mode_monet</item>
@@ -79,6 +77,7 @@
         <item>manual</item>
         <item>monet</item>
     </string-array>
+
     <string-array name="wae_color_mode_entries">
         <item>@string/wae_color_mode_preset</item>
         <item>@string/wae_color_mode_auto_monet</item>
@@ -87,6 +86,7 @@
         <item>preset</item>
         <item>monet</item>
     </string-array>
+
     <string-array name="wae_color_preset_entries">
         <item>@string/color_preset_green</item>
         <item>@string/color_preset_blue</item>
@@ -105,6 +105,7 @@
         <item>red</item>
         <item>pink</item>
     </string-array>
+
     <string-array name="chatfilter_buttons">
         <item>@string/chatfilter_no_search</item>
         <item>@string/chatfilter_search_icon</item>
@@ -115,6 +116,7 @@
         <item>1</item>
         <item>2</item>
     </string-array>
+
     <string-array name="call_blocker_buttons">
         <item>@string/call_blocker_buttons_no_block</item>
         <item>@string/call_blocker_buttons_all_block</item>
@@ -129,13 +131,13 @@
         <item>3</item>
         <item>4</item>
     </string-array>
+
     <string-array name="call_type_buttons">
         <item>@string/call_type_buttons_no_internet</item>
         <item>@string/call_type_buttons_declined</item>
         <item>@string/call_type_buttons_ended</item>
         <item>@string/call_type_buttons_uncallable</item>
     </string-array>
-
     <string-array name="call_type_values">
         <item>no_internet</item>
         <item>declined</item>
@@ -153,21 +155,28 @@
         <item>1</item>
         <item>2</item>
     </string-array>
+
     <string-array name="supported_versions_wpp">
-        <item>2.26.9.xx</item>
-        <item>2.26.10.xx</item>
-        <item>2.26.11.xx</item>
-        <item>2.26.12.xx</item>
+        <item>2.26.14.xx</item>
+        <item>2.26.15.xx</item>
+        <item>2.26.16.xx</item>
+        <item>2.26.17.xx</item>
+        <item>2.26.18.xx</item>
+        <item>2.26.19.xx</item>
     </string-array>
     <string-array name="supported_versions_business">
-        <item>2.26.9.xx</item>
-        <item>2.26.10.xx</item>
-        <item>2.26.11.xx</item>
-        <item>2.26.12.xx</item>
+        <item>2.26.14.xx</item>
+        <item>2.26.15.xx</item>
+        <item>2.26.16.xx</item>
+        <item>2.26.17.xx</item>
+        <item>2.26.18.xx</item>
+        <item>2.26.19.xx</item>
     </string-array>
+
     <string-array name="image_picker">
         <item>image/*</item>
     </string-array>
+
     <string-array name="audio_type_values">
         <item>0</item>
         <item>1</item>
@@ -178,6 +187,7 @@
         <item>@string/audio_note</item>
         <item>@string/voice_note</item>
     </string-array>
+
     <string-array name="transcription_provider_entries">
         <item>AssemblyAI</item>
         <item>Groq AI (Whisper v3 Turbo)</item>
@@ -186,6 +196,7 @@
         <item>assemblyai</item>
         <item>groq</item>
     </string-array>
+
     <string-array name="animations_values">
         <item>default</item>
         <item>fade_in</item>
@@ -212,6 +223,7 @@
         <item>Flip</item>
         <item>Hyperspace out</item>
     </string-array>
+
     <string-array name="custom_privacy_entries">
         <item>@string/antirevoke_buttons_desable</item>
         <item>@string/show_contact_info</item>
@@ -221,6 +233,26 @@
         <item>0</item>
         <item>1</item>
         <item>2</item>
+    </string-array>
+
+    <string-array name="match_mode_entries">
+        <item>Sama Persis (Equals)</item>
+        <item>Mengandung Kata (Contains)</item>
+    </string-array>
+    <string-array name="match_mode_values">
+        <item>equals</item>
+        <item>contains</item>
+    </string-array>
+
+    <string-array name="target_entries">
+        <item>Hanya Kontak</item>
+        <item>Hanya Grup</item>
+        <item>Keduanya</item>
+    </string-array>
+    <string-array name="target_values">
+        <item>contact</item>
+        <item>group</item>
+        <item>both</item>
     </string-array>
 
 </resources>
