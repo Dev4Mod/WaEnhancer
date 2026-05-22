@@ -75,6 +75,9 @@ class MessageHistoryStore private constructor(context: Context) {
         private val EMPTY_MESSAGE_LIST = ArrayList<MessageItem>()
 
         @Volatile
+        private var hideSeenChangeListener: HideSeenChangeListener? = null
+
+        @Volatile
         private var mInstance: MessageHistoryStore? = null
 
         @JvmStatic
@@ -83,6 +86,12 @@ class MessageHistoryStore private constructor(context: Context) {
                 mInstance ?: MessageHistoryStore(Utils.getApplication()).also { mInstance = it }
             }
         }
+
+        @JvmStatic
+        fun setHideSeenChangeListener(listener: HideSeenChangeListener?) {
+            hideSeenChangeListener = listener
+        }
+
 
     }
 
@@ -165,7 +174,7 @@ class MessageHistoryStore private constructor(context: Context) {
             val cacheKey = createSeenMessageCacheKey(jid, messageId, type)
             seenMessageCache.remove(cacheKey)
             invalidateSeenMessagesListCache(jid, type)
-
+            hideSeenChangeListener?.onHideSeenChanged(jid, messageId, type, viewed)
         } catch (t: Throwable) {
             XposedBridge.log(t)
         }
@@ -197,6 +206,7 @@ class MessageHistoryStore private constructor(context: Context) {
             }
             invalidateSeenMessagesListCache(jid, type)
 
+            hideSeenChangeListener?.onHideSeenChanged(jid, messageId, type, viewed)
             return true
         } catch (t: Throwable) {
             XposedBridge.log(t)

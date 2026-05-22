@@ -16,7 +16,6 @@ import com.wmods.wppenhacer.xposed.core.db.MessageStore
 import com.wmods.wppenhacer.xposed.core.devkit.Unobfuscator
 import com.wmods.wppenhacer.xposed.core.devkit.UnobfuscatorCache
 import com.wmods.wppenhacer.xposed.features.listeners.ConversationItemListener
-import com.wmods.wppenhacer.xposed.features.listeners.MenuStatusListener
 import com.wmods.wppenhacer.xposed.utils.ReflectionUtils
 import com.wmods.wppenhacer.xposed.utils.Utils
 import de.robv.android.xposed.XC_MethodHook
@@ -131,11 +130,11 @@ class AntiRevoke(loader: ClassLoader, preferences: XSharedPreferences) :
             ConversationItemListener.OnConversationItemListener() {
             override fun onItemBind(
                 fMessage: FMessageWpp,
-                viewGroup: ViewGroup,
+                view: ViewGroup,
                 position: Int,
                 convertView: View?
             ) {
-                val dateTextView = viewGroup.findViewById<TextView>(Utils.getID("date", "id"))
+                val dateTextView = view.findViewById<TextView>(Utils.getID("date", "id"))
                 bindRevokedMessageUI(fMessage, dateTextView, "antirevoke")
             }
         })
