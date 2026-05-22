@@ -11,13 +11,15 @@ okhttp = "5.3.2"
 xposed-legacy = "82"
 agp = "8.13.2"
 colorpicker = "1.1.0"
-dexkit = "2.0.7"
+roomRuntime = "2.8.4"
 nav = "2.9.6"
 kotlin = "2.2.21"
 markwon = "4.6.2"
 
 [libraries]
 androidx-documentfile = { module = "androidx.documentfile:documentfile", version.ref = "documentfile" }
+androidx-room-compiler = { module = "androidx.room:room-compiler", version.ref = "roomRuntime" }
+androidx-room-runtime = { module = "androidx.room:room-runtime", version.ref = "roomRuntime" }
 arscblamer = { module = "com.github.DavidArsene:arscblamer", version.ref = "arscblamer" }
 bcpkix-jdk18on = { module = "org.bouncycastle:bcpkix-jdk18on", version.ref = "bcpkix-jdk18on" }
 betterypermissionhelper = { module = "com.waseemsabir:betterypermissionhelper", version.ref = "betterypermissionhelper" }
@@ -47,3 +49,4 @@ markwon-core = { module = "io.noties.markwon:core", version.ref = "markwon" }
 androidApplication = { id = "com.android.application", version.ref = "agp" }
 materialthemebuilder = { id = "dev.rikka.tools.materialthemebuilder", version = "1.5.1" }
 kotlinAndroid = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
+kspPlugin = { id = "com.google.devtools.ksp", version = "2.3.0" }
