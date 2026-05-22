@@ -21,6 +21,13 @@
 #-renamesourcefileattribute SourceFile
 -dontwarn *
 
+# (R fields are accessed and rewritten via reflection)
+-keep class com.wmods.wppenhacer.R { *; }
+-keep class com.wmods.wppenhacer.R$* { *; }
+-keepclassmembers class com.wmods.wppenhacer.R$* {
+     public static <fields>;
+}
+
 -keepclasseswithmembers class com.wmods.** {
      *;
 }
