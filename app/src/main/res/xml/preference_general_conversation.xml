@@ -119,6 +119,11 @@
             app:summary="@string/show_contact_blocked_sum"
             app:title="@string/show_contact_blocked" />
 
+        <rikka.material.preference.MaterialSwitchPreference
+            app:key="jump_first_message"
+            app:summary="@string/jump_first_message_sum"
+            app:title="@string/jump_first_message" />
+
     </PreferenceCategory>
 
 </PreferenceScreen>
