@@ -9,18 +9,18 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 
-import com.wmods.wppenhacer.xposed.core.db.MessageHistory;
+import com.wmods.wppenhacer.R;
+import com.wmods.wppenhacer.xposed.core.db.MessageHistoryStore;
 import com.wmods.wppenhacer.xposed.utils.DesignUtils;
-import com.wmods.wppenhacer.xposed.utils.ResId;
 import com.wmods.wppenhacer.xposed.utils.Utils;
 
 import java.util.List;
 
-public class MessageAdapter extends ArrayAdapter<MessageHistory.MessageItem> {
+public class MessageAdapter extends ArrayAdapter<MessageHistoryStore.MessageItem> {
     private final Context context;
-    private final List<MessageHistory.MessageItem> items;
+    private final List<MessageHistoryStore.MessageItem> items;
 
-    public MessageAdapter(Context context, List<MessageHistory.MessageItem> items) {
+    public MessageAdapter(Context context, List<MessageHistoryStore.MessageItem> items) {
         super(context, android.R.layout.simple_list_item_2, android.R.id.text1, items);
         this.context = context;
         this.items = items;
@@ -32,7 +32,7 @@ public class MessageAdapter extends ArrayAdapter<MessageHistory.MessageItem> {
     }
 
     @Override
-    public MessageHistory.MessageItem getItem(int position) {
+    public MessageHistoryStore.MessageItem getItem(int position) {
         return items.get(position);
     }
 
@@ -55,7 +55,7 @@ public class MessageAdapter extends ArrayAdapter<MessageHistory.MessageItem> {
         textView1.setTypeface(null, Typeface.ITALIC);
         textView1.setTextColor(DesignUtils.getPrimaryTextColor());
         var timestamp = this.items.get(position).timestamp;
-        textView1.setText((timestamp == 0L ? context.getString(ResId.string.message_original) : "✏️ " + Utils.getDateTimeFromMillis(timestamp)));
+        textView1.setText((timestamp == 0L ? context.getString(R.string.message_original) : "✏️ " + Utils.getDateTimeFromMillis(timestamp)));
         return view1;
     }
 

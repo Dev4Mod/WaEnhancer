@@ -24,12 +24,15 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Set;
 
+import lombok.Setter;
+
 public class RecordingsAdapter extends RecyclerView.Adapter<RecordingsAdapter.ViewHolder> {
 
     private List<Recording> recordings = new ArrayList<>();
     private final OnRecordingActionListener listener;
     private boolean isSelectionMode = false;
     private final Set<Integer> selectedPositions = new HashSet<>();
+    @Setter
     private OnSelectionChangeListener selectionChangeListener;
 
     public interface OnRecordingActionListener {
@@ -47,10 +50,6 @@ public class RecordingsAdapter extends RecyclerView.Adapter<RecordingsAdapter.Vi
         this.listener = listener;
     }
 
-    public void setSelectionChangeListener(OnSelectionChangeListener listener) {
-        this.selectionChangeListener = listener;
-    }
-
     public void setRecordings(List<Recording> recordings) {
         this.recordings = recordings;
         clearSelection();
@@ -65,10 +64,6 @@ public class RecordingsAdapter extends RecyclerView.Adapter<RecordingsAdapter.Vi
             }
             notifyDataSetChanged();
         }
-    }
-
-    public boolean isSelectionMode() {
-        return isSelectionMode;
     }
 
     public void toggleSelection(int position) {
@@ -113,9 +108,6 @@ public class RecordingsAdapter extends RecyclerView.Adapter<RecordingsAdapter.Vi
         return selected;
     }
 
-    public int getSelectionCount() {
-        return selectedPositions.size();
-    }
 
     @NonNull
     @Override
@@ -130,16 +122,7 @@ public class RecordingsAdapter extends RecyclerView.Adapter<RecordingsAdapter.Vi
         
         // Contact name
         holder.contactName.setText(recording.getContactName());
-        
-        // Phone number
-        String phoneNumber = recording.getPhoneNumber();
-        if (phoneNumber != null && !phoneNumber.equals(recording.getContactName())) {
-            holder.phoneNumber.setVisibility(View.VISIBLE);
-            holder.phoneNumber.setText(phoneNumber);
-        } else {
-            holder.phoneNumber.setVisibility(View.GONE);
-        }
-        
+
         // Duration
         holder.duration.setText(recording.getFormattedDuration());
         
@@ -194,7 +177,6 @@ public class RecordingsAdapter extends RecyclerView.Adapter<RecordingsAdapter.Vi
         CheckBox checkbox;
         ImageView icon;
         TextView contactName;
-        TextView phoneNumber;
         TextView duration;
         TextView details;
         LinearLayout actionsContainer;
@@ -208,7 +190,6 @@ public class RecordingsAdapter extends RecyclerView.Adapter<RecordingsAdapter.Vi
             checkbox = itemView.findViewById(R.id.checkbox);
             icon = itemView.findViewById(R.id.icon);
             contactName = itemView.findViewById(R.id.contact_name);
-            phoneNumber = itemView.findViewById(R.id.phone_number);
             duration = itemView.findViewById(R.id.duration);
             details = itemView.findViewById(R.id.details);
             actionsContainer = itemView.findViewById(R.id.actions_container);
