@@ -23,6 +23,7 @@ import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
 
 import com.wmods.wppenhacer.WppXposed;
+import com.wmods.wppenhacer.utils.IColors;
 import com.wmods.wppenhacer.xposed.core.WppCore;
 
 import java.util.HashMap;
@@ -181,9 +182,9 @@ public class DesignUtils {
     }
 
     public static void setReplacementDrawable(String name, Drawable replacement) {
-        if (WppXposed.ResParam == null)
+        if (WppXposed.getResParam() == null)
             return;
-        WppXposed.ResParam.res.setReplacement(Utils.getApplication().getPackageName(), "drawable", name,
+        WppXposed.getResParam().res.setReplacement(Utils.getApplication().getPackageName(), "drawable", name,
                 new XResources.DrawableLoader() {
                     @Override
                     public Drawable newDrawable(XResources res, int id) throws Throwable {
@@ -320,4 +321,10 @@ public class DesignUtils {
         icon.draw(canvas);
         return new BitmapDrawable(Utils.getApplication().getResources(), bitmap);
     }
+
+    public static int getBackgroundColorFromMap(String color) {
+        var newcolor = IColors.backgroundColors.getOrDefault(color, color);
+        return IColors.parseColor(newcolor);
+    }
+
 }
