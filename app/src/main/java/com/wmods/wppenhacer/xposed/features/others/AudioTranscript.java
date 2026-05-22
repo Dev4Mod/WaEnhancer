@@ -4,11 +4,11 @@ import android.text.TextUtils;
 
 import androidx.annotation.NonNull;
 
+import com.wmods.wppenhacer.R;
 import com.wmods.wppenhacer.xposed.core.Feature;
 import com.wmods.wppenhacer.xposed.core.components.FMessageWpp;
 import com.wmods.wppenhacer.xposed.core.devkit.Unobfuscator;
 import com.wmods.wppenhacer.xposed.utils.ReflectionUtils;
-import com.wmods.wppenhacer.xposed.utils.ResId;
 import com.wmods.wppenhacer.xposed.utils.Utils;
 
 import org.json.JSONObject;
@@ -61,7 +61,7 @@ public class AudioTranscript extends Feature {
                 var fmessage = new FMessageWpp(fmessageObj);
                 File file = fmessage.getMediaFile();
                 if (file == null) {
-                    Utils.showToast(Utils.getApplication().getString(ResId.string.download_not_available), 1);
+                    Utils.showToast(Utils.getApplication().getString(R.string.download_not_available), 1);
                     return;
                 }
                 var callback = param.args[1];

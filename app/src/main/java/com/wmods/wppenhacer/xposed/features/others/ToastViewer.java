@@ -6,6 +6,7 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 
+import com.wmods.wppenhacer.R;
 import com.wmods.wppenhacer.xposed.core.Feature;
 import com.wmods.wppenhacer.xposed.core.WppCore;
 import com.wmods.wppenhacer.xposed.core.components.FMessageWpp;
@@ -13,7 +14,6 @@ import com.wmods.wppenhacer.xposed.core.db.MessageStore;
 import com.wmods.wppenhacer.xposed.core.devkit.Unobfuscator;
 import com.wmods.wppenhacer.xposed.features.general.Tasker;
 import com.wmods.wppenhacer.xposed.utils.ReflectionUtils;
-import com.wmods.wppenhacer.xposed.utils.ResId;
 import com.wmods.wppenhacer.xposed.utils.Utils;
 
 import org.luckypray.dexkit.query.enums.StringMatchType;
@@ -112,7 +112,7 @@ public class ToastViewer extends Feature {
             var participantHash = result2.getString(result2.getColumnIndexOrThrow("participant_hash"));
             if (participantHash != null) {
                 if (toast_viewed_status) {
-                    Utils.showToast(Utils.getApplication().getString(ResId.string.viewed_your_status, contactName), Toast.LENGTH_LONG);
+                    Utils.showToast(Utils.getApplication().getString(R.string.viewed_your_status, contactName), Toast.LENGTH_LONG);
                 }
                 Tasker.sendTaskerEvent(contactName, WppCore.stripJID(rawJid), "viewed_status");
                 return;
@@ -134,7 +134,7 @@ public class ToastViewer extends Feature {
                     lastEventTimeMap.put(key, currentTime);
                     Tasker.sendTaskerEvent(contactName, WppCore.stripJID(rawJid), "viewed_message");
                     if (toastViewedMessage) {
-                        Utils.showToast(Utils.getApplication().getString(ResId.string.viewed_your_message, contactName), Toast.LENGTH_LONG);
+                        Utils.showToast(Utils.getApplication().getString(R.string.viewed_your_message, contactName), Toast.LENGTH_LONG);
                     }
                 }
             } catch (Exception e) {

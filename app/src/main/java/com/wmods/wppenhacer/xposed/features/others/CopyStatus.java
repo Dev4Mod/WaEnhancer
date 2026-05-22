@@ -6,9 +6,9 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 
+import com.wmods.wppenhacer.R;
 import com.wmods.wppenhacer.xposed.core.Feature;
 import com.wmods.wppenhacer.xposed.core.devkit.Unobfuscator;
-import com.wmods.wppenhacer.xposed.utils.ResId;
 import com.wmods.wppenhacer.xposed.utils.Utils;
 
 import de.robv.android.xposed.XC_MethodHook;
@@ -36,7 +36,7 @@ public class CopyStatus extends Feature {
                 if (caption != null) {
                     caption.setOnLongClickListener((view1 -> {
                         Utils.setToClipboard(caption.getText().toString());
-                        Utils.showToast(Utils.getApplication().getString(ResId.string.copied_to_clipboard), Toast.LENGTH_LONG);
+                        Utils.showToast(Utils.getApplication().getString(R.string.copied_to_clipboard), Toast.LENGTH_LONG);
                         return true;
                     }));
                 }
@@ -53,7 +53,7 @@ public class CopyStatus extends Feature {
                 if (text != null) {
                     text.setOnLongClickListener((view1 -> {
                         Utils.setToClipboard(text.getText().toString());
-                        Utils.showToast(Utils.getApplication().getString(ResId.string.copied_to_clipboard), Toast.LENGTH_LONG);
+                        Utils.showToast(Utils.getApplication().getString(R.string.copied_to_clipboard), Toast.LENGTH_LONG);
                         return true;
                     }));
                 }
