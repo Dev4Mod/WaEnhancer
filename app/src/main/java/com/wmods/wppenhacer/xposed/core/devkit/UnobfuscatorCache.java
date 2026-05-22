@@ -12,8 +12,8 @@ import androidx.annotation.NonNull;
 
 import com.google.devrel.gmscore.tools.apk.arsc.ArscUtils;
 import com.wmods.wppenhacer.BuildConfig;
+import com.wmods.wppenhacer.R;
 import com.wmods.wppenhacer.xposed.utils.ReflectionUtils;
-import com.wmods.wppenhacer.xposed.utils.ResId;
 import com.wmods.wppenhacer.xposed.utils.Utils;
 
 import org.json.JSONException;
@@ -64,14 +64,12 @@ public class UnobfuscatorCache {
             } catch (Exception ignored) {
             }
             if (version != currentVersion || savedUpdateTime != lastUpdateTime || !versionName.equals(savedVersionName)) {
-                Utils.showToast(application.getString(ResId.string.starting_cache), Toast.LENGTH_LONG);
+                Utils.showToast(application.getString(R.string.starting_cache), Toast.LENGTH_LONG);
                 sPrefsCacheHooks.edit().clear().commit();
                 sPrefsCacheHooks.edit().putLong("version", currentVersion).commit();
                 sPrefsCacheHooks.edit().putLong("updateTime", lastUpdateTime).commit();
                 sPrefsCacheHooks.edit().putString("wae_version_name", versionName).commit();
-                if (version != currentVersion) {
-                    sPrefsCacheStrings.edit().clear().commit();
-                }
+                sPrefsCacheStrings.edit().clear().commit();
             }
             initCacheStrings();
         } catch (Exception e) {
@@ -115,6 +113,7 @@ public class UnobfuscatorCache {
                     int keyHexValue = entry.getKey();
                     int result = baseValue << 16 | keyHexValue;
                     String resourceString = pool.getString(entry.getValue().value().data()).toLowerCase().replaceAll("\\s", "");
+                    if (reverseResourceMap.containsKey(resourceString)) continue;
                     reverseResourceMap.put(resourceString, String.valueOf(result));
                 } catch (Exception ignored) {
                 }
@@ -154,7 +153,9 @@ public class UnobfuscatorCache {
                         for (int i = threadStartId; i <= threadEndId; i++) {
                             try {
                                 String resourceString = resources.getString(i);
-                                reverseResourceMap.put(resourceString.toLowerCase().replaceAll("\\s", ""), String.valueOf(i));
+                                String key = resourceString.toLowerCase().replaceAll("\\s", "");
+                                if (reverseResourceMap.containsKey(key)) continue;
+                                reverseResourceMap.put(key, String.valueOf(i));
                             } catch (Resources.NotFoundException ignored) {
                             }
                         }
