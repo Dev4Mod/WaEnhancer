@@ -12,9 +12,9 @@ import android.widget.LinearLayout;
 import android.widget.SeekBar;
 import android.widget.TextView;
 
+import com.wmods.wppenhacer.R;
 import com.wmods.wppenhacer.xposed.core.components.AlertDialogWpp;
 import com.wmods.wppenhacer.xposed.utils.DesignUtils;
-import com.wmods.wppenhacer.xposed.utils.ResId;
 
 public class SimpleColorPickerDialog extends AlertDialogWpp {
 
@@ -30,7 +30,7 @@ public class SimpleColorPickerDialog extends AlertDialogWpp {
     @Override
     public Dialog create() {
 
-        setTitle(getContext().getString(ResId.string.select_a_color));
+        setTitle(getContext().getString(R.string.select_a_color));
 
         // Configura o layout principal do diálogo
         LinearLayout layout = new LinearLayout(getContext());
@@ -160,7 +160,7 @@ public class SimpleColorPickerDialog extends AlertDialogWpp {
             dismiss();
         });
 
-        setNegativeButton(getContext().getString(ResId.string.cancel), (dialogInterface, i) -> {
+        setNegativeButton(getContext().getString(R.string.cancel), (dialogInterface, i) -> {
             dismiss();
         });
 
