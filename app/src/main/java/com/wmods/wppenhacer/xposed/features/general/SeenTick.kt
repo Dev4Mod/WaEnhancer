@@ -337,6 +337,25 @@ class SeenTick(
     private fun hookConversationScreen(ticktype: Int) {
         val onCreateMenuConversationMethod = Unobfuscator.loadOnCreatedMenuConversation(classLoader)
 
+
+        XposedBridge.hookMethod(onCreateMenuConversationMethod, object : XC_MethodHook() {
+            override fun afterHookedMethod(param: MethodHookParam) {
+                val menu = param.args[0] as Menu
+                val menuItem = menu.add(0, 0, 0, R.string.send_blue_tick)
+                if (ticktype == 1) menuItem.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS)
+                menuItem.setIcon(Utils.getID("ic_notif_mark_read", "drawable"))
+                menuItem.setOnMenuItemClickListener {
+                    val currentUserJid = WppCore.getCurrentUserJid()
+                    currentUserJid?.let { jid -> sendBlueTick(jid) }
+                    Utils.showToast(
+                        Utils.getString(R.string.sending_read_blue_tick),
+                        Toast.LENGTH_SHORT
+                    )
+                    true
+                }
+            }
+        })
+
         MenuStatusListener.menuStatuses.add(object : MenuStatusListener.OnMenuItemStatusListener() {
             override fun addMenu(
                 menu: Menu,
