@@ -361,11 +361,9 @@ class FMessageWpp(fMessage: Any?) {
                     StringMatchType.EndsWith,
                     "jid.Jid"
                 )
-                TYPE_PHONEUSERJID = Unobfuscator.findFirstClassUsingName(
-                    classLoader,
-                    StringMatchType.EndsWith,
-                    "jid.PhoneUserJid"
-                )
+                val convertLidToJid = Unobfuscator.loadConvertLidToJid(classLoader)
+                TYPE_PHONEUSERJID = convertLidToJid.returnType
+
                 TYPE_DEVICEJID = Unobfuscator.findFirstClassUsingName(
                     classLoader,
                     StringMatchType.EndsWith,

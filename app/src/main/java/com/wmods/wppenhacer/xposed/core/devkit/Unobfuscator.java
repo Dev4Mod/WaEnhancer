@@ -261,12 +261,28 @@ public class Unobfuscator {
 
     }
 
+    public static Class<?> loadReceiptMessageInfoClass(ClassLoader classLoader) throws Exception {
+        return UnobfuscatorCache.getInstance().getClass(classLoader, ()-> {
+            var methodData = dexkit.findMethod(FindMethod.create().matcher(MethodMatcher.create().addUsingString("ReadReceiptUtils/buildReadReceiptHandler malformed"))).single();
+            var deviceJid = findFirstClassUsingName(classLoader, StringMatchType.EndsWith, "jid.DeviceJid");
+            for (var invoke : methodData.getInvokes()){
+                if (invoke.isConstructor() && invoke.getParamTypeNames().contains(deviceJid.getName())) {
+                    return invoke.getClassInstance(classLoader);
+                }
+            }
+            return null;
+        });
+    }
+
     public static Method loadReceiptMainCallerMethod(ClassLoader classLoader)throws Exception{
         return UnobfuscatorCache.getInstance().getMethod(classLoader, () -> {
             var methodReceipt = dexkit.getMethodData(loadReceiptMethod(classLoader));
             var classData = methodReceipt.getDeclaredClass();
+            var messageInfoClass = loadReceiptMessageInfoClass(classLoader);
             var methodData = classData.findMethod(FindMethod.create().matcher(MethodMatcher.create()
                     .addInvoke(methodReceipt.getDescriptor())
+                    .paramCount(1)
+                    .paramTypes(messageInfoClass)
                     .addUsingString("class")
             )).single();
             return methodData.getMethodInstance(classLoader);
@@ -1262,8 +1278,7 @@ public class Unobfuscator {
 
     public synchronized static Method loadChatLimitDelete2Method(ClassLoader loader) throws Exception {
         return UnobfuscatorCache.getInstance().getMethod(loader, () -> {
-            var method = findFirstMethodUsingStrings(loader, StringMatchType.Contains, "pref_revoke_admin_nux",
-                    "dialog/delete no messages");
+            var method = findFirstMethodUsingStrings(loader, StringMatchType.Contains, "dialog/delete no messages","pref_delete_media");
             if (method == null)
                 throw new RuntimeException("ChatLimitDelete2 method not found");
             return method;
