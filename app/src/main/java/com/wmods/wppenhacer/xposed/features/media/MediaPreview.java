@@ -16,6 +16,7 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 
+import com.wmods.wppenhacer.R;
 import com.wmods.wppenhacer.xposed.core.Feature;
 import com.wmods.wppenhacer.xposed.core.WppCore;
 import com.wmods.wppenhacer.xposed.core.components.FMessageWpp;
@@ -23,7 +24,6 @@ import com.wmods.wppenhacer.xposed.core.db.MessageStore;
 import com.wmods.wppenhacer.xposed.core.devkit.Unobfuscator;
 import com.wmods.wppenhacer.xposed.utils.DesignUtils;
 import com.wmods.wppenhacer.xposed.utils.HKDF;
-import com.wmods.wppenhacer.xposed.utils.ResId;
 import com.wmods.wppenhacer.xposed.utils.Utils;
 
 import java.io.File;
@@ -90,7 +90,11 @@ public class MediaPreview extends Feature {
                 if (param.args.length < 2) return;
                 var view = (View) param.thisObject;
                 var context = view.getContext();
-                var surface = (ViewGroup) view.findViewById(Utils.getID("invisible_press_surface", "id"));
+                ViewGroup surface = view.findViewById(Utils.getID("video_control_frame_view", "id"));
+                if (surface == null){
+                    surface = view.findViewById(Utils.getID("invisible_press_surface", "id"));
+                }
+                if (surface == null) return;
                 var controlFrame = surface.getChildAt(0);
                 surface.removeViewAt(0);
                 var linearLayout = new LinearLayout(context);
@@ -100,7 +104,7 @@ public class MediaPreview extends Feature {
                 var layoutParams = new LinearLayout.LayoutParams(Utils.dipToPixels(42), Utils.dipToPixels(32));
                 layoutParams.gravity = Gravity.CENTER;
                 prevBtn.setLayoutParams(layoutParams);
-                var drawable = context.getDrawable(ResId.drawable.preview_eye);
+                var drawable = context.getDrawable(R.drawable.preview_eye);
                 drawable.setTint(Color.WHITE);
                 prevBtn.setImageDrawable(drawable);
                 prevBtn.setPadding(Utils.dipToPixels(4), Utils.dipToPixels(4), Utils.dipToPixels(4), Utils.dipToPixels(4));
@@ -126,7 +130,12 @@ public class MediaPreview extends Feature {
 
 
                 ViewGroup mediaContainer = view.findViewById(Utils.getID("media_container", "id"));
+                if (mediaContainer == null)return;
                 ViewGroup controlFrame = view.findViewById(Utils.getID("control_frame", "id"));
+                if (controlFrame == null || controlFrame.getVisibility() != View.VISIBLE) {
+                    controlFrame = view.findViewById(Utils.getID("control_frame_new", "id"));
+                }
+                if (controlFrame == null) return;
 
                 LinearLayout linearLayout = new LinearLayout(context);
                 linearLayout.setLayoutParams(new FrameLayout.LayoutParams(
@@ -144,7 +153,7 @@ public class MediaPreview extends Feature {
                 layoutParams2.gravity = Gravity.CENTER;
                 layoutParams2.topMargin = Utils.dipToPixels(8);
                 prevBtn.setLayoutParams(layoutParams2);
-                var drawable = context.getDrawable(ResId.drawable.preview_eye);
+                var drawable = context.getDrawable(R.drawable.preview_eye);
                 drawable.setTint(Color.WHITE);
                 prevBtn.setImageDrawable(drawable);
                 prevBtn.setPadding(Utils.dipToPixels(4), Utils.dipToPixels(4), Utils.dipToPixels(4), Utils.dipToPixels(4));
@@ -152,9 +161,10 @@ public class MediaPreview extends Feature {
                 prevBtn.setScaleType(ImageView.ScaleType.FIT_CENTER);
                 linearLayout.addView(prevBtn);
                 prevBtn.setVisibility(controlFrame.getVisibility());
+                ViewGroup finalControlFrame = controlFrame;
                 controlFrame.getViewTreeObserver().addOnGlobalLayoutListener(() -> {
-                    if (prevBtn.getVisibility() != controlFrame.getVisibility())
-                        prevBtn.setVisibility(controlFrame.getVisibility());
+                    if (prevBtn.getVisibility() != finalControlFrame.getVisibility())
+                        prevBtn.setVisibility(finalControlFrame.getVisibility());
                 });
 
                 prevBtn.setOnClickListener((v) -> {
@@ -197,7 +207,7 @@ public class MediaPreview extends Feature {
                 webView.getSettings().setDisplayZoomControls(false);
                 webView.getSettings().setJavaScriptEnabled(true);
                 webView.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
-                webView.loadDataWithBaseURL(null, HTML_LOADING.replace("$loading", context.getString(ResId.string.loading)), "text/html", "UTF-8", null);
+                webView.loadDataWithBaseURL(null, HTML_LOADING.replace("$loading", context.getString(R.string.loading)), "text/html", "UTF-8", null);
                 frameLayout.addView(webView);
                 alertDialog.setView(frameLayout);
                 alertDialog.setOnDismissListener(dialog1 -> {

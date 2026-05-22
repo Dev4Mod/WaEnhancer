@@ -8,12 +8,12 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 
+import com.wmods.wppenhacer.R;
 import com.wmods.wppenhacer.xposed.core.Feature;
 import com.wmods.wppenhacer.xposed.core.WppCore;
 import com.wmods.wppenhacer.xposed.core.components.FMessageWpp;
 import com.wmods.wppenhacer.xposed.core.devkit.Unobfuscator;
 import com.wmods.wppenhacer.xposed.utils.ReflectionUtils;
-import com.wmods.wppenhacer.xposed.utils.ResId;
 import com.wmods.wppenhacer.xposed.utils.Utils;
 
 import java.io.File;
@@ -35,9 +35,9 @@ public class DownloadViewOnce extends Feature {
         var name = Utils.generateName(userJid, fileExtension);
         var error = Utils.copyFile(file, dest, name);
         if (TextUtils.isEmpty(error)) {
-            Utils.showToast(Utils.getApplication().getString(ResId.string.saved_to) + dest, Toast.LENGTH_LONG);
+            Utils.showToast(Utils.getApplication().getString(R.string.saved_to) + dest, Toast.LENGTH_LONG);
         } else {
-            Utils.showToast(Utils.getApplication().getString(ResId.string.error_when_saving_try_again) + ":" + error, Toast.LENGTH_LONG);
+            Utils.showToast(Utils.getApplication().getString(R.string.error_when_saving_try_again) + ":" + error, Toast.LENGTH_LONG);
         }
     }
 
@@ -51,30 +51,19 @@ public class DownloadViewOnce extends Feature {
                 @Override
                 @SuppressLint("DiscouragedApi")
                 protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-                    var fmessageField = ReflectionUtils.getFieldByExtendType(param.thisObject.getClass(), FMessageWpp.TYPE);
-                    Object fmessageObj = null;
-                    if (fmessageField != null) {
-                        fmessageObj = fmessageField.get(param.thisObject);
-                    }
-                    if (fmessageObj == null) {
-                        var keyField = ReflectionUtils.getFieldByExtendType(param.thisObject.getClass(), FMessageWpp.Key.TYPE);
-                        if (keyField != null) {
-                            var keyObj = keyField.get(param.thisObject);
-                            fmessageObj = WppCore.getFMessageFromKey(keyObj);
-                        }
-                    }
+                    var fmessageObj = ReflectionUtils.getArg(param.args, FMessageWpp.TYPE, 0);
                     FMessageWpp fMessage = new FMessageWpp(fmessageObj);
 
                     // check media is view once
                     if (!fMessage.isViewOnce()) return;
-                    Menu menu = (Menu) param.args[0];
-                    MenuItem item = menu.add(0, 0, 0, ResId.string.download).setIcon(ResId.drawable.download);
+                    Menu menu = ReflectionUtils.getArg(param.args, Menu.class, 0);
+                    MenuItem item = menu.add(0, 0, 0, R.string.download).setIcon(R.drawable.download);
                     item.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
                     item.setOnMenuItemClickListener(item1 -> {
                         try {
                             var file = fMessage.getMediaFile();
                             if (file == null) {
-                                Utils.showToast(Utils.getApplication().getString(ResId.string.download_not_available), 1);
+                                Utils.showToast(Utils.getApplication().getString(R.string.download_not_available), 1);
                                 return true;
                             }
                             downloadFile(fMessage.getKey().remoteJid, file);
@@ -93,7 +82,7 @@ public class DownloadViewOnce extends Feature {
                         @Override
                         protected void afterHookedMethod(MethodHookParam param) throws Throwable {
                             Menu menu = (Menu) param.args[0];
-                            MenuItem item = menu.add(0, 0, 0, ResId.string.download).setIcon(ResId.drawable.download);
+                            MenuItem item = menu.add(0, 0, 0, R.string.download).setIcon(R.drawable.download);
                             item.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
                             item.setOnMenuItemClickListener(item1 -> {
                                 CompletableFuture.runAsync(() -> {
@@ -103,7 +92,7 @@ public class DownloadViewOnce extends Feature {
                                     var fmessage = new FMessageWpp.Key(keyMessageObj).getFMessage();
                                     var file = fmessage.getMediaFile();
                                     if (file == null) {
-                                        Utils.showToast(Utils.getApplication().getString(ResId.string.download_not_available), 1);
+                                        Utils.showToast(Utils.getApplication().getString(R.string.download_not_available), 1);
                                         return;
                                     }
                                     var userJid = fmessage.getKey().remoteJid;
