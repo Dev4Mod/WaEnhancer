@@ -507,8 +507,10 @@ public class CustomThemeV2 extends Feature {
                 if (textView.getId() == id) {
                     return;
                 }
-            } else if (param.thisObject instanceof Paint && ReflectionUtils.isCalledFromStrings("getValue")) {
-                return;
+            } else if (param.thisObject instanceof Paint) {
+                var currentActivity = WppCore.getCurrentActivity();
+                if (currentActivity == null || currentActivity.getClass().getSimpleName().equals("Conversation"))
+                    return;
             }
             param.args[0] = IColors.getFromIntColor(color, IColors.colors);
         }
