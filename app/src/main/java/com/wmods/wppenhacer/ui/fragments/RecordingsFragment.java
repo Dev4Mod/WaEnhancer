@@ -18,7 +18,6 @@ import androidx.fragment.app.Fragment;
 import androidx.preference.PreferenceManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
-import com.google.android.material.chip.Chip;
 import com.wmods.wppenhacer.R;
 import com.wmods.wppenhacer.adapter.RecordingsAdapter;
 import com.wmods.wppenhacer.databinding.FragmentRecordingsBinding;
@@ -197,7 +196,7 @@ public class RecordingsFragment extends Fragment implements RecordingsAdapter.On
                 } else {
                     String name = file.getName().toLowerCase();
                     if (name.endsWith(".wav") || name.endsWith(".mp3") || name.endsWith(".aac") || name.endsWith(".m4a")) {
-                        allRecordings.add(new Recording(file, requireContext()));
+                        allRecordings.add(new Recording(file));
                     }
                 }
             }
