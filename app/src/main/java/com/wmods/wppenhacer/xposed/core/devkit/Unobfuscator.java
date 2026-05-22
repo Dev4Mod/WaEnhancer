@@ -2938,4 +2938,17 @@ public class Unobfuscator {
         return UnobfuscatorCache.getInstance().getClass(classLoader, ()-> findFirstClassUsingStrings(classLoader,StringMatchType.Contains,"FStatusMedia/mediaDataV2"));
 
     }
+
+    public static Method loadHideMeTabIcon(@NotNull ClassLoader classLoader) throws Exception {
+        return UnobfuscatorCache.getInstance().getMethod(classLoader, ()->{
+            return dexkit.findMethod(
+                    FindMethod.create().matcher(
+                            MethodMatcher.create()
+                                    .addUsingString("is_biz_alerts_eligible")
+                                    .paramCount(1)
+                                    .paramTypes(Menu.class)
+                    )
+            ).first().getMethodInstance(classLoader);
+        });
+    }
 }
