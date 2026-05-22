@@ -224,4 +224,45 @@
             app:title="@string/custom_colors_for_text_status" />
     </PreferenceCategory>
 
+    <PreferenceCategory
+        app:iconSpaceReserved="false"
+        app:title="Auto Reply &amp; Scheduler">
+
+        <rikka.material.preference.MaterialSwitchPreference
+            app:key="enable_auto_reply"
+            app:title="Aktifkan Auto Reply"
+            app:summary="Otomatis balas pesan masuk sesuai keyword" />
+
+        <ListPreference
+            app:dependency="enable_auto_reply"
+            app:key="auto_reply_match_mode"
+            app:title="Mode Pencocokan"
+            app:entries="@array/match_mode_entries"
+            app:entryValues="@array/match_mode_values"
+            app:defaultValue="equals"
+            app:summary="%s" />
+
+        <ListPreference
+            app:dependency="enable_auto_reply"
+            app:key="auto_reply_target_type"
+            app:title="Target Balasan"
+            app:entries="@array/target_entries"
+            app:entryValues="@array/target_values"
+            app:defaultValue="contact"
+            app:summary="%s" />
+
+        <EditTextPreference
+            app:dependency="enable_auto_reply"
+            app:key="auto_reply_keyword"
+            app:title="Kata Kunci"
+            app:summary="Masukkan kata kunci pemicu" />
+
+        <EditTextPreference
+            app:dependency="enable_auto_reply"
+            app:key="auto_reply_response"
+            app:title="Pesan Balasan"
+            app:summary="Masukkan teks balasan otomatis" />
+
+    </PreferenceCategory>
+
 </PreferenceScreen>
