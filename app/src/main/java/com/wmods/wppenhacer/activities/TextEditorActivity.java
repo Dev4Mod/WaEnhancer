@@ -145,36 +145,32 @@ public class TextEditorActivity extends BaseActivity {
     @SuppressLint("NonConstantResourceId")
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
-        switch (item.getItemId()) {
-            case R.id.menuitem_save -> {
-                try {
-                    getTextareaContentAsync().thenAccept(content -> {
-                        String code = content;
-                        File folderFolder = new File(ThemePreference.rootDirectory, folderName);
-                        File cssCode = new File(folderFolder, "style.css");
-                        FilesKt.writeText(cssCode, code, Charset.defaultCharset());
-                        Toast.makeText(this, R.string.saved, Toast.LENGTH_SHORT).show();
-                        var prefs = PreferenceManager.getDefaultSharedPreferences(this);
-                        var key = getIntent().getStringExtra("key");
-                        if (key != null && prefs.getString(key, "").equals(folderName)) {
-                            prefs.edit().putString("custom_css", code).commit();
-                        }
-                    });
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
+        int itemId = item.getItemId();
+        if (itemId == R.id.menuitem_save) {
+            try {
+                getTextareaContentAsync().thenAccept(content -> {
+                    String code = content;
+                    File folderFolder = new File(ThemePreference.rootDirectory, folderName);
+                    File cssCode = new File(folderFolder, "style.css");
+                    FilesKt.writeText(cssCode, code, Charset.defaultCharset());
+                    Toast.makeText(this, R.string.saved, Toast.LENGTH_SHORT).show();
+                    var prefs = PreferenceManager.getDefaultSharedPreferences(this);
+                    var key = getIntent().getStringExtra("key");
+                    if (key != null && prefs.getString(key, "").equals(folderName)) {
+                        prefs.edit().putString("custom_css", code).commit();
+                    }
+                });
+            } catch (Exception e) {
+                e.printStackTrace();
             }
-            case R.id.menuitem_exit -> finish();
-            case R.id.menuitem_clear -> {
-                updateWebViewContent("");
-            }
-            case R.id.menuitem_import_image -> {
-                mGetContent.launch("image/*");
-            }
-            case R.id.menuitem_export -> {
-                mExportFile.launch(folderName + ".zip");
-            }
-
+        } else if (itemId == R.id.menuitem_exit) {
+            finish();
+        } else if (itemId == R.id.menuitem_clear) {
+            updateWebViewContent("");
+        } else if (itemId == R.id.menuitem_import_image) {
+            mGetContent.launch("image/*");
+        } else if (itemId == R.id.menuitem_export) {
+            mExportFile.launch(folderName + ".zip");
         }
         return super.onOptionsItemSelected(item);
     }

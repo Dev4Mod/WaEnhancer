@@ -11,9 +11,8 @@ import com.wmods.wppenhacer.R;
 import com.wmods.wppenhacer.activities.base.BaseActivity;
 import com.wmods.wppenhacer.adapter.MessageListAdapter;
 import com.wmods.wppenhacer.databinding.ActivityMessageListBinding;
-import com.wmods.wppenhacer.xposed.core.WppCore;
 import com.wmods.wppenhacer.xposed.core.db.DelMessageStore;
-import com.wmods.wppenhacer.xposed.core.db.DeletedMessage;
+import com.wmods.wppenhacer.xposed.core.db.entity.DeletedMessage;
 
 import java.util.List;
 
