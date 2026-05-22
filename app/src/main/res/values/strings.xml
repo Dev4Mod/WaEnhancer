@@ -461,7 +461,6 @@
     <string name="recording_mode_exclude">Record All Except Selected</string>
     <string name="recording_included_contacts">Included Contacts</string>
     <string name="recording_excluded_contacts">Excluded Contacts</string>
-    <!-- Search Feature Strings -->
     <string name="search_features_title">Search Features</string>
     <string name="search_features_hint">Search for any feature...</string>
     <string name="search_no_results">No features found</string>
@@ -474,9 +473,25 @@
     <string name="restore_feature_title">Restore Feature</string>
     <string name="restore_feature_desc">"Coming soon!"</string>
     <string name="action_follow_developer">Coming soon!</string>
-    <string name="enable_spy">Enable Spy Tool</string>
-    <string name="enable_spy_sum">Logs internal events to Xposed log for debugging.</string>
     <string name="warning_restore">When restoring the backup all messages after the backup will be lost, are you sure you want to continue?</string>
     <string name="force_restore_backup_experimental">Force Restore Backup (Experimental)</string>
     <string name="contact_probably_not_added">Contact probably didn\'t add you!</string>
+    <string name="jump_first_message">Jump to First Message</string>
+    <string name="jump_first_message_sum">Add a button to skip the first message in the conversations screen</string>
+    <string name="picker_loading_contacts">Loading contacts…</string>
+    <string name="mode_all">All</string>
+    <string name="picker_contacts">Contacts</string>
+    <string name="groups">Groups</string>
+    <string name="picker_no_results">No contacts found</string>
+    <string name="picker_group">Group</string>
+    <string name="picker_contact">Contact</string>
+    <string name="auto_reply_title">Auto Reply</string>
+    <string name="auto_reply_enable">Aktifkan Auto Reply</string>
+    <string name="auto_reply_keyword">Kata Kunci</string>
+    <string name="auto_reply_response">Pesan Balasan</string>
+    <string name="auto_reply_mode">Mode Pencocokan</string>
+    <string name="auto_reply_keyword_hint">Masukkan kata kunci pemicu</string>
+    <string name="auto_reply_response_hint">Masukkan teks balasan otomatis</string>
+    <string name="message_scheduler_title">Penjadwal Pesan</string>
+    <string name="schedule_date_time">Waktu Pengiriman</string>
 </resources>
