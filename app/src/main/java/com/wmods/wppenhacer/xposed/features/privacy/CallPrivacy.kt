@@ -114,16 +114,19 @@ class CallPrivacy(loader: ClassLoader, preferences: XSharedPreferences) :
 
 
     fun checkCallBlock(userJid: FMessageWpp.UserJid, type: PrivacyType?): Boolean {
-        userJid.phoneNumber ?: return false
+        val phoneNumber = userJid.phoneNumber ?: return false
+
+        val customprivacy = CustomPrivacy.getJSON(phoneNumber);
 
         return when (type) {
-            PrivacyType.ALL_BLOCKED -> true
-            PrivacyType.ALL_PERMITTED -> false
+            PrivacyType.ALL_BLOCKED -> customprivacy.optBoolean("BlockCall", true)
+            PrivacyType.ALL_PERMITTED -> customprivacy.optBoolean("BlockCall", false)
             PrivacyType.ONLY_UNKNOWN -> {
                 val waContact = WaContactWpp.getWaContactFromJid(userJid) ?: return true
                 !waContact.isSavedContact()
             }
             PrivacyType.BACKLIST -> {
+                if (customprivacy.optBoolean("BlockCall", false)) return true;
                 val callBlockList = prefs.getString("call_block_contacts", "[]")!!
                 val blockList = callBlockList.substring(1, callBlockList.length - 1).split(", ")
                     .map { it.trim() }
@@ -131,6 +134,7 @@ class CallPrivacy(loader: ClassLoader, preferences: XSharedPreferences) :
             }
 
             PrivacyType.WHITELIST -> {
+                if (customprivacy.optBoolean("BlockCall", false)) return true;
                 val callWhiteList = prefs.getString("call_white_contacts", "[]")!!
                 val whiteList = callWhiteList.substring(1, callWhiteList.length - 1).split(", ")
                     .map { it.trim() }
