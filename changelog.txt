@@ -1,3 +1,10 @@
+[ADDED]
+* Added new call blocking type: Busy (On another call).
+
+[REMOVED]
+* Removed the "Rejected" type call blocking, it was not working.
+
 [FIXED]
-* Fixed missing button mark seen/read in Conversation
-* Fixed the check icon not changing color after clicking the read button
+* Fixed the Settings icon with profile photo on the home screen (now the camera button also appears)
+* Fixed problem with call blocker for unknown numbers
+* Fixed the logic to hide the ticks
