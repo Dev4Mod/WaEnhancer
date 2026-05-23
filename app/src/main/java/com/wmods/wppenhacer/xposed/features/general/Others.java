@@ -6,6 +6,7 @@ import android.os.Message;
 import android.os.PowerManager;
 import android.text.TextUtils;
 import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
@@ -82,7 +83,6 @@ public class Others extends Feature {
         var animationEmojis = prefs.getBoolean("animation_emojis", false);
         var disableProfileStatus = prefs.getBoolean("disable_profile_status", false);
         var disableExpiration = prefs.getBoolean("disable_expiration", false);
-        var isAction = prefs.getBoolean("buttonaction", true);
 
         propsInteger.put(3877, oldStatus ? igstatus ? 2 : 0 : 2);
 
@@ -105,18 +105,19 @@ public class Others extends Feature {
         propsInteger.put(18564, newSettings ? 2 : 0);
 
         if (newSettings) {
-            if (!isAction) {
-                Method hideMeIcon = Unobfuscator.loadHideMeTabIcon(classLoader);
-                XposedBridge.hookMethod(hideMeIcon, XC_MethodReplacement.returnConstant(null));
-                propsBoolean.put(25516, false);
-                propsBoolean.put(23920, false);
-                propsBoolean.put(14862, true);
-                propsInteger.put(18564, 2);
-            }
-        }else {
-            propsBoolean.put(14862, newSettings); // WHATS_HAPPENING_SENDING_ENABLED_CODE
-            propsInteger.put(18564, newSettings ? 2 : 0); // ME_TAB_V2_VARIANTS_CODE
+            XposedBridge.hookAllMethods(WppCore.getHomeActivityClass(classLoader), "onCreateOptionsMenu", new XC_MethodHook() {
+                @Override
+                protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+                    var menu = (Menu)param.args[0];
+                    var menuItem = menu.findItem(Utils.getID("me_tab_menu_item","id"));
+                    if (menuItem != null){
+                        menuItem.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
+                    }
+                }
+            });
         }
+        propsBoolean.put(14862, newSettings); // WHATS_HAPPENING_SENDING_ENABLED_CODE
+        propsInteger.put(18564, newSettings ? 2 : 0); // ME_TAB_V2_VARIANTS_CODE
 
         propsBoolean.put(2889, floatingMenu);
 
