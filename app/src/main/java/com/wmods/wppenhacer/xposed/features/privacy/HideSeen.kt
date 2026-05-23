@@ -195,20 +195,25 @@ class HideSeen(loader: ClassLoader, preferences: XSharedPreferences) :
                 val hideSeen = checkPrivacyAndHideSeen(fmessageKey)
                 val hideReceipt = checkPrivacyAndHideReceipt(fmessageKey)
 
+                var isHide = false
+
                 if (hideReceipt) {
                     if (typeKV == null) {
                         protocolTreeNodeWpp.addKeyValue("type", "inactive")
                     } else {
                         typeKV.value = "inactive"
                     }
+                    protocolTreeNodeWpp.removeAllKeyValuesByKey("sts")
+                    isHide = true
                 } else if (hideSeen && typeKV?.value == "read") {
                     protocolTreeNodeWpp.removeAllKeyValuesByKey("sts")
                     protocolTreeNodeWpp.removeAllKeyValuesByKey("type")
+                    isHide = true
                 }
 
                 if (inManualReceiptCheck.get() ?: false)return
 
-                if (hideReceipt || hideSeen) {
+                if (isHide) {
                     MessageHistoryStore.getInstance().insertHideSeenMessage(
                         fmessageKey.remoteJid.phoneRawString,
                         fmessageKey.messageID,
