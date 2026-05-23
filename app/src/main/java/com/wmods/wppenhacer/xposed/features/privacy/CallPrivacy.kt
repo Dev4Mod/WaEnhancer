@@ -1,193 +1,160 @@
-package com.wmods.wppenhacer.xposed.features.privacy;
+package com.wmods.wppenhacer.xposed.features.privacy
 
-import android.os.Message;
-import android.text.TextUtils;
-import android.widget.Toast;
+import android.os.Message
+import android.widget.Toast
+import com.wmods.wppenhacer.xposed.core.Feature
+import com.wmods.wppenhacer.xposed.core.WppCore
+import com.wmods.wppenhacer.xposed.core.components.FMessageWpp
+import com.wmods.wppenhacer.xposed.core.components.WaContactWpp
+import com.wmods.wppenhacer.xposed.core.devkit.Unobfuscator
+import com.wmods.wppenhacer.xposed.features.general.Tasker
+import com.wmods.wppenhacer.xposed.utils.ReflectionUtils
+import com.wmods.wppenhacer.xposed.utils.Utils
+import de.robv.android.xposed.XC_MethodHook
+import de.robv.android.xposed.XSharedPreferences
+import de.robv.android.xposed.XposedBridge
+import de.robv.android.xposed.XposedHelpers
+import org.luckypray.dexkit.query.enums.StringMatchType
+import java.util.concurrent.ConcurrentHashMap
 
-import androidx.annotation.NonNull;
+class CallPrivacy(loader: ClassLoader, preferences: XSharedPreferences) :
+    Feature(loader, preferences) {
 
-import com.wmods.wppenhacer.xposed.core.Feature;
-import com.wmods.wppenhacer.xposed.core.WppCore;
-import com.wmods.wppenhacer.xposed.core.components.FMessageWpp;
-import com.wmods.wppenhacer.xposed.core.devkit.Unobfuscator;
-import com.wmods.wppenhacer.xposed.features.general.Tasker;
-import com.wmods.wppenhacer.xposed.utils.ReflectionUtils;
-import com.wmods.wppenhacer.xposed.utils.Utils;
+    private var mVoipManager: Any? = null
 
-import org.luckypray.dexkit.query.enums.StringMatchType;
-
-import java.lang.reflect.InvocationTargetException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Objects;
-import java.util.stream.Collectors;
-
-import de.robv.android.xposed.XC_MethodHook;
-import de.robv.android.xposed.XSharedPreferences;
-import de.robv.android.xposed.XposedBridge;
-import de.robv.android.xposed.XposedHelpers;
-
-public class CallPrivacy extends Feature {
-
-    private Object mVoipManager;
-
-    /**
-     * @noinspection unchecked
-     */
-    @Override
-    public void doHook() throws Throwable {
-
-        var voipManagerClass = Unobfuscator.loadVoipManager(classLoader);
-        XposedBridge.hookAllConstructors(voipManagerClass, new XC_MethodHook() {
-            @Override
-            protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-                mVoipManager = param.thisObject;
+    override fun doHook() {
+        val voipManagerClass = Unobfuscator.loadVoipManager(classLoader)
+        XposedBridge.hookAllConstructors(voipManagerClass, object : XC_MethodHook() {
+            override fun afterHookedMethod(param: MethodHookParam) {
+                mVoipManager = param.thisObject
             }
-        });
+        })
 
-        var clazzVoip = WppCore.getVoipManagerClass(classLoader);
-        var endCallMethod = ReflectionUtils.findMethodUsingFilter(clazzVoip, m -> m.getName().equals("endCall"));
-        var rejectCallMethod = ReflectionUtils.findMethodUsingFilter(clazzVoip, m -> m.getName().equals("rejectCall"));
+        val clazzVoip = WppCore.getVoipManagerClass(classLoader)
+        val endCallMethod = clazzVoip.declaredMethods.first { it.name == "endCall" }
+        val rejectCallMethod = clazzVoip.declaredMethods.first { it.name == "rejectCall" }
 
-        var onCallReceivedMethod = Unobfuscator.loadAntiRevokeOnCallReceivedMethod(classLoader);
+        val onCallReceivedMethod = Unobfuscator.loadAntiRevokeOnCallReceivedMethod(classLoader)
 
-        XposedBridge.hookMethod(onCallReceivedMethod, new XC_MethodHook() {
-            @Override
-            protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
-                Object callinfo;
-                Class<?> callInfoClass = WppCore.getVoipCallInfoClass(classLoader);
-                if (param.args[0] instanceof Message) {
-                    callinfo = ((Message) param.args[0]).obj;
-                } else if (param.args.length > 1 && callInfoClass.isInstance(param.args[1])) {
-                    callinfo = param.args[1];
-                } else {
-                    Utils.showToast("Invalid call info", Toast.LENGTH_SHORT);
-                    return;
-                }
-                if (callinfo == null || !callInfoClass.isInstance(callinfo)) return;
-                if ((boolean) XposedHelpers.callMethod(callinfo, "isCaller")) return;
-                var userJid = new FMessageWpp.UserJid(XposedHelpers.callMethod(callinfo, "getPeerJid"));
-                var callId = XposedHelpers.callMethod(callinfo, "getCallId");
-                var type = Integer.parseInt(prefs.getString("call_privacy", "0"));
-                Tasker.sendTaskerEvent(WppCore.getContactName(userJid), userJid.getPhoneNumber(), "call_received");
-                var blockCall = checkCallBlock(userJid, PrivacyType.getByValue(type));
-                if (!blockCall) return;
-                var rejectType = prefs.getString("call_type", "no_internet");
-
-                switch (rejectType) {
-                    case "uncallable":
-                    case "declined":
-                        var params = ReflectionUtils.initArray(rejectCallMethod.getParameterTypes());
-                        params[0] = callId;
-                        params[1] = "declined".equals(rejectType) ? null : rejectType;
-                        ReflectionUtils.callMethod(rejectCallMethod, mVoipManager, params);
-                        param.setResult(true);
-                        break;
-                    case "ended":
-                        var params1 = ReflectionUtils.initArray(endCallMethod.getParameterTypes());
-                        params1[0] = true;
-                        ReflectionUtils.callMethod(endCallMethod, mVoipManager, params1);
-                        param.setResult(true);
-                        break;
-                    default:
-                }
-            }
-        });
-
-        XposedBridge.hookAllMethods(WppCore.getVoipManagerClass(classLoader), "nativeHandleIncomingXmppOffer", new XC_MethodHook() {
-            @Override
-            protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
-                if (!prefs.getString("call_type", "no_internet").equals("no_internet")) return;
-                var jidClass = Unobfuscator.findFirstClassUsingName(classLoader, StringMatchType.EndsWith, "jid.Jid");
-                var jidObj = ReflectionUtils.getArg(param.args, jidClass, 0);
-                var userJid = new FMessageWpp.UserJid(jidObj);
-                var type = Integer.parseInt(prefs.getString("call_privacy", "0"));
-                var block = checkCallBlock(userJid, PrivacyType.getByValue(type));
-                if (block) {
-                    param.setResult(1);
-                }
-            }
-        });
-
-
-    }
-
-
-    public CallPrivacy(@NonNull ClassLoader loader, @NonNull XSharedPreferences preferences) {
-        super(loader, preferences);
-    }
-
-    public boolean checkCallBlock(FMessageWpp.UserJid userJid, PrivacyType type) throws IllegalAccessException, InvocationTargetException {
-
-        var phoneNumber = userJid.getPhoneNumber();
-
-        if (phoneNumber == null) return false;
-
-        var customprivacy = CustomPrivacy.getJSON(phoneNumber);
-
-        if (type == PrivacyType.ALL_BLOCKED) {
-            return customprivacy.optBoolean("BlockCall", true);
-        }
-
-        if (type == PrivacyType.ALL_PERMITTED) {
-            return customprivacy.optBoolean("BlockCall", false);
-        }
-
-        switch (type) {
-            case ONLY_UNKNOWN:
-                if (customprivacy.optBoolean("BlockCall", false)) return true;
-                var contactName = WppCore.getSContactName(userJid, true);
-                return TextUtils.isEmpty(contactName) || contactName.equals(phoneNumber);
-            case BACKLIST:
-                if (customprivacy.optBoolean("BlockCall", false)) return true;
-                var callBlockList = prefs.getString("call_block_contacts", "[]");
-                var blockList = Arrays.stream(callBlockList.substring(1, callBlockList.length() - 1).split(", ")).map(String::trim).collect(Collectors.toCollection(ArrayList::new));
-                for (var blockNumber : blockList) {
-                    if (!TextUtils.isEmpty(blockNumber) && Objects.equals(userJid.getPhoneRawString(), blockNumber)) {
-                        return true;
+        XposedBridge.hookMethod(onCallReceivedMethod, object : XC_MethodHook() {
+            override fun beforeHookedMethod(param: MethodHookParam) {
+                val callInfoClass = WppCore.getVoipCallInfoClass(classLoader)
+                val callinfo: Any? = when {
+                    param.args[0] is Message -> (param.args[0] as Message).obj
+                    param.args.size > 1 && callInfoClass.isInstance(param.args[1]) -> param.args[1]
+                    else -> {
+                        Utils.showToast("Invalid call info", Toast.LENGTH_SHORT)
+                        return
                     }
                 }
-                return false;
-            case WHITELIST:
-                var callWhiteList = prefs.getString("call_white_contacts", "[]");
-                var whiteList = Arrays.stream(callWhiteList.substring(1, callWhiteList.length() - 1).split(", ")).map(String::trim).collect(Collectors.toCollection(ArrayList::new));
-                for (var whiteNumber : whiteList) {
-                    if (!TextUtils.isEmpty(whiteNumber) && Objects.equals(userJid.getPhoneRawString(), whiteNumber)) {
-                        return false;
+                if (callinfo == null || !callInfoClass.isInstance(callinfo)) return
+                if (XposedHelpers.getObjectField(callinfo, "callState")
+                        ?.toString() != "RECEIVED_CALL"
+                ) return
+                val userJid = FMessageWpp.UserJid(XposedHelpers.callMethod(callinfo, "getPeerJid"))
+                val callId = XposedHelpers.callMethod(callinfo, "getCallId")
+                val type = prefs.getString("call_privacy", "0")!!.toInt()
+                val waContact = WaContactWpp.getWaContactFromJid(userJid)
+                val contactName = waContact?.displayName ?: userJid.phoneNumber
+                Tasker.sendTaskerEvent(
+                    contactName,
+                    userJid.phoneNumber,
+                    "call_received"
+                )
+
+                val privacyType = PrivacyType.getByValue(type)
+                val blockCall = checkCallBlock(userJid, privacyType)
+                if (!blockCall) return
+
+                var rejectType =  prefs.getString("call_type", null) ?: "no_internet"
+
+                when (rejectType) {
+                    "uncallable", "declined", "busy" -> {
+                        if (rejectType == "declined") {
+                            rejectType = ""
+                        }
+                        val params = ReflectionUtils.initArray(rejectCallMethod.parameterTypes)
+                        params[0] = callId
+                        params[1] = rejectType
+                        ReflectionUtils.callMethod(rejectCallMethod, mVoipManager, *params)
+                        param.result = true
+                    }
+                    "ended" -> {
+                        val params = ReflectionUtils.initArray(endCallMethod.parameterTypes)
+                        params[0] = true
+                        ReflectionUtils.callMethod(endCallMethod, mVoipManager, *params)
+                        param.result = true
                     }
                 }
-                return true;
-        }
-        return false;
+            }
+        })
+
+        XposedBridge.hookAllMethods(
+            WppCore.getVoipManagerClass(classLoader),
+            "nativeHandleIncomingXmppOffer",
+            object : XC_MethodHook() {
+                override fun beforeHookedMethod(param: MethodHookParam) {
+                    val jidClass = Unobfuscator.findFirstClassUsingName(
+                        classLoader, StringMatchType.EndsWith, "jid.Jid"
+                    )
+                    val jidObj = ReflectionUtils.getArg(param.args, jidClass, 0)
+                    val userJid = FMessageWpp.UserJid(jidObj)
+                    val rejectType = prefs.getString("call_type", null) ?: "no_internet"
+                    if (rejectType == "no_internet") {
+                        val type = prefs.getString("call_privacy", "0")!!.toInt()
+                        val privacyType = PrivacyType.getByValue(type)
+                        val block = checkCallBlock(userJid, privacyType)
+                        if (block) {
+                            param.result = 1
+                        }
+                    }
+                }
+            })
     }
 
-    public enum PrivacyType {
-        ALL_PERMITTED(0),
-        ALL_BLOCKED(1),
-        ONLY_UNKNOWN(2),
-        BACKLIST(3),
+
+    fun checkCallBlock(userJid: FMessageWpp.UserJid, type: PrivacyType?): Boolean {
+        userJid.phoneNumber ?: return false
+
+        return when (type) {
+            PrivacyType.ALL_BLOCKED -> true
+            PrivacyType.ALL_PERMITTED -> false
+            PrivacyType.ONLY_UNKNOWN -> {
+                val waContact = WaContactWpp.getWaContactFromJid(userJid) ?: return true
+                !waContact.isSavedContact()
+            }
+            PrivacyType.BACKLIST -> {
+                val callBlockList = prefs.getString("call_block_contacts", "[]")!!
+                val blockList = callBlockList.substring(1, callBlockList.length - 1).split(", ")
+                    .map { it.trim() }
+                blockList.any { it.isNotEmpty() && it == userJid.phoneRawString }
+            }
+
+            PrivacyType.WHITELIST -> {
+                val callWhiteList = prefs.getString("call_white_contacts", "[]")!!
+                val whiteList = callWhiteList.substring(1, callWhiteList.length - 1).split(", ")
+                    .map { it.trim() }
+                whiteList.none { it.isNotEmpty() && it == userJid.phoneRawString }
+            }
+
+            null -> false
+        }
+    }
+
+    override fun getPluginName() = "Call Privacy"
+
+    enum class PrivacyType(val value: Int) {
+        ALL_PERMITTED(0), ALL_BLOCKED(
+            1
+        ),
+        ONLY_UNKNOWN(2), BACKLIST(
+            3
+        ),
         WHITELIST(4);
 
-        private final int value;
-
-        PrivacyType(int i) {
-            this.value = i;
-        }
-
-        public static PrivacyType getByValue(int value) {
-            for (PrivacyType type : PrivacyType.values()) {
-                if (type.value == value) {
-                    return type;
-                }
-            }
-            return null;
+        companion object {
+            fun getByValue(value: Int) = entries.find { it.value == value }
         }
     }
 
-
-    @NonNull
-    @Override
-    public String getPluginName() {
-        return "Call Privacy";
-    }
 }

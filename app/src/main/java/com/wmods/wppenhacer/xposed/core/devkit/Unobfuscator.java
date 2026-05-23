@@ -2939,16 +2939,23 @@ public class Unobfuscator {
 
     }
 
-    public static Method loadHideMeTabIcon(@NotNull ClassLoader classLoader) throws Exception {
-        return UnobfuscatorCache.getInstance().getMethod(classLoader, ()->{
-            return dexkit.findMethod(
-                    FindMethod.create().matcher(
-                            MethodMatcher.create()
-                                    .addUsingString("is_biz_alerts_eligible")
-                                    .paramCount(1)
-                                    .paramTypes(Menu.class)
-                    )
-            ).first().getMethodInstance(classLoader);
+    public static @Nullable Field loadWaContactNumberField(@NonNull ClassLoader classLoader) throws Exception {
+        return UnobfuscatorCache.getInstance().getField(classLoader,()-> {
+            var waContact = loadWaContactClass(classLoader);
+            var waContactData = dexkit.getClassData(waContact);
+            if (waContactData == null)throw new NoSuchFieldException("WaContact class data not found");
+
+            var methodData = waContactData.findMethod(FindMethod.create().matcher(MethodMatcher.create()
+                    .usingNumbers(-4,0)
+                    .returnType(long.class)
+            )).firstOrNull();
+            if (methodData == null) throw new NoSuchFieldException("Number Method not found!");
+            for (var ufield: methodData.getUsingFields()){
+                var field = ufield.getField().getFieldInstance(classLoader);
+                if (field.getDeclaringClass().equals(waContact) && !field.getType().isPrimitive())
+                    return field;
+            }
+            return null;
         });
     }
 }
