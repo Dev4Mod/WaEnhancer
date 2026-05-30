@@ -514,11 +514,13 @@ public class Unobfuscator {
     public synchronized static Method loadFabMethod(ClassLoader classLoader) throws Exception {
         return UnobfuscatorCache.getInstance().getMethod(classLoader, () -> {
             ClassData classData = dexkit.getClassData("com.whatsapp.conversationslist.ConversationsFragment");
-            var result = classData.findMethod(FindMethod.create()
-                    .matcher(MethodMatcher.create().paramCount(0).usingNumbers(200).returnType(int.class)));
-            if (result.isEmpty())
-                throw new Exception("Fab method not found");
-            return result.get(0).getMethodInstance(classLoader);
+            Objects.requireNonNull(classData);
+            for (var clazz : List.of(classData, classData.getSuperClass())) {
+                var result = clazz.findMethod(FindMethod.create()
+                        .matcher(MethodMatcher.create().paramCount(0).usingNumbers(200).returnType(int.class))).firstOrNull();
+                if (result != null)return result.getMethodInstance(classLoader);
+            }
+            throw new Exception("Fab method not found");
         });
     }
 
