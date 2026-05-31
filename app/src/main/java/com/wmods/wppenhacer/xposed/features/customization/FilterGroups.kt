@@ -1,205 +1,359 @@
-package com.wmods.wppenhacer.xposed.features.customization;
+package com.wmods.wppenhacer.xposed.features.customization
 
-import android.annotation.SuppressLint;
-import android.content.Context;
-import android.graphics.Color;
-import android.graphics.drawable.Drawable;
-import android.graphics.drawable.GradientDrawable;
-import android.graphics.drawable.LayerDrawable;
-import android.graphics.drawable.ShapeDrawable;
-import android.graphics.drawable.shapes.RoundRectShape;
-import android.os.Handler;
-import android.os.Looper;
-import android.view.Gravity;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.LinearLayout;
-import android.widget.TextView;
+import android.annotation.SuppressLint
+import android.content.Context
+import android.graphics.Color
+import android.graphics.drawable.GradientDrawable
+import android.graphics.drawable.LayerDrawable
+import android.graphics.drawable.ShapeDrawable
+import android.graphics.drawable.shapes.RoundRectShape
+import android.view.Gravity
+import android.view.View
+import android.view.ViewGroup
+import android.widget.LinearLayout
+import android.widget.TextView
+import com.wmods.wppenhacer.xposed.core.Feature
+import com.wmods.wppenhacer.xposed.core.devkit.Unobfuscator
+import com.wmods.wppenhacer.xposed.core.devkit.UnobfuscatorCache
+import com.wmods.wppenhacer.xposed.utils.DesignUtils
+import com.wmods.wppenhacer.xposed.utils.Utils
+import de.robv.android.xposed.XC_MethodHook
+import de.robv.android.xposed.XSharedPreferences
+import de.robv.android.xposed.XposedBridge
+import de.robv.android.xposed.XposedHelpers
+import java.lang.reflect.Method
 
-import androidx.annotation.NonNull;
+class FilterGroups(
+    loader: ClassLoader,
+    preferences: XSharedPreferences
+) : Feature(loader, preferences) {
 
-import com.wmods.wppenhacer.xposed.core.Feature;
-import com.wmods.wppenhacer.xposed.core.FeatureLoader;
-import com.wmods.wppenhacer.xposed.core.devkit.Unobfuscator;
-import com.wmods.wppenhacer.xposed.core.devkit.UnobfuscatorCache;
-import com.wmods.wppenhacer.xposed.utils.DesignUtils;
-import com.wmods.wppenhacer.xposed.utils.ReflectionUtils;
-import com.wmods.wppenhacer.xposed.utils.Utils;
+    @Volatile
+    private var currentTab: Int = CHATS_TAB_POSITION
 
-import java.lang.reflect.Method;
-import java.util.List;
+    @Volatile
+    private var conversationFragment: Any? = null
 
-import de.robv.android.xposed.XC_MethodHook;
-import de.robv.android.xposed.XSharedPreferences;
-import de.robv.android.xposed.XposedBridge;
-import de.robv.android.xposed.XposedHelpers;
+    private var methodOnConversationsListChanged: Method? = null
 
-public class FilterGroups extends Feature {
-    private Method methodSetFilter;
-    private Object mFilterInstance;
-    private TextView tabConversas;
-    private TextView tabGrupos;
+    private var tabConversas: TextView? = null
+    private var tabGrupos: TextView? = null
 
-    public FilterGroups(@NonNull ClassLoader loader, @NonNull XSharedPreferences preferences) {
-        super(loader, preferences);
+    @Throws(Throwable::class)
+    override fun doHook() {
+        if (!prefs.getBoolean(
+                "filtergroups",
+                false
+            ) || prefs.getBoolean("separategroups", false)
+        ) {
+            return
+        }
+
+        try {
+            methodOnConversationsListChanged =
+                Unobfuscator.loadOnConversationsListChangedMethod(classLoader)
+        } catch (throwable: Throwable) {
+            logDebug(throwable)
+        }
+
+        val methodTabInstance = Unobfuscator.loadTabFragmentMethod(classLoader)
+        XposedBridge.hookMethod(
+            methodTabInstance,
+            object : XC_MethodHook() {
+                override fun afterHookedMethod(param: MethodHookParam) {
+                    conversationFragment = param.thisObject
+                    param.result = filterList(param.result as? List<*>)
+                }
+            }
+        )
+
+        val publishResultsMethod = Unobfuscator.loadGetFiltersMethod(classLoader)
+        XposedBridge.hookMethod(
+            publishResultsMethod,
+            object : XC_MethodHook() {
+                override fun beforeHookedMethod(param: MethodHookParam) {
+                    val filters = param.args[1]
+                    val chatsList = XposedHelpers.getObjectField(filters, "values") as? List<*>
+                    val resultList = filterList(chatsList)
+
+                    XposedHelpers.setObjectField(filters, "values", resultList)
+                    XposedHelpers.setIntField(filters, "count", resultList.size)
+                }
+            }
+        )
+
+        val filterView = Unobfuscator.getFilterView(classLoader)
+        XposedHelpers.findAndHookConstructor(
+            filterView,
+            Context::class.java,
+            object : XC_MethodHook() {
+                @Throws(Throwable::class)
+                override fun afterHookedMethod(param: MethodHookParam) {
+                    setSetupSeparate(param.thisObject as ViewGroup)
+                }
+            }
+        )
     }
 
-    @Override
-    public void doHook() throws Throwable {
+    private fun filterList(chatsList: List<*>?): List<*> {
+        if (chatsList == null) return emptyList<Any>()
 
-        if (!prefs.getBoolean("filtergroups", false) || prefs.getBoolean("separategroups", false))
-            return;
-        if (Utils.getApplication().getPackageName().equals(FeatureLoader.PACKAGE_BUSINESS))
-            return; // Business is not supported
+        val groupsTab = currentTab == GROUPS_TAB_POSITION
 
-        var filterAdaperClass = Unobfuscator.loadFilterAdaperClass(classLoader);
-        methodSetFilter = ReflectionUtils.findMethodUsingFilter(filterAdaperClass, m -> m.getParameterCount() == 1 && m.getParameterTypes()[0].equals(int.class));
+        val filtered = SeparateGroup.ArrayListFilter(
+            { userJid ->
+                if (groupsTab) {
+                    userJid.isGroup || userJid.isBroadcast
+                } else {
+                    !userJid.isGroup && !userJid.isBroadcast
+                }
+            },
+            !groupsTab
+        )
 
-        XposedBridge.hookAllConstructors(filterAdaperClass, new XC_MethodHook() {
-            @Override
-            protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-                mFilterInstance = param.thisObject;
-            }
-        });
+        filtered.addAllFromList(chatsList)
+        return filtered
+    }
 
-        var filterView = Unobfuscator.getFilterView(classLoader);
+    private fun refreshFragment() {
+        val fragment = conversationFragment
+        val method = methodOnConversationsListChanged
 
-        XposedHelpers.findAndHookConstructor(filterView, android.content.Context.class, new XC_MethodHook() {
-            @Override
-            protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-                setSetupSeparate((ViewGroup) param.thisObject);
-            }
-        });
+        if (fragment == null || method == null) return
 
+        try {
+            method.invoke(fragment)
+        } catch (throwable: Throwable) {
+            logDebug(throwable)
+        }
     }
 
     @SuppressLint("ResourceType")
-    private void setSetupSeparate(ViewGroup view) {
-        var context = view.getContext();
-        if (view.findViewById(0x1235555) != null) return;
-        var container = new LinearLayout(context);
-        container.setOrientation(LinearLayout.VERTICAL);
-        container.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
-        container.setId(0x1235555);
-        var filter = view.getChildAt(0);
-        view.removeView(filter);
+    private fun setSetupSeparate(view: ViewGroup) {
+        val context = view.context
 
-        // Criação do LinearLayout principal (container)
-        LinearLayout mainLayout = new LinearLayout(context);
-        mainLayout.setOrientation(LinearLayout.VERTICAL);
-        var params = new LinearLayout.LayoutParams(
+        if (view.findViewWithTag<View>(FILTER_CONTAINER_TAG) != null) return
+
+        val container = LinearLayout(context).apply {
+            orientation = LinearLayout.VERTICAL
+            layoutParams = ViewGroup.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT,
-                Utils.dipToPixels(48));
-        params.leftMargin = Utils.dipToPixels(20);
-        params.rightMargin = Utils.dipToPixels(20);
-        params.bottomMargin = Utils.dipToPixels(5);
-        mainLayout.setLayoutParams(params);
-
-        GradientDrawable borderDrawable = new GradientDrawable();
-        borderDrawable.setColor(Color.TRANSPARENT); // Cor do fundo da borda
-        borderDrawable.setStroke(Utils.dipToPixels(2), DesignUtils.getUnSeenColor()); // Defina a cor e a largura da borda
-        borderDrawable.setCornerRadius(Utils.dipToPixels(50.0f));
-        mainLayout.setBackground(borderDrawable);
-
-        // Criação do Layout de Abas
-        LinearLayout tabLayout = new LinearLayout(context);
-        tabLayout.setOrientation(LinearLayout.HORIZONTAL);
-        mainLayout.addView(tabLayout, new LinearLayout.LayoutParams(
-                ViewGroup.LayoutParams.MATCH_PARENT,
-                ViewGroup.LayoutParams.MATCH_PARENT));
-
-        // Criação das TextViews para abas
-        tabConversas = createTab(context, UnobfuscatorCache.getInstance().getString("chats"), 0);
-        tabConversas.setLayoutParams(new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.MATCH_PARENT, 1));
-        tabConversas.setOnClickListener(v -> updateContent(0));
-
-        tabGrupos = createTab(context, UnobfuscatorCache.getInstance().getString("groups"), 1);
-        tabGrupos.setLayoutParams(new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.MATCH_PARENT, 1));
-        tabGrupos.setOnClickListener(v -> updateContent(1));
-
-        // Adicionar TextViews ao Layout de Abas
-        tabLayout.addView(tabConversas);
-        tabLayout.addView(tabGrupos);
-
-        // Inicialize com a primeira aba selecionada
-        updateContent(0);
-        new Handler(Looper.getMainLooper()).postDelayed(() -> setFilter(0), 500);
-
-        // Definir o layout principal como a visualização de conteúdo
-        container.addView(mainLayout);
-        container.addView(filter);
-        view.addView(container, 0);
-    }
-
-    private TextView createTab(Context context, String text, int left) {
-        TextView tab = new TextView(context);
-        tab.setText(text);
-        tab.setGravity(Gravity.CENTER);
-        tab.setPadding(32, 16, 32, 16);
-        tab.setTextColor(DesignUtils.getPrimaryTextColor());
-        setDrawableSelected(tab, Color.TRANSPARENT, DesignUtils.getPrimaryTextColor(), left);
-        return tab;
-    }
-
-    private void setDrawableSelected(View view, int colorBackground, int colorStroke, int left) {
-        // Definição dos cantos arredondados
-        float border = Utils.dipToPixels(50.0f);
-        float[] rects = left == 0 ? new float[]{border, border, 0, 0, 0, 0, border, border} : new float[]{0, 0, border, border, border, border, 0, 0};
-
-        // Criação da forma do fundo
-        ShapeDrawable shape = new ShapeDrawable(new RoundRectShape(rects, null, null));
-        shape.getPaint().setColor(colorBackground);
-        shape.setAlpha(120);
-
-        // Criação da borda
-        GradientDrawable borderDrawable = new GradientDrawable();
-        borderDrawable.setColor(Color.TRANSPARENT); // Cor do fundo da borda
-        borderDrawable.setStroke(Utils.dipToPixels(2), colorStroke); // Defina a cor e a largura da borda
-        borderDrawable.setCornerRadii(rects); // Definindo os cantos arredondados para a borda
-
-        // Combinando o fundo com a borda
-        LayerDrawable layerDrawable = new LayerDrawable(new Drawable[]{borderDrawable, shape});
-        layerDrawable.setLayerInset(1, Utils.dipToPixels(2), Utils.dipToPixels(2), Utils.dipToPixels(2), Utils.dipToPixels(2)); // Definindo a borda ao redor do fundo
-        view.setBackground(layerDrawable);
-    }
-
-    private void updateContent(int position) {
-        if (position == 0) {
-            setDrawableSelected(tabConversas, DesignUtils.getUnSeenColor(), DesignUtils.getPrimaryTextColor(), 0);
-            setDrawableSelected(tabGrupos, Color.TRANSPARENT, DesignUtils.getPrimaryTextColor(), 1);
-            setFilter(position);
-        } else {
-            setDrawableSelected(tabConversas, Color.TRANSPARENT, DesignUtils.getPrimaryTextColor(), 0);
-            setDrawableSelected(tabGrupos, DesignUtils.getUnSeenColor(), DesignUtils.getPrimaryTextColor(), 1);
-            setFilter(position);
+                ViewGroup.LayoutParams.WRAP_CONTENT
+            )
+            tag = FILTER_CONTAINER_TAG
         }
-    }
 
-    private void setFilter(int position) {
-        try {
-            if (mFilterInstance == null) return;
-            var listField = ReflectionUtils.getFieldByExtendType(mFilterInstance.getClass(), List.class);
-            var list = (List) ReflectionUtils.getObjectField(listField, mFilterInstance);
-            if (list == null) return;
-            var name = position == 0 ? "CONTACTS_FILTER" : "GROUP_FILTER";
-            int index = -1;
-            for (var item : list) {
-                if (item == null) continue;
-                if (item.toString().contains(name)) {
-                    index = list.indexOf(item);
-                    break;
-                }
+        val filter = view.getChildAt(0)
+        view.removeView(filter)
+
+        val mainLayout = LinearLayout(context).apply {
+            orientation = LinearLayout.VERTICAL
+
+            layoutParams = LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                Utils.dipToPixels(TAB_HEIGHT_DP)
+            ).apply {
+                leftMargin = Utils.dipToPixels(HORIZONTAL_MARGIN_DP)
+                rightMargin = Utils.dipToPixels(HORIZONTAL_MARGIN_DP)
+                bottomMargin = Utils.dipToPixels(BOTTOM_MARGIN_DP)
             }
-            if (index == -1) return;
-            ReflectionUtils.callMethod(methodSetFilter, mFilterInstance, index);
-        } catch (Exception e) {
-            logDebug(e);
+
+            background = GradientDrawable().apply {
+                setColor(Color.TRANSPARENT)
+                setStroke(Utils.dipToPixels(BORDER_WIDTH_DP), DesignUtils.getUnSeenColor())
+                cornerRadius = getPillRadiusPx()
+            }
+        }
+
+        val tabLayout = LinearLayout(context).apply {
+            orientation = LinearLayout.HORIZONTAL
+        }
+
+        mainLayout.addView(
+            tabLayout,
+            LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.MATCH_PARENT
+            )
+        )
+
+        val chatsLabel = UnobfuscatorCache.getInstance().getString("Chats")
+
+        tabConversas = createTab(
+            context = context,
+            text = chatsLabel.ifEmpty { "Chats" },
+            position = CHATS_TAB_POSITION
+        ).apply {
+            layoutParams = LinearLayout.LayoutParams(
+                0,
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                TAB_WEIGHT
+            )
+            setOnClickListener { updateContent(CHATS_TAB_POSITION, true) }
+        }
+
+        tabGrupos = createTab(
+            context = context,
+            text = UnobfuscatorCache.getInstance().getString("groups"),
+            position = GROUPS_TAB_POSITION
+        ).apply {
+            layoutParams = LinearLayout.LayoutParams(
+                0,
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                TAB_WEIGHT
+            )
+            setOnClickListener { updateContent(GROUPS_TAB_POSITION, true) }
+        }
+
+        tabLayout.addView(tabConversas)
+        tabLayout.addView(tabGrupos)
+
+        container.addView(mainLayout)
+        container.addView(filter)
+        view.addView(container, 0)
+
+        updateContent(CHATS_TAB_POSITION, false)
+    }
+
+    private fun createTab(
+        context: Context,
+        text: String,
+        position: Int
+    ): TextView {
+        return TextView(context).apply {
+            setText(text)
+            gravity = Gravity.CENTER
+            setPadding(
+                TAB_PADDING_HORIZONTAL_PX,
+                TAB_PADDING_VERTICAL_PX,
+                TAB_PADDING_HORIZONTAL_PX,
+                TAB_PADDING_VERTICAL_PX
+            )
+            setTextColor(DesignUtils.getPrimaryTextColor())
+
+            setDrawableSelected(
+                view = this,
+                colorBackground = Color.TRANSPARENT,
+                colorStroke = DesignUtils.getPrimaryTextColor(),
+                position = position
+            )
         }
     }
-    
-    @NonNull
-    @Override
-    public String getPluginName() {
-        return "Filter Groups";
+
+    private fun setDrawableSelected(
+        view: View,
+        colorBackground: Int,
+        colorStroke: Int,
+        position: Int
+    ) {
+        val radius = getPillRadiusPx()
+        val cornerRadii = getTabCornerRadii(radius, position)
+
+        val selectedBackground = ShapeDrawable(
+            RoundRectShape(cornerRadii, null, null)
+        ).apply {
+            paint.color = colorBackground
+            alpha = SELECTED_BACKGROUND_ALPHA
+        }
+
+        val borderDrawable = GradientDrawable().apply {
+            setColor(Color.TRANSPARENT)
+            setStroke(Utils.dipToPixels(BORDER_WIDTH_DP), colorStroke)
+            this.cornerRadii = cornerRadii
+        }
+
+        val inset = Utils.dipToPixels(BORDER_WIDTH_DP)
+
+        view.background = LayerDrawable(
+            arrayOf(borderDrawable, selectedBackground)
+        ).apply {
+            setLayerInset(1, inset, inset, inset, inset)
+        }
+    }
+
+    private fun getTabCornerRadii(radius: Float, position: Int): FloatArray {
+        return if (position == CHATS_TAB_POSITION) {
+            floatArrayOf(
+                radius, radius, // top-left
+                0f, 0f,         // top-right
+                0f, 0f,         // bottom-right
+                radius, radius  // bottom-left
+            )
+        } else {
+            floatArrayOf(
+                0f, 0f,         // top-left
+                radius, radius, // top-right
+                radius, radius, // bottom-right
+                0f, 0f          // bottom-left
+            )
+        }
+    }
+
+    private fun getPillRadiusPx(): Float {
+        return Utils.dipToPixels(TAB_HEIGHT_DP / 2f).toFloat()
+    }
+
+    private fun updateContent(position: Int, refreshFragment: Boolean) {
+        currentTab = position
+
+        val chatsTab = tabConversas ?: return
+        val groupsTab = tabGrupos ?: return
+
+        val primaryTextColor = DesignUtils.getPrimaryTextColor()
+        val selectedColor = DesignUtils.getUnSeenColor()
+
+        if (position == CHATS_TAB_POSITION) {
+            setDrawableSelected(
+                view = chatsTab,
+                colorBackground = selectedColor,
+                colorStroke = primaryTextColor,
+                position = CHATS_TAB_POSITION
+            )
+
+            setDrawableSelected(
+                view = groupsTab,
+                colorBackground = Color.TRANSPARENT,
+                colorStroke = primaryTextColor,
+                position = GROUPS_TAB_POSITION
+            )
+        } else {
+            setDrawableSelected(
+                view = chatsTab,
+                colorBackground = Color.TRANSPARENT,
+                colorStroke = primaryTextColor,
+                position = CHATS_TAB_POSITION
+            )
+
+            setDrawableSelected(
+                view = groupsTab,
+                colorBackground = selectedColor,
+                colorStroke = primaryTextColor,
+                position = GROUPS_TAB_POSITION
+            )
+        }
+
+        if (refreshFragment) {
+            refreshFragment()
+        }
+    }
+
+    override fun getPluginName(): String = "Filter Groups"
+
+    private companion object {
+        private const val FILTER_CONTAINER_TAG = "wae_filters"
+
+        private const val CHATS_TAB_POSITION = 0
+        private const val GROUPS_TAB_POSITION = 1
+
+        private const val TAB_HEIGHT_DP = 48f
+        private const val HORIZONTAL_MARGIN_DP = 20f
+        private const val BOTTOM_MARGIN_DP = 5f
+        private const val BORDER_WIDTH_DP = 2f
+
+        private const val TAB_WEIGHT = 1.0f
+        private const val TAB_PADDING_HORIZONTAL_PX = 32
+        private const val TAB_PADDING_VERTICAL_PX = 16
+
+        private const val SELECTED_BACKGROUND_ALPHA = 120
     }
 }

@@ -2959,4 +2959,13 @@ public class Unobfuscator {
     public static Method loadSeenReceiptForStatus(@NotNull ClassLoader classLoader) throws Exception {
         return UnobfuscatorCache.getInstance().getMethod(classLoader, ()-> findFirstMethodUsingStrings(classLoader,StringMatchType.Contains,"StatusReceiptStore/insertOrUpdateSeenReceiptForStatus"));
     }
+
+    public static @Nullable Method loadOnConversationsListChangedMethod(@NonNull ClassLoader classLoader) throws Exception {
+        return UnobfuscatorCache.getInstance().getMethod(classLoader,()-> findFirstMethodUsingStringsFilter(
+                classLoader,
+                "com.whatsapp.conversationslist",
+                StringMatchType.Contains,
+                "onConversationsListChanged"
+        ));
+    }
 }

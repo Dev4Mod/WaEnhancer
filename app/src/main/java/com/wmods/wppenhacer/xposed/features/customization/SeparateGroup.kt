@@ -5,6 +5,8 @@ import android.os.Bundle
 import android.view.MenuItem
 import android.widget.BaseAdapter
 import com.wmods.wppenhacer.xposed.core.Feature
+import com.wmods.wppenhacer.xposed.core.components.FMessageWpp
+import com.wmods.wppenhacer.xposed.core.components.WaContactWpp
 import com.wmods.wppenhacer.xposed.core.db.MessageStore
 import com.wmods.wppenhacer.xposed.core.devkit.Unobfuscator
 import com.wmods.wppenhacer.xposed.core.devkit.UnobfuscatorCache
@@ -22,6 +24,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.luckypray.dexkit.query.enums.StringMatchType
+import java.util.function.Predicate
 import java.util.regex.Pattern
 
 class SeparateGroup(loader: ClassLoader, preferences: XSharedPreferences) :
@@ -35,6 +38,48 @@ class SeparateGroup(loader: ClassLoader, preferences: XSharedPreferences) :
         @JvmField
         var tabs = ArrayList<Int>()
         var tabInstances = HashMap<Int, Any>()
+
+        fun resolveUserJid(chat: Any): FMessageWpp.UserJid? {
+            try {
+                val clazz = chat.javaClass
+                val waContactField = ReflectionUtils.getFieldByExtendType(clazz, WaContactWpp.TYPE)
+                if (waContactField != null) {
+                    val waContactObj = waContactField.get(chat)
+                    if (waContactObj != null) {
+                        val waContact = WaContactWpp(waContactObj)
+                        val userJid = waContact.userJid
+                        if (!userJid.isNull) {
+                            return userJid
+                        }
+                    }
+                }
+                val userJidField =
+                    ReflectionUtils.getFieldByExtendType(clazz, FMessageWpp.UserJid.TYPE_JID)
+                if (userJidField != null) {
+                    val jidObject = userJidField.get(chat)
+                    val userJid = FMessageWpp.UserJid(jidObject)
+                    if (!userJid.isNull) {
+                        return userJid
+                    }
+                }
+
+                var jid = getObjectField(chat, "A00")
+                if (jid == null) {
+                    jid = getObjectField(chat, "A01")
+                }
+                if (jid != null) {
+                    val userJid = FMessageWpp.UserJid(jid)
+                    if (!userJid.isNull) {
+                        return userJid
+                    }
+                }
+
+                return null
+            } catch (_: Throwable) {
+                return null
+            }
+        }
+
     }
 
     override fun doHook() {
@@ -314,7 +359,15 @@ class SeparateGroup(loader: ClassLoader, preferences: XSharedPreferences) :
             return chatsList
         }
 
-        val editableChatList = ArrayListFilter(tabGroup == thiz)
+        val editableChatList = ArrayListFilter(
+            { userJid ->
+                if (tabGroup == thiz)
+                    userJid.isGroup || userJid.isBroadcast
+                else
+                    userJid.isContact
+            },
+            false
+        )
         @Suppress("UNCHECKED_CAST")
         editableChatList.addAll(chatsList as Collection<Any>)
         return editableChatList
@@ -336,16 +389,29 @@ class SeparateGroup(loader: ClassLoader, preferences: XSharedPreferences) :
         })
     }
 
-    class ArrayListFilter(private val isGroup: Boolean) : ArrayList<Any>() {
+
+    class ArrayListFilter(
+        private val filter: Predicate<FMessageWpp.UserJid>,
+        private val includeWhenUnresolved: Boolean,
+    ) : ArrayList<Any>() {
+
+
+        fun addAllFromList(elements: List<*>) {
+            for (chat in elements) {
+                if (chat != null && shouldInclude(chat)) {
+                    super.add(chat)
+                }
+            }
+        }
 
         override fun add(index: Int, element: Any) {
-            if (checkGroup(element)) {
+            if (shouldInclude(element)) {
                 super.add(index, element)
             }
         }
 
         override fun add(element: Any): Boolean {
-            if (checkGroup(element)) {
+            if (shouldInclude(element)) {
                 return super.add(element)
             }
             return true
@@ -353,29 +419,16 @@ class SeparateGroup(loader: ClassLoader, preferences: XSharedPreferences) :
 
         override fun addAll(elements: Collection<Any>): Boolean {
             for (chat in elements) {
-                if (checkGroup(chat)) {
+                if (shouldInclude(chat)) {
                     super.add(chat)
                 }
             }
             return true
         }
 
-        private fun checkGroup(chat: Any?): Boolean {
-            if (chat == null) return true
-
-            var jid = getObjectField(chat, "A00")
-            if (jid == null) jid = getObjectField(chat, "A01")
-            if (jid == null) return true
-
-            if (XposedHelpers.findMethodExactIfExists(jid.javaClass, "getServer") != null) {
-                val server = callMethod(jid, "getServer") as? String ?: return true
-                return if (isGroup) {
-                    server == "broadcast" || server == "g.us"
-                } else {
-                    server == "s.whatsapp.net" || server == "lid"
-                }
-            }
-            return true
+        private fun shouldInclude(chat: Any): Boolean {
+            val userJid = resolveUserJid(chat) ?: return includeWhenUnresolved
+            return filter.test(userJid)
         }
     }
 }
