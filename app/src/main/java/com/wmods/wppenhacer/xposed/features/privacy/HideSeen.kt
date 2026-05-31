@@ -8,6 +8,7 @@ import com.wmods.wppenhacer.xposed.core.components.FMessageWpp
 import com.wmods.wppenhacer.xposed.core.components.ProtocolTreeNodeWpp
 import com.wmods.wppenhacer.xposed.core.db.MessageHistoryStore
 import com.wmods.wppenhacer.xposed.core.devkit.Unobfuscator
+import com.wmods.wppenhacer.xposed.features.general.Others
 import de.robv.android.xposed.XC_MethodHook
 import de.robv.android.xposed.XSharedPreferences
 import de.robv.android.xposed.XposedBridge
@@ -167,6 +168,8 @@ class HideSeen(loader: ClassLoader, preferences: XSharedPreferences) :
         }
         receiptCallerMethods.forEach { XposedBridge.hookMethod(it, hookCallerMethod) }
 
+        Others.propsBoolean[19148] = true
+
         XposedBridge.hookMethod(receiptMethod, object : XC_MethodHook() {
 
             override fun afterHookedMethod(param: MethodHookParam) {
@@ -195,8 +198,6 @@ class HideSeen(loader: ClassLoader, preferences: XSharedPreferences) :
                 val hideSeen = checkPrivacyAndHideSeen(fmessageKey)
                 val hideReceipt = checkPrivacyAndHideReceipt(fmessageKey)
 
-                var isHide = false
-
                 if (hideReceipt) {
                     if (typeKV == null) {
                         protocolTreeNodeWpp.addKeyValue("type", "inactive")
@@ -204,16 +205,14 @@ class HideSeen(loader: ClassLoader, preferences: XSharedPreferences) :
                         typeKV.value = "inactive"
                     }
                     protocolTreeNodeWpp.removeAllKeyValuesByKey("sts")
-                    isHide = true
                 } else if (hideSeen && typeKV?.value == "read") {
                     protocolTreeNodeWpp.removeAllKeyValuesByKey("sts")
                     protocolTreeNodeWpp.removeAllKeyValuesByKey("type")
-                    isHide = true
                 }
 
                 if (inManualReceiptCheck.get() ?: false)return
 
-                if (isHide) {
+                if (hideReceipt || hideSeen) {
                     MessageHistoryStore.getInstance().insertHideSeenMessage(
                         fmessageKey.remoteJid.phoneRawString,
                         fmessageKey.messageID,
