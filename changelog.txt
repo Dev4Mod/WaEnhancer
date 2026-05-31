@@ -1,10 +1,13 @@
 [ADDED]
-* Added new call blocking type: Busy (On another call).
+* Added support for WA/WB 2.26.20.xx and 2.26.21.xx
+* Added ad blocker for Status/Stories
 
-[REMOVED]
-* Removed the "Rejected" type call blocking, it was not working.
+[IMPROVED]
+* New group filter UI now works again (it had been without work)
 
 [FIXED]
-* Fixed the Settings icon with profile photo on the home screen (now the camera button also appears)
-* Fixed problem with call blocker for unknown numbers
-* Fixed the logic to hide the ticks
+* Fixed bug in the message counter when using the group separator
+* Fixed bug in Wallpaper that left the top bar transparent when selecting messages or chats
+* Fixed bug when showing your status toast to someone view
+
+NOTE: Now let's wait for WAEX to copy the commits 😆
