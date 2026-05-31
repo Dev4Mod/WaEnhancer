@@ -85,38 +85,40 @@ class SeparateGroup(loader: ClassLoader, preferences: XSharedPreferences) :
             @SuppressLint("Range", "Recycle")
             override fun beforeHookedMethod(param: MethodHookParam) {
                 val indexTab = param.args[2] as Int
-                if (indexTab == tabs.indexOf(CHATS)) {
-                    param.result = null
+                if (indexTab != tabs.indexOf(CHATS)) return
 
-                    CoroutineScope(Dispatchers.IO).launch {
-                        var chatCount = 0
-                        var groupCount = 0
-                        val db = MessageStore.getInstance().getDatabase()
-                        val sql = "SELECT * FROM chat WHERE unseen_message_count != 0"
-                        db?.rawQuery(sql, null)?.use { cursor ->
-                            while (cursor.moveToNext()) {
-                                val jid = cursor.getInt(cursor.getColumnIndex("jid_row_id"))
-                                val groupType = cursor.getInt(cursor.getColumnIndex("group_type"))
-                                val archived = cursor.getInt(cursor.getColumnIndex("archived"))
-                                val chatLocked = cursor.getInt(cursor.getColumnIndex("chat_lock"))
-                                if (archived != 0 || (groupType != 0 && groupType != 6) || chatLocked != 0) {
-                                    continue
-                                }
-                                val sql2 = "SELECT * FROM jid WHERE _id == ?"
-                                db.rawQuery(sql2, arrayOf(jid.toString())).use { cursor1 ->
-                                    if (!cursor1.moveToFirst()) continue
-                                    val server = cursor1.getString(cursor1.getColumnIndex("server"))
-                                    if (server == "g.us") {
-                                        groupCount++
-                                    } else {
-                                        chatCount++
-                                    }
+                param.result = null
+
+                CoroutineScope(Dispatchers.IO).launch {
+                    var chatCount = 0
+                    var groupCount = 0
+                    val db = MessageStore.getInstance().getDatabase()
+                    val sql = "SELECT * FROM chat WHERE unseen_message_count != 0"
+                    db?.rawQuery(sql, null)?.use { cursor ->
+                        while (cursor.moveToNext()) {
+                            val jid = cursor.getInt(cursor.getColumnIndex("jid_row_id"))
+                            val groupType = cursor.getInt(cursor.getColumnIndex("group_type"))
+                            val archived = cursor.getInt(cursor.getColumnIndex("archived"))
+                            val chatLocked = cursor.getInt(cursor.getColumnIndex("chat_lock"))
+                            if (archived != 0 || (groupType != 0 && groupType != 6) || chatLocked != 0) {
+                                continue
+                            }
+                            val sql2 = "SELECT * FROM jid WHERE _id == ?"
+                            db.rawQuery(sql2, arrayOf(jid.toString())).use { cursor1 ->
+                                if (!cursor1.moveToFirst()) continue
+                                val server = cursor1.getString(cursor1.getColumnIndex("server"))
+                                if (server == "g.us") {
+                                    groupCount++
+                                } else {
+                                    chatCount++
                                 }
                             }
-
                         }
+
+                    }
+                    withContext(Dispatchers.Main) {
                         if (tabs.contains(CHATS) && tabInstances.containsKey(CHATS)) {
-                            param.args[1] = if (chatCount <= 0) {
+                            val chatsBadge = if (chatCount <= 0) {
                                 XposedHelpers.getStaticObjectField(emptyBadgeClass, "A00")
                             } else {
                                 badgeWrapperConstructor.newInstance(
@@ -125,6 +127,11 @@ class SeparateGroup(loader: ClassLoader, preferences: XSharedPreferences) :
                                     )
                                 )
                             }
+                            XposedBridge.invokeOriginalMethod(
+                                param.method,
+                                param.thisObject,
+                                arrayOf(param.args[0], chatsBadge, tabs.indexOf(CHATS))
+                            )
                         }
                         if (tabs.contains(GROUPS) && tabInstances.containsKey(GROUPS)) {
                             val chatsBadge = if (groupCount <= 0) {
@@ -136,13 +143,11 @@ class SeparateGroup(loader: ClassLoader, preferences: XSharedPreferences) :
                                     )
                                 )
                             }
-                            withContext(Dispatchers.Main) {
-                                XposedBridge.invokeOriginalMethod(
-                                    param.method,
-                                    param.thisObject,
-                                    arrayOf(param.args[0], chatsBadge, tabs.indexOf(GROUPS))
-                                )
-                            }
+                            XposedBridge.invokeOriginalMethod(
+                                param.method,
+                                param.thisObject,
+                                arrayOf(param.args[0], chatsBadge, tabs.indexOf(GROUPS))
+                            )
                         }
                     }
                 }
