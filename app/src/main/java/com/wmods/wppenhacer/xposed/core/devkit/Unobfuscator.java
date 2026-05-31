@@ -2550,14 +2550,9 @@ public class Unobfuscator {
 
     public synchronized static Method loadAdVerifyMethod(ClassLoader classLoader) throws Exception {
         return UnobfuscatorCache.getInstance().getMethod(classLoader, () -> {
-            var clazz = findFirstClassUsingStrings(classLoader, StringMatchType.Contains, "WamoAccountSettingManager");
-            if (clazz == null)
-                throw new ClassNotFoundException("WamoAccountSettingManager Not Found");
-            var method = ReflectionUtils.findMethodUsingFilter(clazz,
-                    method1 -> method1.getParameterCount() == 0 && method1.getReturnType() == boolean.class);
-            if (method == null)
-                throw new NoSuchMethodException("loadAdVerify Not Found");
-            return method;
+            var method = dexkit.findMethod(FindMethod.create().matcher(MethodMatcher.create().usingStrings("is_wfal_paused").paramCount(1))).singleOrNull();
+            if (method == null)throw new NoSuchMethodException("loadAdVerify Not Found");
+            return method.getMethodInstance(classLoader);
         });
     }
 
