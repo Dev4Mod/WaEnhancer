@@ -15,6 +15,7 @@ import android.content.res.AssetManager;
 import android.content.res.ColorStateList;
 import android.content.res.Resources;
 import android.graphics.Paint;
+import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.Bundle;
@@ -175,30 +176,20 @@ public class CustomThemeV2 extends Feature {
                 if (ContextCompat.checkSelfPermission(activity,
                         Manifest.permission.READ_MEDIA_IMAGES) == PackageManager.PERMISSION_GRANTED
                         || ContextCompat.checkSelfPermission(activity,
-                                Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
+                        Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
                     injectWallpaper(activity.findViewById(Utils.getID("root_view", "id")));
                 }
             }
         });
 
-        // var revertWallAlpha = revertColors(wallAlpha);
-
-        // WppCore.addListenerActivity((activity, type) -> {
-        // var isHome = homeActivityClass.isInstance(activity);
-        // if (WppCore.ActivityChangeState.ChangeType.RESUMED == type && isHome) {
-        // mContent = activity.findViewById(android.R.id.content);
-        // if (mContent != null) {
-        // replaceColors(mContent, wallAlpha);
-        // }
-        // } else if (WppCore.ActivityChangeState.ChangeType.CREATED == type && !isHome
-        // &&
-        // !activity.getClass().getSimpleName().equals("QuickContactActivity") &&
-        // !DesignUtils.isNightMode()) {
-        // if (mContent != null) {
-        // replaceColors(mContent, revertWallAlpha);
-        // }
-        // }
-        // });
+        XposedHelpers.findAndHookMethod(View.class, "onAttachedToWindow", new XC_MethodHook() {
+            @Override
+            protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+                var view = (View)param.thisObject;
+                if (view.getId() == Utils.getID("action_mode_bar","id"))
+                    view.setBackground(new ColorDrawable(DesignUtils.getPrimarySurfaceColor()));
+            }
+        });
 
         var hookFragmentView = Unobfuscator.loadFragmentViewMethod(classLoader);
 
