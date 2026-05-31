@@ -2960,4 +2960,8 @@ public class Unobfuscator {
             return null;
         });
     }
+
+    public static Method loadSeenReceiptForStatus(@NotNull ClassLoader classLoader) throws Exception {
+        return UnobfuscatorCache.getInstance().getMethod(classLoader, ()-> findFirstMethodUsingStrings(classLoader,StringMatchType.Contains,"StatusReceiptStore/insertOrUpdateSeenReceiptForStatus"));
+    }
 }

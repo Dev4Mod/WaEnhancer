@@ -10,6 +10,8 @@ import com.wmods.wppenhacer.R;
 import com.wmods.wppenhacer.xposed.core.Feature;
 import com.wmods.wppenhacer.xposed.core.WppCore;
 import com.wmods.wppenhacer.xposed.core.components.FMessageWpp;
+import com.wmods.wppenhacer.xposed.core.components.FStatusWpp;
+import com.wmods.wppenhacer.xposed.core.components.WaContactWpp;
 import com.wmods.wppenhacer.xposed.core.db.MessageStore;
 import com.wmods.wppenhacer.xposed.core.devkit.Unobfuscator;
 import com.wmods.wppenhacer.xposed.features.general.Tasker;
@@ -56,6 +58,24 @@ public class ToastViewer extends Feature {
             @Override
             protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
                 processNewWA(param, toastViewedMessage, toastViewedStatus);
+            }
+        });
+        var onSeenReceiptForStatus = Unobfuscator.loadSeenReceiptForStatus(classLoader);
+        XposedBridge.hookMethod(onSeenReceiptForStatus, new XC_MethodHook() {
+            @Override
+            protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
+                var receiptType = (int)param.args[1];
+                if (receiptType != 13)return;
+                var fStatusField = ReflectionUtils.findFieldUsingFilter(param.thisObject.getClass(), f -> FStatusWpp.TYPE.isAssignableFrom(f.getType()));
+                var fStatus = new FStatusWpp(fStatusField.get(param.thisObject));
+                if (!fStatus.getFStatusKey().isFromMe)return;
+                var userjid = new FMessageWpp.UserJid(param.args[0]);
+                var waContactWpp = WaContactWpp.getWaContactFromJid(userjid);
+                var contactName = waContactWpp.getDisplayName();
+                if (toastViewedStatus) {
+                    Utils.showToast(Utils.getApplication().getString(R.string.viewed_your_status, contactName), Toast.LENGTH_LONG);
+                }
+                Tasker.sendTaskerEvent(contactName,userjid.getPhoneNumber(), "viewed_status");
             }
         });
     }
