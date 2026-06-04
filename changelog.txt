@@ -1,13 +1,8 @@
 [ADDED]
-* Added support for WA/WB 2.26.20.xx and 2.26.21.xx
-* Added ad blocker for Status/Stories
-
-[IMPROVED]
-* New group filter UI now works again (it had been without work)
+* Added support for placing text on the clock in any position using [TIME] (WAE -> General -> General -> Text next to Timestamp)
+Ex: 🕧 [TIME]
 
 [FIXED]
-* Fixed bug in the message counter when using the group separator
-* Fixed bug in Wallpaper that left the top bar transparent when selecting messages or chats
-* Fixed bug when showing your status toast to someone view
+* Fixed compatibility with WA 2.26.21.75
 
 NOTE: Now let's wait for WAEX to copy the commits 😆
