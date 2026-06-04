@@ -30,7 +30,7 @@ public class TextStatusComposer extends Feature {
     public void doHook() throws Throwable {
         if (!prefs.getBoolean("statuscomposer", false)) return;
 
-        var clazz = WppCore.getTextStatusComposerFragmentClass(classLoader);
+        var clazz = WppCore.INSTANCE.getTextStatusComposerFragmentClass();
         var methodOnCreate = ReflectionUtils.findMethodUsingFilter(clazz, method -> method.getParameterCount() == 2 && method.getParameterTypes()[0] == Bundle.class && method.getParameterTypes()[1] == View.class);
         XposedBridge.hookMethod(methodOnCreate,
                 new XC_MethodHook() {

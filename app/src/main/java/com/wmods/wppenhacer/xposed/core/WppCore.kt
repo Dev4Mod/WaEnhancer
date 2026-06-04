@@ -27,20 +27,18 @@ import de.robv.android.xposed.XSharedPreferences
 import de.robv.android.xposed.XposedBridge
 import de.robv.android.xposed.XposedHelpers
 import org.json.JSONObject
+import org.luckypray.dexkit.query.enums.StringMatchType
 import java.io.File
 import java.lang.reflect.Field
 import java.lang.reflect.Method
-import java.util.Arrays
 import java.util.Collections
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.ConcurrentHashMap
 
 @SuppressLint("StaticFieldLeak")
 object WppCore {
-
-
     @JvmStatic
-    val listenerActivity = ConcurrentHashMap.newKeySet<ActivityChangeState>()
+    val listenerActivity: ConcurrentHashMap.KeySetView<ActivityChangeState?, Boolean?> = ConcurrentHashMap.newKeySet<ActivityChangeState>()
 
     @JvmField
     internal var mCurrentActivity: Activity? = null
@@ -70,7 +68,7 @@ object WppCore {
 
     @JvmStatic
     @Throws(Exception::class)
-    fun Initialize(loader: ClassLoader, pref: XSharedPreferences) {
+    fun initialize(loader: ClassLoader, pref: XSharedPreferences) {
         privPrefs = Utils.getApplication().getSharedPreferences("WaGlobal", Context.MODE_PRIVATE)
 
         // init UserJID
@@ -196,38 +194,23 @@ object WppCore {
         return userJid
     }
 
-    @JvmStatic
-    @Throws(Exception::class)
     fun initBridge(context: Context) {
         val prefsCacheHooks = UnobfuscatorCache.getInstance().sPrefsCacheHooks
-        var preferredOrder = prefsCacheHooks.getInt(
-            "preferredOrder",
-            1
-        ) // 0 for ProviderClient first, 1 for BridgeClient first
+        val preferredOrder = prefsCacheHooks.getInt("preferredOrder", 1)
 
-        var connected = false
-        if (preferredOrder == 0) {
-            if (tryConnectBridge(ProviderClientKt(context))) {
-                connected = true
-            } else if (tryConnectBridge(BridgeClientKt(context))) {
-                connected = true
-                preferredOrder = 1 // Update preference to BridgeClient first
-            }
-        } else {
-            if (tryConnectBridge(BridgeClientKt(context))) {
-                connected = true
-            } else if (tryConnectBridge(ProviderClientKt(context))) {
-                connected = true
-                preferredOrder = 0 // Update preference to ProviderClient first
-            }
+        val primaryClient =
+            if (preferredOrder == 0) ProviderClientKt(context) else BridgeClientKt(context)
+        val fallbackClient =
+            if (preferredOrder == 0) BridgeClientKt(context) else ProviderClientKt(context)
+
+        if (tryConnectBridge(primaryClient)) return
+
+        if (tryConnectBridge(fallbackClient)) {
+            val newPreferredOrder = if (preferredOrder == 0) 1 else 0
+            prefsCacheHooks.edit { putInt("preferredOrder", newPreferredOrder) }
+            return
         }
-
-        if (!connected) {
-            throw Exception(context.getString(R.string.bridge_error))
-        }
-
-        // Update the preferred order if it changed
-        prefsCacheHooks.edit { putInt("preferredOrder", preferredOrder) }
+        throw Exception(context.getString(R.string.bridge_error))
     }
 
     @JvmStatic
@@ -285,9 +268,12 @@ object WppCore {
     fun sendReaction(s: String, objMessage: Any?) {
         try {
             val senderMethod = ReflectionUtils.findMethodUsingFilter(actionUser) { method ->
-                method.parameterCount == 3 && Arrays.equals(
-                    method.parameterTypes,
-                    arrayOf(FMessageWpp.TYPE, String::class.java, Boolean::class.javaPrimitiveType)
+                method.parameterCount == 3 && method.parameterTypes.contentEquals(
+                    arrayOf(
+                        FMessageWpp.TYPE,
+                        String::class.java,
+                        Boolean::class.javaPrimitiveType
+                    )
                 )
             }
             senderMethod.invoke(getActionUser(), objMessage, s, !TextUtils.isEmpty(s))
@@ -328,92 +314,37 @@ object WppCore {
         return mCurrentActivity
     }
 
-    @JvmStatic
-    @Synchronized
-    fun getHomeActivityClass(loader: ClassLoader): Class<*> {
-        val oldHomeClass = XposedHelpers.findClassIfExists("com.whatsapp.HomeActivity", loader)
-        return oldHomeClass ?: XposedHelpers.findClass("com.whatsapp.home.ui.HomeActivity", loader)
+    val homeActivityClass: Class<*> by lazy {
+        Unobfuscator.findFirstClassUsingName(Utils.appClassLoader, StringMatchType.EndsWith,".HomeActivity")
     }
 
-    @JvmStatic
-    @Synchronized
-    fun getTabsPagerClass(loader: ClassLoader): Class<*> {
-        val oldHomeClass = XposedHelpers.findClassIfExists("com.whatsapp.TabsPager", loader)
-        return oldHomeClass ?: XposedHelpers.findClass("com.whatsapp.home.ui.TabsPager", loader)
+    val tabsPagerClass: Class<*> by lazy {
+        Unobfuscator.findFirstClassUsingName(Utils.appClassLoader, StringMatchType.EndsWith,".TabsPager")
     }
 
-    @JvmStatic
-    @Synchronized
-    fun getViewOnceViewerActivityClass(loader: ClassLoader): Class<*> {
-        val oldClass =
-            XposedHelpers.findClassIfExists("com.whatsapp.messaging.ViewOnceViewerActivity", loader)
-        return oldClass ?: XposedHelpers.findClass(
-            "com.whatsapp.viewonce.ui.messaging.ViewOnceViewerActivity",
-            loader
-        )
+    val viewOnceViewerActivityClass: Class<*> by lazy {
+        Unobfuscator.findFirstClassUsingName(Utils.appClassLoader, StringMatchType.EndsWith,".ViewOnceViewerActivity")
     }
 
-    @JvmStatic
-    @Synchronized
-    fun getAboutActivityClass(loader: ClassLoader): Class<*> {
-        val oldClass = XposedHelpers.findClassIfExists("com.whatsapp.settings.About", loader)
-        return oldClass ?: XposedHelpers.findClass("com.whatsapp.settings.ui.About", loader)
+    val aboutActivityClass: Class<*> by lazy {
+        Unobfuscator.findFirstClassUsingName(Utils.appClassLoader, StringMatchType.EndsWith,".About")
     }
 
-    @JvmStatic
-    @Synchronized
-    fun getDataUsageActivityClass(loader: ClassLoader): Class<*> {
-        val oldClass = XposedHelpers.findClassIfExists(
-            "com.whatsapp.settings.SettingsDataUsageActivity",
-            loader
-        )
-        return oldClass
-            ?: XposedHelpers.findClass("com.whatsapp.settings.ui.SettingsDataUsageActivity", loader)
+    val dataUsageActivityClass: Class<*> by lazy {
+        Unobfuscator.findFirstClassUsingName(Utils.appClassLoader, StringMatchType.EndsWith,".SettingsDataUsageActivity")
     }
 
-    @JvmStatic
-    @Synchronized
-    @Throws(Exception::class)
-    fun getTextStatusComposerFragmentClass(loader: ClassLoader): Class<*> {
-        val classes = arrayOf(
-            "com.whatsapp.status.composer.TextStatusComposerFragment",
-            "com.whatsapp.statuscomposer.composer.TextStatusComposerFragment"
-        )
-        for (clazz in classes) {
-            val result = XposedHelpers.findClassIfExists(clazz, loader)
-            if (result != null) return result
-        }
-        throw Exception("TextStatusComposerFragmentClass not found")
+
+    val textStatusComposerFragmentClass: Class<*> by lazy {
+        Unobfuscator.findFirstClassUsingName(Utils.appClassLoader, StringMatchType.EndsWith,".TextStatusComposerFragment")
     }
 
-    @JvmStatic
-    @Synchronized
-    @Throws(Exception::class)
-    fun getVoipManagerClass(loader: ClassLoader): Class<*> {
-        val classes = arrayOf(
-            "com.whatsapp.voipcalling.Voip",
-            "com.whatsapp.calling.voipcalling.Voip"
-        )
-        for (clazz in classes) {
-            val result = XposedHelpers.findClassIfExists(clazz, loader)
-            if (result != null) return result
-        }
-        throw Exception("VoipManagerClass not found")
+    val voipManagerClass: Class<*> by lazy {
+        Unobfuscator.findFirstClassUsingName(Utils.appClassLoader, StringMatchType.EndsWith,".Voip")
     }
 
-    @JvmStatic
-    @Synchronized
-    @Throws(Exception::class)
-    fun getVoipCallInfoClass(loader: ClassLoader): Class<*> {
-        val classes = arrayOf(
-            "com.whatsapp.voipcalling.CallInfo",
-            "com.whatsapp.calling.infra.voipcalling.CallInfo"
-        )
-        for (clazz in classes) {
-            val result = XposedHelpers.findClassIfExists(clazz, loader)
-            if (result != null) return result
-        }
-        throw Exception("VoipCallInfoClass not found")
+    val voipCallInfoClass: Class<*> by lazy {
+        Unobfuscator.findFirstClassUsingName(Utils.appClassLoader, StringMatchType.EndsWith,".CallInfo")
     }
 
     @JvmStatic
@@ -586,8 +517,7 @@ object WppCore {
                 XposedHelpers.findClass("com.whatsapp.Conversation", mCurrentActivity!!.classLoader)
             if (conversation.isInstance(mCurrentActivity)) return mCurrentActivity
 
-            val home = getHomeActivityClass(mCurrentActivity!!.classLoader)
-            if (mCurrentActivity!!.resources.configuration.smallestScreenWidthDp >= 600 && home.isInstance(
+            if (mCurrentActivity!!.resources.configuration.smallestScreenWidthDp >= 600 && homeActivityClass.isInstance(
                     mCurrentActivity
                 )
             ) {
@@ -623,7 +553,7 @@ object WppCore {
             ) {
                 return activityTitle.toString()
             }
-        } catch (t: Throwable) {
+        } catch (_: Throwable) {
         }
         return null
     }
@@ -648,7 +578,7 @@ object WppCore {
         val jsonStr = privPrefs.getString(key, null) ?: return defaultValue
         return try {
             JSONObject(jsonStr)
-        } catch (e: Exception) {
+        } catch (_: Exception) {
             defaultValue
         }
     }

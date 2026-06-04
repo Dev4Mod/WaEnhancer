@@ -58,6 +58,7 @@ public class Utils {
     private static final ExecutorService executorService = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
     public static XSharedPreferences xprefs;
     private static final HashMap<String, Integer> ids = new HashMap<>();
+    public static ClassLoader appClassLoader;
 
     public static void init(ClassLoader loader) {
         var context = Utils.getApplication();

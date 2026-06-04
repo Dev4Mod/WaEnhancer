@@ -90,10 +90,10 @@ public class HideTabs extends Feature {
             }
         });
 
-        XposedHelpers.findAndHookMethod(WppCore.getHomeActivityClass(classLoader), "onCreate", Bundle.class, new XC_MethodHook() {
+        XposedHelpers.findAndHookMethod(WppCore.INSTANCE.getHomeActivityClass(), "onCreate", Bundle.class, new XC_MethodHook() {
             @Override
             protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-                Class<?> TabsPagerClass = WppCore.getTabsPagerClass(classLoader);
+                Class<?> TabsPagerClass = WppCore.INSTANCE.getTabsPagerClass();
                 var tabsField = ReflectionUtils.getFieldByType(param.thisObject.getClass(), TabsPagerClass);
                 mTabPagerInstance = tabsField.get(param.thisObject);
             }

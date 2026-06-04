@@ -63,7 +63,7 @@ public class CustomToolbar extends Feature {
 
         var methodHook = new ToolbarMethodHook(showName, showBio, typeArchive);
         XposedHelpers.findAndHookMethod(
-                WppCore.getHomeActivityClass(classLoader),
+                WppCore.INSTANCE.getHomeActivityClass(),
                 "onCreate",
                 Bundle.class,
                 methodHook
@@ -104,7 +104,7 @@ public class CustomToolbar extends Feature {
 
     private void hookAboutActivity() throws Exception {
         XposedHelpers.findAndHookMethod(
-                WppCore.getAboutActivityClass(classLoader),
+                WppCore.INSTANCE.getAboutActivityClass(),
                 "onCreate",
                 classLoader.loadClass("android.os.Bundle"),
                 new XC_MethodHook() {
@@ -161,7 +161,7 @@ public class CustomToolbar extends Feature {
         }
 
         private Object getTabInstance(Activity homeActivity) throws Exception {
-            var clazz = WppCore.getTabsPagerClass(homeActivity.getClassLoader());
+            var clazz = WppCore.INSTANCE.getTabsPagerClass();
             var fieldTab = ReflectionUtils.getFieldByType(homeActivity.getClass(), clazz);
             return fieldTab.get(homeActivity);
         }

@@ -168,7 +168,7 @@ public class CustomThemeV2 extends Feature {
 
         loadAndApplyColorsWallpaper();
 
-        var homeActivityClass = WppCore.getHomeActivityClass(classLoader);
+        var homeActivityClass = WppCore.INSTANCE.getHomeActivityClass();
         XposedHelpers.findAndHookMethod(homeActivityClass, "onCreate", Bundle.class, new XC_MethodHook() {
             @Override
             protected void afterHookedMethod(MethodHookParam param) throws Throwable {
@@ -451,7 +451,7 @@ public class CustomThemeV2 extends Feature {
     }
 
     private boolean checkNotHomeActivity() {
-        var homeClass = WppCore.getHomeActivityClass(classLoader);
+        var homeClass = WppCore.INSTANCE.getHomeActivityClass();
         var currentActivity = WppCore.getCurrentActivity();
         return (currentActivity == null || !homeClass.isInstance(currentActivity));
     }

@@ -1,2971 +1,3431 @@
-package com.wmods.wppenhacer.xposed.core.devkit;
+package com.wmods.wppenhacer.xposed.core.devkit
 
-import android.content.ContentValues;
-import android.content.Context;
-import android.content.SharedPreferences;
-import android.graphics.Rect;
-import android.graphics.drawable.Drawable;
-import android.hardware.SensorEventListener;
-import android.net.Uri;
-import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuItem;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.FrameLayout;
+import android.content.ContentValues
+import android.content.Context
+import android.content.Intent
+import android.content.SharedPreferences
+import android.graphics.Rect
+import android.graphics.drawable.Drawable
+import android.hardware.SensorEventListener
+import android.net.Uri
+import android.os.Bundle
+import android.view.LayoutInflater
+import android.view.Menu
+import android.view.MenuItem
+import android.view.View
+import android.view.ViewGroup
+import android.widget.FrameLayout
+import com.wmods.wppenhacer.xposed.core.WppCore
+import com.wmods.wppenhacer.xposed.core.components.FMessageWpp
+import com.wmods.wppenhacer.xposed.utils.ReflectionUtils
+import com.wmods.wppenhacer.xposed.utils.Utils
+import de.robv.android.xposed.XposedBridge
+import de.robv.android.xposed.XposedHelpers
+import org.luckypray.dexkit.DexKitBridge
+import org.luckypray.dexkit.query.enums.StringMatchType
+import org.luckypray.dexkit.query.matchers.base.OpCodesMatcher
+import org.luckypray.dexkit.result.ClassData
+import org.luckypray.dexkit.result.MethodData
+import org.luckypray.dexkit.util.DexSignUtil
+import java.lang.reflect.Constructor
+import java.lang.reflect.Field
+import java.lang.reflect.Method
+import java.lang.reflect.Modifier
+import java.util.Arrays
+import java.util.Calendar
+import java.util.Collections
+import java.util.Date
+import java.util.Locale
+import java.util.Objects
+import java.util.Timer
+import java.util.TimerTask
+import java.util.stream.Collectors
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
+object Unobfuscator {
 
-import com.wmods.wppenhacer.xposed.core.WppCore;
-import com.wmods.wppenhacer.xposed.core.components.FMessageWpp;
-import com.wmods.wppenhacer.xposed.utils.ReflectionUtils;
-import com.wmods.wppenhacer.xposed.utils.Utils;
+    private lateinit var dexkit: DexKitBridge
 
-import org.jetbrains.annotations.NotNull;
-import org.luckypray.dexkit.DexKitBridge;
-import org.luckypray.dexkit.query.FindClass;
-import org.luckypray.dexkit.query.FindMethod;
-import org.luckypray.dexkit.query.enums.OpCodeMatchType;
-import org.luckypray.dexkit.query.enums.StringMatchType;
-import org.luckypray.dexkit.query.matchers.ClassMatcher;
-import org.luckypray.dexkit.query.matchers.MethodMatcher;
-import org.luckypray.dexkit.query.matchers.base.OpCodesMatcher;
-import org.luckypray.dexkit.result.ClassData;
-import org.luckypray.dexkit.result.ClassDataList;
-import org.luckypray.dexkit.result.MethodData;
-import org.luckypray.dexkit.result.MethodDataList;
-import org.luckypray.dexkit.result.UsingFieldData;
-import org.luckypray.dexkit.util.DexSignUtil;
+    val cacheClasses = HashMap<String, Class<*>>()
 
-import java.lang.reflect.Constructor;
-import java.lang.reflect.Field;
-import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Calendar;
-import java.util.Collections;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
-import java.util.Timer;
-import java.util.TimerTask;
-import java.util.stream.Collectors;
-
-import de.robv.android.xposed.XposedBridge;
-import de.robv.android.xposed.XposedHelpers;
-
-public class Unobfuscator {
-
-    private static final String TAG = "Unobfuscator";
-    private static DexKitBridge dexkit;
-
-    public static final HashMap<String, Class<?>> cacheClasses = new HashMap<>();
-
-    static {
-        System.loadLibrary("dexkit");
+    init {
+        System.loadLibrary("dexkit")
     }
 
-    public static boolean initWithPath(String path) {
-        try {
-            dexkit = DexKitBridge.create(path);
-        } catch (Exception e) {
-            return false;
-        }
-        return true;
-    }
-
-    // TODO: Functions to find classes and methods
-    public synchronized static Method findFirstMethodUsingStrings(ClassLoader classLoader, StringMatchType type,
-                                                                  String... strings) throws Exception {
-        MethodMatcher matcher = new MethodMatcher();
-        for (String string : strings) {
-            matcher.addUsingString(string, type);
-        }
-        MethodDataList result = dexkit.findMethod(FindMethod.create().matcher(matcher));
-        if (result.isEmpty())
-            return null;
-        for (MethodData methodData : result) {
-            if (methodData.isMethod())
-                return methodData.getMethodInstance(classLoader);
-        }
-        return null;
-    }
-
-    public synchronized static Method findFirstMethodUsingStringsFilter(ClassLoader classLoader, String packageFilter,
-                                                                        StringMatchType type, String... strings) throws Exception {
-        MethodMatcher matcher = new MethodMatcher();
-        for (String string : strings) {
-            matcher.addUsingString(string, type);
-        }
-        MethodDataList result = dexkit.findMethod(FindMethod.create().searchPackages(packageFilter).matcher(matcher));
-        if (result.isEmpty())
-            return null;
-
-        for (MethodData methodData : result) {
-            if (methodData.isMethod())
-                return methodData.getMethodInstance(classLoader);
-        }
-        throw new NoSuchMethodException();
-    }
-
-    public synchronized static Method[] findAllMethodUsingStrings(ClassLoader classLoader, StringMatchType type,
-                                                                  String... strings) {
-        MethodMatcher matcher = new MethodMatcher();
-        for (String string : strings) {
-            matcher.addUsingString(string, type);
-        }
-        MethodDataList result = dexkit.findMethod(FindMethod.create().matcher(matcher));
-        if (result.isEmpty())
-            return new Method[0];
-        return result.stream().filter(MethodData::isMethod)
-                .map(methodData -> convertRealMethod(methodData, classLoader)).filter(Objects::nonNull)
-                .toArray(Method[]::new);
-    }
-
-    public synchronized static Class<?> findFirstClassUsingStrings(ClassLoader classLoader, StringMatchType type,
-                                                                   String... strings) throws Exception {
-        var matcher = new ClassMatcher();
-        for (String string : strings) {
-            matcher.addUsingString(string, type);
-        }
-        var result = dexkit.findClass(FindClass.create().matcher(matcher));
-        if (result.isEmpty())
-            return null;
-        return result.get(0).getInstance(classLoader);
-    }
-
-    public synchronized static Class<?>[] findAllClassUsingStrings(ClassLoader classLoader, StringMatchType type,
-                                                                   String... strings) throws Exception {
-        var matcher = new ClassMatcher();
-        for (String string : strings) {
-            matcher.addUsingString(string, type);
-        }
-        var result = dexkit.findClass(FindClass.create().matcher(matcher));
-        if (result.isEmpty())
-            return null;
-        return result.stream().map(classData -> convertRealClass(classData, classLoader)).filter(Objects::nonNull)
-                .toArray(Class[]::new);
-    }
-
-    public synchronized static Class<?> findFirstClassUsingStringsFilter(ClassLoader classLoader, String packageFilter,
-                                                                         StringMatchType type, String... strings) throws Exception {
-        var matcher = new ClassMatcher();
-        for (String string : strings) {
-            matcher.addUsingString(string, type);
-        }
-        var result = dexkit.findClass(FindClass.create().searchPackages(packageFilter).matcher(matcher));
-        if (result.isEmpty())
-            return null;
-        return result.get(0).getInstance(classLoader);
-    }
-
-    public synchronized static Class<?> findFirstClassUsingName(ClassLoader classLoader, StringMatchType type,
-                                                                String name) throws Exception {
-        return UnobfuscatorCache.getInstance().getClass(classLoader, name, () -> {
-            var result = dexkit.findClass(FindClass.create().matcher(ClassMatcher.create().className(name, type)))
-                    .firstOrNull();
-            if (result == null)
-                throw new ClassNotFoundException("Class not found: " + name);
-            return result.getInstance(classLoader);
-        });
-    }
-
-    public synchronized static String getMethodDescriptor(Method method) {
-        if (method == null)
-            return null;
-        return method.getDeclaringClass().getName() + "->" + method.getName() + "("
-                + Arrays.stream(method.getParameterTypes()).map(Class::getName).collect(Collectors.joining(",")) + ")";
-    }
-
-    public synchronized static String getFieldDescriptor(Field field) {
-        return field.getDeclaringClass().getName() + "->" + field.getName() + ":" + field.getType().getName();
-    }
-
-    @Nullable
-    public synchronized static Method convertRealMethod(MethodData methodData, ClassLoader classLoader) {
-        try {
-            return methodData.getMethodInstance(classLoader);
-        } catch (Exception e) {
-            return null;
+    @JvmStatic
+    fun initWithPath(path: String): Boolean {
+        return try {
+            dexkit = DexKitBridge.create(path)
+            true
+        } catch (_: Exception) {
+            false
         }
     }
 
-    @Nullable
-    public synchronized static Class<?> convertRealClass(ClassData classData, ClassLoader classLoader) {
-        try {
-            return classData.getInstance(classLoader);
-        } catch (Exception e) {
-            return null;
-        }
-    }
-
-    // TODO: Classes and Methods for FreezeSeen
-    public synchronized static Method loadFreezeSeenMethod(ClassLoader classLoader) throws Exception {
-        return UnobfuscatorCache.getInstance().getMethod(classLoader,
-                () -> UnobfuscatorCache.getInstance().getMethod(classLoader,
-                        () -> findFirstMethodUsingStrings(classLoader, StringMatchType.Contains,
-                                "presencestatemanager/setAvailable/new-state")));
-    }
-
-    // TODO: Classes and Methods for GhostMode
-    public synchronized static Method loadGhostModeMethod(ClassLoader classLoader) throws Exception {
-        return UnobfuscatorCache.getInstance().getMethod(classLoader, () -> {
-            Method method = findFirstMethodUsingStrings(classLoader, StringMatchType.Contains,
-                    "HandleMeComposing/sendComposing");
-            if (method == null)
-                throw new Exception("GhostMode method not found");
-            if (method.getParameterTypes().length > 2 && method.getParameterTypes()[2] == int.class)
-                return method;
-            throw new Exception("GhostMode method not found parameter type");
-        });
-    }
-
-    // TODO: Classes and Methods for Receipt
-
-    public static Method loadReceiptMethod(ClassLoader classLoader) throws Exception {
-        return UnobfuscatorCache.getInstance().getMethod(classLoader, () -> {
-            var classDeviceJid = Unobfuscator.findFirstClassUsingName(
-                    classLoader, StringMatchType.EndsWith, "jid.DeviceJid");
-            var classProtocolTreeNode = findFirstClassUsingStrings(
-                    classLoader, StringMatchType.Contains, "ProtocolTreeNode/getAttributeJid");
-
-            var methods = dexkit.findMethod(
-                    FindMethod.create()
-                            .matcher(MethodMatcher.create()
-                                    .addUsingString("receipt")
-                                    .returnType(classProtocolTreeNode))
-            );
-
-            for (var method : methods) {
-                var params = method.getParamTypeNames();
-
-                boolean hasRequiredParams =
-                        params.contains(classDeviceJid.getName());
-                if (!hasRequiredParams) continue;
-
-                return method.getMethodInstance(classLoader);
-            }
-
-            throw new NoSuchMethodError(
-                    "Receipt method not found. returnType=" + classProtocolTreeNode.getName()
-                            + ", requiredParams=[" + classDeviceJid.getName()
-                            + "]"
-            );
-        });
-
-    }
-
-    public static Class<?> loadReceiptMessageInfoClass(ClassLoader classLoader) throws Exception {
-        return UnobfuscatorCache.getInstance().getClass(classLoader, ()-> {
-            var methodData = dexkit.findMethod(FindMethod.create().matcher(MethodMatcher.create().addUsingString("ReadReceiptUtils/buildReadReceiptHandler malformed"))).single();
-            var deviceJid = findFirstClassUsingName(classLoader, StringMatchType.EndsWith, "jid.DeviceJid");
-            for (var invoke : methodData.getInvokes()){
-                if (invoke.isConstructor() && invoke.getParamTypeNames().contains(deviceJid.getName())) {
-                    return invoke.getClassInstance(classLoader);
+    @Throws(Exception::class)
+    @JvmStatic
+    fun findFirstMethodUsingStrings(
+        classLoader: ClassLoader,
+        type: StringMatchType,
+        vararg strings: String
+    ): Method? {
+        val result = dexkit.findMethod {
+            matcher {
+                for (string in strings) {
+                    addUsingString(string, type)
                 }
             }
-            return null;
-        });
+        }
+        if (result.isEmpty()) return null
+        for (methodData in result) {
+            if (methodData.isMethod) return methodData.getMethodInstance(classLoader)
+        }
+        return null
     }
 
-    public static Method loadReceiptMainCallerMethod(ClassLoader classLoader)throws Exception{
-        return UnobfuscatorCache.getInstance().getMethod(classLoader, () -> {
-            var methodReceipt = dexkit.getMethodData(loadReceiptMethod(classLoader));
-            var classData = methodReceipt.getDeclaredClass();
-            var messageInfoClass = loadReceiptMessageInfoClass(classLoader);
-            var methodData = classData.findMethod(FindMethod.create().matcher(MethodMatcher.create()
-                    .addInvoke(methodReceipt.getDescriptor())
-                    .paramCount(1)
-                    .paramTypes(messageInfoClass)
-                    .addUsingString("class")
-            )).single();
-            return methodData.getMethodInstance(classLoader);
-        });
-    }
-
-
-    public static Method[] loadReceiptCallersMethod(ClassLoader classLoader) throws Exception {
-        return UnobfuscatorCache.getInstance().getMethods(classLoader, () -> {
-            var methodData = dexkit.getMethodData(loadReceiptMainCallerMethod(classLoader));
-            ArrayList<Method> methods = new ArrayList<>();
-            for (var methodCaller: methodData.getCallers()){
-                if (methodCaller.getParamCount() > 1 && methodCaller.getParamTypes().get(0).getSimpleName().equals("Message")){
-                    methods.add(methodCaller.getMethodInstance(classLoader));
+    @Throws(Exception::class)
+    @JvmStatic
+    fun findFirstMethodUsingStringsFilter(
+        classLoader: ClassLoader,
+        packageFilter: String,
+        type: StringMatchType,
+        vararg strings: String
+    ): Method? {
+        val result = dexkit.findMethod {
+            searchPackages(packageFilter)
+            matcher {
+                for (string in strings) {
+                    addUsingString(string, type)
                 }
             }
-            if (methods.isEmpty())return null;
-            return methods.toArray(new Method[0]);
-        });
+        }
+        if (result.isEmpty()) return null
+
+        for (methodData in result) {
+            if (methodData.isMethod) return methodData.getMethodInstance(classLoader)
+        }
+        throw NoSuchMethodException()
     }
 
-    public synchronized static Method loadReceiptOutsideChat(ClassLoader classLoader) throws Exception {
-        return UnobfuscatorCache.getInstance().getMethod(classLoader, () -> {
-            var method = loadReceiptMethod(classLoader);
-            if (method == null)
-                throw new Exception("Receipt method not found");
-            var classData = dexkit.getClassData(method.getDeclaringClass());
-            if (classData == null)
-                throw new Exception("Receipt method not found");
-            var methodResult = classData
-                    .findMethod(new FindMethod().matcher(new MethodMatcher().addUsingString("sender")));
-            if (methodResult.isEmpty())
-                throw new Exception("Receipt method not found");
-            return methodResult.get(0).getMethodInstance(classLoader);
-        });
-    }
-
-    public synchronized static Method loadReceiptInChat(ClassLoader classLoader) throws Exception {
-        return UnobfuscatorCache.getInstance().getMethod(classLoader, () -> {
-            var method = loadReceiptMethod(classLoader);
-            var methodDataList = dexkit
-                    .findMethod(FindMethod.create().matcher(MethodMatcher.create().addUsingString("callCreatorJid")
-                            .addUsingString("reject").addInvoke(DexSignUtil.getMethodDescriptor(method))));
-            if (methodDataList.isEmpty())
-                throw new Exception("Receipt method not found");
-            return methodDataList.get(0).getMethodInstance(classLoader);
-        });
-    }
-
-    // TODO: Classes and Methods for HideForward
-
-    public synchronized static Method loadForwardTagMethod(ClassLoader classLoader) throws Exception {
-        return UnobfuscatorCache.getInstance().getMethod(classLoader, () -> {
-            Class<?> messageInfoClass = loadFMessageClass(classLoader);
-            var methodList = dexkit.findMethod(FindMethod.create()
-                    .matcher(MethodMatcher.create().addUsingString("chatInfo/incrementUnseenImportantMessageCount")));
-            if (methodList.isEmpty())
-                throw new Exception("ForwardTag method support not found");
-            var invokes = methodList.get(0).getInvokes();
-            for (var invoke : invokes) {
-                var method = invoke.getMethodInstance(classLoader);
-                if (method.getParameterCount() == 1
-                        && (method.getParameterTypes()[0] == int.class
-                        || method.getParameterTypes()[0] == long.class)
-                        && method.getDeclaringClass() == messageInfoClass
-                        && method.getReturnType() == void.class) {
-                    return method;
+    @JvmStatic
+    fun findAllMethodUsingStrings(
+        classLoader: ClassLoader,
+        type: StringMatchType,
+        vararg strings: String
+    ): Array<Method> {
+        val result = dexkit.findMethod {
+            matcher {
+                for (string in strings) {
+                    addUsingString(string, type)
                 }
             }
-            throw new Exception("ForwardTag method not found");
-        });
+        }
+        if (result.isEmpty()) return emptyArray()
+        return result.stream().filter { it.isMethod }
+            .map { methodData -> convertRealMethod(methodData, classLoader) }
+            .filter { it != null }
+            .map { it!! }
+            .toArray { length -> arrayOfNulls<Method>(length) }
     }
 
-    public synchronized static Field loadBroadcastTagField(ClassLoader classLoader) throws Exception {
-        return UnobfuscatorCache.getInstance().getField(classLoader, () -> {
-            var fmessage = loadFMessageClass(classLoader);
-            var clazzData = dexkit.findClass(FindClass.create()
-                    .matcher(ClassMatcher.create().addUsingString("UPDATE_MESSAGE_MAIN_BROADCAST_SCAN_SQL")));
-            if (clazzData.isEmpty())
-                throw new Exception("BroadcastTag class not found");
-            var methodData = dexkit.findMethod(FindMethod.create().searchInClass(clazzData)
-                    .matcher(MethodMatcher.create().usingStrings("participant_hash", "view_mode", "broadcast")));
+    @Throws(Exception::class)
+    @JvmStatic
+    fun findFirstClassUsingStrings(
+        classLoader: ClassLoader,
+        type: StringMatchType,
+        vararg strings: String
+    ): Class<Any>? {
+        val result = dexkit.findClass {
+            matcher {
+                for (string in strings) {
+                    addUsingString(string, type)
+                }
+            }
+        }
+        if (result.isEmpty()) return null
+        @Suppress("UNCHECKED_CAST")
+        return result[0].getInstance(classLoader) as Class<Any>
+    }
 
-            // 2.25.18.xx, they splitted method and moved to the fmessage
+    @Throws(Exception::class)
+    @JvmStatic
+    fun findFirstClassUsingName(
+        classLoader: ClassLoader,
+        type: StringMatchType,
+        name: String
+    ): Class<*> {
+        return UnobfuscatorCache.getInstance().getClass(classLoader, name) {
+            val result = dexkit.findClass {
+                matcher {
+                    className(name, type)
+                }
+            }.firstOrNull() ?: throw ClassNotFoundException("Class not found: $name")
+            result.getInstance(classLoader)
+        }
+    }
+
+    @JvmStatic
+    fun getMethodDescriptor(method: Method?): String? {
+        if (method == null) return null
+        return method.declaringClass.name + "->" + method.name + "(" +
+                Arrays.stream(method.parameterTypes).map { it.name }
+                    .collect(Collectors.joining(",")) + ")"
+    }
+
+    @JvmStatic
+    fun getFieldDescriptor(field: Field): String {
+        return field.declaringClass.name + "->" + field.name + ":" + field.type.name
+    }
+
+    @JvmStatic
+    fun convertRealMethod(methodData: MethodData, classLoader: ClassLoader): Method? {
+        return try {
+            methodData.getMethodInstance(classLoader)
+        } catch (_: Exception) {
+            null
+        }
+    }
+
+    @JvmStatic
+    fun convertRealClass(classData: ClassData, classLoader: ClassLoader): Class<*>? {
+        return try {
+            classData.getInstance(classLoader)
+        } catch (_: Exception) {
+            null
+        }
+    }
+
+    @Throws(Exception::class)
+    @JvmStatic
+    fun loadFreezeSeenMethod(classLoader: ClassLoader): Method {
+        return UnobfuscatorCache.getInstance().getMethod(classLoader) {
+            UnobfuscatorCache.getInstance().getMethod(classLoader) {
+                findFirstMethodUsingStrings(
+                    classLoader,
+                    StringMatchType.Contains,
+                    "presencestatemanager/setAvailable/new-state"
+                )
+            }
+        }
+    }
+
+    @Throws(Exception::class)
+    @JvmStatic
+    fun loadGhostModeMethod(classLoader: ClassLoader): Method {
+        return UnobfuscatorCache.getInstance().getMethod(classLoader) {
+            val method = findFirstMethodUsingStrings(
+                classLoader,
+                StringMatchType.Contains,
+                "HandleMeComposing/sendComposing"
+            )
+                ?: throw Exception("GhostMode method not found")
+            if (method.parameterTypes.size > 2 && method.parameterTypes[2] == Int::class.java) {
+                return@getMethod method
+            }
+            throw Exception("GhostMode method not found parameter type")
+        }
+    }
+
+    @Throws(Exception::class)
+    @JvmStatic
+    fun loadReceiptMethod(classLoader: ClassLoader): Method {
+        return UnobfuscatorCache.getInstance().getMethod(classLoader) {
+            val classDeviceJid =
+                findFirstClassUsingName(classLoader, StringMatchType.EndsWith, "jid.DeviceJid")
+            val classProtocolTreeNode = findFirstClassUsingStrings(
+                classLoader,
+                StringMatchType.Contains,
+                "ProtocolTreeNode/getAttributeJid"
+            )
+
+            val methods = dexkit.findMethod {
+                matcher {
+                    addUsingString("receipt")
+                    returnType(classProtocolTreeNode!!)
+                }
+            }
+
+            for (method in methods) {
+                val params = method.paramTypeNames
+                val hasRequiredParams = params.contains(classDeviceJid.name)
+                if (!hasRequiredParams) continue
+
+                return@getMethod method.getMethodInstance(classLoader)
+            }
+
+            throw NoSuchMethodError(
+                "Receipt method not found. returnType=" + classProtocolTreeNode?.name +
+                        ", requiredParams=[" + classDeviceJid.name + "]"
+            )
+        }
+    }
+
+    @Throws(Exception::class)
+    @JvmStatic
+    fun loadReceiptMessageInfoClass(classLoader: ClassLoader): Class<*>? {
+        return UnobfuscatorCache.getInstance().getClass(classLoader) {
+            val methodData = dexkit.findMethod {
+                matcher {
+                    addUsingString("ReadReceiptUtils/buildReadReceiptHandler malformed")
+                }
+            }.single()
+            val deviceJid =
+                findFirstClassUsingName(classLoader, StringMatchType.EndsWith, "jid.DeviceJid")
+            for (invoke in methodData.invokes) {
+                if (invoke.isConstructor && invoke.paramTypeNames.contains(deviceJid.name)) {
+                    return@getClass invoke.getClassInstance(classLoader)
+                }
+            }
+            null
+        }
+    }
+
+    @Throws(Exception::class)
+    @JvmStatic
+    fun loadReceiptMainCallerMethod(classLoader: ClassLoader): Method {
+        return UnobfuscatorCache.getInstance().getMethod(classLoader) {
+            val methodReceipt = dexkit.getMethodData(loadReceiptMethod(classLoader))
+            val classData = methodReceipt!!.declaredClass
+            val messageInfoClass = loadReceiptMessageInfoClass(classLoader)
+            val methodData = classData!!.findMethod {
+                matcher {
+                    addInvoke(methodReceipt.descriptor)
+                    paramCount(1)
+                    paramTypes(messageInfoClass)
+                    addUsingString("class")
+                }
+            }.single()
+            methodData.getMethodInstance(classLoader)
+        }
+    }
+
+    @Throws(Exception::class)
+    @JvmStatic
+    fun loadReceiptCallersMethod(classLoader: ClassLoader): Array<Method> {
+        return UnobfuscatorCache.getInstance().getMethods(classLoader) {
+            val methodData = dexkit.getMethodData(loadReceiptMainCallerMethod(classLoader))
+            val methods = ArrayList<Method>()
+            for (methodCaller in methodData!!.callers) {
+                if (methodCaller.paramCount > 1 && methodCaller.paramTypes[0].simpleName == "Message") {
+                    methods.add(methodCaller.getMethodInstance(classLoader))
+                }
+            }
+            if (methods.isEmpty()) return@getMethods null
+            methods.toTypedArray()
+        }
+    }
+
+    @Throws(Exception::class)
+    @JvmStatic
+    fun loadForwardTagMethod(classLoader: ClassLoader): Method {
+        return UnobfuscatorCache.getInstance().getMethod(classLoader) {
+            val messageInfoClass = loadFMessageClass(classLoader)
+            val methodList = dexkit.findMethod {
+                matcher {
+                    addUsingString("chatInfo/incrementUnseenImportantMessageCount")
+                }
+            }
+            if (methodList.isEmpty()) throw Exception("ForwardTag method support not found")
+            val invokes = methodList[0].invokes
+            for (invoke in invokes) {
+                val method = invoke.getMethodInstance(classLoader)
+                if (method.parameterCount == 1 &&
+                    (method.parameterTypes[0] == Int::class.java || method.parameterTypes[0] == Long::class.java) &&
+                    method.declaringClass == messageInfoClass &&
+                    method.returnType == Void.TYPE
+                ) {
+                    return@getMethod method
+                }
+            }
+            throw Exception("ForwardTag method not found")
+        }
+    }
+
+    @Throws(Exception::class)
+    @JvmStatic
+    fun loadBroadcastTagField(classLoader: ClassLoader): Field {
+        return UnobfuscatorCache.getInstance().getField(classLoader) {
+            val fmessage = loadFMessageClass(classLoader)
+            val clazzData = dexkit.findClass {
+                matcher {
+                    addUsingString("UPDATE_MESSAGE_MAIN_BROADCAST_SCAN_SQL")
+                }
+            }
+            if (clazzData.isEmpty()) throw Exception("BroadcastTag class not found")
+
+            var methodData = dexkit.findMethod {
+                searchInClass(clazzData)
+                matcher {
+                    usingStrings("participant_hash", "view_mode", "broadcast")
+                }
+            }
+
             if (methodData.isEmpty()) {
-                methodData = dexkit.findMethod(FindMethod.create().searchInClass(clazzData)
-                        .matcher(MethodMatcher.create().usingStrings("received_timestamp", "view_mode", "message")));
+                methodData = dexkit.findMethod {
+                    searchInClass(clazzData)
+                    matcher {
+                        usingStrings("received_timestamp", "view_mode", "message")
+                    }
+                }
                 if (!methodData.isEmpty()) {
-                    var calledMethods = methodData.get(0).getInvokes();
-                    for (var cmethod : calledMethods) {
-                        if (Modifier.isStatic(cmethod.getModifiers()) && cmethod.getParamCount() == 2
-                                && fmessage.getName().equals(cmethod.getDeclaredClass().getName())) {
-                            var pTypes = cmethod.getParamTypes();
-                            if (pTypes.get(0).getName().equals(ContentValues.class.getName())
-                                    && pTypes.get(1).getName().equals(fmessage.getName())) {
-                                methodData.clear();
-                                methodData.add(cmethod);
-                                break;
+                    val calledMethods = methodData[0].invokes
+                    for (cmethod in calledMethods) {
+                        if (Modifier.isStatic(cmethod.modifiers) && cmethod.paramCount == 2 &&
+                            fmessage.name == cmethod.declaredClass?.name
+                        ) {
+                            val pTypes = cmethod.paramTypes
+                            if (pTypes[0].name == ContentValues::class.java.name && pTypes[1].name == fmessage.name) {
+                                methodData.clear()
+                                methodData.add(cmethod)
+                                break
                             }
                         }
                     }
                 }
             }
 
-            if (methodData.isEmpty())
-                throw new Exception("BroadcastTag method support not found");
-            var usingFields = methodData.get(0).getUsingFields();
-            for (var ufield : usingFields) {
-                var field = ufield.getField();
-                if (field.getDeclaredClass().getName().equals(fmessage.getName()) &&
-                        field.getType().getName().equals(boolean.class.getName())) {
-                    return field.getFieldInstance(classLoader);
+            if (methodData.isEmpty()) throw Exception("BroadcastTag method support not found")
+            val usingFields = methodData[0].usingFields
+            for (ufield in usingFields) {
+                val field = ufield.field
+                if (field.declaredClass.name == fmessage.name && field.type.name == Boolean::class.java.name) {
+                    return@getField field.getFieldInstance(classLoader)
                 }
             }
-            throw new Exception("BroadcastTag field not found");
-        });
+            throw Exception("BroadcastTag field not found")
+        }
     }
 
-    public synchronized static Class<?> loadForwardClassMethod(ClassLoader classLoader) throws Exception {
-        return UnobfuscatorCache.getInstance().getClass(classLoader, () -> {
-            for (var s : new String[]{
-                    "UserActions/userActionForwardMessage",
-                    "UserActionsMessageForwarding/userActionForwardMessage"
-            }) {
-                var cls = findFirstClassUsingStrings(classLoader, StringMatchType.Contains, s);
-                if (cls != null)
-                    return cls;
+    @Throws(Exception::class)
+    @JvmStatic
+    fun loadForwardClassMethod(classLoader: ClassLoader): Class<*> {
+        return UnobfuscatorCache.getInstance().getClass(classLoader) {
+            for (s in arrayOf(
+                "UserActions/userActionForwardMessage",
+                "UserActionsMessageForwarding/userActionForwardMessage"
+            )) {
+                val cls = findFirstClassUsingStrings(classLoader, StringMatchType.Contains, s)
+                if (cls != null) return@getClass cls
             }
-            throw new ClassNotFoundException("ForwardClass method not found");
-        });
+            throw ClassNotFoundException("ForwardClass method not found")
+        }
     }
 
-    // TODO: Classes and Methods for HideView
-    public synchronized static Method loadHideViewSendReadJob(ClassLoader classLoader) throws Exception {
-        return UnobfuscatorCache.getInstance().getMethod(classLoader, () -> {
-            var classData = dexkit
-                    .getClassData(findFirstClassUsingName(classLoader, StringMatchType.EndsWith, "SendReadReceiptJob"));
-            var methodResult = classData.findMethod(
-                    new FindMethod().matcher(new MethodMatcher().addUsingString("receipt", StringMatchType.Equals)));
+    @Throws(Exception::class)
+    @JvmStatic
+    fun loadHideViewSendReadJob(classLoader: ClassLoader): Method {
+        return UnobfuscatorCache.getInstance().getMethod(classLoader) {
+            val classData = dexkit.getClassData(
+                findFirstClassUsingName(
+                    classLoader,
+                    StringMatchType.EndsWith,
+                    "SendReadReceiptJob"
+                )
+            )
+            var methodResult = classData!!.findMethod {
+                matcher {
+                    addUsingString("receipt", StringMatchType.Equals)
+                }
+            }
             if (methodResult.isEmpty()) {
-                methodResult = classData.getSuperClass().findMethod(new FindMethod()
-                        .matcher(new MethodMatcher().addUsingString("receipt", StringMatchType.Equals)));
-            }
-            if (methodResult.isEmpty())
-                throw new Exception("HideViewSendReadJob method not found");
-            return methodResult.get(0).getMethodInstance(classLoader);
-        });
-    }
-
-    public synchronized static Method loadHideViewInChatMethod(ClassLoader classLoader) throws Exception {
-        return UnobfuscatorCache.getInstance().getMethod(classLoader, () -> {
-            var strings = new String[]{
-                    "ReadReceipts/sendReceiptForIncomingMessage", "ReadReceipts/sendDeliveryReadReceipt",
-                    "ReadReceipts/acknowledgeMessageIfNeeded", "ReadReceipts/sendDeliveryReceiptIfNotRetry"
-            };
-            for (var s : strings) {
-                var method = findFirstMethodUsingStrings(classLoader, StringMatchType.Contains, s);
-                if (method != null)
-                    return method;
-            }
-            throw new Exception("HideViewInChat method not found");
-        });
-    }
-
-    public synchronized static Class<?> loadFMessageClass(ClassLoader classLoader) throws Exception {
-        return UnobfuscatorCache.getInstance().getClass(classLoader, () -> {
-            var messageClass = findFirstClassUsingStrings(classLoader, StringMatchType.Contains,
-                    "FMessage/getSenderUserJid/key.id");
-            if (messageClass == null)
-                throw new Exception("Message class not found");
-            return messageClass;
-        });
-    }
-
-    // TODO: Classes and Methods for XChatFilter
-
-    public static Method loadTabListMethod(ClassLoader classLoader) throws Exception {
-        return UnobfuscatorCache.getInstance().getMethod(classLoader, () -> {
-            var result = dexkit.findMethod(
-                    FindMethod.create()
-                            .matcher(
-                                    MethodMatcher.create()
-                                            .addUsingNumber(200)
-                                            .addUsingNumber(300)
-                                            .returnType(ArrayList.class)
-                            )
-            ).singleOrNull();
-            if (result == null) throw new Exception("TabList method not found");
-            return result.getMethodInstance(classLoader);
-        });
-    }
-
-    public synchronized static Method loadGetTabMethod(ClassLoader classLoader) throws Exception {
-        return UnobfuscatorCache.getInstance().getMethod(classLoader, () -> {
-            Method result = findFirstMethodUsingStringsFilter(classLoader, "X.", StringMatchType.Contains,
-                    "No HomeFragment mapping for community tab id:");
-            if (result == null)
-                throw new Exception("GetTab method not found");
-            return result;
-        });
-    }
-
-    public synchronized static Method loadTabFragmentMethod(ClassLoader classLoader) throws Exception {
-        return UnobfuscatorCache.getInstance().getMethod(classLoader, () -> {
-            Class<?> clsFrag = XposedHelpers.findClass("com.whatsapp.conversationslist.ConversationsFragment",
-                    classLoader);
-            Method result = Arrays.stream(clsFrag.getDeclaredMethods()).parallel()
-                    .filter(m -> m.getParameterTypes().length == 0 && m.getReturnType().equals(List.class)).findFirst()
-                    .orElse(null);
-            if (result == null)
-                throw new Exception("TabFragment method not found");
-            return result;
-        });
-    }
-
-    public synchronized static Method loadTabNameMethod(ClassLoader classLoader) throws Exception {
-        return UnobfuscatorCache.getInstance().getMethod(classLoader, () -> {
-            int id = UnobfuscatorCache.getInstance().getOfuscateIDString("updates");
-            if (id < 1)
-                throw new Exception("TabName ID not found");
-            MethodDataList result = dexkit.findMethod(
-                    FindMethod.create().matcher(MethodMatcher.create().returnType(String.class).usingNumbers(id)));
-            if (result.isEmpty())
-                throw new Exception("TabName method not found");
-            return result.get(0).getMethodInstance(classLoader);
-        });
-    }
-
-    public synchronized static Method loadFabMethod(ClassLoader classLoader) throws Exception {
-        return UnobfuscatorCache.getInstance().getMethod(classLoader, () -> {
-            ClassData classData = dexkit.getClassData("com.whatsapp.conversationslist.ConversationsFragment");
-            Objects.requireNonNull(classData);
-            for (var clazz : List.of(classData, classData.getSuperClass())) {
-                var result = clazz.findMethod(FindMethod.create()
-                        .matcher(MethodMatcher.create().paramCount(0).usingNumbers(200).returnType(int.class))).firstOrNull();
-                if (result != null)return result.getMethodInstance(classLoader);
-            }
-            throw new Exception("Fab method not found");
-        });
-    }
-
-    public static Method loadIconTabMethod(ClassLoader classLoader) throws Exception {
-        return UnobfuscatorCache.getInstance().getMethod(classLoader, () -> {
-            var id1 = Utils.getID("home_tab_communities_selector", "drawable");
-            var id2 = Utils.getID("home_tab_calls_selector", "drawable");
-            var id3 = Utils.getID("home_tab_chats_selector", "drawable");
-
-            var methodData = dexkit.findMethod(
-                    FindMethod.create()
-                            .searchPackages("X.")
-                            .matcher(MethodMatcher.create()
-                                    .addUsingNumber(id1)
-                                    .addUsingNumber(id2)
-                                    .addUsingNumber(id3)
-                            )
-            ).singleOrNull();
-            if (methodData == null) throw new Exception("IconTab method not found");
-            return methodData.getMethodInstance(classLoader);
-        });
-    }
-
-    public synchronized static Method loadTabCountMethod(ClassLoader classLoader) throws Exception {
-        return UnobfuscatorCache.getInstance().getMethod(classLoader, () -> {
-            Method result = findFirstMethodUsingStrings(classLoader, StringMatchType.Contains,
-                    "required free space should be > 0");
-            if (result == null)
-                throw new Exception("TabCount method not found");
-            return result;
-        });
-    }
-
-    public static Method loadEnableCountTabMethod(ClassLoader classLoader) throws Exception {
-        return UnobfuscatorCache.getInstance().getMethod(classLoader, () -> {
-            var result = findFirstMethodUsingStrings(classLoader, StringMatchType.Contains, "Tried to set badge for invalid");
-            if (result == null) throw new Exception("EnableCountTab method not found");
-            return result;
-        });
-    }
-
-    public static Constructor<?> loadEnableCountTabBadgeWrapper(ClassLoader classLoader) throws Exception {
-        return UnobfuscatorCache.getInstance().getConstructor(classLoader, () -> {
-            var countMethod = loadEnableCountTabMethod(classLoader);
-            var indiceClass = countMethod.getParameterTypes()[1];
-            var result = dexkit.findClass(FindClass.create().matcher(ClassMatcher.create().superClass(indiceClass.getName()).addMethod(MethodMatcher.create().paramCount(1))));
-            if (result.isEmpty()) throw new Exception("EnableCountTab method not found");
-            return result.get(0).getInstance(classLoader).getConstructors()[0];
-        });
-    }
-
-    public static Constructor<?> loadEnableCountTabBadgeItem(ClassLoader classLoader) throws Exception {
-        return UnobfuscatorCache.getInstance().getConstructor(classLoader, () -> {
-            var countTabConstructor1 = loadEnableCountTabBadgeWrapper(classLoader);
-            var indiceClass = countTabConstructor1.getParameterTypes()[0];
-            var result = dexkit.findClass(FindClass.create().matcher(ClassMatcher.create().superClass(indiceClass.getName()).addMethod(MethodMatcher.create().paramCount(1).addParamType(int.class))));
-            if (result.isEmpty()) throw new Exception("EnableCountTab method not found");
-            return result.get(0).getInstance(classLoader).getConstructors()[0];
-        });
-    }
-
-    public static Class<?> loadEnableCountTabEmptyBadgeClass(ClassLoader classLoader) throws Exception {
-        return UnobfuscatorCache.getInstance().getClass(classLoader, () -> {
-            var countMethod = loadEnableCountTabMethod(classLoader);
-            var indiceClass = countMethod.getParameterTypes()[1];
-            var result = dexkit.findClass(FindClass.create().matcher(ClassMatcher.create().superClass(indiceClass.getName()).addMethod(MethodMatcher.create().paramCount(0))));
-            if (result.isEmpty()) throw new Exception("EnableCountTab method not found");
-            return result.get(0).getInstance(classLoader);
-        });
-    }
-    // TODO: Classes and methods to TimeToSeconds
-
-    public synchronized static Method loadTimeToSecondsMethod(ClassLoader classLoader) throws Exception {
-        return UnobfuscatorCache.getInstance().getMethod(classLoader, () -> {
-            Method setTimeInMillis = Calendar.class.getDeclaredMethod("setTimeInMillis", long.class);
-            Method getInstance = Calendar.class.getDeclaredMethod("getInstance", Locale.class);
-
-            var result = dexkit.findMethod(FindMethod.create().matcher(MethodMatcher.create()
-                    .addInvoke(DexSignUtil.getMethodDescriptor(setTimeInMillis))
-                    .addInvoke(DexSignUtil.getMethodDescriptor(getInstance))
-                    .modifiers(Modifier.STATIC)
-                    .returnType(String.class).paramCount(2)
-                    .paramTypes(null, long.class)
-
-            )).singleOrNull();
-            if (result == null) throw new Exception("TimeToSeconds method not found");
-            return result.getMethodInstance(classLoader);
-        });
-    }
-
-    // TODO: Classes and methods to DndMode
-
-    public synchronized static Method loadDndModeMethod(ClassLoader classLoader) throws Exception {
-        return UnobfuscatorCache.getInstance().getMethod(classLoader, () -> {
-            var method = findFirstMethodUsingStrings(classLoader, StringMatchType.Equals, "MessageHandler/start");
-            if (method == null)
-                throw new Exception("DndMode method not found");
-            return method;
-        });
-    }
-
-    // TODO: Classes and methods to MediaQuality
-    public synchronized static Method loadMediaQualityVideoMethod2(ClassLoader classLoader) throws Exception {
-        return UnobfuscatorCache.getInstance().getMethod(classLoader, () -> {
-            var method = findFirstMethodUsingStrings(classLoader, StringMatchType.Contains, "getCorrectedResolution");
-            if (method == null)
-                throw new Exception("MediaQualityVideo method not found");
-            return method;
-        });
-    }
-
-    public synchronized static HashMap<String, Field> loadMediaQualityVideoFields(ClassLoader classLoader)
-            throws Exception {
-        return UnobfuscatorCache.getInstance().getMapField(classLoader, () -> {
-            var method = loadMediaQualityVideoMethod2(classLoader);
-            var methodString = method.getReturnType().getDeclaredMethod("toString");
-            var methodData = dexkit.getMethodData(methodString);
-            var usingFields = Objects.requireNonNull(methodData).getUsingFields();
-            var usingStrings = Objects.requireNonNull(methodData).getUsingStrings();
-            var result = new HashMap<String, Field>();
-            var idxStrings = 0;
-            var idxFields = 0;
-            while (idxStrings < usingStrings.size()) {
-                if (idxFields == usingFields.size())
-                    break;
-                if (usingStrings.get(idxStrings).equals("outputAspectRatio")) {
-                    idxStrings++;
-                    continue;
-                }
-                var field = usingFields.get(idxFields).getField().getFieldInstance(classLoader);
-                result.put(usingStrings.get(idxStrings), field);
-                idxStrings++;
-                idxFields++;
-            }
-            return result;
-        });
-    }
-
-    public synchronized static HashMap<String, Field> loadMediaQualityOriginalVideoFields(ClassLoader classLoader)
-            throws Exception {
-        return UnobfuscatorCache.getInstance().getMapField(classLoader, () -> {
-            var method = loadMediaQualityVideoMethod2(classLoader);
-            Method methodString;
-            try {
-                methodString = method.getParameterTypes()[0].getDeclaredMethod("toString");
-            } catch (Exception e) {
-                return new HashMap<>();
-            }
-            var methodData = dexkit.getMethodData(methodString);
-            var usingFields = Objects.requireNonNull(methodData).getUsingFields();
-            var usingStrings = Objects.requireNonNull(methodData).getUsingStrings();
-            var result = new HashMap<String, Field>();
-            for (int i = 0; i < usingStrings.size(); i++) {
-                if (i == usingFields.size())
-                    break;
-                var field = usingFields.get(i).getField().getFieldInstance(classLoader);
-                result.put(usingStrings.get(i), field);
-            }
-            return result;
-        });
-    }
-
-    public synchronized static Class<?> loadProcessVideoQualityClass(ClassLoader classLoader) throws Exception {
-        return UnobfuscatorCache.getInstance().getClass(classLoader, () -> {
-            var clazz = findFirstClassUsingStrings(classLoader, StringMatchType.StartsWith, "ProcessVideoQuality(");
-            if (clazz == null)
-                throw new Exception("ProcessVideoQuality method not found");
-            return clazz;
-        });
-    }
-
-    public synchronized static HashMap<String, Field> loadProcessVideoQualityFields(ClassLoader classLoader)
-            throws Exception {
-        return UnobfuscatorCache.getInstance().getMapField(classLoader, () -> {
-            var clazz = loadProcessVideoQualityClass(classLoader);
-            Method methodString;
-            try {
-                methodString = clazz.getDeclaredMethod("toString");
-            } catch (Exception e) {
-                return new HashMap<>();
-            }
-            var methodData = dexkit.getMethodData(methodString);
-            var usingFields = Objects.requireNonNull(methodData).getUsingFields();
-            var usingStrings = Objects.requireNonNull(methodData).getUsingStrings();
-            var result = new HashMap<String, Field>();
-            var idxFields = 0;
-            for (int i = 0; i < usingStrings.size(); i++) {
-                if (idxFields == usingFields.size())
-                    break;
-                var raw = usingStrings.get(i);
-                if (raw == null)
-                    continue;
-                var string = raw.strip();
-                if (string.isEmpty())
-                    continue;
-                int eq = string.lastIndexOf('=');
-                if (eq < 0)
-                    continue;
-                int start = 0;
-                for (int j = eq - 1; j >= 0; j--) {
-                    char c = string.charAt(j);
-                    if (c == '\'' || c == ',' || c == ' ' || c == '(' || c == ')' || c == ':' || c == '{' || c == '}') {
-                        start = j + 1;
-                        break;
+                methodResult = classData.superClass!!.findMethod {
+                    matcher {
+                        addUsingString("receipt", StringMatchType.Equals)
                     }
                 }
-                if (start >= eq)
-                    continue;
-                var name = string.substring(start, eq);
-                if (name.isEmpty())
-                    continue;
-                var field = usingFields.get(idxFields).getField().getFieldInstance(classLoader);
-                result.put(name, field);
-                idxFields++;
             }
-            return result;
-        });
+            if (methodResult.isEmpty()) throw Exception("HideViewSendReadJob method not found")
+            methodResult[0].getMethodInstance(classLoader)
+        }
     }
 
-    // TODO: Classes and methods to ShareLimit
-
-    public synchronized static Method loadShareLimitMethod(ClassLoader classLoader) throws Exception {
-        return UnobfuscatorCache.getInstance().getMethod(classLoader, () -> {
-            var method = findFirstMethodUsingStrings(classLoader, StringMatchType.Contains, "send_max_video_duration");
-            if (method == null)
-                throw new Exception("ShareLimit method not found");
-            return method;
-        });
+    @Throws(Exception::class)
+    @JvmStatic
+    fun loadFMessageClass(classLoader: ClassLoader): Class<*> {
+        return UnobfuscatorCache.getInstance().getClass(classLoader) {
+            findFirstClassUsingStrings(
+                classLoader,
+                StringMatchType.Contains,
+                "FMessage/getSenderUserJid/key.id"
+            )
+                ?: throw Exception("Message class not found")
+        }
     }
 
-    public synchronized static Field loadShareMapItemField(ClassLoader classLoader) throws Exception {
-        return UnobfuscatorCache.getInstance().getField(classLoader, () -> {
-            var shareLimitMethod = loadShareLimitMethod(classLoader);
-            var methodData = dexkit.getMethodData(shareLimitMethod);
-            var usingFields = Objects.requireNonNull(methodData).getUsingFields();
-            for (var ufield : usingFields) {
-                var field = ufield.getField().getFieldInstance(classLoader);
-                if (field.getType() == Map.class)
-                    return field;
+    @Throws(Exception::class)
+    @JvmStatic
+    fun loadTabListMethod(classLoader: ClassLoader): Method {
+        return UnobfuscatorCache.getInstance().getMethod(classLoader) {
+            val result = dexkit.findMethod {
+                matcher {
+                    addUsingNumber(200)
+                    addUsingNumber(300)
+                    returnType(ArrayList::class.java)
+                }
+            }.singleOrNull() ?: throw Exception("TabList method not found")
+            result.getMethodInstance(classLoader)
+        }
+    }
+
+    @Throws(Exception::class)
+    @JvmStatic
+    fun loadGetTabMethod(classLoader: ClassLoader): Method {
+        return UnobfuscatorCache.getInstance().getMethod(classLoader) {
+            findFirstMethodUsingStringsFilter(
+                classLoader,
+                "X.",
+                StringMatchType.Contains,
+                "No HomeFragment mapping for community tab id:"
+            )
+                ?: throw Exception("GetTab method not found")
+        }
+    }
+
+    @Throws(Exception::class)
+    @JvmStatic
+    fun loadTabFragmentMethod(classLoader: ClassLoader): Method {
+        return UnobfuscatorCache.getInstance().getMethod(classLoader) {
+            val clsFrag = XposedHelpers.findClass(
+                "com.whatsapp.conversationslist.ConversationsFragment",
+                classLoader
+            )
+            Arrays.stream(clsFrag.declaredMethods).parallel()
+                .filter { m -> m.parameterTypes.isEmpty() && m.returnType == MutableList::class.java }
+                .findFirst()
+                .orElse(null) ?: throw Exception("TabFragment method not found")
+        }
+    }
+
+    @Throws(Exception::class)
+    @JvmStatic
+    fun loadTabNameMethod(classLoader: ClassLoader): Method {
+        return UnobfuscatorCache.getInstance().getMethod(classLoader) {
+            val id = UnobfuscatorCache.getInstance().getOfuscateIDString("updates")
+            if (id < 1) throw Exception("TabName ID not found")
+            val result = dexkit.findMethod {
+                matcher {
+                    returnType(String::class.java)
+                    usingNumbers(id)
+                }
             }
-            throw new Exception("ShareItem field not found");
-        });
+            if (result.isEmpty()) throw Exception("TabName method not found")
+            result[0].getMethodInstance(classLoader)
+        }
     }
 
-    // TODO: Classes and methods to StatusDownload
-
-    public synchronized static Method loadStatusActivePage(ClassLoader classLoader) throws Exception {
-        return UnobfuscatorCache.getInstance().getMethod(classLoader, () -> {
-            var method = findFirstMethodUsingStrings(classLoader, StringMatchType.Contains,
-                    "playbackFragment/setPageActive");
-            if (method == null)
-                throw new Exception("StatusActivePage method not found");
-            return method;
-        });
-    }
-
-    public synchronized static Class<?> loadMenuManagerClass(ClassLoader classLoader) throws Exception {
-        return UnobfuscatorCache.getInstance().getClass(classLoader, () -> {
-            var methods = findAllMethodUsingStrings(classLoader, StringMatchType.Contains,
-                    "MenuPopupHelper cannot be used without an anchor");
-            for (var method : methods) {
-                if (method.getReturnType() == void.class)
-                    return method.getDeclaringClass();
+    @Throws(Exception::class)
+    @JvmStatic
+    fun loadFabMethod(classLoader: ClassLoader): Method {
+        return UnobfuscatorCache.getInstance().getMethod(classLoader) {
+            val classData =
+                dexkit.getClassData("com.whatsapp.conversationslist.ConversationsFragment")
+            Objects.requireNonNull(classData)
+            for (clazz in listOf(classData, classData!!.superClass)) {
+                val result = clazz?.findMethod {
+                    matcher {
+                        paramCount(0)
+                        usingNumbers(200)
+                        returnType(Int::class.java)
+                    }
+                }?.firstOrNull()
+                if (result != null) return@getMethod result.getMethodInstance(classLoader)
             }
-            throw new Exception("MenuManager class not found");
-        });
+            throw Exception("Fab method not found")
+        }
     }
 
-    public synchronized static Method loadMenuStatusMethod(ClassLoader loader) throws Exception {
-        return UnobfuscatorCache.getInstance().getMethod(loader, () -> {
-            var id = Utils.getID("menuitem_conversations_message_contact", "id");
-            var methods = dexkit.findMethod(new FindMethod().matcher(new MethodMatcher().addUsingNumber(id)));
-            if (methods.isEmpty())
-                throw new Exception("MenuStatus method not found");
-            return methods.get(0).getMethodInstance(loader);
-        });
+    @Throws(Exception::class)
+    @JvmStatic
+    fun loadIconTabMethod(classLoader: ClassLoader): Method {
+        return UnobfuscatorCache.getInstance().getMethod(classLoader) {
+            val id1 = Utils.getID("home_tab_communities_selector", "drawable")
+            val id2 = Utils.getID("home_tab_calls_selector", "drawable")
+            val id3 = Utils.getID("home_tab_chats_selector", "drawable")
+
+            val methodData = dexkit.findMethod {
+                searchPackages("X.")
+                matcher {
+                    addUsingNumber(id1)
+                    addUsingNumber(id2)
+                    addUsingNumber(id3)
+                }
+            }.singleOrNull() ?: throw Exception("IconTab method not found")
+            methodData.getMethodInstance(classLoader)
+        }
     }
 
-    // TODO: Classes and methods to ViewOnce
+    @Throws(Exception::class)
+    @JvmStatic
+    fun loadTabCountMethod(classLoader: ClassLoader): Method {
+        return UnobfuscatorCache.getInstance().getMethod(classLoader) {
+            findFirstMethodUsingStrings(
+                classLoader,
+                StringMatchType.Contains,
+                "required free space should be > 0"
+            )
+                ?: throw Exception("TabCount method not found")
+        }
+    }
 
-    public synchronized static Method[] loadViewOnceMethod(ClassLoader classLoader) throws Exception {
-        return UnobfuscatorCache.getInstance().getMethods(classLoader, () -> {
-            var method = dexkit.findMethod(new FindMethod()
-                    .matcher(new MethodMatcher().addUsingString("INSERT_VIEW_ONCE_SQL", StringMatchType.Contains)));
-            if (method.isEmpty())
-                throw new Exception("ViewOnce method not found");
-            var methodData = method.get(0);
-            var listMethods = methodData.getInvokes();
-            var list = new ArrayList<Method>();
-            for (MethodData m : listMethods) {
-                var mInstance = m.getMethodInstance(classLoader);
-                if (mInstance.getDeclaringClass().isInterface()
-                        && mInstance.getDeclaringClass().getMethods().length == 2) {
-                    ClassDataList listClasses = dexkit.findClass(FindClass.create()
-                            .matcher(ClassMatcher.create().addInterface(mInstance.getDeclaringClass().getName())));
-                    for (ClassData c : listClasses) {
-                        Class<?> clazz = c.getInstance(classLoader);
-                        for (Method m2 : clazz.getDeclaredMethods()) {
-                            if (m2.getParameterCount() != 1 || m2.getParameterTypes()[0] != int.class
-                                    || m2.getReturnType() != void.class)
-                                continue;
-                            list.add(m2);
+    @Throws(Exception::class)
+    @JvmStatic
+    fun loadEnableCountTabMethod(classLoader: ClassLoader): Method {
+        return UnobfuscatorCache.getInstance().getMethod(classLoader) {
+            findFirstMethodUsingStrings(
+                classLoader,
+                StringMatchType.Contains,
+                "Tried to set badge for invalid"
+            )
+                ?: throw Exception("EnableCountTab method not found")
+        }
+    }
+
+    @Throws(Exception::class)
+    @JvmStatic
+    fun loadEnableCountTabBadgeWrapper(classLoader: ClassLoader): Constructor<*> {
+        return UnobfuscatorCache.getInstance().getConstructor(classLoader) {
+            val countMethod = loadEnableCountTabMethod(classLoader)
+            val indiceClass = countMethod.parameterTypes[1]
+            val result = dexkit.findClass {
+                matcher {
+                    superClass(indiceClass.name)
+                    addMethod {
+                        paramCount(1)
+                    }
+                }
+            }
+            if (result.isEmpty()) throw Exception("EnableCountTab method not found")
+            result[0].getInstance(classLoader).constructors[0]
+        }
+    }
+
+    @Throws(Exception::class)
+    @JvmStatic
+    fun loadEnableCountTabBadgeItem(classLoader: ClassLoader): Constructor<*> {
+        return UnobfuscatorCache.getInstance().getConstructor(classLoader) {
+            val countTabConstructor1 = loadEnableCountTabBadgeWrapper(classLoader)
+            val indiceClass = countTabConstructor1.parameterTypes[0]
+            val result = dexkit.findClass {
+                matcher {
+                    superClass(indiceClass.name)
+                    addMethod {
+                        paramCount(1)
+                        addParamType(Int::class.java)
+                    }
+                }
+            }
+            if (result.isEmpty()) throw Exception("EnableCountTab method not found")
+            result[0].getInstance(classLoader).constructors[0]
+        }
+    }
+
+    @Throws(Exception::class)
+    @JvmStatic
+    fun loadEnableCountTabEmptyBadgeClass(classLoader: ClassLoader): Class<*> {
+        return UnobfuscatorCache.getInstance().getClass(classLoader) {
+            val countMethod = loadEnableCountTabMethod(classLoader)
+            val indiceClass = countMethod.parameterTypes[1]
+            val result = dexkit.findClass {
+                matcher {
+                    superClass(indiceClass.name)
+                    addMethod {
+                        paramCount(0)
+                    }
+                }
+            }
+            if (result.isEmpty()) throw Exception("EnableCountTab method not found")
+            result[0].getInstance(classLoader)
+        }
+    }
+
+    @Throws(Exception::class)
+    @JvmStatic
+    fun loadTimeToSecondsMethod(classLoader: ClassLoader): Method {
+        return UnobfuscatorCache.getInstance().getMethod(classLoader) {
+            val setTimeInMillis = Calendar::class.java.getDeclaredMethod(
+                "setTimeInMillis",
+                Long::class.javaPrimitiveType
+            )
+            val getInstance =
+                Calendar::class.java.getDeclaredMethod("getInstance", Locale::class.java)
+
+            val result = dexkit.findMethod {
+                matcher {
+                    addInvoke(DexSignUtil.getMethodDescriptor(setTimeInMillis))
+                    addInvoke(DexSignUtil.getMethodDescriptor(getInstance))
+                    modifiers(Modifier.STATIC)
+                    returnType(String::class.java)
+                    paramCount(2)
+                    paramTypes(null, Long::class.javaPrimitiveType)
+                }
+            }.singleOrNull() ?: throw Exception("TimeToSeconds method not found")
+            result.getMethodInstance(classLoader)
+        }
+    }
+
+    @Throws(Exception::class)
+    @JvmStatic
+    fun loadDndModeMethod(classLoader: ClassLoader): Method {
+        return UnobfuscatorCache.getInstance().getMethod(classLoader) {
+            findFirstMethodUsingStrings(classLoader, StringMatchType.Equals, "MessageHandler/start")
+                ?: throw Exception("DndMode method not found")
+        }
+    }
+
+    @Throws(Exception::class)
+    @JvmStatic
+    fun loadMediaQualityVideoMethod2(classLoader: ClassLoader): Method {
+        return UnobfuscatorCache.getInstance().getMethod(classLoader) {
+            findFirstMethodUsingStrings(
+                classLoader,
+                StringMatchType.Contains,
+                "getCorrectedResolution"
+            )
+                ?: throw Exception("MediaQualityVideo method not found")
+        }
+    }
+
+    @Throws(Exception::class)
+    @JvmStatic
+    fun loadMediaQualityVideoFields(classLoader: ClassLoader): HashMap<String, Field> {
+        return UnobfuscatorCache.getInstance().getMapField(classLoader) {
+            val method = loadMediaQualityVideoMethod2(classLoader)
+            val methodString = method.returnType.getDeclaredMethod("toString")
+            val methodData = dexkit.getMethodData(methodString) ?: return@getMapField null
+            val usingFields = methodData.usingFields
+            val usingStrings = methodData.usingStrings
+            val result = HashMap<String, Field>()
+            var idxStrings = 0
+            var idxFields = 0
+            while (idxStrings < usingStrings.size) {
+                if (idxFields == usingFields.size) break
+                if (usingStrings[idxStrings] == "outputAspectRatio") {
+                    idxStrings++
+                    continue
+                }
+                val field = usingFields[idxFields].field.getFieldInstance(classLoader)
+                result[usingStrings[idxStrings]] = field
+                idxStrings++
+                idxFields++
+            }
+            result
+        }
+    }
+
+    @Throws(Exception::class)
+    @JvmStatic
+    fun loadMediaQualityOriginalVideoFields(classLoader: ClassLoader): HashMap<String, Field> {
+        return UnobfuscatorCache.getInstance().getMapField(classLoader) {
+            val method = loadMediaQualityVideoMethod2(classLoader)
+            val methodString = try {
+                method.parameterTypes[0].getDeclaredMethod("toString")
+            } catch (_: Exception) {
+                return@getMapField HashMap<String, Field>()
+            }
+            val methodData = dexkit.getMethodData(methodString) ?: return@getMapField null
+            val usingFields = methodData.usingFields
+            val usingStrings = methodData.usingStrings
+            val result = HashMap<String, Field>()
+            for (i in usingStrings.indices) {
+                if (i == usingFields.size) break
+                val field = usingFields[i].field.getFieldInstance(classLoader)
+                result[usingStrings[i]] = field
+            }
+            result
+        }
+    }
+
+    @Throws(Exception::class)
+    @JvmStatic
+    fun loadProcessVideoQualityClass(classLoader: ClassLoader): Class<*> {
+        return UnobfuscatorCache.getInstance().getClass(classLoader) {
+            findFirstClassUsingStrings(
+                classLoader,
+                StringMatchType.StartsWith,
+                "ProcessVideoQuality("
+            )
+                ?: throw Exception("ProcessVideoQuality method not found")
+        }
+    }
+
+    @Throws(Exception::class)
+    @JvmStatic
+    fun loadShareLimitMethod(classLoader: ClassLoader): Method {
+        return UnobfuscatorCache.getInstance().getMethod(classLoader) {
+            findFirstMethodUsingStrings(
+                classLoader,
+                StringMatchType.Contains,
+                "send_max_video_duration"
+            )
+                ?: throw Exception("ShareLimit method not found")
+        }
+    }
+
+    @Throws(Exception::class)
+    @JvmStatic
+    fun loadShareMapItemField(classLoader: ClassLoader): Field {
+        return UnobfuscatorCache.getInstance().getField(classLoader) {
+            val shareLimitMethod = loadShareLimitMethod(classLoader)
+            val methodData = dexkit.getMethodData(shareLimitMethod) ?: return@getField null
+            val usingFields = methodData.usingFields
+            for (ufield in usingFields) {
+                val field = ufield.field.getFieldInstance(classLoader)
+                if (field.type == Map::class.java) return@getField field
+            }
+            throw Exception("ShareItem field not found")
+        }
+    }
+
+    @Throws(Exception::class)
+    @JvmStatic
+    fun loadMenuManagerClass(classLoader: ClassLoader): Class<*> {
+        return UnobfuscatorCache.getInstance().getClass(classLoader) {
+            val methods = findAllMethodUsingStrings(
+                classLoader,
+                StringMatchType.Contains,
+                "MenuPopupHelper cannot be used without an anchor"
+            )
+            for (method in methods) {
+                if (method.returnType == Void.TYPE) return@getClass method.declaringClass
+            }
+            throw Exception("MenuManager class not found")
+        }
+    }
+
+    @Throws(Exception::class)
+    @JvmStatic
+    fun loadMenuStatusMethod(loader: ClassLoader): Method {
+        return UnobfuscatorCache.getInstance().getMethod(loader) {
+            val id = Utils.getID("menuitem_conversations_message_contact", "id")
+            val methods = dexkit.findMethod {
+                matcher {
+                    addUsingNumber(id)
+                }
+            }
+            if (methods.isEmpty()) throw Exception("MenuStatus method not found")
+            methods[0].getMethodInstance(loader)
+        }
+    }
+
+    @Throws(Exception::class)
+    @JvmStatic
+    fun loadViewOnceMethod(classLoader: ClassLoader): Array<Method> {
+        return UnobfuscatorCache.getInstance().getMethods(classLoader) {
+            val method = dexkit.findMethod {
+                matcher {
+                    addUsingString("INSERT_VIEW_ONCE_SQL", StringMatchType.Contains)
+                }
+            }
+            if (method.isEmpty()) throw Exception("ViewOnce method not found")
+            val methodData = method[0]
+            val listMethods = methodData.invokes
+            val list = ArrayList<Method>()
+            for (m in listMethods) {
+                val mInstance = m.getMethodInstance(classLoader)
+                if (mInstance.declaringClass.isInterface && mInstance.declaringClass.methods.size == 2) {
+                    val listClasses = dexkit.findClass {
+                        matcher {
+                            addInterface(mInstance.declaringClass.name)
                         }
                     }
-                    if (list.isEmpty())
-                        throw new Exception("ViewOnce method not found");
-                    return list.toArray(new Method[0]);
+                    for (c in listClasses) {
+                        val clazz = c.getInstance(classLoader)
+                        for (m2 in clazz.declaredMethods) {
+                            if (m2.parameterCount != 1 || m2.parameterTypes[0] != Int::class.javaPrimitiveType || m2.returnType != Void.TYPE) continue
+                            list.add(m2)
+                        }
+                    }
+                    if (list.isEmpty()) throw Exception("ViewOnce method not found")
+                    return@getMethods list.toTypedArray()
                 }
             }
-            throw new Exception("ViewOnce method not found");
-        });
+            throw Exception("ViewOnce method not found")
+        }
     }
 
-    /**
-     * @noinspection SimplifyOptionalCallChains
-     */
-    public synchronized static Method loadViewOnceDownloadMenuMethod(ClassLoader classLoader) throws Exception {
-        return UnobfuscatorCache.getInstance().getMethod(classLoader, () -> {
-            var id1 = Utils.getID("ic_viewonce", "drawable");
-            var setShowAsAction = MenuItem.class.getDeclaredMethod("setShowAsAction", int.class);
-            var methodData = dexkit.findMethod(
-                    FindMethod.create().matcher(MethodMatcher.create()
-                            .addUsingNumber(id1)
-                            .addInvoke(DexSignUtil.getMethodDescriptor(setShowAsAction))
-                    )
-            );
-            var result = methodData.stream().filter(m -> m.getParamCount() > 1 &&
-                    m.getParamTypeNames().contains(Menu.class.getName())
-            ).findFirst();
-            if (!result.isPresent()) throw new Exception("ViewOnceDownloadMenu method not found");
-            return result.get().getMethodInstance(classLoader);
-        });
-    }
-
-    // TODO: Methods and Classes for Change Colors
-
-    public synchronized static Class<?> loadExpandableWidgetClass(ClassLoader loader) throws Exception {
-        return UnobfuscatorCache.getInstance().getClass(loader, () -> {
-            var clazz = findFirstClassUsingStrings(loader, StringMatchType.Contains, "expandableWidgetHelper");
-            if (clazz == null)
-                throw new Exception("ExpandableWidgetHelper class not found");
-            return clazz;
-        });
-    }
-
-    public synchronized static Class<?> loadMaterialShapeDrawableClass(ClassLoader loader) throws Exception {
-        return UnobfuscatorCache.getInstance().getClass(loader, () -> {
-            var clazz = findFirstClassUsingStrings(loader, StringMatchType.Contains, "Compatibility shadow requested");
-            if (clazz == null)
-                throw new Exception("MaterialShapeDrawable class not found");
-            return clazz;
-        });
-    }
-
-    public synchronized static Method loadPropsBooleanMethod(ClassLoader loader) throws Exception {
-        return UnobfuscatorCache.getInstance().getMethod(loader, () -> {
-            var method = findFirstMethodUsingStrings(loader, StringMatchType.Contains, "Unknown BooleanField");
-            if (method == null)
-                throw new Exception("Props method not found");
-            return method;
-        });
-    }
-
-    public synchronized static Method loadPropsIntegerMethod(ClassLoader loader) throws Exception {
-        return UnobfuscatorCache.getInstance().getMethod(loader, () -> {
-            var method = findFirstMethodUsingStrings(loader, StringMatchType.Contains, "Unknown IntField");
-            if (method == null)
-                throw new Exception("Props method not found");
-            return method;
-        });
-    }
-
-    public synchronized static Method loadPropsJsonMethod(ClassLoader loader) throws Exception {
-        return UnobfuscatorCache.getInstance().getMethod(loader, () -> {
-            var method = findFirstMethodUsingStrings(loader, StringMatchType.Contains, "Unknown JsonField");
-            if (method == null)
-                throw new Exception("Props method not found");
-            return method;
-        });
-    }
-
-    private static ClassData loadAntiRevokeImplClass() throws Exception {
-        var classes = dexkit
-                .findClass(new FindClass().matcher(new ClassMatcher().addUsingString("smb_eu_tos_update_url")));
-        if (classes.isEmpty())
-            throw new Exception("AntiRevokeImpl class not found");
-        return classes.get(0);
-    }
-
-    public synchronized static Method loadHomeConversationFragmentMethod(ClassLoader loader) throws Exception {
-        return UnobfuscatorCache.getInstance().getMethod(loader, () -> {
-            var homeClass = WppCore.getHomeActivityClass(loader);
-            var convFragment = XposedHelpers.findClass("com.whatsapp.ConversationFragment", loader);
-            MethodData method = dexkit.findMethod(FindMethod.create()
-                    .searchInClass(
-                            Collections.singletonList(
-                                    dexkit.getClassData(homeClass)))
-                    .matcher(MethodMatcher.create().returnType(convFragment))).singleOrNull();
-            if (method == null)
-                throw new Exception("HomeConversationFragmentMethod not found");
-            return method.getMethodInstance(loader);
-        });
-    }
-
-    public synchronized static Field loadAntiRevokeConvFragmentField(ClassLoader loader) throws Exception {
-        return UnobfuscatorCache.getInstance().getField(loader, () -> {
-            Class<?> chatClass = findFirstClassUsingStrings(loader, StringMatchType.Contains, "conversation/createconversation");
-            Class<?> conversation = XposedHelpers.findClass("com.whatsapp.ConversationFragment", loader);
-            Field field = ReflectionUtils.getFieldByType(conversation, chatClass);
-            if (field == null) throw new Exception("AntiRevokeConvChat field not found");
-            return field;
-        });
-    }
-
-    public static Class<?> loadConversationDelegateClass(ClassLoader loader) throws Exception {
-        return UnobfuscatorCache.getInstance().getClass(loader, () -> findFirstClassUsingStrings(loader, StringMatchType.Contains, "conversation/createconversation"));
-    }
-
-    public static Field loadUserJidConversationDelegate(ClassLoader loader) throws Exception {
-        return UnobfuscatorCache.getInstance().getField(loader, () -> {
-            Class<?> chatClass = findFirstClassUsingStrings(loader, StringMatchType.Contains, "conversation/createconversation");
-            Class<?> jidClass = Unobfuscator.findFirstClassUsingName(loader, StringMatchType.EndsWith, "jid.Jid");
-            Field field = ReflectionUtils.getFieldByExtendType(chatClass, jidClass);
-            if (field == null) throw new Exception("UserJidConversationDelegate field not found");
-            return field;
-        });
-    }
-
-
-    public synchronized static Method loadAntiRevokeMessageMethod(ClassLoader loader) throws Exception {
-        return UnobfuscatorCache.getInstance().getMethod(loader, () -> {
-            for (var s : List.of("msgstore/edit/revoke", "msgstore/revoking/")) {
-                Method method = findFirstMethodUsingStrings(loader, StringMatchType.Contains, s);
-                if (method != null) return method;
-            }
-            return null;
-        });
-    }
-
-    public synchronized static Field loadMessageKeyField(ClassLoader loader) throws Exception {
-        return UnobfuscatorCache.getInstance().getField(loader, () -> {
-            var classList = dexkit.findClass(new FindClass().matcher(new ClassMatcher().fieldCount(3)
-                    .addMethod(new MethodMatcher().addUsingString("Key").name("toString"))));
-            if (classList.isEmpty())
-                throw new Exception("MessageKey class not found");
-            for (ClassData classData : classList) {
-                Class<?> keyMessageClass = classData.getInstance(loader);
-                var classMessage = loadFMessageClass(loader);
-                var fields = ReflectionUtils.getFieldsByExtendType(classMessage, keyMessageClass);
-                if (fields.isEmpty())
-                    continue;
-                return fields.get(fields.size() - 1);
-            }
-            throw new Exception("MessageKey field not found");
-        });
-    }
-
-
-    public static Class<?> loadConversationRowClass(ClassLoader loader) throws Exception {
-        return UnobfuscatorCache.getInstance().getClass(loader, () -> {
-            var clazz = findFirstClassUsingStrings(loader, StringMatchType.Contains, "ConversationRow/setupUserNameInGroupView/");
-            if (clazz != null) return clazz;
-            var conversation_header = Utils.getID("name_in_group", "id");
-            var classData = dexkit.findClass(FindClass.create().matcher(ClassMatcher.create().addMethod(MethodMatcher.create().addUsingNumber(conversation_header))));
-            for (ClassData c : classData) {
-                var clazzInstance = c.getInstance(loader);
-                if (ViewGroup.class.isAssignableFrom(clazzInstance))
-                    return clazzInstance;
-            }
-            return null;
-        });
-    }
-
-    public synchronized static Method loadUnknownStatusPlaybackMethod(ClassLoader loader) throws Exception {
-        return UnobfuscatorCache.getInstance().getMethod(loader, () -> {
-            var statusPlaybackClass = XposedHelpers
-                    .findClass("com.whatsapp.status.playback.fragment.StatusPlaybackContactFragment", loader);
-            var refreshCurrentPage = dexkit
-                    .findMethod(FindMethod.create()
-                            .matcher(MethodMatcher.create()
-                                    .addUsingString("playbackFragment/refreshCurrentPageSubTitle message is empty")))
-                    .get(0);
-            var invokes = refreshCurrentPage.getInvokes();
-            for (var invoke : invokes) {
-                var method = invoke.getMethodInstance(loader);
-                if (Modifier.isStatic(method.getModifiers()) && method.getParameterCount() > 1
-                        && List.of(method.getParameterTypes()).contains(statusPlaybackClass)
-                        && method.getDeclaringClass() == statusPlaybackClass) {
-                    return method;
+    @Throws(Exception::class)
+    @JvmStatic
+    fun loadViewOnceDownloadMenuMethod(classLoader: ClassLoader): Method {
+        return UnobfuscatorCache.getInstance().getMethod(classLoader) {
+            val id1 = Utils.getID("ic_viewonce", "drawable")
+            val setShowAsAction = MenuItem::class.java.getDeclaredMethod(
+                "setShowAsAction",
+                Int::class.javaPrimitiveType
+            )
+            val methodData = dexkit.findMethod {
+                matcher {
+                    addUsingNumber(id1)
+                    addInvoke(DexSignUtil.getMethodDescriptor(setShowAsAction))
                 }
             }
-            throw new Exception("UnknownStatusPlayback method not found");
-        });
+            val result = methodData.stream().filter { m ->
+                m.paramCount > 1 && m.paramTypeNames.contains(Menu::class.java.name)
+            }.findFirst()
+            if (!result.isPresent) throw Exception("ViewOnceDownloadMenu method not found")
+            result.get().getMethodInstance(classLoader)
+        }
     }
 
-    public synchronized static Class loadStatusPlaybackViewClass(ClassLoader loader) throws Exception {
-        return UnobfuscatorCache.getInstance().getClass(loader, () -> {
-            var ids = List.of(Utils.getID("status_header", "id"), Utils.getID("menu", "id"));
-            var clazz = dexkit.findClass(
-                    FindClass.create().matcher(
-                            ClassMatcher.create().addMethod(
-                                    MethodMatcher.create().usingNumbers(ids))));
-            if (clazz.isEmpty())
-                throw new Exception("Not Found StatusPlaybackViewClass");
-            return clazz.get(0).getInstance(loader);
-        });
+    @Throws(Exception::class)
+    @JvmStatic
+    fun loadMaterialShapeDrawableClass(loader: ClassLoader): Class<*> {
+        return UnobfuscatorCache.getInstance().getClass(loader) {
+            findFirstClassUsingStrings(
+                loader,
+                StringMatchType.Contains,
+                "Compatibility shadow requested"
+            )
+                ?: throw Exception("MaterialShapeDrawable class not found")
+        }
     }
 
-    public synchronized static Method loadBlueOnReplayMessageJobMethod(ClassLoader loader) throws Exception {
-        return UnobfuscatorCache.getInstance().getMethod(loader, () -> {
-            var result = findFirstMethodUsingStrings(loader, StringMatchType.Contains, "SendE2EMessageJob/onRun");
-            if (result == null)
-                throw new Exception("BlueOnReplayMessageJob method not found");
-            return result;
-        });
+    @Throws(Exception::class)
+    @JvmStatic
+    fun loadPropsBooleanMethod(loader: ClassLoader): Method {
+        return UnobfuscatorCache.getInstance().getMethod(loader) {
+            findFirstMethodUsingStrings(loader, StringMatchType.Contains, "Unknown BooleanField")
+                ?: throw Exception("Props method not found")
+        }
     }
 
-    public synchronized static Method loadBlueOnReplayWaJobManagerMethod(ClassLoader loader) throws Exception {
-        return UnobfuscatorCache.getInstance().getMethod(loader, () -> {
-            var result = findFirstClassUsingStrings(loader, StringMatchType.Contains, "WaJobManager/start");
-            var job = XposedHelpers.findClass("org.whispersystems.jobqueue.Job", loader);
-            if (result == null)
-                throw new Exception("BlueOnReplayWaJobManager method not found");
-            var method = Arrays.stream(result.getMethods())
-                    .filter(m -> m.getParameterCount() == 1 && m.getParameterTypes()[0] == job).findFirst()
-                    .orElse(null);
-            if (method == null)
-                throw new Exception("BlueOnReplayWaJobManager method not found");
-            return method;
-        });
+    @Throws(Exception::class)
+    @JvmStatic
+    fun loadPropsIntegerMethod(loader: ClassLoader): Method {
+        return UnobfuscatorCache.getInstance().getMethod(loader) {
+            findFirstMethodUsingStrings(loader, StringMatchType.Contains, "Unknown IntField")
+                ?: throw Exception("Props method not found")
+        }
     }
 
-    public synchronized static Class loadArchiveChatClass(ClassLoader loader) throws Exception {
-        return UnobfuscatorCache.getInstance().getClass(loader, () -> {
-            var clazz = findFirstClassUsingStrings(loader, StringMatchType.Contains,
-                    "archive/set-content-indicator-to-empty");
-            if (clazz == null)
-                clazz = findFirstClassUsingStrings(loader, StringMatchType.Contains,
-                        "archive/Unsupported mode in ArchivePreviewView:");
-            if (clazz == null)
-                throw new Exception("ArchiveHideView method not found");
-            return clazz;
-        });
+    @Throws(Exception::class)
+    @JvmStatic
+    fun loadHomeConversationFragmentMethod(loader: ClassLoader): Method {
+        return UnobfuscatorCache.getInstance().getMethod(loader) {
+            val homeClass = WppCore.homeActivityClass
+            val convFragment = XposedHelpers.findClass("com.whatsapp.ConversationFragment", loader)
+            val method = dexkit.findMethod {
+                searchInClass(Collections.singletonList(dexkit.getClassData(homeClass)))
+                matcher {
+                    returnType(convFragment)
+                }
+            }.singleOrNull() ?: throw Exception("HomeConversationFragmentMethod not found")
+            method.getMethodInstance(loader)
+        }
     }
 
-    public synchronized static Method loadAntiRevokeOnCallReceivedMethod(ClassLoader loader) throws Exception {
-        return UnobfuscatorCache.getInstance().getMethod(loader, () -> {
-            var method = findFirstMethodUsingStrings(loader, StringMatchType.Contains,
-                    "voip/callStateChangedOnUIThread");
-            if (method == null)
-                throw new Exception("OnCallReceiver method not found");
-            return method;
-        });
+    @Throws(Exception::class)
+    @JvmStatic
+    fun loadAntiRevokeConvFragmentField(loader: ClassLoader): Field {
+        return UnobfuscatorCache.getInstance().getField(loader) {
+            val chatClass = findFirstClassUsingStrings(
+                loader,
+                StringMatchType.Contains,
+                "conversation/createconversation"
+            )
+            val conversation = XposedHelpers.findClass("com.whatsapp.ConversationFragment", loader)
+            ReflectionUtils.getFieldByType(conversation, chatClass)
+                ?: throw Exception("AntiRevokeConvChat field not found")
+        }
     }
 
-    public synchronized static Method loadOnChangeStatus(ClassLoader loader) throws Exception {
-        return UnobfuscatorCache.getInstance().getMethod(loader, () -> {
-            Method method = findFirstMethodUsingStrings(loader, StringMatchType.Contains,
-                    "ConversationViewFiller/setParentGroupProfilePhoto");
-            if (method == null)
-                throw new Exception("OnChangeStatus method not found");
 
-            // for 19.xx, the current implementation returns wrong method
-            if (method.getParameterCount() < 6) {
-                ClassData declaringClassData = dexkit.getClassData(method.getDeclaringClass());
-                if (declaringClassData == null)
-                    throw new Exception("OnChangeStatus method not found");
+    @Throws(Exception::class)
+    @JvmStatic
+    fun loadUserJidConversationDelegate(loader: ClassLoader): Field {
+        return UnobfuscatorCache.getInstance().getField(loader) {
+            val chatClass = findFirstClassUsingStrings(
+                loader,
+                StringMatchType.Contains,
+                "conversation/createconversation"
+            )
+            val jidClass = findFirstClassUsingName(loader, StringMatchType.EndsWith, "jid.Jid")
+            ReflectionUtils.getFieldByExtendType(chatClass, jidClass)
+                ?: throw Exception("UserJidConversationDelegate field not found")
+        }
+    }
 
-                Class<?> arg1Class = loadWaContactClass(loader);
-                MethodDataList methodData = declaringClassData.findMethod(
-                        FindMethod.create().matcher(MethodMatcher.create().paramCount(6, 8)));
+    @Throws(Exception::class)
+    @JvmStatic
+    fun loadAntiRevokeMessageMethod(loader: ClassLoader): Method? {
+        return UnobfuscatorCache.getInstance().getMethod(loader) {
+            for (s in listOf("msgstore/edit/revoke", "msgstore/revoking/")) {
+                val method = findFirstMethodUsingStrings(loader, StringMatchType.Contains, s)
+                if (method != null) return@getMethod method
+            }
+            null
+        }
+    }
 
-                for (var methodItem : methodData) {
-                    var paramTypes = methodItem.getParamTypes();
-
-                    if (paramTypes.get(0).getInstance(loader) == arg1Class &&
-                            paramTypes.get(1).getInstance(loader) == arg1Class) {
-                        method = methodItem.getMethodInstance(loader);
-                        break;
+    @Throws(Exception::class)
+    @JvmStatic
+    fun loadMessageKeyField(loader: ClassLoader): Field {
+        return UnobfuscatorCache.getInstance().getField(loader) {
+            val classList = dexkit.findClass {
+                matcher {
+                    fieldCount(3)
+                    addMethod {
+                        addUsingString("Key")
+                        name("toString")
                     }
                 }
             }
-
-            return method;
-        });
+            if (classList.isEmpty()) throw Exception("MessageKey class not found")
+            for (classData in classList) {
+                val keyMessageClass = classData.getInstance(loader)
+                val classMessage = loadFMessageClass(loader)
+                val fields = ReflectionUtils.getFieldsByExtendType(classMessage, keyMessageClass)
+                if (fields.isEmpty()) continue
+                return@getField fields[fields.size - 1]
+            }
+            throw Exception("MessageKey field not found")
+        }
     }
 
-    public synchronized static Class<?> loadViewHolder(ClassLoader loader) throws Exception {
-        return UnobfuscatorCache.getInstance().getClass(loader, () -> {
-            var methodMatcher = MethodMatcher.create();
-            methodMatcher.usingNumbers(
-                    Utils.getID("conversations_row_header_stub", "id"),
-                    Utils.getID("pin_indicator", "id"),
-                    Utils.getID("mute_indicator", "id"),
-                    Utils.getID("contact_photo", "id"));
-            var methods = dexkit.findMethod(FindMethod.create().matcher(methodMatcher)).stream()
-                    .filter(methodData -> methodData.getParamTypes().get(0).getName().equals(Context.class.getName()))
-                    .collect(Collectors.toList());
-            if (methods.isEmpty())
-                throw new ClassNotFoundException("View Holder not found!");
-            return methods.get(0).getMethodInstance(loader).getDeclaringClass();
-        });
+    @Throws(Exception::class)
+    @JvmStatic
+    fun loadConversationRowClass(loader: ClassLoader): Class<*>? {
+        return UnobfuscatorCache.getInstance().getClass(loader) {
+            val clazz = findFirstClassUsingStrings(
+                loader,
+                StringMatchType.Contains,
+                "ConversationRow/setupUserNameInGroupView/"
+            )
+            if (clazz != null) return@getClass clazz
+            val conversationHeader = Utils.getID("name_in_group", "id")
+            val classData = dexkit.findClass {
+                matcher {
+                    addMethod {
+                        addUsingNumber(conversationHeader)
+                    }
+                }
+            }
+            for (c in classData) {
+                val clazzInstance = c.getInstance(loader)
+                if (ViewGroup::class.java.isAssignableFrom(clazzInstance)) return@getClass clazzInstance
+            }
+            null
+        }
     }
 
-    public synchronized static Field loadViewHolderField1(ClassLoader loader) throws Exception {
-        return UnobfuscatorCache.getInstance().getField(loader, () -> {
-            Class<?> class1 = loadOnChangeStatus(loader).getDeclaringClass().getSuperclass();
-            return ReflectionUtils.getFieldByType(class1, loadViewHolder(loader));
-        });
+    @Throws(Exception::class)
+    @JvmStatic
+    fun loadUnknownStatusPlaybackMethod(loader: ClassLoader): Method {
+        return UnobfuscatorCache.getInstance().getMethod(loader) {
+            val statusPlaybackClass = XposedHelpers.findClass(
+                "com.whatsapp.status.playback.fragment.StatusPlaybackContactFragment",
+                loader
+            )
+            val refreshCurrentPage = dexkit.findMethod {
+                matcher {
+                    addUsingString("playbackFragment/refreshCurrentPageSubTitle message is empty")
+                }
+            }[0]
+            val invokes = refreshCurrentPage.invokes
+            for (invoke in invokes) {
+                val method = invoke.getMethodInstance(loader)
+                if (Modifier.isStatic(method.modifiers) && method.parameterCount > 1 &&
+                    listOf(*method.parameterTypes).contains(statusPlaybackClass) &&
+                    method.declaringClass === statusPlaybackClass
+                ) {
+                    return@getMethod method
+                }
+            }
+            throw Exception("UnknownStatusPlayback method not found")
+        }
     }
 
-    public synchronized static Method loadStatusUserMethod(ClassLoader loader) throws Exception {
-        return UnobfuscatorCache.getInstance().getMethod(loader, () -> {
-            var id = UnobfuscatorCache.getInstance().getOfuscateIDString("lastseensun%s");
-            if (id < 1)
-                throw new Exception("GetStatusUser ID not found");
-            var result = dexkit.findMethod(
-                    FindMethod.create().matcher(MethodMatcher.create().addUsingNumber(id).returnType(String.class)));
-            if (result.isEmpty())
-                throw new Exception("GetStatusUser method not found");
-            return result.get(result.size() - 1).getMethodInstance(loader);
-        });
+    @Throws(Exception::class)
+    @JvmStatic
+    fun loadStatusPlaybackViewClass(loader: ClassLoader): Class<*> {
+        return UnobfuscatorCache.getInstance().getClass(loader) {
+            val ids = listOf(Utils.getID("status_header", "id"), Utils.getID("menu", "id"))
+            val clazz = dexkit.findClass {
+                matcher {
+                    addMethod {
+                        usingNumbers(ids)
+                    }
+                }
+            }
+            if (clazz.isEmpty()) throw Exception("Not Found StatusPlaybackViewClass")
+            clazz[0].getInstance(loader)
+        }
     }
 
-    public synchronized static Method loadSendPresenceMethod(ClassLoader loader) throws Exception {
-        return UnobfuscatorCache.getInstance().getMethod(loader, () -> {
-            var methodData = dexkit.findMethod(FindMethod.create()
-                    .matcher(MethodMatcher.create().addUsingString("app/send-presence-subscription jid=")));
-            if (methodData.isEmpty())
-                throw new Exception("SendPresence method not found");
-            var methodCallers = methodData.get(0).getCallers();
+    @Throws(Exception::class)
+    @JvmStatic
+    fun loadBlueOnReplayMessageJobMethod(loader: ClassLoader): Method {
+        return UnobfuscatorCache.getInstance().getMethod(loader) {
+            findFirstMethodUsingStrings(loader, StringMatchType.Contains, "SendE2EMessageJob/onRun")
+                ?: throw Exception("BlueOnReplayMessageJob method not found")
+        }
+    }
+
+    @Throws(Exception::class)
+    @JvmStatic
+    fun loadBlueOnReplayWaJobManagerMethod(loader: ClassLoader): Method {
+        return UnobfuscatorCache.getInstance().getMethod(loader) {
+            val result =
+                findFirstClassUsingStrings(loader, StringMatchType.Contains, "WaJobManager/start")
+                    ?: throw Exception("BlueOnReplayWaJobManager method not found")
+            val job = XposedHelpers.findClass("org.whispersystems.jobqueue.Job", loader)
+            Arrays.stream(result.methods)
+                .filter { m -> m.parameterCount == 1 && m.parameterTypes[0] === job }
+                .findFirst()
+                .orElse(null) ?: throw Exception("BlueOnReplayWaJobManager method not found")
+        }
+    }
+
+    @Throws(Exception::class)
+    @JvmStatic
+    fun loadArchiveChatClass(loader: ClassLoader): Class<*> {
+        return UnobfuscatorCache.getInstance().getClass(loader) {
+            var clazz = findFirstClassUsingStrings(
+                loader,
+                StringMatchType.Contains,
+                "archive/set-content-indicator-to-empty"
+            )
+            if (clazz == null)
+                clazz = findFirstClassUsingStrings(
+                    loader,
+                    StringMatchType.Contains,
+                    "archive/Unsupported mode in ArchivePreviewView:"
+                )
+            clazz ?: throw Exception("ArchiveHideView method not found")
+        }
+    }
+
+    @Throws(Exception::class)
+    @JvmStatic
+    fun loadAntiRevokeOnCallReceivedMethod(loader: ClassLoader): Method {
+        return UnobfuscatorCache.getInstance().getMethod(loader) {
+            findFirstMethodUsingStrings(
+                loader,
+                StringMatchType.Contains,
+                "voip/callStateChangedOnUIThread"
+            )
+                ?: throw Exception("OnCallReceiver method not found")
+        }
+    }
+
+    @Throws(Exception::class)
+    @JvmStatic
+    fun loadOnChangeStatus(loader: ClassLoader): Method {
+        return UnobfuscatorCache.getInstance().getMethod(loader) {
+            var method = findFirstMethodUsingStrings(
+                loader,
+                StringMatchType.Contains,
+                "ConversationViewFiller/setParentGroupProfilePhoto"
+            )
+                ?: throw Exception("OnChangeStatus method not found")
+
+            if (method.parameterCount < 6) {
+                val declaringClassData = dexkit.getClassData(method.declaringClass)
+                    ?: throw Exception("OnChangeStatus method not found")
+
+                val arg1Class = loadWaContactClass(loader)
+                val methodData = declaringClassData.findMethod {
+                    matcher {
+                        paramCount(6, 8)
+                    }
+                }
+
+                for (methodItem in methodData) {
+                    val paramTypes = methodItem.paramTypes
+                    if (paramTypes[0].getInstance(loader) === arg1Class && paramTypes[1].getInstance(
+                            loader
+                        ) === arg1Class
+                    ) {
+                        method = methodItem.getMethodInstance(loader)
+                        break
+                    }
+                }
+            }
+            method
+        }
+    }
+
+    @Throws(Exception::class)
+    @JvmStatic
+    fun loadViewHolder(loader: ClassLoader): Class<*> {
+        return UnobfuscatorCache.getInstance().getClass(loader) {
+            val methods = dexkit.findMethod {
+                matcher {
+                    usingNumbers(
+                        Utils.getID("conversations_row_header_stub", "id"),
+                        Utils.getID("pin_indicator", "id"),
+                        Utils.getID("mute_indicator", "id"),
+                        Utils.getID("contact_photo", "id")
+                    )
+                }
+            }.stream()
+                .filter { methodData -> methodData.paramTypes[0].name == Context::class.java.name }
+                .collect(Collectors.toList())
+            if (methods.isEmpty()) throw ClassNotFoundException("View Holder not found!")
+            methods[0].getMethodInstance(loader).declaringClass
+        }
+    }
+
+    @Throws(Exception::class)
+    @JvmStatic
+    fun loadViewHolderField1(loader: ClassLoader): Field {
+        return UnobfuscatorCache.getInstance().getField(loader) {
+            val class1 = loadOnChangeStatus(loader).declaringClass.superclass
+            ReflectionUtils.getFieldByType(class1, loadViewHolder(loader))
+        }
+    }
+
+    @Throws(Exception::class)
+    @JvmStatic
+    fun loadStatusUserMethod(loader: ClassLoader): Method {
+        return UnobfuscatorCache.getInstance().getMethod(loader) {
+            val id = UnobfuscatorCache.getInstance().getOfuscateIDString("lastseensun%s")
+            if (id < 1) throw Exception("GetStatusUser ID not found")
+            val result = dexkit.findMethod {
+                matcher {
+                    addUsingNumber(id)
+                    returnType(String::class.java)
+                }
+            }
+            if (result.isEmpty()) throw Exception("GetStatusUser method not found")
+            result[result.size - 1].getMethodInstance(loader)
+        }
+    }
+
+    @Throws(Exception::class)
+    @JvmStatic
+    fun loadSendPresenceMethod(loader: ClassLoader): Method {
+        return UnobfuscatorCache.getInstance().getMethod(loader) {
+            val methodData = dexkit.findMethod {
+                matcher {
+                    addUsingString("app/send-presence-subscription jid=")
+                }
+            }
+            if (methodData.isEmpty()) throw Exception("SendPresence method not found")
+            var methodCallers = methodData[0].callers
             if (methodCallers.isEmpty()) {
-                var method = methodData.get(0);
-                var superMethodInterfaces = method.getDeclaredClass().getInterfaces();
-                if (superMethodInterfaces.isEmpty())
-                    throw new Exception("SendPresence method interface list empty");
-                var superMethod = superMethodInterfaces.get(0)
-                        .findMethod(FindMethod.create().matcher(MethodMatcher.create().name(method.getName())))
-                        .firstOrNull();
-                if (superMethod == null)
-                    throw new Exception("SendPresence method interface method not found");
-                methodCallers = superMethod.getCallers();
+                val method = methodData[0]
+                val superMethodInterfaces = method.declaredClass!!.interfaces
+                if (superMethodInterfaces.isEmpty()) throw Exception("SendPresence method interface list empty")
+                val superMethod = superMethodInterfaces[0].findMethod {
+                    matcher {
+                        name(method.name)
+                    }
+                }.firstOrNull() ?: throw Exception("SendPresence method interface method not found")
+                methodCallers = superMethod.callers
             }
-            var newMethod = methodCallers.firstOrNull(method1 -> method1.getParamCount() == 4);
-            if (newMethod == null)
-                throw new Exception("SendPresence method not found 2");
-            return newMethod.getMethodInstance(loader);
-        });
+            val newMethod = methodCallers.firstOrNull { it.paramCount == 4 }
+                ?: throw Exception("SendPresence method not found 2")
+            newMethod.getMethodInstance(loader)
+        }
     }
 
-    public synchronized static Method loadPinnedHashSetMethod(ClassLoader loader) throws Exception {
-        return UnobfuscatorCache.getInstance().getMethod(loader, () -> {
-            var method = findFirstMethodUsingStrings(loader, StringMatchType.Contains,
-                    "getPinnedJids/QUERY_CHAT_SETTINGS");
-            if (method == null)
-                throw new Exception("PinnedHashSet method not found");
-            return method;
-        });
+    @Throws(Exception::class)
+    @JvmStatic
+    fun loadPinnedHashSetMethod(loader: ClassLoader): Method {
+        return UnobfuscatorCache.getInstance().getMethod(loader) {
+            findFirstMethodUsingStrings(
+                loader,
+                StringMatchType.Contains,
+                "getPinnedJids/QUERY_CHAT_SETTINGS"
+            )
+                ?: throw Exception("PinnedHashSet method not found")
+        }
     }
 
-    public synchronized static Method loadGetFiltersMethod(ClassLoader loader) throws Exception {
-        return UnobfuscatorCache.getInstance().getMethod(loader, () -> {
-            var clazzFilters = findFirstClassUsingStrings(loader, StringMatchType.Contains,
-                    "conversations/filter/performFiltering");
-            if (clazzFilters == null)
-                throw new RuntimeException("Filters class not found");
-            return Arrays.stream(clazzFilters.getDeclaredMethods()).parallel()
-                    .filter(m -> m.getName().equals("publishResults")).findFirst().orElse(null);
-        });
+    @Throws(Exception::class)
+    @JvmStatic
+    fun loadGetFiltersMethod(loader: ClassLoader): Method {
+        return UnobfuscatorCache.getInstance().getMethod(loader) {
+            val clazzFilters = findFirstClassUsingStrings(
+                loader,
+                StringMatchType.Contains,
+                "conversations/filter/performFiltering"
+            )
+                ?: throw RuntimeException("Filters class not found")
+            Arrays.stream(clazzFilters.declaredMethods).parallel()
+                .filter { m -> m.name == "publishResults" }.findFirst().orElse(null)
+        }
     }
 
-    public synchronized static Method loadPinnedInChatMethod(ClassLoader loader) throws Exception {
-        return UnobfuscatorCache.getInstance().getMethod(loader, () -> {
-            var method = dexkit.findMethod(
-                    new FindMethod().matcher(new MethodMatcher().addUsingNumber(3732).returnType(int.class)));
-            if (method.isEmpty())
-                throw new RuntimeException("PinnedInChat method not found");
-            return method.get(0).getMethodInstance(loader);
-        });
-    }
-
-    public synchronized static Method loadBlueOnReplayCreateMenuConversationMethod(ClassLoader loader)
-            throws Exception {
-        return UnobfuscatorCache.getInstance().getMethod(loader, () -> {
-            var conversationClass = XposedHelpers.findClass("com.whatsapp.Conversation", loader);
-            if (conversationClass == null)
-                throw new RuntimeException("BlueOnReplayCreateMenuConversation class not found");
-            var method = Arrays.stream(conversationClass.getDeclaredMethods())
-                    .filter(m -> m.getParameterCount() == 1 && m.getParameterTypes()[0].equals(Menu.class)).findFirst()
-                    .orElse(null);
-            if (method == null)
-                throw new RuntimeException("BlueOnReplayCreateMenuConversation method not found");
-            return method;
-        });
-    }
-
-    public synchronized static Method loadBlueOnReplayViewButtonMethod(ClassLoader loader) throws Exception {
-        return UnobfuscatorCache.getInstance().getMethod(loader, () -> {
-            var method = findFirstMethodUsingStrings(loader, StringMatchType.Contains,
-                    "PLAYBACK_PAGE_ITEM_ON_CREATE_VIEW_END");
-            if (method == null)
-                throw new RuntimeException("BlueOnReplayViewButton method not found");
-            return method;
-        });
-    }
-
-    public synchronized static Field loadBlueOnReplayViewButtonOutSideField(ClassLoader loader) throws Exception {
-        return UnobfuscatorCache.getInstance().getField(loader, () -> {
-            var method = loadBlueOnReplayViewButtonMethod(loader);
-            var clazz = method.getDeclaringClass();
-            var methodData = dexkit.getMethodData(method);
-            var fields = methodData.getUsingFields();
-            for (var ufield : fields) {
-                var field = ufield.getField().getFieldInstance(loader);
-                if (clazz.isAssignableFrom(field.getDeclaringClass()) && clazz != field.getDeclaringClass())
-                    return field;
+    @Throws(Exception::class)
+    @JvmStatic
+    fun loadPinnedInChatMethod(loader: ClassLoader): Method {
+        return UnobfuscatorCache.getInstance().getMethod(loader) {
+            val method = dexkit.findMethod {
+                matcher {
+                    addUsingNumber(3732)
+                    returnType(Int::class.java)
+                }
             }
-            throw new Exception("BlueOnReplayViewButtonOutSide not found!");
-        });
+            if (method.isEmpty()) throw RuntimeException("PinnedInChat method not found")
+            method[0].getMethodInstance(loader)
+        }
     }
 
-    public synchronized static Method loadBlueOnReplayStatusViewMethod(ClassLoader loader) throws Exception {
-        return UnobfuscatorCache.getInstance().getMethod(loader, () -> {
-            var method = findFirstMethodUsingStrings(loader, StringMatchType.Contains,
-                    "StatusPlaybackPage/onViewCreated");
-            if (method == null)
-                throw new RuntimeException("BlueOnReplayViewButton method not found");
-            return method;
-        });
+
+    @Throws(Exception::class)
+    @JvmStatic
+    fun loadBlueOnReplayViewButtonMethod(loader: ClassLoader): Method {
+        return UnobfuscatorCache.getInstance().getMethod(loader) {
+            findFirstMethodUsingStrings(
+                loader,
+                StringMatchType.Contains,
+                "PLAYBACK_PAGE_ITEM_ON_CREATE_VIEW_END"
+            )
+                ?: throw RuntimeException("BlueOnReplayViewButton method not found")
+        }
     }
 
-    public synchronized static Method loadChatLimitDeleteMethod(ClassLoader loader) throws Exception {
-        return UnobfuscatorCache.getInstance().getMethod(loader, () -> {
-            var clazz = findFirstClassUsingStrings(loader, StringMatchType.Contains,
-                    "app/time server update processed");
-            if (clazz == null)
-                throw new RuntimeException("ChatLimitDelete class not found");
-            var method = Arrays.stream(clazz.getDeclaredMethods())
-                    .filter(m -> m.getReturnType().equals(long.class) && Modifier.isStatic(m.getModifiers()))
-                    .findFirst().orElse(null);
+    @Throws(Exception::class)
+    @JvmStatic
+    fun loadBlueOnReplayStatusViewMethod(loader: ClassLoader): Method {
+        return UnobfuscatorCache.getInstance().getMethod(loader) {
+            findFirstMethodUsingStrings(
+                loader,
+                StringMatchType.Contains,
+                "StatusPlaybackPage/onViewCreated"
+            )
+                ?: throw RuntimeException("BlueOnReplayViewButton method not found")
+        }
+    }
+
+    @Throws(Exception::class)
+    @JvmStatic
+    fun loadChatLimitDeleteMethod(loader: ClassLoader): Method {
+        return UnobfuscatorCache.getInstance().getMethod(loader) {
+            val clazz = findFirstClassUsingStrings(
+                loader,
+                StringMatchType.Contains,
+                "app/time server update processed"
+            )
+                ?: throw RuntimeException("ChatLimitDelete class not found")
+            var method = Arrays.stream(clazz.declaredMethods)
+                .filter { m -> m.returnType == Long::class.javaPrimitiveType && Modifier.isStatic(m.modifiers) }
+                .findFirst().orElse(null)
             if (method == null) {
-                var methodList = Objects.requireNonNull(dexkit.getClassData(clazz))
-                        .findMethod(new FindMethod().matcher(new MethodMatcher().opCodes(new OpCodesMatcher().opNames(
-                                List.of("invoke-static",
-                                        "move-result-wide", "iget-wide", "const-wide/16", "cmp-long",
-                                        "if-eqz", "iget-wide", "add-long/2addr", "return-wide",
-                                        "iget-wide", "cmp-long", "if-eqz", "iget-wide",
-                                        "goto", "invoke-static", "move-result-wide", "iget-wide",
-                                        "sub-long/2addr", "return-wide")))));
-                if (methodList.isEmpty())
-                    throw new RuntimeException("ChatLimitDelete method not found");
-                method = methodList.get(0).getMethodInstance(loader);
-            }
-            return method;
-        });
-    }
-
-    public synchronized static Method loadChatLimitDelete2Method(ClassLoader loader) throws Exception {
-        return UnobfuscatorCache.getInstance().getMethod(loader, () -> {
-            var method = findFirstMethodUsingStrings(loader, StringMatchType.Contains, "dialog/delete no messages","pref_delete_media");
-            if (method == null)
-                throw new RuntimeException("ChatLimitDelete2 method not found");
-            return method;
-        });
-    }
-
-    public synchronized static Method loadNewMessageMethod(ClassLoader loader) throws Exception {
-        return UnobfuscatorCache.getInstance().getMethod(loader, () -> {
-            var clazzMessageName = loadFMessageClass(loader).getName();
-            var listMethods = dexkit.findMethod(FindMethod.create().searchPackages("com.whatsapp")
-                    .matcher(MethodMatcher.create().addUsingString("extra_payment_note", StringMatchType.Equals)));
-            if (listMethods.isEmpty())
-                throw new Exception("NewMessage method not found");
-            var invokes = listMethods.get(0).getInvokes();
-            var method = invokes.parallelStream()
-                    .filter(invoke -> clazzMessageName.equals(invoke.getDeclaredClass().getName())
-                            && invoke.getReturnType() != null
-                            && invoke.getReturnType().getName().equals("java.lang.String"))
-                    .findFirst().orElse(null);
-            if (method == null)
-                throw new RuntimeException("NewMessage method not found");
-            return method.getMethodInstance(loader);
-        });
-    }
-
-    public synchronized static Method loadOriginalMessageKey(ClassLoader loader) throws Exception {
-        return UnobfuscatorCache.getInstance().getMethod(loader, () -> {
-            var method = findFirstMethodUsingStrings(loader, StringMatchType.Contains,
-                    "FMessageUtil/getOriginalMessageKeyIfEdited");
-            if (method == null)
-                throw new RuntimeException("MessageEdit method not found");
-            return method;
-        });
-    }
-
-    public synchronized static Method loadNewMessageWithMediaMethod(ClassLoader loader) throws Exception {
-        return UnobfuscatorCache.getInstance().getMethod(loader, () -> {
-            var methodList = dexkit.findMethod(FindMethod.create().matcher(
-                    MethodMatcher.create().addUsingString("INSERT_TABLE_MESSAGE_QUOTED", StringMatchType.Equals)));
-            if (methodList.isEmpty())
-                throw new Exception("NewMessageWithMedia method not found");
-            var methodData = methodList.get(0);
-            var invokes = methodData.getInvokes();
-            var clazzMessageName = loadFMessageClass(loader).getName();
-            var method = invokes.parallelStream()
-                    .filter(invoke -> clazzMessageName.equals(invoke.getDeclaredClass().getName())
-                            && invoke.getReturnType() != null
-                            && invoke.getReturnType().getName().equals("java.lang.String"))
-                    .findFirst().orElse(null);
-            if (method == null)
-                throw new RuntimeException("NewMessageWithMedia method not found");
-            return method.getMethodInstance(loader);
-        });
-    }
-
-    public synchronized static Method loadMessageEditMethod(ClassLoader loader) throws Exception {
-        return UnobfuscatorCache.getInstance().getMethod(loader, () -> {
-            var method = findFirstMethodUsingStrings(loader, StringMatchType.Contains,
-                    "MessageEditInfoStore/insertEditInfo/missing");
-            if (method == null)
-                throw new RuntimeException("MessageEdit method not found");
-            return method;
-        });
-    }
-
-    public synchronized static Method loadCallerMessageEditMethod(ClassLoader loader) throws Exception {
-        return UnobfuscatorCache.getInstance().getMethod(loader, () -> {
-            var methodData1 = dexkit.getMethodData(loadMessageEditMethod(loader));
-            var FMessage = loadFMessageClass(loader);
-            var invokes = methodData1.getInvokes();
-            for (var methodData : invokes) {
-                if (methodData.isConstructor())
-                    continue;
-                var method = methodData.getMethodInstance(loader);
-                if (Modifier.isStatic(method.getModifiers()) &&
-                        method.getParameterCount() == 1 && method.getParameterTypes()[0].equals(FMessage) &&
-                        !method.getReturnType().isPrimitive()) {
-                    return methodData.getMethodInstance(loader);
-                }
-            }
-            throw new RuntimeException("CallerMessageEdit method not found");
-        });
-    }
-
-    public synchronized static Method loadGetEditMessageMethod(ClassLoader loader) throws Exception {
-        return UnobfuscatorCache.getInstance().getMethod(loader, () -> {
-            var method = findFirstMethodUsingStrings(loader, StringMatchType.Contains,
-                    "MessageEditInfoStore/insertEditInfo/missing");
-            if (method == null)
-                throw new RuntimeException("GetEditMessage method not found");
-            var methodData = dexkit.getMethodData(DexSignUtil.getMethodDescriptor(method));
-            if (methodData == null)
-                throw new RuntimeException("GetEditMessage method not found");
-            var invokes = methodData.getInvokes();
-            for (var invoke : invokes) {
-                // pre 21.xx method
-                if (invoke.getParamTypes().isEmpty()
-                        && Objects.equals(invoke.getDeclaredClass(), methodData.getParamTypes().get(0))) {
-                    return invoke.getMethodInstance(loader);
-                }
-
-                // 21.xx+ method (static)
-                // 25.xx+ added additional type check
-                if (Modifier.isStatic(invoke.getMethodInstance(loader).getModifiers())
-                        && Objects.equals(invoke.getParamTypes().get(0), methodData.getParamTypes().get(0))
-                        && !Objects.equals(invoke.getParamTypes().get(0), invoke.getDeclaredClass())) {
-                    return invoke.getMethodInstance(loader);
-                }
-            }
-            throw new RuntimeException("GetEditMessage method not found");
-        });
-    }
-
-    /**
-     * @noinspection DataFlowIssue
-     */
-    public synchronized static Field loadSetEditMessageField(ClassLoader loader) throws Exception {
-        return UnobfuscatorCache.getInstance().getField(loader, () -> {
-            var method = findFirstMethodUsingStrings(loader, StringMatchType.Contains, "CoreMessageStore/updateCheckoutMessageWithTransactionInfo");
-            if (method == null)
-                method = findFirstMethodUsingStrings(loader, StringMatchType.Contains, "UPDATE_MESSAGE_ADD_ON_FLAGS_MAIN_SQL");
-            var classData = dexkit.getClassData(loadFMessageClass(loader));
-            var methodData = dexkit.getMethodData(DexSignUtil.getMethodDescriptor(method));
-            var usingFields = methodData.getUsingFields();
-            for (var f : usingFields) {
-                var field = f.getField();
-                if (field.getDeclaredClass().equals(classData) && field.getType().getName().equals(long.class.getName())) {
-                    return field.getFieldInstance(loader);
-                }
-            }
-            throw new RuntimeException("SetEditMessage method not found");
-        });
-    }
-
-    public synchronized static Class<?> loadCoreMessageStore(ClassLoader loader) throws Exception {
-        return UnobfuscatorCache.getInstance().getClass(loader, () -> {
-            var clazz = findFirstClassUsingStrings(loader, StringMatchType.Contains,
-                    "CoreMessageStore/updateCheckoutMessageWithTransactionInfo");
-            if (clazz == null)
-                clazz = findFirstClassUsingStrings(loader, StringMatchType.Contains,
-                        "UPDATE_MESSAGE_ADD_ON_FLAGS_MAIN_SQL");
-            if (clazz == null)
-                throw new Exception("CoreMessageStore class not found");
-            return clazz;
-        });
-    }
-
-    /**
-     * @noinspection DataFlowIssue
-     */
-    public synchronized static Class loadDialogViewClass(ClassLoader loader) throws Exception {
-        return UnobfuscatorCache.getInstance().getClass(loader, () -> {
-            var id = Utils.getID("touch_outside", "id");
-            var results = dexkit.findMethod(
-                    new FindMethod().matcher(new MethodMatcher().addUsingNumber(id).returnType(FrameLayout.class)));
-            if (results.isEmpty())
-                throw new Exception("DialogView class not found");
-            return results.get(0).getDeclaredClass().getInstance(loader);
-        });
-    }
-
-    public synchronized static Constructor loadRecreateFragmentConstructor(ClassLoader loader) throws Exception {
-        return UnobfuscatorCache.getInstance().getConstructor(loader, () -> {
-            var data = dexkit.findMethod(FindMethod.create().searchPackages("X.")
-                    .matcher(MethodMatcher.create().addUsingString("Instantiated fragment")));
-            if (data.isEmpty())
-                throw new RuntimeException("RecreateFragment method not found");
-            if (!data.single().isConstructor())
-                throw new RuntimeException("RecreateFragment method not found");
-            return data.single().getConstructorInstance(loader);
-        });
-    }
-
-    public synchronized static Method loadOnTabItemAddMethod(ClassLoader loader) throws Exception {
-        return UnobfuscatorCache.getInstance().getMethod(loader, () -> {
-            var result = findFirstMethodUsingStrings(loader, StringMatchType.Contains,
-                    "Maximum number of items supported by");
-            if (result == null)
-                throw new RuntimeException("OnTabItemAdd method not found");
-            return result;
-        });
-    }
-
-    public synchronized static Method loadGetViewConversationMethod(ClassLoader loader) throws Exception {
-        return UnobfuscatorCache.getInstance().getMethod(loader, () -> {
-            var clazz = XposedHelpers.findClass("com.whatsapp.conversationslist.ConversationsFragment", loader);
-            var method = Arrays.stream(clazz.getDeclaredMethods()).filter(m -> m.getParameterCount() == 3
-                            && m.getReturnType().equals(View.class) && m.getParameterTypes()[1].equals(LayoutInflater.class))
-                    .findFirst().orElse(null);
-            if (method == null)
-                throw new RuntimeException("GetViewConversation method not found");
-            return method;
-        });
-    }
-
-    /**
-     * @noinspection SimplifyStreamApiCallChains
-     */
-    public synchronized static Method loadOnMenuItemSelected(ClassLoader loader) throws Exception {
-        return UnobfuscatorCache.getInstance().getMethod(loader, () -> {
-            var aClass = XposedHelpers.findClass("androidx.viewpager.widget.ViewPager", loader);
-            var result = Arrays.stream(aClass.getDeclaredMethods()).filter(m -> m.getParameterCount() == 4 &&
-                    m.getParameterTypes()[0].equals(int.class) &&
-                    m.getParameterTypes()[1].equals(int.class) &&
-                    m.getParameterTypes()[2].equals(boolean.class) &&
-                    m.getParameterTypes()[3].equals(boolean.class)).collect(Collectors.toList());
-            if (result.isEmpty())
-                throw new RuntimeException("OnMenuItemSelected method not found");
-            return result.get(1);
-        });
-    }
-
-    public synchronized static Method loadOnUpdateStatusChanged(ClassLoader loader) throws Exception {
-        return UnobfuscatorCache.getInstance().getMethod(loader, () -> {
-            var clazzData = dexkit.findClass(FindClass.create().matcher(ClassMatcher.create().addUsingString("UpdatesViewModel/"))).firstOrNull();
-            var methodSeduleche = XposedHelpers.findMethodBestMatch(Timer.class, "schedule", TimerTask.class, long.class, long.class);
-            var result = clazzData.findMethod(FindMethod.create().matcher(MethodMatcher.create().addInvoke(DexSignUtil.getMethodDescriptor(methodSeduleche))));
-            if (result.isEmpty())
-                result = dexkit.findMethod(FindMethod.create().matcher(MethodMatcher.create().addUsingString("UpdatesViewModel/Scheduled updates list refresh")));
-            if (result.isEmpty())
-                throw new RuntimeException("OnUpdateStatusChanged method not found");
-            return result.get(0).getMethodInstance(loader);
-        });
-    }
-
-    /**
-     * @noinspection DataFlowIssue
-     */
-    public synchronized static Field loadGetInvokeField(ClassLoader loader) throws Exception {
-        return UnobfuscatorCache.getInstance().getField(loader, () -> {
-            var method = loadOnUpdateStatusChanged(loader);
-            var methodData = dexkit.getMethodData(DexSignUtil.getMethodDescriptor(method));
-            var fields = methodData.getUsingFields();
-            var field = fields.stream().map(UsingFieldData::getField)
-                    .filter(f -> f.getDeclaredClass().equals(methodData.getDeclaredClass())).findFirst().orElse(null);
-            if (field == null)
-                throw new RuntimeException("GetInvokeField method not found");
-            return field.getFieldInstance(loader);
-        });
-    }
-
-    public synchronized static Class<?> loadStatusInfoClass(ClassLoader loader) throws Exception {
-        return UnobfuscatorCache.getInstance().getClass(loader, () -> {
-            var clazz = findFirstClassUsingStrings(loader, StringMatchType.Contains, "ContactStatusDataItem");
-            if (clazz == null)
-                throw new RuntimeException("StatusInfo class not found");
-            return clazz;
-        });
-    }
-
-    public synchronized static Class loadStatusListUpdatesClass(ClassLoader loader) throws Exception {
-        return UnobfuscatorCache.getInstance().getClass(loader, () -> {
-            var clazz = findFirstClassUsingStrings(loader, StringMatchType.Contains, "StatusListUpdates");
-            if (clazz == null)
-                throw new RuntimeException("StatusListUpdates class not found");
-            return clazz;
-        });
-    }
-
-    public synchronized static Class loadTabFrameClass(ClassLoader loader) throws Exception {
-        return UnobfuscatorCache.getInstance().getClass(loader, () -> {
-            var clazz = findFirstClassUsingStrings(loader, StringMatchType.Contains, "android:menu:presenters");
-            if (clazz == null)
-                throw new RuntimeException("TabFrame class not found");
-            return clazz;
-        });
-    }
-
-    public synchronized static Class loadRemoveChannelRecClass(ClassLoader loader) throws Exception {
-        return UnobfuscatorCache.getInstance().getClass(loader, () -> {
-            var clazz = findFirstClassUsingStrings(loader, StringMatchType.Contains, "hasNewsletterSubscriptions");
-            if (clazz == null)
-                throw new RuntimeException("RemoveChannelRec class not found");
-            return clazz;
-        });
-    }
-
-    public synchronized static Class loadFilterAdaperClass(ClassLoader loader) throws Exception {
-        return UnobfuscatorCache.getInstance().getClass(loader, () -> {
-            var clazzList = dexkit.findClass(new FindClass().matcher(new ClassMatcher().addMethod(
-                    new MethodMatcher().addUsingString("CONTACTS_FILTER").paramCount(1).addParamType(int.class))));
-            if (clazzList.isEmpty())
-                throw new RuntimeException("FilterAdapter class not found");
-            return clazzList.get(0).getInstance(loader);
-        });
-    }
-
-    public synchronized static Constructor loadSeeMoreConstructor(ClassLoader loader) throws Exception {
-        return UnobfuscatorCache.getInstance().getConstructor(loader, () -> {
-
-            var commentClass = findFirstClassUsingName(loader, StringMatchType.EndsWith, "CommentTextView");
-            var commentClassData = dexkit.getClassData(commentClass);
-            var methods = commentClassData.getMethods();
-            var arrayList = new ArrayList<ClassData>();
-            methods.forEach((methodData -> {
-                var invokes = methodData.getInvokes();
-                var classes = invokes.stream().map(MethodData::getDeclaredClass).collect(Collectors.toSet());
-                arrayList.addAll(classes);
-            }));
-
-            var clazzData = dexkit.findClass(FindClass.create().searchIn(arrayList).matcher(ClassMatcher.create()
-                            .addMethod(MethodMatcher.create().addUsingNumber(16384).addUsingNumber(512).addUsingNumber(64)
-                                    .addUsingNumber(16))))
-                    .singleOrNull();
-            if (clazzData == null)
-                throw new RuntimeException("SeeMore constructor 1 not found");
-            for (var method : clazzData.getMethods()) {
-                if (method.getParamCount() > 1 && method.isConstructor()
-                        && method.getParamTypes().stream().allMatch(c -> c.getName().equals(int.class.getName()))) {
-                    return method.getConstructorInstance(loader);
-                }
-            }
-            throw new RuntimeException("SeeMore constructor 2 not found");
-        });
-    }
-
-    public synchronized static Method[] loadSendStickerMethods(ClassLoader loader) throws Exception {
-        return UnobfuscatorCache.getInstance().getMethods(loader, () -> {
-            var methods = findAllMethodUsingStrings(loader, StringMatchType.Contains,
-                    "StickerGridViewItem.StickerLocal");
-            if (methods == null)
-                throw new RuntimeException("SendSticker method not found");
-            return methods;
-        });
-
-    }
-
-    public synchronized static Method loadMaterialAlertDialog(ClassLoader loader) throws Exception {
-        return UnobfuscatorCache.getInstance().getMethod(loader, () -> {
-            var callConfirmationFragment = XposedHelpers
-                    .findClass("com.whatsapp.calling.fragment.CallConfirmationFragment", loader);
-            var method = ReflectionUtils.findMethodUsingFilter(callConfirmationFragment,
-                    m -> m.getParameterCount() == 1 && m.getParameterTypes()[0].equals(android.os.Bundle.class));
-            var methodData = dexkit.getMethodData(method);
-            var invokes = methodData.getInvokes();
-            for (var invoke : invokes) {
-                if (invoke.isMethod() && Modifier.isStatic(invoke.getModifiers()) && invoke.getParamCount() == 1
-                        && invoke.getParamTypes().get(0).getName().equals(Context.class.getName())) {
-                    return invoke.getMethodInstance(loader);
-                }
-
-                // for 22.xx, MaterialAlertDialog method is not static
-                if (invoke.isMethod() && invoke.getParamCount() == 1
-                        && invoke.getParamTypes().get(0).getName().equals(Context.class.getName())) {
-                    return invoke.getMethodInstance(loader);
-                }
-            }
-            throw new RuntimeException("MaterialAlertDialog not found");
-        });
-    }
-
-
-    public synchronized static Method loadJidFactory(ClassLoader loader) throws Exception {
-        return UnobfuscatorCache.getInstance().getMethod(loader, () -> {
-            var method = findFirstMethodUsingStrings(loader, StringMatchType.Contains, "lid_me", "status_me",
-                    "s.whatsapp.net");
-            if (method == null)
-                throw new RuntimeException("JidFactory method not found");
-            return method;
-        });
-    }
-
-    public synchronized static Method loadGroupCheckAdminMethod(ClassLoader loader) throws Exception {
-        return UnobfuscatorCache.getInstance().getMethod(loader, () -> {
-
-            var classData = dexkit
-                    .findClass(FindClass.create()
-                            .matcher(ClassMatcher.create()
-                                    .addUsingString("saveGroupParticipants/INSERT_GROUP_PARTICIPANT_USER")))
-                    .singleOrNull();
-            var GroupChatClass = findFirstClassUsingName(loader, StringMatchType.EndsWith, "GroupChatInfoActivity");
-            var onCreateMenu = ReflectionUtils.findMethodUsingFilter(GroupChatClass,
-                    method -> method.getName().equals("onCreateContextMenu"));
-            var onCreateMenuData = dexkit.getMethodData(onCreateMenu);
-            var invokes = onCreateMenuData.getInvokes().stream()
-                    .filter(m -> Objects.equals(m.getDeclaredClassName(), classData.getName()))
-                    .collect(Collectors.toList());
-            for (var invoke : invokes) {
-                var invokeMethod = invoke.getMethodInstance(loader);
-                if (invokeMethod.getParameterCount() != 2 || invokeMethod.getReturnType() != boolean.class)
-                    continue;
-                if (invokeMethod.getParameterTypes()[1].getName().contains("jid.UserJid")) {
-                    XposedBridge.log("FIND: " + invokeMethod);
-                    return invokeMethod;
-                }
-
-            }
-            throw new RuntimeException("GroupCheckAdmin method not found");
-        });
-    }
-
-    public synchronized static Constructor loadStartPrefsConfig(ClassLoader loader) throws Exception {
-        return UnobfuscatorCache.getInstance().getConstructor(loader, () -> {
-            var results = dexkit.findMethod(
-                    new FindMethod().matcher(new MethodMatcher().addUsingString("startup_migrated_version")));
-            if (results.isEmpty())
-                throw new RuntimeException("StartPrefsConfig constructor not found");
-            return results.get(0).getConstructorInstance(loader);
-        });
-    }
-
-    public synchronized static Method loadCheckOnlineMethod(ClassLoader loader) throws Exception {
-        return UnobfuscatorCache.getInstance().getMethod(loader, () -> {
-            var method = findFirstMethodUsingStrings(loader, StringMatchType.Contains,
-                    "MessageHandler/handleConnectionThreadReady connectionready");
-            if (method == null)
-                method = findFirstMethodUsingStrings(loader, StringMatchType.Contains,
-                        "app/xmpp/recv/handle_available");
-            if (method == null)
-                throw new RuntimeException("CheckOnline method not found");
-            return method;
-        });
-    }
-
-    public synchronized static Method loadEphemeralInsertdb(ClassLoader loader) throws Exception {
-        return UnobfuscatorCache.getInstance().getMethod(loader, () -> {
-            var method = dexkit.findMethod(FindMethod.create()
-                    .matcher(MethodMatcher.create().addUsingString("expire_timestamp")
-                            .addUsingString("ephemeral_initiated_by_me").addUsingString("ephemeral_trigger")
-                            .returnType(ContentValues.class)));
-            if (method.isEmpty())
-                throw new RuntimeException("FieldExpireTime method not found");
-            var methodData = method.get(0);
-            return methodData.getMethodInstance(loader);
-        });
-    }
-
-    public synchronized static Method loadDefEmojiClass(ClassLoader loader) throws Exception {
-        return UnobfuscatorCache.getInstance().getMethod(loader, () -> {
-            var method = findFirstMethodUsingStrings(loader, StringMatchType.Contains, "emojis.oba");
-            if (method == null)
-                throw new RuntimeException("DefEmoji class not found");
-            return method;
-        });
-    }
-
-    public synchronized static Class loadVideoViewContainerClass(ClassLoader loader) throws Exception {
-        return UnobfuscatorCache.getInstance().getClass(loader, () -> {
-            var clazz = findFirstClassUsingStrings(loader, StringMatchType.Contains, "frame_visibility_serial_worker");
-            if (clazz == null)
-                throw new RuntimeException("VideoViewContainer class not found");
-            return clazz;
-        });
-    }
-
-    public synchronized static Class loadImageVewContainerClass(ClassLoader loader) throws Exception {
-        return UnobfuscatorCache.getInstance().getClass(loader, () -> {
-            var clazzList = dexkit.findClass(FindClass.create().matcher(
-                    ClassMatcher.create()
-                            .addMethod(
-                                    MethodMatcher.create()
-                                            .addUsingNumber(Utils.getID("hd_invisible_touch", "id"))
-                                            .addUsingNumber(Utils.getID("control_btn", "id")))));
-            if (clazzList.isEmpty())
-                throw new RuntimeException("ImageViewContainer class not found");
-            for (var clazzData : clazzList) {
-                var clazz = clazzData.getInstance(loader);
-                if (ViewGroup.class.isAssignableFrom(clazz))
-                    return clazz;
-            }
-            throw new ClassNotFoundException("Class ImageViewContainer not Found");
-        });
-    }
-
-    public synchronized static Method getFilterInitMethod(ClassLoader loader) throws Exception {
-        return UnobfuscatorCache.getInstance().getMethod(loader, () -> {
-            var filterAdaperClass = Unobfuscator.loadFilterAdaperClass(loader);
-            var constructor = filterAdaperClass.getConstructors()[0];
-            var methods = dexkit.findMethod(new FindMethod()
-                    .matcher(new MethodMatcher().addInvoke(DexSignUtil.getMethodDescriptor(constructor))));
-            if (methods.isEmpty())
-                throw new RuntimeException("FilterInit method not found");
-            var cFrag = XposedHelpers.findClass("com.whatsapp.conversationslist.ConversationsFragment", loader);
-            var method = methods.stream().filter(m -> Arrays.asList(1, 2).contains(m.getParamCount())
-                    && m.getParamTypes().get(0).getName().equals(cFrag.getName())).findFirst().orElse(null);
-            if (method == null)
-                throw new RuntimeException("FilterInit method not found 2");
-
-            // for 20.xx, it returned with 2 parameter count
-            if (method.getParamCount() == 2) {
-                var callers = method.getCallers();
-                method = callers.stream().filter(methodData -> methodData.isMethod()
-                        && methodData.getDeclaredClassName().equals(cFrag.getName())).findAny().orElse(null);
-                if (method == null)
-                    throw new RuntimeException("FilterInit method not found 3");
-            }
-            return method.getMethodInstance(loader);
-        });
-    }
-
-    public synchronized static Class getFilterView(ClassLoader loader) throws Exception {
-        return UnobfuscatorCache.getInstance().getClass(loader, () -> {
-            var filter_id = Utils.getID("conversations_swipe_to_reveal_filters_stub", "id");
-            var results = dexkit.findClass(FindClass.create()
-                    .matcher(ClassMatcher.create().addMethod(MethodMatcher.create().addUsingNumber(filter_id))));
-            if (results.isEmpty())
-                throw new RuntimeException("FilterView class not found");
-            return results.get(0).getInstance(loader);
-        });
-    }
-
-    public static Class<?> loadActionUser(ClassLoader loader) throws Exception {
-        return UnobfuscatorCache.getInstance().getClass(loader, () -> {
-            var fMessageClass = loadFMessageClass(loader);
-            var result = dexkit.findMethod(
-                    FindMethod.create()
-                            .matcher(
-                                    MethodMatcher.create()
-                                            .paramTypes(fMessageClass, String.class, boolean.class)
-                                            .modifiers(Modifier.PUBLIC | Modifier.FINAL)
-                                            .returnType(boolean.class)
+                val methodList = dexkit.getClassData(clazz)?.findMethod {
+                    matcher {
+                        opCodes(
+                            OpCodesMatcher().opNames(
+                                listOf(
+                                    "invoke-static",
+                                    "move-result-wide",
+                                    "iget-wide",
+                                    "const-wide/16",
+                                    "cmp-long",
+                                    "if-eqz",
+                                    "iget-wide",
+                                    "add-long/2addr",
+                                    "return-wide",
+                                    "iget-wide",
+                                    "cmp-long",
+                                    "if-eqz",
+                                    "iget-wide",
+                                    "goto",
+                                    "invoke-static",
+                                    "move-result-wide",
+                                    "iget-wide",
+                                    "sub-long/2addr",
+                                    "return-wide"
+                                )
                             )
-            ).singleOrNull();
-            if (result == null) throw new RuntimeException("ActionUser class not found");
-            return result.getDeclaredClass().getInstance(loader);
-        });
+                        )
+                    }
+                } ?: return@getMethod null
+                if (methodList.isEmpty()) throw RuntimeException("ChatLimitDelete method not found")
+                method = methodList[0].getMethodInstance(loader)
+            }
+            method
+        }
     }
 
-    public synchronized static Method loadOnPlaybackFinished(ClassLoader classLoader) throws Exception {
-        return UnobfuscatorCache.getInstance().getMethod(classLoader, () -> {
-            var method = findFirstMethodUsingStrings(classLoader, StringMatchType.Contains,
-                    "playbackPage/onPlaybackContentFinished");
-            if (method == null)
-                throw new RuntimeException("OnPlaybackFinished method not found");
-            return method;
-        });
+    @Throws(Exception::class)
+    @JvmStatic
+    fun loadChatLimitDelete2Method(loader: ClassLoader): Method {
+        return UnobfuscatorCache.getInstance().getMethod(loader) {
+            findFirstMethodUsingStrings(
+                loader,
+                StringMatchType.Contains,
+                "dialog/delete no messages",
+                "pref_delete_media"
+            )
+                ?: throw RuntimeException("ChatLimitDelete2 method not found")
+        }
     }
 
-    public synchronized static Method loadNextStatusRunMethod(ClassLoader classLoader) throws Exception {
-        return UnobfuscatorCache.getInstance().getMethod(classLoader, () -> {
-            var methodList = dexkit.findMethod(
-                    new FindMethod().matcher(new MethodMatcher().addUsingString("playMiddleTone").name("run")));
-            if (methodList.isEmpty())
-                throw new RuntimeException("RunNextStatus method not found");
-            return methodList.get(0).getMethodInstance(classLoader);
-        });
-    }
-
-    public synchronized static Method loadOnInsertReceipt(ClassLoader classLoader) throws Exception {
-        return UnobfuscatorCache.getInstance().getMethod(classLoader, () -> {
-            var method = dexkit
-                    .findMethod(FindMethod.create()
-                            .matcher(MethodMatcher.create().addUsingString("INSERT_RECEIPT_USER").paramCount(1)))
-                    .singleOrNull();
-            if (method == null)
-                throw new RuntimeException("OnInsertReceipt method not found");
-            return method.getMethodInstance(classLoader);
-        });
-
-    }
-
-    public synchronized static Method loadSendAudioTypeMethod(ClassLoader classLoader) throws Exception {
-        return UnobfuscatorCache.getInstance().getMethod(classLoader, () -> {
-            var classMsgReplyAct = Unobfuscator.findFirstClassUsingName(classLoader, StringMatchType.EndsWith,
-                    "MessageReplyActivity");
-            if (classMsgReplyAct == null)
-                throw new ClassNotFoundException("Class MessageReplyActivity not found");
-            var method = classMsgReplyAct.getMethod("onActivityResult", int.class, int.class,
-                    android.content.Intent.class);
-            var methodData = Objects.requireNonNull(dexkit.getMethodData(method));
-            var invokes = methodData.getInvokes();
-            for (var invoke : invokes) {
-                if (!invoke.isMethod())
-                    continue;
-                var m1 = invoke.getMethodInstance(classLoader);
-                var params = Arrays.asList(m1.getParameterTypes());
-                if (params.contains(List.class) && params.contains(int.class) && params.contains(Uri.class)) {
-                    return m1;
+    @Throws(Exception::class)
+    @JvmStatic
+    fun loadNewMessageMethod(loader: ClassLoader): Method {
+        return UnobfuscatorCache.getInstance().getMethod(loader) {
+            val clazzMessageName = loadFMessageClass(loader).name
+            val listMethods = dexkit.findMethod {
+                searchPackages("com.whatsapp")
+                matcher {
+                    addUsingString("extra_payment_note", StringMatchType.Equals)
                 }
             }
-            throw new NoSuchMethodException("SendAudioType method not found");
-        });
+            if (listMethods.isEmpty()) throw Exception("NewMessage method not found")
+            val invokes = listMethods[0].invokes
+            val method = invokes.parallelStream()
+                .filter { invoke ->
+                    clazzMessageName == invoke.declaredClass?.name &&
+                            invoke.returnType != null &&
+                            invoke.returnType?.name == "java.lang.String"
+                }.findFirst().orElse(null) ?: throw RuntimeException("NewMessage method not found")
+            method.getMethodInstance(loader)
+        }
     }
 
-    public synchronized static Field loadOriginFMessageField(ClassLoader classLoader) throws Exception {
-        return UnobfuscatorCache.getInstance().getField(classLoader, () -> {
-            String[] commonStrings = new String[]{
-                    "audio/ogg; codecs=opus",
-                    "audio/ogg",
-                    "audio/amr",
-                    "audio/mp4",
-                    "audio/aac"
-            };
+    @Throws(Exception::class)
+    @JvmStatic
+    fun loadOriginalMessageKey(loader: ClassLoader): Method {
+        return UnobfuscatorCache.getInstance().getMethod(loader) {
+            findFirstMethodUsingStrings(
+                loader,
+                StringMatchType.Contains,
+                "FMessageUtil/getOriginalMessageKeyIfEdited"
+            )
+                ?: throw RuntimeException("MessageEdit method not found")
+        }
+    }
 
-            var clazz = loadFMessageClass(classLoader);
+    @Throws(Exception::class)
+    @JvmStatic
+    fun loadNewMessageWithMediaMethod(loader: ClassLoader): Method {
+        return UnobfuscatorCache.getInstance().getMethod(loader) {
+            val methodList = dexkit.findMethod {
+                matcher {
+                    addUsingString("INSERT_TABLE_MESSAGE_QUOTED", StringMatchType.Equals)
+                }
+            }
+            if (methodList.isEmpty()) throw Exception("NewMessageWithMedia method not found")
+            val methodData = methodList[0]
+            val invokes = methodData.invokes
+            val clazzMessageName = loadFMessageClass(loader).name
+            val method = invokes.parallelStream()
+                .filter { invoke ->
+                    clazzMessageName == invoke.declaredClass?.name &&
+                            invoke.returnType != null &&
+                            invoke.returnType?.name == "java.lang.String"
+                }.findFirst().orElse(null)
+                ?: throw RuntimeException("NewMessageWithMedia method not found")
+            method.getMethodInstance(loader)
+        }
+    }
 
-            for (String str : commonStrings) {
+    @Throws(Exception::class)
+    @JvmStatic
+    fun loadMessageEditMethod(loader: ClassLoader): Method {
+        return UnobfuscatorCache.getInstance().getMethod(loader) {
+            findFirstMethodUsingStrings(
+                loader,
+                StringMatchType.Contains,
+                "MessageEditInfoStore/insertEditInfo/missing"
+            )
+                ?: throw RuntimeException("MessageEdit method not found")
+        }
+    }
+
+    @Throws(Exception::class)
+    @JvmStatic
+    fun loadCallerMessageEditMethod(loader: ClassLoader): Method {
+        return UnobfuscatorCache.getInstance().getMethod(loader) {
+            val methodData1 = dexkit.getMethodData(loadMessageEditMethod(loader))
+            val fMessage = loadFMessageClass(loader)
+            val invokes = methodData1!!.invokes
+            for (methodData in invokes) {
+                if (methodData.isConstructor) continue
+                val method = methodData.getMethodInstance(loader)
+                if (Modifier.isStatic(method.modifiers) &&
+                    method.parameterCount == 1 && method.parameterTypes[0] == fMessage &&
+                    !method.returnType.isPrimitive
+                ) {
+                    return@getMethod methodData.getMethodInstance(loader)
+                }
+            }
+            throw RuntimeException("CallerMessageEdit method not found")
+        }
+    }
+
+    @Throws(Exception::class)
+    @JvmStatic
+    fun loadGetEditMessageMethod(loader: ClassLoader): Method {
+        return UnobfuscatorCache.getInstance().getMethod(loader) {
+            val method = findFirstMethodUsingStrings(
+                loader,
+                StringMatchType.Contains,
+                "MessageEditInfoStore/insertEditInfo/missing"
+            )
+                ?: throw RuntimeException("GetEditMessage method not found")
+            val methodData = dexkit.getMethodData(DexSignUtil.getMethodDescriptor(method))
+                ?: throw RuntimeException("GetEditMessage method not found")
+            val invokes = methodData.invokes
+            for (invoke in invokes) {
+                if (invoke.paramTypes.isEmpty() && invoke.declaredClass == methodData.paramTypes[0]) {
+                    return@getMethod invoke.getMethodInstance(loader)
+                }
+                if (Modifier.isStatic(invoke.getMethodInstance(loader).modifiers) &&
+                    invoke.paramTypes[0] == methodData.paramTypes[0] &&
+                    invoke.paramTypes[0] != invoke.declaredClass
+                ) {
+                    return@getMethod invoke.getMethodInstance(loader)
+                }
+            }
+            throw RuntimeException("GetEditMessage method not found")
+        }
+    }
+
+    @Throws(Exception::class)
+    @JvmStatic
+    fun loadSetEditMessageField(loader: ClassLoader): Field {
+        return UnobfuscatorCache.getInstance().getField(loader) {
+            var method = findFirstMethodUsingStrings(
+                loader,
+                StringMatchType.Contains,
+                "CoreMessageStore/updateCheckoutMessageWithTransactionInfo"
+            )
+            if (method == null)
+                method = findFirstMethodUsingStrings(
+                    loader,
+                    StringMatchType.Contains,
+                    "UPDATE_MESSAGE_ADD_ON_FLAGS_MAIN_SQL"
+                ) ?: return@getField null
+            val classData = dexkit.getClassData(loadFMessageClass(loader))
+            val methodData = dexkit.getMethodData(DexSignUtil.getMethodDescriptor(method))
+            val usingFields = methodData!!.usingFields
+            for (f in usingFields) {
+                val field = f.field
+                if (field.declaredClass == classData && field.type.name == Long::class.javaPrimitiveType?.name) {
+                    return@getField field.getFieldInstance(loader)
+                }
+            }
+            throw RuntimeException("SetEditMessage method not found")
+        }
+    }
+
+    @Throws(Exception::class)
+    @JvmStatic
+    fun loadCoreMessageStore(loader: ClassLoader): Class<*> {
+        return UnobfuscatorCache.getInstance().getClass(loader) {
+            var clazz = findFirstClassUsingStrings(
+                loader,
+                StringMatchType.Contains,
+                "CoreMessageStore/updateCheckoutMessageWithTransactionInfo"
+            )
+            if (clazz == null)
+                clazz = findFirstClassUsingStrings(
+                    loader,
+                    StringMatchType.Contains,
+                    "UPDATE_MESSAGE_ADD_ON_FLAGS_MAIN_SQL"
+                )
+            clazz ?: throw Exception("CoreMessageStore class not found")
+        }
+    }
+
+    @Throws(Exception::class)
+    @JvmStatic
+    fun loadDialogViewClass(loader: ClassLoader): Class<*> {
+        return UnobfuscatorCache.getInstance().getClass(loader) {
+            val id = Utils.getID("touch_outside", "id")
+            val results = dexkit.findMethod {
+                matcher {
+                    addUsingNumber(id)
+                    returnType(FrameLayout::class.java)
+                }
+            }
+            if (results.isEmpty()) throw Exception("DialogView class not found")
+            results[0].declaredClass!!.getInstance(loader)
+        }
+    }
+
+    @Throws(Exception::class)
+    @JvmStatic
+    fun loadRecreateFragmentConstructor(loader: ClassLoader): Constructor<*> {
+        return UnobfuscatorCache.getInstance().getConstructor(loader) {
+            val data = dexkit.findMethod {
+                searchPackages("X.")
+                matcher {
+                    addUsingString("Instantiated fragment")
+                }
+            }
+            if (data.isEmpty()) throw RuntimeException("RecreateFragment method not found")
+            if (!data.single().isConstructor) throw RuntimeException("RecreateFragment method not found")
+            data.single().getConstructorInstance(loader)
+        }
+    }
+
+    @Throws(Exception::class)
+    @JvmStatic
+    fun loadOnTabItemAddMethod(loader: ClassLoader): Method {
+        return UnobfuscatorCache.getInstance().getMethod(loader) {
+            findFirstMethodUsingStrings(
+                loader,
+                StringMatchType.Contains,
+                "Maximum number of items supported by"
+            )
+                ?: throw RuntimeException("OnTabItemAdd method not found")
+        }
+    }
+
+    @Throws(Exception::class)
+    @JvmStatic
+    fun loadGetViewConversationMethod(loader: ClassLoader): Method {
+        return UnobfuscatorCache.getInstance().getMethod(loader) {
+            val clazz = XposedHelpers.findClass(
+                "com.whatsapp.conversationslist.ConversationsFragment",
+                loader
+            )
+            Arrays.stream(clazz.declaredMethods).filter { m ->
+                m.parameterCount == 3 && m.returnType == View::class.java && m.parameterTypes[1] == LayoutInflater::class.java
+            }.findFirst().orElse(null)
+                ?: throw RuntimeException("GetViewConversation method not found")
+        }
+    }
+
+    @Throws(Exception::class)
+    @JvmStatic
+    fun loadOnMenuItemSelected(loader: ClassLoader): Method {
+        return UnobfuscatorCache.getInstance().getMethod(loader) {
+            val aClass = XposedHelpers.findClass("androidx.viewpager.widget.ViewPager", loader)
+            val result = Arrays.stream(aClass.declaredMethods).filter { m ->
+                m.parameterCount == 4 &&
+                        m.parameterTypes[0] == Int::class.javaPrimitiveType &&
+                        m.parameterTypes[1] == Int::class.javaPrimitiveType &&
+                        m.parameterTypes[2] == Boolean::class.javaPrimitiveType &&
+                        m.parameterTypes[3] == Boolean::class.javaPrimitiveType
+            }.collect(Collectors.toList())
+            if (result.isEmpty()) throw RuntimeException("OnMenuItemSelected method not found")
+            result[1]
+        }
+    }
+
+    @Throws(Exception::class)
+    @JvmStatic
+    fun loadOnUpdateStatusChanged(loader: ClassLoader): Method {
+        return UnobfuscatorCache.getInstance().getMethod(loader) {
+            val clazzData = dexkit.findClass {
+                matcher {
+                    addUsingString("UpdatesViewModel/")
+                }
+            }.firstOrNull()
+            val methodSeduleche = XposedHelpers.findMethodBestMatch(
+                Timer::class.java,
+                "schedule",
+                TimerTask::class.java,
+                Long::class.javaPrimitiveType,
+                Long::class.javaPrimitiveType
+            )
+            var result = clazzData?.findMethod {
+                matcher {
+                    addInvoke(DexSignUtil.getMethodDescriptor(methodSeduleche))
+                }
+            } ?: emptyList()
+            if (result.isEmpty()) {
+                result = dexkit.findMethod {
+                    matcher {
+                        addUsingString("UpdatesViewModel/Scheduled updates list refresh")
+                    }
+                }
+            }
+            if (result.isEmpty()) throw RuntimeException("OnUpdateStatusChanged method not found")
+            result[0].getMethodInstance(loader)
+        }
+    }
+
+    @Throws(Exception::class)
+    @JvmStatic
+    fun loadGetInvokeField(loader: ClassLoader): Field {
+        return UnobfuscatorCache.getInstance().getField(loader) {
+            val method = loadOnUpdateStatusChanged(loader)
+            val methodData = dexkit.getMethodData(DexSignUtil.getMethodDescriptor(method))
+            val fields = methodData!!.usingFields
+            val field = fields.stream().map { it.field }
+                .filter { f -> f.declaredClass == methodData.declaredClass }.findFirst()
+                .orElse(null)
+                ?: throw RuntimeException("GetInvokeField method not found")
+            field.getFieldInstance(loader)
+        }
+    }
+
+    @Throws(Exception::class)
+    @JvmStatic
+    fun loadStatusInfoClass(loader: ClassLoader): Class<*> {
+        return UnobfuscatorCache.getInstance().getClass(loader) {
+            findFirstClassUsingStrings(loader, StringMatchType.Contains, "ContactStatusDataItem")
+                ?: throw RuntimeException("StatusInfo class not found")
+        }
+    }
+
+    @Throws(Exception::class)
+    @JvmStatic
+    fun loadStatusListUpdatesClass(loader: ClassLoader): Class<*> {
+        return UnobfuscatorCache.getInstance().getClass(loader) {
+            findFirstClassUsingStrings(loader, StringMatchType.Contains, "StatusListUpdates")
+                ?: throw RuntimeException("StatusListUpdates class not found")
+        }
+    }
+
+    @Throws(Exception::class)
+    @JvmStatic
+    fun loadTabFrameClass(loader: ClassLoader): Class<*> {
+        return UnobfuscatorCache.getInstance().getClass(loader) {
+            findFirstClassUsingStrings(loader, StringMatchType.Contains, "android:menu:presenters")
+                ?: throw RuntimeException("TabFrame class not found")
+        }
+    }
+
+    @Throws(Exception::class)
+    @JvmStatic
+    fun loadRemoveChannelRecClass(loader: ClassLoader): Class<*> {
+        return UnobfuscatorCache.getInstance().getClass(loader) {
+            findFirstClassUsingStrings(
+                loader,
+                StringMatchType.Contains,
+                "hasNewsletterSubscriptions"
+            )
+                ?: throw RuntimeException("RemoveChannelRec class not found")
+        }
+    }
+
+    @Throws(Exception::class)
+    @JvmStatic
+    fun loadFilterAdaperClass(loader: ClassLoader): Class<*> {
+        return UnobfuscatorCache.getInstance().getClass(loader) {
+            val clazzList = dexkit.findClass {
+                matcher {
+                    addMethod {
+                        addUsingString("CONTACTS_FILTER")
+                        paramCount(1)
+                        addParamType(Int::class.java)
+                    }
+                }
+            }
+            if (clazzList.isEmpty()) throw RuntimeException("FilterAdapter class not found")
+            clazzList[0].getInstance(loader)
+        }
+    }
+
+    @Throws(Exception::class)
+    @JvmStatic
+    fun loadSeeMoreConstructor(loader: ClassLoader): Constructor<*> {
+        return UnobfuscatorCache.getInstance().getConstructor(loader) {
+            val commentClass =
+                findFirstClassUsingName(loader, StringMatchType.EndsWith, "CommentTextView")
+            val commentClassData = dexkit.getClassData(commentClass)
+            val methods = commentClassData!!.methods
+            val arrayList = ArrayList<ClassData>()
+            methods.forEach { methodData ->
+                val invokes = methodData.invokes
+                val classes =
+                    invokes.stream().map { it.declaredClass!! }.collect(Collectors.toSet())
+                arrayList.addAll(classes)
+            }
+
+            val clazzData = dexkit.findClass {
+                searchIn(arrayList)
+                matcher {
+                    addMethod {
+                        addUsingNumber(16384)
+                        addUsingNumber(512)
+                        addUsingNumber(64)
+                        addUsingNumber(16)
+                    }
+                }
+            }.singleOrNull() ?: throw RuntimeException("SeeMore constructor 1 not found")
+
+            for (method in clazzData.methods) {
+                if (method.paramCount > 1 && method.isConstructor &&
+                    method.paramTypes.stream()
+                        .allMatch { c -> c.name == Int::class.javaPrimitiveType?.name }
+                ) {
+                    return@getConstructor method.getConstructorInstance(loader)
+                }
+            }
+            throw RuntimeException("SeeMore constructor 2 not found")
+        }
+    }
+
+    @Throws(Exception::class)
+    @JvmStatic
+    fun loadSendStickerMethods(loader: ClassLoader): Array<Method> {
+        return UnobfuscatorCache.getInstance().getMethods(loader) {
+            findAllMethodUsingStrings(
+                loader,
+                StringMatchType.Contains,
+                "StickerGridViewItem.StickerLocal"
+            )
+                .ifEmpty { throw RuntimeException("SendSticker method not found") }
+        }
+    }
+
+    @Throws(Exception::class)
+    @JvmStatic
+    fun loadMaterialAlertDialog(loader: ClassLoader): Method {
+        return UnobfuscatorCache.getInstance().getMethod(loader) {
+            val callConfirmationFragment = XposedHelpers.findClass(
+                "com.whatsapp.calling.fragment.CallConfirmationFragment",
+                loader
+            )
+            val method = ReflectionUtils.findMethodUsingFilter(callConfirmationFragment) { m ->
+                m.parameterCount == 1 && m.parameterTypes[0] == Bundle::class.java
+            }
+            val methodData = dexkit.getMethodData(method)
+            val invokes = methodData!!.invokes
+            for (invoke in invokes) {
+                if (invoke.isMethod && Modifier.isStatic(invoke.modifiers) && invoke.paramCount == 1 &&
+                    invoke.paramTypes[0].name == Context::class.java.name
+                ) {
+                    return@getMethod invoke.getMethodInstance(loader)
+                }
+                if (invoke.isMethod && invoke.paramCount == 1 &&
+                    invoke.paramTypes[0].name == Context::class.java.name
+                ) {
+                    return@getMethod invoke.getMethodInstance(loader)
+                }
+            }
+            throw RuntimeException("MaterialAlertDialog not found")
+        }
+    }
+
+    @Throws(Exception::class)
+    @JvmStatic
+    fun loadJidFactory(loader: ClassLoader): Method {
+        return UnobfuscatorCache.getInstance().getMethod(loader) {
+            findFirstMethodUsingStrings(
+                loader,
+                StringMatchType.Contains,
+                "lid_me",
+                "status_me",
+                "s.whatsapp.net"
+            )
+                ?: throw RuntimeException("JidFactory method not found")
+        }
+    }
+
+    @Throws(Exception::class)
+    @JvmStatic
+    fun loadGroupCheckAdminMethod(loader: ClassLoader): Method {
+        return UnobfuscatorCache.getInstance().getMethod(loader) {
+            val classData = dexkit.findClass {
+                matcher {
+                    addUsingString("saveGroupParticipants/INSERT_GROUP_PARTICIPANT_USER")
+                }
+            }.singleOrNull() ?: throw RuntimeException("GroupCheckAdmin class data not found")
+            val groupChatClass =
+                findFirstClassUsingName(loader, StringMatchType.EndsWith, "GroupChatInfoActivity")
+            val onCreateMenu = ReflectionUtils.findMethodUsingFilter(groupChatClass) { method ->
+                method.name == "onCreateContextMenu"
+            }
+            val onCreateMenuData = dexkit.getMethodData(onCreateMenu)
+            val invokes = onCreateMenuData!!.invokes.stream()
+                .filter { m -> m.declaredClassName == classData.name }
+                .collect(Collectors.toList())
+            for (invoke in invokes) {
+                val invokeMethod = invoke.getMethodInstance(loader)
+                if (invokeMethod.parameterCount != 2 || invokeMethod.returnType != Boolean::class.javaPrimitiveType) continue
+                if (invokeMethod.parameterTypes[1].name.contains("jid.UserJid")) {
+                    XposedBridge.log("FIND: $invokeMethod")
+                    return@getMethod invokeMethod
+                }
+            }
+            throw RuntimeException("GroupCheckAdmin method not found")
+        }
+    }
+
+    @Throws(Exception::class)
+    @JvmStatic
+    fun loadStartPrefsConfig(loader: ClassLoader): Constructor<*> {
+        return UnobfuscatorCache.getInstance().getConstructor(loader) {
+            val results = dexkit.findMethod {
+                matcher {
+                    addUsingString("startup_migrated_version")
+                }
+            }
+            if (results.isEmpty()) throw RuntimeException("StartPrefsConfig constructor not found")
+            results[0].getConstructorInstance(loader)
+        }
+    }
+
+    @Throws(Exception::class)
+    @JvmStatic
+    fun loadCheckOnlineMethod(loader: ClassLoader): Method {
+        return UnobfuscatorCache.getInstance().getMethod(loader) {
+            var method = findFirstMethodUsingStrings(
+                loader,
+                StringMatchType.Contains,
+                "MessageHandler/handleConnectionThreadReady connectionready"
+            )
+            if (method == null)
+                method = findFirstMethodUsingStrings(
+                    loader,
+                    StringMatchType.Contains,
+                    "app/xmpp/recv/handle_available"
+                )
+            method ?: throw RuntimeException("CheckOnline method not found")
+        }
+    }
+
+    @Throws(Exception::class)
+    @JvmStatic
+    fun loadEphemeralInsertdb(loader: ClassLoader): Method {
+        return UnobfuscatorCache.getInstance().getMethod(loader) {
+            val method = dexkit.findMethod {
+                matcher {
+                    addUsingString("expire_timestamp")
+                    addUsingString("ephemeral_initiated_by_me")
+                    addUsingString("ephemeral_trigger")
+                    returnType(ContentValues::class.java)
+                }
+            }
+            if (method.isEmpty()) throw RuntimeException("FieldExpireTime method not found")
+            method[0].getMethodInstance(loader)
+        }
+    }
+
+    @Throws(Exception::class)
+    @JvmStatic
+    fun loadDefEmojiClass(loader: ClassLoader): Method {
+        return UnobfuscatorCache.getInstance().getMethod(loader) {
+            findFirstMethodUsingStrings(loader, StringMatchType.Contains, "emojis.oba")
+                ?: throw RuntimeException("DefEmoji class not found")
+        }
+    }
+
+    @Throws(Exception::class)
+    @JvmStatic
+    fun loadVideoViewContainerClass(loader: ClassLoader): Class<*> {
+        return UnobfuscatorCache.getInstance().getClass(loader) {
+            findFirstClassUsingStrings(
+                loader,
+                StringMatchType.Contains,
+                "frame_visibility_serial_worker"
+            )
+                ?: throw RuntimeException("VideoViewContainer class not found")
+        }
+    }
+
+    @Throws(Exception::class)
+    @JvmStatic
+    fun loadImageVewContainerClass(loader: ClassLoader): Class<*> {
+        return UnobfuscatorCache.getInstance().getClass(loader) {
+            val clazzList = dexkit.findClass {
+                matcher {
+                    addMethod {
+                        addUsingNumber(Utils.getID("hd_invisible_touch", "id"))
+                        addUsingNumber(Utils.getID("control_btn", "id"))
+                    }
+                }
+            }
+            if (clazzList.isEmpty()) throw RuntimeException("ImageViewContainer class not found")
+            for (clazzData in clazzList) {
+                val clazz = clazzData.getInstance(loader)
+                if (ViewGroup::class.java.isAssignableFrom(clazz)) return@getClass clazz
+            }
+            throw ClassNotFoundException("Class ImageViewContainer not Found")
+        }
+    }
+
+    @Throws(Exception::class)
+    @JvmStatic
+    fun getFilterView(loader: ClassLoader): Class<*> {
+        return UnobfuscatorCache.getInstance().getClass(loader) {
+            val filterId = Utils.getID("conversations_swipe_to_reveal_filters_stub", "id")
+            val results = dexkit.findClass {
+                matcher {
+                    addMethod {
+                        addUsingNumber(filterId)
+                    }
+                }
+            }
+            if (results.isEmpty()) throw RuntimeException("FilterView class not found")
+            results[0].getInstance(loader)
+        }
+    }
+
+    @Throws(Exception::class)
+    @JvmStatic
+    fun loadActionUser(loader: ClassLoader): Class<*> {
+        return UnobfuscatorCache.getInstance().getClass(loader) {
+            val fMessageClass = loadFMessageClass(loader)
+            val result = dexkit.findMethod {
+                matcher {
+                    paramTypes(fMessageClass, String::class.java, Boolean::class.javaPrimitiveType)
+                    modifiers(Modifier.PUBLIC or Modifier.FINAL)
+                    returnType(Boolean::class.javaPrimitiveType!!)
+                }
+            }.singleOrNull() ?: throw RuntimeException("ActionUser class not found")
+            result.declaredClass!!.getInstance(loader)
+        }
+    }
+
+    @Throws(Exception::class)
+    @JvmStatic
+    fun loadOnPlaybackFinished(classLoader: ClassLoader): Method {
+        return UnobfuscatorCache.getInstance().getMethod(classLoader) {
+            findFirstMethodUsingStrings(
+                classLoader,
+                StringMatchType.Contains,
+                "playbackPage/onPlaybackContentFinished"
+            )
+                ?: throw RuntimeException("OnPlaybackFinished method not found")
+        }
+    }
+
+    @Throws(Exception::class)
+    @JvmStatic
+    fun loadNextStatusRunMethod(classLoader: ClassLoader): Method {
+        return UnobfuscatorCache.getInstance().getMethod(classLoader) {
+            val methodList = dexkit.findMethod {
+                matcher {
+                    addUsingString("playMiddleTone")
+                    name("run")
+                }
+            }
+            if (methodList.isEmpty()) throw RuntimeException("RunNextStatus method not found")
+            methodList[0].getMethodInstance(classLoader)
+        }
+    }
+
+    @Throws(Exception::class)
+    @JvmStatic
+    fun loadOnInsertReceipt(classLoader: ClassLoader): Method {
+        return UnobfuscatorCache.getInstance().getMethod(classLoader) {
+            val method = dexkit.findMethod {
+                matcher {
+                    addUsingString("INSERT_RECEIPT_USER")
+                    paramCount(1)
+                }
+            }.singleOrNull() ?: throw RuntimeException("OnInsertReceipt method not found")
+            method.getMethodInstance(classLoader)
+        }
+    }
+
+    @Throws(Exception::class)
+    @JvmStatic
+    fun loadSendAudioTypeMethod(classLoader: ClassLoader): Method {
+        return UnobfuscatorCache.getInstance().getMethod(classLoader) {
+            val classMsgReplyAct = findFirstClassUsingName(
+                classLoader,
+                StringMatchType.EndsWith,
+                "MessageReplyActivity"
+            )
+            val method = classMsgReplyAct.getMethod(
+                "onActivityResult",
+                Int::class.javaPrimitiveType,
+                Int::class.javaPrimitiveType,
+                Intent::class.java
+            )
+            val methodData = dexkit.getMethodData(method) ?: return@getMethod null
+            val invokes = methodData.invokes
+            for (invoke in invokes) {
+                if (!invoke.isMethod) continue
+                val m1 = invoke.getMethodInstance(classLoader)
+                val params = listOf(*m1.parameterTypes)
+                if (params.contains(MutableList::class.java) && params.contains(Int::class.javaPrimitiveType) && params.contains(
+                        Uri::class.java
+                    )
+                ) {
+                    return@getMethod m1
+                }
+            }
+            throw NoSuchMethodException("SendAudioType method not found")
+        }
+    }
+
+    @Throws(Exception::class)
+    @JvmStatic
+    fun loadOriginFMessageField(classLoader: ClassLoader): Field {
+        return UnobfuscatorCache.getInstance().getField(classLoader) {
+            val commonStrings = arrayOf(
+                "audio/ogg; codecs=opus",
+                "audio/ogg",
+                "audio/amr",
+                "audio/mp4",
+                "audio/aac"
+            )
+
+            val clazz = loadFMessageClass(classLoader)
+
+            for (str in commonStrings) {
                 try {
-                    var result = dexkit.findMethod(new FindMethod()
-                            .matcher(new MethodMatcher().addUsingString(str, StringMatchType.Contains)));
-                    if (result.isEmpty())
-                        continue;
-
-                    for (var m : result) {
-                        var fields = m.getUsingFields();
-                        for (var field : fields) {
-                            var f = field.getField().getFieldInstance(classLoader);
-                            if (f.getDeclaringClass().equals(clazz)) {
-                                return f;
-                            }
+                    val result = dexkit.findMethod {
+                        matcher {
+                            addUsingString(str, StringMatchType.Contains)
                         }
                     }
-                } catch (Exception ignored) {
+                    if (result.isEmpty()) continue
+
+                    for (m in result) {
+                        val fields = m.usingFields
+                        for (field in fields) {
+                            val f = field.field.getFieldInstance(classLoader)
+                            if (f.declaringClass == clazz) return@getField f
+                        }
+                    }
+                } catch (_: Exception) {
                 }
             }
-            throw new RuntimeException("OriginFMessageField field not found");
-        });
+            throw RuntimeException("OriginFMessageField field not found")
+        }
     }
 
-    public synchronized static Method loadForwardAudioTypeMethod(ClassLoader classLoader) throws Exception {
-        return UnobfuscatorCache.getInstance().getMethod(classLoader, () -> {
-            var results = findAllMethodUsingStrings(classLoader, StringMatchType.Contains,
-                    "FMessageFactory/newFMessageForForward/thumbnail");
-            if (results == null || results.length < 1)
-                throw new RuntimeException("ForwardAudioType method not found");
-            Method result;
-            if (results.length > 1) {
-                result = findFirstMethodUsingStrings(classLoader, StringMatchType.Contains, "forwardable",
-                        "FMessageFactory/newFMessageForForward/thumbnail");
+    @Throws(Exception::class)
+    @JvmStatic
+    fun loadForwardAudioTypeMethod(classLoader: ClassLoader): Method {
+        return UnobfuscatorCache.getInstance().getMethod(classLoader) {
+            val results = findAllMethodUsingStrings(
+                classLoader,
+                StringMatchType.Contains,
+                "FMessageFactory/newFMessageForForward/thumbnail"
+            )
+            if (results.isEmpty()) throw RuntimeException("ForwardAudioType method not found")
+            if (results.size > 1) {
+                findFirstMethodUsingStrings(
+                    classLoader,
+                    StringMatchType.Contains,
+                    "forwardable",
+                    "FMessageFactory/newFMessageForForward/thumbnail"
+                )!!
             } else {
-                // 2.24.18.xx method is changed
-                result = findFirstMethodUsingStrings(classLoader, StringMatchType.Contains, "Non-forwardable message(");
+                findFirstMethodUsingStrings(
+                    classLoader,
+                    StringMatchType.Contains,
+                    "Non-forwardable message("
+                )!!
             }
-            return result;
-        });
+        }
     }
 
-    public synchronized static Class loadFragmentLoader(ClassLoader classLoader) throws Exception {
-        return UnobfuscatorCache.getInstance().getClass(classLoader, () -> {
-            var clazz = findFirstClassUsingStrings(classLoader, StringMatchType.Contains,
-                    "not associated with a fragment manager.");
-            if (clazz == null)
-                throw new RuntimeException("FragmentLoader class not found");
-            return clazz;
-        });
+    @Throws(Exception::class)
+    @JvmStatic
+    fun loadPlaybackSpeed(classLoader: ClassLoader): Method {
+        return UnobfuscatorCache.getInstance().getMethod(classLoader) {
+            val method = findFirstMethodUsingStrings(
+                classLoader,
+                StringMatchType.Contains,
+                "heroaudioplayer/setPlaybackSpeed"
+            )
+            if (method != null) return@getMethod method
+
+            val methodData = dexkit.findMethod {
+                matcher {
+                    addUsingString("setPlaybackSpeed", StringMatchType.Equals)
+                    addUsingString("newSpeed")
+                }
+            }.singleOrNull() ?: throw RuntimeException("PlaybackSpeed method not found")
+            methodData.getMethodInstance(classLoader)
+        }
     }
 
-    public synchronized static Method loadShowDialogStatusMethod(ClassLoader classLoader) throws Exception {
-        return UnobfuscatorCache.getInstance().getMethod(classLoader, () -> {
-            var clazz = loadFragmentLoader(classLoader);
-            var frag = classLoader.loadClass("androidx.fragment.app.DialogFragment");
-            var result = dexkit.findMethod(FindMethod.create().matcher(
-                    MethodMatcher.create().paramCount(2).addParamType(frag).addParamType(clazz)
-                            .returnType(void.class).modifiers(Modifier.PUBLIC | Modifier.STATIC)
-                            .opNames(List.of("iget-boolean", "if-nez"), OpCodeMatchType.Contains)));
-            if (result.isEmpty())
-                throw new RuntimeException("showDialogStatus not found");
-            return result.get(0).getMethodInstance(classLoader);
-        });
+    @Throws(Exception::class)
+    @JvmStatic
+    fun loadListUpdateItems(classLoader: ClassLoader): Method {
+        return UnobfuscatorCache.getInstance().getMethod(classLoader) {
+            val method = dexkit.findMethod {
+                matcher {
+                    addUsingString("Running diff util, updates list size", StringMatchType.Contains)
+                }
+            }
+            if (method.isEmpty()) throw RuntimeException("ListUpdateItems method not found")
+            method[0].getMethodInstance(classLoader)
+        }
     }
 
-    public static Method loadPlaybackSpeed(ClassLoader classLoader) throws Exception {
-        return UnobfuscatorCache.getInstance().getMethod(classLoader, () -> {
-            var method = findFirstMethodUsingStrings(classLoader, StringMatchType.Contains, "heroaudioplayer/setPlaybackSpeed");
-            if (method != null) return method;
-
-            var methodData = dexkit.findMethod(
-                    FindMethod.create().matcher(
-                            MethodMatcher.create().addUsingString("setPlaybackSpeed", StringMatchType.Equals).addUsingString("newSpeed")
-                    )
-            ).singleOrNull();
-
-            if (methodData == null) throw new RuntimeException("PlaybackSpeed method not found");
-            return methodData.getMethodInstance(classLoader);
-        });
+    @Throws(Exception::class)
+    @JvmStatic
+    fun loadHeaderChannelItemClass(classLoader: ClassLoader): Class<*> {
+        return UnobfuscatorCache.getInstance().getClass(classLoader) {
+            findFirstClassUsingStrings(classLoader, StringMatchType.Contains, "statusTilesEnabled")
+                ?: throw RuntimeException("HeaderChannelItem class not found")
+        }
     }
 
-    // public synchronized static Method
-    // loadArchiveCheckLockedChatsMethod(ClassLoader classLoader) throws Exception {
-    // var method = findFirstMethodUsingStrings(classLoader,
-    // StringMatchType.Contains,
-    // "conversationsfragment/verticalswipetorevealbehavior");
-    // if (method == null) throw new RuntimeException("ArchiveCheckLockedChats
-    // method not found");
-    // return method;
-    // }
-    //
-    // public synchronized static Method
-    // loadArchiveCheckLockedChatsMethod2(ClassLoader classLoader) throws Exception
-    // {
-    // var methods = findAllMethodUsingStrings(classLoader,
-    // StringMatchType.Contains, "registration_device_id");
-    // if (methods.length == 0)
-    // throw new RuntimeException("ArchiveCheckLockedChats method not found");
-    // return Arrays.stream(methods).filter(m ->
-    // m.getReturnType().equals(boolean.class) && m.getParameterTypes().length ==
-    // 0).findFirst().orElse(null);
-    // }
-    //
-    // public synchronized static Class<?> loadArchiveLockedChatClass(ClassLoader
-    // classLoader) throws Exception {
-    // return UnobfuscatorCache.getInstance().getClass(classLoader, () -> {
-    // var clazzList = dexkit.findClass(new FindClass().matcher(new
-    // ClassMatcher().addMethod(new
-    // MethodMatcher().name("setLockedRowVisibility")).addMethod(new
-    // MethodMatcher().name("setEnableStateForChatLock"))));
-    // if (clazzList.isEmpty())
-    // throw new RuntimeException("ArchiveLockedChatFrame class not found");
-    // return clazzList.get(0).getInstance(classLoader);
-    // });
-    // }
-
-    public synchronized static Method loadListUpdateItems(ClassLoader classLoader) throws Exception {
-        return UnobfuscatorCache.getInstance().getMethod(classLoader, () -> {
-            var method = dexkit.findMethod(FindMethod.create().matcher(MethodMatcher.create()
-                    .addUsingString("Running diff util, updates list size", StringMatchType.Contains)));
-            if (method.isEmpty())
-                throw new RuntimeException("ListUpdateItems method not found");
-            return method.get(0).getMethodInstance(classLoader);
-        });
+    @Throws(Exception::class)
+    @JvmStatic
+    fun loadListChannelItemClass(classLoader: ClassLoader): Class<*> {
+        return UnobfuscatorCache.getInstance().getClass(classLoader) {
+            findFirstClassUsingStrings(
+                classLoader,
+                StringMatchType.Contains,
+                "isMuteIndicatorEnabled"
+            )
+                ?: throw RuntimeException("NewsletterDataItem class not found")
+        }
     }
 
-    public synchronized static Class loadHeaderChannelItemClass(ClassLoader classLoader) throws Exception {
-        return UnobfuscatorCache.getInstance().getClass(classLoader, () -> {
-            var clazz = findFirstClassUsingStrings(classLoader, StringMatchType.Contains, "statusTilesEnabled");
-            if (clazz == null)
-                throw new RuntimeException("HeaderChannelItem class not found");
-            return clazz;
-        });
-    }
-
-    public synchronized static Class loadListChannelItemClass(ClassLoader classLoader) throws Exception {
-        return UnobfuscatorCache.getInstance().getClass(classLoader, () -> {
-            var clazz = findFirstClassUsingStrings(classLoader, StringMatchType.Contains, "isMuteIndicatorEnabled");
-            if (clazz == null)
-                throw new RuntimeException("NewsletterDataItem class not found");
-            return clazz;
-        });
-    }
-
-    public synchronized static Method[] loadTextStatusData(ClassLoader classLoader) throws Exception {
-        return UnobfuscatorCache.getInstance().getMethods(classLoader, () -> {
-            Class<?> textData;
-            var textDataList = dexkit
-                    .findClass(FindClass.create().matcher(ClassMatcher.create().addUsingString("TextData;")));
-            if (textDataList.isEmpty()) {
-                textData = findFirstClassUsingName(classLoader, StringMatchType.EndsWith, "TextData");
+    @Throws(Exception::class)
+    @JvmStatic
+    fun loadTextStatusData(classLoader: ClassLoader): Array<Method> {
+        return UnobfuscatorCache.getInstance().getMethods(classLoader) {
+            var textData: Class<*>?
+            val textDataList = dexkit.findClass {
+                matcher {
+                    addUsingString("TextData;")
+                }
+            }
+            textData = if (textDataList.isEmpty()) {
+                findFirstClassUsingName(classLoader, StringMatchType.EndsWith, "TextData")
             } else {
-                textData = textDataList.get(0).getInstance(classLoader);
+                textDataList[0].getInstance(classLoader)
             }
-            var methods = dexkit.findMethod(
-                    FindMethod.create().matcher(
-                            MethodMatcher.create().addParamType(textData)));
-            if (methods.isEmpty())
-                throw new RuntimeException("loadTextStatusData method not found");
+            val methods = dexkit.findMethod {
+                matcher {
+                    addParamType(textData)
+                }
+            }
+            if (methods.isEmpty()) throw RuntimeException("loadTextStatusData method not found")
 
-            return methods.stream().filter(MethodData::isMethod)
-                    .map(methodData -> convertRealMethod(methodData, classLoader)).toArray(Method[]::new);
-        });
+            methods.stream().filter { it.isMethod }
+                .map { convertRealMethod(it, classLoader) }
+                .filter { it != null }
+                .map { it!! }
+                .toArray { length -> arrayOfNulls<Method>(length) }
+        }
     }
 
-    public synchronized static Class<?> loadExpirationClass(ClassLoader classLoader) throws Exception {
-        return UnobfuscatorCache.getInstance().getClass(classLoader, () -> {
-            var methods = findAllMethodUsingStrings(classLoader, StringMatchType.Contains,
-                    "software_forced_expiration");
-            var expirationMethod = Arrays.stream(methods)
-                    .filter(methodData -> methodData.getReturnType().equals(Date.class)).findFirst().orElse(null);
-            if (expirationMethod == null)
-                throw new RuntimeException("Expiration class not found");
-            return expirationMethod.getDeclaringClass();
-        });
+    @Throws(Exception::class)
+    @JvmStatic
+    fun loadExpirationClass(classLoader: ClassLoader): Class<*> {
+        return UnobfuscatorCache.getInstance().getClass(classLoader) {
+            val methods = findAllMethodUsingStrings(
+                classLoader,
+                StringMatchType.Contains,
+                "software_forced_expiration"
+            )
+            val expirationMethod = Arrays.stream(methods)
+                .filter { methodData -> methodData.returnType == Date::class.java }
+                .findFirst().orElse(null) ?: throw RuntimeException("Expiration class not found")
+            expirationMethod.declaringClass
+        }
     }
 
-    public synchronized static Class<?> loadAbsViewHolder(ClassLoader classLoader) throws Exception {
-        return UnobfuscatorCache.getInstance().getClass(classLoader, () -> {
-            var clazz = findFirstClassUsingStrings(classLoader, StringMatchType.Contains, "not recyclable");
-            if (clazz == null)
-                throw new RuntimeException("AbsViewHolder class not found");
-            return clazz;
-        });
+    @Throws(Exception::class)
+    @JvmStatic
+    fun loadAbsViewHolder(classLoader: ClassLoader): Class<*> {
+        return UnobfuscatorCache.getInstance().getClass(classLoader) {
+            findFirstClassUsingStrings(classLoader, StringMatchType.Contains, "not recyclable")
+                ?: throw RuntimeException("AbsViewHolder class not found")
+        }
     }
 
-    public synchronized static Method loadFragmentViewMethod(ClassLoader classLoader) throws Exception {
-        return UnobfuscatorCache.getInstance().getMethod(classLoader, () -> {
-            var method = findFirstMethodUsingStrings(classLoader, StringMatchType.Contains,
-                    "this was called before onCreateView()");
-            if (method == null)
-                throw new RuntimeException("FragmentView method not found");
-            return method;
-        });
+    @Throws(Exception::class)
+    @JvmStatic
+    fun loadFragmentViewMethod(classLoader: ClassLoader): Method {
+        return UnobfuscatorCache.getInstance().getMethod(classLoader) {
+            findFirstMethodUsingStrings(
+                classLoader,
+                StringMatchType.Contains,
+                "this was called before onCreateView()"
+            )
+                ?: throw RuntimeException("FragmentView method not found")
+        }
     }
 
-    public synchronized static Method loadCopiedMessageMethod(ClassLoader classLoader) throws Exception {
-        return UnobfuscatorCache.getInstance().getMethod(classLoader, () -> {
-            var method = findFirstMethodUsingStrings(classLoader, StringMatchType.Contains, "conversation/copymessage");
-            if (method == null)
-                throw new RuntimeException("CopiedMessage method not found");
-            return method;
-        });
+    @Throws(Exception::class)
+    @JvmStatic
+    fun loadCopiedMessageMethod(classLoader: ClassLoader): Method {
+        return UnobfuscatorCache.getInstance().getMethod(classLoader) {
+            findFirstMethodUsingStrings(
+                classLoader,
+                StringMatchType.Contains,
+                "conversation/copymessage"
+            )
+                ?: throw RuntimeException("CopiedMessage method not found")
+        }
     }
 
-    public synchronized static Class<?> loadSenderPlayedClass(ClassLoader classLoader) throws Exception {
-        return UnobfuscatorCache.getInstance().getClass(classLoader, () -> {
-            var clazz = findFirstClassUsingStrings(classLoader, StringMatchType.Contains, "sendmethods/sendClearDirty");
-            if (clazz == null)
-                throw new RuntimeException("SenderPlayed class not found");
-            return clazz;
-        });
+    @Throws(Exception::class)
+    @JvmStatic
+    fun loadSenderPlayedClass(classLoader: ClassLoader): Class<*> {
+        return UnobfuscatorCache.getInstance().getClass(classLoader) {
+            findFirstClassUsingStrings(
+                classLoader,
+                StringMatchType.Contains,
+                "sendmethods/sendClearDirty"
+            )
+                ?: throw RuntimeException("SenderPlayed class not found")
+        }
     }
 
-    public synchronized static Method loadSenderPlayedMethod(ClassLoader classLoader) throws Exception {
-        return UnobfuscatorCache.getInstance().getMethod(classLoader, () -> {
-            var clazz = loadSenderPlayedClass(classLoader);
-            var abstractMediaMessageClass = Unobfuscator.loadAbstractMediaMessageClass(classLoader);
-            var interfaces = abstractMediaMessageClass.getInterfaces();
+    @Throws(Exception::class)
+    @JvmStatic
+    fun loadSenderPlayedMethod(classLoader: ClassLoader): Method {
+        return UnobfuscatorCache.getInstance().getMethod(classLoader) {
+            val clazz = loadSenderPlayedClass(classLoader)
+            val abstractMediaMessageClass = loadAbstractMediaMessageClass(classLoader)
+            val interfaces = abstractMediaMessageClass.interfaces
 
-            ArrayList<Class> interfacesList = new ArrayList<>();
-            interfacesList.add(abstractMediaMessageClass);
-            interfacesList.addAll(Arrays.asList(interfaces));
+            val interfacesList = ArrayList<Class<*>>()
+            interfacesList.add(abstractMediaMessageClass)
+            interfacesList.addAll(listOf(*interfaces))
 
-            Method methodResult = null;
-            main_loop:
-            for (var method : clazz.getMethods()) {
-                if (method.getParameterCount() != 1)
-                    continue;
-                var parameterType = method.getParameterTypes()[0];
-                for (var interfaceClass : interfacesList) {
+            var methodResult: Method? = null
+            main_loop@ for (method in clazz.methods) {
+                if (method.parameterCount != 1) continue
+                val parameterType = method.parameterTypes[0]
+                for (interfaceClass in interfacesList) {
                     if (interfaceClass.isAssignableFrom(parameterType)) {
-                        methodResult = method;
-                        break main_loop;
+                        methodResult = method
+                        break@main_loop
                     }
                 }
             }
 
-            // 2.25.19.xx, they refactored the SenderPlayed class
-            var fmessageClass = Unobfuscator.loadFMessageClass(classLoader);
+            val fmessageClass = loadFMessageClass(classLoader)
             if (methodResult == null) {
-                var method = findFirstMethodUsingStrings(classLoader, StringMatchType.Contains,
-                        "mediaHash and fileType not both present for upload URL generation");
+                val method = findFirstMethodUsingStrings(
+                    classLoader,
+                    StringMatchType.Contains,
+                    "mediaHash and fileType not both present for upload URL generation"
+                )
                 if (method != null) {
-                    var cMethods = dexkit.getMethodData(method).getInvokes();
-                    Collections.reverse(cMethods);
-                    for (var cmethod : cMethods) {
-                        if (cmethod.isMethod() && cmethod.getParamCount() == 1) {
-                            var cParamType = cmethod.getParamTypes().get(0).getInstance(classLoader);
+                    val cMethods = dexkit.getMethodData(method)!!.invokes
+                    Collections.reverse(cMethods)
+                    for (cmethod in cMethods) {
+                        if (cmethod.isMethod && cmethod.paramCount == 1) {
+                            val cParamType = cmethod.paramTypes[0].getInstance(classLoader)
                             if (fmessageClass.isAssignableFrom(cParamType)) {
-                                methodResult = cmethod.getMethodInstance(classLoader);
-                                break;
+                                methodResult = cmethod.getMethodInstance(classLoader)
+                                break
                             }
                         }
                     }
                 }
             }
 
-            if (methodResult == null)
-                throw new RuntimeException("SenderPlayed method not found 2");
-            return methodResult;
-        });
+            methodResult ?: throw RuntimeException("SenderPlayed method not found 2")
+        }
     }
 
-    public synchronized static Method loadSenderPlayedBusiness(ClassLoader classLoader) throws Exception {
-        return UnobfuscatorCache.getInstance().getMethod(classLoader, () -> {
-            var loadSenderPlayed = loadSenderPlayedClass(classLoader);
-            var foundMethod = ReflectionUtils.findMethodUsingFilter(loadSenderPlayed,
-                    method -> method.getParameterCount() > 0 && method.getParameterTypes()[0] == Set.class);
-            if (foundMethod == null)
-                throw new RuntimeException("SenderPlayedBusiness method not found");
-            return foundMethod;
-        });
+    @Throws(Exception::class)
+    @JvmStatic
+    fun loadSenderPlayedBusiness(classLoader: ClassLoader): Method {
+        return UnobfuscatorCache.getInstance().getMethod(classLoader) {
+            val loadSenderPlayed = loadSenderPlayedClass(classLoader)
+            ReflectionUtils.findMethodUsingFilter(loadSenderPlayed) { method ->
+                method.parameterCount > 0 && method.parameterTypes[0] == Set::class.java
+            } ?: throw RuntimeException("SenderPlayedBusiness method not found")
+        }
     }
 
-    public synchronized static Field loadMediaTypeField(ClassLoader classLoader) throws Exception {
-        return UnobfuscatorCache.getInstance().getField(classLoader, () -> {
-            var methodData = dexkit.findMethod(
-                    FindMethod.create().matcher(MethodMatcher.create().addUsingString("conversation/refresh")));
-            if (methodData.isEmpty())
-                throw new RuntimeException("MediaType: aux method not found");
-            var fclass = dexkit.getClassData(loadFMessageClass(classLoader));
-            var usingFields = methodData.get(0).getUsingFields();
-            for (var f : usingFields) {
-                var field = f.getField();
-                if (field.getDeclaredClass().equals(fclass) && field.getType().getName().equals(int.class.getName())) {
-                    return field.getFieldInstance(classLoader);
+    @Throws(Exception::class)
+    @JvmStatic
+    fun loadMediaTypeField(classLoader: ClassLoader): Field {
+        return UnobfuscatorCache.getInstance().getField(classLoader) {
+            val methodData = dexkit.findMethod {
+                matcher {
+                    addUsingString("conversation/refresh")
                 }
             }
-            throw new RuntimeException("MediaType field not found");
-        });
-
-    }
-
-    public synchronized static Method loadBubbleDrawableMethod(ClassLoader classLoader) throws Exception {
-        return UnobfuscatorCache.getInstance().getMethod(classLoader, () -> {
-            var methodData = dexkit.findMethod(FindMethod.create().matcher(
-                    MethodMatcher.create().addUsingString("Unreachable code: direction=").returnType(Drawable.class)));
-            if (methodData.isEmpty())
-                throw new Exception("BubbleDrawable method not found");
-            return methodData.get(0).getMethodInstance(classLoader);
-        });
-    }
-
-    public synchronized static Method loadBallonDateDrawable(ClassLoader classLoader) throws Exception {
-        return UnobfuscatorCache.getInstance().getMethod(classLoader, () -> {
-            var methodData = dexkit.findMethod(FindMethod.create().matcher(
-                    MethodMatcher.create().addUsingString("Unreachable code: direction=").returnType(Rect.class)));
-            if (methodData.isEmpty())
-                throw new Exception("LoadDateWrapper method not found");
-            var clazz = methodData.get(0).getMethodInstance(classLoader).getDeclaringClass();
-            var method = ReflectionUtils.findMethodUsingFilterIfExists(clazz,
-                    m -> List.of(1, 2).contains(m.getParameterCount()) && m.getParameterTypes()[0].equals(int.class)
-                            && m.getReturnType().equals(Drawable.class));
-            if (method == null)
-                throw new RuntimeException("DateWrapper method not found");
-            return method;
-        });
-    }
-
-    public synchronized static Method loadBallonBorderDrawable(ClassLoader classLoader) throws Exception {
-        return UnobfuscatorCache.getInstance().getMethod(classLoader, () -> {
-            var clazz = loadBallonDateDrawable(classLoader).getDeclaringClass();
-            var method = ReflectionUtils.findMethodUsingFilterIfExists(clazz,
-                    m -> m.getParameterCount() == 3 && m.getReturnType().equals(Drawable.class));
-            if (method == null)
-                throw new RuntimeException("Ballon Border method not found");
-            return method;
-        });
-    }
-
-    public static synchronized Method[] loadRootDetector(ClassLoader classLoader) throws Exception {
-        return UnobfuscatorCache.getInstance().getMethods(classLoader, () -> {
-            var methods = findAllMethodUsingStrings(classLoader, StringMatchType.Contains, "/system/bin/su");
-            if (methods.length == 0)
-                throw new RuntimeException("RootDetector method not found");
-            return methods;
-        });
-    }
-
-    public static synchronized Method loadCheckEmulator(ClassLoader classLoader) throws Exception {
-        return UnobfuscatorCache.getInstance().getMethod(classLoader, () -> {
-            var method = findFirstMethodUsingStrings(classLoader, StringMatchType.Contains,
-                    "Android SDK built for x86");
-            if (method == null)
-                throw new RuntimeException("CheckEmulator method not found");
-            return method;
-        });
-    }
-
-    public static synchronized Method loadCheckCustomRom(ClassLoader classLoader) throws Exception {
-        return UnobfuscatorCache.getInstance().getMethod(classLoader, () -> {
-            var method = findFirstMethodUsingStrings(classLoader, StringMatchType.Contains, "cyanogen");
-            if (method == null)
-                throw new RuntimeException("CheckCustomRom method not found");
-            return method;
-        });
-    }
-
-    public static synchronized Method loadTranscribeMethod(ClassLoader classLoader) throws Exception {
-        return UnobfuscatorCache.getInstance().getMethod(classLoader, () -> findFirstMethodUsingStrings(classLoader,
-                StringMatchType.Contains, "transcribe: starting transcription"));
-    }
-
-    public static synchronized Method loadCheckSupportLanguage(ClassLoader classLoader) throws Exception {
-        return UnobfuscatorCache.getInstance().getMethod(classLoader,
-                () -> findFirstMethodUsingStrings(classLoader, StringMatchType.Contains, "Unsupported language"));
-    }
-
-    public static synchronized Class loadTranscriptSegment(ClassLoader classLoader) throws Exception {
-        return UnobfuscatorCache.getInstance().getClass(classLoader,
-                () -> findFirstClassUsingStrings(classLoader, StringMatchType.Contains, "TranscriptionSegment("));
-    }
-
-    public static synchronized Method loadStateChangeMethod(ClassLoader classLoader) throws Exception {
-        return UnobfuscatorCache.getInstance().getMethod(classLoader, () -> findFirstMethodUsingStrings(classLoader,
-                StringMatchType.Contains, "presencestatemanager/startTransitionToUnavailable/new-state"));
-    }
-
-    public static synchronized Method loadCachedMessageStoreKey(ClassLoader loader) throws Exception {
-        return UnobfuscatorCache.getInstance().getMethod(loader, () -> {
-            var method = findFirstMethodUsingStrings(loader, StringMatchType.Contains, "CachedMessageStore/getMessage/key");
-            if (method == null)
-                throw new RuntimeException("CachedMessageStore class not found");
-            return method;
-        });
-    }
-
-    public static synchronized Class loadAbstractMediaMessageClass(ClassLoader loader) throws Exception {
-        return UnobfuscatorCache.getInstance().getClass(loader, () -> {
-            for (var str : List.of("first_viewed_timestamp", "Field is set but is null in MediaDataV2")) {
-                var classList = dexkit.findClass(FindClass.create().matcher(ClassMatcher.create().addUsingString(str)));
-                for (var clazz : classList) {
-                    var clazzInstance = clazz.getInstance(loader);
-                    if (FMessageWpp.checkUnsafeIsFMessage(loader, clazzInstance))
-                        return clazzInstance;
+            if (methodData.isEmpty()) throw RuntimeException("MediaType: aux method not found")
+            val fclass = dexkit.getClassData(loadFMessageClass(classLoader))
+            val usingFields = methodData[0].usingFields
+            for (f in usingFields) {
+                val field = f.field
+                if (field.declaredClass == fclass && field.type.name == Int::class.javaPrimitiveType?.name) {
+                    return@getField field.getFieldInstance(classLoader)
                 }
             }
-            throw new ClassNotFoundException("AbstractMediaMessage Not Found");
-        });
+            throw RuntimeException("MediaType field not found")
+        }
     }
 
-    public static Class<?> loadFragmentClass(ClassLoader classLoader) throws Exception {
-        return UnobfuscatorCache.getInstance().getClass(classLoader, () -> {
-            var clazz = findFirstClassUsingStrings(classLoader, StringMatchType.Contains, "mFragmentId=#");
-            if (clazz == null)
-                throw new RuntimeException("Fragment class not found");
-            return clazz;
-        });
+    @Throws(Exception::class)
+    @JvmStatic
+    fun loadBubbleDrawableMethod(classLoader: ClassLoader): Method {
+        return UnobfuscatorCache.getInstance().getMethod(classLoader) {
+            val methodData = dexkit.findMethod {
+                matcher {
+                    addUsingString("Unreachable code: direction=")
+                    returnType(Drawable::class.java)
+                }
+            }
+            if (methodData.isEmpty()) throw Exception("BubbleDrawable method not found")
+            methodData[0].getMethodInstance(classLoader)
+        }
     }
 
-    public static Method loadMediaQualitySelectionMethod(ClassLoader classLoader) throws Exception {
-        return UnobfuscatorCache.getInstance().getMethod(classLoader, () -> {
-            var methodData = dexkit.findMethod(FindMethod.create().matcher(
-                    MethodMatcher.create().addUsingString("enable_media_quality_tool").returnType(boolean.class)));
+    @Throws(Exception::class)
+    @JvmStatic
+    fun loadBallonDateDrawable(classLoader: ClassLoader): Method {
+        return UnobfuscatorCache.getInstance().getMethod(classLoader) {
+            val methodData = dexkit.findMethod {
+                matcher {
+                    addUsingString("Unreachable code: direction=")
+                    returnType(Rect::class.java)
+                }
+            }
+            if (methodData.isEmpty()) throw Exception("LoadDateWrapper method not found")
+            val clazz = methodData[0].getMethodInstance(classLoader).declaringClass
+            ReflectionUtils.findMethodUsingFilterIfExists(clazz) { m ->
+                listOf(
+                    1,
+                    2
+                ).contains(m.parameterCount) && m.parameterTypes[0] == Int::class.javaPrimitiveType && m.returnType == Drawable::class.java
+            } ?: throw RuntimeException("DateWrapper method not found")
+        }
+    }
 
+    @Throws(Exception::class)
+    @JvmStatic
+    fun loadBallonBorderDrawable(classLoader: ClassLoader): Method {
+        return UnobfuscatorCache.getInstance().getMethod(classLoader) {
+            val clazz = loadBallonDateDrawable(classLoader).declaringClass
+            ReflectionUtils.findMethodUsingFilterIfExists(clazz) { m ->
+                m.parameterCount == 3 && m.returnType == Drawable::class.java
+            } ?: throw RuntimeException("Ballon Border method not found")
+        }
+    }
+
+    @Throws(Exception::class)
+    @JvmStatic
+    fun loadRootDetector(classLoader: ClassLoader): Array<Method> {
+        return UnobfuscatorCache.getInstance().getMethods(classLoader) {
+            val methods =
+                findAllMethodUsingStrings(classLoader, StringMatchType.Contains, "/system/bin/su")
+            if (methods.isEmpty()) throw RuntimeException("RootDetector method not found")
+            methods
+        }
+    }
+
+    @Throws(Exception::class)
+    @JvmStatic
+    fun loadCheckEmulator(classLoader: ClassLoader): Method {
+        return UnobfuscatorCache.getInstance().getMethod(classLoader) {
+            findFirstMethodUsingStrings(
+                classLoader,
+                StringMatchType.Contains,
+                "Android SDK built for x86"
+            )
+                ?: throw RuntimeException("CheckEmulator method not found")
+        }
+    }
+
+    @Throws(Exception::class)
+    @JvmStatic
+    fun loadCheckCustomRom(classLoader: ClassLoader): Method {
+        return UnobfuscatorCache.getInstance().getMethod(classLoader) {
+            findFirstMethodUsingStrings(classLoader, StringMatchType.Contains, "cyanogen")
+                ?: throw RuntimeException("CheckCustomRom method not found")
+        }
+    }
+
+    @Throws(Exception::class)
+    @JvmStatic
+    fun loadTranscribeMethod(classLoader: ClassLoader): Method {
+        return UnobfuscatorCache.getInstance().getMethod(classLoader) {
+            findFirstMethodUsingStrings(
+                classLoader,
+                StringMatchType.Contains,
+                "transcribe: starting transcription"
+            )!!
+        }
+    }
+
+    @Throws(Exception::class)
+    @JvmStatic
+    fun loadCheckSupportLanguage(classLoader: ClassLoader): Method {
+        return UnobfuscatorCache.getInstance().getMethod(classLoader) {
+            findFirstMethodUsingStrings(
+                classLoader,
+                StringMatchType.Contains,
+                "Unsupported language"
+            )!!
+        }
+    }
+
+    @Throws(Exception::class)
+    @JvmStatic
+    fun loadTranscriptSegment(classLoader: ClassLoader): Class<*> {
+        return UnobfuscatorCache.getInstance().getClass(classLoader) {
+            findFirstClassUsingStrings(
+                classLoader,
+                StringMatchType.Contains,
+                "TranscriptionSegment("
+            )!!
+        }
+    }
+
+    @Throws(Exception::class)
+    @JvmStatic
+    fun loadStateChangeMethod(classLoader: ClassLoader): Method {
+        return UnobfuscatorCache.getInstance().getMethod(classLoader) {
+            findFirstMethodUsingStrings(
+                classLoader,
+                StringMatchType.Contains,
+                "presencestatemanager/startTransitionToUnavailable/new-state"
+            )!!
+        }
+    }
+
+    @Throws(Exception::class)
+    @JvmStatic
+    fun loadCachedMessageStoreKey(loader: ClassLoader): Method {
+        return UnobfuscatorCache.getInstance().getMethod(loader) {
+            findFirstMethodUsingStrings(
+                loader,
+                StringMatchType.Contains,
+                "CachedMessageStore/getMessage/key"
+            )
+                ?: throw RuntimeException("CachedMessageStore class not found")
+        }
+    }
+
+    @Throws(Exception::class)
+    @JvmStatic
+    fun loadAbstractMediaMessageClass(loader: ClassLoader): Class<*> {
+        return UnobfuscatorCache.getInstance().getClass(loader) {
+            for (str in listOf(
+                "first_viewed_timestamp",
+                "Field is set but is null in MediaDataV2"
+            )) {
+                val classList = dexkit.findClass {
+                    matcher {
+                        addUsingString(str)
+                    }
+                }
+                for (clazz in classList) {
+                    val clazzInstance = clazz.getInstance(loader)
+                    if (FMessageWpp.checkUnsafeIsFMessage(
+                            loader,
+                            clazzInstance
+                        )
+                    ) return@getClass clazzInstance
+                }
+            }
+            throw ClassNotFoundException("AbstractMediaMessage Not Found")
+        }
+    }
+
+    @Throws(Exception::class)
+    @JvmStatic
+    fun loadFragmentClass(classLoader: ClassLoader): Class<*> {
+        return UnobfuscatorCache.getInstance().getClass(classLoader) {
+            findFirstClassUsingStrings(classLoader, StringMatchType.Contains, "mFragmentId=#")
+                ?: throw RuntimeException("Fragment class not found")
+        }
+    }
+
+    @Throws(Exception::class)
+    @JvmStatic
+    fun loadMediaQualitySelectionMethod(classLoader: ClassLoader): Method {
+        return UnobfuscatorCache.getInstance().getMethod(classLoader) {
+            var methodData = dexkit.findMethod {
+                matcher {
+                    addUsingString("enable_media_quality_tool")
+                    returnType(Boolean::class.javaPrimitiveType!!)
+                }
+            }
             if (methodData.isEmpty()) {
-                methodData = dexkit.findMethod(FindMethod.create().matcher(
-                        MethodMatcher.create().addUsingString("show_media_quality_toggle").returnType(boolean.class)));
-            }
-
-            if (methodData.isEmpty())
-                throw new RuntimeException("MediaQualitySelection method not found");
-            return methodData.get(0).getMethodInstance(classLoader);
-        });
-    }
-
-    public static Field loadFmessageTimestampField(ClassLoader classLoader) throws Exception {
-        return UnobfuscatorCache.getInstance().getField(classLoader, () -> {
-            var fmessageClass = loadFMessageClass(classLoader);
-            var chatLimitDelete2Method = Unobfuscator.loadChatLimitDelete2Method(classLoader);
-            var usingFields = dexkit.getMethodData(chatLimitDelete2Method).getUsingFields();
-            for (var uField : usingFields) {
-                var field = uField.getField();
-                if (field.getDeclaredClass().getName().equals(fmessageClass.getName())
-                        && field.getType().getName().equals(long.class.getName())) {
-                    return field.getFieldInstance(classLoader);
-                }
-            }
-            throw new RuntimeException("FMessage Timestamp method not found");
-        });
-    }
-
-    public static Class<?> loadStatusDistributionClass(ClassLoader classLoader) throws Exception {
-        return UnobfuscatorCache.getInstance().getClass(classLoader, () -> {
-            var clazz = findFirstClassUsingStrings(classLoader, StringMatchType.Equals,
-                    "Only set a valid status distribution mode");
-            if (clazz == null)
-                throw new RuntimeException("StatusDistribution not found!");
-            return clazz;
-        });
-    }
-
-    public static Class<?> loadFilterItemClass(ClassLoader classLoader) throws Exception {
-        return UnobfuscatorCache.getInstance().getClass(classLoader, () -> {
-            var methodList = dexkit.findMethod(FindMethod.create().matcher(
-                    MethodMatcher.create().addUsingNumber(Utils.getID("invisible_height_placeholder", "id"))
-                            .addUsingNumber(Utils.getID("container_view", "id"))));
-            if (!methodList.isEmpty())
-                return methodList.get(0).getClassInstance(classLoader);
-
-            for (var s : List.of("ConversationsFilter/selectFilter", "has_seen_detected_outcomes_nux")) {
-                var applyClazz = findFirstClassUsingStrings(classLoader, StringMatchType.Contains, s);
-                if (applyClazz == null)
-                    continue;
-                methodList = dexkit.findMethod(FindMethod.create().matcher(
-                        MethodMatcher.create().paramTypes(View.class, applyClazz)));
-                if (!methodList.isEmpty())
-                    return methodList.get(0).getClassInstance(classLoader);
-            }
-            throw new RuntimeException("FilterItemClass Not Found");
-        });
-    }
-
-    public static Class[] loadProximitySensorListenerClasses(ClassLoader classLoader) throws Exception {
-        return UnobfuscatorCache.getInstance().getClasses(classLoader, () -> {
-            var classDataList = dexkit.findClass(
-                    FindClass.create()
-                            .matcher(ClassMatcher.create().addInterface(SensorEventListener.class.getName())));
-            if (classDataList.isEmpty())
-                throw new Exception("Class SensorEventListener not found");
-            return classDataList.stream().map(classData -> convertRealClass(classData, classLoader))
-                    .filter(Objects::nonNull).toArray(Class[]::new);
-        });
-    }
-
-    public static Class<?> loadRefreshStatusClass(ClassLoader classLoader) throws Exception {
-        return UnobfuscatorCache.getInstance().getClass(classLoader, () -> {
-            Method keyset = Map.class.getDeclaredMethod("keySet");
-            ClassMatcher matcher = ClassMatcher.create()
-                    .addMethod(
-                            MethodMatcher.create().returnType(String.class)
-                                    .addInvoke(DexSignUtil.getMethodDescriptor(keyset))
-                                    .addUsingString(",", StringMatchType.Equals)
-                                    .addUsingString("", StringMatchType.Equals))
-                    .addMethod(MethodMatcher.create().addUsingNumber(0x3684));
-
-            List<ClassData> results = dexkit.findClass(FindClass.create().matcher(matcher));
-            if (results.isEmpty())
-                throw new RuntimeException("RefreshStatus Class Not Found");
-            return results.get(0).getInstance(classLoader);
-        });
-    }
-
-    public static Method loadTcTokenMethod(ClassLoader classLoader) throws Exception {
-        return UnobfuscatorCache.getInstance().getMethod(classLoader, () -> findFirstMethodUsingStrings(classLoader,
-                StringMatchType.Contains, "GET_RECEIVED_TOKEN_AND_TIMESTAMP_BY_JID"));
-    }
-
-    public static Class<?> getClassByName(String className, ClassLoader classLoader) throws ClassNotFoundException {
-        if (cacheClasses.containsKey(className))
-            return cacheClasses.get(className);
-        var classDataList = dexkit.findClass(
-                FindClass.create().matcher(ClassMatcher.create().className(className, StringMatchType.EndsWith)));
-        if (classDataList.isEmpty())
-            throw new RuntimeException("Class " + className + " not found!");
-        var clazz = classDataList.get(0).getInstance(classLoader);
-        cacheClasses.put(className, clazz);
-        return clazz;
-    }
-
-    public static Class loadVoipManager(ClassLoader classLoader) throws Exception {
-        return UnobfuscatorCache.getInstance().getClass(classLoader, () -> {
-            var voipClass = WppCore.getVoipManagerClass(classLoader);
-            var superClasses = dexkit
-                    .findClass(FindClass.create().matcher(ClassMatcher.create().superClass(voipClass.getName())));
-            if (superClasses.isEmpty())
-                throw new ClassNotFoundException("VoipManager Class not found");
-            for (var supclass : superClasses) {
-                if (!Modifier.isAbstract(supclass.getModifiers()))
-                    return supclass.getInstance(classLoader);
-            }
-            throw new ClassNotFoundException("VoipManager Class not found");
-        });
-    }
-
-    public static Class loadWaContactClass(ClassLoader classLoader) throws Exception {
-        return UnobfuscatorCache.getInstance().getClass(classLoader,
-                () -> findFirstClassUsingStrings(classLoader, StringMatchType.Contains, "problematic contact:"));
-
-    }
-
-
-    public static Method loadViewAddSearchBarMethod(ClassLoader classLoader) throws Exception {
-        return UnobfuscatorCache.getInstance().getMethod(classLoader, () -> {
-            for (var str : List.of("HeaderFooterRecyclerViewAdapter/addHeaderViewItemIfNeeded", "HeaderFooterRecyclerViewAdapter/addFooterViewItemAtPositionIfNeeded")) {
-                var method = findFirstMethodUsingStrings(classLoader, StringMatchType.Contains, str);
-                if (method != null) return method;
-            }
-            throw new RuntimeException("ViewAddSearchBar method not found");
-        });
-    }
-
-    public static Method loadMenuSearchMethod(ClassLoader classLoader) throws Exception {
-        return UnobfuscatorCache.getInstance()
-                .getMethod(classLoader,
-                        () -> dexkit
-                                .findMethod(
-                                        FindMethod.create()
-                                                .matcher(MethodMatcher.create().addUsingNumber(8013).paramCount(0)
-                                                        .returnType(boolean.class)))
-                                .single().getMethodInstance(classLoader));
-    }
-
-    public static Method loadAddOptionSearchBarMethod(ClassLoader classLoader) throws Exception {
-        return UnobfuscatorCache.getInstance().getMethod(classLoader, () -> {
-            var classData = Objects.requireNonNull(dexkit.getClassData(WppCore.getHomeActivityClass(classLoader)));
-            MethodDataList methodData = classData.findMethod(FindMethod.create()
-                    .matcher(MethodMatcher.create().addUsingNumber(Utils.getID("menuitem_search", "id"))
-                            .addUsingNumber(200)
-                            .paramCount(1)
-                            .addParamType(Menu.class)));
-            if (methodData.isEmpty())
-                throw new NoSuchMethodError("MenuSearch not found in HomeActivity");
-
-            return methodData.get(0).getMethodInstance(classLoader);
-        });
-    }
-
-    public static Method loadAddMenuAndroidX(ClassLoader classLoader) throws Exception {
-        return UnobfuscatorCache.getInstance().getMethod(classLoader, () -> findFirstMethodUsingStrings(classLoader,
-                StringMatchType.Contains, "Maximum number of items supported by"));
-    }
-
-    public static Method loadConvertLidToJid(ClassLoader loader) throws Exception {
-        return UnobfuscatorCache.getInstance().getMethod(loader, () -> findFirstMethodUsingStrings(loader,
-                StringMatchType.Contains, "WaJidMapRepository/getPhoneJidByAccountUserJid"));
-    }
-
-    public static Method loadConvertJidToLid(ClassLoader loader) throws Exception {
-        return UnobfuscatorCache.getInstance().getMethod(loader, () -> findFirstMethodUsingStrings(loader,
-                StringMatchType.Contains, "WaJidMapRepository/getAccountUserJidByPhoneJid"));
-    }
-
-    public static Class loadWaContactData(ClassLoader classLoader) throws Exception {
-        return UnobfuscatorCache.getInstance().getClass(classLoader,
-                () -> findFirstClassUsingStrings(classLoader, StringMatchType.EndsWith, "WaContactData"));
-    }
-
-    public static Class<?> loadMeManagerClass(ClassLoader classLoader) throws Exception {
-        return UnobfuscatorCache.getInstance().getClass(classLoader, () -> {
-            var clazz = findFirstClassUsingStrings(classLoader, StringMatchType.StartsWith, "memanager/setMe");
-            if (clazz == null) throw new RuntimeException("MeManager class not found");
-            return clazz;
-        });
-    }
-
-    public static Class<?> loadVerifyKeyClass(ClassLoader classLoader) throws Exception {
-        return UnobfuscatorCache.getInstance().getClass(classLoader, () -> {
-            var methodMatcher = MethodMatcher.create().addUsingNumber(2966).paramCount(1).addParamType(int.class);
-            var result = dexkit.findMethod(FindMethod.create().matcher(methodMatcher));
-            if (result.isEmpty())
-                throw new RuntimeException("VerifyKey class not found");
-            var classList = result.get(0).getDeclaredClass();
-            if (classList == null)
-                throw new ClassNotFoundException("VerifyKey class not found");
-            return classList.getInstance(classLoader);
-        });
-    }
-
-    public static Constructor<?> loadVerifyKeyRunnableConstructor(ClassLoader classLoader) throws Exception {
-        return UnobfuscatorCache.getInstance().getConstructor(classLoader, () -> {
-            var data = dexkit.findMethod(
-                    FindMethod.create().matcher(MethodMatcher.create()
-                            .usingStrings("deviceidentityverifier/verify Primary")
-                    )
-            ).singleOrNull();
-            var clazz = data.getDeclaredClass().getInstance(classLoader);
-            return ReflectionUtils.findConstructorUsingFilter(clazz, c -> c.getParameterCount() == 2 && c.getParameterTypes()[0].getSimpleName().equals("Object"));
-        });
-    }
-
-    public static Number loadVerifyKeyInt(ClassLoader classLoader) throws Exception {
-        return UnobfuscatorCache.getInstance().getNumber(classLoader, () -> {
-            var method = loadVerifyKeyItemConstructor(classLoader);
-            var callers = dexkit.getMethodData(method).getCallers();
-            var resultMethod = callers.stream().filter(i -> i.isMethod() && i.getDeclaredClassName().contains("IdentityVerificationActivity")).findFirst().orElse(null);
-            var usingNumbers = resultMethod.getUsingNumbers();
-            var findMagicNumber = false;
-            for (var i = 0; i < usingNumbers.size(); i++) {
-                var n = usingNumbers.get(i);
-                if (n.intValue() == 2966) {
-                    findMagicNumber = true;
-                } else if (findMagicNumber) {
-                    return n;
-                }
-            }
-            throw new RuntimeException("VerifyKey int not found");
-        });
-    }
-
-    public static Constructor<?> loadVerifyKeyItemConstructor(ClassLoader classLoader) throws Exception {
-        return UnobfuscatorCache.getInstance().getConstructor(classLoader, () -> {
-            var clazz = dexkit.findClass(FindClass.create().matcher(ClassMatcher.create().className("IdentityVerificationActivity", StringMatchType.EndsWith))).singleOrNull();
-            var methodResult = dexkit.findMethod(
-                    FindMethod.create().matcher(MethodMatcher.create()
-                            .addUsingNumber(2966)
-                    ).searchInClass(List.of(clazz))
-            ).singleOrNull();
-            var invokes = methodResult.getInvokes();
-            for (var invoke : invokes) {
-                if (!invoke.isConstructor()) continue;
-                var paramTypes = invoke.getParamTypes();
-                if (paramTypes.size() != 2) continue;
-                if (!paramTypes.get(1).getSimpleName().equals("List")) continue;
-                return invoke.getConstructorInstance(classLoader);
-            }
-            throw new RuntimeException("VerifyKey constructor not found");
-        });
-    }
-
-    public synchronized static Method loadMySearchBarMethod(ClassLoader classLoader) throws Exception {
-        return UnobfuscatorCache.getInstance().getMethod(classLoader, () -> {
-            Method method = findFirstMethodUsingStrings(classLoader, StringMatchType.EndsWith,
-                    "search_bar_render_start");
-            if (method == null)
-                throw new NoSuchMethodException("MySearchBar method not found");
-            return method;
-        });
-    }
-
-    public synchronized static Method loadAdVerifyMethod(ClassLoader classLoader) throws Exception {
-        return UnobfuscatorCache.getInstance().getMethod(classLoader, () -> {
-            var method = dexkit.findMethod(FindMethod.create().matcher(MethodMatcher.create().usingStrings("is_wfal_paused").paramCount(1))).singleOrNull();
-            if (method == null)throw new NoSuchMethodException("loadAdVerify Not Found");
-            return method.getMethodInstance(classLoader);
-        });
-    }
-
-    public synchronized static Class<?> loadChatFilterView(ClassLoader classLoader) throws Exception {
-        return UnobfuscatorCache.getInstance().getClass(classLoader, () -> {
-            int value = Utils.getID("conversations_inbox_filters_stub", "id");
-            var clazz = dexkit
-                    .findClass(FindClass.create()
-                            .matcher(ClassMatcher.create().addMethod(MethodMatcher.create().addUsingNumber(value))))
-                    .singleOrNull();
-            if (clazz == null)
-                return null;
-            return clazz.getInstance(classLoader);
-        });
-    }
-
-    public static Method loadNotificationMethod(ClassLoader classLoader) throws Exception {
-        return UnobfuscatorCache.getInstance().getMethod(classLoader, () -> {
-            var invokedMethod = dexkit
-                    .findMethod(FindMethod.create()
-                            .matcher(MethodMatcher.create()
-                                    .addUsingString("LastMessageStore/getLastMessagesForNotificationAfterReply")))
-                    .singleOrNull();
-            if (invokedMethod == null)
-                throw new RuntimeException("Notification invoked method not found");
-            return invokedMethod.getMethodInstance(classLoader);
-        });
-    }
-
-    public static Method loadLockedChatsMethod(ClassLoader classLoader) throws Exception {
-        return UnobfuscatorCache.getInstance().getMethod(classLoader, () -> {
-            var classData = dexkit
-                    .findClass(FindClass.create()
-                            .matcher(ClassMatcher.create().addUsingString("conversationsmgr/replacecontact")))
-                    .singleOrNull();
-            if (classData == null)
-                throw new RuntimeException("ConversationsManager class not found");
-            var invokedMethod = dexkit.getMethodData(loadNotificationMethod(classLoader));
-            var invokes = invokedMethod.getInvokes();
-            for (var invoke : invokes) {
-                if (!invoke.isMethod())
-                    continue;
-                if (!invoke.getClassName().equals(classData.getName()))
-                    continue;
-                if (!invoke.getReturnType().getName().equals(ArrayList.class.getName()))
-                    continue;
-                return invoke.getMethodInstance(classLoader);
-            }
-            throw new RuntimeException("LockedChats method not found");
-        });
-    }
-
-    public static Method loadGetProfilePhotoMethod(ClassLoader classLoader) throws Exception {
-        return UnobfuscatorCache.getInstance().getMethod(classLoader,
-                () ->  findFirstMethodUsingStrings(
-                        classLoader,
-                        StringMatchType.Contains,
-                        "contactPhotosBitmapManager/getphotostream/"
-                ));
-    }
-
-    public static Method loadGetProfilePhotoHighQMethod(ClassLoader classLoader) throws Exception {
-        return UnobfuscatorCache.getInstance().getMethod(classLoader,
-                () -> findFirstMethodUsingStrings(classLoader, StringMatchType.Contains, "me.jpg", "Profile Pictures"));
-    }
-
-    public static Class<?> loadChatCacheClass(ClassLoader classLoader) throws Exception {
-        return UnobfuscatorCache.getInstance().getClass(classLoader,
-                () -> findFirstClassUsingStrings(classLoader, StringMatchType.StartsWith, "Chatscache/"));
-    }
-
-    public static Method loadLoadedContactsMethod(ClassLoader classLoader) throws Exception {
-        return UnobfuscatorCache.getInstance().getMethod(classLoader, () -> {
-            var methods = dexkit.findMethod(FindMethod.create()
-                    .matcher(MethodMatcher.create().addUsingNumber(8726).paramCount(1).addParamType(Object.class)));
-            if (methods.isEmpty())
-                return null;
-            return methods.get(0).getMethodInstance(classLoader);
-        });
-    }
-
-    public static Method loadVideoTranscoderStartMethod(ClassLoader classLoader) throws Exception {
-        return UnobfuscatorCache.getInstance().getMethod(classLoader, () -> findFirstMethodUsingStrings(classLoader,
-                StringMatchType.Contains, "VideoTranscoder/transcodeVideoNew/"));
-    }
-
-    public static Field loadWaContactGetWaNameField(ClassLoader classLoader) throws Exception {
-        return UnobfuscatorCache.getInstance().getField(classLoader, () -> {
-            var method = dexkit.findMethod(FindMethod.create().matcher(MethodMatcher.create().addUsingString("ContactManagerDatabase/updateContactWAName"))).singleOrNull();
-            if (method == null)
-                throw new NoSuchMethodException("WaContactGetWaName field not found");
-            var waContact = loadWaContactClass(classLoader).getName();
-            var usingFields = method.getUsingFields();
-            for (var usingField : usingFields) {
-                var field = usingField.getField();
-                if (field.getClassName().equals(waContact) && field.getType().getName().equals(String.class.getName())) {
-                    return field.getFieldInstance(classLoader);
-                }
-            }
-            var waContactData = loadWaContactDataClass(classLoader).getName();
-            for (var usingField : usingFields) {
-                var field = usingField.getField();
-                if (field.getClassName().equals(waContactData) && field.getType().getName().equals(String.class.getName())) {
-                    return field.getFieldInstance(classLoader);
-                }
-            }
-            throw new NoSuchMethodException("WaContactGetWaName field not found");
-        });
-    }
-
-    public static Class<?> loadWaContactDataClass(ClassLoader classLoader) throws Exception {
-        return UnobfuscatorCache.getInstance().getClass(classLoader, () -> findFirstClassUsingStrings(classLoader, StringMatchType.EndsWith, "WaContactData"));
-    }
-
-    public static Field loadWaContactDataDisplayNameMethod(ClassLoader classLoader) throws Exception {
-        return UnobfuscatorCache.getInstance().getField(classLoader, () -> {
-            var methods = dexkit.findMethod(FindMethod.create().matcher(MethodMatcher.create().addUsingString("ContactManagerDatabase/updateGroupInfo")));
-            if (methods.isEmpty()) throw new NoSuchMethodException("WaContactDiplayName not found");
-            var waContactDataClassName = loadWaContactDataClass(classLoader).getName();
-            var waContactClassName = loadWaContactClass(classLoader).getName();
-            var invokes = methods.get(0).getInvokes();
-            for (var invoke : invokes) {
-                if (!invoke.getClassName().equals(waContactClassName)) continue;
-                if (invoke.getReturnTypeName().equals(String.class.getName())) {
-                    var usingFields2 = invoke.getUsingFields();
-                    for (var usingFieldData : usingFields2) {
-                        if (!usingFieldData.getField().getDeclaredClassName().equals(waContactDataClassName))
-                            continue;
-                        if (usingFieldData.getField().getTypeName().equals(String.class.getName()))
-                            return usingFieldData.getField().getFieldInstance(classLoader);
+                methodData = dexkit.findMethod {
+                    matcher {
+                        addUsingString("show_media_quality_toggle")
+                        returnType(Boolean::class.javaPrimitiveType!!)
                     }
                 }
             }
-            var usingFields = methods.get(0).getUsingFields();
-            for (var usingFieldData : usingFields) {
-                if (!usingFieldData.getField().getDeclaredClassName().equals(waContactDataClassName))
-                    continue;
-                if (usingFieldData.getField().getTypeName().equals(String.class.getName()))
-                    return usingFieldData.getField().getFieldInstance(classLoader);
-            }
-            return null;
-        });
-    }
-
-    public static Method loadGetWaContactMethod(ClassLoader classLoader) throws Exception {
-        return UnobfuscatorCache.getInstance().getMethod(classLoader, () -> findFirstMethodUsingStrings(classLoader, StringMatchType.Contains, "ContactManager/getContactFromCacheOrDbByJid"));
-    }
-
-    public static Class<?>[] loadSharedPreferencesClasses(ClassLoader classLoader) throws Exception {
-        return UnobfuscatorCache.getInstance().getClasses(classLoader, () -> {
-            var classesData = dexkit.findClass(
-                    FindClass.create().matcher(ClassMatcher.create().addInterface(SharedPreferences.class.getName())));
-            if (classesData.isEmpty())
-                return null;
-            return classesData.stream().map(classData -> convertRealClass(classData, classLoader))
-                    .toArray(Class[]::new);
-        });
-    }
-
-    public static Method loadPinnedFilterMethod(ClassLoader classLoader) throws Exception {
-        return UnobfuscatorCache.getInstance().getMethod(classLoader, () -> {
-            var method = findFirstMethodUsingStrings(classLoader, StringMatchType.Contains, "pinSelectedJids");
-            var methodData = dexkit.getMethodData(method);
-            var invokes = methodData.getInvokes();
-            for (var invoke : invokes) {
-                if (!invoke.isMethod()) continue;
-                var methodInstance = invoke.getMethodInstance(classLoader);
-                if (!Set.class.isAssignableFrom(methodInstance.getReturnType()))
-                    continue;
-                if (methodInstance.getParameterCount() == 2 && methodInstance.getParameterTypes()[0] == Iterable.class && methodInstance.getParameterTypes()[1] == Set.class)
-                    return methodInstance;
-            }
-            throw new NoSuchMethodException("PinnedLinkedHashMethod not found");
-        });
-    }
-
-    public static Method loadSetPinnedLimitMethod(ClassLoader classLoader) throws Exception {
-        return UnobfuscatorCache.getInstance().getMethod(classLoader, () -> {
-            var method = findFirstMethodUsingStrings(classLoader, StringMatchType.Contains, "ChatSettingsStore/setPin");
-            if (method == null)
-                throw new NoSuchMethodException("SetPinnedLimit method not found");
-            return method;
-        });
-    }
-
-    public static Method loadManualProcessVideoQualityMethod(ClassLoader classLoader) throws Exception {
-        return UnobfuscatorCache.getInstance().getMethod(classLoader, () -> {
-            var processVideoQuality = Unobfuscator.loadProcessVideoQualityClass(classLoader);
-            var methods = dexkit.findMethod(FindMethod.create().matcher(MethodMatcher.create().addUsingString("dimensions_are_zero").returnType(processVideoQuality)));
-            if (methods.isEmpty())
-                throw new NoSuchMethodException("ManualProcessVideoQuality method not found");
-            return methods.get(0).getMethodInstance(classLoader);
-        });
-
-    }
-
-    public static Method loadAutoProcessVideoQualityMethod(ClassLoader classLoader) throws Exception {
-        return UnobfuscatorCache.getInstance().getMethod(classLoader, () -> {
-            var processVideoQuality = Unobfuscator.loadProcessVideoQualityClass(classLoader);
-            var methods = dexkit.findMethod(FindMethod.create().matcher(MethodMatcher.create().addUsingString("min_bandwidth").addUsingString("network_types").returnType(processVideoQuality)));
-            if (methods.isEmpty())
-                throw new NoSuchMethodException("ManualProcessVideoQuality method not found");
-            return methods.get(0).getMethodInstance(classLoader);
-        });
-
-    }
-
-
-    public static HashMap<String, Field> getAllMapFields(Class<?> clazz) throws Exception {
-        var cache = UnobfuscatorCache.getInstance();
-        var classLoader = clazz.getClassLoader();
-        if (cache != null && classLoader != null) {
-            var cacheKey = "getAllMapFields:" + clazz.getName();
-            return cache.getMapField(classLoader, cacheKey, () -> buildAllMapFields(clazz));
+            if (methodData.isEmpty()) throw RuntimeException("MediaQualitySelection method not found")
+            methodData[0].getMethodInstance(classLoader)
         }
-        return buildAllMapFields(clazz);
     }
 
-    private static HashMap<String, Field> buildAllMapFields(Class<?> clazz) throws Exception {
-        Method methodString;
-        try {
-            methodString = clazz.getDeclaredMethod("toString");
-        } catch (Exception e) {
-            return new HashMap<>();
-        }
-        var methodData = dexkit.getMethodData(methodString);
-        var usingFields = Objects.requireNonNull(methodData).getUsingFields();
-        var usingStrings = Objects.requireNonNull(methodData).getUsingStrings();
-        var result = new HashMap<String, Field>();
-        var idxFields = 0;
-        for (int i = 0; i < usingStrings.size(); i++) {
-            if (idxFields == usingFields.size()) break;
-            var raw = usingStrings.get(i);
-            if (raw == null) continue;
-            var string = raw.strip();
-            if (string.isEmpty()) continue;
-            int eq = string.lastIndexOf('=');
-            if (eq < 0) continue;
-            int start = 0;
-            for (int j = eq - 1; j >= 0; j--) {
-                char c = string.charAt(j);
-                if (c == '\'' || c == ',' || c == ' ' || c == '(' || c == ')' || c == ':' || c == '{' || c == '}') {
-                    start = j + 1;
-                    break;
+    @Throws(Exception::class)
+    @JvmStatic
+    fun loadFmessageTimestampField(classLoader: ClassLoader): Field {
+        return UnobfuscatorCache.getInstance().getField(classLoader) {
+            val fmessageClass = loadFMessageClass(classLoader)
+            val chatLimitDelete2Method = loadChatLimitDelete2Method(classLoader)
+            val usingFields = dexkit.getMethodData(chatLimitDelete2Method)!!.usingFields
+            for (uField in usingFields) {
+                val field = uField.field
+                if (field.declaredClass.name == fmessageClass.name && field.type.name == Long::class.javaPrimitiveType?.name) {
+                    return@getField field.getFieldInstance(classLoader)
                 }
             }
-            if (start >= eq) continue;
-            var name = string.substring(start, eq);
-            var field = usingFields.get(idxFields).getField().getFieldInstance(clazz.getClassLoader());
-            result.put(name, field);
-            idxFields++;
+            throw RuntimeException("FMessage Timestamp method not found")
         }
-        return result;
     }
 
-    public static Class<?> loadMediaDataVideoConfigurationClass(ClassLoader classLoader) throws Exception {
-        return UnobfuscatorCache.getInstance().getClass(classLoader, () -> findFirstClassUsingStrings(classLoader, StringMatchType.Contains, "MediaDataVideoConfiguration("));
+
+    @Throws(Exception::class)
+    @JvmStatic
+    fun loadFilterItemClass(classLoader: ClassLoader): Class<*> {
+        return UnobfuscatorCache.getInstance().getClass(classLoader) {
+            var methodList = dexkit.findMethod {
+                matcher {
+                    addUsingNumber(Utils.getID("invisible_height_placeholder", "id"))
+                    addUsingNumber(Utils.getID("container_view", "id"))
+                }
+            }
+            if (methodList.isNotEmpty()) return@getClass methodList[0].getClassInstance(classLoader)
+
+            for (s in listOf(
+                "ConversationsFilter/selectFilter",
+                "has_seen_detected_outcomes_nux"
+            )) {
+                val applyClazz =
+                    findFirstClassUsingStrings(classLoader, StringMatchType.Contains, s) ?: continue
+                methodList = dexkit.findMethod {
+                    matcher {
+                        paramTypes(View::class.java, applyClazz)
+                    }
+                }
+                if (methodList.isNotEmpty()) return@getClass methodList[0].getClassInstance(
+                    classLoader
+                )
+            }
+            throw RuntimeException("FilterItemClass Not Found")
+        }
     }
 
-    public static Method loadStatusStyleMethod(ClassLoader classLoader) throws Exception {
-        return UnobfuscatorCache.getInstance().getMethod(classLoader, () -> {
-            var method = dexkit.findMethod(FindMethod.create().matcher(MethodMatcher.create().addUsingNumber(8522).returnType(int.class))).singleOrNull();
-            if (method == null)
-                throw new NoSuchMethodException("StatusStyle method not found");
-            return method.getMethodInstance(classLoader);
-        });
+    @Throws(Exception::class)
+    @JvmStatic
+    fun loadProximitySensorListenerClasses(classLoader: ClassLoader): Array<Class<*>> {
+        return UnobfuscatorCache.getInstance().getClasses(classLoader) {
+            val classDataList = dexkit.findClass {
+                matcher {
+                    addInterface(SensorEventListener::class.java.name)
+                }
+            }
+            if (classDataList.isEmpty()) throw Exception("Class SensorEventListener not found")
+            classDataList.stream().map { classData -> convertRealClass(classData, classLoader) }
+                .filter { it != null }
+                .map { it!! }
+                .toArray { length -> arrayOfNulls<Class<*>>(length) }
+        }
     }
 
-    public static Class loadProcessImageQualityClass(ClassLoader classLoader) throws Exception {
-        return UnobfuscatorCache.getInstance().getClass(classLoader, () -> {
-            var classDataList = dexkit.findClass(FindClass.create().matcher(ClassMatcher.create().addUsingString("ProcessImageQuality(", StringMatchType.StartsWith)));
-            if (classDataList.isEmpty())
-                throw new RuntimeException("ProcessImageQuality class not found");
-            return classDataList.get(0).getInstance(classLoader);
-        });
+    @Throws(Exception::class)
+    @JvmStatic
+    fun loadRefreshStatusClass(classLoader: ClassLoader): Class<*> {
+        return UnobfuscatorCache.getInstance().getClass(classLoader) {
+            val keyset = Map::class.java.getDeclaredMethod("keySet")
+            val results = dexkit.findClass {
+                matcher {
+                    addMethod {
+                        returnType(String::class.java)
+                        addInvoke(DexSignUtil.getMethodDescriptor(keyset))
+                        addUsingString(",", StringMatchType.Equals)
+                        addUsingString("", StringMatchType.Equals)
+                    }
+                    addMethod {
+                        addUsingNumber(0x3684)
+                    }
+                }
+            }
+            if (results.isEmpty()) throw RuntimeException("RefreshStatus Class Not Found")
+            results[0].getInstance(classLoader)
+        }
     }
 
-    public static Class<?> loadGetProfilePhoto(ClassLoader classLoader) throws Exception {
-        return UnobfuscatorCache.getInstance().getClass(classLoader, () -> findFirstClassUsingStrings(classLoader, StringMatchType.Contains, "ProfilePhotoManager/sendGetProfilePhoto"));
+    @Throws(Exception::class)
+    @JvmStatic
+    fun loadTcTokenMethod(classLoader: ClassLoader): Method {
+        return UnobfuscatorCache.getInstance().getMethod(classLoader) {
+            findFirstMethodUsingStrings(
+                classLoader,
+                StringMatchType.Contains,
+                "GET_RECEIVED_TOKEN_AND_TIMESTAMP_BY_JID"
+            )!!
+        }
     }
 
-    public static Class<?> loadDialerProfilePictureLoader(ClassLoader classLoader) throws Exception {
-        return UnobfuscatorCache.getInstance().getClass(classLoader, () -> findFirstClassUsingStrings(classLoader, StringMatchType.Contains, "DialerProfilePictureLoader/syncFetchProfilePhoto/onPhotoReceived"));
+    @Throws(ClassNotFoundException::class)
+    @JvmStatic
+    fun getClassByName(className: String, classLoader: ClassLoader): Class<*> {
+        if (cacheClasses.containsKey(className)) return cacheClasses[className]!!
+        val classDataList = dexkit.findClass {
+            matcher {
+                className(className, StringMatchType.EndsWith)
+            }
+        }
+        if (classDataList.isEmpty()) throw RuntimeException("Class $className not found!")
+        val clazz = classDataList[0].getInstance(classLoader)
+        cacheClasses[className] = clazz
+        return clazz
     }
 
-    public static Class<?> loadBottomBarConfigClass(ClassLoader classLoader) throws Exception {
-        return UnobfuscatorCache.getInstance().getClass(classLoader, () -> findFirstClassUsingStrings(classLoader, StringMatchType.Contains, "BottomBarConfig("));
+    @Throws(Exception::class)
+    @JvmStatic
+    fun loadVoipManager(classLoader: ClassLoader): Class<*> {
+        return UnobfuscatorCache.getInstance().getClass(classLoader) {
+            val voipClass = WppCore.voipManagerClass
+            val superClasses = dexkit.findClass {
+                matcher {
+                    superClass(voipClass.name)
+                }
+            }
+            if (superClasses.isEmpty()) throw ClassNotFoundException("VoipManager Class not found")
+            for (supclass in superClasses) {
+                if (!Modifier.isAbstract(supclass.modifiers)) return@getClass supclass.getInstance(
+                    classLoader
+                )
+            }
+            throw ClassNotFoundException("VoipManager Class not found")
+        }
     }
 
-    public static Method loadOnCreatedMenuConversation(ClassLoader loader) throws Exception {
-        return UnobfuscatorCache.getInstance().getMethod(loader, () -> {
-            var conversationClass = Unobfuscator.findFirstClassUsingName(loader, StringMatchType.EndsWith, "Conversation");
-            return ReflectionUtils.findMethodUsingFilter(conversationClass, m -> m.getParameterCount() == 1 && m.getParameterTypes()[0].equals(Menu.class));
-        });
+    @Throws(Exception::class)
+    @JvmStatic
+    fun loadWaContactClass(classLoader: ClassLoader): Class<*> {
+        return UnobfuscatorCache.getInstance().getClass(classLoader) {
+            findFirstClassUsingStrings(
+                classLoader,
+                StringMatchType.Contains,
+                "problematic contact:"
+            )!!
+        }
     }
 
-    public static @NonNull Class<?> loadFStatusKeyClass(ClassLoader classLoader) throws Exception {
-        return UnobfuscatorCache.getInstance().getClass(classLoader, () -> dexkit.findClass(FindClass.create().matcher(
-                        ClassMatcher.create()
-                                .addUsingString("Key(id=").
-                                addUsingString("senderJid")))
-                .first().getInstance(classLoader));
+    @Throws(Exception::class)
+    @JvmStatic
+    fun loadViewAddSearchBarMethod(classLoader: ClassLoader): Method {
+        return UnobfuscatorCache.getInstance().getMethod(classLoader) {
+            for (str in listOf(
+                "HeaderFooterRecyclerViewAdapter/addHeaderViewItemIfNeeded",
+                "HeaderFooterRecyclerViewAdapter/addFooterViewItemAtPositionIfNeeded"
+            )) {
+                val method = findFirstMethodUsingStrings(classLoader, StringMatchType.Contains, str)
+                if (method != null) return@getMethod method
+            }
+            throw RuntimeException("ViewAddSearchBar method not found")
+        }
     }
 
-    public static @NonNull Class<?> loadFStatusClass(@NonNull ClassLoader classLoader) throws Exception {
-        return UnobfuscatorCache.getInstance().getClass(classLoader, () -> {
-            return findFirstClassUsingStrings(classLoader, StringMatchType.Contains, "FStatus state");
-        });
+    @Throws(Exception::class)
+    @JvmStatic
+    fun loadAddOptionSearchBarMethod(classLoader: ClassLoader): Method {
+        return UnobfuscatorCache.getInstance().getMethod(classLoader) {
+            val classData = dexkit.getClassData(WppCore.homeActivityClass)
+                ?: return@getMethod null
+            val methodData = classData.findMethod {
+                matcher {
+                    addUsingNumber(Utils.getID("menuitem_search", "id"))
+                    addUsingNumber(200)
+                    paramCount(1)
+                    addParamType(Menu::class.java)
+                }
+            }
+            if (methodData.isEmpty()) throw NoSuchMethodError("MenuSearch not found in HomeActivity")
+            methodData[0].getMethodInstance(classLoader)
+        }
     }
 
-    public static Method loadAntiRevokeFStatusMethod(@NonNull ClassLoader classLoader) throws Exception {
-        return UnobfuscatorCache.getInstance().getMethod(classLoader, () -> {
-            var fStatusKeyClass = loadFStatusKeyClass(classLoader);
-            var clazz = findFirstClassUsingStrings(classLoader, StringMatchType.Contains, "RevokeStatusManager/failed");
-            return ReflectionUtils.findMethodUsingFilter(clazz, method -> method.getParameterCount() > 0 && fStatusKeyClass.isAssignableFrom(method.getParameterTypes()[0]));
-        });
+    @Throws(Exception::class)
+    @JvmStatic
+    fun loadAddMenuAndroidX(classLoader: ClassLoader): Method {
+        return UnobfuscatorCache.getInstance().getMethod(classLoader) {
+            findFirstMethodUsingStrings(
+                classLoader,
+                StringMatchType.Contains,
+                "Maximum number of items supported by"
+            )!!
+        }
     }
 
-    public static @NonNull Method loadGetStatusByKey(@NonNull ClassLoader classLoader) throws Exception {
-        return UnobfuscatorCache.getInstance().getMethod(classLoader, () -> findFirstMethodUsingStrings(classLoader, StringMatchType.Contains, "StatusStore/GET_STATUS_BY_KEY"));
+    @Throws(Exception::class)
+    @JvmStatic
+    fun loadConvertLidToJid(loader: ClassLoader): Method {
+        return UnobfuscatorCache.getInstance().getMethod(loader) {
+            findFirstMethodUsingStrings(
+                loader,
+                StringMatchType.Contains,
+                "WaJidMapRepository/getPhoneJidByAccountUserJid"
+            )!!
+        }
     }
 
-    public static Method loadFStatusToFMessage(@NonNull ClassLoader classLoader) throws Exception {
-        return UnobfuscatorCache.getInstance().getMethod(classLoader, () -> findFirstMethodUsingStrings(
+    @Throws(Exception::class)
+    @JvmStatic
+    fun loadConvertJidToLid(loader: ClassLoader): Method {
+        return UnobfuscatorCache.getInstance().getMethod(loader) {
+            findFirstMethodUsingStrings(
+                loader,
+                StringMatchType.Contains,
+                "WaJidMapRepository/getAccountUserJidByPhoneJid"
+            )!!
+        }
+    }
+
+    @Throws(Exception::class)
+    @JvmStatic
+    fun loadMeManagerClass(classLoader: ClassLoader): Class<*> {
+        return UnobfuscatorCache.getInstance().getClass(classLoader) {
+            findFirstClassUsingStrings(classLoader, StringMatchType.StartsWith, "memanager/setMe")
+                ?: throw RuntimeException("MeManager class not found")
+        }
+    }
+
+    @Throws(Exception::class)
+    @JvmStatic
+    fun loadVerifyKeyClass(classLoader: ClassLoader): Class<*> {
+        return UnobfuscatorCache.getInstance().getClass(classLoader) {
+            val result = dexkit.findMethod {
+                matcher {
+                    addUsingNumber(2966)
+                    paramCount(1)
+                    addParamType(Int::class.java)
+                }
+            }
+            if (result.isEmpty()) throw RuntimeException("VerifyKey class not found")
+            val classList =
+                result[0].declaredClass ?: throw ClassNotFoundException("VerifyKey class not found")
+            classList.getInstance(classLoader)
+        }
+    }
+
+    @Throws(Exception::class)
+    @JvmStatic
+    fun loadVerifyKeyRunnableConstructor(classLoader: ClassLoader): Constructor<*> {
+        return UnobfuscatorCache.getInstance().getConstructor(classLoader) {
+            val data = dexkit.findMethod {
+                matcher {
+                    usingStrings("deviceidentityverifier/verify Primary")
+                }
+            }.singleOrNull() ?: throw RuntimeException("VerifyKey method not found")
+            val clazz = data.declaredClass!!.getInstance(classLoader)
+            ReflectionUtils.findConstructorUsingFilter(clazz) { c ->
+                c.parameterCount == 2 && c.parameterTypes[0].simpleName == "Object"
+            }
+        }
+    }
+
+    @Throws(Exception::class)
+    @JvmStatic
+    fun loadVerifyKeyInt(classLoader: ClassLoader): Number {
+        return UnobfuscatorCache.getInstance().getNumber(classLoader) {
+            val method = loadVerifyKeyItemConstructor(classLoader)
+            val callers = dexkit.getMethodData(method)!!.callers
+            val resultMethod = callers.stream().filter { i ->
+                i.isMethod && i.declaredClassName.contains("IdentityVerificationActivity")
+            }.findFirst().orElse(null)
+                ?: throw RuntimeException("VerifyKey method caller not found")
+            val usingNumbers = resultMethod.usingNumbers
+            var findMagicNumber = false
+            for (i in usingNumbers.indices) {
+                val n = usingNumbers[i]
+                if (n.toInt() == 2966) {
+                    findMagicNumber = true
+                } else if (findMagicNumber) {
+                    return@getNumber n
+                }
+            }
+            throw RuntimeException("VerifyKey int not found")
+        }
+    }
+
+    @Throws(Exception::class)
+    @JvmStatic
+    fun loadVerifyKeyItemConstructor(classLoader: ClassLoader): Constructor<*> {
+        return UnobfuscatorCache.getInstance().getConstructor(classLoader) {
+            val clazz = dexkit.findClass {
+                matcher {
+                    className("IdentityVerificationActivity", StringMatchType.EndsWith)
+                }
+            }.singleOrNull() ?: throw RuntimeException("IdentityVerificationActivity not found")
+            val methodResult = dexkit.findMethod {
+                searchInClass(listOf(clazz))
+                matcher {
+                    addUsingNumber(2966)
+                }
+            }.singleOrNull() ?: throw RuntimeException("VerifyKey item constructor base not found")
+
+            for (invoke in methodResult.invokes) {
+                if (!invoke.isConstructor) continue
+                val paramTypes = invoke.paramTypes
+                if (paramTypes.size != 2) continue
+                if (paramTypes[1].simpleName != "List") continue
+                return@getConstructor invoke.getConstructorInstance(classLoader)
+            }
+            throw RuntimeException("VerifyKey constructor not found")
+        }
+    }
+
+    @Throws(Exception::class)
+    @JvmStatic
+    fun loadMySearchBarMethod(classLoader: ClassLoader): Method {
+        return UnobfuscatorCache.getInstance().getMethod(classLoader) {
+            findFirstMethodUsingStrings(
+                classLoader,
+                StringMatchType.EndsWith,
+                "search_bar_render_start"
+            )
+                ?: throw NoSuchMethodException("MySearchBar method not found")
+        }
+    }
+
+    @Throws(Exception::class)
+    @JvmStatic
+    fun loadAdVerifyMethod(classLoader: ClassLoader): Method {
+        return UnobfuscatorCache.getInstance().getMethod(classLoader) {
+            val method = dexkit.findMethod {
+                matcher {
+                    usingStrings("is_wfal_paused")
+                    paramCount(1)
+                }
+            }.singleOrNull() ?: throw NoSuchMethodException("loadAdVerify Not Found")
+            method.getMethodInstance(classLoader)
+        }
+    }
+
+    @Throws(Exception::class)
+    @JvmStatic
+    fun loadChatFilterView(classLoader: ClassLoader): Class<*>? {
+        return UnobfuscatorCache.getInstance().getClass(classLoader) {
+            val value = Utils.getID("conversations_inbox_filters_stub", "id")
+            val clazz = dexkit.findClass {
+                matcher {
+                    addMethod {
+                        addUsingNumber(value)
+                    }
+                }
+            }.singleOrNull() ?: return@getClass null
+            clazz.getInstance(classLoader)
+        }
+    }
+
+    @Throws(Exception::class)
+    @JvmStatic
+    fun loadNotificationMethod(classLoader: ClassLoader): Method {
+        return UnobfuscatorCache.getInstance().getMethod(classLoader) {
+            val invokedMethod = dexkit.findMethod {
+                matcher {
+                    addUsingString("LastMessageStore/getLastMessagesForNotificationAfterReply")
+                }
+            }.singleOrNull() ?: throw RuntimeException("Notification invoked method not found")
+            invokedMethod.getMethodInstance(classLoader)
+        }
+    }
+
+    @Throws(Exception::class)
+    @JvmStatic
+    fun loadLockedChatsMethod(classLoader: ClassLoader): Method {
+        return UnobfuscatorCache.getInstance().getMethod(classLoader) {
+            val classData = dexkit.findClass {
+                matcher {
+                    addUsingString("conversationsmgr/replacecontact")
+                }
+            }.singleOrNull() ?: throw RuntimeException("ConversationsManager class not found")
+
+            val invokedMethod = dexkit.getMethodData(loadNotificationMethod(classLoader))
+            for (invoke in invokedMethod!!.invokes) {
+                if (!invoke.isMethod) continue
+                if (invoke.className != classData.name) continue
+                if (invoke.returnType?.name != ArrayList::class.java.name) continue
+                return@getMethod invoke.getMethodInstance(classLoader)
+            }
+            throw RuntimeException("LockedChats method not found")
+        }
+    }
+
+    @Throws(Exception::class)
+    @JvmStatic
+    fun loadGetProfilePhotoMethod(classLoader: ClassLoader): Method {
+        return UnobfuscatorCache.getInstance().getMethod(classLoader) {
+            findFirstMethodUsingStrings(
+                classLoader,
+                StringMatchType.Contains,
+                "contactPhotosBitmapManager/getphotostream/"
+            )!!
+        }
+    }
+
+
+    @Throws(Exception::class)
+    @JvmStatic
+    fun loadChatCacheClass(classLoader: ClassLoader): Class<*> {
+        return UnobfuscatorCache.getInstance().getClass(classLoader) {
+            findFirstClassUsingStrings(classLoader, StringMatchType.StartsWith, "Chatscache/")!!
+        }
+    }
+
+    @Throws(Exception::class)
+    @JvmStatic
+    fun loadLoadedContactsMethod(classLoader: ClassLoader): Method? {
+        return UnobfuscatorCache.getInstance().getMethod(classLoader) {
+            val methods = dexkit.findMethod {
+                matcher {
+                    addUsingNumber(8726)
+                    paramCount(1)
+                    addParamType(Any::class.java)
+                }
+            }
+            if (methods.isEmpty()) return@getMethod null
+            methods[0].getMethodInstance(classLoader)
+        }
+    }
+
+    @Throws(Exception::class)
+    @JvmStatic
+    fun loadVideoTranscoderStartMethod(classLoader: ClassLoader): Method {
+        return UnobfuscatorCache.getInstance().getMethod(classLoader) {
+            findFirstMethodUsingStrings(
+                classLoader,
+                StringMatchType.Contains,
+                "VideoTranscoder/transcodeVideoNew/"
+            )!!
+        }
+    }
+
+    @Throws(Exception::class)
+    @JvmStatic
+    fun loadWaContactGetWaNameField(classLoader: ClassLoader): Field {
+        return UnobfuscatorCache.getInstance().getField(classLoader) {
+            val method = dexkit.findMethod {
+                matcher {
+                    addUsingString("ContactManagerDatabase/updateContactWAName")
+                }
+            }.singleOrNull() ?: throw NoSuchMethodException("WaContactGetWaName field not found")
+
+            val waContact = loadWaContactClass(classLoader).name
+            val usingFields = method.usingFields
+            for (usingField in usingFields) {
+                val field = usingField.field
+                if (field.className == waContact && field.type.name == String::class.java.name) {
+                    return@getField field.getFieldInstance(classLoader)
+                }
+            }
+            val waContactData = loadWaContactDataClass(classLoader).name
+            for (usingField in usingFields) {
+                val field = usingField.field
+                if (field.className == waContactData && field.type.name == String::class.java.name) {
+                    return@getField field.getFieldInstance(classLoader)
+                }
+            }
+            throw NoSuchMethodException("WaContactGetWaName field not found")
+        }
+    }
+
+    @Throws(Exception::class)
+    @JvmStatic
+    fun loadWaContactDataClass(classLoader: ClassLoader): Class<*> {
+        return UnobfuscatorCache.getInstance().getClass(classLoader) {
+            findFirstClassUsingStrings(classLoader, StringMatchType.EndsWith, "WaContactData")!!
+        }
+    }
+
+    @Throws(Exception::class)
+    @JvmStatic
+    fun loadWaContactDataDisplayNameMethod(classLoader: ClassLoader): Field? {
+        return UnobfuscatorCache.getInstance().getField(classLoader) {
+            val methods = dexkit.findMethod {
+                matcher {
+                    addUsingString("ContactManagerDatabase/updateGroupInfo")
+                }
+            }
+            if (methods.isEmpty()) throw NoSuchMethodException("WaContactDiplayName not found")
+
+            val waContactDataClassName = loadWaContactDataClass(classLoader).name
+            val waContactClassName = loadWaContactClass(classLoader).name
+            val invokes = methods[0].invokes
+            for (invoke in invokes) {
+                if (invoke.className != waContactClassName) continue
+                if (invoke.returnTypeName == String::class.java.name) {
+                    for (usingFieldData in invoke.usingFields) {
+                        if (usingFieldData.field.declaredClassName != waContactDataClassName) continue
+                        if (usingFieldData.field.typeName == String::class.java.name) {
+                            return@getField usingFieldData.field.getFieldInstance(classLoader)
+                        }
+                    }
+                }
+            }
+            for (usingFieldData in methods[0].usingFields) {
+                if (usingFieldData.field.declaredClassName != waContactDataClassName) continue
+                if (usingFieldData.field.typeName == String::class.java.name) {
+                    return@getField usingFieldData.field.getFieldInstance(classLoader)
+                }
+            }
+            null
+        }
+    }
+
+    @Throws(Exception::class)
+    @JvmStatic
+    fun loadGetWaContactMethod(classLoader: ClassLoader): Method {
+        return UnobfuscatorCache.getInstance().getMethod(classLoader) {
+            findFirstMethodUsingStrings(
+                classLoader,
+                StringMatchType.Contains,
+                "ContactManager/getContactFromCacheOrDbByJid"
+            )!!
+        }
+    }
+
+    @Throws(Exception::class)
+    @JvmStatic
+    fun loadSharedPreferencesClasses(classLoader: ClassLoader): Array<Class<*>>? {
+        return UnobfuscatorCache.getInstance().getClasses(classLoader) {
+            val classesData = dexkit.findClass {
+                matcher {
+                    addInterface(SharedPreferences::class.java.name)
+                }
+            }
+            if (classesData.isEmpty()) return@getClasses null
+            classesData.stream().map { classData -> convertRealClass(classData, classLoader) }
+                .toArray { length -> arrayOfNulls<Class<*>>(length) }
+        }
+    }
+
+    @Throws(Exception::class)
+    @JvmStatic
+    fun loadPinnedFilterMethod(classLoader: ClassLoader): Method {
+        return UnobfuscatorCache.getInstance().getMethod(classLoader) {
+            val method = findFirstMethodUsingStrings(
+                classLoader,
+                StringMatchType.Contains,
+                "pinSelectedJids"
+            ) ?: return@getMethod null
+            val methodData = dexkit.getMethodData(method)
+            for (invoke in methodData!!.invokes) {
+                if (!invoke.isMethod) continue
+                val methodInstance = invoke.getMethodInstance(classLoader)
+                if (!Set::class.java.isAssignableFrom(methodInstance.returnType)) continue
+                if (methodInstance.parameterCount == 2 && methodInstance.parameterTypes[0] == Iterable::class.java && methodInstance.parameterTypes[1] == Set::class.java) {
+                    return@getMethod methodInstance
+                }
+            }
+            throw NoSuchMethodException("PinnedLinkedHashMethod not found")
+        }
+    }
+
+    @Throws(Exception::class)
+    @JvmStatic
+    fun loadSetPinnedLimitMethod(classLoader: ClassLoader): Method {
+        return UnobfuscatorCache.getInstance().getMethod(classLoader) {
+            findFirstMethodUsingStrings(
+                classLoader,
+                StringMatchType.Contains,
+                "ChatSettingsStore/setPin"
+            )
+                ?: throw NoSuchMethodException("SetPinnedLimit method not found")
+        }
+    }
+
+    @Throws(Exception::class)
+    @JvmStatic
+    fun getAllMapFields(clazz: Class<*>): HashMap<String, Field> {
+        val cache = UnobfuscatorCache.getInstance()
+        val classLoader = clazz.classLoader
+        if (cache != null && classLoader != null) {
+            val cacheKey = "getAllMapFields:" + clazz.name
+            return cache.getMapField(classLoader, cacheKey) { buildAllMapFields(clazz) }
+        }
+        return buildAllMapFields(clazz)
+    }
+
+    @Throws(Exception::class)
+    private
+    @JvmStatic
+    fun buildAllMapFields(clazz: Class<*>): HashMap<String, Field> {
+        val methodString = try {
+            clazz.getDeclaredMethod("toString")
+        } catch (_: Exception) {
+            return HashMap()
+        }
+        val methodData = dexkit.getMethodData(methodString) ?: return HashMap()
+        val usingFields = methodData.usingFields
+        val usingStrings = methodData.usingStrings
+        val result = HashMap<String, Field>()
+        var idxFields = 0
+        for (i in usingStrings.indices) {
+            if (idxFields == usingFields.size) break
+            val raw = usingStrings[i]
+            val string = raw.trim()
+            if (string.isEmpty()) continue
+            val eq = string.lastIndexOf('=')
+            if (eq < 0) continue
+            var start = 0
+            for (j in eq - 1 downTo 0) {
+                val c = string[j]
+                if (c == '\'' || c == ',' || c == ' ' || c == '(' || c == ')' || c == ':' || c == '{' || c == '}') {
+                    start = j + 1
+                    break
+                }
+            }
+            if (start >= eq) continue
+            val name = string.substring(start, eq)
+            val field = usingFields[idxFields].field.getFieldInstance(clazz.classLoader!!)
+            result[name] = field
+            idxFields++
+        }
+        return result
+    }
+
+    @Throws(Exception::class)
+    @JvmStatic
+    fun loadMediaDataVideoConfigurationClass(classLoader: ClassLoader): Class<*> {
+        return UnobfuscatorCache.getInstance().getClass(classLoader) {
+            findFirstClassUsingStrings(
+                classLoader,
+                StringMatchType.Contains,
+                "MediaDataVideoConfiguration("
+            )!!
+        }
+    }
+
+    @Throws(Exception::class)
+    @JvmStatic
+    fun loadStatusStyleMethod(classLoader: ClassLoader): Method {
+        return UnobfuscatorCache.getInstance().getMethod(classLoader) {
+            val method = dexkit.findMethod {
+                matcher {
+                    addUsingNumber(8522)
+                    returnType(Int::class.javaPrimitiveType!!)
+                }
+            }.singleOrNull() ?: throw NoSuchMethodException("StatusStyle method not found")
+            method.getMethodInstance(classLoader)
+        }
+    }
+
+    @Throws(Exception::class)
+    @JvmStatic
+    fun loadProcessImageQualityClass(classLoader: ClassLoader): Class<*> {
+        return UnobfuscatorCache.getInstance().getClass(classLoader) {
+            val classDataList = dexkit.findClass {
+                matcher {
+                    addUsingString("ProcessImageQuality(", StringMatchType.StartsWith)
+                }
+            }
+            if (classDataList.isEmpty()) throw RuntimeException("ProcessImageQuality class not found")
+            classDataList[0].getInstance(classLoader)
+        }
+    }
+
+    @Throws(Exception::class)
+    @JvmStatic
+    fun loadGetProfilePhoto(classLoader: ClassLoader): Class<*> {
+        return UnobfuscatorCache.getInstance().getClass(classLoader) {
+            findFirstClassUsingStrings(
+                classLoader,
+                StringMatchType.Contains,
+                "ProfilePhotoManager/sendGetProfilePhoto"
+            )!!
+        }
+    }
+
+    @Throws(Exception::class)
+    @JvmStatic
+    fun loadDialerProfilePictureLoader(classLoader: ClassLoader): Class<*> {
+        return UnobfuscatorCache.getInstance().getClass(classLoader) {
+            findFirstClassUsingStrings(
+                classLoader,
+                StringMatchType.Contains,
+                "DialerProfilePictureLoader/syncFetchProfilePhoto/onPhotoReceived"
+            )!!
+        }
+    }
+
+    @Throws(Exception::class)
+    @JvmStatic
+    fun loadBottomBarConfigClass(classLoader: ClassLoader): Class<*> {
+        return UnobfuscatorCache.getInstance().getClass(classLoader) {
+            findFirstClassUsingStrings(classLoader, StringMatchType.Contains, "BottomBarConfig(")!!
+        }
+    }
+
+    @Throws(Exception::class)
+    @JvmStatic
+    fun loadOnCreatedMenuConversation(loader: ClassLoader): Method {
+        return UnobfuscatorCache.getInstance().getMethod(loader) {
+            val conversationClass =
+                findFirstClassUsingName(loader, StringMatchType.EndsWith, "Conversation")
+            ReflectionUtils.findMethodUsingFilter(conversationClass) { m -> m.parameterCount == 1 && m.parameterTypes[0] == Menu::class.java }!!
+        }
+    }
+
+    @Throws(Exception::class)
+    @JvmStatic
+    fun loadFStatusKeyClass(classLoader: ClassLoader): Class<*> {
+        return UnobfuscatorCache.getInstance().getClass(classLoader) {
+            dexkit.findClass {
+                matcher {
+                    addUsingString("Key(id=")
+                    addUsingString("senderJid")
+                }
+            }.first().getInstance(classLoader)
+        }
+    }
+
+    @Throws(Exception::class)
+
+    @JvmStatic
+    fun loadFStatusClass(classLoader: ClassLoader): Class<*> {
+        return UnobfuscatorCache.getInstance().getClass(classLoader) {
+            findFirstClassUsingStrings(classLoader, StringMatchType.Contains, "FStatus state")!!
+        }
+    }
+
+    @Throws(Exception::class)
+    @JvmStatic
+    fun loadAntiRevokeFStatusMethod(classLoader: ClassLoader): Method {
+        return UnobfuscatorCache.getInstance().getMethod(classLoader) {
+            val fStatusKeyClass = loadFStatusKeyClass(classLoader)
+            val clazz = findFirstClassUsingStrings(
+                classLoader,
+                StringMatchType.Contains,
+                "RevokeStatusManager/failed"
+            )
+            ReflectionUtils.findMethodUsingFilter(clazz) { method ->
+                method.parameterCount > 0 && fStatusKeyClass.isAssignableFrom(method.parameterTypes[0])
+            }!!
+        }
+    }
+
+    @Throws(Exception::class)
+
+    @JvmStatic
+    fun loadGetStatusByKey(classLoader: ClassLoader): Method {
+        return UnobfuscatorCache.getInstance().getMethod(classLoader) {
+            findFirstMethodUsingStrings(
+                classLoader,
+                StringMatchType.Contains,
+                "StatusStore/GET_STATUS_BY_KEY"
+            )!!
+        }
+    }
+
+    @Throws(Exception::class)
+    @JvmStatic
+    fun loadFStatusToFMessage(classLoader: ClassLoader): Method {
+        return UnobfuscatorCache.getInstance().getMethod(classLoader) {
+            findFirstMethodUsingStrings(
                 classLoader,
                 StringMatchType.Contains,
                 "mapFStatusToFMessageForForwarding"
-        ));
+            )!!
+        }
     }
 
-    public static Method loadStatusPlaybackReplyContainer(@NonNull ClassLoader classLoader) throws Exception {
-        return UnobfuscatorCache.getInstance().getMethod(classLoader, () -> {
-            var clazz = findFirstClassUsingStrings(
-                    classLoader,
-                    StringMatchType.Contains,
-                    "replyContainer",
-                    "bottomSheet",
-                    "contentSheet"
-            );
-            var clazzData = dexkit.getClassData(clazz);
-            var methodData = clazzData.findMethod(FindMethod.create().matcher(MethodMatcher.create().addUsingString("replyContainer")));
-            if (methodData.isEmpty())
-                throw new RuntimeException("StatusPlaybackReply method not found");
-            return methodData.get(0).getMethodInstance(classLoader);
-        });
-    }
-
-    public static @NonNull Class<?> loadProtocolTreeNodeClass(@NonNull ClassLoader classLoader) throws Exception {
-        return UnobfuscatorCache.getInstance().getClass(classLoader, () -> {
-            return findFirstClassUsingStrings(
-                    classLoader,
-                    StringMatchType.Contains,
-                    "ProtocolTreeNode/getAttributeJid"
-            );
-        });
-    }
-
-    public static Class<?> loadKeyValueClass(ClassLoader classLoader) throws Exception {
-        return UnobfuscatorCache.getInstance().getClass(classLoader, () -> {
-            return findFirstClassUsingStrings(classLoader, StringMatchType.Contains, "KeyValue{key=");
-        });
-    }
-
-    public static Method loadLockedAuthCheckMethod(@NotNull ClassLoader classLoader) throws Exception {
-        return UnobfuscatorCache.getInstance().getMethod(classLoader, ()-> findFirstMethodUsingStrings(classLoader,StringMatchType.Contains,"privacy_fingerprint_enabled","app_lock_auth_needed"));
-    }
-
-    public static Field loadGetCurrentPageInHomeField(@NotNull ClassLoader classLoader) throws Exception {
-        return UnobfuscatorCache.getInstance().getField(classLoader, ()-> {
-            var method = dexkit.getMethodData(loadAddOptionSearchBarMethod(classLoader));
-            for (var uField: method.getUsingFields()){
-                if (uField.getField().getDeclaredClassName().equals(method.getDeclaredClassName()) && uField.getField().getTypeName().equals("int"))
-                    return uField.getField().getFieldInstance(classLoader);
+    @Throws(Exception::class)
+    @JvmStatic
+    fun loadStatusPlaybackReplyContainer(classLoader: ClassLoader): Method {
+        return UnobfuscatorCache.getInstance().getMethod(classLoader) {
+            val clazz = findFirstClassUsingStrings(
+                classLoader,
+                StringMatchType.Contains,
+                "replyContainer",
+                "bottomSheet",
+                "contentSheet"
+            ) ?: return@getMethod null
+            val clazzData = dexkit.getClassData(clazz)
+            val methodData = clazzData!!.findMethod {
+                matcher {
+                    addUsingString("replyContainer")
+                }
             }
-            throw new NoSuchFieldException("CurrentPageInHome field not found");
-        });
+            if (methodData.isEmpty()) throw RuntimeException("StatusPlaybackReply method not found")
+            methodData[0].getMethodInstance(classLoader)
+        }
     }
 
-    public static @NonNull Class<?> loadFMediaStatusClass(@NonNull ClassLoader classLoader) throws Exception {
-        return UnobfuscatorCache.getInstance().getClass(classLoader, ()-> findFirstClassUsingStrings(classLoader,StringMatchType.Contains,"FStatusMedia/mediaDataV2"));
+    @Throws(Exception::class)
 
+    @JvmStatic
+    fun loadProtocolTreeNodeClass(classLoader: ClassLoader): Class<*> {
+        return UnobfuscatorCache.getInstance().getClass(classLoader) {
+            findFirstClassUsingStrings(
+                classLoader,
+                StringMatchType.Contains,
+                "ProtocolTreeNode/getAttributeJid"
+            )!!
+        }
     }
 
-    public static @Nullable Field loadWaContactNumberField(@NonNull ClassLoader classLoader) throws Exception {
-        return UnobfuscatorCache.getInstance().getField(classLoader,()-> {
-            var waContact = loadWaContactClass(classLoader);
-            var waContactData = dexkit.getClassData(waContact);
-            if (waContactData == null)throw new NoSuchFieldException("WaContact class data not found");
+    @Throws(Exception::class)
+    @JvmStatic
+    fun loadKeyValueClass(classLoader: ClassLoader): Class<*> {
+        return UnobfuscatorCache.getInstance().getClass(classLoader) {
+            findFirstClassUsingStrings(classLoader, StringMatchType.Contains, "KeyValue{key=")!!
+        }
+    }
 
-            var methodData = waContactData.findMethod(FindMethod.create().matcher(MethodMatcher.create()
-                    .usingNumbers(-4,0)
-                    .returnType(long.class)
-            )).firstOrNull();
-            if (methodData == null) throw new NoSuchFieldException("Number Method not found!");
-            for (var ufield: methodData.getUsingFields()){
-                var field = ufield.getField().getFieldInstance(classLoader);
-                if (field.getDeclaringClass().equals(waContact) && !field.getType().isPrimitive())
-                    return field;
+    @Throws(Exception::class)
+    @JvmStatic
+    fun loadLockedAuthCheckMethod(classLoader: ClassLoader): Method {
+        return UnobfuscatorCache.getInstance().getMethod(classLoader) {
+            findFirstMethodUsingStrings(
+                classLoader,
+                StringMatchType.Contains,
+                "privacy_fingerprint_enabled",
+                "app_lock_auth_needed"
+            )!!
+        }
+    }
+
+    @Throws(Exception::class)
+    @JvmStatic
+    fun loadGetCurrentPageInHomeField(classLoader: ClassLoader): Field {
+        return UnobfuscatorCache.getInstance().getField(classLoader) {
+            val method = dexkit.getMethodData(loadAddOptionSearchBarMethod(classLoader))
+            for (uField in method!!.usingFields) {
+                if (uField.field.declaredClassName == method.declaredClassName && uField.field.typeName == "int")
+                    return@getField uField.field.getFieldInstance(classLoader)
             }
-            return null;
-        });
+            throw NoSuchFieldException("CurrentPageInHome field not found")
+        }
     }
 
-    public static Method loadSeenReceiptForStatus(@NotNull ClassLoader classLoader) throws Exception {
-        return UnobfuscatorCache.getInstance().getMethod(classLoader, ()-> findFirstMethodUsingStrings(classLoader,StringMatchType.Contains,"StatusReceiptStore/insertOrUpdateSeenReceiptForStatus"));
+    @Throws(Exception::class)
+
+    @JvmStatic
+    fun loadFMediaStatusClass(classLoader: ClassLoader): Class<*> {
+        return UnobfuscatorCache.getInstance().getClass(classLoader) {
+            findFirstClassUsingStrings(
+                classLoader,
+                StringMatchType.Contains,
+                "FStatusMedia/mediaDataV2"
+            )!!
+        }
     }
 
-    public static @Nullable Method loadOnConversationsListChangedMethod(@NonNull ClassLoader classLoader) throws Exception {
-        return UnobfuscatorCache.getInstance().getMethod(classLoader,()-> findFirstMethodUsingStringsFilter(
+    @Throws(Exception::class)
+
+    @JvmStatic
+    fun loadWaContactNumberField(classLoader: ClassLoader): Field? {
+        return UnobfuscatorCache.getInstance().getField(classLoader) {
+            val waContact = loadWaContactClass(classLoader)
+            val waContactData = dexkit.getClassData(waContact)
+                ?: throw NoSuchFieldException("WaContact class data not found")
+
+            val methodData = waContactData.findMethod {
+                matcher {
+                    usingNumbers(-4, 0)
+                    returnType(Long::class.javaPrimitiveType!!)
+                }
+            }.firstOrNull() ?: throw NoSuchFieldException("Number Method not found!")
+
+            for (ufield in methodData.usingFields) {
+                val field = ufield.field.getFieldInstance(classLoader)
+                if (field.declaringClass == waContact && !field.type.isPrimitive) {
+                    return@getField field
+                }
+            }
+            null
+        }
+    }
+
+    @Throws(Exception::class)
+    @JvmStatic
+    fun loadSeenReceiptForStatus(classLoader: ClassLoader): Method {
+        return UnobfuscatorCache.getInstance().getMethod(classLoader) {
+            findFirstMethodUsingStrings(
+                classLoader,
+                StringMatchType.Contains,
+                "StatusReceiptStore/insertOrUpdateSeenReceiptForStatus"
+            )!!
+        }
+    }
+
+    @Throws(Exception::class)
+
+    @JvmStatic
+    fun loadOnConversationsListChangedMethod(classLoader: ClassLoader): Method? {
+        return UnobfuscatorCache.getInstance().getMethod(classLoader) {
+            findFirstMethodUsingStringsFilter(
                 classLoader,
                 "com.whatsapp.conversationslist",
                 StringMatchType.Contains,
                 "onConversationsListChanged"
-        ));
+            )
+        }
     }
 }

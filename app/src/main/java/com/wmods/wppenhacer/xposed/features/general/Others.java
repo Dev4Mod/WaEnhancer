@@ -95,7 +95,7 @@ public class Others extends Feature {
         propsBoolean.put(16250, false);
 
         if (newSettings) {
-            XposedBridge.hookAllMethods(WppCore.getHomeActivityClass(classLoader), "onCreateOptionsMenu", new XC_MethodHook() {
+            XposedBridge.hookAllMethods(WppCore.INSTANCE.getHomeActivityClass(), "onCreateOptionsMenu", new XC_MethodHook() {
                 @Override
                 protected void afterHookedMethod(MethodHookParam param) throws Throwable {
                     var menu = (Menu)param.args[0];
@@ -648,7 +648,7 @@ public class Others extends Feature {
     private void hookProps() throws Exception {
         var methodPropsBoolean = Unobfuscator.loadPropsBooleanMethod(classLoader);
         logDebug(Unobfuscator.getMethodDescriptor(methodPropsBoolean));
-        var dataUsageActivityClass = WppCore.getDataUsageActivityClass(classLoader);
+        var dataUsageActivityClass = WppCore.INSTANCE.getDataUsageActivityClass();
         XposedBridge.hookMethod(methodPropsBoolean, new XC_MethodHook() {
             @Override
             protected void afterHookedMethod(MethodHookParam param) throws Throwable {
@@ -742,7 +742,7 @@ public class Others extends Feature {
                 }
             }
         });
-        XposedHelpers.findAndHookMethod(WppCore.getHomeActivityClass(classLoader), "onPrepareOptionsMenu", Menu.class, new XC_MethodHook() {
+        XposedHelpers.findAndHookMethod(WppCore.INSTANCE.getHomeActivityClass(), "onPrepareOptionsMenu", Menu.class, new XC_MethodHook() {
             @Override
             protected void afterHookedMethod(MethodHookParam param) throws Throwable {
                 var menu = (Menu) param.args[0];

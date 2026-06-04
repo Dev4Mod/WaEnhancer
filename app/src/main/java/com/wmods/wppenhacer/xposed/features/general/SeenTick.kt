@@ -437,7 +437,7 @@ class SeenTick(
         })
 
         XposedHelpers.findAndHookMethod(
-            WppCore.getViewOnceViewerActivityClass(classLoader),
+            WppCore.viewOnceViewerActivityClass,
             "onCreateOptionsMenu",
             Menu::class.java,
             object : XC_MethodHook() {

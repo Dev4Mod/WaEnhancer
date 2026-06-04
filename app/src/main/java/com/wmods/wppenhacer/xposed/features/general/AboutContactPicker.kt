@@ -51,7 +51,7 @@ class AboutContactPicker(loader: ClassLoader, preferences: XSharedPreferences) :
     Feature(loader, preferences) {
 
     override fun doHook() {
-        val aboutClass = WppCore.getAboutActivityClass(classLoader)
+        val aboutClass = WppCore.aboutActivityClass
 
         XposedHelpers.findAndHookMethod(
             Activity::class.java,

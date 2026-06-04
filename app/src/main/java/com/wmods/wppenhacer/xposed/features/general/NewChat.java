@@ -30,7 +30,7 @@ public class NewChat extends Feature {
 
     @Override
     public void doHook() {
-        var homeActivity = WppCore.getHomeActivityClass(classLoader);
+        var homeActivity = WppCore.INSTANCE.getHomeActivityClass();
         var action = prefs.getBoolean("buttonaction", true);
 
         if (!prefs.getBoolean("newchat", true)) return;

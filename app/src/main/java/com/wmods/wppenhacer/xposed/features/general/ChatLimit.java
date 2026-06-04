@@ -35,7 +35,7 @@ public class ChatLimit extends Feature {
 
         var epUpdateMethod = Unobfuscator.loadEphemeralInsertdb(classLoader);
 
-        XposedHelpers.findAndHookMethod(WppCore.getHomeActivityClass(classLoader), "onCreate", Bundle.class, new XC_MethodHook() {
+        XposedHelpers.findAndHookMethod(WppCore.INSTANCE.getHomeActivityClass(), "onCreate", Bundle.class, new XC_MethodHook() {
             @Override
             protected void afterHookedMethod(MethodHookParam param) throws Throwable {
                 if (antiDisappearing) {
