@@ -1,60 +1,56 @@
-package com.wmods.wppenhacer.xposed.features.customization;
+package com.wmods.wppenhacer.xposed.features.customization
 
-import androidx.annotation.NonNull;
+import com.wmods.wppenhacer.xposed.core.Feature
+import com.wmods.wppenhacer.xposed.core.devkit.Unobfuscator
+import de.robv.android.xposed.XC_MethodHook
+import de.robv.android.xposed.XSharedPreferences
+import de.robv.android.xposed.XposedBridge
+import java.time.Instant
+import java.time.ZoneId
+import java.time.format.DateTimeFormatter
+import java.util.Calendar
+import java.util.Locale
 
-import com.wmods.wppenhacer.xposed.core.Feature;
-import com.wmods.wppenhacer.xposed.core.devkit.Unobfuscator;
+class CustomTime(loader: ClassLoader, preferences: XSharedPreferences) : Feature(loader, preferences) {
 
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.Locale;
+    @Throws(Exception::class)
+    override fun doHook() {
+        val secondsToTime = prefs.getBoolean("segundos", false)
+        val ampm = prefs.getBoolean("ampm", false)
+        val secondsToTimeMethod = Unobfuscator.loadTimeToSecondsMethod(classLoader)
+        val textInHour = prefs.getString("text_in_hour", "[TIME]") ?: "[TIME]"
+        
+        logDebug(Unobfuscator.getMethodDescriptor(secondsToTimeMethod))
+        XposedBridge.hookMethod(secondsToTimeMethod, object : XC_MethodHook(){
 
-import de.robv.android.xposed.XC_MethodHook;
-import de.robv.android.xposed.XSharedPreferences;
-import de.robv.android.xposed.XposedBridge;
+            override fun afterHookedMethod(param: MethodHookParam) {
+                val calendar = param.args[1] as Calendar
+                val timestamp = calendar.timeInMillis
+                val zonedDateTime = Instant.ofEpochMilli(timestamp)
+                    .atZone(ZoneId.systemDefault())
 
-public class CustomTime extends Feature {
-
-    public CustomTime(ClassLoader loader, XSharedPreferences preferences) {
-        super(loader, preferences);
-    }
-
-    @Override
-    public void doHook() throws Exception {
-        var secondsToTime = prefs.getBoolean("segundos", false);
-        var ampm = prefs.getBoolean("ampm", false);
-        var secondsToTimeMethod = Unobfuscator.loadTimeToSecondsMethod(classLoader);
-        logDebug(Unobfuscator.getMethodDescriptor(secondsToTimeMethod));
-
-        XposedBridge.hookMethod(secondsToTimeMethod, new XC_MethodHook() {
-
-            @Override
-            protected void afterHookedMethod(MethodHookParam param) {
-                var timestamp = (long) param.args[1];
-                var date = new Date(timestamp);
-                var patternDefault = "HH:mm";
-                var patternSeconds = "HH:mm:ss";
-                if (ampm) {
-                    patternDefault = "hh:mm a";
-                    patternSeconds = "hh:mm:ss a";
+                val pattern = if (ampm) {
+                    if (secondsToTime) "hh:mm:ss a" else "hh:mm a"
+                } else {
+                    if (secondsToTime) "HH:mm:ss" else "HH:mm"
                 }
-                var pattern = secondsToTime ? patternSeconds : patternDefault;
-                var formattedDate = new SimpleDateFormat(pattern, Locale.US).format(date);
 
-                param.setResult(getTextInHour(formattedDate));
+                var formattedHour = zonedDateTime.format(DateTimeFormatter.ofPattern(pattern, Locale.US))
+
+                if (textInHour.contains("[TIME]")) {
+                    formattedHour = textInHour.replace("[TIME]", formattedHour)
+                } else if (textInHour.isNotEmpty()) {
+                    formattedHour = "$textInHour $formattedHour"
+                }
+
+                param.result = formattedHour
+
             }
-        });
+
+        })
     }
 
-    @NonNull
-    @Override
-    public String getPluginName() {
-        return "Seconds To Time";
-    }
-
-    private String getTextInHour(String date) {
-        var summary = prefs.getString("secondstotime", "");
-        if (summary == null) return date;
-        else return date + " " + summary;
+    override fun getPluginName(): String {
+        return "Seconds To Time"
     }
 }

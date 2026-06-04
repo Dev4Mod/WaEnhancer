@@ -32,10 +32,8 @@ import java.lang.reflect.Field
 import java.lang.reflect.Method
 import java.lang.reflect.Modifier
 import java.util.Arrays
-import java.util.Calendar
 import java.util.Collections
 import java.util.Date
-import java.util.Locale
 import java.util.Objects
 import java.util.Timer
 import java.util.TimerTask
@@ -43,7 +41,7 @@ import java.util.stream.Collectors
 
 object Unobfuscator {
 
-    private lateinit var dexkit: DexKitBridge
+    private lateinit var bridge: DexKitBridge
 
     val cacheClasses = HashMap<String, Class<*>>()
 
@@ -54,7 +52,7 @@ object Unobfuscator {
     @JvmStatic
     fun initWithPath(path: String): Boolean {
         return try {
-            dexkit = DexKitBridge.create(path)
+            bridge = DexKitBridge.create(path)
             true
         } catch (_: Exception) {
             false
@@ -68,7 +66,7 @@ object Unobfuscator {
         type: StringMatchType,
         vararg strings: String
     ): Method? {
-        val result = dexkit.findMethod {
+        val result = bridge.findMethod {
             matcher {
                 for (string in strings) {
                     addUsingString(string, type)
@@ -90,7 +88,7 @@ object Unobfuscator {
         type: StringMatchType,
         vararg strings: String
     ): Method? {
-        val result = dexkit.findMethod {
+        val result = bridge.findMethod {
             searchPackages(packageFilter)
             matcher {
                 for (string in strings) {
@@ -112,7 +110,7 @@ object Unobfuscator {
         type: StringMatchType,
         vararg strings: String
     ): Array<Method> {
-        val result = dexkit.findMethod {
+        val result = bridge.findMethod {
             matcher {
                 for (string in strings) {
                     addUsingString(string, type)
@@ -134,7 +132,7 @@ object Unobfuscator {
         type: StringMatchType,
         vararg strings: String
     ): Class<Any>? {
-        val result = dexkit.findClass {
+        val result = bridge.findClass {
             matcher {
                 for (string in strings) {
                     addUsingString(string, type)
@@ -154,7 +152,7 @@ object Unobfuscator {
         name: String
     ): Class<*> {
         return UnobfuscatorCache.getInstance().getClass(classLoader, name) {
-            val result = dexkit.findClass {
+            val result = bridge.findClass {
                 matcher {
                     className(name, type)
                 }
@@ -237,7 +235,7 @@ object Unobfuscator {
                 "ProtocolTreeNode/getAttributeJid"
             )
 
-            val methods = dexkit.findMethod {
+            val methods = bridge.findMethod {
                 matcher {
                     addUsingString("receipt")
                     returnType(classProtocolTreeNode!!)
@@ -263,7 +261,7 @@ object Unobfuscator {
     @JvmStatic
     fun loadReceiptMessageInfoClass(classLoader: ClassLoader): Class<*>? {
         return UnobfuscatorCache.getInstance().getClass(classLoader) {
-            val methodData = dexkit.findMethod {
+            val methodData = bridge.findMethod {
                 matcher {
                     addUsingString("ReadReceiptUtils/buildReadReceiptHandler malformed")
                 }
@@ -283,7 +281,7 @@ object Unobfuscator {
     @JvmStatic
     fun loadReceiptMainCallerMethod(classLoader: ClassLoader): Method {
         return UnobfuscatorCache.getInstance().getMethod(classLoader) {
-            val methodReceipt = dexkit.getMethodData(loadReceiptMethod(classLoader))
+            val methodReceipt = bridge.getMethodData(loadReceiptMethod(classLoader))
             val classData = methodReceipt!!.declaredClass
             val messageInfoClass = loadReceiptMessageInfoClass(classLoader)
             val methodData = classData!!.findMethod {
@@ -302,7 +300,7 @@ object Unobfuscator {
     @JvmStatic
     fun loadReceiptCallersMethod(classLoader: ClassLoader): Array<Method> {
         return UnobfuscatorCache.getInstance().getMethods(classLoader) {
-            val methodData = dexkit.getMethodData(loadReceiptMainCallerMethod(classLoader))
+            val methodData = bridge.getMethodData(loadReceiptMainCallerMethod(classLoader))
             val methods = ArrayList<Method>()
             for (methodCaller in methodData!!.callers) {
                 if (methodCaller.paramCount > 1 && methodCaller.paramTypes[0].simpleName == "Message") {
@@ -319,7 +317,7 @@ object Unobfuscator {
     fun loadForwardTagMethod(classLoader: ClassLoader): Method {
         return UnobfuscatorCache.getInstance().getMethod(classLoader) {
             val messageInfoClass = loadFMessageClass(classLoader)
-            val methodList = dexkit.findMethod {
+            val methodList = bridge.findMethod {
                 matcher {
                     addUsingString("chatInfo/incrementUnseenImportantMessageCount")
                 }
@@ -345,14 +343,14 @@ object Unobfuscator {
     fun loadBroadcastTagField(classLoader: ClassLoader): Field {
         return UnobfuscatorCache.getInstance().getField(classLoader) {
             val fmessage = loadFMessageClass(classLoader)
-            val clazzData = dexkit.findClass {
+            val clazzData = bridge.findClass {
                 matcher {
                     addUsingString("UPDATE_MESSAGE_MAIN_BROADCAST_SCAN_SQL")
                 }
             }
             if (clazzData.isEmpty()) throw Exception("BroadcastTag class not found")
 
-            var methodData = dexkit.findMethod {
+            var methodData = bridge.findMethod {
                 searchInClass(clazzData)
                 matcher {
                     usingStrings("participant_hash", "view_mode", "broadcast")
@@ -360,7 +358,7 @@ object Unobfuscator {
             }
 
             if (methodData.isEmpty()) {
-                methodData = dexkit.findMethod {
+                methodData = bridge.findMethod {
                     searchInClass(clazzData)
                     matcher {
                         usingStrings("received_timestamp", "view_mode", "message")
@@ -414,7 +412,7 @@ object Unobfuscator {
     @JvmStatic
     fun loadHideViewSendReadJob(classLoader: ClassLoader): Method {
         return UnobfuscatorCache.getInstance().getMethod(classLoader) {
-            val classData = dexkit.getClassData(
+            val classData = bridge.getClassData(
                 findFirstClassUsingName(
                     classLoader,
                     StringMatchType.EndsWith,
@@ -455,7 +453,7 @@ object Unobfuscator {
     @JvmStatic
     fun loadTabListMethod(classLoader: ClassLoader): Method {
         return UnobfuscatorCache.getInstance().getMethod(classLoader) {
-            val result = dexkit.findMethod {
+            val result = bridge.findMethod {
                 matcher {
                     addUsingNumber(200)
                     addUsingNumber(300)
@@ -501,7 +499,7 @@ object Unobfuscator {
         return UnobfuscatorCache.getInstance().getMethod(classLoader) {
             val id = UnobfuscatorCache.getInstance().getOfuscateIDString("updates")
             if (id < 1) throw Exception("TabName ID not found")
-            val result = dexkit.findMethod {
+            val result = bridge.findMethod {
                 matcher {
                     returnType(String::class.java)
                     usingNumbers(id)
@@ -517,7 +515,7 @@ object Unobfuscator {
     fun loadFabMethod(classLoader: ClassLoader): Method {
         return UnobfuscatorCache.getInstance().getMethod(classLoader) {
             val classData =
-                dexkit.getClassData("com.whatsapp.conversationslist.ConversationsFragment")
+                bridge.getClassData("com.whatsapp.conversationslist.ConversationsFragment")
             Objects.requireNonNull(classData)
             for (clazz in listOf(classData, classData!!.superClass)) {
                 val result = clazz?.findMethod {
@@ -541,7 +539,7 @@ object Unobfuscator {
             val id2 = Utils.getID("home_tab_calls_selector", "drawable")
             val id3 = Utils.getID("home_tab_chats_selector", "drawable")
 
-            val methodData = dexkit.findMethod {
+            val methodData = bridge.findMethod {
                 searchPackages("X.")
                 matcher {
                     addUsingNumber(id1)
@@ -585,7 +583,7 @@ object Unobfuscator {
         return UnobfuscatorCache.getInstance().getConstructor(classLoader) {
             val countMethod = loadEnableCountTabMethod(classLoader)
             val indiceClass = countMethod.parameterTypes[1]
-            val result = dexkit.findClass {
+            val result = bridge.findClass {
                 matcher {
                     superClass(indiceClass.name)
                     addMethod {
@@ -604,7 +602,7 @@ object Unobfuscator {
         return UnobfuscatorCache.getInstance().getConstructor(classLoader) {
             val countTabConstructor1 = loadEnableCountTabBadgeWrapper(classLoader)
             val indiceClass = countTabConstructor1.parameterTypes[0]
-            val result = dexkit.findClass {
+            val result = bridge.findClass {
                 matcher {
                     superClass(indiceClass.name)
                     addMethod {
@@ -624,7 +622,7 @@ object Unobfuscator {
         return UnobfuscatorCache.getInstance().getClass(classLoader) {
             val countMethod = loadEnableCountTabMethod(classLoader)
             val indiceClass = countMethod.parameterTypes[1]
-            val result = dexkit.findClass {
+            val result = bridge.findClass {
                 matcher {
                     superClass(indiceClass.name)
                     addMethod {
@@ -641,24 +639,15 @@ object Unobfuscator {
     @JvmStatic
     fun loadTimeToSecondsMethod(classLoader: ClassLoader): Method {
         return UnobfuscatorCache.getInstance().getMethod(classLoader) {
-            val setTimeInMillis = Calendar::class.java.getDeclaredMethod(
-                "setTimeInMillis",
-                Long::class.javaPrimitiveType
-            )
-            val getInstance =
-                Calendar::class.java.getDeclaredMethod("getInstance", Locale::class.java)
-
-            val result = dexkit.findMethod {
+            bridge.findMethod {
                 matcher {
-                    addInvoke(DexSignUtil.getMethodDescriptor(setTimeInMillis))
-                    addInvoke(DexSignUtil.getMethodDescriptor(getInstance))
-                    modifiers(Modifier.STATIC)
-                    returnType(String::class.java)
-                    paramCount(2)
-                    paramTypes(null, Long::class.javaPrimitiveType)
+                    usingNumbers(223, 224)
+                    modifiers = Modifier.STATIC
+                    returnType = "java.lang.String"
+                    paramCount = 2
+                    paramTypes(null, "java.util.Calendar")
                 }
-            }.singleOrNull() ?: throw Exception("TimeToSeconds method not found")
-            result.getMethodInstance(classLoader)
+            }.single().getMethodInstance(classLoader)
         }
     }
 
@@ -690,7 +679,7 @@ object Unobfuscator {
         return UnobfuscatorCache.getInstance().getMapField(classLoader) {
             val method = loadMediaQualityVideoMethod2(classLoader)
             val methodString = method.returnType.getDeclaredMethod("toString")
-            val methodData = dexkit.getMethodData(methodString) ?: return@getMapField null
+            val methodData = bridge.getMethodData(methodString) ?: return@getMapField null
             val usingFields = methodData.usingFields
             val usingStrings = methodData.usingStrings
             val result = HashMap<String, Field>()
@@ -721,7 +710,7 @@ object Unobfuscator {
             } catch (_: Exception) {
                 return@getMapField HashMap<String, Field>()
             }
-            val methodData = dexkit.getMethodData(methodString) ?: return@getMapField null
+            val methodData = bridge.getMethodData(methodString) ?: return@getMapField null
             val usingFields = methodData.usingFields
             val usingStrings = methodData.usingStrings
             val result = HashMap<String, Field>()
@@ -765,7 +754,7 @@ object Unobfuscator {
     fun loadShareMapItemField(classLoader: ClassLoader): Field {
         return UnobfuscatorCache.getInstance().getField(classLoader) {
             val shareLimitMethod = loadShareLimitMethod(classLoader)
-            val methodData = dexkit.getMethodData(shareLimitMethod) ?: return@getField null
+            val methodData = bridge.getMethodData(shareLimitMethod) ?: return@getField null
             val usingFields = methodData.usingFields
             for (ufield in usingFields) {
                 val field = ufield.field.getFieldInstance(classLoader)
@@ -796,7 +785,7 @@ object Unobfuscator {
     fun loadMenuStatusMethod(loader: ClassLoader): Method {
         return UnobfuscatorCache.getInstance().getMethod(loader) {
             val id = Utils.getID("menuitem_conversations_message_contact", "id")
-            val methods = dexkit.findMethod {
+            val methods = bridge.findMethod {
                 matcher {
                     addUsingNumber(id)
                 }
@@ -810,7 +799,7 @@ object Unobfuscator {
     @JvmStatic
     fun loadViewOnceMethod(classLoader: ClassLoader): Array<Method> {
         return UnobfuscatorCache.getInstance().getMethods(classLoader) {
-            val method = dexkit.findMethod {
+            val method = bridge.findMethod {
                 matcher {
                     addUsingString("INSERT_VIEW_ONCE_SQL", StringMatchType.Contains)
                 }
@@ -822,7 +811,7 @@ object Unobfuscator {
             for (m in listMethods) {
                 val mInstance = m.getMethodInstance(classLoader)
                 if (mInstance.declaringClass.isInterface && mInstance.declaringClass.methods.size == 2) {
-                    val listClasses = dexkit.findClass {
+                    val listClasses = bridge.findClass {
                         matcher {
                             addInterface(mInstance.declaringClass.name)
                         }
@@ -851,7 +840,7 @@ object Unobfuscator {
                 "setShowAsAction",
                 Int::class.javaPrimitiveType
             )
-            val methodData = dexkit.findMethod {
+            val methodData = bridge.findMethod {
                 matcher {
                     addUsingNumber(id1)
                     addInvoke(DexSignUtil.getMethodDescriptor(setShowAsAction))
@@ -902,8 +891,8 @@ object Unobfuscator {
         return UnobfuscatorCache.getInstance().getMethod(loader) {
             val homeClass = WppCore.homeActivityClass
             val convFragment = XposedHelpers.findClass("com.whatsapp.ConversationFragment", loader)
-            val method = dexkit.findMethod {
-                searchInClass(Collections.singletonList(dexkit.getClassData(homeClass)))
+            val method = bridge.findMethod {
+                searchInClass(Collections.singletonList(bridge.getClassData(homeClass)))
                 matcher {
                     returnType(convFragment)
                 }
@@ -959,7 +948,7 @@ object Unobfuscator {
     @JvmStatic
     fun loadMessageKeyField(loader: ClassLoader): Field {
         return UnobfuscatorCache.getInstance().getField(loader) {
-            val classList = dexkit.findClass {
+            val classList = bridge.findClass {
                 matcher {
                     fieldCount(3)
                     addMethod {
@@ -991,7 +980,7 @@ object Unobfuscator {
             )
             if (clazz != null) return@getClass clazz
             val conversationHeader = Utils.getID("name_in_group", "id")
-            val classData = dexkit.findClass {
+            val classData = bridge.findClass {
                 matcher {
                     addMethod {
                         addUsingNumber(conversationHeader)
@@ -1014,7 +1003,7 @@ object Unobfuscator {
                 "com.whatsapp.status.playback.fragment.StatusPlaybackContactFragment",
                 loader
             )
-            val refreshCurrentPage = dexkit.findMethod {
+            val refreshCurrentPage = bridge.findMethod {
                 matcher {
                     addUsingString("playbackFragment/refreshCurrentPageSubTitle message is empty")
                 }
@@ -1038,7 +1027,7 @@ object Unobfuscator {
     fun loadStatusPlaybackViewClass(loader: ClassLoader): Class<*> {
         return UnobfuscatorCache.getInstance().getClass(loader) {
             val ids = listOf(Utils.getID("status_header", "id"), Utils.getID("menu", "id"))
-            val clazz = dexkit.findClass {
+            val clazz = bridge.findClass {
                 matcher {
                     addMethod {
                         usingNumbers(ids)
@@ -1118,7 +1107,7 @@ object Unobfuscator {
                 ?: throw Exception("OnChangeStatus method not found")
 
             if (method.parameterCount < 6) {
-                val declaringClassData = dexkit.getClassData(method.declaringClass)
+                val declaringClassData = bridge.getClassData(method.declaringClass)
                     ?: throw Exception("OnChangeStatus method not found")
 
                 val arg1Class = loadWaContactClass(loader)
@@ -1147,7 +1136,7 @@ object Unobfuscator {
     @JvmStatic
     fun loadViewHolder(loader: ClassLoader): Class<*> {
         return UnobfuscatorCache.getInstance().getClass(loader) {
-            val methods = dexkit.findMethod {
+            val methods = bridge.findMethod {
                 matcher {
                     usingNumbers(
                         Utils.getID("conversations_row_header_stub", "id"),
@@ -1179,7 +1168,7 @@ object Unobfuscator {
         return UnobfuscatorCache.getInstance().getMethod(loader) {
             val id = UnobfuscatorCache.getInstance().getOfuscateIDString("lastseensun%s")
             if (id < 1) throw Exception("GetStatusUser ID not found")
-            val result = dexkit.findMethod {
+            val result = bridge.findMethod {
                 matcher {
                     addUsingNumber(id)
                     returnType(String::class.java)
@@ -1194,7 +1183,7 @@ object Unobfuscator {
     @JvmStatic
     fun loadSendPresenceMethod(loader: ClassLoader): Method {
         return UnobfuscatorCache.getInstance().getMethod(loader) {
-            val methodData = dexkit.findMethod {
+            val methodData = bridge.findMethod {
                 matcher {
                     addUsingString("app/send-presence-subscription jid=")
                 }
@@ -1250,7 +1239,7 @@ object Unobfuscator {
     @JvmStatic
     fun loadPinnedInChatMethod(loader: ClassLoader): Method {
         return UnobfuscatorCache.getInstance().getMethod(loader) {
-            val method = dexkit.findMethod {
+            val method = bridge.findMethod {
                 matcher {
                     addUsingNumber(3732)
                     returnType(Int::class.java)
@@ -1302,7 +1291,7 @@ object Unobfuscator {
                 .filter { m -> m.returnType == Long::class.javaPrimitiveType && Modifier.isStatic(m.modifiers) }
                 .findFirst().orElse(null)
             if (method == null) {
-                val methodList = dexkit.getClassData(clazz)?.findMethod {
+                val methodList = bridge.getClassData(clazz)?.findMethod {
                     matcher {
                         opCodes(
                             OpCodesMatcher().opNames(
@@ -1357,7 +1346,7 @@ object Unobfuscator {
     fun loadNewMessageMethod(loader: ClassLoader): Method {
         return UnobfuscatorCache.getInstance().getMethod(loader) {
             val clazzMessageName = loadFMessageClass(loader).name
-            val listMethods = dexkit.findMethod {
+            val listMethods = bridge.findMethod {
                 searchPackages("com.whatsapp")
                 matcher {
                     addUsingString("extra_payment_note", StringMatchType.Equals)
@@ -1392,7 +1381,7 @@ object Unobfuscator {
     @JvmStatic
     fun loadNewMessageWithMediaMethod(loader: ClassLoader): Method {
         return UnobfuscatorCache.getInstance().getMethod(loader) {
-            val methodList = dexkit.findMethod {
+            val methodList = bridge.findMethod {
                 matcher {
                     addUsingString("INSERT_TABLE_MESSAGE_QUOTED", StringMatchType.Equals)
                 }
@@ -1429,7 +1418,7 @@ object Unobfuscator {
     @JvmStatic
     fun loadCallerMessageEditMethod(loader: ClassLoader): Method {
         return UnobfuscatorCache.getInstance().getMethod(loader) {
-            val methodData1 = dexkit.getMethodData(loadMessageEditMethod(loader))
+            val methodData1 = bridge.getMethodData(loadMessageEditMethod(loader))
             val fMessage = loadFMessageClass(loader)
             val invokes = methodData1!!.invokes
             for (methodData in invokes) {
@@ -1456,7 +1445,7 @@ object Unobfuscator {
                 "MessageEditInfoStore/insertEditInfo/missing"
             )
                 ?: throw RuntimeException("GetEditMessage method not found")
-            val methodData = dexkit.getMethodData(DexSignUtil.getMethodDescriptor(method))
+            val methodData = bridge.getMethodData(DexSignUtil.getMethodDescriptor(method))
                 ?: throw RuntimeException("GetEditMessage method not found")
             val invokes = methodData.invokes
             for (invoke in invokes) {
@@ -1489,8 +1478,8 @@ object Unobfuscator {
                     StringMatchType.Contains,
                     "UPDATE_MESSAGE_ADD_ON_FLAGS_MAIN_SQL"
                 ) ?: return@getField null
-            val classData = dexkit.getClassData(loadFMessageClass(loader))
-            val methodData = dexkit.getMethodData(DexSignUtil.getMethodDescriptor(method))
+            val classData = bridge.getClassData(loadFMessageClass(loader))
+            val methodData = bridge.getMethodData(DexSignUtil.getMethodDescriptor(method))
             val usingFields = methodData!!.usingFields
             for (f in usingFields) {
                 val field = f.field
@@ -1526,7 +1515,7 @@ object Unobfuscator {
     fun loadDialogViewClass(loader: ClassLoader): Class<*> {
         return UnobfuscatorCache.getInstance().getClass(loader) {
             val id = Utils.getID("touch_outside", "id")
-            val results = dexkit.findMethod {
+            val results = bridge.findMethod {
                 matcher {
                     addUsingNumber(id)
                     returnType(FrameLayout::class.java)
@@ -1541,7 +1530,7 @@ object Unobfuscator {
     @JvmStatic
     fun loadRecreateFragmentConstructor(loader: ClassLoader): Constructor<*> {
         return UnobfuscatorCache.getInstance().getConstructor(loader) {
-            val data = dexkit.findMethod {
+            val data = bridge.findMethod {
                 searchPackages("X.")
                 matcher {
                     addUsingString("Instantiated fragment")
@@ -1602,7 +1591,7 @@ object Unobfuscator {
     @JvmStatic
     fun loadOnUpdateStatusChanged(loader: ClassLoader): Method {
         return UnobfuscatorCache.getInstance().getMethod(loader) {
-            val clazzData = dexkit.findClass {
+            val clazzData = bridge.findClass {
                 matcher {
                     addUsingString("UpdatesViewModel/")
                 }
@@ -1620,7 +1609,7 @@ object Unobfuscator {
                 }
             } ?: emptyList()
             if (result.isEmpty()) {
-                result = dexkit.findMethod {
+                result = bridge.findMethod {
                     matcher {
                         addUsingString("UpdatesViewModel/Scheduled updates list refresh")
                     }
@@ -1636,7 +1625,7 @@ object Unobfuscator {
     fun loadGetInvokeField(loader: ClassLoader): Field {
         return UnobfuscatorCache.getInstance().getField(loader) {
             val method = loadOnUpdateStatusChanged(loader)
-            val methodData = dexkit.getMethodData(DexSignUtil.getMethodDescriptor(method))
+            val methodData = bridge.getMethodData(DexSignUtil.getMethodDescriptor(method))
             val fields = methodData!!.usingFields
             val field = fields.stream().map { it.field }
                 .filter { f -> f.declaredClass == methodData.declaredClass }.findFirst()
@@ -1690,7 +1679,7 @@ object Unobfuscator {
     @JvmStatic
     fun loadFilterAdaperClass(loader: ClassLoader): Class<*> {
         return UnobfuscatorCache.getInstance().getClass(loader) {
-            val clazzList = dexkit.findClass {
+            val clazzList = bridge.findClass {
                 matcher {
                     addMethod {
                         addUsingString("CONTACTS_FILTER")
@@ -1710,7 +1699,7 @@ object Unobfuscator {
         return UnobfuscatorCache.getInstance().getConstructor(loader) {
             val commentClass =
                 findFirstClassUsingName(loader, StringMatchType.EndsWith, "CommentTextView")
-            val commentClassData = dexkit.getClassData(commentClass)
+            val commentClassData = bridge.getClassData(commentClass)
             val methods = commentClassData!!.methods
             val arrayList = ArrayList<ClassData>()
             methods.forEach { methodData ->
@@ -1720,7 +1709,7 @@ object Unobfuscator {
                 arrayList.addAll(classes)
             }
 
-            val clazzData = dexkit.findClass {
+            val clazzData = bridge.findClass {
                 searchIn(arrayList)
                 matcher {
                     addMethod {
@@ -1768,7 +1757,7 @@ object Unobfuscator {
             val method = ReflectionUtils.findMethodUsingFilter(callConfirmationFragment) { m ->
                 m.parameterCount == 1 && m.parameterTypes[0] == Bundle::class.java
             }
-            val methodData = dexkit.getMethodData(method)
+            val methodData = bridge.getMethodData(method)
             val invokes = methodData!!.invokes
             for (invoke in invokes) {
                 if (invoke.isMethod && Modifier.isStatic(invoke.modifiers) && invoke.paramCount == 1 &&
@@ -1805,7 +1794,7 @@ object Unobfuscator {
     @JvmStatic
     fun loadGroupCheckAdminMethod(loader: ClassLoader): Method {
         return UnobfuscatorCache.getInstance().getMethod(loader) {
-            val classData = dexkit.findClass {
+            val classData = bridge.findClass {
                 matcher {
                     addUsingString("saveGroupParticipants/INSERT_GROUP_PARTICIPANT_USER")
                 }
@@ -1815,7 +1804,7 @@ object Unobfuscator {
             val onCreateMenu = ReflectionUtils.findMethodUsingFilter(groupChatClass) { method ->
                 method.name == "onCreateContextMenu"
             }
-            val onCreateMenuData = dexkit.getMethodData(onCreateMenu)
+            val onCreateMenuData = bridge.getMethodData(onCreateMenu)
             val invokes = onCreateMenuData!!.invokes.stream()
                 .filter { m -> m.declaredClassName == classData.name }
                 .collect(Collectors.toList())
@@ -1835,7 +1824,7 @@ object Unobfuscator {
     @JvmStatic
     fun loadStartPrefsConfig(loader: ClassLoader): Constructor<*> {
         return UnobfuscatorCache.getInstance().getConstructor(loader) {
-            val results = dexkit.findMethod {
+            val results = bridge.findMethod {
                 matcher {
                     addUsingString("startup_migrated_version")
                 }
@@ -1868,7 +1857,7 @@ object Unobfuscator {
     @JvmStatic
     fun loadEphemeralInsertdb(loader: ClassLoader): Method {
         return UnobfuscatorCache.getInstance().getMethod(loader) {
-            val method = dexkit.findMethod {
+            val method = bridge.findMethod {
                 matcher {
                     addUsingString("expire_timestamp")
                     addUsingString("ephemeral_initiated_by_me")
@@ -1907,7 +1896,7 @@ object Unobfuscator {
     @JvmStatic
     fun loadImageVewContainerClass(loader: ClassLoader): Class<*> {
         return UnobfuscatorCache.getInstance().getClass(loader) {
-            val clazzList = dexkit.findClass {
+            val clazzList = bridge.findClass {
                 matcher {
                     addMethod {
                         addUsingNumber(Utils.getID("hd_invisible_touch", "id"))
@@ -1929,7 +1918,7 @@ object Unobfuscator {
     fun getFilterView(loader: ClassLoader): Class<*> {
         return UnobfuscatorCache.getInstance().getClass(loader) {
             val filterId = Utils.getID("conversations_swipe_to_reveal_filters_stub", "id")
-            val results = dexkit.findClass {
+            val results = bridge.findClass {
                 matcher {
                     addMethod {
                         addUsingNumber(filterId)
@@ -1946,7 +1935,7 @@ object Unobfuscator {
     fun loadActionUser(loader: ClassLoader): Class<*> {
         return UnobfuscatorCache.getInstance().getClass(loader) {
             val fMessageClass = loadFMessageClass(loader)
-            val result = dexkit.findMethod {
+            val result = bridge.findMethod {
                 matcher {
                     paramTypes(fMessageClass, String::class.java, Boolean::class.javaPrimitiveType)
                     modifiers(Modifier.PUBLIC or Modifier.FINAL)
@@ -1974,7 +1963,7 @@ object Unobfuscator {
     @JvmStatic
     fun loadNextStatusRunMethod(classLoader: ClassLoader): Method {
         return UnobfuscatorCache.getInstance().getMethod(classLoader) {
-            val methodList = dexkit.findMethod {
+            val methodList = bridge.findMethod {
                 matcher {
                     addUsingString("playMiddleTone")
                     name("run")
@@ -1989,7 +1978,7 @@ object Unobfuscator {
     @JvmStatic
     fun loadOnInsertReceipt(classLoader: ClassLoader): Method {
         return UnobfuscatorCache.getInstance().getMethod(classLoader) {
-            val method = dexkit.findMethod {
+            val method = bridge.findMethod {
                 matcher {
                     addUsingString("INSERT_RECEIPT_USER")
                     paramCount(1)
@@ -2014,7 +2003,7 @@ object Unobfuscator {
                 Int::class.javaPrimitiveType,
                 Intent::class.java
             )
-            val methodData = dexkit.getMethodData(method) ?: return@getMethod null
+            val methodData = bridge.getMethodData(method) ?: return@getMethod null
             val invokes = methodData.invokes
             for (invoke in invokes) {
                 if (!invoke.isMethod) continue
@@ -2047,7 +2036,7 @@ object Unobfuscator {
 
             for (str in commonStrings) {
                 try {
-                    val result = dexkit.findMethod {
+                    val result = bridge.findMethod {
                         matcher {
                             addUsingString(str, StringMatchType.Contains)
                         }
@@ -2106,7 +2095,7 @@ object Unobfuscator {
             )
             if (method != null) return@getMethod method
 
-            val methodData = dexkit.findMethod {
+            val methodData = bridge.findMethod {
                 matcher {
                     addUsingString("setPlaybackSpeed", StringMatchType.Equals)
                     addUsingString("newSpeed")
@@ -2120,7 +2109,7 @@ object Unobfuscator {
     @JvmStatic
     fun loadListUpdateItems(classLoader: ClassLoader): Method {
         return UnobfuscatorCache.getInstance().getMethod(classLoader) {
-            val method = dexkit.findMethod {
+            val method = bridge.findMethod {
                 matcher {
                     addUsingString("Running diff util, updates list size", StringMatchType.Contains)
                 }
@@ -2157,7 +2146,7 @@ object Unobfuscator {
     fun loadTextStatusData(classLoader: ClassLoader): Array<Method> {
         return UnobfuscatorCache.getInstance().getMethods(classLoader) {
             var textData: Class<*>?
-            val textDataList = dexkit.findClass {
+            val textDataList = bridge.findClass {
                 matcher {
                     addUsingString("TextData;")
                 }
@@ -2167,7 +2156,7 @@ object Unobfuscator {
             } else {
                 textDataList[0].getInstance(classLoader)
             }
-            val methods = dexkit.findMethod {
+            val methods = bridge.findMethod {
                 matcher {
                     addParamType(textData)
                 }
@@ -2278,7 +2267,7 @@ object Unobfuscator {
                     "mediaHash and fileType not both present for upload URL generation"
                 )
                 if (method != null) {
-                    val cMethods = dexkit.getMethodData(method)!!.invokes
+                    val cMethods = bridge.getMethodData(method)!!.invokes
                     Collections.reverse(cMethods)
                     for (cmethod in cMethods) {
                         if (cmethod.isMethod && cmethod.paramCount == 1) {
@@ -2311,13 +2300,13 @@ object Unobfuscator {
     @JvmStatic
     fun loadMediaTypeField(classLoader: ClassLoader): Field {
         return UnobfuscatorCache.getInstance().getField(classLoader) {
-            val methodData = dexkit.findMethod {
+            val methodData = bridge.findMethod {
                 matcher {
                     addUsingString("conversation/refresh")
                 }
             }
             if (methodData.isEmpty()) throw RuntimeException("MediaType: aux method not found")
-            val fclass = dexkit.getClassData(loadFMessageClass(classLoader))
+            val fclass = bridge.getClassData(loadFMessageClass(classLoader))
             val usingFields = methodData[0].usingFields
             for (f in usingFields) {
                 val field = f.field
@@ -2333,7 +2322,7 @@ object Unobfuscator {
     @JvmStatic
     fun loadBubbleDrawableMethod(classLoader: ClassLoader): Method {
         return UnobfuscatorCache.getInstance().getMethod(classLoader) {
-            val methodData = dexkit.findMethod {
+            val methodData = bridge.findMethod {
                 matcher {
                     addUsingString("Unreachable code: direction=")
                     returnType(Drawable::class.java)
@@ -2348,7 +2337,7 @@ object Unobfuscator {
     @JvmStatic
     fun loadBallonDateDrawable(classLoader: ClassLoader): Method {
         return UnobfuscatorCache.getInstance().getMethod(classLoader) {
-            val methodData = dexkit.findMethod {
+            val methodData = bridge.findMethod {
                 matcher {
                     addUsingString("Unreachable code: direction=")
                     returnType(Rect::class.java)
@@ -2478,7 +2467,7 @@ object Unobfuscator {
                 "first_viewed_timestamp",
                 "Field is set but is null in MediaDataV2"
             )) {
-                val classList = dexkit.findClass {
+                val classList = bridge.findClass {
                     matcher {
                         addUsingString(str)
                     }
@@ -2509,14 +2498,14 @@ object Unobfuscator {
     @JvmStatic
     fun loadMediaQualitySelectionMethod(classLoader: ClassLoader): Method {
         return UnobfuscatorCache.getInstance().getMethod(classLoader) {
-            var methodData = dexkit.findMethod {
+            var methodData = bridge.findMethod {
                 matcher {
                     addUsingString("enable_media_quality_tool")
                     returnType(Boolean::class.javaPrimitiveType!!)
                 }
             }
             if (methodData.isEmpty()) {
-                methodData = dexkit.findMethod {
+                methodData = bridge.findMethod {
                     matcher {
                         addUsingString("show_media_quality_toggle")
                         returnType(Boolean::class.javaPrimitiveType!!)
@@ -2534,7 +2523,7 @@ object Unobfuscator {
         return UnobfuscatorCache.getInstance().getField(classLoader) {
             val fmessageClass = loadFMessageClass(classLoader)
             val chatLimitDelete2Method = loadChatLimitDelete2Method(classLoader)
-            val usingFields = dexkit.getMethodData(chatLimitDelete2Method)!!.usingFields
+            val usingFields = bridge.getMethodData(chatLimitDelete2Method)!!.usingFields
             for (uField in usingFields) {
                 val field = uField.field
                 if (field.declaredClass.name == fmessageClass.name && field.type.name == Long::class.javaPrimitiveType?.name) {
@@ -2550,7 +2539,7 @@ object Unobfuscator {
     @JvmStatic
     fun loadFilterItemClass(classLoader: ClassLoader): Class<*> {
         return UnobfuscatorCache.getInstance().getClass(classLoader) {
-            var methodList = dexkit.findMethod {
+            var methodList = bridge.findMethod {
                 matcher {
                     addUsingNumber(Utils.getID("invisible_height_placeholder", "id"))
                     addUsingNumber(Utils.getID("container_view", "id"))
@@ -2564,7 +2553,7 @@ object Unobfuscator {
             )) {
                 val applyClazz =
                     findFirstClassUsingStrings(classLoader, StringMatchType.Contains, s) ?: continue
-                methodList = dexkit.findMethod {
+                methodList = bridge.findMethod {
                     matcher {
                         paramTypes(View::class.java, applyClazz)
                     }
@@ -2581,7 +2570,7 @@ object Unobfuscator {
     @JvmStatic
     fun loadProximitySensorListenerClasses(classLoader: ClassLoader): Array<Class<*>> {
         return UnobfuscatorCache.getInstance().getClasses(classLoader) {
-            val classDataList = dexkit.findClass {
+            val classDataList = bridge.findClass {
                 matcher {
                     addInterface(SensorEventListener::class.java.name)
                 }
@@ -2599,7 +2588,7 @@ object Unobfuscator {
     fun loadRefreshStatusClass(classLoader: ClassLoader): Class<*> {
         return UnobfuscatorCache.getInstance().getClass(classLoader) {
             val keyset = Map::class.java.getDeclaredMethod("keySet")
-            val results = dexkit.findClass {
+            val results = bridge.findClass {
                 matcher {
                     addMethod {
                         returnType(String::class.java)
@@ -2633,7 +2622,7 @@ object Unobfuscator {
     @JvmStatic
     fun getClassByName(className: String, classLoader: ClassLoader): Class<*> {
         if (cacheClasses.containsKey(className)) return cacheClasses[className]!!
-        val classDataList = dexkit.findClass {
+        val classDataList = bridge.findClass {
             matcher {
                 className(className, StringMatchType.EndsWith)
             }
@@ -2649,7 +2638,7 @@ object Unobfuscator {
     fun loadVoipManager(classLoader: ClassLoader): Class<*> {
         return UnobfuscatorCache.getInstance().getClass(classLoader) {
             val voipClass = WppCore.voipManagerClass
-            val superClasses = dexkit.findClass {
+            val superClasses = bridge.findClass {
                 matcher {
                     superClass(voipClass.name)
                 }
@@ -2695,7 +2684,7 @@ object Unobfuscator {
     @JvmStatic
     fun loadAddOptionSearchBarMethod(classLoader: ClassLoader): Method {
         return UnobfuscatorCache.getInstance().getMethod(classLoader) {
-            val classData = dexkit.getClassData(WppCore.homeActivityClass)
+            val classData = bridge.getClassData(WppCore.homeActivityClass)
                 ?: return@getMethod null
             val methodData = classData.findMethod {
                 matcher {
@@ -2759,7 +2748,7 @@ object Unobfuscator {
     @JvmStatic
     fun loadVerifyKeyClass(classLoader: ClassLoader): Class<*> {
         return UnobfuscatorCache.getInstance().getClass(classLoader) {
-            val result = dexkit.findMethod {
+            val result = bridge.findMethod {
                 matcher {
                     addUsingNumber(2966)
                     paramCount(1)
@@ -2777,7 +2766,7 @@ object Unobfuscator {
     @JvmStatic
     fun loadVerifyKeyRunnableConstructor(classLoader: ClassLoader): Constructor<*> {
         return UnobfuscatorCache.getInstance().getConstructor(classLoader) {
-            val data = dexkit.findMethod {
+            val data = bridge.findMethod {
                 matcher {
                     usingStrings("deviceidentityverifier/verify Primary")
                 }
@@ -2794,7 +2783,7 @@ object Unobfuscator {
     fun loadVerifyKeyInt(classLoader: ClassLoader): Number {
         return UnobfuscatorCache.getInstance().getNumber(classLoader) {
             val method = loadVerifyKeyItemConstructor(classLoader)
-            val callers = dexkit.getMethodData(method)!!.callers
+            val callers = bridge.getMethodData(method)!!.callers
             val resultMethod = callers.stream().filter { i ->
                 i.isMethod && i.declaredClassName.contains("IdentityVerificationActivity")
             }.findFirst().orElse(null)
@@ -2817,12 +2806,12 @@ object Unobfuscator {
     @JvmStatic
     fun loadVerifyKeyItemConstructor(classLoader: ClassLoader): Constructor<*> {
         return UnobfuscatorCache.getInstance().getConstructor(classLoader) {
-            val clazz = dexkit.findClass {
+            val clazz = bridge.findClass {
                 matcher {
                     className("IdentityVerificationActivity", StringMatchType.EndsWith)
                 }
             }.singleOrNull() ?: throw RuntimeException("IdentityVerificationActivity not found")
-            val methodResult = dexkit.findMethod {
+            val methodResult = bridge.findMethod {
                 searchInClass(listOf(clazz))
                 matcher {
                     addUsingNumber(2966)
@@ -2857,7 +2846,7 @@ object Unobfuscator {
     @JvmStatic
     fun loadAdVerifyMethod(classLoader: ClassLoader): Method {
         return UnobfuscatorCache.getInstance().getMethod(classLoader) {
-            val method = dexkit.findMethod {
+            val method = bridge.findMethod {
                 matcher {
                     usingStrings("is_wfal_paused")
                     paramCount(1)
@@ -2872,7 +2861,7 @@ object Unobfuscator {
     fun loadChatFilterView(classLoader: ClassLoader): Class<*>? {
         return UnobfuscatorCache.getInstance().getClass(classLoader) {
             val value = Utils.getID("conversations_inbox_filters_stub", "id")
-            val clazz = dexkit.findClass {
+            val clazz = bridge.findClass {
                 matcher {
                     addMethod {
                         addUsingNumber(value)
@@ -2887,7 +2876,7 @@ object Unobfuscator {
     @JvmStatic
     fun loadNotificationMethod(classLoader: ClassLoader): Method {
         return UnobfuscatorCache.getInstance().getMethod(classLoader) {
-            val invokedMethod = dexkit.findMethod {
+            val invokedMethod = bridge.findMethod {
                 matcher {
                     addUsingString("LastMessageStore/getLastMessagesForNotificationAfterReply")
                 }
@@ -2900,13 +2889,13 @@ object Unobfuscator {
     @JvmStatic
     fun loadLockedChatsMethod(classLoader: ClassLoader): Method {
         return UnobfuscatorCache.getInstance().getMethod(classLoader) {
-            val classData = dexkit.findClass {
+            val classData = bridge.findClass {
                 matcher {
                     addUsingString("conversationsmgr/replacecontact")
                 }
             }.singleOrNull() ?: throw RuntimeException("ConversationsManager class not found")
 
-            val invokedMethod = dexkit.getMethodData(loadNotificationMethod(classLoader))
+            val invokedMethod = bridge.getMethodData(loadNotificationMethod(classLoader))
             for (invoke in invokedMethod!!.invokes) {
                 if (!invoke.isMethod) continue
                 if (invoke.className != classData.name) continue
@@ -2942,7 +2931,7 @@ object Unobfuscator {
     @JvmStatic
     fun loadLoadedContactsMethod(classLoader: ClassLoader): Method? {
         return UnobfuscatorCache.getInstance().getMethod(classLoader) {
-            val methods = dexkit.findMethod {
+            val methods = bridge.findMethod {
                 matcher {
                     addUsingNumber(8726)
                     paramCount(1)
@@ -2970,7 +2959,7 @@ object Unobfuscator {
     @JvmStatic
     fun loadWaContactGetWaNameField(classLoader: ClassLoader): Field {
         return UnobfuscatorCache.getInstance().getField(classLoader) {
-            val method = dexkit.findMethod {
+            val method = bridge.findMethod {
                 matcher {
                     addUsingString("ContactManagerDatabase/updateContactWAName")
                 }
@@ -3007,7 +2996,7 @@ object Unobfuscator {
     @JvmStatic
     fun loadWaContactDataDisplayNameMethod(classLoader: ClassLoader): Field? {
         return UnobfuscatorCache.getInstance().getField(classLoader) {
-            val methods = dexkit.findMethod {
+            val methods = bridge.findMethod {
                 matcher {
                     addUsingString("ContactManagerDatabase/updateGroupInfo")
                 }
@@ -3054,7 +3043,7 @@ object Unobfuscator {
     @JvmStatic
     fun loadSharedPreferencesClasses(classLoader: ClassLoader): Array<Class<*>>? {
         return UnobfuscatorCache.getInstance().getClasses(classLoader) {
-            val classesData = dexkit.findClass {
+            val classesData = bridge.findClass {
                 matcher {
                     addInterface(SharedPreferences::class.java.name)
                 }
@@ -3074,7 +3063,7 @@ object Unobfuscator {
                 StringMatchType.Contains,
                 "pinSelectedJids"
             ) ?: return@getMethod null
-            val methodData = dexkit.getMethodData(method)
+            val methodData = bridge.getMethodData(method)
             for (invoke in methodData!!.invokes) {
                 if (!invoke.isMethod) continue
                 val methodInstance = invoke.getMethodInstance(classLoader)
@@ -3121,7 +3110,7 @@ object Unobfuscator {
         } catch (_: Exception) {
             return HashMap()
         }
-        val methodData = dexkit.getMethodData(methodString) ?: return HashMap()
+        val methodData = bridge.getMethodData(methodString) ?: return HashMap()
         val usingFields = methodData.usingFields
         val usingStrings = methodData.usingStrings
         val result = HashMap<String, Field>()
@@ -3166,7 +3155,7 @@ object Unobfuscator {
     @JvmStatic
     fun loadStatusStyleMethod(classLoader: ClassLoader): Method {
         return UnobfuscatorCache.getInstance().getMethod(classLoader) {
-            val method = dexkit.findMethod {
+            val method = bridge.findMethod {
                 matcher {
                     addUsingNumber(8522)
                     returnType(Int::class.javaPrimitiveType!!)
@@ -3180,7 +3169,7 @@ object Unobfuscator {
     @JvmStatic
     fun loadProcessImageQualityClass(classLoader: ClassLoader): Class<*> {
         return UnobfuscatorCache.getInstance().getClass(classLoader) {
-            val classDataList = dexkit.findClass {
+            val classDataList = bridge.findClass {
                 matcher {
                     addUsingString("ProcessImageQuality(", StringMatchType.StartsWith)
                 }
@@ -3236,7 +3225,7 @@ object Unobfuscator {
     @JvmStatic
     fun loadFStatusKeyClass(classLoader: ClassLoader): Class<*> {
         return UnobfuscatorCache.getInstance().getClass(classLoader) {
-            dexkit.findClass {
+            bridge.findClass {
                 matcher {
                     addUsingString("Key(id=")
                     addUsingString("senderJid")
@@ -3306,7 +3295,7 @@ object Unobfuscator {
                 "bottomSheet",
                 "contentSheet"
             ) ?: return@getMethod null
-            val clazzData = dexkit.getClassData(clazz)
+            val clazzData = bridge.getClassData(clazz)
             val methodData = clazzData!!.findMethod {
                 matcher {
                     addUsingString("replyContainer")
@@ -3355,7 +3344,7 @@ object Unobfuscator {
     @JvmStatic
     fun loadGetCurrentPageInHomeField(classLoader: ClassLoader): Field {
         return UnobfuscatorCache.getInstance().getField(classLoader) {
-            val method = dexkit.getMethodData(loadAddOptionSearchBarMethod(classLoader))
+            val method = bridge.getMethodData(loadAddOptionSearchBarMethod(classLoader))
             for (uField in method!!.usingFields) {
                 if (uField.field.declaredClassName == method.declaredClassName && uField.field.typeName == "int")
                     return@getField uField.field.getFieldInstance(classLoader)
@@ -3383,7 +3372,7 @@ object Unobfuscator {
     fun loadWaContactNumberField(classLoader: ClassLoader): Field? {
         return UnobfuscatorCache.getInstance().getField(classLoader) {
             val waContact = loadWaContactClass(classLoader)
-            val waContactData = dexkit.getClassData(waContact)
+            val waContactData = bridge.getClassData(waContact)
                 ?: throw NoSuchFieldException("WaContact class data not found")
 
             val methodData = waContactData.findMethod {
