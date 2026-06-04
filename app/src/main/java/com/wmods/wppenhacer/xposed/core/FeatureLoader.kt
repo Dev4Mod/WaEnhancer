@@ -205,9 +205,10 @@ class FeatureLoader {
                 })
 
             XposedHelpers.findAndHookMethod(
-                WppCore.homeActivityClass, "onCreate", Bundle::class.java,
+                Activity::class.java, "onCreate", Bundle::class.java,
                 object : XC_MethodHook() {
                     override fun afterHookedMethod(param: MethodHookParam) {
+                        if (param.thisObject.javaClass.simpleName != "HomeActivity")return
                         if (list.isNotEmpty()) {
                             val activity = param.thisObject as Activity
                             val msg = list.joinToString("\n") { "${it.pluginName} - ${it.message}" }
