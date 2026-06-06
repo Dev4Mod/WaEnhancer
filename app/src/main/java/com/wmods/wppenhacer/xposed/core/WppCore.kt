@@ -574,7 +574,7 @@ object WppCore {
     }
 
     @JvmStatic
-    fun getPrivJSON(key: String, defaultValue: JSONObject?): JSONObject? {
+    fun getPrivJSON(key: String, defaultValue: JSONObject): JSONObject {
         val jsonStr = privPrefs.getString(key, null) ?: return defaultValue
         return try {
             JSONObject(jsonStr)
@@ -584,8 +584,8 @@ object WppCore {
     }
 
     @JvmStatic
-    fun setPrivJSON(key: String, value: JSONObject?) {
-        privPrefs.edit(commit = true) { putString(key, value?.toString()) }
+    fun setPrivJSON(key: String, value: JSONObject) {
+        privPrefs.edit(commit = true) { putString(key, value.toString()) }
     }
 
     @SuppressLint("ApplySharedPref")
