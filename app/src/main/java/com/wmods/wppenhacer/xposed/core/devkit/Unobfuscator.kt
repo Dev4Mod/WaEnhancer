@@ -738,34 +738,6 @@ object Unobfuscator {
 
     @Throws(Exception::class)
     @JvmStatic
-    fun loadShareLimitMethod(classLoader: ClassLoader): Method {
-        return UnobfuscatorCache.getInstance().getMethod(classLoader) {
-            findFirstMethodUsingStrings(
-                classLoader,
-                StringMatchType.Contains,
-                "send_max_video_duration"
-            )
-                ?: throw Exception("ShareLimit method not found")
-        }
-    }
-
-    @Throws(Exception::class)
-    @JvmStatic
-    fun loadShareMapItemField(classLoader: ClassLoader): Field {
-        return UnobfuscatorCache.getInstance().getField(classLoader) {
-            val shareLimitMethod = loadShareLimitMethod(classLoader)
-            val methodData = bridge.getMethodData(shareLimitMethod) ?: return@getField null
-            val usingFields = methodData.usingFields
-            for (ufield in usingFields) {
-                val field = ufield.field.getFieldInstance(classLoader)
-                if (field.type == Map::class.java) return@getField field
-            }
-            throw Exception("ShareItem field not found")
-        }
-    }
-
-    @Throws(Exception::class)
-    @JvmStatic
     fun loadMenuManagerClass(classLoader: ClassLoader): Class<*> {
         return UnobfuscatorCache.getInstance().getClass(classLoader) {
             val methods = findAllMethodUsingStrings(
@@ -3405,7 +3377,6 @@ object Unobfuscator {
     }
 
     @Throws(Exception::class)
-
     @JvmStatic
     fun loadOnConversationsListChangedMethod(classLoader: ClassLoader): Method? {
         return UnobfuscatorCache.getInstance().getMethod(classLoader) {
@@ -3415,6 +3386,16 @@ object Unobfuscator {
                 StringMatchType.Contains,
                 "onConversationsListChanged"
             )
+        }
+    }
+
+    fun loadMultiSelectionLimitInfoClass(classLoader: ClassLoader): Class<*> {
+        return UnobfuscatorCache.getInstance().getClass(classLoader) {
+            bridge.findClass {
+                matcher {
+                    usingStrings("MultiSelectionLimitInfo")
+                }
+            }.single().getInstance(classLoader)
         }
     }
 }

@@ -1,58 +1,22 @@
-package com.wmods.wppenhacer.xposed.features.general;
+package com.wmods.wppenhacer.xposed.features.general
 
-import androidx.annotation.NonNull;
+import com.wmods.wppenhacer.xposed.core.Feature
+import com.wmods.wppenhacer.xposed.core.devkit.Unobfuscator
+import de.robv.android.xposed.XC_MethodHook
+import de.robv.android.xposed.XSharedPreferences
+import de.robv.android.xposed.XposedBridge
 
-import com.wmods.wppenhacer.xposed.core.Feature;
-import com.wmods.wppenhacer.xposed.core.devkit.Unobfuscator;
+class ShareLimit(classLoader: ClassLoader, prefs: XSharedPreferences) : Feature(classLoader, prefs) {
 
-import java.util.HashMap;
-
-import de.robv.android.xposed.XC_MethodHook;
-import de.robv.android.xposed.XSharedPreferences;
-import de.robv.android.xposed.XposedBridge;
-
-public class ShareLimit extends Feature {
-    public ShareLimit(ClassLoader loader, XSharedPreferences preferences) {
-        super(loader, preferences);
+    override fun doHook() {
+        if(!prefs.getBoolean("removeforwardlimit", false)) return
+        val multiSelectionLimitInfoClass = Unobfuscator.loadMultiSelectionLimitInfoClass(classLoader)
+        XposedBridge.hookAllConstructors(multiSelectionLimitInfoClass, object : XC_MethodHook() {
+            override fun beforeHookedMethod(param: MethodHookParam) {
+                param.args[0] = Int.MAX_VALUE
+            }
+        })
     }
 
-    public void doHook() throws Exception {
-        if (!prefs.getBoolean("removeforwardlimit", false)) return;
-        var shareLimitMethod = Unobfuscator.loadShareLimitMethod(classLoader);
-        logDebug(Unobfuscator.getMethodDescriptor(shareLimitMethod));
-        var shareItemField = Unobfuscator.loadShareMapItemField(classLoader);
-        logDebug(Unobfuscator.getFieldDescriptor(shareItemField));
-
-        XposedBridge.hookMethod(
-                shareLimitMethod,
-                new XC_MethodHook() {
-                    private HashMap<Object, Object> fakeMap;
-                    private HashMap<Object, Object> mMap;
-
-                    /**
-                     * @noinspection unchecked
-                     */
-                    @Override
-                    protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
-                        fakeMap = new HashMap<>();
-                        mMap = (HashMap<Object, Object>) shareItemField.get(param.thisObject);
-                        shareItemField.set(param.thisObject, fakeMap);
-                    }
-
-                    @Override
-                    protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-                        mMap.putAll(fakeMap);
-                        shareItemField.set(param.thisObject, mMap);
-                        fakeMap.clear();
-                    }
-                });
-
-
-    }
-
-    @NonNull
-    @Override
-    public String getPluginName() {
-        return "Share Limit";
-    }
+    override fun getPluginName(): String = "Share Limit"
 }
