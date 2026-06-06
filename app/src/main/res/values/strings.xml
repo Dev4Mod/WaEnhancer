@@ -202,6 +202,13 @@
     <string name="copy_to_clipboard">Copy to clipboard</string>
     <string name="copied_to_clipboard">Copied to clipboard</string>
     <string name="error_detected">Error detected</string>
+    <string name="whatsapp_crash_report">WhatsApp crash report</string>
+    <string name="crash_info">Crash info</string>
+    <string name="crash_trace">Trace</string>
+    <string name="whatsapp_version">WhatsApp version</string>
+    <string name="whatsapp_package">WhatsApp package</string>
+    <string name="wae_version">WAE version</string>
+    <string name="crash_android_version">Android version</string>
     <string name="rebooting">Rebooting</string>
     <string name="deleted_message">deleted a message</string>
     <string name="deleted_status">deleted a status</string>

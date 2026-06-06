@@ -10,12 +10,14 @@ import android.os.Build;
 import android.os.Environment;
 import android.os.Handler;
 import android.os.Looper;
+import android.util.Log;
 
 import androidx.appcompat.app.AppCompatDelegate;
 import androidx.core.app.ActivityCompat;
 import androidx.preference.PreferenceManager;
 
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
+import com.wmods.wppenhacer.activities.CrashReportActivity;
 
 import java.io.File;
 import java.util.Locale;
@@ -53,11 +55,41 @@ public class App extends Application {
     public void onCreate() {
         super.onCreate();
         instance = this;
+        installCrashHandler();
         var sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
         var mode = Integer.parseInt(sharedPreferences.getString("thememode", "0"));
         setThemeMode(mode);
         changeLanguage(this);
-        // criar um banco de dados
+    }
+
+    private void installCrashHandler() {
+        var previousHandler = Thread.getDefaultUncaughtExceptionHandler();
+        Thread.setDefaultUncaughtExceptionHandler((thread, throwable) -> {
+            try {
+                var intent = new Intent(this, CrashReportActivity.class);
+                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                intent.putExtra(CrashReportActivity.EXTRA_CRASH_INFO, buildCrashInfo());
+                intent.putExtra(CrashReportActivity.EXTRA_CRASH_TRACE, Log.getStackTraceString(throwable));
+                startActivity(intent);
+            } catch (Throwable ignored) {
+            } finally {
+                if (previousHandler != null) {
+                    previousHandler.uncaughtException(thread, throwable);
+                } else {
+                    Runtime.getRuntime().exit(2);
+                }
+            }
+        });
+    }
+
+    private String buildCrashInfo() {
+        var androidVersion = Build.VERSION.RELEASE + " (API " + Build.VERSION.SDK_INT + ")";
+        var deviceModel = (Build.MANUFACTURER + " " + Build.MODEL).trim();
+        return "WAE version: " + BuildConfig.VERSION_NAME + "\n" +
+                "WAE package: " + getPackageName() + "\n" +
+                getString(R.string.crash_android_version) + ": " + androidVersion + "\n" +
+                getString(R.string.device_model) + ": " + deviceModel;
     }
 
     public static void setThemeMode(int mode) {

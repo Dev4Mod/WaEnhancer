@@ -7,16 +7,20 @@ import android.app.Instrumentation
 import android.content.BroadcastReceiver
 import android.content.ClipData
 import android.content.ClipboardManager
+import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
+import android.os.Build
 import android.os.Bundle
+import android.util.Log
 import android.widget.Toast
 import androidx.core.content.ContextCompat
 import com.wmods.wppenhacer.App
 import com.wmods.wppenhacer.BuildConfig
 import com.wmods.wppenhacer.R
 import com.wmods.wppenhacer.UpdateChecker
+import com.wmods.wppenhacer.activities.CrashReportActivity
 import com.wmods.wppenhacer.xposed.core.components.AlertDialogWpp
 import com.wmods.wppenhacer.xposed.core.components.FMessageWpp
 import com.wmods.wppenhacer.xposed.core.components.FStatusWpp
@@ -114,6 +118,7 @@ class FeatureLoader {
         private val list = ArrayList<ErrorItem>()
         private var supportedVersions: List<String>? = null
         private var currentVersion: String? = null
+        private var crashHandlerInstalled = false
 
         @JvmStatic
         fun start(loader: ClassLoader, pref: XSharedPreferences, sourceDir: String) {
@@ -145,6 +150,7 @@ class FeatureLoader {
                         val packageInfo = packageManager.getPackageInfo(application.packageName, 0)
                         XposedBridge.log(packageInfo.versionName)
                         currentVersion = packageInfo.versionName
+                        installCrashHandler(application, packageInfo.versionName.orEmpty())
 
                         val resIdArray = if (application.packageName == PACKAGE_WPP)
                             R.array.supported_versions_wpp
@@ -240,6 +246,52 @@ class FeatureLoader {
                         }
                     }
                 })
+        }
+
+        private fun installCrashHandler(application: Application, whatsAppVersion: String) {
+            if (crashHandlerInstalled) return
+            crashHandlerInstalled = true
+
+            val previousHandler = Thread.getDefaultUncaughtExceptionHandler()
+            Thread.setDefaultUncaughtExceptionHandler { thread, throwable ->
+                try {
+                    val crashInfo = buildCrashInfo(application, whatsAppVersion)
+                    val intent = Intent().apply {
+                        component = ComponentName(
+                            BuildConfig.APPLICATION_ID,
+                            CrashReportActivity::class.java.name
+                        )
+                        addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                        addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
+                        putExtra(CrashReportActivity.EXTRA_CRASH_INFO, crashInfo)
+                        putExtra(CrashReportActivity.EXTRA_CRASH_TRACE, Log.getStackTraceString(throwable))
+                    }
+                    application.startActivity(intent)
+                } catch (e: Throwable) {
+                    XposedBridge.log(e)
+                } finally {
+                    if (previousHandler != null) {
+                        previousHandler.uncaughtException(thread, throwable)
+                    } else {
+                        Runtime.getRuntime().exit(2)
+                    }
+                }
+            }
+        }
+
+        private fun buildCrashInfo(application: Application, whatsAppVersion: String): String {
+            val androidVersion = "${Build.VERSION.RELEASE} (API ${Build.VERSION.SDK_INT})"
+            val deviceModel = listOf(Build.MANUFACTURER, Build.MODEL)
+                .filter { it.isNotBlank() }
+                .joinToString(" ")
+
+            return listOf(
+                "${application.getString(R.string.whatsapp_version)}: $whatsAppVersion",
+                "${application.getString(R.string.whatsapp_package)}: ${application.packageName}",
+                "${application.getString(R.string.wae_version)}: ${BuildConfig.VERSION_NAME}",
+                "${application.getString(R.string.crash_android_version)}: $androidVersion",
+                "${application.getString(R.string.device_model)}: $deviceModel"
+            ).joinToString("\n")
         }
 
 

@@ -86,6 +86,11 @@
             android:theme="@style/AppTheme" />
 
         <activity
+            android:name=".activities.CrashReportActivity"
+            android:exported="true"
+            android:theme="@style/AppTheme" />
+
+        <activity
             android:name=".activities.TextEditorActivity"
             android:theme="@style/AppTheme" />
 
