@@ -1,89 +1,80 @@
-package com.wmods.wppenhacer.xposed.features.privacy;
+package com.wmods.wppenhacer.xposed.features.privacy
 
-import androidx.annotation.NonNull;
+import com.wmods.wppenhacer.xposed.core.Feature
+import com.wmods.wppenhacer.xposed.core.components.FMessageWpp.UserJid
+import com.wmods.wppenhacer.xposed.core.components.WaContactWpp
+import com.wmods.wppenhacer.xposed.core.devkit.Unobfuscator.loadChatCacheClass
+import com.wmods.wppenhacer.xposed.core.devkit.Unobfuscator.loadLoadedContactsMethod
+import com.wmods.wppenhacer.xposed.core.devkit.Unobfuscator.loadLockedChatsMethod
+import com.wmods.wppenhacer.xposed.core.devkit.Unobfuscator.loadNotificationMethod
+import com.wmods.wppenhacer.xposed.utils.ReflectionUtils
+import de.robv.android.xposed.XC_MethodHook
+import de.robv.android.xposed.XSharedPreferences
+import de.robv.android.xposed.XposedBridge
+import de.robv.android.xposed.XposedHelpers
+import java.lang.reflect.Field
+import java.util.stream.Collectors
 
-import com.wmods.wppenhacer.xposed.core.Feature;
-import com.wmods.wppenhacer.xposed.core.components.FMessageWpp;
-import com.wmods.wppenhacer.xposed.core.components.WaContactWpp;
-import com.wmods.wppenhacer.xposed.core.devkit.Unobfuscator;
-import com.wmods.wppenhacer.xposed.utils.ReflectionUtils;
+class LockedChatsEnhancer(classLoader: ClassLoader, preferences: XSharedPreferences) :
+    Feature(classLoader, preferences) {
+    private var chatCache: Any? = null
 
-import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.stream.Collectors;
+    override fun doHook() {
+        if (!prefs.getBoolean("lockedchats_enhancer", false)) return
 
-import de.robv.android.xposed.XC_MethodHook;
-import de.robv.android.xposed.XSharedPreferences;
-import de.robv.android.xposed.XposedBridge;
-import de.robv.android.xposed.XposedHelpers;
+        val jidNotifications = loadNotificationMethod(classLoader)
+        val lockedChatsMethod = loadLockedChatsMethod(classLoader)
 
-public class LockedChatsEnhancer extends Feature {
+        XposedBridge.hookMethod(jidNotifications, object : XC_MethodHook() {
 
-    private Object chatCache;
-
-    public LockedChatsEnhancer(@NonNull ClassLoader classLoader, @NonNull XSharedPreferences preferences) {
-        super(classLoader, preferences);
-    }
-
-    @Override
-    public void doHook() throws Throwable {
-        if (!prefs.getBoolean("lockedchats_enhancer", false)) return;
-
-        Method jidNotifications = Unobfuscator.loadNotificationMethod(classLoader);
-        Method lockedChatsMethod = Unobfuscator.loadLockedChatsMethod(classLoader);
-
-        XposedBridge.hookMethod(jidNotifications, new XC_MethodHook() {
-            private Unhook unhook;
-
-            @Override
-            protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
-                this.unhook = XposedBridge.hookMethod(lockedChatsMethod, new XC_MethodHook() {
-                    @Override
-                    protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
-                        param.setResult(new ArrayList<>());
+            override fun beforeHookedMethod(param: MethodHookParam) {
+                val unhook = XposedBridge.hookMethod(lockedChatsMethod, object : XC_MethodHook() {
+                    override fun beforeHookedMethod(param: MethodHookParam) {
+                        param.setResult(ArrayList<Any?>())
                     }
-                });
+                })
+                param.setObjectExtra("hook", unhook)
             }
 
-            @Override
-            protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-                unhook.unhook();
+            override fun afterHookedMethod(param: MethodHookParam) {
+                val unhook = param.getObjectExtra("hook") as Unhook?
+                unhook?.unhook()
             }
-        });
+        })
 
-        var chatCacheClass = Unobfuscator.loadChatCacheClass(classLoader);
-        var lockedChatsFields = ReflectionUtils.findAllFieldsUsingFilter(chatCacheClass, f -> f.getType() == HashSet.class);
+        val chatCacheClass = loadChatCacheClass(classLoader)
+        val lockedChatsFields = ReflectionUtils.findAllFieldsUsingFilter(chatCacheClass) {
+            f -> f.type == HashSet::class.java
+        }
 
-        XposedBridge.hookAllConstructors(chatCacheClass, new XC_MethodHook() {
-            @Override
-            protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
-                chatCache = param.thisObject;
+        XposedBridge.hookAllConstructors(chatCacheClass, object : XC_MethodHook() {
+            override fun beforeHookedMethod(param: MethodHookParam) {
+                chatCache = param.thisObject
             }
-        });
+        })
 
-        var loadedContacts = Unobfuscator.loadLoadedContactsMethod(classLoader);
+        val loadedContacts = loadLoadedContactsMethod(classLoader)
 
-        XposedBridge.hookMethod(loadedContacts, new XC_MethodHook() {
-            @Override
-            protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
-                var list = (List) XposedHelpers.getObjectField(param.args[0], "A01");
-                HashSet<?> lockedChats = (HashSet<?>) lockedChatsFields[1].get(chatCache);
-                var lockedNumbers = lockedChats.stream().map(userjid -> new FMessageWpp.UserJid(userjid).getPhoneNumber()).collect(Collectors.toList());
-                list.removeIf(item -> {
-                    if (!WaContactWpp.TYPE.isInstance(item)) return false;
-                    var waContact = new WaContactWpp(item);
-                    var phoneNumber = waContact.getUserJid().getPhoneNumber();
-                    return lockedNumbers.contains(phoneNumber);
-                });
+        XposedBridge.hookMethod(loadedContacts, object : XC_MethodHook() {
+
+            override fun beforeHookedMethod(param: MethodHookParam) {
+                val list = XposedHelpers.getObjectField(param.args[0], "A01") as MutableList<*>
+                val lockedChats = lockedChatsFields[1]!!.get(chatCache) as HashSet<*>?
+                val lockedNumbers = lockedChats!!.stream()
+                    .map<String?> { userjid: Any? -> UserJid(userjid).phoneNumber }.collect(
+                        Collectors.toList()
+                    )
+                list.removeIf { item: Any? ->
+                    if (!WaContactWpp.TYPE.isInstance(item)) return@removeIf false
+                    val waContact = WaContactWpp(item)
+                    val phoneNumber = waContact.userJid.phoneNumber
+                    lockedNumbers.contains(phoneNumber)
+                }
             }
-        });
+        })
     }
 
-    @NonNull
-    @Override
-    public String getPluginName() {
-        return "Locked Chats Enhancer";
+    public override fun getPluginName(): String {
+        return "Locked Chats Enhancer"
     }
 }
