@@ -1,37 +1,29 @@
-package com.wmods.wppenhacer.xposed.features.privacy;
+package com.wmods.wppenhacer.xposed.features.privacy
 
-import androidx.annotation.NonNull;
+import com.wmods.wppenhacer.xposed.core.Feature
+import com.wmods.wppenhacer.xposed.core.WppCore.getPrivBoolean
+import com.wmods.wppenhacer.xposed.core.devkit.Unobfuscator.getMethodDescriptor
+import com.wmods.wppenhacer.xposed.core.devkit.Unobfuscator.loadFreezeSeenMethod
+import de.robv.android.xposed.XC_MethodReplacement
+import de.robv.android.xposed.XSharedPreferences
+import de.robv.android.xposed.XposedBridge
 
-import com.wmods.wppenhacer.xposed.core.Feature;
-import com.wmods.wppenhacer.xposed.core.WppCore;
-import com.wmods.wppenhacer.xposed.core.devkit.Unobfuscator;
+class FreezeLastSeen(loader: ClassLoader, preferences: XSharedPreferences) :
+    Feature(loader, preferences) {
 
-import de.robv.android.xposed.XC_MethodReplacement;
-import de.robv.android.xposed.XSharedPreferences;
-import de.robv.android.xposed.XposedBridge;
-
-public class FreezeLastSeen extends Feature {
-    public FreezeLastSeen(ClassLoader loader, XSharedPreferences preferences) {
-        super(loader, preferences);
-    }
-
-    @Override
-    public void doHook() throws Exception {
-        var freezeLastSeen = prefs.getBoolean("freezelastseen", false);
-        var freezeLastSeenOption = WppCore.getPrivBoolean("freezelastseen", false);
-        var ghostmode = WppCore.getPrivBoolean("ghostmode", false) && prefs.getBoolean("ghostmode", false);
+    override fun doHook() {
+        val freezeLastSeen = prefs.getBoolean("freezelastseen", false)
+        val freezeLastSeenOption = getPrivBoolean("freezelastseen", false)
+        val ghostmode = getPrivBoolean("ghostmode", false) && prefs.getBoolean("ghostmode", false)
 
         if (freezeLastSeen || freezeLastSeenOption || ghostmode) {
-            var method = Unobfuscator.loadFreezeSeenMethod(classLoader);
-            logDebug(Unobfuscator.getMethodDescriptor(method));
-            XposedBridge.hookMethod(method, XC_MethodReplacement.DO_NOTHING);
+            val method = loadFreezeSeenMethod(classLoader)
+            logDebug(getMethodDescriptor(method))
+            XposedBridge.hookMethod(method, XC_MethodReplacement.DO_NOTHING)
         }
     }
 
-    @NonNull
-    @Override
-    public String getPluginName() {
-        return "Freeze Last Seen";
+    override fun getPluginName(): String {
+        return "Freeze Last Seen"
     }
-
 }
