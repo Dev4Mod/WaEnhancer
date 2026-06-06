@@ -5,6 +5,7 @@ import android.content.SharedPreferences;
 import android.util.Pair;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
@@ -293,10 +294,25 @@ public class ReflectionUtils {
         return result;
     }
 
-    public static <T> T getArg(Object[] args, Class<T> typeClass, int i) {
+    /**
+     * Searches the provided argument array for instances matching the specified type
+     * and returns the occurrence at the given index.
+     *
+     * @param args the argument array to search
+     * @param typeClass the target type used to filter matching arguments
+     * @param index the occurrence index to return; use {@code -1} to return the last matching occurrence
+     * @param <T> the expected return type
+     * @return the matching instance at the specified occurrence index, the last matching
+     *         instance if {@code index} is {@code -1}, or {@code null} if no matching
+     *         instance is found or the index is out of bounds
+     */
+    @Nullable
+    public static <T> T getArg(Object[] args, Class<T> typeClass, int index) {
         var list = findInstancesOfType(args, typeClass);
-        if (list.size() <= i) return null;
-        return list.get(i).second;
+        if (list.isEmpty()) return null;
+        if (index == -1) return list.get(list.size() - 1).second;
+        if (index < list.size()) return list.get(index).second;
+        return null;
     }
 
     public static boolean isCalledFromStrings(String... fragments) {
