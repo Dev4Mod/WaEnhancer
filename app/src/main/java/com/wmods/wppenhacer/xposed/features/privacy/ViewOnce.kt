@@ -1,48 +1,38 @@
-package com.wmods.wppenhacer.xposed.features.privacy;
+package com.wmods.wppenhacer.xposed.features.privacy
+
+import com.wmods.wppenhacer.xposed.core.Feature
+import com.wmods.wppenhacer.xposed.core.components.FMessageWpp
+import com.wmods.wppenhacer.xposed.core.devkit.Unobfuscator.getMethodDescriptor
+import com.wmods.wppenhacer.xposed.core.devkit.Unobfuscator.loadViewOnceMethod
+import de.robv.android.xposed.XC_MethodHook
+import de.robv.android.xposed.XSharedPreferences
+import de.robv.android.xposed.XposedBridge
 
 
-import androidx.annotation.NonNull;
+class ViewOnce(loader: ClassLoader, preferences: XSharedPreferences) :
+    Feature(loader, preferences) {
 
-import com.wmods.wppenhacer.xposed.core.Feature;
-import com.wmods.wppenhacer.xposed.core.components.FMessageWpp;
-import com.wmods.wppenhacer.xposed.core.devkit.Unobfuscator;
+    override fun doHook() {
+        if (!prefs.getBoolean("viewonce", false)) return
 
-import de.robv.android.xposed.XC_MethodHook;
-import de.robv.android.xposed.XSharedPreferences;
-import de.robv.android.xposed.XposedBridge;
+        val methods = loadViewOnceMethod(classLoader)
 
-public class ViewOnce extends Feature {
-
-    public ViewOnce(ClassLoader loader, XSharedPreferences preferences) {
-        super(loader, preferences);
-    }
-
-    @Override
-    public void doHook() throws Exception {
-        if (!prefs.getBoolean("viewonce", false)) return;
-
-        var methods = Unobfuscator.loadViewOnceMethod(classLoader);
-
-        for (var method : methods) {
-            logDebug(Unobfuscator.getMethodDescriptor(method));
-            XposedBridge.hookMethod(method, new XC_MethodHook() {
-                @Override
-                protected void beforeHookedMethod(MethodHookParam param) {
-                    int returnValue = (int) param.args[0];
-                    var fMessage = new FMessageWpp(param.thisObject);
-                    if (returnValue == 1 && !fMessage.getKey().isFromMe) {
-                        param.args[0] = 0;
+        methods.forEach { method ->
+            logDebug(getMethodDescriptor(method))
+            XposedBridge.hookMethod(method, object : XC_MethodHook() {
+                override fun beforeHookedMethod(param: MethodHookParam) {
+                    val returnValue = param.args[0] as Int
+                    val fMessage = FMessageWpp(param.thisObject)
+                    if (returnValue == 1 && !fMessage.key.isFromMe) {
+                        param.args[0] = 0
                     }
                 }
-            });
+            })
         }
+
     }
 
-    @NonNull
-    @Override
-    public String getPluginName() {
-        return "View Once";
+    override fun getPluginName(): String {
+        return "View Once"
     }
-
-
 }
