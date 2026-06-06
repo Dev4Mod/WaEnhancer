@@ -1,8 +1,10 @@
-[ADDED]
-* Added support for placing text on the clock in any position using [TIME] (WAE -> General -> General -> Text next to Timestamp)
-Ex: 🕧 [TIME]
-
 [FIXED]
-* Fixed compatibility with WA 2.26.21.75
+* Fixed an issue in Custom Privacy where the "typing" and "recording" status hiding was not working.
+* Fixed an issue when hiding archived chats that was causing excessive processing usage.
+* Fixed an issue with the message forwarding limit, which was incorrectly restricted to 5 contacts.
 
-NOTE: Now let's wait for WAEX to copy the commits 😆
+[ADDED]
+* Added crash capture for both WAE and WhatsApp to simplify crash reporting.
+
+[IMPROVED]
+* All privacy-related classes have now been migrated to Kotlin.
