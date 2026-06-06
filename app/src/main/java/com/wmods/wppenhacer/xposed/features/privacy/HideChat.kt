@@ -1,96 +1,46 @@
-package com.wmods.wppenhacer.xposed.features.privacy;
+package com.wmods.wppenhacer.xposed.features.privacy
 
-import android.view.View;
+import android.content.Context
+import android.view.View
+import com.wmods.wppenhacer.xposed.core.Feature
+import com.wmods.wppenhacer.xposed.core.WppCore
+import com.wmods.wppenhacer.xposed.core.devkit.Unobfuscator
+import com.wmods.wppenhacer.xposed.utils.ReflectionUtils
+import de.robv.android.xposed.XC_MethodHook
+import de.robv.android.xposed.XSharedPreferences
+import de.robv.android.xposed.XposedBridge
 
-import androidx.annotation.NonNull;
+class HideChat(loader: ClassLoader, preferences: XSharedPreferences) : Feature(loader, preferences) {
 
-import com.wmods.wppenhacer.xposed.core.Feature;
-import com.wmods.wppenhacer.xposed.core.devkit.Unobfuscator;
-import com.wmods.wppenhacer.xposed.utils.ReflectionUtils;
+    override fun doHook() {
+        if (prefs.getString("typearchive", "0") != "0") {
 
-import java.util.Objects;
+            val loadArchiveChatClass = Unobfuscator.loadArchiveChatClass(classLoader)
 
-import de.robv.android.xposed.XC_MethodHook;
-import de.robv.android.xposed.XSharedPreferences;
-import de.robv.android.xposed.XposedBridge;
+            val viewField =
+                ReflectionUtils.getFieldByType(loadArchiveChatClass, View::class.java) ?: return
 
-public class HideChat extends Feature {
-
-//    public static View.OnClickListener mClickListenerLocked;
-
-    public HideChat(@NonNull ClassLoader loader, @NonNull XSharedPreferences preferences) {
-        super(loader, preferences);
+            XposedBridge.hookAllConstructors(loadArchiveChatClass, object : XC_MethodHook() {
+                override fun afterHookedMethod(param: MethodHookParam) {
+                    val currentActivity = WppCore.getCurrentActivity() ?: return
+                    viewField.set(param.thisObject, HideView(currentActivity))
+                }
+            })
+        }
     }
 
-    @Override
-    public void doHook() throws Throwable {
+    override fun getPluginName(): String {
+        return "Hide Chats"
+    }
 
-        if (!Objects.equals(prefs.getString("typearchive", "0"), "0")) {
+    class HideView(context: Context) : View(context) {
 
-            var loadArchiveChatClass = Unobfuscator.loadArchiveChatClass(classLoader);
-
-            var setVisibilityMethod = View.class.getDeclaredMethod("setVisibility", int.class);
-            var viewField = ReflectionUtils.getFieldByType(loadArchiveChatClass, View.class);
-
-            XposedBridge.hookAllConstructors(loadArchiveChatClass, new XC_MethodHook() {
-                @Override
-                protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-                    Object thiz = param.thisObject;
-                    XposedBridge.hookMethod(setVisibilityMethod, new XC_MethodHook() {
-                        @Override
-                        protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
-                            Object view = viewField.get(thiz);
-                            if (view != param.thisObject) return;
-                            param.args[0] = View.GONE;
-                        }
-                    });
-                }
-            });
-
+        init {
+            visibility = GONE
         }
 
-//        if (prefs.getBoolean("hidelocked", false)) {
-//
-//            var lockedChatFrame = Unobfuscator.loadArchiveLockedChatClass(classLoader);
-//            log("Locked Class: " + lockedChatFrame);
-//            XposedBridge.hookMethod(lockedChatFrame.getMethod("setOnLockedClickListener", View.OnClickListener.class), new XC_MethodHook() {
-//                @Override
-//                protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
-//                    mClickListenerLocked = (View.OnClickListener) param.args[0];
-//                }
-//            });
-//
-//            var runMethod = ReflectionUtils.findMethodUsingFilter(lockedChatFrame, method -> method.getParameterCount() == 1 && method.getParameterTypes()[0].equals(Runnable.class));
-//            XposedBridge.hookMethod(runMethod, new XC_MethodHook() {
-//                @Override
-//                protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
-//                    ((Runnable) param.args[0]).run();
-//                }
-//            });
-//
-//            var method1 = Unobfuscator.loadArchiveCheckLockedChatsMethod(classLoader);
-//            var method2 = Unobfuscator.loadArchiveCheckLockedChatsMethod2(classLoader);
-//            XposedBridge.hookMethod(method1, new XC_MethodHook() {
-//                private Unhook hooked;
-//
-//                @Override
-//                protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
-//                    hooked = XposedBridge.hookMethod(method2, XC_MethodReplacement.returnConstant(true));
-//                    Others.propsBoolean.put(7280, false);
-//                }
-//
-//                @Override
-//                protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-//                    hooked.unhook();
-//                    Others.propsBoolean.remove(7280);
-//                }
-//            });
-//        }
-    }
+        override fun setVisibility(visibility: Int) {
+        }
 
-    @NonNull
-    @Override
-    public String getPluginName() {
-        return "Hide Chats";
     }
 }
