@@ -1,65 +1,61 @@
-package com.wmods.wppenhacer.xposed.features.privacy;
+package com.wmods.wppenhacer.xposed.features.privacy
 
-import android.content.ContentResolver;
-import android.provider.Settings;
+import android.content.ContentResolver
+import android.provider.Settings
+import com.wmods.wppenhacer.xposed.core.Feature
+import com.wmods.wppenhacer.xposed.core.devkit.Unobfuscator.loadCheckCustomRom
+import com.wmods.wppenhacer.xposed.core.devkit.Unobfuscator.loadCheckEmulator
+import com.wmods.wppenhacer.xposed.core.devkit.Unobfuscator.loadRootDetector
+import de.robv.android.xposed.XC_MethodHook
+import de.robv.android.xposed.XC_MethodReplacement
+import de.robv.android.xposed.XSharedPreferences
+import de.robv.android.xposed.XposedBridge
+import java.io.File
 
-import androidx.annotation.NonNull;
+class AntiWa(classLoader: ClassLoader, preferences: XSharedPreferences) :
+    Feature(classLoader, preferences) {
 
-import com.wmods.wppenhacer.xposed.core.Feature;
-import com.wmods.wppenhacer.xposed.core.devkit.Unobfuscator;
-
-import java.io.File;
-
-import de.robv.android.xposed.XC_MethodHook;
-import de.robv.android.xposed.XC_MethodReplacement;
-import de.robv.android.xposed.XSharedPreferences;
-import de.robv.android.xposed.XposedBridge;
-
-public class AntiWa extends Feature {
-    public AntiWa(@NonNull ClassLoader classLoader, @NonNull XSharedPreferences preferences) {
-        super(classLoader, preferences);
-    }
-
-    @Override
-    public void doHook() throws Throwable {
-        if (!prefs.getBoolean("bootloader_spoofer", false)) return;
-        var rootDetector = Unobfuscator.loadRootDetector(classLoader);
-        for (var detector : rootDetector) {
-            XposedBridge.hookMethod(detector, XC_MethodReplacement.returnConstant(false));
+    override fun doHook() {
+        if (!prefs.getBoolean("bootloader_spoofer", false)) return
+        val rootDetector  = loadRootDetector(classLoader)
+        for (detector in rootDetector) {
+            XposedBridge.hookMethod(detector, XC_MethodReplacement.returnConstant(false))
         }
-        var settingsGetInt = Settings.Global.class.getDeclaredMethod("getInt", ContentResolver.class, String.class, int.class);
-        XposedBridge.hookMethod(settingsGetInt, new XC_MethodHook() {
-            @Override
-            protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
-                var key = (String) param.args[1];
-                if (key.equals("adb_enabled")) {
-                    param.setResult(0);
+        val settingsGetInt = Settings.Global::class.java.getDeclaredMethod(
+            "getInt",
+            ContentResolver::class.java,
+            String::class.java,
+            Int::class.javaPrimitiveType
+        )
+        XposedBridge.hookMethod(settingsGetInt, object : XC_MethodHook() {
+            @Throws(Throwable::class)
+            override fun beforeHookedMethod(param: MethodHookParam) {
+                val key = param.args[1] as String
+                if (key == "adb_enabled") {
+                    param.setResult(0)
                 }
             }
-        });
-        var checkEmulator = Unobfuscator.loadCheckEmulator(classLoader);
-        XposedBridge.hookMethod(checkEmulator, XC_MethodReplacement.returnConstant(false));
+        })
+        val checkEmulator = loadCheckEmulator(classLoader)
+        XposedBridge.hookMethod(checkEmulator, XC_MethodReplacement.returnConstant(false))
         // File Check
-        var FileConstructor = File.class.getConstructor(String.class);
-        XposedBridge.hookMethod(FileConstructor, new XC_MethodHook() {
-            @Override
-            protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
-                var path = (String) param.args[0];
-                var fakePath = "/data/fakepath";
+        val FileConstructor = File::class.java.getConstructor(String::class.java)
+        XposedBridge.hookMethod(FileConstructor, object : XC_MethodHook() {
+            @Throws(Throwable::class)
+            override fun beforeHookedMethod(param: MethodHookParam) {
+                val path = param.args[0] as String
+                val fakePath = "/data/fakepath"
                 if (path.contains("qemu") || path.contains("superuser")) {
-                    param.args[0] = fakePath;
+                    param.args[0] = fakePath
                 }
-
             }
-        });
+        })
 
-        var checkCustomRom = Unobfuscator.loadCheckCustomRom(classLoader);
-        XposedBridge.hookMethod(checkCustomRom, XC_MethodReplacement.returnConstant(false));
+        val checkCustomRom = loadCheckCustomRom(classLoader)
+        XposedBridge.hookMethod(checkCustomRom, XC_MethodReplacement.returnConstant(false))
     }
 
-    @NonNull
-    @Override
-    public String getPluginName() {
-        return "AntiDetector";
+    override fun getPluginName(): String {
+        return "AntiDetector"
     }
 }
