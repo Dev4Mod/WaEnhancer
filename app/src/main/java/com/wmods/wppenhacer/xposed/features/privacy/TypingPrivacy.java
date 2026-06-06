@@ -6,6 +6,7 @@ import com.wmods.wppenhacer.xposed.core.Feature;
 import com.wmods.wppenhacer.xposed.core.WppCore;
 import com.wmods.wppenhacer.xposed.core.components.FMessageWpp;
 import com.wmods.wppenhacer.xposed.core.devkit.Unobfuscator;
+import com.wmods.wppenhacer.xposed.utils.ReflectionUtils;
 
 import java.lang.reflect.Method;
 
@@ -29,8 +30,12 @@ public class TypingPrivacy extends Feature {
         XposedBridge.hookMethod(method, new XC_MethodHook() {
             @Override
             protected void beforeHookedMethod(MethodHookParam param) {
-                var p1 = (int) param.args[2];
-                var userJid = new FMessageWpp.UserJid(param.args[1]);
+                var p1 = ReflectionUtils.getArg(param.args, Integer.class, 0);
+                var jidObj = ReflectionUtils.getArg(param.args, FMessageWpp.UserJid.TYPE_JID, 0);
+                if (jidObj == null){
+                    logDebug("UserJid not found in Typing Privacy");
+                }
+                var userJid = new FMessageWpp.UserJid(jidObj);
                 var privacy = CustomPrivacy.getJSON(userJid.getPhoneNumber());
                 var customHideTyping = privacy.optBoolean("HideTyping", ghostmode_t);
                 var customHideRecording = privacy.optBoolean("HideRecording", ghostmode_r);
