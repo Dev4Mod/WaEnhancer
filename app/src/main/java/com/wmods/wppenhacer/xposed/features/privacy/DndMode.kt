@@ -1,31 +1,23 @@
-package com.wmods.wppenhacer.xposed.features.privacy;
+package com.wmods.wppenhacer.xposed.features.privacy
 
-import androidx.annotation.NonNull;
+import com.wmods.wppenhacer.xposed.core.Feature
+import com.wmods.wppenhacer.xposed.core.WppCore.getPrivBoolean
+import com.wmods.wppenhacer.xposed.core.devkit.Unobfuscator.getMethodDescriptor
+import com.wmods.wppenhacer.xposed.core.devkit.Unobfuscator.loadDndModeMethod
+import de.robv.android.xposed.XC_MethodReplacement
+import de.robv.android.xposed.XSharedPreferences
+import de.robv.android.xposed.XposedBridge
 
-import com.wmods.wppenhacer.xposed.core.Feature;
-import com.wmods.wppenhacer.xposed.core.WppCore;
-import com.wmods.wppenhacer.xposed.core.devkit.Unobfuscator;
+class DndMode(loader: ClassLoader, preferences: XSharedPreferences) : Feature(loader, preferences) {
 
-import de.robv.android.xposed.XC_MethodReplacement;
-import de.robv.android.xposed.XSharedPreferences;
-import de.robv.android.xposed.XposedBridge;
-
-public class DndMode extends Feature {
-    public DndMode(ClassLoader loader, XSharedPreferences preferences) {
-        super(loader, preferences);
+    override fun doHook() {
+        if (!getPrivBoolean("dndmode", false)) return
+        val dndMethod = loadDndModeMethod(classLoader)
+        logDebug(getMethodDescriptor(dndMethod))
+        XposedBridge.hookMethod(dndMethod, XC_MethodReplacement.DO_NOTHING)
     }
 
-    @Override
-    public void doHook() throws Exception {
-        if (!WppCore.getPrivBoolean("dndmode",false)) return;
-        var dndMethod = Unobfuscator.loadDndModeMethod(classLoader);
-        logDebug(Unobfuscator.getMethodDescriptor(dndMethod));
-        XposedBridge.hookMethod(dndMethod, XC_MethodReplacement.DO_NOTHING);
-    }
-
-    @NonNull
-    @Override
-    public String getPluginName() {
-        return "Dnd Mode";
+    override fun getPluginName(): String {
+        return "Dnd Mode"
     }
 }
