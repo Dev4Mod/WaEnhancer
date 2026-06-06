@@ -31,6 +31,7 @@ import com.wmods.wppenhacer.xposed.utils.DebugUtils
 import com.wmods.wppenhacer.xposed.utils.DesignUtils
 import com.wmods.wppenhacer.xposed.utils.ReflectionUtils
 import com.wmods.wppenhacer.xposed.utils.Utils
+import com.wmods.wppenhacer.xposed.utils.WaeCoroutineExceptionHandler
 import de.robv.android.xposed.XC_MethodHook
 import de.robv.android.xposed.XSharedPreferences
 import de.robv.android.xposed.XposedBridge
@@ -53,7 +54,7 @@ class SeenTick(
 ) : Feature(loader, preferences) {
 
     private val messageMap = ConcurrentHashMap<String, WeakReference<ImageView>>()
-    val scope = CoroutineScope(Dispatchers.Default + SupervisorJob())
+    val scope = CoroutineScope(Dispatchers.Default + SupervisorJob() + WaeCoroutineExceptionHandler)
 
     companion object {
         private var mWaJobManager: Any? = null

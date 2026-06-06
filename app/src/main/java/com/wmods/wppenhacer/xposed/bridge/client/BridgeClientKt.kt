@@ -15,6 +15,7 @@ import com.wmods.wppenhacer.activities.ForceStartActivity
 import com.wmods.wppenhacer.xposed.bridge.WaeIIFace
 import com.wmods.wppenhacer.xposed.bridge.service.BridgeService
 import com.wmods.wppenhacer.xposed.utils.Utils
+import com.wmods.wppenhacer.xposed.utils.WaeCoroutineExceptionHandler
 import de.robv.android.xposed.XposedBridge
 import de.robv.android.xposed.XposedHelpers
 import kotlinx.coroutines.CancellableContinuation
@@ -35,7 +36,7 @@ import kotlin.coroutines.resume
 class BridgeClientKt(private val context: Context) : BaseClient(), ServiceConnection {
 
     private var service: WaeIIFace? = null
-    private val scope = CoroutineScope(Dispatchers.IO + SupervisorJob())
+    private val scope = CoroutineScope(Dispatchers.IO + SupervisorJob() + WaeCoroutineExceptionHandler)
     private val connectionMutex = Mutex()
 
     private var connectionContinuation: CancellableContinuation<Boolean>? = null

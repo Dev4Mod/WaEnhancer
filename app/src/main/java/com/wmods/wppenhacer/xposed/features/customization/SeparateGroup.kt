@@ -12,6 +12,7 @@ import com.wmods.wppenhacer.xposed.core.devkit.Unobfuscator
 import com.wmods.wppenhacer.xposed.core.devkit.UnobfuscatorCache
 import com.wmods.wppenhacer.xposed.utils.ReflectionUtils
 import com.wmods.wppenhacer.xposed.utils.Utils
+import com.wmods.wppenhacer.xposed.utils.WaeCoroutineExceptionHandler
 import de.robv.android.xposed.XC_MethodHook
 import de.robv.android.xposed.XC_MethodReplacement
 import de.robv.android.xposed.XSharedPreferences
@@ -134,7 +135,7 @@ class SeparateGroup(loader: ClassLoader, preferences: XSharedPreferences) :
 
                 param.result = null
 
-                CoroutineScope(Dispatchers.IO).launch {
+                CoroutineScope(Dispatchers.IO + WaeCoroutineExceptionHandler).launch {
                     var chatCount = 0
                     var groupCount = 0
                     val db = MessageStore.getInstance().getDatabase()

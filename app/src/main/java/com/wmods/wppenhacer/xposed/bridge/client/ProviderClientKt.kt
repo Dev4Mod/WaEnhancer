@@ -10,6 +10,7 @@ import com.wmods.wppenhacer.activities.ForceStartActivity
 import com.wmods.wppenhacer.xposed.bridge.WaeIIFace
 import com.wmods.wppenhacer.xposed.core.WppCore
 import com.wmods.wppenhacer.xposed.utils.Utils
+import com.wmods.wppenhacer.xposed.utils.WaeCoroutineExceptionHandler
 import de.robv.android.xposed.XposedBridge
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -27,7 +28,7 @@ import java.util.concurrent.CompletableFuture
 class ProviderClientKt(private val context: Context) : BaseClient() {
 
     private var service: WaeIIFace? = null
-    private val scope = CoroutineScope(Dispatchers.IO + SupervisorJob())
+    private val scope = CoroutineScope(Dispatchers.IO + SupervisorJob() + WaeCoroutineExceptionHandler)
     private val reconnectMutex = Mutex()
 
     override fun getService(): WaeIIFace? = service
