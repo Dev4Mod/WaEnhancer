@@ -27,7 +27,7 @@ val gitHash: String = getGitHashCommit().uppercase(Locale.getDefault())
 android {
     namespace = "com.wmods.wppenhacer"
     compileSdk = 36
-    ndkVersion = "27.0.11902837 rc2"
+    ndkVersion = "28.2.13676358"
 
     flavorDimensions += "version"
 
@@ -91,6 +91,13 @@ android {
             excludes += "org/**"
             excludes += "**.properties"
             excludes += "**.bin"
+        }
+    }
+
+    externalNativeBuild {
+        cmake {
+            path = file("src/main/cpp/CMakeLists.txt")
+            version = "3.22.1"
         }
     }
 

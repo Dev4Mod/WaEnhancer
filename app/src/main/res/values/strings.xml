@@ -495,4 +495,5 @@
     <string name="picker_no_results">No contacts found</string>
     <string name="picker_group">Group</string>
     <string name="picker_contact">Contact</string>
+    <string name="converting_audio">Converting audio, wait a few minutes until it is complete...</string>
 </resources>

@@ -24,12 +24,14 @@ import com.wmods.wppenhacer.xposed.core.components.SharedPreferencesWrapper;
 import com.wmods.wppenhacer.xposed.core.devkit.Unobfuscator;
 import com.wmods.wppenhacer.xposed.features.listeners.ConversationItemListener;
 import com.wmods.wppenhacer.xposed.utils.AnimationUtil;
+import com.wmods.wppenhacer.xposed.utils.AudioOpusConverter;
 import com.wmods.wppenhacer.xposed.utils.ReflectionUtils;
 import com.wmods.wppenhacer.xposed.utils.Utils;
 
 import org.json.JSONObject;
 import org.luckypray.dexkit.query.enums.StringMatchType;
 
+import java.io.File;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
@@ -549,20 +551,41 @@ public class Others extends Feature {
     }
 
 
-    private void sendAudioType(int audio_type) throws Exception {
+    private void sendAudioType(int selectedAudioType) throws Exception {
         var sendAudioTypeMethod = Unobfuscator.loadSendAudioTypeMethod(classLoader);
         XposedBridge.hookMethod(sendAudioTypeMethod, new XC_MethodHook() {
+            private File newFile;
+
             @Override
             protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
+                newFile = null;
                 var results = ReflectionUtils.findInstancesOfType(param.args, Integer.class);
                 if (results.size() < 2) {
-                    log("sendAudioTypeMethod size < 2");
                     return;
                 }
+
                 var mediaType = results.get(0);
-                var audioType = results.get(1);
-                if (mediaType.second != 2 && mediaType.second != 9) return;
-                param.args[audioType.first] = audio_type - 1; // 1 = voice notes || 0 = audio voice
+                var sourceType = results.get(1);
+
+                if ((mediaType.second == 2 || mediaType.second == 9)) {
+                    if (selectedAudioType > 0) {
+                        var audioTypeValue = (int) sourceType.second;
+                        var targetAudioType = selectedAudioType - 1;
+                        param.args[sourceType.first] = targetAudioType;
+
+                        if (audioTypeValue != targetAudioType && targetAudioType == 1) {
+                            Utils.showToast(Utils.getString(R.string.converting_audio), Toast.LENGTH_LONG);
+                            var fileMedia = param.args[2];
+                            var fieldFile = ReflectionUtils.getFieldByExtendType(fileMedia.getClass(), File.class);
+                            var file = (File) fieldFile.get(fileMedia);
+                            newFile = AudioOpusConverter.convert(file.getAbsolutePath());
+                            if (newFile != null) {
+                                file.delete();
+                                fieldFile.set(fileMedia, newFile);
+                            }
+                        }
+                    }
+                }
             }
         });
 
@@ -574,7 +597,7 @@ public class Others extends Feature {
             protected void afterHookedMethod(MethodHookParam param) throws Throwable {
                 var fMessage = param.getResult();
                 originFMessageField.setAccessible(true);
-                originFMessageField.setInt(fMessage, audio_type - 1);
+                originFMessageField.setInt(fMessage, selectedAudioType - 1);
             }
         });
     }

@@ -1,0 +1,9 @@
+[submodule "app/src/main/cpp/libopusenc"]
+	path = app/src/main/cpp/libopusenc
+	url = https://github.com/xiph/libopusenc
+[submodule "app/src/main/cpp/opus"]
+	path = app/src/main/cpp/opus
+	url = https://github.com/xiph/opus
+[submodule "app/src/main/cpp/ogg"]
+	path = app/src/main/cpp/ogg
+	url = https://github.com/xiph/ogg
