@@ -550,14 +550,17 @@ object Unobfuscator {
             val indiceClass = countMethod.parameterTypes[1]
             val result = bridge.findClass {
                 matcher {
-                    superClass(indiceClass.name)
-                    addMethod {
-                        paramCount(1)
+                    superClass = indiceClass.name
+                    methods {
+                        add {
+                            name = "<init>"
+                            paramCount(1,2)
+                        }
                     }
                 }
             }
-            if (result.isEmpty()) throw Exception("EnableCountTab method not found")
-            result[0].getInstance(classLoader).constructors[0]
+            if (result.isEmpty()) throw Exception("EnableCountTabBadgeWrapper method not found")
+            return@getConstructor result[0].getInstance(classLoader).constructors[0]
         }
     }
 

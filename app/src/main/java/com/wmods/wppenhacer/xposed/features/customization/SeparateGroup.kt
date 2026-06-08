@@ -167,11 +167,9 @@ class SeparateGroup(loader: ClassLoader, preferences: XSharedPreferences) :
                             val chatsBadge = if (chatCount <= 0) {
                                 XposedHelpers.getStaticObjectField(emptyBadgeClass, "A00")
                             } else {
-                                badgeWrapperConstructor.newInstance(
-                                    badgeItemConstructor.newInstance(
-                                        chatCount
-                                    )
-                                )
+                                val params = ReflectionUtils.initArray(badgeWrapperConstructor.parameterTypes)
+                                params[0] = badgeItemConstructor.newInstance(chatCount)
+                                badgeWrapperConstructor.newInstance(*params)
                             }
                             XposedBridge.invokeOriginalMethod(
                                 param.method,
@@ -183,11 +181,11 @@ class SeparateGroup(loader: ClassLoader, preferences: XSharedPreferences) :
                             val chatsBadge = if (groupCount <= 0) {
                                 XposedHelpers.getStaticObjectField(emptyBadgeClass, "A00")
                             } else {
-                                badgeWrapperConstructor.newInstance(
-                                    badgeItemConstructor.newInstance(
-                                        groupCount
-                                    )
+                                val params = ReflectionUtils.initArray(badgeWrapperConstructor.parameterTypes)
+                                params[0] = badgeItemConstructor.newInstance(
+                                    groupCount
                                 )
+                                badgeWrapperConstructor.newInstance(*params)
                             }
                             XposedBridge.invokeOriginalMethod(
                                 param.method,

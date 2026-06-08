@@ -34,7 +34,6 @@ class WaContactWpp(instance: Any?) {
         private var fieldGetWaName: Field? = null
         private var fieldNumber: Field? = null
         private var fieldDataGetDisplayName: Field? = null
-        private var fieldWaContactInData: Field? = null
 
         // Methods
         private var getWaContactMethod: Method? = null
@@ -92,10 +91,6 @@ class WaContactWpp(instance: Any?) {
                 }
 
                 fieldNumber = Unobfuscator.loadWaContactNumberField(classLoader)
-
-                fieldWaContactInData = fieldContactData!!.type.declaredFields.first {
-                    it.type == TYPE
-                }
 
 
             } catch (e: Exception) {
@@ -182,7 +177,7 @@ class WaContactWpp(instance: Any?) {
 
     fun isSavedContact(): Boolean {
         return try {
-            fieldNumber?.get(mInstance) != null || fieldWaContactInData?.get(waContactData) != null
+            fieldNumber?.get(mInstance) != null
         } catch (e: Exception) {
             XposedBridge.log(e)
             false
