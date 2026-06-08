@@ -1,6 +1,2 @@
 [FIXED]
-* Fixed an issue in Custom Privacy where the "typing" and "recording" status hiding was not working.
-* Fixed random crashes and also the problem with messages not being sent
-* Fixed the Audio for voice function (Allowing you to upload any audio file as if it were a voice note)
-* Fixed problem with the text next to the Clock (Now you can configure this again)
-* Try to fix the problem with multiple accounts on Whatsapp (Later we will remove the limit of 2 accounts)
+* Fixed critical error that caused WhatsApp to randomly crash
