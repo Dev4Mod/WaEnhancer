@@ -1,2 +1,5 @@
+[ADDED]
+* Added Support for WA/WB 2.26.22.xx
+
 [FIXED]
 * Fixed critical error that caused WhatsApp to randomly crash
