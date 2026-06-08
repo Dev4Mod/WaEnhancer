@@ -26,7 +26,7 @@ class TypingPrivacy(
 
         XposedBridge.hookMethod(method, object : XC_MethodHook() {
             override fun beforeHookedMethod(param: MethodHookParam) {
-                val p1 = ReflectionUtils.getArg(param.args, Int::class.javaPrimitiveType, 0)
+                val type = ReflectionUtils.getArg(param.args, Int::class.javaObjectType, 0)
                 val jidObj = ReflectionUtils.getArg(param.args, FMessageWpp.UserJid.TYPE_JID, 0)
 
                 if (jidObj == null) {
@@ -39,8 +39,8 @@ class TypingPrivacy(
                 val customHideTyping = privacy.optBoolean("HideTyping", ghostmodeT) || ghostmode
                 val customHideRecording = privacy.optBoolean("HideRecording", ghostmodeR) || ghostmode
 
-                if ((p1 == 1 && customHideRecording) ||
-                    (p1 == 0 && customHideTyping)
+                if ((type == 1 && customHideRecording) ||
+                    (type == 0 && customHideTyping)
                 ) {
                     param.result = null
                 }
