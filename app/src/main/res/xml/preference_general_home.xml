@@ -99,7 +99,8 @@
 
         <EditTextPreference
             app:iconSpaceReserved="false"
-            app:key="secondstotime"
+            android:defaultValue="[TIME]"
+            app:key="text_in_hour"
             app:summary="@string/textonahora_sum"
             app:title="@string/textonahora" />
 
