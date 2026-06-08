@@ -1,5 +1,6 @@
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
+import com.android.build.gradle.internal.api.BaseVariantOutputImpl
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import java.io.FileInputStream
 import java.util.Locale
@@ -135,6 +136,17 @@ android {
 
     lint {
         disable += "SelectedPhotoAccess"
+    }
+
+    applicationVariants.all {
+        val appName = when (flavorName) {
+            "business" -> "WaEnhancer-Business"
+            else -> "WaEnhancer"
+        }
+
+        outputs.all {
+            (this as BaseVariantOutputImpl).outputFileName = "$appName-$versionName.apk"
+        }
     }
 
     materialThemeBuilder {

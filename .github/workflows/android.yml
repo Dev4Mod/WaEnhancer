@@ -53,14 +53,14 @@ jobs:
       - name: Upload WhatsApp flavor artifacts
         uses: actions/upload-artifact@v5
         with:
-          name: whatsapp-debug-app-${{ env.SHORT_SHA }}
-          path: app/build/outputs/apk/whatsapp/debug/app-whatsapp-debug.apk
+          name: WaEnhancer-${{ env.SHORT_SHA }}
+          path: app/build/outputs/apk/whatsapp/debug/WaEnhancer*.apk
 
       - name: Upload Business flavor artifacts
         uses: actions/upload-artifact@v5
         with:
-          name: business-debug-app-${{ env.SHORT_SHA }}
-          path: app/build/outputs/apk/business/debug/app-business-debug.apk
+          name: WaEnhancer-Business-${{ env.SHORT_SHA }}
+          path: app/build/outputs/apk/business/debug/WaEnhancer-Business*.apk
 
       - name: Upload to GitHub release
         uses: softprops/action-gh-release@v2
@@ -69,8 +69,8 @@ jobs:
           name: WaEnhancer ${{ env.SHORT_SHA }}
           body_path: changelog.txt
           files: |
-            app/build/outputs/apk/whatsapp/debug/app-whatsapp-debug.apk
-            app/build/outputs/apk/business/debug/app-business-debug.apk
+            app/build/outputs/apk/whatsapp/debug/WaEnhancer*.apk
+            app/build/outputs/apk/business/debug/WaEnhancer-Business*.apk
           tag_name: debug-${{ env.SHORT_SHA }}
 
       - name: Read changelog
