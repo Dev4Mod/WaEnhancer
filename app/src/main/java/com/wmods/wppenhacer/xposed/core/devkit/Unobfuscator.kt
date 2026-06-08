@@ -259,7 +259,7 @@ object Unobfuscator {
 
     @Throws(Exception::class)
     @JvmStatic
-    fun loadReceiptMessageInfoClass(classLoader: ClassLoader): Class<*>? {
+    fun loadReceiptMessageInfoClass(classLoader: ClassLoader): Class<*> {
         return UnobfuscatorCache.getInstance().getClass(classLoader) {
             val methodData = bridge.findMethod {
                 matcher {
@@ -293,22 +293,6 @@ object Unobfuscator {
                 }
             }.single()
             methodData.getMethodInstance(classLoader)
-        }
-    }
-
-    @Throws(Exception::class)
-    @JvmStatic
-    fun loadReceiptCallersMethod(classLoader: ClassLoader): Array<Method> {
-        return UnobfuscatorCache.getInstance().getMethods(classLoader) {
-            val methodData = bridge.getMethodData(loadReceiptMainCallerMethod(classLoader))
-            val methods = ArrayList<Method>()
-            for (methodCaller in methodData!!.callers) {
-                if (methodCaller.paramCount > 1 && methodCaller.paramTypes[0].simpleName == "Message") {
-                    methods.add(methodCaller.getMethodInstance(classLoader))
-                }
-            }
-            if (methods.isEmpty()) return@getMethods null
-            methods.toTypedArray()
         }
     }
 

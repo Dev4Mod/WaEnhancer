@@ -1,5 +1,6 @@
 package com.wmods.wppenhacer.xposed.features.privacy
 
+import android.os.Handler
 import android.os.Message
 import androidx.room.concurrent.ThreadLocal
 import com.wmods.wppenhacer.xposed.core.Feature
@@ -144,31 +145,40 @@ class HideSeen(loader: ClassLoader, preferences: XSharedPreferences) :
 
     private fun hookReceiptMethod() {
 
+        val inManualReceiptCheck = ThreadLocal<Boolean>()
         val receiptMethod = Unobfuscator.loadReceiptMethod(classLoader)
-        val receiptMainCallerMethod = Unobfuscator.loadReceiptMainCallerMethod(classLoader);
-        val receiptCallerMethods = Unobfuscator.loadReceiptCallersMethod(classLoader);
+        val receiptMainCallerMethod = Unobfuscator.loadReceiptMainCallerMethod(classLoader)
+        val receiptMessageInfoClass = Unobfuscator.loadReceiptMessageInfoClass(classLoader)
+        XposedHelpers.findAndHookMethod(
+            Message::class.java,
+            "obtain",
+            Handler::class.java,
+            Int::class.javaPrimitiveType!!,
+            Int::class.javaPrimitiveType!!,
+            Int::class.javaPrimitiveType!!,
+            Any::class.javaObjectType,
+            object : XC_MethodHook() {
 
-        val inManualReceiptCheck = ThreadLocal<Boolean>();
-
-        val hookCallerMethod = object : XC_MethodHook(){
-            override fun beforeHookedMethod(param: MethodHookParam) {
-                val firstArg = param.args[0] as? Message ?: return
-                if (firstArg.arg1 != 419 && firstArg.arg1 != 89)return
-                val obj = firstArg.obj
-                inManualReceiptCheck.set(true)
-                val checkResult = try {
-                    receiptMainCallerMethod.invoke(null, obj);
-                }finally {
-                    inManualReceiptCheck.set(false)
+                override fun beforeHookedMethod(param: MethodHookParam) {
+                    val type = param.args[2]
+                    val obj = param.args[4]
+                    if (type != 419 && type != 89) return
+                    if (!receiptMessageInfoClass.isInstance(obj)) return
+                    inManualReceiptCheck.set(true)
+                    // We check if the message is duplicated to avoid sending a tick twice causing congestion in the IQ queue
+                    val checkResult = try {
+                        receiptMainCallerMethod.invoke(null, obj)
+                    } finally {
+                        inManualReceiptCheck.set(false)
+                    }
+                    if (checkResult == null) {
+                        param.args[2] = -1 // We change the type [IMPORTANT]IA Agent use 9 for best work[/IMPORTANT]
+                    }
                 }
+            })
 
-                if (checkResult == null)
-                    param.result = null;
-            }
-        }
-        receiptCallerMethods.forEach { XposedBridge.hookMethod(it, hookCallerMethod) }
 
-        Others.propsBoolean[19148] = true
+        Others.propsBoolean[19148] = false // Change route IQ
 
         XposedBridge.hookMethod(receiptMethod, object : XC_MethodHook() {
 
@@ -210,7 +220,7 @@ class HideSeen(loader: ClassLoader, preferences: XSharedPreferences) :
                     protocolTreeNodeWpp.removeAllKeyValuesByKey("type")
                 }
 
-                if (inManualReceiptCheck.get() ?: false)return
+                if (inManualReceiptCheck.get() ?: false) return
 
                 if (hideReceipt || hideSeen) {
                     MessageHistoryStore.getInstance().insertHideSeenMessage(
