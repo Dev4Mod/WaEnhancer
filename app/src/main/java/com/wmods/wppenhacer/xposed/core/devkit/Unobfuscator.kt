@@ -3382,4 +3382,20 @@ object Unobfuscator {
             }.single().getInstance(classLoader)
         }
     }
+
+
+    fun loadOndispatchMessage(classLoader: ClassLoader): Array<Method> {
+        return UnobfuscatorCache.getInstance().getMethods(classLoader){
+            val result = bridge.findMethod {
+                matcher {
+                    usingNumbers(419)
+                    paramCount(1,3)
+                }
+            }.filter { !it.paramTypeNames.isEmpty() && it.paramTypeNames[0].contains("Message") }
+                .map { it.getMethodInstance(classLoader) }.toTypedArray()
+            if (result.isEmpty())return@getMethods null
+            result
+        }
+
+    }
 }

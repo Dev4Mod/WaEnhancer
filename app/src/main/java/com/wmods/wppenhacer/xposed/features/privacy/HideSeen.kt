@@ -149,33 +149,32 @@ class HideSeen(loader: ClassLoader, preferences: XSharedPreferences) :
         val receiptMethod = Unobfuscator.loadReceiptMethod(classLoader)
         val receiptMainCallerMethod = Unobfuscator.loadReceiptMainCallerMethod(classLoader)
         val receiptMessageInfoClass = Unobfuscator.loadReceiptMessageInfoClass(classLoader)
-        XposedHelpers.findAndHookMethod(
-            Message::class.java,
-            "obtain",
-            Handler::class.java,
-            Int::class.javaPrimitiveType!!,
-            Int::class.javaPrimitiveType!!,
-            Int::class.javaPrimitiveType!!,
-            Any::class.javaObjectType,
-            object : XC_MethodHook() {
+        val onDispatchMessage = Unobfuscator.loadOndispatchMessage(classLoader)
 
-                override fun beforeHookedMethod(param: MethodHookParam) {
-                    val type = param.args[2]
-                    val obj = param.args[4]
-                    if (type != 419 && type != 89) return
-                    if (!receiptMessageInfoClass.isInstance(obj)) return
-                    inManualReceiptCheck.set(true)
-                    // We check if the message is duplicated to avoid sending a tick twice causing congestion in the IQ queue
-                    val checkResult = try {
-                        receiptMainCallerMethod.invoke(null, obj)
-                    } finally {
-                        inManualReceiptCheck.set(false)
+        onDispatchMessage.forEach { method ->
+            XposedBridge.hookMethod(
+                method,
+                object : XC_MethodHook() {
+
+                    override fun beforeHookedMethod(param: MethodHookParam) {
+                        val message = param.args[0] as Message
+                        val type = message.arg1
+                        val obj = message.obj
+                        if (type != 419 && type != 89) return
+                        if (!receiptMessageInfoClass.isInstance(obj)) return
+                        inManualReceiptCheck.set(true)
+                        // We check if the message is duplicated to avoid sending a tick twice causing congestion in the IQ queue
+                        val checkResult = try {
+                            receiptMainCallerMethod.invoke(null, obj)
+                        } finally {
+                            inManualReceiptCheck.set(false)
+                        }
+                        if (checkResult == null) {
+                            message.arg1 = -1 // We change the type [IMPORTANT]IA Agent use 9 for best work[/IMPORTANT]
+                        }
                     }
-                    if (checkResult == null) {
-                        param.args[2] = -1 // We change the type [IMPORTANT]IA Agent use 9 for best work[/IMPORTANT]
-                    }
-                }
-            })
+                })
+        }
 
 
         Others.propsBoolean[19148] = false // Change route IQ
