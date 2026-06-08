@@ -1,10 +1,6 @@
 [FIXED]
 * Fixed an issue in Custom Privacy where the "typing" and "recording" status hiding was not working.
-* Fixed an issue when hiding archived chats that was causing excessive processing usage.
-* Fixed an issue with the message forwarding limit, which was incorrectly restricted to 5 contacts.
-
-[ADDED]
-* Added crash capture for both WAE and WhatsApp to simplify crash reporting.
-
-[IMPROVED]
-* All privacy-related classes have now been migrated to Kotlin.
+* Fixed random crashes and also the problem with messages not being sent
+* Fixed the Audio for voice function (Allowing you to upload any audio file as if it were a voice note)
+* Fixed problem with the text next to the Clock (Now you can configure this again)
+* Try to fix the problem with multiple accounts on Whatsapp (Later we will remove the limit of 2 accounts)
