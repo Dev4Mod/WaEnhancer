@@ -279,25 +279,6 @@ object Unobfuscator {
 
     @Throws(Exception::class)
     @JvmStatic
-    fun loadReceiptMainCallerMethod(classLoader: ClassLoader): Method {
-        return UnobfuscatorCache.getInstance().getMethod(classLoader) {
-            val methodReceipt = bridge.getMethodData(loadReceiptMethod(classLoader))
-            val classData = methodReceipt!!.declaredClass
-            val messageInfoClass = loadReceiptMessageInfoClass(classLoader)
-            val methodData = classData!!.findMethod {
-                matcher {
-                    addInvoke(methodReceipt.descriptor)
-                    paramCount(1)
-                    paramTypes(messageInfoClass)
-                    addUsingString("class")
-                }
-            }.single()
-            methodData.getMethodInstance(classLoader)
-        }
-    }
-
-    @Throws(Exception::class)
-    @JvmStatic
     fun loadForwardTagMethod(classLoader: ClassLoader): Method {
         return UnobfuscatorCache.getInstance().getMethod(classLoader) {
             val messageInfoClass = loadFMessageClass(classLoader)
