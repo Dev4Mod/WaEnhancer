@@ -3393,4 +3393,19 @@ object Unobfuscator {
                 ?: throw RuntimeException("BubbleRelativeLayout class not found")
         }
     }
+
+    fun loadTextStatusComposerOnCreate(classLoader: ClassLoader): Method {
+        return UnobfuscatorCache.getInstance().getMethod(classLoader) {
+            val clazz = findFirstClassUsingName(
+                classLoader,
+                StringMatchType.EndsWith,
+                "TextStatusComposerFragment"
+            )
+            ReflectionUtils.findMethodUsingFilter(clazz) { method ->
+                method.parameterCount == 2 &&
+                        method.parameterTypes[0] === Bundle::class.java &&
+                        method.parameterTypes[1] === View::class.java
+            }
+        }
+    }
 }

@@ -1,106 +1,104 @@
-package com.wmods.wppenhacer.xposed.features.others;
+package com.wmods.wppenhacer.xposed.features.others
 
-import android.graphics.drawable.ColorDrawable;
-import android.os.Bundle;
-import android.view.View;
-import android.widget.EditText;
+import android.content.SharedPreferences
+import android.view.View
+import android.widget.EditText
+import androidx.core.graphics.drawable.toDrawable
+import com.wmods.wppenhacer.views.dialog.SimpleColorPickerDialog
+import com.wmods.wppenhacer.xposed.core.Feature
+import com.wmods.wppenhacer.xposed.core.WppCore
+import com.wmods.wppenhacer.xposed.core.devkit.Unobfuscator
+import com.wmods.wppenhacer.xposed.utils.ReflectionUtils
+import com.wmods.wppenhacer.xposed.utils.Utils
+import de.robv.android.xposed.XC_MethodHook
+import de.robv.android.xposed.XSharedPreferences
+import de.robv.android.xposed.XposedBridge
+import de.robv.android.xposed.XposedHelpers
 
-import androidx.annotation.NonNull;
+class TextStatusComposer(
+    classLoader: ClassLoader,
+    preferences: XSharedPreferences
+) : Feature(classLoader, preferences) {
 
-import com.wmods.wppenhacer.views.dialog.SimpleColorPickerDialog;
-import com.wmods.wppenhacer.xposed.core.Feature;
-import com.wmods.wppenhacer.xposed.core.WppCore;
-import com.wmods.wppenhacer.xposed.core.devkit.Unobfuscator;
-import com.wmods.wppenhacer.xposed.utils.ReflectionUtils;
-import com.wmods.wppenhacer.xposed.utils.Utils;
+    private var customTextColor: Int? = null
+    private var customBackgroundColor: Int? = null
 
-import de.robv.android.xposed.XC_MethodHook;
-import de.robv.android.xposed.XSharedPreferences;
-import de.robv.android.xposed.XposedBridge;
-import de.robv.android.xposed.XposedHelpers;
+    @Throws(Throwable::class)
+    override fun doHook() {
+        if (!prefs.getBoolean("statuscomposer", false)) return
 
-public class TextStatusComposer extends Feature {
-    private static final ColorData colorData = new ColorData();
+        val methodOnCreate = Unobfuscator.loadTextStatusComposerOnCreate(classLoader)
 
-    public TextStatusComposer(@NonNull ClassLoader classLoader, @NonNull XSharedPreferences preferences) {
-        super(classLoader, preferences);
-    }
+        XposedBridge.hookMethod(methodOnCreate, object : XC_MethodHook(){
+            override fun afterHookedMethod(param: MethodHookParam) {
+                customTextColor = null
+                customBackgroundColor = null
 
-    @Override
-    public void doHook() throws Throwable {
-        if (!prefs.getBoolean("statuscomposer", false)) return;
-
-        var clazz = WppCore.INSTANCE.getTextStatusComposerFragmentClass();
-        var methodOnCreate = ReflectionUtils.findMethodUsingFilter(clazz, method -> method.getParameterCount() == 2 && method.getParameterTypes()[0] == Bundle.class && method.getParameterTypes()[1] == View.class);
-        XposedBridge.hookMethod(methodOnCreate,
-                new XC_MethodHook() {
-
-                    @Override
-                    protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-                        var activity = WppCore.getCurrentActivity();
-                        var viewRoot = (View) param.args[1];
-                        var pickerColor = viewRoot.findViewById(Utils.getID("color_picker_btn", "id"));
-                        var entry = (EditText) viewRoot.findViewById(Utils.getID("entry", "id"));
-
-                        pickerColor.setOnLongClickListener(v -> {
-                            var dialog = new SimpleColorPickerDialog(activity, color -> {
-                                try {
-                                    activity.getWindow().setBackgroundDrawable(new ColorDrawable(color));
-                                    viewRoot.findViewById(Utils.getID("background","id")).setBackgroundColor(color);
-                                    var controls = viewRoot.findViewById(Utils.getID("controls", "id"));
-                                    controls.setBackgroundColor(color);
-                                    colorData.backgroundColor = color;
-                                } catch (Exception e) {
-                                    log(e);
-                                }
-                            });
-                            dialog.create().setCanceledOnTouchOutside(false);
-                            dialog.show();
-                            return true;
-                        });
-
-                        var textColor = viewRoot.findViewById(Utils.getID("font_picker_btn", "id"));
-                        textColor.setOnLongClickListener(v -> {
-                            var dialog = new SimpleColorPickerDialog(activity, color -> {
-                                colorData.textColor = color;
-                                entry.setTextColor(color);
-                            });
-                            dialog.create().setCanceledOnTouchOutside(false);
-                            dialog.show();
-                            return true;
-                        });
-                    }
-                });
-
-
-        var methodsTextStatus = Unobfuscator.loadTextStatusData(classLoader);
-
-        for (var method : methodsTextStatus) {
-            XposedBridge.hookMethod(method, new XC_MethodHook() {
-                @Override
-                protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
-                    var textData = param.args[0];
-                    if (textData == null) return;
-                    if (colorData.textColor != -1)
-                        XposedHelpers.setObjectField(textData, "textColor", colorData.textColor);
-                    if (colorData.backgroundColor != -1)
-                        XposedHelpers.setObjectField(textData, "backgroundColor", colorData.backgroundColor);
-                    colorData.textColor = -1;
-                    colorData.backgroundColor = -1;
+                val activity = WppCore.getCurrentActivity() ?: run {
+                    logDebug("CurrentActivity is null")
+                    return
                 }
-            });
+                val viewRoot = param.args[1] as? View ?: run {
+                    logDebug("arg0 is null")
+                    return
+                }
+
+                val pickerColor = viewRoot.findViewById<View>(Utils.getID("color_picker_btn", "id"))
+                val entry = viewRoot.findViewById<EditText>(Utils.getID("entry", "id"))
+
+                pickerColor?.setOnLongClickListener {
+                    val dialog = SimpleColorPickerDialog(activity) { color ->
+                        try {
+                            activity.window.setBackgroundDrawable(color.toDrawable())
+                            viewRoot.findViewById<View>(Utils.getID("background", "id"))?.setBackgroundColor(color)
+                            viewRoot.findViewById<View>(Utils.getID("controls", "id"))?.setBackgroundColor(color)
+                            customBackgroundColor = color
+                        } catch (e: Exception) {
+                            logDebug(e)
+                        }
+                    }
+                    dialog.create().setCanceledOnTouchOutside(false)
+                    dialog.show()
+                    true
+                }
+
+                val textColorBtn = viewRoot.findViewById<View>(Utils.getID("font_picker_btn", "id"))
+                textColorBtn?.setOnLongClickListener {
+                    val dialog = SimpleColorPickerDialog(activity) { color ->
+                        customTextColor = color
+                        entry?.setTextColor(color)
+                    }
+                    dialog.create().setCanceledOnTouchOutside(false)
+                    dialog.show()
+                    true
+                }
+
+            }
+        })
+
+
+        val methodsTextStatus = Unobfuscator.loadTextStatusData(classLoader)
+
+        methodsTextStatus.forEach { method ->
+
+            XposedBridge.hookMethod(method, object : XC_MethodHook(){
+                override fun beforeHookedMethod(param: MethodHookParam) {
+                    val textData = param.args[0] ?: run {
+                        logDebug("textData is null")
+                        return
+                    }
+                    customTextColor?.let { color ->
+                        XposedHelpers.setObjectField(textData, "textColor", color)
+                    }
+                    customBackgroundColor?.let { color ->
+                        XposedHelpers.setObjectField(textData, "backgroundColor", color)
+                    }
+                }
+            })
         }
-
     }
 
-    @NonNull
-    @Override
-    public String getPluginName() {
-        return "Text Status Composer";
-    }
-
-    public static class ColorData {
-        public int textColor = -1;
-        public int backgroundColor = -1;
+    override fun getPluginName(): String {
+        return "Text Status Composer"
     }
 }
