@@ -215,6 +215,9 @@ public class Others extends Feature {
         propsBoolean.put(13956,true);
         propsBoolean.put(13957,true);
 
+        // new popup menu in chat
+        Others.propsBoolean.put(21541,false);
+
         hookProps();
         hookSearchbar(filterChats);
 
