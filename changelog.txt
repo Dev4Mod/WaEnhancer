@@ -1,5 +1,12 @@
 [ADDED]
-* Added Support for WA/WB 2.26.22.xx
+* Add Enable Status in group
+* Add new Media preview with greater compatibility
+
+[IMPROVED]
+* Disable new popup menu in chat
+* Optimize unseen chat/group counting and contact detection in Separate Group
+* Optimize audio transcription using a custom provider (AssemblyAI or GroqAI)
+* Restored old media popup on chat screen
 
 [FIXED]
-* Fixed critical error that caused WhatsApp to randomly crash
+* Fixed bug in color customization in status text
