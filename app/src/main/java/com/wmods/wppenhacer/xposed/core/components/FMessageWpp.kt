@@ -500,10 +500,14 @@ class FMessageWpp(fMessage: Any?) {
 
         val isContact: Boolean
             get() {
-                if (this.userJid != null) {
-                    return userRawString?.endsWith("@lid") ?: false
+                val userRaw = userRawString
+                val phoneRaw = phoneRawString
+
+                return when {
+                    userRaw?.endsWith("@lid") == true -> true
+                    phoneRaw?.endsWith("@s.whatsapp.net") == true -> true
+                    else -> false
                 }
-                return phoneRawString?.endsWith("@s.whatsapp.net") ?: false
             }
 
         val isNull: Boolean
