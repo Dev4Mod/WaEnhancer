@@ -3382,4 +3382,15 @@ object Unobfuscator {
         }
 
     }
+
+    fun loadLayoutClass(classLoader: ClassLoader): Class<*> {
+        return UnobfuscatorCache.getInstance().getClass(classLoader) {
+            findFirstClassUsingStrings(
+                classLoader,
+                StringMatchType.Contains,
+                "BubbleRelativeLayout/ConversationRowText"
+            )
+                ?: throw RuntimeException("BubbleRelativeLayout class not found")
+        }
+    }
 }

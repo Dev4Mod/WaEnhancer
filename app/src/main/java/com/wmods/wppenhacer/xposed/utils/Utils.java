@@ -259,8 +259,12 @@ public class Utils {
         }
     }
 
+    public static void showToast(String message) {
+        showToast(message,0);
+    }
 
     public static void showToast(String message, int length) {
+        if (message == null)return;
         if (Looper.myLooper() == Looper.getMainLooper()) {
             // Já estamos na thread principal
             Toast.makeText(Utils.getApplication(), message, length).show();

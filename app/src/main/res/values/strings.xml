@@ -496,4 +496,8 @@
     <string name="picker_group">Group</string>
     <string name="picker_contact">Contact</string>
     <string name="converting_audio">Converting audio, wait a few minutes until it is complete...</string>
+    <string name="preview_image">Preview Image</string>
+    <string name="preview_video">Preview Video</string>
+    <string name="downloading">\"Downloading... \"</string>
+    <string name="decrypting">Decrypting...</string>
 </resources>
