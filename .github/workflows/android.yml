@@ -45,7 +45,7 @@ jobs:
 
       - name: Build all flavor variants
         run: |
-          ./gradlew assembleWhatsappDebug assembleBusinessDebug -Pminify=true
+          ./gradlew assembleWhatsappRelease assembleBusinessRelease
 
       - name: Get short SHA
         run: echo "SHORT_SHA=`echo ${GITHUB_SHA} | cut -c1-7`" >> $GITHUB_ENV

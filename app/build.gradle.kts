@@ -1,10 +1,9 @@
+import com.android.build.gradle.internal.api.BaseVariantOutputImpl
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
-import com.android.build.gradle.internal.api.BaseVariantOutputImpl
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
-import java.io.FileInputStream
 import java.util.Locale
-import java.util.Properties
+import kotlin.time.Duration.Companion.milliseconds
 
 plugins {
     alias(libs.plugins.androidApplication)
@@ -36,6 +35,7 @@ android {
         create("whatsapp") {
             dimension = "version"
             applicationIdSuffix = ""
+            isDefault = true
         }
         create("business") {
             dimension = "version"
@@ -47,31 +47,21 @@ android {
     defaultConfig {
         applicationId = "com.wmods.wppenhacer"
         minSdk = 28
+        //noinspection OldTargetApi
         targetSdk = 34
         versionCode = 154
-        versionName = "1.5.4-DEV ($gitHash)"
+        versionName = "1.5.5-DEV ($gitHash)"
         multiDexEnabled = true
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
         signingConfigs.create("config") {
-            val keystorePropertiesFile = rootProject.file("local.properties")
-            val keystoreProperties = Properties()
-            if (keystorePropertiesFile.exists()) {
-                keystoreProperties.load(FileInputStream(keystorePropertiesFile))
-            }
-
             val androidStoreFile = project.findProperty("androidStoreFile") as String?
-                ?: keystoreProperties.getProperty("androidStoreFile")
-
             if (!androidStoreFile.isNullOrEmpty()) {
                 storeFile = rootProject.file(androidStoreFile)
-                storePassword = project.findProperty("androidStorePassword") as String?
-                    ?: keystoreProperties.getProperty("androidStorePassword")
-                keyAlias = project.findProperty("androidKeyAlias") as String?
-                    ?: keystoreProperties.getProperty("androidKeyAlias")
-                keyPassword = project.findProperty("androidKeyPassword") as String?
-                    ?: keystoreProperties.getProperty("androidKeyPassword")
+                storePassword = project.property("androidStorePassword") as String
+                keyAlias = project.property("androidKeyAlias") as String
+                keyPassword = project.property("androidKeyPassword") as String
             }
         }
 
@@ -101,21 +91,12 @@ android {
     }
 
     buildTypes {
-        all {
+        release {
+            isMinifyEnabled = true
+            //noinspection NotShrinkingResources
+            isShrinkResources = false
             signingConfig =
                 if (signingConfigs["config"].storeFile != null) signingConfigs["config"] else signingConfigs["debug"]
-            if (project.hasProperty("minify") && project.properties["minify"].toString()
-                    .toBoolean()
-            ) {
-                isMinifyEnabled = true
-                proguardFiles(
-                    getDefaultProguardFile("proguard-android-optimize.txt"),
-                    "proguard-rules.pro"
-                )
-            }
-        }
-        release {
-            isMinifyEnabled = false
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
@@ -136,6 +117,7 @@ android {
 
     lint {
         disable += "SelectedPhotoAccess"
+        baseline = file("lint-baseline.xml")
     }
 
     applicationVariants.all {
@@ -229,6 +211,7 @@ afterEvaluate {
             runCatching {
                 val injected  = project.objects.newInstance<InjectedExecOps>()
                 runBlocking {
+                    delay(500.milliseconds)
                     injected.execOps.exec {
                         commandLine(
                             "adb",
@@ -238,7 +221,6 @@ afterEvaluate {
                             project.properties["debug_package_name"]?.toString()
                         )
                     }
-                    delay(500)
                     injected.execOps.exec {
                         commandLine(
                             "adb",
