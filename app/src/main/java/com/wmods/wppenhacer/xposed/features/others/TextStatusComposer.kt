@@ -1,6 +1,5 @@
 package com.wmods.wppenhacer.xposed.features.others
 
-import android.content.SharedPreferences
 import android.view.View
 import android.widget.EditText
 import androidx.core.graphics.drawable.toDrawable
@@ -8,7 +7,6 @@ import com.wmods.wppenhacer.views.dialog.SimpleColorPickerDialog
 import com.wmods.wppenhacer.xposed.core.Feature
 import com.wmods.wppenhacer.xposed.core.WppCore
 import com.wmods.wppenhacer.xposed.core.devkit.Unobfuscator
-import com.wmods.wppenhacer.xposed.utils.ReflectionUtils
 import com.wmods.wppenhacer.xposed.utils.Utils
 import de.robv.android.xposed.XC_MethodHook
 import de.robv.android.xposed.XSharedPreferences
@@ -34,14 +32,8 @@ class TextStatusComposer(
                 customTextColor = null
                 customBackgroundColor = null
 
-                val activity = WppCore.getCurrentActivity() ?: run {
-                    logDebug("CurrentActivity is null")
-                    return
-                }
-                val viewRoot = param.args[1] as? View ?: run {
-                    logDebug("arg0 is null")
-                    return
-                }
+                val activity = WppCore.getCurrentActivity() ?: return
+                val viewRoot = param.args.filterIsInstance<View>().first()
 
                 val pickerColor = viewRoot.findViewById<View>(Utils.getID("color_picker_btn", "id"))
                 val entry = viewRoot.findViewById<EditText>(Utils.getID("entry", "id"))
@@ -72,30 +64,40 @@ class TextStatusComposer(
                     dialog.show()
                     true
                 }
+            }
+        })
 
+        val statusDataHook = Unobfuscator.loadTextStatusDataFStatus(classLoader)
+        XposedBridge.hookMethod(statusDataHook, object : XC_MethodHook() {
+            override fun beforeHookedMethod(param: MethodHookParam) {
+                val textData = param.args[0] ?: return
+                setCustomColorTextData(textData)
             }
         })
 
 
         val methodsTextStatus = Unobfuscator.loadTextStatusData(classLoader)
 
-        methodsTextStatus.forEach { method ->
-
-            XposedBridge.hookMethod(method, object : XC_MethodHook(){
+        methodsTextStatus.forEach {
+            XposedBridge.hookMethod(it, object : XC_MethodHook() {
                 override fun beforeHookedMethod(param: MethodHookParam) {
-                    val textData = param.args[0] ?: run {
-                        logDebug("textData is null")
-                        return
-                    }
-                    customTextColor?.let { color ->
-                        XposedHelpers.setObjectField(textData, "textColor", color)
-                    }
-                    customBackgroundColor?.let { color ->
-                        XposedHelpers.setObjectField(textData, "backgroundColor", color)
-                    }
+                    val textData = param.args[0] ?: return
+                    setCustomColorTextData(textData)
                 }
             })
         }
+    }
+
+    private fun setCustomColorTextData(textData: Any) {
+        customTextColor?.let { color ->
+            XposedHelpers.setObjectField(textData, "textColor", color)
+        }
+        customBackgroundColor?.let { color ->
+            XposedHelpers.setObjectField(textData, "backgroundColor", color)
+        }
+        textData.javaClass.declaredFields.firstOrNull {
+            it.name == "backgroundColorHasChanged"
+        }?.set(textData, true)
     }
 
     override fun getPluginName(): String {

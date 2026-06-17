@@ -265,6 +265,7 @@ public class UnobfuscatorCache {
             try {
                 Method[] result = functionCall.call();
                 if (result == null) throw new NoSuchMethodException("Methods is null");
+                if (result.length == 0)throw new NoSuchMethodException("Methods is empty");
                 saveMethods(methodName, result);
                 return result;
             } catch (Exception e) {

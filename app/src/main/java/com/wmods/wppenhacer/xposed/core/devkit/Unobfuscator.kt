@@ -2083,36 +2083,6 @@ object Unobfuscator {
 
     @Throws(Exception::class)
     @JvmStatic
-    fun loadTextStatusData(classLoader: ClassLoader): Array<Method> {
-        return UnobfuscatorCache.getInstance().getMethods(classLoader) {
-            var textData: Class<*>?
-            val textDataList = bridge.findClass {
-                matcher {
-                    addUsingString("TextData;")
-                }
-            }
-            textData = if (textDataList.isEmpty()) {
-                findFirstClassUsingName(classLoader, StringMatchType.EndsWith, "TextData")
-            } else {
-                textDataList[0].getInstance(classLoader)
-            }
-            val methods = bridge.findMethod {
-                matcher {
-                    addParamType(textData)
-                }
-            }
-            if (methods.isEmpty()) throw RuntimeException("loadTextStatusData method not found")
-
-            methods.stream().filter { it.isMethod }
-                .map { convertRealMethod(it, classLoader) }
-                .filter { it != null }
-                .map { it!! }
-                .toArray { length -> arrayOfNulls<Method>(length) }
-        }
-    }
-
-    @Throws(Exception::class)
-    @JvmStatic
     fun loadExpirationClass(classLoader: ClassLoader): Class<*> {
         return UnobfuscatorCache.getInstance().getClass(classLoader) {
             val methods = findAllMethodUsingStrings(
@@ -3394,6 +3364,23 @@ object Unobfuscator {
         }
     }
 
+
+    fun loadTextStatusDataClass(classLoader: ClassLoader): Class<*> {
+        return UnobfuscatorCache.getInstance().getClass(classLoader) {
+            val textDataList = bridge.findClass {
+                matcher {
+                    usingStrings("TextData;")
+                }
+            }
+            if (textDataList.isEmpty()) {
+                findFirstClassUsingName(classLoader, StringMatchType.EndsWith, "TextData")
+            } else {
+                textDataList[0].getInstance(classLoader)
+            }
+
+        }
+    }
+
     fun loadTextStatusComposerOnCreate(classLoader: ClassLoader): Method {
         return UnobfuscatorCache.getInstance().getMethod(classLoader) {
             val clazz = findFirstClassUsingName(
@@ -3406,6 +3393,28 @@ object Unobfuscator {
                         method.parameterTypes[0] === Bundle::class.java &&
                         method.parameterTypes[1] === View::class.java
             }
+        }
+    }
+
+    fun loadTextStatusData(classLoader: ClassLoader): Array<Method> {
+        return UnobfuscatorCache.getInstance().getMethods(classLoader) {
+            val textData = loadTextStatusDataClass(classLoader)
+            bridge.findMethod {
+                matcher {
+                    addParamType(textData)
+                }
+            }.filter { it.isMethod }.map { it.getMethodInstance(classLoader) }.toTypedArray()
+        }
+    }
+
+    fun loadTextStatusDataFStatus(classLoader: ClassLoader): Constructor<*> {
+        return UnobfuscatorCache.getInstance().getConstructor(classLoader) {
+            val textData = loadTextStatusDataClass(classLoader)
+            bridge.findMethod {
+                matcher {
+                    paramTypes(textData.name,null,null,null,null,null,null )
+                }
+            }.single().getConstructorInstance(classLoader)
         }
     }
 }
