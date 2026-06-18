@@ -1,95 +1,109 @@
-package com.wmods.wppenhacer.xposed.features.others;
+package com.wmods.wppenhacer.xposed.features.others
 
-import android.view.Menu;
+import android.view.Menu
+import com.wmods.wppenhacer.xposed.core.Feature
+import com.wmods.wppenhacer.xposed.core.WppCore
+import com.wmods.wppenhacer.xposed.core.devkit.Unobfuscator
+import com.wmods.wppenhacer.xposed.utils.ReflectionUtils
+import com.wmods.wppenhacer.xposed.utils.Utils
+import de.robv.android.xposed.XC_MethodHook
+import de.robv.android.xposed.XSharedPreferences
+import de.robv.android.xposed.XposedBridge
 
-import androidx.annotation.NonNull;
+class Channels(loader: ClassLoader, preferences: XSharedPreferences) : Feature(loader, preferences) {
 
-import com.wmods.wppenhacer.xposed.core.Feature;
-import com.wmods.wppenhacer.xposed.core.WppCore;
-import com.wmods.wppenhacer.xposed.core.devkit.Unobfuscator;
-import com.wmods.wppenhacer.xposed.utils.ReflectionUtils;
-import com.wmods.wppenhacer.xposed.utils.Utils;
-
-import java.util.ArrayList;
-import java.util.List;
-
-import de.robv.android.xposed.XC_MethodHook;
-import de.robv.android.xposed.XSharedPreferences;
-import de.robv.android.xposed.XposedBridge;
-import de.robv.android.xposed.XposedHelpers;
-
-public class Channels extends Feature {
-    public Channels(ClassLoader loader, XSharedPreferences preferences) {
-        super(loader, preferences);
-    }
-
-    private static void removeItems(ArrayList<?> arrList, boolean channels,
-                                    boolean removechannelRec, Class<?> headerChannelItem, Class<?> listChannelItem, Class<?>
-                                            removeChannelRecClass) {
-        arrList.removeIf((e) -> {
-            if (channels) {
-                if (headerChannelItem.isInstance(e) || listChannelItem.isInstance(e))
-                    return true;
-            }
-            if (channels || removechannelRec) {
-                return removeChannelRecClass.isInstance(e);
-            }
-            return false;
-        });
-    }
-
-    @Override
-    public void doHook() throws Throwable {
-        var channels = prefs.getBoolean("channels", false);
-        var removechannelRec = prefs.getBoolean("removechannel_rec", false);
-        if (channels || removechannelRec) {
-
-            var removeChannelRecClass = Unobfuscator.loadRemoveChannelRecClass(classLoader);
-            var headerChannelItem = Unobfuscator.loadHeaderChannelItemClass(classLoader);
-            var listChannelItem = Unobfuscator.loadListChannelItemClass(classLoader);
-            var listUpdateItems = Unobfuscator.loadListUpdateItems(classLoader);
-            XposedBridge.hookMethod(listUpdateItems, new XC_MethodHook() {
-                @Override
-                protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
-                    var results = ReflectionUtils.findInstancesOfType(param.args, List.class);
-                    if (results.isEmpty()) return;
-                    var list = (List<?>) results.get(0).second;
-                    var arrList = new ArrayList<>(list);
-                    removeItems(arrList, channels, removechannelRec, headerChannelItem, listChannelItem, removeChannelRecClass);
-                    param.args[results.get(0).first] = arrList;
-                }
-            });
-
-            XposedBridge.hookAllConstructors(removeChannelRecClass, new XC_MethodHook() {
-                @Override
-                protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
-                    var pairs = ReflectionUtils.findInstancesOfType(param.args, List.class);
-                    for (var pair : pairs) {
-                        param.args[pair.first] = new ArrayList<>();
-                    }
-                }
-            });
-
-            if (channels) {
-                XposedHelpers.findAndHookMethod(WppCore.INSTANCE.getHomeActivityClass(), "onPrepareOptionsMenu", Menu.class, new XC_MethodHook() {
-                    @Override
-                    protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
-                        var menu = (Menu) param.args[0];
-                        var id = Utils.getID("menuitem_create_newsletter", "id");
-                        var menuItem = menu.findItem(id);
-                        if (menuItem != null) {
-                            menuItem.setVisible(false);
-                        }
-                    }
-                });
+    private fun removeItems(
+        arrList: MutableList<Any?>,
+        channels: Boolean,
+        removechannelRec: Boolean,
+        headerChannelItem: Class<*>,
+        listChannelItem: Class<*>,
+        removeChannelRecClass: Class<*>
+    ) {
+        arrList.removeAll { e ->
+            when {
+                e == null -> false
+                channels && (headerChannelItem.isInstance(e) || listChannelItem.isInstance(e)) -> true
+                channels || removechannelRec -> removeChannelRecClass.isInstance(e)
+                else -> false
             }
         }
-
     }
 
-    @NonNull
-    @Override
-    public String getPluginName() {
-        return "Channels";
+    override fun doHook() {
+        val channels = prefs.getBoolean("channels", false)
+        val removechannelRec = prefs.getBoolean("removechannel_rec", false)
+
+        if (!channels && !removechannelRec) return
+
+        val removeChannelRecClass = Unobfuscator.loadRemoveChannelRecClass(classLoader)
+        val headerChannelItem = Unobfuscator.loadHeaderChannelItemClass(classLoader)
+        val listChannelItem = Unobfuscator.loadListChannelItemClass(classLoader)
+        val listUpdateItems = Unobfuscator.loadListUpdateItems(classLoader)
+
+        XposedBridge.hookMethod(listUpdateItems, object : XC_MethodHook() {
+            override fun beforeHookedMethod(param: MethodHookParam) {
+                param.setObjectExtra("isArgs", false)
+                val listArgs =
+                    ReflectionUtils.findInstancesOfType(param.args, List::class.javaObjectType)
+                if (listArgs.isEmpty()) return
+                val list = listArgs.first().second
+                val index = listArgs.first().first
+                val arrList = ArrayList(list)
+
+                removeItems(
+                    arrList,
+                    channels,
+                    removechannelRec,
+                    headerChannelItem,
+                    listChannelItem,
+                    removeChannelRecClass
+                )
+                param.args[index] = arrList
+                param.setObjectExtra("isArgs", true)
+            }
+
+            override fun afterHookedMethod(param: MethodHookParam) {
+                val isArg = param.getObjectExtra("isArgs") as Boolean? ?: false
+                if (!isArg) {
+                    val list = param.result as? java.util.ArrayList<*> ?: return
+                    val arrList = ArrayList(list)
+                    removeItems(
+                        arrList,
+                        channels,
+                        removechannelRec,
+                        headerChannelItem,
+                        listChannelItem,
+                        removeChannelRecClass
+                    )
+                    param.result = arrList
+                }
+            }
+        })
+
+        XposedBridge.hookAllConstructors(removeChannelRecClass, object : XC_MethodHook() {
+            override fun beforeHookedMethod(param: MethodHookParam) {
+                val pairs =
+                ReflectionUtils.findInstancesOfType(param.args, List::class.javaObjectType)
+                for (pair in pairs) {
+                    val index = pair.first as Int
+                    param.args[index] = ArrayList<Any>()
+                }
+            }
+        })
+
+        if (channels) {
+            XposedBridge.hookAllMethods(WppCore.homeActivityClass,"onPrepareOptionsMenu", object : XC_MethodHook() {
+                override fun afterHookedMethod(param: MethodHookParam) {
+                    val menu = param.args[0] as? Menu ?: return
+                    val id = Utils.getID("menuitem_create_newsletter", "id")
+                    menu.findItem(id)?.isVisible = false
+                }
+            })
+        }
+    }
+
+    override fun getPluginName(): String {
+        return "Channels"
     }
 }
