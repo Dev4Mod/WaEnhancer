@@ -50,7 +50,7 @@ android {
         //noinspection OldTargetApi
         targetSdk = 34
         versionCode = 154
-        versionName = "1.5.5-DEV ($gitHash)"
+        versionName = "1.5.5 ($gitHash)"
         multiDexEnabled = true
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
