@@ -59,13 +59,21 @@ class WppXposed : IXposedHookLoadPackage, IXposedHookInitPackageResources, IXpos
                 "isXposedEnabled",
                 XC_MethodReplacement.returnConstant(true)
             )
-            @Suppress("DEPRECATION")
             XposedHelpers.findAndHookMethod(
-                PreferenceManager::class.java.name,
+                "android.app.ContextImpl",
                 classLoader,
-                "getDefaultSharedPreferencesMode",
-                XC_MethodReplacement.returnConstant(ContextWrapper.MODE_WORLD_READABLE)
+                "getSharedPreferences", String::class.java,Int::class.javaPrimitiveType, object : XC_MethodHook(){
+                    override fun beforeHookedMethod(param: MethodHookParam) {
+                        val mode = param.args[1] as Int
+                        if (mode == ContextWrapper.MODE_PRIVATE) {
+                            @Suppress("DEPRECATION")
+                            param.args[1] = ContextWrapper.MODE_WORLD_READABLE
+                        }
+                    }
+                }
             )
+            XposedHelpers.findAndHookMethod(
+                "android.app.ContextImpl", classLoader, "checkMode", XC_MethodReplacement.DO_NOTHING)
             return
         }
 
