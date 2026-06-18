@@ -20,6 +20,8 @@
 # hide the original source file name.
 #-renamesourcefileattribute SourceFile
 -dontwarn *
+-dontobfuscate
+-dontoptimize
 
 # (R fields are accessed and rewritten via reflection)
 -keep class com.wmods.wppenhacer.R { *; }
