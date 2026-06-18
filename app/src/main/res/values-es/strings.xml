@@ -200,6 +200,13 @@
     <string name="copy_to_clipboard">Copiar al portapapeles</string>
     <string name="copied_to_clipboard">Copiado al portapapeles</string>
     <string name="error_detected">Error detectado</string>
+    <string name="whatsapp_crash_report">WhatsApp crash report</string>
+    <string name="crash_info">Crash info</string>
+    <string name="crash_trace">Trace</string>
+    <string name="whatsapp_version">WhatsApp version</string>
+    <string name="whatsapp_package">WhatsApp package</string>
+    <string name="wae_version">WAE version</string>
+    <string name="crash_android_version">Android version</string>
     <string name="rebooting">Reiniciando</string>
     <string name="deleted_message">borró un mensaje</string>
     <string name="deleted_status">borró un estado</string>
@@ -250,8 +257,8 @@
     <string name="call_blocking_type">Tipo de bloqueo de llamadas</string>
     <string name="call_blocking_type_sum">Seleccione el método por el que se hará el bloqueo de llamadas.</string>
     <string name="call_type_buttons_no_internet">Sin Internet (\"Llamando..\")</string>
-    <string name="call_type_buttons_declined">Llamada rechazada</string>
     <string name="call_type_buttons_uncallable">No se pueden recibir llamadas de WhatsApp</string>
+    <string name="call_type_buttons_busy">Busy (On another call)</string>
     <string name="call_type_buttons_ended">Sin contestar</string>
     <string name="enable_tasker_automation">Activar automatización de Tasker</string>
     <string name="enable_tasker_automation_sum">Permite poder recibir y enviar mensajes usando la herramienta Tasker</string>
@@ -441,6 +448,8 @@
     <string name="block_unverified">Bloqueo no verificado</string>
     <string name="disable_whatsapp_expiration">Desactivar expiración de WhatsApp</string>
     <string name="disable_whatsapp_expiration_sum">Desactiva la versión caducada de WhatsApp, (Nota: Desactivar manualmente para actualizar WhatsApp en la Play Store o marcar la Play Store en LSposed)</string>
+    <string name="disable_ads">Disable Ads</string>
+    <string name="disable_ads_sum">Blocks ads from appearing in WhatsApp</string>
     <string name="lockedchats_enhancer">Chats bloqueados mejorados</string>
     <string name="lockedchats_enhancer_sum">Mejorar los chats bloqueados ocultando notificaciones y contactos de la lista de contactos</string>
     <string name="call_recording_title">Grabación de llamadas</string>
@@ -476,4 +485,21 @@
     <string name="contact_probably_not_added">Es probable que el contacto no te haya añadido!</string>
     <string name="jump_first_message">Saltar al primer mensaje</string>
     <string name="jump_first_message_sum">Agrega un botón para omitir el primer mensaje en la pantalla de conversaciones</string>
+    <string name="picker_loading_contacts">Loading contacts…</string>
+    <string name="mode_all">All</string>
+    <string name="picker_contacts">Contacts</string>
+    <string name="groups">Groups</string>
+    <string name="picker_no_results">No contacts found</string>
+    <string name="picker_group">Group</string>
+    <string name="picker_contact">Contact</string>
+    <string name="converting_audio">Converting audio, wait a few minutes until it is complete...</string>
+    <string name="preview_image">Preview Image</string>
+    <string name="preview_video">Preview Video</string>
+    <string name="downloading">\"Downloading... \"</string>
+    <string name="decrypting">Decrypting...</string>
+    <string name="configui">New Settings Style</string>
+    <string name="configui_sum">Enable the new settings style, with profile photo on home screen toolbar or Tab</string>
+    <string name="configui_mode_default">Default</string>
+    <string name="configui_mode_toolbar_photo">Profile Photo on Toolbar</string>
+    <string name="configui_mode_you_tab">Enable You tab on home screen</string>
 </resources>

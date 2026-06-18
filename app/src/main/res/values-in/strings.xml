@@ -206,6 +206,13 @@ Harap gunakan versi WhatsApp yang didukung!</string>
     <string name="copy_to_clipboard">Menyalin ke papan klip</string>
     <string name="copied_to_clipboard">Disalin ke papan klip</string>
     <string name="error_detected">Kesalahan terdeteksi</string>
+    <string name="whatsapp_crash_report">WhatsApp crash report</string>
+    <string name="crash_info">Crash info</string>
+    <string name="crash_trace">Trace</string>
+    <string name="whatsapp_version">WhatsApp version</string>
+    <string name="whatsapp_package">WhatsApp package</string>
+    <string name="wae_version">WAE version</string>
+    <string name="crash_android_version">Android version</string>
     <string name="rebooting">Menyalakan ulang</string>
     <string name="deleted_message">menghapus pesan</string>
     <string name="deleted_status">menghapus status</string>
@@ -258,8 +265,8 @@ Harap gunakan versi WhatsApp yang didukung!</string>
     <string name="call_blocking_type">Jenis Pemblokiran Panggilan</string>
     <string name="call_blocking_type_sum">Pilih metode pemblokiran panggilan yang akan dilakukan</string>
     <string name="call_type_buttons_no_internet">Tidak ada internet (\"Memanggil\")</string>
-    <string name="call_type_buttons_declined">Panggilan ditolak</string>
     <string name="call_type_buttons_uncallable">Tidak dapat menerima panggilan WhatsApp</string>
+    <string name="call_type_buttons_busy">Busy (On another call)</string>
     <string name="call_type_buttons_ended">Tak terjawab</string>
     <string name="enable_tasker_automation">Otomatisasi Tasker</string>
     <string name="enable_tasker_automation_sum">Aktifkan untuk menerima dan mengirim pesan di Tasker</string>
@@ -452,6 +459,8 @@ Harap gunakan versi WhatsApp yang didukung!</string>
     <string name="disable_whatsapp_expiration">Nonaktifkan Kadaluarsa WhatsApp</string>
     <string name="disable_whatsapp_expiration_sum">Nonaktifkan kadaluarsa versi WhatsApp
 (CATATAN: Nonaktifkan pembaruan otomatis untuk WhatsApp di Play Store atau tandai Play Store di LSposed)</string>
+    <string name="disable_ads">Disable Ads</string>
+    <string name="disable_ads_sum">Blocks ads from appearing in WhatsApp</string>
     <string name="lockedchats_enhancer">Obrolan Terkunci yang Ditingkatkan</string>
     <string name="lockedchats_enhancer_sum">Tingkatkan keamanan obrolan yang terkunci dengan menyembunyikan notifikasi dan kontak dari daftar kontak</string>
     <string name="call_recording_title">Perekaman Panggilan</string>
@@ -487,4 +496,21 @@ Harap gunakan versi WhatsApp yang didukung!</string>
     <string name="contact_probably_not_added">Sepertinya kontak belum menambahkan Anda!</string>
     <string name="jump_first_message">Pergi ke pesan pertama</string>
     <string name="jump_first_message_sum">Tambahkan tombol untuk pergi ke pesan pertama di layar percakapan</string>
+    <string name="picker_loading_contacts">Loading contacts…</string>
+    <string name="mode_all">All</string>
+    <string name="picker_contacts">Contacts</string>
+    <string name="groups">Groups</string>
+    <string name="picker_no_results">No contacts found</string>
+    <string name="picker_group">Group</string>
+    <string name="picker_contact">Contact</string>
+    <string name="converting_audio">Converting audio, wait a few minutes until it is complete...</string>
+    <string name="preview_image">Preview Image</string>
+    <string name="preview_video">Preview Video</string>
+    <string name="downloading">\"Downloading... \"</string>
+    <string name="decrypting">Decrypting...</string>
+    <string name="configui">New Settings Style</string>
+    <string name="configui_sum">Enable the new settings style, with profile photo on home screen toolbar or Tab</string>
+    <string name="configui_mode_default">Default</string>
+    <string name="configui_mode_toolbar_photo">Profile Photo on Toolbar</string>
+    <string name="configui_mode_you_tab">Enable You tab on home screen</string>
 </resources>
