@@ -55,7 +55,7 @@ class Others(loader: ClassLoader, preferences: XSharedPreferences) : Feature(loa
     override fun doHook() {
         properties = Utils.getProperties(prefs, "custom_css", "custom_filters")
         val menuWIcons = prefs.getBoolean("menuwicon", false)
-        val newSettings = prefs.getBoolean("novaconfig", false)
+        val newSettings = getNewSettingsVariant()
         val filterChats = prefs.getString("chatfilter", "2")
         val filterSeen = prefs.getBoolean("filterseen", false)
         var statusStyle = prefs.getString("status_style", "0")?.toInt() ?: 0
@@ -85,7 +85,7 @@ class Others(loader: ClassLoader, preferences: XSharedPreferences) : Feature(loa
         propsBoolean[4023] = false
         propsBoolean[16250] = false
 
-        if (newSettings) {
+        if (newSettings == 2) {
             XposedBridge.hookAllMethods(WppCore.homeActivityClass, "onCreateOptionsMenu", object : XC_MethodHook() {
                 override fun afterHookedMethod(param: MethodHookParam) {
                     val menu = param.args[0] as Menu
@@ -94,8 +94,8 @@ class Others(loader: ClassLoader, preferences: XSharedPreferences) : Feature(loa
                 }
             })
         }
-        propsBoolean[14862] = newSettings // WHATS_HAPPENING_SENDING_ENABLED_CODE
-        propsInteger[18564] = if (newSettings) 2 else 0 // ME_TAB_V2_VARIANTS_CODE
+        propsBoolean[14862] = newSettings !=0 // WHATS_HAPPENING_SENDING_ENABLED_CODE
+        propsInteger[18564] = newSettings // ME_TAB_V2_VARIANTS_CODE
 
         propsBoolean[2889] = floatingMenu
 
@@ -266,6 +266,16 @@ class Others(loader: ClassLoader, preferences: XSharedPreferences) : Feature(loa
 
         if (!filterSeen) {
             disableHomeFilters()
+        }
+    }
+
+
+    private fun getNewSettingsVariant(): Int {
+        val type = prefs.getString("configui_mode", "-1")?.toInt() ?: -1
+        return if (type != -1){
+            type
+        }else {
+            if (prefs.getBoolean("novaconfig", false)) 2 else 0
         }
     }
 

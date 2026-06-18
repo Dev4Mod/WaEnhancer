@@ -500,4 +500,9 @@
     <string name="preview_video">Preview Video</string>
     <string name="downloading">\"Downloading... \"</string>
     <string name="decrypting">Decrypting...</string>
+    <string name="configui">New Settings Style</string>
+    <string name="configui_sum">Enable the new settings style, with profile photo on home screen toolbar or Tab</string>
+    <string name="configui_mode_default">Default</string>
+    <string name="configui_mode_toolbar_photo">Profile Photo on Toolbar</string>
+    <string name="configui_mode_you_tab">Enable You tab on home screen</string>
 </resources>

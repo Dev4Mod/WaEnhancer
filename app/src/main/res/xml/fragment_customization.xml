@@ -179,10 +179,13 @@
             app:title="@string/menuwicon" />
 
 
-        <rikka.material.preference.MaterialSwitchPreference
-            app:key="novaconfig"
-            app:summary="@string/novaconfig_sum"
-            app:title="@string/novaconfig" />
+        <ListPreference
+            android:defaultValue="0"
+            android:entries="@array/configui_entries"
+            android:entryValues="@array/configui_values"
+            app:key="configui_mode"
+            app:summary="@string/configui_sum"
+            app:title="@string/configui" />
 
     </PreferenceCategory>
 

@@ -226,4 +226,15 @@
         <item>1</item>
         <item>2</item>
     </string-array>
+    <string-array name="configui_entries">
+        <item>@string/configui_mode_default</item>
+        <item>@string/configui_mode_toolbar_photo</item>
+        <item>@string/configui_mode_you_tab</item>
+    </string-array>
+
+    <string-array name="configui_values">
+        <item>0</item>
+        <item>2</item>
+        <item>6</item>
+    </string-array>
 </resources>

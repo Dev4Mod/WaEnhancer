@@ -84,8 +84,6 @@ class SeparateGroup(loader: ClassLoader, preferences: XSharedPreferences) :
     }
 
     override fun doHook() {
-        if (!prefs.getBoolean("separategroups", false)) return
-
         val bottomNavigationViewCls = Unobfuscator.findFirstClassUsingName(
             classLoader,
             StringMatchType.EndsWith,
@@ -94,8 +92,10 @@ class SeparateGroup(loader: ClassLoader, preferences: XSharedPreferences) :
         XposedHelpers.findAndHookMethod(
             bottomNavigationViewCls,
             "getMaxItemCount",
-            XC_MethodReplacement.returnConstant(6)
+            XC_MethodReplacement.returnConstant(99)
         )
+
+        if (!prefs.getBoolean("separategroups", false)) return
 
         // Modifying tab list order
         hookTabList()
