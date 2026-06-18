@@ -12,6 +12,7 @@ import java.util.Map;
 import java.util.Set;
 
 import de.robv.android.xposed.XC_MethodHook;
+import de.robv.android.xposed.XposedBridge;
 import de.robv.android.xposed.XposedHelpers;
 
 public class SharedPreferencesWrapper implements SharedPreferences {
@@ -116,7 +117,7 @@ public class SharedPreferencesWrapper implements SharedPreferences {
             protected void afterHookedMethod(MethodHookParam param) throws Throwable {
                 var key = (String) param.args[0];
                 var value = param.getResult();
-                param.setResult((boolean) applyHook(key, value));
+                param.setResult(applyHook(key, value));
             }
         };
 
@@ -125,7 +126,7 @@ public class SharedPreferencesWrapper implements SharedPreferences {
             protected void afterHookedMethod(MethodHookParam param) throws Throwable {
                 var key = (String) param.args[0];
                 var value = param.getResult();
-                param.setResult((int) applyHook(key, value));
+                param.setResult(applyHook(key, value));
             }
         };
 
@@ -134,7 +135,7 @@ public class SharedPreferencesWrapper implements SharedPreferences {
             protected void afterHookedMethod(MethodHookParam param) throws Throwable {
                 var key = (String) param.args[0];
                 var value = param.getResult();
-                param.setResult((long) applyHook(key, value));
+                param.setResult(applyHook(key, value));
             }
         };
 
@@ -143,7 +144,7 @@ public class SharedPreferencesWrapper implements SharedPreferences {
             protected void afterHookedMethod(MethodHookParam param) throws Throwable {
                 var key = (String) param.args[0];
                 var value = param.getResult();
-                param.setResult((float) applyHook(key, value));
+                param.setResult(applyHook(key, value));
             }
         };
 
@@ -152,7 +153,7 @@ public class SharedPreferencesWrapper implements SharedPreferences {
             protected void afterHookedMethod(MethodHookParam param) throws Throwable {
                 var key = (String) param.args[0];
                 var value = param.getResult();
-                param.setResult((boolean) applyHook(key, value));
+                param.setResult(applyHook(key, value));
             }
         };
 
@@ -173,14 +174,14 @@ public class SharedPreferencesWrapper implements SharedPreferences {
         for (var sharedPreferencesClass : sharedPreferencesClasses) {
             if (sharedPreferencesClass == null) continue;
             if (SharedPreferencesWrapper.class.getName().equals(sharedPreferencesClass.getName())) continue;
-            XposedHelpers.findAndHookMethod(sharedPreferencesClass, "getString", String.class, String.class, getStringHook);
-            XposedHelpers.findAndHookMethod(sharedPreferencesClass, "getStringSet", String.class, Set.class, getStringHook);
-            XposedHelpers.findAndHookMethod(sharedPreferencesClass, "getInt", String.class, int.class, getIntHook);
-            XposedHelpers.findAndHookMethod(sharedPreferencesClass, "getLong", String.class, long.class, getLongHook);
-            XposedHelpers.findAndHookMethod(sharedPreferencesClass, "getFloat", String.class, float.class, getFloatHook);
-            XposedHelpers.findAndHookMethod(sharedPreferencesClass, "getBoolean", String.class, boolean.class, getBooleanHook);
-            XposedHelpers.findAndHookMethod(sharedPreferencesClass, "contains", String.class, containsHook);
-            XposedHelpers.findAndHookMethod(sharedPreferencesClass, "getAll", getAllHook);
+            XposedBridge.hookAllMethods(sharedPreferencesClass, "getString", getStringHook);
+            XposedBridge.hookAllMethods(sharedPreferencesClass, "getStringSet", getStringHook);
+            XposedBridge.hookAllMethods(sharedPreferencesClass, "getInt", getIntHook);
+            XposedBridge.hookAllMethods(sharedPreferencesClass, "getLong", getLongHook);
+            XposedBridge.hookAllMethods(sharedPreferencesClass, "getFloat", getFloatHook);
+            XposedBridge.hookAllMethods(sharedPreferencesClass, "getBoolean", getBooleanHook);
+            XposedBridge.hookAllMethods(sharedPreferencesClass, "contains", containsHook);
+            XposedBridge.hookAllMethods(sharedPreferencesClass, "getAll", getAllHook);
         }
     }
 
