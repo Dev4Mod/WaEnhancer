@@ -9,6 +9,7 @@ import android.graphics.drawable.Drawable
 import android.hardware.SensorEventListener
 import android.net.Uri
 import android.os.Bundle
+import android.os.Handler
 import android.view.LayoutInflater
 import android.view.Menu
 import android.view.MenuItem
@@ -1810,14 +1811,6 @@ object Unobfuscator {
         }
     }
 
-    @Throws(Exception::class)
-    @JvmStatic
-    fun loadDefEmojiClass(loader: ClassLoader): Method {
-        return UnobfuscatorCache.getInstance().getMethod(loader) {
-            findFirstMethodUsingStrings(loader, StringMatchType.Contains, "emojis.oba")
-                ?: throw RuntimeException("DefEmoji class not found")
-        }
-    }
 
     @Throws(Exception::class)
     @JvmStatic
