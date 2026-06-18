@@ -1,6 +1,5 @@
-[ADDED]
-* Added support for WA 2.26.23.xx
-
 [FIXED]
-* Fixed bug when using device default emojis
-* Fixed bug when using custom colors in Status Text
+* Critical correction in reading preferences
+
+[NOTE]
+When we switched to the release version, the code was obfuscated by proguard and broke reading preferences. Already corrected, sorry for the inconvenience.
