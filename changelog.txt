@@ -1,12 +1,6 @@
 [ADDED]
-* Add Enable Status in group
-* Add new Media preview with greater compatibility
-
-[IMPROVED]
-* Disable new popup menu in chat
-* Optimize unseen chat/group counting and contact detection in Separate Group
-* Optimize audio transcription using a custom provider (AssemblyAI or GroqAI)
-* Restored old media popup on chat screen
+* Added support for WA 2.26.23.xx
 
 [FIXED]
-* Fixed bug in color customization in status text
+* Fixed bug when using device default emojis
+* Fixed bug when using custom colors in Status Text
