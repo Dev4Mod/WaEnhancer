@@ -1,5 +1,6 @@
-[FIXED]
-* Critical correction in reading preferences
+[ADDED]
+* Added new UI configuration(You can choose between the profile photo appearing in the header or a new exclusive tab for configuration, similar to IOS) WAE -> Customization -> New Settings UI
 
-[NOTE]
-When we switched to the release version, the code was obfuscated by proguard and broke reading preferences. Already corrected, sorry for the inconvenience.
+[FIXED]
+* Fixed bugs when reading preferences
+* Fixed bug in the channels hiding function
