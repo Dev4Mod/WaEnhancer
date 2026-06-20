@@ -95,7 +95,9 @@ public class IGStatus extends Feature {
         XposedBridge.hookAllConstructors(updateModel, new XC_MethodHook() {
             @Override
             protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-                itens.add(0, null);
+                var newList = new ArrayList<>(itens);
+                newList.add(0, null);
+                itens = newList;
                 for (var mStatusContainer : mListStatusContainer) {
                     IGStatusAdapter mStatusAdapter = new IGStatusAdapter(WppCore.getCurrentActivity(), statusInfoClass);
                     mStatusContainer.setAdapter(mStatusAdapter);
@@ -111,10 +113,11 @@ public class IGStatus extends Feature {
             @Override
             protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
                 final var lists = Arrays.stream(param.args).filter(v -> v instanceof List<?>).toArray();
-                itens.clear();
-                itens.add(0, null);
-                itens.addAll((List) lists[0]);
-                itens.addAll((List) lists[1]);
+                var newList = new ArrayList<>();
+                newList.add(0, null);
+                newList.addAll((List) lists[0]);
+                newList.addAll((List) lists[1]);
+                itens = newList;
                 for (var mStatusContainer : mListStatusContainer)
                     mStatusContainer.updateList();
             }
@@ -135,10 +138,11 @@ public class IGStatus extends Feature {
                 if (lists.length < 3) return;
                 var list1 = (List) lists[1].get(StatusListUpdates);
                 var list2 = (List) lists[2].get(StatusListUpdates);
-                itens.clear();
-                itens.add(0, null);
-                itens.addAll(list1);
-                itens.addAll(list2);
+                var newList = new ArrayList<>();
+                newList.add(0, null);
+                newList.addAll(list1);
+                newList.addAll(list2);
+                itens = newList;
                 for (var mStatusContainer : mListStatusContainer)
                     mStatusContainer.updateList();
             }

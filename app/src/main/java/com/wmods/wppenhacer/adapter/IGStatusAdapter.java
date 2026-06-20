@@ -54,6 +54,9 @@ public class IGStatusAdapter extends ArrayAdapter {
     @NonNull
     @Override
     public View getView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
+        if (position >= itens.size()) {
+            return convertView != null ? convertView : new View(getContext());
+        }
         var item = itens.get(position);
         IGStatusViewHolder holder;
         if (convertView == null) {
