@@ -67,6 +67,9 @@ class WppXposed : IXposedHookLoadPackage, IXposedHookInitPackageResources, IXpos
                 "getDefaultSharedPreferencesMode",
                 XC_MethodReplacement.returnConstant(ContextWrapper.MODE_WORLD_READABLE)
             )
+
+            XposedHelpers.findAndHookMethod(
+                "android.app.ContextImpl", classLoader, "checkMode", Int::class.javaPrimitiveType!!, XC_MethodReplacement.DO_NOTHING)
             return
         }
 
