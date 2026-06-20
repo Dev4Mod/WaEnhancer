@@ -146,6 +146,7 @@ public class HomeFragment extends BaseFragment {
 
     @SuppressLint("StringFormatInvalid")
     private void receiverBroadcastBusiness(Context context, Intent intent) {
+        if (App.isOriginalPackage()) binding.status3.setVisibility(View.VISIBLE);
         binding.statusTitle3.setText(R.string.business_in_background);
         var version = intent.getStringExtra("VERSION");
         var supported_list = Arrays.asList(context.getResources().getStringArray(R.array.supported_versions_business));
@@ -291,12 +292,8 @@ public class HomeFragment extends BaseFragment {
         } else {
             binding.status2.setVisibility(View.GONE);
         }
-
-        if (isInstalled(FeatureLoader.PACKAGE_BUSINESS)) {
-            disableBusiness(activity);
-        } else {
+        if (App.isOriginalPackage())
             binding.status3.setVisibility(View.GONE);
-        }
         checkWpp(activity);
         binding.deviceName.setText(Build.MANUFACTURER);
         binding.sdk.setText(String.valueOf(Build.VERSION.SDK_INT));
