@@ -197,6 +197,8 @@ class HideSeen(loader: ClassLoader, preferences: XSharedPreferences) :
 
                 val fmessageKey = generateFMessageKey(protocolTreeNodeWpp) ?: return
 
+                if (fmessageKey.remoteJid.isStatus)return
+
                 val hideSeenItem = MessageHistoryStore.getInstance().getHideSeenMessage(
                     fmessageKey.remoteJid.phoneRawString,
                     fmessageKey.messageID,
