@@ -5,6 +5,7 @@ import android.app.Activity;
 import android.app.Application;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Environment;
@@ -18,21 +19,25 @@ import androidx.preference.PreferenceManager;
 
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.wmods.wppenhacer.activities.CrashReportActivity;
+import com.wmods.wppenhacer.xposed.utils.Utils;
 
 import java.io.File;
 import java.util.Locale;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-import de.robv.android.xposed.XposedBridge;
 import de.robv.android.xposed.XposedHelpers;
+import lombok.Getter;
 import rikka.material.app.LocaleDelegate;
 
 public class App extends Application {
 
+    @Getter
     private static App instance;
+    @Getter
     private static final ExecutorService executorService = Executors.newCachedThreadPool();
-    private static final Handler MainHandler = new Handler(Looper.getMainLooper());
+    @Getter
+    private static final Handler mainHandler = new Handler(Looper.getMainLooper());
 
     public static void showRequestStoragePermission(Activity activity) {
         MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(activity);
@@ -58,18 +63,26 @@ public class App extends Application {
         super.onCreate();
         instance = this;
         installCrashHandler();
-        var sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
-        var mode = Integer.parseInt(sharedPreferences.getString("thememode", "0"));
-        setThemeMode(mode);
-        changeLanguage(this);
-        try{
+        SharedPreferences sharedPreferences = null;
+
+        try {
+            sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
+            var mode = Integer.parseInt(sharedPreferences.getString("thememode", "0"));
+            setThemeMode(mode);
+            changeLanguage(this);
+        } catch (Exception e) {
+            Utils.showToast("[PREFS] Error accessing app data");
+        }
+        if (sharedPreferences != null) {
+            try {
             var file = (File)XposedHelpers.getObjectField(sharedPreferences, "file");
             file.setReadable(true);
             file.setWritable(true);
             file.setExecutable(true);
-        }catch (Throwable e){
-            //noinspection CallToPrintStackTrace
-            e.printStackTrace();
+            } catch (Throwable e) {
+                //noinspection CallToPrintStackTrace
+                e.printStackTrace();
+            }
         }
     }
 
@@ -115,19 +128,6 @@ public class App extends Application {
                 AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
                 break;
         }
-    }
-
-
-    public static App getInstance() {
-        return instance;
-    }
-
-    public static ExecutorService getExecutorService() {
-        return executorService;
-    }
-
-    public static Handler getMainHandler() {
-        return MainHandler;
     }
 
 
