@@ -108,22 +108,27 @@ public class HomeFragment extends BaseFragment {
     }
 
     private void startCardAnimations() {
-        var slideUp = AnimationUtils.loadAnimation(getContext(), R.anim.slide_up);
-        var fadeIn = AnimationUtils.loadAnimation(getContext(), R.anim.fade_in);
+        var context = getContext();
+        if (context == null) return;
+        var slideUp = AnimationUtils.loadAnimation(context, R.anim.slide_up);
+        var fadeIn = AnimationUtils.loadAnimation(context, R.anim.fade_in);
 
         binding.status.startAnimation(slideUp);
 
         binding.status2.postDelayed(() -> {
-            var anim = AnimationUtils.loadAnimation(getContext(), R.anim.slide_up);
+            if (!isAdded() || binding == null) return;
+            var anim = AnimationUtils.loadAnimation(requireContext(), R.anim.slide_up);
             binding.status2.startAnimation(anim);
         }, 100);
 
         binding.status3.postDelayed(() -> {
-            var anim = AnimationUtils.loadAnimation(getContext(), R.anim.slide_up);
+            if (!isAdded() || binding == null) return;
+            var anim = AnimationUtils.loadAnimation(requireContext(), R.anim.slide_up);
             binding.status3.startAnimation(anim);
         }, 200);
 
         binding.infoCard.postDelayed(() -> {
+            if (!isAdded() || binding == null) return;
             binding.infoCard.startAnimation(fadeIn);
         }, 300);
     }
