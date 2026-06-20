@@ -5,3 +5,4 @@
 * Fixed some errors
 * Fixed checking for new update
 * Fixed problem sending status preview tick
+* Fixed crash in MediaPreview
