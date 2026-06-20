@@ -1,6 +1,7 @@
-[ADDED]
-* Added new UI configuration(You can choose between the profile photo appearing in the header or a new exclusive tab for configuration, similar to IOS) WAE -> Customization -> New Settings UI
+[ADDED
+* Added card that shows if there is a new update in WAE
 
 [FIXED]
-* Fixed bugs when reading preferences
-* Fixed bug in the channels hiding function
+* Fixed some errors
+* Fixed checking for new update
+* Fixed problem sending status preview tick
