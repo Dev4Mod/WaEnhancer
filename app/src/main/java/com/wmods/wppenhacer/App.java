@@ -24,6 +24,8 @@ import java.util.Locale;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import de.robv.android.xposed.XposedBridge;
+import de.robv.android.xposed.XposedHelpers;
 import rikka.material.app.LocaleDelegate;
 
 public class App extends Application {
@@ -60,6 +62,15 @@ public class App extends Application {
         var mode = Integer.parseInt(sharedPreferences.getString("thememode", "0"));
         setThemeMode(mode);
         changeLanguage(this);
+        try{
+            var file = (File)XposedHelpers.getObjectField(sharedPreferences, "file");
+            file.setReadable(true);
+            file.setWritable(true);
+            file.setExecutable(true);
+        }catch (Throwable e){
+            //noinspection CallToPrintStackTrace
+            e.printStackTrace();
+        }
     }
 
     private void installCrashHandler() {
