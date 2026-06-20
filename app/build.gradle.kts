@@ -26,7 +26,8 @@ val gitHash: String = getGitHashCommit().uppercase(Locale.getDefault())
 
 android {
     namespace = "com.wmods.wppenhacer"
-    compileSdk = 37
+    //noinspection GradleDependency
+    compileSdk = 36
     ndkVersion = "28.2.13676358"
 
     flavorDimensions += "version"

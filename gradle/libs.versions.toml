@@ -49,4 +49,4 @@ markwon-core = { module = "io.noties.markwon:core", version.ref = "markwon" }
 androidApplication = { id = "com.android.application", version.ref = "agp" }
 materialthemebuilder = { id = "dev.rikka.tools.materialthemebuilder", version = "1.5.1" }
 kotlinAndroid = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
-kspPlugin = { id = "com.google.devtools.ksp", version = "2.3.0" }
+kspPlugin = { id = "com.google.devtools.ksp", version = "2.2.21-2.0.4" }
