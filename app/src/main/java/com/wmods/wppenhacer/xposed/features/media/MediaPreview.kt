@@ -99,36 +99,36 @@ class MediaPreview(
         Others.propsBoolean[24205] = false
 
         val layoutClass = Unobfuscator.loadLayoutClass(classLoader)
-
-        XposedBridge.hookAllMethods(View::class.java, "onAttachedToWindow",
-            object : XC_MethodHook(){
-
-                override fun afterHookedMethod(param: MethodHookParam) {
-                    val view = param.thisObject as View
-                    when (view.id) {
-                        Utils.getID("invisible_press_surface", "id"),
-                        Utils.getID("video_control_frame_view", "id") ->
-                            handlePressSurface(view, layoutClass)
-
-                        Utils.getID("control_frame_new", "id"),
-                        Utils.getID("control_frame", "id") ->
-                            handleMediaControlFrame(view, layoutClass)
-                    }
+        XposedHelpers.findAndHookMethod(View::class.java,"onAttachedToWindow",
+            object : XC_MethodHook() {
+            override fun afterHookedMethod(param: MethodHookParam) {
+                if (!layoutClass.isInstance(param.thisObject))return
+                val view = param.thisObject as View
+                var resourceNames = listOf("invisible_press_surface","video_control_frame_view")
+                for (rn in resourceNames){
+                    val viewGroup = view.findViewById<View>(Utils.getID(rn, "id")) ?: continue
+                    logDebug("Found Surface: $viewGroup")
+                    handlePressSurface(view,viewGroup)
+                    return
                 }
-
+                resourceNames = listOf("control_frame_new","control_frame")
+                for (rn in resourceNames){
+                    val viewGroup = view.findViewById<View>(Utils.getID(rn, "id")) ?: continue
+                    logDebug("Found ControlFrame: $viewGroup")
+                    handleMediaControlFrame(view,viewGroup)
+                    return
+                }
             }
-        )
-
+        })
 
     }
 
     private fun handlePressSurface(
+        mainContainer: View,
         surface: View,
-        bubbleLayoutClass: Class<*>,
     ) {
         if (surface !is ViewGroup) return
         val context = surface.context
-        val mainContainer = findBubbleContainer(surface, bubbleLayoutClass) ?: return
         val controlFrame = surface.getChildAt(0) ?: return
         if (controlFrame.tag == MEDIA_PREVIEW_WRAPPER_TAG) return
 
@@ -147,11 +147,10 @@ class MediaPreview(
     }
 
     private fun handleMediaControlFrame(
+        mainContainer: View,
         controlFrame: View,
-        bubbleLayoutClass: Class<*>,
     ) {
-        val context = controlFrame.context
-        val mainContainer = findBubbleContainer(controlFrame, bubbleLayoutClass) ?: return
+        val context = mainContainer.context
         val mediaContainer =
             mainContainer.findViewById<ViewGroup>(Utils.getID("media_container", "id")) ?: run {
                 logDebug("MediaContainer not found in ImageContainer")
