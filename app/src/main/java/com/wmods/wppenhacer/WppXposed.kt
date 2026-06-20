@@ -46,7 +46,6 @@ class WppXposed : IXposedHookLoadPackage, IXposedHookInitPackageResources, IXpos
         }
     }
 
-    @SuppressLint("WorldReadableFiles")
     @Throws(Throwable::class)
     override fun handleLoadPackage(lpparam: XC_LoadPackage.LoadPackageParam) {
         val packageName = lpparam.packageName
@@ -61,28 +60,13 @@ class WppXposed : IXposedHookLoadPackage, IXposedHookInitPackageResources, IXpos
             )
 
             @Suppress("DEPRECATION")
+            @SuppressLint("WorldReadableFiles")
             XposedHelpers.findAndHookMethod(
                 PreferenceManager::class.java.name,
                 classLoader,
                 "getDefaultSharedPreferencesMode",
                 XC_MethodReplacement.returnConstant(ContextWrapper.MODE_WORLD_READABLE)
             )
-
-            XposedHelpers.findAndHookMethod(
-                "android.app.ContextImpl",
-                classLoader,
-                "getSharedPreferences", String::class.java,Int::class.javaPrimitiveType, object : XC_MethodHook(){
-                    override fun beforeHookedMethod(param: MethodHookParam) {
-                        val mode = param.args[1] as Int
-                        if (mode == ContextWrapper.MODE_PRIVATE) {
-                            @Suppress("DEPRECATION")
-                            param.args[1] = ContextWrapper.MODE_WORLD_READABLE
-                        }
-                    }
-                }
-            )
-            XposedHelpers.findAndHookMethod(
-                "android.app.ContextImpl", classLoader, "checkMode", XC_MethodReplacement.DO_NOTHING)
             return
         }
 
