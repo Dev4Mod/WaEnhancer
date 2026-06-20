@@ -206,6 +206,53 @@
                 </com.google.android.material.card.MaterialCardView>
 
                 <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/update_card"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="@dimen/spacing_medium"
+                    app:cardCornerRadius="@dimen/card_radius_large"
+                    app:cardElevation="@dimen/card_elevation_high"
+                    app:cardPreventCornerOverlap="false"
+                    app:strokeWidth="0dp">
+
+                    <RelativeLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:background="@drawable/gradient_update"
+                        android:minHeight="@dimen/status_card_min_height"
+                        android:padding="@dimen/spacing_medium">
+
+                        <ImageView
+                            android:id="@+id/update_icon"
+                            android:layout_width="@dimen/status_icon_size"
+                            android:layout_height="@dimen/status_icon_size"
+                            android:layout_centerVertical="true"
+                            app:srcCompat="@drawable/ic_round_update_24"
+                            app:tint="@color/text_on_gradient"
+                            tools:ignore="ContentDescription" />
+
+                        <com.google.android.material.textview.MaterialTextView
+                            android:id="@+id/update_title"
+                            style="@style/StatusCardTitle"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="@dimen/spacing_medium"
+                            android:layout_toEndOf="@id/update_icon"
+                            android:text="@string/checking_for_updates" />
+
+                        <com.google.android.material.textview.MaterialTextView
+                            android:id="@+id/update_summary"
+                            style="@style/StatusCardSummary"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_below="@id/update_title"
+                            android:layout_alignStart="@id/update_title"
+                            android:layout_marginTop="@dimen/spacing_xs" />
+
+                    </RelativeLayout>
+                </com.google.android.material.card.MaterialCardView>
+
+                <com.google.android.material.card.MaterialCardView
                     android:id="@+id/developer_warning_card"
                     style="@style/CardInfoStyle"
                     android:layout_width="match_parent"

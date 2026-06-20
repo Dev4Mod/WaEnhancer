@@ -35,6 +35,8 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+ import java.net.UnknownHostException;
+
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -42,6 +44,10 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.Locale;
 import java.util.Objects;
+import java.util.concurrent.TimeUnit;
+
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
 
 import rikka.core.util.IOUtils;
 
@@ -102,6 +108,13 @@ public class HomeFragment extends BaseFragment {
             resetConfigs(this.getContext());
         });
 
+        binding.updateCard.setOnClickListener(view -> {
+            animateClick(view);
+            Utils.openLink(requireActivity(), "https://t.me/waenhancher");
+        });
+
+        checkForUpdates();
+
         startCardAnimations();
 
         return binding.getRoot();
@@ -131,6 +144,12 @@ public class HomeFragment extends BaseFragment {
             if (!isAdded() || binding == null) return;
             binding.infoCard.startAnimation(fadeIn);
         }, 300);
+
+        binding.updateCard.postDelayed(() -> {
+            if (!isAdded() || binding == null) return;
+            var anim = AnimationUtils.loadAnimation(requireContext(), R.anim.slide_up);
+            binding.updateCard.startAnimation(anim);
+        }, 400);
     }
 
     private void animateClick(View view) {
@@ -335,6 +354,79 @@ public class HomeFragment extends BaseFragment {
     private static void checkWpp(FragmentActivity activity) {
         Intent checkWpp = new Intent(BuildConfig.APPLICATION_ID + ".CHECK_WPP");
         activity.sendBroadcast(checkWpp);
+    }
+
+    private void checkForUpdates() {
+        var context = getContext();
+        if (context == null) return;
+
+        binding.updateSummary.setText(getString(R.string.current_version_s, BuildConfig.VERSION_NAME));
+
+        new Thread(() -> {
+            try {
+                var client = new OkHttpClient.Builder()
+                        .connectTimeout(10, TimeUnit.SECONDS)
+                        .readTimeout(10, TimeUnit.SECONDS)
+                        .build();
+
+                var request = new Request.Builder()
+                        .url("https://api.github.com/repos/Dev4Mod/WaEnhancer/releases/latest")
+                        .build();
+
+                try (var response = client.newCall(request).execute()) {
+                    if (!response.isSuccessful()) {
+                        updateCardState(false, false, null);
+                        return;
+                    }
+
+                    var body = response.body();
+
+                    var content = body.string();
+                    var release = new JSONObject(content);
+                    var tagName = release.optString("tag_name", "");
+
+                    if (tagName.isBlank()) {
+                        updateCardState(true, true, null);
+                        return;
+                    }
+
+                    var hash = tagName.split("-")[1].trim();
+                    var isNewVersion = !BuildConfig.VERSION_NAME.toLowerCase().contains(hash.toLowerCase());
+
+                    updateCardState(true, !isNewVersion, tagName);
+                }
+            } catch (UnknownHostException e) {
+                updateCardState(false, false, null);
+            } catch (Exception e) {
+                updateCardState(false, false, null);
+            }
+        }).start();
+    }
+
+    private void updateCardState(boolean success, boolean isUpToDate, @Nullable String newVersion) {
+        var activity = getActivity();
+        if (activity == null || !isAdded()) return;
+
+        activity.runOnUiThread(() -> {
+            if (binding == null) return;
+
+            if (!success) {
+                binding.updateIcon.setImageResource(R.drawable.ic_round_error_outline_24);
+                binding.updateTitle.setText(R.string.update_check_failed);
+                binding.updateSummary.setText(R.string.update_check_failed_summary);
+                binding.updateCard.getChildAt(0).setBackgroundResource(R.drawable.gradient_warning);
+            } else if (isUpToDate) {
+                binding.updateIcon.setImageResource(R.drawable.ic_round_check_circle_24);
+                binding.updateTitle.setText(R.string.up_to_date);
+                binding.updateSummary.setText(getString(R.string.current_version_s, BuildConfig.VERSION_NAME));
+                binding.updateCard.getChildAt(0).setBackgroundResource(R.drawable.gradient_success);
+            } else {
+                binding.updateIcon.setImageResource(R.drawable.ic_round_update_24);
+                binding.updateTitle.setText(R.string.update_available);
+                binding.updateSummary.setText(getString(R.string.update_available_summary, newVersion));
+                binding.updateCard.getChildAt(0).setBackgroundResource(R.drawable.gradient_update);
+            }
+        });
     }
 
     @Override

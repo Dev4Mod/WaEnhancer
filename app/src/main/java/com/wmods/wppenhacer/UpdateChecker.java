@@ -22,7 +22,6 @@ import okhttp3.OkHttpClient;
 public class UpdateChecker implements Runnable {
 
     private static final String LATEST_RELEASE_API = "https://api.github.com/repos/Dev4Mod/WaEnhancer/releases/latest";
-    private static final String RELEASE_TAG_PREFIX = "debug-";
     private static final String TELEGRAM_UPDATE_URL = "https://t.me/waenhancher";
 
     // Singleton OkHttpClient - expensive to create, reuse across all checks
@@ -70,11 +69,11 @@ public class UpdateChecker implements Runnable {
                 var release = new JSONObject(content);
                 var tagName = release.optString("tag_name", "");
 
-                if (tagName.isBlank() || !tagName.startsWith(RELEASE_TAG_PREFIX)) {
+                if (tagName.isBlank()) {
                     return;
                 }
 
-                hash = tagName.substring(RELEASE_TAG_PREFIX.length()).trim();
+                hash = tagName.split("-")[1].trim();
                 changelog = release.optString("body", "No changelog available.").trim();
                 publishedAt = release.optString("published_at", "");
 
