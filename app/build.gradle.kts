@@ -14,10 +14,10 @@ plugins {
 
 fun getGitHashCommit(): String {
     return try {
-        val processBuilder = ProcessBuilder("git", "rev-parse", "--short", "HEAD")
+        val processBuilder = ProcessBuilder("git", "rev-parse", "HEAD")
         val process = processBuilder.start()
-        process.inputStream.bufferedReader().readText().trim()
-    } catch (e: Exception) {
+        process.inputStream.bufferedReader().readText().trim().substring(0,8)
+    } catch (_: Exception) {
         "unknown"
     }
 }
@@ -203,6 +203,12 @@ configurations.all {
     exclude("androidx.appcompat", "appcompat")
     exclude("org.jetbrains.kotlin", "kotlin-stdlib-jdk7")
     exclude("org.jetbrains.kotlin", "kotlin-stdlib-jdk8")
+}
+
+tasks.configureEach {
+    if (name.endsWith("ReleaseArtProfile")) {
+        enabled = false
+    }
 }
 
 interface InjectedExecOps {
