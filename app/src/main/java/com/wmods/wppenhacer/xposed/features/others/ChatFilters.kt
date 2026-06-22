@@ -48,7 +48,7 @@ class ChatFilters(classLoader: ClassLoader, preferences: XSharedPreferences) :
                     methodSetFilter.declaringClass,
                     MutableList::class.java
                 )
-                val list = field.get(param.thisObject) as MutableList<*>?
+                val list = field!!.get(param.thisObject) as MutableList<*>?
                 if (list == null || index >= list.size) {
                     param.setResult(null)
                 }

@@ -77,7 +77,7 @@ class HideTabs(loader: ClassLoader, preferences: XSharedPreferences) : Feature(l
             override fun afterHookedMethod(param: MethodHookParam) {
                 val tabsPagerClass = WppCore.tabsPagerClass
                 val tabsField = ReflectionUtils.getFieldByType(param.thisObject.javaClass, tabsPagerClass)
-                mTabPagerInstance = tabsField.get(param.thisObject)
+                mTabPagerInstance = tabsField!!.get(param.thisObject)
             }
         })
 
@@ -96,7 +96,7 @@ class HideTabs(loader: ClassLoader, preferences: XSharedPreferences) : Feature(l
         XposedHelpers.findAndHookMethod(
             "androidx.viewpager.widget.ViewPager", classLoader, "addView",
             classLoader.loadClass("android.view.View"),
-            Int::class.java,
+            Int::class.javaPrimitiveType,
             classLoader.loadClass($$"android.view.ViewGroup$LayoutParams"),
             object : XC_MethodHook() {
                 override fun beforeHookedMethod(param: MethodHookParam) {

@@ -79,7 +79,7 @@ class LiteMode(loader: ClassLoader, preferences: XSharedPreferences) : Feature(l
 
         XposedHelpers.findAndHookMethod(
             Activity::class.java, "onActivityResult",
-            Int::class.java, Int::class.java, Intent::class.java,
+            Int::class.javaPrimitiveType, Int::class.javaPrimitiveType, Intent::class.java,
             object : XC_MethodHook() {
                 override fun afterHookedMethod(param: MethodHookParam) {
                     val activity = param.thisObject as Activity

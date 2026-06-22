@@ -1,120 +1,132 @@
-package com.wmods.wppenhacer.xposed.utils;
+package com.wmods.wppenhacer.xposed.utils
 
-import java.nio.charset.StandardCharsets;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
+import de.robv.android.xposed.XC_MethodHook
+import de.robv.android.xposed.XposedBridge
+import de.robv.android.xposed.XposedHelpers
+import java.nio.charset.StandardCharsets
+import java.util.Arrays
 
-import de.robv.android.xposed.XC_MethodHook;
-import de.robv.android.xposed.XposedBridge;
-import de.robv.android.xposed.XposedHelpers;
+object DebugUtils {
 
-public class DebugUtils {
-    public static void debugFields(Class<?> cls, Object thisObject) {
-        if (cls == null) return;
-        XposedBridge.log("------------------------------------");
-        XposedBridge.log("DEBUG FIELDS: Class " + cls.getName() + " -> Object " + thisObject);
-        for (var field : cls.getDeclaredFields()) {
+    @JvmStatic
+    fun debugFields(cls: Class<*>?, thisObject: Any?) {
+        if (cls == null) return
+        XposedBridge.log("------------------------------------")
+        XposedBridge.log("DEBUG FIELDS: Class " + cls.name + " -> Object " + thisObject)
+        for (field in cls.declaredFields) {
             try {
-                field.setAccessible(true);
-                var name = field.getName();
-                var value = field.get(thisObject);
-                if (value != null && value.getClass().isArray()) {
-                    value = Arrays.toString((Object[]) value);
+                field.isAccessible = true
+                val name = field.name
+                var value = field[thisObject]
+                if (value != null && value.javaClass.isArray) {
+                    value = Arrays.toString(value as Array<Any>)
                 }
-                XposedBridge.log("FIELD: " + name + " -> TYPE: " + field.getType().getName() + " -> VALUE: " + value);
-            } catch (Exception ignored) {
+                XposedBridge.log("FIELD: $name -> TYPE: ${field.type.name} -> VALUE: $value")
+            } catch (_: Exception) {
             }
         }
     }
 
-
-    public static void debugAllMethods(String className, String methodName, boolean printMethods, boolean printFields, boolean printArgs, boolean printTrace) {
-        XposedBridge.hookAllMethods(XposedHelpers.findClass(className, Utils.getApplication().getClassLoader()), methodName, getDebugMethodHook(printMethods, printFields, printArgs, printTrace));
+    @JvmStatic
+    fun debugAllMethods(className: String, methodName: String, printMethods: Boolean, printFields: Boolean, printArgs: Boolean, printTrace: Boolean) {
+        XposedBridge.hookAllMethods(
+            XposedHelpers.findClass(className, Utils.application.classLoader),
+            methodName,
+            getDebugMethodHook(printMethods, printFields, printArgs, printTrace)
+        )
     }
 
-    public static XC_MethodHook getDebugMethodHook(boolean printMethods, boolean printFields, boolean printArgs, boolean printTrace) {
-        return new XC_MethodHook() {
-            @Override
-            protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-                XposedBridge.log("-----------------HOOKED DEBUG START-----------------------------");
-                XposedBridge.log("DEBUG CLASS: " + param.method.getDeclaringClass().getName() + "->" + param.method.getName() + ": " + param.thisObject);
+    @JvmStatic
+    fun getDebugMethodHook(printMethods: Boolean, printFields: Boolean, printArgs: Boolean, printTrace: Boolean): XC_MethodHook {
+        return object : XC_MethodHook() {
+            override fun afterHookedMethod(param: MethodHookParam) {
+                XposedBridge.log("-----------------HOOKED DEBUG START-----------------------------")
+                XposedBridge.log("DEBUG CLASS: " + param.method.declaringClass.name + "->" + param.method.name + ": " + param.thisObject)
 
                 if (printArgs) {
-                    debugArgs(param.args);
-                    XposedBridge.log("Return value: " + (param.getResult() == null ? null : param.getResult().getClass().getName()) + " -> VALUE: " + param.getResult());
+                    debugArgs(param.args)
+                    XposedBridge.log("Return value: " + (param.result?.javaClass?.name ?: null) + " -> VALUE: " + param.result)
                 }
 
                 if (printFields) {
-                    debugFields(param.thisObject == null ? param.method.getDeclaringClass() : param.thisObject.getClass(), param.thisObject);
+                    debugFields(param.thisObject?.javaClass ?: param.method.declaringClass, param.thisObject)
                 }
 
                 if (printMethods) {
-                    debugMethods(param.thisObject == null ? param.method.getDeclaringClass() : param.thisObject.getClass(), param.thisObject);
+                    debugMethods(param.thisObject?.javaClass ?: param.method.declaringClass, param.thisObject)
                 }
 
                 if (printTrace) {
-                    for (var trace : Thread.currentThread().getStackTrace()) {
-                        XposedBridge.log("TRACE: " + trace.toString());
+                    for (trace in Thread.currentThread().stackTrace) {
+                        XposedBridge.log("TRACE: " + trace.toString())
                     }
                 }
 
-                XposedBridge.log("-----------------HOOKED DEBUG END-----------------------------\n\n");
+                XposedBridge.log("-----------------HOOKED DEBUG END-----------------------------\n\n")
             }
-        };
-    }
-
-    public static void debugArgs(Object[] args) {
-        for (var i = 0; i < args.length; i++) {
-            XposedBridge.log("ARG[" + i + "]: " + (args[i] == null ? null : args[i].getClass().getName()) + " -> VALUE: " + parseValue(args[i]));
         }
     }
 
-    public static String parseValue(Object value) {
-        StringBuilder sb = new StringBuilder();
+    @JvmStatic
+    fun debugArgs(args: Array<Any>) {
+        for (i in args.indices) {
+            XposedBridge.log("ARG[$i]: " + (args[i]?.javaClass?.name ?: null) + " -> VALUE: " + parseValue(args[i]))
+        }
+    }
+
+    @JvmStatic
+    fun parseValue(value: Any?): String {
+        val sb = StringBuilder()
         if (value == null)
-            return "null";
-        if (value instanceof List list) {
-            sb.append("List[");
-            for (var item : list) {
-                sb.append(parseValue(item)).append(", ");
+            return "null"
+        when (value) {
+            is List<*> -> {
+                sb.append("List[")
+                for (item in value) {
+                    sb.append(parseValue(item)).append(", ")
+                }
+                sb.append("]")
             }
-            sb.append("]");
-        } else if (value instanceof Map<?, ?> map) {
-            var keys = map.keySet();
-            sb.append("Map[");
-            for (var key : keys) {
-                sb.append(key).append(": ").append(parseValue(map.get(key))).append(" ");
+            is Map<*, *> -> {
+                val keys = value.keys
+                sb.append("Map[")
+                for (key in keys) {
+                    sb.append(key).append(": ").append(parseValue(value[key])).append(" ")
+                }
+                sb.append("]")
             }
-            sb.append("]");
-        } else if (value instanceof byte[] bytes) {
-            try {
-                sb.append(new String(bytes, StandardCharsets.UTF_8));
-            } catch (Exception ignored) {
+            is ByteArray -> {
+                try {
+                    sb.append(String(value, StandardCharsets.UTF_8))
+                } catch (_: Exception) {
+                }
             }
-        } else {
-            sb.append(value);
-        }
-        return sb.toString();
-    }
-
-
-    public static void debugMethods(Class<?> cls, Object thisObject) {
-        XposedBridge.log("DEBUG METHODS: Class " + cls.getName());
-        for (var method : cls.getDeclaredMethods()) {
-            if (method.getParameterCount() > 0 || method.getReturnType() == void.class) continue;
-            try {
-                method.setAccessible(true);
-                XposedBridge.log("METHOD: " + method.getName() + " -> VALUE: " + method.invoke(thisObject));
-            } catch (Exception ignored) {
+            else -> {
+                sb.append(value)
             }
         }
+        return sb.toString()
     }
 
-    public static void debugObject(Object srj) {
-        if (srj == null) return;
-        XposedBridge.log("DEBUG OBJECT: " + srj.getClass().getName());
-        debugFields(srj.getClass(), srj);
-        debugMethods(srj.getClass(), srj);
+    @JvmStatic
+    fun debugMethods(cls: Class<*>?, thisObject: Any?) {
+        if (cls == null) return
+        XposedBridge.log("DEBUG METHODS: Class " + cls.name)
+        for (method in cls.declaredMethods) {
+            if (method.parameterCount > 0 || method.returnType == Void.TYPE) continue
+            try {
+                method.isAccessible = true
+                XposedBridge.log("METHOD: " + method.name + " -> VALUE: " + method.invoke(thisObject))
+            } catch (_: Exception) {
+            }
+        }
+    }
+
+    @JvmStatic
+    fun debugObject(srj: Any?) {
+        if (srj == null) return
+        XposedBridge.log("DEBUG OBJECT: " + srj.javaClass.name)
+        debugFields(srj.javaClass, srj)
+        debugMethods(srj.javaClass, srj)
     }
 }

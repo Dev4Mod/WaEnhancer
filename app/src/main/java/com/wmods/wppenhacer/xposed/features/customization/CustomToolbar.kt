@@ -141,7 +141,7 @@ class CustomToolbar(loader: ClassLoader, preferences: XSharedPreferences) : Feat
         private fun getTabInstance(homeActivity: Activity): Any {
             val clazz = WppCore.tabsPagerClass
             val fieldTab = ReflectionUtils.getFieldByType(homeActivity.javaClass, clazz)
-            return fieldTab.get(homeActivity)!!
+            return fieldTab!!.get(homeActivity)
         }
 
         private fun createArchiveIntent(homeActivity: Activity): Intent {

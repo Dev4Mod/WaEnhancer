@@ -336,12 +336,12 @@ class Others(loader: ClassLoader, preferences: XSharedPreferences) : Feature(loa
             private var backup: Any? = null
 
             override fun beforeHookedMethod(param: MethodHookParam) {
-                this.backup = field.get(param.thisObject)
-                field.set(param.thisObject, null)
+                this.backup = field!!.get(param.thisObject)
+                field!!.set(param.thisObject, null)
             }
 
             override fun afterHookedMethod(param: MethodHookParam) {
-                field.set(param.thisObject, this.backup)
+                field!!.set(param.thisObject, this.backup)
             }
         })
 
@@ -571,11 +571,11 @@ class Others(loader: ClassLoader, preferences: XSharedPreferences) : Feature(loa
                             Utils.showToast(Utils.getString(R.string.converting_audio), Toast.LENGTH_LONG)
                             val fileMedia = param.args[2]
                             val fieldFile = ReflectionUtils.getFieldByExtendType(fileMedia.javaClass, File::class.java)
-                            val file = fieldFile.get(fileMedia) as File
+                            val file = fieldFile!!.get(fileMedia) as File
                             newFile = AudioOpusConverter.convert(file.absolutePath)
                             if (newFile != null) {
                                 file.delete()
-                                fieldFile.set(fileMedia, newFile)
+                                fieldFile!!.set(fileMedia, newFile)
                             }
                         }
                     }

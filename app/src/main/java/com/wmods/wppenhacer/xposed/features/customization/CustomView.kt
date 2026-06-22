@@ -354,7 +354,7 @@ class CustomView(loader: ClassLoader, preferences: XSharedPreferences) : Feature
             object : XC_MethodHook() {
                 override fun beforeHookedMethod(param: MethodHookParam) {
                     val view = param.thisObject as View
-                    val newDrawable = param.args[0] as Drawable
+                    val newDrawable = param.args[0] as? Drawable
                     val forced = forcedBackgroundMap[view] ?: return
                     if (newDrawable !== forced) param.result = null
                 }
@@ -365,7 +365,7 @@ class CustomView(loader: ClassLoader, preferences: XSharedPreferences) : Feature
             object : XC_MethodHook() {
                 override fun beforeHookedMethod(param: MethodHookParam) {
                     val view = param.thisObject as ImageView
-                    val newDrawable = param.args[0] as Drawable
+                    val newDrawable = param.args[0] as? Drawable
                     val forced = forcedDrawableMap[view] ?: return
                     if (newDrawable !== forced) param.result = null
                 }

@@ -124,8 +124,8 @@ class ContactBlockedVerify(loader: ClassLoader, preferences: XSharedPreferences)
             val textView = resolveContactChecker(activity, view)
             showChecking(textView)
             val methodResult = ReflectionUtils.findMethodUsingFilter(callbackInterface) { method ->
-                method.parameterCount == 1 && method.parameterTypes[0] == Int::class.java
-            } ?: return
+                method.parameterCount == 1 && method.parameterTypes[0] == Int::class.javaObjectType
+            }
             val startTime = System.currentTimeMillis()
             val isloaded = AtomicBoolean(false)
             val clazzProxy = Proxy.newProxyInstance(
@@ -178,7 +178,7 @@ class ContactBlockedVerify(loader: ClassLoader, preferences: XSharedPreferences)
                     param.args[0].javaClass,
                     FMessageWpp.UserJid.TYPE_JID
                 )
-                val userJid = FMessageWpp.UserJid(fieldUserJid.get(param.args[0]))
+                val userJid = FMessageWpp.UserJid(fieldUserJid!!.get(param.args[0]))
                 if (state.pendingUserJid.get() != userJid.userRawString) return
                 state.pendingUserJid.set(null)
                 val tv = state.checkerView.get() ?: return
@@ -190,7 +190,7 @@ class ContactBlockedVerify(loader: ClassLoader, preferences: XSharedPreferences)
                 val userJid = FMessageWpp.UserJid(param.args[0])
                 if (state.pendingUserJid.get() != userJid.userRawString) return
                 state.pendingUserJid.set(null)
-                val status = ReflectionUtils.getArg(param.args, Int::class.java, 0)
+                val status = ReflectionUtils.getArg(param.args, Int::class.javaObjectType, 0)
                 val tv = state.checkerView.get() ?: return
                 if (status == STATUS_NOT_ADDED) {
                     showProbablyNotAdded(tv)

@@ -1,174 +1,167 @@
-package com.wmods.wppenhacer.xposed.utils;
+package com.wmods.wppenhacer.xposed.utils
 
-import android.view.animation.AccelerateDecelerateInterpolator;
-import android.view.animation.AccelerateInterpolator;
-import android.view.animation.AlphaAnimation;
-import android.view.animation.Animation;
-import android.view.animation.AnimationSet;
-import android.view.animation.BounceInterpolator;
-import android.view.animation.RotateAnimation;
-import android.view.animation.ScaleAnimation;
-import android.view.animation.TranslateAnimation;
+import android.view.animation.AccelerateDecelerateInterpolator
+import android.view.animation.AccelerateInterpolator
+import android.view.animation.AlphaAnimation
+import android.view.animation.Animation
+import android.view.animation.AnimationSet
+import android.view.animation.BounceInterpolator
+import android.view.animation.RotateAnimation
+import android.view.animation.ScaleAnimation
+import android.view.animation.TranslateAnimation
 
-public class AnimationUtil {
+object AnimationUtil {
 
-    public static Animation getAnimation(String animationName) {
-        return switch (animationName.toLowerCase()) {
-            case "fade_in" -> createFadeInAnimation();
-            case "fade_out" -> createFadeOutAnimation();
-            case "scale_up" -> createScaleUpAnimation();
-            case "slide_up" -> createSlideUpAnimation();
-            case "slide_right_to_left" -> createSlideRightToLeftAnimation();
-            case "rotate" -> createRotateAnimation();
-            case "bounce" -> createBounceAnimation();
-            case "shrink" -> createShrinkAnimation();
-            case "flip" -> createFlipAnimation();
-            case "hyperspace_out" -> createHyperspaceOutAnimation();
-            default -> null;
-        };
+    @JvmStatic
+    fun getAnimation(animationName: String): Animation? {
+        return when (animationName.lowercase()) {
+            "fade_in" -> createFadeInAnimation()
+            "fade_out" -> createFadeOutAnimation()
+            "scale_up" -> createScaleUpAnimation()
+            "slide_up" -> createSlideUpAnimation()
+            "slide_right_to_left" -> createSlideRightToLeftAnimation()
+            "rotate" -> createRotateAnimation()
+            "bounce" -> createBounceAnimation()
+            "shrink" -> createShrinkAnimation()
+            "flip" -> createFlipAnimation()
+            "hyperspace_out" -> createHyperspaceOutAnimation()
+            else -> null
+        }
     }
 
-    private static Animation createFadeInAnimation() {
-        AlphaAnimation anim = new AlphaAnimation(0.0f, 1.0f);
-        anim.setDuration(500); // Duração da animação em milissegundos
-        return anim;
+    private fun createFadeInAnimation(): Animation {
+        val anim = AlphaAnimation(0.0f, 1.0f)
+        anim.duration = 500
+        return anim
     }
 
-    private static Animation createFadeOutAnimation() {
-        AlphaAnimation anim = new AlphaAnimation(1.0f, 0.0f);
-        anim.setDuration(500); // Duração da animação em milissegundos
-        return anim;
+    private fun createFadeOutAnimation(): Animation {
+        val anim = AlphaAnimation(1.0f, 0.0f)
+        anim.duration = 500
+        return anim
     }
 
-    private static Animation createScaleUpAnimation() {
-        ScaleAnimation anim = new ScaleAnimation(
-                0.0f, 1.0f, // De e para escala em X
-                0.0f, 1.0f, // De e para escala em Y
-                Animation.RELATIVE_TO_SELF, 0.5f, // Ponto pivot X
-                Animation.RELATIVE_TO_SELF, 0.5f  // Ponto pivot Y
-        );
-        anim.setDuration(500); // Duração da animação em milissegundos
-        return anim;
+    private fun createScaleUpAnimation(): Animation {
+        val anim = ScaleAnimation(
+            0.0f, 1.0f,
+            0.0f, 1.0f,
+            Animation.RELATIVE_TO_SELF, 0.5f,
+            Animation.RELATIVE_TO_SELF, 0.5f
+        )
+        anim.duration = 500
+        return anim
     }
 
-    private static Animation createSlideUpAnimation() {
-        TranslateAnimation anim = new TranslateAnimation(
-                Animation.RELATIVE_TO_PARENT, 0.0f, // De X
-                Animation.RELATIVE_TO_PARENT, 0.0f, // Para X
-                Animation.RELATIVE_TO_PARENT, 1.0f, // De Y
-                Animation.RELATIVE_TO_PARENT, 0.0f  // Para Y
-        );
-        anim.setDuration(500); // Duração da animação em milissegundos
-        return anim;
+    private fun createSlideUpAnimation(): Animation {
+        val anim = TranslateAnimation(
+            Animation.RELATIVE_TO_PARENT, 0.0f,
+            Animation.RELATIVE_TO_PARENT, 0.0f,
+            Animation.RELATIVE_TO_PARENT, 1.0f,
+            Animation.RELATIVE_TO_PARENT, 0.0f
+        )
+        anim.duration = 500
+        return anim
     }
 
-    private static Animation createSlideRightToLeftAnimation() {
-        TranslateAnimation anim = new TranslateAnimation(
-                Animation.RELATIVE_TO_PARENT, 1.0f, // De X (direita)
-                Animation.RELATIVE_TO_PARENT, 0.0f, // Para X (esquerda)
-                Animation.RELATIVE_TO_PARENT, 0.0f, // De Y
-                Animation.RELATIVE_TO_PARENT, 0.0f  // Para Y
-        );
-        anim.setDuration(500); // Duração da animação em milissegundos
-        return anim;
+    private fun createSlideRightToLeftAnimation(): Animation {
+        val anim = TranslateAnimation(
+            Animation.RELATIVE_TO_PARENT, 1.0f,
+            Animation.RELATIVE_TO_PARENT, 0.0f,
+            Animation.RELATIVE_TO_PARENT, 0.0f,
+            Animation.RELATIVE_TO_PARENT, 0.0f
+        )
+        anim.duration = 500
+        return anim
     }
 
-    private static Animation createRotateAnimation() {
-        RotateAnimation anim = new RotateAnimation(
-                0.0f, 360.0f, // De e para ângulo
-                Animation.RELATIVE_TO_SELF, 0.5f, // Ponto pivot X
-                Animation.RELATIVE_TO_SELF, 0.5f  // Ponto pivot Y
-        );
-        anim.setDuration(500); // Duração da animação em milissegundos
-        return anim;
+    private fun createRotateAnimation(): Animation {
+        val anim = RotateAnimation(
+            0.0f, 360.0f,
+            Animation.RELATIVE_TO_SELF, 0.5f,
+            Animation.RELATIVE_TO_SELF, 0.5f
+        )
+        anim.duration = 500
+        return anim
     }
 
-    public static Animation createBounceAnimation() {
-        // Configurando a animação de escala
-        ScaleAnimation scaleAnimation = new ScaleAnimation(
-                0.5f, 1.0f, // De e para escala em X
-                0.5f, 1.0f, // De e para escala em Y
-                Animation.RELATIVE_TO_SELF, 0.5f, // Ponto pivot X
-                Animation.RELATIVE_TO_SELF, 0.5f  // Ponto pivot Y
-        );
-        scaleAnimation.setDuration(500); // Duração da animação em milissegundos
+    @JvmStatic
+    fun createBounceAnimation(): Animation {
+        val scaleAnimation = ScaleAnimation(
+            0.5f, 1.0f,
+            0.5f, 1.0f,
+            Animation.RELATIVE_TO_SELF, 0.5f,
+            Animation.RELATIVE_TO_SELF, 0.5f
+        )
+        scaleAnimation.duration = 500
+        scaleAnimation.interpolator = BounceInterpolator()
 
-        // Configurando o interpolador de bounce
-        scaleAnimation.setInterpolator(new BounceInterpolator());
-
-        // Configurando o AnimationSet
-        AnimationSet animationSet = new AnimationSet(true);
-        animationSet.addAnimation(scaleAnimation);
-        animationSet.setFillAfter(true); // Mantém o estado após a animação
-
-        return animationSet;
+        val animationSet = AnimationSet(true)
+        animationSet.addAnimation(scaleAnimation)
+        animationSet.fillAfter = true
+        return animationSet
     }
 
-    private static Animation createShrinkAnimation() {
-        ScaleAnimation anim = new ScaleAnimation(
-                1.0f, 0.0f, // De e para escala em X
-                1.0f, 0.0f, // De e para escala em Y
-                Animation.RELATIVE_TO_SELF, 0.5f, // Ponto pivot X
-                Animation.RELATIVE_TO_SELF, 0.5f  // Ponto pivot Y
-        );
-        anim.setDuration(500); // Duração da animação em milissegundos
-        return anim;
+    private fun createShrinkAnimation(): Animation {
+        val anim = ScaleAnimation(
+            1.0f, 0.0f,
+            1.0f, 0.0f,
+            Animation.RELATIVE_TO_SELF, 0.5f,
+            Animation.RELATIVE_TO_SELF, 0.5f
+        )
+        anim.duration = 500
+        return anim
     }
 
-    private static Animation createFlipAnimation() {
-        ScaleAnimation anim = new ScaleAnimation(
-                1.0f, 1.0f, // De e para escala em X (não muda)
-                1.0f, -1.0f, // De e para escala em Y (inverte verticalmente)
-                Animation.RELATIVE_TO_SELF, 0.5f, // Ponto pivot X
-                Animation.RELATIVE_TO_SELF, 0.5f  // Ponto pivot Y
-        );
-        anim.setDuration(500); // Duração da animação em milissegundos
-        anim.setRepeatCount(1); // Repetir uma vez
-        anim.setRepeatMode(Animation.REVERSE); // Reverter após a primeira execução
-        return anim;
+    private fun createFlipAnimation(): Animation {
+        val anim = ScaleAnimation(
+            1.0f, 1.0f,
+            1.0f, -1.0f,
+            Animation.RELATIVE_TO_SELF, 0.5f,
+            Animation.RELATIVE_TO_SELF, 0.5f
+        )
+        anim.duration = 500
+        anim.repeatCount = 1
+        anim.repeatMode = Animation.REVERSE
+        return anim
     }
 
-    public static Animation createHyperspaceOutAnimation() {
-        // Primeira animação de escala
-        ScaleAnimation firstScaleAnimation = new ScaleAnimation(
-                1.0f, 1.4f, // De e para escala em X
-                1.0f, 0.6f, // De e para escala em Y
-                Animation.RELATIVE_TO_SELF, 0.5f, // Ponto pivot X
-                Animation.RELATIVE_TO_SELF, 0.5f  // Ponto pivot Y
-        );
-        firstScaleAnimation.setDuration(700);
-        firstScaleAnimation.setInterpolator(new AccelerateDecelerateInterpolator());
-        firstScaleAnimation.setFillAfter(false);
+    @JvmStatic
+    fun createHyperspaceOutAnimation(): Animation {
+        val firstScaleAnimation = ScaleAnimation(
+            1.0f, 1.4f,
+            1.0f, 0.6f,
+            Animation.RELATIVE_TO_SELF, 0.5f,
+            Animation.RELATIVE_TO_SELF, 0.5f
+        )
+        firstScaleAnimation.duration = 700
+        firstScaleAnimation.interpolator = AccelerateDecelerateInterpolator()
+        firstScaleAnimation.fillAfter = false
 
-        // Segunda animação de escala dentro de um conjunto de animações
-        ScaleAnimation secondScaleAnimation = new ScaleAnimation(
-                1.4f, 0.0f, // De e para escala em X
-                0.6f, 0.0f, // De e para escala em Y
-                Animation.RELATIVE_TO_SELF, 0.5f, // Ponto pivot X
-                Animation.RELATIVE_TO_SELF, 0.5f  // Ponto pivot Y
-        );
-        secondScaleAnimation.setDuration(400);
+        val secondScaleAnimation = ScaleAnimation(
+            1.4f, 0.0f,
+            0.6f, 0.0f,
+            Animation.RELATIVE_TO_SELF, 0.5f,
+            Animation.RELATIVE_TO_SELF, 0.5f
+        )
+        secondScaleAnimation.duration = 400
 
-        // Animação de rotação dentro de um conjunto de animações
-        RotateAnimation rotateAnimation = new RotateAnimation(
-                0.0f, -45.0f, // De e para ângulo
-                Animation.RELATIVE_TO_SELF, 0.5f, // Ponto pivot X
-                Animation.RELATIVE_TO_SELF, 0.5f  // Ponto pivot Y
-        );
-        rotateAnimation.setDuration(400);
+        val rotateAnimation = RotateAnimation(
+            0.0f, -45.0f,
+            Animation.RELATIVE_TO_SELF, 0.5f,
+            Animation.RELATIVE_TO_SELF, 0.5f
+        )
+        rotateAnimation.duration = 400
 
-        // Conjunto de animações internas
-        AnimationSet innerSet = new AnimationSet(true);
-        innerSet.setInterpolator(new AccelerateInterpolator());
-        innerSet.setStartOffset(700);
-        innerSet.addAnimation(secondScaleAnimation);
-        innerSet.addAnimation(rotateAnimation);
+        val innerSet = AnimationSet(true)
+        innerSet.interpolator = AccelerateInterpolator()
+        innerSet.startOffset = 700
+        innerSet.addAnimation(secondScaleAnimation)
+        innerSet.addAnimation(rotateAnimation)
 
-        // Conjunto de animações principal
-        AnimationSet outerSet = new AnimationSet(false);
-        outerSet.addAnimation(firstScaleAnimation);
-        outerSet.addAnimation(innerSet);
+        val outerSet = AnimationSet(false)
+        outerSet.addAnimation(firstScaleAnimation)
+        outerSet.addAnimation(innerSet)
 
-        return outerSet;
+        return outerSet
     }
 }

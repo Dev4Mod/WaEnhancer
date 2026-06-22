@@ -1,391 +1,400 @@
-package com.wmods.wppenhacer.xposed.utils;
+package com.wmods.wppenhacer.xposed.utils
 
-import android.content.Context;
-import android.content.SharedPreferences;
-import android.util.Pair;
+import android.content.Context
+import android.content.SharedPreferences
+import android.util.Pair
+import de.robv.android.xposed.XposedHelpers
+import java.lang.reflect.Constructor
+import java.lang.reflect.Field
+import java.lang.reflect.Method
+import java.util.Arrays
+import java.util.function.Predicate
+import java.util.stream.Collectors
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
+@Suppress("unused")
+object ReflectionUtils {
 
-import java.lang.reflect.Constructor;
-import java.lang.reflect.Field;
-import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
-import java.util.function.Predicate;
-import java.util.stream.Collectors;
+    private var cachePrefs: SharedPreferences? = null
 
-import de.robv.android.xposed.XposedHelpers;
-
-@SuppressWarnings("unused")
-public class ReflectionUtils {
-
-    private static SharedPreferences cachePrefs;
-
-    /**
-     * Initialize the SharedPreferences for caching reflection results
-     *
-     * @param context Application context
-     */
-    public static void initCache(Context context) {
+    @JvmStatic
+    fun initCache(context: Context) {
         if (cachePrefs == null) {
-            cachePrefs = context.getSharedPreferences("UnobfuscatorCache", Context.MODE_PRIVATE);
+            cachePrefs = context.getSharedPreferences("UnobfuscatorCache", Context.MODE_PRIVATE)
         }
     }
 
-    public static Map<String, Class<?>> primitiveClasses = Map.of(
-            "byte", Byte.TYPE,
-            "short", Short.TYPE,
-            "int", Integer.TYPE,
-            "long", Long.TYPE,
-            "float", Float.TYPE,
-            "boolean", Boolean.TYPE
-    );
+    @JvmField
+    val primitiveClasses: Map<String, Class<*>> = mapOf(
+        "byte" to java.lang.Byte.TYPE,
+        "short" to java.lang.Short.TYPE,
+        "int" to java.lang.Integer.TYPE,
+        "long" to java.lang.Long.TYPE,
+        "float" to java.lang.Float.TYPE,
+        "boolean" to java.lang.Boolean.TYPE
+    )
 
-    public static Class<?> findClass(String className, ClassLoader classLoader) {
-        var primitive = primitiveClasses.get(className);
-        if (primitive != null) return primitive;
-        return XposedHelpers.findClass(className, classLoader);
+    @JvmStatic
+    fun findClass(className: String?, classLoader: ClassLoader): Class<*> {
+        if (className == null) throw RuntimeException("Class name is null")
+        val primitive = primitiveClasses[className]
+        if (primitive != null) return primitive
+        return XposedHelpers.findClass(className, classLoader)
     }
 
-    public static Method findMethodUsingFilter(Class<?> clazz, Predicate<Method> predicate) {
+    @JvmStatic
+    fun findMethodUsingFilter(clazz: Class<*>?, predicate: Predicate<Method>): Method {
+        var current: Class<*>? = clazz
+        while (current != null) {
+            for (method in current.declaredMethods) {
+                if (predicate.test(method)) return method
+            }
+            current = current.superclass
+        }
+        throw RuntimeException("Method not found")
+    }
+
+    @JvmStatic
+    fun findAllMethodsUsingFilter(clazz: Class<*>?, predicate: Predicate<Method>): Array<Method> {
+        var current: Class<*>? = clazz
+        while (current != null) {
+            val results = current.declaredMethods.filter { predicate.test(it) }
+            if (results.isNotEmpty()) return results.toTypedArray()
+            current = current.superclass
+        }
+        throw RuntimeException("Method not found")
+    }
+
+    @JvmStatic
+    fun findFieldUsingFilter(clazz: Class<*>?, predicate: Predicate<Field>): Field {
+        var current: Class<*>? = clazz
+        while (current != null) {
+            for (field in current.declaredFields) {
+                if (predicate.test(field)) return field
+            }
+            current = current.superclass
+        }
+        throw RuntimeException("Field not found")
+    }
+
+    @JvmStatic
+    fun findAllConstructorsUsingFilter(clazz: Class<*>?, predicate: Predicate<Constructor<*>>): Array<Constructor<*>> {
+        var current: Class<*>? = clazz
+        while (current != null) {
+            val results = current.declaredConstructors.filter { predicate.test(it) }
+            if (results.isNotEmpty()) return results.toTypedArray()
+            current = current.superclass
+        }
+        return emptyArray()
+    }
+
+    @JvmStatic
+    fun findConstructorUsingFilter(clazz: Class<*>?, predicate: Predicate<Constructor<*>>): Constructor<*> {
+        var current: Class<*>? = clazz
+        while (current != null) {
+            for (constructor in current.declaredConstructors) {
+                if (predicate.test(constructor)) return constructor
+            }
+            current = current.superclass
+        }
+        throw RuntimeException("Constructor not found")
+    }
+
+    @JvmStatic
+    fun findAllFieldsUsingFilter(clazz: Class<*>?, predicate: Predicate<Field>): Array<Field> {
+        var current: Class<*>? = clazz
+        while (current != null) {
+            val results = current.declaredFields.filter { predicate.test(it) }
+            if (results.isNotEmpty()) return results.toTypedArray()
+            current = current.superclass
+        }
+        return emptyArray()
+    }
+
+
+    @JvmStatic
+    fun findMethodUsingFilterIfExists(clazz: Class<*>?, predicate: Predicate<Method>): Method? {
+        var cls = clazz
         do {
-            var results = Arrays.stream(clazz.getDeclaredMethods()).filter(predicate).findFirst();
-            if (results.isPresent()) return results.get();
-        } while ((clazz = clazz.getSuperclass()) != null);
-        throw new RuntimeException("Method not found");
+            val results = Arrays.stream(cls!!.declaredMethods).filter(predicate).findFirst()
+            if (results.isPresent) return results.get()
+        } while ((cls.superclass.also { cls = it }) != null)
+        return null
     }
 
-    /**
-     * @noinspection SimplifyStreamApiCallChains
-     */
-    public static Method[] findAllMethodsUsingFilter(Class<?> clazz, Predicate<Method> predicate) {
+    @JvmStatic
+    fun findFieldUsingFilterIfExists(clazz: Class<*>?, predicate: Predicate<Field>): Field? {
+        var cls = clazz
         do {
-            var results = Arrays.stream(clazz.getDeclaredMethods()).filter(predicate).collect(Collectors.toList());
-            if (!results.isEmpty()) return results.toArray(new Method[0]);
-        } while ((clazz = clazz.getSuperclass()) != null);
-        throw new RuntimeException("Method not found");
+            val results = Arrays.stream(cls!!.declaredFields).filter(predicate).findFirst()
+            if (results.isPresent) return results.get()
+        } while ((cls.superclass.also { cls = it }) != null)
+        return null
     }
 
-    public static Field findFieldUsingFilter(Class<?> clazz, Predicate<Field> predicate) {
-        do {
-            var results = Arrays.stream(clazz.getDeclaredFields()).filter(predicate).findFirst();
-            if (results.isPresent()) return results.get();
-        } while ((clazz = clazz.getSuperclass()) != null);
-        throw new RuntimeException("Field not found");
-    }
-
-    /**
-     * @noinspection SimplifyStreamApiCallChains
-     */
-    public static Constructor[] findAllConstructorsUsingFilter(Class<?> clazz, Predicate<Constructor> predicate) {
-        do {
-            var results = Arrays.stream(clazz.getDeclaredConstructors()).filter(predicate).collect(Collectors.toList());
-            if (!results.isEmpty()) return results.toArray(new Constructor[0]);
-        } while ((clazz = clazz.getSuperclass()) != null);
-        return new Constructor[0];
-    }
-
-    public static Constructor findConstructorUsingFilter(Class<?> clazz, Predicate<Constructor> predicate) {
-        do {
-            var results = Arrays.stream(clazz.getDeclaredConstructors()).filter(predicate).findFirst();
-            if (results.isPresent()) return results.get();
-        } while ((clazz = clazz.getSuperclass()) != null);
-        throw new RuntimeException("Field not found");
-    }
-
-    /**
-     * @noinspection SimplifyStreamApiCallChains
-     */
-    @NonNull
-    public static Field[] findAllFieldsUsingFilter(Class<?> clazz, @NonNull Predicate<Field> predicate) {
-        do {
-            var results = Arrays.stream(clazz.getDeclaredFields()).filter(predicate).collect(Collectors.toList());
-            if (!results.isEmpty()) return results.toArray(new Field[0]);
-        } while ((clazz = clazz.getSuperclass()) != null);
-        return new Field[0];
-    }
-
-
-    public static Method findMethodUsingFilterIfExists(Class<?> clazz, Predicate<Method> predicate) {
-        do {
-            var results = Arrays.stream(clazz.getDeclaredMethods()).filter(predicate).findFirst();
-            if (results.isPresent()) return results.get();
-        } while ((clazz = clazz.getSuperclass()) != null);
-        return null;
-    }
-
-    public static Field findFieldUsingFilterIfExists(Class<?> clazz, Predicate<Field> predicate) {
-        do {
-            var results = Arrays.stream(clazz.getDeclaredFields()).filter(predicate).findFirst();
-            if (results.isPresent()) return results.get();
-        } while ((clazz = clazz.getSuperclass()) != null);
-        return null;
-    }
-
-    public static boolean isOverridden(Method method) {
-        try {
-            Class<?> superclass = method.getDeclaringClass().getSuperclass();
-            if (superclass == null) return false;
-            Method parentMethod = superclass.getMethod(method.getName(), method.getParameterTypes());
-            return !parentMethod.equals(method);
-
-        } catch (NoSuchMethodException e) {
-            return false;
+    @JvmStatic
+    fun isOverridden(method: Method?): Boolean {
+        if (method == null) return false
+        return try {
+            val superclass = method.declaringClass.superclass ?: return false
+            val parentMethod = superclass.getMethod(method.name, *method.parameterTypes)
+            parentMethod != method
+        } catch (_: NoSuchMethodException) {
+            false
         }
     }
 
 
-    public static List<Field> getFieldsByExtendType(Class<?> cls, Class<?> type) {
-        return Arrays.stream(cls.getFields()).filter(f -> type.isAssignableFrom(f.getType())).collect(Collectors.toList());
+    @JvmStatic
+    fun getFieldsByExtendType(cls: Class<*>, type: Class<*>?): List<Field> {
+        if (type == null) return emptyList()
+        return Arrays.stream(cls.fields).filter { f: Field -> type.isAssignableFrom(f.type) }.collect(Collectors.toList())
     }
 
-    public static List<Field> getFieldsByType(Class<?> cls, Class<?> type) {
-        return Arrays.stream(cls.getFields()).filter(f -> type == f.getType()).collect(Collectors.toList());
+    @JvmStatic
+    fun getFieldsByType(cls: Class<*>, type: Class<*>?): List<Field> {
+        if (type == null) return emptyList()
+        return Arrays.stream(cls.fields).filter { f: Field -> type == f.type }.collect(Collectors.toList())
     }
 
-    public static Field getFieldByExtendType(Class<?> cls, String className) {
-        if (cls == null) return null;
-        if (className == null) return null;
-        return getFieldByExtendType(cls, findClass(className, cls.getClassLoader()));
+    @JvmStatic
+    fun getFieldByExtendType(cls: Class<*>?, className: String?): Field? {
+        if (cls == null || className == null) return null
+        return getFieldByExtendType(cls, findClass(className, cls.classLoader))
     }
 
-    public static Field getFieldByExtendType(Class<?> cls, Class<?> type) {
+    @JvmStatic
+    fun getFieldByExtendType(cls: Class<*>?, type: Class<*>?): Field? {
+        if (cls == null) return null
+        val t = type ?: return null
         if (cachePrefs == null) {
-            return Arrays.stream(cls.getFields()).filter(f -> type.isAssignableFrom(f.getType())).findFirst().orElse(null);
+            return Arrays.stream(cls.fields).filter { f: Field -> t.isAssignableFrom(f.type) }.findFirst().orElse(null)
         }
 
-        String cacheKey = "field_cache_" + cls.getName() + "_" + type.getName();
-
-        String cachedFieldName = cachePrefs.getString(cacheKey, null);
+        val cacheKey = "field_cache_" + cls.name + "_" + t.name
+        val cachedFieldName = cachePrefs?.getString(cacheKey, null)
         if (cachedFieldName != null) {
             try {
-                return cls.getField(cachedFieldName);
-            } catch (NoSuchFieldException e) {
-                cachePrefs.edit().remove(cacheKey).commit();
+                return cls.getField(cachedFieldName)
+            } catch (_: NoSuchFieldException) {
+                cachePrefs?.edit()?.remove(cacheKey)?.commit()
             }
         }
 
-        Field field = Arrays.stream(cls.getFields()).filter(f -> type.isAssignableFrom(f.getType())).findFirst().orElse(null);
+        val field = Arrays.stream(cls.fields).filter { f: Field -> type.isAssignableFrom(f.type) }.findFirst().orElse(null)
 
-        if (field != null) {
-            if (field.getDeclaringClass() == cls) {
-                cachePrefs.edit().putString(cacheKey, field.getName()).commit();
-            }
+        if (field != null && field.declaringClass == cls) {
+            cachePrefs?.edit()?.putString(cacheKey, field.name)?.commit()
         }
 
-        return field;
+        return field
     }
 
-    public static Field getFieldByType(Class<?> cls, String className) {
-        if (cls == null) return null;
-        if (className == null) return null;
-        return getFieldByType(cls, findClass(className, cls.getClassLoader()));
+    @JvmStatic
+    fun getFieldByType(cls: Class<*>?, className: String?): Field? {
+        if (cls == null || className == null) return null
+        return getFieldByType(cls, findClass(className, cls.classLoader))
     }
 
 
-    public static Field getFieldByType(Class<?> cls, Class<?> type) {
+    @JvmStatic
+    fun getFieldByType(cls: Class<*>?, type: Class<*>?): Field? {
+        if (cls == null) return null
+        val t = type ?: return null
         if (cachePrefs == null) {
-            return Arrays.stream(cls.getFields()).filter(f -> type == f.getType()).findFirst().orElse(null);
+            return Arrays.stream(cls.fields).filter { f: Field -> t == f.type }.findFirst().orElse(null)
         }
 
-        String cacheKey = "field_cache_direct_" + cls.getName() + "_" + type.getName();
-
-        String cachedFieldName = cachePrefs.getString(cacheKey, null);
+        val cacheKey = "field_cache_direct_" + cls.name + "_" + t.name
+        val cachedFieldName = cachePrefs?.getString(cacheKey, null)
         if (cachedFieldName != null) {
             try {
-                return cls.getField(cachedFieldName);
-            } catch (NoSuchFieldException e) {
-                cachePrefs.edit().remove(cacheKey).apply();
+                return cls.getField(cachedFieldName)
+            } catch (_: NoSuchFieldException) {
+                cachePrefs?.edit()?.remove(cacheKey)?.apply()
             }
         }
 
-        Field field = Arrays.stream(cls.getFields()).filter(f -> type == f.getType()).findFirst().orElse(null);
+        val field = Arrays.stream(cls.fields).filter { f: Field -> type == f.type }.findFirst().orElse(null)
 
-        if (field != null) {
-            if (field.getDeclaringClass() == cls) {
-                cachePrefs.edit().putString(cacheKey, field.getName()).apply();
+        if (field != null && field.declaringClass == cls) {
+            cachePrefs?.edit()?.putString(cacheKey, field.name)?.apply()
+        }
+
+        return field
+    }
+
+    @JvmStatic
+    fun callMethod(method: Method?, instance: Any?, vararg args: Any?): Any? {
+        if (method == null) return null
+        return try {
+            var actualArgs = args
+            val count = method.parameterCount
+            if (count != args.size) {
+                val newargs = initArray(method.parameterTypes)
+                System.arraycopy(args, 0, newargs, 0, minOf(args.size, count))
+                actualArgs = newargs
             }
+            method.invoke(instance, *actualArgs)
+        } catch (_: Exception) {
+            null
         }
-
-        return field;
     }
 
-    public static Object callMethod(Method method, Object instance, Object... args) {
-        try {
-            var count = method.getParameterCount();
-            if (count != args.length) {
-                var newargs = initArray(method.getParameterTypes());
-                System.arraycopy(args, 0, newargs, 0, Math.min(args.length, count));
-                args = newargs;
+    @JvmStatic
+    fun initArray(parameterTypes: Array<Class<*>>): Array<Any?> {
+        val args = arrayOfNulls<Any>(parameterTypes.size)
+        for (i in parameterTypes.indices) {
+            args[i] = getDefaultValue(parameterTypes[i])
+        }
+        return args
+    }
+
+    @JvmStatic
+    fun getDefaultValue(paramType: Class<*>?): Any? {
+        return when (paramType) {
+            Int::class.java, Int::class.javaObjectType -> 0
+            Long::class.java, Long::class.javaObjectType -> 0L
+            Double::class.java, Double::class.javaObjectType -> 0.0
+            Boolean::class.java, Boolean::class.javaObjectType -> false
+            else -> null
+        }
+    }
+
+    @JvmStatic
+    fun getObjectField(field: Field?, thisObject: Any?): Any? {
+        if (field == null) return null
+        return try {
+            field[thisObject]
+        } catch (_: Exception) {
+            null
+        }
+    }
+
+    @JvmStatic
+    fun findIndexOfType(args: Array<out Any?>, type: Class<*>): Int {
+        for (i in args.indices) {
+            val arg = args[i] ?: continue
+            if (arg is Class<*>) {
+                if (type.isAssignableFrom(arg)) return i
+                continue
             }
-            return method.invoke(instance, args);
-        } catch (Exception e) {
-            return null;
+            if (type.isInstance(arg)) return i
         }
+        return -1
     }
 
-    public static Object[] initArray(Class<?>[] parameterTypes) {
-        var args = new Object[parameterTypes.length];
-        for (int i = 0; i < parameterTypes.length; i++) {
-            args[i] = getDefaultValue(parameterTypes[i]);
-        }
-        return args;
-    }
-
-    public static Object getDefaultValue(Class<?> paramType) {
-        if (paramType == int.class || paramType == Integer.class) {
-            return 0;
-        } else if (paramType == long.class || paramType == Long.class) {
-            return 0L;
-        } else if (paramType == double.class || paramType == Double.class) {
-            return 0.0;
-        } else if (paramType == boolean.class || paramType == Boolean.class) {
-            return false;
-        }
-        return null;
-    }
-
-    public static Object getObjectField(Field field, Object thisObject) {
-        try {
-            return field.get(thisObject);
-        } catch (Exception e) {
-            return null;
-        }
-    }
-
-    public static int findIndexOfType(Object[] args, Class<?> type) {
-        for (int i = 0; i < args.length; i++) {
-            if (args[i] == null) continue;
-            if (args[i] instanceof Class) {
-                if (type.isAssignableFrom((Class) args[i])) return i;
-                continue;
-            }
-            if (type.isInstance(args[i])) return i;
-        }
-        return -1;
-    }
-
-    public static <T> List<Pair<Integer, T>> findInstancesOfType(Object[] args, Class<T> type) {
-        var result = new ArrayList<Pair<Integer, T>>();
-        for (int i = 0; i < args.length; i++) {
-            var arg = args[i];
-            if (arg == null || arg instanceof Class) continue;
-
+    @JvmStatic
+    fun <T> findInstancesOfType(args: Array<out Any?>, type: Class<T>): List<Pair<Int, T>> {
+        val result = ArrayList<Pair<Int, T>>()
+        for (i in args.indices) {
+            val arg = args[i]
+            if (arg == null || arg is Class<*>) continue
             if (type.isInstance(arg)) {
-                result.add(new Pair<>(i, type.cast(arg)));
+                @Suppress("UNCHECKED_CAST")
+                result.add(Pair(i, type.cast(arg)))
             }
         }
-        return result;
+        return result
     }
 
-    public static <T> List<Pair<Integer, Class<? extends T>>> findClassesOfType(Class<?>[] args, Class<T> type) {
-        List<Pair<Integer, Class<? extends T>>> result = new ArrayList<>();
-
-        for (int i = 0; i < args.length; i++) {
-            Class<?> arg = args[i];
+    @JvmStatic
+    fun <T> findClassesOfType(args: Array<out Class<*>>, type: Class<T>): List<Pair<Int, Class<out T>>> {
+        val result = ArrayList<Pair<Int, Class<out T>>>()
+        for (i in args.indices) {
+            val arg = args[i]
             if (type.isAssignableFrom(arg)) {
-                //noinspection unchecked
-                result.add(new Pair<>(i, (Class<? extends T>) arg));
+                @Suppress("UNCHECKED_CAST")
+                result.add(Pair(i, arg as Class<out T>))
             }
         }
-        return result;
+        return result
     }
 
-    /**
-     * Searches the provided argument array for instances matching the specified type
-     * and returns the occurrence at the given index.
-     *
-     * @param args the argument array to search
-     * @param typeClass the target type used to filter matching arguments
-     * @param index the occurrence index to return; use {@code -1} to return the last matching occurrence
-     * @param <T> the expected return type
-     * @return the matching instance at the specified occurrence index, the last matching
-     *         instance if {@code index} is {@code -1}, or {@code null} if no matching
-     *         instance is found or the index is out of bounds
-     */
-    @Nullable
-    public static <T> T getArg(Object[] args, Class<T> typeClass, int index) {
-        var list = findInstancesOfType(args, typeClass);
-        if (list.isEmpty()) return null;
-        if (index == -1) return list.get(list.size() - 1).second;
-        if (index < list.size()) return list.get(index).second;
-        return null;
+    @JvmStatic
+    fun <T> getArg(args: Array<out Any?>, typeClass: Class<T>, index: Int): T? {
+        val list = findInstancesOfType(args, typeClass)
+        if (list.isEmpty()) return null
+        if (index == -1) return list[list.size - 1].second
+        if (index < list.size) return list[index].second
+        return null
     }
 
-    public static boolean isCalledFromStrings(String... fragments) {
-        for (String fragment : fragments) {
-            if (fragment == null || fragment.trim().isEmpty()) {
-                throw new IllegalArgumentException("Stack trace fragments must not be blank.");
-            }
+    @JvmStatic
+    fun isCalledFromStrings(vararg fragments: String): Boolean {
+        for (fragment in fragments) {
+            require(fragment != null && fragment.trim().isNotEmpty()) { "Stack trace fragments must not be blank." }
         }
 
-        StackTraceElement[] trace = new Throwable().getStackTrace();
-        int limit = Math.min(trace.length, 20);
+        val trace = Throwable().stackTrace
+        val limit = minOf(trace.size, 20)
 
-        for (int i = 2; i < limit; i++) {
-            StackTraceElement frame = trace[i];
-            String className = frame.getClassName();
-            String methodName = frame.getMethodName();
+        for (i in 2 until limit) {
+            val frame = trace[i]
+            val className = frame.className
+            val methodName = frame.methodName
 
-            for (String fragment : fragments) {
+            for (fragment in fragments) {
                 if (className.contains(fragment) || methodName.contains(fragment)) {
-                    return true;
+                    return true
                 }
             }
         }
 
-        return false;
+        return false
     }
 
-    public static boolean isClassSimpleNameString(Class<?> aClass, String s) {
+    @JvmStatic
+    fun isClassSimpleNameString(aClass: Class<*>?, s: String?): Boolean {
+        if (aClass == null || s == null) return false
         try {
-            var cls = aClass;
+            var cls: Class<*>? = aClass
             do {
-                if (cls.getSimpleName().equals(s)) return true;
-                if (cls.getName().startsWith("android.widget.") || cls.getName().startsWith("android.view."))
-                    return false;
-            } while ((cls = cls.getSuperclass()) != null);
-        } catch (Exception ignored) {
+                if (cls!!.simpleName == s) return true
+                if (cls.name.startsWith("android.widget.") || cls.name.startsWith("android.view."))
+                    return false
+            } while (cls.also { cls = it.superclass } != null)
+        } catch (_: Exception) {
         }
-        return false;
+        return false
     }
 
-    public static boolean isCalledFromClass(Class<?> cls) {
-        String className = cls.getName();
-        StackTraceElement[] stacks = new Throwable().getStackTrace();
+    @JvmStatic
+    fun isCalledFromClass(cls: Class<*>?): Boolean {
+        val className = cls?.name ?: return false
+        val stacks = Throwable().stackTrace
 
-        for (int i = 2; i < stacks.length; i++) {
-            if (stacks[i].getClassName().equals(className)) {
-                return true;
+        for (i in 2 until stacks.size) {
+            if (stacks[i].className == className) {
+                return true
             }
         }
 
-        return false;
+        return false
     }
 
-    public static boolean isCalledFromMethod(Method method) {
-        String declaringClassName = method.getDeclaringClass().getName();
-        String methodName = method.getName();
-        StackTraceElement[] stacks = new Throwable().getStackTrace();
+    @JvmStatic
+    fun isCalledFromMethod(method: Method?): Boolean {
+        if (method == null) return false
+        val declaringClassName = method.declaringClass.name
+        val methodName = method.name
+        val stacks = Throwable().stackTrace
 
-        for (int i = 2; i < stacks.length; i++) {
-            if (stacks[i].getClassName().equals(declaringClassName)
-                    && stacks[i].getMethodName().equals(methodName)) {
-                return true;
+        for (i in 2 until stacks.size) {
+            if (stacks[i].className == declaringClassName && stacks[i].methodName == methodName) {
+                return true
             }
         }
 
-        return false;
+        return false
     }
 
 
-    public static void setObjectField(Field field, Object instance, Object value) {
+    @JvmStatic
+    fun setObjectField(field: Field?, instance: Any?, value: Any?) {
+        if (field == null) return
         try {
-            field.set(instance, value);
-        } catch (Exception ignored) {
+            field[instance] = value
+        } catch (_: Exception) {
         }
     }
 }

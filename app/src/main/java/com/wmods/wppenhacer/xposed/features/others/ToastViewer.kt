@@ -101,13 +101,13 @@ class ToastViewer(classLoader: ClassLoader, preferences: XSharedPreferences) :
                 messageStatusUpdateReceipt.javaClass,
                 FMessageWpp.TYPE
             )
-            val type = fieldByType.getInt(messageStatusUpdateReceipt)
-            val id = fieldId.getLong(messageStatusUpdateReceipt)
+            val type = fieldByType!!.getInt(messageStatusUpdateReceipt)
+            val id = fieldId!!.getLong(messageStatusUpdateReceipt)
             if (type != 13) return
-            val userJid = UserJid(fieldByUserJid.get(messageStatusUpdateReceipt))
+            val userJid = UserJid(fieldByUserJid!!.get(messageStatusUpdateReceipt))
             val fmessage = AtomicReference<Any?>()
             try {
-                fmessage.set(fieldMessage.get(messageStatusUpdateReceipt))
+                fmessage.set(fieldMessage!!.get(messageStatusUpdateReceipt))
             } catch (_: Exception) {
             }
             CompletableFuture.runAsync {

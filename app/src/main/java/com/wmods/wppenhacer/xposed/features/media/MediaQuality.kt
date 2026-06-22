@@ -92,7 +92,7 @@ class MediaQuality(loader: ClassLoader, preferences: XSharedPreferences) :
                         mediaDataVideoConfiguration
                     )
                     val mediaDataVideoConfigObj =
-                        fieldMediaDataVideoConfiguration.get(videoProcessor)
+                        fieldMediaDataVideoConfiguration!!.get(videoProcessor)
                     val fieldforceSingleTranscoding =
                         fieldsMediaDataVideoConfiguration["forceSingleTranscoding"]
                     fieldforceSingleTranscoding?.setBoolean(mediaDataVideoConfigObj, true)

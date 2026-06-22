@@ -345,7 +345,7 @@ class SeparateGroup(loader: ClassLoader, preferences: XSharedPreferences) :
                     BaseAdapter::class.java
                 ) ?: return
                 val convField = ReflectionUtils.getFieldByType(baseField.type, cFragClass)
-                val thiz = convField.get(baseField.get(param.thisObject)) ?: return
+                val thiz = convField!!.get(baseField.get(param.thisObject)) ?: return
                 val resultList = filterChat(thiz, chatsList)
                 XposedHelpers.setObjectField(filters, "values", resultList)
                 XposedHelpers.setIntField(filters, "count", resultList.size)
