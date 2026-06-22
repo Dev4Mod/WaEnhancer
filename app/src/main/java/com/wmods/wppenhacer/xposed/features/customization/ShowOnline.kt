@@ -1,210 +1,216 @@
-package com.wmods.wppenhacer.xposed.features.customization;
+package com.wmods.wppenhacer.xposed.features.customization
 
-import android.annotation.SuppressLint;
-import android.content.Context;
-import android.graphics.Color;
-import android.text.TextUtils;
-import android.view.Gravity;
-import android.view.View;
-import android.widget.FrameLayout;
-import android.widget.ImageView;
-import android.widget.LinearLayout;
-import android.widget.RelativeLayout;
-import android.widget.TextView;
+import android.annotation.SuppressLint
+import android.content.Context
+import android.graphics.Color
+import android.text.TextUtils
+import android.view.Gravity
+import android.view.View
+import android.widget.FrameLayout
+import android.widget.ImageView
+import android.widget.LinearLayout
+import android.widget.RelativeLayout
+import android.widget.TextView
+import androidx.core.text.TextUtilsCompat
+import com.wmods.wppenhacer.R
+import com.wmods.wppenhacer.xposed.core.Feature
+import com.wmods.wppenhacer.xposed.core.components.WaContactWpp
+import com.wmods.wppenhacer.xposed.core.devkit.Unobfuscator
+import com.wmods.wppenhacer.xposed.core.devkit.UnobfuscatorCache
+import com.wmods.wppenhacer.xposed.features.listeners.ContactItemListener
+import com.wmods.wppenhacer.xposed.utils.ReflectionUtils
+import com.wmods.wppenhacer.xposed.utils.Utils
+import de.robv.android.xposed.XC_MethodHook
+import de.robv.android.xposed.XSharedPreferences
+import de.robv.android.xposed.XposedBridge
+import de.robv.android.xposed.XposedHelpers
+import java.lang.reflect.Field
+import java.lang.reflect.Method
+import java.util.Locale
 
-import androidx.annotation.NonNull;
-import androidx.core.text.TextUtilsCompat;
+class ShowOnline(loader: ClassLoader, preferences: XSharedPreferences) : Feature(loader, preferences) {
 
-import com.wmods.wppenhacer.R;
-import com.wmods.wppenhacer.xposed.core.Feature;
-import com.wmods.wppenhacer.xposed.core.components.WaContactWpp;
-import com.wmods.wppenhacer.xposed.core.devkit.Unobfuscator;
-import com.wmods.wppenhacer.xposed.core.devkit.UnobfuscatorCache;
-import com.wmods.wppenhacer.xposed.features.listeners.ContactItemListener;
-import com.wmods.wppenhacer.xposed.utils.ReflectionUtils;
-import com.wmods.wppenhacer.xposed.utils.Utils;
+    private var mStatusUser: Any? = null
+    private var mInstancePresence: Any? = null
+    private var sendPresenceMethod: Method? = null
+    private var tcTokenMethod: Method? = null
+    private var getStatusUser: Method? = null
+    private var fieldTokenDBInstance: Field? = null
+    private var tokenClass: Class<*>? = null
 
-import java.lang.reflect.Method;
-import java.util.Locale;
+    override fun doHook() {
+        val showOnlineText = prefs.getBoolean("showonlinetext", false)
+        val showOnlineIcon = prefs.getBoolean("dotonline", false)
+        if (!showOnlineText && !showOnlineIcon) return
 
-import de.robv.android.xposed.XC_MethodHook;
-import de.robv.android.xposed.XSharedPreferences;
-import de.robv.android.xposed.XposedBridge;
-import de.robv.android.xposed.XposedHelpers;
-
-public class ShowOnline extends Feature {
-
-    private Object mStatusUser;
-    private Object mInstancePresence;
-    private Method sendPresenceMethod;
-    private Method tcTokenMethod;
-    private Method getStatusUser;
-    private java.lang.reflect.Field fieldTokenDBInstance;
-    private Class<?> tokenClass;
-
-    public ShowOnline(@NonNull ClassLoader loader, @NonNull XSharedPreferences preferences) {
-        super(loader, preferences);
-    }
-
-    private static void setStatus(String status, ImageView csDot, TextView lastSeenText) {
-        if (!TextUtils.isEmpty(status) && status.trim().equals(UnobfuscatorCache.getInstance().getString("online"))) {
-            if (csDot != null) {
-                csDot.setVisibility(View.VISIBLE);
-            }
-        }
-
-        if (lastSeenText != null) {
-            if (!TextUtils.isEmpty(status)) {
-                lastSeenText.setText(status);
-                if (UnobfuscatorCache.getInstance().getString("online").equals(status)) {
-                    lastSeenText.setTextColor(Color.GREEN);
-                } else {
-                    lastSeenText.setTextColor(0xffcac100);
-                }
-            } else {
-                lastSeenText.setText("");
-                lastSeenText.setTextColor(Color.GRAY);
-            }
-        }
-    }
-
-    @Override
-    public void doHook() throws Throwable {
-
-        var showOnlineText = prefs.getBoolean("showonlinetext", false);
-        var showOnlineIcon = prefs.getBoolean("dotonline", false);
-        if (!showOnlineText && !showOnlineIcon) return;
-
-        var classViewHolder = Unobfuscator.loadViewHolder(classLoader);
-        XposedBridge.hookAllConstructors(classViewHolder, new XC_MethodHook() {
+        val classViewHolder = Unobfuscator.loadViewHolder(classLoader)
+        XposedBridge.hookAllConstructors(classViewHolder, object : XC_MethodHook() {
             @SuppressLint("ResourceType")
-            @Override
-            protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-                var view = (View) param.args[1];
-                var context = (Context) param.args[0];
-                LinearLayout content = view.findViewById(Utils.getID("conversations_row_content", "id"));
+            override fun afterHookedMethod(param: MethodHookParam) {
+                val view = param.args[1] as View
+                val context = param.args[0] as Context
+                var content = view.findViewById<LinearLayout>(Utils.getID("conversations_row_content", "id"))
                 if (content == null) {
-                    content = view.findViewById(Utils.getID("row_content", "id"));
+                    content = view.findViewById(Utils.getID("row_content", "id"))
                 }
                 if (showOnlineText) {
-                    var linearLayout = new LinearLayout(context);
-                    linearLayout.setGravity(Gravity.END | Gravity.TOP);
-                    content.addView(linearLayout);
+                    val linearLayout = LinearLayout(context)
+                    linearLayout.gravity = Gravity.END or Gravity.TOP
+                    content.addView(linearLayout)
 
-                    // Add TextView to show last seen time
-                    TextView lastSeenText = new TextView(context);
-                    lastSeenText.setId(0x7FFF0002);
-                    lastSeenText.setTextSize(12f);
-                    lastSeenText.setText("");
-                    lastSeenText.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.MATCH_PARENT));
-                    lastSeenText.setGravity(Gravity.CENTER_VERTICAL);
-                    lastSeenText.setVisibility(View.VISIBLE);
-                    linearLayout.addView(lastSeenText);
+                    val lastSeenText = TextView(context)
+                    lastSeenText.id = 0x7FFF0002
+                    lastSeenText.textSize = 12f
+                    lastSeenText.text = ""
+                    lastSeenText.layoutParams = LinearLayout.LayoutParams(
+                        LinearLayout.LayoutParams.WRAP_CONTENT,
+                        LinearLayout.LayoutParams.MATCH_PARENT
+                    )
+                    lastSeenText.gravity = Gravity.CENTER_VERTICAL
+                    lastSeenText.visibility = View.VISIBLE
+                    linearLayout.addView(lastSeenText)
                 }
                 if (showOnlineIcon) {
-                    var contactView = (FrameLayout) view.findViewById(Utils.getID("contact_selector", "id"));
-                    var firstChild = contactView.getChildAt(0);
-                    var isLeftToRight = TextUtilsCompat.getLayoutDirectionFromLocale(Locale.getDefault()) == View.LAYOUT_DIRECTION_LTR;
-                    if (firstChild instanceof ImageView photoView) {
-                        contactView.removeView(photoView);
+                    val contactView = view.findViewById<FrameLayout>(Utils.getID("contact_selector", "id"))
+                    val firstChild = contactView.getChildAt(0)
+                    val isLeftToRight = TextUtilsCompat.getLayoutDirectionFromLocale(Locale.getDefault()) == View.LAYOUT_DIRECTION_LTR
+                    if (firstChild is ImageView) {
+                        contactView.removeView(firstChild)
 
-                        var relativeLayout = new RelativeLayout(context);
-                        relativeLayout.setId(0x7FFF0003);
-                        var params = new RelativeLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
-                        params.addRule(RelativeLayout.CENTER_IN_PARENT);
-                        photoView.setLayoutParams(params);
-                        relativeLayout.addView(photoView);
-                        contactView.addView(relativeLayout);
+                        val relativeLayout = RelativeLayout(context)
+                        relativeLayout.id = 0x7FFF0003
+                        val params = RelativeLayout.LayoutParams(
+                            LinearLayout.LayoutParams.WRAP_CONTENT,
+                            LinearLayout.LayoutParams.WRAP_CONTENT
+                        )
+                        params.addRule(RelativeLayout.CENTER_IN_PARENT)
+                        firstChild.layoutParams = params
+                        relativeLayout.addView(firstChild)
+                        contactView.addView(relativeLayout)
 
-                        var imageView = new ImageView(context);
-                        imageView.setId(0x7FFF0001);
-                        var params2 = new RelativeLayout.LayoutParams(Utils.dipToPixels(14), Utils.dipToPixels(14));
-                        params2.addRule(RelativeLayout.ALIGN_TOP, contactView.getId());
-                        params2.addRule(isLeftToRight ? RelativeLayout.ALIGN_RIGHT : RelativeLayout.ALIGN_LEFT, photoView.getId());
-                        params2.topMargin = Utils.dipToPixels(5);
-                        imageView.setLayoutParams(params2);
-                        imageView.setImageResource(R.drawable.online);
-                        imageView.setAdjustViewBounds(true);
-                        imageView.setScaleType(ImageView.ScaleType.FIT_XY);
-                        imageView.setVisibility(View.INVISIBLE);
-                        relativeLayout.addView(imageView);
-                    } else if (firstChild instanceof RelativeLayout relativeLayout) {
-                        var photoView = (ImageView) relativeLayout.getChildAt(0);
+                        val imageView = ImageView(context)
+                        imageView.id = 0x7FFF0001
+                        val params2 = RelativeLayout.LayoutParams(
+                            Utils.dipToPixels(14), Utils.dipToPixels(14)
+                        )
+                        params2.addRule(RelativeLayout.ALIGN_TOP, contactView.id)
+                        params2.addRule(
+                            if (isLeftToRight) RelativeLayout.ALIGN_RIGHT else RelativeLayout.ALIGN_LEFT,
+                            firstChild.id
+                        )
+                        params2.topMargin = Utils.dipToPixels(5)
+                        imageView.layoutParams = params2
+                        imageView.setImageResource(R.drawable.online)
+                        imageView.adjustViewBounds = true
+                        imageView.scaleType = ImageView.ScaleType.FIT_XY
+                        imageView.visibility = View.INVISIBLE
+                        relativeLayout.addView(imageView)
+                    } else if (firstChild is RelativeLayout) {
+                        val photoView = firstChild.getChildAt(0) as ImageView
 
-                        var params = new RelativeLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
-                        params.addRule(RelativeLayout.CENTER_IN_PARENT);
-                        photoView.setLayoutParams(params);
+                        val params = RelativeLayout.LayoutParams(
+                            LinearLayout.LayoutParams.WRAP_CONTENT,
+                            LinearLayout.LayoutParams.WRAP_CONTENT
+                        )
+                        params.addRule(RelativeLayout.CENTER_IN_PARENT)
+                        photoView.layoutParams = params
 
-                        var imageView = new ImageView(context);
-                        imageView.setId(0x7FFF0001);
-                        var params2 = new RelativeLayout.LayoutParams(Utils.dipToPixels(14), Utils.dipToPixels(14));
-                        params2.addRule(RelativeLayout.ALIGN_TOP, contactView.getId());
-                        params2.addRule(isLeftToRight ? RelativeLayout.ALIGN_RIGHT : RelativeLayout.ALIGN_LEFT, photoView.getId());
-                        params2.topMargin = Utils.dipToPixels(5);
-                        imageView.setLayoutParams(params2);
-                        imageView.setImageResource(R.drawable.online);
-                        imageView.setAdjustViewBounds(true);
-                        imageView.setScaleType(ImageView.ScaleType.FIT_XY);
-                        imageView.setVisibility(View.INVISIBLE);
-                        relativeLayout.addView(imageView);
+                        val imageView = ImageView(context)
+                        imageView.id = 0x7FFF0001
+                        val params2 = RelativeLayout.LayoutParams(
+                            Utils.dipToPixels(14), Utils.dipToPixels(14)
+                        )
+                        params2.addRule(RelativeLayout.ALIGN_TOP, contactView.id)
+                        params2.addRule(
+                            if (isLeftToRight) RelativeLayout.ALIGN_RIGHT else RelativeLayout.ALIGN_LEFT,
+                            photoView.id
+                        )
+                        params2.topMargin = Utils.dipToPixels(5)
+                        imageView.layoutParams = params2
+                        imageView.setImageResource(R.drawable.online)
+                        imageView.adjustViewBounds = true
+                        imageView.scaleType = ImageView.ScaleType.FIT_XY
+                        imageView.visibility = View.INVISIBLE
+                        firstChild.addView(imageView)
                     }
                 }
             }
-        });
+        })
 
-        getStatusUser = Unobfuscator.loadStatusUserMethod(classLoader);
-        sendPresenceMethod = Unobfuscator.loadSendPresenceMethod(classLoader);
-        tcTokenMethod = Unobfuscator.loadTcTokenMethod(classLoader);
+        getStatusUser = Unobfuscator.loadStatusUserMethod(classLoader)
+        sendPresenceMethod = Unobfuscator.loadSendPresenceMethod(classLoader)
+        tcTokenMethod = Unobfuscator.loadTcTokenMethod(classLoader)
 
-        XposedBridge.hookAllConstructors(getStatusUser.getDeclaringClass(), new XC_MethodHook() {
-            @Override
-            protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-                mStatusUser = param.thisObject;
+        XposedBridge.hookAllConstructors(getStatusUser!!.declaringClass, object : XC_MethodHook() {
+            override fun afterHookedMethod(param: MethodHookParam) {
+                mStatusUser = param.thisObject
             }
-        });
+        })
 
-        XposedBridge.hookAllConstructors(sendPresenceMethod.getDeclaringClass(), new XC_MethodHook() {
-            @Override
-            protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-                mInstancePresence = param.thisObject;
+        XposedBridge.hookAllConstructors(sendPresenceMethod!!.declaringClass, object : XC_MethodHook() {
+            override fun afterHookedMethod(param: MethodHookParam) {
+                mInstancePresence = param.thisObject
             }
-        });
+        })
 
-        // load methods
-        tokenClass = sendPresenceMethod.getParameterTypes()[2];
-        fieldTokenDBInstance = ReflectionUtils.getFieldByExtendType(sendPresenceMethod.getDeclaringClass(), tcTokenMethod.getDeclaringClass());
+        tokenClass = sendPresenceMethod!!.parameterTypes[2]
+        fieldTokenDBInstance = ReflectionUtils.getFieldByExtendType(
+            sendPresenceMethod!!.declaringClass, tcTokenMethod!!.declaringClass
+        )
 
-        // Register listener
-        ContactItemListener.contactListeners.add(new ContactItemListener.OnContactItemListener() {
-            @Override
+        ContactItemListener.contactListeners.add(object : ContactItemListener.OnContactItemListener() {
             @SuppressLint("ResourceType")
-            public void onBind(WaContactWpp waContact, View view) {
+            override fun onBind(waContact: WaContactWpp?, view: View?) {
                 try {
-                    var userJid = waContact.getUserJid();
-                    if (userJid.isGroup()) return;
+                    val userJid = waContact!!.userJid
+                    if (userJid.isGroup) return
 
-                    ImageView csDot = showOnlineIcon ? view.findViewById(0x7FFF0001) : null;
+                    val csDot: ImageView? = if (showOnlineIcon) view?.findViewById(0x7FFF0001) else null
                     if (showOnlineIcon && csDot != null) {
-                        csDot.setVisibility(View.INVISIBLE);
+                        csDot.visibility = View.INVISIBLE
                     }
-                    TextView lastSeenText = showOnlineText ? view.findViewById(0x7FFF0002) : null;
+                    val lastSeenText: TextView? = if (showOnlineText) view?.findViewById(0x7FFF0002) else null
 
-                    var tokenDBInstance = fieldTokenDBInstance.get(mInstancePresence);
-                    var tokenData = ReflectionUtils.callMethod(tcTokenMethod, tokenDBInstance, userJid.userJid);
-                    var tokenObj = tokenClass.getConstructors()[0].newInstance(tokenData == null ? null : XposedHelpers.getObjectField(tokenData, "A01"));
-                    sendPresenceMethod.invoke(null, userJid.userJid, null, tokenObj, mInstancePresence);
-                    var status = (String) ReflectionUtils.callMethod(getStatusUser, mStatusUser, waContact.getObject(), false);
-                    setStatus(status, csDot, lastSeenText);
-                } catch (Exception e) {
-                    XposedBridge.log(e);
+                    val tokenDBInstance = fieldTokenDBInstance!!.get(mInstancePresence)
+                    val tokenData = ReflectionUtils.callMethod(tcTokenMethod, tokenDBInstance, userJid.userJid)
+                    val tokenObj = tokenClass!!.constructors[0].newInstance(
+                        if (tokenData == null) null else XposedHelpers.getObjectField(tokenData, "A01")
+                    )
+                    sendPresenceMethod!!.invoke(null, userJid.userJid, null, tokenObj, mInstancePresence)
+                    val status = ReflectionUtils.callMethod(getStatusUser, mStatusUser, waContact.getObject(), false) as String
+                    setStatus(status, csDot, lastSeenText)
+                } catch (e: Exception) {
+                    XposedBridge.log(e)
                 }
             }
-        });
+        })
     }
 
-    @NonNull
-    @Override
-    public String getPluginName() {
-        return "Conversation";
+    override fun getPluginName(): String {
+        return "Conversation"
+    }
+
+    companion object {
+        private fun setStatus(status: String?, csDot: ImageView?, lastSeenText: TextView?) {
+            if (!TextUtils.isEmpty(status) && status!!.trim { it <= ' ' } == UnobfuscatorCache.getInstance().getString("online")) {
+                if (csDot != null) {
+                    csDot.visibility = View.VISIBLE
+                }
+            }
+
+            if (lastSeenText != null) {
+                if (!TextUtils.isEmpty(status)) {
+                    lastSeenText.text = status
+                    if (UnobfuscatorCache.getInstance().getString("online") == status) {
+                        lastSeenText.setTextColor(Color.GREEN)
+                    } else {
+                        lastSeenText.setTextColor(0xffcac100.toInt())
+                    }
+                } else {
+                    lastSeenText.text = ""
+                    lastSeenText.setTextColor(Color.GRAY)
+                }
+            }
+        }
     }
 }

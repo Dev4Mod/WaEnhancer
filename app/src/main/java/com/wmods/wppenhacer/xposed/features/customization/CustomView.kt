@@ -1,1207 +1,1165 @@
-package com.wmods.wppenhacer.xposed.features.customization;
+package com.wmods.wppenhacer.xposed.features.customization
 
-import static com.wmods.wppenhacer.utils.ColorReplacement.replaceColors;
+import android.app.Activity
+import android.content.Context
+import android.content.res.ColorStateList
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
+import android.graphics.Canvas
+import android.graphics.LinearGradient
+import android.graphics.Paint
+import android.graphics.PorterDuff
+import android.graphics.Shader
+import android.graphics.Typeface
+import android.graphics.drawable.BitmapDrawable
+import android.graphics.drawable.Drawable
+import android.graphics.drawable.ShapeDrawable
+import android.graphics.drawable.shapes.RectShape
+import android.text.TextUtils
+import android.util.DisplayMetrics
+import android.util.Log
+import android.util.LruCache
+import android.view.Gravity
+import android.view.View
+import android.view.ViewGroup
+import android.widget.FrameLayout
+import android.widget.ImageView
+import android.widget.RelativeLayout
+import android.widget.TextView
+import com.wmods.wppenhacer.preference.ThemePreference
+import com.wmods.wppenhacer.utils.ColorReplacement.replaceColors
+import com.wmods.wppenhacer.utils.IColors
+import com.wmods.wppenhacer.xposed.core.Feature
+import com.wmods.wppenhacer.xposed.core.WppCore
+import com.wmods.wppenhacer.xposed.utils.ReflectionUtils
+import com.wmods.wppenhacer.xposed.utils.Utils
+import cz.vutbr.web.css.CSSFactory
+import cz.vutbr.web.css.RuleSet
+import cz.vutbr.web.css.StyleSheet
+import cz.vutbr.web.css.Term
+import cz.vutbr.web.css.TermColor
+import cz.vutbr.web.css.TermFloatValue
+import cz.vutbr.web.css.TermFunction
+import cz.vutbr.web.css.TermLength
+import cz.vutbr.web.css.TermURI
+import de.robv.android.xposed.XC_MethodHook
+import de.robv.android.xposed.XSharedPreferences
+import de.robv.android.xposed.XposedBridge
+import de.robv.android.xposed.XposedHelpers
+import java.io.File
+import java.io.FileInputStream
+import java.io.FileOutputStream
+import java.io.IOException
+import java.io.ObjectInputStream
+import java.io.ObjectOutputStream
+import java.io.Serializable
+import java.net.URL
+import java.nio.charset.StandardCharsets
+import java.security.MessageDigest
+import java.util.Objects
+import java.util.Properties
+import java.util.WeakHashMap
+import kotlin.math.cos
+import kotlin.math.sin
+import androidx.core.graphics.drawable.toDrawable
+import androidx.core.graphics.scale
+import androidx.core.graphics.createBitmap
 
-import android.app.Activity;
-import android.content.Context;
-import android.content.res.ColorStateList;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.graphics.Canvas;
-import android.graphics.LinearGradient;
-import android.graphics.Paint;
-import android.graphics.PorterDuff;
-import android.graphics.Shader;
-import android.graphics.Typeface;
-import android.graphics.drawable.BitmapDrawable;
-import android.graphics.drawable.ColorDrawable;
-import android.graphics.drawable.Drawable;
-import android.graphics.drawable.ShapeDrawable;
-import android.graphics.drawable.shapes.RectShape;
-import android.text.TextUtils;
-import android.util.DisplayMetrics;
-import android.util.Log;
-import android.util.LruCache;
-import android.view.Gravity;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.FrameLayout;
-import android.widget.ImageView;
-import android.widget.RelativeLayout;
-import android.widget.TextView;
+class CustomView(loader: ClassLoader, preferences: XSharedPreferences) : Feature(loader, preferences) {
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
+    private var cacheImages: DrawableCache? = null
+    private val chacheDrawables = HashMap<String, Drawable>()
+    private var properties: Properties? = null
+    private val processedViews = WeakHashMap<View, Boolean>()
+    private val forcedVisibilityMap = WeakHashMap<View, Int>()
+    private val forcedBackgroundMap = WeakHashMap<View, Drawable>()
+    private val forcedDrawableMap = WeakHashMap<View, Drawable>()
+    private var mapIds: HashMap<Int, ArrayList<CachedRuleItem>>? = null
+    private var leafMapIds: HashMap<Int, ArrayList<CachedRuleItem>>? = null
+    private val resolvedClasses = HashMap<String, Class<*>>()
+    private val widgetClassCache = HashMap<String, Boolean>()
 
-import com.wmods.wppenhacer.preference.ThemePreference;
-import com.wmods.wppenhacer.utils.IColors;
-import com.wmods.wppenhacer.xposed.core.Feature;
-import com.wmods.wppenhacer.xposed.core.WppCore;
-import com.wmods.wppenhacer.xposed.utils.ReflectionUtils;
-import com.wmods.wppenhacer.xposed.utils.Utils;
+    override fun doHook() {
+        if (prefs.getBoolean("lite_mode", false)) return
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import java.io.OutputStream;
-import java.io.Serializable;
-import java.net.URL;
-import java.nio.charset.StandardCharsets;
-import java.security.MessageDigest;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Objects;
-import java.util.Properties;
-import java.util.WeakHashMap;
+        val filterItens = prefs.getString("css_theme", "") ?: ""
+        val folderTheme = prefs.getString("folder_theme", "") ?: ""
+        val customCss = prefs.getString("custom_css", "") ?: ""
 
-import cz.vutbr.web.css.CSSFactory;
-import cz.vutbr.web.css.RuleSet;
-import cz.vutbr.web.css.StyleSheet;
-import cz.vutbr.web.css.Term;
-import cz.vutbr.web.css.TermColor;
-import cz.vutbr.web.css.TermFloatValue;
-import cz.vutbr.web.css.TermFunction;
-import cz.vutbr.web.css.TermLength;
-import cz.vutbr.web.css.TermURI;
-import de.robv.android.xposed.XC_MethodHook;
-import de.robv.android.xposed.XSharedPreferences;
-import de.robv.android.xposed.XposedBridge;
-import de.robv.android.xposed.XposedHelpers;
+        if ((TextUtils.isEmpty(filterItens) && TextUtils.isEmpty(folderTheme) && TextUtils.isEmpty(customCss))
+            || !prefs.getBoolean("custom_filters", true)
+        ) return
 
-public class CustomView extends Feature {
+        properties = Utils.getProperties(prefs, "custom_css", "custom_filters")
 
-    private DrawableCache cacheImages;
-    private static File themeDir;
-    private final HashMap<String, Drawable> chacheDrawables = new HashMap<>();
-    private Properties properties;
-    private final WeakHashMap<View, Boolean> processedViews = new WeakHashMap<>();
-    private final WeakHashMap<View, Integer> forcedVisibilityMap = new WeakHashMap<>();
-    private final WeakHashMap<View, Drawable> forcedBackgroundMap = new WeakHashMap<>();
-    private final WeakHashMap<View, Drawable> forcedDrawableMap = new WeakHashMap<>();
-    private HashMap<Integer, ArrayList<CachedRuleItem>> mapIds;
-    private HashMap<Integer, ArrayList<CachedRuleItem>> leafMapIds;
-    private final HashMap<String, Class<?>> resolvedClasses = new HashMap<>();
-    private final HashMap<String, Boolean> widgetClassCache = new HashMap<>();
-
-    public CustomView(@NonNull ClassLoader loader, @NonNull XSharedPreferences preferences) {
-        super(loader, preferences);
-    }
-
-    private static void changeDPI(Activity activity, XSharedPreferences prefs, Properties properties) {
-        String dpiStr = null;
-        if (!Objects.equals(prefs.getString("change_dpi", "0"), "0")) {
-            dpiStr = prefs.getString("change_dpi", "0");
-        } else if (properties.getProperty("change_dpi") != null) {
-            dpiStr = properties.getProperty("change_dpi");
+        WppCore.addListenerActivity { activity1, type ->
+            if (type != WppCore.ActivityChangeState.ChangeType.CREATED) return@addListenerActivity
+            changeDPI(activity1, prefs, properties!!)
         }
-        if (dpiStr == null) return;
-        int dpi = 0;
+
+        hookDrawableViews()
+
+        themeDir = File(ThemePreference.rootDirectory, folderTheme)
+        val cssContent = "$filterItens\n$customCss"
+        cacheImages = DrawableCache(Utils.getApplication(), 100 * 1024 * 1024)
+
+        var waVersion = ""
         try {
-            dpi = Integer.parseInt(dpiStr);
-        } catch (NumberFormatException e) {
-            XposedBridge.log("Error parsing dpi: " + e.getMessage());
-        }
-        if (dpi != 0) {
-            var res = activity.getResources();
-            DisplayMetrics runningMetrics = res.getDisplayMetrics();
-            DisplayMetrics newMetrics;
-            if (runningMetrics != null) {
-                newMetrics = new DisplayMetrics();
-                newMetrics.setTo(runningMetrics);
-            } else {
-                newMetrics = res.getDisplayMetrics();
-            }
-            newMetrics.density = dpi / 160f;
-            newMetrics.densityDpi = dpi;
-            res.getDisplayMetrics().setTo(newMetrics);
-        }
-    }
-
-    @Override
-    public void doHook() throws Throwable {
-        if (prefs.getBoolean("lite_mode", false)) return;
-
-        var filter_itens = prefs.getString("css_theme", "");
-        var folder_theme = prefs.getString("folder_theme", "");
-        var custom_css = prefs.getString("custom_css", "");
-
-        if ((TextUtils.isEmpty(filter_itens) && TextUtils.isEmpty(folder_theme) && TextUtils.isEmpty(custom_css))
-                || !prefs.getBoolean("custom_filters", true))
-            return;
-
-        properties = Utils.getProperties(prefs, "custom_css", "custom_filters");
-
-        WppCore.addListenerActivity((activity1, type) -> {
-            if (type != WppCore.ActivityChangeState.ChangeType.CREATED) return;
-            changeDPI(activity1, prefs, properties);
-        });
-
-        hookDrawableViews();
-
-        themeDir = new File(ThemePreference.rootDirectory, folder_theme);
-        String cssContent = filter_itens + "\n" + custom_css;
-        cacheImages = new DrawableCache(Utils.getApplication(), 100 * 1024 * 1024);
-
-        String waVersion = "";
-        try {
-            waVersion = Utils.getApplication().getPackageManager()
-                    .getPackageInfo(Utils.getApplication().getPackageName(), 0).versionName;
-        } catch (Exception ignored) {
+            waVersion = Utils.getApplication().packageManager?.getPackageInfo(
+                Utils.getApplication().packageName ?: "", 0
+            )?.versionName ?: ""
+        } catch (_: Exception) {
         }
 
-        String hash = hashContent(cssContent + waVersion);
-        File cacheDir = Utils.getApplication().getCacheDir();
-        File cacheFile = new File(cacheDir, "cv_rules_" + hash + ".cache");
+        val hash = hashContent(cssContent + waVersion)
+        val cacheDir = Utils.getApplication().cacheDir
+        val cacheFile = File(cacheDir, "cv_rules_${hash}.cache")
 
-        boolean loaded = false;
+        var loaded = false
         if (cacheFile.exists()) {
-            try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(cacheFile))) {
-                //noinspection unchecked
-                mapIds = (HashMap<Integer, ArrayList<CachedRuleItem>>) ois.readObject();
-                //noinspection unchecked
-                leafMapIds = (HashMap<Integer, ArrayList<CachedRuleItem>>) ois.readObject();
-                loaded = true;
-                log("CustomView: loaded compiled rules from disk cache");
-            } catch (Exception e) {
-                log("CustomView: cache load failed – " + e.getMessage());
-                mapIds = null;
-                leafMapIds = null;
+            try {
+                ObjectInputStream(FileInputStream(cacheFile)).use { ois ->
+                    @Suppress("UNCHECKED_CAST")
+                    mapIds = ois.readObject() as HashMap<Int, ArrayList<CachedRuleItem>>
+                    @Suppress("UNCHECKED_CAST")
+                    leafMapIds = ois.readObject() as HashMap<Int, ArrayList<CachedRuleItem>>
+                    loaded = true
+                    log("CustomView: loaded compiled rules from disk cache")
+                }
+            } catch (e: Exception) {
+                log("CustomView: cache load failed – ${e.message}")
+                mapIds = null
+                leafMapIds = null
             }
         }
 
         if (!loaded) {
-            var sheet = CSSFactory.parseString(cssContent, new URL("https://base.url/"));
-            mapIds = new HashMap<>();
-            leafMapIds = new HashMap<>();
-            buildRuleMaps(sheet);
+            val sheet = CSSFactory.parseString(cssContent, URL("https://base.url/"))
+            mapIds = HashMap()
+            leafMapIds = HashMap()
+            buildRuleMaps(sheet)
 
-            // Delete stale cache files
-            File[] old = cacheDir.listFiles((d, n) -> n.startsWith("cv_rules_") && n.endsWith(".cache"));
+            val old = cacheDir.listFiles { _, n -> n.startsWith("cv_rules_") && n.endsWith(".cache") }
             if (old != null) {
-                for (File f : old) {
-                    if (!f.equals(cacheFile)) f.delete();
+                for (f in old) {
+                    if (f != cacheFile) f.delete()
                 }
             }
-            // Persist asynchronously
-            final HashMap<Integer, ArrayList<CachedRuleItem>> mCopy = mapIds;
-            final HashMap<Integer, ArrayList<CachedRuleItem>> lCopy = leafMapIds;
-            new Thread(() -> {
-                try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(cacheFile))) {
-                    oos.writeObject(mCopy);
-                    oos.writeObject(lCopy);
-                } catch (Exception e) {
-                    log("CustomView: cache save failed – " + e.getMessage());
+
+            val mCopy = mapIds
+            val lCopy = leafMapIds
+            Thread({
+                try {
+                    ObjectOutputStream(FileOutputStream(cacheFile)).use { oos ->
+                        oos.writeObject(mCopy)
+                        oos.writeObject(lCopy)
+                    }
+                } catch (e: Exception) {
+                    log("CustomView: cache save failed – ${e.message}")
                 }
-            }, "cv-cache-writer").start();
+            }, "cv-cache-writer").start()
         }
 
-        registerHooks();
+        registerHooks()
     }
 
-
-    private String hashContent(String content) {
-        try {
-            MessageDigest md = MessageDigest.getInstance("MD5");
-            byte[] h = md.digest(content.getBytes(StandardCharsets.UTF_8));
-            StringBuilder sb = new StringBuilder();
-            for (byte b : h) sb.append(String.format("%02x", b));
-            return sb.toString();
-        } catch (Exception e) {
-            return String.valueOf(content.hashCode());
+    private fun hashContent(content: String): String {
+        return try {
+            val md = MessageDigest.getInstance("MD5")
+            val h = md.digest(content.toByteArray(StandardCharsets.UTF_8))
+            h.joinToString("") { "%02x".format(it) }
+        } catch (_: Exception) {
+            content.hashCode().toString()
         }
     }
 
+    private fun buildRuleMaps(sheet: StyleSheet) {
+        for (selector in sheet) {
+            val ruleSet = selector as RuleSet
+            for (selectorItem in ruleSet.selectors) {
+                var targetClassName: String? = null
+                val parts = ArrayList<SelectorPart>()
 
-    private void buildRuleMaps(StyleSheet sheet) {
-        for (var selector : sheet) {
-            var ruleSet = (RuleSet) selector;
-            for (var selectorItem : ruleSet.getSelectors()) {
-                String targetClassName = null;
-                ArrayList<SelectorPart> parts = new ArrayList<>();
-
-                for (int i = 0; i < selectorItem.size(); i++) {
-                    var item = selectorItem.get(i);
-                    SelectorPart part = new SelectorPart();
-                    if (item.getClassName() != null) {
-                        part.className = item.getClassName().replaceAll("_", ".").trim();
-                        if (i == 0) targetClassName = part.className;
-                    } else if (item.getIDName() != null) {
-                        part.idName = item.getIDName().trim();
-                        if (part.idName.contains("android_")) {
+                for ((i, element) in selectorItem.withIndex()) {
+                    val item = element
+                    val part = SelectorPart()
+                    if (item.className != null) {
+                        part.className = item.className.replace("_", ".").trim()
+                        if (i == 0) targetClassName = part.className
+                    } else if (item.idName != null) {
+                        part.idName = item.idName.trim()
+                        if (part.idName!!.contains("android_")) {
                             try {
-                                part.resolvedId = android.R.id.class.getField(part.idName.substring(8)).getInt(null);
-                            } catch (NoSuchFieldException | IllegalAccessException ignored) {
+                                part.resolvedId = android.R.id::class.java
+                                    .getField(part.idName!!.substring(8)).getInt(null)
+                            } catch (_: NoSuchFieldException) {
+                            } catch (_: IllegalAccessException) {
                             }
                         } else {
-                            part.resolvedId = Utils.getID(part.idName, "id");
+                            part.resolvedId = Utils.getID(part.idName!!, "id")
                         }
                     } else {
-                        String typeStr = item.toString();
-                        String[] split = typeStr.split(":", 2);
-                        part.typeSelector = split[0].trim();
-                        if (split.length > 1) part.pseudoClass = split[1].trim();
+                        val typeStr = item.toString()
+                        val split = typeStr.split(":", limit = 2)
+                        part.typeSelector = split[0].trim()
+                        if (split.size > 1) part.pseudoClass = split[1].trim()
                     }
-                    parts.add(part);
+                    parts.add(part)
                 }
 
-                String name;
-                if (parts.get(0).className != null && parts.size() > 1) {
-                    name = parts.get(1).idName;
+                val name: String? = if (parts[0].className != null && parts.size > 1) {
+                    parts[1].idName
                 } else {
-                    name = parts.get(0).idName;
+                    parts[0].idName
                 }
-                if (name == null) continue;
+                if (name == null) continue
 
-                int id = 0;
-                for (SelectorPart p : parts) {
-                    if (name.equals(p.idName)) {
-                        id = p.resolvedId;
-                        break;
+                var id = 0
+                for (p in parts) {
+                    if (name == p.idName) {
+                        id = p.resolvedId
+                        break
                     }
                 }
-                if (id <= 0) continue;
+                if (id <= 0) continue
 
-                // Serialize declarations
-                ArrayList<SerialDeclaration> decls = new ArrayList<>();
-                for (var declaration : ruleSet) {
-                    SerialDeclaration sd = new SerialDeclaration();
-                    sd.property = declaration.getProperty();
-                    sd.terms = new ArrayList<>();
-                    for (int i = 0; i < declaration.size(); i++) {
-                        sd.terms.add(toSerialTerm(declaration.get(i)));
+                val decls = ArrayList<SerialDeclaration>()
+                for (declaration in ruleSet) {
+                    val sd = SerialDeclaration()
+                    sd.property = declaration.property
+                    sd.terms = ArrayList()
+                    for (i in declaration.indices) {
+                        sd.terms.add(toSerialTerm(declaration[i]))
                     }
-                    decls.add(sd);
+                    decls.add(sd)
                 }
 
-                var ruleItem = new CachedRuleItem(parts, decls, targetClassName);
-                var list = mapIds.getOrDefault(id, new ArrayList<>());
-                list.add(ruleItem);
-                mapIds.put(id, list);
+                val ruleItem = CachedRuleItem(parts, decls, targetClassName)
+                val list = mapIds!!.getOrDefault(id, ArrayList())
+                list.add(ruleItem)
+                mapIds!![id] = list
 
-                String leafName = null;
-                for (int i = selectorItem.size() - 1; i >= 0; i--) {
-                    var leafItem = selectorItem.get(i);
-                    if (leafItem.getIDName() != null) {
-                        leafName = leafItem.getIDName().trim();
-                        break;
+                var leafName: String? = null
+                for (i in selectorItem.size - 1 downTo 0) {
+                    val leafItem = selectorItem[i]
+                    if (leafItem.idName != null) {
+                        leafName = leafItem.idName.trim()
+                        break
                     }
                 }
-                if (leafName != null && !leafName.equals(name)) {
-                    int leafId = 0;
-                    for (SelectorPart p : parts) {
-                        if (leafName.equals(p.idName)) {
-                            leafId = p.resolvedId;
-                            break;
+                if (leafName != null && leafName != name) {
+                    var leafId = 0
+                    for (p in parts) {
+                        if (leafName == p.idName) {
+                            leafId = p.resolvedId
+                            break
                         }
                     }
                     if (leafId > 0) {
-                        var leafList = leafMapIds.getOrDefault(leafId, new ArrayList<>());
-                        leafList.add(ruleItem);
-                        leafMapIds.put(leafId, leafList);
+                        val leafList = leafMapIds!!.getOrDefault(leafId, ArrayList())
+                        leafList.add(ruleItem)
+                        leafMapIds!![leafId] = leafList
                     }
                 }
             }
         }
     }
 
-
-    private static SerialTerm toSerialTerm(Term<?> term) {
-        SerialTerm st = new SerialTerm();
-        if (term instanceof TermFunction.LinearGradient lg) {
-            st.type = SerialTerm.LINEAR_GRADIENT;
-            st.strValue = lg.toString();
-            st.gradientAngle = lg.getAngle().getValue();
-            var stops = lg.getColorStops();
-            st.gradientColors = new int[stops.size()];
-            st.gradientPositions = new float[stops.size()];
-            for (int i = 0; i < stops.size(); i++) {
-                st.gradientColors[i] = stops.get(i).getColor().getValue().getRGB();
-                st.gradientPositions[i] = stops.get(i).getLength().getValue() / 100f;
-            }
-        } else if (term instanceof TermFunction tf) {
-            st.type = SerialTerm.FUNCTION;
-            st.strValue = tf.getFunctionName();
-            var values = tf.getValues(true);
-            st.args = new ArrayList<>();
-            for (var v : values) st.args.add(toSerialTerm(v));
-        } else if (term instanceof TermColor tc) {
-            st.type = SerialTerm.COLOR;
-            st.colorRgb = tc.getValue().getRGB();
-        } else if (term instanceof TermLength tl) {
-            st.type = SerialTerm.LENGTH;
-            st.numValue = tl.getValue();
-            st.percentage = tl.isPercentage();
-            st.unitName = tl.getUnit() != null ? tl.getUnit().toString() : null;
-        } else if (term instanceof TermFloatValue tf) {
-            st.type = SerialTerm.FLOAT_VAL;
-            st.numValue = tf.getValue();
-        } else if (term instanceof TermURI tu) {
-            st.type = SerialTerm.URI;
-            st.strValue = tu.getValue();
-        } else {
-            st.type = SerialTerm.STRING;
-            st.strValue = term.toString();
-        }
-        return st;
-    }
-
-
-    private void registerHooks() {
-        XposedHelpers.findAndHookMethod(View.class, "onAttachedToWindow", new XC_MethodHook() {
-            @Override
-            protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-                applyRulesForView((View) param.thisObject);
-            }
-        });
-
-        XposedHelpers.findAndHookMethod(View.class, "onDetachedFromWindow", new XC_MethodHook() {
-            @Override
-            protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-                processedViews.remove((View) param.thisObject);
-            }
-        });
-
-        final int VISIBILITY_MASK = 0x0000000C;
-        XposedHelpers.findAndHookMethod(View.class, "setFlags", int.class, int.class, new XC_MethodHook() {
-            @Override
-            protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
-                if (((int) param.args[1] & VISIBILITY_MASK) == 0) return;
-                var view = (View) param.thisObject;
-                var forced = forcedVisibilityMap.get(view);
-                if (forced == null) return;
-                param.args[0] = ((int) param.args[0] & ~VISIBILITY_MASK) | forced;
-            }
-        });
-    }
-
-
-    private void applyRulesForView(View view) {
-        int id = view.getId();
-        applyRules(view, mapIds.get(id));
-
-        var leafList = leafMapIds.get(id);
-        if (leafList != null) {
-            for (var item : leafList) {
-                try {
-                    Class<?> activityClass = resolveClass(item.targetActivityClassName);
-                    if (activityClass != null && !activityClass.isInstance(WppCore.getCurrentActivity()))
-                        continue;
-                    var rootView = findSelectorRoot(view, item.selector);
-                    if (rootView == null) continue;
-                    var resultViews = new ArrayList<View>();
-                    captureSelector(rootView, item.selector, 0, resultViews);
-                    for (var targetView : resultViews) {
-                        if (targetView == null) continue;
-                        if (processedViews.containsKey(targetView)) continue;
-                        setRuleInView(item, targetView);
-                        processedViews.put(targetView, Boolean.TRUE);
-                    }
-                } catch (Throwable ignored) {
+    private fun registerHooks() {
+        XposedHelpers.findAndHookMethod(
+            View::class.java, "onAttachedToWindow",
+            object : XC_MethodHook() {
+                override fun afterHookedMethod(param: MethodHookParam) {
+                    applyRulesForView(param.thisObject as View)
                 }
-            }
-        }
+            })
+
+        XposedHelpers.findAndHookMethod(
+            View::class.java, "onDetachedFromWindow",
+            object : XC_MethodHook() {
+                override fun afterHookedMethod(param: MethodHookParam) {
+                    processedViews.remove(param.thisObject as View)
+                }
+            })
+
+        XposedHelpers.findAndHookMethod(
+            View::class.java, "setFlags", Int::class.javaPrimitiveType, Int::class.javaPrimitiveType,
+            object : XC_MethodHook() {
+                override fun beforeHookedMethod(param: MethodHookParam) {
+                    if (param.args[1] as Int and 0x0000000C == 0) return
+                    val view = param.thisObject as View
+                    val forced = forcedVisibilityMap[view] ?: return
+                    param.args[0] = (param.args[0] as Int and 0x0000000C.inv()) or forced
+                }
+            })
     }
 
-    private void applyRules(View startView, ArrayList<CachedRuleItem> rules) {
-        if (rules == null) return;
-        for (var item : rules) {
+    private fun applyRulesForView(view: View) {
+        val id = view.id
+        applyRules(view, mapIds?.get(id))
+
+        val leafList = leafMapIds?.get(id) ?: return
+        for (item in leafList) {
             try {
-                Class<?> activityClass = resolveClass(item.targetActivityClassName);
+                val activityClass = resolveClass(item.targetActivityClassName)
                 if (activityClass != null && !activityClass.isInstance(WppCore.getCurrentActivity()))
-                    continue;
-                var resultViews = new ArrayList<View>();
-                captureSelector(startView, item.selector, 0, resultViews);
-                for (var targetView : resultViews) {
-                    if (targetView == null) continue;
-                    if (processedViews.containsKey(targetView)) continue;
-                    setRuleInView(item, targetView);
-                    processedViews.put(targetView, Boolean.TRUE);
+                    continue
+                val rootView = findSelectorRoot(view, item.selector) ?: continue
+                val resultViews = ArrayList<View>()
+                captureSelector(rootView, item.selector, 0, resultViews)
+                for (targetView in resultViews) {
+                    if (processedViews.containsKey(targetView)) continue
+                    setRuleInView(item, targetView)
+                    processedViews[targetView] = true
                 }
-            } catch (Throwable ignored) {
+            } catch (_: Throwable) {
             }
         }
     }
 
-    @Nullable
-    private View findSelectorRoot(View leafView, ArrayList<SelectorPart> selector) {
-        for (var part : selector) {
-            if (part.idName == null) continue;
-            int rootId = part.resolvedId;
-            if (rootId <= 0) continue;
-            var root = leafView.getRootView();
-            if (root.getId() == rootId) return root;
-            return root.findViewById(rootId);
+    private fun applyRules(startView: View, rules: ArrayList<CachedRuleItem>?) {
+        if (rules == null) return
+        for (item in rules) {
+            try {
+                val activityClass = resolveClass(item.targetActivityClassName)
+                if (activityClass != null && !activityClass.isInstance(WppCore.getCurrentActivity()))
+                    continue
+                val resultViews = ArrayList<View>()
+                captureSelector(startView, item.selector, 0, resultViews)
+                for (targetView in resultViews) {
+                    if (processedViews.containsKey(targetView)) continue
+                    setRuleInView(item, targetView)
+                    processedViews[targetView] = true
+                }
+            } catch (_: Throwable) {
+            }
         }
-        return null;
     }
 
-    private void hookDrawableViews() {
-        XposedHelpers.findAndHookMethod(View.class, "setBackground", Drawable.class, new XC_MethodHook() {
-            @Override
-            protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
-                var view = (View) param.thisObject;
-                var newDrawable = (Drawable) param.args[0];
-                var forced = forcedBackgroundMap.get(view);
-                if (forced == null) return;
-                if (newDrawable != forced) param.setResult(null);
-            }
-        });
-
-        XposedHelpers.findAndHookMethod(ImageView.class, "setImageDrawable", Drawable.class, new XC_MethodHook() {
-            @Override
-            protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
-                var view = (ImageView) param.thisObject;
-                var newDrawable = (Drawable) param.args[0];
-                var forced = forcedDrawableMap.get(view);
-                if (forced == null) return;
-                if (newDrawable != forced) param.setResult(null);
-            }
-        });
+    private fun findSelectorRoot(leafView: View, selector: ArrayList<SelectorPart>): View? {
+        for (part in selector) {
+            if (part.idName == null) continue
+            val rootId = part.resolvedId
+            if (rootId <= 0) continue
+            val root = leafView.rootView
+            if (root.id == rootId) return root
+            return root.findViewById(rootId)
+        }
+        return null
     }
 
-    private void setRuleInView(CachedRuleItem ruleItem, View view) {
-        for (var declaration : ruleItem.declarations) {
-            var property = declaration.property;
-            var terms = declaration.terms;
-            switch (property) {
-                case "parent" -> {
-                    var value = terms.get(0).strValue.trim();
-                    var parent = view.getRootView();
-                    if (!"root".equals(value)) {
-                        parent = parent.findViewById(Utils.getID(value, "id"));
-                    }
-                    if (parent instanceof ViewGroup parentView) {
-                        var oldParent = (View) view.getParent();
-                        if (oldParent.getTag() != "relative") {
-                            ((ViewGroup) view.getParent()).removeView(view);
-                            var frameLayout = new FrameLayout(parentView.getContext());
-                            frameLayout.setTag("relative");
-                            var params = new FrameLayout.LayoutParams(view.getLayoutParams());
-                            parentView.addView(frameLayout, 0, params);
-                            frameLayout.addView(view);
-                            view = frameLayout;
-                        } else if (oldParent.getTag() == "relative") {
-                            view = oldParent;
+    private fun hookDrawableViews() {
+        XposedHelpers.findAndHookMethod(
+            View::class.java, "setBackground", Drawable::class.java,
+            object : XC_MethodHook() {
+                override fun beforeHookedMethod(param: MethodHookParam) {
+                    val view = param.thisObject as View
+                    val newDrawable = param.args[0] as Drawable
+                    val forced = forcedBackgroundMap[view] ?: return
+                    if (newDrawable !== forced) param.result = null
+                }
+            })
+
+        XposedHelpers.findAndHookMethod(
+            ImageView::class.java, "setImageDrawable", Drawable::class.java,
+            object : XC_MethodHook() {
+                override fun beforeHookedMethod(param: MethodHookParam) {
+                    val view = param.thisObject as ImageView
+                    val newDrawable = param.args[0] as Drawable
+                    val forced = forcedDrawableMap[view] ?: return
+                    if (newDrawable !== forced) param.result = null
+                }
+            })
+    }
+
+    private fun setRuleInView(ruleItem: CachedRuleItem, startView: View) {
+        var view = startView
+        for (declaration in ruleItem.declarations) {
+            val property = declaration.property
+            val terms = declaration.terms
+            when (property) {
+                "parent" -> {
+                    val value = terms[0].strValue.trim()
+                    val parent = if (value != "root") view.rootView.findViewById(Utils.getID(value, "id"))
+                    else view.rootView
+                    if (parent is ViewGroup) {
+                        val oldParent = view.parent as View
+                        if (oldParent.tag != "relative") {
+                            (view.parent as ViewGroup).removeView(view)
+                            val frameLayout = FrameLayout(parent.context)
+                            frameLayout.tag = "relative"
+                            val params = FrameLayout.LayoutParams(view.layoutParams)
+                            parent.addView(frameLayout, 0, params)
+                            frameLayout.addView(view)
+                        } else {
+                            view = oldParent
                         }
                     }
                 }
-                case "background-color" -> {
-                    if (terms.size() != 2) continue;
-                    int color = terms.get(0).colorRgb;
-                    int colorNew = terms.get(1).colorRgb;
-                    HashMap<String, String> colors = new HashMap<>();
-                    colors.put(IColors.toString(color), IColors.toString(colorNew));
-                    replaceColors(view, colors);
-                    if (view instanceof ImageView imageView) {
-                        var drawable = imageView.getDrawable();
-                        if (drawable == null) continue;
-                        drawable.setTint(colorNew);
-                        view.postInvalidate();
+                "background-color" -> {
+                    if (terms.size != 2) continue
+                    val color = terms[0].colorRgb
+                    val colorNew = terms[1].colorRgb
+                    val colors = HashMap<String, String>()
+                    colors[IColors.toString(color)] = IColors.toString(colorNew)
+                    replaceColors(view, colors)
+                    if (view is ImageView) {
+                        val drawable = view.drawable ?: continue
+                        drawable.setTint(colorNew)
+                        view.postInvalidate()
                     }
                 }
-                case "display" -> {
-                    var value = terms.get(0).strValue;
-                    switch (value) {
-                        case "none" -> {
-                            forcedVisibilityMap.put(view, View.GONE);
-                            view.setVisibility(View.GONE);
+                "display" -> {
+                    when (terms[0].strValue) {
+                        "none" -> {
+                            forcedVisibilityMap[view] = View.GONE
+                            view.visibility = View.GONE
                         }
-                        case "block" -> {
-                            forcedVisibilityMap.put(view, View.VISIBLE);
-                            view.setVisibility(View.VISIBLE);
+                        "block" -> {
+                            forcedVisibilityMap[view] = View.VISIBLE
+                            view.visibility = View.VISIBLE
                         }
-                        case "invisible" -> {
-                            forcedVisibilityMap.put(view, View.INVISIBLE);
-                            view.setVisibility(View.INVISIBLE);
+                        "invisible" -> {
+                            forcedVisibilityMap[view] = View.INVISIBLE
+                            view.visibility = View.INVISIBLE
                         }
                     }
                 }
-                case "font-size" -> {
-                    if (!(view instanceof TextView textView)) continue;
-                    textView.setTextSize(getRealValue(terms.get(0), 0));
+                "font-size" -> {
+                    if (view !is TextView) continue
+                    view.textSize = getRealValue(terms[0], 0).toFloat()
                 }
-                case "color" -> {
-                    if (!(view instanceof TextView textView)) continue;
-                    textView.setTextColor(terms.get(0).colorRgb);
+                "color" -> {
+                    if (view !is TextView) continue
+                    view.setTextColor(terms[0].colorRgb)
                 }
-                case "alpha", "opacity" -> view.setAlpha(terms.get(0).numValue);
-                case "background-image" -> {
-                    if (terms.get(0).type != SerialTerm.URI) continue;
-                    var draw = cacheImages.getDrawable(terms.get(0).strValue, view.getWidth(), view.getHeight());
-                    if (draw == null) continue;
+                "alpha", "opacity" -> view.alpha = terms[0].numValue
+                "background-image" -> {
+                    if (terms[0].type != SerialTerm.URI) continue
+                    val draw = cacheImages?.getDrawable(terms[0].strValue, view.width, view.height) ?: continue
                     if (forcedBackgroundMap.containsKey(view) || forcedDrawableMap.containsKey(view))
-                        continue;
-                    setHookedDrawable(view, draw);
+                        continue
+                    setHookedDrawable(view, draw)
                 }
-                case "background-size" -> {
-                    if (terms.get(0).type == SerialTerm.LENGTH) {
-                        var widthTerm = terms.get(0);
-                        var heightTerm = terms.get(1);
-                        if (view instanceof ImageView imageView) {
+                "background-size" -> {
+                    if (terms[0].type == SerialTerm.LENGTH) {
+                        val widthTerm = terms[0]
+                        val heightTerm = terms[1]
+                        if (view is ImageView) {
                             if (widthTerm.percentage || heightTerm.percentage) {
-                                if ((int) widthTerm.numValue == 100 || (int) heightTerm.numValue == 100) {
-                                    imageView.setScaleType(ImageView.ScaleType.FIT_CENTER);
-                                    continue;
+                                if ((widthTerm.numValue.toInt()) == 100 || (heightTerm.numValue.toInt()) == 100) {
+                                    view.scaleType = ImageView.ScaleType.FIT_CENTER
+                                    continue
                                 }
                             }
-                            var drawable = imageView.getDrawable();
-                            if (!(drawable instanceof BitmapDrawable)) continue;
-                            Bitmap bitmap = ((BitmapDrawable) drawable).getBitmap();
-                            Bitmap resized = Bitmap.createScaledBitmap(bitmap,
-                                    getRealValue(widthTerm, imageView.getWidth()),
-                                    getRealValue(heightTerm, imageView.getHeight()), false);
-                            setHookedDrawable(imageView, new BitmapDrawable(view.getContext().getResources(), resized));
+                            val drawable = view.drawable
+                            if (drawable !is BitmapDrawable) continue
+                            val bitmap = drawable.bitmap
+                            val resized = Bitmap.createScaledBitmap(bitmap,
+                                getRealValue(widthTerm, view.width),
+                                getRealValue(heightTerm, view.height), false)
+                            setHookedDrawable(view, resized.toDrawable(view.context.resources))
                         } else {
-                            var drawable = view.getBackground();
-                            if (!(drawable instanceof BitmapDrawable)) continue;
-                            Bitmap bitmap = ((BitmapDrawable) drawable).getBitmap();
-                            Bitmap resized = Bitmap.createScaledBitmap(bitmap,
-                                    getRealValue(widthTerm, 0), getRealValue(heightTerm, 0), false);
-                            setHookedDrawable(view, new BitmapDrawable(view.getContext().getResources(), resized));
+                            val drawable = view.background
+                            if (drawable !is BitmapDrawable) continue
+                            val bitmap = drawable.bitmap
+                            val resized = Bitmap.createScaledBitmap(bitmap,
+                                getRealValue(widthTerm, 0), getRealValue(heightTerm, 0), false)
+                            setHookedDrawable(view, resized.toDrawable(view.context.resources))
                         }
                     } else {
-                        var value = terms.get(0).strValue.trim();
-                        if (value.equals("cover")) {
-                            if (view instanceof ImageView imageView) {
-                                imageView.setScaleType(ImageView.ScaleType.CENTER_CROP);
+                        val value = terms[0].strValue.trim()
+                        if (value == "cover") {
+                            if (view is ImageView) {
+                                view.scaleType = ImageView.ScaleType.CENTER_CROP
                             } else {
-                                if (view.getWidth() < 1 || view.getHeight() < 1) {
-                                    view.addOnLayoutChangeListener(new View.OnLayoutChangeListener() {
-                                        @Override
-                                        public void onLayoutChange(View v, int left, int top, int right, int bottom,
-                                                                   int oldLeft, int oldTop, int oldRight, int oldBottom) {
-                                            int w = right - left, h = bottom - top;
-                                            if (w < 1 || h < 1) return;
-                                            v.removeOnLayoutChangeListener(this);
-                                            var bg = v.getBackground();
-                                            if (!(bg instanceof BitmapDrawable)) return;
-                                            var bmp = ((BitmapDrawable) bg).getBitmap();
-                                            setHookedDrawable(v, new BitmapDrawable(v.getContext().getResources(),
-                                                    Bitmap.createScaledBitmap(bmp, w, h, true)));
+                                if (view.width < 1 || view.height < 1) {
+                                    view.addOnLayoutChangeListener(object : View.OnLayoutChangeListener {
+                                        override fun onLayoutChange(v: View, left: Int, top: Int, right: Int, bottom: Int,
+                                                                     oldLeft: Int, oldTop: Int, oldRight: Int, oldBottom: Int) {
+                                            val w = right - left
+                                            val h = bottom - top
+                                            if (w < 1 || h < 1) return
+                                            v.removeOnLayoutChangeListener(this)
+                                            val bg = v.background
+                                            if (bg !is BitmapDrawable) return
+                                            val bmp = bg.bitmap
+                                            setHookedDrawable(v,
+                                                Bitmap.createScaledBitmap(bmp, w, h, true)
+                                                    .toDrawable(v.context.resources))
                                         }
-                                    });
-                                    continue;
+                                    })
+                                    continue
                                 }
-                                var drawable = view.getBackground();
-                                if (!(drawable instanceof BitmapDrawable)) continue;
-                                Bitmap bitmap = ((BitmapDrawable) drawable).getBitmap();
-                                setHookedDrawable(view, new BitmapDrawable(view.getContext().getResources(),
-                                        Bitmap.createScaledBitmap(bitmap, view.getWidth(), view.getHeight(), true)));
+                                val drawable = view.background
+                                if (drawable !is BitmapDrawable) continue
+                                val bitmap = drawable.bitmap
+                                setHookedDrawable(view,
+                                    Bitmap.createScaledBitmap(bitmap, view.width, view.height, true)
+                                        .toDrawable(view.context.resources))
                             }
                         }
                     }
                 }
-                case "background" -> {
-                    var t0 = terms.get(0);
+                "background" -> {
+                    val t0 = terms[0]
                     if (t0.type == SerialTerm.COLOR) {
-                        view.setBackgroundColor(t0.colorRgb);
-                        continue;
+                        view.setBackgroundColor(t0.colorRgb)
+                        continue
                     }
                     if (t0.type == SerialTerm.URI) {
-                        var draw = cacheImages.getDrawable(t0.strValue, view.getWidth(), view.getHeight());
-                        if (draw == null) continue;
-                        setHookedDrawable(view, draw);
-                        continue;
+                        val draw = cacheImages?.getDrawable(t0.strValue, view.width, view.height) ?: continue
+                        setHookedDrawable(view, draw)
+                        continue
                     }
-                    if (t0.type == SerialTerm.STRING && "none".equals(t0.strValue)) {
-                        forcedBackgroundMap.remove(view);
-                        view.setBackground(null);
+                    if (t0.type == SerialTerm.STRING && t0.strValue == "none") {
+                        forcedBackgroundMap.remove(view)
+                        view.background = null
                     } else {
-                        setBackgroundModel(view, t0);
+                        setBackgroundModel(view, t0)
                     }
                 }
-                case "foreground" -> {
-                    var t0 = terms.get(0);
+                "foreground" -> {
+                    val t0 = terms[0]
                     if (t0.type == SerialTerm.COLOR) {
-                        view.setBackground(new ColorDrawable(t0.colorRgb));
-                        continue;
+                        view.foreground = t0.colorRgb.toDrawable()
+                        continue
                     }
                     if (t0.type == SerialTerm.URI) {
-                        var draw = cacheImages.getDrawable(t0.strValue, view.getWidth(), view.getHeight());
-                        if (draw == null) continue;
-                        view.setForeground(draw);
-                        continue;
+                        val draw = cacheImages?.getDrawable(t0.strValue, view.width, view.height) ?: continue
+                        view.foreground = draw
+                        continue
                     }
-                    if (t0.type == SerialTerm.STRING && "none".equals(t0.strValue)) {
-                        view.setForeground(null);
+                    if (t0.type == SerialTerm.STRING && t0.strValue == "none") {
+                        view.foreground = null
                     }
                 }
-                case "width" -> {
-                    view.getLayoutParams().width = getRealValue(terms.get(0), 0);
-                    view.requestLayout();
+                "width" -> {
+                    view.layoutParams.width = getRealValue(terms[0], 0)
+                    view.requestLayout()
                 }
-                case "height" -> {
-                    view.getLayoutParams().height = getRealValue(terms.get(0), 0);
+                "height" -> {
+                    view.layoutParams.height = getRealValue(terms[0], 0)
                 }
-                case "left" -> {
-                    var lp = view.getLayoutParams();
-                    if (lp instanceof RelativeLayout.LayoutParams rp)
-                        rp.addRule(RelativeLayout.ALIGN_LEFT, getRealValue(terms.get(0), 0));
-                    else if (lp instanceof ViewGroup.MarginLayoutParams mp)
-                        mp.leftMargin = getRealValue(terms.get(0), 0);
+                "left" -> {
+                    when (val lp = view.layoutParams) {
+                        is RelativeLayout.LayoutParams -> lp.addRule(RelativeLayout.ALIGN_LEFT, getRealValue(terms[0], 0))
+                        is ViewGroup.MarginLayoutParams -> lp.leftMargin = getRealValue(terms[0], 0)
+                    }
                 }
-                case "right" -> {
-                    var lp = view.getLayoutParams();
-                    if (lp instanceof RelativeLayout.LayoutParams rp)
-                        rp.addRule(RelativeLayout.ALIGN_RIGHT, getRealValue(terms.get(0), 0));
-                    else if (lp instanceof ViewGroup.MarginLayoutParams mp)
-                        mp.rightMargin = getRealValue(terms.get(0), 0);
+                "right" -> {
+                    when (val lp = view.layoutParams) {
+                        is RelativeLayout.LayoutParams -> lp.addRule(RelativeLayout.ALIGN_RIGHT, getRealValue(terms[0], 0))
+                        is ViewGroup.MarginLayoutParams -> lp.rightMargin = getRealValue(terms[0], 0)
+                    }
                 }
-                case "top" -> {
-                    var lp = view.getLayoutParams();
-                    if (lp instanceof RelativeLayout.LayoutParams rp)
-                        rp.addRule(RelativeLayout.ALIGN_TOP, getRealValue(terms.get(0), 0));
-                    else if (lp instanceof ViewGroup.MarginLayoutParams mp)
-                        mp.topMargin = getRealValue(terms.get(0), 0);
+                "top" -> {
+                    when (val lp = view.layoutParams) {
+                        is RelativeLayout.LayoutParams -> lp.addRule(RelativeLayout.ALIGN_TOP, getRealValue(terms[0], 0))
+                        is ViewGroup.MarginLayoutParams -> lp.topMargin = getRealValue(terms[0], 0)
+                    }
                 }
-                case "bottom" -> {
-                    var lp = view.getLayoutParams();
-                    if (lp instanceof RelativeLayout.LayoutParams rp)
-                        rp.addRule(RelativeLayout.ALIGN_BOTTOM, getRealValue(terms.get(0), 0));
-                    else if (lp instanceof ViewGroup.MarginLayoutParams mp)
-                        mp.bottomMargin = getRealValue(terms.get(0), 0);
+                "bottom" -> {
+                    when (val lp = view.layoutParams) {
+                        is RelativeLayout.LayoutParams -> lp.addRule(RelativeLayout.ALIGN_BOTTOM, getRealValue(terms[0], 0))
+                        is ViewGroup.MarginLayoutParams -> lp.bottomMargin = getRealValue(terms[0], 0)
+                    }
                 }
-                case "color-filter" -> {
-                    var mode = terms.get(0).strValue.trim();
-                    if (mode.equals("none")) {
-                        if (view instanceof ImageView iv) iv.clearColorFilter();
-                        else {
-                            var d = view.getBackground();
-                            if (d != null) d.clearColorFilter();
-                        }
+                "color-filter" -> {
+                    val mode = terms[0].strValue.trim()
+                    if (mode == "none") {
+                        if (view is ImageView) view.clearColorFilter()
+                        else view.background?.clearColorFilter()
                     } else {
-                        if (terms.size() < 2 || terms.get(1).type != SerialTerm.COLOR) continue;
+                        if (terms.size < 2 || terms[1].type != SerialTerm.COLOR) continue
                         try {
-                            var pMode = PorterDuff.Mode.valueOf(mode);
-                            if (view instanceof ImageView iv)
-                                iv.setColorFilter(terms.get(1).colorRgb, pMode);
-                            else {
-                                var d = view.getBackground();
-                                if (d != null) d.setColorFilter(terms.get(1).colorRgb, pMode);
-                            }
-                        } catch (IllegalArgumentException ignored) {
+                            val pMode = PorterDuff.Mode.valueOf(mode)
+                            @Suppress("DEPRECATION")
+                            if (view is ImageView)
+                                view.setColorFilter(terms[1].colorRgb, pMode)
+                            else
+                                view.background?.setColorFilter(terms[1].colorRgb, pMode)
+                        } catch (_: IllegalArgumentException) {
                         }
                     }
                 }
-                case "color-tint" -> {
-                    if (terms.get(0).type == SerialTerm.COLOR) {
-                        if (view instanceof ImageView iv) {
-                            ColorStateList csl = terms.size() == 1
-                                    ? ColorStateList.valueOf(terms.get(0).colorRgb)
-                                    : getColorStateList(terms);
-                            iv.setImageTintList(csl);
+                "color-tint" -> {
+                    if (terms[0].type == SerialTerm.COLOR) {
+                        val csl = if (terms.size == 1) ColorStateList.valueOf(terms[0].colorRgb)
+                        else getColorStateList(terms)
+                        if (view is ImageView) {
+                            view.imageTintList = csl
                         } else {
-                            var drawable = view.getBackground();
-                            if (drawable != null) {
-                                ColorStateList csl = terms.size() == 1
-                                        ? ColorStateList.valueOf(terms.get(0).colorRgb)
-                                        : getColorStateList(terms);
-                                drawable.setTintList(csl);
-                            }
+                            view.background?.setTintList(csl)
                         }
                     } else {
-                        var value = terms.get(0).strValue.trim();
-                        if (value.equals("none")) {
-                            if (view instanceof ImageView iv) iv.setImageTintList(null);
-                            else {
-                                var d = view.getBackground();
-                                if (d != null) d.setTintList(null);
-                            }
+                        val value = terms[0].strValue.trim()
+                        if (value == "none") {
+                            if (view is ImageView) view.imageTintList = null
+                            else view.background?.setTintList(null)
                         }
                     }
                 }
-                case "font-weight" -> {
-                    if (!(view instanceof TextView tv)) continue;
-                    String value = terms.get(0).strValue;
-                    Typeface cur = tv.getTypeface();
-                    if ("bold".equals(value) || "700".equals(value) || "800".equals(value) || "900".equals(value))
-                        tv.setTypeface(cur, Typeface.BOLD);
-                    else if ("normal".equals(value) || "400".equals(value))
-                        tv.setTypeface(Typeface.create(cur, Typeface.NORMAL));
+                "font-weight" -> {
+                    if (view !is TextView) continue
+                    val value = terms[0].strValue
+                    val cur = view.typeface
+                    if (value == "bold" || value == "700" || value == "800" || value == "900")
+                        view.setTypeface(cur, Typeface.BOLD)
+                    else if (value == "normal" || value == "400")
+                        view.setTypeface(Typeface.create(cur, Typeface.NORMAL))
                 }
-                case "font-style" -> {
-                    if (!(view instanceof TextView tv)) continue;
-                    String value = terms.get(0).strValue;
-                    Typeface cur = tv.getTypeface();
-                    if ("italic".equals(value)) tv.setTypeface(cur, Typeface.ITALIC);
-                    else if ("normal".equals(value))
-                        tv.setTypeface(Typeface.create(cur, Typeface.NORMAL));
+                "font-style" -> {
+                    if (view !is TextView) continue
+                    val value = terms[0].strValue
+                    val cur = view.typeface
+                    if (value == "italic") view.setTypeface(cur, Typeface.ITALIC)
+                    else if (value == "normal") view.setTypeface(Typeface.create(cur, Typeface.NORMAL))
                 }
-                case "text-decoration" -> {
-                    if (!(view instanceof TextView tv)) continue;
-                    String value = terms.get(0).strValue;
+                "text-decoration" -> {
+                    if (view !is TextView) continue
+                    val value = terms[0].strValue
                     if (value.contains("underline"))
-                        tv.setPaintFlags(tv.getPaintFlags() | Paint.UNDERLINE_TEXT_FLAG);
+                        view.paintFlags = view.paintFlags or Paint.UNDERLINE_TEXT_FLAG
                     if (value.contains("line-through"))
-                        tv.setPaintFlags(tv.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
+                        view.paintFlags = view.paintFlags or Paint.STRIKE_THRU_TEXT_FLAG
                     if (value.contains("none"))
-                        tv.setPaintFlags(tv.getPaintFlags() & (~Paint.UNDERLINE_TEXT_FLAG) & (~Paint.STRIKE_THRU_TEXT_FLAG));
+                        view.paintFlags = view.paintFlags and Paint.UNDERLINE_TEXT_FLAG.inv() and Paint.STRIKE_THRU_TEXT_FLAG.inv()
                 }
-                case "text-transform" -> {
-                    if (!(view instanceof TextView tv)) continue;
-                    switch (terms.get(0).strValue) {
-                        case "uppercase" -> tv.setAllCaps(true);
-                        case "lowercase" -> {
-                            tv.setAllCaps(false);
-                            tv.setText(tv.getText().toString().toLowerCase());
+                "text-transform" -> {
+                    if (view !is TextView) continue
+                    when (terms[0].strValue) {
+                        "uppercase" -> view.isAllCaps = true
+                        "lowercase" -> {
+                            view.isAllCaps = false
+                            view.text = view.text.toString().lowercase()
                         }
-                        case "none" -> tv.setAllCaps(false);
+                        "none" -> view.isAllCaps = false
                     }
                 }
-                case "text-align" -> {
-                    if (!(view instanceof TextView tv)) continue;
-                    switch (terms.get(0).strValue) {
-                        case "center" -> tv.setGravity(Gravity.CENTER);
-                        case "right", "end" -> tv.setGravity(Gravity.END | Gravity.CENTER_VERTICAL);
-                        case "left", "start" ->
-                                tv.setGravity(Gravity.START | Gravity.CENTER_VERTICAL);
+                "text-align" -> {
+                    if (view !is TextView) continue
+                    when (terms[0].strValue) {
+                        "center" -> view.gravity = Gravity.CENTER
+                        "right", "end" -> view.gravity = Gravity.END or Gravity.CENTER_VERTICAL
+                        "left", "start" -> view.gravity = Gravity.START or Gravity.CENTER_VERTICAL
                     }
                 }
-                case "box-shadow" -> {
-                    for (var term : terms) {
+                "box-shadow" -> {
+                    for (term in terms) {
                         if (term.type == SerialTerm.LENGTH) {
-                            float val = getExactValue(term, 0);
-                            if (val > 0) view.setElevation(val);
-                            break;
+                            val `val` = getExactValue(term, 0)
+                            if (`val` > 0) view.elevation = `val`.toFloat()
+                            break
                         }
                     }
                 }
-                case "transform" -> {
-                    for (var term : terms) {
-                        if (term.type != SerialTerm.FUNCTION) continue;
-                        var args = term.args;
-                        if ("rotate".equals(term.strValue) && args != null && !args.isEmpty()) {
-                            var arg = args.get(0);
-                            if (arg.type == SerialTerm.LENGTH && "deg".equals(arg.unitName)) {
-                                view.setRotation(arg.numValue);
+                "transform" -> {
+                    for (term in terms) {
+                        if (term.type != SerialTerm.FUNCTION) continue
+                        val args = term.args
+                        if (term.strValue == "rotate" && !args.isNullOrEmpty()) {
+                            val arg = args[0]
+                            if (arg.type == SerialTerm.LENGTH && arg.unitName == "deg") {
+                                view.rotation = arg.numValue
                             }
-                        } else if ("scale".equals(term.strValue) && args != null) {
-                            if (args.size() >= 1) {
-                                float sx = numericFromTerm(args.get(0));
-                                view.setScaleX(sx);
-                                view.setScaleY(sx);
+                        } else if (term.strValue == "scale" && args != null) {
+                            if (args.isNotEmpty()) {
+                                val sx = numericFromTerm(args[0])
+                                view.scaleX = sx
+                                view.scaleY = sx
                             }
-                            if (args.size() >= 2) {
-                                view.setScaleY(numericFromTerm(args.get(1)));
+                            if (args.size >= 2) {
+                                view.scaleY = numericFromTerm(args[1])
                             }
                         }
                     }
                 }
-                case "margin" -> {
-                    if (!(view.getLayoutParams() instanceof ViewGroup.MarginLayoutParams params))
-                        continue;
-                    int l = params.leftMargin, t = params.topMargin,
-                            r = params.rightMargin, b = params.bottomMargin;
-                    if (terms.size() == 1) {
-                        l = t = r = b = getExactValue(terms.get(0), view.getWidth());
-                    } else if (terms.size() == 2) {
-                        t = b = getExactValue(terms.get(0), view.getHeight());
-                        l = r = getExactValue(terms.get(1), view.getWidth());
-                    } else if (terms.size() == 4) {
-                        t = getExactValue(terms.get(0), view.getHeight());
-                        r = getExactValue(terms.get(1), view.getWidth());
-                        b = getExactValue(terms.get(2), view.getHeight());
-                        l = getExactValue(terms.get(3), view.getWidth());
+                "margin" -> {
+                    val params = view.layoutParams
+                    if (params !is ViewGroup.MarginLayoutParams) continue
+                    var l = params.leftMargin
+                    var t = params.topMargin
+                    var r = params.rightMargin
+                    var b = params.bottomMargin
+                    when (terms.size) {
+                        1 -> {
+                            l = getExactValue(terms[0], view.width)
+                            t = l
+                            r = l
+                            b = l
+                        }
+                        2 -> {
+                            t = getExactValue(terms[0], view.height)
+                            b = t
+                            l = getExactValue(terms[1], view.width)
+                            r = l
+                        }
+                        4 -> {
+                            t = getExactValue(terms[0], view.height)
+                            r = getExactValue(terms[1], view.width)
+                            b = getExactValue(terms[2], view.height)
+                            l = getExactValue(terms[3], view.width)
+                        }
                     }
-                    params.setMargins(l, t, r, b);
-                    view.requestLayout();
+                    params.setMargins(l, t, r, b)
+                    view.requestLayout()
                 }
-                case "margin-left" -> {
-                    if (!(view.getLayoutParams() instanceof ViewGroup.MarginLayoutParams p))
-                        continue;
-                    p.leftMargin = getExactValue(terms.get(0), view.getWidth());
-                    view.requestLayout();
+                "margin-left" -> {
+                    val p = view.layoutParams
+                    if (p !is ViewGroup.MarginLayoutParams) continue
+                    p.leftMargin = getExactValue(terms[0], view.width)
+                    view.requestLayout()
                 }
-                case "margin-top" -> {
-                    if (!(view.getLayoutParams() instanceof ViewGroup.MarginLayoutParams p))
-                        continue;
-                    p.topMargin = getExactValue(terms.get(0), view.getHeight());
-                    view.requestLayout();
+                "margin-top" -> {
+                    val p = view.layoutParams
+                    if (p !is ViewGroup.MarginLayoutParams) continue
+                    p.topMargin = getExactValue(terms[0], view.height)
+                    view.requestLayout()
                 }
-                case "margin-right" -> {
-                    if (!(view.getLayoutParams() instanceof ViewGroup.MarginLayoutParams p))
-                        continue;
-                    p.rightMargin = getExactValue(terms.get(0), view.getWidth());
-                    view.requestLayout();
+                "margin-right" -> {
+                    val p = view.layoutParams
+                    if (p !is ViewGroup.MarginLayoutParams) continue
+                    p.rightMargin = getExactValue(terms[0], view.width)
+                    view.requestLayout()
                 }
-                case "margin-bottom" -> {
-                    if (!(view.getLayoutParams() instanceof ViewGroup.MarginLayoutParams p))
-                        continue;
-                    p.bottomMargin = getExactValue(terms.get(0), view.getHeight());
-                    view.requestLayout();
+                "margin-bottom" -> {
+                    val p = view.layoutParams
+                    if (p !is ViewGroup.MarginLayoutParams) continue
+                    p.bottomMargin = getExactValue(terms[0], view.height)
+                    view.requestLayout()
                 }
-                case "padding" -> {
-                    int l = view.getPaddingLeft(), t = view.getPaddingTop(),
-                            r = view.getPaddingRight(), b = view.getPaddingBottom();
-                    if (terms.size() == 1) {
-                        l = t = r = b = getExactValue(terms.get(0), view.getWidth());
-                    } else if (terms.size() == 2) {
-                        t = b = getExactValue(terms.get(0), view.getHeight());
-                        l = r = getExactValue(terms.get(1), view.getWidth());
-                    } else if (terms.size() == 4) {
-                        t = getExactValue(terms.get(0), view.getHeight());
-                        r = getExactValue(terms.get(1), view.getWidth());
-                        b = getExactValue(terms.get(2), view.getHeight());
-                        l = getExactValue(terms.get(3), view.getWidth());
+                "padding" -> {
+                    var l = view.paddingLeft
+                    var t = view.paddingTop
+                    var r = view.paddingRight
+                    var b = view.paddingBottom
+                    when (terms.size) {
+                        1 -> {
+                            l = getExactValue(terms[0], view.width)
+                            t = l
+                            r = l
+                            b = l
+                        }
+                        2 -> {
+                            t = getExactValue(terms[0], view.height)
+                            b = t
+                            l = getExactValue(terms[1], view.width)
+                            r = l
+                        }
+                        4 -> {
+                            t = getExactValue(terms[0], view.height)
+                            r = getExactValue(terms[1], view.width)
+                            b = getExactValue(terms[2], view.height)
+                            l = getExactValue(terms[3], view.width)
+                        }
                     }
-                    view.setPadding(l, t, r, b);
+                    view.setPadding(l, t, r, b)
                 }
-                case "padding-left" -> view.setPadding(
-                        getExactValue(terms.get(0), view.getWidth()),
-                        view.getPaddingTop(), view.getPaddingRight(), view.getPaddingBottom());
-                case "padding-top" -> view.setPadding(
-                        view.getPaddingLeft(),
-                        getExactValue(terms.get(0), view.getHeight()),
-                        view.getPaddingRight(), view.getPaddingBottom());
-                case "padding-right" -> view.setPadding(
-                        view.getPaddingLeft(), view.getPaddingTop(),
-                        getExactValue(terms.get(0), view.getWidth()),
-                        view.getPaddingBottom());
-                case "padding-bottom" -> view.setPadding(
-                        view.getPaddingLeft(), view.getPaddingTop(), view.getPaddingRight(),
-                        getExactValue(terms.get(0), view.getHeight()));
+                "padding-left" -> view.setPadding(
+                    getExactValue(terms[0], view.width),
+                    view.paddingTop, view.paddingRight, view.paddingBottom)
+                "padding-top" -> view.setPadding(
+                    view.paddingLeft,
+                    getExactValue(terms[0], view.height),
+                    view.paddingRight, view.paddingBottom)
+                "padding-right" -> view.setPadding(
+                    view.paddingLeft, view.paddingTop,
+                    getExactValue(terms[0], view.width),
+                    view.paddingBottom)
+                "padding-bottom" -> view.setPadding(
+                    view.paddingLeft, view.paddingTop, view.paddingRight,
+                    getExactValue(terms[0], view.height))
             }
         }
     }
 
-    private void setHookedDrawable(View view, Drawable draw) {
-        if (view instanceof ImageView imageView) {
-            forcedDrawableMap.put(view, draw);
-            imageView.setImageDrawable(draw);
+    private fun setHookedDrawable(view: View, draw: Drawable) {
+        if (view is ImageView) {
+            forcedDrawableMap[view] = draw
+            view.setImageDrawable(draw)
         } else {
-            forcedBackgroundMap.put(view, draw);
-            view.setBackground(draw);
+            forcedBackgroundMap[view] = draw
+            view.background = draw
         }
     }
 
-    private void setBackgroundModel(View view, SerialTerm term) {
+    private fun setBackgroundModel(view: View, term: SerialTerm) {
         if (term.type == SerialTerm.LINEAR_GRADIENT) {
             try {
-                var gradientDrawable = chacheDrawables.get(term.strValue);
+                var gradientDrawable = chacheDrawables[term.strValue]
                 if (gradientDrawable == null) {
                     gradientDrawable = GradientDrawableParser.parseGradient(
-                            term.gradientAngle, term.gradientColors, term.gradientPositions,
-                            view.getWidth(), view.getHeight());
-                    chacheDrawables.put(term.strValue, gradientDrawable);
+                        term.gradientAngle, term.gradientColors, term.gradientPositions,
+                        view.width, view.height)
+                    chacheDrawables[term.strValue] = gradientDrawable
                 }
-                forcedBackgroundMap.put(view, gradientDrawable);
-                view.setBackground(gradientDrawable);
-            } catch (Exception e) {
-                log("Error parsing gradient: " + e.getMessage());
+                forcedBackgroundMap[view] = gradientDrawable
+                view.background = gradientDrawable
+            } catch (e: Exception) {
+                log("Error parsing gradient: ${e.message}")
             }
         }
     }
 
-    @NonNull
-    private static ColorStateList getColorStateList(List<SerialTerm> terms) {
-        int def = terms.get(0).colorRgb;
-        int pressed = terms.get(1).colorRgb;
-        int disabled = terms.get(2).colorRgb;
-        return new ColorStateList(
-                new int[][]{
-                        new int[]{android.R.attr.state_pressed},
-                        new int[]{android.R.attr.state_enabled},
-                        new int[]{android.R.attr.state_focused, android.R.attr.state_pressed},
-                        new int[]{-android.R.attr.state_enabled},
-                        new int[]{}
-                },
-                new int[]{pressed, def, pressed, disabled, def}
-        );
-    }
+    override fun getPluginName(): String = "Custom View"
 
-    private int getRealValue(SerialTerm pValue, int size) {
-        int value;
-        if ("px".equals(pValue.unitName)) {
-            value = Utils.dipToPixels(pValue.numValue);
-        } else if (pValue.percentage) {
-            value = size * (int) pValue.numValue / 100;
-        } else {
-            value = (int) pValue.numValue;
-        }
-        return value > 0 ? value : 1;
-    }
+    inner class DrawableCache(context: Context, maxSize: Int) {
+        private val drawableCache = LruCache<String, CachedDrawable>(maxSize)
+        private val context = context.applicationContext
 
-    private int getExactValue(SerialTerm pValue, int size) {
-        if ("px".equals(pValue.unitName)) return Utils.dipToPixels(pValue.numValue);
-        if (pValue.percentage) return size * (int) pValue.numValue / 100;
-        return (int) pValue.numValue;
-    }
+        fun getDrawable(filePath: String, width: Int, height: Int): Drawable? {
+            val file = if (filePath.startsWith("/")) File(filePath) else File(themeDir, filePath)
+            val key = file.absolutePath
 
-    private float numericFromTerm(SerialTerm t) {
-        if (t.type == SerialTerm.FLOAT_VAL || t.type == SerialTerm.LENGTH) return t.numValue;
-        try {
-            return Float.parseFloat(t.strValue);
-        } catch (Exception e) {
-            return 1f;
-        }
-    }
-
-
-    private void captureSelector(View currentView, ArrayList<SelectorPart> selector,
-                                 int position, ArrayList<View> resultViews) {
-        if (selector.size() == position) return;
-        var part = selector.get(position);
-        if (part.className != null) {
-            captureSelector(currentView, selector, position + 1, resultViews);
-        } else if (part.idName != null) {
-            int id = part.resolvedId;
-            if (id <= 0) return;
-            View view = currentView.getId() == id ? currentView : currentView.findViewById(id);
-            if (view == null) return;
-            if (selector.size() == position + 1) {
-                resultViews.add(view);
-            } else {
-                captureSelector(view, selector, position + 1, resultViews);
-            }
-        } else {
-            if (!(currentView instanceof ViewGroup viewGroup)) return;
-            String typeName = part.typeSelector;
-            String pseudo = part.pseudoClass;
-            var itemCount = new int[]{0};
-            for (int i = 0; i < viewGroup.getChildCount(); i++) {
-                var itemView = viewGroup.getChildAt(i);
-                if (ReflectionUtils.isClassSimpleNameString(itemView.getClass(), typeName)) {
-                    if (pseudo != null && checkAttribute(itemView, itemCount, pseudo)) continue;
-                    if (selector.size() == position + 1) {
-                        resultViews.add(itemView);
-                    } else {
-                        captureSelector(itemView, selector, position + 1, resultViews);
-                    }
-                } else if (isWidgetString(typeName) && itemView instanceof ViewGroup vg) {
-                    for (int j = 0; j < vg.getChildCount(); j++) {
-                        captureSelector(vg.getChildAt(j), selector, position, resultViews);
-                    }
-                }
-            }
-        }
-    }
-
-    private boolean checkAttribute(View itemView, int[] itemCount, String name) {
-        if (name.startsWith("nth-child")) {
-            int index = Integer.parseInt(name.substring(name.indexOf('(') + 1, name.indexOf(')'))) - 1;
-            return index != itemCount[0]++;
-        } else if (name.startsWith("contains")) {
-            String contains = name.substring(name.indexOf('(') + 1, name.indexOf(')'));
-            if (itemView instanceof TextView tv) return !tv.getText().toString().contains(contains);
-            return !itemView.toString().contains(contains);
-        }
-        return false;
-    }
-
-    private boolean isWidgetString(String view) {
-        return widgetClassCache.computeIfAbsent(view,
-                name -> XposedHelpers.findClassIfExists("android.widget." + name, null) != null);
-    }
-
-    private Class<?> resolveClass(String className) {
-        if (className == null) return null;
-        return resolvedClasses.computeIfAbsent(className,
-                name -> XposedHelpers.findClassIfExists(name, classLoader));
-    }
-
-    @NonNull
-    @Override
-    public String getPluginName() {
-        return "Custom View";
-    }
-
-
-    public class DrawableCache {
-        private final LruCache<String, CachedDrawable> drawableCache;
-        private final Context context;
-
-        public DrawableCache(Context context, int maxSize) {
-            this.context = context.getApplicationContext();
-            drawableCache = new LruCache<>(maxSize);
-        }
-
-        private Drawable loadDrawableFromFile(String filePath, int reqWidth, int reqHeight) {
-            try {
-                File file = new File(filePath);
-                Bitmap bitmap;
-                if (!file.canRead()) {
-                    try (var parcelFile = WppCore.getClientBridge().openFile(filePath, false)) {
-                        bitmap = BitmapFactory.decodeStream(new FileInputStream(parcelFile.getFileDescriptor()));
-                    }
-                } else {
-                    bitmap = BitmapFactory.decodeFile(file.getAbsolutePath());
-                }
-                var newHeight = reqHeight < 1 ? bitmap.getHeight() : Math.min(bitmap.getHeight(), reqHeight);
-                var newWidth = reqWidth < 1 ? bitmap.getWidth() : Math.min(bitmap.getWidth(), reqWidth);
-                bitmap = Bitmap.createScaledBitmap(bitmap, newWidth, newHeight, true);
-                return new BitmapDrawable(context.getResources(), bitmap);
-            } catch (Exception e) {
-                XposedBridge.log(e);
-                return null;
-            }
-        }
-
-        @Nullable
-        public Drawable getDrawable(String filePath, int width, int height) {
-            File file = filePath.startsWith("/") ? new File(filePath) : new File(themeDir, filePath);
-            String key = file.getAbsolutePath();
-
-            CachedDrawable cachedDrawable = drawableCache.get(key);
+            val cachedDrawable = drawableCache.get(key)
 
             if (cachedDrawable != null) {
                 if (System.currentTimeMillis() - cachedDrawable.lastCheckTime < 2000) {
-                    return cachedDrawable.drawable;
+                    return cachedDrawable.drawable
                 }
             }
 
-            if (!file.exists()) return null;
+            if (!file.exists()) return null
 
-            long lastModified = file.lastModified();
+            val lastModified = file.lastModified()
             if (cachedDrawable != null) {
-                cachedDrawable.lastCheckTime = System.currentTimeMillis();
-                if (cachedDrawable.lastModified == lastModified) return cachedDrawable.drawable;
+                cachedDrawable.lastCheckTime = System.currentTimeMillis()
+                if (cachedDrawable.lastModified == lastModified) return cachedDrawable.drawable
             }
 
-            Drawable cached = loadDrawableFromCache(key, lastModified);
+            val cached = loadDrawableFromCache(key, lastModified)
             if (cached != null) {
-                cachedDrawable = new CachedDrawable(cached, lastModified);
-                drawableCache.put(key, cachedDrawable);
-                return cached;
+                val entry = CachedDrawable(cached, lastModified)
+                drawableCache.put(key, entry)
+                return cached
             }
 
-            Drawable drawable = loadDrawableFromFile(key, width, height);
-            if (drawable == null) return null;
-            saveDrawableToCache(key, (BitmapDrawable) drawable, lastModified);
-            cachedDrawable = new CachedDrawable(drawable, lastModified);
-            drawableCache.put(key, cachedDrawable);
-            return drawable;
+            val drawable = loadDrawableFromFile(key, width, height) ?: return null
+            saveDrawableToCache(key, drawable as BitmapDrawable, lastModified)
+            val entry = CachedDrawable(drawable, lastModified)
+            drawableCache.put(key, entry)
+            return drawable
         }
 
-        private void saveDrawableToCache(String key, BitmapDrawable drawable, long lastModified) {
-            File cacheDir = context.getCacheDir();
-            File cacheLocation = new File(cacheDir, "drawable_cache");
-            if (!cacheLocation.exists()) cacheLocation.mkdirs();
-            File cacheFile = new File(cacheLocation, getCacheFileName(key));
-            File metadataFile = new File(cacheLocation, getCacheFileName(key) + ".meta");
-            try (OutputStream out = new FileOutputStream(cacheFile);
-                 ObjectOutputStream metaOut = new ObjectOutputStream(new FileOutputStream(metadataFile))) {
-                drawable.getBitmap().compress(Bitmap.CompressFormat.PNG, 80, out);
-                metaOut.writeLong(lastModified);
-                Log.d("DrawableCache", "Saved drawable to cache: " + cacheFile.getAbsolutePath());
-            } catch (IOException e) {
-                Log.e("DrawableCache", "Failed to save drawable to cache", e);
+        private fun loadDrawableFromFile(filePath: String, reqWidth: Int, reqHeight: Int): Drawable? {
+            return try {
+                val file = File(filePath)
+                val bitmap = if (!file.canRead()) {
+                    val bridge = WppCore.getClientBridge() ?: return null
+                    val parcelFile = bridge.openFile(filePath, false)
+                    BitmapFactory.decodeStream(FileInputStream(parcelFile.fileDescriptor))
+                } else {
+                    BitmapFactory.decodeFile(file.absolutePath)
+                } ?: return null
+                val newHeight = if (reqHeight < 1) bitmap.height else minOf(bitmap.height, reqHeight)
+                val newWidth = if (reqWidth < 1) bitmap.width else minOf(bitmap.width, reqWidth)
+                val resized =
+                    bitmap.scale(newWidth, newHeight)
+                resized.toDrawable(context.resources)
+            } catch (e: Exception) {
+                XposedBridge.log(e)
+                null
             }
         }
 
-        private Drawable loadDrawableFromCache(String key, long originalLastModified) {
-            File cacheDir = context.getCacheDir();
-            File cacheLocation = new File(cacheDir, "drawable_cache");
-            File cacheFile = new File(cacheLocation, getCacheFileName(key));
-            File metadataFile = new File(cacheLocation, getCacheFileName(key) + ".meta");
+        private fun saveDrawableToCache(key: String, drawable: BitmapDrawable, lastModified: Long) {
+            val cacheDir = context.cacheDir
+            val cacheLocation = File(cacheDir, "drawable_cache")
+            if (!cacheLocation.exists()) cacheLocation.mkdirs()
+            val cacheFile = File(cacheLocation, getCacheFileName(key))
+            val metadataFile = File(cacheLocation, "${getCacheFileName(key)}.meta")
+            try {
+                FileOutputStream(cacheFile).use { out ->
+                    drawable.bitmap.compress(Bitmap.CompressFormat.PNG, 80, out)
+                }
+                ObjectOutputStream(FileOutputStream(metadataFile)).use { metaOut ->
+                    metaOut.writeLong(lastModified)
+                }
+                Log.d("DrawableCache", "Saved drawable to cache: ${cacheFile.absolutePath}")
+            } catch (e: IOException) {
+                Log.e("DrawableCache", "Failed to save drawable to cache", e)
+            }
+        }
+
+        private fun loadDrawableFromCache(key: String, originalLastModified: Long): Drawable? {
+            val cacheDir = context.cacheDir
+            val cacheLocation = File(cacheDir, "drawable_cache")
+            val cacheFile = File(cacheLocation, getCacheFileName(key))
+            val metadataFile = File(cacheLocation, "${getCacheFileName(key)}.meta")
             if (!cacheFile.exists() || !metadataFile.exists()) {
-                log("Drawable not found in cache: " + cacheFile.getAbsolutePath());
-                return null;
+                log("Drawable not found in cache: ${cacheFile.absolutePath}")
+                return null
             }
-            try (ObjectInputStream metaIn = new ObjectInputStream(new FileInputStream(metadataFile))) {
-                long cachedLastModified = metaIn.readLong();
-                if (cachedLastModified != originalLastModified) return null;
-                Bitmap bitmap = BitmapFactory.decodeFile(cacheFile.getAbsolutePath());
-                if (bitmap != null) return new BitmapDrawable(context.getResources(), bitmap);
-            } catch (IOException e) {
-                Log.e("DrawableCache", "Failed to load drawable from cache", e);
-            }
-            return null;
-        }
-
-        private String getCacheFileName(String input) {
-            return String.valueOf(Objects.hash(input));
-        }
-
-        private static class CachedDrawable {
-            Drawable drawable;
-            long lastModified;
-            long lastCheckTime;
-
-            CachedDrawable(Drawable drawable, long lastModified) {
-                this.drawable = drawable;
-                this.lastModified = lastModified;
-                this.lastCheckTime = System.currentTimeMillis();
+            return try {
+                ObjectInputStream(FileInputStream(metadataFile)).use { metaIn ->
+                    val cachedLastModified = metaIn.readLong()
+                    if (cachedLastModified != originalLastModified) return@use null
+                    val bitmap = BitmapFactory.decodeFile(cacheFile.absolutePath)
+                    if (bitmap != null) bitmap.toDrawable(context.resources) else null
+                }
+            } catch (e: IOException) {
+                Log.e("DrawableCache", "Failed to load drawable from cache", e)
+                null
             }
         }
-    }
 
-
-    static class SelectorPart implements Serializable {
-        String idName;
-        int resolvedId;
-        String className;
-        String typeSelector;
-        String pseudoClass;
-    }
-
-    static class SerialTerm implements Serializable {
-        static final byte COLOR = 1;
-        static final byte LENGTH = 2;
-        static final byte URI = 3;
-        static final byte FLOAT_VAL = 4;
-        static final byte STRING = 5;
-        static final byte LINEAR_GRADIENT = 6;
-        static final byte FUNCTION = 7;
-
-        byte type;
-        int colorRgb;
-        float numValue;
-        boolean percentage;
-        String unitName;
-        String strValue;
-        ArrayList<SerialTerm> args;
-        float gradientAngle;
-        int[] gradientColors;
-        float[] gradientPositions;
-    }
-
-    static class SerialDeclaration implements Serializable {
-        String property;
-        ArrayList<SerialTerm> terms;
-    }
-
-    static class CachedRuleItem implements Serializable {
-        ArrayList<SelectorPart> selector;
-        ArrayList<SerialDeclaration> declarations;
-        String targetActivityClassName;
-
-        CachedRuleItem(ArrayList<SelectorPart> selector,
-                       ArrayList<SerialDeclaration> declarations,
-                       String targetActivityClassName) {
-            this.selector = selector;
-            this.declarations = declarations;
-            this.targetActivityClassName = targetActivityClassName;
+        private fun getCacheFileName(input: String): String {
+            return Objects.hash(input).toString()
         }
     }
 
+    private class CachedDrawable(val drawable: Drawable, val lastModified: Long) {
+        var lastCheckTime = System.currentTimeMillis()
+    }
 
-    public static class GradientDrawableParser {
+    class SelectorPart : Serializable {
+        var idName: String? = null
+        var resolvedId: Int = 0
+        var className: String? = null
+        var typeSelector: String? = null
+        var pseudoClass: String? = null
+    }
 
-        public static BitmapDrawable parseGradient(float angle, int[] colors, float[] positions,
-                                                   int width, int height) {
-            LinearGradient lg = createLinearGradient(angle, colors, positions, width, height);
-            ShapeDrawable sd = new ShapeDrawable(new RectShape());
-            sd.setIntrinsicWidth(width);
-            sd.setIntrinsicHeight(height);
-            sd.getPaint().setShader(lg);
-            Bitmap bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
-            sd.setBounds(0, 0, width, height);
-            sd.draw(new Canvas(bitmap));
-            return new BitmapDrawable(Utils.getApplication().getResources(), bitmap);
+    class SerialTerm : Serializable {
+        companion object {
+            const val COLOR: Byte = 1
+            const val LENGTH: Byte = 2
+            const val URI: Byte = 3
+            const val FLOAT_VAL: Byte = 4
+            const val STRING: Byte = 5
+            const val LINEAR_GRADIENT: Byte = 6
+            const val FUNCTION: Byte = 7
         }
 
-        private static LinearGradient createLinearGradient(float angle, int[] colors,
-                                                           float[] positions, int width, int height) {
-            double radians = Math.toRadians(angle);
-            float x0 = (float) (0.5 * width + 0.5 * width * Math.cos(radians - Math.PI / 2));
-            float y0 = (float) (0.5 * height + 0.5 * height * Math.sin(radians - Math.PI / 2));
-            float x1 = (float) (0.5 * width + 0.5 * width * Math.cos(radians + Math.PI / 2));
-            float y1 = (float) (0.5 * height + 0.5 * height * Math.sin(radians + Math.PI / 2));
-            return new LinearGradient(x0, y0, x1, y1, colors, positions, Shader.TileMode.CLAMP);
+        var type: Byte = 0
+        var colorRgb: Int = 0
+        var numValue: Float = 0f
+        var percentage: Boolean = false
+        var unitName: String? = null
+        var strValue: String = ""
+        var args: ArrayList<SerialTerm>? = null
+        var gradientAngle: Float = 0f
+        var gradientColors: IntArray = IntArray(0)
+        var gradientPositions: FloatArray = FloatArray(0)
+    }
+
+    class SerialDeclaration : Serializable {
+        var property: String = ""
+        var terms: ArrayList<SerialTerm> = ArrayList()
+    }
+
+    class CachedRuleItem(
+        var selector: ArrayList<SelectorPart>,
+        var declarations: ArrayList<SerialDeclaration>,
+        var targetActivityClassName: String?
+    ) : Serializable
+
+    class GradientDrawableParser {
+        companion object {
+            fun parseGradient(angle: Float, colors: IntArray, positions: FloatArray,
+                              width: Int, height: Int): BitmapDrawable {
+                val lg = createLinearGradient(angle, colors, positions, width, height)
+                val sd = ShapeDrawable(RectShape())
+                sd.intrinsicWidth = width
+                sd.intrinsicHeight = height
+                sd.paint.shader = lg
+                val bitmap = createBitmap(width, height)
+                sd.bounds = android.graphics.Rect(0, 0, width, height)
+                sd.draw(Canvas(bitmap))
+                return bitmap.toDrawable(Utils.getApplication().resources)
+            }
+
+            private fun createLinearGradient(angle: Float, colors: IntArray, positions: FloatArray,
+                                             width: Int, height: Int): LinearGradient {
+                val radians = Math.toRadians(angle.toDouble())
+                val x0 = (0.5 * width + 0.5 * width * cos(radians - Math.PI / 2)).toFloat()
+                val y0 = (0.5 * height + 0.5 * height * sin(radians - Math.PI / 2)).toFloat()
+                val x1 = (0.5 * width + 0.5 * width * cos(radians + Math.PI / 2)).toFloat()
+                val y1 = (0.5 * height + 0.5 * height * sin(radians + Math.PI / 2)).toFloat()
+                return LinearGradient(x0, y0, x1, y1, colors, positions, Shader.TileMode.CLAMP)
+            }
+        }
+    }
+
+    private fun captureSelector(currentView: View, selector: ArrayList<SelectorPart>,
+                                position: Int, resultViews: ArrayList<View>) {
+        if (selector.size == position) return
+        val part = selector[position]
+        if (part.className != null) {
+            captureSelector(currentView, selector, position + 1, resultViews)
+        } else if (part.idName != null) {
+            val id = part.resolvedId
+            if (id <= 0) return
+            val view = if (currentView.id == id) currentView else currentView.findViewById(id)
+            if (selector.size == position + 1) {
+                resultViews.add(view)
+            } else {
+                captureSelector(view, selector, position + 1, resultViews)
+            }
+        } else {
+            if (currentView !is ViewGroup) return
+            val typeName = part.typeSelector
+            val pseudo = part.pseudoClass
+            val itemCount = intArrayOf(0)
+            for (i in 0 until currentView.childCount) {
+                val itemView = currentView.getChildAt(i)
+                if (ReflectionUtils.isClassSimpleNameString(itemView.javaClass, typeName)) {
+                    if (pseudo != null && checkAttribute(itemView, itemCount, pseudo)) continue
+                    if (selector.size == position + 1) {
+                        resultViews.add(itemView)
+                    } else {
+                        captureSelector(itemView, selector, position + 1, resultViews)
+                    }
+                } else if (isWidgetString(typeName) && itemView is ViewGroup) {
+                    for (j in 0 until itemView.childCount) {
+                        captureSelector(itemView.getChildAt(j), selector, position, resultViews)
+                    }
+                }
+            }
+        }
+    }
+
+    private fun checkAttribute(itemView: View, itemCount: IntArray, name: String): Boolean {
+        return if (name.startsWith("nth-child")) {
+            val index = name.substring(name.indexOf('(') + 1, name.indexOf(')')).toInt() - 1
+            index != itemCount[0]++
+        } else if (name.startsWith("contains")) {
+            val contains = name.substring(name.indexOf('(') + 1, name.indexOf(')'))
+            if (itemView is TextView) !itemView.text.toString().contains(contains)
+            else !itemView.toString().contains(contains)
+        } else false
+    }
+
+    private fun isWidgetString(view: String?): Boolean {
+        if (view == null) return false
+        return widgetClassCache.getOrPut(view) {
+            XposedHelpers.findClassIfExists("android.widget.$view", null) != null
+        }
+    }
+
+    private fun resolveClass(className: String?): Class<*>? {
+        if (className == null) return null
+        return resolvedClasses.getOrPut(className) {
+            XposedHelpers.findClassIfExists(className, classLoader)
+        }
+    }
+
+    private fun getColorStateList(terms: List<SerialTerm>): ColorStateList {
+        val def = terms[0].colorRgb
+        val pressed = terms[1].colorRgb
+        val disabled = terms[2].colorRgb
+        return ColorStateList(
+            arrayOf(
+                intArrayOf(android.R.attr.state_pressed),
+                intArrayOf(android.R.attr.state_enabled),
+                intArrayOf(android.R.attr.state_focused, android.R.attr.state_pressed),
+                intArrayOf(-android.R.attr.state_enabled),
+                intArrayOf()
+            ),
+            intArrayOf(pressed, def, pressed, disabled, def)
+        )
+    }
+
+    private fun getRealValue(pValue: SerialTerm, size: Int): Int {
+        val value = if (pValue.unitName == "px") {
+            Utils.dipToPixels(pValue.numValue)
+        } else if (pValue.percentage) {
+            size * pValue.numValue.toInt() / 100
+        } else {
+            pValue.numValue.toInt()
+        }
+        return if (value > 0) value else 1
+    }
+
+    private fun getExactValue(pValue: SerialTerm, size: Int): Int {
+        if (pValue.unitName == "px") return Utils.dipToPixels(pValue.numValue)
+        if (pValue.percentage) return size * pValue.numValue.toInt() / 100
+        return pValue.numValue.toInt()
+    }
+
+    private fun numericFromTerm(t: SerialTerm): Float {
+        if (t.type == SerialTerm.FLOAT_VAL || t.type == SerialTerm.LENGTH) return t.numValue
+        return try {
+            t.strValue.toFloat()
+        } catch (_: Exception) {
+            1f
+        }
+    }
+
+    companion object {
+        private var themeDir: File? = null
+        private fun changeDPI(activity: Activity, prefs: XSharedPreferences, properties: Properties) {
+            val dpiStr = when {
+                prefs.getString("change_dpi", "0") != "0" -> prefs.getString("change_dpi", "0")
+                properties.getProperty("change_dpi") != null -> properties.getProperty("change_dpi")
+                else -> null
+            } ?: return
+            val dpi = try {
+                dpiStr.toInt()
+            } catch (e: NumberFormatException) {
+                XposedBridge.log("Error parsing dpi: ${e.message}")
+                return
+            }
+            if (dpi == 0) return
+            val res = activity.resources
+            val runningMetrics = res.displayMetrics
+            val newMetrics = if (runningMetrics != null) {
+                DisplayMetrics().also { it.setTo(runningMetrics) }
+            } else {
+                res.displayMetrics
+            }
+            newMetrics.density = dpi / 160f
+            newMetrics.densityDpi = dpi
+            res.displayMetrics.setTo(newMetrics)
+        }
+
+        private fun toSerialTerm(term: Term<*>): SerialTerm {
+            val st = SerialTerm()
+            when (term) {
+                is TermFunction.LinearGradient -> {
+                    st.type = SerialTerm.LINEAR_GRADIENT
+                    st.strValue = term.toString()
+                    st.gradientAngle = term.angle.value
+                    val stops = term.colorStops
+                    st.gradientColors = IntArray(stops.size)
+                    st.gradientPositions = FloatArray(stops.size)
+                    for (i in stops.indices) {
+                        st.gradientColors[i] = stops[i].color.value.rgb
+                        st.gradientPositions[i] = stops[i].length.value / 100f
+                    }
+                }
+                is TermFunction -> {
+                    st.type = SerialTerm.FUNCTION
+                    st.strValue = term.functionName
+                    val values = term.getValues(true)
+                    st.args = ArrayList()
+                    for (v in values) st.args!!.add(toSerialTerm(v))
+                }
+                is TermColor -> {
+                    st.type = SerialTerm.COLOR
+                    st.colorRgb = term.value.rgb
+                }
+                is TermLength -> {
+                    st.type = SerialTerm.LENGTH
+                    st.numValue = term.value
+                    st.percentage = term.isPercentage
+                    st.unitName = term.unit?.toString()
+                }
+                is TermFloatValue -> {
+                    st.type = SerialTerm.FLOAT_VAL
+                    st.numValue = term.value
+                }
+                is TermURI -> {
+                    st.type = SerialTerm.URI
+                    st.strValue = term.value
+                }
+                else -> {
+                    st.type = SerialTerm.STRING
+                    st.strValue = term.toString()
+                }
+            }
+            return st
         }
     }
 }

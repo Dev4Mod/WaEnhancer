@@ -1,157 +1,148 @@
-package com.wmods.wppenhacer.xposed.features.customization;
+package com.wmods.wppenhacer.xposed.features.customization
 
-import android.view.ViewGroup;
-import android.widget.AbsListView;
-import android.widget.LinearLayout;
-import android.widget.ListView;
+import android.view.ViewGroup
+import android.widget.AbsListView
+import android.widget.LinearLayout
+import android.widget.ListView
+import com.wmods.wppenhacer.adapter.IGStatusAdapter
+import com.wmods.wppenhacer.views.IGStatusView
+import com.wmods.wppenhacer.xposed.core.Feature
+import com.wmods.wppenhacer.xposed.core.WppCore
+import com.wmods.wppenhacer.xposed.core.devkit.Unobfuscator
+import com.wmods.wppenhacer.xposed.utils.ReflectionUtils
+import com.wmods.wppenhacer.xposed.utils.Utils
+import org.luckypray.dexkit.query.enums.StringMatchType
+import de.robv.android.xposed.XC_MethodHook
+import de.robv.android.xposed.XSharedPreferences
+import de.robv.android.xposed.XposedBridge
 
-import androidx.annotation.NonNull;
+private val mListStatusContainer = ArrayList<IGStatusView>()
 
-import com.wmods.wppenhacer.adapter.IGStatusAdapter;
-import com.wmods.wppenhacer.views.IGStatusView;
-import com.wmods.wppenhacer.xposed.core.Feature;
-import com.wmods.wppenhacer.xposed.core.WppCore;
-import com.wmods.wppenhacer.xposed.core.devkit.Unobfuscator;
-import com.wmods.wppenhacer.xposed.utils.ReflectionUtils;
-import com.wmods.wppenhacer.xposed.utils.Utils;
+class IGStatus(loader: ClassLoader, preferences: XSharedPreferences) : Feature(loader, preferences) {
 
-import org.luckypray.dexkit.query.enums.StringMatchType;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-
-import de.robv.android.xposed.XC_MethodHook;
-import de.robv.android.xposed.XSharedPreferences;
-import de.robv.android.xposed.XposedBridge;
-
-public class IGStatus extends Feature {
-    public static ArrayList<Object> itens = new ArrayList<>();
-    private static final ArrayList<IGStatusView> mListStatusContainer = new ArrayList<>();
-
-    public IGStatus(@NonNull ClassLoader loader, @NonNull XSharedPreferences preferences) {
-        super(loader, preferences);
+    companion object {
+        @JvmField
+        var itens = ArrayList<Any?>()
     }
 
-    @Override
-    public void doHook() throws Throwable {
+    @Throws(Throwable::class)
+    override fun doHook() {
+        if (!prefs.getBoolean("igstatus", false)) return
 
-        if (!prefs.getBoolean("igstatus", false))
-            return;
+        val fabintMethod = Unobfuscator.loadFabMethod(classLoader)
 
-        var fabintMethod = Unobfuscator.loadFabMethod(classLoader);
+        val archivedFragmentClass = Unobfuscator.findFirstClassUsingName(
+            classLoader, StringMatchType.EndsWith, "ArchivedConversationsFragment"
+        )
+        val folderFragmentClass = Unobfuscator.findFirstClassUsingName(
+            classLoader, StringMatchType.EndsWith, "FolderConversationsFragment"
+        )
 
-        var archivedFragmentClass = Unobfuscator.findFirstClassUsingName(classLoader, StringMatchType.EndsWith, "ArchivedConversationsFragment");
-        var folderFragmentClass = Unobfuscator.findFirstClassUsingName(classLoader, StringMatchType.EndsWith, "FolderConversationsFragment");
-
-        var getViewConversationMethod = Unobfuscator.loadGetViewConversationMethod(classLoader);
-        XposedBridge.hookMethod(getViewConversationMethod, new XC_MethodHook() {
-            @Override
-            protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-                if (archivedFragmentClass.isInstance(param.thisObject))
-                    return;
-                if (folderFragmentClass.isInstance(param.thisObject))
-                    return;
-                var view = (ViewGroup) param.getResult();
-                if (view == null) return;
-                var list = (ViewGroup) view.findViewById(android.R.id.list);
-                var mStatusContainer = new IGStatusView(WppCore.getCurrentActivity());
-                if (list instanceof ListView listView) {
-                    listView.setNestedScrollingEnabled(true);
-                    var layoutParams = new AbsListView.LayoutParams(AbsListView.LayoutParams.MATCH_PARENT, Utils.dipToPixels(88));
-                    mStatusContainer.setLayoutParams(layoutParams);
-                    listView.addHeaderView(mStatusContainer);
+        val getViewConversationMethod = Unobfuscator.loadGetViewConversationMethod(classLoader)
+        XposedBridge.hookMethod(getViewConversationMethod, object : XC_MethodHook() {
+            override fun afterHookedMethod(param: MethodHookParam) {
+                if (archivedFragmentClass.isInstance(param.thisObject)) return
+                if (folderFragmentClass.isInstance(param.thisObject)) return
+                val view = param.result as? ViewGroup ?: return
+                val list = view.findViewById<ViewGroup>(android.R.id.list)
+                val mStatusContainer = IGStatusView(WppCore.getCurrentActivity()!!)
+                if (list is ListView) {
+                    list.isNestedScrollingEnabled = true
+                    val layoutParams = AbsListView.LayoutParams(
+                        AbsListView.LayoutParams.MATCH_PARENT, Utils.dipToPixels(88)
+                    )
+                    mStatusContainer.layoutParams = layoutParams
+                    list.addHeaderView(mStatusContainer)
                 } else {
-                    // RecyclerView
-                    var paddingTop = list.getPaddingTop();
-                    var parentView = (ViewGroup) list.getParent();
-                    var background = list.getBackground();
-                    mStatusContainer.setBackground(background);
-                    list.setPadding(0, 0, 0, 0);
-                    var layoutParams = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, Utils.dipToPixels(88));
-                    layoutParams.topMargin = paddingTop;
-                    mStatusContainer.setLayoutParams(layoutParams);
-                    parentView.addView(mStatusContainer, 0);
+                    val paddingTop = list.paddingTop
+                    val parentView = list.parent as ViewGroup
+                    val background = list.background
+                    mStatusContainer.background = background
+                    list.setPadding(0, 0, 0, 0)
+                    val layoutParams = LinearLayout.LayoutParams(
+                        LinearLayout.LayoutParams.MATCH_PARENT, Utils.dipToPixels(88)
+                    )
+                    layoutParams.topMargin = paddingTop
+                    mStatusContainer.layoutParams = layoutParams
+                    parentView.addView(mStatusContainer, 0)
                 }
-                var id = (int) fabintMethod.invoke(param.thisObject);
-                var igStatus = mListStatusContainer.stream().filter(ig -> ig.getFragmentId() == id).findFirst().orElse(null);
+                val id = fabintMethod.invoke(param.thisObject) as Int
+                val igStatus = mListStatusContainer.find { it.fragmentId == id }
                 if (igStatus != null) {
-                    mStatusContainer.setAdapter(igStatus.getAdapter());
-                    mListStatusContainer.remove(igStatus);
+                    mStatusContainer.adapter = igStatus.adapter
+                    mListStatusContainer.remove(igStatus)
                 }
-                mStatusContainer.setFragmentId(id);
-                mListStatusContainer.add(mStatusContainer);
+                mStatusContainer.fragmentId = id
+                mListStatusContainer.add(mStatusContainer)
             }
-        });
+        })
 
-        var onUpdateStatusChanged = Unobfuscator.loadOnUpdateStatusChanged(classLoader);
-        logDebug(Unobfuscator.getMethodDescriptor(onUpdateStatusChanged));
-        var statusInfoClass = Unobfuscator.loadStatusInfoClass(classLoader);
-        logDebug(statusInfoClass);
+        val onUpdateStatusChanged = Unobfuscator.loadOnUpdateStatusChanged(classLoader)
+        logDebug(Unobfuscator.getMethodDescriptor(onUpdateStatusChanged))
+        val statusInfoClass = Unobfuscator.loadStatusInfoClass(classLoader)
+        logDebug(statusInfoClass)
 
-        var updateModel = onUpdateStatusChanged.getDeclaringClass();
-        logDebug(updateModel);
+        val updateModel = onUpdateStatusChanged.declaringClass
+        logDebug(updateModel)
 
-        XposedBridge.hookAllConstructors(updateModel, new XC_MethodHook() {
-            @Override
-            protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-                var newList = new ArrayList<>(itens);
-                newList.add(0, null);
-                itens = newList;
-                for (var mStatusContainer : mListStatusContainer) {
-                    IGStatusAdapter mStatusAdapter = new IGStatusAdapter(WppCore.getCurrentActivity(), statusInfoClass);
-                    mStatusContainer.setAdapter(mStatusAdapter);
-                    mStatusContainer.updateList();
+        XposedBridge.hookAllConstructors(updateModel, object : XC_MethodHook() {
+            override fun afterHookedMethod(param: MethodHookParam) {
+                val newList = ArrayList(itens)
+                newList.add(0, null)
+                itens = newList
+                for (mStatusContainer in mListStatusContainer) {
+                    val mStatusAdapter = IGStatusAdapter(WppCore.getCurrentActivity()!!, statusInfoClass)
+                    mStatusContainer.adapter = mStatusAdapter
+                    mStatusContainer.updateList()
                 }
             }
-        });
+        })
 
-        var onStatusListUpdatesClass = Unobfuscator.loadStatusListUpdatesClass(classLoader);
-        logDebug(onStatusListUpdatesClass);
+        val onStatusListUpdatesClass = Unobfuscator.loadStatusListUpdatesClass(classLoader)
+        logDebug(onStatusListUpdatesClass)
 
-        XposedBridge.hookAllConstructors(onStatusListUpdatesClass, new XC_MethodHook() {
-            @Override
-            protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
-                final var lists = Arrays.stream(param.args).filter(v -> v instanceof List<?>).toArray();
-                var newList = new ArrayList<>();
-                newList.add(0, null);
-                newList.addAll((List) lists[0]);
-                newList.addAll((List) lists[1]);
-                itens = newList;
-                for (var mStatusContainer : mListStatusContainer)
-                    mStatusContainer.updateList();
+        XposedBridge.hookAllConstructors(onStatusListUpdatesClass, object : XC_MethodHook() {
+            override fun beforeHookedMethod(param: MethodHookParam) {
+                val lists = param.args.filterIsInstance<List<*>>()
+                val newList = ArrayList<Any?>()
+                newList.add(0, null)
+                newList.addAll(lists[0])
+                newList.addAll(lists[1])
+                itens = newList
+                for (mStatusContainer in mListStatusContainer) {
+                    mStatusContainer.updateList()
+                }
             }
-        });
+        })
 
-
-        var onGetInvokeField = Unobfuscator.loadGetInvokeField(classLoader);
-        logDebug(Unobfuscator.getFieldDescriptor(onGetInvokeField));
-        XposedBridge.hookMethod(onUpdateStatusChanged, new XC_MethodHook() {
-
-            @Override
-            protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
-                var object = onGetInvokeField.get(param.args[0]);
-                var method = ReflectionUtils.findMethodUsingFilter(object.getClass(), method1 -> method1.getReturnType().equals(Object.class));
-                var StatusListUpdates = ReflectionUtils.callMethod(method, object);
-                if (StatusListUpdates == null) return;
-                var lists = ReflectionUtils.findAllFieldsUsingFilter(StatusListUpdates.getClass(), field -> field.getType().equals(List.class));
-                if (lists.length < 3) return;
-                var list1 = (List) lists[1].get(StatusListUpdates);
-                var list2 = (List) lists[2].get(StatusListUpdates);
-                var newList = new ArrayList<>();
-                newList.add(0, null);
-                newList.addAll(list1);
-                newList.addAll(list2);
-                itens = newList;
-                for (var mStatusContainer : mListStatusContainer)
-                    mStatusContainer.updateList();
+        val onGetInvokeField = Unobfuscator.loadGetInvokeField(classLoader)
+        logDebug(Unobfuscator.getFieldDescriptor(onGetInvokeField))
+        XposedBridge.hookMethod(onUpdateStatusChanged, object : XC_MethodHook() {
+            override fun beforeHookedMethod(param: MethodHookParam) {
+                val obj = onGetInvokeField.get(param.args[0])
+                val method = ReflectionUtils.findMethodUsingFilter(
+                    obj.javaClass
+                ) { m -> m.returnType == Any::class.java }
+                val statusListUpdates = ReflectionUtils.callMethod(method, obj) ?: return
+                val lists = ReflectionUtils.findAllFieldsUsingFilter(
+                    statusListUpdates.javaClass
+                ) { f -> f.type == List::class.java }
+                if (lists.size < 3) return
+                val list1 = lists[1].get(statusListUpdates) as List<*>
+                val list2 = lists[2].get(statusListUpdates) as List<*>
+                val newList = ArrayList<Any?>()
+                newList.add(0, null)
+                newList.addAll(list1)
+                newList.addAll(list2)
+                itens = newList
+                for (mStatusContainer in mListStatusContainer) {
+                    mStatusContainer.updateList()
+                }
             }
-        });
+        })
     }
 
-    @NonNull
-    @Override
-    public String getPluginName() {
-        return "IGStatus";
+    override fun getPluginName(): String {
+        return "IGStatus"
     }
 }

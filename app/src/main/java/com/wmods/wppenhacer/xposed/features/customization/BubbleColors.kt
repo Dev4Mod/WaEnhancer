@@ -1,102 +1,125 @@
-package com.wmods.wppenhacer.xposed.features.customization;
+package com.wmods.wppenhacer.xposed.features.customization
+
+import android.graphics.Color
+import android.graphics.PorterDuff
+import android.graphics.PorterDuffColorFilter
+import android.graphics.drawable.Drawable
+import com.wmods.wppenhacer.xposed.core.Feature
+import com.wmods.wppenhacer.xposed.core.devkit.Unobfuscator.loadBallonBorderDrawable
+import com.wmods.wppenhacer.xposed.core.devkit.Unobfuscator.loadBallonDateDrawable
+import com.wmods.wppenhacer.xposed.core.devkit.Unobfuscator.loadBubbleDrawableMethod
+import com.wmods.wppenhacer.xposed.utils.DesignUtils
+import com.wmods.wppenhacer.xposed.utils.Utils
+import de.robv.android.xposed.XC_MethodHook
+import de.robv.android.xposed.XSharedPreferences
+import de.robv.android.xposed.XposedBridge
 
 
-import android.graphics.Color;
-import android.graphics.PorterDuff;
-import android.graphics.PorterDuffColorFilter;
-import android.graphics.drawable.Drawable;
+class BubbleColors(loader: ClassLoader, preferences: XSharedPreferences) :
+    Feature(loader, preferences) {
 
-import androidx.annotation.NonNull;
+    override fun doHook() {
+        val properties = Utils.getProperties(prefs, "custom_css", "custom_filters")
 
-import com.wmods.wppenhacer.xposed.core.Feature;
-import com.wmods.wppenhacer.xposed.core.devkit.Unobfuscator;
-import com.wmods.wppenhacer.xposed.utils.DesignUtils;
-import com.wmods.wppenhacer.xposed.utils.Utils;
+        val bubbleColor = prefs.getBoolean("bubble_color", false)
 
-import java.util.Objects;
-import java.util.Properties;
+        if (!bubbleColor && properties.getProperty("bubble_colors") != "true") return
 
-import de.robv.android.xposed.XC_MethodHook;
-import de.robv.android.xposed.XSharedPreferences;
-import de.robv.android.xposed.XposedBridge;
+        val bubbleLeftColor = if (bubbleColor) prefs.getInt(
+            "bubble_left",
+            0
+        ) else Color.parseColor(
+            DesignUtils.checkSystemColor(
+                properties.getProperty(
+                    "bubble_left",
+                    "#00000000"
+                )
+            )
+        )
+        val bubbleRightColor = if (bubbleColor) prefs.getInt(
+            "bubble_right",
+            0
+        ) else Color.parseColor(
+            DesignUtils.checkSystemColor(
+                properties.getProperty(
+                    "bubble_right",
+                    "#00000000"
+                )
+            )
+        )
 
-public class BubbleColors extends Feature {
-    public BubbleColors(ClassLoader loader, XSharedPreferences preferences) {
-        super(loader, preferences);
-    }
+        val dateWrapper = loadBallonDateDrawable(classLoader)
 
-    @Override
-    public void doHook() throws Exception {
-
-        Properties properties = Utils.getProperties(prefs, "custom_css", "custom_filters");
-
-        boolean bubbleColor = prefs.getBoolean("bubble_color", false);
-
-        if (!bubbleColor && !Objects.equals(properties.getProperty("bubble_colors"), "true"))
-            return;
-
-        int bubbleLeftColor = bubbleColor ? prefs.getInt("bubble_left", 0) : Color.parseColor(DesignUtils.checkSystemColor(properties.getProperty("bubble_left", "#00000000")));
-        int bubbleRightColor = bubbleColor ? prefs.getInt("bubble_right", 0) : Color.parseColor(DesignUtils.checkSystemColor(properties.getProperty("bubble_right", "#00000000")));
-
-        var dateWrapper = Unobfuscator.loadBallonDateDrawable(classLoader);
-
-        XposedBridge.hookMethod(dateWrapper, new XC_MethodHook() {
-            @Override
-            protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-                var drawable = (Drawable) param.getResult();
-                if (drawable == null)return;
-                var position = (int) param.args[0];
+        XposedBridge.hookMethod(dateWrapper, object : XC_MethodHook() {
+            @Throws(Throwable::class)
+            override fun afterHookedMethod(param: MethodHookParam) {
+                val drawable = param.result as? Drawable? ?: return
+                val position = param.args[0] as Int
                 if (position == 3) {
-                    if (bubbleRightColor == 0) return;
-                    drawable.setColorFilter(new PorterDuffColorFilter(bubbleRightColor, PorterDuff.Mode.SRC_IN));
+                    if (bubbleRightColor == 0) return
+                    drawable.colorFilter = PorterDuffColorFilter(
+                        bubbleRightColor,
+                        PorterDuff.Mode.SRC_IN
+                    )
                 } else {
-                    if (bubbleLeftColor == 0) return;
-                    drawable.setColorFilter(new PorterDuffColorFilter(bubbleLeftColor, PorterDuff.Mode.SRC_IN));
+                    if (bubbleLeftColor == 0) return
+                    drawable.colorFilter = PorterDuffColorFilter(
+                        bubbleLeftColor,
+                        PorterDuff.Mode.SRC_IN
+                    )
                 }
             }
-        });
+        })
 
-        var babblon = Unobfuscator.loadBallonBorderDrawable(classLoader);
-        XposedBridge.hookMethod(babblon, new XC_MethodHook() {
-            @Override
-            protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-                var drawable = (Drawable) param.getResult();
-                if (drawable == null)return;
-                var position = (int) param.args[1];
+        val babblon = loadBallonBorderDrawable(classLoader)
+        XposedBridge.hookMethod(babblon, object : XC_MethodHook() {
+            @Throws(Throwable::class)
+            override fun afterHookedMethod(param: MethodHookParam) {
+                val drawable = param.result as? Drawable? ?: return
+                val position = param.args[1] as Int
                 if (position == 3) {
-                    if (bubbleRightColor == 0) return;
-                    drawable.setColorFilter(new PorterDuffColorFilter(bubbleRightColor, PorterDuff.Mode.SRC_IN));
+                    if (bubbleRightColor == 0) return
+                    drawable.colorFilter = PorterDuffColorFilter(
+                        bubbleRightColor,
+                        PorterDuff.Mode.SRC_IN
+                    )
                 } else {
-                    if (bubbleLeftColor == 0) return;
-                    drawable.setColorFilter(new PorterDuffColorFilter(bubbleLeftColor, PorterDuff.Mode.SRC_IN));
+                    if (bubbleLeftColor == 0) return
+                    drawable.colorFilter = PorterDuffColorFilter(
+                        bubbleLeftColor,
+                        PorterDuff.Mode.SRC_IN
+                    )
                 }
             }
-        });
+        })
 
 
-        var bubbleDrawableMethod = Unobfuscator.loadBubbleDrawableMethod(classLoader);
+        val bubbleDrawableMethod = loadBubbleDrawableMethod(classLoader)
 
-        XposedBridge.hookMethod(bubbleDrawableMethod, new XC_MethodHook() {
-            @Override
-            protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-                var position = (int) param.args[0];
-                var draw = (Drawable) param.getResult();
-                var right = position == 3;
+        XposedBridge.hookMethod(bubbleDrawableMethod, object : XC_MethodHook() {
+            @Throws(Throwable::class)
+            override fun afterHookedMethod(param: MethodHookParam) {
+                val position = param.args[0] as Int
+                val draw = param.result as Drawable
+                val right = position == 3
                 if (right) {
-                    if (bubbleRightColor == 0) return;
-                    draw.setColorFilter(new PorterDuffColorFilter(bubbleRightColor, PorterDuff.Mode.SRC_IN));
+                    if (bubbleRightColor == 0) return
+                    draw.colorFilter = PorterDuffColorFilter(
+                        bubbleRightColor,
+                        PorterDuff.Mode.SRC_IN
+                    )
                 } else {
-                    if (bubbleLeftColor == 0) return;
-                    draw.setColorFilter(new PorterDuffColorFilter(bubbleLeftColor, PorterDuff.Mode.SRC_IN));
+                    if (bubbleLeftColor == 0) return
+                    draw.colorFilter = PorterDuffColorFilter(
+                        bubbleLeftColor,
+                        PorterDuff.Mode.SRC_IN
+                    )
                 }
             }
-        });
-
+        })
     }
 
-    @NonNull
-    @Override
-    public String getPluginName() {
-        return "Bubble Colors";
+    override fun getPluginName(): String {
+        return "Bubble Colors"
     }
 }

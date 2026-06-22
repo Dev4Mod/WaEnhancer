@@ -692,7 +692,7 @@ object WppCore {
         return mWaDatabase
     }
 
-    interface ActivityChangeState {
+    fun interface ActivityChangeState {
         fun onChange(activity: Activity, type: ChangeType)
 
         enum class ChangeType {
