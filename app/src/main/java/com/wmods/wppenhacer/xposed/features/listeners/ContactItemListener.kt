@@ -1,67 +1,64 @@
-package com.wmods.wppenhacer.xposed.features.listeners;
+package com.wmods.wppenhacer.xposed.features.listeners
 
-import android.view.View;
+import android.view.View
+import com.wmods.wppenhacer.xposed.core.Feature
+import com.wmods.wppenhacer.xposed.core.components.WaContactWpp
+import com.wmods.wppenhacer.xposed.core.devkit.Unobfuscator.getFieldDescriptor
+import com.wmods.wppenhacer.xposed.core.devkit.Unobfuscator.getMethodDescriptor
+import com.wmods.wppenhacer.xposed.core.devkit.Unobfuscator.loadAbsViewHolder
+import com.wmods.wppenhacer.xposed.core.devkit.Unobfuscator.loadOnChangeStatus
+import com.wmods.wppenhacer.xposed.core.devkit.Unobfuscator.loadViewHolderField1
+import com.wmods.wppenhacer.xposed.utils.ReflectionUtils
+import de.robv.android.xposed.XC_MethodHook
+import de.robv.android.xposed.XSharedPreferences
+import de.robv.android.xposed.XposedBridge
 
-import androidx.annotation.NonNull;
+class ContactItemListener(loader: ClassLoader, preferences: XSharedPreferences) :
+    Feature(loader, preferences) {
 
-import com.wmods.wppenhacer.xposed.core.Feature;
-import com.wmods.wppenhacer.xposed.core.components.WaContactWpp;
-import com.wmods.wppenhacer.xposed.core.devkit.Unobfuscator;
-import com.wmods.wppenhacer.xposed.utils.ReflectionUtils;
+    override fun doHook() {
+        val onChangeStatus = loadOnChangeStatus(classLoader)
+        logDebug(getMethodDescriptor(onChangeStatus))
+        val field1 = loadViewHolderField1(classLoader)
+        logDebug(getFieldDescriptor(field1))
+        val absViewHolderClass = loadAbsViewHolder(classLoader)
 
-import java.util.HashSet;
+        XposedBridge.hookMethod(onChangeStatus, object : XC_MethodHook() {
 
-import de.robv.android.xposed.XC_MethodHook;
-import de.robv.android.xposed.XSharedPreferences;
-import de.robv.android.xposed.XposedBridge;
 
-public class ContactItemListener extends Feature {
+            override fun afterHookedMethod(param: MethodHookParam) {
+                val viewHolder = field1.get(param.thisObject)
+                val `object` = param.args[0]
+                val waContact = WaContactWpp(`object`)
+                val viewField =
+                    ReflectionUtils.findFieldUsingFilter(absViewHolderClass) { field -> field.type == View::class.java }
+                val view = viewField.get(viewHolder) as View?
+                val userJid = waContact.userJid
+                if (userJid.isNull) return
 
-    public static HashSet<OnContactItemListener> contactListeners = new HashSet<>();
-
-    public ContactItemListener(@NonNull ClassLoader loader, @NonNull XSharedPreferences preferences) {
-        super(loader, preferences);
-    }
-
-    @Override
-    public void doHook() throws Throwable {
-        var onChangeStatus = Unobfuscator.loadOnChangeStatus(classLoader);
-        logDebug(Unobfuscator.getMethodDescriptor(onChangeStatus));
-        var field1 = Unobfuscator.loadViewHolderField1(classLoader);
-        logDebug(Unobfuscator.getFieldDescriptor(field1));
-        var absViewHolderClass = Unobfuscator.loadAbsViewHolder(classLoader);
-
-        XposedBridge.hookMethod(onChangeStatus, new XC_MethodHook() {
-            @Override
-            protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-                var viewHolder = field1.get(param.thisObject);
-                var object = param.args[0];
-                var waContact = new WaContactWpp(object);
-                var viewField = ReflectionUtils.findFieldUsingFilter(absViewHolderClass, field -> field.getType() == View.class);
-                var view = (View) viewField.get(viewHolder);
-                var userJid = waContact.getUserJid();
-                if (userJid.isNull()) return;
-
-                for (OnContactItemListener listener : contactListeners) {
-                    listener.onBind(waContact, view);
+                for (listener in contactListeners) {
+                    listener.onBind(waContact, view)
                 }
             }
-        });
+        })
     }
 
-    @NonNull
-    @Override
-    public String getPluginName() {
-        return "Contact Item Listener";
+    override fun getPluginName(): String {
+        return "Contact Item Listener"
     }
 
-    public abstract static class OnContactItemListener {
+    abstract class OnContactItemListener {
         /**
          * Called when a contact item is bound in the RecyclerView
-         *
+         * 
          * @param waContact The user contact
          * @param view    The view associated with the item
          */
-        public abstract void onBind(WaContactWpp waContact, View view);
+        abstract fun onBind(waContact: WaContactWpp?, view: View?)
+    }
+
+    companion object {
+        @JvmField
+        var contactListeners: HashSet<OnContactItemListener> = HashSet()
     }
 }

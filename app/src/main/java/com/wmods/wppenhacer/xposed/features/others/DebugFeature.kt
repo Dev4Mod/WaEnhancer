@@ -1,29 +1,16 @@
-package com.wmods.wppenhacer.xposed.features.others;
+package com.wmods.wppenhacer.xposed.features.others
 
-import androidx.annotation.NonNull;
+import com.wmods.wppenhacer.xposed.core.Feature
+import de.robv.android.xposed.XSharedPreferences
 
-import com.wmods.wppenhacer.xposed.core.Feature;
+class DebugFeature(classLoader: ClassLoader, preferences: XSharedPreferences) :
+    Feature(classLoader, preferences) {
 
-import de.robv.android.xposed.XSharedPreferences;
-
-public class DebugFeature extends Feature {
-
-
-    public DebugFeature(@NonNull ClassLoader classLoader, @NonNull XSharedPreferences preferences) {
-        super(classLoader, preferences);
-    }
-
-    @Override
-    public void doHook() throws Throwable {
-
+    override fun doHook() {
     }
 
 
-    @NonNull
-    @Override
-    public String getPluginName() {
-        return "Debug Feature";
+    override fun getPluginName(): String {
+        return "Debug Feature"
     }
-
-
 }

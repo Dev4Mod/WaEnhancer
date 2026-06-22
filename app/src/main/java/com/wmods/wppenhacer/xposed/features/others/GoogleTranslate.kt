@@ -1,135 +1,135 @@
-package com.wmods.wppenhacer.xposed.features.others;
+package com.wmods.wppenhacer.xposed.features.others
 
-import androidx.annotation.NonNull;
+import com.wmods.wppenhacer.xposed.core.Feature
+import com.wmods.wppenhacer.xposed.core.devkit.Unobfuscator.findFirstClassUsingName
+import com.wmods.wppenhacer.xposed.core.devkit.Unobfuscator.loadCheckSupportLanguage
+import de.robv.android.xposed.XC_MethodHook
+import de.robv.android.xposed.XC_MethodReplacement
+import de.robv.android.xposed.XSharedPreferences
+import de.robv.android.xposed.XposedBridge
+import okhttp3.Call
+import okhttp3.Callback
+import okhttp3.OkHttpClient
+import okhttp3.Request
+import okhttp3.Response
+import org.json.JSONArray
+import org.luckypray.dexkit.query.enums.StringMatchType
+import java.io.IOException
+import java.lang.reflect.Method
+import java.net.URLEncoder
+import java.util.Locale
+import java.util.concurrent.CompletableFuture
 
-import com.wmods.wppenhacer.xposed.core.Feature;
-import com.wmods.wppenhacer.xposed.core.devkit.Unobfuscator;
+class GoogleTranslate(classLoader: ClassLoader, preferences: XSharedPreferences) :
+    Feature(classLoader, preferences) {
+    private var client: OkHttpClient? = null
 
-import org.json.JSONArray;
-import org.luckypray.dexkit.query.enums.StringMatchType;
+    override fun doHook() {
+        if (!prefs.getBoolean("google_translate", false)) return
 
-import java.io.IOException;
-import java.lang.reflect.Method;
-import java.net.URLEncoder;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Locale;
-import java.util.concurrent.CompletableFuture;
+        val checkSupportLanguage = loadCheckSupportLanguage(classLoader)
 
-import de.robv.android.xposed.XC_MethodHook;
-import de.robv.android.xposed.XC_MethodReplacement;
-import de.robv.android.xposed.XSharedPreferences;
-import de.robv.android.xposed.XposedBridge;
-import okhttp3.Call;
-import okhttp3.Callback;
-import okhttp3.OkHttpClient;
-import okhttp3.Request;
-import okhttp3.Response;
-
-public class GoogleTranslate extends Feature {
-
-    private OkHttpClient client = null;
-
-    public GoogleTranslate(@NonNull ClassLoader classLoader, @NonNull XSharedPreferences preferences) {
-        super(classLoader, preferences);
-    }
-
-    @Override
-    public void doHook() throws Throwable {
-
-        if (!prefs.getBoolean("google_translate", false)) return;
-
-        var checkSupportLanguage = Unobfuscator.loadCheckSupportLanguage(classLoader);
-
-        XposedBridge.hookMethod(checkSupportLanguage, new XC_MethodHook() {
-            @Override
-            protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
-                param.args[0] = "pt";
-                param.args[1] = "en";
+        XposedBridge.hookMethod(checkSupportLanguage, object : XC_MethodHook() {
+            override fun beforeHookedMethod(param: MethodHookParam) {
+                param.args[0] = "pt"
+                param.args[1] = "en"
             }
-        });
+        })
 
-        Class<?> translatorClazz = Unobfuscator.findFirstClassUsingName(classLoader, StringMatchType.EndsWith, "UnityMessageTranslation");
+        val translatorClazz = findFirstClassUsingName(
+            classLoader,
+            StringMatchType.EndsWith,
+            "UnityMessageTranslation"
+        )
 
-        XposedBridge.hookAllMethods(translatorClazz, "translate", new XC_MethodReplacement() {
-            @Override
-            protected Object replaceHookedMethod(MethodHookParam param) throws Throwable {
-                var currentMethod = (Method) param.method;
-                var unityTranslationResultClass = currentMethod.getReturnType();
-                if (currentMethod.getParameterTypes()[0] == String.class) {
-                    var text = (String) param.args[0];
-                    var translation = translateGoogle(text, Locale.getDefault().getLanguage()).get();
-                    return unityTranslationResultClass.getConstructor(String.class, float.class, int.class).newInstance(translation, 1, 0);
+        XposedBridge.hookAllMethods(translatorClazz, "translate", object : XC_MethodReplacement() {
+
+
+            override fun replaceHookedMethod(param: MethodHookParam): Any? {
+                val currentMethod = param.method as Method
+                val unityTranslationResultClass = currentMethod.returnType
+                if (currentMethod.parameterTypes[0] == String::class.java) {
+                    val text = param.args[0] as String?
+                    val translation = translateGoogle(text, Locale.getDefault().language).get()
+                    return unityTranslationResultClass.getConstructor(
+                        String::class.java,
+                        Float::class.javaPrimitiveType,
+                        Int::class.javaPrimitiveType
+                    ).newInstance(translation, 1, 0)
                 } else {
-                    var list = (List) param.args[0];
-                    var translated = new ArrayList<String>();
-                    for (var text : list) {
-                        var translation = translateGoogle((String) text, Locale.getDefault().getLanguage()).get();
-                        translated.add(translation);
+                    val list = param.args[0] as MutableList<*>
+                    val translated = ArrayList<String?>()
+                    for (text in list) {
+                        val translation = translateGoogle(
+                            text as String?,
+                            Locale.getDefault().language,
+                        ).get()
+                        translated.add(translation)
                     }
-                    return unityTranslationResultClass.getConstructor(String[].class, float.class, int.class).newInstance(translated.toArray(new String[0]), 1, 0);
+                    return unityTranslationResultClass.getConstructor(
+                        Array<String>::class.java,
+                        Float::class.javaPrimitiveType,
+                        Int::class.javaPrimitiveType
+                    ).newInstance(translated.toTypedArray<String?>(), 1, 0)
                 }
             }
-        });
+        })
     }
 
-    public CompletableFuture<String> translateGoogle(String text, String languageDest) {
+    fun translateGoogle(text: String?, languageDest: String): CompletableFuture<String?> {
         if (client == null) {
-            client = new OkHttpClient();
+            client = OkHttpClient()
         }
-        CompletableFuture<String> future = new CompletableFuture<>();
-        String url;
+        val future = CompletableFuture<String?>()
+        val url: String?
         try {
             url = String.format(
-                    "https://translate.googleapis.com/translate_a/single?client=gtx&dt=t&sl=auto&tl=%s&q=%s",
-                    languageDest,
-                    URLEncoder.encode(text, "UTF-8")
-            );
-        } catch (Exception e) {
-            future.completeExceptionally(new RuntimeException("Erro ao codificar a URL: " + e.getMessage()));
-            return future;
+                "https://translate.googleapis.com/translate_a/single?client=gtx&dt=t&sl=auto&tl=%s&q=%s",
+                languageDest,
+                URLEncoder.encode(text, "UTF-8")
+            )
+        } catch (e: Exception) {
+            future.completeExceptionally(RuntimeException("Error encoding URL: " + e.message))
+            return future
         }
 
-        Request request = new Request.Builder()
-                .url(url)
-                .build();
+        val request = Request.Builder()
+            .url(url)
+            .build()
 
-        client.newCall(request).enqueue(new Callback() {
-            @Override
-            public void onFailure(Call call, IOException e) {
-                future.completeExceptionally(new RuntimeException("Erro ao traduzir o texto: " + e.getMessage()));
+        client!!.newCall(request).enqueue(object : Callback {
+
+            override fun onFailure(call: Call, e: IOException) {
+                future.completeExceptionally(RuntimeException("Error translating text: " + e.message))
             }
 
-            @Override
-            public void onResponse(Call call, Response response) throws IOException {
-                if (response.isSuccessful()) {
-                    String responseData = response.body().string();
+            override fun onResponse(call: Call, response: Response) {
+                if (response.isSuccessful) {
+                    val responseData = response.body.string()
                     try {
-                        JSONArray jsonArray = new JSONArray(responseData);
-                        JSONArray translations = jsonArray.getJSONArray(0);
-                        StringBuilder translation = new StringBuilder();
+                        val jsonArray = JSONArray(responseData)
+                        val translations = jsonArray.getJSONArray(0)
+                        val translation = StringBuilder()
 
-                        for (int i = 0; i < translations.length(); i++) {
-                            JSONArray item = translations.getJSONArray(i);
-                            translation.append(item.getString(0));
+                        for (i in 0..<translations.length()) {
+                            val item = translations.getJSONArray(i)
+                            translation.append(item.getString(0))
                         }
 
-                        future.complete(translation.toString());
-                    } catch (Exception e) {
-                        future.completeExceptionally(new RuntimeException("Erro ao processar a resposta: " + e.getMessage()));
+                        future.complete(translation.toString())
+                    } catch (e: Exception) {
+                        future.completeExceptionally(RuntimeException("Error processing response: " + e.message))
                     }
                 } else {
-                    future.completeExceptionally(new RuntimeException("Resposta não foi bem-sucedida."));
+                    future.completeExceptionally(RuntimeException("Response was not successful."))
                 }
             }
-        });
+        })
 
-        return future;
+        return future
     }
 
-    @NonNull
-    @Override
-    public String getPluginName() {
-        return "";
+    override fun getPluginName(): String {
+        return "Google Translate"
     }
 }

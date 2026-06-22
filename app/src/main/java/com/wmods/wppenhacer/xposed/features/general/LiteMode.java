@@ -1,7 +1,5 @@
 package com.wmods.wppenhacer.xposed.features.general;
 
-import static com.wmods.wppenhacer.xposed.features.others.MenuHome.menuItems;
-
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
@@ -21,6 +19,7 @@ import com.wmods.wppenhacer.utils.RealPathUtil;
 import com.wmods.wppenhacer.xposed.core.Feature;
 import com.wmods.wppenhacer.xposed.core.WppCore;
 import com.wmods.wppenhacer.xposed.core.components.AlertDialogWpp;
+import com.wmods.wppenhacer.xposed.features.others.MenuHome;
 
 import de.robv.android.xposed.XC_MethodHook;
 import de.robv.android.xposed.XSharedPreferences;
@@ -57,7 +56,7 @@ public class LiteMode extends Feature {
     public void doHook() throws Throwable {
         if (!prefs.getBoolean("lite_mode", false)) return;
 
-        menuItems.add(this::InsertDownloadFolderButton);
+        MenuHome.addMenuItem(this::InsertDownloadFolderButton);
 
         XposedHelpers.findAndHookMethod(WppCore.INSTANCE.getHomeActivityClass(), "onCreate", Bundle.class, new XC_MethodHook() {
             @Override

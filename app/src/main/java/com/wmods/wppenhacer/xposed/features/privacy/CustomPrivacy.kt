@@ -159,7 +159,7 @@ class CustomPrivacy(
         )
         icon.setTint(0xff8696a0.toInt())
 
-        MenuHome.menuItems.add { menu, activity ->
+        MenuHome.addMenuItem {  menu, activity ->
             menu.add(0, 0, 0, R.string.custom_privacy)
                 .setIcon(icon)
                 .setOnMenuItemClickListener {

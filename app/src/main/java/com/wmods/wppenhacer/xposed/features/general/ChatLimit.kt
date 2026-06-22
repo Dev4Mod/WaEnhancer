@@ -1,122 +1,109 @@
-package com.wmods.wppenhacer.xposed.features.general;
+package com.wmods.wppenhacer.xposed.features.general
 
-import android.content.ContentValues;
-import android.os.Bundle;
+import android.content.ContentValues
+import android.os.Bundle
+import com.wmods.wppenhacer.xposed.core.Feature
+import com.wmods.wppenhacer.xposed.core.WppCore.homeActivityClass
+import com.wmods.wppenhacer.xposed.core.db.MessageStore.Companion.getInstance
+import com.wmods.wppenhacer.xposed.core.devkit.Unobfuscator.loadChatLimitDelete2Method
+import com.wmods.wppenhacer.xposed.core.devkit.Unobfuscator.loadChatLimitDeleteMethod
+import com.wmods.wppenhacer.xposed.core.devkit.Unobfuscator.loadEphemeralInsertdb
+import com.wmods.wppenhacer.xposed.core.devkit.Unobfuscator.loadFmessageTimestampField
+import com.wmods.wppenhacer.xposed.core.devkit.Unobfuscator.loadSeeMoreConstructor
+import com.wmods.wppenhacer.xposed.utils.ReflectionUtils
+import de.robv.android.xposed.XC_MethodHook
+import de.robv.android.xposed.XSharedPreferences
+import de.robv.android.xposed.XposedBridge
+import de.robv.android.xposed.XposedHelpers
 
-import androidx.annotation.NonNull;
+class ChatLimit(loader: ClassLoader, preferences: XSharedPreferences) :
+    Feature(loader, preferences) {
 
-import com.wmods.wppenhacer.xposed.core.Feature;
-import com.wmods.wppenhacer.xposed.core.WppCore;
-import com.wmods.wppenhacer.xposed.core.db.MessageStore;
-import com.wmods.wppenhacer.xposed.core.devkit.Unobfuscator;
-import com.wmods.wppenhacer.xposed.utils.ReflectionUtils;
+    override fun doHook() {
+        val antiDisappearing = prefs.getBoolean("antidisappearing", false)
+        val revokeallmessages = prefs.getBoolean("revokeallmessages", false)
 
-import java.util.Set;
+        val chatLimitDeleteMethod = loadChatLimitDeleteMethod(classLoader)
+        val chatLimitDelete2Method = loadChatLimitDelete2Method(classLoader)
+        val fmessageTimestampMethod = loadFmessageTimestampField(classLoader)
 
-import de.robv.android.xposed.XC_MethodHook;
-import de.robv.android.xposed.XSharedPreferences;
-import de.robv.android.xposed.XposedBridge;
-import de.robv.android.xposed.XposedHelpers;
+        val epUpdateMethod = loadEphemeralInsertdb(classLoader)
 
-public class ChatLimit extends Feature {
-    public ChatLimit(@NonNull ClassLoader loader, @NonNull XSharedPreferences preferences) {
-        super(loader, preferences);
-    }
+        XposedHelpers.findAndHookMethod(
+            homeActivityClass,
+            "onCreate",
+            Bundle::class.java,
+            object : XC_MethodHook() {
+                override fun afterHookedMethod(param: MethodHookParam?) {
+                    if (antiDisappearing) {
+                        getInstance().executeSQL("UPDATE message_ephemeral SET expire_timestamp = 2553512370000")
+                    }
+                }
+            })
 
-    @Override
-    public void doHook() throws Throwable {
-
-        var antiDisappearing = prefs.getBoolean("antidisappearing", false);
-        var revokeallmessages = prefs.getBoolean("revokeallmessages", false);
-
-        var chatLimitDeleteMethod = Unobfuscator.loadChatLimitDeleteMethod(classLoader);
-        var chatLimitDelete2Method = Unobfuscator.loadChatLimitDelete2Method(classLoader);
-        var fmessageTimestampMethod = Unobfuscator.loadFmessageTimestampField(classLoader);
-
-        var epUpdateMethod = Unobfuscator.loadEphemeralInsertdb(classLoader);
-
-        XposedHelpers.findAndHookMethod(WppCore.INSTANCE.getHomeActivityClass(), "onCreate", Bundle.class, new XC_MethodHook() {
-            @Override
-            protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+        XposedBridge.hookMethod(epUpdateMethod, object : XC_MethodHook() {
+            @Throws(Throwable::class)
+            override fun afterHookedMethod(param: MethodHookParam) {
                 if (antiDisappearing) {
-                    MessageStore.getInstance().executeSQL("UPDATE message_ephemeral SET expire_timestamp = 2553512370000");
+                    val contentValues = param.result as ContentValues
+                    contentValues.put("expire_timestamp", 2553512370000L)
                 }
             }
-        });
-
-        XposedBridge.hookMethod(epUpdateMethod, new XC_MethodHook() {
-            @Override
-            protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-                if (antiDisappearing) {
-                    var contentValues = (ContentValues) param.getResult();
-                    contentValues.put("expire_timestamp", 2553512370000L);
-                }
-            }
-        });
-
-
-//        var chatLimitEditClass = Unobfuscator.loadChatLimitEditClass(loader);
-
-//        if (prefs.getBoolean("editallmessages", false)) {
-//            Others.propsInteger.put(2983, Integer.MAX_VALUE);
-//            Others.propsInteger.put(3272, Integer.MAX_VALUE);
-//        }
-
+        })
 
         if (revokeallmessages) {
-            XposedBridge.hookMethod(chatLimitDelete2Method, new XC_MethodHook() {
-                private Unhook unhooked;
+            XposedBridge.hookMethod(chatLimitDelete2Method, object : XC_MethodHook() {
+                private var unhooked: Unhook? = null
 
-                @Override
-                protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
-                    var list = ReflectionUtils.findInstancesOfType(param.args, Set.class);
-                    if (list.isEmpty()) return;
-                    var listMessages = list.get(0).second;
-                    var isExpired = false;
-                    for (var fmessageObj : listMessages) {
-                        var timestamp = fmessageTimestampMethod.getLong(fmessageObj);
+                @Throws(Throwable::class)
+                override fun beforeHookedMethod(param: MethodHookParam) {
+                    val list = ReflectionUtils.findInstancesOfType(
+                        param.args,
+                        MutableSet::class.java
+                    )
+                    if (list.isEmpty()) return
+                    val listMessages = list[0]!!.second
+                    var isExpired = false
+                    for (fmessageObj in listMessages) {
+                        val timestamp = fmessageTimestampMethod.getLong(fmessageObj)
                         // verify message is expired (max: 3 days)
                         if (System.currentTimeMillis() - timestamp > 3 * 24 * 60 * 60 * 1000) {
-                            isExpired = true;
-                            break;
+                            isExpired = true
+                            break
                         }
                     }
                     if (!isExpired) {
-                        unhooked = XposedBridge.hookMethod(chatLimitDeleteMethod, new XC_MethodHook() {
-                            @Override
-                            protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-                                if (ReflectionUtils.isCalledFromMethod(chatLimitDelete2Method)) {
-                                    param.setResult(0L);
+                        unhooked = XposedBridge.hookMethod(
+                            chatLimitDeleteMethod,
+                            object : XC_MethodHook() {
+                                override fun afterHookedMethod(param: MethodHookParam) {
+                                    if (ReflectionUtils.isCalledFromMethod(chatLimitDelete2Method)) {
+                                        param.setResult(0L)
+                                    }
                                 }
-                            }
-                        });
+                            })
                     }
                 }
 
-                @Override
-                protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+                override fun afterHookedMethod(param: MethodHookParam?) {
                     if (unhooked != null) {
-                        unhooked.unhook();
+                        unhooked!!.unhook()
                     }
                 }
-            });
+            })
         }
 
-        var seeMoreMethod = Unobfuscator.loadSeeMoreConstructor(classLoader);
+        val seeMoreMethod = loadSeeMoreConstructor(classLoader)
 
-        XposedBridge.hookMethod(seeMoreMethod, new XC_MethodHook() {
-            @Override
-            protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
-                if (!prefs.getBoolean("removeseemore", false)) return;
-                param.args[1] = Integer.MAX_VALUE;
+        XposedBridge.hookMethod(seeMoreMethod, object : XC_MethodHook() {
+            override fun beforeHookedMethod(param: MethodHookParam) {
+                if (!prefs.getBoolean("removeseemore", false)) return
+                param.args[1] = Int.MAX_VALUE
             }
-        });
-
+        })
     }
 
-    @NonNull
-    @Override
-    public String getPluginName() {
-        return "Chat Limit";
+    override fun getPluginName(): String {
+        return "Chat Limit"
     }
 }

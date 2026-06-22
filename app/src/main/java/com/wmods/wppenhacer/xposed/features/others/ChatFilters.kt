@@ -1,62 +1,62 @@
-package com.wmods.wppenhacer.xposed.features.others;
+package com.wmods.wppenhacer.xposed.features.others
 
-import androidx.annotation.NonNull;
+import com.wmods.wppenhacer.xposed.core.Feature
+import com.wmods.wppenhacer.xposed.core.devkit.Unobfuscator.loadFilterAdaperClass
+import com.wmods.wppenhacer.xposed.utils.ReflectionUtils
+import de.robv.android.xposed.XC_MethodHook
+import de.robv.android.xposed.XSharedPreferences
+import de.robv.android.xposed.XposedBridge
+import de.robv.android.xposed.XposedHelpers
+import java.lang.reflect.Method
+import java.util.function.Predicate
 
-import com.wmods.wppenhacer.xposed.core.Feature;
-import com.wmods.wppenhacer.xposed.core.devkit.Unobfuscator;
-import com.wmods.wppenhacer.xposed.utils.ReflectionUtils;
+class ChatFilters(classLoader: ClassLoader, preferences: XSharedPreferences) :
+    Feature(classLoader, preferences) {
 
-import java.util.ArrayList;
-import java.util.List;
 
-import de.robv.android.xposed.XC_MethodHook;
-import de.robv.android.xposed.XSharedPreferences;
-import de.robv.android.xposed.XposedBridge;
-import de.robv.android.xposed.XposedHelpers;
+    override fun doHook() {
+        if (!prefs.getBoolean("separategroups", false)) return
 
-public class ChatFilters extends Feature {
-    public ChatFilters(@NonNull ClassLoader classLoader, @NonNull XSharedPreferences preferences) {
-        super(classLoader, preferences);
-    }
+        val filterAdaperClass = loadFilterAdaperClass(classLoader)
+        XposedBridge.hookAllConstructors(filterAdaperClass, object : XC_MethodHook() {
 
-    @Override
-    public void doHook() throws Throwable {
-        if (!prefs.getBoolean("separategroups", false)) return;
-
-        var filterAdaperClass = Unobfuscator.loadFilterAdaperClass(classLoader);
-        XposedBridge.hookAllConstructors(filterAdaperClass, new XC_MethodHook() {
-            @Override
-            protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
-                var list = ReflectionUtils.findInstancesOfType(param.args, List.class);
+            override fun beforeHookedMethod(param: MethodHookParam) {
+                val list = ReflectionUtils.findInstancesOfType(
+                    param.args,
+                    MutableList::class.java
+                )
                 if (!list.isEmpty()) {
-                    var argResult = list.get(0);
-                    var newList = new ArrayList<Object>(argResult.second);
-                    newList.removeIf(item -> {
-                        var name = XposedHelpers.getObjectField(item, "A01");
-                        return name == null || name == "CONTACTS_FILTER" || name == "GROUP_FILTER";
-                    });
-                    param.args[argResult.first] = newList;
+                    val argResult = list.first()
+                    val newList = ArrayList(argResult.second)
+                    newList.removeIf { item: Any? ->
+                        val name = XposedHelpers.getObjectField(item, "A01")
+                        name == null || name === "CONTACTS_FILTER" || name === "GROUP_FILTER"
+                    }
+                    param.args[argResult.first!!] = newList
                 }
             }
-        });
-        var methodSetFilter = ReflectionUtils.findMethodUsingFilter(filterAdaperClass, method -> method.getParameterCount() == 1 && method.getParameterTypes()[0].equals(int.class));
+        })
+        val methodSetFilter = ReflectionUtils.findMethodUsingFilter(filterAdaperClass) {
+            method -> method.parameterCount == 1 && method.parameterTypes[0] == Int::class.javaPrimitiveType
+        }
 
-        XposedBridge.hookMethod(methodSetFilter, new XC_MethodHook() {
-            @Override
-            protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
-                var index = (int) param.args[0];
-                var field = ReflectionUtils.getFieldByType(methodSetFilter.getDeclaringClass(), List.class);
-                var list = (List) field.get(param.thisObject);
-                if (list == null || index >= list.size()) {
-                    param.setResult(null);
+        XposedBridge.hookMethod(methodSetFilter, object : XC_MethodHook() {
+
+            override fun beforeHookedMethod(param: MethodHookParam) {
+                val index = param.args[0] as Int
+                val field = ReflectionUtils.getFieldByType(
+                    methodSetFilter.declaringClass,
+                    MutableList::class.java
+                )
+                val list = field.get(param.thisObject) as MutableList<*>?
+                if (list == null || index >= list.size) {
+                    param.setResult(null)
                 }
             }
-        });
+        })
     }
 
-    @NonNull
-    @Override
-    public String getPluginName() {
-        return "Chat Filters";
+    override fun getPluginName(): String {
+        return "Chat Filters"
     }
 }

@@ -1,198 +1,216 @@
-package com.wmods.wppenhacer.xposed.features.general;
+package com.wmods.wppenhacer.xposed.features.general
 
-import android.annotation.SuppressLint;
-import android.content.Context;
-import android.graphics.Color;
-import android.graphics.Typeface;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.Button;
-import android.widget.ImageView;
-import android.widget.LinearLayout;
-import android.widget.ListView;
-import android.widget.TextView;
+import android.annotation.SuppressLint
+import android.graphics.Color
+import android.graphics.Typeface
+import android.view.View
+import android.view.ViewGroup
+import android.widget.Button
+import android.widget.ImageView
+import android.widget.LinearLayout
+import android.widget.ListView
+import android.widget.TextView
+import androidx.core.widget.NestedScrollView
+import com.wmods.wppenhacer.R
+import com.wmods.wppenhacer.adapter.MessageAdapter
+import com.wmods.wppenhacer.views.NoScrollListView
+import com.wmods.wppenhacer.xposed.core.Feature
+import com.wmods.wppenhacer.xposed.core.WppCore
+import com.wmods.wppenhacer.xposed.core.components.FMessageWpp
+import com.wmods.wppenhacer.xposed.core.db.MessageHistoryStore
+import com.wmods.wppenhacer.xposed.core.db.MessageHistoryStore.MessageItem
+import com.wmods.wppenhacer.xposed.core.db.MessageStore
+import com.wmods.wppenhacer.xposed.core.devkit.Unobfuscator.getMethodDescriptor
+import com.wmods.wppenhacer.xposed.core.devkit.Unobfuscator.loadCallerMessageEditMethod
+import com.wmods.wppenhacer.xposed.core.devkit.Unobfuscator.loadGetEditMessageMethod
+import com.wmods.wppenhacer.xposed.core.devkit.Unobfuscator.loadMessageEditMethod
+import com.wmods.wppenhacer.xposed.features.listeners.ConversationItemListener
+import com.wmods.wppenhacer.xposed.features.listeners.ConversationItemListener.OnConversationItemListener
+import com.wmods.wppenhacer.xposed.utils.DesignUtils
+import com.wmods.wppenhacer.xposed.utils.ReflectionUtils
+import com.wmods.wppenhacer.xposed.utils.Utils
+import de.robv.android.xposed.XC_MethodHook
+import de.robv.android.xposed.XSharedPreferences
+import de.robv.android.xposed.XposedBridge
+import de.robv.android.xposed.XposedHelpers
 
-import androidx.annotation.NonNull;
-import androidx.core.widget.NestedScrollView;
+class ShowEditMessage(loader: ClassLoader, preferences: XSharedPreferences) :
+    Feature(loader, preferences) {
 
-import com.wmods.wppenhacer.R;
-import com.wmods.wppenhacer.adapter.MessageAdapter;
-import com.wmods.wppenhacer.views.NoScrollListView;
-import com.wmods.wppenhacer.xposed.core.Feature;
-import com.wmods.wppenhacer.xposed.core.WppCore;
-import com.wmods.wppenhacer.xposed.core.components.FMessageWpp;
-import com.wmods.wppenhacer.xposed.core.db.MessageHistoryStore;
-import com.wmods.wppenhacer.xposed.core.db.MessageStore;
-import com.wmods.wppenhacer.xposed.core.devkit.Unobfuscator;
-import com.wmods.wppenhacer.xposed.features.listeners.ConversationItemListener;
-import com.wmods.wppenhacer.xposed.utils.DesignUtils;
-import com.wmods.wppenhacer.xposed.utils.ReflectionUtils;
-import com.wmods.wppenhacer.xposed.utils.Utils;
+    override fun doHook() {
+        if (!prefs.getBoolean("antieditmessages", false)) return
 
-import java.util.ArrayList;
-import java.util.Objects;
+        val onMessageEdit = loadMessageEditMethod(classLoader)
+        logDebug(getMethodDescriptor(onMessageEdit))
 
-import de.robv.android.xposed.XC_MethodHook;
-import de.robv.android.xposed.XSharedPreferences;
-import de.robv.android.xposed.XposedBridge;
-import de.robv.android.xposed.XposedHelpers;
+        val callerMessageEditMethod = loadCallerMessageEditMethod(classLoader)
+        logDebug(getMethodDescriptor(callerMessageEditMethod))
 
-public class ShowEditMessage extends Feature {
+        val getEditMessage = loadGetEditMessageMethod(classLoader)
+        logDebug(getMethodDescriptor(getEditMessage))
 
-    public ShowEditMessage(@NonNull ClassLoader loader, @NonNull XSharedPreferences preferences) {
-        super(loader, preferences);
-    }
+        XposedBridge.hookMethod(onMessageEdit, object : XC_MethodHook() {
 
-    @Override
-    public void doHook() throws Throwable {
-
-        if (!prefs.getBoolean("antieditmessages", false)) return;
-
-        var onMessageEdit = Unobfuscator.loadMessageEditMethod(classLoader);
-        logDebug(Unobfuscator.getMethodDescriptor(onMessageEdit));
-
-        var callerMessageEditMethod = Unobfuscator.loadCallerMessageEditMethod(classLoader);
-        logDebug(Unobfuscator.getMethodDescriptor(callerMessageEditMethod));
-
-        var getEditMessage = Unobfuscator.loadGetEditMessageMethod(classLoader);
-        logDebug(Unobfuscator.getMethodDescriptor(getEditMessage));
-
-        XposedBridge.hookMethod(onMessageEdit, new XC_MethodHook() {
-            @Override
-            protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
-                var editMessage = getEditMessage.invoke(null, param.args[0]);
-                if (editMessage == null) return;
-                var invoked = callerMessageEditMethod.invoke(null, param.args[0]);
-                long timestamp = XposedHelpers.getLongField(invoked, "A00");
-                var fMessage = new FMessageWpp(param.args[0]);
-                long id = fMessage.getRowId();
-                var origMessage = MessageStore.getInstance().getCurrentMessageByID(id);
-                String newMessage = fMessage.getMessageStr();
+            override fun beforeHookedMethod(param: MethodHookParam) {
+                val invoked = callerMessageEditMethod.invoke(null, param.args[0])
+                val timestamp = XposedHelpers.getLongField(invoked, "A00")
+                val fMessage = FMessageWpp(param.args[0])
+                val id = fMessage.rowId
+                val origMessage = MessageStore.getInstance().getCurrentMessageByID(id)
+                var newMessage = fMessage.messageStr
                 if (newMessage == null) {
-                    var methods = ReflectionUtils.findAllMethodsUsingFilter(param.args[0].getClass(), method -> method.getReturnType() == String.class && ReflectionUtils.isOverridden(method));
-                    for (var method : methods) {
-                        newMessage = (String) method.invoke(param.args[0]);
-                        if (newMessage != null) break;
+                    val methods = ReflectionUtils.findAllMethodsUsingFilter(
+                        param.args[0].javaClass
+                    ) { method ->
+                        method.returnType == String::class.java && ReflectionUtils.isOverridden(
+                            method
+                        )
                     }
-                    if (newMessage == null) return;
+                    for (method in methods) {
+                        newMessage = method!!.invoke(param.args[0]) as String?
+                        if (newMessage != null) break
+                    }
+                    if (newMessage == null) return
                 }
                 try {
-                    var message = MessageHistoryStore.getInstance().getMessages(id);
+                    val message = MessageHistoryStore.getInstance().getMessages(id)
                     if (message == null) {
-                        MessageHistoryStore.getInstance().insertMessage(id, origMessage, 0);
+                        MessageHistoryStore.getInstance().insertMessage(id, origMessage, 0)
                     }
-                    MessageHistoryStore.getInstance().insertMessage(id, newMessage, timestamp);
-                } catch (Exception e) {
-                    logDebug(e);
+                    MessageHistoryStore.getInstance().insertMessage(id, newMessage, timestamp)
+                } catch (e: Exception) {
+                    logDebug(e)
                 }
             }
-        });
+        })
 
-        var strEmoji = "\uD83D\uDCDD";
+        val strEmoji = "\uD83D\uDCDD"
 
         ConversationItemListener.conversationListeners.add(
-                new ConversationItemListener.OnConversationItemListener() {
-
-                    @Override
-                    public void onItemBind(FMessageWpp fMessage, ViewGroup view, int position, View convertView) {
-                        var textView = (TextView) view.findViewById(Utils.getID("edit_label", "id"));
-                        if (textView != null && !textView.getText().toString().contains(strEmoji)) {
-                            textView.getPaint().setUnderlineText(true);
-                            textView.append(strEmoji);
-                            textView.setOnClickListener((v) -> {
-                                try {
-                                    long id = fMessage.getRowId();
-                                    var messages = MessageHistoryStore.getInstance().getMessages(id);
-                                    if (messages == null) {
-                                        messages = new ArrayList<>();
-                                    }
-                                    showBottomDialog(messages);
-                                } catch (Exception exception0) {
-                                    logDebug(exception0);
+            object : OnConversationItemListener() {
+                override fun onItemBind(
+                    fMessage: FMessageWpp,
+                    view: ViewGroup,
+                    position: Int,
+                    convertView: View?
+                ) {
+                    val textView =
+                        view.findViewById<View?>(Utils.getID("edit_label", "id")) as TextView?
+                    if (textView != null && !textView.text.toString().contains(strEmoji)) {
+                        textView.paint.isUnderlineText = true
+                        textView.append(strEmoji)
+                        textView.setOnClickListener {
+                            try {
+                                val id = fMessage.rowId
+                                var messages = MessageHistoryStore.getInstance().getMessages(id)
+                                if (messages == null) {
+                                    messages = ArrayList()
                                 }
-                            });
+                                showBottomDialog(messages)
+                            } catch (exception0: Exception) {
+                                logDebug(exception0)
+                            }
                         }
                     }
                 }
-        );
-
+            }
+        )
     }
 
     @SuppressLint("SetTextI18n")
-    private void showBottomDialog(ArrayList<MessageHistoryStore.MessageItem> messages) {
-        Objects.requireNonNull(WppCore.getCurrentConversation()).runOnUiThread(() -> {
-            var ctx = (Context) WppCore.getCurrentConversation();
-
-            var dialog = WppCore.createBottomDialog(ctx);
+    private fun showBottomDialog(messages: ArrayList<MessageItem>) {
+        WppCore.getCurrentActivity()?.runOnUiThread {
+            val ctx = WppCore.getCurrentActivity()
+            val dialog = WppCore.createBottomDialog(ctx!!)
             // NestedScrollView
-            NestedScrollView nestedScrollView0 = new NestedScrollView(ctx, null);
-            nestedScrollView0.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
-            nestedScrollView0.setFillViewport(true);
-            nestedScrollView0.setFitsSystemWindows(true);
+            val nestedScrollView0 = NestedScrollView(ctx, null)
+            nestedScrollView0.layoutParams = ViewGroup.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.MATCH_PARENT
+            )
+            nestedScrollView0.isFillViewport = true
+            nestedScrollView0.fitsSystemWindows = true
             // Main Layout
-            LinearLayout linearLayout = new LinearLayout(ctx);
-            linearLayout.setOrientation(LinearLayout.VERTICAL);
-            LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT);
-            linearLayout.setFitsSystemWindows(true);
-            linearLayout.setMinimumHeight(layoutParams.height = Utils.getApplication().getResources().getDisplayMetrics().heightPixels / 4);
-            linearLayout.setLayoutParams(layoutParams);
-            int dip = Utils.dipToPixels(20);
-            linearLayout.setPadding(dip, dip, dip, 0);
-            var bg = DesignUtils.createDrawable("rc_dialog_bg", DesignUtils.getPrimarySurfaceColor());
-            linearLayout.setBackground(bg);
+            val linearLayout = LinearLayout(ctx)
+            linearLayout.orientation = LinearLayout.VERTICAL
+            val layoutParams = LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.MATCH_PARENT
+            )
+            linearLayout.fitsSystemWindows = true
+            linearLayout.minimumHeight = (Utils.getApplication().resources
+                .displayMetrics.heightPixels / 4).also { layoutParams.height = it }
+            linearLayout.layoutParams = layoutParams
+            val dip = Utils.dipToPixels(20)
+            linearLayout.setPadding(dip, dip, dip, 0)
+            val bg =
+                DesignUtils.createDrawable("rc_dialog_bg", DesignUtils.getPrimarySurfaceColor())
+            linearLayout.background = bg
 
             // Title View
-            TextView titleView = new TextView(ctx);
-            LinearLayout.LayoutParams layoutParams1 = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
-            layoutParams1.weight = 1.0f;
-            layoutParams1.setMargins(0, 0, 0, Utils.dipToPixels(10));
-            titleView.setLayoutParams(layoutParams1);
-            titleView.setTextSize(16.0f);
-            titleView.setTextColor(DesignUtils.getPrimaryTextColor());
-            titleView.setTypeface(null, Typeface.BOLD);
-            titleView.setText(R.string.edited_history);
+            val titleView = TextView(ctx)
+            val layoutParams1 = LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT
+            )
+            layoutParams1.weight = 1.0f
+            layoutParams1.setMargins(0, 0, 0, Utils.dipToPixels(10))
+            titleView.layoutParams = layoutParams1
+            titleView.textSize = 16.0f
+            titleView.setTextColor(DesignUtils.getPrimaryTextColor())
+            titleView.setTypeface(null, Typeface.BOLD)
+            titleView.setText(R.string.edited_history)
 
             // List View
-            var adapter = new MessageAdapter(ctx, messages);
-            ListView listView = new NoScrollListView(ctx);
-            LinearLayout.LayoutParams layoutParams2 = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT);
-            layoutParams2.weight = 1.0f;
-            listView.setLayoutParams(layoutParams2);
-            listView.setAdapter(adapter);
-            ImageView imageView0 = new ImageView(ctx);
-            LinearLayout.LayoutParams layoutParams4 = new LinearLayout.LayoutParams(Utils.dipToPixels(70), Utils.dipToPixels(8));
-            layoutParams4.gravity = 17;
-            layoutParams4.setMargins(0, Utils.dipToPixels(5), 0, Utils.dipToPixels(5));
-            var bg2 = DesignUtils.createDrawable("rc_dotline_dialog", Color.BLACK);
-            imageView0.setBackground(DesignUtils.alphaDrawable(bg2, DesignUtils.getPrimaryTextColor(), 33));
-            imageView0.setLayoutParams(layoutParams4);
+            val adapter = MessageAdapter(ctx, messages)
+            val listView: ListView = NoScrollListView(ctx)
+            val layoutParams2 = LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.MATCH_PARENT
+            )
+            layoutParams2.weight = 1.0f
+            listView.layoutParams = layoutParams2
+            listView.adapter = adapter
+            val imageView0 = ImageView(ctx)
+            val layoutParams4 =
+                LinearLayout.LayoutParams(Utils.dipToPixels(70), Utils.dipToPixels(8))
+            layoutParams4.gravity = 17
+            layoutParams4.setMargins(0, Utils.dipToPixels(5), 0, Utils.dipToPixels(5))
+            val bg2 = DesignUtils.createDrawable("rc_dotline_dialog", Color.BLACK)
+            imageView0.background = DesignUtils.alphaDrawable(
+                bg2,
+                DesignUtils.getPrimaryTextColor(),
+                33
+            )
+            imageView0.layoutParams = layoutParams4
             // Button View
-            Button okButton = new Button(ctx);
-            LinearLayout.LayoutParams layoutParams3 = new LinearLayout.LayoutParams(-1, -2);
-            layoutParams3.setMargins(0, Utils.dipToPixels(10), 0, Utils.dipToPixels(10));
-            layoutParams3.gravity = 80;
-            okButton.setLayoutParams(layoutParams3);
-            okButton.setGravity(17);
-            var drawable = DesignUtils.createDrawable("selector_bg", Color.BLACK);
-            okButton.setBackground(DesignUtils.alphaDrawable(drawable, DesignUtils.getPrimaryTextColor(), 25));
-            okButton.setText("OK");
-            okButton.setOnClickListener((View view) -> dialog.dismissDialog());
-            linearLayout.addView(imageView0);
-            linearLayout.addView(titleView);
-            linearLayout.addView(listView);
-            linearLayout.addView(okButton);
-            nestedScrollView0.addView(linearLayout);
-            dialog.setContentView(nestedScrollView0);
-            dialog.setCanceledOnTouchOutside(true);
-            dialog.showDialog();
-        });
+            val okButton = Button(ctx)
+            val layoutParams3 = LinearLayout.LayoutParams(-1, -2)
+            layoutParams3.setMargins(0, Utils.dipToPixels(10), 0, Utils.dipToPixels(10))
+            layoutParams3.gravity = 80
+            okButton.layoutParams = layoutParams3
+            okButton.gravity = 17
+            val drawable = DesignUtils.createDrawable("selector_bg", Color.BLACK)
+            okButton.background = DesignUtils.alphaDrawable(
+                drawable,
+                DesignUtils.getPrimaryTextColor(),
+                25
+            )
+            okButton.text = "OK"
+            okButton.setOnClickListener { dialog.dismissDialog() }
+            linearLayout.addView(imageView0)
+            linearLayout.addView(titleView)
+            linearLayout.addView(listView)
+            linearLayout.addView(okButton)
+            nestedScrollView0.addView(linearLayout)
+            dialog.setContentView(nestedScrollView0)
+            dialog.setCanceledOnTouchOutside(true)
+            dialog.showDialog()
+        }
     }
 
 
-    @NonNull
-    @Override
-    public String getPluginName() {
-        return "Show Edit Message";
+    override fun getPluginName(): String {
+        return "Show Edit Message"
     }
-
 }

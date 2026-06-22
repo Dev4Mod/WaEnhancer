@@ -1,73 +1,73 @@
-package com.wmods.wppenhacer.xposed.features.others;
+package com.wmods.wppenhacer.xposed.features.others
 
-import android.app.Activity;
-import android.content.Intent;
-import android.view.Menu;
-import android.widget.Toast;
+import android.app.Activity
+import android.content.Intent
+import android.view.Menu
+import android.widget.Toast
+import com.wmods.wppenhacer.R
+import com.wmods.wppenhacer.xposed.core.Feature
+import com.wmods.wppenhacer.xposed.core.components.AlertDialogWpp
+import com.wmods.wppenhacer.xposed.core.devkit.Unobfuscator.findFirstClassUsingName
+import com.wmods.wppenhacer.xposed.utils.Utils
+import de.robv.android.xposed.XC_MethodHook
+import de.robv.android.xposed.XSharedPreferences
+import de.robv.android.xposed.XposedBridge
+import org.luckypray.dexkit.query.enums.StringMatchType
+import java.util.Locale
 
-import androidx.annotation.NonNull;
+class BackupRestore(loader: ClassLoader, preferences: XSharedPreferences) :
+    Feature(loader, preferences) {
 
-import com.wmods.wppenhacer.R;
-import com.wmods.wppenhacer.xposed.core.Feature;
-import com.wmods.wppenhacer.xposed.core.components.AlertDialogWpp;
-import com.wmods.wppenhacer.xposed.core.devkit.Unobfuscator;
-import com.wmods.wppenhacer.xposed.utils.Utils;
-
-import org.luckypray.dexkit.query.enums.StringMatchType;
-
-import de.robv.android.xposed.XC_MethodHook;
-import de.robv.android.xposed.XSharedPreferences;
-import de.robv.android.xposed.XposedBridge;
-
-public class BackupRestore extends Feature {
-
-    public BackupRestore(ClassLoader loader, XSharedPreferences preferences) {
-        super(loader, preferences);
+    override fun getPluginName(): String {
+        return "BackupRestore"
     }
 
-    @NonNull
-    @Override
-    public String getPluginName() {
-        return "BackupRestore";
-    }
+    override fun doHook() {
+        if (!prefs.getBoolean("force_restore_backup_feature", false)) return
 
-    @Override
-    public void doHook() throws Exception {
-        if (!prefs.getBoolean("force_restore_backup_feature", false)) return;
+        val restoreFromBackupClass = findFirstClassUsingName(
+            classLoader,
+            StringMatchType.EndsWith,
+            "RestoreFromBackupActivity"
+        )
 
-        var restoreFromBackupClass = Unobfuscator.findFirstClassUsingName(classLoader, StringMatchType.EndsWith, "RestoreFromBackupActivity");
+        XposedBridge.hookAllMethods(
+            Activity::class.java,
+            "onPrepareOptionsMenu",
+            object : XC_MethodHook() {
 
-        XposedBridge.hookAllMethods(Activity.class, "onPrepareOptionsMenu", new XC_MethodHook() {
-            @Override
-            protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-                var name = param.thisObject.getClass().getSimpleName().toLowerCase();
-                if (!(name.contains("drive") && name.contains("google"))) return;
-                Menu menu = (Menu) param.args[0];
-                if (menu.findItem(10001) != null) return;
-                var menuItem = menu.add(0, 10001, 0, R.string.force_restore_backup_experimental);
-                Activity activity = (Activity) param.thisObject;
-                menuItem.setOnMenuItemClickListener((item) -> {
-                    new AlertDialogWpp(activity)
+                override fun afterHookedMethod(param: MethodHookParam) {
+                    val name =
+                        param.thisObject.javaClass.simpleName.lowercase(Locale.getDefault())
+                    if (!(name.contains("drive") && name.contains("google"))) return
+                    val menu = param.args[0] as Menu
+                    if (menu.findItem(10001) != null) return
+                    val menuItem = menu.add(0, 10001, 0, R.string.force_restore_backup_experimental)
+                    val activity = param.thisObject as Activity
+                    menuItem.setOnMenuItemClickListener {
+                        AlertDialogWpp(activity)
                             .setTitle(R.string.force_restore_backup)
                             .setMessage(activity.getString(R.string.warning_restore))
-                            .setPositiveButton(activity.getString(R.string.yes), (dialog, which) -> {
+                            .setPositiveButton(
+                                activity.getString(R.string.yes)
+                            ) { _,_ ->
                                 try {
-                                    Intent intent = new Intent(activity, restoreFromBackupClass);
-                                    intent.setAction("action_show_restore_one_time_setup");
-                                    activity.startActivityForResult(intent, 10001);
-                                } catch (Exception e) {
-                                    XposedBridge.log(e);
-                                    Utils.showToast("Error launching restore activity: " + e.getMessage(), Toast.LENGTH_LONG);
+                                    val intent = Intent(activity, restoreFromBackupClass)
+                                    intent.action = "action_show_restore_one_time_setup"
+                                    activity.startActivityForResult(intent, 10001)
+                                } catch (e: Exception) {
+                                    XposedBridge.log(e)
+                                    Utils.showToast(
+                                        "Error launching restore activity: " + e.message,
+                                        Toast.LENGTH_LONG
+                                    )
                                 }
-                            })
+                            }
                             .setNegativeButton(activity.getString(R.string.no), null)
-                            .show();
-
-                    return true;
-                });
-
-            }
-        });
-
+                            .show()
+                        true
+                    }
+                }
+            })
     }
 }

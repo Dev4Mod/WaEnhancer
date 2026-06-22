@@ -1,94 +1,98 @@
-package com.wmods.wppenhacer.xposed.features.general;
+package com.wmods.wppenhacer.xposed.features.general
 
-import android.app.Activity;
-import android.content.Intent;
-import android.net.Uri;
-import android.text.InputType;
-import android.view.Gravity;
-import android.view.Menu;
-import android.view.MenuItem;
-import android.widget.EditText;
-import android.widget.LinearLayout;
+import android.app.Activity
+import android.content.DialogInterface
+import android.content.Intent
+import android.net.Uri
+import android.text.InputType
+import android.view.Gravity
+import android.view.Menu
+import android.view.MenuItem
+import android.widget.EditText
+import android.widget.LinearLayout
+import com.wmods.wppenhacer.R
+import com.wmods.wppenhacer.xposed.core.Feature
+import com.wmods.wppenhacer.xposed.core.WppCore.homeActivityClass
+import com.wmods.wppenhacer.xposed.core.components.AlertDialogWpp
+import com.wmods.wppenhacer.xposed.utils.DesignUtils
+import com.wmods.wppenhacer.xposed.utils.Utils
+import de.robv.android.xposed.XC_MethodHook
+import de.robv.android.xposed.XSharedPreferences
+import de.robv.android.xposed.XposedHelpers
+import androidx.core.net.toUri
 
-import androidx.annotation.NonNull;
+class NewChat(loader: ClassLoader, preferences: XSharedPreferences) : Feature(loader, preferences) {
 
-import com.wmods.wppenhacer.R;
-import com.wmods.wppenhacer.xposed.core.Feature;
-import com.wmods.wppenhacer.xposed.core.WppCore;
-import com.wmods.wppenhacer.xposed.core.components.AlertDialogWpp;
-import com.wmods.wppenhacer.xposed.utils.DesignUtils;
-import com.wmods.wppenhacer.xposed.utils.Utils;
+    override fun doHook() {
+        val homeActivity = homeActivityClass
+        val action = prefs.getBoolean("buttonaction", true)
 
-import de.robv.android.xposed.XC_MethodHook;
-import de.robv.android.xposed.XSharedPreferences;
-import de.robv.android.xposed.XposedHelpers;
+        if (!prefs.getBoolean("newchat", true)) return
 
-public class NewChat extends Feature {
-    public NewChat(@NonNull ClassLoader loader, @NonNull XSharedPreferences preferences) {
-        super(loader, preferences);
-    }
+        XposedHelpers.findAndHookMethod(
+            homeActivity,
+            "onCreateOptionsMenu",
+            Menu::class.java,
+            object : XC_MethodHook() {
+                @Throws(Throwable::class)
+                override fun afterHookedMethod(param: MethodHookParam) {
+                    val activity = param.thisObject as Activity
+                    val menu = param.args[0] as Menu
+                    val item = menu.add(0, 0, 0, R.string.new_chat)
+                    val drawable = DesignUtils.getDrawableByName("vec_ic_chat_add")
 
-    @Override
-    public void doHook() {
-        var homeActivity = WppCore.INSTANCE.getHomeActivityClass();
-        var action = prefs.getBoolean("buttonaction", true);
+                    if (drawable != null) {
+                        drawable.setTint(if (action) DesignUtils.getPrimaryTextColor() else -0x796960)
+                        item.icon = drawable
+                    }
 
-        if (!prefs.getBoolean("newchat", true)) return;
+                    if (action) {
+                        item.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS)
+                    }
 
-        XposedHelpers.findAndHookMethod(homeActivity, "onCreateOptionsMenu", Menu.class, new XC_MethodHook() {
-            @Override
-            protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-                var activity = (Activity) param.thisObject;
-                var menu = (Menu) param.args[0];
-                var item = menu.add(0, 0, 0, R.string.new_chat);
-                var drawable = DesignUtils.getDrawableByName("vec_ic_chat_add");
+                    item.setOnMenuItemClickListener {
+                        val view = LinearLayout(activity)
+                        view.gravity = Gravity.CENTER
+                        view.layoutParams = LinearLayout.LayoutParams(
+                            LinearLayout.LayoutParams.MATCH_PARENT,
+                            LinearLayout.LayoutParams.MATCH_PARENT
+                        )
+                        val edt = EditText(view.context).apply {
+                            layoutParams = LinearLayout.LayoutParams(
+                                LinearLayout.LayoutParams.MATCH_PARENT,
+                                LinearLayout.LayoutParams.MATCH_PARENT,
+                                1.0f
+                            )
+                            inputType = InputType.TYPE_CLASS_PHONE
+                            transformationMethod = null
+                            setHint(R.string.number_with_country_code)
+                            view.addView(this)
+                        }
 
-                if (drawable != null) {
-                    drawable.setTint(action ? DesignUtils.getPrimaryTextColor() : 0xff8696a0);
-                    item.setIcon(drawable);
-                }
 
-                if (action) {
-                    item.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
-                }
-
-                item.setOnMenuItemClickListener(item1 -> {
-
-                    var view = new LinearLayout(activity);
-                    view.setGravity(Gravity.CENTER);
-                    view.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT));
-                    var edt = new EditText(view.getContext());
-                    edt.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT, 1.0f));
-                    edt.setMaxLines(1);
-                    edt.setInputType(InputType.TYPE_CLASS_PHONE);
-                    edt.setTransformationMethod(null);
-                    edt.setHint(R.string.number_with_country_code);
-                    view.addView(edt);
-
-                    new AlertDialogWpp(activity)
+                        AlertDialogWpp(activity)
                             .setTitle(activity.getString(R.string.new_chat))
                             .setView(view)
-                            .setPositiveButton(activity.getString(R.string.message), (dialog, which) -> {
-                                var number = edt.getText().toString();
-                                var numberFomatted = number.replaceAll("[+\\-()/\\s]", "");
-                                var intent = new Intent(Intent.ACTION_VIEW);
-                                intent.setData(Uri.parse("https://wa.me/" + numberFomatted));
-                                intent.setPackage(Utils.getApplication().getPackageName());
-                                activity.startActivity(intent);
-                            })
+                            .setPositiveButton(
+                                activity.getString(R.string.message)
+                            ) { _, _ ->
+                                val number = edt.text.toString()
+                                val numberFomatted =
+                                    number.replace("[+\\-()/\\s]".toRegex(), "")
+                                val intent = Intent(Intent.ACTION_VIEW)
+                                intent.data = ("https://wa.me/$numberFomatted").toUri()
+                                intent.setPackage(Utils.getApplication().packageName)
+                                activity.startActivity(intent)
+                            }
                             .setNegativeButton(activity.getString(R.string.cancel), null)
-                            .show();
-
-                    return true;
-                });
-            }
-        });
-
+                            .show()
+                        true
+                    }
+                }
+            })
     }
 
-    @NonNull
-    @Override
-    public String getPluginName() {
-        return "New Chat";
+    public override fun getPluginName(): String {
+        return "New Chat"
     }
 }

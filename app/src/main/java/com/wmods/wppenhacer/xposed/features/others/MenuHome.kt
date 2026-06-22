@@ -1,221 +1,258 @@
-package com.wmods.wppenhacer.xposed.features.others;
+package com.wmods.wppenhacer.xposed.features.others
 
-import android.annotation.SuppressLint;
-import android.app.Activity;
-import android.content.Intent;
-import android.view.Menu;
-import android.view.MenuItem;
+import android.annotation.SuppressLint
+import android.app.Activity
+import android.content.Intent
+import android.view.Menu
+import android.view.MenuItem
+import com.wmods.wppenhacer.BuildConfig
+import com.wmods.wppenhacer.R
+import com.wmods.wppenhacer.xposed.core.Feature
+import com.wmods.wppenhacer.xposed.core.WppCore.getPrivBoolean
+import com.wmods.wppenhacer.xposed.core.WppCore.homeActivityClass
+import com.wmods.wppenhacer.xposed.core.WppCore.setPrivBoolean
+import com.wmods.wppenhacer.xposed.core.components.AlertDialogWpp
+import com.wmods.wppenhacer.xposed.utils.DesignUtils
+import com.wmods.wppenhacer.xposed.utils.Utils
+import de.robv.android.xposed.XC_MethodHook
+import de.robv.android.xposed.XSharedPreferences
+import de.robv.android.xposed.XposedHelpers
 
-import androidx.annotation.NonNull;
-
-import com.wmods.wppenhacer.BuildConfig;
-import com.wmods.wppenhacer.R;
-import com.wmods.wppenhacer.xposed.core.Feature;
-import com.wmods.wppenhacer.xposed.core.WppCore;
-import com.wmods.wppenhacer.xposed.core.components.AlertDialogWpp;
-import com.wmods.wppenhacer.xposed.utils.DesignUtils;
-import com.wmods.wppenhacer.xposed.utils.Utils;
-
-import java.util.HashSet;
-import java.util.LinkedHashSet;
-
-import de.robv.android.xposed.XC_MethodHook;
-import de.robv.android.xposed.XSharedPreferences;
-import de.robv.android.xposed.XposedHelpers;
-
-public class MenuHome extends Feature {
-
-    public static HashSet<HomeMenuItem> menuItems = new LinkedHashSet<>();
-
-
-    public MenuHome(@NonNull ClassLoader classLoader, @NonNull XSharedPreferences preferences) {
-        super(classLoader, preferences);
-    }
-
-    @Override
-    public void doHook() throws Throwable {
-        hookMenu();
-        var action = prefs.getBoolean("buttonaction", true);
+class MenuHome(classLoader: ClassLoader, preferences: XSharedPreferences) :
+    Feature(classLoader, preferences) {
+    @Throws(Throwable::class)
+    override fun doHook() {
+        hookMenu()
+        val action = prefs.getBoolean("buttonaction", true)
 
         // restart button
-        menuItems.add((menu, activity) -> InsertRestartButton(menu, activity, action));
+        addMenuItem { menu, activity ->
+            insertRestartButton(
+                menu,
+                activity,
+                action
+            )
+        }
 
         // dnd mode
-        menuItems.add((menu, activity) -> InsertDNDOption(menu, activity, action));
+        addMenuItem { menu, activity ->
+            insertDNDOption(
+                menu,
+                activity,
+                action
+            )
+        }
 
         // ghost mode
-        menuItems.add((menu, activity) -> InsertGhostModeOption(menu, activity, action));
+        addMenuItem { menu, activity ->
+            insertGhostModeOption(
+                menu,
+                activity,
+                action
+            )
+        }
 
         // freeze last seen
-        menuItems.add((menu, activity) -> InsertFreezeLastSeenOption(menu, activity, action));
+        addMenuItem { menu, activity ->
+            insertFreezeLastSeenOption(
+                menu,
+                activity,
+                action
+            )
+        }
 
         // open WAE
-        menuItems.add(this::InsertOpenWae);
-
+        addMenuItem { menu, activity ->
+            this.insertOpenWae(
+                menu,
+                activity
+            )
+        }
     }
 
-    private void InsertOpenWae(Menu menu, Activity activity) {
-        var waeMenu = prefs.getBoolean("open_wae", true);
-        if (!waeMenu) return;
-        var itemMenu = menu.add(0, 0, 9999, " " + activity.getString(R.string.app_name));
-        var iconDraw = DesignUtils.getDrawableByName("ic_settings");
-        iconDraw.setTint(0xff8696a0);
-        itemMenu.setIcon(iconDraw);
-        itemMenu.setOnMenuItemClickListener(item -> {
-            Intent intent = activity.getPackageManager().getLaunchIntentForPackage(BuildConfig.APPLICATION_ID);
-            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-            activity.startActivity(intent);
-            return true;
-        });
+    private fun insertOpenWae(menu: Menu, activity: Activity) {
+        val waeMenu = prefs.getBoolean("open_wae", true)
+        if (!waeMenu) return
+        val itemMenu = menu.add(0, 0, 9999, " " + activity.getString(R.string.app_name))
+        val iconDraw = DesignUtils.getDrawableByName("ic_settings")
+        iconDraw!!.setTint(-0x796960)
+        itemMenu.icon = iconDraw
+        itemMenu.setOnMenuItemClickListener {
+            try {
+                val intent = activity.packageManager.getLaunchIntentForPackage(
+                    BuildConfig.APPLICATION_ID
+                )
+                intent!!.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                activity.startActivity(intent)
+            } catch (e: Exception) {
+                Utils.showToast(e.message)
+            }
+            true
+        }
     }
 
-    private void InsertGhostModeOption(Menu menu, Activity activity, boolean newSettings) {
-        var ghostmode = WppCore.getPrivBoolean("ghostmode", false);
+    private fun insertGhostModeOption(menu: Menu, activity: Activity, newSettings: Boolean) {
+        val ghostmode = getPrivBoolean("ghostmode", false)
         if (!prefs.getBoolean("ghostmode", true)) {
             if (ghostmode) {
-                WppCore.setPrivBoolean("ghostmode", false);
-                Utils.doRestart(activity);
+                setPrivBoolean("ghostmode", false)
+                Utils.doRestart(activity)
             }
-            return;
+            return
         }
-        var itemMenu = menu.add(0, 0, 0, R.string.ghost_mode);
+        val itemMenu = menu.add(0, 0, 0, R.string.ghost_mode)
 
-        var iconDraw = activity.getDrawable(ghostmode ? R.drawable.ghost_enabled : R.drawable.ghost_disabled);
+        val iconDraw =
+            activity.getDrawable(if (ghostmode) R.drawable.ghost_enabled else R.drawable.ghost_disabled)
         if (iconDraw != null) {
-            iconDraw.setTint(newSettings ? DesignUtils.getPrimaryTextColor() : 0xff8696a0);
-            itemMenu.setIcon(iconDraw);
+            iconDraw.setTint(if (newSettings) DesignUtils.getPrimaryTextColor() else -0x796960)
+            itemMenu.icon = iconDraw
         }
         if (newSettings) {
-            itemMenu.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
+            itemMenu.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS)
         }
-        itemMenu.setOnMenuItemClickListener(item -> {
-            new AlertDialogWpp(activity).setTitle(activity.getString(R.string.ghost_mode_s, (ghostmode ? "ON" : "OFF"))).
-                    setMessage(activity.getString(R.string.ghost_mode_message))
-                    .setPositiveButton(activity.getString(R.string.disable), (dialog, which) -> {
-                        WppCore.setPrivBoolean("ghostmode", false);
-                        Utils.doRestart(activity);
-                    })
-                    .setNegativeButton(activity.getString(R.string.enable), (dialog, which) -> {
-                        WppCore.setPrivBoolean("ghostmode", true);
-                        Utils.doRestart(activity);
-                    }).show();
-            return true;
-
-        });
+        itemMenu.setOnMenuItemClickListener {
+            AlertDialogWpp(activity).setTitle(
+                activity.getString(
+                    R.string.ghost_mode_s,
+                    (if (ghostmode) "ON" else "OFF")
+                )
+            ).setMessage(activity.getString(R.string.ghost_mode_message))
+                .setPositiveButton(activity.getString(R.string.disable)) { _, _ ->
+                    setPrivBoolean("ghostmode", false)
+                    Utils.doRestart(activity)
+                }
+                .setNegativeButton(activity.getString(R.string.enable)) { _, _ ->
+                    setPrivBoolean("ghostmode", true)
+                    Utils.doRestart(activity)
+                }.show()
+            true
+        }
     }
 
-    private void InsertRestartButton(Menu menu, Activity activity, boolean newSettings) {
-        if (!prefs.getBoolean("restartbutton", true)) return;
-        var iconDraw = activity.getDrawable(R.drawable.refresh);
-        iconDraw.setTint(newSettings ? DesignUtils.getPrimaryTextColor() : 0xff8696a0);
-        var itemMenu = menu.add(0, 0, 0, R.string.restart_whatsapp).setIcon(iconDraw);
+    private fun insertRestartButton(menu: Menu, activity: Activity, newSettings: Boolean) {
+        if (!prefs.getBoolean("restartbutton", true)) return
+        val iconDraw = activity.getDrawable(R.drawable.refresh)
+        iconDraw!!.setTint(if (newSettings) DesignUtils.getPrimaryTextColor() else -0x796960)
+        val itemMenu = menu.add(0, 0, 0, R.string.restart_whatsapp).setIcon(iconDraw)
         if (newSettings) {
-            itemMenu.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
+            itemMenu.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS)
         }
-        itemMenu.setOnMenuItemClickListener(item -> {
-            Utils.doRestart(activity);
-            return true;
-        });
+        itemMenu.setOnMenuItemClickListener {
+            Utils.doRestart(activity)
+            true
+        }
     }
 
-    @SuppressLint({"DiscouragedApi", "UseCompatLoadingForDrawables", "ApplySharedPref"})
-    private void InsertDNDOption(Menu menu, Activity activity, boolean newSettings) {
-        var dndmode = WppCore.getPrivBoolean("dndmode", false);
+    @SuppressLint("DiscouragedApi", "UseCompatLoadingForDrawables", "ApplySharedPref")
+    private fun insertDNDOption(menu: Menu, activity: Activity, newSettings: Boolean) {
+        val dndmode = getPrivBoolean("dndmode", false)
         if (!prefs.getBoolean("show_dndmode", false)) {
-            if (WppCore.getPrivBoolean("dndmode", false)) {
-                WppCore.setPrivBoolean("dndmode", false);
-                Utils.doRestart(activity);
+            if (getPrivBoolean("dndmode", false)) {
+                setPrivBoolean("dndmode", false)
+                Utils.doRestart(activity)
             }
-            return;
+            return
         }
-        var item = menu.add(0, 0, 0, activity.getString(R.string.dnd_mode_title));
-        var drawable = Utils.getApplication().getDrawable(dndmode ? R.drawable.airplane_enabled : R.drawable.airplane_disabled);
+        val item = menu.add(0, 0, 0, activity.getString(R.string.dnd_mode_title))
+        val drawable = Utils.getApplication()
+            .getDrawable(if (dndmode) R.drawable.airplane_enabled else R.drawable.airplane_disabled)
         if (drawable != null) {
-            drawable.setTint(newSettings ? DesignUtils.getPrimaryTextColor() : 0xff8696a0);
-            item.setIcon(drawable);
+            drawable.setTint(if (newSettings) DesignUtils.getPrimaryTextColor() else -0x796960)
+            item.icon = drawable
         }
         if (newSettings) {
-            item.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
+            item.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS)
         }
-        item.setOnMenuItemClickListener(menuItem -> {
+        item.setOnMenuItemClickListener {
             if (!dndmode) {
-                new AlertDialogWpp(activity)
-                        .setTitle(activity.getString(R.string.dnd_mode_title))
-                        .setMessage(activity.getString(R.string.dnd_message))
-                        .setPositiveButton(activity.getString(R.string.activate), (dialog, which) -> {
-                            WppCore.setPrivBoolean("dndmode", true);
-                            Utils.doRestart(activity);
-                        })
-                        .setNegativeButton(activity.getString(R.string.cancel), (dialog, which) -> dialog.dismiss())
-                        .create().show();
-                return true;
+                AlertDialogWpp(activity)
+                    .setTitle(activity.getString(R.string.dnd_mode_title))
+                    .setMessage(activity.getString(R.string.dnd_message))
+                    .setPositiveButton(activity.getString(R.string.activate)) { _, _ ->
+                        setPrivBoolean("dndmode", true)
+                        Utils.doRestart(activity)
+                    }
+                    .setNegativeButton(activity.getString(R.string.cancel)) { dialog, _ -> dialog?.dismiss() }
+                    .create().show()
+                return@setOnMenuItemClickListener true
             }
-            WppCore.setPrivBoolean("dndmode", false);
-            Utils.doRestart(activity);
-            return true;
-        });
+            setPrivBoolean("dndmode", false)
+            Utils.doRestart(activity)
+            true
+        }
     }
 
-    private void InsertFreezeLastSeenOption(Menu menu, Activity activity, boolean newSettings) {
-        var freezelastseen = WppCore.getPrivBoolean("freezelastseen", false);
+    private fun insertFreezeLastSeenOption(menu: Menu, activity: Activity, newSettings: Boolean) {
+        val freezelastseen = getPrivBoolean("freezelastseen", false)
         if (!prefs.getBoolean("show_freezeLastSeen", true)) {
             if (freezelastseen) {
-                WppCore.setPrivBoolean("freezelastseen", false);
-                Utils.doRestart(activity);
+                setPrivBoolean("freezelastseen", false)
+                Utils.doRestart(activity)
             }
-            return;
+            return
         }
 
-        MenuItem item = menu.add(0, 0, 0, activity.getString(R.string.freezelastseen_title));
-        var drawable = Utils.getApplication().getDrawable(freezelastseen ? R.drawable.eye_disabled : R.drawable.eye_enabled);
+        val item = menu.add(0, 0, 0, activity.getString(R.string.freezelastseen_title))
+        val drawable = Utils.getApplication()
+            .getDrawable(if (freezelastseen) R.drawable.eye_disabled else R.drawable.eye_enabled)
         if (drawable != null) {
-            drawable.setTint(newSettings ? DesignUtils.getPrimaryTextColor() : 0xff8696a0);
-            item.setIcon(drawable);
+            drawable.setTint(if (newSettings) DesignUtils.getPrimaryTextColor() else -0x796960)
+            item.icon = drawable
         }
         if (newSettings) {
-            item.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
+            item.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS)
         }
-        item.setOnMenuItemClickListener(menuItem -> {
+        item.setOnMenuItemClickListener {
             if (!freezelastseen) {
-                new AlertDialogWpp(activity)
-                        .setTitle(activity.getString(R.string.freezelastseen_title))
-                        .setMessage(activity.getString(R.string.freezelastseen_message))
-                        .setPositiveButton(activity.getString(R.string.activate), (dialog, which) -> {
-                            WppCore.setPrivBoolean("freezelastseen", true);
-                            Utils.doRestart(activity);
-                        })
-                        .setNegativeButton(activity.getString(R.string.cancel), (dialog, which) -> dialog.dismiss())
-                        .create().show();
-                return true;
+                AlertDialogWpp(activity)
+                    .setTitle(activity.getString(R.string.freezelastseen_title))
+                    .setMessage(activity.getString(R.string.freezelastseen_message))
+                    .setPositiveButton(activity.getString(R.string.activate)) { _, _ ->
+                        setPrivBoolean("freezelastseen", true)
+                        Utils.doRestart(activity)
+                    }
+                    .setNegativeButton(activity.getString(R.string.cancel)) { dialog, _ -> dialog?.dismiss() }
+                    .create().show()
+                return@setOnMenuItemClickListener true
             }
-            WppCore.setPrivBoolean("freezelastseen", false);
-            Utils.doRestart(activity);
-            return true;
-        });
+            setPrivBoolean("freezelastseen", false)
+            Utils.doRestart(activity)
+            true
+        }
     }
 
-    private void hookMenu() {
-        XposedHelpers.findAndHookMethod(WppCore.INSTANCE.getHomeActivityClass(), "onCreateOptionsMenu", Menu.class, new XC_MethodHook() {
-            @Override
-            protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-                var menu = (Menu) param.args[0];
-                var activity = (Activity) param.thisObject;
-                for (var menuItem : MenuHome.menuItems) {
-                    menuItem.addMenu(menu, activity);
+    private fun hookMenu() {
+        XposedHelpers.findAndHookMethod(
+            homeActivityClass,
+            "onCreateOptionsMenu",
+            Menu::class.java,
+            object : XC_MethodHook() {
+                @Throws(Throwable::class)
+                override fun afterHookedMethod(param: MethodHookParam) {
+                    val menu = param.args[0] as Menu
+                    val activity = param.thisObject as Activity
+                    for (menuItem in menuItems) {
+                        menuItem.addMenu(menu, activity)
+                    }
                 }
-            }
-        });
+            })
     }
 
-    @NonNull
-    @Override
-    public String getPluginName() {
-        return "Menu Home";
+    override fun getPluginName(): String {
+        return "Menu Home"
     }
 
-    public interface HomeMenuItem {
+    fun interface HomeMenuItem {
+        fun addMenu(menu: Menu, activity: Activity)
+    }
 
-        void addMenu(Menu menu, Activity activity);
+    companion object {
+        private var menuItems: HashSet<HomeMenuItem> = LinkedHashSet<HomeMenuItem>()
 
+        @JvmStatic
+        fun addMenuItem(homeMenuItem: HomeMenuItem) {
+            menuItems += homeMenuItem
+        }
     }
 }

@@ -1,69 +1,63 @@
-package com.wmods.wppenhacer.xposed.features.others;
+package com.wmods.wppenhacer.xposed.features.others
 
-import android.view.View;
-import android.widget.TextView;
-import android.widget.Toast;
+import android.view.View
+import android.view.View.OnLongClickListener
+import android.widget.TextView
+import android.widget.Toast
+import com.wmods.wppenhacer.R
+import com.wmods.wppenhacer.xposed.core.Feature
+import com.wmods.wppenhacer.xposed.core.devkit.Unobfuscator.getMethodDescriptor
+import com.wmods.wppenhacer.xposed.core.devkit.Unobfuscator.loadBlueOnReplayStatusViewMethod
+import com.wmods.wppenhacer.xposed.core.devkit.Unobfuscator.loadBlueOnReplayViewButtonMethod
+import com.wmods.wppenhacer.xposed.utils.Utils
+import de.robv.android.xposed.XC_MethodHook
+import de.robv.android.xposed.XSharedPreferences
+import de.robv.android.xposed.XposedBridge
 
-import androidx.annotation.NonNull;
+class CopyStatus(classLoader: ClassLoader, preferences: XSharedPreferences) :
+    Feature(classLoader, preferences) {
 
-import com.wmods.wppenhacer.R;
-import com.wmods.wppenhacer.xposed.core.Feature;
-import com.wmods.wppenhacer.xposed.core.devkit.Unobfuscator;
-import com.wmods.wppenhacer.xposed.utils.Utils;
+    override fun doHook() {
+        if (!prefs.getBoolean("copystatus", false)) return
 
-import de.robv.android.xposed.XC_MethodHook;
-import de.robv.android.xposed.XSharedPreferences;
-import de.robv.android.xposed.XposedBridge;
+        val viewButtonMethod = loadBlueOnReplayViewButtonMethod(classLoader)
+        logDebug(getMethodDescriptor(viewButtonMethod))
 
-public class CopyStatus extends Feature {
-    public CopyStatus(@NonNull ClassLoader classLoader, @NonNull XSharedPreferences preferences) {
-        super(classLoader, preferences);
-    }
-
-    @Override
-    public void doHook() throws Throwable {
-
-        if (!prefs.getBoolean("copystatus", false)) return;
-
-        var viewButtonMethod = Unobfuscator.loadBlueOnReplayViewButtonMethod(classLoader);
-        logDebug(Unobfuscator.getMethodDescriptor(viewButtonMethod));
-
-        XposedBridge.hookMethod(viewButtonMethod, new XC_MethodHook() {
-            @Override
-            protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-                var view = (View) param.getResult();
-                var caption = (TextView) view.findViewById(Utils.getID("caption", "id"));
-                if (caption != null) {
-                    caption.setOnLongClickListener((view1 -> {
-                        Utils.setToClipboard(caption.getText().toString());
-                        Utils.showToast(Utils.getApplication().getString(R.string.copied_to_clipboard), Toast.LENGTH_LONG);
-                        return true;
-                    }));
-                }
-
-            }
-        });
-
-        var viewStatusMethod = Unobfuscator.loadBlueOnReplayStatusViewMethod(classLoader);
-        XposedBridge.hookMethod(viewStatusMethod, new XC_MethodHook() {
-            @Override
-            protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-                var view = (View) param.args[0];
-                var text = (TextView) view.findViewById(Utils.getID("message_text", "id"));
-                if (text != null) {
-                    text.setOnLongClickListener((view1 -> {
-                        Utils.setToClipboard(text.getText().toString());
-                        Utils.showToast(Utils.getApplication().getString(R.string.copied_to_clipboard), Toast.LENGTH_LONG);
-                        return true;
-                    }));
+        XposedBridge.hookMethod(viewButtonMethod, object : XC_MethodHook() {
+            @Throws(Throwable::class)
+            override fun afterHookedMethod(param: MethodHookParam) {
+                val view = param.result as View
+                val caption = view.findViewById<View?>(Utils.getID("caption", "id")) as TextView?
+                caption?.setOnLongClickListener {
+                    Utils.setToClipboard(caption.text.toString())
+                    Utils.showToast(
+                        Utils.getApplication().getString(R.string.copied_to_clipboard),
+                        Toast.LENGTH_LONG
+                    )
+                    true
                 }
             }
-        });
+        })
+
+        val viewStatusMethod = loadBlueOnReplayStatusViewMethod(classLoader)
+        XposedBridge.hookMethod(viewStatusMethod, object : XC_MethodHook() {
+            @Throws(Throwable::class)
+            override fun afterHookedMethod(param: MethodHookParam) {
+                val view = param.args[0] as View
+                val text = view.findViewById<View?>(Utils.getID("message_text", "id")) as TextView?
+                text?.setOnLongClickListener {
+                    Utils.setToClipboard(text.text.toString())
+                    Utils.showToast(
+                        Utils.getApplication().getString(R.string.copied_to_clipboard),
+                        Toast.LENGTH_LONG
+                    )
+                    true
+                }
+            }
+        })
     }
 
-    @NonNull
-    @Override
-    public String getPluginName() {
-        return "";
+    override fun getPluginName(): String {
+        return "Copy Status"
     }
 }
