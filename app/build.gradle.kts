@@ -96,6 +96,19 @@ android {
     }
 
     buildTypes {
+
+        debug {
+            isMinifyEnabled = true
+            //noinspection NotShrinkingResources
+            isShrinkResources = false
+            signingConfig =
+                if (signingConfigs["config"].storeFile != null) signingConfigs["config"] else signingConfigs["debug"]
+            proguardFiles(
+                getDefaultProguardFile("proguard-android-optimize.txt"),
+                "proguard-rules.pro"
+            )
+        }
+
         release {
             isMinifyEnabled = true
             //noinspection NotShrinkingResources
