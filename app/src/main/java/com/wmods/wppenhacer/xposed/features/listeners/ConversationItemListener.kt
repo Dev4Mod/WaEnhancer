@@ -1,5 +1,6 @@
 package com.wmods.wppenhacer.xposed.features.listeners
 
+import android.app.Activity
 import android.os.Handler
 import android.os.Looper
 import android.view.View
@@ -39,6 +40,16 @@ class ConversationItemListener(
 
     @Throws(Throwable::class)
     override fun doHook() {
+        WppCore.addListenerActivity(object : WppCore.ActivityChangeState {
+            override fun onChange(
+                activity: Activity,
+                type: WppCore.ActivityChangeState.ChangeType
+            ) {
+                if (activity.javaClass.simpleName == "Conversation" && type == WppCore.ActivityChangeState.ChangeType.DESTROYED)
+                    hooked?.unhook()
+            }
+        })
+
         XposedHelpers.findAndHookMethod(
             ListView::class.java,
             "setAdapter",

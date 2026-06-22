@@ -38,7 +38,7 @@ import java.util.concurrent.ConcurrentHashMap
 @SuppressLint("StaticFieldLeak")
 object WppCore {
     @JvmStatic
-    val listenerActivity: ConcurrentHashMap.KeySetView<ActivityChangeState?, Boolean?> = ConcurrentHashMap.newKeySet<ActivityChangeState>()
+    val listenerActivity: ConcurrentHashMap.KeySetView<ActivityChangeState, Boolean> = ConcurrentHashMap.newKeySet<ActivityChangeState>()
 
     @JvmField
     internal var mCurrentActivity: Activity? = null
@@ -696,7 +696,7 @@ object WppCore {
         fun onChange(activity: Activity, type: ChangeType)
 
         enum class ChangeType {
-            CREATED, STARTED, ENDED, RESUMED, PAUSED
+            CREATED, STARTED, ENDED, RESUMED, PAUSED,DESTROYED;
         }
     }
 }
