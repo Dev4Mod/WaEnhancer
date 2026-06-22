@@ -1,133 +1,132 @@
-package com.wmods.wppenhacer.xposed.features.general;
+package com.wmods.wppenhacer.xposed.features.general
 
-import android.app.Activity;
-import android.content.Context;
-import android.content.Intent;
-import android.content.pm.PackageManager;
-import android.net.Uri;
-import android.os.Build;
-import android.os.Bundle;
-import android.os.Environment;
-import android.provider.DocumentsContract;
-import android.provider.MediaStore;
-import android.view.Menu;
+import android.app.Activity
+import android.content.Context
+import android.content.Intent
+import android.content.pm.PackageManager
+import android.net.Uri
+import android.os.Build
+import android.os.Bundle
+import android.os.Environment
+import android.provider.DocumentsContract
+import android.provider.MediaStore
+import android.view.Menu
+import com.wmods.wppenhacer.R
+import com.wmods.wppenhacer.utils.RealPathUtil
+import com.wmods.wppenhacer.xposed.core.Feature
+import com.wmods.wppenhacer.xposed.core.WppCore
+import com.wmods.wppenhacer.xposed.core.components.AlertDialogWpp
+import com.wmods.wppenhacer.xposed.features.others.MenuHome
+import de.robv.android.xposed.XC_MethodHook
+import de.robv.android.xposed.XSharedPreferences
+import de.robv.android.xposed.XposedHelpers
+import androidx.core.net.toUri
 
-import androidx.annotation.NonNull;
+class LiteMode(loader: ClassLoader, preferences: XSharedPreferences) : Feature(loader, preferences) {
 
-import com.wmods.wppenhacer.R;
-import com.wmods.wppenhacer.utils.RealPathUtil;
-import com.wmods.wppenhacer.xposed.core.Feature;
-import com.wmods.wppenhacer.xposed.core.WppCore;
-import com.wmods.wppenhacer.xposed.core.components.AlertDialogWpp;
-import com.wmods.wppenhacer.xposed.features.others.MenuHome;
+    companion object {
+        const val REQUEST_FOLDER = 852583
 
-import de.robv.android.xposed.XC_MethodHook;
-import de.robv.android.xposed.XSharedPreferences;
-import de.robv.android.xposed.XposedHelpers;
+        @JvmStatic
+        fun getDownloadsUri(): Uri {
+            return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                MediaStore.Downloads.EXTERNAL_CONTENT_URI
+            } else {
+                Uri.fromFile(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS))
+            }
+        }
 
-public class LiteMode extends Feature {
+        @JvmStatic
+        fun processDownloadResult(activity: Activity, intent: Intent): String? {
+            val uri = intent.data ?: return null
+            WppCore.setPrivString("download_folder", uri.toString())
+            activity.contentResolver.takePersistableUriPermission(
+                uri,
+                Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_WRITE_URI_PERMISSION
+            )
+            return uri.toString()
+        }
 
-    public static final int REQUEST_FOLDER = 852583;
-
-
-    public LiteMode(@NonNull ClassLoader classLoader, @NonNull XSharedPreferences preferences) {
-        super(classLoader, preferences);
-    }
-
-    public static Uri getDownloadsUri() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            return MediaStore.Downloads.EXTERNAL_CONTENT_URI;
-        } else {
-            return Uri.fromFile(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS));
+        private fun showDialogUriPermission(activity: Activity) {
+            AlertDialogWpp(activity)
+                .setTitle(activity.getString(R.string.download_folder_permission))
+                .setMessage(activity.getString(R.string.ask_download_folder))
+                .setPositiveButton(activity.getString(R.string.allow)) { _, _ ->
+                    val intent = Intent(Intent.ACTION_OPEN_DOCUMENT_TREE)
+                    intent.putExtra(DocumentsContract.EXTRA_INITIAL_URI, getDownloadsUri())
+                    activity.startActivityForResult(intent, REQUEST_FOLDER)
+                }
+                .setNegativeButton(activity.getString(R.string.cancel)) { dialog, _ -> dialog.dismiss() }
+                .show()
         }
     }
 
-    private static void showDialogUriPermission(Activity activity) {
-        new AlertDialogWpp(activity).setTitle(activity.getString(R.string.download_folder_permission))
-                .setMessage(activity.getString(R.string.ask_download_folder))
-                .setPositiveButton(activity.getString(R.string.allow), (dialog, which) -> {
-                    Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT_TREE);
-                    intent.putExtra(DocumentsContract.EXTRA_INITIAL_URI, getDownloadsUri());
-                    activity.startActivityForResult(intent, REQUEST_FOLDER);
-                }).setNegativeButton(activity.getString(R.string.cancel), (dialog, which) -> dialog.dismiss()).show();
-    }
+    @Throws(Throwable::class)
+    override fun doHook() {
+        if (!prefs.getBoolean("lite_mode", false)) return
 
-    @Override
-    public void doHook() throws Throwable {
-        if (!prefs.getBoolean("lite_mode", false)) return;
+        MenuHome.addMenuItem { menu, activity -> insertDownloadFolderButton(menu, activity) }
 
-        MenuHome.addMenuItem(this::InsertDownloadFolderButton);
-
-        XposedHelpers.findAndHookMethod(WppCore.INSTANCE.getHomeActivityClass(), "onCreate", Bundle.class, new XC_MethodHook() {
-            @Override
-            protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-                var activity = (Activity) param.thisObject;
-
-                var wae = WppCore.getPrivString("download_folder", null);
-                if (wae == null || !isUriPermissionGranted(activity, Uri.parse(wae))) {
-                    showDialogUriPermission(activity);
+        XposedHelpers.findAndHookMethod(WppCore.homeActivityClass, "onCreate", Bundle::class.java, object : XC_MethodHook() {
+            override fun afterHookedMethod(param: MethodHookParam) {
+                val activity = param.thisObject as Activity
+                val wae = WppCore.getPrivString("download_folder", null)
+                if (wae == null || !isUriPermissionGranted(activity, wae.toUri())) {
+                    showDialogUriPermission(activity)
                 }
             }
-        });
+        })
 
-        XposedHelpers.findAndHookMethod(Activity.class, "onActivityResult", int.class, int.class, Intent.class, new XC_MethodHook() {
-            @Override
-            protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-                var activity = (Activity) param.thisObject;
-                var id = (int) param.args[0];
-                var intent = (Intent) param.args[2];
-                if (id == REQUEST_FOLDER && (int) param.args[1] == Activity.RESULT_OK) {
-                    processDownloadResult(activity, intent);
+        XposedHelpers.findAndHookMethod(
+            Activity::class.java, "onActivityResult",
+            Int::class.java, Int::class.java, Intent::class.java,
+            object : XC_MethodHook() {
+                override fun afterHookedMethod(param: MethodHookParam) {
+                    val activity = param.thisObject as Activity
+                    val id = param.args[0] as Int
+                    val intent = param.args[2] as Intent
+                    if (id == REQUEST_FOLDER && param.args[1] as Int == Activity.RESULT_OK) {
+                        processDownloadResult(activity, intent)
+                    }
                 }
-            }
-        });
-
+            })
     }
 
-    public static String processDownloadResult(Activity activity, Intent intent) {
-        var uri = intent.getData();
-        if (uri == null) return null;
-        WppCore.setPrivString("download_folder", uri.toString());
-        activity.getContentResolver().takePersistableUriPermission(uri, Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
-        return uri.toString();
+    override fun getPluginName(): String {
+        return "Lite Mode"
     }
 
-    private void InsertDownloadFolderButton(Menu menu, Activity activity) {
-        var waeMenu = prefs.getBoolean("open_wae", true);
-        if (!waeMenu) return;
-        var itemMenu = menu.add(0, 0, 9999, "Download Folder");
-        var iconDraw = activity.getDrawable(R.drawable.download);
-        iconDraw.setTint(0xff8696a0);
-        itemMenu.setIcon(iconDraw);
-        itemMenu.setOnMenuItemClickListener(item -> {
-
-            var folder = WppCore.getPrivString("download_folder", null);
+    private fun insertDownloadFolderButton(menu: Menu, activity: Activity) {
+        val waeMenu = prefs.getBoolean("open_wae", true)
+        if (!waeMenu) return
+        val itemMenu = menu.add(0, 0, 9999, "Download Folder")
+        val iconDraw = activity.getDrawable(R.drawable.download)!!
+        iconDraw.setTint(0xff8696a0.toInt())
+        itemMenu.icon = iconDraw
+        itemMenu.setOnMenuItemClickListener {
+            var folder = WppCore.getPrivString("download_folder", null)
             if (folder != null) {
                 try {
-                    folder = RealPathUtil.getRealFolderPath(activity, Uri.parse(folder));
-                } catch (Exception ignored) {
+                    folder = RealPathUtil.getRealFolderPath(activity, folder.toUri())
+                } catch (_: Exception) {
                 }
             }
-            AlertDialogWpp dialog = new AlertDialogWpp(activity);
-            dialog.setTitle("Download Folder");
-            dialog.setMessage("Current Folder to download is " + folder);
-            dialog.setNegativeButton("Cancel", (dialog1, which) -> dialog.dismiss());
-            dialog.setPositiveButton("Select", (dialog1, which) -> {
-                showDialogUriPermission(activity);
-            }).show();
-            return true;
-        });
+            val dialog = AlertDialogWpp(activity)
+            dialog.setTitle("Download Folder")
+            dialog.setMessage("Current Folder to download is $folder")
+            dialog.setNegativeButton("Cancel") { dialog1, _ -> dialog1.dismiss() }
+            dialog.setPositiveButton("Select") { _, _ ->
+                showDialogUriPermission(activity)
+            }.show()
+            true
+        }
     }
 
-    private boolean isUriPermissionGranted(Context context, Uri uri) {
-        int takeFlags = Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_GRANT_WRITE_URI_PERMISSION;
-        int permissionCheck = context.checkUriPermission(uri, android.os.Process.myPid(), android.os.Process.myUid(), takeFlags);
-        return permissionCheck == PackageManager.PERMISSION_GRANTED;
-    }
-
-    @NonNull
-    @Override
-    public String getPluginName() {
-        return "Lite Mode";
+    private fun isUriPermissionGranted(context: Context, uri: Uri): Boolean {
+        val takeFlags = Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_WRITE_URI_PERMISSION
+        val permissionCheck = context.checkUriPermission(
+            uri, android.os.Process.myPid(), android.os.Process.myUid(), takeFlags
+        )
+        return permissionCheck == PackageManager.PERMISSION_GRANTED
     }
 }
