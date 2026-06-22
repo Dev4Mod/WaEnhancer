@@ -199,9 +199,9 @@ object WppCore {
         val preferredOrder = prefsCacheHooks.getInt("preferredOrder", 1)
 
         val primaryClient =
-            if (preferredOrder == 0) ProviderClientKt(context) else BridgeClientKt(context)
+            if (preferredOrder == 0) ProviderClientKt() else BridgeClientKt(context)
         val fallbackClient =
-            if (preferredOrder == 0) BridgeClientKt(context) else ProviderClientKt(context)
+            if (preferredOrder == 0) BridgeClientKt(context) else ProviderClientKt()
 
         if (tryConnectBridge(primaryClient)) return
 

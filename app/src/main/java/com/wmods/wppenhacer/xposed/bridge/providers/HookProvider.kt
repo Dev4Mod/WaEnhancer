@@ -1,59 +1,54 @@
-package com.wmods.wppenhacer.xposed.bridge.providers;
+package com.wmods.wppenhacer.xposed.bridge.providers
 
-import android.content.ContentProvider;
-import android.content.ContentValues;
-import android.database.Cursor;
-import android.net.Uri;
-import android.os.Bundle;
+import android.content.ContentProvider
+import android.content.ContentValues
+import android.database.Cursor
+import android.net.Uri
+import android.os.Bundle
+import com.wmods.wppenhacer.xposed.bridge.service.HookBinder
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-
-import com.wmods.wppenhacer.xposed.bridge.service.HookBinder;
-
-public class HookProvider extends ContentProvider {
-
-    @Override
-    public boolean onCreate() {
-        return false;
+class HookProvider : ContentProvider() {
+    override fun onCreate(): Boolean {
+        return false
     }
 
-    @Nullable
-    @Override
-    public Bundle call(@NonNull String method, @Nullable String arg, @Nullable Bundle extras) {
-        if (method.equals("getHookBinder")) {
-            Bundle result = new Bundle();
-            result.putBinder("binder", HookBinder.getInstance());
-            return result;
+    override fun call(method: String, arg: String?, extras: Bundle?): Bundle? {
+        if (method == "getHookBinder") {
+            val result = Bundle()
+            result.putBinder("binder", HookBinder)
+            return result
         }
-        return null;
+        return null
     }
 
-    @Nullable
-    @Override
-    public Cursor query(@NonNull Uri uri, @Nullable String[] projection, @Nullable String selection, @Nullable String[] selectionArgs, @Nullable String sortOrder) {
-        return null;
+    override fun query(
+        uri: Uri,
+        projection: Array<String?>?,
+        selection: String?,
+        selectionArgs: Array<String?>?,
+        sortOrder: String?
+    ): Cursor? {
+        return null
     }
 
-    @Nullable
-    @Override
-    public String getType(@NonNull Uri uri) {
-        return "";
+    override fun getType(uri: Uri): String {
+        return ""
     }
 
-    @Nullable
-    @Override
-    public Uri insert(@NonNull Uri uri, @Nullable ContentValues values) {
-        return null;
+    override fun insert(uri: Uri, values: ContentValues?): Uri? {
+        return null
     }
 
-    @Override
-    public int delete(@NonNull Uri uri, @Nullable String selection, @Nullable String[] selectionArgs) {
-        return 0;
+    override fun delete(uri: Uri, selection: String?, selectionArgs: Array<String?>?): Int {
+        return 0
     }
 
-    @Override
-    public int update(@NonNull Uri uri, @Nullable ContentValues values, @Nullable String selection, @Nullable String[] selectionArgs) {
-        return 0;
+    override fun update(
+        uri: Uri,
+        values: ContentValues?,
+        selection: String?,
+        selectionArgs: Array<String?>?
+    ): Int {
+        return 0
     }
 }

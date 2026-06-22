@@ -1,15 +1,12 @@
-package com.wmods.wppenhacer.xposed.bridge.client;
+package com.wmods.wppenhacer.xposed.bridge.client
 
-import com.wmods.wppenhacer.xposed.bridge.WaeIIFace;
+import com.wmods.wppenhacer.xposed.bridge.WaeIIFace
+import java.util.concurrent.CompletableFuture
 
-import java.util.concurrent.CompletableFuture;
+abstract class BaseClient {
+    abstract val service: WaeIIFace?
 
-public abstract class BaseClient {
+    abstract fun connect(): CompletableFuture<Boolean>
 
-    public abstract WaeIIFace getService();
-
-    public abstract CompletableFuture<Boolean> connect();
-
-    public abstract void tryReconnect();
-
+    abstract fun tryReconnect()
 }

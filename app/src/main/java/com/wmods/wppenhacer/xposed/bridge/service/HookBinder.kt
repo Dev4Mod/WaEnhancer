@@ -1,63 +1,38 @@
-package com.wmods.wppenhacer.xposed.bridge.service;
+package com.wmods.wppenhacer.xposed.bridge.service
 
-import android.os.ParcelFileDescriptor;
-import android.os.RemoteException;
+import android.os.ParcelFileDescriptor
+import com.wmods.wppenhacer.xposed.bridge.WaeIIFace
+import java.io.File
+import java.io.FileNotFoundException
 
-import com.wmods.wppenhacer.xposed.bridge.WaeIIFace;
+object HookBinder : WaeIIFace.Stub() {
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-
-public class HookBinder extends WaeIIFace.Stub {
-
-    private static HookBinder mInstance;
-
-    public static HookBinder getInstance() {
-        if (mInstance == null) {
-            mInstance = new HookBinder();
-        }
-        return mInstance;
-    }
-
-    @Override
-    public ParcelFileDescriptor openFile(String path, boolean create) throws RemoteException {
-        File file = new File(path);
+    override fun openFile(path: String, create: Boolean): ParcelFileDescriptor? {
+        val file = File(path)
         if (!file.exists() && create) {
             try {
-                file.createNewFile();
-            } catch (Exception ignored) {
-                return null;
+                file.createNewFile()
+            } catch (_: Exception) {
+                return null
             }
         }
-        try {
-            return ParcelFileDescriptor.open(file, ParcelFileDescriptor.MODE_READ_WRITE);
-        } catch (FileNotFoundException e) {
-            return null;
+        return try {
+            ParcelFileDescriptor.open(file, ParcelFileDescriptor.MODE_READ_WRITE)
+        } catch (_: FileNotFoundException) {
+            null
         }
     }
 
-    @Override
-    public boolean createDir(String path) throws RemoteException {
-        File file = new File(path);
-        return file.mkdirs();
+    override fun createDir(path: String): Boolean {
+        val file = File(path)
+        return file.mkdirs()
     }
 
-    @Override
-    public boolean exists(String path) throws RemoteException {
-        return new File(path).exists();
+    override fun exists(path: String): Boolean {
+        return File(path).exists()
     }
 
-    @Override
-    public List listFiles(String path) throws RemoteException {
-        var files = new File(path).listFiles();
-        if (files == null) {
-            return Collections.emptyList();
-        }
-        return Arrays.asList(files);
+    override fun listFiles(path: String): List<File> {
+        return File(path).listFiles()?.toList() ?: emptyList()
     }
-
-
 }

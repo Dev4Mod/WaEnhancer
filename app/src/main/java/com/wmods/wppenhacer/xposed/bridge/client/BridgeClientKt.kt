@@ -22,7 +22,6 @@ import kotlinx.coroutines.CancellableContinuation
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
-import kotlinx.coroutines.cancel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.suspendCancellableCoroutine
@@ -32,16 +31,17 @@ import kotlinx.coroutines.withContext
 import kotlinx.coroutines.withTimeoutOrNull
 import java.util.concurrent.CompletableFuture
 import kotlin.coroutines.resume
+import kotlin.time.Duration.Companion.milliseconds
 
 class BridgeClientKt(private val context: Context) : BaseClient(), ServiceConnection {
 
-    private var service: WaeIIFace? = null
-    private val scope = CoroutineScope(Dispatchers.IO + SupervisorJob() + WaeCoroutineExceptionHandler)
+    override var service: WaeIIFace? = null
+    private val scope =
+        CoroutineScope(Dispatchers.IO + SupervisorJob() + WaeCoroutineExceptionHandler)
     private val connectionMutex = Mutex()
 
     private var connectionContinuation: CancellableContinuation<Boolean>? = null
 
-    override fun getService(): WaeIIFace? = service
 
     override fun connect(): CompletableFuture<Boolean> {
         val future = CompletableFuture<Boolean>()
@@ -69,7 +69,7 @@ class BridgeClientKt(private val context: Context) : BaseClient(), ServiceConnec
                 context.startActivity(intent)
             }.onFailure { XposedBridge.log("Failed to start ForceStartActivity: ${it.message}") }
 
-            val connected = withTimeoutOrNull(3000L) {
+            val connected = withTimeoutOrNull(3000L.milliseconds) {
                 suspendCancellableCoroutine<Boolean> { continuation ->
                     connectionContinuation = continuation
 
@@ -91,7 +91,7 @@ class BridgeClientKt(private val context: Context) : BaseClient(), ServiceConnec
                             )
                         } else {
                             val handlerThread = HandlerThread("BridgeClient").apply { start() }
-                            val handler = Handler(handlerThread.getLooper())
+                            val handler = Handler(handlerThread.looper)
 
                             XposedHelpers.callMethod(
                                 context, "bindServiceAsUser", intent, this@BridgeClientKt,
@@ -140,7 +140,7 @@ class BridgeClientKt(private val context: Context) : BaseClient(), ServiceConnec
                     success = true
                     return@repeat
                 }
-                delay(1500)
+                delay(1500.milliseconds)
             }
 
             withContext(Dispatchers.Main) {
@@ -148,10 +148,5 @@ class BridgeClientKt(private val context: Context) : BaseClient(), ServiceConnec
                 Utils.showToast(msg, Toast.LENGTH_SHORT)
             }
         }
-    }
-
-    fun onDestroy() {
-        scope.cancel()
-        runCatching { context.unbindService(this) }
     }
 }

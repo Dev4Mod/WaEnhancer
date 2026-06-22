@@ -1,7 +1,6 @@
 package com.wmods.wppenhacer.xposed.bridge.client
 
 import android.content.ComponentName
-import android.content.Context
 import android.content.Intent
 import android.provider.Settings
 import android.widget.Toast
@@ -16,7 +15,6 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.TimeoutCancellationException
-import kotlinx.coroutines.cancel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
@@ -24,18 +22,17 @@ import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.withTimeout
 import java.util.concurrent.CompletableFuture
+import kotlin.time.Duration.Companion.milliseconds
 
-class ProviderClientKt(private val context: Context) : BaseClient() {
+class ProviderClientKt : BaseClient() {
 
-    private var service: WaeIIFace? = null
+    override var service: WaeIIFace? = null
     private val scope = CoroutineScope(Dispatchers.IO + SupervisorJob() + WaeCoroutineExceptionHandler)
     private val reconnectMutex = Mutex()
 
-    override fun getService(): WaeIIFace? = service
 
-
-    override fun connect(): CompletableFuture<Boolean?> {
-        val future = CompletableFuture<Boolean?>()
+    override fun connect(): CompletableFuture<Boolean> {
+        val future = CompletableFuture<Boolean>()
         scope.launch {
             try {
                 val result = performConnection()
@@ -61,7 +58,7 @@ class ProviderClientKt(private val context: Context) : BaseClient() {
         }
 
         try {
-            withTimeout(3000L) {
+            withTimeout(3000L.milliseconds) {
                 val resolver = Utils.getApplication().contentResolver
                 val bundle =
                     resolver.call(Settings.System.CONTENT_URI, "WaEnhancer", "getHookBinder", null)
@@ -98,7 +95,7 @@ class ProviderClientKt(private val context: Context) : BaseClient() {
                         success = true
                         return@repeat
                     }
-                    delay(1000)
+                    delay(1000.milliseconds)
                 }
                 Utils.showToast(
                     if (success) "Reconnected to Bridge" else "Failed to reconnect to Bridge..",
@@ -106,9 +103,5 @@ class ProviderClientKt(private val context: Context) : BaseClient() {
                 )
             }
         }
-    }
-
-    fun onDestroy() {
-        scope.cancel()
     }
 }
