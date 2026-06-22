@@ -51,7 +51,7 @@ jobs:
         run: chmod +x gradlew
 
       - name: Build all variants
-        run: ./gradlew assembleWhatsappRelease assembleBusinessRelease
+        run: ./gradlew assembleWhatsappDebug assembleBusinessDebug
 
       - name: Upload to GitHub release
         uses: softprops/action-gh-release@v3
@@ -60,8 +60,8 @@ jobs:
           name: WaEnhancer ${{ steps.vars.outputs.version }}
           body_path: changelog.txt
           files: |
-            app/build/outputs/apk/whatsapp/release/WaEnhancer*.apk
-            app/build/outputs/apk/business/release/WaEnhancer-Business*.apk
+            app/build/outputs/apk/whatsapp/debug/WaEnhancer*.apk
+            app/build/outputs/apk/business/debug/WaEnhancer-Business*.apk
           tag_name: ${{ steps.vars.outputs.tag }}
 
       - name: Read changelog
