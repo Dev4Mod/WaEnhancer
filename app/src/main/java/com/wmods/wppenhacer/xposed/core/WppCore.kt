@@ -36,6 +36,7 @@ import java.util.Collections
 import java.util.concurrent.ConcurrentHashMap
 
 @SuppressLint("StaticFieldLeak")
+@Suppress("UNUSED")
 object WppCore {
     @JvmStatic
     val listenerActivity: ConcurrentHashMap.KeySetView<ActivityChangeState, Boolean> = ConcurrentHashMap.newKeySet<ActivityChangeState>()
@@ -69,7 +70,7 @@ object WppCore {
     @JvmStatic
     @Throws(Exception::class)
     fun initialize(loader: ClassLoader, pref: XSharedPreferences) {
-        privPrefs = Utils.getApplication().getSharedPreferences("WaGlobal", Context.MODE_PRIVATE)
+        privPrefs = Utils.application.getSharedPreferences("WaGlobal", Context.MODE_PRIVATE)
 
         // init UserJID
         val companionField = FMessageWpp.UserJid.TYPE_JID.getDeclaredField("Companion")
@@ -146,7 +147,7 @@ object WppCore {
         hookStatusToMessageMapper(loader)
 
         if (!pref.getBoolean("lite_mode", false)) {
-            initBridge(Utils.getApplication())
+            initBridge(Utils.application)
         }
     }
 
@@ -299,7 +300,7 @@ object WppCore {
     @JvmStatic
     fun loadWADatabase() {
         if (mWaDatabase != null) return
-        val dataDir = Utils.getApplication().filesDir.parentFile
+        val dataDir = Utils.application.filesDir.parentFile
         val database = File(dataDir, "databases/wa.db")
         if (database.exists()) {
             mWaDatabase = SQLiteDatabase.openDatabase(
@@ -335,11 +336,6 @@ object WppCore {
         Unobfuscator.findFirstClassUsingName(Utils.appClassLoader, StringMatchType.EndsWith,".SettingsDataUsageActivity")
     }
 
-
-    val textStatusComposerFragmentClass: Class<*> by lazy {
-        Unobfuscator.findFirstClassUsingName(Utils.appClassLoader, StringMatchType.EndsWith,".TextStatusComposerFragment")
-    }
-
     val voipManagerClass: Class<*> by lazy {
         Unobfuscator.findFirstClassUsingName(Utils.appClassLoader, StringMatchType.EndsWith,".Voip")
     }
@@ -361,7 +357,7 @@ object WppCore {
             }
         }
         val startupPrefs =
-            Utils.getApplication().getSharedPreferences("startup_prefs", Context.MODE_PRIVATE)
+            Utils.application.getSharedPreferences("startup_prefs", Context.MODE_PRIVATE)
         return startupPrefs.getInt("night_mode", 0)
     }
 
@@ -476,14 +472,14 @@ object WppCore {
     @JvmStatic
     fun getMyName(): String {
         val startupPrefs =
-            Utils.getApplication().getSharedPreferences("startup_prefs", Context.MODE_PRIVATE)
+            Utils.application.getSharedPreferences("startup_prefs", Context.MODE_PRIVATE)
         return startupPrefs.getString("push_name", "WhatsApp") ?: "WhatsApp"
     }
 
     @JvmStatic
     fun getMainPrefs(): SharedPreferences {
-        return Utils.getApplication().getSharedPreferences(
-            "${Utils.getApplication().packageName}_preferences_light", Context.MODE_PRIVATE
+        return Utils.application.getSharedPreferences(
+            "${Utils.application.packageName}_preferences_light", Context.MODE_PRIVATE
         )
     }
 
@@ -499,7 +495,7 @@ object WppCore {
 
     @JvmStatic
     fun getMyPhoto(): Drawable? {
-        val datafolder = Utils.getApplication().cacheDir.parentFile
+        val datafolder = Utils.application.cacheDir.parentFile
         val file = File(datafolder, "files/me.jpg")
         if (file.exists()) return Drawable.createFromPath(file.absolutePath)
         return null
@@ -652,9 +648,9 @@ object WppCore {
 
     @JvmStatic
     fun getRootWhatsAppDir(): File {
-        val mediaDirs = Utils.getApplication().externalMediaDirs
+        val mediaDirs = Utils.application.externalMediaDirs
         val appName =
-            Utils.getApplication().packageManager.getApplicationLabel(Utils.getApplication().applicationInfo)
+            Utils.application.packageManager.getApplicationLabel(Utils.application.applicationInfo)
         if (mediaDirs.isNotEmpty()) {
             val rootDir = File(mediaDirs[0], appName.toString())
             if (rootDir.exists()) return rootDir

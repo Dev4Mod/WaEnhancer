@@ -15,7 +15,7 @@ class MessageStore private constructor() {
     private var sqLiteDatabase: SQLiteDatabase? = null
 
     init {
-        val dbFile = File(Utils.getApplication().filesDir.parentFile, "/databases/msgstore.db")
+        val dbFile = File(Utils.application.filesDir.parentFile, "/databases/msgstore.db")
         if (dbFile.exists()) {
             sqLiteDatabase = SQLiteDatabase.openDatabase(
                 dbFile.absolutePath,
@@ -424,7 +424,7 @@ class MessageStore private constructor() {
         }
 
         val candidates = ArrayList<File>()
-        val app = Utils.getApplication()
+        val app = Utils.application
         val appName = app.applicationInfo.loadLabel(app.packageManager).toString()
         val mediaDirs = app.externalMediaDirs
 

@@ -42,7 +42,7 @@ class DownloadProfile(classLoader: ClassLoader, preferences: XSharedPreferences)
                         val fieldObj = ReflectionUtils.getObjectField(field, param.thisObject)
                         val waContact = WaContactWpp(fieldObj)
                         val userJid = waContact.userJid
-                        val inputStream = waContact.getProfilePhoto(true)
+                        val inputStream = waContact.getProfilePhoto(true) ?: return@OnMenuItemClickListener false
                         val destPath: String?
                         try {
                             destPath = Utils.getDestination("Profile Photo")
@@ -54,14 +54,14 @@ class DownloadProfile(classLoader: ClassLoader, preferences: XSharedPreferences)
                         val error = Utils.copyFile(inputStream, destPath, name)
                         if (TextUtils.isEmpty(error)) {
                             Toast.makeText(
-                                Utils.getApplication(),
-                                Utils.getApplication().getString(R.string.saved_to) + destPath,
+                                Utils.application,
+                                Utils.application.getString(R.string.saved_to) + destPath,
                                 Toast.LENGTH_LONG
                             ).show()
                         } else {
                             Toast.makeText(
-                                Utils.getApplication(),
-                                Utils.getApplication()
+                                Utils.application,
+                                Utils.application
                                     .getString(R.string.error_when_saving_try_again) + " " + error,
                                 Toast.LENGTH_LONG
                             ).show()
@@ -72,7 +72,7 @@ class DownloadProfile(classLoader: ClassLoader, preferences: XSharedPreferences)
             })
     }
 
-    public override fun getPluginName(): String {
+    override fun getPluginName(): String {
         return "Download Profile Picture"
     }
 }

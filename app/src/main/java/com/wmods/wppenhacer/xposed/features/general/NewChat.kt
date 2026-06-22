@@ -81,7 +81,7 @@ class NewChat(loader: ClassLoader, preferences: XSharedPreferences) : Feature(lo
                                     number.replace("[+\\-()/\\s]".toRegex(), "")
                                 val intent = Intent(Intent.ACTION_VIEW)
                                 intent.data = ("https://wa.me/$numberFomatted").toUri()
-                                intent.setPackage(Utils.getApplication().packageName)
+                                intent.setPackage(Utils.application.packageName)
                                 activity.startActivity(intent)
                             }
                             .setNegativeButton(activity.getString(R.string.cancel), null)

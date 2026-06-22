@@ -362,7 +362,7 @@ class CustomThemeV2(loader: ClassLoader, preferences: XSharedPreferences) :
         }
         if (colorRes == 0) return 0
         return try {
-            ContextCompat.getColor(Utils.getApplication(), colorRes)
+            ContextCompat.getColor(Utils.application, colorRes)
         } catch (_: Throwable) {
             0
         }

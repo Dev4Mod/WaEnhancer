@@ -10,8 +10,6 @@ import android.content.SharedPreferences
 import android.net.Uri
 import android.os.Build
 import android.os.Environment
-import android.os.Handler
-import android.os.Looper
 import android.provider.Settings
 import android.util.Log
 import androidx.appcompat.app.AppCompatDelegate
@@ -21,12 +19,9 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.wmods.wppenhacer.activities.CrashReportActivity
 import com.wmods.wppenhacer.xposed.utils.Utils
 import de.robv.android.xposed.XposedHelpers
-import lombok.Getter
 import rikka.material.app.LocaleDelegate.Companion.defaultLocale
 import java.io.File
 import java.util.Locale
-import java.util.concurrent.ExecutorService
-import java.util.concurrent.Executors
 
 class App : Application() {
     @SuppressLint("ApplySharedPref")
@@ -89,15 +84,17 @@ class App : Application() {
                 getString(R.string.device_model) + ": " + deviceModel
     }
 
+    fun restartApp(packageWpp: String) {
+        val intent = Intent(BuildConfig.APPLICATION_ID + ".WHATSAPP.RESTART").apply {
+            putExtra("PKG", packageWpp)
+        }
+        sendBroadcast(intent)
+    }
+
     companion object {
-        @Getter
-        private var instance: App? = null
 
-        @Getter
-        private val executorService: ExecutorService? = Executors.newCachedThreadPool()
-
-        @Getter
-        private val mainHandler = Handler(Looper.getMainLooper())
+        @JvmField
+        var instance: App? = null
 
         @JvmStatic
         fun showRequestStoragePermission(activity: Activity) {

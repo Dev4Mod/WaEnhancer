@@ -138,7 +138,7 @@ class ShowEditMessage(loader: ClassLoader, preferences: XSharedPreferences) :
                 LinearLayout.LayoutParams.MATCH_PARENT
             )
             linearLayout.fitsSystemWindows = true
-            linearLayout.minimumHeight = (Utils.getApplication().resources
+            linearLayout.minimumHeight = (Utils.application.resources
                 .displayMetrics.heightPixels / 4).also { layoutParams.height = it }
             linearLayout.layoutParams = layoutParams
             val dip = Utils.dipToPixels(20)

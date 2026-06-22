@@ -70,7 +70,7 @@ class StatusDownload(loader: ClassLoader, preferences: XSharedPreferences) : Fea
                     clazz = Unobfuscator.findFirstClassUsingName(classLoader, StringMatchType.EndsWith, "ConsolidatedStatusComposerActivity")
                     intent.putExtra("status_composer_mode", 2)
                 }
-                intent.setClassName(Utils.getApplication().packageName, clazz.name)
+                intent.setClassName(Utils.application.packageName, clazz.name)
                 intent.putExtra("android.intent.extra.TEXT", fMessage?.messageStr)
                 WppCore.getCurrentActivity()?.startActivity(intent)
                 return
@@ -84,7 +84,7 @@ class StatusDownload(loader: ClassLoader, preferences: XSharedPreferences) : Fea
 
             val intent = Intent()
             val clazz = Unobfuscator.findFirstClassUsingName(classLoader, StringMatchType.EndsWith, "MediaComposerActivity")
-            intent.setClassName(Utils.getApplication().packageName, clazz.name)
+            intent.setClassName(Utils.application.packageName, clazz.name)
             intent.putExtra("jids", arrayListOf("status@broadcast"))
             intent.putExtra("android.intent.extra.STREAM", arrayListOf(Uri.fromFile(file)))
             intent.putExtra("android.intent.extra.TEXT", fMessage?.messageStr)

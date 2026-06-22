@@ -36,7 +36,7 @@ class DownloadViewOnce(classLoader: ClassLoader, preferences: XSharedPreferences
 
                     // check media is view once
                     if (!fMessage.isViewOnce) return
-                    val menu = ReflectionUtils.getArg<Menu?>(param.args, Menu::class.java, 0)
+                    val menu = ReflectionUtils.getArg(param.args, Menu::class.java, 0)
                     val item = menu!!.add(0, 0, 0, R.string.download).setIcon(R.drawable.download)
                     item.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS)
                     item.setOnMenuItemClickListener {
@@ -44,7 +44,7 @@ class DownloadViewOnce(classLoader: ClassLoader, preferences: XSharedPreferences
                             val file = fMessage.mediaFile
                             if (file == null) {
                                 Utils.showToast(
-                                    Utils.getApplication()
+                                    Utils.application
                                         .getString(R.string.download_not_available), 1
                                 )
                                 return@setOnMenuItemClickListener true
@@ -81,7 +81,7 @@ class DownloadViewOnce(classLoader: ClassLoader, preferences: XSharedPreferences
                                 val file = fmessage!!.mediaFile
                                 if (file == null) {
                                     Utils.showToast(
-                                        Utils.getApplication()
+                                        Utils.application
                                             .getString(R.string.download_not_available), 1
                                     )
                                     return@runAsync
@@ -99,7 +99,7 @@ class DownloadViewOnce(classLoader: ClassLoader, preferences: XSharedPreferences
         }
     }
 
-    public override fun getPluginName(): String {
+    override fun getPluginName(): String {
         return "Download View Once"
     }
 
@@ -109,16 +109,16 @@ class DownloadViewOnce(classLoader: ClassLoader, preferences: XSharedPreferences
             val dest = Utils.getDestination("View Once")
             val fileExtension =
                 file.absolutePath.substring(file.absolutePath.lastIndexOf(".") + 1)
-            val name = Utils.generateName(userJid, fileExtension)
+            val name = Utils.generateName(userJid!!, fileExtension)
             val error = Utils.copyFile(file, dest, name)
             if (TextUtils.isEmpty(error)) {
                 Utils.showToast(
-                    Utils.getApplication().getString(R.string.saved_to) + dest,
+                    Utils.application.getString(R.string.saved_to) + dest,
                     Toast.LENGTH_LONG
                 )
             } else {
                 Utils.showToast(
-                    Utils.getApplication()
+                    Utils.application
                         .getString(R.string.error_when_saving_try_again) + ":" + error,
                     Toast.LENGTH_LONG
                 )

@@ -395,8 +395,8 @@ class Others(loader: ClassLoader, preferences: XSharedPreferences) : Feature(loa
         val contact = WppCore.getContactName(userJid)
         val number = userJid.phoneNumber
         if (!TextUtils.isEmpty(contact))
-            sb.append(String.format(Utils.getApplication().getString(R.string.contact_s), contact)).append("\n")
-        sb.append(String.format(Utils.getApplication().getString(R.string.phone_number_s), number)).append("\n")
+            sb.append(String.format(Utils.application.getString(R.string.contact_s), contact)).append("\n")
+        sb.append(String.format(Utils.application.getString(R.string.phone_number_s), number)).append("\n")
         
         val ip = XposedHelpers.getObjectField(wamCall, "callPeerIpStr") as String?
         if (ip != null) {
@@ -407,18 +407,18 @@ class Others(loader: ClassLoader, preferences: XSharedPreferences) : Feature(loa
             val json = JSONObject(content)
             val country = json.getString("country")
             val city = json.getString("city")
-            sb.append(String.format(Utils.getApplication().getString(R.string.country_s), country)).append("\n")
-              .append(String.format(Utils.getApplication().getString(R.string.city_s), city)).append("\n")
-              .append(String.format(Utils.getApplication().getString(R.string.ip_s), ip)).append("\n")
+            sb.append(String.format(Utils.application.getString(R.string.country_s), country)).append("\n")
+              .append(String.format(Utils.application.getString(R.string.city_s), city)).append("\n")
+              .append(String.format(Utils.application.getString(R.string.ip_s), ip)).append("\n")
         }
         val platform = XposedHelpers.getObjectField(wamCall, "callPeerPlatform") as String?
         if (platform != null)
-            sb.append(String.format(Utils.getApplication().getString(R.string.platform_s), platform)).append("\n")
+            sb.append(String.format(Utils.application.getString(R.string.platform_s), platform)).append("\n")
         val wppVersion = XposedHelpers.getObjectField(wamCall, "callPeerAppVersion") as String?
         if (wppVersion != null)
-            sb.append(String.format(Utils.getApplication().getString(R.string.wpp_version_s), wppVersion)).append("\n")
+            sb.append(String.format(Utils.application.getString(R.string.wpp_version_s), wppVersion)).append("\n")
         
-        Utils.showNotification(Utils.getApplication().getString(R.string.call_information), sb.toString())
+        Utils.showNotification(Utils.application.getString(R.string.call_information), sb.toString())
     }
 
     private fun alwaysOnline() {
@@ -613,7 +613,7 @@ class Others(loader: ClassLoader, preferences: XSharedPreferences) : Feature(loa
     }
 
     private fun disableDefemojis() {
-        val assetsClass = Utils.getApplication().resources.assets.javaClass
+        val assetsClass = Utils.application.resources.assets.javaClass
         XposedBridge.hookAllMethods(assetsClass,"openFd", object : XC_MethodHook() {
             override fun beforeHookedMethod(param: MethodHookParam) {
                 val name = param.args[0] as String
@@ -656,7 +656,7 @@ class Others(loader: ClassLoader, preferences: XSharedPreferences) : Feature(loa
                 val waContact = WaContactWpp.getWaContactFromJid(userjid)
                 val name = waContact?.displayName ?: "Unknown"
                 if (showOnline)
-                    Utils.showToast(String.format(Utils.getApplication().getString(R.string.toast_online), name), Toast.LENGTH_SHORT)
+                    Utils.showToast(String.format(Utils.application.getString(R.string.toast_online), name), Toast.LENGTH_SHORT)
                 Tasker.sendTaskerEvent(name, WppCore.stripJID(jid), "contact_online")
             }
         })

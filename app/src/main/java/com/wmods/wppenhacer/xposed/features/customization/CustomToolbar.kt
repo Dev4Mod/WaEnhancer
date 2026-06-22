@@ -151,7 +151,7 @@ class CustomToolbar(loader: ClassLoader, preferences: XSharedPreferences) : Feat
                 "ArchivedConversationsActivity"
             )
             return Intent().apply {
-                setClassName(Utils.getApplication().packageName, archivedClass.name)
+                setClassName(Utils.application.packageName, archivedClass.name)
             }
         }
 

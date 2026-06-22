@@ -406,7 +406,7 @@ class CallRecording(
     ): RecorderSelection? {
         for (i in audioSources.indices) {
             val testRecorder = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-                MediaRecorder(Utils.getApplication())
+                MediaRecorder(Utils.application)
             } else {
                 @Suppress("DEPRECATION")
                 MediaRecorder()

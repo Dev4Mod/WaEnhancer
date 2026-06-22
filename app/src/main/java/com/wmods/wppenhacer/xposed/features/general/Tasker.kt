@@ -34,7 +34,7 @@ class Tasker(loader: ClassLoader, preferences: XSharedPreferences) : Feature(loa
     private fun registerSenderMessage() {
         val filter = IntentFilter("com.wmods.wppenhacer.MESSAGE_SENT")
         ContextCompat.registerReceiver(
-            Utils.getApplication(), SenderMessageBroadcastReceiver(), filter,
+            Utils.application, SenderMessageBroadcastReceiver(), filter,
             ContextCompat.RECEIVER_EXPORTED
         )
     }
@@ -52,12 +52,12 @@ class Tasker(loader: ClassLoader, preferences: XSharedPreferences) : Feature(loa
                 val number = userJid.phoneNumber ?: return
                 val msg = fMsg.messageStr ?: return
                 if (TextUtils.isEmpty(msg) || userJid.isStatus) return
-                Handler(Utils.getApplication().mainLooper).post {
+                Handler(Utils.application.mainLooper).post {
                     val intent = Intent("com.wmods.wppenhacer.MESSAGE_RECEIVED")
                     intent.putExtra("number", number)
                     intent.putExtra("name", name)
                     intent.putExtra("message", msg)
-                    Utils.getApplication().sendBroadcast(intent)
+                    Utils.application.sendBroadcast(intent)
                 }
             }
         })
@@ -73,7 +73,7 @@ class Tasker(loader: ClassLoader, preferences: XSharedPreferences) : Feature(loa
             intent.putExtra("name", name)
             intent.putExtra("number", number)
             intent.putExtra("event", event)
-            Utils.getApplication().sendBroadcast(intent)
+            Utils.application.sendBroadcast(intent)
         }
     }
 

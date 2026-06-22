@@ -66,7 +66,7 @@ public abstract class BasePreferenceFragment extends PreferenceFragmentCompat
     @Override
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, @Nullable String s) {
         Intent intent = new Intent(BuildConfig.APPLICATION_ID + ".MANUAL_RESTART");
-        App.getInstance().sendBroadcast(intent);
+        App.instance.sendBroadcast(intent);
         chanceStates(s);
     }
 

@@ -103,7 +103,7 @@ class UnobfuscatorCache private constructor(private val mApplication: Applicatio
 
     private fun initializeReverseResourceMap() {
         try {
-            val app = Utils.getApplication()
+            val app = Utils.application
             val source = app.applicationInfo.sourceDir
             val table = ArscUtils.getResourceTable(File(source))
             val pool = table.stringPool
@@ -141,7 +141,7 @@ class UnobfuscatorCache private constructor(private val mApplication: Applicatio
         try {
             val configuration = Configuration(mApplication.resources.configuration)
             configuration.setLocale(Locale.ENGLISH)
-            val context = Utils.getApplication().createConfigurationContext(configuration)
+            val context = Utils.application.createConfigurationContext(configuration)
             val resources = context.resources
             val startId = 0x7f120000
             val endId = 0x7f12ffff

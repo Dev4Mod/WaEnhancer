@@ -83,7 +83,7 @@ class MessageHistoryStore private constructor(context: Context) {
         @JvmStatic
         fun getInstance(): MessageHistoryStore {
             return mInstance ?: synchronized(this) {
-                mInstance ?: MessageHistoryStore(Utils.getApplication()).also { mInstance = it }
+                mInstance ?: MessageHistoryStore(Utils.application).also { mInstance = it }
             }
         }
 

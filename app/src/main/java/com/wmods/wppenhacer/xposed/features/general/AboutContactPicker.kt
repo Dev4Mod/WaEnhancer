@@ -597,7 +597,7 @@ class AboutContactPicker(loader: ClassLoader, preferences: XSharedPreferences) :
             swipeRefreshLayout?.isRefreshing = true
 
             val preservedSelection = LinkedHashSet(selectedJids)
-            Utils.getExecutor().execute {
+            Utils.executor.execute {
                 try {
                     val loadedItems = ContactPickerDataProvider.loadPickerItems(
                         activity,
@@ -715,7 +715,7 @@ class AboutContactPicker(loader: ClassLoader, preferences: XSharedPreferences) :
 
             val placeholder = createAvatarPlaceholder(item)
             if (avatarLoading.add(item.jid)) {
-                Utils.getExecutor().execute {
+                Utils.executor.execute {
                     val drawable = loadAvatarDrawable(item)
                     if (drawable != null) {
                         avatarCache[item.jid] = drawable

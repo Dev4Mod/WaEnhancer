@@ -155,7 +155,7 @@ class MenuHome(classLoader: ClassLoader, preferences: XSharedPreferences) :
             return
         }
         val item = menu.add(0, 0, 0, activity.getString(R.string.dnd_mode_title))
-        val drawable = Utils.getApplication()
+        val drawable = Utils.application
             .getDrawable(if (dndmode) R.drawable.airplane_enabled else R.drawable.airplane_disabled)
         if (drawable != null) {
             drawable.setTint(if (newSettings) DesignUtils.getPrimaryTextColor() else -0x796960)
@@ -194,7 +194,7 @@ class MenuHome(classLoader: ClassLoader, preferences: XSharedPreferences) :
         }
 
         val item = menu.add(0, 0, 0, activity.getString(R.string.freezelastseen_title))
-        val drawable = Utils.getApplication()
+        val drawable = Utils.application
             .getDrawable(if (freezelastseen) R.drawable.eye_disabled else R.drawable.eye_enabled)
         if (drawable != null) {
             drawable.setTint(if (newSettings) DesignUtils.getPrimaryTextColor() else -0x796960)

@@ -49,7 +49,7 @@ class ProviderClientKt : BaseClient() {
 
         try {
             withTimeout(3000L.milliseconds) {
-                val resolver = Utils.getApplication().contentResolver
+                val resolver = Utils.application.contentResolver
                 val bundle =
                     resolver.call(Settings.System.CONTENT_URI, "WaEnhancer", "getHookBinder", null)
                 val binder = bundle?.getBinder("binder")

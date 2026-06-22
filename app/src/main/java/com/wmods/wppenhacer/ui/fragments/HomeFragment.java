@@ -83,13 +83,13 @@ public class HomeFragment extends BaseFragment {
 
         binding.rebootBtn.setOnClickListener(view -> {
             animateClick(view);
-            App.getInstance().restartApp(FeatureLoader.PACKAGE_WPP);
+            App.instance.restartApp(FeatureLoader.PACKAGE_WPP);
             disableWpp(requireActivity());
         });
 
         binding.rebootBtn2.setOnClickListener(view -> {
             animateClick(view);
-            App.getInstance().restartApp(FeatureLoader.PACKAGE_BUSINESS);
+            App.instance.restartApp(FeatureLoader.PACKAGE_BUSINESS);
             disableBusiness(requireActivity());
         });
 
@@ -202,8 +202,8 @@ public class HomeFragment extends BaseFragment {
     private void resetConfigs(Context context) {
         var prefs = PreferenceManager.getDefaultSharedPreferences(context);
         prefs.getAll().forEach((key, value) -> prefs.edit().remove(key).apply());
-        App.getInstance().restartApp(FeatureLoader.PACKAGE_WPP);
-        App.getInstance().restartApp(FeatureLoader.PACKAGE_BUSINESS);
+        App.instance.restartApp(FeatureLoader.PACKAGE_WPP);
+        App.instance.restartApp(FeatureLoader.PACKAGE_BUSINESS);
         Utils.showToast(context.getString(R.string.configs_reset), Toast.LENGTH_SHORT);
     }
 
@@ -282,8 +282,8 @@ public class HomeFragment extends BaseFragment {
                     }
                 }
                 Toast.makeText(context, context.getString(R.string.configs_imported), Toast.LENGTH_SHORT).show();
-                App.getInstance().restartApp(FeatureLoader.PACKAGE_WPP);
-                App.getInstance().restartApp(FeatureLoader.PACKAGE_BUSINESS);
+                App.instance.restartApp(FeatureLoader.PACKAGE_WPP);
+                App.instance.restartApp(FeatureLoader.PACKAGE_BUSINESS);
             } catch (Exception e) {
                 Log.e("importConfigs", e.getMessage(), e);
                 Toast.makeText(context, e.getMessage(), Toast.LENGTH_SHORT).show();
@@ -328,7 +328,7 @@ public class HomeFragment extends BaseFragment {
 
     private boolean isInstalled(String packageWpp) {
         try {
-            App.getInstance().getPackageManager().getPackageInfo(packageWpp, 0);
+            App.instance.getPackageManager().getPackageInfo(packageWpp, 0);
             return true;
         } catch (Exception ignored) {
         }

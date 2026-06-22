@@ -31,7 +31,7 @@ class CopyStatus(classLoader: ClassLoader, preferences: XSharedPreferences) :
                 caption?.setOnLongClickListener {
                     Utils.setToClipboard(caption.text.toString())
                     Utils.showToast(
-                        Utils.getApplication().getString(R.string.copied_to_clipboard),
+                        Utils.application.getString(R.string.copied_to_clipboard),
                         Toast.LENGTH_LONG
                     )
                     true
@@ -48,7 +48,7 @@ class CopyStatus(classLoader: ClassLoader, preferences: XSharedPreferences) :
                 text?.setOnLongClickListener {
                     Utils.setToClipboard(text.text.toString())
                     Utils.showToast(
-                        Utils.getApplication().getString(R.string.copied_to_clipboard),
+                        Utils.application.getString(R.string.copied_to_clipboard),
                         Toast.LENGTH_LONG
                     )
                     true

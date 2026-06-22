@@ -79,7 +79,7 @@ class WppXposed : IXposedHookLoadPackage, IXposedHookInitPackageResources, IXpos
 
         ScopeHook.hook(lpparam)
 
-        if ((packageName == FeatureLoader.PACKAGE_WPP && App.isOriginalPackage()) || packageName == FeatureLoader.PACKAGE_BUSINESS) {
+        if ((packageName == FeatureLoader.PACKAGE_WPP && App.isOriginalPackage) || packageName == FeatureLoader.PACKAGE_BUSINESS) {
             if (lpparam.isFirstApplication) { // I believe this may fix the problem when using multiple accounts, not yet tested
                 XposedBridge.log("[•] This package: ${lpparam.packageName}")
                 FeatureLoader.start(classLoader, getPref(), lpparam.appInfo.sourceDir)

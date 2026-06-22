@@ -63,7 +63,7 @@ class ToastViewer(classLoader: ClassLoader, preferences: XSharedPreferences) :
                 val contactName = waContactWpp!!.displayName
                 if (toastViewedStatus) {
                     Utils.showToast(
-                        Utils.getApplication().getString(R.string.viewed_your_status, contactName),
+                        Utils.application.getString(R.string.viewed_your_status, contactName),
                         Toast.LENGTH_LONG
                     )
                 }
@@ -155,7 +155,7 @@ class ToastViewer(classLoader: ClassLoader, preferences: XSharedPreferences) :
                 if (participantHash != null) {
                     if (toastViewedStatus) {
                         Utils.showToast(
-                            Utils.getApplication()
+                            Utils.application
                                 .getString(R.string.viewed_your_status, contactName),
                             Toast.LENGTH_LONG
                         )
@@ -188,7 +188,7 @@ class ToastViewer(classLoader: ClassLoader, preferences: XSharedPreferences) :
                             Tasker.sendTaskerEvent(contactName, stripJID(rawJid), "viewed_message")
                             if (toastViewedMessage) {
                                 Utils.showToast(
-                                    Utils.getApplication()
+                                    Utils.application
                                         .getString(R.string.viewed_your_message, contactName),
                                     Toast.LENGTH_LONG
                                 )

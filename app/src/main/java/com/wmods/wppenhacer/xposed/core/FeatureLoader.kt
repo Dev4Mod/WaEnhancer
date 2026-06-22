@@ -319,7 +319,7 @@ class FeatureLoader {
             WaContactWpp.initialize(loader)
             WppCore.initialize(loader, pref)
             DesignUtils.setPrefs(pref)
-            Utils.init(loader)
+            Utils.init()
 
             WppCore.addListenerActivity(object : WppCore.ActivityChangeState {
                 override fun onChange(
@@ -334,7 +334,7 @@ class FeatureLoader {
                         checkPrefsLoad(pref, activity)
                     }
 
-                    if (App.isOriginalPackage() && pref.getBoolean("update_check", true)) {
+                    if (App.isOriginalPackage && pref.getBoolean("update_check", true)) {
                         if (activity.javaClass.simpleName == "HomeActivity" && type == WppCore.ActivityChangeState.ChangeType.RESUMED) {
                             if (pref.getBoolean("lite_mode",false)) return
                             activity.window.decorView.postDelayed({

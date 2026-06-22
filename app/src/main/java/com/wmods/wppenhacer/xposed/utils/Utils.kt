@@ -1,393 +1,392 @@
-package com.wmods.wppenhacer.xposed.utils;
+package com.wmods.wppenhacer.xposed.utils
 
-import android.annotation.SuppressLint;
-import android.app.Activity;
-import android.app.Application;
-import android.app.NotificationChannel;
-import android.app.NotificationManager;
-import android.content.ClipData;
-import android.content.ClipboardManager;
-import android.content.ComponentName;
-import android.content.ContentResolver;
-import android.content.Context;
-import android.content.Intent;
-import android.content.pm.PackageManager;
-import android.media.MediaScannerConnection;
-import android.net.Uri;
-import android.os.Binder;
-import android.os.Handler;
-import android.os.Looper;
-import android.text.TextUtils;
-import android.util.DisplayMetrics;
-import android.util.TypedValue;
-import android.widget.Toast;
+import android.annotation.SuppressLint
+import android.app.Activity
+import android.app.Application
+import android.app.NotificationChannel
+import android.app.NotificationManager
+import android.content.ClipData
+import android.content.ClipboardManager
+import android.content.ContentResolver
+import android.content.Context
+import android.content.Intent
+import android.media.MediaScannerConnection
+import android.net.Uri
+import android.os.Binder
+import android.os.Handler
+import android.os.Looper
+import android.text.TextUtils
+import android.util.TypedValue
+import android.widget.Toast
+import androidx.core.app.NotificationCompat
+import androidx.core.app.NotificationManagerCompat
+import androidx.core.net.toUri
+import androidx.documentfile.provider.DocumentFile
+import com.wmods.wppenhacer.App
+import com.wmods.wppenhacer.WppXposed.Companion.getPref
+import com.wmods.wppenhacer.xposed.core.FeatureLoader
+import com.wmods.wppenhacer.xposed.core.WppCore.getClientBridge
+import com.wmods.wppenhacer.xposed.core.WppCore.getContactName
+import com.wmods.wppenhacer.xposed.core.WppCore.getPrivString
+import com.wmods.wppenhacer.xposed.core.components.FMessageWpp.UserJid
+import de.robv.android.xposed.XSharedPreferences
+import de.robv.android.xposed.XposedBridge
+import java.io.File
+import java.io.FileInputStream
+import java.io.FileOutputStream
+import java.io.InputStream
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
+import java.util.Properties
+import java.util.Random
+import java.util.concurrent.ExecutorService
+import java.util.concurrent.Executors
+import java.util.regex.Pattern
 
-import androidx.annotation.NonNull;
-import androidx.core.app.NotificationCompat;
-import androidx.core.app.NotificationManagerCompat;
-import androidx.documentfile.provider.DocumentFile;
+object Utils {
+    lateinit var xprefs: XSharedPreferences
+    private val ids = HashMap<String?, Int?>()
+    lateinit var appClassLoader: ClassLoader
 
-import com.wmods.wppenhacer.App;
-import com.wmods.wppenhacer.WppXposed;
-import com.wmods.wppenhacer.xposed.core.FeatureLoader;
-import com.wmods.wppenhacer.xposed.core.WppCore;
-import com.wmods.wppenhacer.xposed.core.components.FMessageWpp;
-
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Locale;
-import java.util.Objects;
-import java.util.Properties;
-import java.util.Random;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
-import de.robv.android.xposed.XSharedPreferences;
-import de.robv.android.xposed.XposedBridge;
-
-public class Utils {
-
-    private static final ExecutorService executorService = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
-    public static XSharedPreferences xprefs;
-    private static final HashMap<String, Integer> ids = new HashMap<>();
-    public static ClassLoader appClassLoader;
-
-    public static void init(ClassLoader loader) {
-        var context = Utils.getApplication();
-        var notificationManager = NotificationManagerCompat.from(context);
-        var channel = new NotificationChannel("wppenhacer", "WAE Enhancer", NotificationManager.IMPORTANCE_HIGH);
-        notificationManager.createNotificationChannel(channel);
+    fun init() {
+        val context: Application = application
+        val notificationManager = NotificationManagerCompat.from(context)
+        val channel =
+            NotificationChannel("wppenhacer", "WAE Enhancer", NotificationManager.IMPORTANCE_HIGH)
+        notificationManager.createNotificationChannel(channel)
     }
 
 
-    @NonNull
-    public static Application getApplication() {
-        return FeatureLoader.mApp == null ? App.getInstance() : FeatureLoader.mApp;
+    @JvmStatic
+    val application: Application
+        get() = FeatureLoader.mApp ?: App.instance!!
+
+    fun getString(id: Int): String {
+        return application.getString(id)
     }
 
-    public static String getString(int id) {
-        return Utils.getApplication().getString(id);
+
+    val executor: ExecutorService by lazy {
+         Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
     }
 
-    public static ExecutorService getExecutor() {
-        return executorService;
-    }
-
-    public static boolean doRestart(Context context) {
-        PackageManager packageManager = context.getPackageManager();
-        Intent intent = packageManager.getLaunchIntentForPackage(context.getPackageName());
-        if (intent == null)
-            return false;
-        ComponentName componentName = intent.getComponent();
-        Intent mainIntent = Intent.makeRestartActivityTask(componentName);
-        mainIntent.setPackage(context.getPackageName());
-        context.startActivity(mainIntent);
-        Runtime.getRuntime().exit(0);
-        return true;
+    @JvmStatic
+    fun doRestart(context: Context): Boolean {
+        val packageManager = context.packageManager
+        val intent =
+            packageManager.getLaunchIntentForPackage(context.packageName) ?: return false
+        val componentName = intent.component
+        val mainIntent = Intent.makeRestartActivityTask(componentName)
+        mainIntent.setPackage(context.packageName)
+        context.startActivity(mainIntent)
+        Runtime.getRuntime().exit(0)
+        return true
     }
 
     /**
      * Retrieves the resource ID by name and type.
      * Uses caching to improve performance for repeated lookups.
-     *
+     * 
      * @param name The resource name to look up
      * @param type The resource type (e.g., "id", "drawable", "layout", "string")
      * @return The resource ID or -1 if not found or an error occurred
      */
+    @JvmStatic
     @SuppressLint("DiscouragedApi")
-    public static int getID(String name, String type) {
-
+    fun getID(name: String?, type: String?): Int {
         if (TextUtils.isEmpty(name) || TextUtils.isEmpty(type)) {
-            return -1;
+            return -1
         }
 
-        final String key = type + "_" + name;
+        val key = type + "_" + name
 
-        synchronized (ids) {
+        synchronized(ids) {
             if (ids.containsKey(key)) {
-                Integer cachedId = ids.get(key);
-                return cachedId != null ? cachedId : -1;
+                val cachedId = ids[key]
+                return cachedId ?: -1
             }
         }
 
         try {
-            Application app = getApplication();
-            Context context = app.getApplicationContext();
-            int id = context.getResources().getIdentifier(name, type, app.getPackageName());
+            val app: Application = application
+            val context = app.applicationContext
+            val id = context.resources.getIdentifier(name, type, app.packageName)
 
-            synchronized (ids) {
-                ids.put(key, id);
+            synchronized(ids) {
+                ids.put(key, id)
             }
 
-            return id;
-        } catch (Exception e) {
-            XposedBridge.log("Error getting resource ID: type=" + type + ", name=" + name + ", error: " + e.getMessage());
-            return -1;
+            return id
+        } catch (e: Exception) {
+            XposedBridge.log("Error getting resource ID: type=" + type + ", name=" + name + ", error: " + e.message)
+            return -1
         }
     }
 
-    public static int dipToPixels(int dipValue) {
-        DisplayMetrics metrics = FeatureLoader.mApp.getResources().getDisplayMetrics();
-        return (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, dipValue, metrics);
+    @JvmStatic
+    fun dipToPixels(dipValue: Int): Int {
+        val metrics = FeatureLoader.mApp!!.resources.displayMetrics
+        return TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, dipValue.toFloat(), metrics)
+            .toInt()
     }
 
 
-    public static int dipToPixels(float dipValue) {
-        DisplayMetrics metrics = FeatureLoader.mApp.getResources().getDisplayMetrics();
-        return (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, dipValue, metrics);
+    @JvmStatic
+    fun dipToPixels(dipValue: Float): Int {
+        val metrics = FeatureLoader.mApp!!.resources.displayMetrics
+        return TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, dipValue, metrics).toInt()
     }
 
-    public static String getMyNumber() {
-        return FeatureLoader.mApp.getSharedPreferences(FeatureLoader.mApp.getPackageName() + "_preferences_light", Context.MODE_PRIVATE).getString("ph", "");
-    }
-
-    public static String getDateTimeFromMillis(long timestamp) {
-        return new SimpleDateFormat("dd/MM/yyyy hh:mm:ss a", Locale.getDefault()).format(new Date(timestamp));
+    @JvmStatic
+    fun getDateTimeFromMillis(timestamp: Long): String {
+        return SimpleDateFormat(
+            "dd/MM/yyyy hh:mm:ss a",
+            Locale.getDefault()
+        ).format(Date(timestamp))
     }
 
     @SuppressLint("SdCardPath")
-    public static String getDestination(String name) throws Exception {
-        if (xprefs.getBoolean("lite_mode", false)) {
-            var folder = WppCore.getPrivString("download_folder", null);
-            if (folder == null)
-                throw new Exception("Download Folder is not selected!");
-            var documentFile = DocumentFile.fromTreeUri(Utils.getApplication(), Uri.parse(folder));
-            var wppFolder = Utils.getURIFolderByName(documentFile, "WhatsApp", true);
-            var nameFolder = Utils.getURIFolderByName(wppFolder, name, true);
-            if (nameFolder == null)
-                throw new Exception("Folder not found!");
-            return folder + "/WhatsApp/" + name;
+    fun getDestination(name: String): String {
+        if (xprefs!!.getBoolean("lite_mode", false)) {
+            val folder = getPrivString("download_folder", null)
+                ?: throw Exception("Download Folder is not selected!")
+            val documentFile = DocumentFile.fromTreeUri(application, folder.toUri())
+            val wppFolder = getURIFolderByName(documentFile, "WhatsApp", true)
+            getURIFolderByName(wppFolder, name, true) ?: throw Exception("Folder not found!")
+            return "$folder/WhatsApp/$name"
         }
-        String folder = WppXposed.getPref().getString("download_local", "/sdcard/Download");
-        var waFolder = new File(folder, "WhatsApp");
-        var filePath = new File(waFolder, name);
+        val folder = getPref().getString("download_local", "/sdcard/Download")
+        val waFolder = File(folder, "WhatsApp")
+        val filePath = File(waFolder, name)
         try {
-            WppCore.getClientBridge().createDir(filePath.getAbsolutePath());
-        } catch (Exception ignored) {
+            getClientBridge()!!.createDir(filePath.absolutePath)
+        } catch (_: Exception) {
         }
-        return filePath.getAbsolutePath() + "/";
-
+        return filePath.absolutePath + "/"
     }
 
-    public static DocumentFile getURIFolderByName(DocumentFile documentFile, String folderName, boolean createDir) {
+    fun getURIFolderByName(
+        documentFile: DocumentFile?,
+        folderName: String,
+        createDir: Boolean
+    ): DocumentFile? {
         if (documentFile == null) {
-            return null;
+            return null
         }
-        DocumentFile[] files = documentFile.listFiles();
-        for (DocumentFile file : files) {
-            if (Objects.equals(file.getName(), folderName)) {
-                return file;
+        val files = documentFile.listFiles()
+        for (file in files) {
+            if (file.name == folderName) {
+                return file
             }
         }
         if (createDir) {
-            return documentFile.createDirectory(folderName);
+            return documentFile.createDirectory(folderName)!!
         }
-        return null;
+        return null
     }
 
-    public static String copyFile(File srcFile, String destFolder, String name) {
-        if (srcFile == null || !srcFile.exists()) return "File not found or is null";
+    fun copyFile(srcFile: File?, destFolder: String, name: String): String? {
+        if (srcFile == null || !srcFile.exists()) return "File not found or is null"
         try {
-        return copyFile(new FileInputStream(srcFile),destFolder, name);
-        } catch (Exception e) {
-            XposedBridge.log(e);
-            return e.getMessage();
+            return copyFile(FileInputStream(srcFile), destFolder, name)
+        } catch (e: Exception) {
+            XposedBridge.log(e)
+            return e.message
         }
     }
 
 
-    public static String copyFile(InputStream inputStream, String destFolder, String name) {
-        if (xprefs.getBoolean("lite_mode", false)) {
+    fun copyFile(inputStream: InputStream, destFolder: String, name: String): String? {
+        var destFolder = destFolder
+        if (xprefs!!.getBoolean("lite_mode", false)) {
             try {
-                var folder = WppCore.getPrivString("download_folder", null);
-                DocumentFile documentFolder = DocumentFile.fromTreeUri(Utils.getApplication(), Uri.parse(folder));
-                destFolder = destFolder.replace(folder + "/", "");
-                for (String f : destFolder.split("/")) {
-                    documentFolder = Utils.getURIFolderByName(documentFolder, f, false);
-                    if (documentFolder == null) return "Failed to get folder";
+                val folder = getPrivString("download_folder", null)
+                var documentFolder = DocumentFile.fromTreeUri(application, Uri.parse(folder))
+                destFolder = destFolder.replace("$folder/", "")
+                for (f in destFolder.split("/".toRegex()).dropLastWhile { it.isEmpty() }
+                    .toTypedArray()) {
+                    documentFolder = getURIFolderByName(documentFolder, f, false)
+                    if (documentFolder == null) return "Failed to get folder"
                 }
-                DocumentFile newFile = documentFolder.createFile("*/*", name);
-                if (newFile == null) return "Failed to create destination file";
+                val newFile = documentFolder!!.createFile("*/*", name)
+                    ?: return "Failed to create destination file"
 
-                ContentResolver contentResolver = Utils.getApplication().getContentResolver();
+                val contentResolver: ContentResolver = application.contentResolver
 
-                try (InputStream in = inputStream;
-                     OutputStream out = contentResolver.openOutputStream(newFile.getUri())) {
-
-                    if (out == null) return "Failed to open output stream";
-
-                    byte[] buffer = new byte[1024];
-                    int length;
-                    while ((length = in.read(buffer)) > 0) {
-                        out.write(buffer, 0, length);
+                inputStream.use { `in` ->
+                    contentResolver.openOutputStream(newFile.uri).use { out ->
+                        if (out == null) return "Failed to open output stream"
+                        val buffer = ByteArray(1024)
+                        var length: Int
+                        while ((`in`.read(buffer).also { length = it }) > 0) {
+                            out.write(buffer, 0, length)
+                        }
+                        return ""
                     }
-
-                    return "";
                 }
-            } catch (Exception e) {
-                XposedBridge.log(e);
-                return e.getMessage();
+            } catch (e: Exception) {
+                XposedBridge.log(e)
+                return e.message
             }
         } else {
-            File destFile = new File(destFolder, name);
-            try (InputStream in = inputStream;
-                 var parcelFileDescriptor = WppCore.getClientBridge().openFile(destFile.getAbsolutePath(), true)) {
-                var out = new FileOutputStream(parcelFileDescriptor.getFileDescriptor());
-                byte[] bArr = new byte[1024];
-                while (true) {
-                    int read = in.read(bArr);
-                    if (read <= 0) {
-                        in.close();
-                        out.close();
-                        Utils.scanFile(destFile);
-                        return "";
-                    }
-                    out.write(bArr, 0, read);
+            val destFile = File(destFolder, name)
+            try {
+                inputStream.use { `in` ->
+                    getClientBridge()!!.openFile(destFile.absolutePath, true)
+                        .use { parcelFileDescriptor ->
+                            val out = FileOutputStream(parcelFileDescriptor.fileDescriptor)
+                            val bArr = ByteArray(1024)
+                            while (true) {
+                                val read = `in`.read(bArr)
+                                if (read <= 0) {
+                                    `in`.close()
+                                    out.close()
+                                    scanFile(destFile)
+                                    return ""
+                                }
+                                out.write(bArr, 0, read)
+                            }
+                        }
                 }
-            } catch (Exception e) {
-                XposedBridge.log(e);
-                return e.getMessage();
+            } catch (e: Exception) {
+                XposedBridge.log(e)
+                return e.message
             }
         }
     }
 
-    public static void showToast(String message) {
-        showToast(message,0);
-    }
-
-    public static void showToast(String message, int length) {
-        if (message == null)return;
+    @JvmStatic
+    @JvmOverloads
+    fun showToast(message: String?, length: Int = 0) {
+        if (message == null) return
         if (Looper.myLooper() == Looper.getMainLooper()) {
-            // Já estamos na thread principal
-            Toast.makeText(Utils.getApplication(), message, length).show();
+            Toast.makeText(application, message, length).show()
         } else {
-            // Não estamos na thread principal, postamos no Handler
-            new Handler(Looper.getMainLooper()).post(() ->
-                    Toast.makeText(Utils.getApplication(), message, length).show()
-            );
+            Handler(Looper.getMainLooper()).post {
+                Toast.makeText(
+                    application,
+                    message,
+                    length
+                ).show()
+            }
         }
     }
 
-    public static void setToClipboard(String string) {
-        ClipboardManager clipboard = (ClipboardManager) Utils.getApplication().getSystemService(Context.CLIPBOARD_SERVICE);
-        ClipData clip = ClipData.newPlainText("label", string);
-        clipboard.setPrimaryClip(clip);
+    fun setToClipboard(string: String?) {
+        val clipboard = application.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+        val clip = ClipData.newPlainText("label", string)
+        clipboard.setPrimaryClip(clip)
     }
 
-    public static String generateName(FMessageWpp.UserJid userJid, String fileFormat) {
-        var contactName = WppCore.getContactName(userJid);
-        var number = userJid.getPhoneRawString();
-        return toValidFileName(contactName) + "_" + number + "_" + new SimpleDateFormat("yyyyMMdd-HHmmss", Locale.getDefault()).format(new Date()) + "." + fileFormat;
+    fun generateName(userJid: UserJid, fileFormat: String?): String {
+        val contactName = getContactName(userJid)
+        val number = userJid.phoneRawString
+        return toValidFileName(contactName) + "_" + number + "_" + SimpleDateFormat(
+            "yyyyMMdd-HHmmss",
+            Locale.getDefault()
+        ).format(
+            Date()
+        ) + "." + fileFormat
     }
 
 
-    @NonNull
-    public static String toValidFileName(@NonNull String input) {
-        return input.replaceAll("[:\\\\/*\"?|<>']", " ");
+    fun toValidFileName(input: String): String {
+        return input.replace("[:\\\\/*\"?|<>']".toRegex(), " ")
     }
 
-    public static void scanFile(File file) {
-        MediaScannerConnection.scanFile(Utils.getApplication(),
-                new String[]{file.getAbsolutePath()},
-                new String[]{MimeTypeUtils.getMimeTypeFromExtension(file.getAbsolutePath())},
-                (s, uri) -> {
-                });
+    fun scanFile(file: File) {
+        MediaScannerConnection.scanFile(
+            application,
+            arrayOf<String>(file.absolutePath),
+            arrayOf<String?>(MimeTypeUtils.getMimeTypeFromExtension(file.absolutePath))
+        ) { _: String?, _: Uri? -> }
     }
 
-    public static Properties getProperties(XSharedPreferences prefs, String key, String checkKey) {
-        Properties properties = new Properties();
-        if (checkKey != null && !prefs.getBoolean(checkKey, false))
-            return properties;
-        String text = prefs.getString(key, "");
-        Pattern pattern = Pattern.compile("^/\\*\\s*(.*?)\\s*\\*/", Pattern.DOTALL);
-        Matcher matcher = pattern.matcher(text);
+    fun getProperties(prefs: XSharedPreferences, key: String?, checkKey: String?): Properties {
+        val properties = Properties()
+        if (checkKey != null && !prefs.getBoolean(checkKey, false)) return properties
+        val text = prefs.getString(key, "")!!
+        val pattern = Pattern.compile("^/\\*\\s*(.*?)\\s*\\*/", Pattern.DOTALL)
+        val matcher = pattern.matcher(text)
 
         if (matcher.find()) {
-            String propertiesText = matcher.group(1);
-            String[] lines = propertiesText.split("\\s*\\n\\s*");
+            val propertiesText = matcher.group(1)
+            val lines =
+                propertiesText!!.split("\\s*\\n\\s*".toRegex()).dropLastWhile { it.isEmpty() }
+                    .toTypedArray()
 
-            for (String line : lines) {
-                String[] keyValue = line.split("\\s*=\\s*");
-                String skey = keyValue[0].strip();
-                String value = keyValue[1].strip().replaceAll("^\"|\"$", ""); // Remove quotes, if any
-                properties.put(skey, value);
+            for (line in lines) {
+                val keyValue =
+                    line.split("\\s*=\\s*".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()
+                val skey = keyValue[0].trim()
+                val value =
+                    keyValue[1].trim().replace("^\"|\"$".toRegex(), "") // Remove quotes, if any
+                properties[skey] = value
             }
         }
 
-        return properties;
+        return properties
     }
 
-    public static int tryParseInt(String wallpaperAlpha, int i) {
-        try {
-            return Integer.parseInt(wallpaperAlpha.trim());
-        } catch (Exception e) {
-            return i;
+    fun tryParseInt(wallpaperAlpha: String?, i: Int): Int {
+        return try {
+            wallpaperAlpha?.trim { it <= ' ' }?.toInt() ?: i
+        } catch (_: Exception) {
+            i
         }
     }
 
-    public static Application getApplicationByReflect() {
-        try {
-            @SuppressLint("PrivateApi")
-            Class<?> activityThread = Class.forName("android.app.ActivityThread");
-            Object thread = activityThread.getMethod("currentActivityThread").invoke(null);
-            Object app = activityThread.getMethod("getApplication").invoke(thread);
-            if (app == null) {
-                throw new NullPointerException("u should init first");
-            }
-            return (Application) app;
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        throw new NullPointerException("u should init first");
+    fun getMyNumber(): String {
+        return FeatureLoader.mApp!!.getSharedPreferences(
+            FeatureLoader.mApp!!.packageName + "_preferences_light",
+            Context.MODE_PRIVATE
+        ).getString("ph", "")!!
     }
 
-    public static <T> T binderLocalScope(BinderLocalScopeBlock<T> block) {
-        long identity = Binder.clearCallingIdentity();
+
+    @JvmStatic
+    fun <T> binderLocalScope(block: BinderLocalScopeBlock<T?>): T? {
+        val identity = Binder.clearCallingIdentity()
         try {
-            return block.execute();
+            return block.execute()
         } finally {
-            Binder.restoreCallingIdentity(identity);
+            Binder.restoreCallingIdentity(identity)
         }
     }
 
-    public static String getAuthorFromCss(String code) {
-        if (code == null) return null;
-        var match = Pattern.compile("author\\s*=\\s*(.*?)\n").matcher(code);
-        if (!match.find()) return null;
-        return match.group(1);
+    @JvmStatic
+    fun getAuthorFromCss(code: String?): String? {
+        if (code == null) return null
+        val match = Pattern.compile("author\\s*=\\s*(.*?)\n").matcher(code)
+        if (!match.find()) return null
+        return match.group(1)
     }
 
     @SuppressLint("MissingPermission")
-    public static void showNotification(String title, String content) {
-        var context = Utils.getApplication();
-        var notificationManager = NotificationManagerCompat.from(context);
-        var channel = new NotificationChannel("wppenhacer", "WAE Enhancer", NotificationManager.IMPORTANCE_HIGH);
-        notificationManager.createNotificationChannel(channel);
-        var notification = new NotificationCompat.Builder(context, "wppenhacer")
-                .setSmallIcon(android.R.mipmap.sym_def_app_icon)
-                .setContentTitle(title)
-                .setContentText(content)
-                .setAutoCancel(true)
-                .setStyle(new NotificationCompat.BigTextStyle().bigText(content));
-        notificationManager.notify(new Random().nextInt(), notification.build());
+    fun showNotification(title: String?, content: String?) {
+        val context: Application = application
+        val notificationManager = NotificationManagerCompat.from(context)
+        val channel =
+            NotificationChannel("wppenhacer", "WAE Enhancer", NotificationManager.IMPORTANCE_HIGH)
+        notificationManager.createNotificationChannel(channel)
+        val notification = NotificationCompat.Builder(context, "wppenhacer")
+            .setSmallIcon(android.R.mipmap.sym_def_app_icon)
+            .setContentTitle(title)
+            .setContentText(content)
+            .setAutoCancel(true)
+            .setStyle(NotificationCompat.BigTextStyle().bigText(content))
+        notificationManager.notify(Random().nextInt(), notification.build())
     }
 
-    public static void openLink(Activity mActivity, String url) {
-        Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
-        mActivity.startActivity(browserIntent);
+    @JvmStatic
+    fun openLink(mActivity: Activity, url: String?) {
+        val browserIntent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
+        mActivity.startActivity(browserIntent)
     }
 
 
-    @FunctionalInterface
-    public interface BinderLocalScopeBlock<T> {
-        T execute();
+    fun interface BinderLocalScopeBlock<T> {
+        fun execute(): T?
     }
 }

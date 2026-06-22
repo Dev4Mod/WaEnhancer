@@ -466,7 +466,7 @@ class MediaPreview(
         try {
             val fileExtension = if (mimeType.startsWith("image")) ".jpg" else ".mp4"
             filePath = File(
-                Utils.getApplication().cacheDir,
+                Utils.application.cacheDir,
                 "mediapreview_${System.currentTimeMillis()}$fileExtension"
             )
 

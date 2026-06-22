@@ -38,7 +38,7 @@ class AntiRevoke(loader: ClassLoader, preferences: XSharedPreferences) :
             DateFormat.getDateTimeInstance(
                 DateFormat.SHORT,
                 DateFormat.SHORT,
-                Utils.getApplication().resources.configuration.locales[0]
+                Utils.application.resources.configuration.locales[0]
             )
         }
 
@@ -56,7 +56,7 @@ class AntiRevoke(loader: ClassLoader, preferences: XSharedPreferences) :
                 fMessage.key.remoteJid.phoneNumber ?: return Collections.synchronizedSet(HashSet())
             return messageRevokedMap.getOrPut(stripJID) {
                 val messages =
-                    DelMessageStore.getInstance(Utils.getApplication()).getMessagesByJid(stripJID)
+                    DelMessageStore.getInstance(Utils.application).getMessagesByJid(stripJID)
                 Collections.synchronizedSet(messages ?: HashSet())
             }
         }
@@ -65,7 +65,7 @@ class AntiRevoke(loader: ClassLoader, preferences: XSharedPreferences) :
             val stripJID = fMessage.key.remoteJid.phoneNumber!!
             val messages = getRevokedMessagesForJid(fMessage)
             messages.add(messageID)
-            DelMessageStore.getInstance(Utils.getApplication()).insertMessage(
+            DelMessageStore.getInstance(Utils.application).insertMessage(
                 stripJID,
                 messageID,
                 System.currentTimeMillis()
@@ -194,7 +194,7 @@ class AntiRevoke(loader: ClassLoader, preferences: XSharedPreferences) :
         }
 
         if (messageID != null) {
-            val appInstance = Utils.getApplication()
+            val appInstance = Utils.application
             val timestamp =
                 DelMessageStore.getInstance(appInstance).getTimestampByMessageId(messageID)
             if (timestamp > 0) {
@@ -202,7 +202,7 @@ class AntiRevoke(loader: ClassLoader, preferences: XSharedPreferences) :
                 dateTextView.paint.isUnderlineText = true
                 dateTextView.setOnClickListener {
                     val toastMessage =
-                        Utils.getApplication().getString(R.string.message_removed_on)
+                        Utils.application.getString(R.string.message_removed_on)
                             .format(date)
                     Utils.showToast(toastMessage, Toast.LENGTH_LONG)
                 }
@@ -223,7 +223,7 @@ class AntiRevoke(loader: ClassLoader, preferences: XSharedPreferences) :
                 }
 
                 2 -> {
-                    val drawable = Utils.getApplication().getDrawable(R.drawable.deleted)
+                    val drawable = Utils.application.getDrawable(R.drawable.deleted)
                     dateTextView.setCompoundDrawablesWithIntrinsicBounds(null, null, drawable, null)
                     dateTextView.compoundDrawablePadding = 5
                 }
@@ -281,10 +281,10 @@ class AntiRevoke(loader: ClassLoader, preferences: XSharedPreferences) :
 
     private fun formatRevocationMessage(fMessage: FMessageWpp): String? {
         var jidAuthor = fMessage.key.remoteJid
-        var messageSuffix = Utils.getApplication().getString(R.string.deleted_message)
+        var messageSuffix = Utils.application.getString(R.string.deleted_message)
 
         if (jidAuthor.isStatus) {
-            messageSuffix = Utils.getApplication().getString(R.string.deleted_status)
+            messageSuffix = Utils.application.getString(R.string.deleted_status)
             jidAuthor = fMessage.userJid
         }
         val waContact = WaContactWpp.getWaContactFromJid(jidAuthor)
@@ -305,7 +305,7 @@ class AntiRevoke(loader: ClassLoader, preferences: XSharedPreferences) :
             val participantName = participantWaContact?.displayName
                 ?: participantJid.phoneNumber
 
-            Utils.getApplication()
+            Utils.application
                 .getString(R.string.deleted_a_message_in_group, participantName, name)
         } else {
             "$name $messageSuffix"

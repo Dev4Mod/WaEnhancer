@@ -101,18 +101,18 @@ class CustomView(loader: ClassLoader, preferences: XSharedPreferences) : Feature
 
         themeDir = File(ThemePreference.rootDirectory, folderTheme)
         val cssContent = "$filterItens\n$customCss"
-        cacheImages = DrawableCache(Utils.getApplication(), 100 * 1024 * 1024)
+        cacheImages = DrawableCache(Utils.application, 100 * 1024 * 1024)
 
         var waVersion = ""
         try {
-            waVersion = Utils.getApplication().packageManager?.getPackageInfo(
-                Utils.getApplication().packageName ?: "", 0
+            waVersion = Utils.application.packageManager?.getPackageInfo(
+                Utils.application.packageName ?: "", 0
             )?.versionName ?: ""
         } catch (_: Exception) {
         }
 
         val hash = hashContent(cssContent + waVersion)
-        val cacheDir = Utils.getApplication().cacheDir
+        val cacheDir = Utils.application.cacheDir
         val cacheFile = File(cacheDir, "cv_rules_${hash}.cache")
 
         var loaded = false
@@ -967,7 +967,7 @@ class CustomView(loader: ClassLoader, preferences: XSharedPreferences) : Feature
                 val bitmap = createBitmap(width, height)
                 sd.bounds = android.graphics.Rect(0, 0, width, height)
                 sd.draw(Canvas(bitmap))
-                return bitmap.toDrawable(Utils.getApplication().resources)
+                return bitmap.toDrawable(Utils.application.resources)
             }
 
             private fun createLinearGradient(angle: Float, colors: IntArray, positions: FloatArray,
