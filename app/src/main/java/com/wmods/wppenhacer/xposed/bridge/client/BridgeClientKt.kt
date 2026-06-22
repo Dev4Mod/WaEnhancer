@@ -29,7 +29,6 @@ import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.withTimeoutOrNull
-import java.util.concurrent.CompletableFuture
 import kotlin.coroutines.resume
 import kotlin.time.Duration.Companion.milliseconds
 
@@ -43,13 +42,8 @@ class BridgeClientKt(private val context: Context) : BaseClient(), ServiceConnec
     private var connectionContinuation: CancellableContinuation<Boolean>? = null
 
 
-    override fun connect(): CompletableFuture<Boolean> {
-        val future = CompletableFuture<Boolean>()
-        scope.launch {
-            val result = performConnection()
-            future.complete(result)
-        }
-        return future
+    override suspend fun connect(): Boolean {
+        return performConnection()
     }
 
     private suspend fun performConnection(): Boolean = withContext(Dispatchers.IO) {

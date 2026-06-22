@@ -26,13 +26,13 @@ import de.robv.android.xposed.XC_MethodHook
 import de.robv.android.xposed.XSharedPreferences
 import de.robv.android.xposed.XposedBridge
 import de.robv.android.xposed.XposedHelpers
+import kotlinx.coroutines.runBlocking
 import org.json.JSONObject
 import org.luckypray.dexkit.query.enums.StringMatchType
 import java.io.File
 import java.lang.reflect.Field
 import java.lang.reflect.Method
 import java.util.Collections
-import java.util.concurrent.CompletableFuture
 import java.util.concurrent.ConcurrentHashMap
 
 @SuppressLint("StaticFieldLeak")
@@ -216,16 +216,17 @@ object WppCore {
     @JvmStatic
     @Throws(Exception::class)
     private fun tryConnectBridge(baseClient: BaseClient): Boolean {
-        try {
+        return try {
             XposedBridge.log("Trying to connect to ${baseClient.javaClass.simpleName}")
             client = baseClient
-            val canLoadFuture: CompletableFuture<Boolean> = baseClient.connect()
-            val canLoad = canLoadFuture.get()
-            if (!canLoad) throw Exception()
+           runBlocking {
+                val canLoad = baseClient.connect()
+                if (!canLoad) throw Exception()
+                true
+            }
         } catch (_: Exception) {
-            return false
+            false
         }
-        return true
     }
 
     @JvmStatic

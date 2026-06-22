@@ -21,7 +21,6 @@ import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.withTimeout
-import java.util.concurrent.CompletableFuture
 import kotlin.time.Duration.Companion.milliseconds
 
 class ProviderClientKt : BaseClient() {
@@ -31,17 +30,8 @@ class ProviderClientKt : BaseClient() {
     private val reconnectMutex = Mutex()
 
 
-    override fun connect(): CompletableFuture<Boolean> {
-        val future = CompletableFuture<Boolean>()
-        scope.launch {
-            try {
-                val result = performConnection()
-                future.complete(result)
-            } catch (e: Exception) {
-                future.completeExceptionally(e)
-            }
-        }
-        return future
+    override suspend fun connect(): Boolean {
+        return performConnection()
     }
 
     private suspend fun performConnection(): Boolean = withContext(Dispatchers.IO) {
