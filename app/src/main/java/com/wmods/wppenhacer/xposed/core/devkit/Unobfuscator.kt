@@ -2998,7 +2998,7 @@ object Unobfuscator {
     fun getAllMapFields(clazz: Class<*>): HashMap<String, Field> {
         val cache = UnobfuscatorCache.getInstance()
         val classLoader = clazz.classLoader
-        if (cache != null && classLoader != null) {
+        if (classLoader != null) {
             val cacheKey = "getAllMapFields:" + clazz.name
             return cache.getMapField(classLoader, cacheKey) { buildAllMapFields(clazz) }
         }
@@ -3006,9 +3006,8 @@ object Unobfuscator {
     }
 
     @Throws(Exception::class)
-    private
     @JvmStatic
-    fun buildAllMapFields(clazz: Class<*>): HashMap<String, Field> {
+    private fun buildAllMapFields(clazz: Class<*>): HashMap<String, Field> {
         val methodString = try {
             clazz.getDeclaredMethod("toString")
         } catch (_: Exception) {

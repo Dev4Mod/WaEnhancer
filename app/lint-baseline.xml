@@ -199,49 +199,6 @@
             column="42"/>
     </issue>
 
-    <issue
-        id="DefaultLocale"
-        message="Implicitly using the default locale is a common source of bugs: Use `toLowerCase(Locale)` instead. For strings meant to be internal use `Locale.ROOT`, otherwise `Locale.getDefault()`."
-        errorLine1="                    String resourceString = pool.getString(entry.getValue().value().data()).toLowerCase().replaceAll(&quot;\\s&quot;, &quot;&quot;);"
-        errorLine2="                                                                                            ~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/wmods/wppenhacer/xposed/core/devkit/UnobfuscatorCache.java"
-            line="119"
-            column="93"/>
-    </issue>
-
-    <issue
-        id="DefaultLocale"
-        message="Implicitly using the default locale is a common source of bugs: Use `toLowerCase(Locale)` instead. For strings meant to be internal use `Locale.ROOT`, otherwise `Locale.getDefault()`."
-        errorLine1="                                String key = resourceString.toLowerCase().replaceAll(&quot;\\s&quot;, &quot;&quot;);"
-        errorLine2="                                                            ~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/wmods/wppenhacer/xposed/core/devkit/UnobfuscatorCache.java"
-            line="160"
-            column="61"/>
-    </issue>
-
-    <issue
-        id="DefaultLocale"
-        message="Implicitly using the default locale is a common source of bugs: Use `toLowerCase(Locale)` instead. For strings meant to be internal use `Locale.ROOT`, otherwise `Locale.getDefault()`."
-        errorLine1="        search = search.toLowerCase().replaceAll(&quot;\\s&quot;, &quot;&quot;);"
-        errorLine2="                        ~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/wmods/wppenhacer/xposed/core/devkit/UnobfuscatorCache.java"
-            line="185"
-            column="25"/>
-    </issue>
-
-    <issue
-        id="DefaultLocale"
-        message="Implicitly using the default locale is a common source of bugs: Use `toLowerCase(Locale)` instead. For strings meant to be internal use `Locale.ROOT`, otherwise `Locale.getDefault()`."
-        errorLine1="        search = search.toLowerCase().replaceAll(&quot;\\s&quot;, &quot;&quot;);"
-        errorLine2="                        ~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/wmods/wppenhacer/xposed/core/devkit/UnobfuscatorCache.java"
-            line="192"
-            column="25"/>
-    </issue>
 
     <issue
         id="DefaultLocale"

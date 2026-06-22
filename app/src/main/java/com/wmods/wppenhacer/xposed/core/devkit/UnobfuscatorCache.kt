@@ -1,570 +1,538 @@
-package com.wmods.wppenhacer.xposed.core.devkit;
+package com.wmods.wppenhacer.xposed.core.devkit
 
-import android.annotation.SuppressLint;
-import android.app.Application;
-import android.content.Context;
-import android.content.SharedPreferences;
-import android.content.res.Configuration;
-import android.content.res.Resources;
-import android.widget.Toast;
+import android.app.Application
+import android.content.Context
+import android.content.SharedPreferences
+import android.content.res.Configuration
+import android.content.res.Resources
+import android.widget.Toast
+import com.google.devrel.gmscore.tools.apk.arsc.ArscUtils
+import com.wmods.wppenhacer.BuildConfig
+import com.wmods.wppenhacer.R
+import com.wmods.wppenhacer.xposed.utils.ReflectionUtils
+import com.wmods.wppenhacer.xposed.utils.Utils
+import de.robv.android.xposed.XposedBridge
+import de.robv.android.xposed.XposedHelpers
+import org.json.JSONArray
+import org.json.JSONException
+import org.json.JSONObject
+import java.io.File
+import java.lang.reflect.Constructor
+import java.lang.reflect.Field
+import java.lang.reflect.Method
+import java.util.Locale
+import java.util.concurrent.CountDownLatch
+import java.util.concurrent.Executors
+import java.util.concurrent.atomic.AtomicReference
+import androidx.core.content.edit
 
-import androidx.annotation.NonNull;
+class UnobfuscatorCache private constructor(private val mApplication: Application) {
 
-import com.google.devrel.gmscore.tools.apk.arsc.ArscUtils;
-import com.wmods.wppenhacer.BuildConfig;
-import com.wmods.wppenhacer.R;
-import com.wmods.wppenhacer.xposed.utils.ReflectionUtils;
-import com.wmods.wppenhacer.xposed.utils.Utils;
+    val sPrefsCacheHooks: SharedPreferences
+    private val sPrefsCacheStrings: SharedPreferences
+    private val reverseResourceMap = HashMap<String, String>()
 
-import org.json.JSONException;
-import org.json.JSONArray;
-import org.json.JSONObject;
-
-import java.io.File;
-import java.lang.reflect.Constructor;
-import java.lang.reflect.Field;
-import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Locale;
-import java.util.Map;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.atomic.AtomicReference;
-
-import de.robv.android.xposed.XposedBridge;
-import de.robv.android.xposed.XposedHelpers;
-
-public class UnobfuscatorCache {
-
-    private static final int CACHE_SCHEMA_VERSION = 2;
-
-    private final Application mApplication;
-    private static UnobfuscatorCache mInstance;
-    public final SharedPreferences sPrefsCacheHooks;
-
-    private final Map<String, String> reverseResourceMap = new HashMap<>();
-    private final SharedPreferences sPrefsCacheStrings;
-
-    @SuppressLint("ApplySharedPref")
-    public UnobfuscatorCache(Application application) {
-        mApplication = application;
+    init {
         try {
-            sPrefsCacheHooks = mApplication.getSharedPreferences("UnobfuscatorCache", Context.MODE_PRIVATE);
-            sPrefsCacheStrings = mApplication.getSharedPreferences("UnobfuscatorCacheStrings", Context.MODE_PRIVATE);
-            long version = sPrefsCacheHooks.getLong("version", 0);
-            long currentVersion = mApplication.getPackageManager().getPackageInfo(mApplication.getPackageName(), 0).getLongVersionCode();
-            long savedUpdateTime = sPrefsCacheHooks.getLong("updateTime", 0);
-            int savedCacheSchemaVersion = sPrefsCacheHooks.getInt("cache_schema_version", 0);
-            String savedVersionName = sPrefsCacheHooks.getString("wae_version_name", "");
-            String versionName = BuildConfig.VERSION_NAME;
-            long lastUpdateTime = savedUpdateTime;
+            sPrefsCacheHooks =
+                mApplication.getSharedPreferences("UnobfuscatorCache", Context.MODE_PRIVATE)
+            sPrefsCacheStrings =
+                mApplication.getSharedPreferences("UnobfuscatorCacheStrings", Context.MODE_PRIVATE)
+            val version = sPrefsCacheHooks.getLong("version", 0)
+            val currentVersion = mApplication.packageManager
+                .getPackageInfo(mApplication.packageName, 0).longVersionCode
+            val savedUpdateTime = sPrefsCacheHooks.getLong("updateTime", 0)
+            val savedCacheSchemaVersion = sPrefsCacheHooks.getInt("cache_schema_version", 0)
+            val savedVersionName = sPrefsCacheHooks.getString("wae_version_name", "") ?: ""
+            val versionName = BuildConfig.VERSION_NAME
+            var lastUpdateTime = savedUpdateTime
             try {
-                lastUpdateTime = mApplication.getPackageManager().getPackageInfo(BuildConfig.APPLICATION_ID, 0).lastUpdateTime;
-            } catch (Exception ignored) {
+                lastUpdateTime = mApplication.packageManager
+                    .getPackageInfo(BuildConfig.APPLICATION_ID, 0).lastUpdateTime
+            } catch (_: Exception) {
             }
-            if (version != currentVersion || savedUpdateTime != lastUpdateTime || !versionName.equals(savedVersionName) || savedCacheSchemaVersion != CACHE_SCHEMA_VERSION) {
-                Utils.showToast(application.getString(R.string.starting_cache), Toast.LENGTH_LONG);
-                sPrefsCacheHooks.edit().clear().commit();
-                sPrefsCacheHooks.edit().putLong("version", currentVersion).commit();
-                sPrefsCacheHooks.edit().putLong("updateTime", lastUpdateTime).commit();
-                sPrefsCacheHooks.edit().putInt("cache_schema_version", CACHE_SCHEMA_VERSION).commit();
-                sPrefsCacheHooks.edit().putString("wae_version_name", versionName).commit();
-                sPrefsCacheStrings.edit().clear().commit();
+            if (version != currentVersion || savedUpdateTime != lastUpdateTime
+                || versionName != savedVersionName
+                || savedCacheSchemaVersion != CACHE_SCHEMA_VERSION
+            ) {
+                Utils.showToast(mApplication.getString(R.string.starting_cache), Toast.LENGTH_LONG)
+                sPrefsCacheHooks.edit(commit = true) { clear() }
+                sPrefsCacheHooks.edit(commit = true) { putLong("version", currentVersion) }
+                sPrefsCacheHooks.edit(commit = true) { putLong("updateTime", lastUpdateTime) }
+                sPrefsCacheHooks.edit(commit = true) {
+                    putInt(
+                        "cache_schema_version",
+                        CACHE_SCHEMA_VERSION
+                    )
+                }
+                sPrefsCacheHooks.edit(commit = true) { putString("wae_version_name", versionName) }
+                sPrefsCacheStrings.edit(commit = true) { clear() }
             }
-            initCacheStrings();
-        } catch (Exception e) {
-            throw new RuntimeException("Can't initialize UnobfuscatorCache: " + e.getMessage(), e);
+            initCacheStrings()
+        } catch (e: Exception) {
+            throw RuntimeException("Can't initialize UnobfuscatorCache: ${e.message}", e)
+        }
+    }
+
+    companion object {
+        private const val CACHE_SCHEMA_VERSION = 2
+        private var mInstance: UnobfuscatorCache? = null
+
+        @JvmStatic
+        fun init(mApp: Application) {
+            if (mInstance == null) {
+                mInstance = UnobfuscatorCache(mApp)
+            }
         }
 
+        @JvmStatic
+        fun getInstance(): UnobfuscatorCache {
+            return mInstance!!
+        }
     }
 
-    public static void init(Application mApp) {
-        if (mInstance == null)
-            mInstance = new UnobfuscatorCache(mApp);
+    private fun initCacheStrings() {
+        getOfuscateIDString("mystatus")
+        getOfuscateIDString("online")
+        getOfuscateIDString("groups")
+        getOfuscateIDString("messagedeleted")
+        getOfuscateIDString("selectcalltype")
+        getOfuscateIDString("lastseensun%s")
+        getOfuscateIDString("updates")
     }
 
-    public static UnobfuscatorCache getInstance() {
-        return mInstance;
-    }
-
-    private void initCacheStrings() {
-        getOfuscateIDString("mystatus");
-        getOfuscateIDString("online");
-        getOfuscateIDString("groups");
-        getOfuscateIDString("messagedeleted");
-        getOfuscateIDString("selectcalltype");
-        getOfuscateIDString("lastseensun%s");
-        getOfuscateIDString("updates");
-    }
-
-    private void initializeReverseResourceMap() {
+    private fun initializeReverseResourceMap() {
         try {
-            var app = Utils.getApplication();
-            var source = app.getApplicationInfo().sourceDir;
-            var table = ArscUtils.getResourceTable(new File(source));
-            var pool = table.getStringPool();
-            var pkg = table.getPackage(app.getPackageName());
-            var typeChunks = pkg.getTypeChunks("string");
-            var chunk = typeChunks.stream().filter(typeChunk -> typeChunk.getConfiguration().isDefault()).findFirst().orElse(null);
-            var entries = chunk.getEntries();
-            int baseValue = 0x7f12;
-            for (var entry : entries.entrySet()) {
+            val app = Utils.getApplication()
+            val source = app.applicationInfo.sourceDir
+            val table = ArscUtils.getResourceTable(File(source))
+            val pool = table.stringPool
+            val pkg = table.getPackage(app.packageName) ?: return
+            val typeChunks = pkg.getTypeChunks("string")
+            val chunk = typeChunks.stream().filter { typeChunk ->
+                typeChunk.configuration.isDefault
+            }.findFirst().orElse(null) ?: return
+            val entries = chunk.entries
+            val baseValue = 0x7f12
+            for ((keyHexValue, entry) in entries) {
                 try {
-                    int keyHexValue = entry.getKey();
-                    int result = baseValue << 16 | keyHexValue;
-                    String resourceString = pool.getString(entry.getValue().value().data()).toLowerCase().replaceAll("\\s", "");
-                    if (reverseResourceMap.containsKey(resourceString)) continue;
-                    reverseResourceMap.put(resourceString, String.valueOf(result));
-                } catch (Exception ignored) {
+                    val result = baseValue shl 16 or keyHexValue
+                    val resourceString =
+                        pool.getString(entry.value()!!.data()).lowercase(Locale.ROOT)
+                            .replace("\\s".toRegex(), "")
+                    if (reverseResourceMap.containsKey(resourceString)) continue
+                    reverseResourceMap[resourceString] = result.toString()
+                } catch (_: Exception) {
                 }
             }
-        } catch (Exception e) {
-            XposedBridge.log(e);
-            reverseResourceMap.clear();
+        } catch (e: Exception) {
+            XposedBridge.log(e)
+            reverseResourceMap.clear()
         }
         if (reverseResourceMap.isEmpty()) {
-            initializeReverseResourceMapBruteForce();
+            initializeReverseResourceMapBruteForce()
         }
     }
 
-    private void initializeReverseResourceMapBruteForce() {
-        var currentTime = System.currentTimeMillis();
-        int numThreads = Runtime.getRuntime().availableProcessors();
-        ExecutorService executor = Executors.newFixedThreadPool(numThreads); // Create a thread pool with 4 threads
-
+    private fun initializeReverseResourceMapBruteForce() {
+        val currentTime = System.currentTimeMillis()
+        val numThreads = Runtime.getRuntime().availableProcessors()
+        val executor = Executors.newFixedThreadPool(numThreads)
         try {
-            var configuration = new Configuration(mApplication.getResources().getConfiguration());
-            configuration.setLocale(Locale.ENGLISH);
-            var context = Utils.getApplication().createConfigurationContext(configuration);
-            Resources resources = context.getResources();
-
-            int startId = 0x7f120000;
-            int endId = 0x7f12ffff;
-
-            int chunkSize = (endId - startId + 1) / numThreads;
-            CountDownLatch latch = new CountDownLatch(numThreads);
-
-            for (int t = 0; t < numThreads; t++) {
-                int threadStartId = startId + t * chunkSize;
-                int threadEndId = t == numThreads - 1 ? endId : threadStartId + chunkSize - 1;
-
-                executor.submit(() -> {
+            val configuration = Configuration(mApplication.resources.configuration)
+            configuration.setLocale(Locale.ENGLISH)
+            val context = Utils.getApplication().createConfigurationContext(configuration)
+            val resources = context.resources
+            val startId = 0x7f120000
+            val endId = 0x7f12ffff
+            val chunkSize = (endId - startId + 1) / numThreads
+            val latch = CountDownLatch(numThreads)
+            for (t in 0 until numThreads) {
+                val threadStartId = startId + t * chunkSize
+                val threadEndId =
+                    if (t == numThreads - 1) endId else threadStartId + chunkSize - 1
+                executor.submit {
                     try {
-                        for (int i = threadStartId; i <= threadEndId; i++) {
+                        for (i in threadStartId..threadEndId) {
                             try {
-                                String resourceString = resources.getString(i);
-                                String key = resourceString.toLowerCase().replaceAll("\\s", "");
-                                if (reverseResourceMap.containsKey(key)) continue;
-                                reverseResourceMap.put(key, String.valueOf(i));
-                            } catch (Resources.NotFoundException ignored) {
+                                val resourceString = resources.getString(i)
+                                val key = resourceString.lowercase(Locale.ROOT)
+                                    .replace("\\s".toRegex(), "")
+                                if (reverseResourceMap.containsKey(key)) continue
+                                reverseResourceMap[key] = i.toString()
+                            } catch (_: Resources.NotFoundException) {
                             }
                         }
                     } finally {
-                        latch.countDown();
+                        latch.countDown()
                     }
-                });
-            }
-            latch.await(); // Wait for all threads to finish
-            XposedBridge.log("String cache saved in " + (System.currentTimeMillis() - currentTime) + "ms");
-        } catch (Exception e) {
-            XposedBridge.log(e);
-        } finally {
-            executor.shutdown();
-        }
-    }
-
-    private String getMapIdString(String search) {
-        if (reverseResourceMap.isEmpty()) {
-            initializeReverseResourceMap();
-            System.gc();
-        }
-        search = search.toLowerCase().replaceAll("\\s", "");
-        XposedBridge.log("need search obsfucate: " + search);
-        return reverseResourceMap.get(search);
-    }
-
-    @SuppressLint("ApplySharedPref")
-    public int getOfuscateIDString(String search) {
-        search = search.toLowerCase().replaceAll("\\s", "");
-        var id = sPrefsCacheStrings.getString(search, null);
-        if (id == null) {
-            id = getMapIdString(search);
-            if (id != null) {
-                sPrefsCacheStrings.edit().putString(search, id).commit();
-            }
-        }
-        return id == null ? -1 : Integer.parseInt(id);
-    }
-
-    public String getString(String search) {
-        var id = getOfuscateIDString(search);
-        return id < 1 ? "" : mApplication.getResources().getString(id);
-    }
-
-    public Field getField(ClassLoader loader, FunctionCall<Field> functionCall) throws Exception {
-        var methodName = getKeyName();
-        String value = sPrefsCacheHooks.getString(methodName, null);
-        if (value == null) {
-            try {
-                Field result = functionCall.call();
-                if (result == null) throw new NoSuchFieldException("Field is null");
-                saveField(methodName, result);
-                return result;
-            } catch (Exception e) {
-                throw new Exception("Error getting field " + methodName + ": " + e.getMessage(), e);
-            }
-        }
-        return getFieldFromJson(loader, new JSONObject(value));
-    }
-
-    public Field[] getFields(ClassLoader loader, FunctionCall<Field[]> functionCall) throws Exception {
-        var methodName = getKeyName();
-        String value = sPrefsCacheHooks.getString(methodName, null);
-        if (value == null) {
-            try {
-                Field[] result = functionCall.call();
-                if (result == null) throw new NoSuchFieldException("Fields is null");
-                saveFields(methodName, result);
-                return result;
-            } catch (Exception e) {
-                throw new Exception("Error getting fields " + methodName + ": " + e.getMessage(), e);
-            }
-        }
-        ArrayList<Field> fields = new ArrayList<>();
-        JSONArray fieldsJson = new JSONArray(value);
-        for (int i = 0; i < fieldsJson.length(); i++) {
-            fields.add(getFieldFromJson(loader, fieldsJson.getJSONObject(i)));
-        }
-        return fields.toArray(new Field[0]);
-    }
-
-    public Method getMethod(ClassLoader loader, FunctionCall<Method> functionCall) throws Exception {
-        var methodName = getKeyName();
-        String value = sPrefsCacheHooks.getString(methodName, null);
-        if (value == null) {
-            try {
-                Method result = functionCall.call();
-                if (result == null) throw new NoSuchMethodException("Method is null");
-                saveMethod(methodName, result);
-                return result;
-            } catch (Exception e) {
-                throw new Exception("Error getting method " + methodName + ": " + e.getMessage(), e);
-            }
-        }
-        return getMethodFromJsonString(loader, value);
-    }
-
-    public Method[] getMethods(ClassLoader loader, FunctionCall<Method[]> functionCall) throws Exception {
-        var methodName = getKeyName();
-        String value = sPrefsCacheHooks.getString(methodName, null);
-        if (value == null) {
-            try {
-                Method[] result = functionCall.call();
-                if (result == null) throw new NoSuchMethodException("Methods is null");
-                if (result.length == 0)throw new NoSuchMethodException("Methods is empty");
-                saveMethods(methodName, result);
-                return result;
-            } catch (Exception e) {
-                throw new Exception("Error getting methods " + methodName + ": " + e.getMessage(), e);
-            }
-        }
-        ArrayList<Method> methods = new ArrayList<>();
-        JSONArray methodsJson = new JSONArray(value);
-        for (int i = 0; i < methodsJson.length(); i++) {
-            methods.add(getMethodFromJson(loader, methodsJson.getJSONObject(i)));
-        }
-        return methods.toArray(new Method[0]);
-    }
-
-    @NonNull
-    private Method getMethodFromJsonString(ClassLoader loader, String value) throws JSONException {
-        return getMethodFromJson(loader, new JSONObject(value));
-    }
-
-
-    public Class<?> getClass(ClassLoader loader, FunctionCall<Class<?>> functionCall) throws Exception {
-        return getClass(loader, getKeyName(), functionCall);
-    }
-
-    public Class<?> getClass(ClassLoader loader, String key, FunctionCall<Class<?>> functionCall) throws Exception {
-        String value = sPrefsCacheHooks.getString(key, null);
-        if (value == null) {
-            try {
-                Class<?> result = functionCall.call();
-                if (result == null) throw new ClassNotFoundException("Class is null");
-                saveClass(key, result);
-                return result;
-            } catch (Exception e) {
-                throw new Exception("Error getting class " + key + ": " + e.getMessage(), e);
-            }
-        }
-        return getClassFromJson(loader, new JSONObject(value));
-    }
-
-    public Class<?>[] getClasses(ClassLoader loader, FunctionCall<Class<?>[]> functionCall) throws Exception {
-        var methodName = getKeyName();
-        String value = sPrefsCacheHooks.getString(methodName, null);
-        if (value == null) {
-            try {
-                Class<?>[] result = functionCall.call();
-                if (result == null) throw new ClassNotFoundException("Classes is null");
-                saveClasses(methodName, result);
-                return result;
-            } catch (Exception e) {
-                throw new Exception("Error getting classes " + methodName + ": " + e.getMessage(), e);
-            }
-        }
-        ArrayList<Class<?>> classes = new ArrayList<>();
-        JSONArray classesJson = new JSONArray(value);
-        for (int i = 0; i < classesJson.length(); i++) {
-            classes.add(getClassFromJson(loader, classesJson.getJSONObject(i)));
-        }
-        return classes.toArray(new Class<?>[0]);
-    }
-
-    public HashMap<String, Field> getMapField(ClassLoader loader, FunctionCall<HashMap<String, Field>> functionCall) throws Exception {
-        return getMapField(loader, getKeyName(), functionCall);
-    }
-
-    public HashMap<String, Field> getMapField(ClassLoader loader, String key, FunctionCall<HashMap<String, Field>> functionCall) throws Exception {
-        String value = sPrefsCacheHooks.getString(key, null);
-        if (value == null) {
-            try {
-                var result = functionCall.call();
-                if (result == null) throw new Exception("HashMap is null");
-                saveHashMap(key, result);
-                return result;
-            } catch (Exception e) {
-                throw new Exception("Error getting HashMap " + key + ": " + e.getMessage(), e);
-            }
-        }
-        return loadHashMap(loader, key);
-    }
-
-    private void saveHashMap(String key, HashMap<String, Field> map) {
-        JSONObject jsonObject = new JSONObject();
-        for (Map.Entry<String, Field> entry : map.entrySet()) {
-            try {
-                jsonObject.put(entry.getKey(), fieldToJson(entry.getValue()));
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }
-        }
-        sPrefsCacheHooks.edit().putString(key, jsonObject.toString()).apply();
-    }
-
-    private HashMap<String, Field> loadHashMap(ClassLoader loader, String key) {
-        HashMap<String, Field> map = new HashMap<>();
-        String jsonString = sPrefsCacheHooks.getString(key, null);
-        if (jsonString == null) return map;
-
-        try {
-            JSONObject jsonObject = new JSONObject(jsonString);
-            Iterator<String> keys = jsonObject.keys();
-
-            while (keys.hasNext()) {
-                String mapKey = keys.next();
-                try {
-                    map.put(mapKey, getFieldFromJson(loader, jsonObject.getJSONObject(mapKey)));
-                } catch (Exception e) {
-                    e.printStackTrace();
                 }
             }
-        } catch (JSONException e) {
-            e.printStackTrace();
+            latch.await()
+            XposedBridge.log(
+                "String cache saved in ${System.currentTimeMillis() - currentTime}ms"
+            )
+        } catch (e: Exception) {
+            XposedBridge.log(e)
+        } finally {
+            executor.shutdown()
         }
-
-        return map;
     }
 
-
-    @SuppressWarnings("ApplySharedPref")
-    public void saveField(String key, Field field) {
-        sPrefsCacheHooks.edit().putString(key, fieldToJson(field).toString()).commit();
-    }
-
-    @SuppressWarnings("ApplySharedPref")
-    public void saveFields(String key, Field[] fields) {
-        JSONArray values = new JSONArray();
-        for (Field field : fields) {
-            values.put(fieldToJson(field));
+    private fun getMapIdString(search: String): String? {
+        if (reverseResourceMap.isEmpty()) {
+            initializeReverseResourceMap()
+            System.gc()
         }
-        sPrefsCacheHooks.edit().putString(key, values.toString()).commit();
+        val s = search.lowercase(Locale.ROOT).replace("\\s".toRegex(), "")
+        XposedBridge.log("need search obsfucate: $s")
+        return reverseResourceMap[s]
     }
 
-    @SuppressWarnings("ApplySharedPref")
-    public void saveMethod(String key, Method method) {
-        sPrefsCacheHooks.edit().putString(key, methodToJson(method).toString()).commit();
-    }
-
-    @SuppressWarnings("ApplySharedPref")
-    public void saveMethods(String key, Method[] methods) {
-        JSONArray values = new JSONArray();
-        for (Method method : methods) {
-            values.put(methodToJson(method));
-        }
-        sPrefsCacheHooks.edit().putString(key, values.toString()).commit();
-    }
-
-    @SuppressWarnings("ApplySharedPref")
-    public void saveClass(String message, Class<?> messageClass) {
-        sPrefsCacheHooks.edit().putString(message, classToJson(messageClass).toString()).commit();
-    }
-
-    @SuppressWarnings("ApplySharedPref")
-    public void saveClasses(String message, Class<?>[] messageClass) {
-        JSONArray values = new JSONArray();
-        for (Class<?> aClass : messageClass) {
-            values.put(classToJson(aClass));
-        }
-        sPrefsCacheHooks.edit().putString(message, values.toString()).commit();
-    }
-
-    private JSONObject fieldToJson(Field field) {
-        JSONObject value = new JSONObject();
-        try {
-            value.put("class", field.getDeclaringClass().getName());
-            value.put("name", field.getName());
-        } catch (JSONException e) {
-            throw new RuntimeException(e);
-        }
-        return value;
-    }
-
-    private Field getFieldFromJson(ClassLoader loader, JSONObject value) throws JSONException {
-        Class<?> cls = ReflectionUtils.findClass(value.getString("class"), loader);
-        return XposedHelpers.findField(cls, value.getString("name"));
-    }
-
-    private JSONObject methodToJson(Method method) {
-        JSONObject value = new JSONObject();
-        try {
-            value.put("class", method.getDeclaringClass().getName());
-            value.put("name", method.getName());
-            value.put("params", classArrayToJson(method.getParameterTypes()));
-        } catch (JSONException e) {
-            throw new RuntimeException(e);
-        }
-        return value;
-    }
-
-    private Method getMethodFromJson(ClassLoader loader, JSONObject value) throws JSONException {
-        Class<?> cls = ReflectionUtils.findClass(value.getString("class"), loader);
-        Class<?>[] paramTypes = classArrayFromJson(loader, value.getJSONArray("params"));
-        return XposedHelpers.findMethodExact(cls, value.getString("name"), paramTypes);
-    }
-
-    private JSONObject classToJson(Class<?> cls) {
-        JSONObject value = new JSONObject();
-        try {
-            value.put("class", cls.getName());
-        } catch (JSONException e) {
-            throw new RuntimeException(e);
-        }
-        return value;
-    }
-
-    private Class<?> getClassFromJson(ClassLoader loader, JSONObject value) throws JSONException {
-        return XposedHelpers.findClass(value.getString("class"), loader);
-    }
-
-    private JSONArray classArrayToJson(Class<?>[] classes) {
-        JSONArray values = new JSONArray();
-        for (Class<?> cls : classes) {
-            values.put(cls.getName());
-        }
-        return values;
-    }
-
-    private Class<?>[] classArrayFromJson(ClassLoader loader, JSONArray values) throws JSONException {
-        Class<?>[] classes = new Class<?>[values.length()];
-        for (int i = 0; i < values.length(); i++) {
-            classes[i] = ReflectionUtils.findClass(values.getString(i), loader);
-        }
-        return classes;
-    }
-
-    private String getKeyName() {
-        AtomicReference<String> keyName = new AtomicReference<>("");
-        Arrays.stream(Thread.currentThread().getStackTrace()).filter(stackTraceElement -> stackTraceElement.getClassName().equals(Unobfuscator.class.getName())).findFirst().ifPresent(stackTraceElement -> keyName.set(stackTraceElement.getMethodName()));
-        return keyName.get();
-    }
-
-    public Constructor getConstructor(ClassLoader loader, FunctionCall functionCall) throws Exception {
-        var methodName = getKeyName();
-        String value = sPrefsCacheHooks.getString(methodName, null);
-        if (value == null) {
-            var result = (Constructor) functionCall.call();
-            if (result == null) throw new Exception("Class is null");
-            saveConstructor(methodName, result);
-            return result;
-        }
-        JSONObject constructorJson = new JSONObject(value);
-        Class<?> cls = XposedHelpers.findClass(constructorJson.getString("class"), loader);
-        Class<?>[] paramTypes = classArrayFromJson(loader, constructorJson.getJSONArray("params"));
-        return XposedHelpers.findConstructorExact(cls, paramTypes);
-    }
-
-    @SuppressWarnings("ApplySharedPref")
-    private void saveConstructor(String key, Constructor constructor) {
-        JSONObject value = new JSONObject();
-        try {
-            value.put("class", constructor.getDeclaringClass().getName());
-            value.put("params", classArrayToJson(constructor.getParameterTypes()));
-        } catch (JSONException e) {
-            throw new RuntimeException(e);
-        }
-        sPrefsCacheHooks.edit().putString(key, value.toString()).commit();
-    }
-
-    public Number getNumber(ClassLoader loader, FunctionCall<Number> functionCall) throws Exception {
-        var methodName = getKeyName();
-        String value = sPrefsCacheHooks.getString(methodName, null);
-        if (value == null) {
-            try {
-                Number result = functionCall.call();
-                if (result == null) throw new Exception("Number is null");
-                saveNumber(methodName, result);
-                return result;
-            } catch (Exception e) {
-                throw new Exception("Error getting number " + methodName + ": " + e.getMessage(), e);
+    fun getOfuscateIDString(search: String): Int {
+        val s = search.lowercase(Locale.ROOT).replace("\\s".toRegex(), "")
+        var id = sPrefsCacheStrings.getString(s, null)
+        if (id == null) {
+            id = getMapIdString(s)
+            if (id != null) {
+                sPrefsCacheStrings.edit { putString(s, id) }
             }
         }
-        return loadNumber(new JSONObject(value));
+        return id?.toInt() ?: -1
     }
 
-    @SuppressWarnings("ApplySharedPref")
-    private void saveNumber(String key, Number number) {
-        JSONObject value = new JSONObject();
-        try {
-            value.put("class", number.getClass().getName());
-            value.put("value", number);
-        } catch (JSONException e) {
-            throw new RuntimeException(e);
+    fun getString(search: String): String {
+        val id = getOfuscateIDString(search)
+        return if (id < 1) "" else mApplication.resources.getString(id)
+    }
+
+    fun getField(loader: ClassLoader, functionCall: FunctionCall<Field>): Field {
+        val methodName = getKeyName()
+        val value = sPrefsCacheHooks.getString(methodName, null) ?: try {
+            val result = functionCall.call() ?: throw NoSuchFieldException("Field is null")
+            saveField(methodName, result)
+            return result
+        } catch (e: Exception) {
+            throw Exception("Error getting field $methodName: ${e.message}", e)
         }
-        sPrefsCacheHooks.edit().putString(key, value.toString()).commit();
+        return getFieldFromJson(loader, JSONObject(value))
     }
 
-    private Number loadNumber(JSONObject value) throws JSONException {
-        String className = value.getString("class");
-
-        return switch (className) {
-            case "java.lang.Integer" -> value.getInt("value");
-            case "java.lang.Long" -> value.getLong("value");
-            case "java.lang.Float" -> (float) value.getDouble("value");
-            case "java.lang.Double" -> value.getDouble("value");
-            case "java.lang.Short" -> (short) value.getInt("value");
-            case "java.lang.Byte" -> (byte) value.getInt("value");
-            default -> value.getLong("value");
-        };
+    @Suppress("unused")
+    fun getFields(loader: ClassLoader, functionCall: FunctionCall<Array<Field>>): Array<Field> {
+        val methodName = getKeyName()
+        val value = sPrefsCacheHooks.getString(methodName, null) ?: try {
+            val result = functionCall.call() ?: throw NoSuchFieldException("Fields is null")
+            saveFields(methodName, result)
+            return result
+        } catch (e: Exception) {
+            throw Exception("Error getting fields $methodName: ${e.message}", e)
+        }
+        val fields = ArrayList<Field>()
+        val fieldsJson = JSONArray(value)
+        for (i in 0 until fieldsJson.length()) {
+            fields.add(getFieldFromJson(loader, fieldsJson.getJSONObject(i)))
+        }
+        return fields.toTypedArray()
     }
 
-    public interface FunctionCall<T> {
-        T call() throws Exception;
+    fun getMethod(loader: ClassLoader, functionCall: FunctionCall<Method>): Method {
+        val methodName = getKeyName()
+        val value = sPrefsCacheHooks.getString(methodName, null) ?: try {
+            val result = functionCall.call() ?: throw NoSuchMethodException("Method is null")
+            saveMethod(methodName, result)
+            return result
+        } catch (e: Exception) {
+            throw Exception("Error getting method $methodName: ${e.message}", e)
+        }
+        return getMethodFromJsonString(loader, value)
     }
 
+    fun getMethods(loader: ClassLoader, functionCall: FunctionCall<Array<Method>>): Array<Method> {
+        val methodName = getKeyName()
+        val value = sPrefsCacheHooks.getString(methodName, null) ?: try {
+            val result = functionCall.call() ?: throw NoSuchMethodException("Methods is null")
+            if (result.isEmpty()) throw NoSuchMethodException("Methods is empty")
+            saveMethods(methodName, result)
+            return result
+        } catch (e: Exception) {
+            throw Exception("Error getting methods $methodName: ${e.message}", e)
+        }
+        val methods = ArrayList<Method>()
+        val methodsJson = JSONArray(value)
+        for (i in 0 until methodsJson.length()) {
+            methods.add(getMethodFromJson(loader, methodsJson.getJSONObject(i)))
+        }
+        return methods.toTypedArray()
+    }
+
+    private fun getMethodFromJsonString(loader: ClassLoader, value: String): Method {
+        return getMethodFromJson(loader, JSONObject(value))
+    }
+
+    fun getClass(loader: ClassLoader, functionCall: FunctionCall<Class<*>>): Class<*> {
+        return getClass(loader, getKeyName(), functionCall)
+    }
+
+    fun getClass(
+        loader: ClassLoader,
+        key: String,
+        functionCall: FunctionCall<Class<*>>
+    ): Class<*> {
+        val value = sPrefsCacheHooks.getString(key, null) ?: try {
+            val result = functionCall.call() ?: throw ClassNotFoundException("Class is null")
+            saveClass(key, result)
+            return result
+        } catch (e: Exception) {
+            throw Exception("Error getting class $key: ${e.message}", e)
+        }
+        return getClassFromJson(loader, JSONObject(value))
+    }
+
+    fun getClasses(
+        loader: ClassLoader,
+        functionCall: FunctionCall<Array<Class<*>>>
+    ): Array<Class<*>> {
+        val methodName = getKeyName()
+        val value = sPrefsCacheHooks.getString(methodName, null) ?: try {
+            val result = functionCall.call() ?: throw ClassNotFoundException("Classes is null")
+            saveClasses(methodName, result)
+            return result
+        } catch (e: Exception) {
+            throw Exception("Error getting classes $methodName: ${e.message}", e)
+        }
+        val classes = ArrayList<Class<*>>()
+        val classesJson = JSONArray(value)
+        for (i in 0 until classesJson.length()) {
+            classes.add(getClassFromJson(loader, classesJson.getJSONObject(i)))
+        }
+        return classes.toTypedArray()
+    }
+
+    fun getMapField(
+        loader: ClassLoader,
+        functionCall: FunctionCall<HashMap<String, Field>>
+    ): HashMap<String, Field> {
+        return getMapField(loader, getKeyName(), functionCall)
+    }
+
+    fun getMapField(
+        loader: ClassLoader,
+        key: String,
+        functionCall: FunctionCall<HashMap<String, Field>>
+    ): HashMap<String, Field> {
+        sPrefsCacheHooks.getString(key, null) ?: try {
+            val result = functionCall.call() ?: throw Exception("HashMap is null")
+            saveHashMap(key, result)
+            return result
+        } catch (e: Exception) {
+            throw Exception("Error getting HashMap $key: ${e.message}", e)
+        }
+        return loadHashMap(loader, key)
+    }
+
+    private fun saveHashMap(key: String, map: HashMap<String, Field>) {
+        val jsonObject = JSONObject()
+        for ((mapKey, field) in map) {
+            try {
+                jsonObject.put(mapKey, fieldToJson(field))
+            } catch (e: JSONException) {
+                XposedBridge.log(e)
+            }
+        }
+        sPrefsCacheHooks.edit { putString(key, jsonObject.toString()) }
+    }
+
+    private fun loadHashMap(loader: ClassLoader, key: String): HashMap<String, Field> {
+        val map = HashMap<String, Field>()
+        val jsonString = sPrefsCacheHooks.getString(key, null) ?: return map
+        try {
+            val jsonObject = JSONObject(jsonString)
+            val keys = jsonObject.keys()
+            while (keys.hasNext()) {
+                val mapKey = keys.next()
+                try {
+                    map[mapKey] = getFieldFromJson(loader, jsonObject.getJSONObject(mapKey))
+                } catch (e: Exception) {
+                    XposedBridge.log(e)
+                }
+            }
+        } catch (e: JSONException) {
+            XposedBridge.log(e)
+        }
+        return map
+    }
+
+    fun saveField(key: String, field: Field) {
+        sPrefsCacheHooks.edit { putString(key, fieldToJson(field).toString()) }
+    }
+
+    fun saveFields(key: String, fields: Array<Field>) {
+        val values = JSONArray()
+        for (field in fields) {
+            values.put(fieldToJson(field))
+        }
+        sPrefsCacheHooks.edit { putString(key, values.toString()) }
+    }
+
+    fun saveMethod(key: String, method: Method) {
+        sPrefsCacheHooks.edit { putString(key, methodToJson(method).toString()) }
+    }
+
+    fun saveMethods(key: String, methods: Array<Method>) {
+        val values = JSONArray()
+        for (method in methods) {
+            values.put(methodToJson(method))
+        }
+        sPrefsCacheHooks.edit { putString(key, values.toString()) }
+    }
+
+    fun saveClass(key: String, messageClass: Class<*>) {
+        sPrefsCacheHooks.edit { putString(key, classToJson(messageClass).toString()) }
+    }
+
+    fun saveClasses(key: String, messageClasses: Array<Class<*>>) {
+        val values = JSONArray()
+        for (aClass in messageClasses) {
+            values.put(classToJson(aClass))
+        }
+        sPrefsCacheHooks.edit { putString(key, values.toString()) }
+    }
+
+    private fun fieldToJson(field: Field): JSONObject {
+        val value = JSONObject()
+        try {
+            value.put("class", field.declaringClass.name)
+            value.put("name", field.name)
+        } catch (e: JSONException) {
+            throw RuntimeException(e)
+        }
+        return value
+    }
+
+    private fun getFieldFromJson(loader: ClassLoader, value: JSONObject): Field {
+        val cls = ReflectionUtils.findClass(value.getString("class"), loader)
+        return XposedHelpers.findField(cls, value.getString("name"))
+    }
+
+    private fun methodToJson(method: Method): JSONObject {
+        val value = JSONObject()
+        try {
+            value.put("class", method.declaringClass.name)
+            value.put("name", method.name)
+            value.put("params", classArrayToJson(method.parameterTypes))
+        } catch (e: JSONException) {
+            throw RuntimeException(e)
+        }
+        return value
+    }
+
+    private fun getMethodFromJson(loader: ClassLoader, value: JSONObject): Method {
+        val cls = ReflectionUtils.findClass(value.getString("class"), loader)
+        val paramTypes = classArrayFromJson(loader, value.getJSONArray("params"))
+        return XposedHelpers.findMethodExact(cls, value.getString("name"), *paramTypes)
+    }
+
+    private fun classToJson(cls: Class<*>): JSONObject {
+        val value = JSONObject()
+        try {
+            value.put("class", cls.name)
+        } catch (e: JSONException) {
+            throw RuntimeException(e)
+        }
+        return value
+    }
+
+    private fun getClassFromJson(loader: ClassLoader, value: JSONObject): Class<*> {
+        return XposedHelpers.findClass(value.getString("class"), loader)
+    }
+
+    private fun classArrayToJson(classes: Array<Class<*>>): JSONArray {
+        val values = JSONArray()
+        for (cls in classes) {
+            values.put(cls.name)
+        }
+        return values
+    }
+
+    private fun classArrayFromJson(loader: ClassLoader, values: JSONArray): Array<Class<*>> {
+        return Array(values.length()) { i ->
+            ReflectionUtils.findClass(values.getString(i), loader)
+        }
+    }
+
+    private fun getKeyName(): String {
+        val keyName = AtomicReference("")
+        Thread.currentThread().stackTrace.firstOrNull { it.className == Unobfuscator::class.java.name }
+            ?.let { keyName.set(it.methodName) }
+        return keyName.get()
+    }
+
+    fun getConstructor(
+        loader: ClassLoader,
+        functionCall: FunctionCall<Constructor<*>>
+    ): Constructor<*> {
+        val methodName = getKeyName()
+        val value = sPrefsCacheHooks.getString(methodName, null)
+        if (value == null) {
+            val result = functionCall.call() ?: throw Exception("Constructor is null")
+            saveConstructor(methodName, result)
+            return result
+        }
+        val constructorJson = JSONObject(value)
+        val cls = XposedHelpers.findClass(constructorJson.getString("class"), loader)
+        val paramTypes = classArrayFromJson(loader, constructorJson.getJSONArray("params"))
+        return XposedHelpers.findConstructorExact(cls, *paramTypes)
+    }
+
+    private fun saveConstructor(key: String, constructor: Constructor<*>) {
+        val value = JSONObject()
+        try {
+            value.put("class", constructor.declaringClass.name)
+            value.put("params", classArrayToJson(constructor.parameterTypes))
+        } catch (e: JSONException) {
+            throw RuntimeException(e)
+        }
+        sPrefsCacheHooks.edit { putString(key, value.toString()) }
+    }
+
+    fun getNumber(ignored: ClassLoader, functionCall: FunctionCall<Number>): Number {
+        val methodName = getKeyName()
+        val value = sPrefsCacheHooks.getString(methodName, null) ?: try {
+            val result = functionCall.call() ?: throw Exception("Number is null")
+            saveNumber(methodName, result)
+            return result
+        } catch (e: Exception) {
+            throw Exception("Error getting number $methodName: ${e.message}", e)
+        }
+        return loadNumber(JSONObject(value))
+    }
+
+    private fun saveNumber(key: String, number: Number) {
+        val value = JSONObject()
+        try {
+            value.put("class", number.javaClass.name)
+            value.put("value", number)
+        } catch (e: JSONException) {
+            throw RuntimeException(e)
+        }
+        sPrefsCacheHooks.edit { putString(key, value.toString()) }
+    }
+
+    private fun loadNumber(value: JSONObject): Number {
+        val className = value.getString("class")
+        return when (className) {
+            "java.lang.Integer" -> value.getInt("value")
+            "java.lang.Long" -> value.getLong("value")
+            "java.lang.Float" -> value.getDouble("value").toFloat()
+            "java.lang.Double" -> value.getDouble("value")
+            "java.lang.Short" -> value.getInt("value").toShort()
+            "java.lang.Byte" -> value.getInt("value").toByte()
+            else -> value.getLong("value")
+        }
+    }
+
+    fun interface FunctionCall<T> {
+        fun call(): T?
+    }
 }
