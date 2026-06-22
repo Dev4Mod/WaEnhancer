@@ -116,9 +116,6 @@ public class SearchActivity extends BaseActivity implements SearchAdapter.OnFeat
     @Override
     public void onFeatureClick(SearchableFeature feature) {
         if (feature.getFragmentType() == SearchableFeature.FragmentType.ACTIVITY) {
-            if ("deleted_messages_activity".equals(feature.getKey())) {
-                startActivity(new Intent(this, DeletedMessagesActivity.class));
-            }
             return;
         }
 

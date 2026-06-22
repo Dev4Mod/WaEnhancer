@@ -473,10 +473,7 @@
     <string name="search_no_results">No se encontraron funciones</string>
     <string name="search_try_different_keywords">Prueba diferentes palabras clave o navega por categorías</string>
     <string name="search_start_typing">Comienza a escribir para buscar funciones</string>
-    <string name="no_deleted_messages">No se encontraron mensajes eliminados</string>
-    <string name="deleted_messages_title">Eliminado por mí</string>
     <string name="restore_message">Restaurar</string>
-    <string name="deleted_messages_sum">Ver mensajes eliminados por otros</string>
     <string name="restore_feature_title">Restaurar función</string>
     <string name="restore_feature_desc">"¡Próximamente!"</string>
     <string name="action_follow_developer">¡Próximamente!</string>

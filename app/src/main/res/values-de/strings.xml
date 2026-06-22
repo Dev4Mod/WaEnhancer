@@ -473,10 +473,7 @@
     <string name="search_no_results">Keine Features gefunden</string>
     <string name="search_try_different_keywords">Versuchen Sie verschiedene Schlüsselwörter oder durchsuchen Sie Kategorien</string>
     <string name="search_start_typing">Beginnen Sie mit der Eingabe, um Funktionen zu suchen</string>
-    <string name="no_deleted_messages">Keine gelöschten Nachrichten gefunden</string>
-    <string name="deleted_messages_title">Von mir gelöscht</string>
     <string name="restore_message">Wiederherstellen</string>
-    <string name="deleted_messages_sum">Nachrichten anzeigen, die von anderen gelöscht wurden</string>
     <string name="restore_feature_title">Funktion wiederherstellen</string>
     <string name="restore_feature_desc">"In Kürze verfügbar!"</string>
     <string name="action_follow_developer">In Kürze verfügbar!</string>

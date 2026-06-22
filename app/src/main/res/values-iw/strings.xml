@@ -475,10 +475,7 @@
     <string name="search_no_results">לא נמצאו תכונות</string>
     <string name="search_try_different_keywords">נסה מילות מפתח שונות או עיין בקטגוריות</string>
     <string name="search_start_typing">התחל להקליד כדי לחפש תכונות</string>
-    <string name="no_deleted_messages">לא נמצאו הודעות שנמחקו</string>
-    <string name="deleted_messages_title">נמחק בזכותי</string>
     <string name="restore_message">שחזר</string>
-    <string name="deleted_messages_sum">הצג הודעות שנמחקו על ידי אחרים</string>
     <string name="restore_feature_title">תכונת שחזור</string>
     <string name="restore_feature_desc">"בקרוב!"</string>
     <string name="action_follow_developer">בקרוב!</string>

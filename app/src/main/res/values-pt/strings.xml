@@ -473,10 +473,7 @@
     <string name="search_no_results">Nada encontrado</string>
     <string name="search_try_different_keywords">Tente palavras-chaves diferentes ou navegue pelas categorias</string>
     <string name="search_start_typing">Digite para pesquisar</string>
-    <string name="no_deleted_messages">Nenhuma mensagem excluída encontrada</string>
-    <string name="deleted_messages_title">Apagada por mim</string>
     <string name="restore_message">Restaurar</string>
-    <string name="deleted_messages_sum">Visualizar mensagens apagadas</string>
     <string name="restore_feature_title">Restaurar função</string>
     <string name="restore_feature_desc">"Em breve!"</string>
     <string name="action_follow_developer">Em breve!</string>

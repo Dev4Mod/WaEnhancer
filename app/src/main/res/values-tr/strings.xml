@@ -473,10 +473,7 @@
     <string name="search_no_results">Özellik bulunamadı</string>
     <string name="search_try_different_keywords">Farklı anahtar kelimeler deneyin veya kategorilere göz atın</string>
     <string name="search_start_typing">Özellikleri aramak için yazmaya başlayın</string>
-    <string name="no_deleted_messages">Silinmiş mesaj bulunamadı</string>
-    <string name="deleted_messages_title">Sildiklerim</string>
     <string name="restore_message">Geri yükle</string>
-    <string name="deleted_messages_sum">Başkalarının sildiği mesajları görüntüle</string>
     <string name="restore_feature_title">Geri Yükleme Özelliği</string>
     <string name="restore_feature_desc">"Çok yakında!"</string>
     <string name="action_follow_developer">Çok yakında!</string>

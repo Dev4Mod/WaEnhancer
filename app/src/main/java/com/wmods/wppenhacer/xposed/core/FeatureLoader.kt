@@ -50,7 +50,6 @@ import com.wmods.wppenhacer.xposed.features.general.LiteMode
 import com.wmods.wppenhacer.xposed.features.general.NewChat
 import com.wmods.wppenhacer.xposed.features.general.Others
 import com.wmods.wppenhacer.xposed.features.general.PinnedLimit
-import com.wmods.wppenhacer.xposed.features.general.RecoverDeleteForMe
 import com.wmods.wppenhacer.xposed.features.general.SeenTick
 import com.wmods.wppenhacer.xposed.features.general.ShareLimit
 import com.wmods.wppenhacer.xposed.features.general.ShowEditMessage
@@ -518,7 +517,6 @@ class FeatureLoader {
                 LockedChatsEnhancer::class.java,
                 CallRecording::class.java,
                 BackupRestore::class.java,
-                RecoverDeleteForMe::class.java,
                 JumpFirstMessage::class.java,
                 AboutContactPicker::class.java
             )

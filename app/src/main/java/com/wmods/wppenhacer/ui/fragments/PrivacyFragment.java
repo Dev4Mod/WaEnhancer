@@ -23,10 +23,6 @@ public class PrivacyFragment extends BasePreferenceFragment {
         super.onCreatePreferences(savedInstanceState, rootKey);
         setPreferencesFromResource(R.xml.fragment_privacy, rootKey);
 
-        findPreference("open_deleted_messages").setOnPreferenceClickListener(preference -> {
-            startActivity(new Intent(requireContext(), com.wmods.wppenhacer.activities.DeletedMessagesActivity.class));
-            return true;
-        });
     }
 
     @Override

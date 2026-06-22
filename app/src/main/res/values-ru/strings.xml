@@ -473,10 +473,7 @@
     <string name="search_no_results">Функции не найдены</string>
     <string name="search_try_different_keywords">Попробуйте различные ключевые слова или просмотрите категории</string>
     <string name="search_start_typing">Начните вводить, чтобы выполнить поиск по функциям</string>
-    <string name="no_deleted_messages">Сообщения, которые были удалены, не найдены</string>
-    <string name="deleted_messages_title">Удалено мной</string>
     <string name="restore_message">Восстановить</string>
-    <string name="deleted_messages_sum">Просмотр сообщений, удалённых другими</string>
     <string name="restore_feature_title">Восстановить функцию</string>
     <string name="restore_feature_desc">"Скоро будет доступно!"</string>
     <string name="action_follow_developer">Скоро будет доступно!</string>

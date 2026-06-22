@@ -473,10 +473,7 @@
     <string name="search_no_results">Nessuna funzionalità trovata</string>
     <string name="search_try_different_keywords">Prova parole chiave diverse o esplora le categorie</string>
     <string name="search_start_typing">Inizia a digitare per cercare funzionalità</string>
-    <string name="no_deleted_messages">Nessun messaggio eliminato trovato</string>
-    <string name="deleted_messages_title">Eliminato Da Me</string>
     <string name="restore_message">Ripristina</string>
-    <string name="deleted_messages_sum">Visualizza i messaggi eliminati da altri</string>
     <string name="restore_feature_title">Ripristina Funzionalità</string>
     <string name="restore_feature_desc">"Prossimamente!"</string>
     <string name="action_follow_developer">Prossimamente!</string>
