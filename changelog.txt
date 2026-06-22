@@ -1,9 +1,12 @@
-[ADDED
-* Added card that shows if there is a new update in WAE
+[ADDED]
+* Added function to remove white borders when creating stickers (Static stickers only)
+
+[REMOVED]
+* Removed message backup function (It was not created by me and the code is messed up too much)
 
 [FIXED]
-* Fixed some errors
-* Fixed checking for new update
-* Fixed problem sending status preview tick
-* Fixed crash in MediaPreview
-* Fixed update checker
+* Fixed compatibility issue with some devices
+* Fixed several problems in the code
+
+[IMPROVED]
+* All features were rewritten in Kotlin
