@@ -4,12 +4,13 @@ import android.content.ContentValues
 import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
+import android.graphics.Bitmap
+import android.graphics.ColorFilter
 import android.graphics.Rect
 import android.graphics.drawable.Drawable
 import android.hardware.SensorEventListener
 import android.net.Uri
 import android.os.Bundle
-import android.os.Handler
 import android.view.LayoutInflater
 import android.view.Menu
 import android.view.MenuItem
@@ -3410,4 +3411,16 @@ object Unobfuscator {
             }.single().getConstructorInstance(classLoader)
         }
     }
+
+    fun loadStickerColoredOutline(classLoader: ClassLoader): Method {
+        return UnobfuscatorCache.getInstance().getMethod(classLoader){
+            bridge.findMethod {
+                matcher {
+                    paramTypes(Bitmap::class.java, ColorFilter::class.java, Float::class.javaPrimitiveType)
+                    returnType(Bitmap::class.java)
+                }
+            }.single().getMethodInstance(classLoader)
+        }
+    }
+
 }

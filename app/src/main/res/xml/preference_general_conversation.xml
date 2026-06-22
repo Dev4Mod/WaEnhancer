@@ -76,11 +76,6 @@
             app:title="@string/show_edited_message_history" />
 
         <rikka.material.preference.MaterialSwitchPreference
-            app:key="alertsticker"
-            app:summary="@string/enable_confirmation_to_send_sticker_sum"
-            app:title="@string/enable_confirmation_to_send_sticker" />
-
-        <rikka.material.preference.MaterialSwitchPreference
             app:key="calltype"
             app:summary="@string/selection_of_call_type_sum"
             app:title="@string/selection_of_call_type" />
@@ -123,6 +118,22 @@
             app:key="jump_first_message"
             app:summary="@string/jump_first_message_sum"
             app:title="@string/jump_first_message" />
+
+    </PreferenceCategory>
+
+    <PreferenceCategory
+        app:iconSpaceReserved="false"
+        app:title="@string/stickers">
+
+    <rikka.material.preference.MaterialSwitchPreference
+        app:key="alertsticker"
+        app:summary="@string/enable_confirmation_to_send_sticker_sum"
+        app:title="@string/enable_confirmation_to_send_sticker" />
+
+    <rikka.material.preference.MaterialSwitchPreference
+        app:key="remove_sticker_white_outline"
+        app:summary="@string/remove_sticker_white_outline_sum"
+        app:title="@string/remove_sticker_white_outline" />
 
     </PreferenceCategory>
 
