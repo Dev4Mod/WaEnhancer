@@ -82,7 +82,7 @@ class CallType(loader: ClassLoader, preferences: XSharedPreferences) :
                 val mAlertDialog = AlertDialogWpp(origDialog.context)
                 mAlertDialog.setTitle(UnobfuscatorCache.getInstance().getString("selectcalltype"))
                 mAlertDialog.setItems(
-                    arrayOf<String?>(
+                    arrayOf(
                         context.getString(R.string.phone_call),
                         context.getString(R.string.whatsapp_call)
                     )

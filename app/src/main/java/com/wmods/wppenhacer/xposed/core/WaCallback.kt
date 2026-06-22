@@ -1,61 +1,60 @@
-package com.wmods.wppenhacer.xposed.core;
+package com.wmods.wppenhacer.xposed.core
 
-import android.app.Activity;
-import android.app.Application;
-import android.os.Bundle;
+import android.app.Activity
+import android.app.Application.ActivityLifecycleCallbacks
+import android.os.Bundle
+import com.wmods.wppenhacer.xposed.core.ActivityStateRegistry.cleanup
+import com.wmods.wppenhacer.xposed.core.ActivityStateRegistry.updateState
+import com.wmods.wppenhacer.xposed.core.WppCore.ActivityChangeState
+import com.wmods.wppenhacer.xposed.core.WppCore.listenerActivity
+import java.util.function.Consumer
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-
-
-public class WaCallback implements Application.ActivityLifecycleCallbacks {
-
-    private static void triggerActivityState(@NonNull Activity activity, WppCore.ActivityChangeState.ChangeType type) {
-        WppCore.getListenerActivity().forEach((listener) -> listener.onChange(activity, type));
+class WaCallback : ActivityLifecycleCallbacks {
+    override fun onActivityCreated(activity: Activity, bundle: Bundle?) {
+        WppCore.mCurrentActivity = activity
+        updateState(activity, ActivityChangeState.ChangeType.CREATED)
+        triggerActivityState(activity, ActivityChangeState.ChangeType.CREATED)
     }
 
-    @Override
-    public void onActivityCreated(@NonNull Activity activity, @Nullable Bundle bundle) {
-        WppCore.mCurrentActivity = activity;
-        ActivityStateRegistry.updateState(activity, WppCore.ActivityChangeState.ChangeType.CREATED);
-        triggerActivityState(activity, WppCore.ActivityChangeState.ChangeType.CREATED);
+    override fun onActivityStarted(activity: Activity) {
+        WppCore.mCurrentActivity = activity
+        updateState(activity, ActivityChangeState.ChangeType.STARTED)
+        triggerActivityState(activity, ActivityChangeState.ChangeType.STARTED)
     }
 
-    @Override
-    public void onActivityStarted(@NonNull Activity activity) {
-        WppCore.mCurrentActivity = activity;
-        ActivityStateRegistry.updateState(activity, WppCore.ActivityChangeState.ChangeType.STARTED);
-        triggerActivityState(activity, WppCore.ActivityChangeState.ChangeType.STARTED);
+    override fun onActivityResumed(activity: Activity) {
+        WppCore.mCurrentActivity = activity
+        updateState(activity, ActivityChangeState.ChangeType.RESUMED)
+        triggerActivityState(activity, ActivityChangeState.ChangeType.RESUMED)
     }
 
-    @Override
-    public void onActivityResumed(@NonNull Activity activity) {
-        WppCore.mCurrentActivity = activity;
-        ActivityStateRegistry.updateState(activity, WppCore.ActivityChangeState.ChangeType.RESUMED);
-        triggerActivityState(activity, WppCore.ActivityChangeState.ChangeType.RESUMED);
+    override fun onActivityPaused(activity: Activity) {
+        updateState(activity, ActivityChangeState.ChangeType.PAUSED)
+        triggerActivityState(activity, ActivityChangeState.ChangeType.PAUSED)
     }
 
-    @Override
-    public void onActivityPaused(@NonNull Activity activity) {
-        ActivityStateRegistry.updateState(activity, WppCore.ActivityChangeState.ChangeType.PAUSED);
-        triggerActivityState(activity, WppCore.ActivityChangeState.ChangeType.PAUSED);
+    override fun onActivityStopped(activity: Activity) {
+        updateState(activity, ActivityChangeState.ChangeType.ENDED)
+        triggerActivityState(activity, ActivityChangeState.ChangeType.ENDED)
     }
 
-    @Override
-    public void onActivityStopped(@NonNull Activity activity) {
-        ActivityStateRegistry.updateState(activity, WppCore.ActivityChangeState.ChangeType.ENDED);
-        triggerActivityState(activity, WppCore.ActivityChangeState.ChangeType.ENDED);
+    override fun onActivityDestroyed(activity: Activity) {
+        updateState(activity, ActivityChangeState.ChangeType.DESTROYED)
+        triggerActivityState(activity, ActivityChangeState.ChangeType.DESTROYED)
+        cleanup()
     }
 
-    @Override
-    public void onActivityDestroyed(@NonNull Activity activity) {
-        ActivityStateRegistry.updateState(activity, WppCore.ActivityChangeState.ChangeType.DESTROYED);
-        triggerActivityState(activity, WppCore.ActivityChangeState.ChangeType.DESTROYED);
-        ActivityStateRegistry.cleanup();
+    override fun onActivitySaveInstanceState(activity: Activity, bundle: Bundle) {
     }
 
-    @Override
-    public void onActivitySaveInstanceState(@NonNull Activity activity, @NonNull Bundle bundle) {
+    companion object {
+        private fun triggerActivityState(activity: Activity, type: ActivityChangeState.ChangeType) {
+            listenerActivity.forEach(Consumer { listener: ActivityChangeState? ->
+                listener!!.onChange(
+                    activity,
+                    type
+                )
+            })
+        }
     }
-
 }

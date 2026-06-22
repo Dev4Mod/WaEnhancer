@@ -1,203 +1,186 @@
-package com.wmods.wppenhacer.xposed.core.components;
+package com.wmods.wppenhacer.xposed.core.components
 
-import android.content.ContextWrapper;
-import android.content.SharedPreferences;
+import android.content.SharedPreferences
+import android.content.SharedPreferences.OnSharedPreferenceChangeListener
+import com.wmods.wppenhacer.xposed.core.devkit.Unobfuscator.loadSharedPreferencesClasses
+import de.robv.android.xposed.XC_MethodHook
+import de.robv.android.xposed.XposedBridge
+import de.robv.android.xposed.XposedHelpers
 
-import androidx.annotation.Nullable;
-
-import com.wmods.wppenhacer.xposed.core.devkit.Unobfuscator;
-
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
-
-import de.robv.android.xposed.XC_MethodHook;
-import de.robv.android.xposed.XposedBridge;
-import de.robv.android.xposed.XposedHelpers;
-
-public class SharedPreferencesWrapper implements SharedPreferences {
-
-    private final static HashSet<SPrefHook> prefHook = new HashSet<>();
-    private final SharedPreferences mPreferences;
-
-    public SharedPreferencesWrapper(SharedPreferences sharedPreferences) {
-        mPreferences = sharedPreferences;
+class SharedPreferencesWrapper(private val mPreferences: SharedPreferences) : SharedPreferences {
+    override fun getAll(): MutableMap<String?, *>? {
+        return mPreferences.all
     }
 
-    @Override
-    public Map<String, ?> getAll() {
-        return mPreferences.getAll();
-    }
-
-    @Nullable
-    @Override
-    public String getString(String s, @Nullable String s1) {
-        var value = mPreferences.getString(s, s1);
-        return (String) applyHook(s, value);
+    override fun getString(s: String?, s1: String?): String? {
+        val value = mPreferences.getString(s, s1)
+        return applyHook(s, value) as String?
     }
 
     /**
      * @noinspection unchecked
      */
-    @Nullable
-    @Override
-    public Set<String> getStringSet(String s, @Nullable Set<String> set) {
-        var value = mPreferences.getStringSet(s, set);
-        return (Set<String>) applyHook(s, value);
+    override fun getStringSet(s: String?, set: MutableSet<String?>?): MutableSet<String?>? {
+        val value = mPreferences.getStringSet(s, set)
+        @Suppress("UNCHECKED_CAST")
+        return applyHook(s, value) as MutableSet<String?>?
     }
 
-    @Override
-    public int getInt(String s, int i) {
-        var value = mPreferences.getInt(s, i);
-        return (int) applyHook(s, value);
+    override fun getInt(s: String?, i: Int): Int {
+        val value = mPreferences.getInt(s, i)
+        return applyHook(s, value) as Int
     }
 
-    @Override
-    public long getLong(String s, long l) {
-        var value = mPreferences.getLong(s, l);
-        return (long) applyHook(s, value);
+    override fun getLong(s: String?, l: Long): Long {
+        val value = mPreferences.getLong(s, l)
+        return applyHook(s, value) as Long
     }
 
-    @Override
-    public float getFloat(String s, float v) {
-        var value = mPreferences.getFloat(s, v);
-        return (float) applyHook(s, value);
+    override fun getFloat(s: String?, v: Float): Float {
+        val value = mPreferences.getFloat(s, v)
+        return applyHook(s, value) as Float
     }
 
-    @Override
-    public boolean getBoolean(String s, boolean b) {
-        var value = mPreferences.getBoolean(s, b);
-        return (boolean) applyHook(s, value);
+    override fun getBoolean(s: String?, b: Boolean): Boolean {
+        val value = mPreferences.getBoolean(s, b)
+        return applyHook(s, value) as Boolean
     }
 
-    @Override
-    public boolean contains(String s) {
-        var value = mPreferences.contains(s);
-        return (boolean) applyHook(s, value);
+    override fun contains(s: String?): Boolean {
+        val value = mPreferences.contains(s)
+        return applyHook(s, value) as Boolean
     }
 
-    @Override
-    public Editor edit() {
-        return mPreferences.edit();
+    override fun edit(): SharedPreferences.Editor? {
+        return mPreferences.edit()
     }
 
-    @Override
-    public void registerOnSharedPreferenceChangeListener(OnSharedPreferenceChangeListener onSharedPreferenceChangeListener) {
-        mPreferences.registerOnSharedPreferenceChangeListener(onSharedPreferenceChangeListener);
+    override fun registerOnSharedPreferenceChangeListener(onSharedPreferenceChangeListener: OnSharedPreferenceChangeListener?) {
+        mPreferences.registerOnSharedPreferenceChangeListener(onSharedPreferenceChangeListener)
     }
 
-    @Override
-    public void unregisterOnSharedPreferenceChangeListener(OnSharedPreferenceChangeListener onSharedPreferenceChangeListener) {
-        mPreferences.unregisterOnSharedPreferenceChangeListener(onSharedPreferenceChangeListener);
+    override fun unregisterOnSharedPreferenceChangeListener(onSharedPreferenceChangeListener: OnSharedPreferenceChangeListener?) {
+        mPreferences.unregisterOnSharedPreferenceChangeListener(onSharedPreferenceChangeListener)
     }
 
-    public static void hookInit(ClassLoader classLoader) throws Exception {
-        XposedHelpers.findAndHookMethod("android.app.ContextImpl", classLoader, "getSharedPreferences", String.class, int.class, new XC_MethodHook() {
-            @Override
-            protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-                var pref = (SharedPreferences) param.getResult();
-                if (pref == null || pref instanceof SharedPreferencesWrapper) return;
-                param.setResult(new SharedPreferencesWrapper(pref));
-            }
-        });
-        var sharedPreferencesClasses = Unobfuscator.loadSharedPreferencesClasses(classLoader);
-        if (sharedPreferencesClasses == null || sharedPreferencesClasses.length == 0) return;
+    fun interface SPrefHook {
+        fun hookValue(key: String?, value: Any?): Any?
+    }
 
-        XC_MethodHook getStringHook = new XC_MethodHook() {
-            @Override
-            protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-                var key = (String) param.args[0];
-                var value = param.getResult();
-                param.setResult(applyHook(key, value));
-            }
-        };
+    companion object {
+        private val prefHook = HashSet<SPrefHook>()
 
-        XC_MethodHook getBooleanHook = new XC_MethodHook() {
-            @Override
-            protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-                var key = (String) param.args[0];
-                var value = param.getResult();
-                param.setResult(applyHook(key, value));
-            }
-        };
+        @Throws(Exception::class)
+        fun hookInit(classLoader: ClassLoader) {
+            XposedHelpers.findAndHookMethod(
+                "android.app.ContextImpl",
+                classLoader,
+                "getSharedPreferences",
+                String::class.java,
+                Int::class.javaPrimitiveType,
+                object : XC_MethodHook() {
+                    @Throws(Throwable::class)
+                    override fun afterHookedMethod(param: MethodHookParam) {
+                        val pref = param.result as SharedPreferences?
+                        if (pref == null || pref is SharedPreferencesWrapper) return
+                        param.setResult(SharedPreferencesWrapper(pref))
+                    }
+                })
+            val sharedPreferencesClasses =
+                loadSharedPreferencesClasses(classLoader)
+            if (sharedPreferencesClasses.isNullOrEmpty()) return
 
-        XC_MethodHook getIntHook = new XC_MethodHook() {
-            @Override
-            protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-                var key = (String) param.args[0];
-                var value = param.getResult();
-                param.setResult(applyHook(key, value));
-            }
-        };
-
-        XC_MethodHook getLongHook = new XC_MethodHook() {
-            @Override
-            protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-                var key = (String) param.args[0];
-                var value = param.getResult();
-                param.setResult(applyHook(key, value));
-            }
-        };
-
-        XC_MethodHook getFloatHook = new XC_MethodHook() {
-            @Override
-            protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-                var key = (String) param.args[0];
-                var value = param.getResult();
-                param.setResult(applyHook(key, value));
-            }
-        };
-
-        XC_MethodHook containsHook = new XC_MethodHook() {
-            @Override
-            protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-                var key = (String) param.args[0];
-                var value = param.getResult();
-                param.setResult(applyHook(key, value));
-            }
-        };
-
-        XC_MethodHook getAllHook = new XC_MethodHook() {
-            @Override
-            protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-                @SuppressWarnings("unchecked")
-                Map<String, Object> result = (Map<String, Object>) param.getResult();
-                if (result == null || result.isEmpty()) return;
-                var updated = new java.util.HashMap<String, Object>(result.size());
-                for (var entry : result.entrySet()) {
-                    updated.put(entry.getKey(), applyHook(entry.getKey(), entry.getValue()));
+            val getStringHook: XC_MethodHook = object : XC_MethodHook() {
+                @Throws(Throwable::class)
+                override fun afterHookedMethod(param: MethodHookParam) {
+                    val key = param.args[0] as String?
+                    val value = param.result
+                    param.setResult(applyHook(key, value))
                 }
-                param.setResult(updated);
             }
-        };
 
-        for (var sharedPreferencesClass : sharedPreferencesClasses) {
-            if (sharedPreferencesClass == null) continue;
-            if (SharedPreferencesWrapper.class.getName().equals(sharedPreferencesClass.getName())) continue;
-            XposedBridge.hookAllMethods(sharedPreferencesClass, "getString", getStringHook);
-            XposedBridge.hookAllMethods(sharedPreferencesClass, "getStringSet", getStringHook);
-            XposedBridge.hookAllMethods(sharedPreferencesClass, "getInt", getIntHook);
-            XposedBridge.hookAllMethods(sharedPreferencesClass, "getLong", getLongHook);
-            XposedBridge.hookAllMethods(sharedPreferencesClass, "getFloat", getFloatHook);
-            XposedBridge.hookAllMethods(sharedPreferencesClass, "getBoolean", getBooleanHook);
-            XposedBridge.hookAllMethods(sharedPreferencesClass, "contains", containsHook);
-            XposedBridge.hookAllMethods(sharedPreferencesClass, "getAll", getAllHook);
+            val getBooleanHook: XC_MethodHook = object : XC_MethodHook() {
+                @Throws(Throwable::class)
+                override fun afterHookedMethod(param: MethodHookParam) {
+                    val key = param.args[0] as String?
+                    val value = param.result
+                    param.setResult(applyHook(key, value))
+                }
+            }
+
+            val getIntHook: XC_MethodHook = object : XC_MethodHook() {
+                @Throws(Throwable::class)
+                override fun afterHookedMethod(param: MethodHookParam) {
+                    val key = param.args[0] as String?
+                    val value = param.result
+                    param.setResult(applyHook(key, value))
+                }
+            }
+
+            val getLongHook: XC_MethodHook = object : XC_MethodHook() {
+                @Throws(Throwable::class)
+                override fun afterHookedMethod(param: MethodHookParam) {
+                    val key = param.args[0] as String?
+                    val value = param.result
+                    param.setResult(applyHook(key, value))
+                }
+            }
+
+            val getFloatHook: XC_MethodHook = object : XC_MethodHook() {
+                @Throws(Throwable::class)
+                override fun afterHookedMethod(param: MethodHookParam) {
+                    val key = param.args[0] as String?
+                    val value = param.result
+                    param.setResult(applyHook(key, value))
+                }
+            }
+
+            val containsHook: XC_MethodHook = object : XC_MethodHook() {
+                @Throws(Throwable::class)
+                override fun afterHookedMethod(param: MethodHookParam) {
+                    val key = param.args[0] as String?
+                    val value = param.result
+                    param.setResult(applyHook(key, value))
+                }
+            }
+
+            val getAllHook: XC_MethodHook = object : XC_MethodHook() {
+                @Throws(Throwable::class)
+                override fun afterHookedMethod(param: MethodHookParam) {
+                    @Suppress("UNCHECKED_CAST")
+                    val result = param.result as MutableMap<String?, Any?>?
+                    if (result.isNullOrEmpty()) return
+                    val updated = HashMap<String?, Any?>(result.size)
+                    for (entry in result.entries) {
+                        updated[entry.key] = applyHook(entry.key, entry.value)
+                    }
+                    param.setResult(updated)
+                }
+            }
+
+            for (sharedPreferencesClass in sharedPreferencesClasses) {
+                if (SharedPreferencesWrapper::class.java.name == sharedPreferencesClass.name) continue
+                XposedBridge.hookAllMethods(sharedPreferencesClass, "getString", getStringHook)
+                XposedBridge.hookAllMethods(sharedPreferencesClass, "getStringSet", getStringHook)
+                XposedBridge.hookAllMethods(sharedPreferencesClass, "getInt", getIntHook)
+                XposedBridge.hookAllMethods(sharedPreferencesClass, "getLong", getLongHook)
+                XposedBridge.hookAllMethods(sharedPreferencesClass, "getFloat", getFloatHook)
+                XposedBridge.hookAllMethods(sharedPreferencesClass, "getBoolean", getBooleanHook)
+                XposedBridge.hookAllMethods(sharedPreferencesClass, "contains", containsHook)
+                XposedBridge.hookAllMethods(sharedPreferencesClass, "getAll", getAllHook)
+            }
         }
-    }
 
-    public static void addHook(SPrefHook hook) {
-        prefHook.add(hook);
-    }
-
-    private static Object applyHook(String key, Object value) {
-        for (SPrefHook hook : prefHook) {
-            value = hook.hookValue(key, value);
+        fun addHook(hook: SPrefHook?) {
+            prefHook.add(hook!!)
         }
-        return value;
-    }
 
-    public interface SPrefHook {
-        @Nullable
-        Object hookValue(String key, Object value);
+        private fun applyHook(key: String?, value: Any?): Any? {
+            var value = value
+            for (hook in prefHook) {
+                value = hook.hookValue(key, value)
+            }
+            return value
+        }
     }
 }
