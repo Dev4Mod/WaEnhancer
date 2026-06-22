@@ -98,7 +98,7 @@ android {
     buildTypes {
 
         debug {
-            isMinifyEnabled = true
+            isMinifyEnabled = project.hasProperty("minify") && project.properties["minify"].toString().toBoolean()
             //noinspection NotShrinkingResources
             isShrinkResources = false
             signingConfig =

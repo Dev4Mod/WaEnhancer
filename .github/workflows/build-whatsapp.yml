@@ -40,7 +40,7 @@ jobs:
         run: chmod +x gradlew
 
       - name: Build WhatsApp Release
-        run: ./gradlew assembleWhatsappDebug
+        run: ./gradlew assembleWhatsappDebug -Pminify=true
 
       - name: Upload APK
         uses: actions/upload-artifact@v7
