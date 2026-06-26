@@ -33,6 +33,7 @@ import de.robv.android.xposed.XSharedPreferences
 import de.robv.android.xposed.XposedBridge
 import de.robv.android.xposed.XposedHelpers
 import java.util.Properties
+import kotlin.math.roundToInt
 
 class CustomThemeV2(loader: ClassLoader, preferences: XSharedPreferences) :
     Feature(loader, preferences) {
@@ -188,11 +189,12 @@ class CustomThemeV2(loader: ClassLoader, preferences: XSharedPreferences) :
                 }
             })
 
-        Unobfuscator.loadTabFrameClass(classLoader)
+        val loadTabFrameClass = Unobfuscator.loadTabFrameClass(classLoader)
         XposedHelpers.findAndHookMethod(
             FrameLayout::class.java, "onMeasure", Int::class.javaPrimitiveType, Int::class.javaPrimitiveType,
             object : XC_MethodHook() {
                 override fun afterHookedMethod(param: MethodHookParam) {
+                    if (!loadTabFrameClass.isInstance(param.thisObject)) return
                     if (checkNotHomeActivity()) return
                     val viewGroup = param.thisObject as ViewGroup
                     val background = viewGroup.background
@@ -371,7 +373,7 @@ class CustomThemeV2(loader: ClassLoader, preferences: XSharedPreferences) :
     private fun replaceTransparency(wallpaperColors: HashMap<String, String>?, mAlpha: Float) {
         if (wallpaperColors == null) return
         val clampedAlpha = mAlpha.coerceIn(0f, 1f)
-        val alphaInt = (clampedAlpha * 255).toInt()
+        val alphaInt = (clampedAlpha * 255).roundToInt()
         var hexAlpha = Integer.toHexString(alphaInt)
         if (hexAlpha.length == 1) hexAlpha = "0$hexAlpha"
         val keysToIterate = HashSet(IColors.backgroundColors.keys)
