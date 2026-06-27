@@ -524,7 +524,7 @@ class SeenTick(
         scope.launch {
             val phoneNumber = userJid.phoneNumber
             val userRaw = userJid.userRawString ?: ""
-            if (phoneNumber == Utils.getMyNumber() || userRaw.contains("lid_me")) return@launch
+            if (phoneNumber == Utils.getMyNumber() || userRaw.contains("lid_me") || userRaw.contains("status_me")) return@launch
 
             val messages = ArrayList<FMessageWpp>()
             val hiddenMessages = MessageHistoryStore.getInstance()
