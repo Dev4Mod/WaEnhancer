@@ -832,7 +832,7 @@ object Unobfuscator {
     fun loadHomeConversationFragmentMethod(loader: ClassLoader): Method {
         return UnobfuscatorCache.getInstance().getMethod(loader) {
             val homeClass = WppCore.homeActivityClass
-            val convFragment = XposedHelpers.findClass("com.whatsapp.ConversationFragment", loader)
+            val convFragment = findFirstClassUsingName(loader, StringMatchType.EndsWith,".ConversationFragment")
             val method = bridge.findMethod {
                 searchInClass(Collections.singletonList(bridge.getClassData(homeClass)))
                 matcher {
@@ -852,7 +852,7 @@ object Unobfuscator {
                 StringMatchType.Contains,
                 "conversation/createconversation"
             )
-            val conversation = XposedHelpers.findClass("com.whatsapp.ConversationFragment", loader)
+            val conversation = findFirstClassUsingName(loader, StringMatchType.EndsWith,".ConversationFragment")
             ReflectionUtils.getFieldByType(conversation, chatClass)
                 ?: throw Exception("AntiRevokeConvChat field not found")
         }
