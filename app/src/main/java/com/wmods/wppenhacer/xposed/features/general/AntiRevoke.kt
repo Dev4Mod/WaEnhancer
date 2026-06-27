@@ -258,15 +258,7 @@ class AntiRevoke(loader: ClassLoader, preferences: XSharedPreferences) :
                     val mConversation = WppCore.getCurrentConversation()
                     if (mConversation != null && fMessage.key.remoteJid.phoneNumber == WppCore.getCurrentUserJid()?.phoneNumber) {
                         mConversation.runOnUiThread {
-                            if (mConversation.hasWindowFocus()) {
-                                mConversation.startActivity(mConversation.intent)
-                                @Suppress("DEPRECATION")
-                                mConversation.overridePendingTransition(0, 0)
-                                mConversation.window.decorView.findViewById<View>(android.R.id.content)
-                                    .postInvalidate()
-                            } else {
-                                mConversation.recreate()
-                            }
+                            ConversationItemListener.notifyDataSetChanged()
                         }
                     }
                 } catch (e: Exception) {
