@@ -30,6 +30,7 @@ import android.widget.Toast
 import android.widget.VideoView
 import androidx.core.graphics.drawable.toDrawable
 import androidx.core.graphics.toColorInt
+import androidx.core.view.isVisible
 import com.wmods.wppenhacer.R
 import com.wmods.wppenhacer.xposed.core.Feature
 import com.wmods.wppenhacer.xposed.core.WppCore
@@ -104,20 +105,25 @@ class MediaPreview(
             override fun afterHookedMethod(param: MethodHookParam) {
                 if (!layoutClass.isInstance(param.thisObject))return
                 val view = param.thisObject as View
-                var resourceNames = listOf("invisible_press_surface","video_control_frame_view")
-                for (rn in resourceNames){
-                    val viewGroup = view.findViewById<View>(Utils.getID(rn, "id")) ?: continue
-                    logDebug("Found Surface: $viewGroup")
-                    handlePressSurface(view,viewGroup)
-                    return
-                }
-                resourceNames = listOf("control_frame_new","control_frame")
-                for (rn in resourceNames){
-                    val viewGroup = view.findViewById<View>(Utils.getID(rn, "id")) ?: continue
-                    logDebug("Found ControlFrame: $viewGroup")
-                    handleMediaControlFrame(view,viewGroup)
-                    return
-                }
+                view.postDelayed(
+                    {
+                        var resourceNames = listOf("invisible_press_surface","video_control_frame_view")
+                        for (rn in resourceNames){
+                            val viewGroup = view.findViewById<View>(Utils.getID(rn, "id")) ?: continue
+                            if (!viewGroup.isVisible)continue
+                            logDebug("Found Surface: $viewGroup")
+                            handlePressSurface(view,viewGroup)
+                            return@postDelayed
+                        }
+                        resourceNames = listOf("control_frame_new","control_frame","control_frame_view","mms_control_frame_new","mms_control_frame")
+                        for (rn in resourceNames){
+                            val viewGroup = view.findViewById<View>(Utils.getID(rn, "id")) ?: continue
+                            if (!viewGroup.isVisible)continue
+                            logDebug("Found ControlFrame: $viewGroup")
+                            handleMediaControlFrame(view,viewGroup)
+                            return@postDelayed
+                        }
+                    },200)
             }
         })
 
@@ -227,41 +233,6 @@ class MediaPreview(
         val userJid = WppCore.getCurrentUserJid()
         startPlayer(fMessage.rowId, context, userJid != null && userJid.isNewsletter)
     }
-
-    private fun findBubbleContainer(view: View, bubbleLayoutClass: Class<*>): ViewGroup? {
-        findParentRecursiveMethod(view, "getFMessage")?.let {
-            logDebug("Find Class by getFMessage")
-            return it as ViewGroup
-        }
-        return (findParentRecursive(view, bubbleLayoutClass) ?: run {
-            logDebug("mainContainer Not Found")
-            return null
-        }) as? ViewGroup
-    }
-
-    private fun findParentRecursive(view: View, clazz: Class<*>): View? {
-        var current = view.parent as? View
-        while (current != null) {
-                if (clazz.isInstance(current))
-                    return current
-            current = current.parent as? View
-        }
-        return null
-    }
-
-    private fun findParentRecursiveMethod(view: View, methodName: String): View? {
-        var current = view.parent as? View
-        while (current != null) {
-            ReflectionUtils.findMethodUsingFilterIfExists(current.javaClass){
-                it.name == methodName
-            }?.let {
-                return current
-            }
-            current = current.parent as? View
-        }
-        return null
-    }
-
 
     @SuppressLint("SetTextI18n")
     private fun startPlayer(id: Long, context: Context, isNewsletter: Boolean) {
