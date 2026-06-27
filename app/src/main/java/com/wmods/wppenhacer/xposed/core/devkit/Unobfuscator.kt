@@ -2487,28 +2487,6 @@ object Unobfuscator {
         }
     }
 
-    @Throws(Exception::class)
-    @JvmStatic
-    fun loadRefreshStatusClass(classLoader: ClassLoader): Class<*> {
-        return UnobfuscatorCache.getInstance().getClass(classLoader) {
-            val keyset = Map::class.java.getDeclaredMethod("keySet")
-            val results = bridge.findClass {
-                matcher {
-                    addMethod {
-                        returnType(String::class.java)
-                        addInvoke(DexSignUtil.getMethodDescriptor(keyset))
-                        addUsingString(",", StringMatchType.Equals)
-                        addUsingString("", StringMatchType.Equals)
-                    }
-                    addMethod {
-                        addUsingNumber(0x3684)
-                    }
-                }
-            }
-            if (results.isEmpty()) throw RuntimeException("RefreshStatus Class Not Found")
-            results[0].getInstance(classLoader)
-        }
-    }
 
     @Throws(Exception::class)
     @JvmStatic
@@ -2519,6 +2497,43 @@ object Unobfuscator {
                 StringMatchType.Contains,
                 "GET_RECEIVED_TOKEN_AND_TIMESTAMP_BY_JID"
             )!!
+        }
+    }
+
+    fun loadStatusDataClass(classLoader: ClassLoader): Class<*> {
+        return UnobfuscatorCache.getInstance().getClass(classLoader) {
+            bridge.findClass {
+                matcher {
+                    addUsingString("StatusData(", StringMatchType.StartsWith)
+                }
+            }.single().getInstance(classLoader)
+        }
+    }
+
+    fun loadStatusProfileMethod(classLoader: ClassLoader): Method {
+        return UnobfuscatorCache.getInstance().getMethod(classLoader) {
+            val statusClass = loadStatusDataClass(classLoader)
+            val convClass = findFirstClassUsingName(
+                classLoader,
+                StringMatchType.EndsWith,
+                ".ConversationsFragment"
+            )
+            val convClassData = bridge.getClassData(convClass.name)!!
+            convClassData.findMethod {
+                matcher {
+                    anyOf {
+                        statusClass.declaredMethods.filter {
+                            it.returnType == Boolean::class.javaPrimitiveType
+                        }.forEach {
+                            match {
+                                addInvoke(DexSignUtil.getMethodDescriptor(it))
+                            }
+                        }
+                    }
+                }
+            }.single {
+                it.paramCount > 0 && !Modifier.isStatic(it.modifiers) && it.paramTypeNames[0] == "android.view.View"
+            }.getMethodInstance(classLoader)
         }
     }
 

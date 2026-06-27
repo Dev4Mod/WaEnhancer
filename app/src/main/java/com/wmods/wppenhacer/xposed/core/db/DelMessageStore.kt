@@ -27,7 +27,7 @@ class DelMessageStore private constructor(context: Context) {
 
     fun getMessagesByJid(jid: String?): java.util.HashSet<String> {
         if (jid == null) return java.util.HashSet()
-        return java.util.HashSet(dao.getMessagesByJid(jid))
+        return HashSet(dao.getMessagesByJid(jid))
     }
 
     fun getTimestampByMessageId(msgid: String): Long {

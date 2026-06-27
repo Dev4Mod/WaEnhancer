@@ -57,7 +57,7 @@ class AntiRevoke(loader: ClassLoader, preferences: XSharedPreferences) :
             return messageRevokedMap.getOrPut(stripJID) {
                 val messages =
                     DelMessageStore.getInstance(Utils.application).getMessagesByJid(stripJID)
-                Collections.synchronizedSet(messages ?: HashSet())
+                Collections.synchronizedSet(messages)
             }
         }
 
@@ -83,10 +83,8 @@ class AntiRevoke(loader: ClassLoader, preferences: XSharedPreferences) :
 
             override fun beforeHookedMethod(param: MethodHookParam) {
                 val fStatusKey = FStatusWpp.FStatusKey(param.args[1])
-                val fstatus = fStatusKey.fStatus
-                if (fstatus == null) return
-                val fMessage = fstatus.fMessage
-                if (fMessage == null) return
+                val fstatus = fStatusKey.fStatus ?: return
+                val fMessage = fstatus.fMessage ?: return
                 if (!fStatusKey.isFromMe && handleRevocationAttempt(
                         fMessage,
                         fStatusKey.messageID

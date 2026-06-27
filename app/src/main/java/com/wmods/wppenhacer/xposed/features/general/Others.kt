@@ -322,28 +322,37 @@ class Others(loader: ClassLoader, preferences: XSharedPreferences) : Feature(loa
     }
 
     private fun disablePhotoProfileStatus() {
-        val refreshStatusClass = Unobfuscator.loadRefreshStatusClass(classLoader)
-        val photoProfileClass = Unobfuscator.findFirstClassUsingName(classLoader, StringMatchType.EndsWith, ".WDSProfilePhoto")
-        val convClass = Unobfuscator.findFirstClassUsingName(classLoader, StringMatchType.EndsWith, ".ConversationsFragment")
-        val jidClass = Unobfuscator.findFirstClassUsingName(classLoader, StringMatchType.EndsWith, "jid.Jid")
-        
-        val method = ReflectionUtils.findMethodUsingFilter(convClass) { m -> 
-            m.parameterCount > 0 && !Modifier.isStatic(m.modifiers) && m.parameterTypes[0] == View::class.java && ReflectionUtils.findIndexOfType(m.parameterTypes, jidClass) != -1 
-        }
-        val field = ReflectionUtils.getFieldByExtendType(convClass, refreshStatusClass)
-        
-        XposedBridge.hookMethod(method, object : XC_MethodHook() {
-            private var backup: Any? = null
+        val statusDataClass = Unobfuscator.loadStatusDataClass(classLoader)
+        val statusProfileMethod = Unobfuscator.loadStatusProfileMethod(classLoader)
+        val photoProfileClass = Unobfuscator.findFirstClassUsingName(
+            classLoader,
+            StringMatchType.EndsWith,
+            ".WDSProfilePhoto"
+        )
+        val isCalledFromProfileStatus = ThreadLocal<Boolean>()
 
-            override fun beforeHookedMethod(param: MethodHookParam) {
-                this.backup = field!!.get(param.thisObject)
-                field!!.set(param.thisObject, null)
+        XposedBridge.hookMethod(statusProfileMethod, object : XC_MethodHook() {
+            override fun beforeHookedMethod(param: MethodHookParam?) {
+                isCalledFromProfileStatus.set(true)
             }
 
-            override fun afterHookedMethod(param: MethodHookParam) {
-                field!!.set(param.thisObject, this.backup)
+            override fun afterHookedMethod(param: MethodHookParam?) {
+                isCalledFromProfileStatus.set(false)
             }
         })
+
+        val methods = ReflectionUtils.findAllMethodsUsingFilter(statusDataClass){
+            it.parameterCount == 0 && it.returnType == Boolean::class.javaPrimitiveType
+        }
+
+        methods.forEach {
+            XposedBridge.hookMethod(it, object : XC_MethodHook() {
+                override fun afterHookedMethod(param: MethodHookParam) {
+                    if (isCalledFromProfileStatus.get() ?: false)
+                        param.result = false
+                }
+            })
+        }
 
         XposedBridge.hookAllMethods(photoProfileClass, "setStatusIndicatorEnabled", object : XC_MethodHook() {
             override fun beforeHookedMethod(param: MethodHookParam) {
