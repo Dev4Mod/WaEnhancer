@@ -1,12 +1,13 @@
 [ADDED]
-* Added function to remove white borders when creating stickers (Static stickers only)
-
-[REMOVED]
-* Removed message backup function (It was not created by me and the code is messed up too much)
+* Added support for WA 2.26.24.xx
 
 [FIXED]
-* Fixed compatibility issue with some devices
-* Fixed several problems in the code
+* Fixed bug in Theme that had incorrect colors
+* Fixed bug in the preference to remove the status of contacts' profile photo
+* Fixed bug in media preview that the button did not appear on some screens (Ex: channels, groups of photos)
+* Fixed bug in invisible emojis
+* Fixed random crash bug
+* Partially fixed the quality of HD images in the status
 
-[IMPROVED]
-* All features were rewritten in Kotlin
+[WAE
+* Update translations (Thanks to the translators on crowdin)
