@@ -1,6 +1,8 @@
 package com.wmods.wppenhacer.xposed.features.general
 
 import android.annotation.SuppressLint
+import android.graphics.Canvas
+import android.graphics.Paint
 import android.os.BaseBundle
 import android.os.Message
 import android.os.PowerManager
@@ -34,11 +36,14 @@ import okhttp3.OkHttpClient
 import okhttp3.Request
 import org.json.JSONObject
 import org.luckypray.dexkit.query.enums.StringMatchType
+import org.luckypray.dexkit.util.DexSignUtil
 import java.io.File
 import java.lang.reflect.Method
 import java.lang.reflect.Modifier
 import java.util.Properties
+import java.util.WeakHashMap
 import java.util.concurrent.CompletableFuture
+import kotlin.math.max
 
 class Others(loader: ClassLoader, preferences: XSharedPreferences) : Feature(loader, preferences) {
 
@@ -65,7 +70,6 @@ class Others(loader: ClassLoader, preferences: XSharedPreferences) : Feature(loa
         val showOnline = prefs.getBoolean("showonline", false)
         val floatingMenu = prefs.getBoolean("floatingmenu", false)
         val filterItems = prefs.getString("filter_items", null)
-        val disableDefemojis = prefs.getBoolean("disable_defemojis", false)
         val autonextStatus = prefs.getBoolean("autonext_status", false)
         val audioType = prefs.getString("audio_type", "0")?.toInt() ?: 0
         val audioTranscription = prefs.getBoolean("audio_transcription", false)
@@ -220,10 +224,6 @@ class Others(loader: ClassLoader, preferences: XSharedPreferences) : Feature(loa
 
         if (filterItems != null && prefs.getBoolean("custom_filters", true)) {
             filterItems(filterItems)
-        }
-
-        if (disableDefemojis) {
-            disableDefemojis()
         }
 
         if (autonextStatus) {
@@ -621,16 +621,8 @@ class Others(loader: ClassLoader, preferences: XSharedPreferences) : Feature(loa
         XposedBridge.hookMethod(onPlayBackFinished, XC_MethodReplacement.DO_NOTHING)
     }
 
-    private fun disableDefemojis() {
-        val assetsClass = Utils.application.resources.assets.javaClass
-        XposedBridge.hookAllMethods(assetsClass,"openFd", object : XC_MethodHook() {
-            override fun beforeHookedMethod(param: MethodHookParam) {
-                val name = param.args[0] as String
-                if (name.contains("emojis.oba"))
-                    param.result = null
-            }
-        })
-    }
+
+
 
     private fun filterItems(filterItems: String) {
         val idsFilter: List<Int> by lazy {

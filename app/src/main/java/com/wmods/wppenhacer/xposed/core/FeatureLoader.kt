@@ -35,6 +35,7 @@ import com.wmods.wppenhacer.xposed.features.customization.CustomThemeV2
 import com.wmods.wppenhacer.xposed.features.customization.CustomTime
 import com.wmods.wppenhacer.xposed.features.customization.CustomToolbar
 import com.wmods.wppenhacer.xposed.features.customization.CustomView
+import com.wmods.wppenhacer.xposed.features.customization.DefaultEmoji
 import com.wmods.wppenhacer.xposed.features.customization.FilterGroups
 import com.wmods.wppenhacer.xposed.features.customization.HideSeenView
 import com.wmods.wppenhacer.xposed.features.customization.HideTabs
@@ -518,7 +519,8 @@ class FeatureLoader {
                 CallRecording::class.java,
                 BackupRestore::class.java,
                 JumpFirstMessage::class.java,
-                AboutContactPicker::class.java
+                AboutContactPicker::class.java,
+                DefaultEmoji::class.java
             )
 
             XposedBridge.log("Loading Plugins")

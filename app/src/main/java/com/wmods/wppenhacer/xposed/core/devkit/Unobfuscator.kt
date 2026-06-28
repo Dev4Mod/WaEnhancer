@@ -556,7 +556,7 @@ object Unobfuscator {
                     methods {
                         add {
                             name = "<init>"
-                            paramCount(1,2)
+                            paramCount(1, 2)
                         }
                     }
                 }
@@ -832,7 +832,8 @@ object Unobfuscator {
     fun loadHomeConversationFragmentMethod(loader: ClassLoader): Method {
         return UnobfuscatorCache.getInstance().getMethod(loader) {
             val homeClass = WppCore.homeActivityClass
-            val convFragment = findFirstClassUsingName(loader, StringMatchType.EndsWith,".ConversationFragment")
+            val convFragment =
+                findFirstClassUsingName(loader, StringMatchType.EndsWith, ".ConversationFragment")
             val method = bridge.findMethod {
                 searchInClass(Collections.singletonList(bridge.getClassData(homeClass)))
                 matcher {
@@ -852,7 +853,8 @@ object Unobfuscator {
                 StringMatchType.Contains,
                 "conversation/createconversation"
             )
-            val conversation = findFirstClassUsingName(loader, StringMatchType.EndsWith,".ConversationFragment")
+            val conversation =
+                findFirstClassUsingName(loader, StringMatchType.EndsWith, ".ConversationFragment")
             ReflectionUtils.getFieldByType(conversation, chatClass)
                 ?: throw Exception("AntiRevokeConvChat field not found")
         }
@@ -3347,15 +3349,15 @@ object Unobfuscator {
 
 
     fun loadOndispatchMessage(classLoader: ClassLoader): Array<Method> {
-        return UnobfuscatorCache.getInstance().getMethods(classLoader){
+        return UnobfuscatorCache.getInstance().getMethods(classLoader) {
             val result = bridge.findMethod {
                 matcher {
                     usingNumbers(419)
-                    paramCount(1,3)
+                    paramCount(1, 3)
                 }
             }.filter { !it.paramTypeNames.isEmpty() && it.paramTypeNames[0].contains("Message") }
                 .map { it.getMethodInstance(classLoader) }.toTypedArray()
-            if (result.isEmpty())return@getMethods null
+            if (result.isEmpty()) return@getMethods null
             result
         }
 
@@ -3420,20 +3422,54 @@ object Unobfuscator {
             val textData = loadTextStatusDataClass(classLoader)
             bridge.findMethod {
                 matcher {
-                    paramTypes(textData.name,null,null,null,null,null,null )
+                    paramTypes(textData.name, null, null, null, null, null, null)
                 }
             }.single().getConstructorInstance(classLoader)
         }
     }
 
     fun loadStickerColoredOutline(classLoader: ClassLoader): Method {
-        return UnobfuscatorCache.getInstance().getMethod(classLoader){
+        return UnobfuscatorCache.getInstance().getMethod(classLoader) {
             bridge.findMethod {
                 matcher {
-                    paramTypes(Bitmap::class.java, ColorFilter::class.java, Float::class.javaPrimitiveType)
+                    paramTypes(
+                        Bitmap::class.java,
+                        ColorFilter::class.java,
+                        Float::class.javaPrimitiveType
+                    )
                     returnType(Bitmap::class.java)
                 }
             }.single().getMethodInstance(classLoader)
+        }
+    }
+
+    fun loadDrawSpanMethods(classLoader: ClassLoader): Array<Method> {
+        return UnobfuscatorCache.getInstance().getMethods(classLoader) {
+            bridge.findClass {
+                matcher {
+                    superClass = "android.text.style.ImageSpan"
+                }
+            }.findMethod {
+                matcher {
+                    paramCount(9)
+                    name = "draw"
+                }
+            }.map { it.getMethodInstance(classLoader) }.toTypedArray()
+        }
+    }
+
+    fun loadGetSizeSpanMethods(classLoader: ClassLoader): Array<Method> {
+        return UnobfuscatorCache.getInstance().getMethods(classLoader) {
+            bridge.findClass {
+                matcher {
+                    superClass = "android.text.style.ImageSpan"
+                }
+            }.findMethod {
+                matcher {
+                    paramCount(5)
+                    name = "getSize"
+                }
+            }.map { it.getMethodInstance(classLoader) }.toTypedArray()
         }
     }
 
