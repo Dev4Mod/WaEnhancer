@@ -208,6 +208,18 @@ class MediaQuality(loader: ClassLoader, preferences: XSharedPreferences) :
                 }
             })
 
+            val maxKb = 50 * 1024
+            listOf(1577, 6030, 2656, 15752, 15746).forEach { Others.propsInteger[it] = maxKb }
+            listOf(1581, 1575, 1578, 6029, 2655, 15749, 2655).forEach {
+                Others.propsInteger[it] = 100
+            }
+            Others.propsBoolean[6033] = true
+            Others.propsBoolean[9569] = false
+            Others.propsBoolean[26289] = true
+            Others.propsBoolean[26291] = true
+            Others.propsBoolean[22375] = true
+            listOf(1576, 2654, 6032, 15748, 3068).forEach { Others.propsInteger[it] = 3840 }
+
             // Prevent crashes in Media preview
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
                 XposedHelpers.findAndHookMethod(
