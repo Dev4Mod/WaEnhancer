@@ -248,7 +248,7 @@
     <string name="color_preset_orange">Orange</string>
     <string name="color_preset_red">Red</string>
     <string name="color_preset_pink">Pink</string>
-    <string name="disable_default_emojis_sum">禁用 Whatsapp 的默认表情符号并使用系统表情符号\n（注意：Whatsapp 表情符号将从选择器中消失，请使用键盘插入）。</string>
+    <string name="disable_default_emojis_sum">Disables WhatsApp\'s default emojis and uses system emojis.</string>
     <string name="other">其他</string>
     <string name="enable_media_preview">启用媒体预览</string>
     <string name="enable_media_preview_sum">添加一个按钮用于预览临时文件中的媒体（无需永久下载）</string>
@@ -423,6 +423,13 @@
     <string name="lite_mode">Lite Mode</string>
     <string name="lite_mode_sum">Lite Mode disables most theme features and the connection bridge that keeps WhatsApp always active is turned off.</string>
     <string name="update_check">Automatically Check for Update</string>
+    <string name="update_available">Update Available</string>
+    <string name="update_available_summary">New version %s is available!</string>
+    <string name="up_to_date">Up to Date</string>
+    <string name="checking_for_updates">Checking for updates…</string>
+    <string name="update_check_failed">Unable to Check for Updates</string>
+    <string name="update_check_failed_summary">Could not reach update server</string>
+    <string name="current_version_s">Current version %s</string>
     <string name="update_check_sum">Enable or Disable Auto Check for Update. This will disable the popup inside the WhatsApp Application.</string>
     <string name="change_default_dpi">Change Default DPI</string>
     <string name="change_default_dpi_sum">Change the DPI setting for the application. Use 0 to reset to default.</string>
@@ -499,4 +506,7 @@
     <string name="configui_mode_default">Default</string>
     <string name="configui_mode_toolbar_photo">Profile Photo on Toolbar</string>
     <string name="configui_mode_you_tab">Enable You tab on home screen</string>
+    <string name="remove_sticker_white_outline_sum">Remove the white border when creating stickers</string>
+    <string name="remove_sticker_white_outline">Remove sticker white outline</string>
+    <string name="stickers">Stickers</string>
 </resources>

@@ -248,7 +248,7 @@
     <string name="color_preset_orange">Turuncu</string>
     <string name="color_preset_red">Kırmızı</string>
     <string name="color_preset_pink">Pembe</string>
-    <string name="disable_default_emojis_sum">WhatsApp\'ın varsayılan emojilerini devre dışı bırakır ve sistem emojilerini kullanır\n(NOT: WhatsApp emojileri seçiciden kaybolacak, eklemek için klavyeyi kullanın).</string>
+    <string name="disable_default_emojis_sum">Disables WhatsApp\'s default emojis and uses system emojis.</string>
     <string name="other">Diğer</string>
     <string name="enable_media_preview">Medya Önizlemeyi Etkinleştir</string>
     <string name="enable_media_preview_sum">Geçici bir dosyada medyayı önizlemek için bir düğme ekle (kalıcı olarak indirmeden)</string>
@@ -423,6 +423,13 @@
     <string name="lite_mode">Basit Mod</string>
     <string name="lite_mode_sum">Basit Mod çoğu tema özelliğini devre dışı bırakır ve WhatsApp\'a bağlanan modül işlevi devre dışı bırakılır.</string>
     <string name="update_check">Güncellemeleri Otomatik Denetle</string>
+    <string name="update_available">Update Available</string>
+    <string name="update_available_summary">New version %s is available!</string>
+    <string name="up_to_date">Up to Date</string>
+    <string name="checking_for_updates">Checking for updates…</string>
+    <string name="update_check_failed">Unable to Check for Updates</string>
+    <string name="update_check_failed_summary">Could not reach update server</string>
+    <string name="current_version_s">Current version %s</string>
     <string name="update_check_sum">Güncelleme için Otomatik Kontrolü Etkinleştirin veya Devre Dışı Bırakın. Bu, WhatsApp Uygulaması içindeki açılır pencereyi devre dışı bırakacaktır.</string>
     <string name="change_default_dpi">Varsayılan DPI\'ı Değiştir</string>
     <string name="change_default_dpi_sum">Uygulama için DPI ayarını değiştirin. Varsayılana sıfırlamak için 0 kullanın.</string>
@@ -499,4 +506,7 @@
     <string name="configui_mode_default">Default</string>
     <string name="configui_mode_toolbar_photo">Profile Photo on Toolbar</string>
     <string name="configui_mode_you_tab">Enable You tab on home screen</string>
+    <string name="remove_sticker_white_outline_sum">Remove the white border when creating stickers</string>
+    <string name="remove_sticker_white_outline">Remove sticker white outline</string>
+    <string name="stickers">Stickers</string>
 </resources>

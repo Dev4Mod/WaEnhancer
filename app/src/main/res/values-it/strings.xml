@@ -248,7 +248,7 @@
     <string name="color_preset_orange">Arancione</string>
     <string name="color_preset_red">Rosso</string>
     <string name="color_preset_pink">Rosa</string>
-    <string name="disable_default_emojis_sum">Disabilita gli emoji predefiniti di WhatsApp e utilizza gli emoji di sistema\n(NOTA: Gli emoji di WhatsApp scompariranno dal selettore, usa la tastiera per inserirli).</string>
+    <string name="disable_default_emojis_sum">Disables WhatsApp\'s default emojis and uses system emojis.</string>
     <string name="other">Altro</string>
     <string name="enable_media_preview">Abilita Anteprima media</string>
     <string name="enable_media_preview_sum">Aggiungi un pulsante per visualizzare l\'anteprima del media in un file temporaneo (senza scaricarlo)</string>
@@ -423,6 +423,13 @@
     <string name="lite_mode">Modalità Lite</string>
     <string name="lite_mode_sum">La Modalità Lite disabilita la maggior parte delle funzioni del tema e il ponte di connessione che mantiene WhatsApp sempre attivo è disattivato.</string>
     <string name="update_check">Controlla Aggiornamenti Automaticamente</string>
+    <string name="update_available">Update Available</string>
+    <string name="update_available_summary">New version %s is available!</string>
+    <string name="up_to_date">Up to Date</string>
+    <string name="checking_for_updates">Checking for updates…</string>
+    <string name="update_check_failed">Unable to Check for Updates</string>
+    <string name="update_check_failed_summary">Could not reach update server</string>
+    <string name="current_version_s">Current version %s</string>
     <string name="update_check_sum">Abilita o disabilita il controllo automatico dell\'aggiornamento. Questo disabiliterà il popup all\'interno dell\'applicazione WhatsApp.</string>
     <string name="change_default_dpi">Cambia DPI Predefiniti</string>
     <string name="change_default_dpi_sum">Cambia l\'impostazione DPI per l\'applicazione. Usa 0 per reimpostare il valore predefinito.</string>
@@ -499,4 +506,7 @@
     <string name="configui_mode_default">Default</string>
     <string name="configui_mode_toolbar_photo">Profile Photo on Toolbar</string>
     <string name="configui_mode_you_tab">Enable You tab on home screen</string>
+    <string name="remove_sticker_white_outline_sum">Remove the white border when creating stickers</string>
+    <string name="remove_sticker_white_outline">Remove sticker white outline</string>
+    <string name="stickers">Stickers</string>
 </resources>
