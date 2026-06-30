@@ -1,13 +1,8 @@
-[ADDED]
-* Added support for WA 2.26.24.xx
-
 [FIXED]
-* Fixed bug in Theme that had incorrect colors
-* Fixed bug in the preference to remove the status of contacts' profile photo
-* Fixed bug in media preview that the button did not appear on some screens (Ex: channels, groups of photos)
-* Fixed bug in invisible emojis
-* Fixed random crash bug
-* Partially fixed the quality of HD images in the status
+* We fixed a bug that existed for a long time, where some messages, when edited or deleted, did not update correctly if the chat was open
+* Fixed error when transcribing texts in some languages
+* Fixed IGStatus color
+* Fixed issue with default emojis
 
 [WAE
 * Update translations (Thanks to the translators on crowdin)
