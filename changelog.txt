@@ -1,11 +1,2 @@
-[FIXED]
-* We fixed a bug that existed for a long time, where some messages, when edited or deleted, did not update correctly if the chat was open
-* Fixed error when transcribing texts in some languages
-* Fixed IGStatus color
-* Fixed issue with default emojis
-
-[REMOVED]
-* Removed function to check if contact blocked you, but kept contact added verification
-
-[WAE]
-* Update translations (Thanks to the translators on crowdin)
+[ADDED]
+* Added "Force Disable Emojis and use Keyboard Emoji" toggle in Conversation settings — blocks WhatsApp emoji assets and shows an alert warning that the emoji selector will be invisible (use keyboard emoji instead)
