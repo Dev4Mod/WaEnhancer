@@ -34,13 +34,11 @@ class ActivityController(classLoader: ClassLoader, preferences: XSharedPreferenc
             }
         })
 
-        addListenerActivity(object : ActivityChangeState {
-            override fun onChange(activity: Activity, type: ActivityChangeState.ChangeType) {
+        addListenerActivity{ activity, type ->
                 if (clazz.isAssignableFrom(activity.javaClass) && type == ActivityChangeState.ChangeType.ENDED) {
                     disableAuth.set(false)
                 }
-            }
-        })
+        }
 
         XposedHelpers.findAndHookMethod(
             Activity::class.java,

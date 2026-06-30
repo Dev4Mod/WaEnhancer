@@ -64,7 +64,7 @@ class TagMessage(loader: ClassLoader, preferences: XSharedPreferences) :
                     broadcast.id = id
                     broadcast.setImageDrawable(DesignUtils.getDrawableByName("broadcast_status_icon"))
                     dateWrapper.addView(broadcast, 0)
-                } else if (res != null) {
+                } else if (!fMessage.isBroadcast && res != null) {
                     dateWrapper.removeView(res)
                 }
             }

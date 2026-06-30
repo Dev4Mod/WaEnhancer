@@ -453,8 +453,10 @@ class Others(loader: ClassLoader, preferences: XSharedPreferences) : Feature(loa
         ConversationItemListener.conversationListeners.add(object :
             ConversationItemListener.OnConversationItemListener() {
             override fun onItemBind(fMessage: FMessageWpp, view: ViewGroup, position: Int, convertView: View?) {
+                val messageId = fMessage.key.messageID
                 val onMultiClickListener = object : OnMultiClickListener(2, 500) {
                     override fun onMultiClick(v: View) {
+                        if (!ConversationItemListener.isViewBoundToMessage(view, messageId)) return
                         val reactionView = v.findViewById<ViewGroup>(Utils.getID("reactions_bubble_layout", "id"))
                         if (reactionView != null && reactionView.isVisible) {
                             for (i in 0 until reactionView.childCount) {

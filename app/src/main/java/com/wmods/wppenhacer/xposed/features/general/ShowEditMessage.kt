@@ -96,13 +96,17 @@ class ShowEditMessage(loader: ClassLoader, preferences: XSharedPreferences) :
                 ) {
                     val textView =
                         view.findViewById<View?>(Utils.getID("edit_label", "id")) as TextView?
-                    if (textView != null && !textView.text.toString().contains(strEmoji)) {
+                    if (textView != null) {
                         textView.paint.isUnderlineText = true
-                        textView.append(strEmoji)
+                        if (!textView.text.toString().contains(strEmoji)) {
+                            textView.append(strEmoji)
+                        }
+                        val messageId = fMessage.key.messageID
+                        val rowId = fMessage.rowId
                         textView.setOnClickListener {
+                            if (!ConversationItemListener.isViewBoundToMessage(view, messageId)) return@setOnClickListener
                             try {
-                                val id = fMessage.rowId
-                                var messages = MessageHistoryStore.getInstance().getMessages(id)
+                                var messages = MessageHistoryStore.getInstance().getMessages(rowId)
                                 if (messages == null) {
                                     messages = ArrayList()
                                 }

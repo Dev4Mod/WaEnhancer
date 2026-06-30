@@ -58,7 +58,10 @@ class HideSeenView(loader: ClassLoader, preferences: XSharedPreferences) : Featu
 
         ConversationItemListener.conversationListeners.add(object : ConversationItemListener.OnConversationItemListener() {
             override fun onItemBind(fMessage: FMessageWpp, view: ViewGroup, position: Int, convertView: View?) {
-                if (fMessage.key.isFromMe) return
+                if (fMessage.key.isFromMe) {
+                    clearBubbleView(view)
+                    return
+                }
                 updateBubbleView(fMessage, view)
             }
         })
@@ -67,6 +70,14 @@ class HideSeenView(loader: ClassLoader, preferences: XSharedPreferences) : Featu
     override fun getPluginName(): String {
         return "Hide Seen View"
     }
+}
+
+private fun clearBubbleView(viewGroup: ViewGroup) {
+    viewGroup.findViewById<ImageView>(Utils.getID("view_once_control_icon", "id"))
+        ?.colorFilter = null
+    viewGroup.findViewById<ViewGroup>(Utils.getID("date_wrapper", "id"))
+        ?.findViewWithTag<TextView>("seen_view")
+        ?.visibility = View.GONE
 }
 
 @SuppressLint("ResourceType")

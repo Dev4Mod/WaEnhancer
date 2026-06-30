@@ -133,7 +133,7 @@ class AntiRevoke(loader: ClassLoader, preferences: XSharedPreferences) :
                 convertView: View?
             ) {
                 val dateTextView = view.findViewById<TextView>(Utils.getID("date", "id"))
-                bindRevokedMessageUI(fMessage, dateTextView, "antirevoke")
+                bindRevokedMessageUI(fMessage, dateTextView, "antirevoke", view)
             }
         })
 
@@ -173,16 +173,22 @@ class AntiRevoke(loader: ClassLoader, preferences: XSharedPreferences) :
     private fun bindRevokedMessageUI(
         fMessage: FMessageWpp,
         dateTextView: TextView?,
-        antirevokeType: String
+        antirevokeType: String,
+        boundView: View? = null
     ) {
         if (dateTextView == null) return
         val antirevokeValue = prefs.getString(antirevokeType, "0")?.toIntOrNull() ?: 0
         if (antirevokeValue == 0) return
 
         val key = fMessage.key
+        val boundMessageId = key.messageID
         val messageRevokedList = getRevokedMessagesForJid(fMessage)
         val originalMessage =
             XposedHelpers.getAdditionalInstanceField(dateTextView, "originalMessage") as? String
+
+        dateTextView.paint.isUnderlineText = false
+        dateTextView.setOnClickListener(null)
+        dateTextView.setCompoundDrawables(null, null, null, null)
 
         val messageID = if (messageRevokedList.contains(key.messageID)) {
             key.messageID
@@ -199,6 +205,7 @@ class AntiRevoke(loader: ClassLoader, preferences: XSharedPreferences) :
                 val date = dateFormatThreadLocal.get()?.format(Date(timestamp))
                 dateTextView.paint.isUnderlineText = true
                 dateTextView.setOnClickListener {
+                    if (boundView != null && !ConversationItemListener.isViewBoundToMessage(boundView, boundMessageId)) return@setOnClickListener
                     val toastMessage =
                         Utils.application.getString(R.string.message_removed_on)
                             .format(date)
