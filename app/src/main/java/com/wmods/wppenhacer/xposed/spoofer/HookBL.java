@@ -3,6 +3,7 @@ package com.wmods.wppenhacer.xposed.spoofer;
 
 import android.app.Application;
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.security.keystore.KeyGenParameterSpec;
 import android.security.keystore.KeyProperties;
@@ -54,10 +55,8 @@ import java.util.LinkedList;
 
 import de.robv.android.xposed.XC_MethodHook;
 import de.robv.android.xposed.XC_MethodReplacement;
-import de.robv.android.xposed.XSharedPreferences;
 import de.robv.android.xposed.XposedBridge;
 import de.robv.android.xposed.XposedHelpers;
-import de.robv.android.xposed.callbacks.XC_LoadPackage;
 
 public final class HookBL {
     private static KeyPair keyPair_EC;
@@ -460,7 +459,7 @@ public final class HookBL {
         }
     }
 
-    public static void hook(ClassLoader loader, XSharedPreferences prefs) {
+    public static void hook(ClassLoader loader, SharedPreferences prefs) {
 
         boolean useCustomSpoofer = prefs.getBoolean("bootloader_spoofer_custom", false);
         if (useCustomSpoofer) {

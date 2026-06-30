@@ -15,6 +15,7 @@ roomRuntime = "2.8.4"
 nav = "2.9.6"
 kotlin = "2.2.21"
 markwon = "4.6.2"
+remotePreferences = "0.8"
 
 [libraries]
 androidx-documentfile = { module = "androidx.documentfile:documentfile", version.ref = "documentfile" }
@@ -44,6 +45,7 @@ rikkax-material-preference = { module = "dev.rikka.rikkax.material:material-pref
 rikkax-widget-borderview = { module = "dev.rikka.rikkax.widget:borderview", version = "1.1.0" }
 material = { module = "com.google.android.material:material", version = "1.13.0" }
 markwon-core = { module = "io.noties.markwon:core", version.ref = "markwon" }
+remote-preferences = { module = "com.crossbowffs.remotepreferences:remotepreferences", version.ref = "remotePreferences" }
 
 [plugins]
 androidApplication = { id = "com.android.application", version.ref = "agp" }

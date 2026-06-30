@@ -23,7 +23,6 @@ import com.wmods.wppenhacer.xposed.core.devkit.UnobfuscatorCache
 import com.wmods.wppenhacer.xposed.utils.ReflectionUtils
 import com.wmods.wppenhacer.xposed.utils.Utils
 import de.robv.android.xposed.XC_MethodHook
-import de.robv.android.xposed.XSharedPreferences
 import de.robv.android.xposed.XposedBridge
 import de.robv.android.xposed.XposedHelpers
 import kotlinx.coroutines.runBlocking
@@ -69,7 +68,7 @@ object WppCore {
 
     @JvmStatic
     @Throws(Exception::class)
-    fun initialize(loader: ClassLoader, pref: XSharedPreferences) {
+    fun initialize(loader: ClassLoader, pref: SharedPreferences) {
         privPrefs = Utils.application.getSharedPreferences("WaGlobal", Context.MODE_PRIVATE)
 
         // init UserJID

@@ -130,6 +130,12 @@
             android:exported="true"
             tools:ignore="ExportedContentProvider" />
 
+        <provider
+            android:name=".provider.RemotePreferenceProvider"
+            android:authorities="${applicationId}.preferences"
+            android:exported="true"
+            tools:ignore="ExportedContentProvider" />
+
 
         <meta-data
             android:name="xposedmodule"

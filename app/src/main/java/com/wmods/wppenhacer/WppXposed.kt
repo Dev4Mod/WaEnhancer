@@ -19,7 +19,6 @@ import de.robv.android.xposed.XC_MethodReplacement
 import de.robv.android.xposed.XSharedPreferences
 import de.robv.android.xposed.XposedBridge
 import de.robv.android.xposed.XposedHelpers
-import de.robv.android.xposed.callbacks.XC_InitPackageResources
 import de.robv.android.xposed.callbacks.XC_InitPackageResources.InitPackageResourcesParam
 import de.robv.android.xposed.callbacks.XC_LoadPackage
 
@@ -75,14 +74,14 @@ class WppXposed : IXposedHookLoadPackage, IXposedHookInitPackageResources, IXpos
 
         AntiUpdater.hookSession(lpparam)
 
-        Patch.handleLoadPackage(lpparam, getPref())
+        Patch.handleLoadPackage(lpparam)
 
         ScopeHook.hook(lpparam)
 
         if ((packageName == FeatureLoader.PACKAGE_WPP && App.isOriginalPackage) || packageName == FeatureLoader.PACKAGE_BUSINESS) {
             if (lpparam.isFirstApplication) { // I believe this may fix the problem when using multiple accounts, not yet tested
                 XposedBridge.log("[•] This package: ${lpparam.packageName}")
-                FeatureLoader.start(classLoader, getPref(), lpparam.appInfo.sourceDir)
+                FeatureLoader.start(classLoader, lpparam.appInfo.sourceDir)
                 disableSecureFlag()
             }
         }

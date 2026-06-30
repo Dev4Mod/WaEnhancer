@@ -209,6 +209,7 @@ dependencies {
     compileOnly(libs.lombok)
     annotationProcessor(libs.lombok)
     implementation(libs.markwon.core)
+    implementation(libs.remote.preferences)
 }
 
 

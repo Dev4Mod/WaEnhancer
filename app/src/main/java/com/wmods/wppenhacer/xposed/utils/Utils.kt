@@ -30,7 +30,6 @@ import com.wmods.wppenhacer.xposed.core.WppCore.getClientBridge
 import com.wmods.wppenhacer.xposed.core.WppCore.getContactName
 import com.wmods.wppenhacer.xposed.core.WppCore.getPrivString
 import com.wmods.wppenhacer.xposed.core.components.FMessageWpp.UserJid
-import de.robv.android.xposed.XSharedPreferences
 import de.robv.android.xposed.XposedBridge
 import java.io.File
 import java.io.FileInputStream
@@ -46,7 +45,7 @@ import java.util.concurrent.Executors
 import java.util.regex.Pattern
 
 object Utils {
-    lateinit var xprefs: XSharedPreferences
+    lateinit var xprefs: SharedPreferences
     private val ids = HashMap<String?, Int?>()
     lateinit var appClassLoader: ClassLoader
 

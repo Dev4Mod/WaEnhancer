@@ -17,10 +17,12 @@ import android.os.Bundle
 import android.util.Log
 import android.widget.Toast
 import androidx.core.content.ContextCompat
+import com.crossbowffs.remotepreferences.RemotePreferences
 import com.wmods.wppenhacer.App
 import com.wmods.wppenhacer.BuildConfig
 import com.wmods.wppenhacer.R
 import com.wmods.wppenhacer.UpdateChecker
+import com.wmods.wppenhacer.WppXposed
 import com.wmods.wppenhacer.activities.CrashReportActivity
 import com.wmods.wppenhacer.xposed.core.components.AlertDialogWpp
 import com.wmods.wppenhacer.xposed.core.components.FMessageWpp
@@ -94,12 +96,9 @@ import com.wmods.wppenhacer.xposed.spoofer.HookBL
 import com.wmods.wppenhacer.xposed.utils.DesignUtils
 import com.wmods.wppenhacer.xposed.utils.ReflectionUtils
 import com.wmods.wppenhacer.xposed.utils.Utils
-import de.robv.android.xposed.SELinuxHelper
 import de.robv.android.xposed.XC_MethodHook
-import de.robv.android.xposed.XSharedPreferences
 import de.robv.android.xposed.XposedBridge
 import de.robv.android.xposed.XposedHelpers
-import de.robv.android.xposed.services.BaseService
 import java.util.Calendar
 import java.util.Collections
 import java.util.Date
@@ -122,14 +121,12 @@ class FeatureLoader {
         private var crashHandlerInstalled = false
 
         @JvmStatic
-        fun start(loader: ClassLoader, pref: XSharedPreferences, sourceDir: String) {
+        fun start(loader: ClassLoader, sourceDir: String) {
             if (!Unobfuscator.initWithPath(sourceDir)) {
                 XposedBridge.log("Can't init dexkit")
                 return
             }
 
-            Feature.DEBUG = pref.getBoolean("enablelogs", true)
-            Utils.xprefs = pref
             Utils.appClassLoader = loader
 
             XposedHelpers.findAndHookMethod(
@@ -138,6 +135,9 @@ class FeatureLoader {
                     override fun beforeHookedMethod(param: MethodHookParam) {
                         mApp = param.args[0] as Application
                         val application = mApp!!
+                        val pref = getPreferences(application)
+                        Feature.DEBUG = pref.getBoolean("enablelogs", true)
+                        Utils.xprefs = pref
 
                         if (pref.getBoolean("bootloader_spoofer", false)) {
                             HookBL.hook(loader, pref)
@@ -145,9 +145,6 @@ class FeatureLoader {
                         }
 
                         val packageManager = application.packageManager
-                        @Suppress("DEPRECATION")
-                        pref.registerOnSharedPreferenceChangeListener { _, _ -> pref.reload() }
-
                         val packageInfo = packageManager.getPackageInfo(application.packageName, 0)
                         XposedBridge.log(packageInfo.versionName)
                         currentVersion = packageInfo.versionName
@@ -249,6 +246,19 @@ class FeatureLoader {
                 })
         }
 
+        private fun getPreferences(context: Context): SharedPreferences {
+            val pref = WppXposed.getPref()
+            pref.reload()
+            if (pref.all.isNotEmpty()) return pref
+
+            XposedBridge.log("XSharedPreferences returned no keys, using RemotePreferences fallback")
+            return RemotePreferences(
+                context,
+                BuildConfig.APPLICATION_ID + ".preferences",
+                BuildConfig.APPLICATION_ID + "_preferences"
+            )
+        }
+
         private fun installCrashHandler(application: Application, whatsAppVersion: String) {
             if (crashHandlerInstalled) return
             crashHandlerInstalled = true
@@ -313,7 +323,7 @@ class FeatureLoader {
         }
 
         @Throws(Exception::class)
-        private fun initComponents(loader: ClassLoader, pref: XSharedPreferences) {
+        private fun initComponents(loader: ClassLoader, pref: SharedPreferences) {
             FMessageWpp.initialize(loader)
             FStatusWpp.initialize(loader)
             ProtocolTreeNodeWpp.initialize(loader)
@@ -332,9 +342,6 @@ class FeatureLoader {
                         checkUpdate(activity)
                     }
 
-                    if (type == WppCore.ActivityChangeState.ChangeType.CREATED && activity.javaClass.simpleName == "HomeActivity") {
-                        checkPrefsLoad(pref, activity)
-                    }
 
                     if (App.isOriginalPackage && pref.getBoolean("update_check", true)) {
                         if (activity.javaClass.simpleName == "HomeActivity" && type == WppCore.ActivityChangeState.ChangeType.RESUMED) {
@@ -345,23 +352,6 @@ class FeatureLoader {
                         }
                     }
                 }
-
-                private fun checkPrefsLoad(prefs: XSharedPreferences, activity: Activity) {
-                    val fileService = SELinuxHelper.getAppDataFileService()
-                    if (fileService.checkFileExists(prefs.file.absolutePath) &&
-                        !fileService.checkFileAccess(prefs.file.absolutePath, BaseService.R_OK)
-                    ) {
-                        activity.runOnUiThread {
-                            Toast.makeText(
-                                activity,
-                                "[ERROR-PREFS]Unable to read WAE preferences. Contact the Developer",
-                                Toast.LENGTH_LONG
-                            ).show()
-                        }
-                    }
-                }
-
-
             })
 
         }
@@ -460,7 +450,7 @@ class FeatureLoader {
         }
 
         @Throws(Exception::class)
-        private fun plugins(loader: ClassLoader, pref: XSharedPreferences, versionWpp: String) {
+        private fun plugins(loader: ClassLoader, pref: SharedPreferences, versionWpp: String) {
             val classes = arrayOf(
                 DebugFeature::class.java,
                 ContactItemListener::class.java,

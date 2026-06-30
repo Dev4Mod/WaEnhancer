@@ -11,13 +11,12 @@ import java.lang.reflect.Field;
 import java.util.Objects;
 
 import de.robv.android.xposed.XC_MethodHook;
-import de.robv.android.xposed.XSharedPreferences;
 import de.robv.android.xposed.XposedBridge;
 import de.robv.android.xposed.XposedHelpers;
 import de.robv.android.xposed.callbacks.XC_LoadPackage;
 
 public class Patch {
-    public static void handleLoadPackage(XC_LoadPackage.LoadPackageParam lpparam, XSharedPreferences prefs) throws Throwable {
+    public static void handleLoadPackage(XC_LoadPackage.LoadPackageParam lpparam) throws Throwable {
         if (!("android".equals(lpparam.packageName)) || !(lpparam.processName.equals("android")))
             return;
         XC_MethodHook hookDowngradeObject = new XC_MethodHook() {
