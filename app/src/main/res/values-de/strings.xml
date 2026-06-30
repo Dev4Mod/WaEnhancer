@@ -447,10 +447,12 @@
     <string name="disable_status_in_the_profile_photo">Status im Profilfoto deaktivieren</string>
     <string name="disable_status_in_the_profile_photo_sum">Deaktiviert den Kreis, der im Profilfoto jedes Kontakts erscheint, wenn ein neuer Status vorhanden ist</string>
     <string name="download_not_available">Download nicht verfügbar oder Medien wurden nicht vollständig heruntergeladen</string>
-    <string name="checking_if_contact_added">Überprüfe, ob der Kontakt dich hinzugefügt hat...</string>
-    <string name="show_contact_added_status">Kontakt-Hinzufügungsstatus im Chat anzeigen</string>
-    <string name="show_contact_added_status_sum">Diese Option überprüft, ob der Kontakt dich hinzugefügt hat oder ein öffentliches Profilfoto hat.</string>
-    <string name="contact_added">Der Kontakt hat dich hinzugefügt oder hat ein öffentliches Profilfoto.</string>
+    <string name="possible_block_detected">Möglicher Block erkannt</string>
+    <string name="block_not_detected">Block nicht erkannt</string>
+    <string name="checking_if_the_contact_is_blocked">Überprüfe, ob der Kontakt blockiert wurde...</string>
+    <string name="show_contact_blocked">Zeige blockierten Kontakt im Gespräch</string>
+    <string name="show_contact_blocked_sum">Mit dieser Option wird überprüft, ob der Kontakt Sie gesperrt hat (Anmerkung: Falsch/Positiv).</string>
+    <string name="block_unverified">Block nicht verifiziert</string>
     <string name="disable_whatsapp_expiration">WhatsApp Ablaufdatum deaktivieren</string>
     <string name="disable_whatsapp_expiration_sum">Deaktiviert die abgelaufene Version von WhatsApp. (Hinweis: Manuell deaktivieren, um WhatsApp im Play Store zu aktualisieren oder den Play Store auf LSposed)</string>
     <string name="disable_ads">Disable Ads</string>

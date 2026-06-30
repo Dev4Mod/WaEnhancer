@@ -255,7 +255,7 @@ Harap gunakan versi WhatsApp yang didukung!</string>
     <string name="color_preset_orange">Orange</string>
     <string name="color_preset_red">Merah</string>
     <string name="color_preset_pink">Merah Muda</string>
-    <string name="disable_default_emojis_sum">Disables WhatsApp\'s default emojis and uses system emojis.</string>
+    <string name="disable_default_emojis_sum">Nonaktifkan emoji bawaan WhatsApp dan gunakan emoji sistem</string>
     <string name="other">Lainnya</string>
     <string name="enable_media_preview">Pratinjau Media</string>
     <string name="enable_media_preview_sum">Tampilkan tombol untuk melihat pratinjau media dalam file sementara (tanpa mengunduhnya secara permanen)</string>
@@ -431,13 +431,13 @@ Harap gunakan versi WhatsApp yang didukung!</string>
     <string name="lite_mode">Mode Ringan</string>
     <string name="lite_mode_sum">Mode Ringan menonaktifkan sebagian besar fitur tema dan jembatan koneksi yang membuat WhatsApp selalu aktif dimatikan.</string>
     <string name="update_check">Periksa Pembaruan Secara Otomatis</string>
-    <string name="update_available">Update Available</string>
-    <string name="update_available_summary">New version %s is available!</string>
-    <string name="up_to_date">Up to Date</string>
-    <string name="checking_for_updates">Checking for updates…</string>
-    <string name="update_check_failed">Unable to Check for Updates</string>
-    <string name="update_check_failed_summary">Could not reach update server</string>
-    <string name="current_version_s">Current version %s</string>
+    <string name="update_available">Pembaruan tersedia</string>
+    <string name="update_available_summary">Versi baru %s tersedia!</string>
+    <string name="up_to_date">Terbaru</string>
+    <string name="checking_for_updates">Memeriksa pembaruan…</string>
+    <string name="update_check_failed">Tidak dapat memeriksa pembaruan</string>
+    <string name="update_check_failed_summary">Tidak dapat terhubung ke server pembaruan</string>
+    <string name="current_version_s">Versi saat ini %s</string>
     <string name="update_check_sum">Aktifkan atau nonaktifkan pemeriksaan otomatis untuk pembaruan. Ini akan menonaktifkan popup di dalam aplikasi WhatsApp.</string>
     <string name="change_default_dpi">Ubah DPI Bawaan</string>
     <string name="change_default_dpi_sum">Ubah pengaturan DPI untuk aplikasi. Gunakan 0 untuk mengatur ulang ke bawaan.</string>
@@ -455,10 +455,13 @@ Harap gunakan versi WhatsApp yang didukung!</string>
     <string name="disable_status_in_the_profile_photo">Nonaktifkan Status di Foto Profil</string>
     <string name="disable_status_in_the_profile_photo_sum">Nonaktifkan lingkaran di foto profil setiap kontak saat ada status baru</string>
     <string name="download_not_available">Unduhan tidak tersedia atau media belum sepenuhnya diunduh</string>
-    <string name="checking_if_contact_added">Memeriksa apakah kontak menambahkan Anda...</string>
-    <string name="show_contact_added_status">Tampilkan status kontak menambahkan di percakapan</string>
-    <string name="show_contact_added_status_sum">Opsi ini memverifikasi apakah kontak telah menambahkan Anda atau foto profilnya publik.</string>
-    <string name="contact_added">Kontak telah menambahkan Anda atau foto profilnya publik.</string>
+    <string name="possible_block_detected">Kemungkinan blokir terdeteksi</string>
+    <string name="block_not_detected">Blokir tidak terdeteksi</string>
+    <string name="checking_if_the_contact_is_blocked">Memeriksa apakah kontak tersebut diblokir...</string>
+    <string name="show_contact_blocked">Tampilkan kontak yang diblokir dalam percakapan</string>
+    <string name="show_contact_blocked_sum">Opsi ini memverifikasi apakah kontak tersebut mungkin telah memblokir Anda
+(CATATAN: kemungkinan terjadi hasil positif palsu)</string>
+    <string name="block_unverified">Blokir Belum Terverifikasi</string>
     <string name="disable_whatsapp_expiration">Nonaktifkan Kadaluarsa WhatsApp</string>
     <string name="disable_whatsapp_expiration_sum">Nonaktifkan kadaluarsa versi WhatsApp
 (CATATAN: Nonaktifkan pembaruan otomatis untuk WhatsApp di Play Store atau tandai Play Store di LSposed)</string>
@@ -513,7 +516,7 @@ Harap gunakan versi WhatsApp yang didukung!</string>
     <string name="configui_mode_default">Bawaan</string>
     <string name="configui_mode_toolbar_photo">Foto profil di Toolbar</string>
     <string name="configui_mode_you_tab">Aktifkan tab Anda di layar beranda</string>
-    <string name="remove_sticker_white_outline_sum">Remove the white border when creating stickers</string>
-    <string name="remove_sticker_white_outline">Remove sticker white outline</string>
-    <string name="stickers">Stickers</string>
+    <string name="remove_sticker_white_outline_sum">Hapus garis tepi putih saat membuat stiker</string>
+    <string name="remove_sticker_white_outline">Hapus garis tepi putih stiker</string>
+    <string name="stickers">Stiker</string>
 </resources>

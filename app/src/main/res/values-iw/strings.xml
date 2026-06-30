@@ -249,7 +249,7 @@
     <string name="color_preset_orange">תפוז</string>
     <string name="color_preset_red">אדום</string>
     <string name="color_preset_pink">ורוד</string>
-    <string name="disable_default_emojis_sum">Disables WhatsApp\'s default emojis and uses system emojis.</string>
+    <string name="disable_default_emojis_sum">מבטל את האימוג\'ים המוגדרים כברירת מחדל של וואטסאפ ומשתמש באימוג\'ים של המערכת.</string>
     <string name="other">אחר</string>
     <string name="enable_media_preview">אפשר תצוגה מקדימה של מדיה (①)</string>
     <string name="enable_media_preview_sum">הוסף כפתור לתצוגה מקדימה של מדיה בקובץ זמני (מבלי להוריד אותו לצמיתות)</string>
@@ -425,13 +425,13 @@
     <string name="lite_mode">מצב לייט</string>
     <string name="lite_mode_sum">מצב Lite משבית את רוב תכונות הנושא וגשר החיבור ששומר על WhatsApp תמיד פעיל כבוי.</string>
     <string name="update_check">בדוק אוטומטית אם יש עדכונים</string>
-    <string name="update_available">Update Available</string>
-    <string name="update_available_summary">New version %s is available!</string>
-    <string name="up_to_date">Up to Date</string>
-    <string name="checking_for_updates">Checking for updates…</string>
-    <string name="update_check_failed">Unable to Check for Updates</string>
-    <string name="update_check_failed_summary">Could not reach update server</string>
-    <string name="current_version_s">Current version %s</string>
+    <string name="update_available">עדכון זמין</string>
+    <string name="update_available_summary">גרסה חדשה %s זמינה!</string>
+    <string name="up_to_date">מעודכן</string>
+    <string name="checking_for_updates">מחפש עדכונים…</string>
+    <string name="update_check_failed">אין אפשרות לבדוק עדכונים</string>
+    <string name="update_check_failed_summary">לא ניתן היה להגיע לשרת העדכונים</string>
+    <string name="current_version_s">גרסה נוכחית: %s</string>
     <string name="update_check_sum">הפעל או השבת את בדיקת העדכון האוטומטית. פעולה זו תשבית את החלון הקופץ של העדכונים בתוך הווצאפ.</string>
     <string name="change_default_dpi">שנה את ברירת המחדל של DPI</string>
     <string name="change_default_dpi_sum">שנה את הגדרת DPI עבור היישום. השתמש ב-0 כדי לאפס לברירת המחדל.</string>
@@ -449,10 +449,12 @@
     <string name="disable_status_in_the_profile_photo">השבתת סטטוס בתמונת הפרופיל</string>
     <string name="disable_status_in_the_profile_photo_sum">מבטל את העיגול שמופיע בתמונת הפרופיל של כל איש קשר כאשר יש סטטוס חדש</string>
     <string name="download_not_available">ההורדה אינה זמינה או שהמדיה לא הורדה במלואה</string>
-    <string name="checking_if_contact_added">בודק אם איש הקשר הוסיף אותך...</string>
-    <string name="show_contact_added_status">הצג מצב הוספת איש קשר בשיחה</string>
-    <string name="show_contact_added_status_sum">אפשרות זו בודקת אם איש הקשר הוסיף אותך או שתמונת הפרופיל שלו ציבורית.</string>
-    <string name="contact_added">איש הקשר הוסיף אותך או שתמונת הפרופיל שלו ציבורית.</string>
+    <string name="possible_block_detected">זוהתה חסימה אפשרית</string>
+    <string name="block_not_detected">חסימה לא זוהתה</string>
+    <string name="checking_if_the_contact_is_blocked">בודק אם איש הקשר חסום...</string>
+    <string name="show_contact_blocked">הצג איש קשר חסום בשיחה</string>
+    <string name="show_contact_blocked_sum">אפשרות זו מאמתת האם איש הקשר חסם אותך (הערה: תוצאות חיוביות שגויות עלולות להתרחש).</string>
+    <string name="block_unverified">חסימה לא מאומתת</string>
     <string name="disable_whatsapp_expiration">השבת תוקף WhatsApp</string>
     <string name="disable_whatsapp_expiration_sum">מבטל את גרסת WhatsApp שפג תוקפה, (הערה: השבתה ידנית לעדכון WhatsApp בחנות Play או סימון חנות Play ב-LSposed)</string>
     <string name="disable_ads">השבתת מודעות</string>
@@ -506,7 +508,7 @@
     <string name="configui_mode_default">ברירת מחדל</string>
     <string name="configui_mode_toolbar_photo">תמונת פרופיל בסרגל הכלים</string>
     <string name="configui_mode_you_tab">שהפרופיל שלך יהיה במסך הבית</string>
-    <string name="remove_sticker_white_outline_sum">Remove the white border when creating stickers</string>
-    <string name="remove_sticker_white_outline">Remove sticker white outline</string>
-    <string name="stickers">Stickers</string>
+    <string name="remove_sticker_white_outline_sum">הסר את הגבול הלבן בעת יצירת מדבקות</string>
+    <string name="remove_sticker_white_outline">הסר את קווי המתאר הלבנים של המדבקה</string>
+    <string name="stickers">סטיקרים</string>
 </resources>

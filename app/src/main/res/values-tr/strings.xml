@@ -447,10 +447,12 @@
     <string name="disable_status_in_the_profile_photo">Profil fotoğrafındaki Durumu devre dışı bırak</string>
     <string name="disable_status_in_the_profile_photo_sum">Yeni durum olduğunda her kişinin profil fotoğrafında görünen daireyi devre dışı bırakır</string>
     <string name="download_not_available">İndirme yapılamıyor veya medya tam olarak indirilmedi</string>
-    <string name="checking_if_contact_added">Kişinin sizi ekleyip eklemediği kontrol ediliyor...</string>
-    <string name="show_contact_added_status">Sohbette kişi ekleme durumunu göster</string>
-    <string name="show_contact_added_status_sum">Bu seçenek, kişinin sizi ekleyip eklemediğini veya profil fotoğrafının herkese açık olup olmadığını kontrol eder.</string>
-    <string name="contact_added">Kişi sizi ekledi veya profil fotoğrafı herkese açık.</string>
+    <string name="possible_block_detected">Olası bir engelleme tespit edildi</string>
+    <string name="block_not_detected">Engelleme tespit edilmedi</string>
+    <string name="checking_if_the_contact_is_blocked">Kişinin engellenip engellenmediği kontrol ediliyor...</string>
+    <string name="show_contact_blocked">Sohbette kişinin engellendiğini göster</string>
+    <string name="show_contact_blocked_sum">Bu seçenek, kişinin sizi engelleyip engellemediğini kontrol eder (not: hatalı tespitler olabilir).</string>
+    <string name="block_unverified">Engelleme doğrulanmadı</string>
     <string name="disable_whatsapp_expiration">WhatsApp Sürüm Süresini Devre Dışı Bırak</string>
     <string name="disable_whatsapp_expiration_sum">Süresi dolmuş WhatsApp sürüm uyarısını devre dışı bırakır. (Not: Play Store\'dan güncelleme yapmak için bu ayarı elle kapatın veya LSposed üzerinden Play Store\'u işaretleyin)</string>
     <string name="disable_ads">Disable Ads</string>

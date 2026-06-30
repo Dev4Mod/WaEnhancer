@@ -248,7 +248,7 @@
     <string name="color_preset_orange">Naranja</string>
     <string name="color_preset_red">Rojo</string>
     <string name="color_preset_pink">Rosa</string>
-    <string name="disable_default_emojis_sum">Disables WhatsApp\'s default emojis and uses system emojis.</string>
+    <string name="disable_default_emojis_sum">Deshabilita los emojis predeterminados de WhatsApp y usa emojis del sistema.</string>
     <string name="other">Otros</string>
     <string name="enable_media_preview">Activar vista previa de multimedia</string>
     <string name="enable_media_preview_sum">Añadir un botón para previsualizar la imagen/video de manera temporal (sin descargarlo permanentemente)</string>
@@ -423,13 +423,13 @@
     <string name="lite_mode">Modo Lite</string>
     <string name="lite_mode_sum">El Modo Lite desactiva la mayoría de las características de los temas y el puente de conexión que mantiene WhatsApp siempre activo, está desactivado. (Puede que ahorres más batería).</string>
     <string name="update_check">Buscar actualizaciones automáticamente</string>
-    <string name="update_available">Update Available</string>
-    <string name="update_available_summary">New version %s is available!</string>
-    <string name="up_to_date">Up to Date</string>
-    <string name="checking_for_updates">Checking for updates…</string>
-    <string name="update_check_failed">Unable to Check for Updates</string>
-    <string name="update_check_failed_summary">Could not reach update server</string>
-    <string name="current_version_s">Current version %s</string>
+    <string name="update_available">Actualización disponible</string>
+    <string name="update_available_summary">¡Una nueva versión %s está disponible!</string>
+    <string name="up_to_date">Actualizado</string>
+    <string name="checking_for_updates">Buscando actualizaciones…</string>
+    <string name="update_check_failed">No se ha podido buscar actualizaciones</string>
+    <string name="update_check_failed_summary">No se pudo acceder al servidor de actualizaciones</string>
+    <string name="current_version_s">Versión actual: %s</string>
     <string name="update_check_sum">Activar o desactivar la autocomprobación de actualización. Esto desactivará la ventana emergente dentro de la aplicación WhatsApp.</string>
     <string name="change_default_dpi">Cambiar DPI por defecto</string>
     <string name="change_default_dpi_sum">Cambia la configuración DPI de la aplicación. Utilice 0 para restablecer el valor predeterminado.</string>
@@ -447,10 +447,12 @@
     <string name="disable_status_in_the_profile_photo">Desactivar estado en la foto de perfil</string>
     <string name="disable_status_in_the_profile_photo_sum">Deshabilita el círculo que aparece en la foto de perfil de cada contacto cuando hay un nuevo estado</string>
     <string name="download_not_available">La descarga no está disponible o el archivo no se ha descargado completamente</string>
-    <string name="checking_if_contact_added">Comprobando si el contacto te agregó...</string>
-    <string name="show_contact_added_status">Mostrar estado de contacto agregado en conversación</string>
-    <string name="show_contact_added_status_sum">Esta opción verifica si el contacto te agregó o tiene la foto pública.</string>
-    <string name="contact_added">El contacto te agregó o tiene la foto pública.</string>
+    <string name="possible_block_detected">Posible bloqueo detectado</string>
+    <string name="block_not_detected">Bloqueo no detectado</string>
+    <string name="checking_if_the_contact_is_blocked">Comprobando si el contacto te ha bloqueado...</string>
+    <string name="show_contact_blocked">Mostrar contacto bloqueado en conversación</string>
+    <string name="show_contact_blocked_sum">Esta opción verifica si el contacto puede haberlo bloqueado (nota: pueden ocurrir falsos positivos).</string>
+    <string name="block_unverified">Bloqueo no verificado</string>
     <string name="disable_whatsapp_expiration">Desactivar expiración de WhatsApp</string>
     <string name="disable_whatsapp_expiration_sum">Desactiva la versión caducada de WhatsApp, (Nota: Desactivar manualmente para actualizar WhatsApp en la Play Store o marcar la Play Store en LSposed)</string>
     <string name="disable_ads">Desactivar Anuncios</string>
@@ -504,7 +506,7 @@
     <string name="configui_mode_default">Predeterminado</string>
     <string name="configui_mode_toolbar_photo">Foto de perfil en la barra de herramientas</string>
     <string name="configui_mode_you_tab">Activar pestaña en la pantalla de inicio</string>
-    <string name="remove_sticker_white_outline_sum">Remove the white border when creating stickers</string>
-    <string name="remove_sticker_white_outline">Remove sticker white outline</string>
+    <string name="remove_sticker_white_outline_sum">Remueve el borde blanco al crear stickers</string>
+    <string name="remove_sticker_white_outline">Remueve el contorno blanco del sticker</string>
     <string name="stickers">Stickers</string>
 </resources>
