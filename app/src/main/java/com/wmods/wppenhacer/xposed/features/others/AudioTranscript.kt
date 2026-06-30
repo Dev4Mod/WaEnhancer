@@ -151,6 +151,8 @@ class AudioTranscript(
 
             val length = wordText.length
             val timing = getWordTiming(wordObject, provider)
+            val duration = timing.endMs - timing.startMs
+            val safeDuration = if (duration < 100) 100 else duration
 
             val segment = XposedHelpers.newInstance(
                 transcriptionSegmentClass,
@@ -158,7 +160,7 @@ class AudioTranscript(
                 length,
                 DEFAULT_CONFIDENCE,
                 timing.startMs,
-                timing.endMs
+                safeDuration
             )
 
             segments.add(segment)
