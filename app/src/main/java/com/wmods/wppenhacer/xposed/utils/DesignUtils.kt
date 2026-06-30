@@ -139,7 +139,7 @@ object DesignUtils {
             }
         }
         if (primaryColor == 0 || mPrefs?.getBoolean("changecolor", false) != true) {
-            return -2686618 // 0xFF25d366 as int
+            return 0xFF25d366.toInt()
         }
         return primaryColor
     }

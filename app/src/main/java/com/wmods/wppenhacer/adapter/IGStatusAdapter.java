@@ -49,7 +49,6 @@ public class IGStatusAdapter extends ArrayAdapter {
     private final Class<?> clazzImageStatus;
     private final Class<?> statusInfoClazz;
     private final Method setCountStatus;
-    private static Drawable cacheIcon;
 
     @NonNull
     @Override
@@ -261,11 +260,9 @@ public class IGStatusAdapter extends ArrayAdapter {
         ImageView iconImageView = new ImageView(this.getContext());
         RelativeLayout.LayoutParams iconParams = new RelativeLayout.LayoutParams(Utils.dipToPixels(24), Utils.dipToPixels(24));
         iconImageView.setLayoutParams(iconParams);
-        if (cacheIcon == null) {
-            var icon = DesignUtils.getDrawableByName("my_status_add_button_new");
-            cacheIcon = DesignUtils.generatePrimaryColorDrawable(icon);
-        }
-        iconImageView.setImageDrawable(cacheIcon);
+        var icon = DesignUtils.getDrawableByName("my_status_add_button_new");
+        var coloredIcon = DesignUtils.generatePrimaryColorDrawable(icon);
+        iconImageView.setImageDrawable(coloredIcon != null ? coloredIcon : icon);
         iconImageView.setBackgroundColor(Color.TRANSPARENT);
         addBtnRelativeLayout.addView(iconImageView);
         holder.addButton = addBtnRelativeLayout;
