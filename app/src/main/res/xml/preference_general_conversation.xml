@@ -111,8 +111,8 @@
 
         <rikka.material.preference.MaterialSwitchPreference
             app:key="verify_blocked_contact"
-            app:summary="@string/show_contact_blocked_sum"
-            app:title="@string/show_contact_blocked" />
+            app:summary="@string/show_contact_added_status_sum"
+            app:title="@string/show_contact_added_status" />
 
         <rikka.material.preference.MaterialSwitchPreference
             app:key="jump_first_message"

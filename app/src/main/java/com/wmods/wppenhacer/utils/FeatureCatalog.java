@@ -437,12 +437,12 @@ public class FeatureCatalog {
                 Arrays.asList("translate", "google", "language")));
 
         catalog.add(new SearchableFeature("verify_blocked_contact",
-                context.getString(R.string.show_contact_blocked),
-                context.getString(R.string.show_contact_blocked_sum),
+                context.getString(R.string.show_contact_added_status),
+                context.getString(R.string.show_contact_added_status_sum),
                 SearchableFeature.Category.GENERAL_CONVERSATION,
                 SearchableFeature.FragmentType.GENERAL,
                 "conversation",
-                Arrays.asList("blocked", "contact", "verify")));
+                Arrays.asList("added", "contact", "verify")));
 
         // GENERAL FRAGMENT - Status
         catalog.add(new SearchableFeature("autonext_status",

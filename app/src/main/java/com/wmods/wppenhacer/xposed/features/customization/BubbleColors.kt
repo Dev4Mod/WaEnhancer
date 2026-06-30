@@ -1,9 +1,9 @@
 package com.wmods.wppenhacer.xposed.features.customization
 
-import android.graphics.Color
 import android.graphics.PorterDuff
 import android.graphics.PorterDuffColorFilter
 import android.graphics.drawable.Drawable
+import androidx.core.graphics.toColorInt
 import com.wmods.wppenhacer.xposed.core.Feature
 import com.wmods.wppenhacer.xposed.core.devkit.Unobfuscator.loadBallonBorderDrawable
 import com.wmods.wppenhacer.xposed.core.devkit.Unobfuscator.loadBallonDateDrawable
@@ -28,25 +28,21 @@ class BubbleColors(loader: ClassLoader, preferences: XSharedPreferences) :
         val bubbleLeftColor = if (bubbleColor) prefs.getInt(
             "bubble_left",
             0
-        ) else Color.parseColor(
-            DesignUtils.checkSystemColor(
-                properties.getProperty(
-                    "bubble_left",
-                    "#00000000"
-                )
+        ) else DesignUtils.checkSystemColor(
+            properties.getProperty(
+                "bubble_left",
+                "#00000000"
             )
-        )
+        ).toColorInt()
         val bubbleRightColor = if (bubbleColor) prefs.getInt(
             "bubble_right",
             0
-        ) else Color.parseColor(
-            DesignUtils.checkSystemColor(
-                properties.getProperty(
-                    "bubble_right",
-                    "#00000000"
-                )
+        ) else DesignUtils.checkSystemColor(
+            properties.getProperty(
+                "bubble_right",
+                "#00000000"
             )
-        )
+        ).toColorInt()
 
         val dateWrapper = loadBallonDateDrawable(classLoader)
 

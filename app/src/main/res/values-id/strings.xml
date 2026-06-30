@@ -458,12 +458,10 @@ Saat Anda mengaktifkan bekukan \"terakhir dilihat dan online\", Anda tidak dapat
     <string name="disable_status_in_the_profile_photo">Nonaktifkan status di foto profil</string>
     <string name="disable_status_in_the_profile_photo_sum">Menonaktifkan lingkaran yang muncul di foto profil setiap kontak ketika ada status baru</string>
     <string name="download_not_available">Unduhan tidak tersedia atau media belum sepenuhnya diunduh</string>
-    <string name="possible_block_detected">Kemungkinan blok terdeteksi</string>
-    <string name="block_not_detected">Blok tidak terdeteksi</string>
-    <string name="checking_if_the_contact_is_blocked">Memeriksa apakah kontak tersebut diblokir...</string>
-    <string name="show_contact_blocked">Tampilkan Kontak yang Diblokir dalam Percakapan</string>
-    <string name="show_contact_blocked_sum">Opsi ini memverifikasi apakah kontak tersebut mungkin telah memblokir Anda (catatan: kemungkinan terjadi kesalahan positif).</string>
-    <string name="block_unverified">Blokir Belum Terverifikasi</string>
+    <string name="checking_if_contact_added">Memeriksa apakah kontak menambahkan Anda...</string>
+    <string name="show_contact_added_status">Tampilkan status kontak menambahkan di percakapan</string>
+    <string name="show_contact_added_status_sum">Opsi ini memverifikasi apakah kontak telah menambahkan Anda atau foto profilnya publik.</string>
+    <string name="contact_added">Kontak telah menambahkan Anda atau foto profilnya publik.</string>
     <string name="disable_whatsapp_expiration">Nonaktifkan Masa Berlaku WhatsApp</string>
     <string name="disable_whatsapp_expiration_sum">Menonaktifkan versi WhatsApp yang sudah kedaluwarsa, (catatan: Nonaktifkan secara manual untuk memperbarui WhatsApp di Play Store atau tandai Play Store di LSposed)</string>
     <string name="disable_ads">Disable Ads</string>

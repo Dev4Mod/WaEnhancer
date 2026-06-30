@@ -30,7 +30,7 @@ import com.wmods.wppenhacer.xposed.core.components.WaContactWpp
 import com.wmods.wppenhacer.xposed.core.devkit.Unobfuscator
 import com.wmods.wppenhacer.xposed.core.devkit.UnobfuscatorCache
 import com.wmods.wppenhacer.xposed.features.customization.BubbleColors
-import com.wmods.wppenhacer.xposed.features.customization.ContactBlockedVerify
+import com.wmods.wppenhacer.xposed.features.customization.ContactVerify
 import com.wmods.wppenhacer.xposed.features.customization.CustomThemeV2
 import com.wmods.wppenhacer.xposed.features.customization.CustomTime
 import com.wmods.wppenhacer.xposed.features.customization.CustomToolbar
@@ -514,7 +514,7 @@ class FeatureLoader {
                 CustomPrivacy::class.java,
                 AudioTranscript::class.java,
                 GoogleTranslate::class.java,
-                ContactBlockedVerify::class.java,
+                ContactVerify::class.java,
                 LockedChatsEnhancer::class.java,
                 CallRecording::class.java,
                 BackupRestore::class.java,

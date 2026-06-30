@@ -3,8 +3,6 @@ package com.wmods.wppenhacer.xposed.features.customization
 import android.annotation.SuppressLint
 import android.app.Activity
 import android.graphics.Color
-import android.os.Handler
-import android.os.Looper
 import android.text.TextUtils
 import android.view.ViewGroup
 import android.widget.TextView
@@ -13,28 +11,21 @@ import com.wmods.wppenhacer.xposed.core.Feature
 import com.wmods.wppenhacer.xposed.core.WppCore
 import com.wmods.wppenhacer.xposed.core.components.FMessageWpp
 import com.wmods.wppenhacer.xposed.core.devkit.Unobfuscator
-import com.wmods.wppenhacer.xposed.features.general.Others
 import com.wmods.wppenhacer.xposed.utils.DesignUtils
 import com.wmods.wppenhacer.xposed.utils.ReflectionUtils
 import com.wmods.wppenhacer.xposed.utils.Utils
 import de.robv.android.xposed.XC_MethodHook
 import de.robv.android.xposed.XSharedPreferences
 import de.robv.android.xposed.XposedBridge
-import de.robv.android.xposed.XposedHelpers
-import java.lang.reflect.Proxy
 import java.util.concurrent.CompletableFuture
-import java.util.concurrent.atomic.AtomicBoolean
 import java.util.concurrent.atomic.AtomicReference
 
-class ContactBlockedVerify(loader: ClassLoader, preferences: XSharedPreferences) :
+class ContactVerify(loader: ClassLoader, preferences: XSharedPreferences) :
     Feature(loader, preferences) {
 
     companion object {
         private const val TAG_CONTACT_CHECKER = "contact_checker"
         private const val STATUS_NOT_ADDED = 401
-        private const val STATUS_POSSIBLE_BLOCKED = 2
-        private const val VERIFY_TIMEOUT_MS = 2000L
-        private const val VERIFY_WAIT_MS = 20_000L
     }
 
     private val state = ContactCheckState()
@@ -50,16 +41,13 @@ class ContactBlockedVerify(loader: ClassLoader, preferences: XSharedPreferences)
             isFocusableInTouchMode = true
             isSelected = true
             setTextColor(DesignUtils.getPrimaryTextColor())
-            setText(R.string.checking_if_the_contact_is_blocked)
+            setText(R.string.checking_if_contact_added)
         }
     }
 
     @SuppressLint("ResourceType")
     override fun doHook() {
-        if (!prefs.getBoolean("verify_blocked_contact", false))
-            return
-
-        Others.propsBoolean[2966] = true
+        if (!prefs.getBoolean("verify_blocked_contact", false)) return
 
         val sendGetProfilePhoto = Unobfuscator.loadGetProfilePhoto(classLoader)
         state.sendGetProfilePhoto = sendGetProfilePhoto
@@ -67,88 +55,26 @@ class ContactBlockedVerify(loader: ClassLoader, preferences: XSharedPreferences)
         initProfilePhotoProtocolHooks(profilePhotoProtocolHelper)
         val dialerProfilePictureLoader = Unobfuscator.loadDialerProfilePictureLoader(classLoader)
         initProfilePhotoCallbacks(dialerProfilePictureLoader)
-
-        val verifyKeyStrategy = buildVerifyKeyStrategy()
-        registerActivityListener(verifyKeyStrategy.callbackInterface, verifyKeyStrategy.invoker)
+        registerActivityListener()
     }
 
-    private fun buildVerifyKeyStrategy(): VerifyKeyStrategy {
-        return try {
-            val verifyKeyClass = Unobfuscator.loadVerifyKeyClass(classLoader)
-            val callbackInterface = verifyKeyClass.declaredConstructors[0].parameterTypes[0]
-            val invoker = VerifyKeyInvoker { proxyInstance, jids ->
-                val instance = XposedHelpers.newInstance(verifyKeyClass, proxyInstance, jids)
-                XposedHelpers.callMethod(instance, "A00", 1)
-            }
-            VerifyKeyStrategy(callbackInterface, invoker)
-        } catch (_: Exception) {
-            val verifyKeyItemConstructor = Unobfuscator.loadVerifyKeyItemConstructor(classLoader)
-            val verifyKeyRunnableConstructor =
-                Unobfuscator.loadVerifyKeyRunnableConstructor(classLoader)
-            val number = Unobfuscator.loadVerifyKeyInt(classLoader)
-            val callbackInterface = verifyKeyItemConstructor.parameterTypes[0]
-            val invoker = VerifyKeyInvoker { proxyInstance, jids ->
-                val instance = verifyKeyItemConstructor.newInstance(proxyInstance, jids)
-                val runInstance =
-                    verifyKeyRunnableConstructor.newInstance(instance, number) as Runnable
-                CompletableFuture.runAsync(runInstance)
-            }
-            VerifyKeyStrategy(callbackInterface, invoker)
-        }
-    }
-
-    private fun registerActivityListener(
-        callbackInterface: Class<*>,
-        invoker: VerifyKeyInvoker
-    ) {
+    private fun registerActivityListener() {
         WppCore.addListenerActivity { activity, state ->
             if (activity.javaClass.simpleName == "Conversation" && state == WppCore.ActivityChangeState.ChangeType.STARTED) {
-                CompletableFuture.runAsync {
-                    onConversationStarted(activity, callbackInterface, invoker)
-                }
+                CompletableFuture.runAsync { onConversationStarted(activity) }
             }
         }
     }
 
-    private fun onConversationStarted(
-        activity: Activity,
-        callbackInterface: Class<*>,
-        invoker: VerifyKeyInvoker
-    ) {
+    private fun onConversationStarted(activity: Activity) {
         try {
             val userJid = WppCore.getCurrentUserJid() ?: return
-            val meJid = WppCore.getMyUserJid() ?: return
             if (!userJid.isContact) return
             val view =
                 activity.findViewById<ViewGroup>(Utils.getID("conversation_contact", "id")) ?: return
             val textView = resolveContactChecker(activity, view)
             showChecking(textView)
-            val methodResult = ReflectionUtils.findMethodUsingFilter(callbackInterface) { method ->
-                method.parameterCount == 1 && method.parameterTypes[0] == Int::class.javaObjectType
-            }
-            val startTime = System.currentTimeMillis()
-            val isloaded = AtomicBoolean(false)
-            val clazzProxy = Proxy.newProxyInstance(
-                classLoader,
-                arrayOf(callbackInterface)
-            ) { _, method, objects ->
-                if (method.name == methodResult.name) {
-                    isloaded.set(true)
-                    val value = objects[0] as Int
-                    if (view.isAttachedToWindow) {
-                        view.post { onVerifyResult(view, userJid, value, startTime) }
-                    }
-                }
-                null
-            }
-            val jids = listOf(userJid.userJid!!, meJid.phoneJid!!)
-            invoker.invoke(clazzProxy, jids)
-            Handler(Looper.getMainLooper()).postDelayed({
-                if (!isloaded.get()) {
-                    showUnverified(textView)
-                }
-            }, VERIFY_WAIT_MS)
-
+            checkContactPhotoProfile(userJid)
         } catch (e: Exception) {
             XposedBridge.log(e)
         }
@@ -182,7 +108,7 @@ class ContactBlockedVerify(loader: ClassLoader, preferences: XSharedPreferences)
                 if (state.pendingUserJid.get() != userJid.userRawString) return
                 state.pendingUserJid.set(null)
                 val tv = state.checkerView.get() ?: return
-                showNotBlocked(tv)
+                showContactAdded(tv)
             }
         })
         XposedBridge.hookMethod(onError, object : XC_MethodHook() {
@@ -190,32 +116,15 @@ class ContactBlockedVerify(loader: ClassLoader, preferences: XSharedPreferences)
                 val userJid = FMessageWpp.UserJid(param.args[0])
                 if (state.pendingUserJid.get() != userJid.userRawString) return
                 state.pendingUserJid.set(null)
-                val status = ReflectionUtils.getArg(param.args, Int::class.javaObjectType, 0)
                 val tv = state.checkerView.get() ?: return
+                val status = ReflectionUtils.getArg(param.args, Int::class.javaObjectType, 0)
                 if (status == STATUS_NOT_ADDED) {
                     showProbablyNotAdded(tv)
+                } else {
+                    showUnavailable(tv)
                 }
             }
         })
-    }
-
-    private fun onVerifyResult(
-        view: ViewGroup,
-        userJid: FMessageWpp.UserJid,
-        value: Int,
-        startTime: Long
-    ) {
-        val textView = view.findViewWithTag(TAG_CONTACT_CHECKER) as? TextView ?: return
-        textView.isSelected = true
-        if (System.currentTimeMillis() - startTime < VERIFY_TIMEOUT_MS) {
-            showUnverified(textView)
-            return
-        }
-        if (value == STATUS_POSSIBLE_BLOCKED) {
-            showPossibleBlocked(textView)
-        } else {
-            checkContactPhotoProfile(userJid)
-        }
     }
 
     private fun resolveContactChecker(activity: Activity, view: ViewGroup): TextView {
@@ -233,15 +142,15 @@ class ContactBlockedVerify(loader: ClassLoader, preferences: XSharedPreferences)
 
     private fun showChecking(textView: TextView) {
         textView.post {
-            textView.setText(R.string.checking_if_the_contact_is_blocked)
+            textView.setText(R.string.checking_if_contact_added)
             textView.setTextColor(DesignUtils.getPrimaryTextColor())
         }
     }
 
-    private fun showNotBlocked(textView: TextView) {
+    private fun showContactAdded(textView: TextView) {
         textView.post {
             textView.setTextColor(Color.GREEN)
-            textView.setText(R.string.block_not_detected)
+            textView.setText(R.string.contact_added)
         }
     }
 
@@ -252,17 +161,10 @@ class ContactBlockedVerify(loader: ClassLoader, preferences: XSharedPreferences)
         }
     }
 
-    private fun showPossibleBlocked(textView: TextView) {
+    private fun showUnavailable(textView: TextView) {
         textView.post {
-            textView.setText(R.string.possible_block_detected)
-            textView.setTextColor(Color.RED)
-        }
-    }
-
-    private fun showUnverified(textView: TextView) {
-        textView.post {
-            textView.setText(R.string.block_unverified)
             textView.setTextColor(DesignUtils.getPrimaryTextColor())
+            textView.setText(R.string.not_available)
         }
     }
 
@@ -282,18 +184,8 @@ class ContactBlockedVerify(loader: ClassLoader, preferences: XSharedPreferences)
     }
 
     override fun getPluginName(): String {
-        return "Contact Blocked Verify"
+        return "Contact Added Verify"
     }
-
-    private fun interface VerifyKeyInvoker {
-        @Throws(Exception::class)
-        fun invoke(proxyInstance: Any, jids: List<Any>)
-    }
-
-    private data class VerifyKeyStrategy(
-        val callbackInterface: Class<*>,
-        val invoker: VerifyKeyInvoker
-    )
 
     private class ContactCheckState {
         @Volatile
