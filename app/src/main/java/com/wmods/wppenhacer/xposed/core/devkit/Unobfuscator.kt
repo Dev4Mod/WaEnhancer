@@ -3447,7 +3447,14 @@ object Unobfuscator {
         return UnobfuscatorCache.getInstance().getMethods(classLoader) {
             bridge.findClass {
                 matcher {
-                    superClass = "android.text.style.ImageSpan"
+                    anyOf {
+                        match {
+                            superClass = "android.text.style.ImageSpan"
+                        }
+                        match {
+                            superClass = "android.text.style.ReplacementSpan"
+                        }
+                    }
                 }
             }.findMethod {
                 matcher {
@@ -3462,7 +3469,14 @@ object Unobfuscator {
         return UnobfuscatorCache.getInstance().getMethods(classLoader) {
             bridge.findClass {
                 matcher {
-                    superClass = "android.text.style.ImageSpan"
+                    anyOf {
+                        match {
+                            superClass = "android.text.style.ImageSpan"
+                        }
+                        match {
+                            superClass = "android.text.style.ReplacementSpan"
+                        }
+                    }
                 }
             }.findMethod {
                 matcher {
