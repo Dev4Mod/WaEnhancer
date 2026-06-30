@@ -236,6 +236,10 @@
     <string name="title_audio">Audio</string>
     <string name="android_version">Android SDK</string>
     <string name="message_removed_on">This message was removed on %s.</string>
+    <string name="force_disable_emojis">Force Disable Emojis</string>
+    <string name="force_disable_emojis_sum">Blocks WhatsApp emoji assets, making emojis invisible (use keyboard emoji instead).</string>
+    <string name="force_disable_emojis_alert_title">Force Disable Emojis</string>
+    <string name="force_disable_emojis_alert_msg">This feature will make emojis invisible in the emoji selector. To send emojis, use your device\'s keyboard emoji instead.</string>
     <string name="disable_default_emojis">Disable Default Emojis</string>
     <string name="theme_mode">Dark Theme Wa Enhancer</string>
     <string name="theme_mode_sum">Force a theme mode in the Wa Enhancer</string>

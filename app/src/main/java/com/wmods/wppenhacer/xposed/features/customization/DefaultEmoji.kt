@@ -6,6 +6,7 @@ import android.graphics.Rect
 import android.graphics.drawable.Drawable
 import com.wmods.wppenhacer.xposed.core.Feature
 import com.wmods.wppenhacer.xposed.core.devkit.Unobfuscator
+import com.wmods.wppenhacer.xposed.utils.Utils
 import de.robv.android.xposed.XC_MethodHook
 import de.robv.android.xposed.XC_MethodHook.MethodHookParam
 import de.robv.android.xposed.XSharedPreferences
@@ -28,6 +29,17 @@ class DefaultEmoji(
     private val spanWidths = WeakHashMap<Any, Int>()
 
     override fun doHook() {
+        if (prefs.getBoolean("force_disable_emojis", false)) {
+            val assetsClass = Utils.application.resources.assets.javaClass
+            XposedBridge.hookAllMethods(assetsClass, "openFd", object : XC_MethodHook() {
+                override fun beforeHookedMethod(param: MethodHookParam) {
+                    val name = param.args[0] as String
+                    if (name.contains("emojis.oba"))
+                        param.result = null
+                }
+            })
+            return
+        }
         if (!prefs.getBoolean("disable_defemojis", false)) return
         Unobfuscator.loadGetSizeSpanMethods(classLoader).forEach { method ->
             XposedBridge.hookMethod(method, object : XC_MethodHook() {

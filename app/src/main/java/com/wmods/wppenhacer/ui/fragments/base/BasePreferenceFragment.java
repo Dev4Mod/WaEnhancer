@@ -20,8 +20,10 @@ import androidx.core.content.ContextCompat;
 import androidx.preference.PreferenceFragmentCompat;
 import androidx.preference.PreferenceManager;
 
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.wmods.wppenhacer.App;
 import com.wmods.wppenhacer.BuildConfig;
+import com.wmods.wppenhacer.R;
 import com.wmods.wppenhacer.xposed.utils.Utils;
 
 import java.util.Objects;
@@ -90,6 +92,20 @@ public abstract class BasePreferenceFragment extends PreferenceFragmentCompat
         var downloadviewonce = (MaterialSwitchPreference) findPreference("downloadviewonce");
         if (downloadviewonce != null) {
             downloadviewonce.setOnPreferenceChangeListener((preference, newValue) -> checkStoragePermission(newValue));
+        }
+
+        var forceDisableEmojis = (MaterialSwitchPreference) findPreference("force_disable_emojis");
+        if (forceDisableEmojis != null) {
+            forceDisableEmojis.setOnPreferenceChangeListener((preference, newValue) -> {
+                if (newValue instanceof Boolean && (Boolean) newValue) {
+                    new MaterialAlertDialogBuilder(requireContext())
+                            .setTitle(R.string.force_disable_emojis_alert_title)
+                            .setMessage(R.string.force_disable_emojis_alert_msg)
+                            .setPositiveButton(android.R.string.ok, null)
+                            .show();
+                }
+                return true;
+            });
         }
     }
 
