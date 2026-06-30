@@ -21,7 +21,7 @@ import com.wmods.wppenhacer.xposed.utils.ReflectionUtils
 import com.wmods.wppenhacer.xposed.utils.Utils
 import de.robv.android.xposed.XC_MethodHook
 import de.robv.android.xposed.XC_MethodHook.MethodHookParam
-import de.robv.android.xposed.XSharedPreferences
+import android.content.SharedPreferences 
 import de.robv.android.xposed.XposedBridge
 import org.luckypray.dexkit.query.enums.StringMatchType
 import java.util.concurrent.CompletableFuture
@@ -30,7 +30,7 @@ import java.util.concurrent.ScheduledExecutorService
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicReference
 
-class ToastViewer(classLoader: ClassLoader, preferences: XSharedPreferences) :
+class ToastViewer(classLoader: ClassLoader, preferences:SharedPreferences) :
     Feature(classLoader, preferences) {
     init {
         startCleanupTask()

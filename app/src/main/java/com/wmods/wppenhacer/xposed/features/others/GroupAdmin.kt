@@ -13,10 +13,10 @@ import com.wmods.wppenhacer.xposed.core.devkit.Unobfuscator
 import com.wmods.wppenhacer.xposed.features.listeners.ConversationItemListener
 import com.wmods.wppenhacer.xposed.utils.ReflectionUtils
 import com.wmods.wppenhacer.xposed.utils.Utils
-import de.robv.android.xposed.XSharedPreferences
+import android.content.SharedPreferences 
 import java.lang.reflect.Method
 
-class GroupAdmin(classLoader: ClassLoader, preferences: XSharedPreferences) : Feature(classLoader, preferences) {
+class GroupAdmin(classLoader: ClassLoader, preferences:SharedPreferences) : Feature(classLoader, preferences) {
 
     override fun doHook() {
         if (!prefs.getBoolean("admin_grp", false)) return

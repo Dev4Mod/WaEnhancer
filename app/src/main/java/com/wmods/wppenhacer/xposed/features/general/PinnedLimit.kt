@@ -8,7 +8,7 @@ import com.wmods.wppenhacer.xposed.core.devkit.Unobfuscator
 import com.wmods.wppenhacer.xposed.utils.ReflectionUtils
 import de.robv.android.xposed.XC_MethodHook
 import de.robv.android.xposed.XC_MethodReplacement
-import de.robv.android.xposed.XSharedPreferences
+import android.content.SharedPreferences 
 import de.robv.android.xposed.XposedBridge
 import de.robv.android.xposed.XposedHelpers
 import java.util.Spliterator
@@ -17,7 +17,7 @@ import java.lang.reflect.Array as ReflectArray
 
 class PinnedLimit(
     loader: ClassLoader,
-    preferences: XSharedPreferences
+    preferences:SharedPreferences
 ) : Feature(loader, preferences) {
 
     @SuppressLint("DiscouragedApi")

@@ -16,13 +16,13 @@ import com.wmods.wppenhacer.xposed.features.general.Others
 import com.wmods.wppenhacer.xposed.utils.ReflectionUtils
 import de.robv.android.xposed.XC_MethodHook
 import de.robv.android.xposed.XC_MethodReplacement
-import de.robv.android.xposed.XSharedPreferences
+import android.content.SharedPreferences 
 import de.robv.android.xposed.XposedBridge
 import de.robv.android.xposed.XposedHelpers
 import org.json.JSONObject
 import java.lang.reflect.Field
 
-class MediaQuality(loader: ClassLoader, preferences: XSharedPreferences) :
+class MediaQuality(loader: ClassLoader, preferences:SharedPreferences) :
     Feature(loader, preferences) {
 
     companion object {

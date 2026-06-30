@@ -14,11 +14,11 @@ import com.wmods.wppenhacer.xposed.core.components.SharedPreferencesWrapper
 import com.wmods.wppenhacer.xposed.core.devkit.UnobfuscatorCache
 import com.wmods.wppenhacer.xposed.utils.ReflectionUtils
 import de.robv.android.xposed.XC_MethodHook
-import de.robv.android.xposed.XSharedPreferences
+import android.content.SharedPreferences 
 import de.robv.android.xposed.XposedBridge
 import de.robv.android.xposed.XposedHelpers
 
-class CallType(loader: ClassLoader, preferences: XSharedPreferences) :
+class CallType(loader: ClassLoader, preferences:SharedPreferences) :
     Feature(loader, preferences) {
     private var hookBundleBoolean: XC_MethodHook.Unhook? = null
 

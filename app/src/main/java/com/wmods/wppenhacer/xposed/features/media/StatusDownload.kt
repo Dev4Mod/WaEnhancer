@@ -15,11 +15,10 @@ import com.wmods.wppenhacer.xposed.core.devkit.Unobfuscator
 import com.wmods.wppenhacer.xposed.features.listeners.MenuStatusListener
 import com.wmods.wppenhacer.xposed.utils.MimeTypeUtils
 import com.wmods.wppenhacer.xposed.utils.Utils
-import de.robv.android.xposed.XSharedPreferences
 import org.luckypray.dexkit.query.enums.StringMatchType
 import java.io.File
 
-class StatusDownload(loader: ClassLoader, preferences: XSharedPreferences) : Feature(loader, preferences) {
+class StatusDownload(loader: ClassLoader, preferences:SharedPreferences) : Feature(loader, preferences) {
 
     override fun doHook() {
         if (!prefs.getBoolean("downloadstatus", false)) return

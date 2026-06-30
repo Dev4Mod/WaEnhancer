@@ -5,10 +5,10 @@ import com.wmods.wppenhacer.xposed.core.WppCore.getPrivBoolean
 import com.wmods.wppenhacer.xposed.core.devkit.Unobfuscator.getMethodDescriptor
 import com.wmods.wppenhacer.xposed.core.devkit.Unobfuscator.loadDndModeMethod
 import de.robv.android.xposed.XC_MethodReplacement
-import de.robv.android.xposed.XSharedPreferences
+import android.content.SharedPreferences 
 import de.robv.android.xposed.XposedBridge
 
-class DndMode(loader: ClassLoader, preferences: XSharedPreferences) : Feature(loader, preferences) {
+class DndMode(loader: ClassLoader, preferences:SharedPreferences) : Feature(loader, preferences) {
 
     override fun doHook() {
         if (!getPrivBoolean("dndmode", false)) return

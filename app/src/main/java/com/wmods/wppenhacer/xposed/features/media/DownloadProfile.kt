@@ -11,11 +11,11 @@ import com.wmods.wppenhacer.xposed.core.devkit.Unobfuscator.findFirstClassUsingN
 import com.wmods.wppenhacer.xposed.utils.ReflectionUtils
 import com.wmods.wppenhacer.xposed.utils.Utils
 import de.robv.android.xposed.XC_MethodHook
-import de.robv.android.xposed.XSharedPreferences
+import android.content.SharedPreferences 
 import de.robv.android.xposed.XposedHelpers
 import org.luckypray.dexkit.query.enums.StringMatchType
 
-class DownloadProfile(classLoader: ClassLoader, preferences: XSharedPreferences) :
+class DownloadProfile(classLoader: ClassLoader, preferences:SharedPreferences) :
     Feature(classLoader, preferences) {
 
     override fun doHook() {

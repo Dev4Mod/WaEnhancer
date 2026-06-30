@@ -1,12 +1,12 @@
 package com.wmods.wppenhacer.xposed.core
 
+import android.content.SharedPreferences
 import android.util.Log
-import de.robv.android.xposed.XSharedPreferences
 import de.robv.android.xposed.XposedBridge
 
 abstract class Feature(
     @JvmField val classLoader: ClassLoader,
-    @JvmField val prefs: XSharedPreferences
+    @JvmField val prefs: SharedPreferences
 ) {
 
     companion object {

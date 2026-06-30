@@ -13,10 +13,10 @@ import com.wmods.wppenhacer.xposed.core.components.FMessageWpp
 import com.wmods.wppenhacer.xposed.core.devkit.Unobfuscator
 import com.wmods.wppenhacer.xposed.utils.Utils
 import de.robv.android.xposed.XC_MethodHook
-import de.robv.android.xposed.XSharedPreferences
+import android.content.SharedPreferences 
 import de.robv.android.xposed.XposedBridge
 
-class Tasker(loader: ClassLoader, preferences: XSharedPreferences) : Feature(loader, preferences) {
+class Tasker(loader: ClassLoader, preferences:SharedPreferences) : Feature(loader, preferences) {
 
     override fun getPluginName(): String {
         return "Tasker"

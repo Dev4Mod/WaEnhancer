@@ -10,6 +10,7 @@ import android.content.ClipboardManager
 import android.content.ContentResolver
 import android.content.Context
 import android.content.Intent
+import android.content.SharedPreferences
 import android.media.MediaScannerConnection
 import android.net.Uri
 import android.os.Binder
@@ -303,7 +304,7 @@ object Utils {
         ) { _: String?, _: Uri? -> }
     }
 
-    fun getProperties(prefs: XSharedPreferences, key: String?, checkKey: String?): Properties {
+    fun getProperties(prefs: SharedPreferences, key: String?, checkKey: String?): Properties {
         val properties = Properties()
         if (checkKey != null && !prefs.getBoolean(checkKey, false)) return properties
         val text = prefs.getString(key, "")!!

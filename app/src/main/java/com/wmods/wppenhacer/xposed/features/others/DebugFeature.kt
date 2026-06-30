@@ -1,9 +1,9 @@
 package com.wmods.wppenhacer.xposed.features.others
 
 import com.wmods.wppenhacer.xposed.core.Feature
-import de.robv.android.xposed.XSharedPreferences
+import android.content.SharedPreferences 
 
-class DebugFeature(classLoader: ClassLoader, preferences: XSharedPreferences) :
+class DebugFeature(classLoader: ClassLoader, preferences:SharedPreferences) :
     Feature(classLoader, preferences) {
 
     override fun doHook() {

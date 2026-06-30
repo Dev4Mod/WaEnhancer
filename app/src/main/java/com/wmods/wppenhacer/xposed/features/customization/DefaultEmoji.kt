@@ -9,7 +9,7 @@ import com.wmods.wppenhacer.xposed.core.devkit.Unobfuscator
 import com.wmods.wppenhacer.xposed.utils.Utils
 import de.robv.android.xposed.XC_MethodHook
 import de.robv.android.xposed.XC_MethodHook.MethodHookParam
-import de.robv.android.xposed.XSharedPreferences
+import android.content.SharedPreferences 
 import de.robv.android.xposed.XposedBridge
 import de.robv.android.xposed.XposedHelpers
 import java.util.WeakHashMap
@@ -18,7 +18,7 @@ import kotlin.math.max
 
 class DefaultEmoji(
     classLoader: ClassLoader,
-    prefs: XSharedPreferences
+    prefs:SharedPreferences
 ) : Feature(classLoader, prefs) {
 
     private val minScale = 1.00f

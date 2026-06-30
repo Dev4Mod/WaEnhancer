@@ -13,14 +13,14 @@ import com.wmods.wppenhacer.xposed.core.Feature
 import com.wmods.wppenhacer.xposed.core.WppCore
 import com.wmods.wppenhacer.xposed.core.components.FMessageWpp
 import de.robv.android.xposed.XC_MethodHook
-import de.robv.android.xposed.XSharedPreferences
+import android.content.SharedPreferences 
 import de.robv.android.xposed.XposedBridge
 import de.robv.android.xposed.XposedHelpers
 import java.util.WeakHashMap
 
 class ConversationItemListener(
     loader: ClassLoader,
-    preferences: XSharedPreferences
+    preferences:SharedPreferences
 ) : Feature(loader, preferences) {
 
     data class BoundConversationItem(

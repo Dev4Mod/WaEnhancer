@@ -3,7 +3,7 @@ package com.wmods.wppenhacer.xposed.features.customization
 import com.wmods.wppenhacer.xposed.core.Feature
 import com.wmods.wppenhacer.xposed.core.devkit.Unobfuscator
 import de.robv.android.xposed.XC_MethodHook
-import de.robv.android.xposed.XSharedPreferences
+import android.content.SharedPreferences 
 import de.robv.android.xposed.XposedBridge
 import java.time.Instant
 import java.time.ZoneId
@@ -11,7 +11,7 @@ import java.time.format.DateTimeFormatter
 import java.util.Calendar
 import java.util.Locale
 
-class CustomTime(loader: ClassLoader, preferences: XSharedPreferences) : Feature(loader, preferences) {
+class CustomTime(loader: ClassLoader, preferences:SharedPreferences) : Feature(loader, preferences) {
 
     @Throws(Exception::class)
     override fun doHook() {

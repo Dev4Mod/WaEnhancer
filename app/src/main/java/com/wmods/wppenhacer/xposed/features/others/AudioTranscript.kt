@@ -10,7 +10,6 @@ import com.wmods.wppenhacer.xposed.core.devkit.Unobfuscator
 import com.wmods.wppenhacer.xposed.utils.ReflectionUtils
 import com.wmods.wppenhacer.xposed.utils.Utils
 import de.robv.android.xposed.XC_MethodHook
-import de.robv.android.xposed.XSharedPreferences
 import de.robv.android.xposed.XposedBridge
 import de.robv.android.xposed.XposedHelpers
 import okhttp3.MediaType.Companion.toMediaType
@@ -24,7 +23,7 @@ import java.io.File
 
 class AudioTranscript(
     classLoader: ClassLoader,
-    preferences: XSharedPreferences
+    preferences:SharedPreferences
 ) : Feature(classLoader, preferences) {
 
     private val httpClient: OkHttpClient by lazy {

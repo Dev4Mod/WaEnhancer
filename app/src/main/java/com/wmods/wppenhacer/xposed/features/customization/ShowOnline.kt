@@ -21,14 +21,14 @@ import com.wmods.wppenhacer.xposed.features.listeners.ContactItemListener
 import com.wmods.wppenhacer.xposed.utils.ReflectionUtils
 import com.wmods.wppenhacer.xposed.utils.Utils
 import de.robv.android.xposed.XC_MethodHook
-import de.robv.android.xposed.XSharedPreferences
+import android.content.SharedPreferences 
 import de.robv.android.xposed.XposedBridge
 import de.robv.android.xposed.XposedHelpers
 import java.lang.reflect.Field
 import java.lang.reflect.Method
 import java.util.Locale
 
-class ShowOnline(loader: ClassLoader, preferences: XSharedPreferences) : Feature(loader, preferences) {
+class ShowOnline(loader: ClassLoader, preferences:SharedPreferences) : Feature(loader, preferences) {
 
     private var mStatusUser: Any? = null
     private var mInstancePresence: Any? = null

@@ -5,7 +5,7 @@ import com.wmods.wppenhacer.xposed.core.devkit.Unobfuscator.findFirstClassUsingN
 import com.wmods.wppenhacer.xposed.core.devkit.Unobfuscator.loadCheckSupportLanguage
 import de.robv.android.xposed.XC_MethodHook
 import de.robv.android.xposed.XC_MethodReplacement
-import de.robv.android.xposed.XSharedPreferences
+import android.content.SharedPreferences 
 import de.robv.android.xposed.XposedBridge
 import okhttp3.Call
 import okhttp3.Callback
@@ -20,7 +20,7 @@ import java.net.URLEncoder
 import java.util.Locale
 import java.util.concurrent.CompletableFuture
 
-class GoogleTranslate(classLoader: ClassLoader, preferences: XSharedPreferences) :
+class GoogleTranslate(classLoader: ClassLoader, preferences:SharedPreferences) :
     Feature(classLoader, preferences) {
     private var client: OkHttpClient? = null
 

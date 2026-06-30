@@ -15,10 +15,10 @@ import com.wmods.wppenhacer.xposed.core.components.AlertDialogWpp
 import com.wmods.wppenhacer.xposed.utils.DesignUtils
 import com.wmods.wppenhacer.xposed.utils.Utils
 import de.robv.android.xposed.XC_MethodHook
-import de.robv.android.xposed.XSharedPreferences
+import android.content.SharedPreferences 
 import de.robv.android.xposed.XposedHelpers
 
-class MenuHome(classLoader: ClassLoader, preferences: XSharedPreferences) :
+class MenuHome(classLoader: ClassLoader, preferences:SharedPreferences) :
     Feature(classLoader, preferences) {
     @Throws(Throwable::class)
     override fun doHook() {

@@ -14,7 +14,7 @@ import com.wmods.wppenhacer.xposed.core.components.FMessageWpp
 import com.wmods.wppenhacer.xposed.core.db.MessageHistoryStore
 import com.wmods.wppenhacer.xposed.features.listeners.ConversationItemListener
 import com.wmods.wppenhacer.xposed.utils.Utils
-import de.robv.android.xposed.XSharedPreferences
+import android.content.SharedPreferences 
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.Executors
 import java.util.concurrent.atomic.AtomicBoolean
@@ -39,7 +39,7 @@ private val loadingPlayedStatus = ConcurrentHashMap<String, Boolean>()
 private val loadedReadStatus = ConcurrentHashMap<String, Boolean>()
 private val loadedPlayedStatus = ConcurrentHashMap<String, Boolean>()
 
-class HideSeenView(loader: ClassLoader, preferences: XSharedPreferences) : Feature(loader, preferences) {
+class HideSeenView(loader: ClassLoader, preferences:SharedPreferences) : Feature(loader, preferences) {
 
     @Throws(Throwable::class)
     override fun doHook() {

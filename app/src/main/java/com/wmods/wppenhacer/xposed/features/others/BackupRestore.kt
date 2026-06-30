@@ -10,12 +10,12 @@ import com.wmods.wppenhacer.xposed.core.components.AlertDialogWpp
 import com.wmods.wppenhacer.xposed.core.devkit.Unobfuscator.findFirstClassUsingName
 import com.wmods.wppenhacer.xposed.utils.Utils
 import de.robv.android.xposed.XC_MethodHook
-import de.robv.android.xposed.XSharedPreferences
+import android.content.SharedPreferences 
 import de.robv.android.xposed.XposedBridge
 import org.luckypray.dexkit.query.enums.StringMatchType
 import java.util.Locale
 
-class BackupRestore(loader: ClassLoader, preferences: XSharedPreferences) :
+class BackupRestore(loader: ClassLoader, preferences:SharedPreferences) :
     Feature(loader, preferences) {
 
     override fun getPluginName(): String {

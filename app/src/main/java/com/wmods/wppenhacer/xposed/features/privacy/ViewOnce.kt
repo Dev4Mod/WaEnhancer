@@ -5,11 +5,11 @@ import com.wmods.wppenhacer.xposed.core.components.FMessageWpp
 import com.wmods.wppenhacer.xposed.core.devkit.Unobfuscator.getMethodDescriptor
 import com.wmods.wppenhacer.xposed.core.devkit.Unobfuscator.loadViewOnceMethod
 import de.robv.android.xposed.XC_MethodHook
-import de.robv.android.xposed.XSharedPreferences
+import android.content.SharedPreferences 
 import de.robv.android.xposed.XposedBridge
 
 
-class ViewOnce(loader: ClassLoader, preferences: XSharedPreferences) :
+class ViewOnce(loader: ClassLoader, preferences:SharedPreferences) :
     Feature(loader, preferences) {
 
     override fun doHook() {

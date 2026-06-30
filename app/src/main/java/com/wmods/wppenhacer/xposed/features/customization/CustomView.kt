@@ -43,7 +43,7 @@ import cz.vutbr.web.css.TermFunction
 import cz.vutbr.web.css.TermLength
 import cz.vutbr.web.css.TermURI
 import de.robv.android.xposed.XC_MethodHook
-import de.robv.android.xposed.XSharedPreferences
+import android.content.SharedPreferences 
 import de.robv.android.xposed.XposedBridge
 import de.robv.android.xposed.XposedHelpers
 import java.io.File
@@ -65,7 +65,7 @@ import androidx.core.graphics.drawable.toDrawable
 import androidx.core.graphics.scale
 import androidx.core.graphics.createBitmap
 
-class CustomView(loader: ClassLoader, preferences: XSharedPreferences) : Feature(loader, preferences) {
+class CustomView(loader: ClassLoader, preferences:SharedPreferences) : Feature(loader, preferences) {
 
     private var cacheImages: DrawableCache? = null
     private val chacheDrawables = HashMap<String, Drawable>()
@@ -1089,7 +1089,7 @@ class CustomView(loader: ClassLoader, preferences: XSharedPreferences) : Feature
 
     companion object {
         private var themeDir: File? = null
-        private fun changeDPI(activity: Activity, prefs: XSharedPreferences, properties: Properties) {
+        private fun changeDPI(activity: Activity, prefs:SharedPreferences, properties: Properties) {
             val dpiStr = when {
                 prefs.getString("change_dpi", "0") != "0" -> prefs.getString("change_dpi", "0")
                 properties.getProperty("change_dpi") != null -> properties.getProperty("change_dpi")

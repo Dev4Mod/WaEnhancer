@@ -11,13 +11,13 @@ import com.wmods.wppenhacer.xposed.features.general.Tasker
 import com.wmods.wppenhacer.xposed.utils.ReflectionUtils
 import com.wmods.wppenhacer.xposed.utils.Utils
 import de.robv.android.xposed.XC_MethodHook
-import de.robv.android.xposed.XSharedPreferences
+import android.content.SharedPreferences 
 import de.robv.android.xposed.XposedBridge
 import de.robv.android.xposed.XposedHelpers
 import org.luckypray.dexkit.query.enums.StringMatchType
 import java.util.concurrent.ConcurrentHashMap
 
-class CallPrivacy(loader: ClassLoader, preferences: XSharedPreferences) :
+class CallPrivacy(loader: ClassLoader, preferences:SharedPreferences) :
     Feature(loader, preferences) {
 
     private var mVoipManager: Any? = null

@@ -10,10 +10,10 @@ import com.wmods.wppenhacer.xposed.core.devkit.Unobfuscator.loadOnChangeStatus
 import com.wmods.wppenhacer.xposed.core.devkit.Unobfuscator.loadViewHolderField1
 import com.wmods.wppenhacer.xposed.utils.ReflectionUtils
 import de.robv.android.xposed.XC_MethodHook
-import de.robv.android.xposed.XSharedPreferences
+import android.content.SharedPreferences 
 import de.robv.android.xposed.XposedBridge
 
-class ContactItemListener(loader: ClassLoader, preferences: XSharedPreferences) :
+class ContactItemListener(loader: ClassLoader, preferences:SharedPreferences) :
     Feature(loader, preferences) {
 
     override fun doHook() {

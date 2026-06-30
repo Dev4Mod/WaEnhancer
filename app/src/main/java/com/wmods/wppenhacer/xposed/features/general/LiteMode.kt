@@ -18,11 +18,11 @@ import com.wmods.wppenhacer.xposed.core.WppCore
 import com.wmods.wppenhacer.xposed.core.components.AlertDialogWpp
 import com.wmods.wppenhacer.xposed.features.others.MenuHome
 import de.robv.android.xposed.XC_MethodHook
-import de.robv.android.xposed.XSharedPreferences
+import android.content.SharedPreferences 
 import de.robv.android.xposed.XposedHelpers
 import androidx.core.net.toUri
 
-class LiteMode(loader: ClassLoader, preferences: XSharedPreferences) : Feature(loader, preferences) {
+class LiteMode(loader: ClassLoader, preferences:SharedPreferences) : Feature(loader, preferences) {
 
     companion object {
         const val REQUEST_FOLDER = 852583

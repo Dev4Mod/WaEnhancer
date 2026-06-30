@@ -26,7 +26,7 @@ import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 import de.robv.android.xposed.XC_MethodHook
-import de.robv.android.xposed.XSharedPreferences
+import android.content.SharedPreferences 
 import de.robv.android.xposed.XposedBridge
 import de.robv.android.xposed.XposedHelpers
 
@@ -39,7 +39,7 @@ private const val SUBTITLE_TEXT_SIZE = 12f
 
 private var onMenuItemSelected: Method? = null
 
-class CustomToolbar(loader: ClassLoader, preferences: XSharedPreferences) : Feature(loader, preferences) {
+class CustomToolbar(loader: ClassLoader, preferences:SharedPreferences) : Feature(loader, preferences) {
 
     private var mDateExpiration: String? = null
 

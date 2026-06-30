@@ -43,7 +43,7 @@ import com.wmods.wppenhacer.xposed.utils.HKDF
 import com.wmods.wppenhacer.xposed.utils.ReflectionUtils
 import com.wmods.wppenhacer.xposed.utils.Utils
 import de.robv.android.xposed.XC_MethodHook
-import de.robv.android.xposed.XSharedPreferences
+import android.content.SharedPreferences 
 import de.robv.android.xposed.XposedBridge
 import de.robv.android.xposed.XposedHelpers
 import okhttp3.OkHttpClient
@@ -62,7 +62,7 @@ import javax.crypto.spec.SecretKeySpec
 
 class MediaPreview(
     loader: ClassLoader,
-    preferences: XSharedPreferences
+    preferences:SharedPreferences
 ) : Feature(loader, preferences) {
 
 

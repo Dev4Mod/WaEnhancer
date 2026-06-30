@@ -11,6 +11,7 @@ import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
+import android.content.SharedPreferences
 import android.os.Build
 import android.os.Bundle
 import android.util.Log
@@ -382,7 +383,7 @@ class FeatureLoader {
                         }
                         .setNegativeButton(activity.getString(R.string.no), null)
                         .show()
-                } catch (ignored: Throwable) {
+                } catch (_: Throwable) {
                 }
             }
         }
@@ -454,7 +455,7 @@ class FeatureLoader {
                     setPackage(BuildConfig.APPLICATION_ID)
                 }
                 context.sendBroadcast(wppIntent)
-            } catch (ignored: Exception) {
+            } catch (_: Exception) {
             }
         }
 
@@ -535,7 +536,7 @@ class FeatureLoader {
                     try {
                         val constructor = clazz.getConstructor(
                             ClassLoader::class.java,
-                            XSharedPreferences::class.java
+                            SharedPreferences::class.java
                         )
                         val plugin = constructor.newInstance(loader, pref) as Feature
                         plugin.doHook()

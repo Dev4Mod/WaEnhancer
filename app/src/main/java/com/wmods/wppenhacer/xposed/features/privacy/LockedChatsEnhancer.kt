@@ -9,13 +9,13 @@ import com.wmods.wppenhacer.xposed.core.devkit.Unobfuscator.loadLockedChatsMetho
 import com.wmods.wppenhacer.xposed.core.devkit.Unobfuscator.loadNotificationMethod
 import com.wmods.wppenhacer.xposed.utils.ReflectionUtils
 import de.robv.android.xposed.XC_MethodHook
-import de.robv.android.xposed.XSharedPreferences
+import android.content.SharedPreferences 
 import de.robv.android.xposed.XposedBridge
 import de.robv.android.xposed.XposedHelpers
 import java.lang.reflect.Field
 import java.util.stream.Collectors
 
-class LockedChatsEnhancer(classLoader: ClassLoader, preferences: XSharedPreferences) :
+class LockedChatsEnhancer(classLoader: ClassLoader, preferences:SharedPreferences) :
     Feature(classLoader, preferences) {
     private var chatCache: Any? = null
 

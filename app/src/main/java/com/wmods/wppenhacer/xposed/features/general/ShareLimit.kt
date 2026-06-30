@@ -3,10 +3,10 @@ package com.wmods.wppenhacer.xposed.features.general
 import com.wmods.wppenhacer.xposed.core.Feature
 import com.wmods.wppenhacer.xposed.core.devkit.Unobfuscator
 import de.robv.android.xposed.XC_MethodHook
-import de.robv.android.xposed.XSharedPreferences
+import android.content.SharedPreferences 
 import de.robv.android.xposed.XposedBridge
 
-class ShareLimit(classLoader: ClassLoader, prefs: XSharedPreferences) : Feature(classLoader, prefs) {
+class ShareLimit(classLoader: ClassLoader, prefs:SharedPreferences) : Feature(classLoader, prefs) {
 
     override fun doHook() {
         if(!prefs.getBoolean("removeforwardlimit", false)) return

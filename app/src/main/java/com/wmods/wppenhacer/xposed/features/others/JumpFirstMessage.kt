@@ -14,11 +14,11 @@ import com.wmods.wppenhacer.xposed.core.db.MessageStore.Companion.getInstance
 import com.wmods.wppenhacer.xposed.core.devkit.Unobfuscator.findFirstClassUsingName
 import com.wmods.wppenhacer.xposed.core.devkit.Unobfuscator.loadOnCreatedMenuConversation
 import de.robv.android.xposed.XC_MethodHook
-import de.robv.android.xposed.XSharedPreferences
+import android.content.SharedPreferences 
 import de.robv.android.xposed.XposedBridge
 import org.luckypray.dexkit.query.enums.StringMatchType
 
-class JumpFirstMessage(classLoader: ClassLoader, preferences: XSharedPreferences) :
+class JumpFirstMessage(classLoader: ClassLoader, preferences:SharedPreferences) :
     Feature(classLoader, preferences) {
 
     override fun doHook() {

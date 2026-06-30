@@ -4,6 +4,7 @@ import static de.robv.android.xposed.XposedBridge.log;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
@@ -23,14 +24,12 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.util.Properties;
 
-import de.robv.android.xposed.XSharedPreferences;
-
 @SuppressLint("ViewConstructor")
 public class WallpaperView extends FrameLayout {
-    private final XSharedPreferences prefs;
+    private final SharedPreferences prefs;
     private final Properties properties;
 
-    public WallpaperView(@NonNull Context context, XSharedPreferences preferences, Properties properties) {
+    public WallpaperView(@NonNull Context context, SharedPreferences preferences, Properties properties) {
         super(context);
         this.prefs = preferences;
         this.properties = properties;

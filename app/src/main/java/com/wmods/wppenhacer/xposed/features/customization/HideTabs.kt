@@ -9,11 +9,11 @@ import com.wmods.wppenhacer.xposed.core.WppCore
 import com.wmods.wppenhacer.xposed.core.devkit.Unobfuscator
 import com.wmods.wppenhacer.xposed.utils.ReflectionUtils
 import de.robv.android.xposed.XC_MethodHook
-import de.robv.android.xposed.XSharedPreferences
+import android.content.SharedPreferences 
 import de.robv.android.xposed.XposedBridge
 import de.robv.android.xposed.XposedHelpers
 
-class HideTabs(loader: ClassLoader, preferences: XSharedPreferences) : Feature(loader, preferences) {
+class HideTabs(loader: ClassLoader, preferences:SharedPreferences) : Feature(loader, preferences) {
 
     private var mTabPagerInstance: Any? = null
 

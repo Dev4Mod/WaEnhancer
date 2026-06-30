@@ -11,10 +11,10 @@ import com.wmods.wppenhacer.xposed.core.devkit.Unobfuscator.loadBlueOnReplayStat
 import com.wmods.wppenhacer.xposed.core.devkit.Unobfuscator.loadBlueOnReplayViewButtonMethod
 import com.wmods.wppenhacer.xposed.utils.Utils
 import de.robv.android.xposed.XC_MethodHook
-import de.robv.android.xposed.XSharedPreferences
+import android.content.SharedPreferences 
 import de.robv.android.xposed.XposedBridge
 
-class CopyStatus(classLoader: ClassLoader, preferences: XSharedPreferences) :
+class CopyStatus(classLoader: ClassLoader, preferences:SharedPreferences) :
     Feature(classLoader, preferences) {
 
     override fun doHook() {

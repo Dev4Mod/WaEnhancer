@@ -8,10 +8,10 @@ import com.wmods.wppenhacer.xposed.core.WppCore
 import com.wmods.wppenhacer.xposed.core.db.MessageStore
 import com.wmods.wppenhacer.xposed.core.devkit.Unobfuscator
 import com.wmods.wppenhacer.xposed.features.listeners.MenuStatusListener
-import de.robv.android.xposed.XSharedPreferences
+import android.content.SharedPreferences 
 import org.luckypray.dexkit.query.enums.StringMatchType
 
-class DeleteStatus(classLoader: ClassLoader, preferences: XSharedPreferences) : Feature(classLoader, preferences) {
+class DeleteStatus(classLoader: ClassLoader, preferences:SharedPreferences) : Feature(classLoader, preferences) {
 
     @Throws(Throwable::class)
     override fun doHook() {

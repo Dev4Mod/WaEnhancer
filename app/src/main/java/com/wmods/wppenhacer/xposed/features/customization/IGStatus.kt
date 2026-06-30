@@ -13,12 +13,12 @@ import com.wmods.wppenhacer.xposed.utils.ReflectionUtils
 import com.wmods.wppenhacer.xposed.utils.Utils
 import org.luckypray.dexkit.query.enums.StringMatchType
 import de.robv.android.xposed.XC_MethodHook
-import de.robv.android.xposed.XSharedPreferences
+import android.content.SharedPreferences 
 import de.robv.android.xposed.XposedBridge
 
 private val mListStatusContainer = ArrayList<IGStatusView>()
 
-class IGStatus(loader: ClassLoader, preferences: XSharedPreferences) : Feature(loader, preferences) {
+class IGStatus(loader: ClassLoader, preferences:SharedPreferences) : Feature(loader, preferences) {
 
     companion object {
         @JvmField

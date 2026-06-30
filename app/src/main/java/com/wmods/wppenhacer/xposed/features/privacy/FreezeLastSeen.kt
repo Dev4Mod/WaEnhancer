@@ -5,10 +5,10 @@ import com.wmods.wppenhacer.xposed.core.WppCore.getPrivBoolean
 import com.wmods.wppenhacer.xposed.core.devkit.Unobfuscator.getMethodDescriptor
 import com.wmods.wppenhacer.xposed.core.devkit.Unobfuscator.loadFreezeSeenMethod
 import de.robv.android.xposed.XC_MethodReplacement
-import de.robv.android.xposed.XSharedPreferences
+import android.content.SharedPreferences 
 import de.robv.android.xposed.XposedBridge
 
-class FreezeLastSeen(loader: ClassLoader, preferences: XSharedPreferences) :
+class FreezeLastSeen(loader: ClassLoader, preferences:SharedPreferences) :
     Feature(loader, preferences) {
 
     override fun doHook() {

@@ -17,11 +17,11 @@ import com.wmods.wppenhacer.xposed.core.components.AlertDialogWpp
 import com.wmods.wppenhacer.xposed.utils.DesignUtils
 import com.wmods.wppenhacer.xposed.utils.Utils
 import de.robv.android.xposed.XC_MethodHook
-import de.robv.android.xposed.XSharedPreferences
+import android.content.SharedPreferences 
 import de.robv.android.xposed.XposedHelpers
 import androidx.core.net.toUri
 
-class NewChat(loader: ClassLoader, preferences: XSharedPreferences) : Feature(loader, preferences) {
+class NewChat(loader: ClassLoader, preferences:SharedPreferences) : Feature(loader, preferences) {
 
     override fun doHook() {
         val homeActivity = homeActivityClass

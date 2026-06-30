@@ -8,11 +8,11 @@ import com.wmods.wppenhacer.xposed.core.devkit.Unobfuscator.loadCheckEmulator
 import com.wmods.wppenhacer.xposed.core.devkit.Unobfuscator.loadRootDetector
 import de.robv.android.xposed.XC_MethodHook
 import de.robv.android.xposed.XC_MethodReplacement
-import de.robv.android.xposed.XSharedPreferences
+import android.content.SharedPreferences 
 import de.robv.android.xposed.XposedBridge
 import java.io.File
 
-class AntiWa(classLoader: ClassLoader, preferences: XSharedPreferences) :
+class AntiWa(classLoader: ClassLoader, preferences:SharedPreferences) :
     Feature(classLoader, preferences) {
 
     override fun doHook() {

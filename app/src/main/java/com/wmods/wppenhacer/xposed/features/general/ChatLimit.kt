@@ -12,11 +12,11 @@ import com.wmods.wppenhacer.xposed.core.devkit.Unobfuscator.loadFmessageTimestam
 import com.wmods.wppenhacer.xposed.core.devkit.Unobfuscator.loadSeeMoreConstructor
 import com.wmods.wppenhacer.xposed.utils.ReflectionUtils
 import de.robv.android.xposed.XC_MethodHook
-import de.robv.android.xposed.XSharedPreferences
+import android.content.SharedPreferences 
 import de.robv.android.xposed.XposedBridge
 import de.robv.android.xposed.XposedHelpers
 
-class ChatLimit(loader: ClassLoader, preferences: XSharedPreferences) :
+class ChatLimit(loader: ClassLoader, preferences:SharedPreferences) :
     Feature(loader, preferences) {
 
     override fun doHook() {

@@ -12,14 +12,14 @@ import com.wmods.wppenhacer.xposed.core.WppCore.addListenerActivity
 import com.wmods.wppenhacer.xposed.core.devkit.Unobfuscator.findFirstClassUsingName
 import com.wmods.wppenhacer.xposed.core.devkit.Unobfuscator.loadLockedAuthCheckMethod
 import de.robv.android.xposed.XC_MethodHook
-import de.robv.android.xposed.XSharedPreferences
+import android.content.SharedPreferences 
 import de.robv.android.xposed.XposedBridge
 import de.robv.android.xposed.XposedHelpers
 import org.luckypray.dexkit.query.enums.StringMatchType
 import java.util.concurrent.atomic.AtomicBoolean
 
 
-class ActivityController(classLoader: ClassLoader, preferences: XSharedPreferences) :
+class ActivityController(classLoader: ClassLoader, preferences:SharedPreferences) :
     Feature(classLoader, preferences) {
     private val disableAuth = AtomicBoolean(false)
 

@@ -15,7 +15,7 @@ import com.wmods.wppenhacer.xposed.utils.Utils
 import com.wmods.wppenhacer.xposed.utils.WaeCoroutineExceptionHandler
 import de.robv.android.xposed.XC_MethodHook
 import de.robv.android.xposed.XC_MethodReplacement
-import de.robv.android.xposed.XSharedPreferences
+import android.content.SharedPreferences 
 import de.robv.android.xposed.XposedBridge
 import de.robv.android.xposed.XposedHelpers
 import de.robv.android.xposed.XposedHelpers.callMethod
@@ -28,7 +28,7 @@ import org.luckypray.dexkit.query.enums.StringMatchType
 import java.util.function.Predicate
 import java.util.regex.Pattern
 
-class SeparateGroup(loader: ClassLoader, preferences: XSharedPreferences) :
+class SeparateGroup(loader: ClassLoader, preferences:SharedPreferences) :
     Feature(loader, preferences) {
 
     companion object {

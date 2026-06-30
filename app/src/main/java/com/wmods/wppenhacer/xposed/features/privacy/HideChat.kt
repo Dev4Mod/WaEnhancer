@@ -7,10 +7,10 @@ import com.wmods.wppenhacer.xposed.core.WppCore
 import com.wmods.wppenhacer.xposed.core.devkit.Unobfuscator
 import com.wmods.wppenhacer.xposed.utils.ReflectionUtils
 import de.robv.android.xposed.XC_MethodHook
-import de.robv.android.xposed.XSharedPreferences
+import android.content.SharedPreferences 
 import de.robv.android.xposed.XposedBridge
 
-class HideChat(loader: ClassLoader, preferences: XSharedPreferences) : Feature(loader, preferences) {
+class HideChat(loader: ClassLoader, preferences:SharedPreferences) : Feature(loader, preferences) {
 
     override fun doHook() {
         if (prefs.getString("typearchive", "0") != "0") {

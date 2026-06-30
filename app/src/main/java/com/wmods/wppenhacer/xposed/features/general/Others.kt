@@ -29,7 +29,7 @@ import com.wmods.wppenhacer.xposed.utils.ReflectionUtils
 import com.wmods.wppenhacer.xposed.utils.Utils
 import de.robv.android.xposed.XC_MethodHook
 import de.robv.android.xposed.XC_MethodReplacement
-import de.robv.android.xposed.XSharedPreferences
+import android.content.SharedPreferences 
 import de.robv.android.xposed.XposedBridge
 import de.robv.android.xposed.XposedHelpers
 import okhttp3.OkHttpClient
@@ -45,7 +45,7 @@ import java.util.WeakHashMap
 import java.util.concurrent.CompletableFuture
 import kotlin.math.max
 
-class Others(loader: ClassLoader, preferences: XSharedPreferences) : Feature(loader, preferences) {
+class Others(loader: ClassLoader, preferences:SharedPreferences) : Feature(loader, preferences) {
 
     companion object {
 
