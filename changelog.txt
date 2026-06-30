@@ -4,5 +4,8 @@
 * Fixed IGStatus color
 * Fixed issue with default emojis
 
-[WAE
+[REMOVED]
+* Removed function to check if contact blocked you, but kept contact added verification
+
+[WAE]
 * Update translations (Thanks to the translators on crowdin)
