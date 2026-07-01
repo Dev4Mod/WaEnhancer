@@ -1,2 +1,4 @@
 [ADDED]
-* Added "Force Disable Emojis and use Keyboard Emoji" toggle in Conversation settings — blocks WhatsApp emoji assets and shows an alert warning that the emoji selector will be invisible (use keyboard emoji instead)
+* Added RemotePreferences for users who have problems with preferences not being applied until we migrate to API 101+
+
+NOTE: If it still doesn't resolve the problem then it is necessary to correct the problem with ROOT/Zygisk as sometimes it is not applied correctly in sepolicy
