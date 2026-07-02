@@ -1,4 +1,2 @@
 [ADDED]
-* Added RemotePreferences for users who have problems with preferences not being applied until we migrate to API 101+
-
-NOTE: If it still doesn't resolve the problem then it is necessary to correct the problem with ROOT/Zygisk as sometimes it is not applied correctly in sepolicy
+* Adicionado suporte para o WA/WB 2.26.25.xx
