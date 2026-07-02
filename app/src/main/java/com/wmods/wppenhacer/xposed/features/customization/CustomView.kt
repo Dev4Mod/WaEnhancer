@@ -2,6 +2,7 @@ package com.wmods.wppenhacer.xposed.features.customization
 
 import android.app.Activity
 import android.content.Context
+import android.content.SharedPreferences
 import android.content.res.ColorStateList
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
@@ -26,6 +27,9 @@ import android.widget.FrameLayout
 import android.widget.ImageView
 import android.widget.RelativeLayout
 import android.widget.TextView
+import androidx.core.graphics.createBitmap
+import androidx.core.graphics.drawable.toDrawable
+import androidx.core.graphics.scale
 import com.wmods.wppenhacer.preference.ThemePreference
 import com.wmods.wppenhacer.utils.ColorReplacement.replaceColors
 import com.wmods.wppenhacer.utils.IColors
@@ -43,7 +47,6 @@ import cz.vutbr.web.css.TermFunction
 import cz.vutbr.web.css.TermLength
 import cz.vutbr.web.css.TermURI
 import de.robv.android.xposed.XC_MethodHook
-import android.content.SharedPreferences 
 import de.robv.android.xposed.XposedBridge
 import de.robv.android.xposed.XposedHelpers
 import java.io.File
@@ -61,9 +64,6 @@ import java.util.Properties
 import java.util.WeakHashMap
 import kotlin.math.cos
 import kotlin.math.sin
-import androidx.core.graphics.drawable.toDrawable
-import androidx.core.graphics.scale
-import androidx.core.graphics.createBitmap
 
 class CustomView(loader: ClassLoader, preferences:SharedPreferences) : Feature(loader, preferences) {
 
@@ -1090,17 +1090,11 @@ class CustomView(loader: ClassLoader, preferences:SharedPreferences) : Feature(l
     companion object {
         private var themeDir: File? = null
         private fun changeDPI(activity: Activity, prefs:SharedPreferences, properties: Properties) {
-            val dpiStr = when {
+            val dpi = when {
                 prefs.getString("change_dpi", "0") != "0" -> prefs.getString("change_dpi", "0")
                 properties.getProperty("change_dpi") != null -> properties.getProperty("change_dpi")
                 else -> null
-            } ?: return
-            val dpi = try {
-                dpiStr.toInt()
-            } catch (e: NumberFormatException) {
-                XposedBridge.log("Error parsing dpi: ${e.message}")
-                return
-            }
+            }?.toIntOrNull() ?: return
             if (dpi == 0) return
             val res = activity.resources
             val runningMetrics = res.displayMetrics
