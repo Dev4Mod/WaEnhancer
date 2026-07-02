@@ -2,6 +2,7 @@ package com.wmods.wppenhacer.xposed.features.customization
 
 import android.annotation.SuppressLint
 import android.app.Activity
+import android.content.SharedPreferences
 import android.graphics.Color
 import android.text.TextUtils
 import android.view.ViewGroup
@@ -15,7 +16,6 @@ import com.wmods.wppenhacer.xposed.utils.DesignUtils
 import com.wmods.wppenhacer.xposed.utils.ReflectionUtils
 import com.wmods.wppenhacer.xposed.utils.Utils
 import de.robv.android.xposed.XC_MethodHook
-import android.content.SharedPreferences 
 import de.robv.android.xposed.XposedBridge
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.atomic.AtomicReference
@@ -51,7 +51,8 @@ class ContactVerify(loader: ClassLoader, preferences:SharedPreferences) :
 
         val sendGetProfilePhoto = Unobfuscator.loadGetProfilePhoto(classLoader)
         state.sendGetProfilePhoto = sendGetProfilePhoto
-        val profilePhotoProtocolHelper = sendGetProfilePhoto.constructors[0].parameterTypes[2]
+        val profilePhotoProtocolHelper =
+            Unobfuscator.loadProfilePhotoProtocolHelperClass(classLoader)
         initProfilePhotoProtocolHooks(profilePhotoProtocolHelper)
         val dialerProfilePictureLoader = Unobfuscator.loadDialerProfilePictureLoader(classLoader)
         initProfilePhotoCallbacks(dialerProfilePictureLoader)

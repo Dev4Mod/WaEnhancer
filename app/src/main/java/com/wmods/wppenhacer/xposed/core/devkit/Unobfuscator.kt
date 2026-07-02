@@ -3402,4 +3402,14 @@ object Unobfuscator {
         }
     }
 
+    fun loadProfilePhotoProtocolHelperClass(classLoader: ClassLoader): Class<*> {
+        return UnobfuscatorCache.getInstance().getClass(classLoader) {
+            bridge.findClass {
+                matcher {
+                    usingStrings("ProfilePhotoManager/sendGetSubProfilePhoto")
+                }
+            }.single().getInstance(classLoader)
+        }
+    }
+
 }
