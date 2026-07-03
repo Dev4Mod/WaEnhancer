@@ -21,7 +21,6 @@ import android.widget.Toast
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import com.wmods.wppenhacer.App
-import com.wmods.wppenhacer.WppXposed.Companion.getPref
 import com.wmods.wppenhacer.xposed.core.FeatureLoader
 import com.wmods.wppenhacer.xposed.core.WppCore.getClientBridge
 import com.wmods.wppenhacer.xposed.core.WppCore.getContactName
@@ -144,7 +143,7 @@ object Utils {
 
     @SuppressLint("SdCardPath")
     fun getDestination(name: String): String {
-        val folder = getPref().getString("download_local", "/sdcard/Download")
+        val folder = xprefs.getString("download_local", "/sdcard/Download")
         val waFolder = File(folder, "WhatsApp")
         val filePath = File(waFolder, name)
         try {
