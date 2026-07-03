@@ -418,10 +418,6 @@
     <string name="platform_s">Plateforme : %s</string>
     <string name="wpp_version_s">Version WhatsApp : %s</string>
     <string name="call_information">Informations sur l\'appel</string>
-    <string name="ask_download_folder">To use WAE Enhancer\'s download functions, you must select a folder to save the downloaded files.</string>
-    <string name="download_folder_permission">Download Folder Permission</string>
-    <string name="lite_mode">Lite Mode</string>
-    <string name="lite_mode_sum">Lite Mode disables most theme features and the connection bridge that keeps WhatsApp always active is turned off.</string>
     <string name="update_check">Automatically Check for Update</string>
     <string name="update_available">Update Available</string>
     <string name="update_available_summary">New version %s is available!</string>

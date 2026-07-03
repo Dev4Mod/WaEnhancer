@@ -418,10 +418,6 @@
     <string name="platform_s">Платформа: %s</string>
     <string name="wpp_version_s">Версия WhatsApp: %s</string>
     <string name="call_information">Информация о звонке</string>
-    <string name="ask_download_folder">Для использования функций загрузки WAE Enhancer, необходимо выбрать папку для сохранения загруженных файлов.</string>
-    <string name="download_folder_permission">Разрешение на доступ к папке</string>
-    <string name="lite_mode">Режим Lite</string>
-    <string name="lite_mode_sum">Lite Mode отключает большинство функций темы и мост соединения, который держит WhatsApp всегда активным.</string>
     <string name="update_check">Автоматически проверять наличие обновлений</string>
     <string name="update_available">Update Available</string>
     <string name="update_available_summary">New version %s is available!</string>

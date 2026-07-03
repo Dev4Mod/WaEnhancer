@@ -145,9 +145,7 @@ object WppCore {
         loadWADatabase()
         hookStatusToMessageMapper(loader)
 
-        if (!pref.getBoolean("lite_mode", false)) {
-            initBridge(Utils.application)
-        }
+        initBridge(Utils.application)
     }
 
     private fun hookStatusToMessageMapper(loader: ClassLoader) {

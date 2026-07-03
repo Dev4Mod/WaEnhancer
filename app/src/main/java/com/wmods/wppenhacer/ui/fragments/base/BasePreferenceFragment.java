@@ -125,13 +125,6 @@ public abstract class BasePreferenceFragment extends PreferenceFragmentCompat
     @SuppressLint("ApplySharedPref")
     private void chanceStates(String key) {
 
-        var lite_mode = mPrefs.getBoolean("lite_mode", false);
-
-        if (lite_mode) {
-            setPreferenceState("wallpaper", false);
-            setPreferenceState("custom_filters", false);
-        }
-
         var changeColorEnabled = mPrefs.getBoolean("changecolor", false);
         var changeColorMode = mPrefs.getString("changecolor_mode", "manual");
         var monetAvailable = Build.VERSION.SDK_INT >= Build.VERSION_CODES.S;

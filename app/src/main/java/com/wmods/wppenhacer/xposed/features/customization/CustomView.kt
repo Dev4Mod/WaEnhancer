@@ -80,8 +80,6 @@ class CustomView(loader: ClassLoader, preferences:SharedPreferences) : Feature(l
     private val widgetClassCache = HashMap<String, Boolean>()
 
     override fun doHook() {
-        if (prefs.getBoolean("lite_mode", false)) return
-
         val filterItens = prefs.getString("css_theme", "") ?: ""
         val folderTheme = prefs.getString("folder_theme", "") ?: ""
         val customCss = prefs.getString("custom_css", "") ?: ""

@@ -426,10 +426,6 @@ Harap gunakan versi WhatsApp yang didukung!</string>
     <string name="platform_s">Platform: %s</string>
     <string name="wpp_version_s">Versi WhatsApp: %s</string>
     <string name="call_information">Informasi Panggilan</string>
-    <string name="ask_download_folder">Untuk menggunakan fungsi pengunduhan WA Enhancer, Anda harus memilih folder untuk menyimpan file yang diunduh.</string>
-    <string name="download_folder_permission">Izin Folder Unduhan</string>
-    <string name="lite_mode">Mode Ringan</string>
-    <string name="lite_mode_sum">Mode Ringan menonaktifkan sebagian besar fitur tema dan jembatan koneksi yang membuat WhatsApp selalu aktif dimatikan.</string>
     <string name="update_check">Periksa Pembaruan Secara Otomatis</string>
     <string name="update_available">Pembaruan tersedia</string>
     <string name="update_available_summary">Versi baru %s tersedia!</string>

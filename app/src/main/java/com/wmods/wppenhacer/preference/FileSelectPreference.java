@@ -5,7 +5,6 @@ import android.app.Activity;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
-import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Build;
@@ -30,9 +29,6 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.wmods.wppenhacer.App;
 import com.wmods.wppenhacer.R;
 import com.wmods.wppenhacer.utils.FilePicker;
-import com.wmods.wppenhacer.utils.RealPathUtil;
-import com.wmods.wppenhacer.xposed.features.general.LiteMode;
-import com.wmods.wppenhacer.xposed.features.others.ActivityController;
 import com.wmods.wppenhacer.xposed.utils.Utils;
 
 import java.io.File;
@@ -79,41 +75,6 @@ public class FileSelectPreference extends Preference implements Preference.OnPre
 
     @Override
     public boolean onPreferenceClick(@NonNull Preference preference) {
-
-        if (getSharedPreferences().getBoolean("lite_mode", false)) {
-            String packageName = "";
-            PackageInfo packageInfo = null;
-            for (var possiblePackage : new String[]{"com.whatsapp", "com.whatsapp.w4b"}) {
-                try {
-                    packageInfo = getContext().getApplicationContext().getPackageManager().getPackageInfo(possiblePackage, PackageManager.GET_ACTIVITIES);
-                    packageName = possiblePackage;
-                    break;
-                } catch (PackageManager.NameNotFoundException ignored) {
-                }
-            }
-            if (packageInfo == null) {
-                Utils.showToast("Unable to find WhatsApp package, please select the folder manually in the next screen", Toast.LENGTH_LONG);
-                return true;
-            }
-
-            String className = null;
-            for (var activity : packageInfo.activities) {
-                if (activity.name.endsWith("SettingsNotifications")) {
-                    className = activity.name;
-                    break;
-                }
-            }
-            if (className == null) {
-                Utils.showToast("Unable to find the activity to select folder, please select it manually in the next screen", Toast.LENGTH_LONG);
-                return true;
-            }
-            Intent intent = new Intent();
-            intent.setClassName(packageName, className);
-            intent.putExtra("key", getKey());
-            intent.putExtra("download_mode", true);
-            ((Activity) getContext()).startActivityForResult(intent, LiteMode.REQUEST_FOLDER);
-            return true;
-        }
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R && !Environment.isExternalStorageManager()) {
             showAlertPermission();
@@ -222,19 +183,6 @@ public class FileSelectPreference extends Preference implements Preference.OnPre
             editor.putString(getKey(), outFile.getAbsolutePath()).commit();
         });
 
-    }
-
-    public void handleActivityResult(int requestCode, int resultCode, Intent data) {
-        if (requestCode == LiteMode.REQUEST_FOLDER && resultCode == Activity.RESULT_OK) {
-            var uri = Uri.parse(data.getStringExtra("path"));
-            try {
-                var realPath = RealPathUtil.getRealFolderPath(getContext(), uri);
-                getSharedPreferences().edit().putString(getKey(), realPath).apply();
-                setSummary(realPath);
-            } catch (Exception ignored) {
-                setSummary(uri.toString());
-            }
-        }
     }
 
 }

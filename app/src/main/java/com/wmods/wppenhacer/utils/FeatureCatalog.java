@@ -82,14 +82,6 @@ public class FeatureCatalog {
                 "general_home",
                 Arrays.asList("backup", "restore", "force")));
 
-        catalog.add(new SearchableFeature("lite_mode",
-                context.getString(R.string.lite_mode),
-                context.getString(R.string.lite_mode_sum),
-                SearchableFeature.Category.GENERAL_HOME,
-                SearchableFeature.FragmentType.GENERAL,
-                "general_home",
-                Arrays.asList("lite", "performance", "battery")));
-
         catalog.add(new SearchableFeature("force_english",
                 context.getString(R.string.force_english),
                 null,

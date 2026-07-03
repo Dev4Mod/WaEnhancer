@@ -420,10 +420,6 @@
     <string name="platform_s">סוג טלפון: %s</string>
     <string name="wpp_version_s">גרסת ווצאפ: %s</string>
     <string name="call_information">מידע על השיחה</string>
-    <string name="ask_download_folder">כדי להשתמש בפונקציות ההורדה של WAE Enhancer, עליך לבחור תיקיה לשמירת הקבצים שהורדת.</string>
-    <string name="download_folder_permission">הרשאת תיקייה</string>
-    <string name="lite_mode">מצב לייט</string>
-    <string name="lite_mode_sum">מצב Lite משבית את רוב תכונות הנושא וגשר החיבור ששומר על WhatsApp תמיד פעיל כבוי.</string>
     <string name="update_check">בדוק אוטומטית אם יש עדכונים</string>
     <string name="update_available">עדכון זמין</string>
     <string name="update_available_summary">גרסה חדשה %s זמינה!</string>

@@ -7,7 +7,6 @@ import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.content.ClipData
 import android.content.ClipboardManager
-import android.content.ContentResolver
 import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
@@ -21,14 +20,11 @@ import android.util.TypedValue
 import android.widget.Toast
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
-import androidx.core.net.toUri
-import androidx.documentfile.provider.DocumentFile
 import com.wmods.wppenhacer.App
 import com.wmods.wppenhacer.WppXposed.Companion.getPref
 import com.wmods.wppenhacer.xposed.core.FeatureLoader
 import com.wmods.wppenhacer.xposed.core.WppCore.getClientBridge
 import com.wmods.wppenhacer.xposed.core.WppCore.getContactName
-import com.wmods.wppenhacer.xposed.core.WppCore.getPrivString
 import com.wmods.wppenhacer.xposed.core.components.FMessageWpp.UserJid
 import de.robv.android.xposed.XposedBridge
 import java.io.File
@@ -148,14 +144,6 @@ object Utils {
 
     @SuppressLint("SdCardPath")
     fun getDestination(name: String): String {
-        if (xprefs!!.getBoolean("lite_mode", false)) {
-            val folder = getPrivString("download_folder", null)
-                ?: throw Exception("Download Folder is not selected!")
-            val documentFile = DocumentFile.fromTreeUri(application, folder.toUri())
-            val wppFolder = getURIFolderByName(documentFile, "WhatsApp", true)
-            getURIFolderByName(wppFolder, name, true) ?: throw Exception("Folder not found!")
-            return "$folder/WhatsApp/$name"
-        }
         val folder = getPref().getString("download_local", "/sdcard/Download")
         val waFolder = File(folder, "WhatsApp")
         val filePath = File(waFolder, name)
@@ -164,26 +152,6 @@ object Utils {
         } catch (_: Exception) {
         }
         return filePath.absolutePath + "/"
-    }
-
-    fun getURIFolderByName(
-        documentFile: DocumentFile?,
-        folderName: String,
-        createDir: Boolean
-    ): DocumentFile? {
-        if (documentFile == null) {
-            return null
-        }
-        val files = documentFile.listFiles()
-        for (file in files) {
-            if (file.name == folderName) {
-                return file
-            }
-        }
-        if (createDir) {
-            return documentFile.createDirectory(folderName)!!
-        }
-        return null
     }
 
     fun copyFile(srcFile: File?, destFolder: String, name: String): String? {
@@ -198,61 +166,28 @@ object Utils {
 
 
     fun copyFile(inputStream: InputStream, destFolder: String, name: String): String? {
-        var destFolder = destFolder
-        if (xprefs!!.getBoolean("lite_mode", false)) {
-            try {
-                val folder = getPrivString("download_folder", null)
-                var documentFolder = DocumentFile.fromTreeUri(application, Uri.parse(folder))
-                destFolder = destFolder.replace("$folder/", "")
-                for (f in destFolder.split("/".toRegex()).dropLastWhile { it.isEmpty() }
-                    .toTypedArray()) {
-                    documentFolder = getURIFolderByName(documentFolder, f, false)
-                    if (documentFolder == null) return "Failed to get folder"
-                }
-                val newFile = documentFolder!!.createFile("*/*", name)
-                    ?: return "Failed to create destination file"
-
-                val contentResolver: ContentResolver = application.contentResolver
-
-                inputStream.use { `in` ->
-                    contentResolver.openOutputStream(newFile.uri).use { out ->
-                        if (out == null) return "Failed to open output stream"
-                        val buffer = ByteArray(1024)
-                        var length: Int
-                        while ((`in`.read(buffer).also { length = it }) > 0) {
-                            out.write(buffer, 0, length)
-                        }
-                        return ""
-                    }
-                }
-            } catch (e: Exception) {
-                XposedBridge.log(e)
-                return e.message
-            }
-        } else {
-            val destFile = File(destFolder, name)
-            try {
-                inputStream.use { `in` ->
-                    getClientBridge()!!.openFile(destFile.absolutePath, true)
-                        .use { parcelFileDescriptor ->
-                            val out = FileOutputStream(parcelFileDescriptor.fileDescriptor)
-                            val bArr = ByteArray(1024)
-                            while (true) {
-                                val read = `in`.read(bArr)
-                                if (read <= 0) {
-                                    `in`.close()
-                                    out.close()
-                                    scanFile(destFile)
-                                    return ""
-                                }
-                                out.write(bArr, 0, read)
+        val destFile = File(destFolder, name)
+        try {
+            inputStream.use { `in` ->
+                getClientBridge()!!.openFile(destFile.absolutePath, true)
+                    .use { parcelFileDescriptor ->
+                        val out = FileOutputStream(parcelFileDescriptor.fileDescriptor)
+                        val bArr = ByteArray(1024)
+                        while (true) {
+                            val read = `in`.read(bArr)
+                            if (read <= 0) {
+                                `in`.close()
+                                out.close()
+                                scanFile(destFile)
+                                return ""
                             }
+                            out.write(bArr, 0, read)
                         }
-                }
-            } catch (e: Exception) {
-                XposedBridge.log(e)
-                return e.message
+                    }
             }
+        } catch (e: Exception) {
+            XposedBridge.log(e)
+            return e.message
         }
     }
 

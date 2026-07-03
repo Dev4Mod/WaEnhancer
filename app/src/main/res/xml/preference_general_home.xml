@@ -53,11 +53,6 @@
             app:title="@string/disable_ads" />
 
         <rikka.material.preference.MaterialSwitchPreference
-            app:key="lite_mode"
-            app:summary="@string/lite_mode_sum"
-            app:title="@string/lite_mode" />
-
-        <rikka.material.preference.MaterialSwitchPreference
             app:key="force_english"
             app:title="@string/force_english" />
 

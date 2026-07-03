@@ -418,10 +418,6 @@
     <string name="platform_s">Platform: %s</string>
     <string name="wpp_version_s">WhatsApp Sürümü: %s</string>
     <string name="call_information">Arama Bilgisi</string>
-    <string name="ask_download_folder">Wa Enhancer\'ın indirme işlevlerini kullanmak için, indirilen dosyaları kaydetmek üzere bir klasör seçmelisiniz.</string>
-    <string name="download_folder_permission">İndirme Klasörü İzni</string>
-    <string name="lite_mode">Basit Mod</string>
-    <string name="lite_mode_sum">Basit Mod çoğu tema özelliğini devre dışı bırakır ve WhatsApp\'a bağlanan modül işlevi devre dışı bırakılır.</string>
     <string name="update_check">Güncellemeleri Otomatik Denetle</string>
     <string name="update_available">Update Available</string>
     <string name="update_available_summary">New version %s is available!</string>

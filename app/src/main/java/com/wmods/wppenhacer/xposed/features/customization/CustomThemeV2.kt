@@ -120,7 +120,6 @@ class CustomThemeV2(loader: ClassLoader, preferences:SharedPreferences) :
     }
 
     private fun loadAndApplyColorsWallpaper() {
-        if (prefs.getBoolean("lite_mode", false)) return
         val customWallpaper = prefs.getBoolean("wallpaper", false)
 
         if (customWallpaper || properties?.containsKey("wallpaper") == true) {

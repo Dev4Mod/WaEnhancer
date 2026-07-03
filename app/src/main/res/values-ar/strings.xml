@@ -418,10 +418,6 @@
     <string name="platform_s">المنصة: %s</string>
     <string name="wpp_version_s">إصدار واتساب: %s</string>
     <string name="call_information">معلومات المكالمة</string>
-    <string name="ask_download_folder">لاستخدام وظائف التنزيل الخاصة بـ WAE Enhancer، يجب عليك تحديد مجلد لحفظ الملفات التي تم تنزيلها.</string>
-    <string name="download_folder_permission">إذن تحميل المجلد</string>
-    <string name="lite_mode">الوضع الخفيف</string>
-    <string name="lite_mode_sum">يعطل الوضع الخفيف معظم ميزات الثيمات ويتم إيقاف تشغيل جسر الاتصال الذي يحافظ على WhatsApp نشطًا دائمًا.</string>
     <string name="update_check">التحقق من التحديثات تلقائيًا</string>
     <string name="update_available">Update Available</string>
     <string name="update_available_summary">New version %s is available!</string>
