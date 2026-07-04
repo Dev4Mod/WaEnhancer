@@ -95,6 +95,7 @@ import com.wmods.wppenhacer.xposed.spoofer.HookBL
 import com.wmods.wppenhacer.xposed.utils.DesignUtils
 import com.wmods.wppenhacer.xposed.utils.ReflectionUtils
 import com.wmods.wppenhacer.xposed.utils.Utils
+import de.robv.android.xposed.SELinuxHelper
 import de.robv.android.xposed.XC_MethodHook
 import de.robv.android.xposed.XposedBridge
 import de.robv.android.xposed.XposedHelpers
@@ -211,7 +212,7 @@ class FeatureLoader {
                 Activity::class.java, "onCreate", Bundle::class.java,
                 object : XC_MethodHook() {
                     override fun afterHookedMethod(param: MethodHookParam) {
-                        if (param.thisObject.javaClass.simpleName != "HomeActivity")return
+                        if (param.thisObject.javaClass.simpleName != "HomeActivity") return
                         if (list.isNotEmpty()) {
                             val activity = param.thisObject as Activity
                             val msg = list.joinToString("\n") { "${it.pluginName} - ${it.message}" }
@@ -248,9 +249,16 @@ class FeatureLoader {
         private fun getPreferences(context: Context): SharedPreferences {
             val pref = WppXposed.getPref()
             pref.reload()
-            if (pref.all.isNotEmpty()) return pref
-
-            XposedBridge.log("XSharedPreferences returned no keys, using RemotePreferences fallback")
+            try {
+                val fileCanRead =
+                    SELinuxHelper.getAppDataFileService().checkFileAccess(pref.file.absolutePath, 4)
+                if (fileCanRead) {
+                    return pref
+                }
+            } catch (e: Exception) {
+                XposedBridge.log(e)
+            }
+            XposedBridge.log("XSharedPreferences not accessible, using RemotePreferences fallback")
             return RemotePreferences(
                 context,
                 BuildConfig.APPLICATION_ID + ".preferences",
@@ -274,7 +282,10 @@ class FeatureLoader {
                         addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
                         addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
                         putExtra(CrashReportActivity.EXTRA_CRASH_INFO, crashInfo)
-                        putExtra(CrashReportActivity.EXTRA_CRASH_TRACE, Log.getStackTraceString(throwable))
+                        putExtra(
+                            CrashReportActivity.EXTRA_CRASH_TRACE,
+                            Log.getStackTraceString(throwable)
+                        )
                     }
                     application.startActivity(intent)
                 } catch (e: Throwable) {
