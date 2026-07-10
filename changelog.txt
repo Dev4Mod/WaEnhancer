@@ -1,2 +1,8 @@
 [ADDED]
-* Adicionado suporte para o WA/WB 2.26.25.xx
+* Added support for WA/WB 2.26.26.xx
+* Added function to partially copy text from a message when holding on it.
+
+[FIXED]
+* Fixed problem with cut videos (Partially)
+* Fixed problem with download destination
+* Fixed problem accessing WAE preferences
