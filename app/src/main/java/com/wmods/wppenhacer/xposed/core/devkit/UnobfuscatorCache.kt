@@ -6,6 +6,7 @@ import android.content.SharedPreferences
 import android.content.res.Configuration
 import android.content.res.Resources
 import android.widget.Toast
+import androidx.core.content.edit
 import com.google.devrel.gmscore.tools.apk.arsc.ArscUtils
 import com.wmods.wppenhacer.BuildConfig
 import com.wmods.wppenhacer.R
@@ -24,7 +25,6 @@ import java.util.Locale
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.Executors
 import java.util.concurrent.atomic.AtomicReference
-import androidx.core.content.edit
 
 class UnobfuscatorCache private constructor(private val mApplication: Application) {
 
@@ -51,7 +51,7 @@ class UnobfuscatorCache private constructor(private val mApplication: Applicatio
                     .getPackageInfo(BuildConfig.APPLICATION_ID, 0).lastUpdateTime
             } catch (_: Exception) {
             }
-            if (version != currentVersion || savedUpdateTime != lastUpdateTime
+            if (version != currentVersion || (savedUpdateTime != lastUpdateTime && BuildConfig.RESET_ON_INSTALL)
                 || versionName != savedVersionName
                 || savedCacheSchemaVersion != CACHE_SCHEMA_VERSION
             ) {
