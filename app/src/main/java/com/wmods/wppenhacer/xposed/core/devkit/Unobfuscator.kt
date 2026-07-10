@@ -621,8 +621,6 @@ object Unobfuscator {
         }
     }
 
-    @Throws(Exception::class)
-    @JvmStatic
     fun loadDndModeMethod(classLoader: ClassLoader): Method {
         return UnobfuscatorCache.getInstance().getMethod(classLoader) {
             findFirstMethodUsingStrings(classLoader, StringMatchType.Equals, "MessageHandler/start")
@@ -630,71 +628,6 @@ object Unobfuscator {
         }
     }
 
-    @Throws(Exception::class)
-    @JvmStatic
-    fun loadMediaQualityVideoMethod2(classLoader: ClassLoader): Method {
-        return UnobfuscatorCache.getInstance().getMethod(classLoader) {
-            findFirstMethodUsingStrings(
-                classLoader,
-                StringMatchType.Contains,
-                "getCorrectedResolution"
-            )
-                ?: throw Exception("MediaQualityVideo method not found")
-        }
-    }
-
-    @Throws(Exception::class)
-    @JvmStatic
-    fun loadMediaQualityVideoFields(classLoader: ClassLoader): HashMap<String, Field> {
-        return UnobfuscatorCache.getInstance().getMapField(classLoader) {
-            val method = loadMediaQualityVideoMethod2(classLoader)
-            val methodString = method.returnType.getDeclaredMethod("toString")
-            val methodData = bridge.getMethodData(methodString) ?: return@getMapField null
-            val usingFields = methodData.usingFields
-            val usingStrings = methodData.usingStrings
-            val result = HashMap<String, Field>()
-            var idxStrings = 0
-            var idxFields = 0
-            while (idxStrings < usingStrings.size) {
-                if (idxFields == usingFields.size) break
-                if (usingStrings[idxStrings] == "outputAspectRatio") {
-                    idxStrings++
-                    continue
-                }
-                val field = usingFields[idxFields].field.getFieldInstance(classLoader)
-                result[usingStrings[idxStrings]] = field
-                idxStrings++
-                idxFields++
-            }
-            result
-        }
-    }
-
-    @Throws(Exception::class)
-    @JvmStatic
-    fun loadMediaQualityOriginalVideoFields(classLoader: ClassLoader): HashMap<String, Field> {
-        return UnobfuscatorCache.getInstance().getMapField(classLoader) {
-            val method = loadMediaQualityVideoMethod2(classLoader)
-            val methodString = try {
-                method.parameterTypes[0].getDeclaredMethod("toString")
-            } catch (_: Exception) {
-                return@getMapField HashMap<String, Field>()
-            }
-            val methodData = bridge.getMethodData(methodString) ?: return@getMapField null
-            val usingFields = methodData.usingFields
-            val usingStrings = methodData.usingStrings
-            val result = HashMap<String, Field>()
-            for (i in usingStrings.indices) {
-                if (i == usingFields.size) break
-                val field = usingFields[i].field.getFieldInstance(classLoader)
-                result[usingStrings[i]] = field
-            }
-            result
-        }
-    }
-
-    @Throws(Exception::class)
-    @JvmStatic
     fun loadProcessVideoQualityClass(classLoader: ClassLoader): Class<*> {
         return UnobfuscatorCache.getInstance().getClass(classLoader) {
             findFirstClassUsingStrings(
@@ -2779,8 +2712,6 @@ object Unobfuscator {
         }
     }
 
-    @Throws(Exception::class)
-    @JvmStatic
     fun loadVideoTranscoderStartMethod(classLoader: ClassLoader): Method {
         return UnobfuscatorCache.getInstance().getMethod(classLoader) {
             findFirstMethodUsingStrings(
@@ -2788,6 +2719,17 @@ object Unobfuscator {
                 StringMatchType.Contains,
                 "VideoTranscoder/transcodeVideoNew/"
             )!!
+        }
+    }
+
+
+    fun loadMediaTranscoderStart(classLoader: ClassLoader): Method {
+        return UnobfuscatorCache.getInstance().getMethod(classLoader) {
+            bridge.findMethod {
+                matcher {
+                    usingStrings("MediaTranscode/Starting")
+                }
+            }.first().getMethodInstance(classLoader)
         }
     }
 
