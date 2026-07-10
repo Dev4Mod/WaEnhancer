@@ -8,10 +8,11 @@ import com.wmods.wppenhacer.R
 import com.wmods.wppenhacer.xposed.core.FeatureLoader
 
 
-class ModuleContextWrapper(base: Context) : ContextThemeWrapper(base, R.style.AppTheme) {
+class ModuleContextWrapper(private val base: Context) :
+    ContextThemeWrapper(base, R.style.AppTheme) {
 
     override fun getApplicationContext(): Context {
-        return FeatureLoader.moduleContext.applicationContext
+        return base.applicationContext ?: base
     }
 
     override fun getClassLoader(): ClassLoader {
