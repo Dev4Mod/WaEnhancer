@@ -124,6 +124,11 @@
             app:summary="@string/jump_first_message_sum"
             app:title="@string/jump_first_message" />
 
+        <rikka.material.preference.MaterialSwitchPreference
+            app:key="copy_selection_message"
+            app:summary="@string/copy_selection_message_sum"
+            app:title="@string/copy_selection_message_title" />
+
     </PreferenceCategory>
 
     <PreferenceCategory

@@ -485,6 +485,10 @@
     <string name="contact_probably_not_added">Вероятно, контакт вас не добавил!</string>
     <string name="jump_first_message">Перейти к первому сообщению</string>
     <string name="jump_first_message_sum">Добавьте кнопку для пропуска первого сообщения в окне сообщений</string>
+    <string name="copy_selection_message_title">Копировать фрагмент сообщения</string>
+    <string name="copy_selection_message_sum">Добавить кнопку для выбора и копирования определённой части сообщения</string>
+    <string name="copy_selection_action">✂ Копировать выделение</string>
+    <string name="copy_selection_dialog_title">Копировать текст</string>
     <string name="picker_loading_contacts">Loading contacts…</string>
     <string name="mode_all">All</string>
     <string name="picker_contacts">Contacts</string>

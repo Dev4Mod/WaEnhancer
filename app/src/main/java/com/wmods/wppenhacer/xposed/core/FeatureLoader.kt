@@ -12,6 +12,7 @@ import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.content.SharedPreferences
+import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
 import android.util.Log
@@ -71,6 +72,7 @@ import com.wmods.wppenhacer.xposed.features.others.AudioTranscript
 import com.wmods.wppenhacer.xposed.features.others.BackupRestore
 import com.wmods.wppenhacer.xposed.features.others.Channels
 import com.wmods.wppenhacer.xposed.features.others.ChatFilters
+import com.wmods.wppenhacer.xposed.features.others.CopySelectionMessage
 import com.wmods.wppenhacer.xposed.features.others.CopyStatus
 import com.wmods.wppenhacer.xposed.features.others.DebugFeature
 import com.wmods.wppenhacer.xposed.features.others.GoogleTranslate
@@ -112,6 +114,8 @@ class FeatureLoader {
         @JvmField
         var mApp: Application? = null
 
+        lateinit var moduleContext: Context
+
         const val PACKAGE_WPP = "com.whatsapp"
         const val PACKAGE_BUSINESS = "com.whatsapp.w4b"
 
@@ -134,6 +138,7 @@ class FeatureLoader {
                 object : XC_MethodHook() {
                     override fun beforeHookedMethod(param: MethodHookParam) {
                         mApp = param.args[0] as Application
+                        initializeModuleContext()
                         val application = mApp!!
                         val pref = getPreferences(application)
                         Feature.DEBUG = pref.getBoolean("enablelogs", true)
@@ -266,6 +271,18 @@ class FeatureLoader {
             )
         }
 
+        private fun initializeModuleContext() {
+            try {
+                val context = mApp!!.createPackageContext(
+                    BuildConfig.APPLICATION_ID,
+                    Context.CONTEXT_INCLUDE_CODE or Context.CONTEXT_IGNORE_SECURITY
+                )
+                moduleContext = android.view.ContextThemeWrapper(context, R.style.AppTheme)
+            } catch (e: PackageManager.NameNotFoundException) {
+                throw PackageManager.NameNotFoundException("Module package not found")
+            }
+        }
+
         private fun installCrashHandler(application: Application, whatsAppVersion: String) {
             if (crashHandlerInstalled) return
             crashHandlerInstalled = true
@@ -343,25 +360,20 @@ class FeatureLoader {
             DesignUtils.setPrefs(pref)
             Utils.init()
 
-            WppCore.addListenerActivity(object : WppCore.ActivityChangeState {
-                override fun onChange(
-                    activity: Activity,
-                    type: WppCore.ActivityChangeState.ChangeType
-                ) {
-                    if (type == WppCore.ActivityChangeState.ChangeType.RESUMED) {
-                        checkUpdate(activity)
-                    }
+            WppCore.addListenerActivity { activity, type ->
+                if (type == WppCore.ActivityChangeState.ChangeType.RESUMED) {
+                    checkUpdate(activity)
+                }
 
 
-                    if (App.isOriginalPackage && pref.getBoolean("update_check", true)) {
-                        if (activity.javaClass.simpleName == "HomeActivity" && type == WppCore.ActivityChangeState.ChangeType.RESUMED) {
-                            activity.window.decorView.postDelayed({
-                                CompletableFuture.runAsync(UpdateChecker(activity))
-                            }, 2000)
-                        }
+                if (App.isOriginalPackage && pref.getBoolean("update_check", true)) {
+                    if (activity.javaClass.simpleName == "HomeActivity" && type == WppCore.ActivityChangeState.ChangeType.RESUMED) {
+                        activity.window.decorView.postDelayed({
+                            CompletableFuture.runAsync(UpdateChecker(activity))
+                        }, 2000)
                     }
                 }
-            })
+            }
 
         }
 
@@ -506,6 +518,7 @@ class FeatureLoader {
                 GroupAdmin::class.java,
                 Stickers::class.java,
                 CopyStatus::class.java,
+                CopySelectionMessage::class.java,
                 TextStatusComposer::class.java,
                 ToastViewer::class.java,
                 MenuHome::class.java,

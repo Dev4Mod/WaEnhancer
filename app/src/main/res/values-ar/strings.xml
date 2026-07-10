@@ -485,6 +485,10 @@
     <string name="contact_probably_not_added">ربما لم تتم إضافتك من قبل جهات الاتصال!</string>
     <string name="jump_first_message">الانتقال إلى الرسالة الأولى</string>
     <string name="jump_first_message_sum">إضافة خِيار لتخطي الرسالة الأولى في شاشة المحادثات</string>
+    <string name="copy_selection_message_title">إضافة نسخ مقطع الرسالة</string>
+    <string name="copy_selection_message_sum">أضف زراً لتحديد ونسخ جزء معين من الرسالة</string>
+    <string name="copy_selection_action">✂ نسخ تحديد</string>
+    <string name="copy_selection_dialog_title">نسخ النص</string>
     <string name="picker_loading_contacts">جار تحميل جهات الاتصال…</string>
     <string name="mode_all">الكل</string>
     <string name="picker_contacts">جهات الاتصال</string>

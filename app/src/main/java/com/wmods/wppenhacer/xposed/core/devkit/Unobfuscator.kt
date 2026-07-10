@@ -17,6 +17,7 @@ import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import android.widget.FrameLayout
+import android.widget.PopupWindow
 import com.wmods.wppenhacer.xposed.core.WppCore
 import com.wmods.wppenhacer.xposed.core.components.FMessageWpp
 import com.wmods.wppenhacer.xposed.utils.ReflectionUtils
@@ -3349,6 +3350,19 @@ object Unobfuscator {
             bridge.findClass {
                 matcher {
                     usingStrings("ProfilePhotoManager/sendGetSubProfilePhoto")
+                }
+            }.single().getInstance(classLoader)
+        }
+    }
+
+    @Throws(Exception::class)
+    @JvmStatic
+    fun loadPopupWindowMessageClass(classLoader: ClassLoader): Class<*> {
+        return UnobfuscatorCache.getInstance().getClass(classLoader) {
+            bridge.findClass {
+                matcher {
+                    usingStrings("MessageSelectionDropDownRecyclerView")
+                    superClass = PopupWindow::class.java.name
                 }
             }.single().getInstance(classLoader)
         }

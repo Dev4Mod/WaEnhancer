@@ -495,6 +495,10 @@ Harap gunakan versi WhatsApp yang didukung!</string>
     <string name="contact_probably_not_added">Sepertinya kontak belum menambahkan Anda!</string>
     <string name="jump_first_message">Pergi ke pesan pertama</string>
     <string name="jump_first_message_sum">Tambahkan tombol untuk pergi ke pesan pertama di layar percakapan</string>
+    <string name="copy_selection_message_title">Salin Pilihan Pesan</string>
+    <string name="copy_selection_message_sum">Tambahkan tombol untuk memilih dan menyalin bagian tertentu dari pesan</string>
+    <string name="copy_selection_action">✂ Salin Pilihan</string>
+    <string name="copy_selection_dialog_title">Salin Teks</string>
     <string name="picker_loading_contacts">Memuat kontak…</string>
     <string name="mode_all">Semua</string>
     <string name="picker_contacts">Kontak</string>

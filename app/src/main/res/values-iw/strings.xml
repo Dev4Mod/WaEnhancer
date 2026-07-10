@@ -487,6 +487,10 @@
     <string name="contact_probably_not_added">כנראה שה-Contact לא הוסיף אותך!</string>
     <string name="jump_first_message">קפיצה להודעה הראשונה</string>
     <string name="jump_first_message_sum">הוסף כפתור לדילוג על ההודעה הראשונה במסך השיחות</string>
+    <string name="copy_selection_message_title">העתקת חלק מהודעה</string>
+    <string name="copy_selection_message_sum">הוסף לחצן לבחירה והעתקת חלק ספציפי מהודעה</string>
+    <string name="copy_selection_action">✂ העתק בחירה</string>
+    <string name="copy_selection_dialog_title">העתקת טקסט</string>
     <string name="picker_loading_contacts">טוען אנשי קשר…</string>
     <string name="mode_all">הכל</string>
     <string name="picker_contacts">אנשי קשר</string>

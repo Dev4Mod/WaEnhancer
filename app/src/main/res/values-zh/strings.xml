@@ -485,6 +485,10 @@
     <string name="contact_probably_not_added">Contact probably didn\'t add you!</string>
     <string name="jump_first_message">Jump to First Message</string>
     <string name="jump_first_message_sum">Add a button to skip the first message in the conversations screen</string>
+    <string name="copy_selection_message_title">复制消息选区</string>
+    <string name="copy_selection_message_sum">添加按钮以选择并复制消息的特定部分</string>
+    <string name="copy_selection_action">✂ 复制选区</string>
+    <string name="copy_selection_dialog_title">复制文本</string>
     <string name="picker_loading_contacts">Loading contacts…</string>
     <string name="mode_all">All</string>
     <string name="picker_contacts">Contacts</string>

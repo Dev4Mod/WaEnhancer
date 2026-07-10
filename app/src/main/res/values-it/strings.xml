@@ -485,6 +485,10 @@
     <string name="contact_probably_not_added">Il contatto probabilmente non ti ha aggiunto!</string>
     <string name="jump_first_message">Vai al Primo Messaggio</string>
     <string name="jump_first_message_sum">Aggiungi un pulsante per saltare il primo messaggio nella schermata delle conversazioni</string>
+    <string name="copy_selection_message_title">Copia selezione messaggio</string>
+    <string name="copy_selection_message_sum">Aggiunge un pulsante per selezionare e copiare una parte specifica di un messaggio</string>
+    <string name="copy_selection_action">✂ Copia selezione</string>
+    <string name="copy_selection_dialog_title">Copia testo</string>
     <string name="picker_loading_contacts">Caricamento contatti…</string>
     <string name="mode_all">Tutto</string>
     <string name="picker_contacts">Contatti</string>

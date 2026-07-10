@@ -71,7 +71,7 @@ android {
             abiFilters.add("arm64-v8a")
         }
 
-        buildConfigField("Boolean", "RESET_ON_INSTALL", "true")
+        buildConfigField("Boolean", "RESET_ON_INSTALL", "false")
 
     }
 

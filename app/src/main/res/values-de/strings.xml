@@ -485,6 +485,10 @@
     <string name="contact_probably_not_added">Der Kontakt hat Sie wahrscheinlich nicht hinzugefügt!</string>
     <string name="jump_first_message">Zur ersten Nachricht springen</string>
     <string name="jump_first_message_sum">Fügen Sie einen Button hinzu, um die erste Nachricht im Chat-Bildschirm zu überspringen</string>
+    <string name="copy_selection_message_title">Nachrichtenauswahl kopieren</string>
+    <string name="copy_selection_message_sum">Schaltfläche zum Auswählen und Kopieren eines bestimmten Teils einer Nachricht hinzufügen</string>
+    <string name="copy_selection_action">✂ Auswahl kopieren</string>
+    <string name="copy_selection_dialog_title">Text kopieren</string>
     <string name="picker_loading_contacts">Loading contacts…</string>
     <string name="mode_all">All</string>
     <string name="picker_contacts">Contacts</string>

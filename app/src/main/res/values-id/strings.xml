@@ -496,6 +496,10 @@ Saat Anda mengaktifkan bekukan \"terakhir dilihat dan online\", Anda tidak dapat
     <string name="contact_probably_not_added">Kontak mungkin belum menambahkan Anda!</string>
     <string name="jump_first_message">Loncat ke Pesan Pertama</string>
     <string name="jump_first_message_sum">Tambahkan tombol untuk melewati pesan pertama di layar percakapan</string>
+    <string name="copy_selection_message_title">Salin Pilihan Pesan</string>
+    <string name="copy_selection_message_sum">Tambahkan tombol untuk memilih dan menyalin bagian tertentu dari pesan</string>
+    <string name="copy_selection_action">✂ Salin Pilihan</string>
+    <string name="copy_selection_dialog_title">Salin Teks</string>
     <string name="picker_loading_contacts">Loading contacts…</string>
     <string name="mode_all">All</string>
     <string name="picker_contacts">Contacts</string>
