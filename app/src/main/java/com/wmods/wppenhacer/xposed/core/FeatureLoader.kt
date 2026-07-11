@@ -139,7 +139,6 @@ class FeatureLoader {
                 object : XC_MethodHook() {
                     override fun beforeHookedMethod(param: MethodHookParam) {
                         mApp = param.args[0] as Application
-                        initializeModuleContext()
                         val application = mApp!!
                         val pref = getPreferences(application)
                         Feature.DEBUG = pref.getBoolean("enablelogs", true)
@@ -167,6 +166,7 @@ class FeatureLoader {
                         registerReceivers()
 
                         try {
+                            initializeModuleContext()
                             val timeMillis = System.currentTimeMillis()
                             UnobfuscatorCache.init(application)
                             SharedPreferencesWrapper.hookInit(application.classLoader)
@@ -279,8 +279,8 @@ class FeatureLoader {
                     Context.CONTEXT_INCLUDE_CODE or Context.CONTEXT_IGNORE_SECURITY
                 )
                 moduleContext = android.view.ContextThemeWrapper(context, R.style.AppTheme)
-            } catch (e: PackageManager.NameNotFoundException) {
-                throw PackageManager.NameNotFoundException("Module package not found")
+            } catch (_: PackageManager.NameNotFoundException) {
+                throw PackageManager.NameNotFoundException(Utils.application.getString(R.string.alert_module_notfound))
             }
         }
 
