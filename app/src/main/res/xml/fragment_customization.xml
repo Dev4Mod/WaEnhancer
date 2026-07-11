@@ -179,6 +179,12 @@
             app:title="@string/menuwicon" />
 
 
+        <rikka.material.preference.MaterialSwitchPreference
+            app:key="floating_bottom_bar"
+            app:summary="@string/floating_bottom_bar_sum"
+            app:title="@string/floating_bottom_bar" />
+
+
         <ListPreference
             android:defaultValue="0"
             android:entries="@array/configui_entries"

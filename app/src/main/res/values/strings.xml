@@ -164,6 +164,8 @@
     <string name="phone_call">Phone Call</string>
     <string name="whatsapp_call">Whatsapp Call</string>
     <string name="home_screen">Home Screen</string>
+    <string name="floating_bottom_bar">Floating Bottom Bar</string>
+    <string name="floating_bottom_bar_sum">Enable iOS-style floating bottom navigation bar</string>
     <string name="selection_of_call_type">Enable selection of call type</string>
     <string name="selection_of_call_type_sum">Show an option to select whether you want a call via phone or WhatsApp</string>
     <string name="yes">Yes</string>
