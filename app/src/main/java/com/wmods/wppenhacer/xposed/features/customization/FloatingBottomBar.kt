@@ -230,7 +230,9 @@ class FloatingBottomBar(loader: ClassLoader, preferences: SharedPreferences) :
         } else {
             Color.argb((STROKE_ALPHA * 255).toInt(), 255, 255, 255)
         }
-        val radius = Utils.dipToPixels(CORNER_RADIUS_DP).toFloat()
+        val radiusDp =
+            prefs.getInt("floating_bottom_bar_radius", CORNER_RADIUS_DP.toInt()).toFloat()
+        val radius = Utils.dipToPixels(radiusDp).toFloat()
 
         val background = GradientDrawable().apply {
             shape = GradientDrawable.RECTANGLE

@@ -184,6 +184,15 @@
             app:summary="@string/floating_bottom_bar_sum"
             app:title="@string/floating_bottom_bar" />
 
+        <SeekBarPreference
+            android:defaultValue="24"
+            android:max="64"
+            app:dependency="floating_bottom_bar"
+            app:key="floating_bottom_bar_radius"
+            app:min="0"
+            app:showSeekBarValue="true"
+            app:title="@string/floating_bottom_bar_radius" />
+
 
         <ListPreference
             android:defaultValue="0"
