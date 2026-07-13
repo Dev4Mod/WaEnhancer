@@ -4,4 +4,4 @@
 
 [FIXED]
 * Fixed problem with video uploads, videos will be sent in full HD and They will go through WhatsApp compression, but in FULL HD, this is mandatory to avoid videos being cut or rotated incorrectly.
-
+* Fixed Floating Bottom Bar bottom margin
