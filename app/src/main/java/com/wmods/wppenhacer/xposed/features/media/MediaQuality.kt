@@ -19,6 +19,10 @@ import java.lang.reflect.Field
 class MediaQuality(loader: ClassLoader, preferences: SharedPreferences) :
     Feature(loader, preferences) {
 
+    companion object {
+        const val EDGE_WIDTH = 1920
+        const val BITRATE = 10_000
+    }
 
     override fun doHook() {
         val videoQuality = prefs.getBoolean("videoquality", false)
@@ -35,21 +39,19 @@ class MediaQuality(loader: ClassLoader, preferences: SharedPreferences) :
             Others.propsBoolean[5549] = true
 
             val processVideoQualityClass = Unobfuscator.loadProcessVideoQualityClass(classLoader)
-            val processVideoQualityFields = Unobfuscator.getAllMapFields(processVideoQualityClass)
+            val fieldsVideoQuality = Unobfuscator.getAllMapFields(processVideoQualityClass)
+
+            fieldsVideoQuality.keys.forEach {
+                fieldsVideoQuality[it]?.isAccessible = true
+            }
 
             XposedBridge.hookAllConstructors(processVideoQualityClass, object : XC_MethodHook() {
                 override fun afterHookedMethod(param: MethodHookParam) {
-                    val processVideoQuality = param.thisObject
-                    val fieldvideoMaxBitrate = processVideoQualityFields["videoMaxBitrate"]
-                    val fieldvideoMaxEdge = processVideoQualityFields["videoMaxEdge"]
-                    val fieldvideoLimitMb = processVideoQualityFields["videoLimitMb"]
-
-                    fieldvideoLimitMb?.setInt(processVideoQuality, maxSize)
-                    fieldvideoMaxEdge?.setInt(processVideoQuality, 3840)
-                    if (fieldvideoMaxBitrate != null) {
-                        val bitrateBps = 24000 * 1000
-                        fieldvideoMaxBitrate.setInt(processVideoQuality, bitrateBps)
-                    }
+                    val instance = param.thisObject
+                    fieldsVideoQuality["videoLimitMb"]?.setInt(instance, maxSize)
+                    fieldsVideoQuality["videoMaxEdge"]?.setInt(instance, EDGE_WIDTH)
+                    fieldsVideoQuality["videoMaxBitrate"]?.setInt(instance, BITRATE * 1000)
+                    fieldsVideoQuality["mainHighBitRate"]?.set(instance, null)
                 }
             })
 
@@ -100,10 +102,9 @@ class MediaQuality(loader: ClassLoader, preferences: SharedPreferences) :
                 })
 
             Others.propsBoolean[5549] = true
-            listOf(594, 12852).forEach { Others.propsInteger[it] = 3840 }
-            listOf(4686, 3654, 3183, 4685).forEach { Others.propsInteger[it] = 3840 }
-            listOf(3755, 3756, 3757, 3758).forEach { Others.propsInteger[it] = 24000 * 1000 }
-
+            listOf(594, 12852).forEach { Others.propsInteger[it] = EDGE_WIDTH }
+            listOf(4686, 3654, 3183, 4685).forEach { Others.propsInteger[it] = EDGE_WIDTH }
+            listOf(3755, 3756, 3757, 3758).forEach { Others.propsInteger[it] = BITRATE }
         }
 
         if (imageQuality) {
