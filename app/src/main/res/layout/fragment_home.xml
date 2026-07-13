@@ -115,8 +115,8 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginStart="@dimen/spacing_medium"
-                            android:layout_marginEnd="@dimen/spacing_large"
-                            android:layout_toStartOf="@+id/reboot_btn"
+                            android:layout_marginEnd="@dimen/spacing_medium"
+                            android:layout_toStartOf="@+id/actions_container"
                             android:layout_toEndOf="@id/status_icon2"
                             android:text="@string/whatsapp_in_background" />
 
@@ -127,19 +127,38 @@
                             android:layout_height="wrap_content"
                             android:layout_below="@id/status_title2"
                             android:layout_alignStart="@id/status_title2"
+                            android:layout_alignEnd="@id/status_title2"
                             android:layout_marginTop="@dimen/spacing_xs" />
 
-                        <ImageView
-                            android:id="@+id/reboot_btn"
-                            android:layout_width="@dimen/icon_size_large"
-                            android:layout_height="@dimen/icon_size_large"
+                        <LinearLayout
+                            android:id="@+id/actions_container"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
                             android:layout_alignParentEnd="true"
                             android:layout_centerVertical="true"
-                            android:background="?attr/selectableItemBackgroundBorderless"
-                            android:padding="@dimen/spacing_xs"
-                            android:src="@drawable/ic_reload"
-                            app:tint="@color/text_on_gradient"
-                            tools:ignore="ContentDescription" />
+                            android:orientation="horizontal">
+
+                            <ImageView
+                                android:id="@+id/scroll_diag_btn"
+                                android:layout_width="@dimen/icon_size_large"
+                                android:layout_height="@dimen/icon_size_large"
+                                android:background="?attr/selectableItemBackgroundBorderless"
+                                android:padding="@dimen/spacing_xs"
+                                android:src="@drawable/ic_arrow_down"
+                                app:tint="@color/text_on_gradient"
+                                tools:ignore="ContentDescription" />
+
+                            <ImageView
+                                android:id="@+id/reboot_btn"
+                                android:layout_width="@dimen/icon_size_large"
+                                android:layout_height="@dimen/icon_size_large"
+                                android:background="?attr/selectableItemBackgroundBorderless"
+                                android:padding="@dimen/spacing_xs"
+                                android:src="@drawable/ic_reload"
+                                app:tint="@color/text_on_gradient"
+                                tools:ignore="ContentDescription" />
+
+                        </LinearLayout>
 
                     </RelativeLayout>
                 </com.google.android.material.card.MaterialCardView>
@@ -419,6 +438,50 @@
                             android:layout_marginTop="@dimen/spacing_small"
                             android:text="@string/reset_settings"
                             app:strokeColor="?colorError" />
+
+                    </LinearLayout>
+
+                </com.google.android.material.card.MaterialCardView>
+
+                <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/diag_card"
+                    style="@style/CardInfoStyle"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/spacing_medium"
+                    app:cardBackgroundColor="@color/surface_container">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:gravity="center"
+                        android:orientation="vertical"
+                        android:padding="@dimen/spacing_medium">
+
+                        <com.google.android.material.textview.MaterialTextView
+                            style="@style/DeviceInfoDialogLabel"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="@string/diag_title"
+                            android:textAlignment="center" />
+
+                        <com.google.android.material.textview.MaterialTextView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="@dimen/spacing_xs"
+                            android:text="@string/diag_summary"
+                            android:textAlignment="center"
+                            android:textAppearance="?textAppearanceBodyMedium"
+                            android:textColor="?colorOnSurfaceVariant" />
+
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/diagBtn"
+                            style="@style/ModernButton.Outlined"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="@dimen/spacing_small"
+                            android:text="@string/diag_button"
+                            app:icon="@drawable/ic_round_bug_report_24" />
 
                     </LinearLayout>
 

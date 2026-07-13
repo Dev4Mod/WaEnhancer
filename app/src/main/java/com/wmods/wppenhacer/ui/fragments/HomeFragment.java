@@ -8,6 +8,8 @@ import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -20,14 +22,19 @@ import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.FragmentActivity;
 import androidx.preference.PreferenceManager;
+import androidx.recyclerview.widget.LinearLayoutManager;
 
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.wmods.wppenhacer.App;
 import com.wmods.wppenhacer.BuildConfig;
 import com.wmods.wppenhacer.R;
 import com.wmods.wppenhacer.activities.MainActivity;
+import com.wmods.wppenhacer.adapter.LogLineAdapter;
+import com.wmods.wppenhacer.databinding.DialogDiagnosticsLogBinding;
 import com.wmods.wppenhacer.databinding.FragmentHomeBinding;
 import com.wmods.wppenhacer.ui.fragments.base.BaseFragment;
 import com.wmods.wppenhacer.utils.FilePicker;
+import com.wmods.wppenhacer.utils.RootDiagnostics;
 import com.wmods.wppenhacer.xposed.core.FeatureLoader;
 import com.wmods.wppenhacer.xposed.utils.Utils;
 
@@ -35,7 +42,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
- import java.net.UnknownHostException;
+import java.net.UnknownHostException;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -87,6 +94,11 @@ public class HomeFragment extends BaseFragment {
             disableWpp(requireActivity());
         });
 
+        binding.scrollDiagBtn.setOnClickListener(view -> {
+            animateClick(view);
+            binding.nestedScrollView.post(() -> binding.nestedScrollView.smoothScrollTo(0, binding.diagCard.getTop()));
+        });
+
         binding.rebootBtn2.setOnClickListener(view -> {
             animateClick(view);
             App.instance.restartApp(FeatureLoader.PACKAGE_BUSINESS);
@@ -111,6 +123,11 @@ public class HomeFragment extends BaseFragment {
         binding.updateCard.setOnClickListener(view -> {
             animateClick(view);
             Utils.openLink(requireActivity(), "https://t.me/waenhancher");
+        });
+
+        binding.diagBtn.setOnClickListener(view -> {
+            animateClick(view);
+            showDiagnosticsDialog();
         });
 
         checkForUpdates();
@@ -427,6 +444,50 @@ public class HomeFragment extends BaseFragment {
                 binding.updateCard.getChildAt(0).setBackgroundResource(R.drawable.gradient_update);
             }
         });
+    }
+
+    private void showDiagnosticsDialog() {
+        var context = requireContext();
+        var dialogBinding = DialogDiagnosticsLogBinding.inflate(LayoutInflater.from(context));
+        var adapter = new LogLineAdapter();
+
+        dialogBinding.logRecycler.setLayoutManager(new LinearLayoutManager(context));
+        dialogBinding.logRecycler.setAdapter(adapter);
+
+        var dialog = new MaterialAlertDialogBuilder(context)
+                .setTitle(R.string.diag_dialog_title)
+                .setView(dialogBinding.getRoot())
+                .setPositiveButton(R.string.diag_close, null)
+                .setCancelable(true)
+                .show();
+
+        var handler = new Handler(Looper.getMainLooper());
+        var queue = new java.util.ArrayList<RootDiagnostics.LogEntry>();
+
+        RootDiagnostics.INSTANCE.runDiagnostics(context, entry -> {
+            if (!isAdded()) return;
+            queue.add(entry);
+        });
+
+        Runnable poller = new Runnable() {
+            private int emptyCycles = 0;
+
+            @Override
+            public void run() {
+                if (!isAdded() || dialog == null || !dialog.isShowing()) return;
+
+                if (!queue.isEmpty()) {
+                    emptyCycles = 0;
+                    adapter.add(queue.remove(0));
+                    dialogBinding.logRecycler.smoothScrollToPosition(adapter.getItemCount() - 1);
+                    handler.postDelayed(this, 120);
+                } else if (emptyCycles < 50) {
+                    emptyCycles++;
+                    handler.postDelayed(this, 120);
+                }
+            }
+        };
+        handler.postDelayed(poller, 120);
     }
 
     @Override

@@ -189,6 +189,7 @@ dependencies {
     compileOnly(libs.libxposed.legacy)
     ksp(libs.androidx.room.compiler)
 
+    implementation(libs.core)
     implementation(libs.androidx.activity)
     implementation(libs.androidx.documentfile)
     implementation(libs.androidx.constraintlayout)

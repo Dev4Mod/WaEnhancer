@@ -58,5 +58,9 @@
     <color name="background_color">#FAFAFA</color>
     <color name="surface_color">#FFFFFF</color>
     <color name="primary_color">#00796B</color>
-    <color name="selected_item_color">#4D2196F3</color> <!-- Light Blue with transparency -->
+
+    <color name="log_info">#E0E0E0</color>
+    <color name="log_success">#69F0AE</color>
+    <color name="log_warning">#FFD180</color>
+    <color name="log_error">#FF8A80</color>
 </resources>
