@@ -1,3 +1,7 @@
 [ADDED]
-* Added floating navigation bar (WAE -> Customization -> Floating Bottom Bar)
-* Added alert if the HMA is blocking the module
+* Added manual adjustment of the radio on the edge of the Floating Bottom Bar
+* Added root check for sepolicy and HMA diagnostics (WAE -> Home -> Check Root Diagnostics)
+
+[FIXED]
+* Fixed problem with video uploads, videos will be sent in full HD and They will go through WhatsApp compression, but in FULL HD, this is mandatory to avoid videos being cut or rotated incorrectly.
+
