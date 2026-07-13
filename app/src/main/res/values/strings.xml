@@ -519,4 +519,31 @@
     <string name="remove_sticker_white_outline">Remove sticker white outline</string>
     <string name="stickers">Stickers</string>
     <string name="alert_module_notfound">WaEnhancer module not found, HMA is probably hiding the module, remove WhatsApp from the HMA list and try again.</string>
+    <!-- Root Diagnostics -->
+    <string name="diag_title">Root Diagnostics</string>
+    <string name="diag_summary">Check for sepolicy issues and Hide My App List blocks affecting WhatsApp.</string>
+    <string name="diag_button">Analyze Device</string>
+    <string name="diag_dialog_title">Diagnostic Log</string>
+    <string name="diag_root_granted">Root access granted.</string>
+    <string name="diag_root_denied">Root access denied. Diagnostics require root access.</string>
+    <string name="diag_close">Close</string>
+
+    <!-- Sepolicy -->
+    <string name="diag_sepolicy_checking">Checking sepolicy log...</string>
+    <string name="diag_sepolicy_not_found">LSPosed verbose log not found or empty.</string>
+    <string name="diag_sepolicy_no_issues">No sepolicy issues found in the log.</string>
+    <string name="diag_sepolicy_found">Sepolicy issue found:</string>
+    <string name="diag_sepolicy_broken">Broken sepolicy detected. The root solution and the kernel patch must be the same version. If the error persists, switch to another root provider compatible with your device.</string>
+
+    <!-- Hide My App List -->
+    <string name="diag_hma_checking">Checking Hide My App List status...</string>
+    <string name="diag_hma_not_active">Hide My App List is not active.</string>
+    <string name="diag_hma_zygisk_active">Hide My App List (Zygisk) is active.</string>
+    <string name="diag_hma_lsposed_active">Hide My App List (LSPosed) is active.</string>
+    <string name="diag_hma_not_found">Hide My App List configuration not found.</string>
+    <string name="diag_hma_invalid">Hide My App List configuration is invalid.</string>
+    <string name="diag_hma_no_blocks">No Hide My App List blocks detected for WhatsApp.</string>
+    <string name="diag_hma_blocked">Hide My App List is hiding WaEnhancer from:</string>
+    <string name="diag_hma_disable">Disable the block for WhatsApp/Business in Hide My App List so WaEnhancer can work correctly.</string>
+    <string name="diag_copied">Line copied to clipboard</string>
 </resources>
