@@ -132,7 +132,7 @@ class FloatingBottomBar(loader: ClassLoader, preferences: SharedPreferences) :
                 ViewGroup.LayoutParams.WRAP_CONTENT
             ).apply {
                 gravity = Gravity.BOTTOM
-                bottomMargin = navigationBarInset(rootView)
+                bottomMargin = navigationBarInset(rootView) + Utils.dipToPixels(BOTTOM_MARGIN_DP)
             }
             rootView.addView(container, rootParams)
 
@@ -154,7 +154,7 @@ class FloatingBottomBar(loader: ClassLoader, preferences: SharedPreferences) :
         params.gravity = Gravity.BOTTOM
         params.width = ViewGroup.LayoutParams.MATCH_PARENT
         params.height = ViewGroup.LayoutParams.WRAP_CONTENT
-        params.bottomMargin = navigationBarInset(rootView)
+        params.bottomMargin = navigationBarInset(rootView) + Utils.dipToPixels(BOTTOM_MARGIN_DP)
         container.layoutParams = params
     }
 
@@ -248,10 +248,9 @@ class FloatingBottomBar(loader: ClassLoader, preferences: SharedPreferences) :
         bar.elevation = Utils.dipToPixels(ELEVATION_DP).toFloat()
 
         val sideMargin = Utils.dipToPixels(SIDE_MARGIN_DP)
-        val bottomMargin = Utils.dipToPixels(BOTTOM_MARGIN_DP)
         val params = bar.layoutParams as? ViewGroup.MarginLayoutParams
         if (params != null) {
-            params.setMargins(sideMargin, 0, sideMargin, bottomMargin)
+            params.setMargins(sideMargin, 0, sideMargin, 0)
             bar.layoutParams = params
         }
     }
