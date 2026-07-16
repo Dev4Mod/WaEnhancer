@@ -132,7 +132,12 @@ class MediaQuality(loader: ClassLoader, preferences: SharedPreferences) :
             Others.propsBoolean[6033] = true
             Others.propsBoolean[9569] = false
             Others.propsBoolean[26289] = true
-            Others.propsBoolean[26291] = true
+            // 26291 enables WhatsApp's Jarvis ML image-transcode config
+            // (UitTranscodeConfig/JarvisImageConfig) for this image mode. Its native
+            // passthrough decision mishandles HEIC/HEIF, uploading the source
+            // untranscoded so recipients get a corrupt image ("something wrong with
+            // the image file"). Left disabled; the maxKb/quality/maxEdge knobs above
+            // still deliver the quality boost.
             Others.propsBoolean[22375] = true
             listOf(1576, 2654, 6032, 15748, 3068).forEach { Others.propsInteger[it] = 3840 }
 
