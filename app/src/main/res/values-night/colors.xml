@@ -20,4 +20,9 @@
     <color name="whatsapp_green">#25D366</color>
     <color name="whatsapp_dark_green">#128C7E</color>
     <color name="whatsapp_teal">#075E54</color>
+
+    <color name="log_info">#E0E0E0</color>
+    <color name="log_success">#69F0AE</color>
+    <color name="log_warning">#FFD180</color>
+    <color name="log_error">#FF8A80</color>
 </resources>

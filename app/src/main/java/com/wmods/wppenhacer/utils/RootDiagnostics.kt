@@ -17,7 +17,7 @@ object RootDiagnostics {
     private const val LSP_CONFIG_DB = "/data/adb/lspd/config/modules_config.db"
 
     private val SEPOLICY_PATTERN = Pattern.compile("(?i)sepolicy")
-    private val ISSUE_PATTERN = Pattern.compile("(?i)error|invalid|failed")
+    private val ISSUE_PATTERN = Pattern.compile("(?i)error|invalid|failed|not loaded properly")
 
     private val WHATSAPP_PACKAGES = listOf(
         "com.whatsapp",
@@ -102,7 +102,7 @@ object RootDiagnostics {
             callback.onLog(
                 LogEntry(
                     context.getString(R.string.diag_hma_not_active),
-                    LogType.WARNING
+                    LogType.SUCCESS
                 )
             )
             return
