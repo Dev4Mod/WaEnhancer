@@ -127,8 +127,8 @@ class FloatingBottomBar(loader: ClassLoader, preferences: SharedPreferences) :
             (container.parent as? ViewGroup)?.removeView(container)
 
             val rootParams = FrameLayout.LayoutParams(
-                container.width,
-                container.height
+                container.measuredWidth,
+                container.measuredHeight
             ).apply {
                 gravity = Gravity.BOTTOM
                 bottomMargin = navigationBarInset(rootView) + Utils.dipToPixels(BOTTOM_MARGIN_DP)
