@@ -1,0 +1,169 @@
+name: Bump Supported WA Version & Release
+
+# Run this AFTER you've manually confirmed the mod still works on the new
+# WhatsApp build. This workflow does not test compatibility for you — it
+# only records the version as supported and cuts a release.
+on:
+  workflow_dispatch:
+    inputs:
+      wa_version:
+        description: 'New WhatsApp version prefix to mark as supported (e.g. 2.26.27)'
+        required: true
+      wa_business_version:
+        description: 'New WhatsApp Business version prefix (leave blank to reuse wa_version)'
+        required: false
+      bump:
+        description: 'Which part of versionName to bump'
+        required: true
+        default: 'patch'
+        type: choice
+        options:
+          - patch
+          - minor
+          - none
+
+jobs:
+  bump-and-release:
+    permissions: write-all
+    runs-on: ubuntu-latest
+    env:
+      BOT_TOKEN: ${{ secrets.BOT_TOKEN }}
+      CHANNEL_ID: ${{ secrets.CHANNEL_ID }}
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          submodules: recursive
+          fetch-depth: 0
+
+      - name: Add version to supported_versions_wpp / _business
+        run: |
+          set -e
+          FILE=app/src/main/res/values/arrays.xml
+          WPP="${{ inputs.wa_version }}.xx"
+          BIZ="${{ inputs.wa_business_version }}"
+          if [ -z "$BIZ" ]; then BIZ="${{ inputs.wa_version }}.xx"; else BIZ="$BIZ.xx"; fi
+
+          add_item () {
+            local array_name="$1" item="$2"
+            if grep -q "<item>${item}</item>" "$FILE"; then
+              echo "Already present in $array_name: $item"
+              return
+            fi
+            # Insert the new <item> right before the closing tag of the named array
+            python3 - "$FILE" "$array_name" "$item" <<'PY'
+import re, sys
+path, array_name, item = sys.argv[1], sys.argv[2], sys.argv[3]
+with open(path) as f:
+    content = f.read()
+pattern = re.compile(
+    r'(<string-array name="' + re.escape(array_name) + r'">.*?)(\n\s*</string-array>)',
+    re.DOTALL
+)
+def repl(m):
+    return m.group(1) + f'\n        <item>{item}</item>' + m.group(2)
+new_content, n = pattern.subn(repl, content, count=1)
+if n == 0:
+    print(f"WARNING: array {array_name} not found", file=sys.stderr)
+    sys.exit(1)
+with open(path, 'w') as f:
+    f.write(new_content)
+PY
+            echo "Added to $array_name: $item"
+          }
+
+          add_item supported_versions_wpp "$WPP"
+          add_item supported_versions_business "$BIZ"
+
+      - name: Bump versionCode / versionName
+        id: bumpver
+        run: |
+          set -e
+          FILE=app/build.gradle.kts
+          CUR_CODE=$(grep -oP 'versionCode\s*=\s*\K[0-9]+' "$FILE")
+          CUR_NAME=$(sed -n 's/.*versionName = "\([^ ]*\).*/\1/p' "$FILE")
+
+          NEW_CODE=$((CUR_CODE + 1))
+
+          IFS='.' read -r MAJ MIN PATCH <<< "$CUR_NAME"
+          case "${{ inputs.bump }}" in
+            patch) PATCH=$((PATCH + 1));;
+            minor) MIN=$((MIN + 1)); PATCH=0;;
+            none)  :;;
+          esac
+          NEW_NAME="${MAJ}.${MIN}.${PATCH}"
+
+          sed -i "s/versionCode = ${CUR_CODE}/versionCode = ${NEW_CODE}/" "$FILE"
+          sed -i "s/versionName = \"${CUR_NAME} (\$gitHash)\"/versionName = \"${NEW_NAME} (\$gitHash)\"/" "$FILE"
+
+          echo "new_name=$NEW_NAME" >> "$GITHUB_OUTPUT"
+          echo "new_code=$NEW_CODE" >> "$GITHUB_OUTPUT"
+
+      - name: Commit changes
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add app/src/main/res/values/arrays.xml app/build.gradle.kts
+          git commit -m "chore: support WA ${{ inputs.wa_version }} / bump to ${{ steps.bumpver.outputs.new_name }}"
+          git push
+
+      - name: set up JDK 17
+        uses: actions/setup-java@v5
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+          cache: gradle
+          cache-dependency-path: |
+            **/*.gradle*
+            **/gradle-wrapper.properties
+            gradle/libs.versions.toml
+            **/gradle.properties
+
+      - name: Get tag
+        id: vars
+        run: |
+          SHA8=$(git rev-parse --short=8 HEAD)
+          echo "tag=${{ steps.bumpver.outputs.new_name }}-$SHA8" >> "$GITHUB_OUTPUT"
+
+      - name: Write key
+        env:
+          KEY_STORE: ${{ secrets.KEY_STORE }}
+        run: |
+          if [ ! -z "$KEY_STORE" ]; then
+          echo androidStorePassword='${{ secrets.KEY_STORE_PASSWORD }}' >> gradle.properties
+          echo androidKeyAlias='${{ secrets.ALIAS }}' >> gradle.properties
+          echo androidKeyPassword='${{ secrets.KEY_PASSWORD }}' >> gradle.properties
+          echo androidStoreFile='key.jks' >> gradle.properties
+          echo "$KEY_STORE" | base64 --decode > key.jks
+          fi
+
+      - name: Grant execute permission for gradlew
+        run: chmod +x gradlew
+
+      - name: Build all variants
+        run: ./gradlew assembleWhatsappDebug assembleBusinessDebug -Pminify=true
+
+      - name: Upload to GitHub release
+        uses: softprops/action-gh-release@v3
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          name: WaEnhancer ${{ steps.bumpver.outputs.new_name }}
+          body: |
+            Adds support for WhatsApp ${{ inputs.wa_version }}.xx
+            ${{ inputs.wa_business_version && format('and WhatsApp Business {0}.xx', inputs.wa_business_version) || '' }}
+          files: |
+            app/build/outputs/apk/whatsapp/debug/WaEnhancer*.apk
+            app/build/outputs/apk/business/debug/WaEnhancer-Business*.apk
+          tag_name: ${{ steps.vars.outputs.tag }}
+
+      - name: Post to Telegram channel
+        if: ${{ env.BOT_TOKEN != '' }}
+        uses: Dev4Mod/telegram-github-action@master
+        with:
+          to: ${{ env.CHANNEL_ID }}
+          token: ${{ env.BOT_TOKEN }}
+          format: markdown
+          disable_web_page_preview: true
+          message: |
+            🎉 WaEnhancer ${{ steps.bumpver.outputs.new_name }} released — now supports WhatsApp ${{ inputs.wa_version }}.xx
+
+            Release: https://github.com/${{ github.repository }}/releases/tag/${{ steps.vars.outputs.tag }}
