@@ -1,8 +1,5 @@
 name: Bump Supported WA Version & Release
 
-# Run this AFTER you've manually confirmed the mod still works on the new
-# WhatsApp build. This workflow does not test compatibility for you — it
-# only records the version as supported and cuts a release.
 on:
   workflow_dispatch:
     inputs:
