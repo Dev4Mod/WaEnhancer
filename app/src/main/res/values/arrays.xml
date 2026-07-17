@@ -10,6 +10,7 @@
         <item>2.26.24.xx</item>
         <item>2.26.25.xx</item>
         <item>2.26.26.xx</item>
+        <item>2.26.27.xx</item>
     </string-array>
     <string-array name="supported_versions_business">
         <item>2.26.18.xx</item>
@@ -21,6 +22,7 @@
         <item>2.26.24.xx</item>
         <item>2.26.25.xx</item>
         <item>2.26.26.xx</item>
+        <item>2.26.27.xx</item>
     </string-array>
 
     <string-array name="scope">
