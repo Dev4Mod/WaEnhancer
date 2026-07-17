@@ -118,7 +118,7 @@ class FloatingBottomBar(loader: ClassLoader, preferences: SharedPreferences) :
             val container = bar.parent as? ViewGroup ?: return false
             val rootView = findRootView(bar) ?: return false
             if (container.parent === rootView) {
-                updateOverlayLayout(rootView, container)
+                updateOverlayLayout(rootView, container, bar)
                 applyTransparentShadowStyle(container, bar)
                 positionFabsAboveBar(rootView, container)
                 return true
@@ -146,11 +146,15 @@ class FloatingBottomBar(loader: ClassLoader, preferences: SharedPreferences) :
         }
     }
 
-    private fun updateOverlayLayout(rootView: FrameLayout, container: ViewGroup) {
+    private fun updateOverlayLayout(rootView: FrameLayout, container: ViewGroup, bar: ViewGroup) {
         val params = container.layoutParams as? FrameLayout.LayoutParams ?: return
         params.gravity = Gravity.BOTTOM
         params.bottomMargin = navigationBarInset(rootView) + Utils.dipToPixels(BOTTOM_MARGIN_DP)
         container.layoutParams = params
+        bar.layoutParams = bar.layoutParams.apply {
+            width = ViewGroup.LayoutParams.MATCH_PARENT
+            height = ViewGroup.LayoutParams.WRAP_CONTENT
+        }
     }
 
     private fun navigationBarInset(view: View): Int {
