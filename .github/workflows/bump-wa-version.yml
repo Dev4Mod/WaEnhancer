@@ -1,5 +1,8 @@
 name: Bump Supported WA Version & Release
 
+# Run this AFTER you've manually confirmed the mod still works on the new
+# WhatsApp build. This workflow does not test compatibility for you — it
+# only records the version as supported and cuts a release.
 on:
   workflow_dispatch:
     inputs:
@@ -23,9 +26,6 @@ jobs:
   bump-and-release:
     permissions: write-all
     runs-on: ubuntu-latest
-    env:
-      BOT_TOKEN: ${{ secrets.BOT_TOKEN }}
-      CHANNEL_ID: ${{ secrets.CHANNEL_ID }}
     steps:
       - uses: actions/checkout@v6
         with:
@@ -151,16 +151,3 @@ PY
             app/build/outputs/apk/whatsapp/debug/WaEnhancer*.apk
             app/build/outputs/apk/business/debug/WaEnhancer-Business*.apk
           tag_name: ${{ steps.vars.outputs.tag }}
-
-      - name: Post to Telegram channel
-        if: ${{ env.BOT_TOKEN != '' }}
-        uses: Dev4Mod/telegram-github-action@master
-        with:
-          to: ${{ env.CHANNEL_ID }}
-          token: ${{ env.BOT_TOKEN }}
-          format: markdown
-          disable_web_page_preview: true
-          message: |
-            🎉 WaEnhancer ${{ steps.bumpver.outputs.new_name }} released — now supports WhatsApp ${{ inputs.wa_version }}.xx
-
-            Release: https://github.com/${{ github.repository }}/releases/tag/${{ steps.vars.outputs.tag }}
