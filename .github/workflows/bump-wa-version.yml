@@ -46,25 +46,15 @@ jobs:
               echo "Already present in $array_name: $item"
               return
             fi
-            # Insert the new <item> right before the closing tag of the named array
-            python3 - "$FILE" "$array_name" "$item" <<'PY'
-import re, sys
-path, array_name, item = sys.argv[1], sys.argv[2], sys.argv[3]
-with open(path) as f:
-    content = f.read()
-pattern = re.compile(
-    r'(<string-array name="' + re.escape(array_name) + r'">.*?)(\n\s*</string-array>)',
-    re.DOTALL
-)
-def repl(m):
-    return m.group(1) + f'\n        <item>{item}</item>' + m.group(2)
-new_content, n = pattern.subn(repl, content, count=1)
-if n == 0:
-    print(f"WARNING: array {array_name} not found", file=sys.stderr)
-    sys.exit(1)
-with open(path, 'w') as f:
-    f.write(new_content)
-PY
+            local start_line end_line
+            start_line=$(grep -n "<string-array name=\"${array_name}\">" "$FILE" | head -n1 | cut -d: -f1)
+            if [ -z "$start_line" ]; then
+              echo "WARNING: array $array_name not found" >&2
+              return 1
+            fi
+            end_line=$(tail -n +"$start_line" "$FILE" | grep -n "</string-array>" | head -n1 | cut -d: -f1)
+            end_line=$((start_line + end_line - 1))
+            sed -i "${end_line}i\\        <item>${item}</item>" "$FILE"
             echo "Added to $array_name: $item"
           }
 
