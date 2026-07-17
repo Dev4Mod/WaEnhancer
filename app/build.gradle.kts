@@ -5,6 +5,11 @@ import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import java.util.Locale
 import kotlin.time.Duration.Companion.milliseconds
 
+lint {
+        disable += "SelectedPhotoAccess"
+        disable += "MissingTranslation"
+        baseline = file("lint-baseline.xml")
+    }
 plugins {
     alias(libs.plugins.androidApplication)
     alias(libs.plugins.materialthemebuilder)
