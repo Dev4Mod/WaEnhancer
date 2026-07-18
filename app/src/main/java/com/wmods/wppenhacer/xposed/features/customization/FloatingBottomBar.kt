@@ -124,16 +124,52 @@ class FloatingBottomBar(loader: ClassLoader, preferences: SharedPreferences) :
                 return true
             }
 
-            (container.parent as? ViewGroup)?.removeView(container)
+            val originalParent = container.parent as? ViewGroup ?: return false
+            logDebug("FloatingBottomBar height: ${container.measuredHeight} width: ${container.measuredWidth}")
 
             val rootParams = FrameLayout.LayoutParams(
-                container.measuredWidth,
-                container.measuredHeight
+                if (container.measuredWidth > 0) container.measuredWidth else ViewGroup.LayoutParams.MATCH_PARENT,
+                if (container.measuredHeight > 0) container.measuredHeight else ViewGroup.LayoutParams.WRAP_CONTENT
             ).apply {
                 gravity = Gravity.BOTTOM
                 bottomMargin = navigationBarInset(rootView) + Utils.dipToPixels(BOTTOM_MARGIN_DP)
             }
+
+            val layoutListener = android.view.ViewTreeObserver.OnGlobalLayoutListener {
+                container.visibility = if (originalParent.isShown) View.VISIBLE else View.GONE
+            }
+
+            val attachListener = object : View.OnAttachStateChangeListener {
+                override fun onViewAttachedToWindow(v: View) {
+                    try {
+                        originalParent.viewTreeObserver.addOnGlobalLayoutListener(layoutListener)
+                    } catch (_: Throwable) {
+                    }
+                    if (container.parent == null) {
+                        rootView.addView(container, rootParams)
+                    }
+                    container.visibility = if (originalParent.isShown) View.VISIBLE else View.GONE
+                }
+
+                override fun onViewDetachedFromWindow(v: View) {
+                    try {
+                        originalParent.viewTreeObserver.removeOnGlobalLayoutListener(layoutListener)
+                    } catch (_: Throwable) {
+                    }
+                    (container.parent as? ViewGroup)?.removeView(container)
+                }
+            }
+
+            originalParent.addOnAttachStateChangeListener(attachListener)
+            try {
+                originalParent.viewTreeObserver.addOnGlobalLayoutListener(layoutListener)
+            } catch (_: Throwable) {
+            }
+
+            originalParent.removeView(container)
             rootView.addView(container, rootParams)
+
+            container.visibility = if (originalParent.isShown) View.VISIBLE else View.GONE
 
             applyTransparentShadowStyle(container, bar)
             positionFabsAboveBar(rootView, container)
