@@ -31,24 +31,24 @@ jobs:
         id: wa
         run: |
           set -e
-        
+
           echo "::group::Fetching latest WhatsApp version"
-        
+
           VERSION=$(curl -fsSL "https://ws75.aptoide.com/api/7/app/getMeta/package_name/com.whatsapp" | jq -r '.data.file.vername')
-        
+
           if [ -z "$VERSION" ] || [ "$VERSION" = "null" ]; then
             echo "::error::Failed to fetch latest WhatsApp version"
             exit 1
           fi
-        
+
           PREFIX=$(echo "$VERSION" | cut -d. -f1-3)
-        
+
           echo "version=$VERSION" >> "$GITHUB_OUTPUT"
           echo "prefix=$PREFIX" >> "$GITHUB_OUTPUT"
-        
+
           echo "::notice title=Latest WhatsApp Version::$VERSION"
           echo "::notice title=Supported Prefix::${PREFIX}.xx"
-        
+
           echo "::endgroup::"
 
       - name: Add version to supported arrays
@@ -82,18 +82,48 @@ jobs:
         run: |
           set -e
           FILE=app/build.gradle.kts
+
           CUR_CODE=$(grep -oP 'versionCode\s*=\s*\K[0-9]+' "$FILE")
-          CUR_NAME=$(sed -n 's/.*versionName = "\([^ ]*\)".*/\1/p' "$FILE")
+          if [ -z "$CUR_CODE" ]; then
+            echo "::error::Failed to parse current versionCode from $FILE"
+            exit 1
+          fi
+
+          # Extract only the numeric X.Y.Z version, regardless of what follows
+          # the closing quote (e.g. "1.7.0 (${gitHash})" or "1.7.0 ($gitHash)").
+          CUR_NAME=$(grep -oP 'versionName\s*=\s*"\K[0-9]+\.[0-9]+\.[0-9]+' "$FILE" | head -1)
+          if [ -z "$CUR_NAME" ]; then
+            echo "::error::Failed to parse current versionName from $FILE"
+            exit 1
+          fi
+
           NEW_CODE=$((CUR_CODE+1))
+
           IFS='.' read -r MAJ MIN PATCH <<< "$CUR_NAME"
+          MAJ=${MAJ:-0}
+          MIN=${MIN:-0}
+          PATCH=${PATCH:-0}
+
           case "${{ inputs.bump }}" in
             patch) PATCH=$((PATCH+1));;
             minor) MIN=$((MIN+1)); PATCH=0;;
             none) ;;
           esac
+
           NEW_NAME="$MAJ.$MIN.$PATCH"
+
+          # Sanity check before mutating files / creating a release tag.
+          if ! [[ "$NEW_NAME" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "::error::Computed invalid new version name: '$NEW_NAME'"
+            exit 1
+          fi
+
           sed -i "s/versionCode = ${CUR_CODE}/versionCode = ${NEW_CODE}/" "$FILE"
-          sed -i "s/versionName = \"${CUR_NAME} (\$gitHash)\"/versionName = \"${NEW_NAME} (\$gitHash)\"/" "$FILE"
+
+          # Replace only the numeric part of versionName, keeping whatever
+          # suffix (e.g. " (${gitHash})" or " ($gitHash)") already follows it.
+          sed -i "s/versionName = \"${CUR_NAME}/versionName = \"${NEW_NAME}/" "$FILE"
+
           echo "new_name=$NEW_NAME" >> "$GITHUB_OUTPUT"
 
       - name: Version summary
@@ -133,7 +163,13 @@ jobs:
       - name: Tag
         id: tag
         run: |
-          echo "tag=${{ steps.bumpver.outputs.new_name }}-$(git rev-parse --short=8 HEAD)" >> "$GITHUB_OUTPUT"
+          set -e
+          NEW_NAME="${{ steps.bumpver.outputs.new_name }}"
+          if ! [[ "$NEW_NAME" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "::error::Refusing to create tag from invalid version name: '$NEW_NAME'"
+            exit 1
+          fi
+          echo "tag=${NEW_NAME}-$(git rev-parse --short=8 HEAD)" >> "$GITHUB_OUTPUT"
 
       - name: Upload Release
         uses: softprops/action-gh-release@v3
