@@ -50,7 +50,7 @@ android {
         minSdk = 28
         //noinspection OldTargetApi
         targetSdk = 34
-        versionCode = 157
+        versionCode = 158
         versionName = "1.7.0 ($gitHash)"
         multiDexEnabled = true
 
