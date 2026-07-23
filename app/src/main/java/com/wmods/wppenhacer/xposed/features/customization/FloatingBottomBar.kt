@@ -116,10 +116,9 @@ class FloatingBottomBar(loader: ClassLoader, preferences: SharedPreferences) :
     private fun setupFloatingBar(bar: ViewGroup): Boolean {
         try {
             val container = bar.parent as? ViewGroup ?: return false
-            val conversationHost = findConversationHost(container) ?: return false
             val rootView = findRootView(bar) ?: return false
             if (container.parent === rootView) {
-                updateOverlayLayout(rootView, container)
+                updateOverlayLayout(rootView, container, bar)
                 applyTransparentShadowStyle(container, bar)
                 positionFabsAboveBar(rootView, container)
                 return true
@@ -128,15 +127,13 @@ class FloatingBottomBar(loader: ClassLoader, preferences: SharedPreferences) :
             (container.parent as? ViewGroup)?.removeView(container)
 
             val rootParams = FrameLayout.LayoutParams(
-                ViewGroup.LayoutParams.MATCH_PARENT,
-                ViewGroup.LayoutParams.WRAP_CONTENT
+                container.width,
+                container.height
             ).apply {
                 gravity = Gravity.BOTTOM
                 bottomMargin = navigationBarInset(rootView) + Utils.dipToPixels(BOTTOM_MARGIN_DP)
             }
             rootView.addView(container, rootParams)
-
-            expandContentBehindBar(conversationHost)
 
             applyTransparentShadowStyle(container, bar)
             positionFabsAboveBar(rootView, container)
@@ -149,33 +146,21 @@ class FloatingBottomBar(loader: ClassLoader, preferences: SharedPreferences) :
         }
     }
 
-    private fun updateOverlayLayout(rootView: FrameLayout, container: ViewGroup) {
+    private fun updateOverlayLayout(rootView: FrameLayout, container: ViewGroup, bar: ViewGroup) {
         val params = container.layoutParams as? FrameLayout.LayoutParams ?: return
         params.gravity = Gravity.BOTTOM
-        params.width = ViewGroup.LayoutParams.MATCH_PARENT
-        params.height = ViewGroup.LayoutParams.WRAP_CONTENT
         params.bottomMargin = navigationBarInset(rootView) + Utils.dipToPixels(BOTTOM_MARGIN_DP)
         container.layoutParams = params
+        bar.layoutParams = bar.layoutParams.apply {
+            width = ViewGroup.LayoutParams.MATCH_PARENT
+            height = ViewGroup.LayoutParams.WRAP_CONTENT
+        }
     }
 
     private fun navigationBarInset(view: View): Int {
         return ViewCompat.getRootWindowInsets(view)
             ?.getInsets(WindowInsetsCompat.Type.systemBars())
             ?.bottom ?: 0
-    }
-
-    private fun findConversationHost(startView: View): ViewGroup? {
-        var current: View? = startView
-        while (current != null) {
-            val idName = runCatching {
-                current.resources.getResourceEntryName(current.id)
-            }.getOrNull()
-            if (idName == "conversation_list_view_host") {
-                return current as? ViewGroup
-            }
-            current = current.parent as? View
-        }
-        return null
     }
 
     private fun findRootView(startView: View): FrameLayout? {
@@ -190,17 +175,6 @@ class FloatingBottomBar(loader: ClassLoader, preferences: SharedPreferences) :
         return lastFrameLayout
     }
 
-    private fun expandContentBehindBar(conversationHost: ViewGroup) {
-        for (i in 0 until conversationHost.childCount) {
-            val child = conversationHost.getChildAt(i)
-            val idName = runCatching {
-                child.resources.getResourceEntryName(child.id)
-            }.getOrNull()
-            if (idName == "bottom_navigation_stub") {
-                child.visibility = View.GONE
-            }
-        }
-    }
 
     private fun applyTransparentShadowStyle(container: ViewGroup, bar: ViewGroup) {
         container.setBackgroundColor(Color.TRANSPARENT)

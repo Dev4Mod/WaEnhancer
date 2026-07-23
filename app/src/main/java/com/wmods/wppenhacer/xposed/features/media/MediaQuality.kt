@@ -132,7 +132,6 @@ class MediaQuality(loader: ClassLoader, preferences: SharedPreferences) :
             Others.propsBoolean[6033] = true
             Others.propsBoolean[9569] = false
             Others.propsBoolean[26289] = true
-            Others.propsBoolean[26291] = true
             Others.propsBoolean[22375] = true
             listOf(1576, 2654, 6032, 15748, 3068).forEach { Others.propsInteger[it] = 3840 }
 

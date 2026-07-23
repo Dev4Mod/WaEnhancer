@@ -1,7 +1,10 @@
 [ADDED]
-* Added manual adjustment of the radio on the edge of the Floating Bottom Bar
-* Added root check for sepolicy and HMA diagnostics (WAE -> Home -> Check Root Diagnostics)
+* Added support for WA 2.26.27.xx
+
+[IMPROVED]
+* Improvements in detecting problems in sepolicy in root diagnostics (I suggest you run a test if you have configuration problems by resetting)
 
 [FIXED]
-* Fixed problem with video uploads, videos will be sent in full HD and They will go through WhatsApp compression, but in FULL HD, this is mandatory to avoid videos being cut or rotated incorrectly.
-* Fixed Floating Bottom Bar bottom margin
+* Fixed issue with floating bar
+* Fixed issue sending images in HEIC format (Apple format) (Thanks to Alpha3288)
+* Fixed problem with root diagnostic colors in light theme
