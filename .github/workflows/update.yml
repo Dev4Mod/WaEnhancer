@@ -1,4 +1,4 @@
-name: Bump Supported WA Version & Release
+name: bump
 
 on:
   workflow_dispatch:
@@ -31,11 +31,25 @@ jobs:
         id: wa
         run: |
           set -e
+        
+          echo "::group::Fetching latest WhatsApp version"
+        
           VERSION=$(curl -fsSL "https://ws75.aptoide.com/api/7/app/getMeta/package_name/com.whatsapp" | jq -r '.data.file.vername')
-          [ -n "$VERSION" ] && [ "$VERSION" != "null" ]
+        
+          if [ -z "$VERSION" ] || [ "$VERSION" = "null" ]; then
+            echo "::error::Failed to fetch latest WhatsApp version"
+            exit 1
+          fi
+        
           PREFIX=$(echo "$VERSION" | cut -d. -f1-3)
+        
           echo "version=$VERSION" >> "$GITHUB_OUTPUT"
           echo "prefix=$PREFIX" >> "$GITHUB_OUTPUT"
+        
+          echo "::notice title=Latest WhatsApp Version::$VERSION"
+          echo "::notice title=Supported Prefix::${PREFIX}.xx"
+        
+          echo "::endgroup::"
 
       - name: Add version to supported arrays
         run: |
@@ -58,13 +72,18 @@ jobs:
           add_item supported_versions_wpp
           add_item supported_versions_business
 
+      - name: Show supported version
+        run: |
+          echo "::notice title=WhatsApp::${{ steps.wa.outputs.version }}"
+          echo "::notice title=Prefix::${{ steps.wa.outputs.prefix }}.xx"
+
       - name: Bump versionCode / versionName
         id: bumpver
         run: |
           set -e
           FILE=app/build.gradle.kts
           CUR_CODE=$(grep -oP 'versionCode\s*=\s*\K[0-9]+' "$FILE")
-          CUR_NAME=$(sed -n 's/.*versionName = "\([^ ]*\).*/\1/p' "$FILE")
+          CUR_NAME=$(sed -n 's/.*versionName = "\([^ ]*\)".*/\1/p' "$FILE")
           NEW_CODE=$((CUR_CODE+1))
           IFS='.' read -r MAJ MIN PATCH <<< "$CUR_NAME"
           case "${{ inputs.bump }}" in
@@ -76,6 +95,13 @@ jobs:
           sed -i "s/versionCode = ${CUR_CODE}/versionCode = ${NEW_CODE}/" "$FILE"
           sed -i "s/versionName = \"${CUR_NAME} (\$gitHash)\"/versionName = \"${NEW_NAME} (\$gitHash)\"/" "$FILE"
           echo "new_name=$NEW_NAME" >> "$GITHUB_OUTPUT"
+
+      - name: Version summary
+        run: |
+          echo "WhatsApp Version : ${{ steps.wa.outputs.version }}"
+          echo "Supported Prefix : ${{ steps.wa.outputs.prefix }}.xx"
+          echo "App Version : ${{ steps.bumpver.outputs.new_name }}"
+          echo "::notice title=Release Version::${{ steps.bumpver.outputs.new_name }}"
 
       - name: Commit
         run: |
@@ -92,6 +118,14 @@ jobs:
           cache: gradle
 
       - run: chmod +x gradlew
+
+      - name: Build info
+        run: |
+          echo "::group::Build Information"
+          echo "WhatsApp : ${{ steps.wa.outputs.version }}"
+          echo "Prefix   : ${{ steps.wa.outputs.prefix }}.xx"
+          echo "Release  : ${{ steps.bumpver.outputs.new_name }}"
+          echo "::endgroup::"
 
       - name: Build
         run: ./gradlew assembleWhatsappDebug assembleBusinessDebug -Pminify=true
