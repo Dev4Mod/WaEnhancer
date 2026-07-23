@@ -1,21 +1,12 @@
 name: Bump Supported WA Version & Release
 
-# Run this AFTER you've manually confirmed the mod still works on the new
-# WhatsApp build. This workflow does not test compatibility for you — it
-# only records the version as supported and cuts a release.
 on:
   workflow_dispatch:
     inputs:
-      wa_version:
-        description: 'New WhatsApp version prefix to mark as supported (e.g. 2.26.27)'
-        required: true
-      wa_business_version:
-        description: 'New WhatsApp Business version prefix (leave blank to reuse wa_version)'
-        required: false
       bump:
-        description: 'Which part of versionName to bump'
+        description: Which part of versionName to bump
         required: true
-        default: 'patch'
+        default: patch
         type: choice
         options:
           - patch
@@ -26,40 +17,46 @@ jobs:
   bump-and-release:
     permissions: write-all
     runs-on: ubuntu-latest
+
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v4
         with:
           submodules: recursive
           fetch-depth: 0
 
-      - name: Add version to supported_versions_wpp / _business
+      - name: Install jq
+        run: sudo apt-get update && sudo apt-get install -y jq
+
+      - name: Get latest WhatsApp version
+        id: wa
+        run: |
+          set -e
+          VERSION=$(curl -fsSL "https://ws75.aptoide.com/api/7/app/getMeta/package_name/com.whatsapp" | jq -r '.data.file.vername')
+          [ -n "$VERSION" ] && [ "$VERSION" != "null" ]
+          PREFIX=$(echo "$VERSION" | cut -d. -f1-3)
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          echo "prefix=$PREFIX" >> "$GITHUB_OUTPUT"
+
+      - name: Add version to supported arrays
         run: |
           set -e
           FILE=app/src/main/res/values/arrays.xml
-          WPP="${{ inputs.wa_version }}.xx"
-          BIZ="${{ inputs.wa_business_version }}"
-          if [ -z "$BIZ" ]; then BIZ="${{ inputs.wa_version }}.xx"; else BIZ="$BIZ.xx"; fi
+          ITEM="${{ steps.wa.outputs.prefix }}.xx"
 
           add_item () {
-            local array_name="$1" item="$2"
-            if grep -q "<item>${item}</item>" "$FILE"; then
-              echo "Already present in $array_name: $item"
+            local array_name="$1"
+            if grep -q "<item>${ITEM}</item>" "$FILE"; then
               return
             fi
-            local start_line end_line
-            start_line=$(grep -n "<string-array name=\"${array_name}\">" "$FILE" | head -n1 | cut -d: -f1)
-            if [ -z "$start_line" ]; then
-              echo "WARNING: array $array_name not found" >&2
-              return 1
-            fi
-            end_line=$(tail -n +"$start_line" "$FILE" | grep -n "</string-array>" | head -n1 | cut -d: -f1)
-            end_line=$((start_line + end_line - 1))
-            sed -i "${end_line}i\\        <item>${item}</item>" "$FILE"
-            echo "Added to $array_name: $item"
+            local s e
+            s=$(grep -n "<string-array name=\"${array_name}\">" "$FILE" | cut -d: -f1 | head -1)
+            e=$(tail -n +"$s" "$FILE" | grep -n "</string-array>" | cut -d: -f1 | head -1)
+            e=$((s+e-1))
+            sed -i "${e}i\\        <item>${ITEM}</item>" "$FILE"
           }
 
-          add_item supported_versions_wpp "$WPP"
-          add_item supported_versions_business "$BIZ"
+          add_item supported_versions_wpp
+          add_item supported_versions_business
 
       - name: Bump versionCode / versionName
         id: bumpver
@@ -68,76 +65,49 @@ jobs:
           FILE=app/build.gradle.kts
           CUR_CODE=$(grep -oP 'versionCode\s*=\s*\K[0-9]+' "$FILE")
           CUR_NAME=$(sed -n 's/.*versionName = "\([^ ]*\).*/\1/p' "$FILE")
-
-          NEW_CODE=$((CUR_CODE + 1))
-
+          NEW_CODE=$((CUR_CODE+1))
           IFS='.' read -r MAJ MIN PATCH <<< "$CUR_NAME"
           case "${{ inputs.bump }}" in
-            patch) PATCH=$((PATCH + 1));;
-            minor) MIN=$((MIN + 1)); PATCH=0;;
-            none)  :;;
+            patch) PATCH=$((PATCH+1));;
+            minor) MIN=$((MIN+1)); PATCH=0;;
+            none) ;;
           esac
-          NEW_NAME="${MAJ}.${MIN}.${PATCH}"
-
+          NEW_NAME="$MAJ.$MIN.$PATCH"
           sed -i "s/versionCode = ${CUR_CODE}/versionCode = ${NEW_CODE}/" "$FILE"
           sed -i "s/versionName = \"${CUR_NAME} (\$gitHash)\"/versionName = \"${NEW_NAME} (\$gitHash)\"/" "$FILE"
-
           echo "new_name=$NEW_NAME" >> "$GITHUB_OUTPUT"
-          echo "new_code=$NEW_CODE" >> "$GITHUB_OUTPUT"
 
-      - name: Commit changes
+      - name: Commit
         run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git config user.name github-actions[bot]
+          git config user.email github-actions[bot]@users.noreply.github.com
           git add app/src/main/res/values/arrays.xml app/build.gradle.kts
-          git commit -m "chore: support WA ${{ inputs.wa_version }} / bump to ${{ steps.bumpver.outputs.new_name }}"
+          git commit -m "chore: support WA ${{ steps.wa.outputs.prefix }} / bump to ${{ steps.bumpver.outputs.new_name }}" || exit 0
           git push
 
-      - name: set up JDK 17
-        uses: actions/setup-java@v5
+      - uses: actions/setup-java@v5
         with:
-          java-version: '17'
-          distribution: 'temurin'
+          java-version: "17"
+          distribution: temurin
           cache: gradle
-          cache-dependency-path: |
-            **/*.gradle*
-            **/gradle-wrapper.properties
-            gradle/libs.versions.toml
-            **/gradle.properties
 
-      - name: Get tag
-        id: vars
-        run: |
-          SHA8=$(git rev-parse --short=8 HEAD)
-          echo "tag=${{ steps.bumpver.outputs.new_name }}-$SHA8" >> "$GITHUB_OUTPUT"
+      - run: chmod +x gradlew
 
-      - name: Write key
-        env:
-          KEY_STORE: ${{ secrets.KEY_STORE }}
-        run: |
-          if [ ! -z "$KEY_STORE" ]; then
-          echo androidStorePassword='${{ secrets.KEY_STORE_PASSWORD }}' >> gradle.properties
-          echo androidKeyAlias='${{ secrets.ALIAS }}' >> gradle.properties
-          echo androidKeyPassword='${{ secrets.KEY_PASSWORD }}' >> gradle.properties
-          echo androidStoreFile='key.jks' >> gradle.properties
-          echo "$KEY_STORE" | base64 --decode > key.jks
-          fi
-
-      - name: Grant execute permission for gradlew
-        run: chmod +x gradlew
-
-      - name: Build all variants
+      - name: Build
         run: ./gradlew assembleWhatsappDebug assembleBusinessDebug -Pminify=true
 
-      - name: Upload to GitHub release
+      - name: Tag
+        id: tag
+        run: |
+          echo "tag=${{ steps.bumpver.outputs.new_name }}-$(git rev-parse --short=8 HEAD)" >> "$GITHUB_OUTPUT"
+
+      - name: Upload Release
         uses: softprops/action-gh-release@v3
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}
+          tag_name: ${{ steps.tag.outputs.tag }}
           name: WaEnhancer ${{ steps.bumpver.outputs.new_name }}
           body: |
-            Adds support for WhatsApp ${{ inputs.wa_version }}.xx
-            ${{ inputs.wa_business_version && format('and WhatsApp Business {0}.xx', inputs.wa_business_version) || '' }}
+            Adds support for WhatsApp ${{ steps.wa.outputs.prefix }}.xx
           files: |
             app/build/outputs/apk/whatsapp/debug/WaEnhancer*.apk
             app/build/outputs/apk/business/debug/WaEnhancer-Business*.apk
-          tag_name: ${{ steps.vars.outputs.tag }}
