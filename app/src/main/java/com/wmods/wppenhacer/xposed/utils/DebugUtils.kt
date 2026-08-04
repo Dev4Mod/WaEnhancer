@@ -19,7 +19,7 @@ object DebugUtils {
                 val name = field.name
                 var value = field[thisObject]
                 if (value != null && value.javaClass.isArray) {
-                    value = Arrays.toString(value as Array<Any>)
+                    value = (value as Array<*>).contentToString()
                 }
                 XposedBridge.log("FIELD: $name -> TYPE: ${field.type.name} -> VALUE: $value")
             } catch (_: Exception) {

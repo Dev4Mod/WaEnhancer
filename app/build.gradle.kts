@@ -12,17 +12,10 @@ plugins {
     alias(libs.plugins.kspPlugin)
 }
 
-fun getGitHashCommit(): String {
-    return try {
-        val processBuilder = ProcessBuilder("git", "rev-parse", "HEAD")
-        val process = processBuilder.start()
-        process.inputStream.bufferedReader().readText().trim().substring(0,8)
-    } catch (_: Exception) {
-        "unknown"
-    }
-}
-
-val gitHash: String = getGitHashCommit().uppercase(Locale.getDefault())
+val gitHash: String = providers.exec {
+    commandLine("git", "rev-parse", "HEAD")
+    isIgnoreExitValue = true
+}.standardOutput.asText.map { it.trim().uppercase(Locale.getDefault()).substring(0,8) }.getOrElse("UNKNOWN")
 
 android {
     namespace = "com.wmods.wppenhacer"

@@ -3,6 +3,7 @@ package com.wmods.wppenhacer.xposed.utils
 import android.content.Context
 import android.content.SharedPreferences
 import android.util.Pair
+import androidx.core.content.edit
 import de.robv.android.xposed.XposedHelpers
 import java.lang.reflect.Constructor
 import java.lang.reflect.Field
@@ -159,7 +160,7 @@ object ReflectionUtils {
     @JvmStatic
     fun getFieldByExtendType(cls: Class<*>?, className: String?): Field? {
         if (cls == null || className == null) return null
-        return getFieldByExtendType(cls, findClass(className, cls.classLoader))
+        return getFieldByExtendType(cls, findClass(className, cls.classLoader!!))
     }
 
     @JvmStatic
@@ -176,14 +177,18 @@ object ReflectionUtils {
             try {
                 return cls.getField(cachedFieldName)
             } catch (_: NoSuchFieldException) {
-                cachePrefs?.edit()?.remove(cacheKey)?.commit()
+                (cachePrefs as SharedPreferences).edit(commit = true){
+                    remove(cacheKey)
+                }
             }
         }
 
         val field = Arrays.stream(cls.fields).filter { f: Field -> type.isAssignableFrom(f.type) }.findFirst().orElse(null)
 
         if (field != null && field.declaringClass == cls) {
-            cachePrefs?.edit()?.putString(cacheKey, field.name)?.commit()
+            (cachePrefs as SharedPreferences).edit(commit = true){
+                putString(cacheKey, field.name)
+            }
         }
 
         return field
@@ -192,7 +197,7 @@ object ReflectionUtils {
     @JvmStatic
     fun getFieldByType(cls: Class<*>?, className: String?): Field? {
         if (cls == null || className == null) return null
-        return getFieldByType(cls, findClass(className, cls.classLoader))
+        return getFieldByType(cls, findClass(className, cls.classLoader!!))
     }
 
 
@@ -322,7 +327,7 @@ object ReflectionUtils {
     @JvmStatic
     fun isCalledFromStrings(vararg fragments: String): Boolean {
         for (fragment in fragments) {
-            require(fragment != null && fragment.trim().isNotEmpty()) { "Stack trace fragments must not be blank." }
+            require(fragment.trim().isNotEmpty()) { "Stack trace fragments must not be blank." }
         }
 
         val trace = Throwable().stackTrace
@@ -348,6 +353,7 @@ object ReflectionUtils {
         if (aClass == null || s == null) return false
         try {
             var cls: Class<*>? = aClass
+            @Suppress("SENSELESS_COMPARISON")
             do {
                 if (cls!!.simpleName == s) return true
                 if (cls.name.startsWith("android.widget.") || cls.name.startsWith("android.view."))

@@ -711,10 +711,8 @@ class Others(loader: ClassLoader, preferences:SharedPreferences) : Feature(loade
                 } else {
                     val auxFace = (param.method as Method).parameterTypes[0]
                     val method = ReflectionUtils.findMethodUsingFilter(auxFace) { m -> m.returnType == View::class.java }
-                    if (method != null) {
-                        val currentActivity = WppCore.getCurrentActivity()
-                        view = method.invoke(param.args[0], currentActivity) as View?
-                    }
+                    val currentActivity = WppCore.getCurrentActivity()
+                    view = method.invoke(param.args[0], currentActivity) as View?
                 }
 
                 if (view != null && (view.id == searchBarID || view.findViewById<View>(searchBarID) != null) && filterChats != "2") {
