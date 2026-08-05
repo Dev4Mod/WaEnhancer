@@ -129,10 +129,7 @@ class MediaQuality(loader: ClassLoader, preferences: SharedPreferences) :
             listOf(1581, 1575, 1578, 6029, 2655, 15749, 2655).forEach {
                 Others.propsInteger[it] = 100
             }
-            Others.propsBoolean[6033] = true
-            Others.propsBoolean[9569] = false
-            Others.propsBoolean[26289] = true
-            Others.propsBoolean[22375] = true
+
             listOf(1576, 2654, 6032, 15748, 3068).forEach { Others.propsInteger[it] = 3840 }
 
             // Prevent crashes in Media preview
