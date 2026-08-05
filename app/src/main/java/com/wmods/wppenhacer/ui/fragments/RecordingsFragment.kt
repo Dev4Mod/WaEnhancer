@@ -34,7 +34,6 @@ class RecordingsFragment : Fragment(), RecordingsAdapter.OnRecordingActionListen
 
     private lateinit var adapter: RecordingsAdapter
     private val allRecordings = ArrayList<Recording>()
-    private val baseDirs = ArrayList<File>()
     private var isGroupByContact = false
     private var currentSortType = 1 // 1=date, 2=name, 3=duration, 4=contact
 
@@ -63,27 +62,7 @@ class RecordingsFragment : Fragment(), RecordingsAdapter.OnRecordingActionListen
             }
         }
 
-        initializeBaseDirs()
-
-        binding.chipList.setOnClickListener {
-            isGroupByContact = false
-            loadRecordings()
-        }
-
-        binding.chipGroupByContact.setOnClickListener {
-            isGroupByContact = true
-            loadRecordings()
-        }
-
-        binding.btnCloseSelection.setOnClickListener { adapter.clearSelection() }
-        binding.btnSelectAll.setOnClickListener { adapter.selectAll() }
-        binding.btnShareSelected.setOnClickListener { shareSelectedRecordings() }
-        binding.btnDeleteSelected.setOnClickListener { deleteSelectedRecordings() }
-
-        binding.fabSort.setOnClickListener { showSortMenu() }
-
         binding.swipeRefresh.setOnRefreshListener {
-            initializeBaseDirs()
             loadRecordings()
         }
 
@@ -93,39 +72,37 @@ class RecordingsFragment : Fragment(), RecordingsAdapter.OnRecordingActionListen
     override fun onResume() {
         super.onResume()
         if (_binding == null) return
-        initializeBaseDirs()
         loadRecordings()
     }
 
-    private fun initializeBaseDirs() {
-        val prefs = PreferenceManager.getDefaultSharedPreferences(requireContext())
+    private fun getBaseDirs(): List<File> {
+        val context = context ?: return emptyList()
+        val prefs = PreferenceManager.getDefaultSharedPreferences(context)
         val configuredPath = prefs.getString("call_recording_path", null)
 
-        baseDirs.clear()
+        val dirs = ArrayList<File>()
         val addedPaths = LinkedHashSet<String>()
 
-        addBaseDir(
-            addedPaths,
-            File(
-                Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS),
-                "WA Call Recordings"
-            )
-        )
+        addBaseDir(dirs, addedPaths, File(
+            Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS),
+            "WA Call Recordings"
+        ))
 
         if (!configuredPath.isNullOrEmpty()) {
-            addBaseDir(addedPaths, File(configuredPath, "WA Call Recordings"))
+            addBaseDir(dirs, addedPaths, File(configuredPath, "WA Call Recordings"))
         }
 
-        addBaseDir(addedPaths, File(Environment.getExternalStorageDirectory(), "WA Call Recordings"))
-        addBaseDir(addedPaths, File("/sdcard/Android/data/com.whatsapp/files/Recordings"))
-        addBaseDir(addedPaths, File("/sdcard/Android/data/com.whatsapp.w4b/files/Recordings"))
-        addBaseDir(addedPaths, File(Environment.getExternalStorageDirectory(), "Music/WaEnhancer/Recordings"))
+        addBaseDir(dirs, addedPaths, File(Environment.getExternalStorageDirectory(), "WA Call Recordings"))
+        addBaseDir(dirs, addedPaths, File("/sdcard/Android/data/com.whatsapp/files/Recordings"))
+        addBaseDir(dirs, addedPaths, File("/sdcard/Android/data/com.whatsapp.w4b/files/Recordings"))
+        addBaseDir(dirs, addedPaths, File(Environment.getExternalStorageDirectory(), "Music/WaEnhancer/Recordings"))
+        return dirs
     }
 
-    private fun addBaseDir(addedPaths: MutableSet<String>, dir: File) {
+    private fun addBaseDir(dirs: MutableList<File>, addedPaths: MutableSet<String>, dir: File) {
         val normalizedPath = normalizePath(dir)
         if (addedPaths.add(normalizedPath)) {
-            baseDirs.add(dir)
+            dirs.add(dir)
         }
     }
 
@@ -141,6 +118,7 @@ class RecordingsFragment : Fragment(), RecordingsAdapter.OnRecordingActionListen
         if (_binding == null) return
 
         binding.swipeRefresh.isRefreshing = true
+        val baseDirs = getBaseDirs()
 
         viewLifecycleOwner.lifecycleScope.launch(Dispatchers.IO) {
             val loaded = ArrayList<Recording>()
