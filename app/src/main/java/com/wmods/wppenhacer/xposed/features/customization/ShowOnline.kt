@@ -158,12 +158,15 @@ class ShowOnline(loader: ClassLoader, preferences:SharedPreferences) : Feature(l
             sendPresenceMethod!!.declaringClass, tcTokenMethod!!.declaringClass
         )
 
+        val tokenConstructor = tokenClass?.constructors?.firstOrNull()
+
         ContactItemListener.contactListeners.add(object : ContactItemListener.OnContactItemListener() {
             @SuppressLint("ResourceType")
             override fun onBind(waContact: WaContactWpp?, view: View?) {
                 try {
-                    val userJid = waContact!!.userJid
-                    if (userJid.isGroup) return
+                    val contact = waContact ?: return
+                    val userJid = contact.userJid
+                    if (userJid.isNull || userJid.isGroup) return
 
                     val csDot: ImageView? = if (showOnlineIcon) view?.findViewById(0x7FFF0001) else null
                     if (showOnlineIcon && csDot != null) {
@@ -171,13 +174,19 @@ class ShowOnline(loader: ClassLoader, preferences:SharedPreferences) : Feature(l
                     }
                     val lastSeenText: TextView? = if (showOnlineText) view?.findViewById(0x7FFF0002) else null
 
-                    val tokenDBInstance = fieldTokenDBInstance!!.get(mInstancePresence)
-                    val tokenData = ReflectionUtils.callMethod(tcTokenMethod, tokenDBInstance, userJid.userJid)
-                    val tokenObj = tokenClass!!.constructors[0].newInstance(
+                    val presence = mInstancePresence ?: return
+                    val tokenDBField = fieldTokenDBInstance ?: return
+                    val tcMethod = tcTokenMethod ?: return
+                    val statusMethod = getStatusUser ?: return
+                    val sendMethod = sendPresenceMethod ?: return
+
+                    val tokenDBInstance = tokenDBField.get(presence)
+                    val tokenData = ReflectionUtils.callMethod(tcMethod, tokenDBInstance, userJid.userJid)
+                    val tokenObj = tokenConstructor?.newInstance(
                         if (tokenData == null) null else XposedHelpers.getObjectField(tokenData, "A01")
                     )
-                    sendPresenceMethod!!.invoke(null, userJid.userJid, null, tokenObj, mInstancePresence)
-                    val status = ReflectionUtils.callMethod(getStatusUser, mStatusUser, waContact.getObject(), false) as String
+                    sendMethod.invoke(null, userJid.userJid, null, tokenObj, presence)
+                    val status = ReflectionUtils.callMethod(statusMethod, mStatusUser, contact.getObject(), false) as? String
                     setStatus(status, csDot, lastSeenText)
                 } catch (e: Exception) {
                     XposedBridge.log(e)
