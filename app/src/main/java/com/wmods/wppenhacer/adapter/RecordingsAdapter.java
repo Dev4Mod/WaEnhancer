@@ -24,15 +24,12 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Set;
 
-import lombok.Setter;
-
 public class RecordingsAdapter extends RecyclerView.Adapter<RecordingsAdapter.ViewHolder> {
 
     private List<Recording> recordings = new ArrayList<>();
     private final OnRecordingActionListener listener;
     private boolean isSelectionMode = false;
     private final Set<Integer> selectedPositions = new HashSet<>();
-    @Setter
     private OnSelectionChangeListener selectionChangeListener;
 
     public interface OnRecordingActionListener {
@@ -48,6 +45,10 @@ public class RecordingsAdapter extends RecyclerView.Adapter<RecordingsAdapter.Vi
 
     public RecordingsAdapter(OnRecordingActionListener listener) {
         this.listener = listener;
+    }
+
+    public void setSelectionChangeListener(OnSelectionChangeListener selectionChangeListener) {
+        this.selectionChangeListener = selectionChangeListener;
     }
 
     public void setRecordings(List<Recording> recordings) {

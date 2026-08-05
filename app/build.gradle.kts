@@ -202,8 +202,6 @@ dependencies {
     implementation(libs.betterypermissionhelper)
     implementation(libs.bcpkix.jdk18on)
     implementation(libs.arscblamer)
-    compileOnly(libs.lombok)
-    annotationProcessor(libs.lombok)
     implementation(libs.markwon.core)
     implementation(libs.remote.preferences)
 }
