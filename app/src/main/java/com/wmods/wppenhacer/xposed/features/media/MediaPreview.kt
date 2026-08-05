@@ -237,95 +237,99 @@ class MediaPreview(
     @SuppressLint("SetTextI18n")
     private fun startPlayer(id: Long, context: Context, isNewsletter: Boolean) {
         val executor: ExecutorService = Executors.newSingleThreadExecutor()
-        try {
-            val query = String.format(
-                Locale.ENGLISH,
-                "SELECT message_url,mime_type,hex(media_key),direct_path,file_length FROM message_media WHERE message_row_id =\"%d\"",
-                id
-            )
-            val cursor0 = MessageStore.getInstance().getDatabase()?.rawQuery(query, null)
+        executor.execute {
+            try {
+                val query = String.format(
+                    Locale.ENGLISH,
+                    "SELECT message_url,mime_type,hex(media_key),direct_path,file_length FROM message_media WHERE message_row_id =\"%d\"",
+                    id
+                )
+                val cursor0 = MessageStore.getInstance().getDatabase()?.rawQuery(query, null)
 
-            cursor0?.use { cursor ->
-                if (cursor.count > 0) {
-                    cursor.moveToFirst()
-                    var url = cursor.getString(0)
-                    val mimeType = cursor.getString(1)
-                    val mediaKey = cursor.getString(2)
-                    val directPath = cursor.getString(3)
-                    val fileLength = cursor.getLong(4)
+                cursor0?.use { cursor ->
+                    if (cursor.count > 0) {
+                        cursor.moveToFirst()
+                        var url = cursor.getString(0)
+                        val mimeType = cursor.getString(1)
+                        val mediaKey = cursor.getString(2)
+                        val directPath = cursor.getString(3)
+                        val fileLength = cursor.getLong(4)
 
-                    if (isNewsletter) {
-                        url = "https://mmg.whatsapp.net$directPath"
-                    }
-
-                    dialog =
-                        Dialog(context, android.R.style.Theme_Black_NoTitleBar_Fullscreen).apply {
-                            requestWindowFeature(Window.FEATURE_NO_TITLE)
-                            setCancelable(true)
-                            window?.let { window ->
-                                window.setBackgroundDrawable("#E6000000".toColorInt().toDrawable())
-                                window.setLayout(
-                                    WindowManager.LayoutParams.MATCH_PARENT,
-                                    WindowManager.LayoutParams.MATCH_PARENT
-                                )
-                                window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
-                            }
+                        if (isNewsletter) {
+                            url = "https://mmg.whatsapp.net$directPath"
                         }
 
-                    val mainContainer = RelativeLayout(context).apply {
-                        layoutParams = ViewGroup.LayoutParams(
-                            ViewGroup.LayoutParams.MATCH_PARENT,
-                            ViewGroup.LayoutParams.MATCH_PARENT
-                        )
-                        setBackgroundColor(Color.TRANSPARENT)
-                    }
+                        val mainHandler = Handler(Looper.getMainLooper())
+                        mainHandler.post {
+                            dialog = Dialog(context, android.R.style.Theme_Black_NoTitleBar_Fullscreen).apply {
+                                requestWindowFeature(Window.FEATURE_NO_TITLE)
+                                setCancelable(true)
+                                window?.let { window ->
+                                    window.setBackgroundDrawable("#E6000000".toColorInt().toDrawable())
+                                    window.setLayout(
+                                        WindowManager.LayoutParams.MATCH_PARENT,
+                                        WindowManager.LayoutParams.MATCH_PARENT
+                                    )
+                                    window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+                                }
+                            }
 
-                    val header = createHeader(context, mimeType)
-                    mainContainer.addView(header)
+                            val mainContainer = RelativeLayout(context).apply {
+                                layoutParams = ViewGroup.LayoutParams(
+                                    ViewGroup.LayoutParams.MATCH_PARENT,
+                                    ViewGroup.LayoutParams.MATCH_PARENT
+                                )
+                                setBackgroundColor(Color.TRANSPARENT)
+                            }
 
-                    val contentContainer = FrameLayout(context).apply {
-                        val contentParams = RelativeLayout.LayoutParams(
-                            RelativeLayout.LayoutParams.MATCH_PARENT,
-                            RelativeLayout.LayoutParams.MATCH_PARENT
-                        )
-                        contentParams.addRule(RelativeLayout.BELOW, header.id)
-                        layoutParams = contentParams
-                        this.id = View.generateViewId()
-                    }
-                    mainContainer.addView(contentContainer)
+                            val header = createHeader(context, mimeType)
+                            mainContainer.addView(header)
 
-                    val loadingContainer = createLoadingView(context)
-                    contentContainer.addView(loadingContainer)
+                            val contentContainer = FrameLayout(context).apply {
+                                val contentParams = RelativeLayout.LayoutParams(
+                                    RelativeLayout.LayoutParams.MATCH_PARENT,
+                                    RelativeLayout.LayoutParams.MATCH_PARENT
+                                )
+                                contentParams.addRule(RelativeLayout.BELOW, header.id)
+                                layoutParams = contentParams
+                                this.id = View.generateViewId()
+                            }
+                            mainContainer.addView(contentContainer)
 
-                    val progressBar = loadingContainer.getChildAt(0) as ProgressBar
-                    val progressText = loadingContainer.getChildAt(1) as TextView
+                            val loadingContainer = createLoadingView(context)
+                            contentContainer.addView(loadingContainer)
 
-                    dialog?.setContentView(mainContainer)
-                    dialog?.setOnDismissListener { cleanupResources(executor) }
-                    dialog?.show()
+                            val progressBar = loadingContainer.getChildAt(0) as ProgressBar
+                            val progressText = loadingContainer.getChildAt(1) as TextView
 
-                    val finalUrl = url
-                    executor.execute {
-                        downloadAndDisplayMedia(
-                            finalUrl,
-                            mediaKey,
-                            mimeType,
-                            fileLength,
-                            isNewsletter,
-                            context,
-                            contentContainer,
-                            loadingContainer,
-                            progressBar,
-                            progressText,
-                            executor
-                        )
+                            dialog?.setContentView(mainContainer)
+                            dialog?.setOnDismissListener { cleanupResources(executor) }
+                            dialog?.show()
+
+                            val finalUrl = url
+                            executor.execute {
+                                downloadAndDisplayMedia(
+                                    finalUrl,
+                                    mediaKey,
+                                    mimeType,
+                                    fileLength,
+                                    isNewsletter,
+                                    context,
+                                    contentContainer,
+                                    loadingContainer,
+                                    progressBar,
+                                    progressText,
+                                    executor
+                                )
+                            }
+                        }
                     }
                 }
+            } catch (e: Exception) {
+                logDebug(e)
+                Utils.showToast(e.message, Toast.LENGTH_LONG)
+                cleanupDialog(executor)
             }
-        } catch (e: Exception) {
-            logDebug(e)
-            Utils.showToast(e.message, Toast.LENGTH_LONG)
-            cleanupDialog(executor)
         }
     }
 

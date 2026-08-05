@@ -16,6 +16,8 @@ import android.graphics.drawable.BitmapDrawable
 import android.graphics.drawable.Drawable
 import android.graphics.drawable.ShapeDrawable
 import android.graphics.drawable.shapes.RectShape
+import android.os.Handler
+import android.os.Looper
 import android.text.TextUtils
 import android.util.DisplayMetrics
 import android.util.Log
@@ -434,10 +436,13 @@ class CustomView(loader: ClassLoader, preferences:SharedPreferences) : Feature(l
                 "alpha", "opacity" -> view.alpha = terms[0].numValue
                 "background-image" -> {
                     if (terms[0].type != SerialTerm.URI) continue
-                    val draw = cacheImages?.getDrawable(terms[0].strValue, view.width, view.height) ?: continue
                     if (forcedBackgroundMap.containsKey(view) || forcedDrawableMap.containsKey(view))
                         continue
-                    setHookedDrawable(view, draw)
+                    cacheImages?.getDrawableAsync(terms[0].strValue, view.width, view.height) { draw ->
+                        if (draw != null && !forcedBackgroundMap.containsKey(view) && !forcedDrawableMap.containsKey(view)) {
+                            setHookedDrawable(view, draw)
+                        }
+                    }
                 }
                 "background-size" -> {
                     if (terms[0].type == SerialTerm.LENGTH) {
@@ -506,8 +511,11 @@ class CustomView(loader: ClassLoader, preferences:SharedPreferences) : Feature(l
                         continue
                     }
                     if (t0.type == SerialTerm.URI) {
-                        val draw = cacheImages?.getDrawable(t0.strValue, view.width, view.height) ?: continue
-                        setHookedDrawable(view, draw)
+                        cacheImages?.getDrawableAsync(t0.strValue, view.width, view.height) { draw ->
+                            if (draw != null) {
+                                setHookedDrawable(view, draw)
+                            }
+                        }
                         continue
                     }
                     if (t0.type == SerialTerm.STRING && t0.strValue == "none") {
@@ -524,8 +532,11 @@ class CustomView(loader: ClassLoader, preferences:SharedPreferences) : Feature(l
                         continue
                     }
                     if (t0.type == SerialTerm.URI) {
-                        val draw = cacheImages?.getDrawable(t0.strValue, view.width, view.height) ?: continue
-                        view.foreground = draw
+                        cacheImages?.getDrawableAsync(t0.strValue, view.width, view.height) { draw ->
+                            if (draw != null) {
+                                view.foreground = draw
+                            }
+                        }
                         continue
                     }
                     if (t0.type == SerialTerm.STRING && t0.strValue == "none") {
@@ -826,18 +837,42 @@ class CustomView(loader: ClassLoader, preferences:SharedPreferences) : Feature(l
                 if (cachedDrawable.lastModified == lastModified) return cachedDrawable.drawable
             }
 
-            val cached = loadDrawableFromCache(key, lastModified)
-            if (cached != null) {
-                val entry = CachedDrawable(cached, lastModified)
-                drawableCache.put(key, entry)
-                return cached
-            }
+            return null
+        }
 
-            val drawable = loadDrawableFromFile(key, width, height) ?: return null
-            saveDrawableToCache(key, drawable as BitmapDrawable, lastModified)
-            val entry = CachedDrawable(drawable, lastModified)
-            drawableCache.put(key, entry)
-            return drawable
+        fun getDrawableAsync(filePath: String, width: Int, height: Int, callback: (Drawable?) -> Unit) {
+            val cachedSync = getDrawable(filePath, width, height)
+            if (cachedSync != null) {
+                callback(cachedSync)
+                return
+            }
+            Utils.executor.execute {
+                val file = if (filePath.startsWith("/")) File(filePath) else File(themeDir, filePath)
+                if (!file.exists()) {
+                    Handler(Looper.getMainLooper()).post { callback(null) }
+                    return@execute
+                }
+                val key = file.absolutePath
+                val lastModified = file.lastModified()
+
+                val cached = loadDrawableFromCache(key, lastModified)
+                val drawable = if (cached != null) {
+                    cached
+                } else {
+                    val loaded = loadDrawableFromFile(key, width, height)
+                    if (loaded is BitmapDrawable) {
+                        saveDrawableToCache(key, loaded, lastModified)
+                    }
+                    loaded
+                }
+
+                if (drawable != null) {
+                    val entry = CachedDrawable(drawable, lastModified)
+                    drawableCache.put(key, entry)
+                }
+
+                Handler(Looper.getMainLooper()).post { callback(drawable) }
+            }
         }
 
         private fun loadDrawableFromFile(filePath: String, reqWidth: Int, reqHeight: Int): Drawable? {

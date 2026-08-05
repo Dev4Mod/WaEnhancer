@@ -33,7 +33,7 @@ object RootDiagnostics {
 
     data class LogEntry(val message: String, val type: LogType = LogType.INFO)
 
-    interface Callback {
+    fun interface Callback {
         fun onLog(entry: LogEntry)
     }
 

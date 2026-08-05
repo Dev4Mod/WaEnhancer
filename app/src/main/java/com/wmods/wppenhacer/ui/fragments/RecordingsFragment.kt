@@ -1,339 +1,326 @@
-package com.wmods.wppenhacer.ui.fragments;
+package com.wmods.wppenhacer.ui.fragments
 
-import android.app.AlertDialog;
-import android.content.Intent;
-import android.net.Uri;
-import android.os.Bundle;
-import android.os.Environment;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.PopupMenu;
-import android.widget.Toast;
+import android.app.AlertDialog
+import android.content.Intent
+import android.net.Uri
+import android.os.Bundle
+import android.os.Environment
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
+import android.widget.PopupMenu
+import android.widget.Toast
+import androidx.core.content.FileProvider
+import androidx.fragment.app.Fragment
+import androidx.lifecycle.lifecycleScope
+import androidx.preference.PreferenceManager
+import androidx.recyclerview.widget.LinearLayoutManager
+import com.wmods.wppenhacer.R
+import com.wmods.wppenhacer.adapter.RecordingsAdapter
+import com.wmods.wppenhacer.databinding.FragmentRecordingsBinding
+import com.wmods.wppenhacer.model.Recording
+import com.wmods.wppenhacer.ui.dialogs.AudioPlayerDialog
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import java.io.File
+import java.io.IOException
+import java.util.LinkedHashSet
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.core.content.FileProvider;
-import androidx.fragment.app.Fragment;
-import androidx.preference.PreferenceManager;
-import androidx.recyclerview.widget.LinearLayoutManager;
+class RecordingsFragment : Fragment(), RecordingsAdapter.OnRecordingActionListener {
 
-import com.wmods.wppenhacer.R;
-import com.wmods.wppenhacer.adapter.RecordingsAdapter;
-import com.wmods.wppenhacer.databinding.FragmentRecordingsBinding;
-import com.wmods.wppenhacer.model.Recording;
-import com.wmods.wppenhacer.ui.dialogs.AudioPlayerDialog;
+    private var _binding: FragmentRecordingsBinding? = null
+    private val binding get() = _binding!!
 
-import java.io.File;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Set;
+    private lateinit var adapter: RecordingsAdapter
+    private val allRecordings = ArrayList<Recording>()
+    private val baseDirs = ArrayList<File>()
+    private var isGroupByContact = false
+    private var currentSortType = 1 // 1=date, 2=name, 3=duration, 4=contact
 
-public class RecordingsFragment extends Fragment implements RecordingsAdapter.OnRecordingActionListener {
-
-    private FragmentRecordingsBinding binding;
-    private RecordingsAdapter adapter;
-    private List<Recording> allRecordings = new ArrayList<>();
-    private List<File> baseDirs = new ArrayList<>();
-    private boolean isGroupByContact = false;
-    private int currentSortType = 1; // 1=date, 2=name, 3=duration, 4=contact
-
-    @Nullable
-    @Override
-    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        binding = FragmentRecordingsBinding.inflate(inflater, container, false);
-        return binding.getRoot();
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View {
+        _binding = FragmentRecordingsBinding.inflate(inflater, container, false)
+        return binding.root
     }
 
-    @Override
-    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
-        super.onViewCreated(view, savedInstanceState);
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
 
-        adapter = new RecordingsAdapter(this);
-        binding.recyclerView.setLayoutManager(new LinearLayoutManager(requireContext()));
-        binding.recyclerView.setAdapter(adapter);
+        adapter = RecordingsAdapter(this)
+        binding.recyclerView.layoutManager = LinearLayoutManager(requireContext())
+        binding.recyclerView.adapter = adapter
 
-        // Set up selection change listener
-        adapter.setSelectionChangeListener(count -> {
+        adapter.setSelectionChangeListener { count ->
             if (count > 0) {
-                binding.selectionBar.setVisibility(View.VISIBLE);
-                binding.tvSelectionCount.setText(getString(R.string.selected_count, count));
+                binding.selectionBar.visibility = View.VISIBLE
+                binding.tvSelectionCount.text = getString(R.string.selected_count, count)
             } else {
-                binding.selectionBar.setVisibility(View.GONE);
+                binding.selectionBar.visibility = View.GONE
             }
-        });
+        }
 
-        // Initialize base directories
-        initializeBaseDirs();
+        initializeBaseDirs()
 
-        // View mode toggle
-        binding.chipList.setOnClickListener(v -> {
-            isGroupByContact = false;
-            loadRecordings();
-        });
-        
-        binding.chipGroupByContact.setOnClickListener(v -> {
-            isGroupByContact = true;
-            loadRecordings();
-        });
+        binding.chipList.setOnClickListener {
+            isGroupByContact = false
+            loadRecordings()
+        }
 
-        // Selection bar buttons
-        binding.btnCloseSelection.setOnClickListener(v -> adapter.clearSelection());
-        binding.btnSelectAll.setOnClickListener(v -> adapter.selectAll());
-        binding.btnShareSelected.setOnClickListener(v -> shareSelectedRecordings());
-        binding.btnDeleteSelected.setOnClickListener(v -> deleteSelectedRecordings());
+        binding.chipGroupByContact.setOnClickListener {
+            isGroupByContact = true
+            loadRecordings()
+        }
 
-        // Sort FAB
-        binding.fabSort.setOnClickListener(v -> showSortMenu());
+        binding.btnCloseSelection.setOnClickListener { adapter.clearSelection() }
+        binding.btnSelectAll.setOnClickListener { adapter.selectAll() }
+        binding.btnShareSelected.setOnClickListener { shareSelectedRecordings() }
+        binding.btnDeleteSelected.setOnClickListener { deleteSelectedRecordings() }
 
-        binding.swipeRefresh.setOnRefreshListener(() -> {
-            initializeBaseDirs();
-            loadRecordings();
-        });
+        binding.fabSort.setOnClickListener { showSortMenu() }
 
-        loadRecordings();
+        binding.swipeRefresh.setOnRefreshListener {
+            initializeBaseDirs()
+            loadRecordings()
+        }
+
+        loadRecordings()
     }
 
-    @Override
-    public void onResume() {
-        super.onResume();
-        if (binding == null) return;
-        initializeBaseDirs();
-        loadRecordings();
+    override fun onResume() {
+        super.onResume()
+        if (_binding == null) return
+        initializeBaseDirs()
+        loadRecordings()
     }
 
-    private void initializeBaseDirs() {
-        var prefs = PreferenceManager.getDefaultSharedPreferences(requireContext());
-        String configuredPath = prefs.getString("call_recording_path", null);
+    private fun initializeBaseDirs() {
+        val prefs = PreferenceManager.getDefaultSharedPreferences(requireContext())
+        val configuredPath = prefs.getString("call_recording_path", null)
 
-        baseDirs.clear();
-        Set<String> addedPaths = new LinkedHashSet<>();
+        baseDirs.clear()
+        val addedPaths = LinkedHashSet<String>()
 
-        // 1. Current default location used by CallRecording
-        addBaseDir(addedPaths, new File(
+        addBaseDir(
+            addedPaths,
+            File(
                 Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS),
                 "WA Call Recordings"
-        ));
+            )
+        )
 
-        // 2. User configured location from shared preferences
-        if (configuredPath != null && !configuredPath.isEmpty()) {
-            addBaseDir(addedPaths, new File(configuredPath, "WA Call Recordings"));
+        if (!configuredPath.isNullOrEmpty()) {
+            addBaseDir(addedPaths, File(configuredPath, "WA Call Recordings"))
         }
 
-        // 3. Legacy root folder from older versions
-        addBaseDir(addedPaths, new File(Environment.getExternalStorageDirectory(), "WA Call Recordings"));
-
-        // 4. WhatsApp app external files
-        addBaseDir(addedPaths, new File("/sdcard/Android/data/com.whatsapp/files/Recordings"));
-        addBaseDir(addedPaths, new File("/sdcard/Android/data/com.whatsapp.w4b/files/Recordings"));
-
-        // 5. Legacy fallback
-        addBaseDir(addedPaths, new File(Environment.getExternalStorageDirectory(), "Music/WaEnhancer/Recordings"));
+        addBaseDir(addedPaths, File(Environment.getExternalStorageDirectory(), "WA Call Recordings"))
+        addBaseDir(addedPaths, File("/sdcard/Android/data/com.whatsapp/files/Recordings"))
+        addBaseDir(addedPaths, File("/sdcard/Android/data/com.whatsapp.w4b/files/Recordings"))
+        addBaseDir(addedPaths, File(Environment.getExternalStorageDirectory(), "Music/WaEnhancer/Recordings"))
     }
 
-    private void addBaseDir(@NonNull Set<String> addedPaths, @NonNull File dir) {
-        String normalizedPath = normalizePath(dir);
+    private fun addBaseDir(addedPaths: MutableSet<String>, dir: File) {
+        val normalizedPath = normalizePath(dir)
         if (addedPaths.add(normalizedPath)) {
-            baseDirs.add(dir);
+            baseDirs.add(dir)
         }
     }
 
-    @NonNull
-    private String normalizePath(@NonNull File dir) {
-        try {
-            return dir.getCanonicalPath();
-        } catch (IOException ignored) {
-            return dir.getAbsolutePath();
+    private fun normalizePath(dir: File): String {
+        return try {
+            dir.canonicalPath
+        } catch (ignored: IOException) {
+            dir.absolutePath
         }
     }
 
-    private void loadRecordings() {
-        if (binding == null) {
-            return;
-        }
+    private fun loadRecordings() {
+        if (_binding == null) return
 
-        allRecordings.clear();
+        binding.swipeRefresh.isRefreshing = true
 
-        try {
-            for (File baseDir : baseDirs) {
-                if (baseDir.exists() && baseDir.isDirectory()) {
-                    traverseDirectory(baseDir);
+        viewLifecycleOwner.lifecycleScope.launch(Dispatchers.IO) {
+            val loaded = ArrayList<Recording>()
+            for (baseDir in baseDirs) {
+                if (baseDir.exists() && baseDir.isDirectory) {
+                    traverseDirectory(baseDir, loaded)
                 }
             }
 
-            if (allRecordings.isEmpty()) {
-                binding.emptyView.setVisibility(View.VISIBLE);
-                binding.recyclerView.setVisibility(View.GONE);
+            applySort(loaded)
+
+            withContext(Dispatchers.Main) {
+                if (_binding == null) return@withContext
+                allRecordings.clear()
+                allRecordings.addAll(loaded)
+                binding.swipeRefresh.isRefreshing = false
+
+                if (allRecordings.isEmpty()) {
+                    binding.emptyView.visibility = View.VISIBLE
+                    binding.recyclerView.visibility = View.GONE
+                } else {
+                    binding.emptyView.visibility = View.GONE
+                    binding.recyclerView.visibility = View.VISIBLE
+                    adapter.setRecordings(allRecordings)
+                }
+            }
+        }
+    }
+
+    private fun traverseDirectory(dir: File, result: MutableList<Recording>) {
+        val files = dir.listFiles() ?: return
+        for (file in files) {
+            if (file.isDirectory) {
+                traverseDirectory(file, result)
             } else {
-                binding.emptyView.setVisibility(View.GONE);
-                binding.recyclerView.setVisibility(View.VISIBLE);
-
-                // Apply sorting
-                applySort();
-
-                if (isGroupByContact) {
-                    // For group by contact, we'll navigate to ContactRecordingsActivity when a contact is clicked
-                    // For now, just show sorted list (full group UI needs ContactRecordingsActivity)
-                    adapter.setRecordings(allRecordings);
-                } else {
-                    adapter.setRecordings(allRecordings);
-                }
-            }
-        } finally {
-            binding.swipeRefresh.setRefreshing(false);
-        }
-    }
-
-    private void traverseDirectory(File dir) {
-        File[] files = dir.listFiles();
-        if (files != null) {
-            for (File file : files) {
-                if (file.isDirectory()) {
-                    traverseDirectory(file);
-                } else {
-                    String name = file.getName().toLowerCase();
-                    if (name.endsWith(".wav") || name.endsWith(".mp3") || name.endsWith(".aac") || name.endsWith(".m4a")) {
-                        allRecordings.add(new Recording(file));
-                    }
+                val name = file.name.lowercase()
+                if (name.endsWith(".wav") || name.endsWith(".mp3") || name.endsWith(".aac") || name.endsWith(".m4a")) {
+                    result.add(Recording(file))
                 }
             }
         }
     }
 
-    private void applySort() {
-        switch (currentSortType) {
-            case 1 -> allRecordings.sort((r1, r2) -> Long.compare(r2.getDate(), r1.getDate())); // Date desc
-            case 2 -> allRecordings.sort(Comparator.comparing(Recording::getContactName)); // Name
-            case 3 -> allRecordings.sort((r1, r2) -> Long.compare(r2.getDuration(), r1.getDuration())); // Duration desc
-            case 4 -> allRecordings.sort(Comparator.comparing(Recording::getContactName)
-                    .thenComparing((r1, r2) -> Long.compare(r2.getDate(), r1.getDate()))); // Contact then date
+    private fun applySort(list: MutableList<Recording>) {
+        when (currentSortType) {
+            1 -> list.sortWith { r1, r2 -> r2.date.compareTo(r1.date) }
+            2 -> list.sortWith(compareBy { it.contactName })
+            3 -> list.sortWith { r1, r2 -> r2.duration.compareTo(r1.duration) }
+            4 -> list.sortWith(compareBy<Recording> { it.contactName }.thenByDescending { it.date })
         }
     }
 
-    private void showSortMenu() {
-        PopupMenu popup = new PopupMenu(requireContext(), binding.fabSort);
-        popup.getMenu().add(0, 1, 0, R.string.sort_date);
-        popup.getMenu().add(0, 2, 0, R.string.sort_name);
-        popup.getMenu().add(0, 3, 0, R.string.sort_duration);
-        popup.getMenu().add(0, 4, 0, R.string.sort_contact);
-        
-        popup.setOnMenuItemClickListener(item -> {
-            currentSortType = item.getItemId();
-            applySort();
-            adapter.setRecordings(allRecordings);
-            return true;
-        });
-        popup.show();
-    }
+    private fun showSortMenu() {
+        val popup = PopupMenu(requireContext(), binding.fabSort)
+        popup.menu.add(0, 1, 0, R.string.sort_date)
+        popup.menu.add(0, 2, 0, R.string.sort_name)
+        popup.menu.add(0, 3, 0, R.string.sort_duration)
+        popup.menu.add(0, 4, 0, R.string.sort_contact)
 
-    // RecordingsAdapter.OnRecordingActionListener implementation
-
-    @Override
-    public void onPlay(Recording recording) {
-        // Use in-app audio player
-        AudioPlayerDialog dialog = new AudioPlayerDialog(requireContext(), recording.getFile());
-        dialog.show();
-    }
-
-    @Override
-    public void onShare(Recording recording) {
-        shareRecording(recording.getFile());
-    }
-
-    @Override
-    public void onDelete(Recording recording) {
-        new AlertDialog.Builder(requireContext())
-                .setTitle(R.string.delete_confirmation)
-                .setMessage(recording.getFile().getName())
-                .setPositiveButton(android.R.string.yes, (dialog, which) -> {
-                    if (recording.getFile().delete()) {
-                        loadRecordings();
-                    } else {
-                        Toast.makeText(requireContext(), "Failed to delete", Toast.LENGTH_SHORT).show();
-                    }
-                })
-                .setNegativeButton(android.R.string.no, null)
-                .show();
-    }
-
-    @Override
-    public void onLongPress(Recording recording, int position) {
-        // Enter selection mode
-        adapter.setSelectionMode(true);
-        adapter.toggleSelection(position);
-    }
-
-    private void shareRecording(File file) {
-        try {
-            Uri uri = FileProvider.getUriForFile(requireContext(), 
-                    requireContext().getPackageName() + ".fileprovider", file);
-            Intent intent = new Intent(Intent.ACTION_SEND);
-            intent.setType("audio/*");
-            intent.putExtra(Intent.EXTRA_STREAM, uri);
-            intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-            startActivity(Intent.createChooser(intent, getString(R.string.share_recording)));
-        } catch (Exception e) {
-            Toast.makeText(requireContext(), "Error sharing: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+        popup.setOnMenuItemClickListener { item ->
+            currentSortType = item.itemId
+            loadRecordings()
+            true
         }
+        popup.show()
     }
 
-    private void shareSelectedRecordings() {
-        List<Recording> selected = adapter.getSelectedRecordings();
-        if (selected.isEmpty()) return;
-
-        if (selected.size() == 1) {
-            shareRecording(selected.get(0).getFile());
-            adapter.clearSelection();
-            return;
-        }
-
-        ArrayList<Uri> uris = new ArrayList<>();
-        for (Recording rec : selected) {
-            try {
-                Uri uri = FileProvider.getUriForFile(requireContext(),
-                        requireContext().getPackageName() + ".fileprovider", rec.getFile());
-                uris.add(uri);
-            } catch (Exception ignored) {}
-        }
-
-        if (!uris.isEmpty()) {
-            Intent intent = new Intent(Intent.ACTION_SEND_MULTIPLE);
-            intent.setType("audio/*");
-            intent.putParcelableArrayListExtra(Intent.EXTRA_STREAM, uris);
-            intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-            startActivity(Intent.createChooser(intent, getString(R.string.share_recordings)));
-        }
-        adapter.clearSelection();
+    override fun onPlay(recording: Recording) {
+        val dialog = AudioPlayerDialog(requireContext(), recording.file)
+        dialog.show()
     }
 
-    private void deleteSelectedRecordings() {
-        List<Recording> selected = adapter.getSelectedRecordings();
-        if (selected.isEmpty()) return;
+    override fun onShare(recording: Recording) {
+        shareRecording(recording.file)
+    }
 
-        new AlertDialog.Builder(requireContext())
-                .setTitle(R.string.delete_confirmation)
-                .setMessage(getString(R.string.delete_multiple_confirmation, selected.size()))
-                .setPositiveButton(android.R.string.yes, (dialog, which) -> {
-                    int deleted = 0;
-                    for (Recording rec : selected) {
-                        if (rec.getFile().delete()) {
-                            deleted++;
+    override fun onDelete(recording: Recording) {
+        AlertDialog.Builder(requireContext())
+            .setTitle(R.string.delete_confirmation)
+            .setMessage(recording.file.name)
+            .setPositiveButton(android.R.string.yes) { _, _ ->
+                viewLifecycleOwner.lifecycleScope.launch(Dispatchers.IO) {
+                    val deleted = recording.file.delete()
+                    withContext(Dispatchers.Main) {
+                        if (deleted) {
+                            loadRecordings()
+                        } else {
+                            Toast.makeText(requireContext(), "Failed to delete", Toast.LENGTH_SHORT).show()
                         }
                     }
-                    Toast.makeText(requireContext(), "Deleted " + deleted + " recordings", Toast.LENGTH_SHORT).show();
-                    adapter.clearSelection();
-                    loadRecordings();
-                })
-                .setNegativeButton(android.R.string.no, null)
-                .show();
+                }
+            }
+            .setNegativeButton(android.R.string.no, null)
+            .show()
     }
 
-    @Override
-    public void onDestroyView() {
-        super.onDestroyView();
-        binding = null;
+    override fun onLongPress(recording: Recording, position: Int) {
+        adapter.setSelectionMode(true)
+        adapter.toggleSelection(position)
+    }
+
+    private fun shareRecording(file: File) {
+        try {
+            val uri = FileProvider.getUriForFile(
+                requireContext(),
+                requireContext().packageName + ".fileprovider",
+                file
+            )
+            val intent = Intent(Intent.ACTION_SEND).apply {
+                type = "audio/*"
+                putExtra(Intent.EXTRA_STREAM, uri)
+                addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+            }
+            startActivity(Intent.createChooser(intent, getString(R.string.share_recording)))
+        } catch (e: Exception) {
+            Toast.makeText(requireContext(), "Error sharing: " + e.message, Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    private fun shareSelectedRecordings() {
+        val selected = adapter.selectedRecordings
+        if (selected.isEmpty()) return
+
+        if (selected.size == 1) {
+            shareRecording(selected[0].file)
+            adapter.clearSelection()
+            return
+        }
+
+        val uris = ArrayList<Uri>()
+        for (rec in selected) {
+            try {
+                val uri = FileProvider.getUriForFile(
+                    requireContext(),
+                    requireContext().packageName + ".fileprovider",
+                    rec.file
+                )
+                uris.add(uri)
+            } catch (ignored: Exception) {}
+        }
+
+        if (uris.isNotEmpty()) {
+            val intent = Intent(Intent.ACTION_SEND_MULTIPLE).apply {
+                type = "audio/*"
+                putParcelableArrayListExtra(Intent.EXTRA_STREAM, uris)
+                addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+            }
+            startActivity(Intent.createChooser(intent, getString(R.string.share_recordings)))
+        }
+        adapter.clearSelection()
+    }
+
+    private fun deleteSelectedRecordings() {
+        val selected = adapter.selectedRecordings
+        if (selected.isEmpty()) return
+
+        AlertDialog.Builder(requireContext())
+            .setTitle(R.string.delete_confirmation)
+            .setMessage(getString(R.string.delete_multiple_confirmation, selected.size))
+            .setPositiveButton(android.R.string.yes) { _, _ ->
+                viewLifecycleOwner.lifecycleScope.launch(Dispatchers.IO) {
+                    var deleted = 0
+                    for (rec in selected) {
+                        if (rec.file.delete()) {
+                            deleted++
+                        }
+                    }
+                    withContext(Dispatchers.Main) {
+                        Toast.makeText(requireContext(), "Deleted $deleted recordings", Toast.LENGTH_SHORT).show()
+                        adapter.clearSelection()
+                        loadRecordings()
+                    }
+                }
+            }
+            .setNegativeButton(android.R.string.no, null)
+            .show()
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
     }
 }

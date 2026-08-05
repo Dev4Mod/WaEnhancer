@@ -95,25 +95,27 @@ class StatusDownload(loader: ClassLoader, preferences:SharedPreferences) : Featu
     }
 
     private fun downloadFile(statusItem: StatusItemWpp) {
-        try {
-            val file = statusItem.getMediaFile()
-            if (file == null) {
-                Utils.showToast(Utils.getString(R.string.download_not_available), Toast.LENGTH_LONG)
-                return
-            }
-            val userJid = statusItem.senderJid ?: return
-            val fileType = file.name.substring(file.name.lastIndexOf(".") + 1)
-            val destination = getStatusDestination(file)
-            val name = Utils.generateName(userJid, fileType)
-            val error = Utils.copyFile(file, destination, name)
+        Utils.executor.execute {
+            try {
+                val file = statusItem.getMediaFile()
+                if (file == null) {
+                    Utils.showToast(Utils.getString(R.string.download_not_available), Toast.LENGTH_LONG)
+                    return@execute
+                }
+                val userJid = statusItem.senderJid ?: return@execute
+                val fileType = file.name.substring(file.name.lastIndexOf(".") + 1)
+                val destination = getStatusDestination(file)
+                val name = Utils.generateName(userJid, fileType)
+                val error = Utils.copyFile(file, destination, name)
 
-            if (TextUtils.isEmpty(error)) {
-                Utils.showToast(Utils.getString(R.string.saved_to) + destination, Toast.LENGTH_SHORT)
-            } else {
-                Utils.showToast("${Utils.getString(R.string.error_when_saving_try_again)}: $error", Toast.LENGTH_SHORT)
+                if (TextUtils.isEmpty(error)) {
+                    Utils.showToast(Utils.getString(R.string.saved_to) + destination, Toast.LENGTH_SHORT)
+                } else {
+                    Utils.showToast("${Utils.getString(R.string.error_when_saving_try_again)}: $error", Toast.LENGTH_SHORT)
+                }
+            } catch (e: Throwable) {
+                Utils.showToast(e.message, Toast.LENGTH_SHORT)
             }
-        } catch (e: Throwable) {
-            Utils.showToast(e.message, Toast.LENGTH_SHORT)
         }
     }
 

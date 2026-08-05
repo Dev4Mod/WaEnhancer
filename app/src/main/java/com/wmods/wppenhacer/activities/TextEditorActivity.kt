@@ -1,253 +1,299 @@
-package com.wmods.wppenhacer.activities;
+package com.wmods.wppenhacer.activities
 
-import android.annotation.SuppressLint;
-import android.app.AlertDialog;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.net.Uri;
-import android.os.Bundle;
-import android.text.TextUtils;
-import android.view.Menu;
-import android.view.MenuItem;
-import android.webkit.WebChromeClient;
-import android.webkit.WebView;
-import android.webkit.WebViewClient;
-import android.widget.EditText;
-import android.widget.FrameLayout;
-import android.widget.LinearLayout;
-import android.widget.Toast;
+import android.annotation.SuppressLint
+import android.app.AlertDialog
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
+import android.net.Uri
+import android.os.Bundle
+import android.text.TextUtils
+import android.view.Menu
+import android.view.MenuItem
+import android.webkit.WebChromeClient
+import android.webkit.WebView
+import android.webkit.WebViewClient
+import android.widget.EditText
+import android.widget.FrameLayout
+import android.widget.LinearLayout
+import android.widget.Toast
+import androidx.activity.result.ActivityResultLauncher
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.appcompat.widget.Toolbar
+import androidx.lifecycle.lifecycleScope
+import androidx.preference.PreferenceManager
+import com.wmods.wppenhacer.R
+import com.wmods.wppenhacer.activities.base.BaseActivity
+import com.wmods.wppenhacer.preference.ThemePreference
+import com.wmods.wppenhacer.xposed.utils.Utils
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import rikka.core.util.IOUtils
+import java.io.File
+import java.io.FileOutputStream
+import java.nio.charset.Charset
+import java.util.concurrent.CompletableFuture
+import java.util.zip.ZipEntry
+import java.util.zip.ZipOutputStream
 
-import androidx.activity.result.ActivityResultLauncher;
-import androidx.activity.result.contract.ActivityResultContracts;
-import androidx.annotation.NonNull;
-import androidx.appcompat.widget.Toolbar;
-import androidx.preference.PreferenceManager;
+class TextEditorActivity : BaseActivity() {
 
-import com.wmods.wppenhacer.R;
-import com.wmods.wppenhacer.activities.base.BaseActivity;
-import com.wmods.wppenhacer.preference.ThemePreference;
-import com.wmods.wppenhacer.xposed.utils.Utils;
-
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.InputStream;
-import java.nio.charset.Charset;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.concurrent.CompletableFuture;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipOutputStream;
-
-import kotlin.io.FilesKt;
-import rikka.core.util.IOUtils;
-
-public class TextEditorActivity extends BaseActivity {
-    //    private CodeView codeView;
-    private String folderName;
-    private ActivityResultLauncher<String> mGetContent;
-    private ActivityResultLauncher<String> mExportFile;
-    private WebView webView;
+    private var folderName: String? = null
+    private lateinit var mGetContent: ActivityResultLauncher<String>
+    private lateinit var mExportFile: ActivityResultLauncher<String>
+    private var webView: WebView? = null
 
     @SuppressLint("SetJavaScriptEnabled")
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_text_editor);
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContentView(R.layout.activity_text_editor)
 
-        Toolbar toolbar = findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
+        val toolbar = findViewById<Toolbar>(R.id.toolbar)
+        setSupportActionBar(toolbar)
 
-        webView = new WebView(this);
-        webView.getSettings().setJavaScriptEnabled(true);
-        webView.getSettings().setAllowContentAccess(true);
-        webView.getSettings().setDomStorageEnabled(true);
-        webView.getSettings().setAllowUniversalAccessFromFileURLs(true);
-        webView.getSettings().setJavaScriptCanOpenWindowsAutomatically(true);
-        webView.setWebViewClient(new WebViewClient());
-        webView.setWebChromeClient(new WebChromeClient());
-        updateWebViewContent("");
+        val wv = WebView(this).apply {
+            settings.javaScriptEnabled = true
+            settings.allowContentAccess = true
+            settings.domStorageEnabled = true
+            @Suppress("DEPRECATION")
+            settings.allowUniversalAccessFromFileURLs = true
+            settings.javaScriptCanOpenWindowsAutomatically = true
+            webViewClient = WebViewClient()
+            webChromeClient = WebChromeClient()
+        }
+        webView = wv
+        updateWebViewContent("")
 
-        FrameLayout container = findViewById(R.id.webViewContainer);
-        container.addView(webView, new FrameLayout.LayoutParams(
+        val container = findViewById<FrameLayout>(R.id.webViewContainer)
+        container.addView(
+            wv,
+            FrameLayout.LayoutParams(
                 FrameLayout.LayoutParams.MATCH_PARENT,
                 FrameLayout.LayoutParams.MATCH_PARENT
-        ));
+            )
+        )
 
+        mGetContent = registerForActivityResult(ActivityResultContracts.GetContent()) { uri ->
+            onUriSelected(uri)
+        }
+        mExportFile = registerForActivityResult(ActivityResultContracts.CreateDocument("*/*")) { uri ->
+            if (uri != null) {
+                exportAsZip(uri)
+            }
+        }
 
-        mGetContent = registerForActivityResult(new ActivityResultContracts.GetContent(), this::onUriSelected);
-        mExportFile = registerForActivityResult(new ActivityResultContracts.CreateDocument("*/*"), this::exportAsZip);
-
-        folderName = getIntent().getStringExtra("folder_name");
+        folderName = intent.getStringExtra("folder_name")
         if (!TextUtils.isEmpty(folderName)) {
-            readFile(folderName);
+            readFile(folderName!!)
         }
-
     }
 
-    @SuppressLint("SetJavaScriptEnabled")
-    private void updateWebViewContent(String newContent) {
-        if (webView != null) {
+    private fun updateWebViewContent(newContent: String) {
+        val wv = webView ?: return
+        lifecycleScope.launch(Dispatchers.IO) {
             try {
-                var inputStream = getAssets().open("css_editor.html");
-                var code = IOUtils.toString(inputStream);
-                code = code.replace("{{content}}", newContent);
-                webView.loadDataWithBaseURL("file:///android_asset/", code, "text/html", "UTF-8", null);
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
-    }
-
-    private CompletableFuture<String> getTextareaContentAsync() {
-        CompletableFuture<String> future = new CompletableFuture<>();
-        if (webView != null) {
-            webView.evaluateJavascript("getTextareaContent();", content -> {
-                if (content != null) {
-                    content = content.substring(1, content.length() - 1)
-                            .replace("\\n", "\n")
-                            .replace("\\r", "\r")
-                            .replace("\\\"", "\"")
-                            .replace("\\'", "'")
-                            .replace("\\\\", "\\");
+                assets.open("css_editor.html").use { inputStream ->
+                    var code = IOUtils.toString(inputStream)
+                    code = code.replace("{{content}}", newContent)
+                    val finalCode = code
+                    withContext(Dispatchers.Main) {
+                        wv.loadDataWithBaseURL(
+                            "file:///android_asset/",
+                            finalCode,
+                            "text/html",
+                            "UTF-8",
+                            null
+                        )
+                    }
                 }
-                future.complete(content);
-            });
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+        }
+    }
+
+    private fun getTextareaContentAsync(): CompletableFuture<String?> {
+        val future = CompletableFuture<String?>()
+        val wv = webView
+        if (wv != null) {
+            wv.evaluateJavascript("getTextareaContent();") { content ->
+                var cleaned = content
+                if (cleaned != null) {
+                    if (cleaned.startsWith("\"") && cleaned.endsWith("\"") && cleaned.length >= 2) {
+                        cleaned = cleaned.substring(1, cleaned.length - 1)
+                    }
+                    cleaned = cleaned
+                        .replace("\\n", "\n")
+                        .replace("\\r", "\r")
+                        .replace("\\\"", "\"")
+                        .replace("\\'", "'")
+                        .replace("\\\\", "\\")
+                }
+                future.complete(cleaned)
+            }
         } else {
-            future.completeExceptionally(new Exception("WebView is null"));
+            future.completeExceptionally(Exception("WebView is null"))
         }
-        return future;
+        return future
     }
 
-    private void readFile(String folderName) {
-        try {
-            File folderFolder = new File(ThemePreference.rootDirectory, folderName);
-            File cssCode = new File(folderFolder, "style.css");
-            if (cssCode.exists()) {
-                var code = FilesKt.readText(cssCode, Charset.defaultCharset());
-                updateWebViewContent(code);
-                //                codeView.setText(code);
-            } else {
-                cssCode.createNewFile();
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.css_editor_menu, menu);
-        return super.onCreateOptionsMenu(menu);
-    }
-
-
-    @SuppressLint("NonConstantResourceId")
-    @Override
-    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
-        int itemId = item.getItemId();
-        if (itemId == R.id.menuitem_save) {
+    private fun readFile(folderName: String) {
+        lifecycleScope.launch(Dispatchers.IO) {
             try {
-                getTextareaContentAsync().thenAccept(content -> {
-                    String code = content;
-                    File folderFolder = new File(ThemePreference.rootDirectory, folderName);
-                    File cssCode = new File(folderFolder, "style.css");
-                    FilesKt.writeText(cssCode, code, Charset.defaultCharset());
-                    Toast.makeText(this, R.string.saved, Toast.LENGTH_SHORT).show();
-                    var prefs = PreferenceManager.getDefaultSharedPreferences(this);
-                    var key = getIntent().getStringExtra("key");
-                    if (key != null && prefs.getString(key, "").equals(folderName)) {
-                        prefs.edit().putString("custom_css", code).commit();
+                val folderFolder = File(ThemePreference.rootDirectory, folderName)
+                val cssCode = File(folderFolder, "style.css")
+                if (cssCode.exists()) {
+                    val code = cssCode.readText(Charset.defaultCharset())
+                    withContext(Dispatchers.Main) {
+                        updateWebViewContent(code)
                     }
-                });
-            } catch (Exception e) {
-                e.printStackTrace();
+                } else {
+                    cssCode.createNewFile()
+                }
+            } catch (e: Exception) {
+                e.printStackTrace()
             }
-        } else if (itemId == R.id.menuitem_exit) {
-            finish();
-        } else if (itemId == R.id.menuitem_clear) {
-            updateWebViewContent("");
-        } else if (itemId == R.id.menuitem_import_image) {
-            mGetContent.launch("image/*");
-        } else if (itemId == R.id.menuitem_export) {
-            mExportFile.launch(folderName + ".zip");
-        }
-        return super.onOptionsItemSelected(item);
-    }
-
-    private void exportAsZip(Uri uri) {
-        try (var outputStream = getContentResolver().openOutputStream(uri)) {
-            var zipOutputStream = new ZipOutputStream(outputStream);
-            var dir = ThemePreference.rootDirectory.getAbsolutePath() + "/";
-            var folderFolder = new File(ThemePreference.rootDirectory, folderName);
-            var files = getAllFilesPath(folderFolder);
-            for (File file : files) {
-                var name = file.getAbsolutePath().replace(dir, "");
-                zipOutputStream.putNextEntry(new ZipEntry(name));
-                var bytes = FilesKt.readBytes(file);
-                zipOutputStream.write(bytes);
-                zipOutputStream.closeEntry();
-            }
-            zipOutputStream.close();
-            Toast.makeText(this, R.string.exported, Toast.LENGTH_SHORT).show();
-        } catch (Exception e) {
-            Utils.showToast("Error: " + e.getMessage(), 1);
         }
     }
 
-    private List<File> getAllFilesPath(File folderFolder) {
-        File[] files = folderFolder.listFiles();
-        if (files == null) {
-            return Collections.emptyList();
+    override fun onCreateOptionsMenu(menu: Menu): Boolean {
+        menuInflater.inflate(R.menu.css_editor_menu, menu)
+        return super.onCreateOptionsMenu(menu)
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        when (item.itemId) {
+            R.id.menuitem_save -> {
+                try {
+                    getTextareaContentAsync().thenAccept { content ->
+                        val code = content ?: ""
+                        lifecycleScope.launch(Dispatchers.IO) {
+                            val targetFolder = folderName ?: return@launch
+                            val folderFolder = File(ThemePreference.rootDirectory, targetFolder)
+                            val cssCode = File(folderFolder, "style.css")
+                            cssCode.writeText(code, Charset.defaultCharset())
+
+                            val prefs = PreferenceManager.getDefaultSharedPreferences(this@TextEditorActivity)
+                            val key = intent.getStringExtra("key")
+                            if (key != null && prefs.getString(key, "") == targetFolder) {
+                                prefs.edit().putString("custom_css", code).apply()
+                            }
+
+                            withContext(Dispatchers.Main) {
+                                Toast.makeText(this@TextEditorActivity, R.string.saved, Toast.LENGTH_SHORT).show()
+                            }
+                        }
+                    }
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                }
+            }
+            R.id.menuitem_exit -> finish()
+            R.id.menuitem_clear -> updateWebViewContent("")
+            R.id.menuitem_import_image -> mGetContent.launch("image/*")
+            R.id.menuitem_export -> mExportFile.launch("$folderName.zip")
         }
-        ArrayList<File> list = new ArrayList<>();
-        for (File file : files) {
-            if (file.isDirectory()) {
-                list.addAll(getAllFilesPath(file));
+        return super.onOptionsItemSelected(item)
+    }
+
+    private fun exportAsZip(uri: Uri) {
+        lifecycleScope.launch(Dispatchers.IO) {
+            try {
+                contentResolver.openOutputStream(uri)?.use { outputStream ->
+                    ZipOutputStream(outputStream).use { zipOutputStream ->
+                        val dir = ThemePreference.rootDirectory.absolutePath + "/"
+                        val currentFolder = folderName ?: return@use
+                        val folderFolder = File(ThemePreference.rootDirectory, currentFolder)
+                        val files = getAllFilesPath(folderFolder)
+                        for (file in files) {
+                            val name = file.absolutePath.replace(dir, "")
+                            zipOutputStream.putNextEntry(ZipEntry(name))
+                            val bytes = file.readBytes()
+                            zipOutputStream.write(bytes)
+                            zipOutputStream.closeEntry()
+                        }
+                    }
+                }
+                withContext(Dispatchers.Main) {
+                    Toast.makeText(this@TextEditorActivity, R.string.exported, Toast.LENGTH_SHORT).show()
+                }
+            } catch (e: Exception) {
+                withContext(Dispatchers.Main) {
+                    Utils.showToast("Error: " + e.message, Toast.LENGTH_SHORT)
+                }
+            }
+        }
+    }
+
+    private fun getAllFilesPath(folderFolder: File): List<File> {
+        val files = folderFolder.listFiles() ?: return emptyList()
+        val list = ArrayList<File>()
+        for (file in files) {
+            if (file.isDirectory) {
+                list.addAll(getAllFilesPath(file))
             } else {
-                list.add(file);
+                list.add(file)
             }
         }
-        return list;
+        return list
     }
 
-
-    public void onUriSelected(Uri uri) {
-        if (uri == null) {
-            return;
+    private fun onUriSelected(uri: Uri?) {
+        if (uri == null) return
+        val linearLayout = LinearLayout(this).apply {
+            orientation = LinearLayout.VERTICAL
+            layoutParams = LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.MATCH_PARENT
+            )
         }
-        var linearLayout = new LinearLayout(this);
-        linearLayout.setOrientation(LinearLayout.VERTICAL);
-        linearLayout.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT));
-        var input = new EditText(this);
-        input.setHint("example.png");
-        input.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT));
-        linearLayout.addView(input);
-        new AlertDialog.Builder(this)
-                .setTitle(R.string.enter_image_file_name)
-                .setPositiveButton("OK", (dialog, which) -> {
-                    var fileName = input.getText().toString();
-                    if (fileName.endsWith(".png")) {
-                        copyFromUri(fileName, uri);
-                    } else {
-                        Toast.makeText(this, R.string.error_image_name, Toast.LENGTH_SHORT).show();
-                    }
-                })
-                .setNegativeButton(R.string.cancel, null)
-                .setView(linearLayout).show();
+        val input = EditText(this).apply {
+            hint = "example.png"
+            layoutParams = LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT
+            )
+        }
+        linearLayout.addView(input)
+        AlertDialog.Builder(this)
+            .setTitle(R.string.enter_image_file_name)
+            .setPositiveButton("OK") { _, _ ->
+                val fileName = input.text.toString()
+                if (fileName.endsWith(".png")) {
+                    copyFromUri(fileName, uri)
+                } else {
+                    Toast.makeText(this, R.string.error_image_name, Toast.LENGTH_SHORT).show()
+                }
+            }
+            .setNegativeButton(R.string.cancel, null)
+            .setView(linearLayout)
+            .show()
     }
 
-    public void copyFromUri(String fileName, Uri uri) {
-        var outFolder = new File(ThemePreference.rootDirectory, folderName);
-        try (InputStream inputStream = getContentResolver().openInputStream(uri)) {
-            Bitmap bitmap = BitmapFactory.decodeStream(inputStream);
-            var outFile = new File(outFolder, fileName);
-            FileOutputStream out = new FileOutputStream(outFile);
-            bitmap.compress(Bitmap.CompressFormat.PNG, 90, out);
-            out.close();
-            Toast.makeText(this, getString(R.string.imported_as) + fileName, Toast.LENGTH_LONG).show();
-        } catch (Exception e) {
-            Toast.makeText(this, "Error: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+    private fun copyFromUri(fileName: String, uri: Uri) {
+        lifecycleScope.launch(Dispatchers.IO) {
+            val currentFolder = folderName ?: return@launch
+            val outFolder = File(ThemePreference.rootDirectory, currentFolder)
+            try {
+                contentResolver.openInputStream(uri)?.use { inputStream ->
+                    val bitmap = BitmapFactory.decodeStream(inputStream)
+                    val outFile = File(outFolder, fileName)
+                    FileOutputStream(outFile).use { out ->
+                        bitmap?.compress(Bitmap.CompressFormat.PNG, 90, out)
+                    }
+                }
+                withContext(Dispatchers.Main) {
+                    Toast.makeText(
+                        this@TextEditorActivity,
+                        getString(R.string.imported_as) + fileName,
+                        Toast.LENGTH_LONG
+                    ).show()
+                }
+            } catch (e: Exception) {
+                withContext(Dispatchers.Main) {
+                    Toast.makeText(this@TextEditorActivity, "Error: " + e.message, Toast.LENGTH_SHORT).show()
+                }
+            }
         }
     }
 }

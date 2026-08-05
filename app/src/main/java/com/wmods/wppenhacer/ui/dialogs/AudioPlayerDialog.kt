@@ -1,170 +1,155 @@
-package com.wmods.wppenhacer.ui.dialogs;
+package com.wmods.wppenhacer.ui.dialogs
 
-import android.app.Dialog;
-import android.content.Context;
-import android.media.MediaPlayer;
-import android.os.Handler;
-import android.os.Looper;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.widget.ImageButton;
-import android.widget.SeekBar;
-import android.widget.TextView;
+import android.app.Dialog
+import android.content.Context
+import android.media.MediaPlayer
+import android.os.Handler
+import android.os.Looper
+import android.view.LayoutInflater
+import android.view.ViewGroup
+import android.widget.ImageButton
+import android.widget.SeekBar
+import android.widget.TextView
+import com.wmods.wppenhacer.R
+import java.io.File
+import java.io.IOException
+import java.util.Locale
 
-import com.wmods.wppenhacer.R;
+class AudioPlayerDialog(context: Context, audioFile: File) :
+    Dialog(context, com.google.android.material.R.style.Theme_Material3_DayNight_Dialog) {
 
-import java.io.File;
-import java.io.IOException;
+    private var mediaPlayer: MediaPlayer? = null
+    private val handler: Handler = Handler(Looper.getMainLooper())
+    private var updateRunnable: Runnable? = null
 
-/**
- * A custom dialog for playing audio files in-app
- */
-public class AudioPlayerDialog extends Dialog {
-    
-    private MediaPlayer mediaPlayer;
-    private Handler handler;
-    private Runnable updateRunnable;
-    
-    private SeekBar seekBar;
-    private ImageButton btnPlayPause;
-    private TextView tvCurrentTime;
-    private TextView tvTotalTime;
-    private TextView tvTitle;
-    
-    private boolean isPlaying = false;
-    
-    public AudioPlayerDialog(Context context, File audioFile) {
-        super(context, com.google.android.material.R.style.Theme_Material3_DayNight_Dialog);
-        
-        View view = LayoutInflater.from(context).inflate(R.layout.dialog_audio_player, null);
-        setContentView(view);
-        
-        // Set dialog window to have proper width
-        if (getWindow() != null) {
-            getWindow().setLayout(
-                (int)(context.getResources().getDisplayMetrics().widthPixels * 0.9),
-                android.view.ViewGroup.LayoutParams.WRAP_CONTENT
-            );
-            getWindow().setBackgroundDrawableResource(android.R.color.transparent);
+    private val seekBar: SeekBar
+    private val btnPlayPause: ImageButton
+    private val tvCurrentTime: TextView
+    private val tvTotalTime: TextView
+    private val tvTitle: TextView
+
+    private var isPlaying = false
+    private var isPrepared = false
+
+    init {
+        val view = LayoutInflater.from(context).inflate(R.layout.dialog_audio_player, null)
+        setContentView(view)
+
+        window?.let { win ->
+            val displayMetrics = context.resources.displayMetrics
+            win.setLayout(
+                (displayMetrics.widthPixels * 0.9).toInt(),
+                ViewGroup.LayoutParams.WRAP_CONTENT
+            )
+            win.setBackgroundDrawableResource(android.R.color.transparent)
         }
-        
-        // Initialize views
-        seekBar = view.findViewById(R.id.seekBar);
-        btnPlayPause = view.findViewById(R.id.btn_play_pause);
-        tvCurrentTime = view.findViewById(R.id.tv_current_time);
-        tvTotalTime = view.findViewById(R.id.tv_total_time);
-        tvTitle = view.findViewById(R.id.tv_title);
-        ImageButton btnClose = view.findViewById(R.id.btn_close);
-        
-        // Set title
-        tvTitle.setText(audioFile.getName());
-        
-        // Initialize MediaPlayer
-        handler = new Handler(Looper.getMainLooper());
-        
+
+        seekBar = view.findViewById(R.id.seekBar)
+        btnPlayPause = view.findViewById(R.id.btn_play_pause)
+        tvCurrentTime = view.findViewById(R.id.tv_current_time)
+        tvTotalTime = view.findViewById(R.id.tv_total_time)
+        tvTitle = view.findViewById(R.id.tv_title)
+        val btnClose = view.findViewById<ImageButton>(R.id.btn_close)
+
+        tvTitle.text = audioFile.name
+        btnPlayPause.isEnabled = false
+
         try {
-            mediaPlayer = new MediaPlayer();
-            mediaPlayer.setDataSource(audioFile.getAbsolutePath());
-            mediaPlayer.prepare();
-            
-            int duration = mediaPlayer.getDuration();
-            seekBar.setMax(duration);
-            tvTotalTime.setText(formatTime(duration));
-            tvCurrentTime.setText(formatTime(0));
-            
-            mediaPlayer.setOnCompletionListener(mp -> {
-                isPlaying = false;
-                btnPlayPause.setImageResource(R.drawable.ic_play);
-                seekBar.setProgress(0);
-                tvCurrentTime.setText(formatTime(0));
-                mediaPlayer.seekTo(0);
-            });
-            
-        } catch (IOException e) {
-            e.printStackTrace();
-            dismiss();
-            return;
+            val mp = MediaPlayer().apply {
+                setDataSource(audioFile.absolutePath)
+                setOnPreparedListener { player ->
+                    isPrepared = true
+                    btnPlayPause.isEnabled = true
+                    val duration = player.duration
+                    seekBar.max = duration
+                    tvTotalTime.text = formatTime(duration)
+                    tvCurrentTime.text = formatTime(0)
+                    togglePlayPause()
+                }
+                setOnCompletionListener {
+                    this@AudioPlayerDialog.isPlaying = false
+                    btnPlayPause.setImageResource(R.drawable.ic_play)
+                    seekBar.progress = 0
+                    tvCurrentTime.text = formatTime(0)
+                    it.seekTo(0)
+                }
+            }
+            mediaPlayer = mp
+            mp.prepareAsync()
+        } catch (e: IOException) {
+            e.printStackTrace()
+            dismiss()
         }
-        
-        // Set up click listeners
-        btnPlayPause.setOnClickListener(v -> togglePlayPause());
-        btnClose.setOnClickListener(v -> dismiss());
-        
-        // Set up seekbar listener
-        seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
-            @Override
-            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                if (fromUser && mediaPlayer != null) {
-                    mediaPlayer.seekTo(progress);
-                    tvCurrentTime.setText(formatTime(progress));
+
+        btnPlayPause.setOnClickListener { togglePlayPause() }
+        btnClose.setOnClickListener { dismiss() }
+
+        seekBar.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
+            override fun onProgressChanged(sb: SeekBar?, progress: Int, fromUser: Boolean) {
+                if (fromUser && mediaPlayer != null && isPrepared) {
+                    mediaPlayer?.seekTo(progress)
+                    tvCurrentTime.text = formatTime(progress)
                 }
             }
-            
-            @Override
-            public void onStartTrackingTouch(SeekBar seekBar) {}
-            
-            @Override
-            public void onStopTrackingTouch(SeekBar seekBar) {}
-        });
-        
-        // Update runnable
-        updateRunnable = new Runnable() {
-            @Override
-            public void run() {
-                if (mediaPlayer != null && isPlaying) {
-                    int currentPosition = mediaPlayer.getCurrentPosition();
-                    seekBar.setProgress(currentPosition);
-                    tvCurrentTime.setText(formatTime(currentPosition));
-                    handler.postDelayed(this, 100);
+
+            override fun onStartTrackingTouch(sb: SeekBar?) {}
+            override fun onStopTrackingTouch(sb: SeekBar?) {}
+        })
+
+        updateRunnable = object : Runnable {
+            override fun run() {
+                val mp = mediaPlayer
+                if (mp != null && isPlaying && isPrepared) {
+                    val currentPosition = mp.currentPosition
+                    seekBar.progress = currentPosition
+                    tvCurrentTime.text = formatTime(currentPosition)
+                    handler.postDelayed(this, 100)
                 }
             }
-        };
-        
-        // Start playing automatically
-        togglePlayPause();
-        
-        // Handle dialog dismiss
-        setOnDismissListener(dialog -> releasePlayer());
+        }
+
+        setOnDismissListener { releasePlayer() }
     }
-    
-    private void togglePlayPause() {
-        if (mediaPlayer == null) return;
-        
+
+    private fun togglePlayPause() {
+        val mp = mediaPlayer ?: return
+        if (!isPrepared) return
+
         if (isPlaying) {
-            mediaPlayer.pause();
-            btnPlayPause.setImageResource(R.drawable.ic_play);
-            handler.removeCallbacks(updateRunnable);
+            mp.pause()
+            btnPlayPause.setImageResource(R.drawable.ic_play)
+            updateRunnable?.let { handler.removeCallbacks(it) }
         } else {
-            mediaPlayer.start();
-            btnPlayPause.setImageResource(R.drawable.ic_pause);
-            handler.post(updateRunnable);
+            mp.start()
+            btnPlayPause.setImageResource(R.drawable.ic_pause)
+            updateRunnable?.let { handler.post(it) }
         }
-        isPlaying = !isPlaying;
+        isPlaying = !isPlaying
     }
-    
-    private void releasePlayer() {
-        if (handler != null) {
-            handler.removeCallbacks(updateRunnable);
-        }
-        if (mediaPlayer != null) {
-            if (mediaPlayer.isPlaying()) {
-                mediaPlayer.stop();
+
+    private fun releasePlayer() {
+        updateRunnable?.let { handler.removeCallbacks(it) }
+        mediaPlayer?.let { mp ->
+            if (mp.isPlaying) {
+                mp.stop()
             }
-            mediaPlayer.release();
-            mediaPlayer = null;
+            mp.release()
         }
+        mediaPlayer = null
+        isPrepared = false
     }
-    
-    private String formatTime(int millis) {
-        int seconds = millis / 1000;
-        int minutes = seconds / 60;
-        seconds = seconds % 60;
-        
-        if (minutes >= 60) {
-            int hours = minutes / 60;
-            minutes = minutes % 60;
-            return String.format("%d:%02d:%02d", hours, minutes, seconds);
+
+    private fun formatTime(millis: Int): String {
+        var seconds = millis / 1000
+        var minutes = seconds / 60
+        seconds %= 60
+
+        return if (minutes >= 60) {
+            val hours = minutes / 60
+            minutes %= 60
+            String.format(Locale.getDefault(), "%d:%02d:%02d", hours, minutes, seconds)
+        } else {
+            String.format(Locale.getDefault(), "%d:%02d", minutes, seconds)
         }
-        return String.format("%d:%02d", minutes, seconds);
     }
 }

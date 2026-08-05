@@ -407,7 +407,7 @@ class CustomThemeV2(loader: ClassLoader, preferences:SharedPreferences) :
                     }
                 }
             })
-        val frameLayout = WallpaperView(rootView.context, prefs, properties)
+        val frameLayout = WallpaperView(rootView.context, prefs, properties!!)
         rootView.addView(frameLayout, 0)
     }
 

@@ -93,8 +93,7 @@ class App : Application() {
 
     companion object {
 
-        @JvmField
-        var instance: App? = null
+        lateinit var instance: App
 
         @JvmStatic
         fun showRequestStoragePermission(activity: Activity) {

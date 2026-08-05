@@ -43,28 +43,24 @@ class DownloadProfile(classLoader: ClassLoader, preferences:SharedPreferences) :
                         val waContact = WaContactWpp(fieldObj)
                         val userJid = waContact.userJid
                         val inputStream = waContact.getProfilePhoto(true) ?: return@OnMenuItemClickListener false
-                        val destPath: String?
-                        try {
-                            destPath = Utils.getDestination("Profile Photo")
-                        } catch (e: Exception) {
-                            Utils.showToast(e.toString(), 1)
-                            return@OnMenuItemClickListener true
-                        }
-                        val name = Utils.generateName(userJid, "jpg")
-                        val error = Utils.copyFile(inputStream, destPath, name)
-                        if (TextUtils.isEmpty(error)) {
-                            Toast.makeText(
-                                Utils.application,
-                                Utils.application.getString(R.string.saved_to) + destPath,
-                                Toast.LENGTH_LONG
-                            ).show()
-                        } else {
-                            Toast.makeText(
-                                Utils.application,
-                                Utils.application
-                                    .getString(R.string.error_when_saving_try_again) + " " + error,
-                                Toast.LENGTH_LONG
-                            ).show()
+                        Utils.executor.execute {
+                            val destPath: String?
+                            try {
+                                destPath = Utils.getDestination("Profile Photo")
+                            } catch (e: Exception) {
+                                Utils.showToast(e.toString(), Toast.LENGTH_LONG)
+                                return@execute
+                            }
+                            val name = Utils.generateName(userJid, "jpg")
+                            val error = Utils.copyFile(inputStream, destPath, name)
+                            if (TextUtils.isEmpty(error)) {
+                                Utils.showToast(Utils.application.getString(R.string.saved_to) + destPath, Toast.LENGTH_LONG)
+                            } else {
+                                Utils.showToast(
+                                    Utils.application.getString(R.string.error_when_saving_try_again) + " " + error,
+                                    Toast.LENGTH_LONG
+                                )
+                            }
                         }
                         true
                     })

@@ -40,18 +40,20 @@ class DownloadViewOnce(classLoader: ClassLoader, preferences:SharedPreferences) 
                     val item = menu!!.add(0, 0, 0, R.string.download).setIcon(R.drawable.download)
                     item.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS)
                     item.setOnMenuItemClickListener {
-                        try {
-                            val file = fMessage.mediaFile
-                            if (file == null) {
-                                Utils.showToast(
-                                    Utils.application
-                                        .getString(R.string.download_not_available), 1
-                                )
-                                return@setOnMenuItemClickListener true
+                        CompletableFuture.runAsync {
+                            try {
+                                val file = fMessage.mediaFile
+                                if (file == null) {
+                                    Utils.showToast(
+                                        Utils.application
+                                            .getString(R.string.download_not_available), 1
+                                    )
+                                    return@runAsync
+                                }
+                                downloadFile(fMessage.key.remoteJid, file)
+                            } catch (e: Exception) {
+                                Utils.showToast(e.message, Toast.LENGTH_LONG)
                             }
-                            downloadFile(fMessage.key.remoteJid, file)
-                        } catch (e: Exception) {
-                            Utils.showToast(e.message, Toast.LENGTH_LONG)
                         }
                         true
                     }
