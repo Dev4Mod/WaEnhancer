@@ -917,12 +917,14 @@ object Unobfuscator {
         }
     }
 
-    @Throws(Exception::class)
-    @JvmStatic
-    fun loadBlueOnReplayMessageJobMethod(loader: ClassLoader): Method {
-        return UnobfuscatorCache.getInstance().getMethod(loader) {
-            findFirstMethodUsingStrings(loader, StringMatchType.Contains, "SendE2EMessageJob/onRun")
-                ?: throw Exception("BlueOnReplayMessageJob method not found")
+    fun loadBlueOnReplayMessageJobMethod(classLoader: ClassLoader): Method {
+        return UnobfuscatorCache.getInstance().getMethod(classLoader) {
+            bridge.findMethod {
+                matcher {
+                    paramCount(0)
+                    usingStrings("SendE2EMessageJob/onRun")
+                }
+            }.firstOrNull()?.getMethodInstance(classLoader) ?: throw Exception("BlueOnReplayMessageJob method not found")
         }
     }
 
@@ -1954,24 +1956,28 @@ object Unobfuscator {
         }
     }
 
-    @Throws(Exception::class)
-    @JvmStatic
     fun loadPlaybackSpeed(classLoader: ClassLoader): Method {
         return UnobfuscatorCache.getInstance().getMethod(classLoader) {
-            val method = findFirstMethodUsingStrings(
-                classLoader,
-                StringMatchType.Contains,
-                "heroaudioplayer/setPlaybackSpeed"
-            )
-            if (method != null) return@getMethod method
-
-            val methodData = bridge.findMethod {
+            bridge.findMethod {
                 matcher {
-                    addUsingString("setPlaybackSpeed", StringMatchType.Equals)
-                    addUsingString("newSpeed")
+                    anyOf {
+                        match {
+                            paramTypes(null, Float::class.javaPrimitiveType)
+                            usingStrings("FbHeroAudioPlayer/setPlaybackSpeed")
+                        }
+                        match {
+                            paramTypes(Float::class.javaPrimitiveType)
+                            usingStrings("setPlaybackSpeed")
+                            callerMethods {
+                                add {
+                                    usingStrings("FbHeroAudioPlayer/setPlaybackSpeed")
+                                }
+                            }
+
+                        }
+                    }
                 }
-            }.singleOrNull() ?: throw RuntimeException("PlaybackSpeed method not found")
-            methodData.getMethodInstance(classLoader)
+            }.first().getMethodInstance(classLoader)
         }
     }
 
@@ -2375,36 +2381,7 @@ object Unobfuscator {
     }
 
 
-    @Throws(Exception::class)
-    @JvmStatic
-    fun loadFilterItemClass(classLoader: ClassLoader): Class<*> {
-        return UnobfuscatorCache.getInstance().getClass(classLoader) {
-            var methodList = bridge.findMethod {
-                matcher {
-                    addUsingNumber(Utils.getID("invisible_height_placeholder", "id"))
-                    addUsingNumber(Utils.getID("container_view", "id"))
-                }
-            }
-            if (methodList.isNotEmpty()) return@getClass methodList[0].getClassInstance(classLoader)
 
-            for (s in listOf(
-                "ConversationsFilter/selectFilter",
-                "has_seen_detected_outcomes_nux"
-            )) {
-                val applyClazz =
-                    findFirstClassUsingStrings(classLoader, StringMatchType.Contains, s) ?: continue
-                methodList = bridge.findMethod {
-                    matcher {
-                        paramTypes(View::class.java, applyClazz)
-                    }
-                }
-                if (methodList.isNotEmpty()) return@getClass methodList[0].getClassInstance(
-                    classLoader
-                )
-            }
-            throw RuntimeException("FilterItemClass Not Found")
-        }
-    }
 
     @Throws(Exception::class)
     @JvmStatic

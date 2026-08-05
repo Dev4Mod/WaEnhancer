@@ -247,20 +247,6 @@ class CustomThemeV2(loader: ClassLoader, preferences:SharedPreferences) :
             })
         val intBgHook = IntBgColorHook()
         XposedHelpers.findAndHookMethod(Paint::class.java, "setColor", Int::class.javaPrimitiveType, intBgHook)
-
-        val filterItemClass = Unobfuscator.loadFilterItemClass(classLoader)
-
-        XposedBridge.hookAllConstructors(
-            filterItemClass,
-            object : XC_MethodHook() {
-                override fun afterHookedMethod(param: MethodHookParam) {
-                    val view = param.args[0] as View
-                    val textView = view.findViewById<TextView>(Utils.getID("text_view", "id"))
-                    if (textView != null) {
-                        textView.setTextColor(DesignUtils.getPrimaryTextColor())
-                    }
-                }
-            })
     }
 
     fun loadAndApplyColors() {
