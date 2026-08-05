@@ -1,10 +1,8 @@
 [ADDED]
-* Added support for WA 2.26.27.xx
-
-[IMPROVED]
-* Improvements in detecting problems in sepolicy in root diagnostics (I suggest you run a test if you have configuration problems by resetting)
+* Added support for WA 2.26.28.xx
+* Added support for WA 2.26.29.xx
+* Added support for WA 2.26.30.xx
 
 [FIXED]
-* Fixed issue with floating bar
-* Fixed issue sending images in HEIC format (Apple format) (Thanks to Alpha3288)
-* Fixed problem with root diagnostic colors in light theme
+* Fixed problem sending tick when replying
+* Fixed problem sending HD images
