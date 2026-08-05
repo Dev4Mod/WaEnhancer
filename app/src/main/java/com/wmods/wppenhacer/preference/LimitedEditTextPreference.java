@@ -11,7 +11,7 @@ import com.wmods.wppenhacer.R;
 
 public class LimitedEditTextPreference extends EditTextPreference {
 
-    private static final int DEFAULT_MAX_LENGTH = 10;  // Limite padrão de caracteres
+    private static final int DEFAULT_MAX_LENGTH = 10;
     private int maxLength;
 
     public LimitedEditTextPreference(Context context, AttributeSet attrs) {

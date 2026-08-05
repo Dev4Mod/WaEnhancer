@@ -96,7 +96,7 @@ public class ThemePreference extends Preference implements FilePicker.OnUriPicke
             folderNameView.setText(folder);
 
             if (folder.equals(folder_name)) {
-                folderNameView.setTextColor(ContextCompat.getColor(context, R.color.md_theme_material_green_dark_onPrimaryContainer));
+                folderNameView.setTextColor(com.google.android.material.color.MaterialColors.getColor(context, R.attr.colorPrimary, 0));
             }
             if (cssFile.exists()) {
                 var code = FilesKt.readText(cssFile, Charset.defaultCharset());

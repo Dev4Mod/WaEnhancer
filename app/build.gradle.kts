@@ -1,3 +1,4 @@
+import com.android.build.api.variant.impl.VariantOutputImpl
 import com.android.build.gradle.internal.api.BaseVariantOutputImpl
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
@@ -7,8 +8,6 @@ import kotlin.time.Duration.Companion.milliseconds
 
 plugins {
     alias(libs.plugins.androidApplication)
-    alias(libs.plugins.materialthemebuilder)
-    alias(libs.plugins.kotlinAndroid)
     alias(libs.plugins.kspPlugin)
 }
 
@@ -20,7 +19,7 @@ val gitHash: String = providers.exec {
 android {
     namespace = "com.wmods.wppenhacer"
     //noinspection GradleDependency
-    compileSdk = 36
+    compileSdk = 37
     ndkVersion = "28.2.13676358"
 
     flavorDimensions += "version"
@@ -93,7 +92,7 @@ android {
     buildTypes {
 
         debug {
-            isMinifyEnabled = project.hasProperty("minify") && project.properties["minify"].toString().toBoolean()
+            isMinifyEnabled = project.hasProperty("minify") && project.findProperty("minify").toString().toBoolean()
             //noinspection NotShrinkingResources
             isShrinkResources = false
             signingConfig =
@@ -133,40 +132,18 @@ android {
         baseline = file("lint-baseline.xml")
     }
 
-    applicationVariants.all {
-        val appName = when (flavorName) {
+}
+
+androidComponents {
+    onVariants { variant ->
+        val appName = when (variant.flavorName) {
             "business" -> "WaEnhancer-Business"
             else -> "WaEnhancer"
         }
-
-        outputs.all {
-            (this as BaseVariantOutputImpl).outputFileName = "$appName-$versionName.apk"
+        variant.outputs.forEach { output ->
+            (output as VariantOutputImpl).outputFileName.set("$appName-1.5.5 ($gitHash).apk")
         }
     }
-
-    materialThemeBuilder {
-        themes {
-            for ((name, color) in listOf(
-                "Green" to "4FAF50",
-                "Blue" to "3B82F6",
-                "Cyan" to "06B6D4",
-                "Purple" to "8B5CF6",
-                "Orange" to "F97316",
-                "Red" to "EF4444",
-                "Pink" to "EC4899"
-            )) {
-                create("Material$name") {
-                    lightThemeFormat = "ThemeOverlay.Light.%s"
-                    darkThemeFormat = "ThemeOverlay.Dark.%s"
-                    primaryColor = "#$color"
-                }
-            }
-        }
-        // Add Material Design 3 color tokens (such as palettePrimary100) in generated theme
-        // rikka.material >= 2.0.0 provides such attributes
-        generatePalette = true
-    }
-
 }
 
 kotlin {
@@ -189,6 +166,7 @@ dependencies {
     implementation(libs.androidx.fragment)
     implementation(libs.androidx.navigation.fragment)
     implementation(libs.androidx.navigation.ui)
+    implementation(libs.androidx.preference)
     implementation(libs.androidx.room.runtime)
     implementation(libs.rikkax.appcompat)
     implementation(libs.rikkax.core)
@@ -237,7 +215,7 @@ afterEvaluate {
                             "shell",
                             "am",
                             "force-stop",
-                            project.properties["debug_package_name"]?.toString()
+                            project.findProperty("debug_package_name")?.toString()
                         )
                     }
                     injected.execOps.exec {
@@ -246,7 +224,7 @@ afterEvaluate {
                             "shell",
                             "monkey",
                             "-p",
-                            project.properties["debug_package_name"].toString(),
+                            project.findProperty("debug_package_name")?.toString(),
                             "1"
                         )
                     }

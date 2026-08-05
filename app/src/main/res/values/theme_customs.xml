@@ -1,10 +1,121 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <style name="ThemeOverlay.MaterialGreen" parent="ThemeOverlay.Light.MaterialGreen"/>
-    <style name="ThemeOverlay.MaterialBlue" parent="ThemeOverlay.Light.MaterialBlue"/>
-    <style name="ThemeOverlay.MaterialCyan" parent="ThemeOverlay.Light.MaterialCyan"/>
-    <style name="ThemeOverlay.MaterialPurple" parent="ThemeOverlay.Light.MaterialPurple"/>
-    <style name="ThemeOverlay.MaterialOrange" parent="ThemeOverlay.Light.MaterialOrange"/>
-    <style name="ThemeOverlay.MaterialRed" parent="ThemeOverlay.Light.MaterialRed"/>
-    <style name="ThemeOverlay.MaterialPink" parent="ThemeOverlay.Light.MaterialPink"/>
+    <style name="ThemeOverlay.MaterialGreen" parent="ThemeOverlay.Material3">
+        <item name="colorPrimary">#2E6C31</item>
+        <item name="colorOnPrimary">#FFFFFF</item>
+        <item name="colorPrimaryContainer">#B8F5B4</item>
+        <item name="colorOnPrimaryContainer">#002204</item>
+        <item name="colorSecondary">#52634F</item>
+        <item name="colorOnSecondary">#FFFFFF</item>
+        <item name="colorSecondaryContainer">#D5E8CE</item>
+        <item name="colorOnSecondaryContainer">#111F0F</item>
+        <item name="colorTertiary">#386567</item>
+        <item name="colorOnTertiary">#FFFFFF</item>
+        <item name="colorTertiaryContainer">#BCEBEB</item>
+        <item name="colorOnTertiaryContainer">#002021</item>
+        <item name="colorAccent">#2E6C31</item>
+        <item name="android:colorAccent">#2E6C31</item>
+    </style>
+
+    <style name="ThemeOverlay.MaterialBlue" parent="ThemeOverlay.Material3">
+        <item name="colorPrimary">#1D61D2</item>
+        <item name="colorOnPrimary">#FFFFFF</item>
+        <item name="colorPrimaryContainer">#D8E2FF</item>
+        <item name="colorOnPrimaryContainer">#001A43</item>
+        <item name="colorSecondary">#565E71</item>
+        <item name="colorOnSecondary">#FFFFFF</item>
+        <item name="colorSecondaryContainer">#DAE2F9</item>
+        <item name="colorOnSecondaryContainer">#131C2B</item>
+        <item name="colorTertiary">#705574</item>
+        <item name="colorOnTertiary">#FFFFFF</item>
+        <item name="colorTertiaryContainer">#FAD8FD</item>
+        <item name="colorOnTertiaryContainer">#29132D</item>
+        <item name="colorAccent">#1D61D2</item>
+        <item name="android:colorAccent">#1D61D2</item>
+    </style>
+
+    <style name="ThemeOverlay.MaterialCyan" parent="ThemeOverlay.Material3">
+        <item name="colorPrimary">#00687A</item>
+        <item name="colorOnPrimary">#FFFFFF</item>
+        <item name="colorPrimaryContainer">#ACEDFF</item>
+        <item name="colorOnPrimaryContainer">#001F26</item>
+        <item name="colorSecondary">#4B626A</item>
+        <item name="colorOnSecondary">#FFFFFF</item>
+        <item name="colorSecondaryContainer">#CEE6F0</item>
+        <item name="colorOnSecondaryContainer">#061D25</item>
+        <item name="colorTertiary">#575C7E</item>
+        <item name="colorOnTertiary">#FFFFFF</item>
+        <item name="colorTertiaryContainer">#DEE1FF</item>
+        <item name="colorOnTertiaryContainer">#141937</item>
+        <item name="colorAccent">#00687A</item>
+        <item name="android:colorAccent">#00687A</item>
+    </style>
+
+    <style name="ThemeOverlay.MaterialPurple" parent="ThemeOverlay.Material3">
+        <item name="colorPrimary">#6A4FA3</item>
+        <item name="colorOnPrimary">#FFFFFF</item>
+        <item name="colorPrimaryContainer">#EBDDFF</item>
+        <item name="colorOnPrimaryContainer">#25055B</item>
+        <item name="colorSecondary">#625B71</item>
+        <item name="colorOnSecondary">#FFFFFF</item>
+        <item name="colorSecondaryContainer">#E8DEF8</item>
+        <item name="colorOnSecondaryContainer">#1E192B</item>
+        <item name="colorTertiary">#7E5260</item>
+        <item name="colorOnTertiary">#FFFFFF</item>
+        <item name="colorTertiaryContainer">#FFD9E3</item>
+        <item name="colorOnTertiaryContainer">#31101D</item>
+        <item name="colorAccent">#6A4FA3</item>
+        <item name="android:colorAccent">#6A4FA3</item>
+    </style>
+
+    <style name="ThemeOverlay.MaterialOrange" parent="ThemeOverlay.Material3">
+        <item name="colorPrimary">#9E4300</item>
+        <item name="colorOnPrimary">#FFFFFF</item>
+        <item name="colorPrimaryContainer">#FFDBCB</item>
+        <item name="colorOnPrimaryContainer">#341100</item>
+        <item name="colorSecondary">#77574B</item>
+        <item name="colorOnSecondary">#FFFFFF</item>
+        <item name="colorSecondaryContainer">#FFDBCB</item>
+        <item name="colorOnSecondaryContainer">#2C160D</item>
+        <item name="colorTertiary">#676034</item>
+        <item name="colorOnTertiary">#FFFFFF</item>
+        <item name="colorTertiaryContainer">#EFE4AA</item>
+        <item name="colorOnTertiaryContainer">#201C00</item>
+        <item name="colorAccent">#9E4300</item>
+        <item name="android:colorAccent">#9E4300</item>
+    </style>
+
+    <style name="ThemeOverlay.MaterialRed" parent="ThemeOverlay.Material3">
+        <item name="colorPrimary">#BB1614</item>
+        <item name="colorOnPrimary">#FFFFFF</item>
+        <item name="colorPrimaryContainer">#FFDAD6</item>
+        <item name="colorOnPrimaryContainer">#410002</item>
+        <item name="colorSecondary">#775653</item>
+        <item name="colorOnSecondary">#FFFFFF</item>
+        <item name="colorSecondaryContainer">#FFDAD6</item>
+        <item name="colorOnSecondaryContainer">#2C1513</item>
+        <item name="colorTertiary">#725B2E</item>
+        <item name="colorOnTertiary">#FFFFFF</item>
+        <item name="colorTertiaryContainer">#FEDF96</item>
+        <item name="colorOnTertiaryContainer">#261900</item>
+        <item name="colorAccent">#BB1614</item>
+        <item name="android:colorAccent">#BB1614</item>
+    </style>
+
+    <style name="ThemeOverlay.MaterialPink" parent="ThemeOverlay.Material3">
+        <item name="colorPrimary">#9B2567</item>
+        <item name="colorOnPrimary">#FFFFFF</item>
+        <item name="colorPrimaryContainer">#FFD9E8</item>
+        <item name="colorOnPrimaryContainer">#3E0023</item>
+        <item name="colorSecondary">#745664</item>
+        <item name="colorOnSecondary">#FFFFFF</item>
+        <item name="colorSecondaryContainer">#FFD9E8</item>
+        <item name="colorOnSecondaryContainer">#2B1521</item>
+        <item name="colorTertiary">#7C5635</item>
+        <item name="colorOnTertiary">#FFFFFF</item>
+        <item name="colorTertiaryContainer">#FFDCC2</item>
+        <item name="colorOnTertiaryContainer">#2E1500</item>
+        <item name="colorAccent">#9B2567</item>
+        <item name="android:colorAccent">#9B2567</item>
+    </style>
 </resources>
