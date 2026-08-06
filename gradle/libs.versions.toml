@@ -32,7 +32,7 @@ jstyleparser = { module = "net.sf.cssbox:jstyleparser", version.ref = "jstylepar
 libxposed-legacy = { group = "de.robv.android.xposed", name = "api", version.ref = "xposed-legacy" }
 
 androidx-activity = { module = "androidx.activity:activity", version = "1.13.0" }
-androidx-constraintlayout = { module = "androidx.constraintlayout:constraintlayout", version = "2.2.1" }
+androidx-constraintlayout = { module = "androidx.constraintlayout:constraintlayout", version = "2.2.2" }
 androidx-fragment = { module = "androidx.fragment:fragment", version = "1.8.9" }
 androidx-navigation-fragment = { group = "androidx.navigation", name = "navigation-fragment", version.ref = "nav" }
 androidx-navigation-ui = { group = "androidx.navigation", name = "navigation-ui", version.ref = "nav" }
