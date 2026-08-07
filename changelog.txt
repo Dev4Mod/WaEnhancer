@@ -2,3 +2,4 @@
 * Fixed crash when a contact deleted a message.
 * Fixed problem where any internal error caused the app to crash.
 * Fixed problem sending HD images
+* Fixed problem showing contact names in groups
