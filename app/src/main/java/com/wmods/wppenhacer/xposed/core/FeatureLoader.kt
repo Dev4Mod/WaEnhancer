@@ -15,6 +15,7 @@ import android.content.SharedPreferences
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
+import android.os.Looper
 import android.util.Log
 import android.widget.Toast
 import androidx.core.content.ContextCompat
@@ -291,6 +292,13 @@ class FeatureLoader {
             val previousHandler = Thread.getDefaultUncaughtExceptionHandler()
             Thread.setDefaultUncaughtExceptionHandler { thread, throwable ->
                 try {
+                    XposedBridge.log(throwable)
+                    val isMainThread = Looper.getMainLooper().thread == thread
+                    val isFatalSystemError = throwable is Error
+                    if (!isMainThread && !isFatalSystemError) {
+                        previousHandler?.uncaughtException(thread, throwable)
+                        return@setDefaultUncaughtExceptionHandler
+                    }
                     val crashInfo = buildCrashInfo(application, whatsAppVersion)
                     val intent = Intent().apply {
                         component = ComponentName(
