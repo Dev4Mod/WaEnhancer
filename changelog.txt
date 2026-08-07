@@ -1,8 +1,4 @@
-[ADDED]
-* Added support for WA 2.26.28.xx
-* Added support for WA 2.26.29.xx
-* Added support for WA 2.26.30.xx
-
 [FIXED]
-* Fixed problem sending tick when replying
+* Fixed crash when a contact deleted a message.
+* Fixed problem where any internal error caused the app to crash.
 * Fixed problem sending HD images
