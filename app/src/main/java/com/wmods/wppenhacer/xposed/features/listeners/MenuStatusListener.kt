@@ -11,13 +11,14 @@ import android.content.SharedPreferences
 import de.robv.android.xposed.XposedBridge
 import de.robv.android.xposed.XposedHelpers
 import org.luckypray.dexkit.query.enums.StringMatchType
+import java.util.concurrent.CopyOnWriteArraySet
 
 class MenuStatusListener(classLoader: ClassLoader, preferences:SharedPreferences) :
     Feature(classLoader, preferences) {
 
     companion object {
         @JvmStatic
-        val menuStatuses = LinkedHashSet<OnMenuItemStatusListener>()
+        val menuStatuses = CopyOnWriteArraySet<OnMenuItemStatusListener>()
 
         @JvmStatic
         lateinit var statusData: StatusData

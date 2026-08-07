@@ -22,19 +22,19 @@ class PinnedLimit(
 
     @SuppressLint("DiscouragedApi")
     override fun doHook() {
-        val pinnedHashSetMethod = Unobfuscator.loadPinnedHashSetMethod(classLoader)
-        if (prefs.getBoolean(PINNED_LIMIT_PREF_KEY, false)) {
-            XposedBridge.hookMethod(Unobfuscator.loadPinnedInChatMethod(classLoader),
-                XC_MethodReplacement.returnConstant(PINNED_LIMIT_ENABLED))
+        if (!prefs.getBoolean(PINNED_LIMIT_PREF_KEY, false)) return
 
-            XposedBridge.hookMethod(Unobfuscator.loadSetPinnedLimitMethod(classLoader), object : XC_MethodHook() {
-                override fun beforeHookedMethod(param: MethodHookParam) {
-                    if (ReflectionUtils.isCalledFromStrings(SYNC_RESPONSE_HANDLER_CLASS_NAME)) {
-                        param.result = null
-                    }
+        val pinnedHashSetMethod = Unobfuscator.loadPinnedHashSetMethod(classLoader)
+        XposedBridge.hookMethod(Unobfuscator.loadPinnedInChatMethod(classLoader),
+            XC_MethodReplacement.returnConstant(PINNED_LIMIT_ENABLED))
+
+        XposedBridge.hookMethod(Unobfuscator.loadSetPinnedLimitMethod(classLoader), object : XC_MethodHook() {
+            override fun beforeHookedMethod(param: MethodHookParam) {
+                if (ReflectionUtils.isCalledFromStrings(SYNC_RESPONSE_HANDLER_CLASS_NAME)) {
+                    param.result = null
                 }
-            })
-        }
+            }
+        })
 
         XposedHelpers.findAndHookConstructor(LinkedHashSet::class.java, Int::class.javaPrimitiveType, object : XC_MethodHook(){
             override fun beforeHookedMethod(param: MethodHookParam) {

@@ -12,6 +12,7 @@ import de.robv.android.xposed.XC_MethodHook.MethodHookParam
 import android.content.SharedPreferences 
 import de.robv.android.xposed.XposedBridge
 import de.robv.android.xposed.XposedHelpers
+import java.lang.reflect.Method
 import java.util.WeakHashMap
 import kotlin.math.ceil
 import kotlin.math.max
@@ -27,6 +28,7 @@ class DefaultEmoji(
     private val heightPaddingRatio = 0.35f
 
     private val spanWidths = WeakHashMap<Any, Int>()
+    private val drawableMethodCache = WeakHashMap<Class<*>, Method?>()
 
     override fun doHook() {
         if (prefs.getBoolean("force_disable_emojis", false)) {
@@ -221,11 +223,19 @@ class DefaultEmoji(
         if (span == null) return null
 
         return runCatching {
-            val field = span.javaClass.declaredMethods.firstOrNull {
-                it.name.length == 3 && it.returnType == Drawable::class.java
+            val method = synchronized(drawableMethodCache) {
+                if (drawableMethodCache.containsKey(span.javaClass)) {
+                    drawableMethodCache[span.javaClass]
+                } else {
+                    val found = span.javaClass.declaredMethods.firstOrNull {
+                        it.name.length == 3 && it.returnType == Drawable::class.java
+                    }
+                    found?.isAccessible = true
+                    drawableMethodCache[span.javaClass] = found
+                    found
+                }
             }
-            field?.isAccessible = true
-            field?.invoke(span) as? Drawable
+            method?.invoke(span) as? Drawable
         }.getOrNull() ?: runCatching {
             XposedHelpers.callMethod(span, "getDrawable") as? Drawable
         }.getOrNull()

@@ -23,6 +23,7 @@ import java.lang.reflect.Field
 import java.lang.reflect.Method
 import java.util.Locale
 import java.util.concurrent.CountDownLatch
+import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.Executors
 import java.util.concurrent.atomic.AtomicReference
 
@@ -30,7 +31,7 @@ class UnobfuscatorCache private constructor(private val mApplication: Applicatio
 
     val sPrefsCacheHooks: SharedPreferences
     private val sPrefsCacheStrings: SharedPreferences
-    private val reverseResourceMap = HashMap<String, String>()
+    private val reverseResourceMap = ConcurrentHashMap<String, String>()
 
     init {
         try {

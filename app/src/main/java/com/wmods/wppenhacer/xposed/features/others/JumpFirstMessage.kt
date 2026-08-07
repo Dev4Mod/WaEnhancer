@@ -13,6 +13,7 @@ import com.wmods.wppenhacer.xposed.core.WppCore.getCurrentUserJid
 import com.wmods.wppenhacer.xposed.core.db.MessageStore.Companion.getInstance
 import com.wmods.wppenhacer.xposed.core.devkit.Unobfuscator.findFirstClassUsingName
 import com.wmods.wppenhacer.xposed.core.devkit.Unobfuscator.loadOnCreatedMenuConversation
+import com.wmods.wppenhacer.xposed.utils.Utils
 import de.robv.android.xposed.XC_MethodHook
 import android.content.SharedPreferences 
 import de.robv.android.xposed.XposedBridge
@@ -60,27 +61,31 @@ class JumpFirstMessage(classLoader: ClassLoader, preferences:SharedPreferences) 
             return
         }
 
-        val firstMessageInfo = getInstance().getFirstMessageInfoByChatRawJid(rawJid) ?: return
+        Utils.databaseExecutor.execute {
+            val firstMessageInfo = getInstance().getFirstMessageInfoByChatRawJid(rawJid) ?: return@execute
 
-        try {
-            val conversationClass =
-                findFirstClassUsingName(classLoader, StringMatchType.EndsWith, "Conversation")
-            val intent = Intent(activity, conversationClass)
-            intent.putExtra("jid", rawJid)
-            intent.putExtra("sort_id", firstMessageInfo.sortId)
-            intent.putExtra("row_id", firstMessageInfo.rowId)
-            intent.putExtra("start_t", SystemClock.uptimeMillis())
-            intent.putExtra("mat_entry_point", 64)
-            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NO_ANIMATION)
-            activity.startActivity(intent)
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
-                activity.overrideActivityTransition(Activity.OVERRIDE_TRANSITION_OPEN, 0, 0)
-            } else {
-                @Suppress("DEPRECATION")
-                activity.overridePendingTransition(0, 0)
+            try {
+                val conversationClass =
+                    findFirstClassUsingName(classLoader, StringMatchType.EndsWith, "Conversation")
+                val intent = Intent(activity, conversationClass)
+                intent.putExtra("jid", rawJid)
+                intent.putExtra("sort_id", firstMessageInfo.sortId)
+                intent.putExtra("row_id", firstMessageInfo.rowId)
+                intent.putExtra("start_t", SystemClock.uptimeMillis())
+                intent.putExtra("mat_entry_point", 64)
+                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NO_ANIMATION)
+                activity.runOnUiThread {
+                    activity.startActivity(intent)
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+                        activity.overrideActivityTransition(Activity.OVERRIDE_TRANSITION_OPEN, 0, 0)
+                    } else {
+                        @Suppress("DEPRECATION")
+                        activity.overridePendingTransition(0, 0)
+                    }
+                }
+            } catch (e: Exception) {
+                logDebug(e)
             }
-        } catch (e: Exception) {
-            logDebug(e)
         }
     }
 

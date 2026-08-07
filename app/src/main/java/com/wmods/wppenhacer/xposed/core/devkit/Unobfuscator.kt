@@ -40,13 +40,14 @@ import java.util.Date
 import java.util.Objects
 import java.util.Timer
 import java.util.TimerTask
+import java.util.concurrent.ConcurrentHashMap
 import java.util.stream.Collectors
 
 object Unobfuscator {
 
     private lateinit var bridge: DexKitBridge
 
-    val cacheClasses = HashMap<String, Class<*>>()
+    val cacheClasses = ConcurrentHashMap<String, Class<*>>()
 
     init {
         System.loadLibrary("dexkit")

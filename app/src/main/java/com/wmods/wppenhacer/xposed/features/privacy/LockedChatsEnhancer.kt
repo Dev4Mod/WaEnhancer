@@ -24,21 +24,24 @@ class LockedChatsEnhancer(classLoader: ClassLoader, preferences:SharedPreference
 
         val jidNotifications = loadNotificationMethod(classLoader)
         val lockedChatsMethod = loadLockedChatsMethod(classLoader)
+        val suppressLockedChats = ThreadLocal.withInitial { false }
 
         XposedBridge.hookMethod(jidNotifications, object : XC_MethodHook() {
 
             override fun beforeHookedMethod(param: MethodHookParam) {
-                val unhook = XposedBridge.hookMethod(lockedChatsMethod, object : XC_MethodHook() {
-                    override fun beforeHookedMethod(param: MethodHookParam) {
-                        param.setResult(ArrayList<Any?>())
-                    }
-                })
-                param.setObjectExtra("hook", unhook)
+                suppressLockedChats.set(true)
             }
 
             override fun afterHookedMethod(param: MethodHookParam) {
-                val unhook = param.getObjectExtra("hook") as Unhook?
-                unhook?.unhook()
+                suppressLockedChats.remove()
+            }
+        })
+
+        XposedBridge.hookMethod(lockedChatsMethod, object : XC_MethodHook() {
+            override fun beforeHookedMethod(param: MethodHookParam) {
+                if (suppressLockedChats.get() == true) {
+                    param.setResult(ArrayList<Any?>())
+                }
             }
         })
 

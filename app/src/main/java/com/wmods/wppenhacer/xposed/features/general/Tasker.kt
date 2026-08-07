@@ -48,16 +48,18 @@ class Tasker(loader: ClassLoader, preferences:SharedPreferences) : Feature(loade
                 if (param.args[4] == "sender" || param.args[1] == null || param.args[3] == null) return
                 val fMsg = FMessageWpp.Key(param.args[3]).fMessage ?: return
                 val userJid = fMsg.key.remoteJid
-                val name = WppCore.getContactName(userJid)
                 val number = userJid.phoneNumber ?: return
                 val msg = fMsg.messageStr ?: return
                 if (TextUtils.isEmpty(msg) || userJid.isStatus) return
-                Handler(Utils.application.mainLooper).post {
-                    val intent = Intent("com.wmods.wppenhacer.MESSAGE_RECEIVED")
-                    intent.putExtra("number", number)
-                    intent.putExtra("name", name)
-                    intent.putExtra("message", msg)
-                    Utils.application.sendBroadcast(intent)
+                Utils.databaseExecutor.execute {
+                    val name = WppCore.getContactName(userJid)
+                    Handler(Utils.application.mainLooper).post {
+                        val intent = Intent("com.wmods.wppenhacer.MESSAGE_RECEIVED")
+                        intent.putExtra("number", number)
+                        intent.putExtra("name", name)
+                        intent.putExtra("message", msg)
+                        Utils.application.sendBroadcast(intent)
+                    }
                 }
             }
         })

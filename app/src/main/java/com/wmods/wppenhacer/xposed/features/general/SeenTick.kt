@@ -413,21 +413,23 @@ class SeenTick(
                 if (ticktype == 1) item.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS)
 
                 item.setOnMenuItemClickListener {
-                    val userJid = fMessage.key.remoteJid
-                    val messageID = fMessage.key.messageID
-                    MessageHistoryStore.getInstance().updateViewedMessage(
-                        userJid.phoneRawString,
-                        messageID,
-                        MessageHistoryStore.ReceiptType.PLAYED,
-                        true
-                    )
-                    MessageHistoryStore.getInstance().updateViewedMessage(
-                        userJid.phoneRawString,
-                        messageID,
-                        MessageHistoryStore.ReceiptType.READ,
-                        true
-                    )
-                    sendBlueTickMedia(fMessage)
+                    scope.launch(Dispatchers.IO) {
+                        val userJid = fMessage.key.remoteJid
+                        val messageID = fMessage.key.messageID
+                        MessageHistoryStore.getInstance().updateViewedMessage(
+                            userJid.phoneRawString,
+                            messageID,
+                            MessageHistoryStore.ReceiptType.PLAYED,
+                            true
+                        )
+                        MessageHistoryStore.getInstance().updateViewedMessage(
+                            userJid.phoneRawString,
+                            messageID,
+                            MessageHistoryStore.ReceiptType.READ,
+                            true
+                        )
+                        sendBlueTickMedia(fMessage)
+                    }
                     Utils.showToast(
                         Utils.getString(R.string.sending_read_blue_tick),
                         Toast.LENGTH_SHORT

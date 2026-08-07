@@ -39,6 +39,8 @@ class CustomThemeV2(loader: ClassLoader, preferences:SharedPreferences) :
     Feature(loader, preferences) {
 
     companion object {
+        private const val FIELD_WALLPAPER_TOOLBAR = "wae_wallpaper_toolbar"
+
         @JvmStatic
         private fun processColors(color: String, mapColors: HashMap<String, String>) {
             val inputColorFull: String = when (color.length) {
@@ -173,6 +175,23 @@ class CustomThemeV2(loader: ClassLoader, preferences:SharedPreferences) :
                     val view = param.thisObject as View
                     if (view.id == Utils.getID("action_mode_bar", "id"))
                         view.background = DesignUtils.getPrimarySurfaceColor().toDrawable()
+                }
+            })
+
+        XposedHelpers.findAndHookMethod(
+            View::class.java, "setBackgroundColor", Int::class.javaPrimitiveType,
+            object : XC_MethodHook() {
+                override fun beforeHookedMethod(param: MethodHookParam) {
+                    if (XposedHelpers.getAdditionalInstanceField(
+                            param.thisObject,
+                            FIELD_WALLPAPER_TOOLBAR
+                        ) != true
+                    ) return
+
+                    val color = toolbarAlpha?.get(IColors.toString(param.args[0] as Int))
+                    if (color != null) {
+                        param.args[0] = IColors.parseColor(color)
+                    }
                 }
             })
 
@@ -382,6 +401,11 @@ class CustomThemeV2(loader: ClassLoader, preferences:SharedPreferences) :
         val toolbarContainer =
             content.findViewById<ViewGroup>(Utils.getID("toolbar_container", "id"))
         if (toolbarContainer != null) {
+            XposedHelpers.setAdditionalInstanceField(
+                toolbarContainer,
+                FIELD_WALLPAPER_TOOLBAR,
+                true
+            )
             toolbarContainer.background = null
             toolbarContainer.backgroundTintList = null
         }
@@ -391,22 +415,10 @@ class CustomThemeV2(loader: ClassLoader, preferences:SharedPreferences) :
             firstChild.background = null
             firstChild.backgroundTintList = null
         }
+        XposedHelpers.setAdditionalInstanceField(toolbar, FIELD_WALLPAPER_TOOLBAR, true)
         toolbar.background = null
         toolbar.backgroundTintList = null
         replaceColors(toolbar, toolbarAlpha)
-        XposedHelpers.findAndHookMethod(
-            View::class.java, "setBackgroundColor", Int::class.javaPrimitiveType,
-            object : XC_MethodHook() {
-                override fun beforeHookedMethod(param: MethodHookParam) {
-                    if (param.thisObject == toolbarContainer || param.thisObject == toolbar) {
-                        val color =
-                            toolbarAlpha?.get(IColors.toString(param.args[0] as Int))
-                        if (color != null) {
-                            param.args[0] = IColors.parseColor(color)
-                        }
-                    }
-                }
-            })
         val frameLayout = WallpaperView(rootView.context, prefs, properties!!)
         rootView.addView(frameLayout, 0)
     }

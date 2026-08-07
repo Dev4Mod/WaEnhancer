@@ -7,7 +7,10 @@ import androidx.room.PrimaryKey
 
 @Entity(
     tableName = "delmessages",
-    indices = [Index(value = ["jid", "msgid"], unique = true)]
+    indices = [
+        Index(value = ["jid", "msgid"], unique = true),
+        Index(name = "idx_delmessages_msgid", value = ["msgid"])
+    ]
 )
 data class DelMessage(
     @PrimaryKey(autoGenerate = true)

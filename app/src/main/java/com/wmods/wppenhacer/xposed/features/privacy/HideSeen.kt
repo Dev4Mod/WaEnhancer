@@ -134,14 +134,14 @@ class HideSeen(loader: ClassLoader, preferences:SharedPreferences) :
     private fun recordHiddenMessages(sendReadReceiptJob: Any, userJid: FMessageWpp.UserJid) {
         val messageIds =
             XposedHelpers.getObjectField(sendReadReceiptJob, "messageIds") as? Array<*> ?: return
-        for (messageId in messageIds) {
-            MessageHistoryStore.getInstance().insertHideSeenMessage(
-                userJid.phoneRawString,
-                messageId as String?,
-                MessageHistoryStore.ReceiptType.READ,
-                false
-            )
-        }
+        val ids = messageIds.mapNotNull { it as? String }
+        if (ids.isEmpty()) return
+        MessageHistoryStore.getInstance().insertHideSeenMessagesAsync(
+            userJid.phoneRawString,
+            ids,
+            MessageHistoryStore.ReceiptType.READ,
+            false
+        )
     }
 
     private fun hookReceiptMethod() {
@@ -223,7 +223,7 @@ class HideSeen(loader: ClassLoader, preferences:SharedPreferences) :
                 }
 
                 if (hideReceipt || hideSeen) {
-                    MessageHistoryStore.getInstance().insertHideSeenMessage(
+            MessageHistoryStore.getInstance().insertHideSeenMessageAsync(
                         fmessageKey.remoteJid.phoneRawString,
                         fmessageKey.messageID,
                         MessageHistoryStore.ReceiptType.READ,
@@ -280,7 +280,7 @@ class HideSeen(loader: ClassLoader, preferences:SharedPreferences) :
 
         if (isHideViewOnce || isHideVoiceNote) {
             param.result = null
-            MessageHistoryStore.getInstance().insertHideSeenMessage(
+            MessageHistoryStore.getInstance().insertHideSeenMessageAsync(
                 key.remoteJid.phoneRawString,
                 key.messageID,
                 MessageHistoryStore.ReceiptType.PLAYED,
@@ -292,13 +292,13 @@ class HideSeen(loader: ClassLoader, preferences:SharedPreferences) :
             val phoneRaw = key.remoteJid.phoneRawString
             val messageId = key.messageID
             MessageHistoryStore.getInstance().apply {
-                updateViewedMessage(
+                updateViewedMessageAsync(
                     phoneRaw,
                     messageId,
                     MessageHistoryStore.ReceiptType.PLAYED,
                     true
                 )
-                updateViewedMessage(phoneRaw, messageId, MessageHistoryStore.ReceiptType.READ, true)
+                updateViewedMessageAsync(phoneRaw, messageId, MessageHistoryStore.ReceiptType.READ, true)
             }
         }
     }

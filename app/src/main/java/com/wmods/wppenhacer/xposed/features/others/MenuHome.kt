@@ -17,6 +17,7 @@ import com.wmods.wppenhacer.xposed.utils.Utils
 import de.robv.android.xposed.XC_MethodHook
 import android.content.SharedPreferences 
 import de.robv.android.xposed.XposedHelpers
+import java.util.concurrent.CopyOnWriteArraySet
 
 class MenuHome(classLoader: ClassLoader, preferences:SharedPreferences) :
     Feature(classLoader, preferences) {
@@ -248,7 +249,7 @@ class MenuHome(classLoader: ClassLoader, preferences:SharedPreferences) :
     }
 
     companion object {
-        private var menuItems: HashSet<HomeMenuItem> = LinkedHashSet<HomeMenuItem>()
+        private val menuItems = CopyOnWriteArraySet<HomeMenuItem>()
 
         @JvmStatic
         fun addMenuItem(homeMenuItem: HomeMenuItem) {

@@ -6,6 +6,7 @@ import com.wmods.wppenhacer.xposed.core.devkit.Unobfuscator.loadSharedPreference
 import de.robv.android.xposed.XC_MethodHook
 import de.robv.android.xposed.XposedBridge
 import de.robv.android.xposed.XposedHelpers
+import java.util.concurrent.CopyOnWriteArraySet
 
 class SharedPreferencesWrapper(private val mPreferences: SharedPreferences) : SharedPreferences {
     override fun getAll(): MutableMap<String?, *>? {
@@ -68,7 +69,7 @@ class SharedPreferencesWrapper(private val mPreferences: SharedPreferences) : Sh
     }
 
     companion object {
-        private val prefHook = HashSet<SPrefHook>()
+        private val prefHook = CopyOnWriteArraySet<SPrefHook>()
 
         @Throws(Exception::class)
         fun hookInit(classLoader: ClassLoader) {
@@ -176,6 +177,7 @@ class SharedPreferencesWrapper(private val mPreferences: SharedPreferences) : Sh
         }
 
         private fun applyHook(key: String?, value: Any?): Any? {
+            if (prefHook.isEmpty()) return value
             var value = value
             for (hook in prefHook) {
                 value = hook.hookValue(key, value)

@@ -46,6 +46,7 @@ import de.robv.android.xposed.XposedBridge
 import de.robv.android.xposed.XposedHelpers
 import java.util.Collections
 import java.util.Locale
+import java.util.concurrent.ConcurrentHashMap
 
 class AboutContactPicker(loader: ClassLoader, preferences:SharedPreferences) :
     Feature(loader, preferences) {
@@ -223,7 +224,7 @@ class AboutContactPicker(loader: ClassLoader, preferences:SharedPreferences) :
         private val allItems = ArrayList<ContactPickerItem>()
         private val visibleItems = ArrayList<ContactPickerItem>()
         private val selectedJids = LinkedHashSet<String>()
-        private val avatarCache = HashMap<String, Drawable>()
+        private val avatarCache = ConcurrentHashMap<String, Drawable>()
         private val avatarLoading = Collections.synchronizedSet(HashSet<String>())
 
         private var rootView: FrameLayout? = null

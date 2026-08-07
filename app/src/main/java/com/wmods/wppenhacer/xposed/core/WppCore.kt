@@ -9,6 +9,7 @@ import android.database.sqlite.SQLiteDatabase
 import android.graphics.drawable.Drawable
 import android.os.Environment
 import android.text.TextUtils
+import android.util.LruCache
 import android.widget.Toast
 import androidx.core.content.edit
 import com.wmods.wppenhacer.R
@@ -48,7 +49,9 @@ object WppCore {
     private lateinit var privPrefs: SharedPreferences
     private var mStartUpConfig: Any? = null
     private var mActionUser: Any? = null
+    @Volatile
     private var mWaDatabase: SQLiteDatabase? = null
+    private val contactNameCache = LruCache<String, String>(200)
 
     @JvmField
     var client: BaseClient? = null
@@ -295,6 +298,7 @@ object WppCore {
     }
 
     @JvmStatic
+    @Synchronized
     fun loadWADatabase() {
         if (mWaDatabase != null) return
         val dataDir = Utils.application.filesDir.parentFile
@@ -362,9 +366,13 @@ object WppCore {
     fun getContactName(userJid: FMessageWpp.UserJid): String {
         loadWADatabase()
         if (mWaDatabase == null || userJid.isNull) return "Whatsapp Contact"
+        val rawJid = userJid.phoneRawString ?: return "Whatsapp Contact"
+        contactNameCache.get(rawJid)?.let { return it }
+
         val name = getSContactName(userJid, false)
-        if (!TextUtils.isEmpty(name)) return name
-        return getWppContactName(userJid)
+        val result = if (!TextUtils.isEmpty(name)) name else getWppContactName(userJid)
+        contactNameCache.put(rawJid, result)
+        return result
     }
 
     @JvmStatic
@@ -374,13 +382,13 @@ object WppCore {
         val selection = if (saveOnly) "jid = ? AND raw_contact_id > 0" else "jid = ?"
         var name: String? = null
         val rawJid = userJid.phoneRawString
-        val cursor = mWaDatabase?.query(
+        mWaDatabase?.query(
             "wa_contacts", arrayOf("display_name"), selection,
             arrayOf(rawJid), null, null, null
-        )
-        if (cursor != null && cursor.moveToFirst()) {
-            name = cursor.getString(0)
-            cursor.close()
+        )?.use { cursor ->
+            if (cursor.moveToFirst()) {
+                name = cursor.getString(0)
+            }
         }
         return name ?: ""
     }
@@ -391,13 +399,13 @@ object WppCore {
         if (mWaDatabase == null || userJid.isNull) return ""
         var name: String? = null
         val rawJid = userJid.phoneRawString
-        val cursor2 = mWaDatabase?.query(
+        mWaDatabase?.query(
             "wa_vnames", arrayOf("verified_name"), "jid = ?",
             arrayOf(rawJid), null, null, null
-        )
-        if (cursor2 != null && cursor2.moveToFirst()) {
-            name = cursor2.getString(0)
-            cursor2.close()
+        )?.use { cursor ->
+            if (cursor.moveToFirst()) {
+                name = cursor.getString(0)
+            }
         }
         return name ?: ""
     }

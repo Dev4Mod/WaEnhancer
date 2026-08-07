@@ -17,6 +17,7 @@ import android.content.SharedPreferences
 import de.robv.android.xposed.XposedBridge
 import de.robv.android.xposed.XposedHelpers
 import java.util.WeakHashMap
+import java.util.concurrent.CopyOnWriteArraySet
 
 class ConversationItemListener(
     loader: ClassLoader,
@@ -33,7 +34,7 @@ class ConversationItemListener(
         private const val FIELD_BOUND_MESSAGE_ID = "conversation_item_bound_message_id"
 
         @JvmField
-        val conversationListeners = HashSet<OnConversationItemListener>()
+        val conversationListeners = CopyOnWriteArraySet<OnConversationItemListener>()
 
         var adapter: ListAdapter? = null
 

@@ -3,6 +3,8 @@ package com.wmods.wppenhacer.xposed.features.media
 import android.content.Intent
 import android.content.SharedPreferences
 import android.net.Uri
+import android.os.Handler
+import android.os.Looper
 import android.text.TextUtils
 import android.view.Menu
 import android.view.MenuItem
@@ -20,6 +22,8 @@ import java.io.File
 
 class StatusDownload(loader: ClassLoader, preferences:SharedPreferences) : Feature(loader, preferences) {
 
+    private val mainHandler = Handler(Looper.getMainLooper())
+
     override fun doHook() {
         if (!prefs.getBoolean("downloadstatus", false)) return
 
@@ -29,11 +33,7 @@ class StatusDownload(loader: ClassLoader, preferences:SharedPreferences) : Featu
                 val item = statusData.currentItem
                 if (item.isFromMe) return null
                 if (!item.isMediaFile) return null
-                val menuItem = menu.add(0, R.string.download, 0, R.string.download)
-                if (item.getMediaFile() == null) {
-                    menuItem.title = Utils.getString(R.string.download) + " ⏳"
-                }
-                return menuItem
+                return menu.add(0, R.string.download, 0, R.string.download)
             }
 
             override fun onClick(item: MenuItem, statusData: MenuStatusListener.StatusData) {
@@ -75,19 +75,32 @@ class StatusDownload(loader: ClassLoader, preferences:SharedPreferences) : Featu
                 return
             }
 
-            val file = statusItem.getMediaFile()
-            if (file == null) {
-                Utils.showToast(Utils.getString(R.string.download_not_available), Toast.LENGTH_SHORT)
-                return
-            }
+            val messageText = fMessage?.messageStr
+            Utils.executor.execute {
+                try {
+                    val file = statusItem.getMediaFile()
+                    if (file == null) {
+                        Utils.showToast(Utils.getString(R.string.download_not_available), Toast.LENGTH_SHORT)
+                        return@execute
+                    }
+                    val clazz = Unobfuscator.findFirstClassUsingName(
+                        classLoader,
+                        StringMatchType.EndsWith,
+                        "MediaComposerActivity"
+                    )
 
-            val intent = Intent()
-            val clazz = Unobfuscator.findFirstClassUsingName(classLoader, StringMatchType.EndsWith, "MediaComposerActivity")
-            intent.setClassName(Utils.application.packageName, clazz.name)
-            intent.putExtra("jids", arrayListOf("status@broadcast"))
-            intent.putExtra("android.intent.extra.STREAM", arrayListOf(Uri.fromFile(file)))
-            intent.putExtra("android.intent.extra.TEXT", fMessage?.messageStr)
-            WppCore.getCurrentActivity()?.startActivity(intent)
+                    mainHandler.post {
+                        val intent = Intent()
+                        intent.setClassName(Utils.application.packageName, clazz.name)
+                        intent.putExtra("jids", arrayListOf("status@broadcast"))
+                        intent.putExtra("android.intent.extra.STREAM", arrayListOf(Uri.fromFile(file)))
+                        intent.putExtra("android.intent.extra.TEXT", messageText)
+                        WppCore.getCurrentActivity()?.startActivity(intent)
+                    }
+                } catch (e: Throwable) {
+                    Utils.showToast(e.message, Toast.LENGTH_SHORT)
+                }
+            }
 
         } catch (e: Throwable) {
             Utils.showToast(e.message, Toast.LENGTH_SHORT)

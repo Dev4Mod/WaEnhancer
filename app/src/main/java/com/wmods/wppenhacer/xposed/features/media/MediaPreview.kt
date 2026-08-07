@@ -11,6 +11,7 @@ import android.media.MediaPlayer
 import android.net.Uri
 import android.os.Handler
 import android.os.Looper
+import android.os.SystemClock
 import android.util.TypedValue
 import android.view.Gravity
 import android.view.MotionEvent
@@ -93,6 +94,8 @@ class MediaPreview(
     private var currentVideoView: VideoView? = null
     private var currentMediaPlayer: MediaPlayer? = null
     private var currentSpeed = 1.0f
+    @Volatile
+    private var lastProgressPostAt = 0L
 
     override fun doHook() {
         if (!prefs.getBoolean("media_preview", true)) return
@@ -450,6 +453,7 @@ class MediaPreview(
                     path.delete()
                 }
             }
+            lastProgressPostAt = 0L
 
             val client = OkHttpClient.Builder()
                 .addInterceptor { chain ->
@@ -462,37 +466,43 @@ class MediaPreview(
                 .build()
 
             val request = Request.Builder().url(url).build()
-            val response = client.newCall(request).execute()
+            client.newCall(request).execute().use { response ->
+                if (!response.isSuccessful) {
+                    throw Exception("Failed to download media")
+                }
 
-            if (!response.isSuccessful) {
-                throw Exception("Failed to download media")
-            }
+                var contentLength = response.body.contentLength()
+                if (contentLength <= 0) contentLength = expectedSize
 
-            var contentLength = response.body.contentLength()
-            if (contentLength <= 0) contentLength = expectedSize
+                val inputStream = response.body.byteStream()
 
-            val inputStream = response.body.byteStream()
-
-            if (isNewsletter) {
-                downloadWithProgress(inputStream, contentLength, progressBar, progressText)
-            } else {
-                downloadAndDecryptWithProgress(
-                    inputStream,
-                    contentLength,
-                    mediaKey,
-                    mimeType,
-                    progressBar,
-                    progressText
-                )
-            }
-
-            mainHandler.post {
-                loadingContainer.visibility = View.GONE
-
-                if (mimeType.startsWith("image")) {
-                    displayImage(context, contentContainer)
+                if (isNewsletter) {
+                    downloadWithProgress(inputStream, contentLength, progressBar, progressText)
                 } else {
-                    displayVideo(context, contentContainer)
+                    downloadAndDecryptWithProgress(
+                        inputStream,
+                        contentLength,
+                        mediaKey,
+                        mimeType,
+                        progressBar,
+                        progressText
+                    )
+                }
+
+                val bitmap = if (mimeType.startsWith("image")) {
+                    BitmapFactory.decodeFile(filePath?.absolutePath)
+                } else {
+                    null
+                }
+
+                mainHandler.post {
+                    loadingContainer.visibility = View.GONE
+
+                    if (mimeType.startsWith("image")) {
+                        displayImage(context, contentContainer, bitmap)
+                    } else {
+                        displayVideo(context, contentContainer)
+                    }
                 }
             }
 
@@ -519,11 +529,7 @@ class MediaPreview(
                 if (contentLength > 0) {
                     val progress = ((totalBytesRead * 100) / contentLength).toInt()
                     val sizeInfo = "${formatSize(totalBytesRead)} / ${formatSize(contentLength)}"
-                    mainHandler.post {
-                        progressBar.progress = progress
-                        progressText.text =
-                            "${Utils.getString(R.string.downloading)} $progress%\n$sizeInfo"
-                    }
+                    postDownloadProgress(progressBar, progressText, progress, sizeInfo)
                 }
             }
         }
@@ -550,11 +556,7 @@ class MediaPreview(
                 if (contentLength > 0) {
                     val progress = ((totalBytesRead * 100) / contentLength).toInt()
                     val sizeInfo = "${formatSize(totalBytesRead)} / ${formatSize(contentLength)}"
-                    mainHandler.post {
-                        progressBar.progress = progress
-                        progressText.text =
-                            "${Utils.getString(R.string.downloading)} $progress%\n$sizeInfo"
-                    }
+                    postDownloadProgress(progressBar, progressText, progress, sizeInfo)
                 }
             }
             encryptedData = baos.toByteArray()
@@ -570,10 +572,25 @@ class MediaPreview(
         }
     }
 
+    @SuppressLint("SetTextI18n")
+    private fun postDownloadProgress(
+        progressBar: ProgressBar,
+        progressText: TextView,
+        progress: Int,
+        sizeInfo: String
+    ) {
+        val now = SystemClock.uptimeMillis()
+        if (progress < 100 && now - lastProgressPostAt < 100L) return
+        lastProgressPostAt = now
+        mainHandler.post {
+            progressBar.progress = progress
+            progressText.text = "${Utils.getString(R.string.downloading)} $progress%\n$sizeInfo"
+        }
+    }
+
     @SuppressLint("ClickableViewAccessibility")
-    private fun displayImage(context: Context, container: FrameLayout) {
+    private fun displayImage(context: Context, container: FrameLayout, bitmap: android.graphics.Bitmap?) {
         try {
-            val bitmap = BitmapFactory.decodeFile(filePath?.absolutePath)
             if (bitmap == null) {
                 Utils.showToast("Failed to load image", Toast.LENGTH_SHORT)
                 return

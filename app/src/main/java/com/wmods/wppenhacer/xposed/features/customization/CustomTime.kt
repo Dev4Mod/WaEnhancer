@@ -13,6 +13,8 @@ import java.util.Locale
 
 class CustomTime(loader: ClassLoader, preferences:SharedPreferences) : Feature(loader, preferences) {
 
+    private val formatters = HashMap<String, DateTimeFormatter>()
+
     @Throws(Exception::class)
     override fun doHook() {
         val secondsToTime = prefs.getBoolean("segundos", false)
@@ -35,7 +37,12 @@ class CustomTime(loader: ClassLoader, preferences:SharedPreferences) : Feature(l
                     if (secondsToTime) "HH:mm:ss" else "HH:mm"
                 }
 
-                var formattedHour = zonedDateTime.format(DateTimeFormatter.ofPattern(pattern, Locale.US))
+                val formatter = synchronized(formatters) {
+                    formatters.getOrPut(pattern) {
+                        DateTimeFormatter.ofPattern(pattern, Locale.US)
+                    }
+                }
+                var formattedHour = zonedDateTime.format(formatter)
 
                 if (textInHour.contains("[TIME]")) {
                     formattedHour = textInHour.replace("[TIME]", formattedHour)

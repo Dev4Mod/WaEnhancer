@@ -11,6 +11,7 @@ import com.wmods.wppenhacer.xposed.core.devkit.Unobfuscator.loadEphemeralInsertd
 import com.wmods.wppenhacer.xposed.core.devkit.Unobfuscator.loadFmessageTimestampField
 import com.wmods.wppenhacer.xposed.core.devkit.Unobfuscator.loadSeeMoreConstructor
 import com.wmods.wppenhacer.xposed.utils.ReflectionUtils
+import com.wmods.wppenhacer.xposed.utils.Utils
 import de.robv.android.xposed.XC_MethodHook
 import android.content.SharedPreferences 
 import de.robv.android.xposed.XposedBridge
@@ -36,7 +37,9 @@ class ChatLimit(loader: ClassLoader, preferences:SharedPreferences) :
             object : XC_MethodHook() {
                 override fun afterHookedMethod(param: MethodHookParam?) {
                     if (antiDisappearing) {
-                        getInstance().executeSQL("UPDATE message_ephemeral SET expire_timestamp = 2553512370000")
+                        Utils.databaseExecutor.execute {
+                            getInstance().executeSQL("UPDATE message_ephemeral SET expire_timestamp = 2553512370000")
+                        }
                     }
                 }
             })

@@ -22,14 +22,20 @@ import de.robv.android.xposed.XposedHelpers.callMethod
 import de.robv.android.xposed.XposedHelpers.getObjectField
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.luckypray.dexkit.query.enums.StringMatchType
 import java.util.function.Predicate
 import java.util.regex.Pattern
+import java.util.concurrent.ConcurrentHashMap
 
 class SeparateGroup(loader: ClassLoader, preferences:SharedPreferences) :
     Feature(loader, preferences) {
+
+    private val badgeScope = CoroutineScope(
+        Dispatchers.IO + SupervisorJob() + WaeCoroutineExceptionHandler
+    )
 
     companion object {
         const val CHATS = 200
@@ -37,8 +43,9 @@ class SeparateGroup(loader: ClassLoader, preferences:SharedPreferences) :
         const val GROUPS = 500
 
         @JvmField
-        var tabs = ArrayList<Int>()
-        var tabInstances = HashMap<Int, Any>()
+        @Volatile
+        var tabs: List<Int> = emptyList()
+        val tabInstances = ConcurrentHashMap<Int, Any>()
 
         fun resolveUserJid(chat: Any): FMessageWpp.UserJid? {
             try {
@@ -135,7 +142,7 @@ class SeparateGroup(loader: ClassLoader, preferences:SharedPreferences) :
 
                 param.result = null
 
-                CoroutineScope(Dispatchers.IO + WaeCoroutineExceptionHandler).launch {
+                badgeScope.launch {
                     val unseenChatCounts = getUnseenChatCounts()
                     withContext(Dispatchers.Main) {
                         if (tabs.contains(CHATS) && tabInstances.containsKey(CHATS)) {
@@ -207,29 +214,31 @@ class SeparateGroup(loader: ClassLoader, preferences:SharedPreferences) :
         logDebug(Unobfuscator.getMethodDescriptor(iconTabMethod))
         val menuAddAndroidX = Unobfuscator.loadAddMenuAndroidX(classLoader)
         logDebug(menuAddAndroidX.toString())
+        val customizeGroupIcon = ThreadLocal.withInitial { false }
+
+        XposedBridge.hookMethod(menuAddAndroidX, object : XC_MethodHook() {
+            override fun afterHookedMethod(param: MethodHookParam) {
+                if (customizeGroupIcon.get() != true) return
+                if (param.args.size > 2 && (param.args[1] as Int) == GROUPS) {
+                    val menuItem = param.result as? MenuItem ?: return
+                    menuItem.setIcon(
+                        Utils.getID(
+                            "home_tab_communities_selector",
+                            "drawable"
+                        )
+                    )
+                }
+            }
+        })
 
         XposedBridge.hookMethod(iconTabMethod, object : XC_MethodHook() {
             override fun beforeHookedMethod(param: MethodHookParam) {
-                val hooked = XposedBridge.hookMethod(menuAddAndroidX, object : XC_MethodHook() {
-                    override fun afterHookedMethod(innerParam: MethodHookParam) {
-                        if (innerParam.args.size > 2 && (innerParam.args[1] as Int) == GROUPS) {
-                            val menuItem = innerParam.result as MenuItem
-                            menuItem.setIcon(
-                                Utils.getID(
-                                    "home_tab_communities_selector",
-                                    "drawable"
-                                )
-                            )
-                        }
-                    }
-                })
-                param.setObjectExtra("hooked", hooked)
+                customizeGroupIcon.set(true)
             }
 
             @SuppressLint("ResourceType")
             override fun afterHookedMethod(param: MethodHookParam) {
-                val hooked = param.getObjectExtra("hooked") as? Unhook
-                hooked?.unhook()
+                customizeGroupIcon.remove()
             }
         })
     }
@@ -383,11 +392,11 @@ class SeparateGroup(loader: ClassLoader, preferences:SharedPreferences) :
         XposedBridge.hookMethod(onCreateTabList, object : XC_MethodHook() {
             @Suppress("UNCHECKED_CAST")
             override fun afterHookedMethod(param: MethodHookParam) {
-                val resultTabs = param.result as? ArrayList<Int> ?: return
-                tabs = resultTabs
-                if (!tabs.contains(GROUPS)) {
-                    tabs.add(if (tabs.isEmpty()) 0 else 1, GROUPS)
+                val updatedTabs = param.result as? ArrayList<Int> ?: return
+                if (!updatedTabs.contains(GROUPS)) {
+                    updatedTabs.add(if (updatedTabs.isEmpty()) 0 else 1, GROUPS)
                 }
+                tabs = updatedTabs
             }
         })
     }

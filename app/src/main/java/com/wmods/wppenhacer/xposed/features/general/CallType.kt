@@ -3,7 +3,6 @@ package com.wmods.wppenhacer.xposed.features.general
 import android.app.Dialog
 import android.content.DialogInterface
 import android.content.Intent
-import android.os.BaseBundle
 import android.os.Bundle
 import androidx.core.net.toUri
 import com.wmods.wppenhacer.R
@@ -20,8 +19,6 @@ import de.robv.android.xposed.XposedHelpers
 
 class CallType(loader: ClassLoader, preferences:SharedPreferences) :
     Feature(loader, preferences) {
-    private var hookBundleBoolean: XC_MethodHook.Unhook? = null
-
     override fun doHook() {
         if (!prefs.getBoolean("calltype", false)) return
 
@@ -41,45 +38,21 @@ class CallType(loader: ClassLoader, preferences:SharedPreferences) :
             callConfirmationFragment
         ) { m -> m.parameterCount == 1 && m.parameterTypes[0] == Bundle::class.java }
         XposedBridge.hookMethod(method, object : XC_MethodHook() {
-            private var isVideoCall = false
-            private var jid: String? = null
-            private var newDialog: Dialog? = null
-            private var hookBundleString: Unhook? = null
-
-            override fun beforeHookedMethod(param: MethodHookParam?) {
-                hookBundleString = XposedHelpers.findAndHookMethod(
-                    BaseBundle::class.java,
-                    "getString",
-                    String::class.java,
-                    object : XC_MethodHook() {
-                        override fun afterHookedMethod(param: MethodHookParam) {
-                            if (param.args[0] === "jid") {
-                                jid = param.result as String?
-                            }
-                        }
-                    })
-                hookBundleBoolean = XposedHelpers.findAndHookMethod(
-                    BaseBundle::class.java,
-                    "getBoolean",
-                    String::class.java,
-                    object : XC_MethodHook() {
-                        @Throws(Throwable::class)
-                        override fun afterHookedMethod(param: MethodHookParam) {
-                            if (param.args[0] === "is_video_call") {
-                                isVideoCall = param.result as Boolean
-                            }
-                        }
-                    })
+            override fun beforeHookedMethod(param: MethodHookParam) {
+                val bundle = param.args.firstOrNull() as? Bundle ?: return
+                param.setObjectExtra("wae_call_jid", bundle.getString("jid"))
+                param.setObjectExtra("wae_is_video_call", bundle.getBoolean("is_video_call"))
             }
 
             @Throws(Throwable::class)
             override fun afterHookedMethod(param: MethodHookParam) {
-                hookBundleString!!.unhook()
-                hookBundleBoolean!!.unhook()
+                val jid = param.getObjectExtra("wae_call_jid") as? String
+                val isVideoCall = param.getObjectExtra("wae_is_video_call") as? Boolean ?: false
                 if (jid == null || isVideoCall) return
                 val origDialog = param.result as Dialog
                 val context = origDialog.context
                 val mAlertDialog = AlertDialogWpp(origDialog.context)
+                lateinit var newDialog: Dialog
                 mAlertDialog.setTitle(UnobfuscatorCache.getInstance().getString("selectcalltype"))
                 mAlertDialog.setItems(
                     arrayOf(

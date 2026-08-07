@@ -19,7 +19,6 @@ import com.wmods.wppenhacer.xposed.core.WppCore
 import com.wmods.wppenhacer.xposed.core.components.FMessageWpp
 import com.wmods.wppenhacer.xposed.core.db.MessageHistoryStore
 import com.wmods.wppenhacer.xposed.core.db.MessageHistoryStore.MessageItem
-import com.wmods.wppenhacer.xposed.core.db.MessageStore
 import com.wmods.wppenhacer.xposed.core.devkit.Unobfuscator.getMethodDescriptor
 import com.wmods.wppenhacer.xposed.core.devkit.Unobfuscator.loadCallerMessageEditMethod
 import com.wmods.wppenhacer.xposed.core.devkit.Unobfuscator.loadGetEditMessageMethod
@@ -56,7 +55,6 @@ class ShowEditMessage(loader: ClassLoader, preferences:SharedPreferences) :
                 val timestamp = XposedHelpers.getLongField(invoked, "A00")
                 val fMessage = FMessageWpp(param.args[0])
                 val id = fMessage.rowId
-                val origMessage = MessageStore.getInstance().getCurrentMessageByID(id)
                 var newMessage = fMessage.messageStr
                 if (newMessage == null) {
                     val methods = ReflectionUtils.findAllMethodsUsingFilter(
@@ -73,11 +71,7 @@ class ShowEditMessage(loader: ClassLoader, preferences:SharedPreferences) :
                     if (newMessage == null) return
                 }
                 try {
-                    val message = MessageHistoryStore.getInstance().getMessages(id)
-                    if (message == null) {
-                        MessageHistoryStore.getInstance().insertMessage(id, origMessage, 0)
-                    }
-                    MessageHistoryStore.getInstance().insertMessage(id, newMessage, timestamp)
+                    MessageHistoryStore.getInstance().recordEditMessageAsync(id, newMessage, timestamp)
                 } catch (e: Exception) {
                     logDebug(e)
                 }
@@ -105,14 +99,10 @@ class ShowEditMessage(loader: ClassLoader, preferences:SharedPreferences) :
                         val rowId = fMessage.rowId
                         textView.setOnClickListener {
                             if (!ConversationItemListener.isViewBoundToMessage(view, messageId)) return@setOnClickListener
-                            try {
-                                var messages = MessageHistoryStore.getInstance().getMessages(rowId)
-                                if (messages == null) {
-                                    messages = ArrayList()
+                            MessageHistoryStore.getInstance().getMessagesAsync(rowId) { messages ->
+                                if (ConversationItemListener.isViewBoundToMessage(view, messageId)) {
+                                    showBottomDialog(messages)
                                 }
-                                showBottomDialog(messages)
-                            } catch (exception0: Exception) {
-                                logDebug(exception0)
                             }
                         }
                     }

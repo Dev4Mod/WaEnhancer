@@ -8,6 +8,7 @@ import com.wmods.wppenhacer.xposed.core.WppCore
 import com.wmods.wppenhacer.xposed.core.db.MessageStore
 import com.wmods.wppenhacer.xposed.core.devkit.Unobfuscator
 import com.wmods.wppenhacer.xposed.features.listeners.MenuStatusListener
+import com.wmods.wppenhacer.xposed.utils.Utils
 import android.content.SharedPreferences 
 import org.luckypray.dexkit.query.enums.StringMatchType
 
@@ -26,15 +27,22 @@ class DeleteStatus(classLoader: ClassLoader, preferences:SharedPreferences) : Fe
             }
 
             override fun onClick(item: MenuItem, statusData: MenuStatusListener.StatusData) {
-                try {
-                    MessageStore.getInstance().deleteStatusByMessageKey(statusData.currentItem.messageID)
+                val activity = WppCore.getCurrentActivity()
+                val messageId = statusData.currentItem.messageID
+                Utils.databaseExecutor.execute {
+                    try {
+                        MessageStore.getInstance().deleteStatusByMessageKey(messageId)
 
-                    val activity = WppCore.getCurrentActivity()
-                    if (activity != null && statusPlaybackActivityClass.isInstance(activity)) {
-                        activity.recreate()
+                        if (activity != null && statusPlaybackActivityClass.isInstance(activity)) {
+                            activity.runOnUiThread {
+                                if (!activity.isFinishing && !activity.isDestroyed) {
+                                    activity.recreate()
+                                }
+                            }
+                        }
+                    } catch (e: Exception) {
+                        logDebug(e)
                     }
-                } catch (e: Exception) {
-                    logDebug(e)
                 }
             }
         }

@@ -63,7 +63,15 @@ object Utils {
 
 
     val executor: ExecutorService by lazy {
-         Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
+        Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors())
+    }
+
+    val databaseExecutor: ExecutorService by lazy {
+        Executors.newSingleThreadExecutor { runnable ->
+            Thread(runnable, "WAE-Database").apply {
+                isDaemon = true
+            }
+        }
     }
 
     @JvmStatic

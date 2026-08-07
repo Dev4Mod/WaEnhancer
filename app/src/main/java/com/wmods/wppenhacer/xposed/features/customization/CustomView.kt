@@ -64,6 +64,8 @@ import java.security.MessageDigest
 import java.util.Objects
 import java.util.Properties
 import java.util.WeakHashMap
+import java.util.concurrent.CopyOnWriteArrayList
+import java.util.concurrent.ConcurrentHashMap
 import kotlin.math.cos
 import kotlin.math.sin
 
@@ -278,7 +280,11 @@ class CustomView(loader: ClassLoader, preferences:SharedPreferences) : Feature(l
             View::class.java, "onDetachedFromWindow",
             object : XC_MethodHook() {
                 override fun afterHookedMethod(param: MethodHookParam) {
-                    processedViews.remove(param.thisObject as View)
+                    val view = param.thisObject as View
+                    processedViews.remove(view)
+                    forcedVisibilityMap.remove(view)
+                    forcedBackgroundMap.remove(view)
+                    forcedDrawableMap.remove(view)
                 }
             })
 
@@ -439,7 +445,9 @@ class CustomView(loader: ClassLoader, preferences:SharedPreferences) : Feature(l
                     if (forcedBackgroundMap.containsKey(view) || forcedDrawableMap.containsKey(view))
                         continue
                     cacheImages?.getDrawableAsync(terms[0].strValue, view.width, view.height) { draw ->
-                        if (draw != null && !forcedBackgroundMap.containsKey(view) && !forcedDrawableMap.containsKey(view)) {
+                        if (draw != null && view.isAttachedToWindow &&
+                            !forcedBackgroundMap.containsKey(view) && !forcedDrawableMap.containsKey(view)
+                        ) {
                             setHookedDrawable(view, draw)
                         }
                     }
@@ -512,7 +520,7 @@ class CustomView(loader: ClassLoader, preferences:SharedPreferences) : Feature(l
                     }
                     if (t0.type == SerialTerm.URI) {
                         cacheImages?.getDrawableAsync(t0.strValue, view.width, view.height) { draw ->
-                            if (draw != null) {
+                            if (draw != null && view.isAttachedToWindow) {
                                 setHookedDrawable(view, draw)
                             }
                         }
@@ -533,7 +541,7 @@ class CustomView(loader: ClassLoader, preferences:SharedPreferences) : Feature(l
                     }
                     if (t0.type == SerialTerm.URI) {
                         cacheImages?.getDrawableAsync(t0.strValue, view.width, view.height) { draw ->
-                            if (draw != null) {
+                            if (draw != null && view.isAttachedToWindow) {
                                 view.foreground = draw
                             }
                         }
@@ -815,6 +823,8 @@ class CustomView(loader: ClassLoader, preferences:SharedPreferences) : Feature(l
 
     inner class DrawableCache(context: Context, maxSize: Int) {
         private val drawableCache = LruCache<String, CachedDrawable>(maxSize)
+        private val loadingDrawables = ConcurrentHashMap<String, Boolean>()
+        private val pendingCallbacks = ConcurrentHashMap<String, CopyOnWriteArrayList<(Drawable?) -> Unit>>()
         private val context = context.applicationContext
 
         fun getDrawable(filePath: String, width: Int, height: Int): Drawable? {
@@ -841,37 +851,51 @@ class CustomView(loader: ClassLoader, preferences:SharedPreferences) : Feature(l
         }
 
         fun getDrawableAsync(filePath: String, width: Int, height: Int, callback: (Drawable?) -> Unit) {
-            val cachedSync = getDrawable(filePath, width, height)
+            val file = if (filePath.startsWith("/")) File(filePath) else File(themeDir, filePath)
+            val key = file.absolutePath
+            val cachedSync = drawableCache.get(key)?.takeIf {
+                System.currentTimeMillis() - it.lastCheckTime < 2000
+            }?.drawable
             if (cachedSync != null) {
                 callback(cachedSync)
                 return
             }
+
+            val callbacks = pendingCallbacks.computeIfAbsent(key) { CopyOnWriteArrayList() }
+            callbacks.add(callback)
+            if (loadingDrawables.putIfAbsent(key, true) != null) return
+
             Utils.executor.execute {
-                val file = if (filePath.startsWith("/")) File(filePath) else File(themeDir, filePath)
-                if (!file.exists()) {
-                    Handler(Looper.getMainLooper()).post { callback(null) }
-                    return@execute
-                }
-                val key = file.absolutePath
-                val lastModified = file.lastModified()
+                var drawable: Drawable? = null
+                try {
+                    if (file.exists()) {
+                        val lastModified = file.lastModified()
 
-                val cached = loadDrawableFromCache(key, lastModified)
-                val drawable = if (cached != null) {
-                    cached
-                } else {
-                    val loaded = loadDrawableFromFile(key, width, height)
-                    if (loaded is BitmapDrawable) {
-                        saveDrawableToCache(key, loaded, lastModified)
+                        val cached = loadDrawableFromCache(key, lastModified)
+                        drawable = if (cached != null) {
+                            cached
+                        } else {
+                            val loaded = loadDrawableFromFile(key, width, height)
+                            if (loaded is BitmapDrawable) {
+                                saveDrawableToCache(key, loaded, lastModified)
+                            }
+                            loaded
+                        }
+
+                        if (drawable != null) {
+                            val entry = CachedDrawable(drawable, lastModified)
+                            drawableCache.put(key, entry)
+                        }
                     }
-                    loaded
+                } catch (throwable: Throwable) {
+                    XposedBridge.log(throwable)
+                } finally {
+                    loadingDrawables.remove(key)
+                    val callbacksToRun = pendingCallbacks.remove(key).orEmpty()
+                    Handler(Looper.getMainLooper()).post {
+                        callbacksToRun.forEach { it(drawable) }
+                    }
                 }
-
-                if (drawable != null) {
-                    val entry = CachedDrawable(drawable, lastModified)
-                    drawableCache.put(key, entry)
-                }
-
-                Handler(Looper.getMainLooper()).post { callback(drawable) }
             }
         }
 
@@ -880,8 +904,11 @@ class CustomView(loader: ClassLoader, preferences:SharedPreferences) : Feature(l
                 val file = File(filePath)
                 val bitmap = if (!file.canRead()) {
                     val bridge = WppCore.getClientBridge() ?: return null
-                    val parcelFile = bridge.openFile(filePath, false)
-                    BitmapFactory.decodeStream(FileInputStream(parcelFile.fileDescriptor))
+                    bridge.openFile(filePath, false).use { parcelFile ->
+                        FileInputStream(parcelFile.fileDescriptor).use { input ->
+                            BitmapFactory.decodeStream(input)
+                        }
+                    }
                 } else {
                     BitmapFactory.decodeFile(file.absolutePath)
                 } ?: return null

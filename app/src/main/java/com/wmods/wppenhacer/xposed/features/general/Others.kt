@@ -43,6 +43,7 @@ import java.lang.reflect.Modifier
 import java.util.Properties
 import java.util.WeakHashMap
 import java.util.concurrent.CompletableFuture
+import java.util.concurrent.ConcurrentHashMap
 import kotlin.math.max
 
 class Others(loader: ClassLoader, preferences:SharedPreferences) : Feature(loader, preferences) {
@@ -50,9 +51,9 @@ class Others(loader: ClassLoader, preferences:SharedPreferences) : Feature(loade
     companion object {
 
         @JvmField
-        val propsBoolean = HashMap<Int, Boolean>()
+        val propsBoolean = ConcurrentHashMap<Int, Boolean>()
         @JvmField
-        val propsInteger = HashMap<Int, Int>()
+        val propsInteger = ConcurrentHashMap<Int, Int>()
     }
 
     private lateinit var properties: Properties
@@ -627,12 +628,12 @@ class Others(loader: ClassLoader, preferences:SharedPreferences) : Feature(loade
 
 
     private fun filterItems(filterItems: String) {
-        val idsFilter: List<Int> by lazy {
+        val idsFilter: Set<Int> by lazy {
             filterItems.split("\n").map {
                 Utils.getID(it.trim(), "id")
             }.filter {
                 it > 0
-            }
+            }.toSet()
         }
         XposedHelpers.findAndHookMethod(View::class.java, "invalidate", Boolean::class.javaPrimitiveType, object : XC_MethodHook() {
             override fun afterHookedMethod(param: MethodHookParam) {

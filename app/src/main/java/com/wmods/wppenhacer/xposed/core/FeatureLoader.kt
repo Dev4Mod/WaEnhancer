@@ -121,10 +121,12 @@ class FeatureLoader {
         const val PACKAGE_WPP = "com.whatsapp"
         const val PACKAGE_BUSINESS = "com.whatsapp.w4b"
 
-        private val list = ArrayList<ErrorItem>()
+        private val list = Collections.synchronizedList(ArrayList<ErrorItem>())
         private var supportedVersions: List<String>? = null
         private var currentVersion: String? = null
         private var crashHandlerInstalled = false
+        private const val UPDATE_CHECK_COOLDOWN_MS = 6 * 60 * 60 * 1000L
+        private var lastUpdateCheckScheduledAt = 0L
 
         @JvmStatic
         fun start(loader: ClassLoader, sourceDir: String) {
@@ -220,9 +222,10 @@ class FeatureLoader {
                 object : XC_MethodHook() {
                     override fun afterHookedMethod(param: MethodHookParam) {
                         if (param.thisObject.javaClass.simpleName != "HomeActivity") return
-                        if (list.isNotEmpty()) {
+                        val errors = synchronized(list) { list.toList() }
+                        if (errors.isNotEmpty()) {
                             val activity = param.thisObject as Activity
-                            val msg = list.joinToString("\n") { "${it.pluginName} - ${it.message}" }
+                            val msg = errors.joinToString("\n") { "${it.pluginName} - ${it.message}" }
 
                             AlertDialogWpp(activity)
                                 .setTitle(activity.getString(R.string.error_detected))
@@ -238,7 +241,7 @@ class FeatureLoader {
                                         mApp?.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
                                     val clip = ClipData.newPlainText(
                                         "text",
-                                        list.joinToString("\n") { it.toString() })
+                                         errors.joinToString("\n") { it.toString() })
                                     clipboard.setPrimaryClip(clip)
                                     Toast.makeText(
                                         mApp,
@@ -377,9 +380,20 @@ class FeatureLoader {
 
                 if (App.isOriginalPackage && pref.getBoolean("update_check", true)) {
                     if (activity.javaClass.simpleName == "HomeActivity" && type == WppCore.ActivityChangeState.ChangeType.RESUMED) {
-                        activity.window.decorView.postDelayed({
-                            CompletableFuture.runAsync(UpdateChecker(activity))
-                        }, 2000)
+                        val now = System.currentTimeMillis()
+                        val shouldSchedule = synchronized(FeatureLoader::class.java) {
+                            if (now - lastUpdateCheckScheduledAt < UPDATE_CHECK_COOLDOWN_MS) {
+                                false
+                            } else {
+                                lastUpdateCheckScheduledAt = now
+                                true
+                            }
+                        }
+                        if (shouldSchedule) {
+                            activity.window.decorView.postDelayed({
+                                CompletableFuture.runAsync(UpdateChecker(activity))
+                            }, 2000)
+                        }
                     }
                 }
             }
@@ -546,9 +560,11 @@ class FeatureLoader {
             )
 
             XposedBridge.log("Loading Plugins")
-            val executorService = Executors.newWorkStealingPool(
-                Runtime.getRuntime().availableProcessors().coerceAtMost(4)
-            )
+            val executorService = Executors.newSingleThreadExecutor { runnable ->
+                Thread(runnable, "WAE-HookInstaller").apply {
+                    isDaemon = true
+                }
+            }
             val times = Collections.synchronizedList(ArrayList<String>())
 
             for (clazz in classes) {
@@ -587,7 +603,8 @@ class FeatureLoader {
             executorService.awaitTermination(15, TimeUnit.SECONDS)
 
             if (Feature.DEBUG) {
-                times.forEach { XposedBridge.log(it) }
+                val loadedTimes = synchronized(times) { times.toList() }
+                loadedTimes.forEach { XposedBridge.log(it) }
             }
         }
     }

@@ -2,9 +2,13 @@ package com.wmods.wppenhacer.xposed.core.db.entity
 
 import androidx.room.ColumnInfo
 import androidx.room.Entity
+import androidx.room.Index
 import androidx.room.PrimaryKey
 
-@Entity(tableName = "MessageHistory")
+@Entity(
+    tableName = "MessageHistory",
+    indices = [Index(name = "idx_message_history_row_id", value = ["row_id"])]
+)
 data class MessageEntity(
     @PrimaryKey(autoGenerate = true)
     @ColumnInfo(name = "_id")

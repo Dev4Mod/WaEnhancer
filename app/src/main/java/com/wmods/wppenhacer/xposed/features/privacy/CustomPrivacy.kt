@@ -4,6 +4,8 @@ import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.SharedPreferences
 import android.graphics.drawable.Drawable
+import android.os.Handler
+import android.os.Looper
 import android.text.TextUtils
 import android.util.TypedValue
 import android.view.Menu
@@ -241,45 +243,47 @@ class CustomPrivacy(
     ) {
         val pprefs: SharedPreferences = WppCore.getPrivPrefs()
         val maps = pprefs.all
-        val list = ArrayList<CustomPrivacyAdapter.Item>()
+        Utils.databaseExecutor.execute {
+            val list = ArrayList<CustomPrivacyAdapter.Item>()
 
-        for (key in maps.keys) {
-            if (key.endsWith("_privacy")) {
-                val number = key.replace("_privacy", "")
-                val userJid = FMessageWpp.UserJid(
-                    number + if (number.length > 14) "@g.us" else "@s.whatsapp.net"
-                )
+            for (key in maps.keys) {
+                if (key.endsWith("_privacy")) {
+                    val number = key.replace("_privacy", "")
+                    val userJid = FMessageWpp.UserJid(
+                        number + if (number.length > 14) "@g.us" else "@s.whatsapp.net"
+                    )
 
-                var contactName = WppCore.getContactName(userJid)
+                    var contactName = WppCore.getContactName(userJid)
+                    if (TextUtils.isEmpty(contactName)) contactName = number
 
-                if (TextUtils.isEmpty(contactName)) {
-                    contactName = number
+                    val item = CustomPrivacyAdapter.Item()
+                    item.name = contactName
+                    item.number = number
+                    item.key = key
+                    list.add(item)
+                }
+            }
+
+            Handler(Looper.getMainLooper()).post {
+                if (activity.isFinishing || activity.isDestroyed) return@post
+                if (list.isEmpty()) {
+                    Utils.showToast(
+                        activity.getString(R.string.no_contact_with_custom_privacy),
+                        Toast.LENGTH_SHORT
+                    )
+                    return@post
                 }
 
-                val item = CustomPrivacyAdapter.Item()
-                item.name = contactName
-                item.number = number
-                item.key = key
-                list.add(item)
+                val builder = AlertDialogWpp(activity)
+                builder.setTitle(R.string.custom_privacy)
+
+                val listView = ListView(activity)
+                listView.adapter = CustomPrivacyAdapter(activity, pprefs, list, contactClass, groupClass)
+
+                builder.setView(listView)
+                builder.show()
             }
         }
-
-        if (list.isEmpty()) {
-            Utils.showToast(
-                activity.getString(R.string.no_contact_with_custom_privacy),
-                Toast.LENGTH_SHORT
-            )
-            return
-        }
-
-        val builder = AlertDialogWpp(activity)
-        builder.setTitle(R.string.custom_privacy)
-
-        val listView = ListView(activity)
-        listView.adapter = CustomPrivacyAdapter(activity, pprefs, list, contactClass, groupClass)
-
-        builder.setView(listView)
-        builder.show()
     }
 
     private fun showPrivacyDialog(activity: Activity, isChat: Boolean) {

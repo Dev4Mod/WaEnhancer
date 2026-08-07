@@ -8,8 +8,9 @@ import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
 import com.wmods.wppenhacer.xposed.core.db.dao.DelMessageDao
 import com.wmods.wppenhacer.xposed.core.db.entity.DelMessage
+import com.wmods.wppenhacer.xposed.utils.Utils
 
-@Database(entities = [DelMessage::class], version = 12, exportSchema = false)
+@Database(entities = [DelMessage::class], version = 13, exportSchema = false)
 abstract class DelMessageDatabase : RoomDatabase() {
 
     abstract fun delMessageDao(): DelMessageDao
@@ -84,9 +85,18 @@ abstract class DelMessageDatabase : RoomDatabase() {
             }
         }
 
+        private val MIGRATION_12_13 = object : Migration(12, 13) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL(
+                    "CREATE INDEX IF NOT EXISTS idx_delmessages_msgid " +
+                            "ON delmessages (msgid)"
+                )
+            }
+        }
+
         fun getInstance(context: Context): DelMessageDatabase {
             return INSTANCE ?: synchronized(this) {
-                val instance = Room.databaseBuilder(
+                INSTANCE ?: Room.databaseBuilder(
                     context.applicationContext,
                     DelMessageDatabase::class.java,
                     "delmessages.db"
@@ -100,13 +110,14 @@ abstract class DelMessageDatabase : RoomDatabase() {
                         MIGRATION_8_9,
                         MIGRATION_9_10,
                         MIGRATION_10_11,
-                        MIGRATION_11_12
+                        MIGRATION_11_12,
+                        MIGRATION_12_13
                     )
+                    .setQueryExecutor(Utils.databaseExecutor)
+                    .setTransactionExecutor(Utils.databaseExecutor)
                     .fallbackToDestructiveMigrationOnDowngrade(false)
-                    .allowMainThreadQueries()
                     .build()
-                INSTANCE = instance
-                instance
+                    .also { INSTANCE = it }
             }
         }
     }

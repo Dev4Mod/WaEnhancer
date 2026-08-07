@@ -9,7 +9,7 @@ import com.wmods.wppenhacer.xposed.core.db.entity.MessageEntity
 
 @Database(
     entities = [MessageEntity::class, HideSeenEntity::class],
-    version = 5,
+    version = 6,
     exportSchema = false
 )
 abstract class MessageHistoryDatabase : RoomDatabase() {
