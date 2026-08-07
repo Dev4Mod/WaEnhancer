@@ -82,12 +82,35 @@ class FStatusWpp(val fstatus: Any?) {
         }
     }
 
+    private val mediaFileAccessor: Pair<Field, Method>? by lazy {
+        classFMediaStatus.declaredFields.firstNotNullOfOrNull { field ->
+            field.isAccessible = true
+
+            val method = field.type.declaredMethods.firstOrNull {
+                it.returnType == File::class.java
+            }
+
+            if (method != null) {
+                method.isAccessible = true
+                Pair(field, method)
+            } else {
+                null
+            }
+        }
+    }
+
     fun getMediaFile(): File? {
         if (!isMediaFile) return null
-        val item = classFMediaStatus.getField("A00").get(fstatus) ?: return null
-        return item.javaClass.declaredMethods.first {
-            it.returnType == File::class.java
-        }.apply { isAccessible = true }.invoke(item) as? File
+
+        val (field, method) = mediaFileAccessor ?: run {
+            XposedBridge.log("Media file accessor not found for FStatus class: ${classFMediaStatus.name}")
+            return null
+        }
+
+        val item = field.get(fstatus) ?: return null
+        return runCatching {
+            method.invoke(item) as? File
+        }.getOrNull()
     }
 
     override fun toString(): String {
