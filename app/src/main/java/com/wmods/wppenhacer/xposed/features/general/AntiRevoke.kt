@@ -22,6 +22,7 @@ import de.robv.android.xposed.XC_MethodHook
 import android.content.SharedPreferences 
 import de.robv.android.xposed.XposedBridge
 import de.robv.android.xposed.XposedHelpers
+import java.lang.reflect.Method
 import java.text.DateFormat
 import java.util.Collections
 import java.util.Date
@@ -119,7 +120,15 @@ class AntiRevoke(loader: ClassLoader, preferences:SharedPreferences) :
                         messageId
                     ) != 0
                 ) {
-                    param.result = true
+                    val method = param.method as Method
+                    if (method.returnType != Boolean::class.javaPrimitiveType) {
+                        val constructor = method.returnType.constructors[0]
+                        val params = ReflectionUtils.initArray(constructor.parameterTypes)
+                        val instance = constructor.newInstance(*params)
+                        param.result = instance
+                    } else {
+                        param.result = true
+                    }
                 }
             }
         })
