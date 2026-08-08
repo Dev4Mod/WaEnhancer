@@ -231,6 +231,17 @@ class FloatingBottomBar(loader: ClassLoader, preferences: SharedPreferences) :
             params.setMargins(sideMargin, 0, sideMargin, 0)
             bar.layoutParams = params
         }
+
+        val bottomInset = navigationBarInset(bar)
+        if (bottomInset > 0) {
+            val bottomPadding = (bar.paddingBottom - bottomInset).coerceAtLeast(0)
+            bar.setPaddingRelative(
+                bar.paddingStart,
+                bar.paddingTop,
+                bar.paddingEnd,
+                bottomPadding
+            )
+        }
     }
 
     private fun positionFabsAboveBar(rootView: ViewGroup, container: ViewGroup) {
