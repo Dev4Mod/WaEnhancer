@@ -10,7 +10,7 @@ import com.wmods.wppenhacer.xposed.core.db.dao.DelMessageDao
 import com.wmods.wppenhacer.xposed.core.db.entity.DelMessage
 import com.wmods.wppenhacer.xposed.utils.Utils
 
-@Database(entities = [DelMessage::class], version = 13, exportSchema = false)
+@Database(entities = [DelMessage::class], version = 14, exportSchema = false)
 abstract class DelMessageDatabase : RoomDatabase() {
 
     abstract fun delMessageDao(): DelMessageDao
@@ -94,6 +94,28 @@ abstract class DelMessageDatabase : RoomDatabase() {
             }
         }
 
+        private val MIGRATION_13_14 = object : Migration(13, 14) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                // Recreate table to ensure _id has NOT NULL constraint
+                // and the unique index on (jid, msgid) exists
+                db.execSQL(
+                    "CREATE TABLE IF NOT EXISTS delmessages_new (" +
+                            "_id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, " +
+                            "jid TEXT, " +
+                            "msgid TEXT, " +
+                            "timestamp INTEGER DEFAULT 0)"
+                )
+                db.execSQL(
+                    "INSERT OR IGNORE INTO delmessages_new (_id, jid, msgid, timestamp) " +
+                            "SELECT _id, jid, msgid, timestamp FROM delmessages"
+                )
+                db.execSQL("DROP TABLE delmessages")
+                db.execSQL("ALTER TABLE delmessages_new RENAME TO delmessages")
+                db.execSQL("CREATE UNIQUE INDEX IF NOT EXISTS index_delmessages_jid_msgid ON delmessages (jid, msgid)")
+                db.execSQL("CREATE INDEX IF NOT EXISTS idx_delmessages_msgid ON delmessages (msgid)")
+            }
+        }
+
         fun getInstance(context: Context): DelMessageDatabase {
             return INSTANCE ?: synchronized(this) {
                 INSTANCE ?: Room.databaseBuilder(
@@ -111,7 +133,8 @@ abstract class DelMessageDatabase : RoomDatabase() {
                         MIGRATION_9_10,
                         MIGRATION_10_11,
                         MIGRATION_11_12,
-                        MIGRATION_12_13
+                        MIGRATION_12_13,
+                        MIGRATION_13_14
                     )
                     .setQueryExecutor(Utils.databaseExecutor)
                     .setTransactionExecutor(Utils.databaseExecutor)
