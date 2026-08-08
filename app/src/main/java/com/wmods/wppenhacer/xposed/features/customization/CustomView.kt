@@ -99,8 +99,6 @@ class CustomView(loader: ClassLoader, preferences:SharedPreferences) : Feature(l
             changeDPI(activity1, prefs, properties!!)
         }
 
-        hookDrawableViews()
-
         themeDir = File(ThemePreference.rootDirectory, folderTheme)
         val cssContent = "$filterItens\n$customCss"
         cacheImages = DrawableCache(Utils.application, 100 * 1024 * 1024)
@@ -162,6 +160,9 @@ class CustomView(loader: ClassLoader, preferences:SharedPreferences) : Feature(l
             }, "cv-cache-writer").start()
         }
 
+        if (mapIds.isNullOrEmpty() && leafMapIds.isNullOrEmpty()) return
+
+        hookDrawableViews()
         registerHooks()
     }
 
@@ -293,6 +294,7 @@ class CustomView(loader: ClassLoader, preferences:SharedPreferences) : Feature(l
             object : XC_MethodHook() {
                 override fun beforeHookedMethod(param: MethodHookParam) {
                     if (param.args[1] as Int and 0x0000000C == 0) return
+                    if (forcedVisibilityMap.isEmpty()) return
                     val view = param.thisObject as View
                     val forced = forcedVisibilityMap[view] ?: return
                     param.args[0] = (param.args[0] as Int and 0x0000000C.inv()) or forced
@@ -359,6 +361,7 @@ class CustomView(loader: ClassLoader, preferences:SharedPreferences) : Feature(l
             View::class.java, "setBackground", Drawable::class.java,
             object : XC_MethodHook() {
                 override fun beforeHookedMethod(param: MethodHookParam) {
+                    if (forcedBackgroundMap.isEmpty()) return
                     val view = param.thisObject as View
                     val newDrawable = param.args[0] as? Drawable
                     val forced = forcedBackgroundMap[view] ?: return
@@ -370,6 +373,7 @@ class CustomView(loader: ClassLoader, preferences:SharedPreferences) : Feature(l
             ImageView::class.java, "setImageDrawable", Drawable::class.java,
             object : XC_MethodHook() {
                 override fun beforeHookedMethod(param: MethodHookParam) {
+                    if (forcedDrawableMap.isEmpty()) return
                     val view = param.thisObject as ImageView
                     val newDrawable = param.args[0] as? Drawable
                     val forced = forcedDrawableMap[view] ?: return
@@ -380,6 +384,7 @@ class CustomView(loader: ClassLoader, preferences:SharedPreferences) : Feature(l
 
     private fun setRuleInView(ruleItem: CachedRuleItem, startView: View) {
         var view = startView
+        var layoutChanged = false
         for (declaration in ruleItem.declarations) {
             val property = declaration.property
             val terms = declaration.terms
@@ -552,34 +557,89 @@ class CustomView(loader: ClassLoader, preferences:SharedPreferences) : Feature(l
                     }
                 }
                 "width" -> {
-                    view.layoutParams.width = getRealValue(terms[0], 0)
-                    view.requestLayout()
+                    val width = getRealValue(terms[0], 0)
+                    if (view.layoutParams.width != width) {
+                        view.layoutParams.width = width
+                        layoutChanged = true
+                    }
                 }
                 "height" -> {
-                    view.layoutParams.height = getRealValue(terms[0], 0)
+                    val height = getRealValue(terms[0], 0)
+                    if (view.layoutParams.height != height) {
+                        view.layoutParams.height = height
+                        layoutChanged = true
+                    }
                 }
                 "left" -> {
                     when (val lp = view.layoutParams) {
-                        is RelativeLayout.LayoutParams -> lp.addRule(RelativeLayout.ALIGN_LEFT, getRealValue(terms[0], 0))
-                        is ViewGroup.MarginLayoutParams -> lp.leftMargin = getRealValue(terms[0], 0)
+                        is RelativeLayout.LayoutParams -> {
+                            val left = getRealValue(terms[0], 0)
+                            if (lp.getRule(RelativeLayout.ALIGN_LEFT) != left) {
+                                lp.addRule(RelativeLayout.ALIGN_LEFT, left)
+                                layoutChanged = true
+                            }
+                        }
+                        is ViewGroup.MarginLayoutParams -> {
+                            val left = getRealValue(terms[0], 0)
+                            if (lp.leftMargin != left) {
+                                lp.leftMargin = left
+                                layoutChanged = true
+                            }
+                        }
                     }
                 }
                 "right" -> {
                     when (val lp = view.layoutParams) {
-                        is RelativeLayout.LayoutParams -> lp.addRule(RelativeLayout.ALIGN_RIGHT, getRealValue(terms[0], 0))
-                        is ViewGroup.MarginLayoutParams -> lp.rightMargin = getRealValue(terms[0], 0)
+                        is RelativeLayout.LayoutParams -> {
+                            val right = getRealValue(terms[0], 0)
+                            if (lp.getRule(RelativeLayout.ALIGN_RIGHT) != right) {
+                                lp.addRule(RelativeLayout.ALIGN_RIGHT, right)
+                                layoutChanged = true
+                            }
+                        }
+                        is ViewGroup.MarginLayoutParams -> {
+                            val right = getRealValue(terms[0], 0)
+                            if (lp.rightMargin != right) {
+                                lp.rightMargin = right
+                                layoutChanged = true
+                            }
+                        }
                     }
                 }
                 "top" -> {
                     when (val lp = view.layoutParams) {
-                        is RelativeLayout.LayoutParams -> lp.addRule(RelativeLayout.ALIGN_TOP, getRealValue(terms[0], 0))
-                        is ViewGroup.MarginLayoutParams -> lp.topMargin = getRealValue(terms[0], 0)
+                        is RelativeLayout.LayoutParams -> {
+                            val top = getRealValue(terms[0], 0)
+                            if (lp.getRule(RelativeLayout.ALIGN_TOP) != top) {
+                                lp.addRule(RelativeLayout.ALIGN_TOP, top)
+                                layoutChanged = true
+                            }
+                        }
+                        is ViewGroup.MarginLayoutParams -> {
+                            val top = getRealValue(terms[0], 0)
+                            if (lp.topMargin != top) {
+                                lp.topMargin = top
+                                layoutChanged = true
+                            }
+                        }
                     }
                 }
                 "bottom" -> {
                     when (val lp = view.layoutParams) {
-                        is RelativeLayout.LayoutParams -> lp.addRule(RelativeLayout.ALIGN_BOTTOM, getRealValue(terms[0], 0))
-                        is ViewGroup.MarginLayoutParams -> lp.bottomMargin = getRealValue(terms[0], 0)
+                        is RelativeLayout.LayoutParams -> {
+                            val bottom = getRealValue(terms[0], 0)
+                            if (lp.getRule(RelativeLayout.ALIGN_BOTTOM) != bottom) {
+                                lp.addRule(RelativeLayout.ALIGN_BOTTOM, bottom)
+                                layoutChanged = true
+                            }
+                        }
+                        is ViewGroup.MarginLayoutParams -> {
+                            val bottom = getRealValue(terms[0], 0)
+                            if (lp.bottomMargin != bottom) {
+                                lp.bottomMargin = bottom
+                                layoutChanged = true
+                            }
+                        }
                     }
                 }
                 "color-filter" -> {
@@ -719,32 +779,48 @@ class CustomView(loader: ClassLoader, preferences:SharedPreferences) : Feature(l
                             l = getExactValue(terms[3], view.width)
                         }
                     }
-                    params.setMargins(l, t, r, b)
-                    view.requestLayout()
+                    if (params.leftMargin != l || params.topMargin != t ||
+                        params.rightMargin != r || params.bottomMargin != b
+                    ) {
+                        params.setMargins(l, t, r, b)
+                        layoutChanged = true
+                    }
                 }
                 "margin-left" -> {
                     val p = view.layoutParams
                     if (p !is ViewGroup.MarginLayoutParams) continue
-                    p.leftMargin = getExactValue(terms[0], view.width)
-                    view.requestLayout()
+                    val left = getExactValue(terms[0], view.width)
+                    if (p.leftMargin != left) {
+                        p.leftMargin = left
+                        layoutChanged = true
+                    }
                 }
                 "margin-top" -> {
                     val p = view.layoutParams
                     if (p !is ViewGroup.MarginLayoutParams) continue
-                    p.topMargin = getExactValue(terms[0], view.height)
-                    view.requestLayout()
+                    val top = getExactValue(terms[0], view.height)
+                    if (p.topMargin != top) {
+                        p.topMargin = top
+                        layoutChanged = true
+                    }
                 }
                 "margin-right" -> {
                     val p = view.layoutParams
                     if (p !is ViewGroup.MarginLayoutParams) continue
-                    p.rightMargin = getExactValue(terms[0], view.width)
-                    view.requestLayout()
+                    val right = getExactValue(terms[0], view.width)
+                    if (p.rightMargin != right) {
+                        p.rightMargin = right
+                        layoutChanged = true
+                    }
                 }
                 "margin-bottom" -> {
                     val p = view.layoutParams
                     if (p !is ViewGroup.MarginLayoutParams) continue
-                    p.bottomMargin = getExactValue(terms[0], view.height)
-                    view.requestLayout()
+                    val bottom = getExactValue(terms[0], view.height)
+                    if (p.bottomMargin != bottom) {
+                        p.bottomMargin = bottom
+                        layoutChanged = true
+                    }
                 }
                 "padding" -> {
                     var l = view.paddingLeft
@@ -789,6 +865,7 @@ class CustomView(loader: ClassLoader, preferences:SharedPreferences) : Feature(l
                     getExactValue(terms[0], view.height))
             }
         }
+        if (layoutChanged) view.requestLayout()
     }
 
     private fun setHookedDrawable(view: View, draw: Drawable) {
@@ -822,7 +899,9 @@ class CustomView(loader: ClassLoader, preferences:SharedPreferences) : Feature(l
     override fun getPluginName(): String = "Custom View"
 
     inner class DrawableCache(context: Context, maxSize: Int) {
-        private val drawableCache = LruCache<String, CachedDrawable>(maxSize)
+        private val drawableCache = object : LruCache<String, CachedDrawable>(maxSize) {
+            override fun sizeOf(key: String, value: CachedDrawable): Int = value.sizeBytes
+        }
         private val loadingDrawables = ConcurrentHashMap<String, Boolean>()
         private val pendingCallbacks = ConcurrentHashMap<String, CopyOnWriteArrayList<(Drawable?) -> Unit>>()
         private val context = context.applicationContext
@@ -970,6 +1049,7 @@ class CustomView(loader: ClassLoader, preferences:SharedPreferences) : Feature(l
     }
 
     private class CachedDrawable(val drawable: Drawable, val lastModified: Long) {
+        val sizeBytes: Int = (drawable as? BitmapDrawable)?.bitmap?.allocationByteCount?.coerceAtLeast(1) ?: 1
         var lastCheckTime = System.currentTimeMillis()
     }
 

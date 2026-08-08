@@ -40,6 +40,7 @@ import org.luckypray.dexkit.util.DexSignUtil
 import java.io.File
 import java.lang.reflect.Method
 import java.lang.reflect.Modifier
+import java.util.Collections
 import java.util.Properties
 import java.util.WeakHashMap
 import java.util.concurrent.CompletableFuture
@@ -57,6 +58,8 @@ class Others(loader: ClassLoader, preferences:SharedPreferences) : Feature(loade
     }
 
     private lateinit var properties: Properties
+    private val hiddenHomeFilterViews =
+        Collections.synchronizedMap(WeakHashMap<View, Boolean>())
 
     override fun doHook() {
         properties = Utils.getProperties(prefs, "custom_css", "custom_filters")
@@ -286,17 +289,25 @@ class Others(loader: ClassLoader, preferences:SharedPreferences) : Feature(loade
         propsBoolean[13408] = true
 
         val filterView = Unobfuscator.loadChatFilterView(classLoader)
+        XposedHelpers.findAndHookMethod(
+            View::class.java,
+            "setVisibility",
+            Int::class.javaPrimitiveType,
+            object : XC_MethodHook() {
+                override fun beforeHookedMethod(param: MethodHookParam) {
+                    val visibility = param.args[0] as Int
+                    if (visibility == View.GONE) return
+                    if (hiddenHomeFilterViews.containsKey(param.thisObject as View)) {
+                        param.args[0] = View.GONE
+                    }
+                }
+            })
+
         XposedBridge.hookAllConstructors(filterView, object : XC_MethodHook() {
             override fun afterHookedMethod(param: MethodHookParam) {
                 val view = param.thisObject as View
-                view.visibility = View.GONE
-                XposedHelpers.findAndHookMethod(View::class.java, "setVisibility", Int::class.javaPrimitiveType, object : XC_MethodHook() {
-                    override fun beforeHookedMethod(param: MethodHookParam) {
-                        if (view === param.thisObject && param.args[0] as Int != View.GONE) {
-                            param.result = View.GONE
-                        }
-                    }
-                })
+                hiddenHomeFilterViews[view] = true
+                if (view.visibility != View.GONE) view.visibility = View.GONE
             }
         })
     }

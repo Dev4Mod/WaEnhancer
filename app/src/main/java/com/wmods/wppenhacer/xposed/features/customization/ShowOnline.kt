@@ -3,7 +3,9 @@ package com.wmods.wppenhacer.xposed.features.customization
 import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.Color
+import android.os.SystemClock
 import android.text.TextUtils
+import android.util.LruCache
 import android.view.Gravity
 import android.view.View
 import android.widget.FrameLayout
@@ -37,6 +39,11 @@ class ShowOnline(loader: ClassLoader, preferences:SharedPreferences) : Feature(l
     private var getStatusUser: Method? = null
     private var fieldTokenDBInstance: Field? = null
     private var tokenClass: Class<*>? = null
+    private data class CachedStatus(val status: String?, val expiresAt: Long)
+    private val statusCache = LruCache<String, CachedStatus>(128)
+    private val onlineStatusLabel by lazy {
+        UnobfuscatorCache.getInstance().getString("online")
+    }
 
     override fun doHook() {
         val showOnlineText = prefs.getBoolean("showonlinetext", false)
@@ -173,6 +180,13 @@ class ShowOnline(loader: ClassLoader, preferences:SharedPreferences) : Feature(l
                         csDot.visibility = View.INVISIBLE
                     }
                     val lastSeenText: TextView? = if (showOnlineText) view?.findViewById(0x7FFF0002) else null
+                    val cacheKey = userJid.phoneRawString
+                    val now = SystemClock.uptimeMillis()
+                    val cachedStatus = cacheKey?.let { statusCache.get(it) }
+                    if (cachedStatus != null && cachedStatus.expiresAt > now) {
+                        setStatus(cachedStatus.status, csDot, lastSeenText, onlineStatusLabel)
+                        return
+                    }
 
                     val presence = mInstancePresence ?: return
                     val tokenDBField = fieldTokenDBInstance ?: return
@@ -187,7 +201,10 @@ class ShowOnline(loader: ClassLoader, preferences:SharedPreferences) : Feature(l
                     )
                     sendMethod.invoke(null, userJid.userJid, null, tokenObj, presence)
                     val status = ReflectionUtils.callMethod(statusMethod, mStatusUser, contact.getObject(), false) as? String
-                    setStatus(status, csDot, lastSeenText)
+                    if (cacheKey != null) {
+                        statusCache.put(cacheKey, CachedStatus(status, now + STATUS_CACHE_TTL_MS))
+                    }
+                    setStatus(status, csDot, lastSeenText, onlineStatusLabel)
                 } catch (e: Exception) {
                     XposedBridge.log(e)
                 }
@@ -200,8 +217,15 @@ class ShowOnline(loader: ClassLoader, preferences:SharedPreferences) : Feature(l
     }
 
     companion object {
-        private fun setStatus(status: String?, csDot: ImageView?, lastSeenText: TextView?) {
-            if (!TextUtils.isEmpty(status) && status!!.trim { it <= ' ' } == UnobfuscatorCache.getInstance().getString("online")) {
+        private const val STATUS_CACHE_TTL_MS = 1000L
+
+        private fun setStatus(
+            status: String?,
+            csDot: ImageView?,
+            lastSeenText: TextView?,
+            onlineStatus: String
+        ) {
+            if (!TextUtils.isEmpty(status) && status!!.trim { it <= ' ' } == onlineStatus) {
                 if (csDot != null) {
                     csDot.visibility = View.VISIBLE
                 }
@@ -210,7 +234,7 @@ class ShowOnline(loader: ClassLoader, preferences:SharedPreferences) : Feature(l
             if (lastSeenText != null) {
                 if (!TextUtils.isEmpty(status)) {
                     lastSeenText.text = status
-                    if (UnobfuscatorCache.getInstance().getString("online") == status) {
+                    if (onlineStatus == status) {
                         lastSeenText.setTextColor(Color.GREEN)
                     } else {
                         lastSeenText.setTextColor(0xffcac100.toInt())

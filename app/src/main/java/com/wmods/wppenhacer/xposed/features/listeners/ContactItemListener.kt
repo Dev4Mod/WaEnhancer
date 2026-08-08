@@ -26,6 +26,7 @@ class ContactItemListener(loader: ClassLoader, preferences: SharedPreferences) :
         XposedBridge.hookMethod(onChangeStatus, object : XC_MethodHook() {
 
             override fun afterHookedMethod(param: MethodHookParam) {
+                if (contactListeners.isEmpty()) return
                 val viewHolder = field1.get(param.thisObject) ?: return
                 val `object` = param.args[0] ?: return
                 val waContact = WaContactWpp(`object`)
