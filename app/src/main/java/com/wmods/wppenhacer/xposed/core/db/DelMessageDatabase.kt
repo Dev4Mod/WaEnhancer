@@ -124,7 +124,17 @@ abstract class DelMessageDatabase : RoomDatabase() {
             }
         }
 
-        private fun createDatabaseBuilder(context: Context): Builder<DelMessageDatabase> {
+        fun resetInstance() {
+            synchronized(this) {
+                try {
+                    INSTANCE?.close()
+                } catch (_: Exception) {
+                }
+                INSTANCE = null
+            }
+        }
+
+        private fun createDatabaseBuilder(context: Context): RoomDatabase.Builder<DelMessageDatabase> {
             return Room.databaseBuilder(
                 context.applicationContext,
                 DelMessageDatabase::class.java,

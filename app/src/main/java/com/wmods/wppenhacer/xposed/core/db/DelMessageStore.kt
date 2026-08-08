@@ -3,10 +3,10 @@ package com.wmods.wppenhacer.xposed.core.db
 import android.content.Context
 import com.wmods.wppenhacer.xposed.core.db.entity.DelMessage
 
-class DelMessageStore private constructor(context: Context) {
+class DelMessageStore private constructor(private val context: Context) {
 
-    private val database = DelMessageDatabase.getInstance(context)
-    private val dao = database.delMessageDao()
+    private var database = DelMessageDatabase.getInstance(context)
+    private var dao = database.delMessageDao()
 
     companion object {
         @Volatile
@@ -20,18 +20,48 @@ class DelMessageStore private constructor(context: Context) {
         }
     }
 
+    private fun <T> safeDbCall(fallback: T, block: () -> T): T {
+        return try {
+            block()
+        } catch (e: IllegalStateException) {
+            if (e.message?.contains("Migration didn't properly handle") == true) {
+                resetDatabase()
+                try {
+                    block()
+                } catch (_: Exception) {
+                    fallback
+                }
+            } else {
+                fallback
+            }
+        }
+    }
+
+    private fun resetDatabase() {
+        DelMessageDatabase.resetInstance()
+        context.deleteDatabase("delmessages.db")
+        database = DelMessageDatabase.getInstance(context)
+        dao = database.delMessageDao()
+    }
+
     fun insertMessage(jid: String, msgid: String, timestamp: Long) {
-        val message = DelMessage(jid = jid, msgid = msgid, timestamp = timestamp)
-        dao.insertMessage(message)
+        safeDbCall(Unit) {
+            val message = DelMessage(jid = jid, msgid = msgid, timestamp = timestamp)
+            dao.insertMessage(message)
+        }
     }
 
     fun getMessagesByJid(jid: String?): java.util.HashSet<String> {
         if (jid == null) return java.util.HashSet()
-        return HashSet(dao.getMessagesByJid(jid))
+        return safeDbCall(java.util.HashSet()) {
+            HashSet(dao.getMessagesByJid(jid))
+        }
     }
 
     fun getTimestampByMessageId(msgid: String): Long {
-        return dao.getTimestampByMessageId(msgid) ?: 0L
+        return safeDbCall(0L) {
+            dao.getTimestampByMessageId(msgid) ?: 0L
+        }
     }
 
 }
