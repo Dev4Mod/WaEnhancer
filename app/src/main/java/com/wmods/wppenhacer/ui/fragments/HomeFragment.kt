@@ -285,23 +285,20 @@ class HomeFragment : BaseFragment() {
                                 value = value.get("value")
                             }
 
-                            if (type == JSONArray::class.java.simpleName) {
-                                val jsonArray = value as JSONArray
-                                val hashSet = HashSet<String>()
-                                for (i in 0 until jsonArray.length()) {
-                                    hashSet.add(jsonArray.getString(i))
+                            when (type) {
+                                "JSONArray" -> {
+                                    val jsonArray = value as JSONArray
+                                    val hashSet = HashSet<String>()
+                                    for (i in 0 until jsonArray.length()) {
+                                        hashSet.add(jsonArray.getString(i))
+                                    }
+                                    editor.putStringSet(keyName, hashSet)
                                 }
-                                editor.putStringSet(keyName, hashSet)
-                            } else if (type == String::class.java.simpleName) {
-                                editor.putString(keyName, value as String)
-                            } else if (type == Boolean::class.java.simpleName || type == "boolean") {
-                                editor.putBoolean(keyName, value as Boolean)
-                            } else if (type == Integer::class.java.simpleName || type == "int") {
-                                editor.putInt(keyName, value as Int)
-                            } else if (type == Long::class.java.simpleName || type == "long") {
-                                editor.putLong(keyName, (value as Number).toLong())
-                            } else if (type == Double::class.java.simpleName || type == Float::class.java.simpleName) {
-                                editor.putFloat(keyName, (value as Number).toFloat())
+                                "String" -> editor.putString(keyName, value as String)
+                                "Boolean", "boolean" -> editor.putBoolean(keyName, value as Boolean)
+                                "Integer", "int" -> editor.putInt(keyName, value as Int)
+                                "Long", "long" -> editor.putLong(keyName, (value as Number).toLong())
+                                "Double", "double", "Float", "float" -> editor.putFloat(keyName, (value as Number).toFloat())
                             }
                         }
                         editor.apply()
