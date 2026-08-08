@@ -1,6 +1,5 @@
 [FIXED]
-* Fixed bug that did not allow downloading statuses in version 2.26.30.xx of WhatsApp
 * Attempt to fix the bug in the floating bottom bar
+* Fixed problem that causes WhatsApp to crash when opening the chat screen
+* Fixed problem when hiding META AI
 
-[IMPROVED]
-* Improvements to the stability of WhatsApp hooks and general performance
