@@ -1,5 +1,4 @@
 [FIXED]
-* Attempt to fix the bug in the floating bottom bar
-* Fixed problem that causes WhatsApp to crash when opening the chat screen
-* Fixed problem when hiding META AI
-
+* Fixed bug not importing configuration in WAE
+* Fixed bug in Toast status display
+* Fixed bug in WAE colors
