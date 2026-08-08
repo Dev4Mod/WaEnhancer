@@ -29,7 +29,8 @@ import com.wmods.wppenhacer.xposed.utils.ReflectionUtils
 import com.wmods.wppenhacer.xposed.utils.Utils
 import de.robv.android.xposed.XC_MethodHook
 import de.robv.android.xposed.XC_MethodReplacement
-import android.content.SharedPreferences 
+import android.content.SharedPreferences
+import com.wmods.wppenhacer.xposed.core.components.SharedPreferencesWrapper
 import de.robv.android.xposed.XposedBridge
 import de.robv.android.xposed.XposedHelpers
 import okhttp3.OkHttpClient
@@ -178,6 +179,13 @@ class Others(loader: ClassLoader, preferences:SharedPreferences) : Feature(loade
         propsBoolean[0x32cb] = true
 
         if (disableMetaAI) {
+            SharedPreferencesWrapper.addHook { key, value ->
+                if (key == "bonsai_meta_ai_button_setting_enabled") {
+                    return@addHook false
+                }
+                value
+            }
+
             propsInteger[15535] = 0
             propsBoolean[8025] = false
             propsBoolean[6251] = false
