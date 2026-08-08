@@ -127,8 +127,8 @@ class FloatingBottomBar(loader: ClassLoader, preferences: SharedPreferences) :
             (container.parent as? ViewGroup)?.removeView(container)
 
             val rootParams = FrameLayout.LayoutParams(
-                container.width,
-                container.height
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT
             ).apply {
                 gravity = Gravity.BOTTOM
                 bottomMargin = navigationBarInset(rootView) + Utils.dipToPixels(BOTTOM_MARGIN_DP)
@@ -149,6 +149,8 @@ class FloatingBottomBar(loader: ClassLoader, preferences: SharedPreferences) :
     private fun updateOverlayLayout(rootView: FrameLayout, container: ViewGroup, bar: ViewGroup) {
         val params = container.layoutParams as? FrameLayout.LayoutParams ?: return
         params.gravity = Gravity.BOTTOM
+        params.width = ViewGroup.LayoutParams.MATCH_PARENT
+        params.height = ViewGroup.LayoutParams.WRAP_CONTENT
         params.bottomMargin = navigationBarInset(rootView) + Utils.dipToPixels(BOTTOM_MARGIN_DP)
         container.layoutParams = params
         bar.layoutParams = bar.layoutParams.apply {
