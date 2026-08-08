@@ -37,31 +37,37 @@ class ToastViewer(classLoader: ClassLoader, preferences:SharedPreferences) :
     }
 
     override fun doHook() {
-        val toastViewedStatus = prefs.getBoolean("toast_viewed_status", false)
-        val toastViewedMessage = prefs.getBoolean("toast_viewed_message", false)
-
         val onInsertReceipt = loadOnInsertReceipt(classLoader)
 
         XposedBridge.hookMethod(onInsertReceipt, object : XC_MethodHook() {
             override fun beforeHookedMethod(param: MethodHookParam) {
-                processNewWA(param, toastViewedMessage, toastViewedStatus)
+                processNewWA(
+                    param,
+                    prefs.getBoolean("toast_viewed_message", false),
+                    prefs.getBoolean("toast_viewed_status", false)
+                )
             }
         })
         val onSeenReceiptForStatus = loadSeenReceiptForStatus(classLoader)
         XposedBridge.hookMethod(onSeenReceiptForStatus, object : XC_MethodHook() {
 
             override fun beforeHookedMethod(param: MethodHookParam) {
-                val receiptType = param.args[1] as Int
+                val receiptType = param.args.filterIsInstance<Int>().first()
                 if (receiptType != 13) return
-                val fStatusField = ReflectionUtils.findFieldUsingFilter(param.thisObject.javaClass) {
-                    f -> FStatusWpp.TYPE.isAssignableFrom(f.type)
-                }
-                val fStatus = FStatusWpp(fStatusField.get(param.thisObject))
+                val fStatusObject = param.args.firstOrNull { FStatusWpp.TYPE.isInstance(it) }
+                    ?: runCatching {
+                        val fStatusField = ReflectionUtils.findFieldUsingFilter(param.thisObject.javaClass) {
+                            f -> FStatusWpp.TYPE.isAssignableFrom(f.type)
+                        }
+                        fStatusField.get(param.thisObject)
+                    }.getOrNull()
+                    ?: return
+                val fStatus = FStatusWpp(fStatusObject)
                 if (!fStatus.fStatusKey.isFromMe) return
                 val userjid = UserJid(param.args[0])
-                val waContactWpp = getWaContactFromJid(userjid)
-                val contactName = waContactWpp!!.displayName
-                if (toastViewedStatus) {
+                val contactName = getWaContactFromJid(userjid)?.displayName
+                    ?: getContactName(userjid)
+                if (prefs.getBoolean("toast_viewed_status", false)) {
                     Utils.showToast(
                         Utils.application.getString(R.string.viewed_your_status, contactName),
                         Toast.LENGTH_LONG
@@ -103,7 +109,7 @@ class ToastViewer(classLoader: ClassLoader, preferences:SharedPreferences) :
             )
             val type = fieldByType!!.getInt(messageStatusUpdateReceipt)
             val id = fieldId!!.getLong(messageStatusUpdateReceipt)
-            if (type != 13) return
+            if (type != 13) continue
             val userJid = UserJid(fieldByUserJid!!.get(messageStatusUpdateReceipt))
             val fmessage = AtomicReference<Any?>()
             try {
