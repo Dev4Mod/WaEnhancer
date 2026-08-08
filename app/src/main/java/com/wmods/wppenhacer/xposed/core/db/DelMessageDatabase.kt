@@ -61,6 +61,7 @@ abstract class DelMessageDatabase : RoomDatabase() {
         private val MIGRATION_10_11 = object : Migration(10, 11) {
             override fun migrate(db: SupportSQLiteDatabase) {
                 // --- Fix delmessages table ---
+                db.execSQL("DROP TABLE IF EXISTS delmessages_new")
                 db.execSQL(
                     "CREATE TABLE delmessages_new (" +
                             "_id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, " +
@@ -98,8 +99,9 @@ abstract class DelMessageDatabase : RoomDatabase() {
             override fun migrate(db: SupportSQLiteDatabase) {
                 // Recreate table to ensure _id has NOT NULL constraint
                 // and the unique index on (jid, msgid) exists
+                db.execSQL("DROP TABLE IF EXISTS delmessages_new")
                 db.execSQL(
-                    "CREATE TABLE IF NOT EXISTS delmessages_new (" +
+                    "CREATE TABLE delmessages_new (" +
                             "_id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, " +
                             "jid TEXT, " +
                             "msgid TEXT, " +
@@ -118,30 +120,32 @@ abstract class DelMessageDatabase : RoomDatabase() {
 
         fun getInstance(context: Context): DelMessageDatabase {
             return INSTANCE ?: synchronized(this) {
-                INSTANCE ?: Room.databaseBuilder(
-                    context.applicationContext,
-                    DelMessageDatabase::class.java,
-                    "delmessages.db"
-                )
-                    .addMigrations(
-                        MIGRATION_1_4,
-                        MIGRATION_4_6,
-                        MIGRATION_5_6,
-                        MIGRATION_6_7,
-                        MIGRATION_7_8,
-                        MIGRATION_8_9,
-                        MIGRATION_9_10,
-                        MIGRATION_10_11,
-                        MIGRATION_11_12,
-                        MIGRATION_12_13,
-                        MIGRATION_13_14
-                    )
-                    .setQueryExecutor(Utils.databaseExecutor)
-                    .setTransactionExecutor(Utils.databaseExecutor)
-                    .fallbackToDestructiveMigrationOnDowngrade(false)
-                    .build()
-                    .also { INSTANCE = it }
+                INSTANCE ?: createDatabaseBuilder(context).build().also { INSTANCE = it }
             }
+        }
+
+        private fun createDatabaseBuilder(context: Context): Builder<DelMessageDatabase> {
+            return Room.databaseBuilder(
+                context.applicationContext,
+                DelMessageDatabase::class.java,
+                "delmessages.db"
+            )
+                .addMigrations(
+                    MIGRATION_1_4,
+                    MIGRATION_4_6,
+                    MIGRATION_5_6,
+                    MIGRATION_6_7,
+                    MIGRATION_7_8,
+                    MIGRATION_8_9,
+                    MIGRATION_9_10,
+                    MIGRATION_10_11,
+                    MIGRATION_11_12,
+                    MIGRATION_12_13,
+                    MIGRATION_13_14
+                )
+                .setQueryExecutor(Utils.databaseExecutor)
+                .setTransactionExecutor(Utils.databaseExecutor)
+                .fallbackToDestructiveMigration(true)
         }
     }
 }
