@@ -30,6 +30,10 @@ public class BaseActivity extends AppCompatActivity {
 
         var colorPreset = prefs.getString("wae_color_preset", "green");
         getTheme().applyStyle(resolveColorOverlay(colorPreset), true);
+
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.S) {
+            getTheme().applyStyle(R.style.ThemeOverlay_LegacyTextColors, true);
+        }
     }
 
     private int resolveColorOverlay(String colorPreset) {

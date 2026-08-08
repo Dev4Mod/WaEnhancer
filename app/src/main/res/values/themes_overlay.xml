@@ -28,4 +28,15 @@
         <item name="colorSurface">@android:color/black</item>
         <item name="android:colorBackground">@android:color/black</item>
     </style>
+
+    <!-- Android 11 and older do not provide the dynamic neutral palette. -->
+    <style name="ThemeOverlay.LegacyTextColors">
+        <item name="colorOnBackground">@color/text_primary</item>
+        <item name="colorOnSurface">@color/text_primary</item>
+        <item name="colorOnSurfaceVariant">@color/text_secondary</item>
+        <item name="paletteNeutral10">@color/text_primary</item>
+        <item name="paletteNeutral90">@color/text_primary</item>
+        <item name="paletteNeutralVariant30">@color/text_secondary</item>
+        <item name="paletteNeutralVariant80">@color/text_secondary</item>
+    </style>
 </resources>
