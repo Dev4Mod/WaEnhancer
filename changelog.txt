@@ -1,5 +1,6 @@
 [FIXED]
-* Fixed crash when a contact deleted a message.
-* Fixed problem where any internal error caused the app to crash.
-* Fixed problem sending HD images
-* Fixed problem showing contact names in groups
+* Fixed bug that did not allow downloading statuses in version 2.26.30.xx of WhatsApp
+* Attempt to fix the bug in the floating bottom bar
+
+[IMPROVED]
+* Improvements to the stability of WhatsApp hooks and general performance
