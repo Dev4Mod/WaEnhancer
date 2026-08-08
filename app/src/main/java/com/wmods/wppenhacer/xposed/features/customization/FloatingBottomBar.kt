@@ -226,6 +226,8 @@ class FloatingBottomBar(loader: ClassLoader, preferences: SharedPreferences) :
         val sideMargin = Utils.dipToPixels(SIDE_MARGIN_DP)
         val params = bar.layoutParams as? ViewGroup.MarginLayoutParams
         if (params != null) {
+            params.width = ViewGroup.LayoutParams.MATCH_PARENT
+            params.height = ViewGroup.LayoutParams.WRAP_CONTENT
             params.setMargins(sideMargin, 0, sideMargin, 0)
             bar.layoutParams = params
         }
