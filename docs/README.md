@@ -180,3 +180,13 @@ This is a strong copyleft open-source license. Any derivative works, forks, or s
 ---
 
 **Note**: Please use WaEnhancer responsibly and in compliance with the terms and conditions of the apps you are modifying. Misuse of this tool may lead to legal consequences.
+
+## Star History
+
+<a href="https://www.star-history.com/?repos=Dev4Mod%2FWaEnhancer&type=date&legend=top-left">
+ <picture>
+   <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/chart?repos=Dev4Mod/WaEnhancer&type=date&theme=dark&legend=top-left&sealed_token=b1vTkmTYcAchBg96D5ulWNcOZFMvWeja0ogdKKalbAhLtvENQuovfDbpmDQZtMgFuxyeRseQRD6nPsU9tgT5vGKWbU_1OHCsXyFPoRSDwMChEZVMCkQ14dI5m6rSPZ-iMzp_4VSp_7J5CLtEOUKP_1b2e7vbNLGh98-LMTBjsY8w3-YgoaZSDzwxzS4u" />
+   <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/chart?repos=Dev4Mod/WaEnhancer&type=date&legend=top-left&sealed_token=b1vTkmTYcAchBg96D5ulWNcOZFMvWeja0ogdKKalbAhLtvENQuovfDbpmDQZtMgFuxyeRseQRD6nPsU9tgT5vGKWbU_1OHCsXyFPoRSDwMChEZVMCkQ14dI5m6rSPZ-iMzp_4VSp_7J5CLtEOUKP_1b2e7vbNLGh98-LMTBjsY8w3-YgoaZSDzwxzS4u" />
+   <img alt="Star History Chart" src="https://api.star-history.com/chart?repos=Dev4Mod/WaEnhancer&type=date&legend=top-left&sealed_token=b1vTkmTYcAchBg96D5ulWNcOZFMvWeja0ogdKKalbAhLtvENQuovfDbpmDQZtMgFuxyeRseQRD6nPsU9tgT5vGKWbU_1OHCsXyFPoRSDwMChEZVMCkQ14dI5m6rSPZ-iMzp_4VSp_7J5CLtEOUKP_1b2e7vbNLGh98-LMTBjsY8w3-YgoaZSDzwxzS4u" />
+ </picture>
+</a>
