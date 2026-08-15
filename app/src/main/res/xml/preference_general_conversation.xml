@@ -71,6 +71,11 @@
             app:title="@string/remove_see_more_button" />
 
         <rikka.material.preference.MaterialSwitchPreference
+            app:key="disable_swipe_up_in_group"
+            app:summary="@string/disable_swipe_up_in_group_sum"
+            app:title="@string/disable_swipe_up_in_group" />
+
+        <rikka.material.preference.MaterialSwitchPreference
             app:key="antieditmessages"
             app:summary="@string/show_edited_message_history_sum"
             app:title="@string/show_edited_message_history" />

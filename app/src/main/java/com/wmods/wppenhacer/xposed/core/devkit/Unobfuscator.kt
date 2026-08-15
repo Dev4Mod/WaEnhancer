@@ -3387,4 +3387,15 @@ object Unobfuscator {
         }
     }
 
+    fun loadSwipeUpInGroupMethod(classLoader: ClassLoader): Method {
+        return UnobfuscatorCache.getInstance().getMethod(classLoader) {
+            val id = UnobfuscatorCache.getInstance().getOfuscateIDString("Keep holding to talk")
+            bridge.findMethod {
+                matcher {
+                    usingNumbers(id)
+                }
+            }.single().getMethodInstance(classLoader)
+        }
+    }
+
 }

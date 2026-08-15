@@ -281,8 +281,21 @@ class Others(loader: ClassLoader, preferences:SharedPreferences) : Feature(loade
         if (!filterSeen) {
             disableHomeFilters()
         }
+
+        if (prefs.getBoolean("disable_swipe_up_in_group", false)) {
+            disableSwipeUpInGroup()
+        }
+
     }
 
+
+    private fun disableSwipeUpInGroup() {
+        XposedBridge.hookMethod(Unobfuscator.loadSwipeUpInGroupMethod(classLoader), object : XC_MethodHook() {
+            override fun beforeHookedMethod(param: MethodHookParam) {
+                param.result = ReflectionUtils.getDefaultValue((param.method as Method).returnType)
+            }
+        })
+    }
 
     private fun getNewSettingsVariant(): Int {
         val type = prefs.getString("configui_mode", "-1")?.toInt() ?: -1
