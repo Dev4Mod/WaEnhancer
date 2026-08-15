@@ -25,7 +25,6 @@ class FMessageWpp(fMessage: Any?) {
         private var getFieldIdMessage: Field? = null
         private var deviceJidField: Field? = null
         private var messageMethod: Method? = null
-        private var messageWithMediaMethod: Method? = null
         private var mediaTypeField: Field? = null
         private var getOriginalMessageKey: Method? = null
         private var abstractMediaMessageClass: Class<*>? = null
@@ -46,7 +45,6 @@ class FMessageWpp(fMessage: Any?) {
                 keyMessage = Unobfuscator.loadMessageKeyField(classLoader)
                 Key.TYPE = keyMessage!!.type
                 messageMethod = Unobfuscator.loadNewMessageMethod(classLoader)
-                messageWithMediaMethod = Unobfuscator.loadNewMessageWithMediaMethod(classLoader)
                 getFieldIdMessage = Unobfuscator.loadSetEditMessageField(classLoader)
                 val deviceJidClass = Unobfuscator.findFirstClassUsingName(
                     classLoader,
@@ -143,9 +141,7 @@ class FMessageWpp(fMessage: Any?) {
     val messageStr: String?
         get() {
             return try {
-                val message = messageMethod?.invoke(fmessage) as? String
-                if (message != null) return message
-                messageWithMediaMethod?.invoke(fmessage) as? String
+                messageMethod?.invoke(fmessage) as? String
             } catch (e: Exception) {
                 XposedBridge.log(e)
                 null

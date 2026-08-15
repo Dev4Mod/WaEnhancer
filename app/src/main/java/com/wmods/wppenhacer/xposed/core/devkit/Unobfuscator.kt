@@ -1226,22 +1226,22 @@ object Unobfuscator {
     @JvmStatic
     fun loadNewMessageMethod(loader: ClassLoader): Method {
         return UnobfuscatorCache.getInstance().getMethod(loader) {
-            val clazzMessageName = loadFMessageClass(loader).name
-            val listMethods = bridge.findMethod {
-                searchPackages("com.whatsapp")
+            val methodList = bridge.findMethod {
                 matcher {
-                    addUsingString("extra_payment_note", StringMatchType.Equals)
+                    usingStrings(listOf("INSERT_TABLE_MESSAGE_QUOTED"), StringMatchType.Equals)
                 }
             }
-            if (listMethods.isEmpty()) throw Exception("NewMessage method not found")
-            val invokes = listMethods[0].invokes
-            val method = invokes.parallelStream()
-                .filter { invoke ->
-                    clazzMessageName == invoke.declaredClass?.name &&
-                            invoke.returnType != null &&
-                            invoke.returnType?.name == "java.lang.String"
-                }.findFirst().orElse(null) ?: throw RuntimeException("NewMessage method not found")
-            method.getMethodInstance(loader)
+            if (methodList.isEmpty()) throw Exception("NewMessage method not found")
+
+            val methodData = methodList[0]
+            val invokes = methodData.invokes
+            val clazzMessageName = loadFMessageClass(loader).name
+
+            val method = invokes.firstOrNull { invoke ->
+                clazzMessageName == invoke.declaredClass?.name && invoke.returnType?.name == "java.lang.String"
+            } ?: throw RuntimeException("NewMessage method not found")
+
+            return@getMethod method.getMethodInstance(loader)
         }
     }
 
@@ -1255,30 +1255,6 @@ object Unobfuscator {
                 "FMessageUtil/getOriginalMessageKeyIfEdited"
             )
                 ?: throw RuntimeException("MessageEdit method not found")
-        }
-    }
-
-    @Throws(Exception::class)
-    @JvmStatic
-    fun loadNewMessageWithMediaMethod(loader: ClassLoader): Method {
-        return UnobfuscatorCache.getInstance().getMethod(loader) {
-            val methodList = bridge.findMethod {
-                matcher {
-                    addUsingString("INSERT_TABLE_MESSAGE_QUOTED", StringMatchType.Equals)
-                }
-            }
-            if (methodList.isEmpty()) throw Exception("NewMessageWithMedia method not found")
-            val methodData = methodList[0]
-            val invokes = methodData.invokes
-            val clazzMessageName = loadFMessageClass(loader).name
-            val method = invokes.parallelStream()
-                .filter { invoke ->
-                    clazzMessageName == invoke.declaredClass?.name &&
-                            invoke.returnType != null &&
-                            invoke.returnType?.name == "java.lang.String"
-                }.findFirst().orElse(null)
-                ?: throw RuntimeException("NewMessageWithMedia method not found")
-            method.getMethodInstance(loader)
         }
     }
 
