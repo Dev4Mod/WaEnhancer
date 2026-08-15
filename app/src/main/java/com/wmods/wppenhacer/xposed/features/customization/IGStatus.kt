@@ -32,10 +32,10 @@ class IGStatus(loader: ClassLoader, preferences:SharedPreferences) : Feature(loa
         val fabintMethod = Unobfuscator.loadFabMethod(classLoader)
 
         val archivedFragmentClass = Unobfuscator.findFirstClassUsingName(
-            classLoader, StringMatchType.EndsWith, "ArchivedConversationsFragment"
+            classLoader, StringMatchType.EndsWith, ".ArchivedConversationsFragment"
         )
         val folderFragmentClass = Unobfuscator.findFirstClassUsingName(
-            classLoader, StringMatchType.EndsWith, "FolderConversationsFragment"
+            classLoader, StringMatchType.EndsWith, ".FolderConversationsFragment"
         )
 
         val getViewConversationMethod = Unobfuscator.loadGetViewConversationMethod(classLoader)
