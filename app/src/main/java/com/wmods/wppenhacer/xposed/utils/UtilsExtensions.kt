@@ -7,6 +7,7 @@ import android.view.HapticFeedbackConstants
 import android.view.MotionEvent
 import android.view.View
 import android.view.ViewConfiguration
+import android.view.ViewGroup
 import kotlin.math.abs
 
 @SuppressLint("ClickableViewAccessibility")
@@ -79,4 +80,22 @@ fun View.setTouchClickAndLongClickListener(
             else -> true
         }
     }
+}
+
+fun View.collapseAndHide() {
+    visibility = View.GONE
+
+    layoutParams?.let { params ->
+        params.width = 0
+        params.height = 0
+
+        if (params is ViewGroup.MarginLayoutParams) {
+            params.setMargins(0, 0, 0, 0)
+        }
+
+        layoutParams = params
+    }
+    setPadding(0, 0, 0, 0)
+    minimumWidth = 0
+    minimumHeight = 0
 }
