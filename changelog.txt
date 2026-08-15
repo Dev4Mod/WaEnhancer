@@ -1,4 +1,8 @@
+[ADDED]
+* Added support for WA/WB 2.26.31.xx
+* Added option to disable swipe Up to conversation in groups (WAE -> General -> Conversation)
+
 [FIXED]
-* Fixed bug not importing configuration in WAE
-* Fixed bug in Toast status display
-* Fixed bug in WAE colors
+* Fixed bug in IGStatus that appeared on the screen Archived and blocked
+* Fixed bug in the delete status button (for me)
+* Fixed bug in the function of disabling filters on the screen (Now the blocked chats button remains visible)
