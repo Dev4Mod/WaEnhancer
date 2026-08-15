@@ -275,15 +275,25 @@ object ReflectionUtils {
         }
     }
 
-    @JvmStatic
     fun findIndexOfType(args: Array<out Any?>, type: Class<*>): Int {
+        val targetType = when (type) {
+            java.lang.Float.TYPE -> java.lang.Float::class.java
+            java.lang.Integer.TYPE -> java.lang.Integer::class.java
+            java.lang.Long.TYPE -> java.lang.Long::class.java
+            java.lang.Double.TYPE -> java.lang.Double::class.java
+            java.lang.Boolean.TYPE -> java.lang.Boolean::class.java
+            java.lang.Byte.TYPE -> java.lang.Byte::class.java
+            java.lang.Character.TYPE -> java.lang.Character::class.java
+            java.lang.Short.TYPE -> java.lang.Short::class.java
+            else -> type
+        }
         for (i in args.indices) {
             val arg = args[i] ?: continue
             if (arg is Class<*>) {
-                if (type.isAssignableFrom(arg)) return i
+                if (targetType.isAssignableFrom(arg) || type.isAssignableFrom(arg)) return i
                 continue
             }
-            if (type.isInstance(arg)) return i
+            if (targetType.isInstance(arg) || type.isInstance(arg)) return i
         }
         return -1
     }

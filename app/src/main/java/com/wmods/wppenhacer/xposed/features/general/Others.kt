@@ -47,6 +47,7 @@ import java.util.WeakHashMap
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.ConcurrentHashMap
 import kotlin.math.max
+import kotlin.text.set
 
 class Others(loader: ClassLoader, preferences:SharedPreferences) : Feature(loader, preferences) {
 
@@ -549,9 +550,11 @@ class Others(loader: ClassLoader, preferences:SharedPreferences) : Feature(loade
         
         XposedBridge.hookMethod(playBackSpeed, object : XC_MethodHook() {
             override fun beforeHookedMethod(param: MethodHookParam) {
-                super.beforeHookedMethod(param)
-                if (param.args[1] as Float == 2.0f) {
-                    param.args[1] = voicenoteSpeed
+                val index = ReflectionUtils.findIndexOfType(param.args, Float::class.javaPrimitiveType!!)
+                if (index != -1) {
+                    if (param.args[index] as? Float == 2.0f) {
+                        param.args[index] = voicenoteSpeed
+                    }
                 }
             }
         })
