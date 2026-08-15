@@ -327,7 +327,6 @@ object Utils {
         mActivity.startActivity(browserIntent)
     }
 
-
     fun interface BinderLocalScopeBlock<T> {
         fun execute(): T?
     }

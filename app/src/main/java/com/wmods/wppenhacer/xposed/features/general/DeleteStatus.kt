@@ -9,7 +9,8 @@ import com.wmods.wppenhacer.xposed.core.db.MessageStore
 import com.wmods.wppenhacer.xposed.core.devkit.Unobfuscator
 import com.wmods.wppenhacer.xposed.features.listeners.MenuStatusListener
 import com.wmods.wppenhacer.xposed.utils.Utils
-import android.content.SharedPreferences 
+import android.content.SharedPreferences
+import android.widget.Toast
 import org.luckypray.dexkit.query.enums.StringMatchType
 
 class DeleteStatus(classLoader: ClassLoader, preferences:SharedPreferences) : Feature(classLoader, preferences) {
@@ -29,19 +30,21 @@ class DeleteStatus(classLoader: ClassLoader, preferences:SharedPreferences) : Fe
             override fun onClick(item: MenuItem, statusData: MenuStatusListener.StatusData) {
                 val activity = WppCore.getCurrentActivity()
                 val messageId = statusData.currentItem.messageID
-                Utils.databaseExecutor.execute {
-                    try {
-                        MessageStore.getInstance().deleteStatusByMessageKey(messageId)
 
-                        if (activity != null && statusPlaybackActivityClass.isInstance(activity)) {
-                            activity.runOnUiThread {
-                                if (!activity.isFinishing && !activity.isDestroyed) {
-                                    activity.recreate()
-                                }
+                MessageStore.getInstance().deleteStatusByMessageKey(messageId) { success ->
+                    if (success && activity != null && statusPlaybackActivityClass.isInstance(activity)) {
+                        activity.runOnUiThread {
+                            if (activity.isFinishing || activity.isDestroyed) return@runOnUiThread
+                            val itemList = statusData.getCurrentItemList()
+                            val isLastItem = statusData.currentIndex >= itemList.size - 1
+
+                            if (itemList.size <= 1 || isLastItem) {
+                                activity.finish()
+                            } else {
+                                activity.recreate()
+                                activity.overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out)
                             }
                         }
-                    } catch (e: Exception) {
-                        logDebug(e)
                     }
                 }
             }
