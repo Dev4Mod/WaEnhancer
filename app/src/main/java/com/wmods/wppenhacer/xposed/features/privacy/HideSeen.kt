@@ -175,7 +175,7 @@ class HideSeen(loader: ClassLoader, preferences:SharedPreferences) :
                         if (hideSeenItem?.viewed ?: false) return
 
                         hideSeenItem?.let {
-                            message.arg1 = -1 // We change the type [IMPORTANT]IA Agent use 9 for best work[/IMPORTANT]
+                            message.arg1 = -1 // cancel receipt dispatch
                             return
                         }
                     }
@@ -211,11 +211,12 @@ class HideSeen(loader: ClassLoader, preferences:SharedPreferences) :
                 val hideReceipt = checkPrivacyAndHideReceipt(fmessageKey)
 
                 if (hideReceipt) {
-                    if (typeKV == null) {
-                        protocolTreeNodeWpp.addKeyValue("type", "inactive")
-                    } else {
-                        typeKV.value = "inactive"
-                    }
+                    // WhatsApp no longer honours type="inactive" on delivery receipts:
+                    // the sender's client renders them as delivered regardless. A delivery
+                    // receipt carries only "to" and "id", so removing "id" leaves the node
+                    // valid (its caller dereferences it) while giving the server no message
+                    // to correlate the receipt with.
+                    protocolTreeNodeWpp.removeAllKeyValuesByKey("id")
                     protocolTreeNodeWpp.removeAllKeyValuesByKey("sts")
                 } else if (hideSeen && typeKV?.value == "read") {
                     protocolTreeNodeWpp.removeAllKeyValuesByKey("sts")
