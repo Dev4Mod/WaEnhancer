@@ -280,10 +280,9 @@ object Utils {
     }
 
     fun getMyNumber(): String {
-        return FeatureLoader.mApp!!.getSharedPreferences(
-            FeatureLoader.mApp!!.packageName + "_preferences_light",
-            Context.MODE_PRIVATE
-        ).getString("ph", "")!!
+        val dataDir = getAccountDataDir()
+        return CDSharedPreferences(File(dataDir, "shared_prefs/${FeatureLoader.mApp!!.packageName}_preferences_light.xml"))
+            .getString("ph", "")!!
     }
 
 
@@ -325,6 +324,21 @@ object Utils {
     fun openLink(mActivity: Activity, url: String?) {
         val browserIntent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
         mActivity.startActivity(browserIntent)
+    }
+
+    fun getAccountDataDir(): File {
+        val dataDir = application.filesDir.parentFile
+        val sw = File(dataDir, "/app_account_switching/active_account")
+        if (sw.exists()) {
+            val accountId = sw.readText().trim()
+            if (accountId.isNotEmpty()) {
+                val accountDir = File(dataDir, "/accounts/$accountId")
+                if (accountDir.exists()) {
+                    return accountDir
+                }
+            }
+        }
+        return dataDir!!
     }
 
     fun interface BinderLocalScopeBlock<T> {

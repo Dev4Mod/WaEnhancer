@@ -44,9 +44,27 @@ class ConversationItemListener(
         private var hooked: XC_MethodHook.Unhook? = null
 
         @JvmStatic
+        fun unwrapBaseAdapter(adapter: ListAdapter?): BaseAdapter? {
+            var cur: Any? = adapter ?: return null
+            if (cur is HeaderViewListAdapter) {
+                cur = cur.wrappedAdapter
+            }
+            if (cur is BaseAdapter) {
+                return cur
+            }
+            return cur?.javaClass?.declaredFields?.firstNotNullOfOrNull { field ->
+                if (BaseAdapter::class.java.isAssignableFrom(field.type)) {
+                    field.isAccessible = true
+                    field.get(cur) as? BaseAdapter
+                } else null
+            }
+        }
+
+        @JvmStatic
         fun notifyDataSetChanged() {
             Handler(Looper.getMainLooper()).post {
-                (adapter as? BaseAdapter)?.notifyDataSetChanged()
+                val baseAdapter = unwrapBaseAdapter(adapter)
+                baseAdapter?.notifyDataSetChanged()
             }
         }
 

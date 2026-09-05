@@ -189,7 +189,7 @@ class CallRecording(
             val callInfo = XposedHelpers.callMethod(callback, "getCallInfo") ?: return
 
             val peerJid = runCatching {
-                XposedHelpers.getObjectField(callInfo, "peerJid")
+                XposedHelpers.callMethod(callInfo, "getPeerJid")
             }.getOrNull()
 
             if (peerJid != null && setCurrentUserJid(peerJid, "UserJid")) {

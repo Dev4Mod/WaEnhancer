@@ -14,7 +14,8 @@ class MessageStore private constructor() {
     private var sqLiteDatabase: SQLiteDatabase? = null
 
     init {
-        val dbFile = File(Utils.application.filesDir.parentFile, "/databases/msgstore.db")
+        val dataDir = Utils.getAccountDataDir()
+        val dbFile = File(dataDir, "/databases/msgstore.db")
         if (dbFile.exists()) {
             sqLiteDatabase = SQLiteDatabase.openDatabase(
                 dbFile.absolutePath,
@@ -172,7 +173,8 @@ class MessageStore private constructor() {
 
     @Synchronized
     fun executeWritableSQL(sql: String, maxRetries: Int = 3, retryDelayMs: Long = 500L) {
-        val dbFile = File(Utils.application.filesDir.parentFile, "/databases/msgstore.db")
+        val dataDir = Utils.getAccountDataDir()
+        val dbFile = File(dataDir, "/databases/msgstore.db")
         if (!dbFile.exists()) return
 
         var retries = 0
