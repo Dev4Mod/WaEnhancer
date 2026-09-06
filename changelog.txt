@@ -1,13 +1,8 @@
 [ADDED]
-* Added support for WA/WB 2.26.33.xx
+* Added support for WA/WB 2.26.34.xx
 
 [FIXED]
-* Fixed writing bug in the database
-* Fixed bug when restarting Whatsapp
-* Fixed bug in hiding the tick (sometimes it crashed when trying to hide the tick)
-* Fixed random crashes in the WAE
-* Fixed bug in ToastViewer (Thanks to @Fe7ice)
-
-[IMPROVED]
-* Improvement in HD video upload (It has not been completely fixed, but now it is possible to send HD videos more easily)
-* Improved handling for disabling WhatsApp version expiration
+* Fixed the bug hiding the second tick in conversations with contacts using iphone
+* Finally fixed all multi-account related bugs
+* Fixed a bug where call recordings were saved as unknown
+* Various other fixes were also made in the code.
