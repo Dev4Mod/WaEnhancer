@@ -1,8 +1,7 @@
 package com.wmods.wppenhacer.xposed.features.privacy
 
-import android.os.Handler
+import android.content.SharedPreferences
 import android.os.Message
-import androidx.room.concurrent.ThreadLocal
 import com.wmods.wppenhacer.xposed.core.Feature
 import com.wmods.wppenhacer.xposed.core.WppCore
 import com.wmods.wppenhacer.xposed.core.components.FMessageWpp
@@ -12,13 +11,12 @@ import com.wmods.wppenhacer.xposed.core.devkit.Unobfuscator
 import com.wmods.wppenhacer.xposed.features.general.Others
 import com.wmods.wppenhacer.xposed.utils.ReflectionUtils
 import de.robv.android.xposed.XC_MethodHook
-import android.content.SharedPreferences 
 import de.robv.android.xposed.XposedBridge
 import de.robv.android.xposed.XposedHelpers
 import org.json.JSONObject
 import org.luckypray.dexkit.query.enums.StringMatchType
 
-class HideSeen(loader: ClassLoader, preferences:SharedPreferences) :
+class HideSeen(loader: ClassLoader, preferences: SharedPreferences) :
     Feature(loader, preferences) {
 
     companion object {
@@ -47,6 +45,7 @@ class HideSeen(loader: ClassLoader, preferences:SharedPreferences) :
         hookReceiptMethod()
         hookSenderPlayed()
         hookSenderPlayedBusiness()
+        hookEnforceHiding()
     }
 
     private fun loadPreferences() {
@@ -58,6 +57,27 @@ class HideSeen(loader: ClassLoader, preferences:SharedPreferences) :
         hideStatusView = prefs.getBoolean("hidestatusview", false)
         hideReceipt = prefs.getBoolean("hidereceipt", false)
 
+    }
+
+    private fun hookEnforceHiding() {
+        XposedBridge.hookMethod(
+            Unobfuscator.loadReadReceiptMethod(classLoader),
+            object : XC_MethodHook() {
+                override fun beforeHookedMethod(param: MethodHookParam) {
+                    val fMessage = FMessageWpp(param.args[0])
+                    val fmessageKey = fMessage.key
+                    val hideReceipt = checkPrivacyAndHideReceipt(fmessageKey)
+                    if (hideReceipt) {
+                        param.result = null
+                        MessageHistoryStore.getInstance().insertHideSeenMessageAsync(
+                            fmessageKey.remoteJid.phoneRawString,
+                            fmessageKey.messageID,
+                            MessageHistoryStore.ReceiptType.READ,
+                            false
+                        )
+                    }
+                }
+            })
     }
 
     private fun hookSendReadReceiptJob() {
@@ -134,7 +154,7 @@ class HideSeen(loader: ClassLoader, preferences:SharedPreferences) :
     private fun recordHiddenMessages(sendReadReceiptJob: Any, userJid: FMessageWpp.UserJid) {
         val messageIds =
             XposedHelpers.getObjectField(sendReadReceiptJob, "messageIds") as? Array<*> ?: return
-        val ids = messageIds.mapNotNull { it as? String }
+        val ids = messageIds.filterIsInstance<String>()
         if (ids.isEmpty()) return
         MessageHistoryStore.getInstance().insertHideSeenMessagesAsync(
             userJid.phoneRawString,
@@ -162,7 +182,7 @@ class HideSeen(loader: ClassLoader, preferences:SharedPreferences) :
                         if (type != 419 && type != 89) return
                         if (!receiptMessageInfoClass.isInstance(obj)) return
                         // We check if the message is duplicated to avoid sending a tick twice causing congestion in the IQ queue
-                        val fmessageKeyField = ReflectionUtils.findFieldUsingFilter(obj.javaClass){
+                        val fmessageKeyField = ReflectionUtils.findFieldUsingFilter(obj.javaClass) {
                             FMessageWpp.Key.TYPE.isAssignableFrom(it.type)
                         }
                         val fmessageKey = FMessageWpp.Key(fmessageKeyField.get(obj))
@@ -175,7 +195,7 @@ class HideSeen(loader: ClassLoader, preferences:SharedPreferences) :
                         if (hideSeenItem?.viewed ?: false) return
 
                         hideSeenItem?.let {
-                            message.arg1 = -1 // We change the type [IMPORTANT]IA Agent use 9 for best work[/IMPORTANT]
+                            message.arg1 = -1
                             return
                         }
                     }
@@ -197,7 +217,7 @@ class HideSeen(loader: ClassLoader, preferences:SharedPreferences) :
 
                 val fmessageKey = generateFMessageKey(protocolTreeNodeWpp) ?: return
 
-                if (fmessageKey.remoteJid.isStatus)return
+                if (fmessageKey.remoteJid.isStatus) return
 
                 val hideSeenItem = MessageHistoryStore.getInstance().getHideSeenMessage(
                     fmessageKey.remoteJid.phoneRawString,
@@ -223,7 +243,7 @@ class HideSeen(loader: ClassLoader, preferences:SharedPreferences) :
                 }
 
                 if (hideReceipt || hideSeen) {
-            MessageHistoryStore.getInstance().insertHideSeenMessageAsync(
+                    MessageHistoryStore.getInstance().insertHideSeenMessageAsync(
                         fmessageKey.remoteJid.phoneRawString,
                         fmessageKey.messageID,
                         MessageHistoryStore.ReceiptType.READ,
@@ -232,6 +252,8 @@ class HideSeen(loader: ClassLoader, preferences:SharedPreferences) :
                 }
             }
         })
+
+
     }
 
     private fun checkPrivacyAndHideReceipt(fmessageKey: FMessageWpp.Key): Boolean {
@@ -298,7 +320,12 @@ class HideSeen(loader: ClassLoader, preferences:SharedPreferences) :
                     MessageHistoryStore.ReceiptType.PLAYED,
                     true
                 )
-                updateViewedMessageAsync(phoneRaw, messageId, MessageHistoryStore.ReceiptType.READ, true)
+                updateViewedMessageAsync(
+                    phoneRaw,
+                    messageId,
+                    MessageHistoryStore.ReceiptType.READ,
+                    true
+                )
             }
         }
     }

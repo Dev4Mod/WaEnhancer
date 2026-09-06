@@ -3458,4 +3458,17 @@ object Unobfuscator {
             ) ?: throw NoSuchMethodException("StartOutgoingCall method not found")
         }
     }
+
+    @JvmStatic
+    @Throws(Exception::class)
+    fun loadReadReceiptMethod(classLoader: ClassLoader): Method {
+        return UnobfuscatorCache.getInstance().getMethod(classLoader) {
+            findFirstMethodUsingStrings(
+                classLoader,
+                StringMatchType.Contains,
+                "ReadReceipts/sendReceiptForIncomingMessage"
+            )
+                ?: throw RuntimeException("ReadReceiptMethod method not found")
+        }
+    }
 }
