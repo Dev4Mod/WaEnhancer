@@ -90,6 +90,8 @@
     <string name="call_blocker_buttons_only_unknown_block">Block only unknown numbers</string>
     <string name="show_edited_message_history">Show Edited Message History</string>
     <string name="show_edited_message_history_sum">Show edited message history when clicking \"Edited\" on a message</string>
+    <string name="capture_device_title">Show Sender Device</string>
+    <string name="capture_device_sum">Show indicator whether the message was sent from a phone or linked device</string>
     <string name="dnd_message">When Do Not Disturb mode is on, you will be unable to send or receive messages</string>
     <string name="dnd_mode_title">DND Mode</string>
     <string name="activate">Activate</string>

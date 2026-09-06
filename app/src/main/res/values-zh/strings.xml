@@ -88,6 +88,8 @@
     <string name="call_blocker_buttons_only_unknown_block">只拦截未知来电</string>
     <string name="show_edited_message_history">显示已编辑的消息历史记录</string>
     <string name="show_edited_message_history_sum">单击消息上的“已编辑”时显示已编辑的消息历史记录</string>
+    <string name="capture_device_title">显示发送者设备</string>
+    <string name="capture_device_sum">显示消息是从手机还是已关联设备发送的指示器</string>
     <string name="dnd_message">开启“免打扰”后，您将无法发送或接收消息</string>
     <string name="dnd_mode_title">免打扰</string>
     <string name="activate">激活</string>

@@ -88,6 +88,8 @@
     <string name="call_blocker_buttons_only_unknown_block">Bloquer uniquement les numéros inconnus</string>
     <string name="show_edited_message_history">Show edited message history</string>
     <string name="show_edited_message_history_sum">Afficher l\'historique des messages modifiés lorsque vous cliquez sur \"Modifié\" sur un message</string>
+    <string name="capture_device_title">Afficher l\'appareil de l\'expéditeur</string>
+    <string name="capture_device_sum">Indique si le message a été envoyé depuis un téléphone ou un appareil connecté</string>
     <string name="dnd_message">When Do Not Disturb mode is on, you won\'t be able to send or receive messages.</string>
     <string name="dnd_mode_title">Mode ne pas déranger</string>
     <string name="activate">Activer</string>

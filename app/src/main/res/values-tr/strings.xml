@@ -88,6 +88,8 @@
     <string name="call_blocker_buttons_only_unknown_block">Sadece bilinmeyen numaraları engelle</string>
     <string name="show_edited_message_history">Düzenlenmiş mesaj geçmişini göster</string>
     <string name="show_edited_message_history_sum">Mesajdaki \"Düzenlendi\" yazısına tıklandığında düzenlenmiş mesaj geçmişini göster</string>
+    <string name="capture_device_title">Gönderen Cihazı Göster</string>
+    <string name="capture_device_sum">Mesajın telefondan mı yoksa bağlı cihazdan mı gönderildiğini göster</string>
     <string name="dnd_message">Rahatsız Etme modu açıkken mesaj gönderemez ve alamazsınız</string>
     <string name="dnd_mode_title">Rahatsız Etme Modu</string>
     <string name="activate">Etkinleştir</string>

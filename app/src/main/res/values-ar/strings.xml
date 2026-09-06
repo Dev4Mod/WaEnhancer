@@ -88,6 +88,8 @@
     <string name="call_blocker_buttons_only_unknown_block">حظر الأرقام غير المعروفة فقط</string>
     <string name="show_edited_message_history">إظهار محفوظات الرسائل المعدلة</string>
     <string name="show_edited_message_history_sum">إظهار سجل الرسائل المعدلة عند النقر فوق \'تعديل\' على الرسالة</string>
+    <string name="capture_device_title">إظهار جهاز المرسل</string>
+    <string name="capture_device_sum">إظهار مؤشر ما إذا كانت الرسالة قد تم إرسالها من هاتف أو جهاز مرتبط</string>
     <string name="dnd_message">عند تشغيل وضع الطائرة لن تتمكن من إرسال الرسائل أو استقبالها</string>
     <string name="dnd_mode_title">وضع الطائرة✈️</string>
     <string name="activate">تفعيل</string>

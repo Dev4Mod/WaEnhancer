@@ -89,6 +89,8 @@
     <string name="call_blocker_buttons_only_unknown_block">חסום רק מספרים לא שמורים</string>
     <string name="show_edited_message_history">הצג היסטוריית הודעות ערוכות</string>
     <string name="show_edited_message_history_sum">הצג היסטוריית הודעה שנערכה</string>
+    <string name="capture_device_title">הצג את מכשיר השולח</string>
+    <string name="capture_device_sum">הצג אינדיקטור האם ההודעה נשלחה מטלפון או ממכשיר מקושר</string>
     <string name="dnd_message">כאשר מצב טיסה מופעל, לא תוכל לשלוח או לקבל הודעות</string>
     <string name="dnd_mode_title">מצב טיסה</string>
     <string name="activate">הפעלה</string>

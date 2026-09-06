@@ -91,6 +91,8 @@
     <string name="call_blocker_buttons_only_unknown_block">Blokir nomor tak dikenal</string>
     <string name="show_edited_message_history">Tampilkan Riwayat Pesan yang Diedit</string>
     <string name="show_edited_message_history_sum">Tampilkan riwayat pesan yang diedit ketika mengklik \"Diedit\" pada pesan</string>
+    <string name="capture_device_title">Tampilkan Perangkat Pengirim</string>
+    <string name="capture_device_sum">Tampilkan indikator apakah pesan dikirim dari ponsel atau perangkat tertaut</string>
     <string name="dnd_message">Saat mode Pesawat (Offline) diaktifkan, Anda tidak akan dapat mengirim atau menerima pesan</string>
     <string name="dnd_mode_title">Mode Pesawat (Offline)</string>
     <string name="activate">Aktifkan</string>

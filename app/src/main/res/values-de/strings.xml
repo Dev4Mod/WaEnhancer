@@ -88,6 +88,8 @@
     <string name="call_blocker_buttons_only_unknown_block">Nur unbekannte Nummern blockieren</string>
     <string name="show_edited_message_history">Nachrichtenverlauf anzeigen</string>
     <string name="show_edited_message_history_sum">Nachrichtenverlauf beim Klicken auf \'bearbeitet\' in der Nachricht anzeigen</string>
+    <string name="capture_device_title">Absendergerät anzeigen</string>
+    <string name="capture_device_sum">Anzeige, ob die Nachricht vom Telefon oder von einem verknüpften Gerät gesendet wurde</string>
     <string name="dnd_message">Wenn \"DND\" aktiviert ist, können Sie keine Nachrichten senden oder empfangen.</string>
     <string name="dnd_mode_title">Flugmodus</string>
     <string name="activate">Aktivieren</string>

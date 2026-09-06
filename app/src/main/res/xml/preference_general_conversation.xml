@@ -81,6 +81,11 @@
             app:title="@string/show_edited_message_history" />
 
         <rikka.material.preference.MaterialSwitchPreference
+            app:key="capture_device"
+            app:summary="@string/capture_device_sum"
+            app:title="@string/capture_device_title" />
+
+        <rikka.material.preference.MaterialSwitchPreference
             app:key="calltype"
             app:summary="@string/selection_of_call_type_sum"
             app:title="@string/selection_of_call_type" />

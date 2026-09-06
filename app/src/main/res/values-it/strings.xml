@@ -88,6 +88,8 @@
     <string name="call_blocker_buttons_only_unknown_block">Blocca solo i numeri sconosciuti</string>
     <string name="show_edited_message_history">Mostra cronologia messaggi modificati</string>
     <string name="show_edited_message_history_sum">Mostra la cronologia dei messaggi modificati facendo click su \"Modificato\" nel messaggio</string>
+    <string name="capture_device_title">Mostra dispositivo del mittente</string>
+    <string name="capture_device_sum">Mostra l\'indicatore se il messaggio è stato inviato da un telefono o da un dispositivo collegato</string>
     <string name="dnd_message">Quando la modalità Non disturbare è attiva, non potrai inviare o ricevere messaggi</string>
     <string name="dnd_mode_title">Modalità DND</string>
     <string name="activate">Attiva</string>

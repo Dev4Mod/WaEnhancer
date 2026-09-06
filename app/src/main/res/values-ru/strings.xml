@@ -88,6 +88,8 @@
     <string name="call_blocker_buttons_only_unknown_block">Блокировать только неизвестные номера</string>
     <string name="show_edited_message_history">Показать отредактированную историю сообщений</string>
     <string name="show_edited_message_history_sum">Показывать историю измененных сообщений при нажатии «Изменено» в сообщении</string>
+    <string name="capture_device_title">Показать устройство отправителя</string>
+    <string name="capture_device_sum">Показывать индикатор отправки с телефона или связанного устройства</string>
     <string name="dnd_message">Когда включен режим \"Не беспокоить\", вы не сможете отправлять или получать сообщения</string>
     <string name="dnd_mode_title">Режим \"Не беспокоить\"</string>
     <string name="activate">Активировать</string>
