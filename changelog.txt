@@ -1,5 +1,6 @@
 [ADDED]
 * Added support for WA/WB 2.26.34.xx
+* Added function to see if the message was sent from a linked device or from the cell phone itself (WAE -> General -> Conversation Screen)
 
 [FIXED]
 * Fixed the bug hiding the second tick in conversations with contacts using iphone
