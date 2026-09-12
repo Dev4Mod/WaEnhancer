@@ -1,9 +1,2 @@
 [ADDED]
-* Added support for WA/WB 2.26.34.xx
-* Added function to see if the message was sent from a linked device or from the cell phone itself (WAE -> General -> Conversation Screen)
-
-[FIXED]
-* Fixed the bug hiding the second tick in conversations with contacts using iphone
-* Finally fixed all multi-account related bugs
-* Fixed a bug where call recordings were saved as unknown
-* Various other fixes were also made in the code.
+* Added support for WA/WB 2.26.35.xx
