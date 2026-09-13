@@ -1806,6 +1806,76 @@ object Unobfuscator {
         }
     }
 
+    /**
+     * Resolves WhatsApp's text-message sending facade: the class whose helper builds
+     * an outgoing text message from user input ("UserActionsTextMessageSending/...")
+     * and which exposes a `(Jid, String) -> void` send method.
+     *
+     * Located by marker string, not by obfuscated name, so it survives WhatsApp
+     * version updates the same way the rest of the module's lookups do.
+     */
+    @Throws(Exception::class)
+    @JvmStatic
+    fun loadTextMessageSender(loader: ClassLoader): Class<*> {
+        return UnobfuscatorCache.getInstance().getClass(loader) {
+            findFirstClassUsingStrings(
+                loader,
+                StringMatchType.Contains,
+                "UserActionsTextMessageSending"
+            ) ?: throw RuntimeException("Text message sender not found")
+        }
+    }
+
+    /**
+     * DI binding id for the send facade. Unlike the facade class and its locator method
+     * (both discovered dynamically), this id is generated per WhatsApp build by Dagger,
+     * so it is kept here alongside the other obfuscation-specific knowledge and updated
+     * when WhatsApp changes it. Only used to bootstrap a send before the facade has been
+     * constructed; normally the instance is captured from its constructor.
+     */
+    private const val TEXT_MESSAGE_SENDER_BINDING_ID = 99146
+
+    /**
+     * Resolves an instance of the text-message sending facade via WhatsApp's DI service
+     * locator. The facade class (marker string) and the locator method (found among the
+     * facade constructor's `(int) -> Object` calls) are discovered dynamically.
+     */
+    @JvmStatic
+    fun resolveTextMessageSenderFacade(loader: ClassLoader): Any? {
+        return try {
+            val senderClass = loadTextMessageSender(loader)
+            val ctorData = senderClass.declaredConstructors
+                .mapNotNull { bridge.getMethodData(it) }
+                .maxByOrNull { it.invokes.size }
+                ?: return null
+            val locators = LinkedHashSet<Method>()
+            for (invoke in ctorData.invokes) {
+                if (invoke.isMethod && (invoke.modifiers and Modifier.STATIC) != 0 &&
+                    invoke.paramCount == 1 && invoke.paramTypeNames[0] == "int" &&
+                    invoke.returnTypeName == "java.lang.Object"
+                ) {
+                    try {
+                        locators.add(invoke.getMethodInstance(loader))
+                    } catch (_: Throwable) {
+                    }
+                }
+            }
+            for (locator in locators) {
+                try {
+                    val result = locator.invoke(null, TEXT_MESSAGE_SENDER_BINDING_ID)
+                    if (result != null && senderClass.isInstance(result)) {
+                        return result
+                    }
+                } catch (_: Throwable) {
+                }
+            }
+            null
+        } catch (e: Throwable) {
+            XposedBridge.log("resolveTextMessageSenderFacade: $e")
+            null
+        }
+    }
+
     @Throws(Exception::class)
     @JvmStatic
     fun loadOnPlaybackFinished(classLoader: ClassLoader): Method {
