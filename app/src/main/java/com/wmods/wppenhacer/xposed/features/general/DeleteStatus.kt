@@ -7,7 +7,7 @@ import com.wmods.wppenhacer.xposed.core.Feature
 import com.wmods.wppenhacer.xposed.core.WppCore
 import com.wmods.wppenhacer.xposed.core.db.MessageStore
 import com.wmods.wppenhacer.xposed.core.devkit.Unobfuscator
-import com.wmods.wppenhacer.xposed.features.listeners.MenuStatusListener
+import com.wmods.wppenhacer.xposed.features.providers.MenuStatusProvider
 import com.wmods.wppenhacer.xposed.utils.Utils
 import android.content.SharedPreferences
 import android.widget.Toast
@@ -19,15 +19,15 @@ class DeleteStatus(classLoader: ClassLoader, preferences:SharedPreferences) : Fe
     override fun doHook() {
         val statusPlaybackActivityClass = Unobfuscator.findFirstClassUsingName(classLoader, StringMatchType.EndsWith, "StatusPlaybackActivity")
 
-        val item = object : MenuStatusListener.OnMenuItemStatusListener() {
+        val item = object : MenuStatusProvider.Provider {
 
-            override fun addMenu(menu: Menu, statusData: MenuStatusListener.StatusData): MenuItem? {
+            override fun addMenu(menu: Menu, statusData: MenuStatusProvider.StatusData): MenuItem? {
                 if (menu.findItem(R.string.delete_for_me) != null) return null
                 if (statusData.currentItem.isFromMe) return null
                 return menu.add(0, R.string.delete_for_me, 0, R.string.delete_for_me)
             }
 
-            override fun onClick(item: MenuItem, statusData: MenuStatusListener.StatusData) {
+            override fun onClick(item: MenuItem, statusData: MenuStatusProvider.StatusData) {
                 val activity = WppCore.getCurrentActivity()
                 val messageId = statusData.currentItem.messageID
 
@@ -49,7 +49,7 @@ class DeleteStatus(classLoader: ClassLoader, preferences:SharedPreferences) : Fe
                 }
             }
         }
-        MenuStatusListener.menuStatuses.add(item)
+        MenuStatusProvider.register(item)
     }
 
     override fun getPluginName(): String {

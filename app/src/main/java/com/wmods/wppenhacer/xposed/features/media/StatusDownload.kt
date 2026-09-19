@@ -14,7 +14,7 @@ import com.wmods.wppenhacer.xposed.core.Feature
 import com.wmods.wppenhacer.xposed.core.WppCore
 import com.wmods.wppenhacer.xposed.core.components.StatusItemWpp
 import com.wmods.wppenhacer.xposed.core.devkit.Unobfuscator
-import com.wmods.wppenhacer.xposed.features.listeners.MenuStatusListener
+import com.wmods.wppenhacer.xposed.features.providers.MenuStatusProvider
 import com.wmods.wppenhacer.xposed.utils.MimeTypeUtils
 import com.wmods.wppenhacer.xposed.utils.Utils
 import org.luckypray.dexkit.query.enums.StringMatchType
@@ -27,8 +27,8 @@ class StatusDownload(loader: ClassLoader, preferences:SharedPreferences) : Featu
     override fun doHook() {
         if (!prefs.getBoolean("downloadstatus", false)) return
 
-        val downloadStatus = object : MenuStatusListener.OnMenuItemStatusListener() {
-            override fun addMenu(menu: Menu, statusData: MenuStatusListener.StatusData): MenuItem? {
+        val downloadStatus = object : MenuStatusProvider.Provider {
+            override fun addMenu(menu: Menu, statusData: MenuStatusProvider.StatusData): MenuItem? {
                 if (menu.findItem(R.string.download) != null) return null
                 val item = statusData.currentItem
                 if (item.isFromMe) return null
@@ -36,25 +36,25 @@ class StatusDownload(loader: ClassLoader, preferences:SharedPreferences) : Featu
                 return menu.add(0, R.string.download, 0, R.string.download)
             }
 
-            override fun onClick(item: MenuItem, statusData: MenuStatusListener.StatusData) {
+            override fun onClick(item: MenuItem, statusData: MenuStatusProvider.StatusData) {
                 downloadFile(statusData.currentItem)
             }
         }
-        MenuStatusListener.menuStatuses.add(downloadStatus)
+        MenuStatusProvider.register(downloadStatus)
 
-        val sharedMenu = object : MenuStatusListener.OnMenuItemStatusListener() {
-            override fun addMenu(menu: Menu, statusData: MenuStatusListener.StatusData): MenuItem? {
+        val sharedMenu = object : MenuStatusProvider.Provider {
+            override fun addMenu(menu: Menu, statusData: MenuStatusProvider.StatusData): MenuItem? {
                 val item = statusData.currentItem
                 if (item.isFromMe) return null
                 if (menu.findItem(R.string.share_as_status) != null) return null
                 return menu.add(0, R.string.share_as_status, 0, R.string.share_as_status)
             }
 
-            override fun onClick(item: MenuItem, statusData: MenuStatusListener.StatusData) {
+            override fun onClick(item: MenuItem, statusData: MenuStatusProvider.StatusData) {
                 sharedStatus(statusData.currentItem)
             }
         }
-        MenuStatusListener.menuStatuses.add(sharedMenu)
+        MenuStatusProvider.register(sharedMenu)
     }
 
     private fun sharedStatus(statusItem: StatusItemWpp) {

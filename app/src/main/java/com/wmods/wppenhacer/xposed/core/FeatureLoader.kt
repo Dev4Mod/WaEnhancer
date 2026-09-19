@@ -63,7 +63,7 @@ import com.wmods.wppenhacer.xposed.features.general.ShowEditMessage
 import com.wmods.wppenhacer.xposed.features.general.Tasker
 import com.wmods.wppenhacer.xposed.features.listeners.ContactItemListener
 import com.wmods.wppenhacer.xposed.features.listeners.ConversationItemListener
-import com.wmods.wppenhacer.xposed.features.listeners.MenuStatusListener
+import com.wmods.wppenhacer.xposed.features.providers.MenuStatusProvider
 import com.wmods.wppenhacer.xposed.features.media.CallRecording
 import com.wmods.wppenhacer.xposed.features.media.DownloadProfile
 import com.wmods.wppenhacer.xposed.features.media.DownloadViewOnce
@@ -505,7 +505,7 @@ class FeatureLoader {
                 DebugFeature::class.java,
                 ContactItemListener::class.java,
                 ConversationItemListener::class.java,
-                MenuStatusListener::class.java,
+                MenuStatusProvider::class.java,
                 ShowEditMessage::class.java,
                 AntiRevoke::class.java,
                 CustomToolbar::class.java,
