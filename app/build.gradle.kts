@@ -207,26 +207,27 @@ afterEvaluate {
     listOf("installWhatsappDebug", "installBusinessDebug").forEach { taskName ->
         tasks.findByName(taskName)?.doLast {
             runCatching {
-                val injected  = project.objects.newInstance<InjectedExecOps>()
+                val injected = project.objects.newInstance<InjectedExecOps>()
                 runBlocking {
-                    delay(500.milliseconds)
+                    delay(1000.milliseconds)
                     injected.execOps.exec {
                         commandLine(
                             "adb",
                             "shell",
                             "am",
                             "force-stop",
-                            project.findProperty("debug_package_name")?.toString()
+                            project.properties["debug_package_name"]?.toString()
                         )
                     }
+                    delay(3000.milliseconds)
                     injected.execOps.exec {
                         commandLine(
                             "adb",
                             "shell",
-                            "monkey",
-                            "-p",
-                            project.findProperty("debug_package_name")?.toString(),
-                            "1"
+                            "am",
+                            "start",
+                            "-n",
+                            "$(cmd package resolve-activity --brief ${project.properties["debug_package_name"]} | tail -n 1)"
                         )
                     }
                 }
