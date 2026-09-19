@@ -299,14 +299,13 @@ object ReflectionUtils {
     }
 
     @JvmStatic
-    fun <T> findInstancesOfType(args: Array<out Any?>, type: Class<T>): List<Pair<Int, T>> {
-        val result = ArrayList<Pair<Int, T>>()
+    fun <T> findInstancesOfType(args: Array<Any?>, type: Class<T>): List<Pair<Int, T>> {
+        val result = mutableListOf<Pair<Int, T>>()
         for (i in args.indices) {
             val arg = args[i]
             if (arg == null || arg is Class<*>) continue
             if (type.isInstance(arg)) {
-                @Suppress("UNCHECKED_CAST")
-                result.add(Pair(i, type.cast(arg)))
+                result.add(Pair(i, type.cast(arg)!!))
             }
         }
         return result
@@ -326,12 +325,9 @@ object ReflectionUtils {
     }
 
     @JvmStatic
-    fun <T> getArg(args: Array<out Any?>, typeClass: Class<T>, index: Int): T? {
+    fun <T> getArg(args: Array<Any?>, typeClass: Class<T>, i: Int): T? {
         val list = findInstancesOfType(args, typeClass)
-        if (list.isEmpty()) return null
-        if (index == -1) return list[list.size - 1].second
-        if (index < list.size) return list[index].second
-        return null
+        return if (list.size <= i) null else list[i].second
     }
 
     @JvmStatic

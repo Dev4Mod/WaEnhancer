@@ -293,8 +293,6 @@ object Unobfuscator {
         }
     }
 
-    @Throws(Exception::class)
-    @JvmStatic
     fun loadForwardTagMethod(classLoader: ClassLoader): Method {
         return UnobfuscatorCache.getInstance().getMethod(classLoader) {
             val messageInfoClass = loadFMessageClass(classLoader)
@@ -374,18 +372,21 @@ object Unobfuscator {
         }
     }
 
-    @Throws(Exception::class)
-    @JvmStatic
     fun loadForwardClassMethod(classLoader: ClassLoader): Class<*> {
         return UnobfuscatorCache.getInstance().getClass(classLoader) {
-            for (s in arrayOf(
-                "UserActions/userActionForwardMessage",
-                "UserActionsMessageForwarding/userActionForwardMessage"
-            )) {
-                val cls = findFirstClassUsingStrings(classLoader, StringMatchType.Contains, s)
-                if (cls != null) return@getClass cls
-            }
-            throw ClassNotFoundException("ForwardClass method not found")
+            bridge.findClass {
+                matcher {
+                    anyOf {
+                        match {
+                            usingStrings("UserActions/userActionForwardMessage")
+                        }
+                        match {
+                            usingStrings("UserActionsMessageForwarding/userActionForwardMessage")
+                        }
+                    }
+                }
+            }.firstOrNull()?.getInstance(classLoader)
+                ?: throw ClassNotFoundException("ForwardClass method not found")
         }
     }
 
@@ -1848,9 +1849,7 @@ object Unobfuscator {
         }
     }
 
-    @Throws(Exception::class)
-    @JvmStatic
-    fun loadSendAudioTypeMethod(classLoader: ClassLoader): Method {
+    fun loadMediaTypeMethod(classLoader: ClassLoader): Method {
         return UnobfuscatorCache.getInstance().getMethod(classLoader) {
             val classMsgReplyAct = findFirstClassUsingName(
                 classLoader,
@@ -1859,17 +1858,19 @@ object Unobfuscator {
             )
             val method = classMsgReplyAct.getMethod(
                 "onActivityResult",
-                Int::class.javaPrimitiveType,
-                Int::class.javaPrimitiveType,
+                Int::class.java,
+                Int::class.java,
                 Intent::class.java
             )
-            val methodData = bridge.getMethodData(method) ?: return@getMethod null
+            val methodData = bridge.getMethodData(method)
+                ?: throw NoSuchMethodException("SendAudioType method not found")
             val invokes = methodData.invokes
+
             for (invoke in invokes) {
                 if (!invoke.isMethod) continue
                 val m1 = invoke.getMethodInstance(classLoader)
-                val params = listOf(*m1.parameterTypes)
-                if (params.contains(MutableList::class.java) && params.contains(Int::class.javaPrimitiveType) && params.contains(
+                val params = m1.parameterTypes.toList()
+                if (params.contains(List::class.java) && params.contains(Int::class.java) && params.contains(
                         Uri::class.java
                     )
                 ) {
@@ -1880,37 +1881,25 @@ object Unobfuscator {
         }
     }
 
-    @Throws(Exception::class)
-    @JvmStatic
     fun loadOriginFMessageField(classLoader: ClassLoader): Field {
         return UnobfuscatorCache.getInstance().getField(classLoader) {
-            val commonStrings = arrayOf(
-                "audio/ogg; codecs=opus",
-                "audio/ogg",
-                "audio/amr",
-                "audio/mp4",
-                "audio/aac"
-            )
-
-            val clazz = loadFMessageClass(classLoader)
-
-            for (str in commonStrings) {
-                try {
-                    val result = bridge.findMethod {
-                        matcher {
-                            addUsingString(str, StringMatchType.Contains)
-                        }
+            val result = bridge.findMethod {
+                matcher {
+                    usingStrings("audio/ogg; codecs=opu")
+                    returnType = Boolean::class.java.name
+                }
+            }
+            val fMessageClass = loadFMessageClass(classLoader)
+            if (result.isEmpty()) {
+                throw RuntimeException("OriginFMessageField not found")
+            }
+            for (clazz in result) {
+                val fields = clazz.usingFields
+                for (field in fields) {
+                    val f = field.field.getFieldInstance(classLoader)
+                    if (fMessageClass.isAssignableFrom(f.declaringClass)) {
+                        return@getField f
                     }
-                    if (result.isEmpty()) continue
-
-                    for (m in result) {
-                        val fields = m.usingFields
-                        for (field in fields) {
-                            val f = field.field.getFieldInstance(classLoader)
-                            if (f.declaringClass == clazz) return@getField f
-                        }
-                    }
-                } catch (_: Exception) {
                 }
             }
             throw RuntimeException("OriginFMessageField field not found")

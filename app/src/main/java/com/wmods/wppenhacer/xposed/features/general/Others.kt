@@ -597,14 +597,14 @@ class Others(loader: ClassLoader, preferences:SharedPreferences) : Feature(loade
     }
 
     private fun sendAudioType(selectedAudioType: Int) {
-        val sendAudioTypeMethod = Unobfuscator.loadSendAudioTypeMethod(classLoader)
+        val sendAudioTypeMethod = Unobfuscator.loadMediaTypeMethod(classLoader)
         
         XposedBridge.hookMethod(sendAudioTypeMethod, object : XC_MethodHook() {
             private var newFile: File? = null
 
             override fun beforeHookedMethod(param: MethodHookParam) {
                 newFile = null
-                val results = ReflectionUtils.findInstancesOfType(param.args, Integer::class.java)
+                val results = ReflectionUtils.findInstancesOfType(param.args, Int::class.javaObjectType)
                 if (results.size < 2) {
                     return
                 }
@@ -612,21 +612,24 @@ class Others(loader: ClassLoader, preferences:SharedPreferences) : Feature(loade
                 val mediaType = results[0]
                 val sourceType = results[1]
 
-                if (mediaType.second as Int == 2 || mediaType.second as Int == 9) {
+                if (mediaType.second == 2) {
                     if (selectedAudioType > 0) {
                         val audioTypeValue = sourceType.second as Int
                         val targetAudioType = selectedAudioType - 1
-                        param.args[sourceType.first as Int] = targetAudioType
+                        param.args[sourceType.first] = targetAudioType
 
                         if (audioTypeValue != targetAudioType && targetAudioType == 1) {
                             Utils.showToast(Utils.getString(R.string.converting_audio), Toast.LENGTH_LONG)
                             val fileMedia = param.args[2]
-                            val fieldFile = ReflectionUtils.getFieldByExtendType(fileMedia.javaClass, File::class.java)
-                            val file = fieldFile!!.get(fileMedia) as File
+                            val fieldFile = ReflectionUtils.getFieldByExtendType(fileMedia.javaClass, File::class.java) ?: run {
+                                logDebug("File field not found")
+                                return
+                            }
+                            val file = fieldFile.get(fileMedia) as File
                             newFile = AudioOpusConverter.convert(file.absolutePath)
                             if (newFile != null) {
                                 file.delete()
-                                fieldFile!!.set(fileMedia, newFile)
+                                fieldFile.set(fileMedia, newFile)
                             }
                         }
                     }
