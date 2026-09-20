@@ -138,7 +138,12 @@ class SeparateGroup(loader: ClassLoader, preferences:SharedPreferences) :
             @SuppressLint("Range", "Recycle")
             override fun beforeHookedMethod(param: MethodHookParam) {
                 val indexTab = param.args[2] as Int
-                if (indexTab != tabs.indexOf(CHATS)) return
+                // WhatsApp also calls this method for the injected "Groups" tab position
+                // (it doesn't know it's virtual). If we only intercept the Chats index and
+                // let the rest fall through, the original method computes a count for
+                // whatever tab used to live at that position, which can show a stray badge
+                // (e.g. a "1") on Groups that has nothing to do with real unread groups.
+                if (indexTab != tabs.indexOf(CHATS) && indexTab != tabs.indexOf(GROUPS)) return
 
                 param.result = null
 
