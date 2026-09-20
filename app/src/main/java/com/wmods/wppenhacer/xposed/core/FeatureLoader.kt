@@ -260,11 +260,18 @@ class FeatureLoader {
 
         private fun getPreferences(context: Context): SharedPreferences {
             val pref = WppXposed.getPref()
-            pref.reload()
             try {
+                // On some devices (e.g. Android 16 with app data under APEX/Private Space
+                // mounts) registering the internal file watcher used by reload() throws an
+                // AccessDeniedException. That failure can happen on a background thread and
+                // never reaches this try/catch, but subsequent reload() calls on the same
+                // XSharedPreferences instance keep failing silently, so the module ends up
+                // reading a stale/empty preferences file forever (toggles appear to do
+                // nothing). Treat any failure here as "not usable" and fall back immediately.
+                pref.reload()
                 val fileCanRead =
                     SELinuxHelper.getAppDataFileService().checkFileAccess(pref.file.absolutePath, 4)
-                if (fileCanRead) {
+                if (fileCanRead && pref.all.isNotEmpty()) {
                     return pref
                 }
             } catch (e: Exception) {
