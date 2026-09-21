@@ -1,30 +1,22 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string-array name="supported_versions_wpp">
-        <item>2.26.25.xx</item>
-        <item>2.26.26.xx</item>
-        <item>2.26.27.xx</item>
-        <item>2.26.28.xx</item>
-        <item>2.26.29.xx</item>
         <item>2.26.30.xx</item>
         <item>2.26.31.xx</item>
         <item>2.26.32.xx</item>
         <item>2.26.33.xx</item>
         <item>2.26.34.xx</item>
         <item>2.26.35.xx</item>
+        <item>2.26.36.xx</item>
     </string-array>
     <string-array name="supported_versions_business">
-        <item>2.26.25.xx</item>
-        <item>2.26.26.xx</item>
-        <item>2.26.27.xx</item>
-        <item>2.26.28.xx</item>
-        <item>2.26.29.xx</item>
         <item>2.26.30.xx</item>
         <item>2.26.31.xx</item>
         <item>2.26.32.xx</item>
         <item>2.26.33.xx</item>
         <item>2.26.34.xx</item>
         <item>2.26.35.xx</item>
+        <item>2.26.36.xx</item>
     </string-array>
 
     <string-array name="scope">
