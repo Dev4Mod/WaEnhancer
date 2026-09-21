@@ -21,10 +21,10 @@ class ModuleContextWrapper(private val base: Context) :
     }
 
     override fun getResources(): Resources {
-        return FeatureLoader.moduleContext.resources
+        return runCatching { FeatureLoader.moduleContext.resources }.getOrElse { base.resources }
     }
 
     override fun getAssets(): AssetManager {
-        return FeatureLoader.moduleContext.assets
+        return runCatching { FeatureLoader.moduleContext.assets }.getOrElse { base.assets }
     }
 }
