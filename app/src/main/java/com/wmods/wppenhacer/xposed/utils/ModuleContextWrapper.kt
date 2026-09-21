@@ -11,6 +11,8 @@ import com.wmods.wppenhacer.xposed.core.FeatureLoader
 class ModuleContextWrapper(private val base: Context) :
     ContextThemeWrapper(base, R.style.AppTheme) {
 
+    private var customTheme: Resources.Theme? = null
+
     override fun getApplicationContext(): Context {
         return base.applicationContext ?: base
     }
@@ -26,5 +28,18 @@ class ModuleContextWrapper(private val base: Context) :
 
     override fun getAssets(): AssetManager {
         return runCatching { FeatureLoader.moduleContext.assets }.getOrElse { base.assets }
+    }
+
+    override fun getTheme(): Resources.Theme {
+        if (customTheme == null) {
+            try {
+                val theme = resources.newTheme()
+                theme.applyStyle(R.style.AppTheme, true)
+                customTheme = theme
+            } catch (_: Throwable) {
+                return super.getTheme()
+            }
+        }
+        return customTheme ?: super.getTheme()
     }
 }

@@ -344,15 +344,23 @@ internal class GoogleTranslateChatUi(
         val searchLayout = TextInputLayout(ctx).apply { hint = "Search languages" }
         val search = TextInputEditText(searchLayout.context).apply { isSingleLine = true }
         searchLayout.addView(search)
-        val list = ListView(ctx).apply { choiceMode = ListView.CHOICE_MODE_SINGLE }
+        val list = ListView(activity).apply { choiceMode = ListView.CHOICE_MODE_SINGLE }
         val all = (if (source) listOf("auto" to "Detect language") else emptyList()) +
                 GoogleTranslateLanguages.entries.sortedBy { it.second.lowercase(Locale.ROOT) }
         var visible = all
         var choice = current
-        val adapter = ArrayAdapter(
-            ctx, android.R.layout.simple_list_item_single_choice,
+        val adapter = object : ArrayAdapter<String>(
+            activity, android.R.layout.simple_list_item_single_choice,
             visible.map { it.second }.toMutableList()
-        )
+        ) {
+            override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {
+                val view = super.getView(position, convertView, parent)
+                if (view is CheckedTextView) {
+                    view.setTextColor(DesignUtils.getPrimaryTextColor())
+                }
+                return view
+            }
+        }
         list.adapter = adapter
         fun markSelection() {
             list.clearChoices()
