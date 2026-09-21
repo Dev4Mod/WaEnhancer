@@ -1,3 +1,7 @@
 [ADDED]
-* Added support for WA/WB 2.26.35.xx
-* Added Google Translate language selection and per-chat automatic translations (Thanks for ovehbe in github)
+* Added support for WA/WB 2.26.36.xx
+
+[FIXED]
+* Fixed error that caused the reaction screen to have an incorrect layout when activating the translator
+* Fixed error when forwarding a message that caused the message to go to the top of the chat
+* Fixed bugs related to Translator
