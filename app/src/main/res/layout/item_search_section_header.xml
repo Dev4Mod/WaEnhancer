@@ -2,22 +2,17 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    android:layout_marginTop="14dp"
     android:orientation="horizontal"
-    android:paddingStart="16dp"
-    android:paddingEnd="16dp"
-    android:paddingTop="20dp"
-    android:paddingBottom="8dp"
-    android:background="?android:attr/colorBackground">
+    android:paddingTop="6dp"
+    android:paddingBottom="4dp">
 
     <TextView
         android:id="@+id/sectionTitle"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:textAppearance="?attr/textAppearanceTitleSmall"
+        android:textAppearance="?textAppearanceLabelLarge"
         android:textColor="?attr/colorPrimary"
-        android:textStyle="bold"
-        android:textSize="14sp"
-        android:letterSpacing="0.05"
-        android:textAllCaps="true" />
+        android:textStyle="bold" />
 
 </LinearLayout>

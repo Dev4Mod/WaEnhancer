@@ -134,6 +134,13 @@
     <string name="show_button_to_send_blue_tick_sum">Mostre um botão para enviar marca azul (marcar como lido/visualizado)</string>
     <string name="send_blue_tick">Marcar como visto</string>
     <string name="business_in_background">WhatsApp Business em segundo plano</string>
+    <string name="whatsapp_packages_title">Status dos aplicativos WhatsApp</string>
+    <string name="whatsapp_app_label">WhatsApp</string>
+    <string name="whatsapp_business_package">WhatsApp Business</string>
+    <string name="app_not_installed">Não instalado</string>
+    <string name="app_version_s_supported">Versão %1$s · compatível</string>
+    <string name="app_version_s_unsupported">Versão %1$s · não compatível</string>
+    <string name="app_installed_version_unknown">Instalado · versão indisponível</string>
     <string name="sending_read_blue_tick">Visualizado</string>
     <string name="enable_facebook_style_for_status">Ativar estilo do Facebook para status</string>
     <string name="enable_facebook_style_for_status_sum">Altere o estilo original de status para o estilo do Facebook</string>

@@ -174,6 +174,7 @@ class HomeFragment : BaseFragment() {
     override fun onResume() {
         super.onResume()
         setDisplayHomeAsUpEnabled(false)
+        updatePackageStatuses(requireContext())
     }
 
     private fun receiverBroadcastBusiness(context: Context, intent: Intent) {
@@ -181,7 +182,7 @@ class HomeFragment : BaseFragment() {
         binding.statusTitle3.setText(R.string.business_in_background)
         val version = intent.getStringExtra("VERSION")
         val supportedList = context.resources.getStringArray(R.array.supported_versions_business).toList()
-        if (version != null && supportedList.any { s -> version.startsWith(s.replace(".xx", "")) }) {
+        if (isSupportedVersion(version, supportedList)) {
             binding.statusSummary3.text = getString(R.string.version_s, version)
             binding.status3.getChildAt(0).setBackgroundResource(R.drawable.gradient_success)
         } else {
@@ -198,7 +199,7 @@ class HomeFragment : BaseFragment() {
         val version = intent.getStringExtra("VERSION")
         val supportedList = context.resources.getStringArray(R.array.supported_versions_wpp).toList()
 
-        if (version != null && supportedList.any { s -> version.startsWith(s.replace(".xx", "")) }) {
+        if (isSupportedVersion(version, supportedList)) {
             binding.statusSummary1.text = getString(R.string.version_s, version)
             binding.status2.getChildAt(0).setBackgroundResource(R.drawable.gradient_success)
         } else {
@@ -350,6 +351,60 @@ class HomeFragment : BaseFragment() {
             binding.listWpp.visibility = View.GONE
         }
         binding.listBusiness.text = activity.resources.getStringArray(R.array.supported_versions_business).contentToString()
+        updatePackageStatuses(activity)
+    }
+
+    private fun updatePackageStatuses(context: Context) {
+        updatePackageStatus(
+            context,
+            binding.whatsappPackageSummary,
+            binding.whatsappPackageIcon,
+            FeatureLoader.PACKAGE_WPP,
+            context.resources.getStringArray(R.array.supported_versions_wpp).toList()
+        )
+        updatePackageStatus(
+            context,
+            binding.businessPackageSummary,
+            binding.businessPackageIcon,
+            FeatureLoader.PACKAGE_BUSINESS,
+            context.resources.getStringArray(R.array.supported_versions_business).toList()
+        )
+    }
+
+    private fun updatePackageStatus(
+        context: Context,
+        summary: android.widget.TextView,
+        icon: android.widget.ImageView,
+        packageName: String,
+        supportedVersions: List<String>
+    ) {
+        val packageInfo = try {
+            context.packageManager.getPackageInfo(packageName, 0)
+        } catch (_: Exception) {
+            null
+        }
+
+        if (packageInfo == null) {
+            summary.setText(R.string.app_not_installed)
+            icon.setImageResource(R.drawable.ic_round_error_outline_24)
+            return
+        }
+
+        val version = packageInfo.versionName
+        if (version.isNullOrBlank()) {
+            summary.setText(R.string.app_installed_version_unknown)
+            icon.setImageResource(R.drawable.ic_round_warning_24)
+            return
+        }
+
+        val supported = isSupportedVersion(version, supportedVersions)
+        summary.text = getString(
+            if (supported) R.string.app_version_s_supported else R.string.app_version_s_unsupported,
+            version
+        )
+        icon.setImageResource(
+            if (supported) R.drawable.ic_round_check_circle_24 else R.drawable.ic_round_warning_24
+        )
     }
 
     private fun isInstalled(packageWpp: String): Boolean {
@@ -359,6 +414,10 @@ class HomeFragment : BaseFragment() {
         } catch (ignored: Exception) {
             false
         }
+    }
+
+    private fun isSupportedVersion(version: String?, supportedVersions: List<String>): Boolean {
+        return version != null && supportedVersions.any { version.startsWith(it.replace(".xx", "")) }
     }
 
     private fun disableBusiness() {

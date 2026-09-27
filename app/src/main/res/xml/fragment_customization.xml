@@ -20,23 +20,26 @@
             app:summary="%s"
             app:title="@string/changecolor_mode" />
 
-        <com.jaredrummler.android.colorpicker.ColorPreferenceCompat
+        <com.wmods.wppenhacer.preference.FeatureColorPreferenceCompat
             app:cpv_showAlphaSlider="true"
             app:dependency="changecolor"
+            app:icon="@drawable/ic_customization_palette_24"
             app:key="primary_color"
             app:summary="@string/default_color"
             app:title="@string/primary_color" />
 
-        <com.jaredrummler.android.colorpicker.ColorPreferenceCompat
+        <com.wmods.wppenhacer.preference.FeatureColorPreferenceCompat
             app:cpv_showAlphaSlider="true"
             app:dependency="changecolor"
+            app:icon="@drawable/ic_customization_palette_24"
             app:key="background_color"
             app:summary="@string/default_color"
             app:title="@string/background_color" />
 
-        <com.jaredrummler.android.colorpicker.ColorPreferenceCompat
+        <com.wmods.wppenhacer.preference.FeatureColorPreferenceCompat
             app:cpv_showAlphaSlider="true"
             app:dependency="changecolor"
+            app:icon="@drawable/ic_customization_palette_24"
             app:key="text_color"
             app:summary="@string/default_color"
             app:title="@string/text_color" />
@@ -153,16 +156,18 @@
             app:summary="@string/change_blubble_color_sum"
             app:title="@string/change_bubble_colors" />
 
-        <com.jaredrummler.android.colorpicker.ColorPreferenceCompat
+        <com.wmods.wppenhacer.preference.FeatureColorPreferenceCompat
             app:cpv_showAlphaSlider="true"
             app:dependency="bubble_color"
+            app:icon="@drawable/ic_customization_palette_24"
             app:key="bubble_left"
             app:summary="@string/default_color"
             app:title="@string/bubble_left" />
 
-        <com.jaredrummler.android.colorpicker.ColorPreferenceCompat
+        <com.wmods.wppenhacer.preference.FeatureColorPreferenceCompat
             app:cpv_showAlphaSlider="true"
             app:dependency="bubble_color"
+            app:icon="@drawable/ic_customization_palette_24"
             app:key="bubble_right"
             app:summary="@string/default_color"
             app:title="@string/bubble_right" />
