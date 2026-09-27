@@ -49,8 +49,8 @@ import de.robv.android.xposed.XposedBridge
 import de.robv.android.xposed.XposedHelpers
 import okhttp3.OkHttpClient
 import okhttp3.Request
-import java.io.ByteArrayOutputStream
 import java.io.File
+import java.io.FileInputStream
 import java.io.FileOutputStream
 import java.io.InputStream
 import java.lang.reflect.InvocationTargetException
@@ -542,33 +542,35 @@ class MediaPreview(
         inputStream: InputStream, contentLength: Long,
         mediaKey: String, mimeType: String, progressBar: ProgressBar, progressText: TextView
     ) {
-        val encryptedData: ByteArray
-        ByteArrayOutputStream().use { baos ->
-            val buffer = ByteArray(8192)
-            var totalBytesRead: Long = 0
-            var bytesRead: Int
+        val destFile = filePath ?: throw IllegalStateException("filePath is null")
+        val tempEncryptedFile = File(destFile.parentFile, "${destFile.name}.enc")
+        try {
+            inputStream.use { encryptedInput ->
+                FileOutputStream(tempEncryptedFile).use { encryptedOutput ->
+                    val buffer = ByteArray(8192)
+                    var totalBytesRead = 0L
+                    var bytesRead: Int
 
+                    while (encryptedInput.read(buffer).also { bytesRead = it } != -1) {
+                        encryptedOutput.write(buffer, 0, bytesRead)
+                        totalBytesRead += bytesRead
 
-            while (inputStream.read(buffer).also { bytesRead = it } != -1) {
-                baos.write(buffer, 0, bytesRead)
-                totalBytesRead += bytesRead
-
-                if (contentLength > 0) {
-                    val progress = ((totalBytesRead * 100) / contentLength).toInt()
-                    val sizeInfo = "${formatSize(totalBytesRead)} / ${formatSize(contentLength)}"
-                    postDownloadProgress(progressBar, progressText, progress, sizeInfo)
+                        if (contentLength > 0) {
+                            val progress = ((totalBytesRead * 100) / contentLength).toInt()
+                            val sizeInfo = "${formatSize(totalBytesRead)} / ${formatSize(contentLength)}"
+                            postDownloadProgress(progressBar, progressText, progress, sizeInfo)
+                        }
+                    }
                 }
             }
-            encryptedData = baos.toByteArray()
-        }
-        inputStream.close()
 
-        mainHandler.post { progressText.setText(R.string.decrypting) }
+            mainHandler.post { progressText.setText(R.string.decrypting) }
 
-        val decryptedData = decryptMedia(encryptedData, mediaKey, mimeType)
-
-        FileOutputStream(filePath).use { fos ->
-            fos.write(decryptedData)
+            decryptMediaFile(tempEncryptedFile, destFile, mediaKey, mimeType)
+        } finally {
+            if (tempEncryptedFile.exists()) {
+                tempEncryptedFile.delete()
+            }
         }
     }
 
@@ -1175,11 +1177,12 @@ class MediaPreview(
     }
 
     @Throws(Exception::class)
-    private fun decryptMedia(
-        encryptedData: ByteArray,
+    private fun decryptMediaFile(
+        encryptedFile: File,
+        destFile: File,
         mediaKey: String,
         mimeType: String
-    ): ByteArray {
+    ) {
         if (mediaKey.length % 2 != 0 || mediaKey.length != 64) {
             throw IllegalArgumentException("Invalid media key.")
         }
@@ -1199,7 +1202,35 @@ class MediaPreview(
 
         val cipher = Cipher.getInstance("AES/CBC/PKCS5Padding")
         cipher.init(Cipher.DECRYPT_MODE, SecretKeySpec(aesKey, "AES"), IvParameterSpec(iv))
-        return cipher.doFinal(encryptedData.copyOfRange(0, encryptedData.size - 10))
+
+        val fileSize = encryptedFile.length()
+        if (fileSize <= 10L) {
+            throw IllegalArgumentException("Encrypted file too small ($fileSize bytes)")
+        }
+        val payloadSize = fileSize - 10L
+
+        FileInputStream(encryptedFile).use { encryptedInput ->
+            FileOutputStream(destFile).use { output ->
+                val buffer = ByteArray(8192)
+                var remaining = payloadSize
+                while (remaining > 0L) {
+                    val bytesToRead = remaining.coerceAtMost(buffer.size.toLong()).toInt()
+                    val bytesRead = encryptedInput.read(buffer, 0, bytesToRead)
+                    if (bytesRead <= 0) break
+
+                    val decryptedChunk = cipher.update(buffer, 0, bytesRead)
+                    if (decryptedChunk != null && decryptedChunk.isNotEmpty()) {
+                        output.write(decryptedChunk)
+                    }
+                    remaining -= bytesRead
+                }
+
+                val finalBytes = cipher.doFinal()
+                if (finalBytes.isNotEmpty()) {
+                    output.write(finalBytes)
+                }
+            }
+        }
     }
 
     override fun getPluginName(): String {
