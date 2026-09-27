@@ -210,9 +210,9 @@ class HomeFragment : BaseFragment() {
 
     private fun resetConfigs(context: Context) {
         val prefs = PreferenceManager.getDefaultSharedPreferences(context)
-        val editor = prefs.edit()
-        prefs.all.keys.forEach { key -> editor.remove(key) }
-        editor.apply()
+        prefs.edit {
+            prefs.all.keys.forEach { key -> remove(key) }
+        }
         App.instance.restartApp(FeatureLoader.PACKAGE_WPP)
         App.instance.restartApp(FeatureLoader.PACKAGE_BUSINESS)
         Utils.showToast(context.getString(R.string.configs_reset), Toast.LENGTH_SHORT)
@@ -412,7 +412,7 @@ class HomeFragment : BaseFragment() {
         return try {
             App.instance.packageManager.getPackageInfo(packageWpp, 0)
             true
-        } catch (ignored: Exception) {
+        } catch (_: Exception) {
             false
         }
     }
@@ -459,30 +459,30 @@ class HomeFragment : BaseFragment() {
 
                 client.newCall(request).execute().use { response ->
                     if (!response.isSuccessful) {
-                        updateCardState(false, false, null)
+                        updateCardState(success = false, isUpToDate = false, newVersion = null)
                         return@use
                     }
 
                     val body = response.body
-                    val content = body?.string() ?: ""
+                    val content = body.string()
                     val release = JSONObject(content)
                     val tagName = release.optString("tag_name", "")
 
                     if (tagName.isBlank()) {
-                        updateCardState(true, true, null)
+                        updateCardState(success = true, isUpToDate = true, newVersion = null)
                         return@use
                     }
 
                     val parts = tagName.split("-")
                     val hash = if (parts.size > 1) parts[1].trim() else ""
-                    val isNewVersion = hash.isNotEmpty() && !BuildConfig.VERSION_NAME.lowercase(Locale.ROOT).contains(hash.lowercase(Locale.ROOT))
+                    val isNewVersion = hash.isNotEmpty() && !BuildConfig.VERSION_NAME.lowercase(Locale.ROOT).contains(tagName.lowercase(Locale.ROOT))
 
-                    updateCardState(true, !isNewVersion, tagName)
+                    updateCardState(success = true, isUpToDate = !isNewVersion, newVersion = tagName)
                 }
-            } catch (e: UnknownHostException) {
-                updateCardState(false, false, null)
-            } catch (e: Exception) {
-                updateCardState(false, false, null)
+            } catch (_: UnknownHostException) {
+                updateCardState(success = false, isUpToDate = false, newVersion = null)
+            } catch (_: Exception) {
+                updateCardState(success = false, isUpToDate = false, newVersion = null)
             }
         }
     }
