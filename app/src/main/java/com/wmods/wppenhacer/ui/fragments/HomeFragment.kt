@@ -1,6 +1,5 @@
 package com.wmods.wppenhacer.ui.fragments
 
-import android.annotation.SuppressLint
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
@@ -25,7 +24,6 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.wmods.wppenhacer.App
 import com.wmods.wppenhacer.BuildConfig
 import com.wmods.wppenhacer.R
-import com.wmods.wppenhacer.activities.MainActivity
 import com.wmods.wppenhacer.adapter.LogLineAdapter
 import com.wmods.wppenhacer.databinding.DialogDiagnosticsLogBinding
 import com.wmods.wppenhacer.databinding.FragmentHomeBinding
@@ -45,11 +43,10 @@ import org.json.JSONObject
 import rikka.core.util.IOUtils
 import java.net.UnknownHostException
 import java.text.SimpleDateFormat
-import java.util.ArrayList
 import java.util.Date
-import java.util.HashSet
 import java.util.Locale
 import java.util.concurrent.TimeUnit
+import androidx.core.content.edit
 
 class HomeFragment : BaseFragment() {
 
@@ -68,7 +65,7 @@ class HomeFragment : BaseFragment() {
                     } else {
                         receiverBroadcastBusiness(context, intent)
                     }
-                } catch (ignored: Exception) {
+                } catch (_: Exception) {
                 }
             }
         }, intentFilter, ContextCompat.RECEIVER_EXPORTED)
@@ -273,36 +270,40 @@ class HomeFragment : BaseFragment() {
                         val prefs = PreferenceManager.getDefaultSharedPreferences(context)
                         val jsonObject = JSONObject(data)
 
-                        val editor = prefs.edit()
-                        prefs.all.keys.forEach { key -> editor.remove(key) }
+                        prefs.edit {
+                            prefs.all.keys.forEach { key -> remove(key) }
 
-                        val keys = jsonObject.keys()
-                        while (keys.hasNext()) {
-                            val keyName = keys.next()
-                            var value = jsonObject.get(keyName)
-                            var type = value.javaClass.simpleName
-                            if (value is JSONObject) {
-                                type = value.getString("type")
-                                value = value.get("value")
-                            }
-
-                            when (type) {
-                                "JSONArray" -> {
-                                    val jsonArray = value as JSONArray
-                                    val hashSet = HashSet<String>()
-                                    for (i in 0 until jsonArray.length()) {
-                                        hashSet.add(jsonArray.getString(i))
-                                    }
-                                    editor.putStringSet(keyName, hashSet)
+                            val keys = jsonObject.keys()
+                            while (keys.hasNext()) {
+                                val keyName = keys.next()
+                                var value = jsonObject.get(keyName)
+                                var type = value.javaClass.simpleName
+                                if (value is JSONObject) {
+                                    type = value.getString("type")
+                                    value = value.get("value")
                                 }
-                                "String" -> editor.putString(keyName, value as String)
-                                "Boolean", "boolean" -> editor.putBoolean(keyName, value as Boolean)
-                                "Integer", "int" -> editor.putInt(keyName, value as Int)
-                                "Long", "long" -> editor.putLong(keyName, (value as Number).toLong())
-                                "Double", "double", "Float", "float" -> editor.putFloat(keyName, (value as Number).toFloat())
+
+                                when (type) {
+                                    "JSONArray" -> {
+                                        val jsonArray = value as JSONArray
+                                        val hashSet = HashSet<String>()
+                                        for (i in 0 until jsonArray.length()) {
+                                            hashSet.add(jsonArray.getString(i))
+                                        }
+                                        putStringSet(keyName, hashSet)
+                                    }
+
+                                    "String" -> putString(keyName, value as String)
+                                    "Boolean", "boolean" -> putBoolean(keyName, value as Boolean)
+                                    "Integer", "int" -> putInt(keyName, value as Int)
+                                    "Long", "long" -> putLong(keyName, (value as Number).toLong())
+                                    "Double", "double", "Float", "float" -> putFloat(
+                                        keyName,
+                                        (value as Number).toFloat()
+                                    )
+                                }
                             }
                         }
-                        editor.apply()
                     }
                     withContext(Dispatchers.Main) {
                         Toast.makeText(context, context.getString(R.string.configs_imported), Toast.LENGTH_SHORT).show()
@@ -321,7 +322,7 @@ class HomeFragment : BaseFragment() {
     }
 
     private fun checkStateWpp(activity: FragmentActivity) {
-        if (MainActivity.isXposedEnabled()) {
+        if (App.instance.isXposedEnabled()) {
             binding.statusIcon.setImageResource(R.drawable.ic_round_check_circle_24)
             binding.statusTitle.setText(R.string.module_enabled)
             binding.statusSummary.text = String.format(getString(R.string.version_s), BuildConfig.VERSION_NAME)

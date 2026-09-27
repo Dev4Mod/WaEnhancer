@@ -3,6 +3,7 @@ package com.wmods.wppenhacer
 import android.annotation.SuppressLint
 import android.content.ContextWrapper
 import android.content.res.XModuleResources
+import android.util.Log
 import android.view.Window
 import android.view.WindowManager
 import androidx.preference.PreferenceManager
@@ -49,14 +50,11 @@ class WppXposed : IXposedHookLoadPackage, IXposedHookInitPackageResources, IXpos
     override fun handleLoadPackage(lpparam: XC_LoadPackage.LoadPackageParam) {
         val packageName = lpparam.packageName
         val classLoader = lpparam.classLoader
+        XposedBridge.log("[•] This package: ${lpparam.packageName}")
 
         if (packageName == BuildConfig.APPLICATION_ID) {
-            XposedHelpers.findAndHookMethod(
-                MainActivity::class.java.name,
-                classLoader,
-                "isXposedEnabled",
-                XC_MethodReplacement.returnConstant(true)
-            )
+            val clazz = XposedHelpers.findClass(App::class.java.name, classLoader)
+            XposedBridge.hookAllMethods(clazz, "isXposedEnabled", XC_MethodReplacement.returnConstant(true))
 
             @Suppress("DEPRECATION")
             @SuppressLint("WorldReadableFiles")
