@@ -1,7 +1,9 @@
 [ADDED]
-* Added support for WA/WB 2.26.36.xx
+* Added support for WA/WB 2.26.37.xx
+
+[IMPROVED]
+* We have redesigned the menus within WAE
 
 [FIXED]
-* Fixed error that caused the reaction screen to have an incorrect layout when activating the translator
-* Fixed error when forwarding a message that caused the message to go to the top of the chat
-* Fixed bugs related to Translator
+* We fixed some bugs reported by users
+
