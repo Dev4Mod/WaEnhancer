@@ -82,6 +82,7 @@ import com.wmods.wppenhacer.xposed.features.others.GoogleTranslate
 import com.wmods.wppenhacer.xposed.features.others.GroupAdmin
 import com.wmods.wppenhacer.xposed.features.others.JumpFirstMessage
 import com.wmods.wppenhacer.xposed.features.others.MenuHome
+import com.wmods.wppenhacer.xposed.features.others.MinorFixes
 import com.wmods.wppenhacer.xposed.features.others.Stickers
 import com.wmods.wppenhacer.xposed.features.others.TextStatusComposer
 import com.wmods.wppenhacer.xposed.features.others.ToastViewer
@@ -503,6 +504,7 @@ class FeatureLoader {
         private fun plugins(loader: ClassLoader, pref: SharedPreferences, versionWpp: String) {
             val classes = arrayOf(
                 DebugFeature::class.java,
+                MinorFixes::class.java,
                 ContactItemListener::class.java,
                 ConversationItemListener::class.java,
                 MenuStatusProvider::class.java,
