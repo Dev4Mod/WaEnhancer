@@ -8,6 +8,8 @@ import android.content.SharedPreferences
 import android.database.sqlite.SQLiteDatabase
 import android.graphics.drawable.Drawable
 import android.os.Environment
+import android.os.Handler
+import android.os.Looper
 import android.text.TextUtils
 import android.util.LruCache
 import android.widget.Toast
@@ -64,6 +66,8 @@ object WppCore {
     private var mWaJidMapRepository: Any? = null
     private var convertJidToLid: Method? = null
     private var actionUser: Class<*>? = null
+    private var messageSenderClass: Class<*>? = null
+    private var messageSenderInstance: Any? = null
     private var cachedMessageStoreKey: Method? = null
     private var conversationJidField: Field? = null
     private var meManagerPhoneJidField: Field? = null
@@ -116,6 +120,20 @@ object WppCore {
                 mActionUser = param.thisObject
             }
         })
+
+        // Text-message sending facade (dynamic lookup by marker string).
+        try {
+            val senderClass = Unobfuscator.loadTextMessageSender(loader)
+            messageSenderClass = senderClass
+            XposedBridge.hookAllConstructors(senderClass, object : XC_MethodHook() {
+                override fun afterHookedMethod(param: MethodHookParam) {
+                    messageSenderInstance = param.thisObject
+                }
+            })
+            XposedBridge.log("TextMessageSender: ${senderClass.name}")
+        } catch (e: Throwable) {
+            XposedBridge.log(e)
+        }
 
         // CachedMessageStore
         cachedMessageStoreKey = Unobfuscator.loadCachedMessageStoreKey(loader)
@@ -265,37 +283,107 @@ object WppCore {
 
     @JvmStatic
     fun sendMessage(number: String, message: String) {
-        try {
-            val senderMethod = ReflectionUtils.findMethodUsingFilterIfExists(actionUser) { method ->
-                List::class.java.isAssignableFrom(method.returnType) &&
-                        ReflectionUtils.findIndexOfType(
-                            method.parameterTypes,
-                            String::class.java
-                        ) != -1
+        val work = Runnable {
+            try {
+                if (sendMessageViaFacade(number, message)) return@Runnable
+                sendMessageLegacy(number, message)
+            } catch (e: Throwable) {
+                XposedBridge.log("sendMessage failed: $e")
+                Utils.showToast("Error in sending message:${e.message}", Toast.LENGTH_SHORT)
             }
-            if (senderMethod != null) {
-                val userJid = createUserJid("$number@s.whatsapp.net")
-                if (userJid == null) {
-                    Utils.showToast("UserJID not found", Toast.LENGTH_SHORT)
-                    return
-                }
-                val newObject = arrayOfNulls<Any>(senderMethod.parameterCount)
-                for (i in newObject.indices) {
-                    val param = senderMethod.parameterTypes[i]
-                    newObject[i] = ReflectionUtils.getDefaultValue(param)
-                }
-                val index =
-                    ReflectionUtils.findIndexOfType(senderMethod.parameterTypes, String::class.java)
-                newObject[index] = message
-                val index2 =
-                    ReflectionUtils.findIndexOfType(senderMethod.parameterTypes, List::class.java)
-                newObject[index2] = Collections.singletonList(userJid)
-                senderMethod.invoke(getActionUser(), *newObject)
-                Utils.showToast("Message sent to $number", Toast.LENGTH_SHORT)
-            }
-        } catch (e: Exception) {
-            Utils.showToast("Error in sending message:${e.message}", Toast.LENGTH_SHORT)
-            XposedBridge.log(e)
+        }
+        if (Looper.myLooper() == Looper.getMainLooper()) {
+            work.run()
+        } else {
+            Handler(Looper.getMainLooper()).post(work)
+        }
+    }
+
+    /**
+     * Current WhatsApp builds (roughly 2.26.3x+) send text through a DI "user actions"
+     * facade exposing `(Jid, String) -> void`. The class is found dynamically by marker
+     * string, the method by signature. Returns true if the message was handed off.
+     */
+    private fun sendMessageViaFacade(number: String, message: String): Boolean {
+        return try {
+            val jid = createUserJid("$number@s.whatsapp.net") ?: return false
+            val facade = getSendFacade() ?: return false
+            val method = findSendMethod(facade, jid.javaClass) ?: return false
+            method.invoke(facade, jid, message)
+            XposedBridge.log("sendMessage: facade ${method.name} invoked for $number")
+            Utils.showToast("Message sent to $number", Toast.LENGTH_SHORT)
+            true
+        } catch (e: Throwable) {
+            XposedBridge.log("sendMessage facade path failed: $e")
+            false
+        }
+    }
+
+    /**
+     * Legacy path for older WhatsApp versions where the sender lived on ActionUser as
+     * `List f(<List>, String)`. Kept so the module keeps working across its full
+     * supported version range; only reached when the facade path is unavailable.
+     */
+    private fun sendMessageLegacy(number: String, message: String) {
+        val senderMethod = ReflectionUtils.findMethodUsingFilterIfExists(actionUser) { method ->
+            List::class.java.isAssignableFrom(method.returnType) &&
+                    ReflectionUtils.findIndexOfType(
+                        method.parameterTypes,
+                        String::class.java
+                    ) != -1 &&
+                    ReflectionUtils.findIndexOfType(
+                        method.parameterTypes,
+                        List::class.java
+                    ) != -1
+        }
+        if (senderMethod == null) {
+            XposedBridge.log("sendMessage: no send path available for this WhatsApp version")
+            Utils.showToast("sendMessage: send method not found", Toast.LENGTH_SHORT)
+            return
+        }
+        val userJid = createUserJid("$number@s.whatsapp.net")
+        if (userJid == null) {
+            Utils.showToast("UserJID not found", Toast.LENGTH_SHORT)
+            return
+        }
+        val args = arrayOfNulls<Any>(senderMethod.parameterCount)
+        for (i in args.indices) {
+            args[i] = ReflectionUtils.getDefaultValue(senderMethod.parameterTypes[i])
+        }
+        args[ReflectionUtils.findIndexOfType(senderMethod.parameterTypes, String::class.java)] =
+            message
+        args[ReflectionUtils.findIndexOfType(senderMethod.parameterTypes, List::class.java)] =
+            Collections.singletonList(userJid)
+        senderMethod.invoke(getActionUser(), *args)
+        XposedBridge.log("sendMessage: legacy ${senderMethod.name} invoked for $number")
+        Utils.showToast("Message sent to $number", Toast.LENGTH_SHORT)
+    }
+
+    private fun getSendFacade(): Any? {
+        messageSenderInstance?.let { return it }
+        val cls = messageSenderClass ?: try {
+            Unobfuscator.loadTextMessageSender(Utils.appClassLoader).also { messageSenderClass = it }
+        } catch (e: Throwable) {
+            XposedBridge.log("getSendFacade: $e")
+            null
+        } ?: return null
+
+        // Not constructed yet this session: obtain it from the DI service locator
+        // (all obfuscation-specific knowledge lives in Unobfuscator).
+        val resolved = Unobfuscator.resolveTextMessageSenderFacade(Utils.appClassLoader)
+        if (resolved != null && cls.isInstance(resolved)) {
+            messageSenderInstance = resolved
+            return resolved
+        }
+        return null
+    }
+
+    private fun findSendMethod(facade: Any, jidClass: Class<*>): Method? {
+        return facade.javaClass.methods.firstOrNull { m ->
+            m.parameterCount == 2 &&
+                    m.parameterTypes[1] == String::class.java &&
+                    m.parameterTypes[0].isAssignableFrom(jidClass) &&
+                    m.returnType == Void.TYPE
         }
     }
 
