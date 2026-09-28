@@ -17,13 +17,12 @@ class MinorFixes(classLoader: ClassLoader, prefs: SharedPreferences) : Feature(c
 
     override fun doHook() {
         XposedHelpers.findAndHookMethod(
-            Instrumentation::class.java,
-            "callActivityOnCreate",
             Activity::class.java,
+            "onCreate",
             Bundle::class.java,
             object : XC_MethodHook() {
                 override fun beforeHookedMethod(param: MethodHookParam) {
-                    val activity = param.args[0] as? Activity ?: return
+                    val activity = param.thisObject as? Activity ?: return
                     if (activity.javaClass.name != DOCUMENT_PICKER_ACTIVITY) return
                     ensureMlKitInitialized(activity)
                 }
