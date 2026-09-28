@@ -1,5 +1,3 @@
-import com.android.build.api.variant.impl.VariantOutputImpl
-import com.android.build.gradle.internal.api.BaseVariantOutputImpl
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
@@ -141,7 +139,7 @@ androidComponents {
             else -> "WaEnhancer"
         }
         variant.outputs.forEach { output ->
-            (output as VariantOutputImpl).outputFileName.set("$appName-1.5.5 ($gitHash).apk")
+            output.outputFileName.set(output.versionName.map { "$appName-$it.apk" })
         }
     }
 }
