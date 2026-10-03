@@ -29,9 +29,9 @@ import com.wmods.wppenhacer.BuildConfig
 import com.wmods.wppenhacer.R
 import com.wmods.wppenhacer.preference.FloatSeekBarPreference
 import com.wmods.wppenhacer.xposed.utils.Utils
+import rikka.material.preference.MaterialSwitchPreference
 import java.util.Locale
 import java.util.Objects
-import rikka.material.preference.MaterialSwitchPreference
 
 abstract class BasePreferenceFragment : PreferenceFragmentCompat(),
     SharedPreferences.OnSharedPreferenceChangeListener {
@@ -94,9 +94,16 @@ abstract class BasePreferenceFragment : PreferenceFragmentCompat(),
                     preference.layoutResource = R.layout.preference_feature_switch
                     preference.widgetLayoutResource = R.layout.preference_widget_material3_switch
                 }
-                is FloatSeekBarPreference -> preference.layoutResource = R.layout.preference_feature_seekbar
-                is SeekBarPreference -> preference.layoutResource = R.layout.preference_feature_standard_seekbar
-                is ColorPreferenceCompat -> preference.layoutResource = R.layout.preference_feature_color
+
+                is FloatSeekBarPreference -> preference.layoutResource =
+                    R.layout.preference_feature_seekbar
+
+                is SeekBarPreference -> preference.layoutResource =
+                    R.layout.preference_feature_standard_seekbar
+
+                is ColorPreferenceCompat -> preference.layoutResource =
+                    R.layout.preference_feature_color
+
                 else -> preference.layoutResource = R.layout.preference_feature_list
             }
         }
@@ -107,13 +114,16 @@ abstract class BasePreferenceFragment : PreferenceFragmentCompat(),
         return when {
             value.contains("privacy") || value.contains("privacidade") -> R.drawable.ic_privacy
             value.contains("media") || value.contains("midia") || value.contains("video") ||
-                value.contains("image") || value.contains("download") || value.contains("audio") -> R.drawable.ic_media
+                    value.contains("image") || value.contains("download") || value.contains("audio") -> R.drawable.ic_media
+
             value.contains("call") || value.contains("chamada") || value.contains("gravacao") -> R.drawable.ic_recording
             value.contains("status") || value.contains("home") || value.contains("inicio") -> R.drawable.ic_home_black_24dp
             value.contains("custom") || value.contains("personal") || value.contains("personalizacao") ->
                 R.drawable.ic_dashboard_black_24dp
+
             value.contains("conversation") || value.contains("conversa") || value.contains("general") ||
-                value.contains("geral") -> R.drawable.ic_general
+                    value.contains("geral") -> R.drawable.ic_general
+
             else -> fallback
         }
     }
@@ -122,13 +132,16 @@ abstract class BasePreferenceFragment : PreferenceFragmentCompat(),
         val value = "${normalize(preference.key)} ${normalize(preference.title)}"
         return when {
             value.contains("privacy") || value.contains("privacidade") || value.contains("archive") ||
-                value.contains("ghost") || value.contains("freeze") || value.contains("read") -> R.drawable.ic_privacy
+                    value.contains("ghost") || value.contains("freeze") || value.contains("read") -> R.drawable.ic_privacy
+
             value.contains("record") || value.contains("grav") -> R.drawable.ic_recording
             value.contains("media") || value.contains("video") || value.contains("image") ||
-                value.contains("audio") || value.contains("download") || value.contains("transcription") -> R.drawable.ic_media
+                    value.contains("audio") || value.contains("download") || value.contains("transcription") -> R.drawable.ic_media
+
             value.contains("color") || value.contains("theme") || value.contains("wallpaper") ||
-                value.contains("bubble") || value.contains("css") || value.contains("animation") ->
+                    value.contains("bubble") || value.contains("css") || value.contains("animation") ->
                 R.drawable.ic_dashboard_black_24dp
+
             value.contains("status") || value.contains("home") || value.contains("inicio") -> R.drawable.ic_home_black_24dp
             else -> fallback
         }
@@ -193,11 +206,11 @@ abstract class BasePreferenceFragment : PreferenceFragmentCompat(),
         if (newValue is Boolean && newValue) {
             val needsPermission =
                 (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R && !Environment.isExternalStorageManager()) ||
-                    (Build.VERSION.SDK_INT < Build.VERSION_CODES.R &&
-                        ContextCompat.checkSelfPermission(
-                            requireContext(),
-                            Manifest.permission.WRITE_EXTERNAL_STORAGE
-                        ) != PackageManager.PERMISSION_GRANTED)
+                        (Build.VERSION.SDK_INT < Build.VERSION_CODES.R &&
+                                ContextCompat.checkSelfPermission(
+                                    requireContext(),
+                                    Manifest.permission.WRITE_EXTERNAL_STORAGE
+                                ) != PackageManager.PERMISSION_GRANTED)
             if (needsPermission) {
                 App.showRequestStoragePermission(requireActivity())
                 return false
@@ -211,7 +224,8 @@ abstract class BasePreferenceFragment : PreferenceFragmentCompat(),
         val changeColorEnabled = prefs.getBoolean("changecolor", false)
         val changeColorMode = prefs.getString("changecolor_mode", "manual")
         val monetAvailable = Build.VERSION.SDK_INT >= Build.VERSION_CODES.S
-        val useMonetColors = changeColorEnabled && monetAvailable && Objects.equals(changeColorMode, "monet")
+        val useMonetColors =
+            changeColorEnabled && monetAvailable && Objects.equals(changeColorMode, "monet")
 
         setPreferenceState("changecolor_mode", changeColorEnabled && monetAvailable)
         setPreferenceState("primary_color", changeColorEnabled && !useMonetColors)
@@ -223,7 +237,8 @@ abstract class BasePreferenceFragment : PreferenceFragmentCompat(),
         }
 
         val colorMode = prefs.getString("wae_color_mode", "preset")
-        val useMonet = Objects.equals(colorMode, "monet") && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S
+        val useMonet =
+            Objects.equals(colorMode, "monet") && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S
         setPreferenceState("wae_color_preset", !useMonet)
 
         if (key == "wae_color_mode" || key == "wae_color_preset") {
@@ -267,10 +282,12 @@ abstract class BasePreferenceFragment : PreferenceFragmentCompat(),
                     callBlockContacts.isEnabled = true
                     callWhiteContacts.isEnabled = false
                 }
+
                 4 -> {
                     callWhiteContacts.isEnabled = true
                     callBlockContacts.isEnabled = false
                 }
+
                 else -> {
                     callWhiteContacts.isEnabled = false
                     callBlockContacts.isEnabled = false
@@ -342,7 +359,10 @@ abstract class BasePreferenceFragment : PreferenceFragmentCompat(),
         }
     }
 
-    private fun findPreferenceAtPosition(group: PreferenceGroup?, targetPosition: Int): Preference? {
+    private fun findPreferenceAtPosition(
+        group: PreferenceGroup?,
+        targetPosition: Int
+    ): Preference? {
         if (group == null) return null
 
         var currentPosition = 0

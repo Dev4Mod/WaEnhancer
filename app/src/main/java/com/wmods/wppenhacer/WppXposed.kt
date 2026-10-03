@@ -1,184 +1,118 @@
 package com.wmods.wppenhacer
 
 import android.annotation.SuppressLint
+import android.app.Application
+import android.app.Instrumentation
 import android.content.ContextWrapper
-import android.content.res.XModuleResources
-import android.util.Log
 import android.view.Window
 import android.view.WindowManager
-import androidx.preference.PreferenceManager
-import com.wmods.wppenhacer.activities.MainActivity
+import com.highcapable.kavaref.KavaRef.Companion.resolve
+import com.highcapable.yukihookapi.YukiHookAPI
+import com.highcapable.yukihookapi.annotation.xposed.InjectYukiHookWithXposed
+import com.highcapable.yukihookapi.hook.factory.encase
+import com.highcapable.yukihookapi.hook.factory.injectModuleAppResources
+import com.highcapable.yukihookapi.hook.log.YLog
+import com.highcapable.yukihookapi.hook.param.PackageParam
+import com.highcapable.yukihookapi.hook.xposed.proxy.IYukiHookXposedInit
 import com.wmods.wppenhacer.xposed.AntiUpdater
 import com.wmods.wppenhacer.xposed.bridge.ScopeHook
 import com.wmods.wppenhacer.xposed.core.FeatureLoader
+import com.wmods.wppenhacer.xposed.core.patch.GlobalResourceHooker
 import com.wmods.wppenhacer.xposed.downgrade.Patch
-import de.robv.android.xposed.IXposedHookInitPackageResources
-import de.robv.android.xposed.IXposedHookLoadPackage
-import de.robv.android.xposed.IXposedHookZygoteInit
-import de.robv.android.xposed.XC_MethodHook
-import de.robv.android.xposed.XC_MethodReplacement
-import de.robv.android.xposed.XSharedPreferences
-import de.robv.android.xposed.XposedBridge
-import de.robv.android.xposed.XposedHelpers
-import de.robv.android.xposed.callbacks.XC_InitPackageResources.InitPackageResourcesParam
-import de.robv.android.xposed.callbacks.XC_LoadPackage
+import com.wmods.wppenhacer.xposed.utils.YukiSharedPreference
 
-class WppXposed : IXposedHookLoadPackage, IXposedHookInitPackageResources, IXposedHookZygoteInit {
+@InjectYukiHookWithXposed
+class WppXposed : IYukiHookXposedInit {
 
-    private var MODULE_PATH: String? = null
-
-    companion object {
-        private var pref: XSharedPreferences? = null
-
-        @JvmStatic
-        var ResParam: InitPackageResourcesParam? = null
-
-        @JvmStatic
-        fun getPref(): XSharedPreferences {
-            return pref ?: XSharedPreferences(
-                BuildConfig.APPLICATION_ID,
-                BuildConfig.APPLICATION_ID + "_preferences"
-            ).apply {
-                makeWorldReadable()
-                reload()
-                pref = this
-            }
+    override fun onInit() {
+        YukiHookAPI.configs {
+            debugLog { tag = "WAE" }
+            isEnableModuleAppResourcesCache = true
+            isEnableDataChannel = true
         }
     }
 
-    @Throws(Throwable::class)
-    override fun handleLoadPackage(lpparam: XC_LoadPackage.LoadPackageParam) {
-        val packageName = lpparam.packageName
-        val classLoader = lpparam.classLoader
-        XposedBridge.log("[•] This package: ${lpparam.packageName}")
+    @SuppressLint("WorldReadableFiles")
+    override fun onHook() = encase {
 
-        if (packageName == BuildConfig.APPLICATION_ID) {
-            val clazz = XposedHelpers.findClass(App::class.java.name, classLoader)
-            XposedBridge.hookAllMethods(clazz, "isXposedEnabled", XC_MethodReplacement.returnConstant(true))
+        loadSystem(Patch)
+        loadSystem(ScopeHook)
+        loadApp(hooker = AntiUpdater)
 
-            @Suppress("DEPRECATION")
-            @SuppressLint("WorldReadableFiles")
-            XposedHelpers.findAndHookMethod(
-                PreferenceManager::class.java.name,
-                classLoader,
-                "getDefaultSharedPreferencesMode",
-                XC_MethodReplacement.returnConstant(ContextWrapper.MODE_WORLD_READABLE)
-            )
-
-            XposedHelpers.findAndHookMethod(
-                "android.app.ContextImpl", classLoader, "checkMode", Int::class.javaPrimitiveType!!, XC_MethodReplacement.DO_NOTHING)
-            return
-        }
-
-        AntiUpdater.hookSession(lpparam)
-
-        Patch.handleLoadPackage(lpparam)
-
-        ScopeHook.hook(lpparam)
-
-        if ((packageName == FeatureLoader.PACKAGE_WPP && App.isOriginalPackage) || packageName == FeatureLoader.PACKAGE_BUSINESS) {
-            if (lpparam.isFirstApplication) { // I believe this may fix the problem when using multiple accounts, not yet tested
-                XposedBridge.log("[•] This package: ${lpparam.packageName}")
-                FeatureLoader.start(classLoader, lpparam.appInfo.sourceDir)
-                disableSecureFlag()
-            }
-        }
-    }
-
-    @Throws(Throwable::class)
-    override fun handleInitPackageResources(resparam: InitPackageResourcesParam) {
-        val packageName = resparam.packageName
-
-        if (packageName != FeatureLoader.PACKAGE_WPP && packageName != FeatureLoader.PACKAGE_BUSINESS) {
-            return
-        }
-
-        val modRes = XModuleResources.createInstance(MODULE_PATH, resparam.res)
-        ResParam = resparam
-        val resourceClasses = listOf(
-            R.array::class.java,
-            R.string::class.java,
-            R.drawable::class.java
-        )
-        resourceClasses.forEach {
-            injectResources(it, modRes, resparam)
-        }
-
-    }
-
-    private fun injectResources(
-        clazz: Class<*>,
-        modRes: XModuleResources?,
-        resparam: InitPackageResourcesParam
-    ) {
-        var count = 0
-        for (field in clazz.declaredFields) {
-            try {
-                field.isAccessible = true
-
-                if (field.type === Int::class.javaPrimitiveType) {
-                    val resId = field.getInt(null)
-                    if (resId > 0x7f000000) {
-                        count++
-                        val replacementId = resparam.res.addResource(modRes, resId)
-                        field.set(null, replacementId)
-                    }
-                } else if (field.type === IntArray::class.java) {
-                    val resIds = field.get(null) as IntArray?
-                    if (resIds != null) {
-                        for (i in resIds.indices) {
-                            if (resIds[i] > 0x7f000000) {
-                                count++
-                                resIds[i] = resparam.res.addResource(modRes, resIds[i])
-                            }
+        loadApp(BuildConfig.APPLICATION_ID) {
+            "android.app.ContextImpl".toClass().resolve().apply {
+                firstMethod {
+                    name = "getSharedPreferences"
+                    parameters(String::class, Int::class)
+                }.hook {
+                    before {
+                        if (args[1] == ContextWrapper.MODE_PRIVATE) {
+                            @Suppress("DEPRECATION")
+                            args[1] = ContextWrapper.MODE_WORLD_READABLE
                         }
                     }
                 }
-            } catch (_: Exception) {
-
+                firstMethod {
+                    name = "checkMode"
+                }.hook().intercept()
             }
         }
-        XposedBridge.log("Injected " + count + " resources for " + clazz.getSimpleName())
-    }
 
+        loadApp(FeatureLoader.PACKAGE_WPP, FeatureLoader.PACKAGE_BUSINESS) {
+            if (packageName == FeatureLoader.PACKAGE_WPP && !App.isOriginalPackage) return@loadApp
 
-    @Throws(Throwable::class)
-    override fun initZygote(startupParam: IXposedHookZygoteInit.StartupParam) {
-        MODULE_PATH = startupParam.modulePath
-    }
+            withProcess(mainProcessName) {
+                disableSecureFlag(this)
+                loadHooker(GlobalResourceHooker())
 
-    fun disableSecureFlag() {
-        XposedHelpers.findAndHookMethod(
-            Window::class.java,
-            "setFlags",
-            Int::class.javaPrimitiveType,
-            Int::class.javaPrimitiveType,
-            object : XC_MethodHook() {
-                @Throws(Throwable::class)
-                override fun beforeHookedMethod(param: MethodHookParam) {
-                    val flags = param.args[0] as Int
-                    val mask = param.args[1] as Int
-                    param.args[0] = flags and WindowManager.LayoutParams.FLAG_SECURE.inv()
-                    param.args[1] = mask and WindowManager.LayoutParams.FLAG_SECURE.inv()
-                }
-            }
-        )
-
-        XposedHelpers.findAndHookMethod(
-            Window::class.java,
-            "addFlags",
-            Int::class.javaPrimitiveType,
-            object : XC_MethodHook() {
-                @Throws(Throwable::class)
-                override fun beforeHookedMethod(param: MethodHookParam) {
-                    val flags = param.args[0] as Int
-                    val newFlags = flags and WindowManager.LayoutParams.FLAG_SECURE.inv()
-                    param.args[0] = newFlags
-                    if (newFlags == 0) {
-                        param.result = null
+                Instrumentation::class.resolve().method {
+                    name = "callApplicationOnCreate"
+                    parameters(Application::class)
+                }.hookAll {
+                    before {
+                        val application = args[0] as Application
+                        val pref =
+                            YukiSharedPreference(prefs("${BuildConfig.APPLICATION_ID}_preferences"))
+                        application.injectModuleAppResources()
+                        loadHooker(FeatureLoader)
+                        FeatureLoader.start(
+                            appClassLoader!!,
+                            application,
+                            appInfo.sourceDir!!,
+                            pref
+                        )
                     }
                 }
             }
-        )
+        }
+    }
+
+    private fun disableSecureFlag(param: PackageParam) {
+        param.apply {
+            Window::class.resolve().apply {
+                firstMethod {
+                    name = "setFlags"
+                    parameters(Int::class, Int::class)
+                }.hook {
+                    before {
+                        args[0] = (args[0] as Int) and WindowManager.LayoutParams.FLAG_SECURE.inv()
+                        args[1] = (args[1] as Int) and WindowManager.LayoutParams.FLAG_SECURE.inv()
+                    }
+                }
+
+                firstMethod {
+                    name = "addFlags"
+                    parameters(Int::class)
+                }.hook {
+                    before {
+                        val newFlags =
+                            (args[0] as Int) and WindowManager.LayoutParams.FLAG_SECURE.inv()
+                        args[0] = newFlags
+                        if (newFlags == 0) result = null
+                    }
+                }
+            }
+            YLog.debug("Secure flag disabled successfully")
+        }
     }
 }

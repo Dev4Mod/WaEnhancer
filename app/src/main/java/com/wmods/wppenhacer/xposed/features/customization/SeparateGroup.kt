@@ -1,9 +1,11 @@
 package com.wmods.wppenhacer.xposed.features.customization
 
 import android.annotation.SuppressLint
+import android.content.SharedPreferences
 import android.os.Bundle
 import android.view.MenuItem
 import android.widget.BaseAdapter
+import com.highcapable.kavaref.KavaRef.Companion.resolve
 import com.wmods.wppenhacer.xposed.core.Feature
 import com.wmods.wppenhacer.xposed.core.components.FMessageWpp
 import com.wmods.wppenhacer.xposed.core.components.WaContactWpp
@@ -11,26 +13,20 @@ import com.wmods.wppenhacer.xposed.core.db.MessageStore
 import com.wmods.wppenhacer.xposed.core.devkit.Unobfuscator
 import com.wmods.wppenhacer.xposed.core.devkit.UnobfuscatorCache
 import com.wmods.wppenhacer.xposed.utils.ReflectionUtils
+import com.wmods.wppenhacer.xposed.utils.ReflectionUtils.getObjectField
 import com.wmods.wppenhacer.xposed.utils.Utils
 import com.wmods.wppenhacer.xposed.utils.WaeCoroutineExceptionHandler
-import de.robv.android.xposed.XC_MethodHook
-import de.robv.android.xposed.XC_MethodReplacement
-import android.content.SharedPreferences 
-import de.robv.android.xposed.XposedBridge
-import de.robv.android.xposed.XposedHelpers
-import de.robv.android.xposed.XposedHelpers.callMethod
-import de.robv.android.xposed.XposedHelpers.getObjectField
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.luckypray.dexkit.query.enums.StringMatchType
+import java.util.concurrent.ConcurrentHashMap
 import java.util.function.Predicate
 import java.util.regex.Pattern
-import java.util.concurrent.ConcurrentHashMap
 
-class SeparateGroup(loader: ClassLoader, preferences:SharedPreferences) :
+class SeparateGroup(loader: ClassLoader, preferences: SharedPreferences) :
     Feature(loader, preferences) {
 
     private val badgeScope = CoroutineScope(
@@ -96,13 +92,15 @@ class SeparateGroup(loader: ClassLoader, preferences:SharedPreferences) :
             StringMatchType.EndsWith,
             ".BottomNavigationView"
         )
-        XposedHelpers.findAndHookMethod(
-            bottomNavigationViewCls,
-            "getMaxItemCount",
-            XC_MethodReplacement.returnConstant(99)
-        )
+        bottomNavigationViewCls.resolve().firstMethod {
+            name = "getMaxItemCount"
+            superclass()
+            emptyParameters()
+        }.hook {
+            replaceAny { 99 }
+        }
 
-        if (!prefs.getBoolean("separategroups", false)) return
+        if (!xprefs.getBoolean("separategroups", false)) return
 
         // Modifying tab list order
         hookTabList()
@@ -134,51 +132,49 @@ class SeparateGroup(loader: ClassLoader, preferences:SharedPreferences) :
         val emptyBadgeClass = Unobfuscator.loadEnableCountTabEmptyBadgeClass(classLoader)
         logDebug(Unobfuscator.getMethodDescriptor(enableCountMethod))
 
-        XposedBridge.hookMethod(enableCountMethod, object : XC_MethodHook() {
-            @SuppressLint("Range", "Recycle")
-            override fun beforeHookedMethod(param: MethodHookParam) {
-                val indexTab = param.args[2] as Int
-                if (indexTab != tabs.indexOf(CHATS)) return
+        enableCountMethod.hook {
+            before {
+                val indexTab = args[2] as Int
+                if (indexTab != tabs.indexOf(CHATS)) return@before
 
-                param.result = null
+                result = null
 
                 badgeScope.launch {
                     val unseenChatCounts = getUnseenChatCounts()
                     withContext(Dispatchers.Main) {
                         if (tabs.contains(CHATS) && tabInstances.containsKey(CHATS)) {
                             val chatsBadge = if (unseenChatCounts.chatCount <= 0) {
-                                XposedHelpers.getStaticObjectField(emptyBadgeClass, "A00")
+                                ReflectionUtils.getStaticObjectField(emptyBadgeClass, "A00")
                             } else {
-                                val params = ReflectionUtils.initArray(badgeWrapperConstructor.parameterTypes)
-                                params[0] = badgeItemConstructor.newInstance(unseenChatCounts.chatCount)
+                                val params =
+                                    ReflectionUtils.initArray(badgeWrapperConstructor.parameterTypes)
+                                params[0] =
+                                    badgeItemConstructor.newInstance(unseenChatCounts.chatCount)
                                 badgeWrapperConstructor.newInstance(*params)
                             }
-                            XposedBridge.invokeOriginalMethod(
-                                param.method,
-                                param.thisObject,
-                                arrayOf(param.args[0], chatsBadge, tabs.indexOf(CHATS))
+                            invokeOriginal(
+                                args[0], chatsBadge, tabs.indexOf(CHATS)
                             )
                         }
                         if (tabs.contains(GROUPS) && tabInstances.containsKey(GROUPS)) {
                             val chatsBadge = if (unseenChatCounts.groupCount <= 0) {
-                                XposedHelpers.getStaticObjectField(emptyBadgeClass, "A00")
+                                ReflectionUtils.getStaticObjectField(emptyBadgeClass, "A00")
                             } else {
-                                val params = ReflectionUtils.initArray(badgeWrapperConstructor.parameterTypes)
+                                val params =
+                                    ReflectionUtils.initArray(badgeWrapperConstructor.parameterTypes)
                                 params[0] = badgeItemConstructor.newInstance(
                                     unseenChatCounts.groupCount
                                 )
                                 badgeWrapperConstructor.newInstance(*params)
                             }
-                            XposedBridge.invokeOriginalMethod(
-                                param.method,
-                                param.thisObject,
-                                arrayOf(param.args[0], chatsBadge, tabs.indexOf(GROUPS))
+                            invokeOriginal(
+                                args[0], chatsBadge, tabs.indexOf(GROUPS)
                             )
                         }
                     }
                 }
             }
-        })
+        }
     }
 
     fun getUnseenChatCounts(): UnseenChatCounts {
@@ -216,11 +212,11 @@ class SeparateGroup(loader: ClassLoader, preferences:SharedPreferences) :
         logDebug(menuAddAndroidX.toString())
         val customizeGroupIcon = ThreadLocal.withInitial { false }
 
-        XposedBridge.hookMethod(menuAddAndroidX, object : XC_MethodHook() {
-            override fun afterHookedMethod(param: MethodHookParam) {
-                if (customizeGroupIcon.get() != true) return
-                if (param.args.size > 2 && (param.args[1] as Int) == GROUPS) {
-                    val menuItem = param.result as? MenuItem ?: return
+        menuAddAndroidX.hook {
+            after {
+                if (customizeGroupIcon.get() != true) return@after
+                if (args.size > 2 && (args[1] as Int) == GROUPS) {
+                    val menuItem = result as? MenuItem ?: return@after
                     menuItem.setIcon(
                         Utils.getID(
                             "home_tab_communities_selector",
@@ -229,31 +225,29 @@ class SeparateGroup(loader: ClassLoader, preferences:SharedPreferences) :
                     )
                 }
             }
-        })
+        }
 
-        XposedBridge.hookMethod(iconTabMethod, object : XC_MethodHook() {
-            override fun beforeHookedMethod(param: MethodHookParam) {
+        iconTabMethod.hook {
+            before {
                 customizeGroupIcon.set(true)
             }
-
-            @SuppressLint("ResourceType")
-            override fun afterHookedMethod(param: MethodHookParam) {
+            after {
                 customizeGroupIcon.remove()
             }
-        })
+        }
     }
 
     @SuppressLint("ResourceType")
     private fun hookTabName() {
         val tabNameMethod = Unobfuscator.loadTabNameMethod(classLoader)
-        XposedBridge.hookMethod(tabNameMethod, object : XC_MethodHook() {
-            override fun beforeHookedMethod(param: MethodHookParam) {
-                val tab = param.args[0] as Int
+        tabNameMethod.hook {
+            before {
+                val tab = args[0] as Int
                 if (tab == GROUPS) {
-                    param.result = UnobfuscatorCache.getInstance().getString("groups")
+                    result = UnobfuscatorCache.getInstance().getString("groups")
                 }
             }
-        })
+        }
     }
 
     private fun hookTabInstance() {
@@ -275,27 +269,27 @@ class SeparateGroup(loader: ClassLoader, preferences:SharedPreferences) :
 
         val fragmentClass = Unobfuscator.loadFragmentClass(classLoader)
 
-        XposedBridge.hookMethod(recreateFragmentMethod, object : XC_MethodHook() {
-            override fun afterHookedMethod(param: MethodHookParam) {
+        recreateFragmentMethod.hook {
+            after {
                 val string: String
-                val arg0 = param.args[0]
+                val arg0 = args[0]
                 if (arg0 is Bundle) {
                     @Suppress("DEPRECATION")
-                    val state = arg0.getParcelable<android.os.Parcelable>("state") ?: return
+                    val state = arg0.getParcelable<android.os.Parcelable>("state") ?: return@after
                     string = state.toString()
                 } else {
-                    string = param.args[2].toString()
+                    string = args[2].toString()
                 }
                 val matcher = pattern.matcher(string)
                 if (matcher.find()) {
-                    val tabId = matcher.group(1)?.toIntOrNull() ?: return
+                    val tabId = matcher.group(1)?.toIntOrNull() ?: return@after
                     if (tabId == GROUPS || tabId == CHATS) {
                         val fragmentField = ReflectionUtils.getFieldByType(
-                            param.thisObject.javaClass,
+                            instance.javaClass,
                             fragmentClass
                         )
                         val convFragment =
-                            ReflectionUtils.getObjectField(fragmentField, param.thisObject)
+                            ReflectionUtils.getObjectField(fragmentField, instance)
                         tabInstances.remove(tabId)
                         if (convFragment != null) {
                             tabInstances[tabId] = convFragment
@@ -303,63 +297,62 @@ class SeparateGroup(loader: ClassLoader, preferences:SharedPreferences) :
                     }
                 }
             }
-        })
+        }
 
-        XposedBridge.hookMethod(getTabMethod, object : XC_MethodHook() {
-            override fun beforeHookedMethod(param: MethodHookParam) {
-                val tabId = tabs[param.args[0] as Int]
+        getTabMethod.hook {
+            before {
+                val tabId = tabs[args[0] as Int]
                 if (tabId == GROUPS || tabId == CHATS) {
                     val convFragment = cFragClass.declaredConstructors.first {
                         it.parameterCount == 0
                     }.newInstance()
-                    param.result = convFragment
+                    result = convFragment
                 }
             }
-
-            override fun afterHookedMethod(param: MethodHookParam) {
-                val tabId = tabs[param.args[0] as Int]
+            after {
+                val tabId = tabs[args[0] as Int]
                 tabInstances.remove(tabId)
-                param.result?.let { tabInstances[tabId] = it }
+                result?.let { tabInstances[tabId] = it }
             }
-        })
+        }
 
-        XposedBridge.hookMethod(methodTabInstance, object : XC_MethodHook() {
-            override fun afterHookedMethod(param: MethodHookParam) {
-                val chatsList = param.result as List<*>
-                val resultList = filterChat(param.thisObject, chatsList)
-                param.result = resultList
+        methodTabInstance.hook {
+            after {
+                val chatsList = result as List<*>
+                val resultList = filterChat(instance, chatsList)
+                result = resultList
             }
-        })
+        }
 
         val fabintMethod = Unobfuscator.loadFabMethod(classLoader)
         logDebug(Unobfuscator.getMethodDescriptor(fabintMethod))
 
-        XposedBridge.hookMethod(fabintMethod, object : XC_MethodHook() {
-            override fun afterHookedMethod(param: MethodHookParam) {
-                if (tabInstances[GROUPS] == param.thisObject) {
-                    param.result = GROUPS
+        fabintMethod.hook {
+            after {
+                if (tabInstances[GROUPS] == instance) {
+                    result = GROUPS
                 }
             }
-        })
+        }
 
         val publishResultsMethod = Unobfuscator.loadGetFiltersMethod(classLoader)
         logDebug(Unobfuscator.getMethodDescriptor(publishResultsMethod))
 
-        XposedBridge.hookMethod(publishResultsMethod, object : XC_MethodHook() {
-            override fun beforeHookedMethod(param: MethodHookParam) {
-                val filters = param.args[1]
-                val chatsList = XposedHelpers.getObjectField(filters, "values") as List<*>
+        publishResultsMethod.hook {
+            before {
+                val filters = args[1]
+                val chatsList = ReflectionUtils.getObjectField(filters, "values") as List<*>
                 val baseField = ReflectionUtils.getFieldByExtendType(
                     publishResultsMethod.declaringClass,
                     BaseAdapter::class.java
-                ) ?: return
+                ) ?: return@before
                 val convField = ReflectionUtils.getFieldByType(baseField.type, cFragClass)
-                val thiz = convField!!.get(baseField.get(param.thisObject)) ?: return
+                val thiz = convField!!.get(baseField.get(instance)) ?: return@before
                 val resultList = filterChat(thiz, chatsList)
-                XposedHelpers.setObjectField(filters, "values", resultList)
-                XposedHelpers.setIntField(filters, "count", resultList.size)
+                ReflectionUtils.setObjectField(filters, "values", resultList)
+                ReflectionUtils.setIntField(filters, "count", resultList.size)
             }
-        })
+        }
     }
 
     private fun filterChat(thiz: Any, chatsList: List<*>): List<*> {
@@ -389,16 +382,15 @@ class SeparateGroup(loader: ClassLoader, preferences:SharedPreferences) :
         val onCreateTabList = Unobfuscator.loadTabListMethod(classLoader)
         logDebug(Unobfuscator.getMethodDescriptor(onCreateTabList))
 
-        XposedBridge.hookMethod(onCreateTabList, object : XC_MethodHook() {
-            @Suppress("UNCHECKED_CAST")
-            override fun afterHookedMethod(param: MethodHookParam) {
-                val updatedTabs = param.result as? ArrayList<Int> ?: return
+        onCreateTabList.hook {
+            after {
+                val updatedTabs = result as? ArrayList<Int> ?: return@after
                 if (!updatedTabs.contains(GROUPS)) {
                     updatedTabs.add(if (updatedTabs.isEmpty()) 0 else 1, GROUPS)
                 }
                 tabs = updatedTabs
             }
-        })
+        }
     }
 
 

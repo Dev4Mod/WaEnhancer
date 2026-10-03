@@ -1,10 +1,11 @@
 package com.wmods.wppenhacer.xposed.features.media
 
-import android.annotation.SuppressLint
+import android.content.SharedPreferences
 import android.text.TextUtils
 import android.view.Menu
 import android.view.MenuItem
 import android.widget.Toast
+import com.highcapable.kavaref.KavaRef.Companion.resolve
 import com.wmods.wppenhacer.R
 import com.wmods.wppenhacer.xposed.core.Feature
 import com.wmods.wppenhacer.xposed.core.WppCore.viewOnceViewerActivityClass
@@ -13,30 +14,24 @@ import com.wmods.wppenhacer.xposed.core.components.FMessageWpp.UserJid
 import com.wmods.wppenhacer.xposed.core.devkit.Unobfuscator.loadViewOnceDownloadMenuMethod
 import com.wmods.wppenhacer.xposed.utils.ReflectionUtils
 import com.wmods.wppenhacer.xposed.utils.Utils
-import de.robv.android.xposed.XC_MethodHook
-import android.content.SharedPreferences 
-import de.robv.android.xposed.XposedBridge
-import de.robv.android.xposed.XposedHelpers
 import java.io.File
 import java.util.concurrent.CompletableFuture
 
-class DownloadViewOnce(classLoader: ClassLoader, preferences:SharedPreferences) :
+class DownloadViewOnce(classLoader: ClassLoader, preferences: SharedPreferences) :
     Feature(classLoader, preferences) {
 
     override fun doHook() {
-        if (prefs.getBoolean("downloadviewonce", false)) {
+        if (xprefs.getBoolean("downloadviewonce", false)) {
             val menuMethod = loadViewOnceDownloadMenuMethod(classLoader)
             // Media Activity
-            XposedBridge.hookMethod(menuMethod, object : XC_MethodHook() {
-                @SuppressLint("DiscouragedApi")
-                @Throws(Throwable::class)
-                override fun afterHookedMethod(param: MethodHookParam) {
-                    val fmessageObj: Any? = ReflectionUtils.getArg(param.args, FMessageWpp.TYPE, 0)
+            menuMethod.hook {
+                after {
+                    val fmessageObj: Any? = ReflectionUtils.getArg(args, FMessageWpp.TYPE, 0)
                     val fMessage = FMessageWpp(fmessageObj)
 
                     // check media is view once
-                    if (!fMessage.isViewOnce) return
-                    val menu = ReflectionUtils.getArg(param.args, Menu::class.java, 0)
+                    if (!fMessage.isViewOnce) return@after
+                    val menu = ReflectionUtils.getArg(args, Menu::class.java, 0)
                     val item = menu!!.add(0, 0, 0, R.string.download).setIcon(R.drawable.download)
                     item.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS)
                     item.setOnMenuItemClickListener {
@@ -58,46 +53,45 @@ class DownloadViewOnce(classLoader: ClassLoader, preferences:SharedPreferences) 
                         true
                     }
                 }
-            })
+            }
             // View Once Activity
-            XposedHelpers.findAndHookMethod(
-                viewOnceViewerActivityClass,
-                "onCreateOptionsMenu",
-                classLoader.loadClass("android.view.Menu"),
-                object : XC_MethodHook() {
-                    @Throws(Throwable::class)
-                    override fun afterHookedMethod(param: MethodHookParam) {
-                        val menu = param.args[0] as Menu
-                        val item = menu.add(0, 0, 0, R.string.download).setIcon(R.drawable.download)
-                        item.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS)
-                        item.setOnMenuItemClickListener {
-                            CompletableFuture.runAsync {
-                                val keyClass: Class<*> = FMessageWpp.Key.TYPE
-                                val fieldType = ReflectionUtils.getFieldByType(
-                                    param.thisObject.javaClass,
-                                    keyClass
+            viewOnceViewerActivityClass.resolve().firstMethod {
+                name = "onCreateOptionsMenu"
+                superclass()
+                parameters(classLoader.loadClass("android.view.Menu"))
+            }.hook {
+                after {
+                    val menu = args[0] as Menu
+                    val item = menu.add(0, 0, 0, R.string.download).setIcon(R.drawable.download)
+                    item.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS)
+                    item.setOnMenuItemClickListener {
+                        CompletableFuture.runAsync {
+                            val keyClass: Class<*> = FMessageWpp.Key.TYPE
+                            val fieldType = ReflectionUtils.getFieldByType(
+                                instance.javaClass,
+                                keyClass
+                            )
+                            val keyMessageObj =
+                                ReflectionUtils.getObjectField(fieldType, instance)
+                            val fmessage = FMessageWpp.Key(keyMessageObj).fMessage
+                            val file = fmessage!!.mediaFile
+                            if (file == null) {
+                                Utils.showToast(
+                                    Utils.application
+                                        .getString(R.string.download_not_available), 1
                                 )
-                                val keyMessageObj =
-                                    ReflectionUtils.getObjectField(fieldType, param.thisObject)
-                                val fmessage = FMessageWpp.Key(keyMessageObj).fMessage
-                                val file = fmessage!!.mediaFile
-                                if (file == null) {
-                                    Utils.showToast(
-                                        Utils.application
-                                            .getString(R.string.download_not_available), 1
-                                    )
-                                    return@runAsync
-                                }
-                                try {
-                                    downloadFile(fmessage.key.remoteJid, file)
-                                } catch (e: Exception) {
-                                    Utils.showToast(e.message, Toast.LENGTH_LONG)
-                                }
+                                return@runAsync
                             }
-                            true
+                            try {
+                                downloadFile(fmessage.key.remoteJid, file)
+                            } catch (e: Exception) {
+                                Utils.showToast(e.message, Toast.LENGTH_LONG)
+                            }
                         }
+                        true
                     }
-                })
+                }
+            }
         }
     }
 

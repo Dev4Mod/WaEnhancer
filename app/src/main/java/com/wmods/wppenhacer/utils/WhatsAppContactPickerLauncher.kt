@@ -5,7 +5,6 @@ import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageInfo
 import android.content.pm.PackageManager
-import java.util.ArrayList
 
 object WhatsAppContactPickerLauncher {
     const val EXTRA_PICKER_MODE = "picker_mode"
@@ -79,10 +78,14 @@ object WhatsAppContactPickerLauncher {
             }
         }
 
-        val packageInfo: PackageInfo = packageManager.getPackageInfo(packageName, PackageManager.GET_ACTIVITIES)
+        val packageInfo: PackageInfo =
+            packageManager.getPackageInfo(packageName, PackageManager.GET_ACTIVITIES)
         packageInfo.activities?.forEach { activityInfo ->
             val name = activityInfo.name ?: return@forEach
-            if (name.endsWith(".settings.About") || name.endsWith(".settings.ui.About") || name.endsWith(".About")) {
+            if (name.endsWith(".settings.About") || name.endsWith(".settings.ui.About") || name.endsWith(
+                    ".About"
+                )
+            ) {
                 return name
             }
         }
@@ -90,7 +93,10 @@ object WhatsAppContactPickerLauncher {
     }
 
     @Throws(Exception::class)
-    private fun resolveSettingsNotificationsClassName(context: Context, packageName: String): String {
+    private fun resolveSettingsNotificationsClassName(
+        context: Context,
+        packageName: String
+    ): String {
         val packageManager = context.packageManager
         for (candidate in settingsNotificationsCandidates) {
             try {
@@ -100,7 +106,8 @@ object WhatsAppContactPickerLauncher {
             }
         }
 
-        val packageInfo: PackageInfo = packageManager.getPackageInfo(packageName, PackageManager.GET_ACTIVITIES)
+        val packageInfo: PackageInfo =
+            packageManager.getPackageInfo(packageName, PackageManager.GET_ACTIVITIES)
         packageInfo.activities?.forEach { activityInfo ->
             val name = activityInfo.name
             if (name != null && name.endsWith("SettingsNotifications")) return name

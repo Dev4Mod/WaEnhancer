@@ -1,5 +1,6 @@
 package com.wmods.wppenhacer.xposed.features.privacy
 
+import android.content.SharedPreferences
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
@@ -14,11 +15,8 @@ import com.wmods.wppenhacer.xposed.features.listeners.ConversationItemListener.O
 import com.wmods.wppenhacer.xposed.utils.DesignUtils
 import com.wmods.wppenhacer.xposed.utils.ReflectionUtils
 import com.wmods.wppenhacer.xposed.utils.Utils
-import de.robv.android.xposed.XC_MethodHook
-import android.content.SharedPreferences 
-import de.robv.android.xposed.XposedBridge
 
-class TagMessage(loader: ClassLoader, preferences:SharedPreferences) :
+class TagMessage(loader: ClassLoader, preferences: SharedPreferences) :
     Feature(loader, preferences) {
 
 
@@ -28,20 +26,19 @@ class TagMessage(loader: ClassLoader, preferences:SharedPreferences) :
         val forwardClass = loadForwardClassMethod(classLoader)
         logDebug("ForwardClass: " + forwardClass.name)
 
-        XposedBridge.hookMethod(method, object : XC_MethodHook() {
-
-            override fun beforeHookedMethod(param: MethodHookParam) {
-                if (!prefs.getBoolean("hidetag", false)) return
-                val arg = param.args[0] as Long
+        method.hook {
+            before {
+                if (!xprefs.getBoolean("hidetag", false)) return@before
+                val arg = args[0] as Long
                 if (arg == 1L) {
                     if (ReflectionUtils.isCalledFromClass(forwardClass)) {
-                        param.args[0] = 0
+                        args[0] = 0
                     }
                 }
             }
-        })
+        }
 
-        if (prefs.getBoolean("broadcast_tag", false)) {
+        if (xprefs.getBoolean("broadcast_tag", false)) {
             hookBroadcastView()
         }
     }

@@ -4,7 +4,6 @@ import android.media.MediaCodec
 import android.media.MediaExtractor
 import android.media.MediaFormat
 import android.util.Log
-import de.robv.android.xposed.XposedBridge
 import java.io.File
 import java.io.IOException
 import java.nio.ByteBuffer
@@ -28,7 +27,11 @@ object AudioOpusConverter {
     }
 
     @JvmStatic
-    private external fun nativeInitOpusEncoder(outputPath: String, sampleRate: Int, channels: Int): Long
+    private external fun nativeInitOpusEncoder(
+        outputPath: String,
+        sampleRate: Int,
+        channels: Int
+    ): Long
 
     @JvmStatic
     private external fun nativeEncodeOpus(handle: Long, pcmData: ByteArray, lengthBytes: Int)
@@ -38,7 +41,8 @@ object AudioOpusConverter {
 
     @JvmStatic
     fun convert(filePath: String): File? {
-        val outFile = File(File(filePath).parentFile, "voice_note_${System.currentTimeMillis()}.opus")
+        val outFile =
+            File(File(filePath).parentFile, "voice_note_${System.currentTimeMillis()}.opus")
 
         val extractor = MediaExtractor()
         var decoder: MediaCodec? = null
@@ -51,13 +55,15 @@ object AudioOpusConverter {
 
             extractor.selectTrack(audioTrack)
             val inputFormat = extractor.getTrackFormat(audioTrack)
-            val inputMime = inputFormat.getString(MediaFormat.KEY_MIME) ?: throw IOException("No MIME type found")
+            val inputMime = inputFormat.getString(MediaFormat.KEY_MIME)
+                ?: throw IOException("No MIME type found")
 
             decoder = MediaCodec.createDecoderByType(inputMime)
             decoder.configure(inputFormat, null, null, 0)
             decoder.start()
 
-            encoderHandle = nativeInitOpusEncoder(outFile.absolutePath, OPUS_SAMPLE_RATE, OPUS_CHANNEL_COUNT)
+            encoderHandle =
+                nativeInitOpusEncoder(outFile.absolutePath, OPUS_SAMPLE_RATE, OPUS_CHANNEL_COUNT)
             if (encoderHandle == 0L) {
                 throw IOException("Failed to initialize native opus encoder")
             }
@@ -66,7 +72,7 @@ object AudioOpusConverter {
             return outFile
 
         } catch (e: Throwable) {
-            XposedBridge.log(e)
+            YukiLog.log(e)
             Log.e(TAG, "Conversion failed", e)
             if (outFile.exists()) outFile.delete()
             return null
@@ -101,7 +107,13 @@ object AudioOpusConverter {
                     val inBuf = decoder.getInputBuffer(inIdx)
                     val sampleSize = inBuf?.let { extractor.readSampleData(it, 0) } ?: -1
                     if (sampleSize < 0) {
-                        decoder.queueInputBuffer(inIdx, 0, 0, 0, MediaCodec.BUFFER_FLAG_END_OF_STREAM)
+                        decoder.queueInputBuffer(
+                            inIdx,
+                            0,
+                            0,
+                            0,
+                            MediaCodec.BUFFER_FLAG_END_OF_STREAM
+                        )
                         extractorDone = true
                     } else {
                         val pts = extractor.sampleTime
@@ -114,8 +126,10 @@ object AudioOpusConverter {
             val outIdx = decoder.dequeueOutputBuffer(decoderInfo, TIMEOUT_US)
             if (outIdx == MediaCodec.INFO_OUTPUT_FORMAT_CHANGED) {
                 val fmt = decoder.outputFormat
-                inputSampleRate = if (fmt.containsKey(MediaFormat.KEY_SAMPLE_RATE)) fmt.getInteger(MediaFormat.KEY_SAMPLE_RATE) else OPUS_SAMPLE_RATE
-                inputChannels = if (fmt.containsKey(MediaFormat.KEY_CHANNEL_COUNT)) fmt.getInteger(MediaFormat.KEY_CHANNEL_COUNT) else 1
+                inputSampleRate =
+                    if (fmt.containsKey(MediaFormat.KEY_SAMPLE_RATE)) fmt.getInteger(MediaFormat.KEY_SAMPLE_RATE) else OPUS_SAMPLE_RATE
+                inputChannels =
+                    if (fmt.containsKey(MediaFormat.KEY_CHANNEL_COUNT)) fmt.getInteger(MediaFormat.KEY_CHANNEL_COUNT) else 1
             } else if (outIdx >= 0) {
                 val pcmBuf = decoder.getOutputBuffer(outIdx)
                 val eos = (decoderInfo.flags and MediaCodec.BUFFER_FLAG_END_OF_STREAM) != 0
@@ -136,7 +150,11 @@ object AudioOpusConverter {
         }
     }
 
-    private fun resampleAndDownmix(pcmBuf: ByteBuffer, inSampleRate: Int, inChannels: Int): ByteArray {
+    private fun resampleAndDownmix(
+        pcmBuf: ByteBuffer,
+        inSampleRate: Int,
+        inChannels: Int
+    ): ByteArray {
         pcmBuf.order(ByteOrder.LITTLE_ENDIAN)
         val shortBuf = pcmBuf.asShortBuffer()
         val numInputFrames = shortBuf.remaining() / inChannels

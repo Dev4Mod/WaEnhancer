@@ -55,10 +55,11 @@ class FileReaderPreference @JvmOverloads constructor(
             setTitle(R.string.storage_permission)
             setMessage(R.string.permission_storage)
             setPositiveButton(R.string.allow) { _, _ ->
-                val intent = Intent(android.provider.Settings.ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION).apply {
-                    addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                    data = Uri.fromParts("package", context.packageName, null)
-                }
+                val intent =
+                    Intent(android.provider.Settings.ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION).apply {
+                        addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                        data = Uri.fromParts("package", context.packageName, null)
+                    }
                 context.startActivity(intent)
             }
             setNegativeButton(R.string.deny) { dialog, _ -> dialog.dismiss() }
@@ -73,12 +74,26 @@ class FileReaderPreference @JvmOverloads constructor(
         }
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            if (ContextCompat.checkSelfPermission(context, Manifest.permission.READ_MEDIA_IMAGES) != PackageManager.PERMISSION_GRANTED) {
-                (context as? Activity)?.requestPermissions(arrayOf(Manifest.permission.READ_MEDIA_IMAGES), 1)
+            if (ContextCompat.checkSelfPermission(
+                    context,
+                    Manifest.permission.READ_MEDIA_IMAGES
+                ) != PackageManager.PERMISSION_GRANTED
+            ) {
+                (context as? Activity)?.requestPermissions(
+                    arrayOf(Manifest.permission.READ_MEDIA_IMAGES),
+                    1
+                )
                 return true
             }
-        } else if (ContextCompat.checkSelfPermission(context, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
-            (context as? Activity)?.requestPermissions(arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE), 1)
+        } else if (ContextCompat.checkSelfPermission(
+                context,
+                Manifest.permission.READ_EXTERNAL_STORAGE
+            ) != PackageManager.PERMISSION_GRANTED
+        ) {
+            (context as? Activity)?.requestPermissions(
+                arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE),
+                1
+            )
             return true
         }
 
@@ -111,7 +126,11 @@ class FileReaderPreference @JvmOverloads constructor(
                 }
             } catch (e: Exception) {
                 Handler(Looper.getMainLooper()).post {
-                    Toast.makeText(context, "Error processing XML file: " + e.message, Toast.LENGTH_SHORT).show()
+                    Toast.makeText(
+                        context,
+                        "Error processing XML file: " + e.message,
+                        Toast.LENGTH_SHORT
+                    ).show()
                 }
             }
         }
@@ -130,7 +149,8 @@ class FileReaderPreference @JvmOverloads constructor(
             }
         } catch (e: Exception) {
             Handler(Looper.getMainLooper()).post {
-                Toast.makeText(context, "Error reading XML file: " + e.message, Toast.LENGTH_SHORT).show()
+                Toast.makeText(context, "Error reading XML file: " + e.message, Toast.LENGTH_SHORT)
+                    .show()
             }
         }
     }
@@ -163,7 +183,8 @@ class FileReaderPreference @JvmOverloads constructor(
             }
         } catch (e: Exception) {
             Handler(Looper.getMainLooper()).post {
-                Toast.makeText(context, "Error parsing XML: " + e.message, Toast.LENGTH_SHORT).show()
+                Toast.makeText(context, "Error parsing XML: " + e.message, Toast.LENGTH_SHORT)
+                    .show()
             }
         }
     }

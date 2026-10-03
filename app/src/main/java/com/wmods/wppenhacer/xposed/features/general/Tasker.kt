@@ -4,6 +4,7 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
+import android.content.SharedPreferences
 import android.os.Handler
 import android.text.TextUtils
 import androidx.core.content.ContextCompat
@@ -12,11 +13,9 @@ import com.wmods.wppenhacer.xposed.core.WppCore
 import com.wmods.wppenhacer.xposed.core.components.FMessageWpp
 import com.wmods.wppenhacer.xposed.core.devkit.Unobfuscator
 import com.wmods.wppenhacer.xposed.utils.Utils
-import de.robv.android.xposed.XC_MethodHook
-import android.content.SharedPreferences 
-import de.robv.android.xposed.XposedBridge
+import com.wmods.wppenhacer.xposed.utils.YukiLog
 
-class Tasker(loader: ClassLoader, preferences:SharedPreferences) : Feature(loader, preferences) {
+class Tasker(loader: ClassLoader, preferences: SharedPreferences) : Feature(loader, preferences) {
 
     override fun getPluginName(): String {
         return "Tasker"
@@ -24,7 +23,7 @@ class Tasker(loader: ClassLoader, preferences:SharedPreferences) : Feature(loade
 
     @Throws(Throwable::class)
     override fun doHook() {
-        val taskerEnabled = prefs.getBoolean("tasker", false)
+        val taskerEnabled = xprefs.getBoolean("tasker", false)
         if (!taskerEnabled) return
 
         hookReceiveMessage()
@@ -43,14 +42,14 @@ class Tasker(loader: ClassLoader, preferences:SharedPreferences) : Feature(loade
     private fun hookReceiveMessage() {
         val method = Unobfuscator.loadReceiptMethod(classLoader)
 
-        XposedBridge.hookMethod(method, object : XC_MethodHook() {
-            override fun beforeHookedMethod(param: MethodHookParam) {
-                if (param.args[4] == "sender" || param.args[1] == null || param.args[3] == null) return
-                val fMsg = FMessageWpp.Key(param.args[3]).fMessage ?: return
+        method.hook {
+            before {
+                if (args[4] == "sender" || args[1] == null || args[3] == null) return@before
+                val fMsg = FMessageWpp.Key(args[3]).fMessage ?: return@before
                 val userJid = fMsg.key.remoteJid
-                val number = userJid.phoneNumber ?: return
-                val msg = fMsg.messageStr ?: return
-                if (TextUtils.isEmpty(msg) || userJid.isStatus) return
+                val number = userJid.phoneNumber ?: return@before
+                val msg = fMsg.messageStr ?: return@before
+                if (TextUtils.isEmpty(msg) || userJid.isStatus) return@before
                 Utils.databaseExecutor.execute {
                     val name = WppCore.getContactName(userJid)
                     Handler(Utils.application.mainLooper).post {
@@ -62,7 +61,7 @@ class Tasker(loader: ClassLoader, preferences:SharedPreferences) : Feature(loade
                     }
                 }
             }
-        })
+        }
     }
 
     companion object {
@@ -81,7 +80,7 @@ class Tasker(loader: ClassLoader, preferences:SharedPreferences) : Feature(loade
 
     class SenderMessageBroadcastReceiver : BroadcastReceiver() {
         override fun onReceive(context: Context, intent: Intent) {
-            XposedBridge.log("Message sent")
+            YukiLog.log("Message sent")
             var number = intent.getStringExtra("number")
             if (number == null) {
                 number = intent.getLongExtra("number", 0).toString()

@@ -11,6 +11,7 @@ import android.widget.ScrollView
 import androidx.annotation.DrawableRes
 import androidx.core.view.children
 import com.google.android.material.button.MaterialButton
+import com.highcapable.kavaref.KavaRef.Companion.resolve
 import com.wmods.wppenhacer.xposed.core.Feature
 import com.wmods.wppenhacer.xposed.core.WppCore
 import com.wmods.wppenhacer.xposed.core.components.FMessageWpp
@@ -18,8 +19,6 @@ import com.wmods.wppenhacer.xposed.core.devkit.Unobfuscator
 import com.wmods.wppenhacer.xposed.utils.DesignUtils
 import com.wmods.wppenhacer.xposed.utils.ModuleContextWrapper
 import com.wmods.wppenhacer.xposed.utils.Utils
-import de.robv.android.xposed.XC_MethodHook
-import de.robv.android.xposed.XposedBridge
 import java.util.concurrent.CopyOnWriteArraySet
 import com.google.android.material.R as MaterialR
 
@@ -57,16 +56,16 @@ class ContextMenuActionProvider(
 
     override fun doHook() {
         val popupWindowMessage = Unobfuscator.loadPopupWindowMessageClass(classLoader)
-        XposedBridge.hookAllConstructors(popupWindowMessage, object : XC_MethodHook() {
-            override fun afterHookedMethod(param: MethodHookParam) {
-                if (providers.isEmpty()) return
+        popupWindowMessage.resolve().constructor { }.hookAll {
+            after {
+                if (providers.isEmpty()) return@after
                 val activity = WppCore.getCurrentActivity() ?: run {
-                    return
+                    return@after
                 }
-                val mainPopupWindow = param.thisObject as PopupWindow
+                val mainPopupWindow = instance as PopupWindow
                 val viewGroup = mainPopupWindow.contentView as ViewGroup
 
-                val fMessageObj = param.args.filterIsInstance(FMessageWpp.TYPE).first()
+                val fMessageObj = args.filterIsInstance(FMessageWpp.TYPE).first()
                 val fMessage = FMessageWpp(fMessageObj)
 
                 val layout =
@@ -117,7 +116,7 @@ class ContextMenuActionProvider(
                     }
                 }
             }
-        })
+        }
     }
 
     private fun buildActionPill(

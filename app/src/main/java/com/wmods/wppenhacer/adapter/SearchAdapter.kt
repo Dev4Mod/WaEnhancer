@@ -1,6 +1,5 @@
 package com.wmods.wppenhacer.adapter
 
-import android.graphics.Color
 import android.text.SpannableString
 import android.text.Spanned
 import android.text.style.BackgroundColorSpan
@@ -8,12 +7,11 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
+import androidx.core.graphics.toColorInt
 import androidx.recyclerview.widget.RecyclerView
 import com.wmods.wppenhacer.R
 import com.wmods.wppenhacer.model.SearchableFeature
-import java.util.LinkedHashMap
 import java.util.Locale
-import androidx.core.graphics.toColorInt
 
 /** Adapter for search results grouped under category headers. */
 class SearchAdapter(private val listener: OnFeatureClickListener?) :
@@ -24,7 +22,8 @@ class SearchAdapter(private val listener: OnFeatureClickListener?) :
 
     fun setFeatures(newFeatures: List<SearchableFeature>) {
         items.clear()
-        val groupedFeatures = LinkedHashMap<SearchableFeature.Category, MutableList<SearchableFeature>>()
+        val groupedFeatures =
+            LinkedHashMap<SearchableFeature.Category, MutableList<SearchableFeature>>()
         newFeatures.forEach { feature ->
             groupedFeatures.getOrPut(feature.category) { mutableListOf() }.add(feature)
         }
@@ -49,13 +48,19 @@ class SearchAdapter(private val listener: OnFeatureClickListener?) :
             R.layout.item_search_result
         }
         val view = LayoutInflater.from(parent.context).inflate(layout, parent, false)
-        return if (viewType == VIEW_TYPE_HEADER) SectionHeaderViewHolder(view) else SearchResultViewHolder(view)
+        return if (viewType == VIEW_TYPE_HEADER) SectionHeaderViewHolder(view) else SearchResultViewHolder(
+            view
+        )
     }
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
         when (holder) {
             is SectionHeaderViewHolder -> holder.bind(items[position] as String)
-            is SearchResultViewHolder -> holder.bind(items[position] as SearchableFeature, searchQuery, listener)
+            is SearchResultViewHolder -> holder.bind(
+                items[position] as SearchableFeature,
+                searchQuery,
+                listener
+            )
         }
     }
 
@@ -116,6 +121,7 @@ class SearchAdapter(private val listener: OnFeatureClickListener?) :
             SearchableFeature.Category.GENERAL_HOME,
             SearchableFeature.Category.GENERAL_HOMESCREEN,
             SearchableFeature.Category.GENERAL_CONVERSATION -> "#4CAF50".toColorInt()
+
             SearchableFeature.Category.PRIVACY -> "#2196F3".toColorInt()
             SearchableFeature.Category.MEDIA -> "#FF9800".toColorInt()
             SearchableFeature.Category.CUSTOMIZATION -> "#9C27B0".toColorInt()

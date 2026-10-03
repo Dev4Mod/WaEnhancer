@@ -2,6 +2,7 @@ package com.wmods.wppenhacer.xposed.features.customization
 
 import android.annotation.SuppressLint
 import android.content.Context
+import android.content.SharedPreferences
 import android.graphics.Color
 import android.os.SystemClock
 import android.text.TextUtils
@@ -14,6 +15,7 @@ import android.widget.LinearLayout
 import android.widget.RelativeLayout
 import android.widget.TextView
 import androidx.core.text.TextUtilsCompat
+import com.highcapable.kavaref.KavaRef.Companion.resolve
 import com.wmods.wppenhacer.R
 import com.wmods.wppenhacer.xposed.core.Feature
 import com.wmods.wppenhacer.xposed.core.components.WaContactWpp
@@ -22,15 +24,13 @@ import com.wmods.wppenhacer.xposed.core.devkit.UnobfuscatorCache
 import com.wmods.wppenhacer.xposed.features.listeners.ContactItemListener
 import com.wmods.wppenhacer.xposed.utils.ReflectionUtils
 import com.wmods.wppenhacer.xposed.utils.Utils
-import de.robv.android.xposed.XC_MethodHook
-import android.content.SharedPreferences 
-import de.robv.android.xposed.XposedBridge
-import de.robv.android.xposed.XposedHelpers
+import com.wmods.wppenhacer.xposed.utils.YukiLog
 import java.lang.reflect.Field
 import java.lang.reflect.Method
 import java.util.Locale
 
-class ShowOnline(loader: ClassLoader, preferences:SharedPreferences) : Feature(loader, preferences) {
+class ShowOnline(loader: ClassLoader, preferences: SharedPreferences) :
+    Feature(loader, preferences) {
 
     private var mStatusUser: Any? = null
     private var mInstancePresence: Any? = null
@@ -39,24 +39,26 @@ class ShowOnline(loader: ClassLoader, preferences:SharedPreferences) : Feature(l
     private var getStatusUser: Method? = null
     private var fieldTokenDBInstance: Field? = null
     private var tokenClass: Class<*>? = null
+
     private data class CachedStatus(val status: String?, val expiresAt: Long)
+
     private val statusCache = LruCache<String, CachedStatus>(128)
     private val onlineStatusLabel by lazy {
         UnobfuscatorCache.getInstance().getString("online")
     }
 
     override fun doHook() {
-        val showOnlineText = prefs.getBoolean("showonlinetext", false)
-        val showOnlineIcon = prefs.getBoolean("dotonline", false)
+        val showOnlineText = xprefs.getBoolean("showonlinetext", false)
+        val showOnlineIcon = xprefs.getBoolean("dotonline", false)
         if (!showOnlineText && !showOnlineIcon) return
 
         val classViewHolder = Unobfuscator.loadViewHolder(classLoader)
-        XposedBridge.hookAllConstructors(classViewHolder, object : XC_MethodHook() {
-            @SuppressLint("ResourceType")
-            override fun afterHookedMethod(param: MethodHookParam) {
-                val view = param.args.filterIsInstance<View>().first()
-                val context = param.args.filterIsInstance<Context>().first()
-                var content = view.findViewById<LinearLayout>(Utils.getID("conversations_row_content", "id"))
+        classViewHolder.resolve().constructor { }.hookAll {
+            after {
+                val view = args.filterIsInstance<View>().first()
+                val context = args.filterIsInstance<Context>().first()
+                var content =
+                    view.findViewById<LinearLayout>(Utils.getID("conversations_row_content", "id"))
                 if (content == null) {
                     content = view.findViewById(Utils.getID("row_content", "id"))
                 }
@@ -78,9 +80,11 @@ class ShowOnline(loader: ClassLoader, preferences:SharedPreferences) : Feature(l
                     linearLayout.addView(lastSeenText)
                 }
                 if (showOnlineIcon) {
-                    val contactView = view.findViewById<FrameLayout>(Utils.getID("contact_selector", "id"))
+                    val contactView =
+                        view.findViewById<FrameLayout>(Utils.getID("contact_selector", "id"))
                     val firstChild = contactView.getChildAt(0)
-                    val isLeftToRight = TextUtilsCompat.getLayoutDirectionFromLocale(Locale.getDefault()) == View.LAYOUT_DIRECTION_LTR
+                    val isLeftToRight =
+                        TextUtilsCompat.getLayoutDirectionFromLocale(Locale.getDefault()) == View.LAYOUT_DIRECTION_LTR
                     if (firstChild is ImageView) {
                         contactView.removeView(firstChild)
 
@@ -142,23 +146,23 @@ class ShowOnline(loader: ClassLoader, preferences:SharedPreferences) : Feature(l
                     }
                 }
             }
-        })
+        }
 
         getStatusUser = Unobfuscator.loadStatusUserMethod(classLoader)
         sendPresenceMethod = Unobfuscator.loadSendPresenceMethod(classLoader)
         tcTokenMethod = Unobfuscator.loadTcTokenMethod(classLoader)
 
-        XposedBridge.hookAllConstructors(getStatusUser!!.declaringClass, object : XC_MethodHook() {
-            override fun afterHookedMethod(param: MethodHookParam) {
-                mStatusUser = param.thisObject
+        getStatusUser!!.declaringClass.resolve().constructor { }.hookAll {
+            after {
+                mStatusUser = instance
             }
-        })
+        }
 
-        XposedBridge.hookAllConstructors(sendPresenceMethod!!.declaringClass, object : XC_MethodHook() {
-            override fun afterHookedMethod(param: MethodHookParam) {
-                mInstancePresence = param.thisObject
+        sendPresenceMethod!!.declaringClass.resolve().constructor { }.hookAll {
+            after {
+                mInstancePresence = instance
             }
-        })
+        }
 
         tokenClass = sendPresenceMethod!!.parameterTypes[2]
         fieldTokenDBInstance = ReflectionUtils.getFieldByExtendType(
@@ -167,7 +171,8 @@ class ShowOnline(loader: ClassLoader, preferences:SharedPreferences) : Feature(l
 
         val tokenConstructor = tokenClass?.constructors?.firstOrNull()
 
-        ContactItemListener.contactListeners.add(object : ContactItemListener.OnContactItemListener() {
+        ContactItemListener.contactListeners.add(object :
+            ContactItemListener.OnContactItemListener() {
             @SuppressLint("ResourceType")
             override fun onBind(waContact: WaContactWpp?, view: View?) {
                 try {
@@ -175,11 +180,13 @@ class ShowOnline(loader: ClassLoader, preferences:SharedPreferences) : Feature(l
                     val userJid = contact.userJid
                     if (userJid.isNull || userJid.isGroup) return
 
-                    val csDot: ImageView? = if (showOnlineIcon) view?.findViewById(0x7FFF0001) else null
+                    val csDot: ImageView? =
+                        if (showOnlineIcon) view?.findViewById(0x7FFF0001) else null
                     if (showOnlineIcon && csDot != null) {
                         csDot.visibility = View.INVISIBLE
                     }
-                    val lastSeenText: TextView? = if (showOnlineText) view?.findViewById(0x7FFF0002) else null
+                    val lastSeenText: TextView? =
+                        if (showOnlineText) view?.findViewById(0x7FFF0002) else null
                     val cacheKey = userJid.phoneRawString
                     val now = SystemClock.uptimeMillis()
                     val cachedStatus = cacheKey?.let { statusCache.get(it) }
@@ -195,18 +202,27 @@ class ShowOnline(loader: ClassLoader, preferences:SharedPreferences) : Feature(l
                     val sendMethod = sendPresenceMethod ?: return
 
                     val tokenDBInstance = tokenDBField.get(presence)
-                    val tokenData = ReflectionUtils.callMethod(tcMethod, tokenDBInstance, userJid.userJid)
+                    val tokenData =
+                        ReflectionUtils.callMethod(tcMethod, tokenDBInstance, userJid.userJid)
                     val tokenObj = tokenConstructor?.newInstance(
-                        if (tokenData == null) null else XposedHelpers.getObjectField(tokenData, "A01")
+                        if (tokenData == null) null else ReflectionUtils.getObjectField(
+                            tokenData,
+                            "A01"
+                        )
                     )
                     sendMethod.invoke(null, userJid.userJid, null, tokenObj, presence)
-                    val status = ReflectionUtils.callMethod(statusMethod, mStatusUser, contact.getObject(), false) as? String
+                    val status = ReflectionUtils.callMethod(
+                        statusMethod,
+                        mStatusUser,
+                        contact.getObject(),
+                        false
+                    ) as? String
                     if (cacheKey != null) {
                         statusCache.put(cacheKey, CachedStatus(status, now + STATUS_CACHE_TTL_MS))
                     }
                     setStatus(status, csDot, lastSeenText, onlineStatusLabel)
                 } catch (e: Exception) {
-                    XposedBridge.log(e)
+                    YukiLog.log(e)
                 }
             }
         })

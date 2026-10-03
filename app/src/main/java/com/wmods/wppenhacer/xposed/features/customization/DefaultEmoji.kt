@@ -1,17 +1,16 @@
 package com.wmods.wppenhacer.xposed.features.customization
 
+import android.content.SharedPreferences
 import android.graphics.Canvas
 import android.graphics.Paint
 import android.graphics.Rect
 import android.graphics.drawable.Drawable
+import com.highcapable.kavaref.KavaRef.Companion.resolve
+import com.highcapable.yukihookapi.hook.param.HookParam
 import com.wmods.wppenhacer.xposed.core.Feature
 import com.wmods.wppenhacer.xposed.core.devkit.Unobfuscator
+import com.wmods.wppenhacer.xposed.utils.ReflectionUtils
 import com.wmods.wppenhacer.xposed.utils.Utils
-import de.robv.android.xposed.XC_MethodHook
-import de.robv.android.xposed.XC_MethodHook.MethodHookParam
-import android.content.SharedPreferences 
-import de.robv.android.xposed.XposedBridge
-import de.robv.android.xposed.XposedHelpers
 import java.lang.reflect.Method
 import java.util.WeakHashMap
 import kotlin.math.ceil
@@ -19,8 +18,8 @@ import kotlin.math.max
 
 class DefaultEmoji(
     classLoader: ClassLoader,
-    prefs:SharedPreferences
-) : Feature(classLoader, prefs) {
+    xprefs: SharedPreferences
+) : Feature(classLoader, xprefs) {
 
     private val minScale = 1.00f
     private val maxScale = 2.00f
@@ -31,37 +30,39 @@ class DefaultEmoji(
     private val drawableMethodCache = WeakHashMap<Class<*>, Method?>()
 
     override fun doHook() {
-        if (prefs.getBoolean("force_disable_emojis", false)) {
+        if (xprefs.getBoolean("force_disable_emojis", false)) {
             val assetsClass = Utils.application.resources.assets.javaClass
-            XposedBridge.hookAllMethods(assetsClass, "openFd", object : XC_MethodHook() {
-                override fun beforeHookedMethod(param: MethodHookParam) {
-                    val name = param.args[0] as String
+            assetsClass.resolve().method {
+                name = "openFd"
+            }.hookAll {
+                before {
+                    val name = args[0] as String
                     if (name.contains("emojis.oba"))
-                        param.result = null
+                        result = null
                 }
-            })
+            }
             return
         }
-        if (!prefs.getBoolean("disable_defemojis", false)) return
+        if (!xprefs.getBoolean("disable_defemojis", false)) return
         Unobfuscator.loadGetSizeSpanMethods(classLoader).forEach { method ->
-            XposedBridge.hookMethod(method, object : XC_MethodHook() {
-                override fun afterHookedMethod(param: MethodHookParam) {
-                    overrideGetSize(param)
+            method.hook {
+                after {
+                    overrideGetSize(this)
                 }
-            })
+            }
         }
 
         Unobfuscator.loadDrawSpanMethods(classLoader).forEach { method ->
-            XposedBridge.hookMethod(method, object : XC_MethodHook() {
-                override fun beforeHookedMethod(param: MethodHookParam) {
-                    drawSystemEmoji(param)
+            method.hook {
+                before {
+                    drawSystemEmoji(this)
                 }
-            })
+            }
         }
     }
 
-    private fun overrideGetSize(param: MethodHookParam) {
-        val span = param.thisObject ?: return
+    private fun overrideGetSize(param: HookParam) {
+        val span = param.instanceOrNull ?: return
         val paint = param.args.getOrNull(0) as? Paint ?: return
         val text = param.args.getOrNull(1) as? CharSequence ?: return
         val start = param.args.getOrNull(2) as? Int ?: return
@@ -102,7 +103,7 @@ class DefaultEmoji(
         param.result = finalWidth
     }
 
-    private fun drawSystemEmoji(param: MethodHookParam) {
+    private fun drawSystemEmoji(param: HookParam) {
         val canvas = param.args.getOrNull(0) as? Canvas ?: return
         val text = param.args.getOrNull(1) as? CharSequence ?: return
         val start = param.args.getOrNull(2) as? Int ?: return
@@ -114,7 +115,7 @@ class DefaultEmoji(
         if (!isValidRange(text, start, end)) return
 
         val emojiText = text.subSequence(start, end).toString()
-        val drawable = getEmojiDrawable(param.thisObject)
+        val drawable = getEmojiDrawable(param.instanceOrNull)
         val drawableBounds = drawable?.bounds ?: Rect()
 
         val emojiPaint = createEmojiPaint(
@@ -237,7 +238,7 @@ class DefaultEmoji(
             }
             method?.invoke(span) as? Drawable
         }.getOrNull() ?: runCatching {
-            XposedHelpers.callMethod(span, "getDrawable") as? Drawable
+            ReflectionUtils.callMethod(span, "getDrawable") as? Drawable
         }.getOrNull()
     }
 

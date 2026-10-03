@@ -4,8 +4,7 @@ import com.wmods.wppenhacer.xposed.core.WppCore
 import com.wmods.wppenhacer.xposed.core.db.MessageStore
 import com.wmods.wppenhacer.xposed.core.devkit.Unobfuscator
 import com.wmods.wppenhacer.xposed.utils.ReflectionUtils
-import de.robv.android.xposed.XposedBridge
-import de.robv.android.xposed.XposedHelpers
+import com.wmods.wppenhacer.xposed.utils.YukiLog
 import org.luckypray.dexkit.query.enums.StringMatchType
 import java.io.File
 import java.lang.reflect.Field
@@ -59,7 +58,7 @@ class FMessageWpp(fMessage: Any?) {
                 broadcastField = Unobfuscator.loadBroadcastTagField(classLoader)
                 timestampField = Unobfuscator.loadFmessageTimestampField(classLoader)
             } catch (e: Exception) {
-                XposedBridge.log(e)
+                YukiLog.log(e)
             }
         }
 
@@ -90,7 +89,7 @@ class FMessageWpp(fMessage: Any?) {
             return try {
                 UserJid(userJidMethod?.invoke(fmessage))
             } catch (e: Exception) {
-                XposedBridge.log(e)
+                YukiLog.log(e)
                 UserJid()
             }
         }
@@ -100,7 +99,7 @@ class FMessageWpp(fMessage: Any?) {
             return try {
                 deviceJidField?.get(fmessage)
             } catch (e: Exception) {
-                XposedBridge.log(e)
+                YukiLog.log(e)
                 null
             }
         }
@@ -110,7 +109,7 @@ class FMessageWpp(fMessage: Any?) {
             return try {
                 getFieldIdMessage?.getLong(fmessage) ?: 0L
             } catch (e: Exception) {
-                XposedBridge.log(e)
+                YukiLog.log(e)
                 0L
             }
         }
@@ -129,7 +128,7 @@ class FMessageWpp(fMessage: Any?) {
             return try {
                 broadcastField?.getBoolean(fmessage) ?: false
             } catch (e: Exception) {
-                XposedBridge.log(e)
+                YukiLog.log(e)
                 false
             }
         }
@@ -143,7 +142,7 @@ class FMessageWpp(fMessage: Any?) {
             return try {
                 messageMethod?.invoke(fmessage) as? String
             } catch (e: Exception) {
-                XposedBridge.log(e)
+                YukiLog.log(e)
                 null
             }
         }
@@ -153,7 +152,7 @@ class FMessageWpp(fMessage: Any?) {
             return try {
                 timestampField?.getLong(fmessage) ?: -1L
             } catch (e: Exception) {
-                XposedBridge.log(e)
+                YukiLog.log(e)
                 -1
             }
         }
@@ -167,7 +166,7 @@ class FMessageWpp(fMessage: Any?) {
                 }
                 null
             } catch (e: Exception) {
-                XposedBridge.log(e)
+                YukiLog.log(e)
                 null
             }
         }
@@ -204,7 +203,7 @@ class FMessageWpp(fMessage: Any?) {
                 }
                 return File(filePath)
             } catch (e: Exception) {
-                XposedBridge.log(e)
+                YukiLog.log(e)
             }
             return null
         }
@@ -223,7 +222,7 @@ class FMessageWpp(fMessage: Any?) {
         try {
             mediaTypeField?.getInt(fmessage) ?: -1
         } catch (e: Exception) {
-            XposedBridge.log(e)
+            YukiLog.log(e)
             -1
         }
     }
@@ -279,9 +278,9 @@ class FMessageWpp(fMessage: Any?) {
          */
         constructor(key: Any?) {
             this.thisObject = key
-            this.messageID = XposedHelpers.getObjectField(key, "A01") as String
-            this.isFromMe = XposedHelpers.getBooleanField(key, "A02")
-            this.remoteJid = UserJid(XposedHelpers.getObjectField(key, "A00"))
+            this.messageID = ReflectionUtils.getObjectField(key, "A01") as String
+            this.isFromMe = ReflectionUtils.getBooleanField(key, "A02")
+            this.remoteJid = UserJid(ReflectionUtils.getObjectField(key, "A00"))
             val fmessageObj = WppCore.getFMessageFromKey(key)
             if (fmessageObj != null) {
                 this.fMessage = FMessageWpp(fmessageObj)
@@ -290,9 +289,9 @@ class FMessageWpp(fMessage: Any?) {
 
         constructor(key: Any?, fmessage: FMessageWpp) {
             this.thisObject = key
-            this.messageID = XposedHelpers.getObjectField(key, "A01") as String
-            this.isFromMe = XposedHelpers.getBooleanField(key, "A02")
-            this.remoteJid = UserJid(XposedHelpers.getObjectField(key, "A00"))
+            this.messageID = ReflectionUtils.getObjectField(key, "A01") as String
+            this.isFromMe = ReflectionUtils.getBooleanField(key, "A02")
+            this.remoteJid = UserJid(ReflectionUtils.getObjectField(key, "A00"))
             this.fMessage = fmessage
         }
 
@@ -300,13 +299,13 @@ class FMessageWpp(fMessage: Any?) {
             this.messageID = messageID
             this.isFromMe = isFromMe
             this.remoteJid = remoteJid
-            var keyObj = XposedHelpers.newInstance(TYPE, remoteJid.userJid, messageID, isFromMe)
+            var keyObj = ReflectionUtils.newInstance(TYPE, remoteJid.userJid, messageID, isFromMe)
             var fmessageObj = WppCore.getFMessageFromKey(keyObj)
             if (fmessageObj != null) {
                 this.thisObject = keyObj
                 this.fMessage = FMessageWpp(fmessageObj)
             } else {
-                keyObj = XposedHelpers.newInstance(TYPE, remoteJid.phoneJid, messageID, isFromMe)
+                keyObj = ReflectionUtils.newInstance(TYPE, remoteJid.phoneJid, messageID, isFromMe)
                 fmessageObj = WppCore.getFMessageFromKey(keyObj)
                 if (fmessageObj != null) {
                     this.thisObject = keyObj
@@ -369,7 +368,7 @@ class FMessageWpp(fMessage: Any?) {
 
             fun forceConverter(lidOrJid: Any?): UserJid {
                 val raw = try {
-                    XposedHelpers.callMethod(lidOrJid, "getRawString") as? String
+                    ReflectionUtils.callMethod(lidOrJid, "getRawString") as? String
                 } catch (ignored: Throwable) {
                     null
                 }
@@ -408,7 +407,7 @@ class FMessageWpp(fMessage: Any?) {
             if (lidOrJid == null) return
             var raw: String? = null
             try {
-                raw = XposedHelpers.callMethod(lidOrJid, "getRawString") as? String
+                raw = ReflectionUtils.callMethod(lidOrJid, "getRawString") as? String
             } catch (ignored: Throwable) {
                 return
             }
@@ -430,7 +429,7 @@ class FMessageWpp(fMessage: Any?) {
         val phoneRawString: String? by lazy {
             if (this.phoneJid == null) return@lazy null
             val raw =
-                XposedHelpers.callMethod(this.phoneJid, "getRawString") as? String
+                ReflectionUtils.callMethod(this.phoneJid, "getRawString") as? String
                     ?: return@lazy null
             raw.replaceFirst("\\.[\\d:]+@".toRegex(), "@")
         }
@@ -438,7 +437,7 @@ class FMessageWpp(fMessage: Any?) {
         val userRawString: String? by lazy {
             if (this.phoneJid == null) return@lazy null
             val raw =
-                XposedHelpers.callMethod(this.userJid, "getRawString") as? String
+                ReflectionUtils.callMethod(this.userJid, "getRawString") as? String
                     ?: return@lazy null
             raw.replaceFirst("\\.[\\d:]+@".toRegex(), "@")
         }
@@ -458,7 +457,7 @@ class FMessageWpp(fMessage: Any?) {
                     }
                     return str
                 } catch (e: Exception) {
-                    XposedBridge.log(e)
+                    YukiLog.log(e)
                     return str
                 }
             }

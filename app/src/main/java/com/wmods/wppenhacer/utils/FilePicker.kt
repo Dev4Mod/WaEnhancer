@@ -23,10 +23,18 @@ object FilePicker {
 
     fun registerFilePicker(activity: AppCompatActivity) {
         this.activity = activity
-        fileCapture = activity.registerForActivityResult(ActivityResultContracts.OpenDocument(), ::setFile)
-        imageCapture = activity.registerForActivityResult(ActivityResultContracts.PickVisualMedia(), ::setFile)
-        directoryCapture = activity.registerForActivityResult(ActivityResultContracts.OpenDocumentTree(), ::setDirectory)
-        fileSalve = activity.registerForActivityResult(ActivityResultContracts.CreateDocument("*/*"), ::setFile)
+        fileCapture =
+            activity.registerForActivityResult(ActivityResultContracts.OpenDocument(), ::setFile)
+        imageCapture =
+            activity.registerForActivityResult(ActivityResultContracts.PickVisualMedia(), ::setFile)
+        directoryCapture = activity.registerForActivityResult(
+            ActivityResultContracts.OpenDocumentTree(),
+            ::setDirectory
+        )
+        fileSalve = activity.registerForActivityResult(
+            ActivityResultContracts.CreateDocument("*/*"),
+            ::setFile
+        )
     }
 
     private fun setFile(uri: Uri?) {

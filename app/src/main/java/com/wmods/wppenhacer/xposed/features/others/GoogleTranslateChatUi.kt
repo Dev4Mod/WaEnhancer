@@ -10,7 +10,14 @@ import android.text.TextWatcher
 import android.view.Gravity
 import android.view.View
 import android.view.ViewGroup
-import android.widget.*
+import android.widget.ArrayAdapter
+import android.widget.CheckedTextView
+import android.widget.EditText
+import android.widget.ImageView
+import android.widget.LinearLayout
+import android.widget.ListView
+import android.widget.ScrollView
+import android.widget.TextView
 import androidx.core.view.children
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.checkbox.MaterialCheckBox
@@ -27,9 +34,7 @@ import com.wmods.wppenhacer.xposed.utils.DesignUtils
 import com.wmods.wppenhacer.xposed.utils.ModuleContextWrapper
 import com.wmods.wppenhacer.xposed.utils.ReflectionUtils
 import com.wmods.wppenhacer.xposed.utils.Utils
-import de.robv.android.xposed.XC_MethodHook
-import de.robv.android.xposed.XposedBridge
-import de.robv.android.xposed.XposedHelpers
+import com.wmods.wppenhacer.xposed.utils.YukiLog
 import org.luckypray.dexkit.query.enums.StringMatchType
 import java.lang.ref.WeakReference
 import java.util.Locale
@@ -80,7 +85,7 @@ internal class GoogleTranslateChatUi(
 
     private fun rawJid(jid: Any?): String? = runCatching {
         GoogleTranslateSettings.normalizeChatId(
-            XposedHelpers.callMethod(
+            ReflectionUtils.callMethod(
                 jid,
                 "getRawString"
             ) as? String
@@ -97,13 +102,18 @@ internal class GoogleTranslateChatUi(
     private fun messageChat(message: FMessageWpp): String? {
         // Read the conversation JID, never the participant/sender JID.
         val jid =
-            runCatching { XposedHelpers.getObjectField(message.key.thisObject, "A00") }.getOrNull()
+            runCatching {
+                ReflectionUtils.getObjectField(
+                    message.key.thisObject,
+                    "A00"
+                )
+            }.getOrNull()
         return chatId(jid) ?: chatId(message.key.remoteJid.phoneJid)
         ?: chatId(message.key.remoteJid.userJid)
     }
 
     private fun reportOnce(reason: String) {
-        if (reported.add(reason)) XposedBridge.log("Google Translate: $reason")
+        if (reported.add(reason)) YukiLog.log("Google Translate: $reason")
     }
 
     fun install() {

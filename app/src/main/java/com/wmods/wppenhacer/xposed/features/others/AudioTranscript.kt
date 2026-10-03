@@ -3,15 +3,13 @@ package com.wmods.wppenhacer.xposed.features.others
 import android.content.SharedPreferences
 import android.text.TextUtils
 import android.widget.Toast
+import com.highcapable.yukihookapi.hook.param.HookParam
 import com.wmods.wppenhacer.R
 import com.wmods.wppenhacer.xposed.core.Feature
 import com.wmods.wppenhacer.xposed.core.components.FMessageWpp
 import com.wmods.wppenhacer.xposed.core.devkit.Unobfuscator
 import com.wmods.wppenhacer.xposed.utils.ReflectionUtils
 import com.wmods.wppenhacer.xposed.utils.Utils
-import de.robv.android.xposed.XC_MethodHook
-import de.robv.android.xposed.XposedBridge
-import de.robv.android.xposed.XposedHelpers
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.MultipartBody
 import okhttp3.OkHttpClient
@@ -23,7 +21,7 @@ import java.io.File
 
 class AudioTranscript(
     classLoader: ClassLoader,
-    preferences:SharedPreferences
+    preferences: SharedPreferences
 ) : Feature(classLoader, preferences) {
 
     private val httpClient: OkHttpClient by lazy {
@@ -32,11 +30,11 @@ class AudioTranscript(
 
     @Throws(Throwable::class)
     override fun doHook() {
-        if (!prefs.getBoolean(PREF_AUDIO_TRANSCRIPTION, false)) {
+        if (!xprefs.getBoolean(PREF_AUDIO_TRANSCRIPTION, false)) {
             return
         }
 
-        val provider = prefs.getString(
+        val provider = xprefs.getString(
             PREF_TRANSCRIPTION_PROVIDER,
             PROVIDER_ASSEMBLY_AI
         ) ?: PROVIDER_ASSEMBLY_AI
@@ -50,21 +48,21 @@ class AudioTranscript(
         val transcribeMethod = Unobfuscator.loadTranscribeMethod(classLoader)
         val transcriptionSegmentClass = Unobfuscator.loadTranscriptSegment(classLoader)
 
-        XposedBridge.hookMethod(transcribeMethod, object : XC_MethodHook() {
-            override fun beforeHookedMethod(param: MethodHookParam) {
+        transcribeMethod.hook {
+            before {
                 handleTranscriptionHook(
-                    param = param,
+                    param = this,
                     provider = provider,
                     transcriptionSegmentClass = transcriptionSegmentClass
                 )
             }
-        })
+        }
 
     }
 
     @Throws(Throwable::class)
     private fun handleTranscriptionHook(
-        param: XC_MethodHook.MethodHookParam,
+        param: HookParam,
         provider: String,
         transcriptionSegmentClass: Class<*>
     ) {
@@ -115,8 +113,8 @@ class AudioTranscript(
 
     private fun getApiKey(provider: String): String {
         return when (provider) {
-            PROVIDER_GROQ -> prefs.getString(PREF_GROQ_API_KEY, "").orEmpty()
-            else -> prefs.getString(PREF_ASSEMBLY_AI_KEY, "").orEmpty()
+            PROVIDER_GROQ -> xprefs.getString(PREF_GROQ_API_KEY, "").orEmpty()
+            else -> xprefs.getString(PREF_ASSEMBLY_AI_KEY, "").orEmpty()
         }
     }
 
@@ -153,7 +151,7 @@ class AudioTranscript(
             val duration = timing.endMs - timing.startMs
             val safeDuration = if (duration < 100) 100 else duration
 
-            val segment = XposedHelpers.newInstance(
+            val segment = ReflectionUtils.newInstance(
                 transcriptionSegmentClass,
                 startChar,
                 length,
@@ -185,7 +183,7 @@ class AudioTranscript(
 
     @Throws(Exception::class)
     private fun transcriptionAssemblyAI(fileOpus: File): JSONObject {
-        val apiKey = prefs.getString(PREF_ASSEMBLY_AI_KEY, "").orEmpty()
+        val apiKey = xprefs.getString(PREF_ASSEMBLY_AI_KEY, "").orEmpty()
 
         if (TextUtils.isEmpty(apiKey)) {
             throw Exception("API key not provided")
@@ -291,7 +289,7 @@ class AudioTranscript(
 
     @Throws(Exception::class)
     private fun transcriptionGroqAI(fileAudio: File): JSONObject {
-        val apiKey = prefs.getString(PREF_GROQ_API_KEY, "").orEmpty()
+        val apiKey = xprefs.getString(PREF_GROQ_API_KEY, "").orEmpty()
 
         if (TextUtils.isEmpty(apiKey)) {
             throw Exception("Groq API key not provided")

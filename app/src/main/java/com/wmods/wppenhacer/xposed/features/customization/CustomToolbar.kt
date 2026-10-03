@@ -1,8 +1,8 @@
 package com.wmods.wppenhacer.xposed.features.customization
 
-import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Intent
+import android.content.SharedPreferences
 import android.os.Bundle
 import android.text.TextUtils
 import android.view.Gravity
@@ -11,6 +11,8 @@ import android.view.ViewGroup
 import android.widget.LinearLayout
 import android.widget.RelativeLayout
 import android.widget.TextView
+import com.highcapable.kavaref.KavaRef.Companion.resolve
+import com.highcapable.yukihookapi.hook.param.PackageParam
 import com.wmods.wppenhacer.R
 import com.wmods.wppenhacer.listeners.OnMultiClickListener
 import com.wmods.wppenhacer.xposed.core.Feature
@@ -25,10 +27,6 @@ import java.lang.reflect.Method
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
-import de.robv.android.xposed.XC_MethodHook
-import android.content.SharedPreferences 
-import de.robv.android.xposed.XposedBridge
-import de.robv.android.xposed.XposedHelpers
 
 private const val TYPE_ARCHIVE_MULTI_CLICK = "1"
 private const val TYPE_ARCHIVE_LONG_CLICK = "2"
@@ -39,25 +37,29 @@ private const val SUBTITLE_TEXT_SIZE = 12f
 
 private var onMenuItemSelected: Method? = null
 
-class CustomToolbar(loader: ClassLoader, preferences:SharedPreferences) : Feature(loader, preferences) {
+class CustomToolbar(loader: ClassLoader, preferences: SharedPreferences) :
+    Feature(loader, preferences) {
 
     private var mDateExpiration: String? = null
 
     @Throws(Exception::class)
     override fun doHook() {
-        val showName = prefs.getBoolean("shownamehome", false)
-        val showBio = prefs.getBoolean("showbiohome", false)
-        val typeArchive = prefs.getString("typearchive", "0") ?: "0"
+        val showName = xprefs.getBoolean("shownamehome", false)
+        val showBio = xprefs.getBoolean("showbiohome", false)
+        val typeArchive = xprefs.getString("typearchive", "0") ?: "0"
 
         onMenuItemSelected = Unobfuscator.loadOnMenuItemSelected(classLoader)
 
-        val methodHook = ToolbarMethodHook(showName, showBio, typeArchive)
-        XposedHelpers.findAndHookMethod(
-            WppCore.homeActivityClass,
-            "onCreate",
-            Bundle::class.java,
-            methodHook
-        )
+        val methodHook = ToolbarMethodHook(this, showName, showBio, typeArchive)
+        WppCore.homeActivityClass.resolve().firstMethod {
+            name = "onCreate"
+            superclass()
+            parameters(Bundle::class.java)
+        }.hook {
+            after {
+                methodHook.afterHook(instance as Activity)
+            }
+        }
 
         hookExpirationInfo()
         Others.propsBoolean[6481] = false
@@ -75,48 +77,45 @@ class CustomToolbar(loader: ClassLoader, preferences:SharedPreferences) : Featur
     private fun hookExpirationDate() {
         val expirationClass = Unobfuscator.loadExpirationClass(classLoader)
 
-        XposedBridge.hookAllConstructors(expirationClass, object : XC_MethodHook() {
-            @SuppressLint("SetTextI18n")
-            override fun afterHookedMethod(param: MethodHookParam) {
+        expirationClass.resolve().constructor { }.hookAll {
+            after {
                 val method = ReflectionUtils.findMethodUsingFilter(
-                    param.thisObject.javaClass
+                    instance.javaClass
                 ) { m: Method -> m.returnType == Date::class.java }
-                val date = method.invoke(param.thisObject) as Date
+                val date = method.invoke(instance) as Date
                 mDateExpiration = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
                     .format(date)
             }
-        })
+        }
     }
 
     private fun hookAboutActivity() {
-        XposedHelpers.findAndHookMethod(
-            WppCore.aboutActivityClass,
-            "onCreate",
-            Bundle::class.java,
-            object : XC_MethodHook() {
-                @SuppressLint("SetTextI18n")
-                override fun afterHookedMethod(param: MethodHookParam) {
-                    val activity = param.thisObject as Activity
-                    val viewRoot = activity.window.decorView
-                    val version = viewRoot.findViewById<TextView>(Utils.getID("version", "id"))
+        WppCore.aboutActivityClass.resolve().firstMethod {
+            name = "onCreate"
+            superclass()
+            parameters(Bundle::class.java)
+        }.hook {
+            after {
+                val activity = instance as Activity
+                val viewRoot = activity.window.decorView
+                val version = viewRoot.findViewById<TextView>(Utils.getID("version", "id"))
 
-                    if (version != null) {
-                        val expirationText = activity.getString(R.string.expiration, mDateExpiration)
-                        version.text = "${version.text} $expirationText"
-                    }
+                if (version != null) {
+                    val expirationText = activity.getString(R.string.expiration, mDateExpiration)
+                    version.text = "${version.text} $expirationText"
                 }
             }
-        )
+        }
     }
 
     private class ToolbarMethodHook(
+        private val packageParam: PackageParam,
         private val showName: Boolean,
         private val showBio: Boolean,
         private val typeArchive: String
-    ) : XC_MethodHook() {
+    ) {
 
-        override fun afterHookedMethod(param: MethodHookParam) {
-            val homeActivity = param.thisObject as Activity
+        fun afterHook(homeActivity: Activity) {
             val toolbar = homeActivity.findViewById<ViewGroup>(Utils.getID("toolbar", "id"))
             val logo = toolbar.findViewById<View>(Utils.getID("toolbar_logo", "id"))
 
@@ -155,23 +154,36 @@ class CustomToolbar(loader: ClassLoader, preferences:SharedPreferences) : Featur
             }
         }
 
-        private fun setupArchiveListener(toolbar: ViewGroup, homeActivity: Activity, intent: Intent) {
+        private fun setupArchiveListener(
+            toolbar: ViewGroup,
+            homeActivity: Activity,
+            intent: Intent
+        ) {
             when (typeArchive) {
                 TYPE_ARCHIVE_MULTI_CLICK -> setupMultiClickListener(toolbar, homeActivity, intent)
                 TYPE_ARCHIVE_LONG_CLICK -> setupLongClickListener(toolbar, homeActivity, intent)
             }
         }
 
-        private fun setupMultiClickListener(toolbar: ViewGroup, homeActivity: Activity, intent: Intent) {
-            val listener = object : OnMultiClickListener(MULTI_CLICK_COUNT, MULTI_CLICK_INTERVAL.toLong()) {
-                override fun onMultiClick(v: View) {
-                    homeActivity.startActivity(intent)
+        private fun setupMultiClickListener(
+            toolbar: ViewGroup,
+            homeActivity: Activity,
+            intent: Intent
+        ) {
+            val listener =
+                object : OnMultiClickListener(MULTI_CLICK_COUNT, MULTI_CLICK_INTERVAL.toLong()) {
+                    override fun onMultiClick(v: View) {
+                        homeActivity.startActivity(intent)
+                    }
                 }
-            }
             toolbar.setOnClickListener(listener)
         }
 
-        private fun setupLongClickListener(toolbar: ViewGroup, homeActivity: Activity, intent: Intent) {
+        private fun setupLongClickListener(
+            toolbar: ViewGroup,
+            homeActivity: Activity,
+            intent: Intent
+        ) {
             toolbar.setOnLongClickListener {
                 homeActivity.startActivity(intent)
                 true
@@ -240,15 +252,17 @@ class CustomToolbar(loader: ClassLoader, preferences:SharedPreferences) : Featur
         }
 
         private fun setupTabVisibilityHook(tabInstance: Any, toolbarLayout: LinearLayout) {
-            XposedBridge.hookMethod(onMenuItemSelected!!, object : XC_MethodHook() {
-                override fun beforeHookedMethod(param: MethodHookParam) {
-                    if (tabInstance != param.thisObject) return
+            packageParam.apply {
+                onMenuItemSelected!!.hook {
+                    before {
+                        if (tabInstance != instance) return@before
 
-                    val currentIndex = param.args[0] as Int
-                    val visibility = if (currentIndex == 0) View.VISIBLE else View.GONE
-                    toolbarLayout.visibility = visibility
+                        val currentIndex = args[0] as Int
+                        val visibility = if (currentIndex == 0) View.VISIBLE else View.GONE
+                        toolbarLayout.visibility = visibility
+                    }
                 }
-            })
+            }
         }
     }
 }

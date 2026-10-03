@@ -7,9 +7,6 @@ import com.wmods.wppenhacer.xposed.core.Feature
 import com.wmods.wppenhacer.xposed.core.components.StatusItemWpp
 import com.wmods.wppenhacer.xposed.core.devkit.Unobfuscator
 import com.wmods.wppenhacer.xposed.utils.ReflectionUtils
-import de.robv.android.xposed.XC_MethodHook
-import de.robv.android.xposed.XposedBridge
-import de.robv.android.xposed.XposedHelpers
 import org.luckypray.dexkit.query.enums.StringMatchType
 import java.lang.reflect.Field
 import java.util.concurrent.CopyOnWriteArraySet
@@ -67,29 +64,28 @@ class MenuStatusProvider(classLoader: ClassLoader, preferences: SharedPreference
         )
 
         currentIndexField = runCatching {
-            Unobfuscator.loadStatusPlaybackCurrentIndexField(classLoader).apply { isAccessible = true }
+            Unobfuscator.loadStatusPlaybackCurrentIndexField(classLoader)
+                .apply { isAccessible = true }
         }.getOrNull()
 
-        XposedBridge.hookMethod(menuStatusMethod, object : XC_MethodHook() {
-
-            @Throws(Throwable::class)
-            override fun afterHookedMethod(param: MethodHookParam) {
-                val fieldObjects = param.method.declaringClass.declaredFields
-                    .mapNotNull { field -> ReflectionUtils.getObjectField(field, param.thisObject) }
+        menuStatusMethod.hook {
+            after {
+                val fieldObjects = method.declaringClass.declaredFields
+                    .mapNotNull { field -> ReflectionUtils.getObjectField(field, instance) }
 
                 val fragmentInstance: Any =
-                    if (param.thisObject != null && statusPlaybackContactFragmentClass.isInstance(
-                            param.thisObject
+                    if (instanceOrNull != null && statusPlaybackContactFragmentClass.isInstance(
+                            instanceOrNull
                         )
                     ) {
-                        param.thisObject
+                        instance
                     } else {
                         fieldObjects.firstOrNull { statusPlaybackBaseFragmentClass.isInstance(it) }
-                            ?: return
+                            ?: return@after
                     }
 
-                val menu: Menu = if (param.args.isNotEmpty() && param.args[0] is Menu) {
-                    param.args[0] as Menu
+                val menu: Menu = if (args.isNotEmpty() && args[0] is Menu) {
+                    args[0] as Menu
                 } else {
                     val menuManager = fieldObjects.firstOrNull { menuManagerClass.isInstance(it) }
                     val menuField =
@@ -110,7 +106,7 @@ class MenuStatusProvider(classLoader: ClassLoader, preferences: SharedPreference
                     }
                 }
             }
-        })
+        }
     }
 
     override fun getPluginName(): String = "MenuStatusProvider"
@@ -128,8 +124,8 @@ class MenuStatusProvider(classLoader: ClassLoader, preferences: SharedPreference
                     runCatching { field.getInt(fragmentInstance) }.getOrNull()
                 }
                 return resolvedIndex
-                    ?: (XposedHelpers.getObjectField(fragmentInstance, "A02") as? Int)
-                    ?: (XposedHelpers.getObjectField(fragmentInstance, "A00") as? Int)
+                    ?: (ReflectionUtils.getObjectField(fragmentInstance, "A02") as? Int)
+                    ?: (ReflectionUtils.getObjectField(fragmentInstance, "A00") as? Int)
                     ?: 0
             }
 

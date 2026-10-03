@@ -33,6 +33,7 @@ import android.widget.TextView
 import androidx.core.content.ContextCompat
 import androidx.core.graphics.drawable.RoundedBitmapDrawableFactory
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+import com.highcapable.kavaref.KavaRef.Companion.resolve
 import com.wmods.wppenhacer.R
 import com.wmods.wppenhacer.model.ContactData
 import com.wmods.wppenhacer.model.ContactPickerResult
@@ -44,149 +45,154 @@ import com.wmods.wppenhacer.xposed.core.components.FMessageWpp
 import com.wmods.wppenhacer.xposed.core.components.WaContactWpp
 import com.wmods.wppenhacer.xposed.utils.DesignUtils
 import com.wmods.wppenhacer.xposed.utils.ModuleContextWrapper
+import com.wmods.wppenhacer.xposed.utils.ReflectionUtils
 import com.wmods.wppenhacer.xposed.utils.Utils
-import de.robv.android.xposed.XC_MethodHook
-import de.robv.android.xposed.XposedBridge
-import de.robv.android.xposed.XposedHelpers
+import com.wmods.wppenhacer.xposed.utils.YukiLog
 import java.util.Collections
 import java.util.Locale
 import java.util.concurrent.ConcurrentHashMap
 
-class AboutContactPicker(loader: ClassLoader, preferences:SharedPreferences) :
+class AboutContactPicker(loader: ClassLoader, preferences: SharedPreferences) :
     Feature(loader, preferences) {
 
     override fun doHook() {
         val aboutClass = WppCore.aboutActivityClass
 
-        XposedHelpers.findAndHookMethod(
-            Activity::class.java,
-            "onCreate",
-            Bundle::class.java,
-            object : XC_MethodHook() {
-                override fun afterHookedMethod(param: MethodHookParam) {
-                    val activity = param.thisObject as Activity
-                    if (!isTargetAboutActivity(
-                            activity,
-                            aboutClass
-                        ) || !isPickerLaunch(activity.intent)
-                    ) {
-                        return
-                    }
-                    val controller = getOrCreateController(activity)
-                    controller.bindIntent(activity.intent)
-                    controller.attach()
-                }
-            })
-
-        XposedHelpers.findAndHookMethod(Activity::class.java, "onResume", object : XC_MethodHook() {
-            override fun afterHookedMethod(param: MethodHookParam) {
-                val activity = param.thisObject as Activity
+        Activity::class.java.resolve().firstMethod {
+            name = "onCreate"
+            superclass()
+            parameters(Bundle::class.java)
+        }.hook {
+            after {
+                val activity = instance as Activity
                 if (!isTargetAboutActivity(
                         activity,
                         aboutClass
                     ) || !isPickerLaunch(activity.intent)
                 ) {
-                    return
+                    return@after
+                }
+                val controller = getOrCreateController(activity)
+                controller.bindIntent(activity.intent)
+                controller.attach()
+            }
+        }
+
+        Activity::class.java.resolve().firstMethod {
+            name = "onResume"
+            superclass()
+            emptyParameters()
+        }.hook {
+            after {
+                val activity = instance as Activity
+                if (!isTargetAboutActivity(
+                        activity,
+                        aboutClass
+                    ) || !isPickerLaunch(activity.intent)
+                ) {
+                    return@after
                 }
                 val controller = getOrCreateController(activity)
                 controller.bindIntent(activity.intent)
                 activity.window.decorView.post { controller.attach() }
             }
-        })
+        }
 
-        XposedHelpers.findAndHookMethod(
-            Activity::class.java,
-            "onNewIntent",
-            Intent::class.java,
-            object : XC_MethodHook() {
-                override fun afterHookedMethod(param: MethodHookParam) {
-                    val activity = param.thisObject as Activity
-                    if (!isTargetAboutActivity(activity, aboutClass)) {
-                        return
-                    }
-                    val intent = param.args[0] as Intent
-                    if (!isPickerLaunch(intent)) {
-                        return
-                    }
-                    activity.intent = intent
-                    val controller = getOrCreateController(activity)
-                    controller.bindIntent(intent)
-                    controller.attach()
-                    controller.reloadItems()
+        Activity::class.java.resolve().firstMethod {
+            name = "onNewIntent"
+            superclass()
+            parameters(Intent::class.java)
+        }.hook {
+            after {
+                val activity = instance as Activity
+                if (!isTargetAboutActivity(activity, aboutClass)) {
+                    return@after
                 }
-            })
+                val intent = args[0] as Intent
+                if (!isPickerLaunch(intent)) {
+                    return@after
+                }
+                activity.intent = intent
+                val controller = getOrCreateController(activity)
+                controller.bindIntent(intent)
+                controller.attach()
+                controller.reloadItems()
+            }
+        }
 
-        XposedHelpers.findAndHookMethod(
-            Activity::class.java,
-            "onDestroy",
-            object : XC_MethodHook() {
-                override fun beforeHookedMethod(param: MethodHookParam) {
-                    val activity = param.thisObject as Activity
-                    if (!isTargetAboutActivity(activity, aboutClass)) {
-                        return
-                    }
-                    val controller = getController(activity)
-                    controller?.destroy()
-                    XposedHelpers.removeAdditionalInstanceField(activity, FIELD_CONTROLLER)
+        Activity::class.java.resolve().firstMethod {
+            name = "onDestroy"
+            superclass()
+            emptyParameters()
+        }.hook {
+            before {
+                val activity = instance as Activity
+                if (!isTargetAboutActivity(activity, aboutClass)) {
+                    return@before
                 }
-            })
+                val controller = getController(activity)
+                controller?.destroy()
+                ReflectionUtils.removeAdditionalInstanceField(activity, FIELD_CONTROLLER)
+            }
+        }
 
-        XposedHelpers.findAndHookMethod(
-            Activity::class.java,
-            "onBackPressed",
-            object : XC_MethodHook() {
-                override fun beforeHookedMethod(param: MethodHookParam) {
-                    val activity = param.thisObject as Activity
-                    if (!isTargetAboutActivity(activity, aboutClass)) {
-                        return
-                    }
-                    val controller = getController(activity)
-                    if (controller != null && controller.handleBackPressed()) {
-                        param.result = null
-                    }
+        Activity::class.java.resolve().firstMethod {
+            name = "onBackPressed"
+            superclass()
+            emptyParameters()
+        }.hook {
+            before {
+                val activity = instance as Activity
+                if (!isTargetAboutActivity(activity, aboutClass)) {
+                    return@before
                 }
-            })
+                val controller = getController(activity)
+                if (controller != null && controller.handleBackPressed()) {
+                    result = null
+                }
+            }
+        }
 
-        XposedHelpers.findAndHookMethod(
-            Activity::class.java,
-            "onCreateOptionsMenu",
-            Menu::class.java,
-            object : XC_MethodHook() {
-                override fun beforeHookedMethod(param: MethodHookParam) {
-                    val activity = param.thisObject as Activity
-                    if (!isTargetAboutActivity(
-                            activity,
-                            aboutClass
-                        ) || !isPickerLaunch(activity.intent)
-                    ) {
-                        return
-                    }
-                    (param.args[0] as Menu).clear()
-                    param.result = true
+        Activity::class.java.resolve().firstMethod {
+            name = "onCreateOptionsMenu"
+            superclass()
+            parameters(Menu::class.java)
+        }.hook {
+            before {
+                val activity = instance as Activity
+                if (!isTargetAboutActivity(
+                        activity,
+                        aboutClass
+                    ) || !isPickerLaunch(activity.intent)
+                ) {
+                    return@before
                 }
-            })
+                (args[0] as Menu).clear()
+                result = true
+            }
+        }
 
-        XposedHelpers.findAndHookMethod(
-            Activity::class.java,
-            "onOptionsItemSelected",
-            MenuItem::class.java,
-            object : XC_MethodHook() {
-                override fun beforeHookedMethod(param: MethodHookParam) {
-                    val activity = param.thisObject as Activity
-                    if (!isTargetAboutActivity(
-                            activity,
-                            aboutClass
-                        ) || !isPickerLaunch(activity.intent)
-                    ) {
-                        return
-                    }
-                    param.result = true
+        Activity::class.java.resolve().firstMethod {
+            name = "onOptionsItemSelected"
+            superclass()
+            parameters(MenuItem::class.java)
+        }.hook {
+            before {
+                val activity = instance as Activity
+                if (!isTargetAboutActivity(
+                        activity,
+                        aboutClass
+                    ) || !isPickerLaunch(activity.intent)
+                ) {
+                    return@before
                 }
-            })
+                result = true
+            }
+        }
     }
 
     private fun getController(activity: Activity): PickerController? {
-        return XposedHelpers.getAdditionalInstanceField(
+        return ReflectionUtils.getAdditionalInstanceField(
             activity,
             FIELD_CONTROLLER
         ) as? PickerController
@@ -198,7 +204,7 @@ class AboutContactPicker(loader: ClassLoader, preferences:SharedPreferences) :
             return current
         }
         current = PickerController(activity)
-        XposedHelpers.setAdditionalInstanceField(activity, FIELD_CONTROLLER, current)
+        ReflectionUtils.setAdditionalInstanceField(activity, FIELD_CONTROLLER, current)
         return current
     }
 
@@ -429,8 +435,8 @@ class AboutContactPicker(loader: ClassLoader, preferences:SharedPreferences) :
                 rootView = root
                 true
             } catch (t: Throwable) {
-                XposedBridge.log("AboutContactPicker: failed to build root view: $t")
-                XposedBridge.log(t)
+                YukiLog.log("AboutContactPicker: failed to build root view: $t")
+                YukiLog.log(t)
                 rootView = null
                 false
             }
@@ -681,7 +687,7 @@ class AboutContactPicker(loader: ClassLoader, preferences:SharedPreferences) :
                         stopRefreshing()
                     }
                 } catch (throwable: Throwable) {
-                    XposedBridge.log(throwable)
+                    YukiLog.log(throwable)
                     mainHandler.post {
                         emptyView?.text = getString(R.string.picker_no_results)
                         stopRefreshing()
@@ -727,7 +733,8 @@ class AboutContactPicker(loader: ClassLoader, preferences:SharedPreferences) :
             adapter?.submit(visibleItems)
             emptyView?.visibility = if (visibleItems.isEmpty()) View.VISIBLE else View.GONE
             if (visibleItems.isEmpty()) {
-                emptyView?.text = getString(if (loading) R.string.picker_loading_contacts else R.string.picker_no_results)
+                emptyView?.text =
+                    getString(if (loading) R.string.picker_loading_contacts else R.string.picker_no_results)
             }
             updateActionBarTitle()
         }
@@ -800,7 +807,7 @@ class AboutContactPicker(loader: ClassLoader, preferences:SharedPreferences) :
                     }
                 }
             } catch (throwable: Throwable) {
-                XposedBridge.log(throwable)
+                YukiLog.log(throwable)
                 null
             }
         }
@@ -886,11 +893,15 @@ class AboutContactPicker(loader: ClassLoader, preferences:SharedPreferences) :
         fun typeLabel(context: Context): String {
             return if (type == ContactType.GROUP) {
                 runCatching { context.getString(R.string.picker_group) }.getOrElse {
-                    runCatching { FeatureLoader.moduleContext.getString(R.string.picker_group) }.getOrDefault("Group")
+                    runCatching { FeatureLoader.moduleContext.getString(R.string.picker_group) }.getOrDefault(
+                        "Group"
+                    )
                 }
             } else {
                 runCatching { context.getString(R.string.picker_contact) }.getOrElse {
-                    runCatching { FeatureLoader.moduleContext.getString(R.string.picker_contact) }.getOrDefault("Contact")
+                    runCatching { FeatureLoader.moduleContext.getString(R.string.picker_contact) }.getOrDefault(
+                        "Contact"
+                    )
                 }
             }
         }
@@ -939,9 +950,10 @@ class AboutContactPicker(loader: ClassLoader, preferences:SharedPreferences) :
                 val content = LinearLayout(context).apply {
                     orientation = LinearLayout.VERTICAL
                     layoutParams =
-                        LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f).apply {
-                            setMargins(Utils.dipToPixels(12f), 0, Utils.dipToPixels(12f), 0)
-                        }
+                        LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f)
+                            .apply {
+                                setMargins(Utils.dipToPixels(12f), 0, Utils.dipToPixels(12f), 0)
+                            }
                 }
 
                 val title = TextView(context).apply {
@@ -1076,7 +1088,7 @@ class AboutContactPicker(loader: ClassLoader, preferences:SharedPreferences) :
                     }
                 }
             } catch (throwable: Throwable) {
-                XposedBridge.log(throwable)
+                YukiLog.log(throwable)
             }
         }
 
@@ -1093,7 +1105,7 @@ class AboutContactPicker(loader: ClassLoader, preferences:SharedPreferences) :
                     waName = sanitize(waContact.waName)
                 }
             } catch (throwable: Throwable) {
-                XposedBridge.log(throwable)
+                YukiLog.log(throwable)
             }
 
             return ContactPickerItem(jid, displayName ?: "", waName ?: "", type)

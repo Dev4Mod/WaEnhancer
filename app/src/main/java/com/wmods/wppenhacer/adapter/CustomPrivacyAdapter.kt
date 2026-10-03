@@ -10,9 +10,9 @@ import android.widget.ArrayAdapter
 import android.widget.Button
 import android.widget.LinearLayout
 import android.widget.TextView
+import androidx.core.content.edit
 import com.wmods.wppenhacer.xposed.utils.DesignUtils
 import com.wmods.wppenhacer.xposed.utils.Utils
-import androidx.core.content.edit
 
 class CustomPrivacyAdapter(
     context: Context,
@@ -41,7 +41,8 @@ class CustomPrivacyAdapter(
                 val intent = Intent(context, groupClass).putExtra("gid", item.number + "@g.us")
                 context.startActivity(intent)
             } else {
-                val intent = Intent(context, contactClass).putExtra("jid", item.number + "@s.whatsapp.net")
+                val intent =
+                    Intent(context, contactClass).putExtra("jid", item.number + "@s.whatsapp.net")
                 context.startActivity(intent)
             }
         }
@@ -88,8 +89,11 @@ class CustomPrivacyAdapter(
     }
 
     class Item {
-        @JvmField var name: String = ""
-        @JvmField var number: String = ""
-        @JvmField var key: String = ""
+        @JvmField
+        var name: String = ""
+        @JvmField
+        var number: String = ""
+        @JvmField
+        var key: String = ""
     }
 }

@@ -2,7 +2,6 @@ package com.wmods.wppenhacer.activities
 
 import android.content.ClipData
 import android.content.ClipboardManager
-import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.widget.Toast
@@ -42,7 +41,12 @@ class CrashReportActivity : BaseActivity() {
     private fun copyReport() {
         reportText = "${binding.tvCrashInfo.text}\n\n${binding.tvCrashTrace.text}"
         val clipboard = getSystemService(CLIPBOARD_SERVICE) as ClipboardManager
-        clipboard.setPrimaryClip(ClipData.newPlainText(getString(R.string.whatsapp_crash_report), reportText))
+        clipboard.setPrimaryClip(
+            ClipData.newPlainText(
+                getString(R.string.whatsapp_crash_report),
+                reportText
+            )
+        )
         Toast.makeText(this, R.string.copied_to_clipboard, Toast.LENGTH_SHORT).show()
     }
 

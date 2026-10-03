@@ -2,6 +2,7 @@ package com.wmods.wppenhacer.xposed.features.media
 
 import android.Manifest
 import android.app.Activity
+import android.content.SharedPreferences
 import android.content.pm.PackageManager
 import android.media.MediaRecorder
 import android.os.Build
@@ -10,17 +11,15 @@ import android.os.ParcelFileDescriptor
 import android.text.TextUtils
 import android.widget.Toast
 import androidx.core.content.ContextCompat
+import com.highcapable.kavaref.KavaRef.Companion.resolve
 import com.wmods.wppenhacer.xposed.bridge.WaeIIFace
 import com.wmods.wppenhacer.xposed.core.Feature
 import com.wmods.wppenhacer.xposed.core.FeatureLoader
 import com.wmods.wppenhacer.xposed.core.WppCore
 import com.wmods.wppenhacer.xposed.core.components.FMessageWpp
 import com.wmods.wppenhacer.xposed.core.devkit.Unobfuscator
+import com.wmods.wppenhacer.xposed.utils.ReflectionUtils
 import com.wmods.wppenhacer.xposed.utils.Utils
-import de.robv.android.xposed.XC_MethodHook
-import android.content.SharedPreferences 
-import de.robv.android.xposed.XposedBridge
-import de.robv.android.xposed.XposedHelpers
 import org.json.JSONArray
 import org.luckypray.dexkit.query.enums.StringMatchType
 import java.io.File
@@ -39,7 +38,7 @@ import java.util.concurrent.atomic.AtomicReference
 
 class CallRecording(
     loader: ClassLoader,
-    preferences:SharedPreferences
+    preferences: SharedPreferences
 ) : Feature(loader, preferences) {
 
     private val isRecording = AtomicBoolean(false)
@@ -60,7 +59,7 @@ class CallRecording(
 
     @Throws(Throwable::class)
     override fun doHook() {
-        if (!prefs.getBoolean("call_recording_enable", false)) {
+        if (!xprefs.getBoolean("call_recording_enable", false)) {
             logDebug("WaEnhancer: Call Recording is disabled")
             return
         }
@@ -82,33 +81,29 @@ class CallRecording(
             logDebug("WaEnhancer: Found VoiceServiceEventCallback: ${clsCallEventCallback.name}")
 
             try {
-                XposedBridge.hookAllMethods(
-                    clsCallEventCallback,
-                    "fieldstatsReady",
-                    object : XC_MethodHook() {
-                        override fun afterHookedMethod(param: MethodHookParam) {
-                            handleCallEnded("fieldstatsReady")
-                        }
+                clsCallEventCallback.resolve().method {
+                    name = "fieldstatsReady"
+                }.hookAll {
+                    after {
+                        handleCallEnded("fieldstatsReady")
                     }
-                )
+                }
                 hooksInstalled++
             } catch (e: Throwable) {
                 logDebug("WaEnhancer: Could not hook fieldstatsReady: ${e.message}")
             }
 
             try {
-                XposedBridge.hookAllMethods(
-                    clsCallEventCallback,
-                    "soundPortCreated",
-                    object : XC_MethodHook() {
-                        override fun afterHookedMethod(param: MethodHookParam) {
-                            logDebug("WaEnhancer: soundPortCreated - will record after 3s")
-                            extractUserJid(param.thisObject)
-                            isCallConnected.set(true)
-                            scheduleDelayedStart()
-                        }
+                clsCallEventCallback.resolve().method {
+                    name = "soundPortCreated"
+                }.hookAll {
+                    after {
+                        logDebug("WaEnhancer: soundPortCreated - will record after 3s")
+                        extractUserJid(instance)
+                        isCallConnected.set(true)
+                        scheduleDelayedStart()
                     }
-                )
+                }
                 hooksInstalled++
             } catch (e: Throwable) {
                 logDebug("WaEnhancer: Could not hook soundPortCreated: ${e.message}")
@@ -127,15 +122,13 @@ class CallRecording(
             if (Activity::class.java.isAssignableFrom(voipActivityClass)) {
                 logDebug("WaEnhancer: Found VoipActivity: ${voipActivityClass.name}")
 
-                XposedBridge.hookAllMethods(
-                    voipActivityClass,
-                    "onDestroy",
-                    object : XC_MethodHook() {
-                        override fun beforeHookedMethod(param: MethodHookParam) {
-                            handleCallEnded("VoipActivity.onDestroy")
-                        }
+                voipActivityClass.resolve().method {
+                    name = "onDestroy"
+                }.hookAll {
+                    before {
+                        handleCallEnded("VoipActivity.onDestroy")
                     }
-                )
+                }
                 hooksInstalled++
             }
         } catch (e: Throwable) {
@@ -186,10 +179,10 @@ class CallRecording(
         if (callback == null) return
 
         try {
-            val callInfo = XposedHelpers.callMethod(callback, "getCallInfo") ?: return
+            val callInfo = ReflectionUtils.callMethod(callback, "getCallInfo") ?: return
 
             val peerJid = runCatching {
-                XposedHelpers.callMethod(callInfo, "getPeerJid")
+                ReflectionUtils.callMethod(callInfo, "getPeerJid")
             }.getOrNull()
 
             if (peerJid != null && setCurrentUserJid(peerJid, "UserJid")) {
@@ -197,7 +190,7 @@ class CallRecording(
             }
 
             val participantsObj = runCatching {
-                XposedHelpers.getObjectField(callInfo, "participants")
+                ReflectionUtils.getObjectField(callInfo, "participants")
             }.getOrNull()
 
             if (participantsObj is Map<*, *>) {
@@ -277,7 +270,11 @@ class CallRecording(
                 return
             }
 
-            if (ContextCompat.checkSelfPermission(app, Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED) {
+            if (ContextCompat.checkSelfPermission(
+                    app,
+                    Manifest.permission.RECORD_AUDIO
+                ) != PackageManager.PERMISSION_GRANTED
+            ) {
                 logDebug("WaEnhancer: No RECORD_AUDIO permission")
                 return
             }
@@ -293,7 +290,7 @@ class CallRecording(
             val defaultPath = Environment
                 .getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
                 .absolutePath
-            val settingsPath = prefs.getString("call_recording_path", defaultPath) ?: defaultPath
+            val settingsPath = xprefs.getString("call_recording_path", defaultPath) ?: defaultPath
 
             val parentDir = File(settingsPath, "WA Call Recordings")
             val appDir = File(parentDir, appName)
@@ -307,7 +304,7 @@ class CallRecording(
             outputPfdRef.set(outputTarget.parcelFileDescriptor)
             outputStreamRef.set(outputTarget.outputStream)
 
-            if (prefs.getBoolean("call_recording_use_root", false)) {
+            if (xprefs.getBoolean("call_recording_use_root", false)) {
                 grantVoiceCallPermission()
             }
 
@@ -328,7 +325,8 @@ class CallRecording(
                 "MIC"
             )
 
-            val recorderSelection = createStartedRecorder(audioSources, sourceNames, outputTarget.fd)
+            val recorderSelection =
+                createStartedRecorder(audioSources, sourceNames, outputTarget.fd)
             if (recorderSelection == null) {
                 logDebug("WaEnhancer: All audio sources failed")
                 closeOutputResources(deleteOutputFile = false)
@@ -345,7 +343,7 @@ class CallRecording(
 
             logDebug("WaEnhancer: Recording started (${recorderSelection.sourceName}): ${outputTarget.file.absolutePath}")
 
-            if (prefs.getBoolean("call_recording_toast", false)) {
+            if (xprefs.getBoolean("call_recording_toast", false)) {
                 Utils.showToast("Recording started", Toast.LENGTH_SHORT)
             }
         } catch (e: Exception) {
@@ -463,8 +461,11 @@ class CallRecording(
                 Utils.scanFile(outputFile)
             }
 
-            if (prefs.getBoolean("call_recording_toast", false)) {
-                Utils.showToast(if (saved) "Recording saved!" else "Recording failed", Toast.LENGTH_SHORT)
+            if (xprefs.getBoolean("call_recording_toast", false)) {
+                Utils.showToast(
+                    if (saved) "Recording saved!" else "Recording failed",
+                    Toast.LENGTH_SHORT
+                )
             }
 
             currentUserJid.set(null)
@@ -564,12 +565,12 @@ class CallRecording(
 
     private fun shouldRecord(phoneNumber: String?): Boolean {
         try {
-            val mode = prefs.getString("call_recording_mode", "0")?.toIntOrNull() ?: 0
+            val mode = xprefs.getString("call_recording_mode", "0")?.toIntOrNull() ?: 0
 
             if (mode == 0) return true
 
-            val blacklist = prefs.getString("call_recording_blacklist", "[]")
-            val whitelist = prefs.getString("call_recording_whitelist", "[]")
+            val blacklist = xprefs.getString("call_recording_blacklist", "[]")
+            val whitelist = xprefs.getString("call_recording_whitelist", "[]")
 
             return when (mode) {
                 2 -> {

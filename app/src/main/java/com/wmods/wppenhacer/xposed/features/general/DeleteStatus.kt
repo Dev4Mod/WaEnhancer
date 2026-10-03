@@ -1,5 +1,6 @@
 package com.wmods.wppenhacer.xposed.features.general
 
+import android.content.SharedPreferences
 import android.view.Menu
 import android.view.MenuItem
 import com.wmods.wppenhacer.R
@@ -8,16 +9,18 @@ import com.wmods.wppenhacer.xposed.core.WppCore
 import com.wmods.wppenhacer.xposed.core.db.MessageStore
 import com.wmods.wppenhacer.xposed.core.devkit.Unobfuscator
 import com.wmods.wppenhacer.xposed.features.providers.MenuStatusProvider
-import com.wmods.wppenhacer.xposed.utils.Utils
-import android.content.SharedPreferences
-import android.widget.Toast
 import org.luckypray.dexkit.query.enums.StringMatchType
 
-class DeleteStatus(classLoader: ClassLoader, preferences:SharedPreferences) : Feature(classLoader, preferences) {
+class DeleteStatus(classLoader: ClassLoader, preferences: SharedPreferences) :
+    Feature(classLoader, preferences) {
 
     @Throws(Throwable::class)
     override fun doHook() {
-        val statusPlaybackActivityClass = Unobfuscator.findFirstClassUsingName(classLoader, StringMatchType.EndsWith, "StatusPlaybackActivity")
+        val statusPlaybackActivityClass = Unobfuscator.findFirstClassUsingName(
+            classLoader,
+            StringMatchType.EndsWith,
+            "StatusPlaybackActivity"
+        )
 
         val item = object : MenuStatusProvider.Provider {
 
@@ -32,7 +35,10 @@ class DeleteStatus(classLoader: ClassLoader, preferences:SharedPreferences) : Fe
                 val messageId = statusData.currentItem.messageID
 
                 MessageStore.getInstance().deleteStatusByMessageKey(messageId) { success ->
-                    if (success && activity != null && statusPlaybackActivityClass.isInstance(activity)) {
+                    if (success && activity != null && statusPlaybackActivityClass.isInstance(
+                            activity
+                        )
+                    ) {
                         activity.runOnUiThread {
                             if (activity.isFinishing || activity.isDestroyed) return@runOnUiThread
                             val itemList = statusData.getCurrentItemList()
@@ -42,7 +48,10 @@ class DeleteStatus(classLoader: ClassLoader, preferences:SharedPreferences) : Fe
                                 activity.finish()
                             } else {
                                 activity.recreate()
-                                activity.overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out)
+                                activity.overridePendingTransition(
+                                    android.R.anim.fade_in,
+                                    android.R.anim.fade_out
+                                )
                             }
                         }
                     }

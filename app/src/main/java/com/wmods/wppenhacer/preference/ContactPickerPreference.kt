@@ -4,14 +4,13 @@ import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.util.AttributeSet
+import androidx.core.content.edit
 import androidx.preference.Preference
 import androidx.preference.PreferenceManager
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.wmods.wppenhacer.R
 import com.wmods.wppenhacer.utils.WhatsAppContactPickerLauncher
 import com.wmods.wppenhacer.xposed.utils.Utils
-import java.util.ArrayList
-import androidx.core.content.edit
 
 class ContactPickerPreference : Preference, Preference.OnPreferenceClickListener {
     private var summaryOff: CharSequence? = null
@@ -22,12 +21,16 @@ class ContactPickerPreference : Preference, Preference.OnPreferenceClickListener
         init(context, attrs)
     }
 
-    constructor(context: Context, attrs: AttributeSet?, defStyleAttr: Int) : super(context, attrs, defStyleAttr) {
+    constructor(context: Context, attrs: AttributeSet?, defStyleAttr: Int) : super(
+        context,
+        attrs,
+        defStyleAttr
+    ) {
         init(context, attrs)
     }
 
     constructor(context: Context, attrs: AttributeSet?, defStyleAttr: Int, defStyleRes: Int) :
-        super(context, attrs, defStyleAttr, defStyleRes) {
+            super(context, attrs, defStyleAttr, defStyleRes) {
         init(context, attrs)
     }
 
@@ -37,7 +40,11 @@ class ContactPickerPreference : Preference, Preference.OnPreferenceClickListener
         val installedPackages = WhatsAppContactPickerLauncher.getInstalledWhatsAppPackages(context)
         when (installedPackages.size) {
             1 -> startSelectContacts(installedPackages[0], preferenceKey, selectedContacts)
-            in 2..Int.MAX_VALUE -> showPackageSelectionDialog(installedPackages, preferenceKey, selectedContacts)
+            in 2..Int.MAX_VALUE -> showPackageSelectionDialog(
+                installedPackages,
+                preferenceKey,
+                selectedContacts
+            )
         }
         return true
     }
@@ -53,7 +60,11 @@ class ContactPickerPreference : Preference, Preference.OnPreferenceClickListener
         MaterialAlertDialogBuilder(context)
             .setTitle("Select WhatsApp app")
             .setItems(items) { _, which ->
-                startSelectContacts(installedPackages[which], preferenceKey, ArrayList(selectedContacts))
+                startSelectContacts(
+                    installedPackages[which],
+                    preferenceKey,
+                    ArrayList(selectedContacts)
+                )
             }
             .show()
     }
@@ -92,7 +103,9 @@ class ContactPickerPreference : Preference, Preference.OnPreferenceClickListener
         val namesString = PreferenceManager.getDefaultSharedPreferences(context)
             .getString(preferenceKey, "").orEmpty()
         if (namesString.length > 2) {
-            contacts = ArrayList(namesString.substring(1, namesString.length - 1).split(", ").map(String::trim))
+            contacts = ArrayList(
+                namesString.substring(1, namesString.length - 1).split(", ").map(String::trim)
+            )
         }
         updateSummary()
     }

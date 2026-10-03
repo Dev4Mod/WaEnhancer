@@ -3,6 +3,7 @@ package com.wmods.wppenhacer.xposed.features.media
 import android.annotation.SuppressLint
 import android.app.Dialog
 import android.content.Context
+import android.content.SharedPreferences
 import android.graphics.BitmapFactory
 import android.graphics.Color
 import android.graphics.Matrix
@@ -32,6 +33,7 @@ import android.widget.VideoView
 import androidx.core.graphics.drawable.toDrawable
 import androidx.core.graphics.toColorInt
 import androidx.core.view.isVisible
+import com.highcapable.kavaref.KavaRef.Companion.resolve
 import com.wmods.wppenhacer.R
 import com.wmods.wppenhacer.xposed.core.Feature
 import com.wmods.wppenhacer.xposed.core.WppCore
@@ -43,10 +45,6 @@ import com.wmods.wppenhacer.xposed.utils.DesignUtils
 import com.wmods.wppenhacer.xposed.utils.HKDF
 import com.wmods.wppenhacer.xposed.utils.ReflectionUtils
 import com.wmods.wppenhacer.xposed.utils.Utils
-import de.robv.android.xposed.XC_MethodHook
-import android.content.SharedPreferences 
-import de.robv.android.xposed.XposedBridge
-import de.robv.android.xposed.XposedHelpers
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import java.io.File
@@ -63,7 +61,7 @@ import javax.crypto.spec.SecretKeySpec
 
 class MediaPreview(
     loader: ClassLoader,
-    preferences:SharedPreferences
+    preferences: SharedPreferences
 ) : Feature(loader, preferences) {
 
 
@@ -94,41 +92,55 @@ class MediaPreview(
     private var currentVideoView: VideoView? = null
     private var currentMediaPlayer: MediaPlayer? = null
     private var currentSpeed = 1.0f
+
     @Volatile
     private var lastProgressPostAt = 0L
 
     override fun doHook() {
-        if (!prefs.getBoolean("media_preview", true)) return
+        if (!xprefs.getBoolean("media_preview", true)) return
 
         Others.propsBoolean[24205] = false
 
         val layoutClass = Unobfuscator.loadLayoutClass(classLoader)
-        XposedHelpers.findAndHookMethod(View::class.java,"onAttachedToWindow",
-            object : XC_MethodHook() {
-            override fun afterHookedMethod(param: MethodHookParam) {
-                if (!layoutClass.isInstance(param.thisObject))return
-                val view = param.thisObject as View
+        View::class.java.resolve().firstMethod {
+            name = "onAttachedToWindow"
+            superclass()
+            emptyParameters()
+        }.hook {
+            after {
+                if (!layoutClass.isInstance(instance)) return@after
+                val view = instance as View
                 view.postDelayed(
                     {
-                        var resourceNames = listOf("invisible_press_surface","video_control_frame_view")
-                        for (rn in resourceNames){
-                            val viewGroup = view.findViewById<View>(Utils.getID(rn, "id")) ?: continue
-                            if (!viewGroup.isVisible)continue
+                        var resourceNames =
+                            listOf("invisible_press_surface", "video_control_frame_view")
+                        for (rn in resourceNames) {
+                            val viewGroup =
+                                view.findViewById<View>(Utils.getID(rn, "id")) ?: continue
+                            if (!viewGroup.isVisible) continue
                             logDebug("Found Surface: $viewGroup")
-                            handlePressSurface(view,viewGroup)
+                            handlePressSurface(view, viewGroup)
                             return@postDelayed
                         }
-                        resourceNames = listOf("control_frame_new","control_frame","control_frame_view","mms_control_frame_new","mms_control_frame")
-                        for (rn in resourceNames){
-                            val viewGroup = view.findViewById<View>(Utils.getID(rn, "id")) ?: continue
-                            if (!viewGroup.isVisible)continue
+                        resourceNames = listOf(
+                            "control_frame_new",
+                            "control_frame",
+                            "control_frame_view",
+                            "mms_control_frame_new",
+                            "mms_control_frame"
+                        )
+                        for (rn in resourceNames) {
+                            val viewGroup =
+                                view.findViewById<View>(Utils.getID(rn, "id")) ?: continue
+                            if (!viewGroup.isVisible) continue
                             logDebug("Found ControlFrame: $viewGroup")
-                            handleMediaControlFrame(view,viewGroup)
+                            handleMediaControlFrame(view, viewGroup)
                             return@postDelayed
                         }
-                    },200)
+                    }, 200
+                )
             }
-        })
+        }
 
     }
 
@@ -219,7 +231,7 @@ class MediaPreview(
 
     private fun startPreview(messageSource: View, context: Context) {
         val fMessage = runCatching {
-            val objmessage = XposedHelpers.callMethod(messageSource, "getFMessage")
+            val objmessage = ReflectionUtils.callMethod(messageSource, "getFMessage")
             FMessageWpp(objmessage)
         }.onFailure {
             runCatching {
@@ -229,7 +241,7 @@ class MediaPreview(
             }.getOrNull()
         }.getOrNull()
 
-        if (fMessage == null){
+        if (fMessage == null) {
             Utils.showToast("[MediaPreview]Error in find FMessage!")
             return
         }
@@ -264,11 +276,16 @@ class MediaPreview(
 
                         val mainHandler = Handler(Looper.getMainLooper())
                         mainHandler.post {
-                            dialog = Dialog(context, android.R.style.Theme_Black_NoTitleBar_Fullscreen).apply {
+                            dialog = Dialog(
+                                context,
+                                android.R.style.Theme_Black_NoTitleBar_Fullscreen
+                            ).apply {
                                 requestWindowFeature(Window.FEATURE_NO_TITLE)
                                 setCancelable(true)
                                 window?.let { window ->
-                                    window.setBackgroundDrawable("#E6000000".toColorInt().toDrawable())
+                                    window.setBackgroundDrawable(
+                                        "#E6000000".toColorInt().toDrawable()
+                                    )
                                     window.setLayout(
                                         WindowManager.LayoutParams.MATCH_PARENT,
                                         WindowManager.LayoutParams.MATCH_PARENT
@@ -557,7 +574,8 @@ class MediaPreview(
 
                         if (contentLength > 0) {
                             val progress = ((totalBytesRead * 100) / contentLength).toInt()
-                            val sizeInfo = "${formatSize(totalBytesRead)} / ${formatSize(contentLength)}"
+                            val sizeInfo =
+                                "${formatSize(totalBytesRead)} / ${formatSize(contentLength)}"
                             postDownloadProgress(progressBar, progressText, progress, sizeInfo)
                         }
                     }
@@ -591,7 +609,11 @@ class MediaPreview(
     }
 
     @SuppressLint("ClickableViewAccessibility")
-    private fun displayImage(context: Context, container: FrameLayout, bitmap: android.graphics.Bitmap?) {
+    private fun displayImage(
+        context: Context,
+        container: FrameLayout,
+        bitmap: android.graphics.Bitmap?
+    ) {
         try {
             if (bitmap == null) {
                 Utils.showToast("Failed to load image", Toast.LENGTH_SHORT)

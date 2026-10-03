@@ -11,10 +11,10 @@ import android.widget.EditText
 import android.widget.LinearLayout
 import android.widget.SeekBar
 import android.widget.TextView
+import androidx.core.graphics.toColorInt
 import com.wmods.wppenhacer.R
 import com.wmods.wppenhacer.xposed.core.components.AlertDialogWpp
 import com.wmods.wppenhacer.xposed.utils.DesignUtils
-import androidx.core.graphics.toColorInt
 
 class SimpleColorPickerDialog(
     context: Context,
@@ -56,7 +56,13 @@ class SimpleColorPickerDialog(
             override fun onProgressChanged(seekBar: SeekBar, progress: Int, fromUser: Boolean) {
                 if (!isUpdating) {
                     isUpdating = true
-                    updateColorPreview(borderDrawable, redSeekBar, greenSeekBar, blueSeekBar, hexInput)
+                    updateColorPreview(
+                        borderDrawable,
+                        redSeekBar,
+                        greenSeekBar,
+                        blueSeekBar,
+                        hexInput
+                    )
                     isUpdating = false
                 }
             }
@@ -69,7 +75,8 @@ class SimpleColorPickerDialog(
         blueSeekBar.setOnSeekBarChangeListener(seekBarListener)
 
         hexInput.addTextChangedListener(object : TextWatcher {
-            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) = Unit
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) =
+                Unit
 
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
                 if (!isUpdating && s?.length == 7 && s[0] == '#') {

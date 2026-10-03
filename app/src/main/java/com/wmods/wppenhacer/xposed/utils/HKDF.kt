@@ -22,7 +22,12 @@ abstract class HKDF {
         return deriveSecrets(arr_b, ByteArray(0x20), arr_b1, v)
     }
 
-    fun deriveSecrets(inputKeyMaterial: ByteArray, salt: ByteArray, info: ByteArray?, outputLength: Int): ByteArray {
+    fun deriveSecrets(
+        inputKeyMaterial: ByteArray,
+        salt: ByteArray,
+        info: ByteArray?,
+        outputLength: Int
+    ): ByteArray {
         val derivedKey: ByteArray
         try {
             val mac = Mac.getInstance("HmacSHA256")

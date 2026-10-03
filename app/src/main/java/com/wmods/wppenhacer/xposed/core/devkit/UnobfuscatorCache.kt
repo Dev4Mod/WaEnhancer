@@ -12,8 +12,7 @@ import com.wmods.wppenhacer.BuildConfig
 import com.wmods.wppenhacer.R
 import com.wmods.wppenhacer.xposed.utils.ReflectionUtils
 import com.wmods.wppenhacer.xposed.utils.Utils
-import de.robv.android.xposed.XposedBridge
-import de.robv.android.xposed.XposedHelpers
+import com.wmods.wppenhacer.xposed.utils.YukiLog
 import org.json.JSONArray
 import org.json.JSONException
 import org.json.JSONObject
@@ -22,8 +21,8 @@ import java.lang.reflect.Constructor
 import java.lang.reflect.Field
 import java.lang.reflect.Method
 import java.util.Locale
-import java.util.concurrent.CountDownLatch
 import java.util.concurrent.ConcurrentHashMap
+import java.util.concurrent.CountDownLatch
 import java.util.concurrent.Executors
 import java.util.concurrent.atomic.AtomicReference
 
@@ -127,7 +126,7 @@ class UnobfuscatorCache private constructor(private val mApplication: Applicatio
                 }
             }
         } catch (e: Exception) {
-            XposedBridge.log(e)
+            YukiLog.log(e)
             reverseResourceMap.clear()
         }
         if (reverseResourceMap.isEmpty()) {
@@ -170,11 +169,11 @@ class UnobfuscatorCache private constructor(private val mApplication: Applicatio
                 }
             }
             latch.await()
-            XposedBridge.log(
+            YukiLog.log(
                 "String cache saved in ${System.currentTimeMillis() - currentTime}ms"
             )
         } catch (e: Exception) {
-            XposedBridge.log(e)
+            YukiLog.log(e)
         } finally {
             executor.shutdown()
         }
@@ -186,7 +185,7 @@ class UnobfuscatorCache private constructor(private val mApplication: Applicatio
             System.gc()
         }
         val s = search.lowercase(Locale.ROOT).replace("\\s".toRegex(), "")
-        XposedBridge.log("need search obsfucate: $s")
+        YukiLog.log("need search obsfucate: $s")
         return reverseResourceMap[s]
     }
 
@@ -338,7 +337,7 @@ class UnobfuscatorCache private constructor(private val mApplication: Applicatio
             try {
                 jsonObject.put(mapKey, fieldToJson(field))
             } catch (e: JSONException) {
-                XposedBridge.log(e)
+                YukiLog.log(e)
             }
         }
         sPrefsCacheHooks.edit { putString(key, jsonObject.toString()) }
@@ -355,11 +354,11 @@ class UnobfuscatorCache private constructor(private val mApplication: Applicatio
                 try {
                     map[mapKey] = getFieldFromJson(loader, jsonObject.getJSONObject(mapKey))
                 } catch (e: Exception) {
-                    XposedBridge.log(e)
+                    YukiLog.log(e)
                 }
             }
         } catch (e: JSONException) {
-            XposedBridge.log(e)
+            YukiLog.log(e)
         }
         return map
     }
@@ -413,7 +412,7 @@ class UnobfuscatorCache private constructor(private val mApplication: Applicatio
 
     private fun getFieldFromJson(loader: ClassLoader, value: JSONObject): Field {
         val cls = ReflectionUtils.findClass(value.getString("class"), loader)
-        return XposedHelpers.findField(cls, value.getString("name"))
+        return ReflectionUtils.findField(cls, value.getString("name"))
     }
 
     private fun methodToJson(method: Method): JSONObject {
@@ -431,7 +430,7 @@ class UnobfuscatorCache private constructor(private val mApplication: Applicatio
     private fun getMethodFromJson(loader: ClassLoader, value: JSONObject): Method {
         val cls = ReflectionUtils.findClass(value.getString("class"), loader)
         val paramTypes = classArrayFromJson(loader, value.getJSONArray("params"))
-        return XposedHelpers.findMethodExact(cls, value.getString("name"), *paramTypes)
+        return ReflectionUtils.findMethodExact(cls, value.getString("name"), *paramTypes)
     }
 
     private fun classToJson(cls: Class<*>): JSONObject {
@@ -445,7 +444,7 @@ class UnobfuscatorCache private constructor(private val mApplication: Applicatio
     }
 
     private fun getClassFromJson(loader: ClassLoader, value: JSONObject): Class<*> {
-        return XposedHelpers.findClass(value.getString("class"), loader)
+        return ReflectionUtils.findClass(value.getString("class"), loader)
     }
 
     private fun classArrayToJson(classes: Array<Class<*>>): JSONArray {
@@ -481,9 +480,9 @@ class UnobfuscatorCache private constructor(private val mApplication: Applicatio
             return result
         }
         val constructorJson = JSONObject(value)
-        val cls = XposedHelpers.findClass(constructorJson.getString("class"), loader)
+        val cls = ReflectionUtils.findClass(constructorJson.getString("class"), loader)
         val paramTypes = classArrayFromJson(loader, constructorJson.getJSONArray("params"))
-        return XposedHelpers.findConstructorExact(cls, *paramTypes)
+        return ReflectionUtils.findConstructorExact(cls, *paramTypes)
     }
 
     private fun saveConstructor(key: String, constructor: Constructor<*>) {

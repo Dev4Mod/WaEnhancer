@@ -20,9 +20,7 @@ import android.graphics.drawable.TransitionDrawable
 import com.wmods.wppenhacer.xposed.core.devkit.Unobfuscator
 import com.wmods.wppenhacer.xposed.utils.ReflectionUtils
 import com.wmods.wppenhacer.xposed.utils.Utils
-import de.robv.android.xposed.XposedBridge
-import de.robv.android.xposed.XposedHelpers
-import java.util.HashMap
+import com.wmods.wppenhacer.xposed.utils.YukiLog
 
 object DrawableColors {
     private val ninePatchColors = HashMap<Bitmap, Int>()
@@ -35,9 +33,11 @@ object DrawableColors {
             is StateListDrawable -> {
                 val count = StateListDrawableCompact.getStateCount(drawable)
                 for (index in 0 until count) {
-                    StateListDrawableCompact.getStateDrawable(drawable, index)?.let { replaceColor(it, colors) }
+                    StateListDrawableCompact.getStateDrawable(drawable, index)
+                        ?.let { replaceColor(it, colors) }
                 }
             }
+
             is GradientDrawable -> {
                 drawable.colors?.let { gradientColors ->
                     for (index in gradientColors.indices) {
@@ -48,49 +48,60 @@ object DrawableColors {
                     drawable.colors = gradientColors
                 }
             }
+
             is DrawableWrapper -> replaceColor(drawable.drawable, colors)
             is NinePatchDrawable -> {
                 val color = getNinePatchDrawableColor(drawable)
                 val newColor = IColors.getFromIntColor(color, colors)
                 if (color != newColor) drawable.setTintList(ColorStateList.valueOf(newColor))
             }
+
             is ColorDrawable -> {
                 val color = getColorDrawableColor(drawable)
                 val newColor = IColors.getFromIntColor(color, colors)
                 if (newColor != color) drawable.color = newColor
             }
+
             is ShapeDrawable -> {
                 val color = getShapeDrawableColor(drawable)
                 val newColor = IColors.getFromIntColor(color, colors)
                 if (color != newColor) drawable.paint.color = newColor
             }
+
             is LevelListDrawable -> {
-                val count = XposedHelpers.callMethod(drawable, "getNumberOfLevels") as Int
+                val count = ReflectionUtils.callMethod(drawable, "getNumberOfLevels") as Int
                 for (index in 0 until count) {
-                    val child = XposedHelpers.callMethod(drawable, "getDrawable", index) as? Drawable
+                    val child =
+                        ReflectionUtils.callMethod(drawable, "getDrawable", index) as? Drawable
                     if (child != null) replaceColor(child, colors)
                 }
             }
+
             is TransitionDrawable -> {
                 for (index in 0 until drawable.numberOfLayers) {
                     drawable.getDrawable(index)?.let { replaceColor(it, colors) }
                 }
             }
+
             is LayerDrawable -> {
                 val state = drawable.constantState!!
-                val children = XposedHelpers.getObjectField(state, "mChildren") as Array<*>
+                val children = ReflectionUtils.getObjectField(state, "mChildren") as Array<*>
                 children.forEach { childState ->
                     if (childState != null) {
-                        val child = XposedHelpers.getObjectField(childState, "mDrawable") as? Drawable
+                        val child =
+                            ReflectionUtils.getObjectField(childState, "mDrawable") as? Drawable
                         replaceColor(child, colors)
                     }
                 }
             }
+
             is DrawableContainer -> {
                 val state = drawable.constantState!!
-                val children = XposedHelpers.getObjectField(state, "mDrawables") as Array<Drawable?>
+                val children =
+                    ReflectionUtils.getObjectField(state, "mDrawables") as Array<Drawable?>
                 children.forEach { replaceColor(it, colors) }
             }
+
             else -> replaceMaterialShapeDrawable(drawable, colors)
         }
     }
@@ -99,12 +110,14 @@ object DrawableColors {
         val shapeClass = getMaterialShapeDrawable() ?: return
         if (!shapeClass.isInstance(drawable)) return
 
-        val state = XposedHelpers.callMethod(drawable, "getConstantState") as Drawable.ConstantState
+        val state =
+            ReflectionUtils.callMethod(drawable, "getConstantState") as Drawable.ConstantState
         val colorFields = ReflectionUtils.findAllFieldsUsingFilter(shapeClass) { field ->
             field.type == ColorStateList::class.java
         }
         colorFields.forEach { field ->
-            val stateList = ReflectionUtils.getObjectField(field, state) as? ColorStateList ?: return@forEach
+            val stateList =
+                ReflectionUtils.getObjectField(field, state) as? ColorStateList ?: return@forEach
             val color = stateList.defaultColor
             val newColor = IColors.getFromIntColor(color, colors)
             if (color != newColor) {
@@ -144,14 +157,14 @@ object DrawableColors {
     }
 
     private fun getInsetDrawableColor(drawable: InsetDrawable): Int {
-        val inner = XposedHelpers.getObjectField(drawable, "mDrawable") as? Drawable
+        val inner = ReflectionUtils.getObjectField(drawable, "mDrawable") as? Drawable
         return getColor(inner)
     }
 
     @JvmStatic
     fun getNinePatchDrawableColor(drawable: NinePatchDrawable): Int {
         val state = drawable.constantState!!
-        val ninePatch = XposedHelpers.getObjectField(state, "mNinePatch") as NinePatch
+        val ninePatch = ReflectionUtils.getObjectField(state, "mNinePatch") as NinePatch
         val bitmap = ninePatch.bitmap
         ninePatchColors[bitmap]?.let { return it }
 
@@ -176,10 +189,10 @@ object DrawableColors {
     private fun getRippleDrawableColor(drawable: RippleDrawable): Int {
         val state = drawable.constantState
         return try {
-            val color = XposedHelpers.getObjectField(state, "mColor") as ColorStateList
+            val color = ReflectionUtils.getObjectField(state, "mColor") as ColorStateList
             color.defaultColor
         } catch (exception: IllegalArgumentException) {
-            XposedBridge.log(exception)
+            YukiLog.log(exception)
             0
         }
     }

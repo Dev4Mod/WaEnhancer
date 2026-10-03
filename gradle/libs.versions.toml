@@ -9,6 +9,9 @@ flatbuffers = "25.2.10"
 jstyleparser = "4.0.1"
 okhttp = "5.4.0"
 xposed-legacy = "82"
+yukihookapi = "1.3.2"
+kavaref-core = "1.0.3"
+kavaref-extension = "1.0.3"
 agp = "9.3.1"
 colorpicker = "1.1.0"
 roomRuntime = "2.8.4"
@@ -30,6 +33,10 @@ filepicker = { module = "io.github.tutorialsandroid:filepicker", version.ref = "
 flatbuffers = { module = "com.google.flatbuffers:flatbuffers-java", version.ref = "flatbuffers" }
 jstyleparser = { module = "net.sf.cssbox:jstyleparser", version.ref = "jstyleparser" }
 libxposed-legacy = { group = "de.robv.android.xposed", name = "api", version.ref = "xposed-legacy" }
+yukihookapi-api = { module = "com.highcapable.yukihookapi:api", version.ref = "yukihookapi" }
+yukihookapi-ksp-xposed = { module = "com.highcapable.yukihookapi:ksp-xposed", version.ref = "yukihookapi" }
+kavaref-core = { module = "com.highcapable.kavaref:kavaref-core", version.ref = "kavaref-core" }
+kavaref-extension = { module = "com.highcapable.kavaref:kavaref-extension", version.ref = "kavaref-extension" }
 
 androidx-activity = { module = "androidx.activity:activity", version = "1.13.0" }
 androidx-constraintlayout = { module = "androidx.constraintlayout:constraintlayout", version = "2.2.1" }

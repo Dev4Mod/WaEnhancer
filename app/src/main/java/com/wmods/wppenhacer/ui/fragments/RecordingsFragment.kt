@@ -25,7 +25,6 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.io.File
 import java.io.IOException
-import java.util.LinkedHashSet
 
 class RecordingsFragment : Fragment(), RecordingsAdapter.OnRecordingActionListener {
 
@@ -83,19 +82,29 @@ class RecordingsFragment : Fragment(), RecordingsAdapter.OnRecordingActionListen
         val dirs = ArrayList<File>()
         val addedPaths = LinkedHashSet<String>()
 
-        addBaseDir(dirs, addedPaths, File(
-            Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS),
-            "WA Call Recordings"
-        ))
+        addBaseDir(
+            dirs, addedPaths, File(
+                Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS),
+                "WA Call Recordings"
+            )
+        )
 
         if (!configuredPath.isNullOrEmpty()) {
             addBaseDir(dirs, addedPaths, File(configuredPath, "WA Call Recordings"))
         }
 
-        addBaseDir(dirs, addedPaths, File(Environment.getExternalStorageDirectory(), "WA Call Recordings"))
+        addBaseDir(
+            dirs,
+            addedPaths,
+            File(Environment.getExternalStorageDirectory(), "WA Call Recordings")
+        )
         addBaseDir(dirs, addedPaths, File("/sdcard/Android/data/com.whatsapp/files/Recordings"))
         addBaseDir(dirs, addedPaths, File("/sdcard/Android/data/com.whatsapp.w4b/files/Recordings"))
-        addBaseDir(dirs, addedPaths, File(Environment.getExternalStorageDirectory(), "Music/WaEnhancer/Recordings"))
+        addBaseDir(
+            dirs,
+            addedPaths,
+            File(Environment.getExternalStorageDirectory(), "Music/WaEnhancer/Recordings")
+        )
         return dirs
     }
 
@@ -155,7 +164,10 @@ class RecordingsFragment : Fragment(), RecordingsAdapter.OnRecordingActionListen
                 traverseDirectory(file, result)
             } else {
                 val name = file.name.lowercase()
-                if (name.endsWith(".wav") || name.endsWith(".mp3") || name.endsWith(".aac") || name.endsWith(".m4a")) {
+                if (name.endsWith(".wav") || name.endsWith(".mp3") || name.endsWith(".aac") || name.endsWith(
+                        ".m4a"
+                    )
+                ) {
                     result.add(Recording(file))
                 }
             }
@@ -206,7 +218,8 @@ class RecordingsFragment : Fragment(), RecordingsAdapter.OnRecordingActionListen
                         if (deleted) {
                             loadRecordings()
                         } else {
-                            Toast.makeText(requireContext(), "Failed to delete", Toast.LENGTH_SHORT).show()
+                            Toast.makeText(requireContext(), "Failed to delete", Toast.LENGTH_SHORT)
+                                .show()
                         }
                     }
                 }
@@ -234,7 +247,8 @@ class RecordingsFragment : Fragment(), RecordingsAdapter.OnRecordingActionListen
             }
             startActivity(Intent.createChooser(intent, getString(R.string.share_recording)))
         } catch (e: Exception) {
-            Toast.makeText(requireContext(), "Error sharing: " + e.message, Toast.LENGTH_SHORT).show()
+            Toast.makeText(requireContext(), "Error sharing: " + e.message, Toast.LENGTH_SHORT)
+                .show()
         }
     }
 
@@ -257,7 +271,8 @@ class RecordingsFragment : Fragment(), RecordingsAdapter.OnRecordingActionListen
                     rec.file
                 )
                 uris.add(uri)
-            } catch (ignored: Exception) {}
+            } catch (ignored: Exception) {
+            }
         }
 
         if (uris.isNotEmpty()) {
@@ -287,7 +302,11 @@ class RecordingsFragment : Fragment(), RecordingsAdapter.OnRecordingActionListen
                         }
                     }
                     withContext(Dispatchers.Main) {
-                        Toast.makeText(requireContext(), "Deleted $deleted recordings", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(
+                            requireContext(),
+                            "Deleted $deleted recordings",
+                            Toast.LENGTH_SHORT
+                        ).show()
                         adapter.clearSelection()
                         loadRecordings()
                     }

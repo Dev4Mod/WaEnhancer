@@ -12,10 +12,9 @@ import android.view.ViewOutlineProvider
 import android.widget.FrameLayout
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import com.highcapable.kavaref.KavaRef.Companion.resolve
 import com.wmods.wppenhacer.xposed.core.Feature
 import com.wmods.wppenhacer.xposed.utils.Utils
-import de.robv.android.xposed.XC_MethodHook
-import de.robv.android.xposed.XposedHelpers
 import java.util.WeakHashMap
 
 class FloatingBottomBar(loader: ClassLoader, preferences: SharedPreferences) :
@@ -36,7 +35,7 @@ class FloatingBottomBar(loader: ClassLoader, preferences: SharedPreferences) :
     private val setupAttempts = WeakHashMap<ViewGroup, Int>()
 
     override fun doHook() {
-        if (!prefs.getBoolean("floating_bottom_bar", false)) return
+        if (!xprefs.getBoolean("floating_bottom_bar", false)) return
 
         val bottomNavId = Utils.getID("bottom_nav", "id")
         if (bottomNavId <= 0) return
@@ -44,35 +43,37 @@ class FloatingBottomBar(loader: ClassLoader, preferences: SharedPreferences) :
             Utils.getID(name, "id").takeIf { id -> id > 0 }
         }.toSet()
 
-        XposedHelpers.findAndHookMethod(
-            View::class.java,
-            "onAttachedToWindow",
-            object : XC_MethodHook() {
-                override fun afterHookedMethod(param: MethodHookParam) {
-                    val view = param.thisObject as? View ?: return
-                    if (view.id == bottomNavId) {
-                        val bar = view as? ViewGroup ?: return
-                        scheduleSetup(bar)
-                        return
-                    }
-                    if (view.id in fabIds) {
-                        view.post { positionFabAboveCurrentBar(view, bottomNavId) }
-                    }
+        View::class.java.resolve().firstMethod {
+            name = "onAttachedToWindow"
+            superclass()
+            emptyParameters()
+        }.hook {
+            after {
+                val view = instance as? View ?: return@after
+                if (view.id == bottomNavId) {
+                    val bar = view as? ViewGroup ?: return@after
+                    scheduleSetup(bar)
+                    return@after
                 }
-            })
+                if (view.id in fabIds) {
+                    view.post { positionFabAboveCurrentBar(view, bottomNavId) }
+                }
+            }
+        }
 
-        XposedHelpers.findAndHookMethod(
-            View::class.java,
-            "onDetachedFromWindow",
-            object : XC_MethodHook() {
-                override fun afterHookedMethod(param: MethodHookParam) {
-                    val view = param.thisObject as? View ?: return
-                    if (view.id != bottomNavId) return
-                    val bar = view as? ViewGroup ?: return
-                    setupAttempts.remove(bar)
-                    processedBars.remove(bar)
-                }
-            })
+        View::class.java.resolve().firstMethod {
+            name = "onDetachedFromWindow"
+            superclass()
+            emptyParameters()
+        }.hook {
+            after {
+                val view = instance as? View ?: return@after
+                if (view.id != bottomNavId) return@after
+                val bar = view as? ViewGroup ?: return@after
+                setupAttempts.remove(bar)
+                processedBars.remove(bar)
+            }
+        }
     }
 
     private fun scheduleSetup(bar: ViewGroup) {
@@ -207,7 +208,7 @@ class FloatingBottomBar(loader: ClassLoader, preferences: SharedPreferences) :
             Color.argb((STROKE_ALPHA * 255).toInt(), 255, 255, 255)
         }
         val radiusDp =
-            prefs.getInt("floating_bottom_bar_radius", CORNER_RADIUS_DP.toInt()).toFloat()
+            xprefs.getInt("floating_bottom_bar_radius", CORNER_RADIUS_DP.toInt()).toFloat()
         val radius = Utils.dipToPixels(radiusDp).toFloat()
 
         val background = GradientDrawable().apply {

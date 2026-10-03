@@ -1,6 +1,6 @@
 package com.wmods.wppenhacer.xposed.features.general
 
-import android.annotation.SuppressLint
+import android.content.SharedPreferences
 import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.Color
@@ -19,6 +19,7 @@ import android.widget.LinearLayout
 import android.widget.Toast
 import androidx.core.graphics.createBitmap
 import androidx.core.graphics.drawable.toDrawable
+import com.highcapable.kavaref.KavaRef.Companion.resolve
 import com.wmods.wppenhacer.R
 import com.wmods.wppenhacer.xposed.core.Feature
 import com.wmods.wppenhacer.xposed.core.WppCore
@@ -27,15 +28,10 @@ import com.wmods.wppenhacer.xposed.core.components.StatusItemWpp
 import com.wmods.wppenhacer.xposed.core.db.MessageHistoryStore
 import com.wmods.wppenhacer.xposed.core.devkit.Unobfuscator
 import com.wmods.wppenhacer.xposed.features.providers.MenuStatusProvider
-import com.wmods.wppenhacer.xposed.utils.DebugUtils
 import com.wmods.wppenhacer.xposed.utils.DesignUtils
 import com.wmods.wppenhacer.xposed.utils.ReflectionUtils
 import com.wmods.wppenhacer.xposed.utils.Utils
 import com.wmods.wppenhacer.xposed.utils.WaeCoroutineExceptionHandler
-import de.robv.android.xposed.XC_MethodHook
-import android.content.SharedPreferences 
-import de.robv.android.xposed.XposedBridge
-import de.robv.android.xposed.XposedHelpers
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -50,7 +46,7 @@ import java.util.concurrent.ConcurrentHashMap
 
 class SeenTick(
     loader: ClassLoader,
-    preferences:SharedPreferences
+    preferences: SharedPreferences
 ) : Feature(loader, preferences) {
 
     private val messageMap = ConcurrentHashMap<String, WeakReference<ImageView>>()
@@ -179,17 +175,15 @@ class SeenTick(
             logDebug("Error caching reflection: ${e.message}")
         }
 
-        XposedBridge.hookAllConstructors(
-            waJobManagerMethod?.declaringClass,
-            object : XC_MethodHook() {
-                override fun afterHookedMethod(param: MethodHookParam) {
-                    mWaJobManager = param.thisObject
-                }
-            })
+        waJobManagerMethod!!.declaringClass.resolve().constructor { }.hookAll {
+            after {
+                mWaJobManager = instance
+            }
+        }
 
         hookOnSendMessages()
 
-        val ticktype = prefs.getString("seentick", "0")?.toIntOrNull() ?: 0
+        val ticktype = xprefs.getString("seentick", "0")?.toIntOrNull() ?: 0
         if (ticktype == 0) return
 
         hookConversationScreen(ticktype)
@@ -206,33 +200,33 @@ class SeenTick(
         val replyContainerMethod = Unobfuscator.loadStatusPlaybackReplyContainer(classLoader)
 
         if (ticktype == 1) {
-            XposedBridge.hookMethod(viewButtonMethod, object : XC_MethodHook() {
-                override fun afterHookedMethod(param: MethodHookParam) {
-                    if (!prefs.getBoolean("hidestatusview", false)) return
+            viewButtonMethod.hook {
+                after {
+                    if (!xprefs.getBoolean("hidestatusview", false)) return@after
 
                     if (viewStatusField == null) {
                         viewStatusField =
-                            ReflectionUtils.findFieldUsingFilter(param.thisObject.javaClass) { f ->
+                            ReflectionUtils.findFieldUsingFilter(instance.javaClass) { f ->
                                 f.type == ifaceKeyStatusItemClass
                             }
                     }
-                    val ifaceStatusItem = viewStatusField.get(param.thisObject)
+                    val ifaceStatusItem = viewStatusField.get(instance)
                     val fstatus = StatusItemWpp.from(ifaceStatusItem)
 
                     if (fstatus == null) {
                         log("FMessage is null")
-                        return
+                        return@after
                     }
 
-                    if (fstatus.isFromMe) return
+                    if (fstatus.isFromMe) return@after
 
                     val fieldViewContainer =
-                        ReflectionUtils.findFieldUsingFilter(param.thisObject.javaClass) {
+                        ReflectionUtils.findFieldUsingFilter(instance.javaClass) {
                             replyContainerMethod.declaringClass.isAssignableFrom(it.type)
                         }
                     val replyContainer =
-                        replyContainerMethod.invoke(fieldViewContainer.get(param.thisObject))
-                    val replyView = XposedHelpers.callMethod(replyContainer, "A01") as View
+                        replyContainerMethod.invoke(fieldViewContainer.get(instance))
+                    val replyView = ReflectionUtils.callMethod(replyContainer, "A01") as View
                     val contentView =
                         replyView.findViewById<LinearLayout>(
                             Utils.getID(
@@ -307,7 +301,7 @@ class SeenTick(
                     }
 
                 }
-            })
+            }
         } else {
             MenuStatusProvider.register(object : MenuStatusProvider.Provider {
 
@@ -338,9 +332,9 @@ class SeenTick(
         val onCreateMenuConversationMethod = Unobfuscator.loadOnCreatedMenuConversation(classLoader)
 
 
-        XposedBridge.hookMethod(onCreateMenuConversationMethod, object : XC_MethodHook() {
-            override fun afterHookedMethod(param: MethodHookParam) {
-                val menu = param.args[0] as Menu
+        onCreateMenuConversationMethod.hook {
+            after {
+                val menu = args[0] as Menu
                 val menuItem = menu.add(0, 0, 0, R.string.send_blue_tick)
                 if (ticktype == 1) menuItem.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS)
                 menuItem.setIcon(Utils.getID("ic_notif_mark_read", "drawable"))
@@ -354,7 +348,7 @@ class SeenTick(
                     true
                 }
             }
-        })
+        }
 
         MenuStatusProvider.register(object : MenuStatusProvider.Provider {
             override fun addMenu(
@@ -394,17 +388,16 @@ class SeenTick(
     private fun hookViewOnceScreen(ticktype: Int) {
         val menuMethod = Unobfuscator.loadViewOnceDownloadMenuMethod(classLoader)
 
-        XposedBridge.hookMethod(menuMethod, object : XC_MethodHook() {
-            @SuppressLint("DiscouragedApi")
-            override fun afterHookedMethod(param: MethodHookParam) {
-                val fmessageObj = ReflectionUtils.getArg(param.args, FMessageWpp.TYPE, 0) ?: return
+        menuMethod.hook {
+            after {
+                val fmessageObj = ReflectionUtils.getArg(args, FMessageWpp.TYPE, 0) ?: return@after
                 val fMessage = FMessageWpp(fmessageObj)
-                if (!fMessage.isViewOnce) return
+                if (!fMessage.isViewOnce) return@after
 
-                val menu = ReflectionUtils.getArg(param.args, Menu::class.java, 0)
+                val menu = ReflectionUtils.getArg(args, Menu::class.java, 0)
                 if (menu == null) {
                     logDebug("Menu is null")
-                    return
+                    return@after
                 }
 
                 val item = menu.add(0, 0, 0, R.string.send_blue_tick)
@@ -436,53 +429,52 @@ class SeenTick(
                     true
                 }
             }
-        })
+        }
 
-        XposedHelpers.findAndHookMethod(
-            WppCore.viewOnceViewerActivityClass,
-            "onCreateOptionsMenu",
-            Menu::class.java,
-            object : XC_MethodHook() {
-                override fun afterHookedMethod(param: MethodHookParam) {
-                    val menu = param.args[0] as Menu
-                    val item = menu.add(0, 0, 0, R.string.send_blue_tick)
-                        .setIcon(Utils.getID("ic_notif_mark_read", "drawable"))
-                    if (ticktype == 1) item.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS)
+        WppCore.viewOnceViewerActivityClass.resolve().firstMethod {
+            name = "onCreateOptionsMenu"
+            superclass()
+            parameters(Menu::class.java)
+        }.hook {
+            after {
+                val menu = args[0] as Menu
+                val item = menu.add(0, 0, 0, R.string.send_blue_tick)
+                    .setIcon(Utils.getID("ic_notif_mark_read", "drawable"))
+                if (ticktype == 1) item.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS)
 
-                    item.setOnMenuItemClickListener {
-                        scope.launch(Dispatchers.IO) {
-                            val keyClass = FMessageWpp.Key.TYPE
-                            val fieldType =
-                                ReflectionUtils.getFieldByType(param.thisObject.javaClass, keyClass)
-                            val keyMessage =
-                                ReflectionUtils.getObjectField(fieldType, param.thisObject)
-                            val fMessage = FMessageWpp.Key(keyMessage).fMessage ?: return@launch
-                            val rawJid = fMessage.key.remoteJid.phoneRawString
-                            val messageID = fMessage.key.messageID
+                item.setOnMenuItemClickListener {
+                    scope.launch(Dispatchers.IO) {
+                        val keyClass = FMessageWpp.Key.TYPE
+                        val fieldType =
+                            ReflectionUtils.getFieldByType(instance.javaClass, keyClass)
+                        val keyMessage =
+                            ReflectionUtils.getObjectField(fieldType, instance)
+                        val fMessage = FMessageWpp.Key(keyMessage).fMessage ?: return@launch
+                        val rawJid = fMessage.key.remoteJid.phoneRawString
+                        val messageID = fMessage.key.messageID
 
-                            MessageHistoryStore.getInstance().updateViewedMessage(
-                                rawJid,
-                                messageID,
-                                MessageHistoryStore.ReceiptType.PLAYED,
-                                true
-                            )
-                            MessageHistoryStore.getInstance().updateViewedMessage(
-                                rawJid,
-                                messageID,
-                                MessageHistoryStore.ReceiptType.READ,
-                                true
-                            )
-                            sendBlueTickMedia(fMessage)
-                            Utils.showToast(
-                                Utils.getString(R.string.sending_read_blue_tick),
-                                Toast.LENGTH_SHORT
-                            )
-                        }
-                        true
+                        MessageHistoryStore.getInstance().updateViewedMessage(
+                            rawJid,
+                            messageID,
+                            MessageHistoryStore.ReceiptType.PLAYED,
+                            true
+                        )
+                        MessageHistoryStore.getInstance().updateViewedMessage(
+                            rawJid,
+                            messageID,
+                            MessageHistoryStore.ReceiptType.READ,
+                            true
+                        )
+                        sendBlueTickMedia(fMessage)
+                        Utils.showToast(
+                            Utils.getString(R.string.sending_read_blue_tick),
+                            Toast.LENGTH_SHORT
+                        )
                     }
+                    true
                 }
             }
-        )
+        }
     }
 
     private fun hookOnSendMessages() {
@@ -493,15 +485,15 @@ class SeenTick(
             StringMatchType.Contains,
             "SendE2EMessageJob"
         )
-        val blueOnReplayEnabled = prefs.getBoolean("blueonreply", false)
+        val blueOnReplayEnabled = xprefs.getBoolean("blueonreply", false)
 
-        XposedBridge.hookMethod(messageJobMethod, object : XC_MethodHook() {
-            override fun beforeHookedMethod(param: MethodHookParam) {
+        messageJobMethod.hook {
+            before {
                 if (!blueOnReplayEnabled) {
-                    return
+                    return@before
                 }
-                val obj = messageSendClass.cast(param.thisObject)
-                val rawJid = XposedHelpers.getObjectField(obj, "jid") as String
+                val obj = messageSendClass.cast(instance)
+                val rawJid = ReflectionUtils.getObjectField(obj, "jid") as String
                 val userJid = FMessageWpp.UserJid(rawJid)
                 if (userJid.isStatus) {
                     val listStatus = MenuStatusProvider.statusData.getCurrentItemList()
@@ -517,7 +509,7 @@ class SeenTick(
                     sendBlueTick(userJid)
                 }
             }
-        })
+        }
     }
 
     private fun sendBlueTick(userJid: FMessageWpp.UserJid) {
@@ -525,7 +517,10 @@ class SeenTick(
         scope.launch {
             val phoneNumber = userJid.phoneNumber
             val userRaw = userJid.userRawString ?: ""
-            if (phoneNumber == Utils.getMyNumber() || userRaw.contains("lid_me") || userRaw.contains("status_me")) return@launch
+            if (phoneNumber == Utils.getMyNumber() || userRaw.contains("lid_me") || userRaw.contains(
+                    "status_me"
+                )
+            ) return@launch
 
             val messages = ArrayList<FMessageWpp>()
             val hiddenMessages = MessageHistoryStore.getInstance()
@@ -599,7 +594,7 @@ class SeenTick(
                 args[sendJobMessageIdIndex] = messageIds
 
                 val sendJob = constr.newInstance(*args)
-                XposedHelpers.setAdditionalInstanceField(sendJob, "blue_on_reply", true)
+                ReflectionUtils.setAdditionalInstanceField(sendJob, "blue_on_reply", true)
                 waJobManagerMethod?.invoke(mWaJobManager, sendJob)
             } catch (ex: Exception) {
                 logDebug(ex)
@@ -650,7 +645,7 @@ class SeenTick(
                 args[sendJobMessageIdIndex] = arrS
 
                 val sendJob2 = constr.newInstance(*args)
-                XposedHelpers.setAdditionalInstanceField(sendJob2, "blue_on_reply", true)
+                ReflectionUtils.setAdditionalInstanceField(sendJob2, "blue_on_reply", true)
                 waJobManagerMethod?.invoke(mWaJobManager, sendJob2)
             } catch (e: Exception) {
                 logDebug(e)
@@ -677,7 +672,7 @@ class SeenTick(
                     rowsId,
                     arrayOf(messageId)
                 )
-                val sendJob = XposedHelpers.newInstance(sPlayedClass, participantInfo, false)
+                val sendJob = ReflectionUtils.newInstance(sPlayedClass, participantInfo, false)
 
                 waJobManagerMethod?.invoke(mWaJobManager, sendJob)
             } catch (e: Throwable) {

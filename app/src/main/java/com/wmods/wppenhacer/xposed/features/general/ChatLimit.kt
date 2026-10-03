@@ -1,7 +1,10 @@
 package com.wmods.wppenhacer.xposed.features.general
 
 import android.content.ContentValues
+import android.content.SharedPreferences
 import android.os.Bundle
+import com.highcapable.kavaref.KavaRef.Companion.resolve
+import com.highcapable.yukihookapi.hook.core.YukiMemberHookCreator
 import com.wmods.wppenhacer.xposed.core.Feature
 import com.wmods.wppenhacer.xposed.core.WppCore.homeActivityClass
 import com.wmods.wppenhacer.xposed.core.db.MessageStore.Companion.getInstance
@@ -12,17 +15,13 @@ import com.wmods.wppenhacer.xposed.core.devkit.Unobfuscator.loadFmessageTimestam
 import com.wmods.wppenhacer.xposed.core.devkit.Unobfuscator.loadSeeMoreConstructor
 import com.wmods.wppenhacer.xposed.utils.ReflectionUtils
 import com.wmods.wppenhacer.xposed.utils.Utils
-import de.robv.android.xposed.XC_MethodHook
-import android.content.SharedPreferences 
-import de.robv.android.xposed.XposedBridge
-import de.robv.android.xposed.XposedHelpers
 
-class ChatLimit(loader: ClassLoader, preferences:SharedPreferences) :
+class ChatLimit(loader: ClassLoader, preferences: SharedPreferences) :
     Feature(loader, preferences) {
 
     override fun doHook() {
-        val antiDisappearing = prefs.getBoolean("antidisappearing", false)
-        val revokeallmessages = prefs.getBoolean("revokeallmessages", false)
+        val antiDisappearing = xprefs.getBoolean("antidisappearing", false)
+        val revokeallmessages = xprefs.getBoolean("revokeallmessages", false)
 
         val chatLimitDeleteMethod = loadChatLimitDeleteMethod(classLoader)
         val chatLimitDelete2Method = loadChatLimitDelete2Method(classLoader)
@@ -30,41 +29,39 @@ class ChatLimit(loader: ClassLoader, preferences:SharedPreferences) :
 
         val epUpdateMethod = loadEphemeralInsertdb(classLoader)
 
-        XposedHelpers.findAndHookMethod(
-            homeActivityClass,
-            "onCreate",
-            Bundle::class.java,
-            object : XC_MethodHook() {
-                override fun afterHookedMethod(param: MethodHookParam?) {
-                    if (antiDisappearing) {
-                        Utils.databaseExecutor.execute {
-                            getInstance().executeWritableSQL("UPDATE message_ephemeral SET expire_timestamp = 2553512370000")
-                        }
+        homeActivityClass.resolve().firstMethod {
+            name = "onCreate"
+            superclass()
+            parameters(Bundle::class.java)
+        }.hook {
+            after {
+                if (antiDisappearing) {
+                    Utils.databaseExecutor.execute {
+                        getInstance().executeWritableSQL("UPDATE message_ephemeral SET expire_timestamp = 2553512370000")
                     }
                 }
-            })
+            }
+        }
 
-        XposedBridge.hookMethod(epUpdateMethod, object : XC_MethodHook() {
-            @Throws(Throwable::class)
-            override fun afterHookedMethod(param: MethodHookParam) {
+        epUpdateMethod.hook {
+            after {
                 if (antiDisappearing) {
-                    val contentValues = param.result as ContentValues
+                    val contentValues = result as ContentValues
                     contentValues.put("expire_timestamp", 2553512370000L)
                 }
             }
-        })
+        }
 
         if (revokeallmessages) {
-            XposedBridge.hookMethod(chatLimitDelete2Method, object : XC_MethodHook() {
-                private var unhooked: Unhook? = null
+            var unhooked: YukiMemberHookCreator.MemberHookCreator.Result? = null
 
-                @Throws(Throwable::class)
-                override fun beforeHookedMethod(param: MethodHookParam) {
+            chatLimitDelete2Method.hook {
+                before {
                     val list = ReflectionUtils.findInstancesOfType(
-                        param.args,
+                        args,
                         MutableSet::class.java
                     )
-                    if (list.isEmpty()) return
+                    if (list.isEmpty()) return@before
                     val listMessages = list[0]!!.second
                     var isExpired = false
                     for (fmessageObj in listMessages) {
@@ -76,34 +73,30 @@ class ChatLimit(loader: ClassLoader, preferences:SharedPreferences) :
                         }
                     }
                     if (!isExpired) {
-                        unhooked = XposedBridge.hookMethod(
-                            chatLimitDeleteMethod,
-                            object : XC_MethodHook() {
-                                override fun afterHookedMethod(param: MethodHookParam) {
-                                    if (ReflectionUtils.isCalledFromMethod(chatLimitDelete2Method)) {
-                                        param.setResult(0L)
-                                    }
+                        unhooked = chatLimitDeleteMethod.hook {
+                            after {
+                                if (ReflectionUtils.isCalledFromMethod(chatLimitDelete2Method)) {
+                                    result = 0L
                                 }
-                            })
+                            }
+                        }
                     }
                 }
 
-                override fun afterHookedMethod(param: MethodHookParam?) {
-                    if (unhooked != null) {
-                        unhooked!!.unhook()
-                    }
+                after {
+                    unhooked?.remove()
                 }
-            })
+            }
         }
 
         val seeMoreMethod = loadSeeMoreConstructor(classLoader)
 
-        XposedBridge.hookMethod(seeMoreMethod, object : XC_MethodHook() {
-            override fun beforeHookedMethod(param: MethodHookParam) {
-                if (!prefs.getBoolean("removeseemore", false)) return
-                param.args[1] = Int.MAX_VALUE
+        seeMoreMethod.hook {
+            before {
+                if (!xprefs.getBoolean("removeseemore", false)) return@before
+                args[1] = Int.MAX_VALUE
             }
-        })
+        }
     }
 
     override fun getPluginName(): String {

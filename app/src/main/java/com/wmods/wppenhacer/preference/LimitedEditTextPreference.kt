@@ -14,13 +14,18 @@ class LimitedEditTextPreference : EditTextPreference {
         init(attrs)
     }
 
-    constructor(context: Context, attrs: AttributeSet?, defStyleAttr: Int) : super(context, attrs, defStyleAttr) {
+    constructor(context: Context, attrs: AttributeSet?, defStyleAttr: Int) : super(
+        context,
+        attrs,
+        defStyleAttr
+    ) {
         init(attrs)
     }
 
     private fun init(attrs: AttributeSet?) {
         maxLength = if (attrs != null) {
-            val typedArray = context.obtainStyledAttributes(attrs, R.styleable.LimitedEditTextPreference)
+            val typedArray =
+                context.obtainStyledAttributes(attrs, R.styleable.LimitedEditTextPreference)
             typedArray.getInt(R.styleable.LimitedEditTextPreference_maxLength, DEFAULT_MAX_LENGTH)
                 .also { typedArray.recycle() }
         } else {

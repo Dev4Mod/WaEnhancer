@@ -8,8 +8,6 @@ import com.wmods.wppenhacer.xposed.core.devkit.Unobfuscator.loadAbsViewHolder
 import com.wmods.wppenhacer.xposed.core.devkit.Unobfuscator.loadOnChangeStatus
 import com.wmods.wppenhacer.xposed.core.devkit.Unobfuscator.loadViewHolderField1
 import com.wmods.wppenhacer.xposed.utils.ReflectionUtils
-import de.robv.android.xposed.XC_MethodHook
-import de.robv.android.xposed.XposedBridge
 import java.util.concurrent.CopyOnWriteArraySet
 
 class ContactItemListener(loader: ClassLoader, preferences: SharedPreferences) :
@@ -23,23 +21,22 @@ class ContactItemListener(loader: ClassLoader, preferences: SharedPreferences) :
             field.type == View::class.java
         }
 
-        XposedBridge.hookMethod(onChangeStatus, object : XC_MethodHook() {
-
-            override fun afterHookedMethod(param: MethodHookParam) {
-                if (contactListeners.isEmpty()) return
-                val viewHolder = field1.get(param.thisObject) ?: return
-                val `object` = param.args[0] ?: return
+        onChangeStatus.hook {
+            after {
+                if (contactListeners.isEmpty()) return@after
+                val viewHolder = field1.get(instanceOrNull) ?: return@after
+                val `object` = args[0] ?: return@after
                 val waContact = WaContactWpp(`object`)
                 val userJid = waContact.userJid
-                if (userJid.isNull) return
+                if (userJid.isNull) return@after
 
-                val view = viewField.get(viewHolder) as? View ?: return
+                val view = viewField.get(viewHolder) as? View ?: return@after
 
                 for (listener in contactListeners) {
                     listener.onBind(waContact, view)
                 }
             }
-        })
+        }
     }
 
     override fun getPluginName(): String {

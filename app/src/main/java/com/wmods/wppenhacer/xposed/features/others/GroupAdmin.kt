@@ -14,26 +14,28 @@ import com.wmods.wppenhacer.xposed.core.devkit.Unobfuscator
 import com.wmods.wppenhacer.xposed.features.listeners.ConversationItemListener
 import com.wmods.wppenhacer.xposed.utils.ReflectionUtils
 import com.wmods.wppenhacer.xposed.utils.Utils
-import de.robv.android.xposed.XposedBridge
+import com.wmods.wppenhacer.xposed.utils.YukiLog
 import java.lang.reflect.Field
 import java.lang.reflect.Method
 import java.util.concurrent.ConcurrentHashMap
 
-class GroupAdmin(classLoader: ClassLoader, preferences: SharedPreferences) : Feature(classLoader, preferences){
+class GroupAdmin(classLoader: ClassLoader, preferences: SharedPreferences) :
+    Feature(classLoader, preferences) {
 
     private val adminFieldCache = ConcurrentHashMap<Class<*>, Field>()
     private var nameInGroupId: Int = -1
     private var nameInGroupTvId: Int = -1
 
-    override fun doHook()  {
-        if (!prefs.getBoolean("admin_grp", false)) return
+    override fun doHook() {
+        if (!xprefs.getBoolean("admin_grp", false)) return
 
         val jidFactory = Unobfuscator.loadJidFactory(classLoader)
         val grpcheckAdmin = Unobfuscator.loadGroupCheckAdminMethod(classLoader)
         nameInGroupId = Utils.getID("name_in_group", "id")
         nameInGroupTvId = Utils.getID("name_in_group_tv", "id")
 
-        ConversationItemListener.conversationListeners.add(object : ConversationItemListener.OnConversationItemListener() {
+        ConversationItemListener.conversationListeners.add(object :
+            ConversationItemListener.OnConversationItemListener() {
             override fun onItemBind(
                 fMessage: FMessageWpp,
                 view: ViewGroup,
@@ -157,13 +159,16 @@ class GroupAdmin(classLoader: ClassLoader, preferences: SharedPreferences) : Fea
                     iconAdmin.visibility =
                         if (result != null && result as Boolean) View.VISIBLE else View.GONE
                 } catch (t: Throwable) {
-                    XposedBridge.log(t)
+                    YukiLog.log(t)
                 }
             }
         })
     }
 
-    private fun resolveParticipantJidForAdminCheck(userJid: FMessageWpp.UserJid?, grpcheckAdmin: Method): Any? {
+    private fun resolveParticipantJidForAdminCheck(
+        userJid: FMessageWpp.UserJid?,
+        grpcheckAdmin: Method
+    ): Any? {
         if (userJid == null) return null
 
         val expectedType = grpcheckAdmin.parameterTypes[1]

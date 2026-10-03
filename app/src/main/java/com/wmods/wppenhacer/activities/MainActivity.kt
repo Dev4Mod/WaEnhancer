@@ -8,7 +8,6 @@ import android.os.PowerManager
 import android.provider.Settings
 import android.view.Menu
 import android.view.MenuItem
-import androidx.annotation.Keep
 import androidx.core.app.ActivityOptionsCompat
 import androidx.fragment.app.Fragment
 import androidx.preference.PreferenceManager
@@ -56,26 +55,32 @@ class MainActivity : BaseActivity() {
                     binding.viewPager.setCurrentItem(0, true)
                     true
                 }
+
                 R.id.navigation_chat -> {
                     binding.viewPager.setCurrentItem(1, true)
                     true
                 }
+
                 R.id.navigation_privacy -> {
                     binding.viewPager.setCurrentItem(2, true)
                     true
                 }
+
                 R.id.navigation_media -> {
                     binding.viewPager.setCurrentItem(3, true)
                     true
                 }
+
                 R.id.navigation_colors -> {
                     binding.viewPager.setCurrentItem(4, true)
                     true
                 }
+
                 R.id.navigation_recordings -> {
                     binding.viewPager.setCurrentItem(5, true)
                     true
                 }
+
                 else -> false
             }
         })
@@ -172,14 +177,21 @@ class MainActivity : BaseActivity() {
     }
 
     private fun scrollInChildFragment(parentFragment: Fragment, preferenceKey: String) {
-        val childFragment = parentFragment.childFragmentManager.findFragmentById(R.id.frag_container)
+        val childFragment =
+            parentFragment.childFragmentManager.findFragmentById(R.id.frag_container)
         (childFragment as? BasePreferenceFragment)?.scrollToPreference(preferenceKey)
     }
 
     @Deprecated("Deprecated in Java")
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
-        supportFragmentManager.fragments.forEach { it.onActivityResult(requestCode, resultCode, data) }
+        supportFragmentManager.fragments.forEach {
+            it.onActivityResult(
+                requestCode,
+                resultCode,
+                data
+            )
+        }
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
@@ -203,6 +215,7 @@ class MainActivity : BaseActivity() {
                 startActivity(Intent(this, SearchActivity::class.java), options.toBundle())
                 return true
             }
+
             R.id.menu_about -> {
                 val options = ActivityOptionsCompat.makeCustomAnimation(
                     this,
@@ -212,6 +225,7 @@ class MainActivity : BaseActivity() {
                 startActivity(Intent(this, AboutActivity::class.java), options.toBundle())
                 return true
             }
+
             R.id.batteryoptimization -> {
                 if (batteryPermissionHelper.isBatterySaverPermissionAvailable(this, true)) {
                     batteryPermissionHelper.getPermission(this, true, true)
@@ -234,7 +248,6 @@ class MainActivity : BaseActivity() {
     }
 
 
-
     private class DepthPageTransformer : ViewPager2.PageTransformer {
         override fun transformPage(page: android.view.View, position: Float) {
             val pageWidth = page.width
@@ -247,6 +260,7 @@ class MainActivity : BaseActivity() {
                     page.scaleX = 1f
                     page.scaleY = 1f
                 }
+
                 position <= 1 -> {
                     page.alpha = 1 - position
                     page.translationX = pageWidth * -position
@@ -255,6 +269,7 @@ class MainActivity : BaseActivity() {
                     page.scaleX = scaleFactor
                     page.scaleY = scaleFactor
                 }
+
                 else -> page.alpha = 0f
             }
         }

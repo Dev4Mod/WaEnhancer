@@ -16,6 +16,7 @@ import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.RequiresApi
 import androidx.core.content.ContextCompat
+import androidx.core.content.edit
 import androidx.preference.Preference
 import androidx.preference.PreferenceManager
 import com.developer.filepicker.model.DialogConfigs
@@ -30,7 +31,6 @@ import java.io.File
 import java.nio.file.Files
 import java.nio.file.StandardCopyOption
 import java.util.concurrent.CompletableFuture
-import androidx.core.content.edit
 
 class FileSelectPreference : Preference, Preference.OnPreferenceClickListener,
     FilePicker.OnFilePickedListener, FilePicker.OnUriPickedListener {
@@ -39,11 +39,15 @@ class FileSelectPreference : Preference, Preference.OnPreferenceClickListener,
     private var selectDirectory = false
 
     constructor(context: Context, attrs: AttributeSet?, defStyleAttr: Int, defStyleRes: Int) :
-        super(context, attrs, defStyleAttr, defStyleRes) {
+            super(context, attrs, defStyleAttr, defStyleRes) {
         init(context, attrs)
     }
 
-    constructor(context: Context, attrs: AttributeSet?, defStyleAttr: Int) : super(context, attrs, defStyleAttr) {
+    constructor(context: Context, attrs: AttributeSet?, defStyleAttr: Int) : super(
+        context,
+        attrs,
+        defStyleAttr
+    ) {
         init(context, attrs)
     }
 
@@ -77,13 +81,22 @@ class FileSelectPreference : Preference, Preference.OnPreferenceClickListener,
             if (ContextCompat.checkSelfPermission(context, Manifest.permission.READ_MEDIA_IMAGES) !=
                 PackageManager.PERMISSION_GRANTED
             ) {
-                (context as Activity).requestPermissions(arrayOf(Manifest.permission.READ_MEDIA_IMAGES), 1)
+                (context as Activity).requestPermissions(
+                    arrayOf(Manifest.permission.READ_MEDIA_IMAGES),
+                    1
+                )
                 return true
             }
-        } else if (ContextCompat.checkSelfPermission(context, Manifest.permission.READ_EXTERNAL_STORAGE) !=
+        } else if (ContextCompat.checkSelfPermission(
+                context,
+                Manifest.permission.READ_EXTERNAL_STORAGE
+            ) !=
             PackageManager.PERMISSION_GRANTED
         ) {
-            (context as Activity).requestPermissions(arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE), 1)
+            (context as Activity).requestPermissions(
+                arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE),
+                1
+            )
             return true
         }
 
@@ -142,7 +155,8 @@ class FileSelectPreference : Preference, Preference.OnPreferenceClickListener,
 
     private fun init(context: Context, attrs: AttributeSet?) {
         onPreferenceClickListener = this
-        val typedArray = context.theme.obtainStyledAttributes(attrs, R.styleable.FileSelectPreference, 0, 0)
+        val typedArray =
+            context.theme.obtainStyledAttributes(attrs, R.styleable.FileSelectPreference, 0, 0)
         val values = typedArray.getTextArray(R.styleable.FileSelectPreference_android_entryValues)
         mineTypes = values?.map(CharSequence::toString)?.toTypedArray() ?: arrayOf("*/*")
         selectDirectory = typedArray.getBoolean(R.styleable.FileSelectPreference_directory, false)

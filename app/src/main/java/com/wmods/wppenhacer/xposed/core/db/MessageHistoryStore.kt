@@ -11,7 +11,7 @@ import com.wmods.wppenhacer.xposed.core.db.entity.DeviceEntity
 import com.wmods.wppenhacer.xposed.core.db.entity.HideSeenEntity
 import com.wmods.wppenhacer.xposed.core.db.entity.MessageEntity
 import com.wmods.wppenhacer.xposed.utils.Utils
-import de.robv.android.xposed.XposedBridge
+import com.wmods.wppenhacer.xposed.utils.YukiLog
 import java.util.concurrent.ConcurrentHashMap
 
 class MessageHistoryStore private constructor(context: Context) {
@@ -132,7 +132,7 @@ class MessageHistoryStore private constructor(context: Context) {
             )
             messagesCache.remove(id)
         } catch (t: Throwable) {
-            XposedBridge.log(t)
+            YukiLog.log(t)
         }
     }
 
@@ -151,7 +151,7 @@ class MessageHistoryStore private constructor(context: Context) {
                 }
                 insertMessage(id, message, timestamp)
             } catch (t: Throwable) {
-                XposedBridge.log(t)
+                YukiLog.log(t)
             }
         }
     }
@@ -185,7 +185,7 @@ class MessageHistoryStore private constructor(context: Context) {
                 messagesCache.put(v, EMPTY_MESSAGE_LIST)
             }
         } catch (t: Throwable) {
-            XposedBridge.log(t)
+            YukiLog.log(t)
         }
         return null
     }
@@ -241,7 +241,7 @@ class MessageHistoryStore private constructor(context: Context) {
             invalidateSeenMessagesListCache(jid, type)
             hideSeenChangeListener?.onHideSeenChanged(jid, messageId, type, viewed)
         } catch (t: Throwable) {
-            XposedBridge.log(t)
+            YukiLog.log(t)
         }
     }
 
@@ -302,7 +302,7 @@ class MessageHistoryStore private constructor(context: Context) {
             hideSeenChangeListener?.onHideSeenChanged(jid, messageId, type, viewed)
             return true
         } catch (t: Throwable) {
-            XposedBridge.log(t)
+            YukiLog.log(t)
             return false
         }
     }
@@ -348,7 +348,7 @@ class MessageHistoryStore private constructor(context: Context) {
                 seenMessageCache.put(cacheKey, EMPTY_SEEN_ITEM)
             }
         } catch (t: Throwable) {
-            XposedBridge.log(t)
+            YukiLog.log(t)
         }
         return null
     }
@@ -395,7 +395,7 @@ class MessageHistoryStore private constructor(context: Context) {
                 seenMessagesListCache.put(cacheKey, emptyList())
             }
         } catch (t: Throwable) {
-            XposedBridge.log(t)
+            YukiLog.log(t)
         }
         return null
     }
@@ -420,7 +420,7 @@ class MessageHistoryStore private constructor(context: Context) {
                 deviceCache.put(messageId, deviceType)
             }
         } catch (t: Throwable) {
-            XposedBridge.log(t)
+            YukiLog.log(t)
         }
     }
 
@@ -473,7 +473,7 @@ class MessageHistoryStore private constructor(context: Context) {
             }
             return type
         } catch (t: Throwable) {
-            XposedBridge.log(t)
+            YukiLog.log(t)
         }
         return null
     }

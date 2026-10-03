@@ -9,7 +9,10 @@ import com.wmods.wppenhacer.R
 open class BaseActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         setTheme(R.style.AppTheme)
-        theme.applyStyle(rikka.material.preference.R.style.ThemeOverlay_Rikka_Material3_Preference, true)
+        theme.applyStyle(
+            rikka.material.preference.R.style.ThemeOverlay_Rikka_Material3_Preference,
+            true
+        )
         theme.applyStyle(R.style.ThemeOverlay, true)
         applyThemeOverlay()
         super.onCreate(savedInstanceState)

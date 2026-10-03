@@ -16,6 +16,8 @@ import android.widget.LinearLayout
 import android.widget.ListView
 import android.widget.TextView
 import android.widget.Toast
+import com.highcapable.kavaref.KavaRef.Companion.resolve
+import com.highcapable.yukihookapi.hook.param.HookParam
 import com.wmods.wppenhacer.R
 import com.wmods.wppenhacer.adapter.CustomPrivacyAdapter
 import com.wmods.wppenhacer.xposed.core.Feature
@@ -27,15 +29,13 @@ import com.wmods.wppenhacer.xposed.features.others.MenuHome
 import com.wmods.wppenhacer.xposed.utils.DesignUtils
 import com.wmods.wppenhacer.xposed.utils.ReflectionUtils
 import com.wmods.wppenhacer.xposed.utils.Utils
-import de.robv.android.xposed.XC_MethodHook
-import de.robv.android.xposed.XposedHelpers
 import org.json.JSONObject
 import org.luckypray.dexkit.query.enums.StringMatchType
 import java.lang.reflect.Method
 
 class CustomPrivacy(
     classLoader: ClassLoader,
-    preferences:SharedPreferences
+    preferences: SharedPreferences
 ) : Feature(classLoader, preferences) {
 
     private lateinit var chatUserJidMethod: Method
@@ -44,7 +44,10 @@ class CustomPrivacy(
     companion object {
         @JvmStatic
         fun getJSON(number: String?): JSONObject {
-            if (Utils.xprefs.getString("custom_privacy_type", "0") == "0" || TextUtils.isEmpty(number)) {
+            if (Utils.xprefs.getString("custom_privacy_type", "0") == "0" || TextUtils.isEmpty(
+                    number
+                )
+            ) {
                 return JSONObject()
             }
             return WppCore.getPrivJSON("${number}_privacy", JSONObject())
@@ -75,80 +78,86 @@ class CustomPrivacy(
             "jid.GroupJid"
         )
 
-        chatUserJidMethod = ReflectionUtils.findMethodUsingFilter(contactInfoActivityClass) { method ->
-            method.parameterCount == 0 && userJidClass.isAssignableFrom(method.returnType)
-        }
+        chatUserJidMethod =
+            ReflectionUtils.findMethodUsingFilter(contactInfoActivityClass) { method ->
+                method.parameterCount == 0 && userJidClass.isAssignableFrom(method.returnType)
+            }
 
-        groupUserJidMethod = ReflectionUtils.findMethodUsingFilter(groupInfoActivityClass) { method ->
-            method.parameterCount == 0 && groupJidClass.isAssignableFrom(method.returnType)
-        }
+        groupUserJidMethod =
+            ReflectionUtils.findMethodUsingFilter(groupInfoActivityClass) { method ->
+                method.parameterCount == 0 && groupJidClass.isAssignableFrom(method.returnType)
+            }
 
         val type = Utils.xprefs.getString("custom_privacy_type", "0")!!.toInt()
 
         if (type == 1) {
 
             WppCore.addListenerActivity(
-            object : WppCore.ActivityChangeState {
+                object : WppCore.ActivityChangeState {
 
-                @SuppressLint("ResourceType")
-                override fun onChange(activity: Activity, type: WppCore.ActivityChangeState.ChangeType) {
-                    try {
-                        if (type != WppCore.ActivityChangeState.ChangeType.STARTED) return
-                        if (!contactInfoActivityClass.isInstance(activity) && !groupInfoActivityClass.isInstance(activity)) {
-                            return
+                    @SuppressLint("ResourceType")
+                    override fun onChange(
+                        activity: Activity,
+                        type: WppCore.ActivityChangeState.ChangeType
+                    ) {
+                        try {
+                            if (type != WppCore.ActivityChangeState.ChangeType.STARTED) return
+                            if (!contactInfoActivityClass.isInstance(activity) && !groupInfoActivityClass.isInstance(
+                                    activity
+                                )
+                            ) {
+                                return
+                            }
+                            if (activity.findViewById<View>(0x7f0a9999) != null) return
+
+                            val id = Utils.getID("contact_info_security_card_layout", "id")
+                            val infoLayout = activity.window.findViewById<ViewGroup>(id)
+                            val icon = activity.getDrawable(R.drawable.ic_privacy)!!
+                            val itemView = createItemView(
+                                activity,
+                                activity.getString(R.string.custom_privacy),
+                                activity.getString(R.string.custom_privacy_sum),
+                                icon
+                            )
+
+                            itemView.id = 0x7f0a9999
+                            itemView.setOnClickListener {
+                                showPrivacyDialog(
+                                    activity,
+                                    contactInfoActivityClass.isInstance(activity)
+                                )
+                            }
+
+                            infoLayout.addView(itemView)
+                        } catch (e: Throwable) {
+                            logDebug(e)
+                            Utils.showToast(e.message, Toast.LENGTH_SHORT)
                         }
-                        if (activity.findViewById<View>(0x7f0a9999) != null) return
-
-                        val id = Utils.getID("contact_info_security_card_layout", "id")
-                        val infoLayout = activity.window.findViewById<ViewGroup>(id)
-                        val icon = activity.getDrawable(R.drawable.ic_privacy)!!
-                        val itemView = createItemView(
-                            activity,
-                            activity.getString(R.string.custom_privacy),
-                            activity.getString(R.string.custom_privacy_sum),
-                            icon
-                        )
-
-                        itemView.id = 0x7f0a9999
-                        itemView.setOnClickListener {
-                            showPrivacyDialog(activity, contactInfoActivityClass.isInstance(activity))
-                        }
-
-                        infoLayout.addView(itemView)
-                    } catch (e: Throwable) {
-                        logDebug(e)
-                        Utils.showToast(e.message, Toast.LENGTH_SHORT)
                     }
-                }
-            })
+                })
         } else if (type == 2) {
-            val hooker = object : XC_MethodHook() {
-                @Throws(Throwable::class)
-                override fun afterHookedMethod(param: MethodHookParam) {
-                    val menu = param.args[0] as Menu
-                    val activity = param.thisObject as Activity
-                    val customPrivacy = menu.add(0, 0, 0, R.string.custom_privacy)
+            val hookerAfter: HookParam.() -> Unit = {
+                val menu = args[0] as Menu
+                val activity = instance as Activity
+                val customPrivacy = menu.add(0, 0, 0, R.string.custom_privacy)
 
-                    customPrivacy.setIcon(R.drawable.ic_privacy)
-                    customPrivacy.setOnMenuItemClickListener {
-                        showPrivacyDialog(activity, contactInfoActivityClass.isInstance(activity))
-                        true
-                    }
+                customPrivacy.setIcon(R.drawable.ic_privacy)
+                customPrivacy.setOnMenuItemClickListener {
+                    showPrivacyDialog(activity, contactInfoActivityClass.isInstance(activity))
+                    true
                 }
             }
 
-            XposedHelpers.findAndHookMethod(
-                contactInfoActivityClass,
-                "onCreateOptionsMenu",
-                Menu::class.java,
-                hooker
-            )
-            XposedHelpers.findAndHookMethod(
-                groupInfoActivityClass,
-                "onCreateOptionsMenu",
-                Menu::class.java,
-                hooker
-            )
+            contactInfoActivityClass.resolve().firstMethod {
+                name = "onCreateOptionsMenu"
+                superclass()
+                parameters(Menu::class.java)
+            }.hook { after(hookerAfter) }
+            groupInfoActivityClass.resolve().firstMethod {
+                name = "onCreateOptionsMenu"
+                superclass()
+                parameters(Menu::class.java)
+            }.hook { after(hookerAfter) }
         }
 
         if (type == 0) return
@@ -160,11 +169,15 @@ class CustomPrivacy(
         )
         icon.setTint(0xff8696a0.toInt())
 
-        MenuHome.addMenuItem {  menu, activity ->
+        MenuHome.addMenuItem { menu, activity ->
             menu.add(0, 0, 0, R.string.custom_privacy)
                 .setIcon(icon)
                 .setOnMenuItemClickListener {
-                    showCustomPrivacyList(activity, contactInfoActivityClass, groupInfoActivityClass)
+                    showCustomPrivacyList(
+                        activity,
+                        contactInfoActivityClass,
+                        groupInfoActivityClass
+                    )
                     true
                 }
         }
@@ -278,7 +291,8 @@ class CustomPrivacy(
                 builder.setTitle(R.string.custom_privacy)
 
                 val listView = ListView(activity)
-                listView.adapter = CustomPrivacyAdapter(activity, pprefs, list, contactClass, groupClass)
+                listView.adapter =
+                    CustomPrivacyAdapter(activity, pprefs, list, contactClass, groupClass)
 
                 builder.setView(listView)
                 builder.show()
@@ -363,9 +377,9 @@ class CustomPrivacy(
 
     private fun getDefaultPreference(globalKey: String): Boolean {
         return if (globalKey == "call_privacy") {
-            prefs.getString(globalKey, "0") == "1"
+            xprefs.getString(globalKey, "0") == "1"
         } else {
-            prefs.getBoolean(globalKey, false)
+            xprefs.getBoolean(globalKey, false)
         }
     }
 
@@ -381,11 +395,11 @@ class CustomPrivacy(
                 val globalKey = getGlobalKey(itemsKeys[i])
 
                 if (globalKey == "call_privacy") {
-                    if ((prefs.getString(globalKey, "0") == "1") != checkedItems[i]) {
+                    if ((xprefs.getString(globalKey, "0") == "1") != checkedItems[i]) {
                         jsonObject.put(itemsKeys[i], checkedItems[i])
                     }
                 } else {
-                    if (prefs.getBoolean(globalKey, false) != checkedItems[i]) {
+                    if (xprefs.getBoolean(globalKey, false) != checkedItems[i]) {
                         jsonObject.put(itemsKeys[i], checkedItems[i])
                     }
                 }

@@ -3,73 +3,76 @@
 package com.wmods.wppenhacer.xposed.features.general
 
 import android.annotation.SuppressLint
+import android.content.SharedPreferences
+import com.highcapable.kavaref.KavaRef.Companion.resolve
 import com.wmods.wppenhacer.xposed.core.Feature
 import com.wmods.wppenhacer.xposed.core.devkit.Unobfuscator
 import com.wmods.wppenhacer.xposed.utils.ReflectionUtils
-import de.robv.android.xposed.XC_MethodHook
-import de.robv.android.xposed.XC_MethodReplacement
-import android.content.SharedPreferences 
-import de.robv.android.xposed.XposedBridge
-import de.robv.android.xposed.XposedHelpers
 import java.util.Spliterator
 import kotlin.math.abs
 import java.lang.reflect.Array as ReflectArray
 
 class PinnedLimit(
     loader: ClassLoader,
-    preferences:SharedPreferences
+    preferences: SharedPreferences
 ) : Feature(loader, preferences) {
 
     @SuppressLint("DiscouragedApi")
     override fun doHook() {
-        if (!prefs.getBoolean(PINNED_LIMIT_PREF_KEY, false)) return
+        if (!xprefs.getBoolean(PINNED_LIMIT_PREF_KEY, false)) return
 
         val pinnedHashSetMethod = Unobfuscator.loadPinnedHashSetMethod(classLoader)
-        XposedBridge.hookMethod(Unobfuscator.loadPinnedInChatMethod(classLoader),
-            XC_MethodReplacement.returnConstant(PINNED_LIMIT_ENABLED))
+        Unobfuscator.loadPinnedInChatMethod(classLoader).hook {
+            replaceAny { PINNED_LIMIT_ENABLED }
+        }
 
-        XposedBridge.hookMethod(Unobfuscator.loadSetPinnedLimitMethod(classLoader), object : XC_MethodHook() {
-            override fun beforeHookedMethod(param: MethodHookParam) {
+        Unobfuscator.loadSetPinnedLimitMethod(classLoader).hook {
+            before {
                 if (ReflectionUtils.isCalledFromStrings(SYNC_RESPONSE_HANDLER_CLASS_NAME)) {
-                    param.result = null
+                    result = null
                 }
             }
-        })
+        }
 
-        XposedHelpers.findAndHookConstructor(LinkedHashSet::class.java, Int::class.javaPrimitiveType, object : XC_MethodHook(){
-            override fun beforeHookedMethod(param: MethodHookParam) {
-                val initialCapacity = param.args[0] as Int
+        LinkedHashSet::class.java.resolve().firstConstructor {
+            parameters(Int::class)
+        }.hook {
+            before {
+                val initialCapacity = args[0] as Int
                 if (initialCapacity < 0) {
-                    param.args[0] = abs(initialCapacity)
+                    args[0] = abs(initialCapacity)
                 }
             }
-        })
+        }
 
-        XposedHelpers.findAndHookConstructor(ArrayList::class.java, Int::class.javaPrimitiveType, object : XC_MethodHook(){
-            override fun beforeHookedMethod(param: MethodHookParam) {
-                val initialCapacity = param.args[0] as Int
+        ArrayList::class.java.resolve().firstConstructor {
+            parameters(Int::class)
+        }.hook {
+            before {
+                val initialCapacity = args[0] as Int
                 if (initialCapacity < 0) {
-                    param.args[0] = abs(initialCapacity)
+                    args[0] = abs(initialCapacity)
                 }
             }
-        })
-        XposedBridge.hookMethod(pinnedHashSetMethod, object : XC_MethodHook() {
-            override fun afterHookedMethod(param: MethodHookParam) {
-                val map = param.result as Map<Any?, Any?>
-                val thisObject = param.thisObject ?: param.args[0]!!
+        }
+        pinnedHashSetMethod.hook {
+            after {
+                val map = result as Map<Any?, Any?>
+                val thisObject = instanceOrNull ?: args[0]!!
                 val pinnedMap = if (map is PinnedLinkedHashMap<*>) {
                     map as PinnedLinkedHashMap<Any?>
                 } else {
                     PinnedLinkedHashMap<Any?>().apply {
                         putAll(map)
-                        param.result = this
+                        result = this
                     }
                 }
 
                 pinnedMap.limit = getPinnedLimit()
 
                 val keySet = map.keys
-                val setFields = ReflectionUtils.getFieldsByType(thisObject.javaClass, Set::class.java)
+                val setFields =
+                    ReflectionUtils.getFieldsByType(thisObject.javaClass, Set::class.java)
 
                 for (setField in setFields) {
                     val set = setField.get(thisObject)
@@ -81,15 +84,15 @@ class PinnedLimit(
                     }
                 }
             }
-        })
+        }
 
-        XposedBridge.hookMethod( Unobfuscator.loadPinnedFilterMethod(classLoader), object : XC_MethodHook(){
-            override fun afterHookedMethod(param: MethodHookParam) {
-                if (param.args[0] !is PinnedLinkedHashMap.PinnedKeySet<*>) {
-                    return
+        Unobfuscator.loadPinnedFilterMethod(classLoader).hook {
+            after {
+                if (args[0] !is PinnedLinkedHashMap.PinnedKeySet<*>) {
+                    return@after
                 }
 
-                val set = param.result as Set<*>
+                val set = result as Set<*>
                 val pinnedMap = PinnedLinkedHashMap<Any?>().apply {
                     limit = getPinnedLimit()
 
@@ -100,15 +103,15 @@ class PinnedLimit(
 
                 val newKeySet = pinnedMap.keys as PinnedLinkedHashMap.PinnedKeySet<Any?>
                 newKeySet.setDisableInterator(false)
-                param.result = pinnedMap.keys
+                result = pinnedMap.keys
             }
-        })
+        }
     }
 
     override fun getPluginName(): String = "Pinned Limit"
 
     private fun getPinnedLimit(): Int {
-        return if (prefs.getBoolean(PINNED_LIMIT_PREF_KEY, false)) {
+        return if (xprefs.getBoolean(PINNED_LIMIT_PREF_KEY, false)) {
             PINNED_LIMIT_ENABLED
         } else {
             PINNED_LIMIT_DEFAULT

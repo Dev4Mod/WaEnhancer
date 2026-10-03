@@ -20,6 +20,7 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.core.content.ContextCompat
+import androidx.core.content.edit
 import androidx.preference.Preference
 import androidx.preference.PreferenceManager
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
@@ -34,7 +35,6 @@ import java.nio.file.Files
 import java.nio.file.StandardCopyOption
 import java.util.concurrent.CompletableFuture
 import java.util.zip.ZipInputStream
-import androidx.core.content.edit
 
 class ThemePreference(context: Context, attrs: AttributeSet?) : Preference(context, attrs),
     FilePicker.OnUriPickedListener {
@@ -49,10 +49,10 @@ class ThemePreference(context: Context, attrs: AttributeSet?) : Preference(conte
         super.onClick()
         val needsPermission =
             (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R && !Environment.isExternalStorageManager()) ||
-                (Build.VERSION.SDK_INT < Build.VERSION_CODES.R && ContextCompat.checkSelfPermission(
-                    context,
-                    Manifest.permission.WRITE_EXTERNAL_STORAGE
-                ) != PackageManager.PERMISSION_GRANTED)
+                    (Build.VERSION.SDK_INT < Build.VERSION_CODES.R && ContextCompat.checkSelfPermission(
+                        context,
+                        Manifest.permission.WRITE_EXTERNAL_STORAGE
+                    ) != PackageManager.PERMISSION_GRANTED)
         if (needsPermission) {
             App.showRequestStoragePermission(context as Activity)
         } else {
@@ -66,7 +66,8 @@ class ThemePreference(context: Context, attrs: AttributeSet?) : Preference(conte
         val folders = getFolders().toMutableList().apply { add(0, "Default Theme") }
         val selectedFolder = sharedPreferences!!.getString(key, null)
 
-        val dialogView = LayoutInflater.from(currentContext).inflate(R.layout.preference_theme, null)
+        val dialogView =
+            LayoutInflater.from(currentContext).inflate(R.layout.preference_theme, null)
         val builder = MaterialAlertDialogBuilder(currentContext).setView(dialogView)
         val folderListContainer = dialogView.findViewById<LinearLayout>(R.id.folder_list_container)
         val newThemeButton = dialogView.findViewById<Button>(R.id.create_theme_button)
@@ -82,7 +83,8 @@ class ThemePreference(context: Context, attrs: AttributeSet?) : Preference(conte
             val cssFile = File(rootDirectory, "$folder/style.css")
             if (!cssFile.exists() && folder != "Default Theme") return@forEach
 
-            val itemView = LayoutInflater.from(currentContext).inflate(R.layout.item_folder, null, false)
+            val itemView =
+                LayoutInflater.from(currentContext).inflate(R.layout.item_folder, null, false)
             val folderNameView = itemView.findViewById<TextView>(R.id.folder_name)
             folderNameView.text = folder
             if (folder == selectedFolder) {
@@ -147,7 +149,8 @@ class ThemePreference(context: Context, attrs: AttributeSet?) : Preference(conte
     }
 
     private fun createNewFolder(folderName: String) {
-        val themesRoot = File(Environment.getExternalStorageDirectory(), "Download/WaEnhancer/themes")
+        val themesRoot =
+            File(Environment.getExternalStorageDirectory(), "Download/WaEnhancer/themes")
         val newFolder = File(themesRoot, folderName)
         if (!newFolder.exists() && newFolder.mkdirs()) {
             mainDialog?.dismiss()
@@ -166,7 +169,10 @@ class ThemePreference(context: Context, attrs: AttributeSet?) : Preference(conte
 
                 while (zipEntry != null) {
                     val entryName = zipEntry.name
-                    val root = File(Environment.getExternalStorageDirectory(), "Download/WaEnhancer/themes")
+                    val root = File(
+                        Environment.getExternalStorageDirectory(),
+                        "Download/WaEnhancer/themes"
+                    )
                     val lastSlashIndex = entryName.lastIndexOf('/')
                     val folderName: String
                     val targetPath: String
@@ -181,13 +187,20 @@ class ThemePreference(context: Context, attrs: AttributeSet?) : Preference(conte
                     val newFolder = File(root, folderName)
                     if (!newFolder.exists()) newFolder.mkdirs()
                     if (!entryName.endsWith("/")) {
-                        Files.copy(zipInputStream, File(root, targetPath).toPath(), StandardCopyOption.REPLACE_EXISTING)
+                        Files.copy(
+                            zipInputStream,
+                            File(root, targetPath).toPath(),
+                            StandardCopyOption.REPLACE_EXISTING
+                        )
                     }
                     zipEntry = zipInputStream.nextEntry
                 }
 
                 (context as Activity).runOnUiThread {
-                    Utils.showToast(context.getString(R.string.theme_imported_successfully), Toast.LENGTH_SHORT)
+                    Utils.showToast(
+                        context.getString(R.string.theme_imported_successfully),
+                        Toast.LENGTH_SHORT
+                    )
                     mainDialog?.dismiss()
                     showThemeDialog()
                 }
@@ -202,7 +215,8 @@ class ThemePreference(context: Context, attrs: AttributeSet?) : Preference(conte
             try {
                 context.contentResolver.query(uri, null, null, null, null)?.use { cursor ->
                     if (cursor.moveToFirst()) {
-                        val nameIndex = cursor.getColumnIndex(android.provider.OpenableColumns.DISPLAY_NAME)
+                        val nameIndex =
+                            cursor.getColumnIndex(android.provider.OpenableColumns.DISPLAY_NAME)
                         if (nameIndex >= 0) fileName = cursor.getString(nameIndex)
                     }
                 }
@@ -214,7 +228,8 @@ class ThemePreference(context: Context, attrs: AttributeSet?) : Preference(conte
         if (fileName?.lowercase()?.endsWith(".zip") == true) {
             fileName = fileName.substring(0, fileName.length - 4)
         }
-        return fileName?.takeIf { it.isNotEmpty() } ?: "imported_theme_${System.currentTimeMillis()}"
+        return fileName?.takeIf { it.isNotEmpty() }
+            ?: "imported_theme_${System.currentTimeMillis()}"
     }
 
     companion object {

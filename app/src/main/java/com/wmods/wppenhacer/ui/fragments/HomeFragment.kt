@@ -16,11 +16,13 @@ import android.view.ViewGroup
 import android.view.animation.AnimationUtils
 import android.widget.Toast
 import androidx.core.content.ContextCompat
+import androidx.core.content.edit
 import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.lifecycleScope
 import androidx.preference.PreferenceManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import com.highcapable.yukihookapi.YukiHookAPI
 import com.wmods.wppenhacer.App
 import com.wmods.wppenhacer.BuildConfig
 import com.wmods.wppenhacer.R
@@ -46,7 +48,6 @@ import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 import java.util.concurrent.TimeUnit
-import androidx.core.content.edit
 
 class HomeFragment : BaseFragment() {
 
@@ -178,7 +179,8 @@ class HomeFragment : BaseFragment() {
         if (App.isOriginalPackage) binding.status3.visibility = View.VISIBLE
         binding.statusTitle3.setText(R.string.business_in_background)
         val version = intent.getStringExtra("VERSION")
-        val supportedList = context.resources.getStringArray(R.array.supported_versions_business).toList()
+        val supportedList =
+            context.resources.getStringArray(R.array.supported_versions_business).toList()
         if (isSupportedVersion(version, supportedList)) {
             binding.statusSummary3.text = getString(R.string.version_s, version)
             binding.status3.getChildAt(0).setBackgroundResource(R.drawable.gradient_success)
@@ -194,7 +196,8 @@ class HomeFragment : BaseFragment() {
     private fun receiverBroadcastWpp(context: Context, intent: Intent) {
         binding.statusTitle2.setText(R.string.whatsapp_in_background)
         val version = intent.getStringExtra("VERSION")
-        val supportedList = context.resources.getStringArray(R.array.supported_versions_wpp).toList()
+        val supportedList =
+            context.resources.getStringArray(R.array.supported_versions_wpp).toList()
 
         if (isSupportedVersion(version, supportedList)) {
             binding.statusSummary1.text = getString(R.string.version_s, version)
@@ -247,7 +250,11 @@ class HomeFragment : BaseFragment() {
                         output.write(jsonObject.toString(4).toByteArray())
                     }
                     withContext(Dispatchers.Main) {
-                        Toast.makeText(context, context.getString(R.string.configs_saved), Toast.LENGTH_SHORT).show()
+                        Toast.makeText(
+                            context,
+                            context.getString(R.string.configs_saved),
+                            Toast.LENGTH_SHORT
+                        ).show()
                     }
                 } catch (e: Exception) {
                     withContext(Dispatchers.Main) {
@@ -306,7 +313,11 @@ class HomeFragment : BaseFragment() {
                         }
                     }
                     withContext(Dispatchers.Main) {
-                        Toast.makeText(context, context.getString(R.string.configs_imported), Toast.LENGTH_SHORT).show()
+                        Toast.makeText(
+                            context,
+                            context.getString(R.string.configs_imported),
+                            Toast.LENGTH_SHORT
+                        ).show()
                         App.instance.restartApp(FeatureLoader.PACKAGE_WPP)
                         App.instance.restartApp(FeatureLoader.PACKAGE_BUSINESS)
                     }
@@ -322,10 +333,11 @@ class HomeFragment : BaseFragment() {
     }
 
     private fun checkStateWpp(activity: FragmentActivity) {
-        if (App.instance.isXposedEnabled()) {
+        if (YukiHookAPI.Status.isModuleActive) {
             binding.statusIcon.setImageResource(R.drawable.ic_round_check_circle_24)
             binding.statusTitle.setText(R.string.module_enabled)
-            binding.statusSummary.text = String.format(getString(R.string.version_s), BuildConfig.VERSION_NAME)
+            binding.statusSummary.text =
+                String.format(getString(R.string.version_s), BuildConfig.VERSION_NAME)
             binding.status.getChildAt(0).setBackgroundResource(R.drawable.gradient_success)
         } else {
             binding.statusIcon.setImageResource(R.drawable.ic_round_error_outline_24)
@@ -346,12 +358,14 @@ class HomeFragment : BaseFragment() {
         binding.sdk.text = Build.VERSION.SDK_INT.toString()
         binding.modelName.text = Build.DEVICE
         if (App.isOriginalPackage) {
-            binding.listWpp.text = activity.resources.getStringArray(R.array.supported_versions_wpp).contentToString()
+            binding.listWpp.text =
+                activity.resources.getStringArray(R.array.supported_versions_wpp).contentToString()
         } else {
             binding.listWppTitle.visibility = View.GONE
             binding.listWpp.visibility = View.GONE
         }
-        binding.listBusiness.text = activity.resources.getStringArray(R.array.supported_versions_business).contentToString()
+        binding.listBusiness.text =
+            activity.resources.getStringArray(R.array.supported_versions_business).contentToString()
         updatePackageStatuses(activity)
     }
 
@@ -418,7 +432,14 @@ class HomeFragment : BaseFragment() {
     }
 
     private fun isSupportedVersion(version: String?, supportedVersions: List<String>): Boolean {
-        return version != null && supportedVersions.any { version.startsWith(it.replace(".xx", "")) }
+        return version != null && supportedVersions.any {
+            version.startsWith(
+                it.replace(
+                    ".xx",
+                    ""
+                )
+            )
+        }
     }
 
     private fun disableBusiness() {
@@ -475,9 +496,14 @@ class HomeFragment : BaseFragment() {
 
                     val parts = tagName.split("-")
                     val hash = if (parts.size > 1) parts[1].trim() else ""
-                    val isNewVersion = hash.isNotEmpty() && !BuildConfig.VERSION_NAME.lowercase().contains(hash.lowercase().trim())
+                    val isNewVersion = hash.isNotEmpty() && !BuildConfig.VERSION_NAME.lowercase()
+                        .contains(hash.lowercase().trim())
 
-                    updateCardState(success = true, isUpToDate = !isNewVersion, newVersion = tagName)
+                    updateCardState(
+                        success = true,
+                        isUpToDate = !isNewVersion,
+                        newVersion = tagName
+                    )
                 }
             } catch (_: UnknownHostException) {
                 updateCardState(success = false, isUpToDate = false, newVersion = null)
@@ -487,7 +513,11 @@ class HomeFragment : BaseFragment() {
         }
     }
 
-    private suspend fun updateCardState(success: Boolean, isUpToDate: Boolean, newVersion: String?) {
+    private suspend fun updateCardState(
+        success: Boolean,
+        isUpToDate: Boolean,
+        newVersion: String?
+    ) {
         withContext(Dispatchers.Main) {
             if (_binding == null || !isAdded) return@withContext
 
@@ -499,12 +529,14 @@ class HomeFragment : BaseFragment() {
             } else if (isUpToDate) {
                 binding.updateIcon.setImageResource(R.drawable.ic_round_check_circle_24)
                 binding.updateTitle.setText(R.string.up_to_date)
-                binding.updateSummary.text = getString(R.string.current_version_s, BuildConfig.VERSION_NAME)
+                binding.updateSummary.text =
+                    getString(R.string.current_version_s, BuildConfig.VERSION_NAME)
                 binding.updateCard.getChildAt(0).setBackgroundResource(R.drawable.gradient_success)
             } else {
                 binding.updateIcon.setImageResource(R.drawable.ic_round_update_24)
                 binding.updateTitle.setText(R.string.update_available)
-                binding.updateSummary.text = getString(R.string.update_available_summary, newVersion)
+                binding.updateSummary.text =
+                    getString(R.string.update_available_summary, newVersion)
                 binding.updateCard.getChildAt(0).setBackgroundResource(R.drawable.gradient_update)
             }
         }

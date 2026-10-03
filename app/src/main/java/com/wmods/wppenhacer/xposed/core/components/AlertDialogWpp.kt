@@ -11,8 +11,7 @@ import android.widget.Toast
 import com.wmods.wppenhacer.xposed.core.devkit.Unobfuscator.loadMaterialAlertDialog
 import com.wmods.wppenhacer.xposed.utils.ReflectionUtils
 import com.wmods.wppenhacer.xposed.utils.Utils
-import de.robv.android.xposed.XposedBridge
-import de.robv.android.xposed.XposedHelpers
+import com.wmods.wppenhacer.xposed.utils.YukiLog
 import java.lang.reflect.Method
 
 open class AlertDialogWpp(val context: Context?) {
@@ -23,7 +22,7 @@ open class AlertDialogWpp(val context: Context?) {
     init {
         if (isSystemDialog) {
             mAlertDialog = AlertDialog.Builder(context)
-        }else {
+        } else {
             try {
                 mAlertDialogWpp = getAlertDialog!!.invoke(null, context)
                 setMessage(null)
@@ -38,7 +37,7 @@ open class AlertDialogWpp(val context: Context?) {
             mAlertDialog!!.setTitle(title)
             return this
         }
-        XposedHelpers.callMethod(mAlertDialogWpp, "setTitle", title)
+        ReflectionUtils.callMethod(mAlertDialogWpp, "setTitle", title)
         return this
     }
 
@@ -47,7 +46,7 @@ open class AlertDialogWpp(val context: Context?) {
             mAlertDialog!!.setTitle(title)
             return this
         }
-        XposedHelpers.callMethod(mAlertDialogWpp, "setTitle", this.context!!.getString(title))
+        ReflectionUtils.callMethod(mAlertDialogWpp, "setTitle", this.context!!.getString(title))
         return this
     }
 
@@ -74,7 +73,7 @@ open class AlertDialogWpp(val context: Context?) {
         try {
             setItemsMethod!!.invoke(mAlertDialogWpp, listener, items)
         } catch (e: Exception) {
-            XposedBridge.log(e)
+            YukiLog.log(e)
         }
         return this
     }
@@ -131,7 +130,7 @@ open class AlertDialogWpp(val context: Context?) {
             mAlertDialog!!.setView(view)
             return this
         }
-        XposedHelpers.callMethod(mAlertDialogWpp, "setView", view)
+        ReflectionUtils.callMethod(mAlertDialogWpp, "setView", view)
         return this
     }
 
@@ -141,7 +140,7 @@ open class AlertDialogWpp(val context: Context?) {
         mCreate = if (isSystemDialog) {
             mAlertDialog!!.create()
         } else {
-            XposedHelpers.callMethod(mAlertDialogWpp, "create") as Dialog
+            ReflectionUtils.callMethod(mAlertDialogWpp, "create") as Dialog
         }
         return mCreate!!
     }
@@ -194,7 +193,7 @@ open class AlertDialogWpp(val context: Context?) {
                 isAvailable = true
             } catch (e: Throwable) {
                 isAvailable = false
-                XposedBridge.log(e)
+                YukiLog.log(e)
                 Utils.showToast("Failed to load MaterialAlertDialog", Toast.LENGTH_SHORT)
             }
         }

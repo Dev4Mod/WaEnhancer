@@ -6,15 +6,12 @@ import android.graphics.RecordingCanvas
 import android.media.MediaCodecInfo
 import android.os.Build
 import androidx.core.content.edit
+import com.highcapable.kavaref.KavaRef.Companion.resolve
 import com.wmods.wppenhacer.xposed.core.Feature
 import com.wmods.wppenhacer.xposed.core.devkit.Unobfuscator
 import com.wmods.wppenhacer.xposed.core.devkit.UnobfuscatorCache
 import com.wmods.wppenhacer.xposed.features.general.Others
 import com.wmods.wppenhacer.xposed.utils.ReflectionUtils
-import de.robv.android.xposed.XC_MethodHook
-import de.robv.android.xposed.XC_MethodReplacement
-import de.robv.android.xposed.XposedBridge
-import de.robv.android.xposed.XposedHelpers
 import java.lang.reflect.Field
 
 class MediaQuality(loader: ClassLoader, preferences: SharedPreferences) :
@@ -26,9 +23,9 @@ class MediaQuality(loader: ClassLoader, preferences: SharedPreferences) :
     }
 
     override fun doHook() {
-        val videoQuality = prefs.getBoolean("videoquality", false)
-        val imageQuality = prefs.getBoolean("imagequality", false)
-        val maxSize = kotlin.math.max(prefs.getFloat("video_limit_size", 60f).toInt(), 90)
+        val videoQuality = xprefs.getBoolean("videoquality", false)
+        val imageQuality = xprefs.getBoolean("imagequality", false)
+        val maxSize = kotlin.math.max(xprefs.getFloat("video_limit_size", 60f).toInt(), 90)
 
         // Disable manual calculation ProcessMediaQuality
         Others.propsBoolean[14447] = false
@@ -46,9 +43,9 @@ class MediaQuality(loader: ClassLoader, preferences: SharedPreferences) :
                 fieldsVideoQuality[it]?.isAccessible = true
             }
 
-            XposedBridge.hookAllConstructors(processVideoQualityClass, object : XC_MethodHook() {
-                override fun afterHookedMethod(param: MethodHookParam) {
-                    val instance = param.thisObject
+            processVideoQualityClass.resolve().constructor { }.hookAll {
+                after {
+                    val instance = instance
                     fieldsVideoQuality["videoLimitMb"]?.setInt(instance, maxSize)
                     fieldsVideoQuality["videoMaxEdge"]?.setInt(instance, EDGE_WIDTH)
                     fieldsVideoQuality["videoMaxBitrate"]?.setInt(instance, BITRATE * 1000)
@@ -58,7 +55,7 @@ class MediaQuality(loader: ClassLoader, preferences: SharedPreferences) :
                         MediaCodecInfo.EncoderCapabilities.BITRATE_MODE_CBR
                     )
                 }
-            })
+            }
 
             val mediaDataVideoConfiguration =
                 Unobfuscator.loadMediaDataVideoConfigurationClass(classLoader)
@@ -66,11 +63,11 @@ class MediaQuality(loader: ClassLoader, preferences: SharedPreferences) :
                 Unobfuscator.getAllMapFields(mediaDataVideoConfiguration)
 
             val videoTranscoderStart = Unobfuscator.loadVideoTranscoderStartMethod(classLoader)
-            XposedBridge.hookMethod(videoTranscoderStart, object : XC_MethodHook() {
-                override fun beforeHookedMethod(param: MethodHookParam) {
-                    val videoProcessor = param.args[0]
+            videoTranscoderStart.hook {
+                before {
+                    val videoProcessor = args[0]
                     val booleanParams = ReflectionUtils.getFieldsByType(
-                        videoProcessor.javaClass,
+                        videoProcessor!!.javaClass,
                         java.lang.Boolean.TYPE
                     )
                     if (booleanParams.size > 2) {
@@ -78,7 +75,7 @@ class MediaQuality(loader: ClassLoader, preferences: SharedPreferences) :
                         field.setBoolean(videoProcessor, false)
                     }
                     val fieldMediaDataVideoConfiguration = ReflectionUtils.getFieldByType(
-                        videoProcessor.javaClass,
+                        videoProcessor!!.javaClass,
                         mediaDataVideoConfiguration
                     )
                     val mediaDataVideoConfigObj =
@@ -87,24 +84,22 @@ class MediaQuality(loader: ClassLoader, preferences: SharedPreferences) :
                         fieldsMediaDataVideoConfiguration["forceSingleTranscoding"]
                     fieldforceSingleTranscoding?.setBoolean(mediaDataVideoConfigObj, true)
                 }
-            })
+            }
 
             Others.propsBoolean[18888] = true
-            XposedBridge.hookMethod(
-                Unobfuscator.loadMediaTranscoderStart(classLoader),
-                object : XC_MethodHook() {
-                    override fun beforeHookedMethod(param: MethodHookParam) {
-                        val processSpec = param.args[0] ?: return
-                        val booleanField = processSpec.javaClass.declaredFields.first {
-                            it.type == Boolean::class.javaPrimitiveType
-                        }
-                        booleanField.isAccessible = true
-                        booleanField.set(
-                            processSpec,
-                            true
-                        )
+            Unobfuscator.loadMediaTranscoderStart(classLoader).hook {
+                before {
+                    val processSpec = args[0] ?: return@before
+                    val booleanField = processSpec.javaClass.declaredFields.first {
+                        it.type == Boolean::class.javaPrimitiveType
                     }
-                })
+                    booleanField.isAccessible = true
+                    booleanField.set(
+                        processSpec,
+                        true
+                    )
+                }
+            }
 
             Others.propsBoolean[5549] = true
             listOf(594, 12852).forEach { Others.propsInteger[it] = EDGE_WIDTH }
@@ -116,9 +111,9 @@ class MediaQuality(loader: ClassLoader, preferences: SharedPreferences) :
             val processImageQualityClass = Unobfuscator.loadProcessImageQualityClass(classLoader)
             val fieldsProcessImageQuality = Unobfuscator.getAllMapFields(processImageQualityClass)
 
-            XposedBridge.hookAllConstructors(processImageQualityClass, object : XC_MethodHook() {
-                override fun afterHookedMethod(param: MethodHookParam) {
-                    val processImageQuality = param.thisObject
+            processImageQualityClass.resolve().constructor { }.hookAll {
+                after {
+                    val processImageQuality = instance
                     val fieldimageMaxSize = fieldsProcessImageQuality["maxKb"]
                     val fieldimageMaxQuality = fieldsProcessImageQuality["quality"]
                     val fieldimageMaxEdge = fieldsProcessImageQuality["maxEdge"]
@@ -127,7 +122,7 @@ class MediaQuality(loader: ClassLoader, preferences: SharedPreferences) :
                     fieldimageMaxQuality?.setInt(processImageQuality, 100)
                     fieldimageMaxEdge?.setInt(processImageQuality, 6000)
                 }
-            })
+            }
 
             val maxKb = 50 * 1024
             listOf(1577, 6030, 2656, 15752, 15746).forEach { Others.propsInteger[it] = maxKb }
@@ -142,28 +137,28 @@ class MediaQuality(loader: ClassLoader, preferences: SharedPreferences) :
 
             // Prevent crashes in Media preview
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                XposedHelpers.findAndHookMethod(
-                    RecordingCanvas::class.java,
-                    "throwIfCannotDraw",
-                    Bitmap::class.java,
-                    XC_MethodReplacement.DO_NOTHING
-                )
+                RecordingCanvas::class.java.resolve().firstMethod {
+                    name = "throwIfCannotDraw"
+                    superclass()
+                    parameters(Bitmap::class.java)
+                }.hook {
+                    replaceUnit { }
+                }
             }
         }
     }
 
     private fun enableMediaQualityForStories() {
-        val prefs = UnobfuscatorCache.getInstance().sPrefsCacheHooks
-        var legacyQualitySelection = prefs.getInt("legacy_quality_selection", -1)
+        val xprefs = UnobfuscatorCache.getInstance().sPrefsCacheHooks
+        var legacyQualitySelection = xprefs.getInt("legacy_quality_selection", -1)
 
         if (legacyQualitySelection != 0) {
             try {
                 val hookMediaQualitySelection =
                     Unobfuscator.loadMediaQualitySelectionMethod(classLoader)
-                XposedBridge.hookMethod(
-                    hookMediaQualitySelection,
-                    XC_MethodReplacement.returnConstant(true)
-                )
+                hookMediaQualitySelection.hook {
+                    replaceAny { true }
+                }
                 legacyQualitySelection = 1
             } catch (_: Exception) {
                 legacyQualitySelection = 0
@@ -173,15 +168,15 @@ class MediaQuality(loader: ClassLoader, preferences: SharedPreferences) :
         if (legacyQualitySelection != 1) {
             val bottomBarConfigClass = Unobfuscator.loadBottomBarConfigClass(classLoader)
             val fieldsBottomBarConfig = Unobfuscator.getAllMapFields(bottomBarConfigClass)
-            XposedBridge.hookAllConstructors(bottomBarConfigClass, object : XC_MethodHook() {
-                override fun afterHookedMethod(param: MethodHookParam) {
+            bottomBarConfigClass.resolve().constructor { }.hookAll {
+                after {
                     val supportsHdQuality = fieldsBottomBarConfig["supportsHdQuality"]
-                    supportsHdQuality?.set(param.thisObject, true)
+                    supportsHdQuality?.set(instance, true)
                 }
-            })
+            }
             legacyQualitySelection = 0
         }
-        prefs.edit(commit = true) {
+        xprefs.edit(commit = true) {
             putInt("legacy_quality_selection", legacyQualitySelection)
         }
     }

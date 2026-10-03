@@ -14,10 +14,10 @@ import com.wmods.wppenhacer.BuildConfig
 import com.wmods.wppenhacer.activities.ForceStartActivity
 import com.wmods.wppenhacer.xposed.bridge.WaeIIFace
 import com.wmods.wppenhacer.xposed.bridge.service.BridgeService
+import com.wmods.wppenhacer.xposed.utils.ReflectionUtils
 import com.wmods.wppenhacer.xposed.utils.Utils
 import com.wmods.wppenhacer.xposed.utils.WaeCoroutineExceptionHandler
-import de.robv.android.xposed.XposedBridge
-import de.robv.android.xposed.XposedHelpers
+import com.wmods.wppenhacer.xposed.utils.YukiLog
 import kotlinx.coroutines.CancellableContinuation
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -61,7 +61,7 @@ class BridgeClientKt(private val context: Context) : BaseClient(), ServiceConnec
                     addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_MULTIPLE_TASK or Intent.FLAG_ACTIVITY_NO_ANIMATION)
                 }
                 context.startActivity(intent)
-            }.onFailure { XposedBridge.log("Failed to start ForceStartActivity: ${it.message}") }
+            }.onFailure { YukiLog.log("Failed to start ForceStartActivity: ${it.message}") }
 
             val connected = withTimeoutOrNull(3000L.milliseconds) {
                 suspendCancellableCoroutine<Boolean> { continuation ->
@@ -87,13 +87,13 @@ class BridgeClientKt(private val context: Context) : BaseClient(), ServiceConnec
                             val handlerThread = HandlerThread("BridgeClient").apply { start() }
                             val handler = Handler(handlerThread.looper)
 
-                            XposedHelpers.callMethod(
+                            ReflectionUtils.callMethod(
                                 context, "bindServiceAsUser", intent, this@BridgeClientKt,
                                 Context.BIND_AUTO_CREATE, handler, Process.myUserHandle()
                             )
                         }
                     } catch (e: Exception) {
-                        XposedBridge.log("Bind failed: ${e.message}")
+                        YukiLog.log("Bind failed: ${e.message}")
                         continuation.resume(false)
                     }
                 }
@@ -105,21 +105,21 @@ class BridgeClientKt(private val context: Context) : BaseClient(), ServiceConnec
 
     override fun onServiceConnected(name: ComponentName?, binder: IBinder?) {
         service = WaeIIFace.Stub.asInterface(binder)
-        XposedBridge.log("Service Connected: $service")
+        YukiLog.log("Service Connected: $service")
         connectionContinuation?.let {
             if (it.isActive) it.resume(true)
         }
     }
 
     override fun onNullBinding(name: ComponentName?) {
-        XposedBridge.log("Service Binding returned null")
+        YukiLog.log("Service Binding returned null")
         connectionContinuation?.let {
             if (it.isActive) it.resume(false)
         }
     }
 
     override fun onServiceDisconnected(name: ComponentName?) {
-        XposedBridge.log("Service Disconnected")
+        YukiLog.log("Service Disconnected")
         service = null
     }
 
@@ -129,7 +129,7 @@ class BridgeClientKt(private val context: Context) : BaseClient(), ServiceConnec
 
             var success = false
             repeat(3) { attempt ->
-                XposedBridge.log("Attempting reconnect... ($attempt)")
+                YukiLog.log("Attempting reconnect... ($attempt)")
                 if (performConnection()) {
                     success = true
                     return@repeat

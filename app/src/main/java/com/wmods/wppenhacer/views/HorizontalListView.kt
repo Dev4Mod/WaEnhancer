@@ -176,7 +176,8 @@ open class HorizontalListView @JvmOverloads constructor(
     }
 
     private fun addAndMeasureChild(child: View, viewPosition: Int) {
-        val params = child.layoutParams ?: LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT)
+        val params =
+            child.layoutParams ?: LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT)
         addViewInLayout(child, viewPosition, params, true)
         child.measure(
             MeasureSpec.makeMeasureSpec(width, MeasureSpec.AT_MOST),

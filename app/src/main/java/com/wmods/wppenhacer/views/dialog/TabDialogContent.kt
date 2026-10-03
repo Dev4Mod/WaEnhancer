@@ -21,28 +21,45 @@ class TabDialogContent(context: Context) : LinearLayout(context) {
         val params = LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT)
         layoutParams = params
         orientation = VERTICAL
-        setBackground(DesignUtils.createDrawable("rc_dialog_bg", DesignUtils.getPrimarySurfaceColor()))
-        setPadding(Utils.dipToPixels(16), Utils.dipToPixels(12), Utils.dipToPixels(16), Utils.dipToPixels(16))
+        setBackground(
+            DesignUtils.createDrawable(
+                "rc_dialog_bg",
+                DesignUtils.getPrimarySurfaceColor()
+            )
+        )
+        setPadding(
+            Utils.dipToPixels(16),
+            Utils.dipToPixels(12),
+            Utils.dipToPixels(16),
+            Utils.dipToPixels(16)
+        )
 
         val lineLayout = LinearLayout(context).apply {
             orientation = HORIZONTAL
-            layoutParams = LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT).apply {
-                gravity = Gravity.CENTER_HORIZONTAL
-                setMargins(0, Utils.dipToPixels(5), 0, Utils.dipToPixels(5))
-            }
+            layoutParams =
+                LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT).apply {
+                    gravity = Gravity.CENTER_HORIZONTAL
+                    setMargins(0, Utils.dipToPixels(5), 0, Utils.dipToPixels(5))
+                }
         }
         val lineImage = ImageView(context).apply {
             layoutParams = LayoutParams(Utils.dipToPixels(70), LayoutParams.MATCH_PARENT)
-            setImageDrawable(DesignUtils.createDrawable("rc_dotline_dialog", DesignUtils.getPrimaryTextColor()))
+            setImageDrawable(
+                DesignUtils.createDrawable(
+                    "rc_dotline_dialog",
+                    DesignUtils.getPrimaryTextColor()
+                )
+            )
         }
         lineLayout.addView(lineImage)
         addView(lineLayout)
 
         titleView = TextView(context).apply {
-            layoutParams = LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT).apply {
-                gravity = Gravity.CENTER
-                setMargins(Utils.dipToPixels(6), 0, 0, 0)
-            }
+            layoutParams =
+                LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT).apply {
+                    gravity = Gravity.CENTER
+                    setMargins(Utils.dipToPixels(6), 0, 0, 0)
+                }
             gravity = Gravity.CENTER
             setTextColor(DesignUtils.getPrimaryTextColor())
             setTextSize(TypedValue.COMPLEX_UNIT_SP, 20f)
@@ -60,9 +77,10 @@ class TabDialogContent(context: Context) : LinearLayout(context) {
         contentLinear = LinearLayout(context).apply {
             orientation = HORIZONTAL
             gravity = Gravity.CENTER_HORIZONTAL
-            layoutParams = LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT).apply {
-                setMargins(0, Utils.dipToPixels(5), 0, Utils.dipToPixels(5))
-            }
+            layoutParams =
+                LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT).apply {
+                    setMargins(0, Utils.dipToPixels(5), 0, Utils.dipToPixels(5))
+                }
         }
         addView(contentLinear)
     }
@@ -78,8 +96,18 @@ class TabDialogContent(context: Context) : LinearLayout(context) {
             layoutParams = LayoutParams(0, LayoutParams.WRAP_CONTENT, 1f).apply {
                 setMargins(Utils.dipToPixels(1.5f), 0, Utils.dipToPixels(1.5f), 0)
             }
-            setPadding(Utils.dipToPixels(10), Utils.dipToPixels(20), Utils.dipToPixels(10), Utils.dipToPixels(10))
-            setBackground(DesignUtils.createDrawable("stroke_border", DesignUtils.getPrimaryTextColor()))
+            setPadding(
+                Utils.dipToPixels(10),
+                Utils.dipToPixels(20),
+                Utils.dipToPixels(10),
+                Utils.dipToPixels(10)
+            )
+            setBackground(
+                DesignUtils.createDrawable(
+                    "stroke_border",
+                    DesignUtils.getPrimaryTextColor()
+                )
+            )
             setOnClickListener(listener)
         }
         tab.addView(ImageView(context).apply {
@@ -87,9 +115,10 @@ class TabDialogContent(context: Context) : LinearLayout(context) {
             setImageDrawable(image)
         })
         tab.addView(TextView(context).apply {
-            layoutParams = LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT).apply {
-                setMargins(0, Utils.dipToPixels(5), 0, 0)
-            }
+            layoutParams =
+                LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT).apply {
+                    setMargins(0, Utils.dipToPixels(5), 0, 0)
+                }
             text = title
             setTextColor(DesignUtils.getPrimaryTextColor())
             setTextSize(TypedValue.COMPLEX_UNIT_SP, 12f)

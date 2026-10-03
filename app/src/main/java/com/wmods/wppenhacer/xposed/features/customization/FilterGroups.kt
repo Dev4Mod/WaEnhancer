@@ -2,6 +2,7 @@ package com.wmods.wppenhacer.xposed.features.customization
 
 import android.annotation.SuppressLint
 import android.content.Context
+import android.content.SharedPreferences
 import android.graphics.Color
 import android.graphics.drawable.GradientDrawable
 import android.graphics.drawable.LayerDrawable
@@ -12,20 +13,18 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.LinearLayout
 import android.widget.TextView
+import com.highcapable.kavaref.KavaRef.Companion.resolve
 import com.wmods.wppenhacer.xposed.core.Feature
 import com.wmods.wppenhacer.xposed.core.devkit.Unobfuscator
 import com.wmods.wppenhacer.xposed.core.devkit.UnobfuscatorCache
 import com.wmods.wppenhacer.xposed.utils.DesignUtils
+import com.wmods.wppenhacer.xposed.utils.ReflectionUtils
 import com.wmods.wppenhacer.xposed.utils.Utils
-import de.robv.android.xposed.XC_MethodHook
-import android.content.SharedPreferences 
-import de.robv.android.xposed.XposedBridge
-import de.robv.android.xposed.XposedHelpers
 import java.lang.reflect.Method
 
 class FilterGroups(
     loader: ClassLoader,
-    preferences:SharedPreferences
+    preferences: SharedPreferences
 ) : Feature(loader, preferences) {
 
     @Volatile
@@ -41,10 +40,10 @@ class FilterGroups(
 
     @Throws(Throwable::class)
     override fun doHook() {
-        if (!prefs.getBoolean(
+        if (!xprefs.getBoolean(
                 "filtergroups",
                 false
-            ) || prefs.getBoolean("separategroups", false)
+            ) || xprefs.getBoolean("separategroups", false)
         ) {
             return
         }
@@ -57,42 +56,33 @@ class FilterGroups(
         }
 
         val methodTabInstance = Unobfuscator.loadTabFragmentMethod(classLoader)
-        XposedBridge.hookMethod(
-            methodTabInstance,
-            object : XC_MethodHook() {
-                override fun afterHookedMethod(param: MethodHookParam) {
-                    conversationFragment = param.thisObject
-                    param.result = filterList(param.result as? List<*>)
-                }
+        methodTabInstance.hook {
+            after {
+                conversationFragment = instance
+                result = filterList(result as? List<*>)
             }
-        )
+        }
 
         val publishResultsMethod = Unobfuscator.loadGetFiltersMethod(classLoader)
-        XposedBridge.hookMethod(
-            publishResultsMethod,
-            object : XC_MethodHook() {
-                override fun beforeHookedMethod(param: MethodHookParam) {
-                    val filters = param.args[1]
-                    val chatsList = XposedHelpers.getObjectField(filters, "values") as? List<*>
-                    val resultList = filterList(chatsList)
+        publishResultsMethod.hook {
+            before {
+                val filters = args[1]
+                val chatsList = ReflectionUtils.getObjectField(filters, "values") as? List<*>
+                val resultList = filterList(chatsList)
 
-                    XposedHelpers.setObjectField(filters, "values", resultList)
-                    XposedHelpers.setIntField(filters, "count", resultList.size)
-                }
+                ReflectionUtils.setObjectField(filters, "values", resultList)
+                ReflectionUtils.setIntField(filters, "count", resultList.size)
             }
-        )
+        }
 
         val filterView = Unobfuscator.getFilterView(classLoader)
-        XposedHelpers.findAndHookConstructor(
-            filterView,
-            Context::class.java,
-            object : XC_MethodHook() {
-                @Throws(Throwable::class)
-                override fun afterHookedMethod(param: MethodHookParam) {
-                    setSetupSeparate(param.thisObject as ViewGroup)
-                }
+        filterView.resolve().firstConstructor {
+            parameters(Context::class.java)
+        }.hook {
+            after {
+                setSetupSeparate(instance as ViewGroup)
             }
-        )
+        }
     }
 
     private fun filterList(chatsList: List<*>?): List<*> {

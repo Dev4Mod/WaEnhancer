@@ -12,7 +12,6 @@ import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.card.MaterialCardView
 import com.wmods.wppenhacer.R
 import com.wmods.wppenhacer.model.Recording
-import java.util.HashSet
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -78,7 +77,8 @@ class RecordingsAdapter(private val listener: OnRecordingActionListener) :
         get() = selectedPositions.mapNotNull { position -> recordingItems.getOrNull(position) }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
-        val view = LayoutInflater.from(parent.context).inflate(R.layout.item_recording, parent, false)
+        val view =
+            LayoutInflater.from(parent.context).inflate(R.layout.item_recording, parent, false)
         return ViewHolder(view)
     }
 
@@ -88,7 +88,8 @@ class RecordingsAdapter(private val listener: OnRecordingActionListener) :
         holder.duration.text = recording.getFormattedDuration()
 
         val dateFormat = SimpleDateFormat("dd MMM yyyy, HH:mm", Locale.getDefault())
-        holder.details.text = "${recording.getFormattedSize()} • ${dateFormat.format(Date(recording.date))}"
+        holder.details.text =
+            "${recording.getFormattedSize()} • ${dateFormat.format(Date(recording.date))}"
 
         if (isSelectionMode) {
             holder.checkbox.visibility = View.VISIBLE

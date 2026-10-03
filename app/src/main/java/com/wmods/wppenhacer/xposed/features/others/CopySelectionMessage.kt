@@ -7,34 +7,26 @@ import android.content.res.ColorStateList
 import android.graphics.Color
 import android.view.Gravity
 import android.view.View
-import android.view.ViewGroup
 import android.widget.LinearLayout
-import android.widget.PopupWindow
 import android.widget.TextView
-import androidx.core.view.children
 import androidx.core.widget.NestedScrollView
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textfield.TextInputLayout
 import com.wmods.wppenhacer.R
 import com.wmods.wppenhacer.xposed.core.Feature
-import com.wmods.wppenhacer.xposed.core.WppCore
 import com.wmods.wppenhacer.xposed.core.components.AlertDialogWpp
-import com.wmods.wppenhacer.xposed.core.components.FMessageWpp
-import com.wmods.wppenhacer.xposed.core.devkit.Unobfuscator
 import com.wmods.wppenhacer.xposed.features.listeners.ConversationItemListener
 import com.wmods.wppenhacer.xposed.features.providers.ContextMenuActionProvider
 import com.wmods.wppenhacer.xposed.utils.DesignUtils
 import com.wmods.wppenhacer.xposed.utils.ModuleContextWrapper
 import com.wmods.wppenhacer.xposed.utils.Utils
-import de.robv.android.xposed.XC_MethodHook
-import de.robv.android.xposed.XposedBridge
 
-class CopySelectionMessage(classLoader: ClassLoader, prefs: SharedPreferences) :
-    Feature(classLoader, prefs) {
+class CopySelectionMessage(classLoader: ClassLoader, xprefs: SharedPreferences) :
+    Feature(classLoader, xprefs) {
 
     override fun doHook() {
-        if (!prefs.getBoolean("copy_selection_message", false)) return
+        if (!xprefs.getBoolean("copy_selection_message", false)) return
 
 
         ContextMenuActionProvider.register { activity, _, wpp ->

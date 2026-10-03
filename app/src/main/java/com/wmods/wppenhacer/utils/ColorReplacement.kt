@@ -7,8 +7,7 @@ import android.view.ViewStub
 import android.widget.ImageView
 import android.widget.TextView
 import com.wmods.wppenhacer.xposed.utils.DesignUtils
-import de.robv.android.xposed.XposedHelpers
-import java.util.HashMap
+import com.wmods.wppenhacer.xposed.utils.ReflectionUtils
 
 object ColorReplacement {
     @JvmStatic
@@ -27,7 +26,7 @@ object ColorReplacement {
         DrawableColors.replaceColor(view.background, colors)
         val colorFilter = view.colorFilter ?: return
         if (colorFilter is PorterDuffColorFilter) {
-            val color = XposedHelpers.callMethod(colorFilter, "getColor") as Int
+            val color = ReflectionUtils.callMethod(colorFilter, "getColor") as Int
             val stringColor = IColors.toString(color)
             var newColor = colors[stringColor]
             if (newColor != null) {

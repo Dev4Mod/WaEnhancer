@@ -2,10 +2,11 @@ package com.wmods.wppenhacer.xposed.core.components
 
 import android.content.SharedPreferences
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener
+import com.highcapable.kavaref.KavaRef.Companion.resolve
+import com.highcapable.yukihookapi.hook.param.HookParam
+import com.highcapable.yukihookapi.hook.param.PackageParam
 import com.wmods.wppenhacer.xposed.core.devkit.Unobfuscator.loadSharedPreferencesClasses
-import de.robv.android.xposed.XC_MethodHook
-import de.robv.android.xposed.XposedBridge
-import de.robv.android.xposed.XposedHelpers
+import com.wmods.wppenhacer.xposed.utils.ReflectionUtils
 import java.util.concurrent.CopyOnWriteArraySet
 
 class SharedPreferencesWrapper(private val mPreferences: SharedPreferences) : SharedPreferences {
@@ -72,103 +73,61 @@ class SharedPreferencesWrapper(private val mPreferences: SharedPreferences) : Sh
         private val prefHook = CopyOnWriteArraySet<SPrefHook>()
 
         @Throws(Exception::class)
-        fun hookInit(classLoader: ClassLoader) {
-            XposedHelpers.findAndHookMethod(
-                "android.app.ContextImpl",
-                classLoader,
-                "getSharedPreferences",
-                String::class.java,
-                Int::class.javaPrimitiveType,
-                object : XC_MethodHook() {
-                    @Throws(Throwable::class)
-                    override fun afterHookedMethod(param: MethodHookParam) {
-                        val pref = param.result as SharedPreferences?
-                        if (pref == null || pref is SharedPreferencesWrapper) return
-                        param.setResult(SharedPreferencesWrapper(pref))
+        fun hookInit(packageParam: PackageParam, classLoader: ClassLoader) {
+            packageParam.apply {
+                ReflectionUtils.findClass("android.app.ContextImpl", classLoader).resolve()
+                    .firstMethod {
+                        name = "getSharedPreferences"
+                        superclass()
+                        parameters(String::class.java, Int::class)
+                    }.hook {
+                    after {
+                        val pref = result as SharedPreferences?
+                        if (pref == null || pref is SharedPreferencesWrapper) return@after
+                        result = (SharedPreferencesWrapper(pref))
                     }
-                })
-            val sharedPreferencesClasses =
-                loadSharedPreferencesClasses(classLoader)
-            if (sharedPreferencesClasses.isNullOrEmpty()) return
-
-            val getStringHook: XC_MethodHook = object : XC_MethodHook() {
-                @Throws(Throwable::class)
-                override fun afterHookedMethod(param: MethodHookParam) {
-                    val key = param.args[0] as String?
-                    val value = param.result
-                    param.setResult(applyHook(key, value))
                 }
-            }
+                val sharedPreferencesClasses =
+                    loadSharedPreferencesClasses(classLoader)
+                if (sharedPreferencesClasses.isNullOrEmpty()) return
 
-            val getBooleanHook: XC_MethodHook = object : XC_MethodHook() {
-                @Throws(Throwable::class)
-                override fun afterHookedMethod(param: MethodHookParam) {
-                    val key = param.args[0] as String?
-                    val value = param.result
-                    param.setResult(applyHook(key, value))
+                val applyKeyHook: HookParam.() -> Unit = {
+                    val key = args[0] as String?
+                    val value = result
+                    result = applyHook(key, value)
                 }
-            }
 
-            val getIntHook: XC_MethodHook = object : XC_MethodHook() {
-                @Throws(Throwable::class)
-                override fun afterHookedMethod(param: MethodHookParam) {
-                    val key = param.args[0] as String?
-                    val value = param.result
-                    param.setResult(applyHook(key, value))
-                }
-            }
-
-            val getLongHook: XC_MethodHook = object : XC_MethodHook() {
-                @Throws(Throwable::class)
-                override fun afterHookedMethod(param: MethodHookParam) {
-                    val key = param.args[0] as String?
-                    val value = param.result
-                    param.setResult(applyHook(key, value))
-                }
-            }
-
-            val getFloatHook: XC_MethodHook = object : XC_MethodHook() {
-                @Throws(Throwable::class)
-                override fun afterHookedMethod(param: MethodHookParam) {
-                    val key = param.args[0] as String?
-                    val value = param.result
-                    param.setResult(applyHook(key, value))
-                }
-            }
-
-            val containsHook: XC_MethodHook = object : XC_MethodHook() {
-                @Throws(Throwable::class)
-                override fun afterHookedMethod(param: MethodHookParam) {
-                    val key = param.args[0] as String?
-                    val value = param.result
-                    param.setResult(applyHook(key, value))
-                }
-            }
-
-            val getAllHook: XC_MethodHook = object : XC_MethodHook() {
-                @Throws(Throwable::class)
-                override fun afterHookedMethod(param: MethodHookParam) {
+                val getAllHook: HookParam.() -> Unit = {
                     @Suppress("UNCHECKED_CAST")
-                    val result = param.result as MutableMap<String?, Any?>?
-                    if (result.isNullOrEmpty()) return
-                    val updated = HashMap<String?, Any?>(result.size)
-                    for (entry in result.entries) {
-                        updated[entry.key] = applyHook(entry.key, entry.value)
+                    val result = result as MutableMap<String?, Any?>?
+                    if (!result.isNullOrEmpty()) {
+                        val updated = HashMap<String?, Any?>(result.size)
+                        for (entry in result.entries) {
+                            updated[entry.key] = applyHook(entry.key, entry.value)
+                        }
+                        this.result = updated
                     }
-                    param.setResult(updated)
                 }
-            }
 
-            for (sharedPreferencesClass in sharedPreferencesClasses) {
-                if (SharedPreferencesWrapper::class.java.name == sharedPreferencesClass.name) continue
-                XposedBridge.hookAllMethods(sharedPreferencesClass, "getString", getStringHook)
-                XposedBridge.hookAllMethods(sharedPreferencesClass, "getStringSet", getStringHook)
-                XposedBridge.hookAllMethods(sharedPreferencesClass, "getInt", getIntHook)
-                XposedBridge.hookAllMethods(sharedPreferencesClass, "getLong", getLongHook)
-                XposedBridge.hookAllMethods(sharedPreferencesClass, "getFloat", getFloatHook)
-                XposedBridge.hookAllMethods(sharedPreferencesClass, "getBoolean", getBooleanHook)
-                XposedBridge.hookAllMethods(sharedPreferencesClass, "contains", containsHook)
-                XposedBridge.hookAllMethods(sharedPreferencesClass, "getAll", getAllHook)
+                for (sharedPreferencesClass in sharedPreferencesClasses) {
+                    if (SharedPreferencesWrapper::class.java.name == sharedPreferencesClass.name) continue
+                    for (methodName in listOf(
+                        "getString",
+                        "getStringSet",
+                        "getInt",
+                        "getLong",
+                        "getFloat",
+                        "getBoolean",
+                        "contains"
+                    )) {
+                        sharedPreferencesClass.resolve().method {
+                            name = methodName
+                        }.hookAll { after(applyKeyHook) }
+                    }
+                    sharedPreferencesClass.resolve().method {
+                        name = "getAll"
+                    }.hookAll { after(getAllHook) }
+                }
             }
         }
 

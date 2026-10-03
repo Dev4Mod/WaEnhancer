@@ -1,6 +1,7 @@
 package com.wmods.wppenhacer.xposed.features.general
 
 import android.annotation.SuppressLint
+import android.content.SharedPreferences
 import android.graphics.Color
 import android.graphics.Typeface
 import android.view.View
@@ -28,16 +29,12 @@ import com.wmods.wppenhacer.xposed.features.listeners.ConversationItemListener.O
 import com.wmods.wppenhacer.xposed.utils.DesignUtils
 import com.wmods.wppenhacer.xposed.utils.ReflectionUtils
 import com.wmods.wppenhacer.xposed.utils.Utils
-import de.robv.android.xposed.XC_MethodHook
-import android.content.SharedPreferences 
-import de.robv.android.xposed.XposedBridge
-import de.robv.android.xposed.XposedHelpers
 
-class ShowEditMessage(loader: ClassLoader, preferences:SharedPreferences) :
+class ShowEditMessage(loader: ClassLoader, preferences: SharedPreferences) :
     Feature(loader, preferences) {
 
     override fun doHook() {
-        if (!prefs.getBoolean("antieditmessages", false)) return
+        if (!xprefs.getBoolean("antieditmessages", false)) return
 
         val onMessageEdit = loadMessageEditMethod(classLoader)
         logDebug(getMethodDescriptor(onMessageEdit))
@@ -48,35 +45,35 @@ class ShowEditMessage(loader: ClassLoader, preferences:SharedPreferences) :
         val getEditMessage = loadGetEditMessageMethod(classLoader)
         logDebug(getMethodDescriptor(getEditMessage))
 
-        XposedBridge.hookMethod(onMessageEdit, object : XC_MethodHook() {
-
-            override fun beforeHookedMethod(param: MethodHookParam) {
-                val invoked = callerMessageEditMethod.invoke(null, param.args[0])
-                val timestamp = XposedHelpers.getLongField(invoked, "A00")
-                val fMessage = FMessageWpp(param.args[0])
+        onMessageEdit.hook {
+            before {
+                val invoked = callerMessageEditMethod.invoke(null, args[0])
+                val timestamp = ReflectionUtils.getLongField(invoked, "A00")
+                val fMessage = FMessageWpp(args[0])
                 val id = fMessage.rowId
                 var newMessage = fMessage.messageStr
                 if (newMessage == null) {
                     val methods = ReflectionUtils.findAllMethodsUsingFilter(
-                        param.args[0].javaClass
+                        args[0]!!.javaClass
                     ) { method ->
                         method.returnType == String::class.java && ReflectionUtils.isOverridden(
                             method
                         )
                     }
                     for (method in methods) {
-                        newMessage = method!!.invoke(param.args[0]) as String?
+                        newMessage = method!!.invoke(args[0]) as String?
                         if (newMessage != null) break
                     }
-                    if (newMessage == null) return
+                    if (newMessage == null) return@before
                 }
                 try {
-                    MessageHistoryStore.getInstance().recordEditMessageAsync(id, newMessage, timestamp)
+                    MessageHistoryStore.getInstance()
+                        .recordEditMessageAsync(id, newMessage, timestamp)
                 } catch (e: Exception) {
                     logDebug(e)
                 }
             }
-        })
+        }
 
         val strEmoji = "\uD83D\uDCDD"
 
@@ -98,9 +95,17 @@ class ShowEditMessage(loader: ClassLoader, preferences:SharedPreferences) :
                         val messageId = fMessage.key.messageID
                         val rowId = fMessage.rowId
                         textView.setOnClickListener {
-                            if (!ConversationItemListener.isViewBoundToMessage(view, messageId)) return@setOnClickListener
+                            if (!ConversationItemListener.isViewBoundToMessage(
+                                    view,
+                                    messageId
+                                )
+                            ) return@setOnClickListener
                             MessageHistoryStore.getInstance().getMessagesAsync(rowId) { messages ->
-                                if (ConversationItemListener.isViewBoundToMessage(view, messageId)) {
+                                if (ConversationItemListener.isViewBoundToMessage(
+                                        view,
+                                        messageId
+                                    )
+                                ) {
                                     showBottomDialog(messages)
                                 }
                             }

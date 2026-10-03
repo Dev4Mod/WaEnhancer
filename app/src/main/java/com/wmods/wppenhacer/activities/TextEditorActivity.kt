@@ -76,11 +76,12 @@ class TextEditorActivity : BaseActivity() {
         mGetContent = registerForActivityResult(ActivityResultContracts.GetContent()) { uri ->
             onUriSelected(uri)
         }
-        mExportFile = registerForActivityResult(ActivityResultContracts.CreateDocument("*/*")) { uri ->
-            if (uri != null) {
-                exportAsZip(uri)
+        mExportFile =
+            registerForActivityResult(ActivityResultContracts.CreateDocument("*/*")) { uri ->
+                if (uri != null) {
+                    exportAsZip(uri)
+                }
             }
-        }
 
         folderName = intent.getStringExtra("folder_name")
         if (!TextUtils.isEmpty(folderName)) {
@@ -173,14 +174,19 @@ class TextEditorActivity : BaseActivity() {
                             val cssCode = File(folderFolder, "style.css")
                             cssCode.writeText(code, Charset.defaultCharset())
 
-                            val prefs = PreferenceManager.getDefaultSharedPreferences(this@TextEditorActivity)
+                            val prefs =
+                                PreferenceManager.getDefaultSharedPreferences(this@TextEditorActivity)
                             val key = intent.getStringExtra("key")
                             if (key != null && prefs.getString(key, "") == targetFolder) {
                                 prefs.edit().putString("custom_css", code).apply()
                             }
 
                             withContext(Dispatchers.Main) {
-                                Toast.makeText(this@TextEditorActivity, R.string.saved, Toast.LENGTH_SHORT).show()
+                                Toast.makeText(
+                                    this@TextEditorActivity,
+                                    R.string.saved,
+                                    Toast.LENGTH_SHORT
+                                ).show()
                             }
                         }
                     }
@@ -188,6 +194,7 @@ class TextEditorActivity : BaseActivity() {
                     e.printStackTrace()
                 }
             }
+
             R.id.menuitem_exit -> finish()
             R.id.menuitem_clear -> updateWebViewContent("")
             R.id.menuitem_import_image -> mGetContent.launch("image/*")
@@ -215,7 +222,8 @@ class TextEditorActivity : BaseActivity() {
                     }
                 }
                 withContext(Dispatchers.Main) {
-                    Toast.makeText(this@TextEditorActivity, R.string.exported, Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this@TextEditorActivity, R.string.exported, Toast.LENGTH_SHORT)
+                        .show()
                 }
             } catch (e: Exception) {
                 withContext(Dispatchers.Main) {
@@ -291,7 +299,11 @@ class TextEditorActivity : BaseActivity() {
                 }
             } catch (e: Exception) {
                 withContext(Dispatchers.Main) {
-                    Toast.makeText(this@TextEditorActivity, "Error: " + e.message, Toast.LENGTH_SHORT).show()
+                    Toast.makeText(
+                        this@TextEditorActivity,
+                        "Error: " + e.message,
+                        Toast.LENGTH_SHORT
+                    ).show()
                 }
             }
         }

@@ -10,7 +10,7 @@ import com.wmods.wppenhacer.xposed.bridge.WaeIIFace
 import com.wmods.wppenhacer.xposed.core.WppCore
 import com.wmods.wppenhacer.xposed.utils.Utils
 import com.wmods.wppenhacer.xposed.utils.WaeCoroutineExceptionHandler
-import de.robv.android.xposed.XposedBridge
+import com.wmods.wppenhacer.xposed.utils.YukiLog
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -26,7 +26,8 @@ import kotlin.time.Duration.Companion.milliseconds
 class ProviderClientKt : BaseClient() {
 
     override var service: WaeIIFace? = null
-    private val scope = CoroutineScope(Dispatchers.IO + SupervisorJob() + WaeCoroutineExceptionHandler)
+    private val scope =
+        CoroutineScope(Dispatchers.IO + SupervisorJob() + WaeCoroutineExceptionHandler)
     private val reconnectMutex = Mutex()
 
 
@@ -57,17 +58,17 @@ class ProviderClientKt : BaseClient() {
                     val potentialService = WaeIIFace.Stub.asInterface(binder)
                     if (potentialService?.asBinder()?.pingBinder() == true) {
                         service = potentialService
-                        XposedBridge.log("Bridge Connected: $service")
+                        YukiLog.log("Bridge Connected: $service")
                         return@withTimeout true
                     }
                 }
                 false
             }
         } catch (e: TimeoutCancellationException) {
-            XposedBridge.log("Connection timed out: ${e.message}")
+            YukiLog.log("Connection timed out: ${e.message}")
             false
         } catch (e: Exception) {
-            XposedBridge.log("Connection error: ${e.message}")
+            YukiLog.log("Connection error: ${e.message}")
             false
         }
     }
@@ -80,7 +81,7 @@ class ProviderClientKt : BaseClient() {
 
                 var success = false
                 repeat(3) { attempt ->
-                    XposedBridge.log("Attempt ${attempt + 1} to reconnect...")
+                    YukiLog.log("Attempt ${attempt + 1} to reconnect...")
                     if (performConnection()) {
                         success = true
                         return@repeat

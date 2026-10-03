@@ -15,7 +15,8 @@ internal object GoogleTranslateSettings {
     fun decode(value: String?): GoogleTranslationConfig? {
         val parts = value?.split('|') ?: return null
         if (parts.size != 3 || parts[0] !in setOf("on", "off") ||
-            (parts[1] != "auto" && parts[1] !in languages) || parts[2] !in languages) return null
+            (parts[1] != "auto" && parts[1] !in languages) || parts[2] !in languages
+        ) return null
         return GoogleTranslationConfig(parts[0] == "on", parts[1], parts[2])
     }
 
@@ -26,7 +27,8 @@ internal object GoogleTranslateSettings {
     }
 
     fun resolve(local: String?, global: String?, legacyLocal: String?, legacyGlobal: String?) =
-        decode(local) ?: legacy(legacyLocal) ?: decode(global) ?: legacy(legacyGlobal) ?: GoogleTranslationConfig()
+        decode(local) ?: legacy(legacyLocal) ?: decode(global) ?: legacy(legacyGlobal)
+        ?: GoogleTranslationConfig()
 
     /** Preserve full group IDs (including hyphens); discard status/channel/broadcast IDs. */
     fun normalizeChatId(raw: String?): String? {

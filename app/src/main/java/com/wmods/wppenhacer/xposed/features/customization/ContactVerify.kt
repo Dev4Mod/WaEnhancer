@@ -7,6 +7,7 @@ import android.graphics.Color
 import android.text.TextUtils
 import android.view.ViewGroup
 import android.widget.TextView
+import com.highcapable.kavaref.KavaRef.Companion.resolve
 import com.wmods.wppenhacer.R
 import com.wmods.wppenhacer.xposed.core.Feature
 import com.wmods.wppenhacer.xposed.core.WppCore
@@ -15,12 +16,11 @@ import com.wmods.wppenhacer.xposed.core.devkit.Unobfuscator
 import com.wmods.wppenhacer.xposed.utils.DesignUtils
 import com.wmods.wppenhacer.xposed.utils.ReflectionUtils
 import com.wmods.wppenhacer.xposed.utils.Utils
-import de.robv.android.xposed.XC_MethodHook
-import de.robv.android.xposed.XposedBridge
+import com.wmods.wppenhacer.xposed.utils.YukiLog
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.atomic.AtomicReference
 
-class ContactVerify(loader: ClassLoader, preferences:SharedPreferences) :
+class ContactVerify(loader: ClassLoader, preferences: SharedPreferences) :
     Feature(loader, preferences) {
 
     companion object {
@@ -47,7 +47,7 @@ class ContactVerify(loader: ClassLoader, preferences:SharedPreferences) :
 
     @SuppressLint("ResourceType")
     override fun doHook() {
-        if (!prefs.getBoolean("verify_blocked_contact", false)) return
+        if (!xprefs.getBoolean("verify_blocked_contact", false)) return
 
         val sendGetProfilePhoto = Unobfuscator.loadGetProfilePhoto(classLoader)
         state.sendGetProfilePhoto = sendGetProfilePhoto
@@ -72,60 +72,62 @@ class ContactVerify(loader: ClassLoader, preferences:SharedPreferences) :
             val userJid = WppCore.getCurrentUserJid() ?: return
             if (!userJid.isContact) return
             val view =
-                activity.findViewById<ViewGroup>(Utils.getID("conversation_contact", "id")) ?: return
+                activity.findViewById<ViewGroup>(Utils.getID("conversation_contact", "id"))
+                    ?: return
             val textView = resolveContactChecker(activity, view)
             showChecking(textView)
             checkContactPhotoProfile(userJid)
         } catch (e: Exception) {
-            XposedBridge.log(e)
+            YukiLog.log(e)
         }
     }
 
     private fun initProfilePhotoProtocolHooks(profilePhotoProtocolHelper: Class<*>) {
-        XposedBridge.hookAllConstructors(profilePhotoProtocolHelper, object : XC_MethodHook() {
-            override fun afterHookedMethod(param: MethodHookParam) {
-                state.profilePhotoProtocol = param.thisObject
+        profilePhotoProtocolHelper.resolve().constructor { }.hookAll {
+            after {
+                state.profilePhotoProtocol = instance
             }
-        })
+        }
     }
 
     private fun initProfilePhotoCallbacks(dialerProfilePictureLoader: Class<*>) {
-        val methods = ReflectionUtils.findAllMethodsUsingFilter(dialerProfilePictureLoader) { method ->
-            method.name.length == 3 && method.parameterCount > 1
-        }
+        val methods =
+            ReflectionUtils.findAllMethodsUsingFilter(dialerProfilePictureLoader) { method ->
+                method.name.length == 3 && method.parameterCount > 1
+            }
         val onSuccess = methods.first { method ->
             String::class.java !in method.parameterTypes
         }
         val onError = methods.first { method ->
             String::class.java in method.parameterTypes
         }
-        XposedBridge.hookMethod(onSuccess, object : XC_MethodHook() {
-            override fun beforeHookedMethod(param: MethodHookParam) {
+        onSuccess.hook {
+            before {
                 val fieldUserJid = ReflectionUtils.getFieldByExtendType(
-                    param.args[0].javaClass,
+                    args[0]!!.javaClass,
                     FMessageWpp.UserJid.TYPE_JID
                 )
-                val userJid = FMessageWpp.UserJid(fieldUserJid!!.get(param.args[0]))
-                if (state.pendingUserJid.get() != userJid.userRawString) return
+                val userJid = FMessageWpp.UserJid(fieldUserJid!!.get(args[0]))
+                if (state.pendingUserJid.get() != userJid.userRawString) return@before
                 state.pendingUserJid.set(null)
-                val tv = state.checkerView.get() ?: return
+                val tv = state.checkerView.get() ?: return@before
                 showContactAdded(tv)
             }
-        })
-        XposedBridge.hookMethod(onError, object : XC_MethodHook() {
-            override fun beforeHookedMethod(param: MethodHookParam) {
-                val userJid = FMessageWpp.UserJid(param.args[0])
-                if (state.pendingUserJid.get() != userJid.userRawString) return
+        }
+        onError.hook {
+            before {
+                val userJid = FMessageWpp.UserJid(args[0])
+                if (state.pendingUserJid.get() != userJid.userRawString) return@before
                 state.pendingUserJid.set(null)
-                val tv = state.checkerView.get() ?: return
-                val status = ReflectionUtils.getArg(param.args, Int::class.javaObjectType, 0)
+                val tv = state.checkerView.get() ?: return@before
+                val status = ReflectionUtils.getArg(args, Int::class.javaObjectType, 0)
                 if (status == STATUS_NOT_ADDED) {
                     showProbablyNotAdded(tv)
                 } else {
                     showUnavailable(tv)
                 }
             }
-        })
+        }
     }
 
     private fun resolveContactChecker(activity: Activity, view: ViewGroup): TextView {

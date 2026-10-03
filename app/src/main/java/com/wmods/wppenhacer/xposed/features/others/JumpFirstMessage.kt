@@ -2,10 +2,10 @@ package com.wmods.wppenhacer.xposed.features.others
 
 import android.app.Activity
 import android.content.Intent
+import android.content.SharedPreferences
 import android.os.Build
 import android.os.SystemClock
 import android.view.Menu
-import android.view.MenuItem
 import com.wmods.wppenhacer.R
 import com.wmods.wppenhacer.xposed.core.Feature
 import com.wmods.wppenhacer.xposed.core.WppCore.getCurrentActivity
@@ -14,23 +14,20 @@ import com.wmods.wppenhacer.xposed.core.db.MessageStore.Companion.getInstance
 import com.wmods.wppenhacer.xposed.core.devkit.Unobfuscator.findFirstClassUsingName
 import com.wmods.wppenhacer.xposed.core.devkit.Unobfuscator.loadOnCreatedMenuConversation
 import com.wmods.wppenhacer.xposed.utils.Utils
-import de.robv.android.xposed.XC_MethodHook
-import android.content.SharedPreferences 
-import de.robv.android.xposed.XposedBridge
 import org.luckypray.dexkit.query.enums.StringMatchType
 
-class JumpFirstMessage(classLoader: ClassLoader, preferences:SharedPreferences) :
+class JumpFirstMessage(classLoader: ClassLoader, preferences: SharedPreferences) :
     Feature(classLoader, preferences) {
 
     override fun doHook() {
-        if (!prefs.getBoolean("jump_first_message", false)) return
+        if (!xprefs.getBoolean("jump_first_message", false)) return
         val onCreateMenuConversationMethod = loadOnCreatedMenuConversation(classLoader)
-        XposedBridge.hookMethod(onCreateMenuConversationMethod, object : XC_MethodHook() {
-            override fun afterHookedMethod(param: MethodHookParam) {
+        onCreateMenuConversationMethod.hook {
+            after {
                 try {
-                    val menu = param.args[0] as Menu
+                    val menu = args[0] as Menu
                     if (menu.findItem(R.string.jump_first_message) != null) {
-                        return
+                        return@after
                     }
                     val menuItem =
                         menu.add(0, R.string.jump_first_message, 0, R.string.jump_first_message)
@@ -44,7 +41,7 @@ class JumpFirstMessage(classLoader: ClassLoader, preferences:SharedPreferences) 
                     logDebug(e)
                 }
             }
-        })
+        }
     }
 
     private fun jumpToFirstMessage(activity: Activity) {
@@ -62,7 +59,8 @@ class JumpFirstMessage(classLoader: ClassLoader, preferences:SharedPreferences) 
         }
 
         Utils.databaseExecutor.execute {
-            val firstMessageInfo = getInstance().getFirstMessageInfoByChatRawJid(rawJid) ?: return@execute
+            val firstMessageInfo =
+                getInstance().getFirstMessageInfoByChatRawJid(rawJid) ?: return@execute
 
             try {
                 val conversationClass =

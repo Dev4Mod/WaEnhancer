@@ -1,7 +1,7 @@
 package com.wmods.wppenhacer.xposed.core.components
 
 import com.wmods.wppenhacer.xposed.core.devkit.Unobfuscator
-import de.robv.android.xposed.XposedBridge
+import com.wmods.wppenhacer.xposed.utils.YukiLog
 import java.lang.reflect.Constructor
 import java.lang.reflect.Field
 
@@ -55,7 +55,7 @@ class ProtocolTreeNodeWpp(val mInstance: Any) {
                 ).apply { isAccessible = true }
 
             } catch (e: Exception) {
-                XposedBridge.log("ProtocolTreeNodeWpp Init Error: ${e.message}")
+                YukiLog.log("ProtocolTreeNodeWpp Init Error: ${e.message}")
             }
         }
 
@@ -88,7 +88,7 @@ class ProtocolTreeNodeWpp(val mInstance: Any) {
                 val instance = constructorFull.newInstance(tag, data, attrArray, childArray)
                 return ProtocolTreeNodeWpp(instance)
             } catch (e: Exception) {
-                XposedBridge.log(e)
+                YukiLog.log(e)
                 return null
             }
         }
@@ -151,7 +151,7 @@ class ProtocolTreeNodeWpp(val mInstance: Any) {
             }
             fieldAttributes.set(mInstance, newArray)
         } catch (e: Exception) {
-            XposedBridge.log(e)
+            YukiLog.log(e)
         }
     }
 
@@ -170,7 +170,7 @@ class ProtocolTreeNodeWpp(val mInstance: Any) {
             }
             fieldAttributes.set(mInstance, newArray)
         } catch (e: Exception) {
-            XposedBridge.log(e)
+            YukiLog.log(e)
         }
     }
 
@@ -192,7 +192,7 @@ class ProtocolTreeNodeWpp(val mInstance: Any) {
             }
             fieldAttributes.set(mInstance, newArray)
         } catch (e: Exception) {
-            XposedBridge.log(e)
+            YukiLog.log(e)
         }
     }
 
@@ -220,7 +220,7 @@ class ProtocolTreeNodeWpp(val mInstance: Any) {
             }
             fieldAttributes.set(mInstance, newArray)
         } catch (e: Exception) {
-            XposedBridge.log(e)
+            YukiLog.log(e)
         }
     }
 
@@ -265,7 +265,7 @@ class ProtocolTreeNodeWpp(val mInstance: Any) {
                             isAccessible = true
                         }
                 } catch (e: Exception) {
-                    XposedBridge.log("KeyValueWpp Init Error: ${e.message}")
+                    YukiLog.log("KeyValueWpp Init Error: ${e.message}")
                 }
             }
 
@@ -274,7 +274,7 @@ class ProtocolTreeNodeWpp(val mInstance: Any) {
                     val instance = constructorStringString.newInstance(key, value)
                     KeyValueWpp(instance)
                 } catch (e: Exception) {
-                    XposedBridge.log(e)
+                    YukiLog.log(e)
                     null
                 }
             }
@@ -284,26 +284,26 @@ class ProtocolTreeNodeWpp(val mInstance: Any) {
             get() = try {
                 fieldKey.get(mInstance) as? String
             } catch (e: Exception) {
-                XposedBridge.log(e)
+                YukiLog.log(e)
                 null
             }
             set(value) = try {
                 fieldKey.set(mInstance, value)
             } catch (e: Exception) {
-                XposedBridge.log(e)
+                YukiLog.log(e)
             }
 
         var value: String?
             get() = try {
                 fieldValue.get(mInstance) as? String
             } catch (e: Exception) {
-                XposedBridge.log(e)
+                YukiLog.log(e)
                 null
             }
             set(value) = try {
                 fieldValue.set(mInstance, value)
             } catch (e: Exception) {
-                XposedBridge.log(e)
+                YukiLog.log(e)
             }
 
         var userJid: FMessageWpp.UserJid?
@@ -315,7 +315,7 @@ class ProtocolTreeNodeWpp(val mInstance: Any) {
             set(value) = try {
                 fieldJid.set(mInstance, value?.userJid)
             } catch (e: Exception) {
-                XposedBridge.log(e)
+                YukiLog.log(e)
             }
 
         override fun toString(): String {

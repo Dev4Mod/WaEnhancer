@@ -20,12 +20,13 @@ import com.wmods.wppenhacer.xposed.utils.Utils
 import org.luckypray.dexkit.query.enums.StringMatchType
 import java.io.File
 
-class StatusDownload(loader: ClassLoader, preferences:SharedPreferences) : Feature(loader, preferences) {
+class StatusDownload(loader: ClassLoader, preferences: SharedPreferences) :
+    Feature(loader, preferences) {
 
     private val mainHandler = Handler(Looper.getMainLooper())
 
     override fun doHook() {
-        if (!prefs.getBoolean("downloadstatus", false)) return
+        if (!xprefs.getBoolean("downloadstatus", false)) return
 
         val downloadStatus = object : MenuStatusProvider.Provider {
             override fun addMenu(menu: Menu, statusData: MenuStatusProvider.StatusData): MenuItem? {
@@ -64,9 +65,17 @@ class StatusDownload(loader: ClassLoader, preferences:SharedPreferences) : Featu
                 val intent = Intent()
                 var clazz: Class<*>
                 try {
-                    clazz = Unobfuscator.findFirstClassUsingName(classLoader, StringMatchType.EndsWith, "TextStatusComposerActivity")
+                    clazz = Unobfuscator.findFirstClassUsingName(
+                        classLoader,
+                        StringMatchType.EndsWith,
+                        "TextStatusComposerActivity"
+                    )
                 } catch (ignored: Exception) {
-                    clazz = Unobfuscator.findFirstClassUsingName(classLoader, StringMatchType.EndsWith, "ConsolidatedStatusComposerActivity")
+                    clazz = Unobfuscator.findFirstClassUsingName(
+                        classLoader,
+                        StringMatchType.EndsWith,
+                        "ConsolidatedStatusComposerActivity"
+                    )
                     intent.putExtra("status_composer_mode", 2)
                 }
                 intent.setClassName(Utils.application.packageName, clazz.name)
@@ -80,7 +89,10 @@ class StatusDownload(loader: ClassLoader, preferences:SharedPreferences) : Featu
                 try {
                     val file = statusItem.getMediaFile()
                     if (file == null) {
-                        Utils.showToast(Utils.getString(R.string.download_not_available), Toast.LENGTH_SHORT)
+                        Utils.showToast(
+                            Utils.getString(R.string.download_not_available),
+                            Toast.LENGTH_SHORT
+                        )
                         return@execute
                     }
                     val clazz = Unobfuscator.findFirstClassUsingName(
@@ -93,7 +105,10 @@ class StatusDownload(loader: ClassLoader, preferences:SharedPreferences) : Featu
                         val intent = Intent()
                         intent.setClassName(Utils.application.packageName, clazz.name)
                         intent.putExtra("jids", arrayListOf("status@broadcast"))
-                        intent.putExtra("android.intent.extra.STREAM", arrayListOf(Uri.fromFile(file)))
+                        intent.putExtra(
+                            "android.intent.extra.STREAM",
+                            arrayListOf(Uri.fromFile(file))
+                        )
                         intent.putExtra("android.intent.extra.TEXT", messageText)
                         WppCore.getCurrentActivity()?.startActivity(intent)
                     }
@@ -112,7 +127,10 @@ class StatusDownload(loader: ClassLoader, preferences:SharedPreferences) : Featu
             try {
                 val file = statusItem.getMediaFile()
                 if (file == null) {
-                    Utils.showToast(Utils.getString(R.string.download_not_available), Toast.LENGTH_LONG)
+                    Utils.showToast(
+                        Utils.getString(R.string.download_not_available),
+                        Toast.LENGTH_LONG
+                    )
                     return@execute
                 }
                 val userJid = statusItem.senderJid ?: return@execute
@@ -122,9 +140,15 @@ class StatusDownload(loader: ClassLoader, preferences:SharedPreferences) : Featu
                 val error = Utils.copyFile(file, destination, name)
 
                 if (TextUtils.isEmpty(error)) {
-                    Utils.showToast(Utils.getString(R.string.saved_to) + destination, Toast.LENGTH_SHORT)
+                    Utils.showToast(
+                        Utils.getString(R.string.saved_to) + destination,
+                        Toast.LENGTH_SHORT
+                    )
                 } else {
-                    Utils.showToast("${Utils.getString(R.string.error_when_saving_try_again)}: $error", Toast.LENGTH_SHORT)
+                    Utils.showToast(
+                        "${Utils.getString(R.string.error_when_saving_try_again)}: $error",
+                        Toast.LENGTH_SHORT
+                    )
                 }
             } catch (e: Throwable) {
                 Utils.showToast(e.message, Toast.LENGTH_SHORT)

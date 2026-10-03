@@ -1,32 +1,31 @@
 package com.wmods.wppenhacer.xposed.features.others
 
 import android.app.Activity
-import android.app.Instrumentation
 import android.content.ComponentName
 import android.content.ContentProvider
 import android.content.SharedPreferences
 import android.content.pm.PackageManager
 import android.os.Bundle
+import com.highcapable.kavaref.KavaRef.Companion.resolve
 import com.wmods.wppenhacer.xposed.core.Feature
-import de.robv.android.xposed.XC_MethodHook
-import de.robv.android.xposed.XposedHelpers
 
-class MinorFixes(classLoader: ClassLoader, prefs: SharedPreferences) : Feature(classLoader, prefs) {
+class MinorFixes(classLoader: ClassLoader, xprefs: SharedPreferences) :
+    Feature(classLoader, xprefs) {
     private val mlKitInitLock = Any()
     private var mlKitInitProviderHandled = false
 
     override fun doHook() {
-        XposedHelpers.findAndHookMethod(
-            Activity::class.java,
-            "onCreate",
-            Bundle::class.java,
-            object : XC_MethodHook() {
-                override fun beforeHookedMethod(param: MethodHookParam) {
-                    val activity = param.thisObject as? Activity ?: return
-                    if (activity.javaClass.name != DOCUMENT_PICKER_ACTIVITY) return
-                    ensureMlKitInitialized(activity)
-                }
-            })
+        Activity::class.java.resolve().firstMethod {
+            name = "onCreate"
+            superclass()
+            parameters(Bundle::class.java)
+        }.hook {
+            before {
+                val activity = instance as? Activity ?: return@before
+                if (activity.javaClass.name != DOCUMENT_PICKER_ACTIVITY) return@before
+                ensureMlKitInitialized(activity)
+            }
+        }
     }
 
     private fun ensureMlKitInitialized(activity: Activity) {

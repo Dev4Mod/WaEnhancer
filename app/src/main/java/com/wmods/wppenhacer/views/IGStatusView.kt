@@ -22,7 +22,8 @@ class IGStatusView(context: Context) : FrameLayout(context) {
 
     init {
         val statusListView = HorizontalListView(context)
-        statusListView.layoutParams = LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT)
+        statusListView.layoutParams =
+            LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT)
         mStatusListView = statusListView
         addView(statusListView)
     }

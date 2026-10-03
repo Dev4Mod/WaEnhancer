@@ -35,14 +35,14 @@ import com.wmods.wppenhacer.xposed.utils.DesignUtils.getDrawableByName
 import com.wmods.wppenhacer.xposed.utils.DesignUtils.getIconByName
 import com.wmods.wppenhacer.xposed.utils.DesignUtils.getUnSeenColor
 import com.wmods.wppenhacer.xposed.utils.DesignUtils.isNightMode
+import com.wmods.wppenhacer.xposed.utils.ReflectionUtils
 import com.wmods.wppenhacer.xposed.utils.ReflectionUtils.findMethodUsingFilter
 import com.wmods.wppenhacer.xposed.utils.ReflectionUtils.getFieldByExtendType
 import com.wmods.wppenhacer.xposed.utils.ReflectionUtils.getObjectField
 import com.wmods.wppenhacer.xposed.utils.Utils.application
 import com.wmods.wppenhacer.xposed.utils.Utils.dipToPixels
 import com.wmods.wppenhacer.xposed.utils.Utils.showToast
-import de.robv.android.xposed.XposedBridge
-import de.robv.android.xposed.XposedHelpers
+import com.wmods.wppenhacer.xposed.utils.YukiLog
 import org.luckypray.dexkit.query.enums.StringMatchType
 import java.lang.reflect.Method
 
@@ -88,7 +88,8 @@ class IGStatusAdapter(context: Context, private val statusInfoClazz: Class<*>) :
                 tabdialog.setTitle(activity.getString(R.string.select_status_type))
                 tabdialog.addTab(
                     getInstance().getString("mystatus"),
-                    getIconByName("ic_status", true))
+                    getIconByName("ic_status", true)
+                )
                 {
                     try {
                         val clazz =
@@ -209,14 +210,16 @@ class IGStatusAdapter(context: Context, private val statusInfoClazz: Class<*>) :
                 return
             }
             try {
-                val statusInfo = XposedHelpers.getObjectField(item, "A01").takeUnless { it is Number } ?: XposedHelpers.getObjectField(item, "A02")
+                val statusInfo =
+                    ReflectionUtils.getObjectField(item, "A01").takeUnless { it is Number }
+                        ?: ReflectionUtils.getObjectField(item, "A02")
 
                 val classJid = findFirstClassUsingName(
                     statusInfoClazz.classLoader,
                     StringMatchType.EndsWith,
                     "jid.Jid"
                 )
-                val field = getFieldByExtendType(statusInfo.javaClass, classJid)
+                val field = getFieldByExtendType(statusInfo!!.javaClass, classJid)
                 this.userJid = UserJid(getObjectField(field, statusInfo))
                 val waContact = WaContactWpp.getWaContactFromJid(this.userJid!!)
                 val contactName = waContact!!.displayName
@@ -225,11 +228,11 @@ class IGStatusAdapter(context: Context, private val statusInfoClazz: Class<*>) :
                     BitmapDrawable.createFromStream(waContact.getProfilePhoto(false), "profile")
                 if (profile == null) profile = application.getDrawable(R.drawable.user_foreground)
                 igStatusContactPhoto!!.setImageDrawable(profile)
-                val countUnseen = XposedHelpers.getIntField(statusInfo, "A01")
-                val total = XposedHelpers.getIntField(statusInfo, "A00")
+                val countUnseen = ReflectionUtils.getIntField(statusInfo, "A01")
+                val total = ReflectionUtils.getIntField(statusInfo, "A00")
                 setCountStatus(countUnseen, total)
             } catch (e: Exception) {
-                XposedBridge.log(e)
+                YukiLog.log(e)
             }
         }
 
@@ -238,7 +241,7 @@ class IGStatusAdapter(context: Context, private val statusInfoClazz: Class<*>) :
                 try {
                     setCountStatus.invoke(igStatusContactPhoto, total, countUnseen, total)
                 } catch (e: Exception) {
-                    XposedBridge.log(e)
+                    YukiLog.log(e)
                 }
             }
         }
@@ -275,7 +278,7 @@ class IGStatusAdapter(context: Context, private val statusInfoClazz: Class<*>) :
 
         // Adicionando os elementos ao RelativeLayout interno
         val contactPhoto =
-            XposedHelpers.newInstance(this.clazzImageStatus, this.context) as ImageView
+            ReflectionUtils.newInstance(this.clazzImageStatus, this.context) as ImageView
         val photoParams = RelativeLayout.LayoutParams(
             ViewGroup.LayoutParams.MATCH_PARENT,
             ViewGroup.LayoutParams.MATCH_PARENT
@@ -291,10 +294,10 @@ class IGStatusAdapter(context: Context, private val statusInfoClazz: Class<*>) :
         contactPhoto.setImageDrawable(getDrawableByName("avatar_contact"))
         holder.igStatusContactPhoto = contactPhoto
         contactPhoto.isClickable = true
-        XposedHelpers.callMethod(contactPhoto, "setBorderSize", dipToPixels(2.5f).toFloat())
-        XposedHelpers.callMethod(contactPhoto, "setCornerRadius", dipToPixels(80f).toFloat())
-        XposedHelpers.setObjectField(contactPhoto, "A02", Color.GRAY)
-        XposedHelpers.setObjectField(contactPhoto, "A03", getUnSeenColor())
+        ReflectionUtils.callMethod(contactPhoto, "setBorderSize", dipToPixels(2.5f).toFloat())
+        ReflectionUtils.callMethod(contactPhoto, "setCornerRadius", dipToPixels(80f).toFloat())
+        ReflectionUtils.setObjectField(contactPhoto, "A02", Color.GRAY)
+        ReflectionUtils.setObjectField(contactPhoto, "A03", getUnSeenColor())
 
         val addBtnRelativeLayout = RelativeLayout(this.context)
         addBtnRelativeLayout.setBackgroundColor(Color.TRANSPARENT)

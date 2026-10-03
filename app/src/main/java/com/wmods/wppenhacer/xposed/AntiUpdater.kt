@@ -1,27 +1,25 @@
 package com.wmods.wppenhacer.xposed
 
 import android.content.pm.PackageInstaller
+import com.highcapable.kavaref.KavaRef.Companion.resolve
+import com.highcapable.yukihookapi.hook.entity.YukiBaseHooker
 import com.wmods.wppenhacer.xposed.core.FeatureLoader
-import de.robv.android.xposed.XC_MethodHook
-import de.robv.android.xposed.XposedBridge
-import de.robv.android.xposed.XposedHelpers
-import de.robv.android.xposed.callbacks.XC_LoadPackage.LoadPackageParam
 import java.io.IOException
 
-object AntiUpdater {
-    fun hookSession(lpparam: LoadPackageParam) {
-        if (lpparam.packageName == "android") return
-        XposedBridge.hookAllMethods(
-            PackageInstaller::class.java,
-            "createSession",
-            object : XC_MethodHook() {
-                override fun beforeHookedMethod(param: MethodHookParam) {
-                    val session = param.args[0] as PackageInstaller.SessionParams?
-                    val packageName = XposedHelpers.getObjectField(session, "mPackageName")
-                    if (packageName == FeatureLoader.PACKAGE_WPP || packageName == FeatureLoader.PACKAGE_BUSINESS) {
-                        param.setThrowable(IOException("UPDATE LOCKED BY WAENHANCER"))
-                    }
+object AntiUpdater : YukiBaseHooker() {
+    override fun onHook() {
+        if (packageName == "android") return
+        PackageInstaller::class.resolve().method {
+            name = "createSession"
+        }.hookAll {
+            before {
+                val session = args[0] as? PackageInstaller.SessionParams ?: return@before
+                val target = session.javaClass.getDeclaredField("mPackageName")
+                    .apply { isAccessible = true }.get(session)
+                if (target == FeatureLoader.PACKAGE_WPP || target == FeatureLoader.PACKAGE_BUSINESS) {
+                    IOException("UPDATE LOCKED BY WAENHANCER").throwToApp()
                 }
-            })
+            }
+        }
     }
 }

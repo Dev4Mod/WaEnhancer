@@ -1,56 +1,55 @@
 package com.wmods.wppenhacer.xposed.features.others
 
+import android.content.SharedPreferences
 import android.graphics.Bitmap
 import android.view.Gravity
 import android.view.View
 import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
+import com.highcapable.kavaref.KavaRef.Companion.resolve
 import com.wmods.wppenhacer.R
 import com.wmods.wppenhacer.xposed.core.Feature
 import com.wmods.wppenhacer.xposed.core.components.AlertDialogWpp
 import com.wmods.wppenhacer.xposed.core.devkit.Unobfuscator
 import com.wmods.wppenhacer.xposed.utils.Utils
 import com.wmods.wppenhacer.xposed.utils.setTouchClickAndLongClickListener
-import de.robv.android.xposed.XC_MethodHook
-import android.content.SharedPreferences 
-import de.robv.android.xposed.XposedBridge
-import de.robv.android.xposed.XposedHelpers
 
-class Stickers(classLoader: ClassLoader, preferences:SharedPreferences) :
+class Stickers(classLoader: ClassLoader, preferences: SharedPreferences) :
     Feature(classLoader, preferences) {
 
     override fun doHook() {
 
-        if (!prefs.getBoolean("alertsticker", false)) return
-        XposedHelpers.findAndHookMethod(
-            View::class.java,
-            "onAttachedToWindow",
-            object : XC_MethodHook() {
-                override fun afterHookedMethod(param: MethodHookParam) {
-                    val view = param.thisObject as View
-                    if (view.id != Utils.getID("stickerContainer", "id")) return
-                    if (view.tag == "wae_hooked") return
-                    view.tag = "wae_hooked"
-                    view.setTouchClickAndLongClickListener(
-                        onClick = {
-                            showAlertDialog(view)
-                        },
-                        onLongClick = {
-                            view.performLongClick()
-                        }
-                    )
-                }
-            })
-        if (prefs.getBoolean("remove_sticker_white_outline", false)) {
+        if (!xprefs.getBoolean("alertsticker", false)) return
+        View::class.java.resolve().firstMethod {
+            name = "onAttachedToWindow"
+            superclass()
+            emptyParameters()
+        }.hook {
+            after {
+                val view = instance as View
+                if (view.id != Utils.getID("stickerContainer", "id")) return@after
+                if (view.tag == "wae_hooked") return@after
+                view.tag = "wae_hooked"
+                view.setTouchClickAndLongClickListener(
+                    onClick = {
+                        showAlertDialog(view)
+                    },
+                    onLongClick = {
+                        view.performLongClick()
+                    }
+                )
+            }
+        }
+        if (xprefs.getBoolean("remove_sticker_white_outline", false)) {
             val stickerColoredOutline = Unobfuscator.loadStickerColoredOutline(classLoader)
-            XposedBridge.hookMethod(stickerColoredOutline, object : XC_MethodHook() {
-                override fun beforeHookedMethod(param: MethodHookParam) {
-                    val source = param.args[0] as Bitmap
+            stickerColoredOutline.hook {
+                before {
+                    val source = args[0] as Bitmap
                     val safeConfig = source.config ?: Bitmap.Config.ARGB_8888
-                    param.result = source.copy(safeConfig, true)
+                    result = source.copy(safeConfig, true)
                 }
-            })
+            }
         }
     }
 

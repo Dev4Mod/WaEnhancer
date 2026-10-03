@@ -1,11 +1,11 @@
 package com.wmods.wppenhacer.xposed.core.components
 
+import com.highcapable.kavaref.KavaRef.Companion.resolve
+import com.highcapable.yukihookapi.hook.param.PackageParam
 import com.wmods.wppenhacer.xposed.core.WppCore
 import com.wmods.wppenhacer.xposed.core.devkit.Unobfuscator
 import com.wmods.wppenhacer.xposed.utils.ReflectionUtils
-import de.robv.android.xposed.XC_MethodHook
-import de.robv.android.xposed.XposedBridge
-import de.robv.android.xposed.XposedHelpers
+import com.wmods.wppenhacer.xposed.utils.YukiLog
 import java.io.File
 import java.lang.reflect.Field
 import java.lang.reflect.Method
@@ -23,20 +23,20 @@ class FStatusWpp(val fstatus: Any?) {
         private var mStatusStore: Any? = null
 
         @JvmStatic
-        fun initialize(classLoader: ClassLoader) {
-            FStatusKey.initialize(classLoader)
-            TYPE = Unobfuscator.loadFStatusClass(classLoader)
-            val fStatusKeyClass = Unobfuscator.loadFStatusKeyClass(classLoader)
-            fieldFStatusKey = ReflectionUtils.getFieldByType(TYPE, fStatusKeyClass)!!
-            methodGetStatusByKey = Unobfuscator.loadGetStatusByKey(classLoader)
-            XposedBridge.hookAllConstructors(
-                methodGetStatusByKey.declaringClass,
-                object : XC_MethodHook() {
-                    override fun afterHookedMethod(param: MethodHookParam) {
-                        mStatusStore = param.thisObject
+        fun initialize(packageParam: PackageParam, classLoader: ClassLoader) {
+            packageParam.apply {
+                FStatusKey.initialize(classLoader)
+                TYPE = Unobfuscator.loadFStatusClass(classLoader)
+                val fStatusKeyClass = Unobfuscator.loadFStatusKeyClass(classLoader)
+                fieldFStatusKey = ReflectionUtils.getFieldByType(TYPE, fStatusKeyClass)!!
+                methodGetStatusByKey = Unobfuscator.loadGetStatusByKey(classLoader)
+                methodGetStatusByKey.declaringClass.resolve().constructor { }.hookAll {
+                    after {
+                        mStatusStore = instance
                     }
-                })
-            classFMediaStatus = Unobfuscator.loadFMediaStatusClass(classLoader)
+                }
+                classFMediaStatus = Unobfuscator.loadFMediaStatusClass(classLoader)
+            }
         }
 
         @JvmStatic
@@ -48,7 +48,7 @@ class FStatusWpp(val fstatus: Any?) {
                 }
                 return FStatusWpp(methodGetStatusByKey.invoke(mStatusStore, fStatusKey.thisObject))
             } catch (e: Exception) {
-                XposedBridge.log(e)
+                YukiLog.log(e)
             }
             return null
         }
@@ -72,12 +72,11 @@ class FStatusWpp(val fstatus: Any?) {
     }
 
 
-
     val fMessage: FMessageWpp? by lazy {
         try {
             FMessageWpp(WppCore.getFMessageFromFStatus(fstatus))
         } catch (e: Exception) {
-            XposedBridge.log(e)
+            YukiLog.log(e)
             null
         }
     }
@@ -103,7 +102,7 @@ class FStatusWpp(val fstatus: Any?) {
         if (!isMediaFile) return null
 
         val (field, method) = mediaFileAccessor ?: run {
-            XposedBridge.log("Media file accessor not found for FStatus class: ${classFMediaStatus.name}")
+            YukiLog.log("Media file accessor not found for FStatus class: ${classFMediaStatus.name}")
             return null
         }
 
@@ -172,17 +171,17 @@ class FStatusWpp(val fstatus: Any?) {
                     FMessageWpp.Key(it.get(thisObject))
                 }
             } catch (e: Exception) {
-                XposedBridge.log(e)
+                YukiLog.log(e)
                 FMessageWpp.Key(null)
             }
         }
 
         constructor(key: Any?) {
             this.thisObject = key
-            this.senderJid = FMessageWpp.UserJid(XposedHelpers.getObjectField(key, "A01"))
-            this.messageID = XposedHelpers.getObjectField(key, "A02") as String
-            this.isFromMe = XposedHelpers.getBooleanField(key, "A03")
-            this.remoteJid = FMessageWpp.UserJid(XposedHelpers.getObjectField(key, "A00"))
+            this.senderJid = FMessageWpp.UserJid(ReflectionUtils.getObjectField(key, "A01"))
+            this.messageID = ReflectionUtils.getObjectField(key, "A02") as String
+            this.isFromMe = ReflectionUtils.getBooleanField(key, "A03")
+            this.remoteJid = FMessageWpp.UserJid(ReflectionUtils.getObjectField(key, "A00"))
             this.fStatus = getFStatusFromFKeyStatus(this)
         }
 

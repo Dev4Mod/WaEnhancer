@@ -56,7 +56,8 @@ object RealPathUtil {
                 val split = DocumentsContract.getTreeDocumentId(uri).split(":")
                 val type = split[0]
                 if (type.equals("primary", ignoreCase = true)) {
-                    return Environment.getExternalStorageDirectory().toString() + "/" + (split.getOrNull(1) ?: "")
+                    return Environment.getExternalStorageDirectory()
+                        .toString() + "/" + (split.getOrNull(1) ?: "")
                 }
             } else if (isDownloadsDocument(uri)) {
                 val id = DocumentsContract.getTreeDocumentId(uri)
@@ -93,7 +94,8 @@ object RealPathUtil {
     ): String? {
         var cursor: Cursor? = null
         try {
-            cursor = context.contentResolver.query(uri, arrayOf("_data"), selection, selectionArgs, null)
+            cursor =
+                context.contentResolver.query(uri, arrayOf("_data"), selection, selectionArgs, null)
             if (cursor != null && cursor.moveToFirst()) {
                 return cursor.getString(cursor.getColumnIndexOrThrow("_data"))
             }

@@ -1,8 +1,10 @@
 package com.wmods.wppenhacer.xposed.features.others
 
+import android.content.SharedPreferences
 import android.database.sqlite.SQLiteDatabase
 import android.text.TextUtils
 import android.widget.Toast
+import com.highcapable.yukihookapi.hook.param.HookParam
 import com.wmods.wppenhacer.R
 import com.wmods.wppenhacer.xposed.core.Feature
 import com.wmods.wppenhacer.xposed.core.WppCore.getContactName
@@ -19,10 +21,7 @@ import com.wmods.wppenhacer.xposed.core.devkit.Unobfuscator.loadSeenReceiptForSt
 import com.wmods.wppenhacer.xposed.features.general.Tasker
 import com.wmods.wppenhacer.xposed.utils.ReflectionUtils
 import com.wmods.wppenhacer.xposed.utils.Utils
-import de.robv.android.xposed.XC_MethodHook
-import de.robv.android.xposed.XC_MethodHook.MethodHookParam
-import android.content.SharedPreferences 
-import de.robv.android.xposed.XposedBridge
+import com.wmods.wppenhacer.xposed.utils.YukiLog
 import org.luckypray.dexkit.query.enums.StringMatchType
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.Executors
@@ -35,8 +34,8 @@ class ToastViewer(classLoader: ClassLoader, preferences: SharedPreferences) :
     Feature(classLoader, preferences) {
 
     override fun doHook() {
-        val toastViewedMessage = prefs.getBoolean("toast_viewed_message", false)
-        val toastViewedStatus = prefs.getBoolean("toast_viewed_status", false)
+        val toastViewedMessage = xprefs.getBoolean("toast_viewed_message", false)
+        val toastViewedStatus = xprefs.getBoolean("toast_viewed_status", false)
         if (!toastViewedMessage && !toastViewedStatus) {
             return
         }
@@ -45,35 +44,35 @@ class ToastViewer(classLoader: ClassLoader, preferences: SharedPreferences) :
 
         val onInsertReceipt = loadOnInsertReceipt(classLoader)
 
-        XposedBridge.hookMethod(onInsertReceipt, object : XC_MethodHook() {
-            override fun beforeHookedMethod(param: MethodHookParam) {
+        onInsertReceipt.hook {
+            before {
                 processNewWA(
-                    param,
-                    prefs.getBoolean("toast_viewed_message", false),
-                    prefs.getBoolean("toast_viewed_status", false)
+                    this,
+                    xprefs.getBoolean("toast_viewed_message", false),
+                    xprefs.getBoolean("toast_viewed_status", false)
                 )
             }
-        })
+        }
         val onSeenReceiptForStatus = loadSeenReceiptForStatus(classLoader)
-        XposedBridge.hookMethod(onSeenReceiptForStatus, object : XC_MethodHook() {
-
-            override fun beforeHookedMethod(param: MethodHookParam) {
-                val receiptType = param.args.filterIsInstance<Int>().first()
-                if (receiptType != 13) return
-                val fStatusObject = param.args.firstOrNull { FStatusWpp.TYPE.isInstance(it) }
+        onSeenReceiptForStatus.hook {
+            before {
+                val receiptType = args.filterIsInstance<Int>().first()
+                if (receiptType != 13) return@before
+                val fStatusObject = args.firstOrNull { FStatusWpp.TYPE.isInstance(it) }
                     ?: runCatching {
-                        val fStatusField = ReflectionUtils.findFieldUsingFilter(param.thisObject.javaClass) {
-                            f -> FStatusWpp.TYPE.isAssignableFrom(f.type)
-                        }
-                        fStatusField.get(param.thisObject)
+                        val fStatusField =
+                            ReflectionUtils.findFieldUsingFilter(instance.javaClass) { f ->
+                                FStatusWpp.TYPE.isAssignableFrom(f.type)
+                            }
+                        fStatusField.get(instance)
                     }.getOrNull()
-                    ?: return
+                    ?: return@before
                 val fStatus = FStatusWpp(fStatusObject)
-                if (!fStatus.fStatusKey.isFromMe) return
-                val userjid = UserJid(param.args[0])
+                if (!fStatus.fStatusKey.isFromMe) return@before
+                val userjid = UserJid(args[0])
                 val contactName = getWaContactFromJid(userjid)?.displayName
                     ?: getContactName(userjid)
-                if (prefs.getBoolean("toast_viewed_status", false)) {
+                if (xprefs.getBoolean("toast_viewed_status", false)) {
                     Utils.showToast(
                         Utils.application.getString(R.string.viewed_your_status, contactName),
                         Toast.LENGTH_LONG
@@ -81,12 +80,12 @@ class ToastViewer(classLoader: ClassLoader, preferences: SharedPreferences) :
                 }
                 Tasker.sendTaskerEvent(contactName, userjid.phoneNumber, "viewed_status")
             }
-        })
+        }
     }
 
     @Throws(Exception::class)
     private fun processNewWA(
-        param: MethodHookParam,
+        param: HookParam,
         toastViewedMessage: Boolean,
         toastViewedStatus: Boolean
     ) {
@@ -222,7 +221,7 @@ class ToastViewer(classLoader: ClassLoader, preferences: SharedPreferences) :
                         }
                     }
                 } catch (e: Exception) {
-                    XposedBridge.log(e)
+                    YukiLog.log(e)
                 }
             }
     }

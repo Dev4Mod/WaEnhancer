@@ -22,8 +22,7 @@ import com.wmods.wppenhacer.xposed.core.WppCore
 import com.wmods.wppenhacer.xposed.core.components.FMessageWpp
 import com.wmods.wppenhacer.xposed.utils.ReflectionUtils
 import com.wmods.wppenhacer.xposed.utils.Utils
-import de.robv.android.xposed.XposedBridge
-import de.robv.android.xposed.XposedHelpers
+import com.wmods.wppenhacer.xposed.utils.YukiLog
 import org.luckypray.dexkit.DexKitBridge
 import org.luckypray.dexkit.query.enums.StringMatchType
 import org.luckypray.dexkit.query.matchers.base.OpCodesMatcher
@@ -235,7 +234,8 @@ object Unobfuscator {
                 classLoader,
                 StringMatchType.Contains,
                 "SharedMessageProcessor/handlePlaintext"
-            ) ?: throw NoSuchMethodException("SharedMessageProcessor/handlePlaintext method not found")
+            )
+                ?: throw NoSuchMethodException("SharedMessageProcessor/handlePlaintext method not found")
         }
     }
 
@@ -464,7 +464,7 @@ object Unobfuscator {
     @JvmStatic
     fun loadTabFragmentMethod(classLoader: ClassLoader): Method {
         return UnobfuscatorCache.getInstance().getMethod(classLoader) {
-            val clsFrag = XposedHelpers.findClass(
+            val clsFrag = ReflectionUtils.findClass(
                 "com.whatsapp.conversationslist.ConversationsFragment",
                 classLoader
             )
@@ -891,7 +891,7 @@ object Unobfuscator {
     @JvmStatic
     fun loadUnknownStatusPlaybackMethod(loader: ClassLoader): Method {
         return UnobfuscatorCache.getInstance().getMethod(loader) {
-            val statusPlaybackClass = XposedHelpers.findClass(
+            val statusPlaybackClass = ReflectionUtils.findClass(
                 "com.whatsapp.status.playback.fragment.StatusPlaybackContactFragment",
                 loader
             )
@@ -950,7 +950,7 @@ object Unobfuscator {
             val result =
                 findFirstClassUsingStrings(loader, StringMatchType.Contains, "WaJobManager/start")
                     ?: throw Exception("BlueOnReplayWaJobManager method not found")
-            val job = XposedHelpers.findClass("org.whispersystems.jobqueue.Job", loader)
+            val job = ReflectionUtils.findClass("org.whispersystems.jobqueue.Job", loader)
             Arrays.stream(result.methods)
                 .filter { m -> m.parameterCount == 1 && m.parameterTypes[0] === job }
                 .findFirst()
@@ -1428,7 +1428,7 @@ object Unobfuscator {
     @JvmStatic
     fun loadGetViewConversationMethod(loader: ClassLoader): Method {
         return UnobfuscatorCache.getInstance().getMethod(loader) {
-            val clazz = XposedHelpers.findClass(
+            val clazz = ReflectionUtils.findClass(
                 "com.whatsapp.conversationslist.ConversationsFragment",
                 loader
             )
@@ -1443,7 +1443,7 @@ object Unobfuscator {
     @JvmStatic
     fun loadOnMenuItemSelected(loader: ClassLoader): Method {
         return UnobfuscatorCache.getInstance().getMethod(loader) {
-            val aClass = XposedHelpers.findClass("androidx.viewpager.widget.ViewPager", loader)
+            val aClass = ReflectionUtils.findClass("androidx.viewpager.widget.ViewPager", loader)
             val result = Arrays.stream(aClass.declaredMethods).filter { m ->
                 m.parameterCount == 4 &&
                         m.parameterTypes[0] == Int::class.javaPrimitiveType &&
@@ -1465,7 +1465,7 @@ object Unobfuscator {
                     addUsingString("UpdatesViewModel/")
                 }
             }.firstOrNull()
-            val methodSeduleche = XposedHelpers.findMethodBestMatch(
+            val methodSeduleche = ReflectionUtils.findMethodBestMatch(
                 Timer::class.java,
                 "schedule",
                 TimerTask::class.java,
@@ -1619,7 +1619,7 @@ object Unobfuscator {
     @JvmStatic
     fun loadMaterialAlertDialog(loader: ClassLoader): Method {
         return UnobfuscatorCache.getInstance().getMethod(loader) {
-            val callConfirmationFragment = XposedHelpers.findClass(
+            val callConfirmationFragment = ReflectionUtils.findClass(
                 "com.whatsapp.calling.fragment.CallConfirmationFragment",
                 loader
             )
@@ -1681,7 +1681,7 @@ object Unobfuscator {
                 val invokeMethod = invoke.getMethodInstance(loader)
                 if (invokeMethod.parameterCount != 2 || invokeMethod.returnType != Boolean::class.javaPrimitiveType) continue
                 if (invokeMethod.parameterTypes[1].name.contains("jid.UserJid")) {
-                    XposedBridge.log("FIND: $invokeMethod")
+                    YukiLog.log("FIND: $invokeMethod")
                     return@getMethod invokeMethod
                 }
             }
@@ -3239,7 +3239,8 @@ object Unobfuscator {
                     paramCount(1, 5)
                 }
             }.filter { !it.paramTypeNames.isEmpty() && it.paramTypeNames[0].contains("Message") }
-                .map { it.getMethodInstance(classLoader) }.toTypedArray().ifEmpty { throw Exception("onDispatchMessage method not found") }
+                .map { it.getMethodInstance(classLoader) }.toTypedArray()
+                .ifEmpty { throw Exception("onDispatchMessage method not found") }
         }
 
     }

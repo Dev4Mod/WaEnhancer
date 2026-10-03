@@ -1,7 +1,9 @@
 package com.wmods.wppenhacer.xposed.features.privacy
 
+import android.content.SharedPreferences
 import android.os.Message
 import android.widget.Toast
+import com.highcapable.kavaref.KavaRef.Companion.resolve
 import com.wmods.wppenhacer.xposed.core.Feature
 import com.wmods.wppenhacer.xposed.core.WppCore
 import com.wmods.wppenhacer.xposed.core.components.FMessageWpp
@@ -10,25 +12,20 @@ import com.wmods.wppenhacer.xposed.core.devkit.Unobfuscator
 import com.wmods.wppenhacer.xposed.features.general.Tasker
 import com.wmods.wppenhacer.xposed.utils.ReflectionUtils
 import com.wmods.wppenhacer.xposed.utils.Utils
-import de.robv.android.xposed.XC_MethodHook
-import android.content.SharedPreferences 
-import de.robv.android.xposed.XposedBridge
-import de.robv.android.xposed.XposedHelpers
 import org.luckypray.dexkit.query.enums.StringMatchType
-import java.util.concurrent.ConcurrentHashMap
 
-class CallPrivacy(loader: ClassLoader, preferences:SharedPreferences) :
+class CallPrivacy(loader: ClassLoader, preferences: SharedPreferences) :
     Feature(loader, preferences) {
 
     private var mVoipManager: Any? = null
 
     override fun doHook() {
         val voipManagerClass = Unobfuscator.loadVoipManager(classLoader)
-        XposedBridge.hookAllConstructors(voipManagerClass, object : XC_MethodHook() {
-            override fun afterHookedMethod(param: MethodHookParam) {
-                mVoipManager = param.thisObject
+        voipManagerClass.resolve().constructor { }.hookAll {
+            after {
+                mVoipManager = instance
             }
-        })
+        }
 
         val clazzVoip = WppCore.voipManagerClass
         val endCallMethod = clazzVoip.declaredMethods.first { it.name == "endCall" }
@@ -36,24 +33,25 @@ class CallPrivacy(loader: ClassLoader, preferences:SharedPreferences) :
 
         val onCallReceivedMethod = Unobfuscator.loadAntiRevokeOnCallReceivedMethod(classLoader)
 
-        XposedBridge.hookMethod(onCallReceivedMethod, object : XC_MethodHook() {
-            override fun beforeHookedMethod(param: MethodHookParam) {
+        onCallReceivedMethod.hook {
+            before {
                 val callInfoClass = WppCore.voipCallInfoClass
                 val callinfo: Any? = when {
-                    param.args[0] is Message -> (param.args[0] as Message).obj
-                    param.args.size > 1 && callInfoClass.isInstance(param.args[1]) -> param.args[1]
+                    args[0] is Message -> (args[0] as Message).obj
+                    args.size > 1 && callInfoClass.isInstance(args[1]) -> args[1]
                     else -> {
                         Utils.showToast("Invalid call info", Toast.LENGTH_SHORT)
-                        return
+                        return@before
                     }
                 }
-                if (callinfo == null || !callInfoClass.isInstance(callinfo)) return
-                if (XposedHelpers.getObjectField(callinfo, "callState")
+                if (callinfo == null || !callInfoClass.isInstance(callinfo)) return@before
+                if (ReflectionUtils.getObjectField(callinfo, "callState")
                         ?.toString() != "RECEIVED_CALL"
-                ) return
-                val userJid = FMessageWpp.UserJid(XposedHelpers.callMethod(callinfo, "getPeerJid"))
-                val callId = XposedHelpers.callMethod(callinfo, "getCallId")
-                val type = prefs.getString("call_privacy", "0")!!.toInt()
+                ) return@before
+                val userJid =
+                    FMessageWpp.UserJid(ReflectionUtils.callMethod(callinfo, "getPeerJid"))
+                val callId = ReflectionUtils.callMethod(callinfo, "getCallId")
+                val type = xprefs.getString("call_privacy", "0")!!.toInt()
                 val waContact = WaContactWpp.getWaContactFromJid(userJid)
                 val contactName = waContact?.displayName ?: userJid.phoneNumber
                 Tasker.sendTaskerEvent(
@@ -64,9 +62,9 @@ class CallPrivacy(loader: ClassLoader, preferences:SharedPreferences) :
 
                 val privacyType = PrivacyType.getByValue(type)
                 val blockCall = checkCallBlock(userJid, privacyType)
-                if (!blockCall) return
+                if (!blockCall) return@before
 
-                var rejectType =  prefs.getString("call_type", null) ?: "no_internet"
+                var rejectType = xprefs.getString("call_type", null) ?: "no_internet"
 
                 when (rejectType) {
                     "uncallable", "declined", "busy" -> {
@@ -77,39 +75,39 @@ class CallPrivacy(loader: ClassLoader, preferences:SharedPreferences) :
                         params[0] = callId
                         params[1] = rejectType
                         ReflectionUtils.callMethod(rejectCallMethod, mVoipManager, *params)
-                        param.result = true
+                        result = true
                     }
+
                     "ended" -> {
                         val params = ReflectionUtils.initArray(endCallMethod.parameterTypes)
                         params[0] = true
                         ReflectionUtils.callMethod(endCallMethod, mVoipManager, *params)
-                        param.result = true
+                        result = true
                     }
                 }
             }
-        })
+        }
 
-        XposedBridge.hookAllMethods(
-            WppCore.voipManagerClass,
-            "nativeHandleIncomingXmppOffer",
-            object : XC_MethodHook() {
-                override fun beforeHookedMethod(param: MethodHookParam) {
-                    val jidClass = Unobfuscator.findFirstClassUsingName(
-                        classLoader, StringMatchType.EndsWith, "jid.Jid"
-                    )
-                    val jidObj = ReflectionUtils.getArg(param.args, jidClass, 0)
-                    val userJid = FMessageWpp.UserJid(jidObj)
-                    val rejectType = prefs.getString("call_type", null) ?: "no_internet"
-                    if (rejectType == "no_internet") {
-                        val type = prefs.getString("call_privacy", "0")!!.toInt()
-                        val privacyType = PrivacyType.getByValue(type)
-                        val block = checkCallBlock(userJid, privacyType)
-                        if (block) {
-                            param.result = 1
-                        }
+        WppCore.voipManagerClass.resolve().method {
+            name = "nativeHandleIncomingXmppOffer"
+        }.hookAll {
+            before {
+                val jidClass = Unobfuscator.findFirstClassUsingName(
+                    classLoader, StringMatchType.EndsWith, "jid.Jid"
+                )
+                val jidObj = ReflectionUtils.getArg(args, jidClass, 0)
+                val userJid = FMessageWpp.UserJid(jidObj)
+                val rejectType = xprefs.getString("call_type", null) ?: "no_internet"
+                if (rejectType == "no_internet") {
+                    val type = xprefs.getString("call_privacy", "0")!!.toInt()
+                    val privacyType = PrivacyType.getByValue(type)
+                    val block = checkCallBlock(userJid, privacyType)
+                    if (block) {
+                        result = 1
                     }
                 }
-            })
+            }
+        }
     }
 
 
@@ -125,9 +123,10 @@ class CallPrivacy(loader: ClassLoader, preferences:SharedPreferences) :
                 val waContact = WaContactWpp.getWaContactFromJid(userJid) ?: return true
                 !waContact.isSavedContact()
             }
+
             PrivacyType.BACKLIST -> {
                 if (customprivacy.optBoolean("BlockCall", false)) return true;
-                val callBlockList = prefs.getString("call_block_contacts", "[]")!!
+                val callBlockList = xprefs.getString("call_block_contacts", "[]")!!
                 val blockList = callBlockList.substring(1, callBlockList.length - 1).split(", ")
                     .map { it.trim() }
                 blockList.any { it.isNotEmpty() && it == userJid.phoneRawString }
@@ -135,7 +134,7 @@ class CallPrivacy(loader: ClassLoader, preferences:SharedPreferences) :
 
             PrivacyType.WHITELIST -> {
                 if (customprivacy.optBoolean("BlockCall", false)) return true;
-                val callWhiteList = prefs.getString("call_white_contacts", "[]")!!
+                val callWhiteList = xprefs.getString("call_white_contacts", "[]")!!
                 val whiteList = callWhiteList.substring(1, callWhiteList.length - 1).split(", ")
                     .map { it.trim() }
                 whiteList.none { it.isNotEmpty() && it == userJid.phoneRawString }

@@ -1,16 +1,15 @@
 package com.wmods.wppenhacer.xposed.features.others
 
+import android.content.SharedPreferences
 import android.view.Menu
+import com.highcapable.kavaref.KavaRef.Companion.resolve
 import com.wmods.wppenhacer.xposed.core.Feature
 import com.wmods.wppenhacer.xposed.core.WppCore
 import com.wmods.wppenhacer.xposed.core.devkit.Unobfuscator
 import com.wmods.wppenhacer.xposed.utils.ReflectionUtils
 import com.wmods.wppenhacer.xposed.utils.Utils
-import de.robv.android.xposed.XC_MethodHook
-import android.content.SharedPreferences 
-import de.robv.android.xposed.XposedBridge
 
-class Channels(loader: ClassLoader, preferences:SharedPreferences) : Feature(loader, preferences) {
+class Channels(loader: ClassLoader, preferences: SharedPreferences) : Feature(loader, preferences) {
 
     private fun removeItems(
         arrList: MutableList<Any?>,
@@ -31,8 +30,8 @@ class Channels(loader: ClassLoader, preferences:SharedPreferences) : Feature(loa
     }
 
     override fun doHook() {
-        val channels = prefs.getBoolean("channels", false)
-        val removechannelRec = prefs.getBoolean("removechannel_rec", false)
+        val channels = xprefs.getBoolean("channels", false)
+        val removechannelRec = xprefs.getBoolean("removechannel_rec", false)
 
         if (!channels && !removechannelRec) return
 
@@ -41,12 +40,12 @@ class Channels(loader: ClassLoader, preferences:SharedPreferences) : Feature(loa
         val listChannelItem = Unobfuscator.loadListChannelItemClass(classLoader)
         val listUpdateItems = Unobfuscator.loadListUpdateItems(classLoader)
 
-        XposedBridge.hookMethod(listUpdateItems, object : XC_MethodHook() {
-            override fun beforeHookedMethod(param: MethodHookParam) {
-                param.setObjectExtra("isArgs", false)
+        listUpdateItems.hook {
+            before {
+                dataExtra.putBoolean("isArgs", false)
                 val listArgs =
-                    ReflectionUtils.findInstancesOfType(param.args, List::class.javaObjectType)
-                if (listArgs.isEmpty()) return
+                    ReflectionUtils.findInstancesOfType(args, List::class.javaObjectType)
+                if (listArgs.isEmpty()) return@before
                 val list = listArgs.first().second
                 val index = listArgs.first().first
                 val arrList = ArrayList(list)
@@ -59,14 +58,13 @@ class Channels(loader: ClassLoader, preferences:SharedPreferences) : Feature(loa
                     listChannelItem,
                     removeChannelRecClass
                 )
-                param.args[index] = arrList
-                param.setObjectExtra("isArgs", true)
+                args[index] = arrList
+                dataExtra.putBoolean("isArgs", true)
             }
-
-            override fun afterHookedMethod(param: MethodHookParam) {
-                val isArg = param.getObjectExtra("isArgs") as Boolean? ?: false
+            after {
+                val isArg = dataExtra.getBoolean("isArgs", false)
                 if (!isArg) {
-                    val list = param.result as? java.util.ArrayList<*> ?: return
+                    val list = result as? java.util.ArrayList<*> ?: return@after
                     val arrList = ArrayList(list)
                     removeItems(
                         arrList,
@@ -76,30 +74,32 @@ class Channels(loader: ClassLoader, preferences:SharedPreferences) : Feature(loa
                         listChannelItem,
                         removeChannelRecClass
                     )
-                    param.result = arrList
+                    result = arrList
                 }
             }
-        })
+        }
 
-        XposedBridge.hookAllConstructors(removeChannelRecClass, object : XC_MethodHook() {
-            override fun beforeHookedMethod(param: MethodHookParam) {
+        removeChannelRecClass.resolve().constructor { }.hookAll {
+            before {
                 val pairs =
-                ReflectionUtils.findInstancesOfType(param.args, List::class.javaObjectType)
+                    ReflectionUtils.findInstancesOfType(args, List::class.javaObjectType)
                 for (pair in pairs) {
                     val index = pair.first as Int
-                    param.args[index] = ArrayList<Any>()
+                    args[index] = ArrayList<Any>()
                 }
             }
-        })
+        }
 
         if (channels) {
-            XposedBridge.hookAllMethods(WppCore.homeActivityClass,"onPrepareOptionsMenu", object : XC_MethodHook() {
-                override fun afterHookedMethod(param: MethodHookParam) {
-                    val menu = param.args[0] as? Menu ?: return
+            WppCore.homeActivityClass.resolve().method {
+                name = "onPrepareOptionsMenu"
+            }.hookAll {
+                after {
+                    val menu = args[0] as? Menu ?: return@after
                     val id = Utils.getID("menuitem_create_newsletter", "id")
                     menu.findItem(id)?.isVisible = false
                 }
-            })
+            }
         }
     }
 

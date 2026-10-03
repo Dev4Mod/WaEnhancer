@@ -10,10 +10,8 @@ import com.wmods.wppenhacer.xposed.core.components.FMessageWpp
 import com.wmods.wppenhacer.xposed.core.db.MessageHistoryStore
 import com.wmods.wppenhacer.xposed.core.devkit.Unobfuscator
 import com.wmods.wppenhacer.xposed.features.listeners.ConversationItemListener
+import com.wmods.wppenhacer.xposed.utils.ReflectionUtils
 import com.wmods.wppenhacer.xposed.utils.Utils
-import de.robv.android.xposed.XC_MethodHook
-import de.robv.android.xposed.XposedBridge
-import de.robv.android.xposed.XposedHelpers
 
 class CaptureDevice(classLoader: ClassLoader, xprefs: SharedPreferences) : Feature(
     classLoader,
@@ -32,19 +30,19 @@ class CaptureDevice(classLoader: ClassLoader, xprefs: SharedPreferences) : Featu
     }
 
     override fun doHook() {
-        if (!prefs.getBoolean("capture_device", false)) return
+        if (!xprefs.getBoolean("capture_device", false)) return
 
         val handlePlaintextMethod =
             Unobfuscator.loadSharedMessageProcessorHandlePlaintextMethod(classLoader)
-        XposedBridge.hookMethod(handlePlaintextMethod, object : XC_MethodHook() {
-            override fun afterHookedMethod(param: MethodHookParam) {
+        handlePlaintextMethod.hook {
+            after {
                 try {
-                    captureDeviceInfo(param.args.firstOrNull())
+                    captureDeviceInfo(args.firstOrNull())
                 } catch (t: Throwable) {
                     logDebug(t)
                 }
             }
-        })
+        }
 
         ConversationItemListener.conversationListeners.add(
             object : ConversationItemListener.OnConversationItemListener() {
@@ -65,7 +63,7 @@ class CaptureDevice(classLoader: ClassLoader, xprefs: SharedPreferences) : Featu
 
         val fMessage = findFMessage(firstArg) ?: return
         val deviceJid = fMessage.deviceJid ?: return
-        val device = (XposedHelpers.callMethod(deviceJid, "getDevice") as? Number)?.toInt()
+        val device = (ReflectionUtils.callMethod(deviceJid, "getDevice") as? Number)?.toInt()
             ?: return
         val userjid = fMessage.key.remoteJid.userRawString ?: return
         val messageId = fMessage.key.messageID

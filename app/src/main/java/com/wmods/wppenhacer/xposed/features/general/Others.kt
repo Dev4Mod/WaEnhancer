@@ -1,8 +1,6 @@
 package com.wmods.wppenhacer.xposed.features.general
 
-import android.annotation.SuppressLint
-import android.graphics.Canvas
-import android.graphics.Paint
+import android.content.SharedPreferences
 import android.os.BaseBundle
 import android.os.Message
 import android.os.PowerManager
@@ -14,12 +12,14 @@ import android.view.ViewGroup
 import android.widget.TextView
 import android.widget.Toast
 import androidx.core.view.isVisible
+import com.highcapable.kavaref.KavaRef.Companion.resolve
 import com.wmods.wppenhacer.R
 import com.wmods.wppenhacer.listeners.OnMultiClickListener
 import com.wmods.wppenhacer.xposed.core.Feature
 import com.wmods.wppenhacer.xposed.core.FeatureLoader
 import com.wmods.wppenhacer.xposed.core.WppCore
 import com.wmods.wppenhacer.xposed.core.components.FMessageWpp
+import com.wmods.wppenhacer.xposed.core.components.SharedPreferencesWrapper
 import com.wmods.wppenhacer.xposed.core.components.WaContactWpp
 import com.wmods.wppenhacer.xposed.core.devkit.Unobfuscator
 import com.wmods.wppenhacer.xposed.features.listeners.ConversationItemListener
@@ -27,18 +27,11 @@ import com.wmods.wppenhacer.xposed.utils.AnimationUtil
 import com.wmods.wppenhacer.xposed.utils.AudioOpusConverter
 import com.wmods.wppenhacer.xposed.utils.ReflectionUtils
 import com.wmods.wppenhacer.xposed.utils.Utils
-import de.robv.android.xposed.XC_MethodHook
-import de.robv.android.xposed.XC_MethodReplacement
-import android.content.SharedPreferences
-import com.wmods.wppenhacer.xposed.core.components.SharedPreferencesWrapper
 import com.wmods.wppenhacer.xposed.utils.collapseAndHide
-import de.robv.android.xposed.XposedBridge
-import de.robv.android.xposed.XposedHelpers
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import org.json.JSONObject
 import org.luckypray.dexkit.query.enums.StringMatchType
-import org.luckypray.dexkit.util.DexSignUtil
 import java.io.File
 import java.lang.reflect.Method
 import java.lang.reflect.Modifier
@@ -48,14 +41,14 @@ import java.util.WeakHashMap
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.ConcurrentHashMap
 import kotlin.math.max
-import kotlin.text.set
 
-class Others(loader: ClassLoader, preferences:SharedPreferences) : Feature(loader, preferences) {
+class Others(loader: ClassLoader, preferences: SharedPreferences) : Feature(loader, preferences) {
 
     companion object {
 
         @JvmField
         val propsBoolean = ConcurrentHashMap<Int, Boolean>()
+
         @JvmField
         val propsInteger = ConcurrentHashMap<Int, Int>()
     }
@@ -65,27 +58,27 @@ class Others(loader: ClassLoader, preferences:SharedPreferences) : Feature(loade
         Collections.synchronizedMap(WeakHashMap<View, Boolean>())
 
     override fun doHook() {
-        properties = Utils.getProperties(prefs, "custom_css", "custom_filters")
-        val menuWIcons = prefs.getBoolean("menuwicon", false)
+        properties = Utils.getProperties(xprefs, "custom_css", "custom_filters")
+        val menuWIcons = xprefs.getBoolean("menuwicon", false)
         val newSettings = getNewSettingsVariant()
-        val filterChats = prefs.getString("chatfilter", "2")
-        val filterSeen = prefs.getBoolean("filterseen", false)
-        var statusStyle = prefs.getString("status_style", "0")?.toInt() ?: 0
-        val disableMetaAI = prefs.getBoolean("metaai", false)
-        val disableSensorProximity = prefs.getBoolean("disable_sensor_proximity", false)
-        val proximityAudios = prefs.getBoolean("proximity_audios", false)
-        val showOnline = prefs.getBoolean("showonline", false)
-        val floatingMenu = prefs.getBoolean("floatingmenu", false)
-        val filterItems = prefs.getString("filter_items", null)
-        val autonextStatus = prefs.getBoolean("autonext_status", false)
-        val audioType = prefs.getString("audio_type", "0")?.toInt() ?: 0
-        val audioTranscription = prefs.getBoolean("audio_transcription", false)
-        val oldStatus = prefs.getBoolean("oldstatus", false)
-        val igstatus = prefs.getBoolean("igstatus", false)
-        val animationEmojis = prefs.getBoolean("animation_emojis", false)
-        val disableProfileStatus = prefs.getBoolean("disable_profile_status", false)
-        val disableExpiration = prefs.getBoolean("disable_expiration", false)
-        val disableAd = prefs.getBoolean("disable_ads", false)
+        val filterChats = xprefs.getString("chatfilter", "2")
+        val filterSeen = xprefs.getBoolean("filterseen", false)
+        var statusStyle = xprefs.getString("status_style", "0")?.toInt() ?: 0
+        val disableMetaAI = xprefs.getBoolean("metaai", false)
+        val disableSensorProximity = xprefs.getBoolean("disable_sensor_proximity", false)
+        val proximityAudios = xprefs.getBoolean("proximity_audios", false)
+        val showOnline = xprefs.getBoolean("showonline", false)
+        val floatingMenu = xprefs.getBoolean("floatingmenu", false)
+        val filterItems = xprefs.getString("filter_items", null)
+        val autonextStatus = xprefs.getBoolean("autonext_status", false)
+        val audioType = xprefs.getString("audio_type", "0")?.toInt() ?: 0
+        val audioTranscription = xprefs.getBoolean("audio_transcription", false)
+        val oldStatus = xprefs.getBoolean("oldstatus", false)
+        val igstatus = xprefs.getBoolean("igstatus", false)
+        val animationEmojis = xprefs.getBoolean("animation_emojis", false)
+        val disableProfileStatus = xprefs.getBoolean("disable_profile_status", false)
+        val disableExpiration = xprefs.getBoolean("disable_expiration", false)
+        val disableAd = xprefs.getBoolean("disable_ads", false)
 
         propsInteger[3877] = if (oldStatus) (if (igstatus) 2 else 0) else 2
 
@@ -97,15 +90,17 @@ class Others(loader: ClassLoader, preferences:SharedPreferences) : Feature(loade
         propsBoolean[16250] = false
 
         if (newSettings == 2) {
-            XposedBridge.hookAllMethods(WppCore.homeActivityClass, "onCreateOptionsMenu", object : XC_MethodHook() {
-                override fun afterHookedMethod(param: MethodHookParam) {
-                    val menu = param.args[0] as Menu
+            WppCore.homeActivityClass.resolve().method {
+                name = "onCreateOptionsMenu"
+            }.hookAll {
+                after {
+                    val menu = args[0] as Menu
                     val menuItem = menu.findItem(Utils.getID("me_tab_menu_item", "id"))
                     menuItem?.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS)
                 }
-            })
+            }
         }
-        propsBoolean[14862] = newSettings !=0 // WHATS_HAPPENING_SENDING_ENABLED_CODE
+        propsBoolean[14862] = newSettings != 0 // WHATS_HAPPENING_SENDING_ENABLED_CODE
         propsInteger[18564] = newSettings // ME_TAB_V2_VARIANTS_CODE
 
         propsBoolean[2889] = floatingMenu
@@ -208,7 +203,9 @@ class Others(loader: ClassLoader, preferences:SharedPreferences) : Feature(loade
 
         // Whatsapp Status Style
         val retStatusStyle = Unobfuscator.loadStatusStyleMethod(classLoader)
-        XposedBridge.hookMethod(retStatusStyle, XC_MethodReplacement.returnConstant(statusStyle))
+        retStatusStyle.hook {
+            replaceAny { statusStyle }
+        }
         statusStyle = if (oldStatus) 0 else statusStyle
         propsInteger[9973] = 1
         propsBoolean[6285] = true
@@ -232,11 +229,15 @@ class Others(loader: ClassLoader, preferences:SharedPreferences) : Feature(loade
         if (proximityAudios) {
             val classes = Unobfuscator.loadProximitySensorListenerClasses(classLoader)
             for (cls in classes) {
-                XposedBridge.hookAllMethods(cls, "onSensorChanged", XC_MethodReplacement.DO_NOTHING)
+                cls.resolve().method {
+                    name = "onSensorChanged"
+                }.hookAll {
+                    replaceUnit { }
+                }
             }
         }
 
-        if (filterItems != null && prefs.getBoolean("custom_filters", true)) {
+        if (filterItems != null && xprefs.getBoolean("custom_filters", true)) {
             filterItems(filterItems)
         }
 
@@ -282,7 +283,7 @@ class Others(loader: ClassLoader, preferences:SharedPreferences) : Feature(loade
             disableHomeFilters()
         }
 
-        if (prefs.getBoolean("disable_swipe_up_in_group", false)) {
+        if (xprefs.getBoolean("disable_swipe_up_in_group", false)) {
             disableSwipeUpInGroup()
         }
 
@@ -290,29 +291,29 @@ class Others(loader: ClassLoader, preferences:SharedPreferences) : Feature(loade
 
 
     private fun disableSwipeUpInGroup() {
-        XposedBridge.hookMethod(Unobfuscator.loadSwipeUpInGroupMethod(classLoader), object : XC_MethodHook() {
-            override fun beforeHookedMethod(param: MethodHookParam) {
-                param.result = ReflectionUtils.getDefaultValue((param.method as Method).returnType)
+        Unobfuscator.loadSwipeUpInGroupMethod(classLoader).hook {
+            before {
+                result = ReflectionUtils.getDefaultValue((method as Method).returnType)
             }
-        })
+        }
     }
 
     private fun getNewSettingsVariant(): Int {
-        val type = prefs.getString("configui_mode", "-1")?.toInt() ?: -1
-        return if (type != -1){
+        val type = xprefs.getString("configui_mode", "-1")?.toInt() ?: -1
+        return if (type != -1) {
             type
-        }else {
-            if (prefs.getBoolean("novaconfig", false)) 2 else 0
+        } else {
+            if (xprefs.getBoolean("novaconfig", false)) 2 else 0
         }
     }
 
     private fun disableHomeFilters() {
-        XposedBridge.hookMethod(Unobfuscator.loadChatFilterViewMethod(classLoader), object : XC_MethodHook() {
-            override fun afterHookedMethod(param: MethodHookParam) {
-                val filterView = param.args[0] as? View ?: return
+        Unobfuscator.loadChatFilterViewMethod(classLoader).hook {
+            after {
+                val filterView = args[0] as? View ?: return@after
                 filterView.collapseAndHide()
             }
-        })
+        }
 
         val filterDimenId = try {
             Unobfuscator.loadFilterDimenId(classLoader)
@@ -322,17 +323,17 @@ class Others(loader: ClassLoader, preferences:SharedPreferences) : Feature(loade
         }
 
         try {
-            XposedBridge.hookMethod(Unobfuscator.loadConversationsHeightMethod(classLoader), object : XC_MethodHook() {
-                override fun afterHookedMethod(param: MethodHookParam) {
+            Unobfuscator.loadConversationsHeightMethod(classLoader).hook {
+                after {
                     val context = Utils.application
                     if (filterDimenId != 0) {
                         val filterViewHeight =
                             context.resources.getDimensionPixelSize(filterDimenId)
-                        val originalHeight = param.result as Int
-                        param.result = max(originalHeight - filterViewHeight, 0)
+                        val originalHeight = result as Int
+                        result = max(originalHeight - filterViewHeight, 0)
                     }
                 }
-            })
+            }
         } catch (e: Throwable) {
             logDebug(e)
         }
@@ -343,17 +344,16 @@ class Others(loader: ClassLoader, preferences:SharedPreferences) : Feature(loade
         propsBoolean[14306] = false
         try {
             val loadAd = Unobfuscator.loadAdVerifyMethod(classLoader)
-            XposedBridge.hookMethod(loadAd, object : XC_MethodHook() {
-                @Suppress("UNCHECKED_CAST")
-                override fun beforeHookedMethod(param: MethodHookParam) {
-                    val enumParam = param.args[0] as Enum<*>
+            loadAd.hook {
+                before {
+                    val enumParam = args[0] as Enum<*>
                     if (enumParam.name == "WAMO") {
-                        val retClass = (param.method as Method).returnType as Class<out Enum<*>>
+                        val retClass = (method as Method).returnType as Class<out Enum<*>>
                         val pauseEnum = java.lang.Enum.valueOf(retClass, "PAUSED")
-                        param.result = pauseEnum
+                        result = pauseEnum
                     }
                 }
-            })
+            }
         } catch (e: Throwable) {
             logDebug(e)
         }
@@ -369,71 +369,83 @@ class Others(loader: ClassLoader, preferences:SharedPreferences) : Feature(loade
         )
         val isCalledFromProfileStatus = ThreadLocal<Boolean>()
 
-        XposedBridge.hookMethod(statusProfileMethod, object : XC_MethodHook() {
-            override fun beforeHookedMethod(param: MethodHookParam?) {
+        statusProfileMethod.hook {
+            before {
                 isCalledFromProfileStatus.set(true)
             }
-
-            override fun afterHookedMethod(param: MethodHookParam?) {
+            after {
                 isCalledFromProfileStatus.set(false)
             }
-        })
+        }
 
-        val methods = ReflectionUtils.findAllMethodsUsingFilter(statusDataClass){
+        val methods = ReflectionUtils.findAllMethodsUsingFilter(statusDataClass) {
             it.parameterCount == 0 && it.returnType == Boolean::class.javaPrimitiveType
         }
 
         methods.forEach {
-            XposedBridge.hookMethod(it, object : XC_MethodHook() {
-                override fun afterHookedMethod(param: MethodHookParam) {
+            it.hook {
+                after {
                     if (isCalledFromProfileStatus.get() ?: false)
-                        param.result = false
-                }
-            })
-        }
-
-        XposedBridge.hookAllMethods(photoProfileClass, "setStatusIndicatorEnabled", object : XC_MethodHook() {
-            override fun beforeHookedMethod(param: MethodHookParam) {
-                if (param.args[0] as Boolean) {
-                    param.result = null
+                        result = false
                 }
             }
-        })
+        }
+
+        photoProfileClass.resolve().method {
+            name = "setStatusIndicatorEnabled"
+        }.hookAll {
+            before {
+                if (args[0] as Boolean) {
+                    result = null
+                }
+            }
+        }
     }
 
     private fun disableSensorProximity() {
-        XposedBridge.hookAllMethods(PowerManager::class.java, "newWakeLock", object : XC_MethodHook() {
-            override fun beforeHookedMethod(param: MethodHookParam) {
-                if (param.args[0] == PowerManager.PROXIMITY_SCREEN_OFF_WAKE_LOCK) {
-                    param.result = null
+        PowerManager::class.java.resolve().method {
+            name = "newWakeLock"
+        }.hookAll {
+            before {
+                if (args[0] == PowerManager.PROXIMITY_SCREEN_OFF_WAKE_LOCK) {
+                    result = null
                 }
             }
-        })
+        }
     }
 
     private fun callInfo() {
-        if (!prefs.getBoolean("call_info", false)) return
+        if (!xprefs.getBoolean("call_info", false)) return
 
-        val clsCallEventCallback = Unobfuscator.findFirstClassUsingName(classLoader, StringMatchType.EndsWith, "VoiceServiceEventCallback")
-        val clsWamCall = Unobfuscator.findFirstClassUsingName(classLoader, StringMatchType.EndsWith, "WamCall")
+        val clsCallEventCallback = Unobfuscator.findFirstClassUsingName(
+            classLoader,
+            StringMatchType.EndsWith,
+            "VoiceServiceEventCallback"
+        )
+        val clsWamCall =
+            Unobfuscator.findFirstClassUsingName(classLoader, StringMatchType.EndsWith, "WamCall")
 
-        XposedBridge.hookAllMethods(clsCallEventCallback, "fieldstatsReady", object : XC_MethodHook() {
-            override fun beforeHookedMethod(param: MethodHookParam) {
-                if (clsWamCall.isInstance(param.args[0])) {
+        clsCallEventCallback.resolve().method {
+            name = "fieldstatsReady"
+        }.hookAll {
+            before {
+                if (clsWamCall.isInstance(args[0])) {
 
-                    val callinfo = XposedHelpers.callMethod(param.thisObject, "getCallInfo") ?: return
-                    val userJid = FMessageWpp.UserJid(XposedHelpers.callMethod(callinfo, "getPeerJid"))
-                    if (userJid.isNull) return
+                    val callinfo =
+                        ReflectionUtils.callMethod(instance, "getCallInfo") ?: return@before
+                    val userJid =
+                        FMessageWpp.UserJid(ReflectionUtils.callMethod(callinfo, "getPeerJid"))
+                    if (userJid.isNull) return@before
                     CompletableFuture.runAsync {
                         try {
-                            showCallInformation(param.args[0], userJid)
+                            showCallInformation(args[0]!!, userJid)
                         } catch (e: Exception) {
                             logDebug(e)
                         }
                     }
                 }
             }
-        })
+        }
     }
 
     private fun showCallInformation(wamCall: Any, userJid: FMessageWpp.UserJid) {
@@ -442,10 +454,12 @@ class Others(loader: ClassLoader, preferences:SharedPreferences) : Feature(loade
         val contact = WppCore.getContactName(userJid)
         val number = userJid.phoneNumber
         if (!TextUtils.isEmpty(contact))
-            sb.append(String.format(Utils.application.getString(R.string.contact_s), contact)).append("\n")
-        sb.append(String.format(Utils.application.getString(R.string.phone_number_s), number)).append("\n")
-        
-        val ip = XposedHelpers.getObjectField(wamCall, "callPeerIpStr") as String?
+            sb.append(String.format(Utils.application.getString(R.string.contact_s), contact))
+                .append("\n")
+        sb.append(String.format(Utils.application.getString(R.string.phone_number_s), number))
+            .append("\n")
+
+        val ip = ReflectionUtils.getObjectField(wamCall, "callPeerIpStr") as String?
         if (ip != null) {
             val client = OkHttpClient.Builder().build()
             val url = "http://ip-api.com/json/$ip"
@@ -454,48 +468,67 @@ class Others(loader: ClassLoader, preferences:SharedPreferences) : Feature(loade
             val json = JSONObject(content)
             val country = json.getString("country")
             val city = json.getString("city")
-            sb.append(String.format(Utils.application.getString(R.string.country_s), country)).append("\n")
-              .append(String.format(Utils.application.getString(R.string.city_s), city)).append("\n")
-              .append(String.format(Utils.application.getString(R.string.ip_s), ip)).append("\n")
+            sb.append(String.format(Utils.application.getString(R.string.country_s), country))
+                .append("\n")
+                .append(String.format(Utils.application.getString(R.string.city_s), city))
+                .append("\n")
+                .append(String.format(Utils.application.getString(R.string.ip_s), ip)).append("\n")
         }
-        val platform = XposedHelpers.getObjectField(wamCall, "callPeerPlatform") as String?
+        val platform = ReflectionUtils.getObjectField(wamCall, "callPeerPlatform") as String?
         if (platform != null)
-            sb.append(String.format(Utils.application.getString(R.string.platform_s), platform)).append("\n")
-        val wppVersion = XposedHelpers.getObjectField(wamCall, "callPeerAppVersion") as String?
+            sb.append(String.format(Utils.application.getString(R.string.platform_s), platform))
+                .append("\n")
+        val wppVersion = ReflectionUtils.getObjectField(wamCall, "callPeerAppVersion") as String?
         if (wppVersion != null)
-            sb.append(String.format(Utils.application.getString(R.string.wpp_version_s), wppVersion)).append("\n")
-        
-        Utils.showNotification(Utils.application.getString(R.string.call_information), sb.toString())
+            sb.append(
+                String.format(
+                    Utils.application.getString(R.string.wpp_version_s),
+                    wppVersion
+                )
+            ).append("\n")
+
+        Utils.showNotification(
+            Utils.application.getString(R.string.call_information),
+            sb.toString()
+        )
     }
 
     private fun alwaysOnline() {
-        if (!prefs.getBoolean("always_online", false)) return
+        if (!xprefs.getBoolean("always_online", false)) return
         val stateChange = Unobfuscator.loadStateChangeMethod(classLoader)
-        XposedBridge.hookMethod(stateChange, XC_MethodReplacement.DO_NOTHING)
+        stateChange.hook {
+            replaceUnit { }
+        }
     }
 
     private fun doubleTapReaction() {
-        if (!prefs.getBoolean("doubletap2like", false)) return
+        if (!xprefs.getBoolean("doubletap2like", false)) return
 
-        val emoji = prefs.getString("doubletap2like_emoji", "👍") ?: "👍"
+        val emoji = xprefs.getString("doubletap2like_emoji", "👍") ?: "👍"
 
         val conversationRowClass = Unobfuscator.loadConversationRowClass(classLoader)
 
-        XposedBridge.hookAllConstructors(conversationRowClass, object : XC_MethodHook() {
-            override fun afterHookedMethod(param: MethodHookParam) {
-                val viewGroup = param.thisObject as ViewGroup
+        conversationRowClass!!.resolve().constructor { }.hookAll {
+            after {
+                val viewGroup = instance as ViewGroup
                 viewGroup.setOnTouchListener(null)
             }
-        })
+        }
 
         ConversationItemListener.conversationListeners.add(object :
             ConversationItemListener.OnConversationItemListener() {
-            override fun onItemBind(fMessage: FMessageWpp, view: ViewGroup, position: Int, convertView: View?) {
+            override fun onItemBind(
+                fMessage: FMessageWpp,
+                view: ViewGroup,
+                position: Int,
+                convertView: View?
+            ) {
                 val messageId = fMessage.key.messageID
                 val onMultiClickListener = object : OnMultiClickListener(2, 500) {
                     override fun onMultiClick(v: View) {
                         if (!ConversationItemListener.isViewBoundToMessage(view, messageId)) return
-                        val reactionView = v.findViewById<ViewGroup>(Utils.getID("reactions_bubble_layout", "id"))
+                        val reactionView =
+                            v.findViewById<ViewGroup>(Utils.getID("reactions_bubble_layout", "id"))
                         if (reactionView != null && reactionView.isVisible) {
                             for (i in 0 until reactionView.childCount) {
                                 val child = reactionView.getChildAt(i)
@@ -516,25 +549,24 @@ class Others(loader: ClassLoader, preferences:SharedPreferences) : Feature(loade
     }
 
     private fun stampCopiedMessage() {
-        if (!prefs.getBoolean("stamp_copied_message", false)) return
+        if (!xprefs.getBoolean("stamp_copied_message", false)) return
 
         val copiedMessage = Unobfuscator.loadCopiedMessageMethod(classLoader)
 
-        XposedBridge.hookMethod(copiedMessage, object : XC_MethodHook() {
-            @Suppress("UNCHECKED_CAST")
-            override fun beforeHookedMethod(param: MethodHookParam) {
+        copiedMessage.hook {
+            before {
                 @Suppress("PLATFORM_CLASS_MAPPED_TO_KOTLIN")
-                val collection = param.args.last() as java.util.Collection<*>
-                param.args[param.args.lastIndex] = object : ArrayList<Any>(collection as Collection<Any>) {
+                val collection = args.last() as java.util.Collection<*>
+                args[args.lastIndex] = object : ArrayList<Any>(collection as Collection<Any>) {
                     override val size: Int
                         get() = 1
                 }
             }
-        })
+        }
     }
 
     private fun animationList() {
-        val animation = prefs.getString("animation_list", "default") ?: "default"
+        val animation = xprefs.getString("animation_list", "default") ?: "default"
 
         val onChangeStatus = Unobfuscator.loadOnChangeStatus(classLoader)
         logDebug(Unobfuscator.getMethodDescriptor(onChangeStatus))
@@ -542,71 +574,75 @@ class Others(loader: ClassLoader, preferences:SharedPreferences) : Feature(loade
         logDebug(Unobfuscator.getFieldDescriptor(field1))
         val absViewHolderClass = Unobfuscator.loadAbsViewHolder(classLoader)
 
-        XposedBridge.hookMethod(onChangeStatus, object : XC_MethodHook() {
-            @SuppressLint("ResourceType")
-            override fun afterHookedMethod(param: MethodHookParam) {
-                val viewHolder = field1.get(param.thisObject)
-                val viewField = ReflectionUtils.findFieldUsingFilter(absViewHolderClass) { field -> field.type == View::class.java }
+        onChangeStatus.hook {
+            after {
+                val viewHolder = field1.get(instance)
+                val viewField =
+                    ReflectionUtils.findFieldUsingFilter(absViewHolderClass) { field -> field.type == View::class.java }
                 val view = viewField.get(viewHolder) as View
-                
+
                 if (animation != "default") {
                     view.startAnimation(AnimationUtil.getAnimation(animation))
                 } else if (properties.containsKey("home_list_animation")) {
-                    val anim = AnimationUtil.getAnimation(properties.getProperty("home_list_animation"))
+                    val anim =
+                        AnimationUtil.getAnimation(properties.getProperty("home_list_animation"))
                     if (anim != null) {
                         view.startAnimation(anim)
                     }
                 }
             }
-        })
+        }
     }
 
     private fun customPlayBackSpeed() {
-        val voicenoteSpeed = prefs.getFloat("voicenote_speed", 2.0f)
+        val voicenoteSpeed = xprefs.getFloat("voicenote_speed", 2.0f)
         val playBackSpeed = Unobfuscator.loadPlaybackSpeed(classLoader)
-        
-        XposedBridge.hookMethod(playBackSpeed, object : XC_MethodHook() {
-            override fun beforeHookedMethod(param: MethodHookParam) {
-                val index = ReflectionUtils.findIndexOfType(param.args, Float::class.javaPrimitiveType!!)
+
+        playBackSpeed.hook {
+            before {
+                val index = ReflectionUtils.findIndexOfType(args, Float::class.javaPrimitiveType!!)
                 if (index != -1) {
-                    if (param.args[index] as? Float == 2.0f) {
-                        param.args[index] = voicenoteSpeed
+                    if (args[index] as? Float == 2.0f) {
+                        args[index] = voicenoteSpeed
                     }
                 }
             }
-        })
-        
-        val voicenoteClass = Unobfuscator.findFirstClassUsingName(classLoader, StringMatchType.EndsWith, "VoiceNoteProfileAvatarView")
-        val method = ReflectionUtils.findAllMethodsUsingFilter(voicenoteClass) { method1 -> 
+        }
+
+        val voicenoteClass = Unobfuscator.findFirstClassUsingName(
+            classLoader,
+            StringMatchType.EndsWith,
+            "VoiceNoteProfileAvatarView"
+        )
+        val method = ReflectionUtils.findAllMethodsUsingFilter(voicenoteClass) { method1 ->
             method1.parameterCount == 4 && method1.parameterTypes[0] == Int::class.javaPrimitiveType && method1.returnType == Void.TYPE
         }
-        
-        XposedBridge.hookMethod(method[method.size - 1], object : XC_MethodHook() {
-            @SuppressLint("SetTextI18n")
-            override fun afterHookedMethod(param: MethodHookParam) {
-                super.afterHookedMethod(param)
-                if (param.args[0] as Int == 3) {
-                    val view = param.thisObject as View
-                    val playback = view.findViewById<TextView>(Utils.getID("fast_playback_overlay", "id"))
+
+        method[method.size - 1].hook {
+            after {
+                if (args[0] as Int == 3) {
+                    val view = instance as View
+                    val playback =
+                        view.findViewById<TextView>(Utils.getID("fast_playback_overlay", "id"))
                     if (playback != null) {
                         playback.text = voicenoteSpeed.toString().replace(".", ",") + "×"
                     }
                 }
             }
-        })
+        }
     }
 
     private fun sendAudioType(selectedAudioType: Int) {
         val sendAudioTypeMethod = Unobfuscator.loadMediaTypeMethod(classLoader)
-        
-        XposedBridge.hookMethod(sendAudioTypeMethod, object : XC_MethodHook() {
-            private var newFile: File? = null
 
-            override fun beforeHookedMethod(param: MethodHookParam) {
+        var newFile: File? = null
+
+        sendAudioTypeMethod.hook {
+            before {
                 newFile = null
-                val results = ReflectionUtils.findInstancesOfType(param.args, Int::class.javaObjectType)
+                val results = ReflectionUtils.findInstancesOfType(args, Int::class.javaObjectType)
                 if (results.size < 2) {
-                    return
+                    return@before
                 }
 
                 val mediaType = results[0]
@@ -616,14 +652,20 @@ class Others(loader: ClassLoader, preferences:SharedPreferences) : Feature(loade
                     if (selectedAudioType > 0) {
                         val audioTypeValue = sourceType.second as Int
                         val targetAudioType = selectedAudioType - 1
-                        param.args[sourceType.first] = targetAudioType
+                        args[sourceType.first] = targetAudioType
 
                         if (audioTypeValue != targetAudioType && targetAudioType == 1) {
-                            Utils.showToast(Utils.getString(R.string.converting_audio), Toast.LENGTH_LONG)
-                            val fileMedia = param.args[2]
-                            val fieldFile = ReflectionUtils.getFieldByExtendType(fileMedia.javaClass, File::class.java) ?: run {
+                            Utils.showToast(
+                                Utils.getString(R.string.converting_audio),
+                                Toast.LENGTH_LONG
+                            )
+                            val fileMedia = args[2]
+                            val fieldFile = ReflectionUtils.getFieldByExtendType(
+                                fileMedia!!.javaClass,
+                                File::class.java
+                            ) ?: run {
                                 logDebug("File field not found")
-                                return
+                                return@before
                             }
                             val file = fieldFile.get(fileMedia) as File
                             newFile = AudioOpusConverter.convert(file.absolutePath)
@@ -635,38 +677,42 @@ class Others(loader: ClassLoader, preferences:SharedPreferences) : Feature(loade
                     }
                 }
             }
-        })
+        }
 
         val originFMessageField = Unobfuscator.loadOriginFMessageField(classLoader)
         val forwardAudioTypeMethod = Unobfuscator.loadForwardAudioTypeMethod(classLoader)
 
-        XposedBridge.hookMethod(forwardAudioTypeMethod, object : XC_MethodHook() {
-            override fun afterHookedMethod(param: MethodHookParam) {
-                val fMessage = param.result
+        forwardAudioTypeMethod.hook {
+            after {
+                val fMessage = result
                 originFMessageField.isAccessible = true
                 originFMessageField.setInt(fMessage, selectedAudioType - 1)
             }
-        })
+        }
     }
 
     private fun autoNextStatus() {
-        val statusPlaybackContactFragmentClass = Unobfuscator.findFirstClassUsingName(classLoader, StringMatchType.EndsWith, "StatusPlaybackContactFragment")
+        val statusPlaybackContactFragmentClass = Unobfuscator.findFirstClassUsingName(
+            classLoader,
+            StringMatchType.EndsWith,
+            "StatusPlaybackContactFragment"
+        )
         val runNextStatusMethod = Unobfuscator.loadNextStatusRunMethod(classLoader)
-        
-        XposedBridge.hookMethod(runNextStatusMethod, object : XC_MethodHook() {
-            override fun beforeHookedMethod(param: MethodHookParam) {
-                val obj = XposedHelpers.getObjectField(param.thisObject, "A01")
+
+        runNextStatusMethod.hook {
+            before {
+                val obj = ReflectionUtils.getObjectField(instance, "A01")
                 if (statusPlaybackContactFragmentClass.isInstance(obj)) {
-                    param.result = null
+                    result = null
                 }
             }
-        })
-        
+        }
+
         val onPlayBackFinished = Unobfuscator.loadOnPlaybackFinished(classLoader)
-        XposedBridge.hookMethod(onPlayBackFinished, XC_MethodReplacement.DO_NOTHING)
+        onPlayBackFinished.hook {
+            replaceUnit { }
+        }
     }
-
-
 
 
     private fun filterItems(filterItems: String) {
@@ -677,97 +723,109 @@ class Others(loader: ClassLoader, preferences:SharedPreferences) : Feature(loade
                 it > 0
             }.toSet()
         }
-        XposedHelpers.findAndHookMethod(View::class.java, "invalidate", Boolean::class.javaPrimitiveType, object : XC_MethodHook() {
-            override fun afterHookedMethod(param: MethodHookParam) {
-                val view = param.thisObject as View
+        View::class.java.resolve().firstMethod {
+            name = "invalidate"
+            superclass()
+            parameters(Boolean::class)
+        }.hook {
+            after {
+                val view = instance as View
                 val id = view.id
                 if (id > 0 && idsFilter.contains(id) && view.isVisible) {
                     view.visibility = View.GONE
                 }
             }
-        })
+        }
     }
 
     private fun showOnline(showOnline: Boolean) {
         val checkOnlineMethod = Unobfuscator.loadCheckOnlineMethod(classLoader)
-        XposedBridge.hookMethod(checkOnlineMethod, object : XC_MethodHook() {
-            override fun beforeHookedMethod(param: MethodHookParam) {
-                val message = param.args[0] as Message
-                if (message.arg1 != 5) return
+        checkOnlineMethod.hook {
+            before {
+                val message = args[0] as Message
+                if (message.arg1 != 5) return@before
                 val baseBundle = message.obj as BaseBundle
                 val jid = baseBundle.getString("jid")
-                if (TextUtils.isEmpty(jid)) return
+                if (TextUtils.isEmpty(jid)) return@before
                 val userjid = FMessageWpp.UserJid(jid)
-                if (userjid.isGroup) return
+                if (userjid.isGroup) return@before
                 val waContact = WaContactWpp.getWaContactFromJid(userjid)
                 val name = waContact?.displayName ?: "Unknown"
                 if (showOnline)
-                    Utils.showToast(String.format(Utils.application.getString(R.string.toast_online), name), Toast.LENGTH_SHORT)
+                    Utils.showToast(
+                        String.format(
+                            Utils.application.getString(R.string.toast_online),
+                            name
+                        ), Toast.LENGTH_SHORT
+                    )
                 Tasker.sendTaskerEvent(name, WppCore.stripJID(jid), "contact_online")
             }
-        })
+        }
     }
 
     private fun hookProps() {
         val methodPropsBoolean = Unobfuscator.loadPropsBooleanMethod(classLoader)
         logDebug(Unobfuscator.getMethodDescriptor(methodPropsBoolean))
         val dataUsageActivityClass = WppCore.dataUsageActivityClass
-        
-        XposedBridge.hookMethod(methodPropsBoolean, object : XC_MethodHook() {
-            override fun afterHookedMethod(param: MethodHookParam) {
-                val list = ReflectionUtils.findInstancesOfType(param.args, Integer::class.java)
+
+        methodPropsBoolean.hook {
+            after {
+                val list = ReflectionUtils.findInstancesOfType(args, Integer::class.java)
                 val i = list[0].second.toInt()
 
                 val propValue = propsBoolean[i]
                 if (propValue != null) {
                     // Fix Bug in Settings Data Usage
                     if (i == 4023) {
-                        if (ReflectionUtils.isCalledFromClass(dataUsageActivityClass)) return
+                        if (ReflectionUtils.isCalledFromClass(dataUsageActivityClass)) return@after
                     }
-                    param.result = propValue
+                    result = propValue
                 }
             }
-        })
+        }
 
         val methodPropsInteger = Unobfuscator.loadPropsIntegerMethod(classLoader)
 
-        XposedBridge.hookMethod(methodPropsInteger, object : XC_MethodHook() {
-            override fun beforeHookedMethod(param: MethodHookParam) {
-                val list = ReflectionUtils.findInstancesOfType(param.args, Integer::class.java)
+        methodPropsInteger.hook {
+            before {
+                val list = ReflectionUtils.findInstancesOfType(args, Integer::class.java)
                 val i = list[0].second.toInt()
-                val propValue = propsInteger[i] ?: return
-                param.result = propValue
+                val propValue = propsInteger[i] ?: return@before
+                result = propValue
             }
-        })
+        }
     }
 
     private fun hookSearchbar(filterChats: String?) {
-        if (filterChats.isNullOrEmpty())return
+        if (filterChats.isNullOrEmpty()) return
         val searchbar = Unobfuscator.loadViewAddSearchBarMethod(classLoader)
         val searchBarID = Utils.getID("my_search_bar", "id")
 
-        XposedBridge.hookMethod(searchbar, object : XC_MethodHook() {
-            override fun beforeHookedMethod(param: MethodHookParam) {
+        searchbar.hook {
+            before {
                 var view: View? = null
-                if (param.args[0] is View) {
-                    view = param.args[0] as View
+                if (args[0] is View) {
+                    view = args[0] as View
                 } else {
-                    val auxFace = (param.method as Method).parameterTypes[0]
-                    val method = ReflectionUtils.findMethodUsingFilter(auxFace) { m -> m.returnType == View::class.java }
+                    val auxFace = (method as Method).parameterTypes[0]
+                    val method =
+                        ReflectionUtils.findMethodUsingFilter(auxFace) { m -> m.returnType == View::class.java }
                     val currentActivity = WppCore.getCurrentActivity()
-                    view = method.invoke(param.args[0], currentActivity) as View?
+                    view = method.invoke(args[0], currentActivity) as View?
                 }
 
                 if (view != null && (view.id == searchBarID || view.findViewById<View>(searchBarID) != null) && filterChats != "2") {
-                    param.result = null
+                    result = null
                 }
             }
-        })
+        }
 
         try {
             if (filterChats != "2") {
                 val loadMySearchBar = Unobfuscator.loadMySearchBarMethod(classLoader)
-                XposedBridge.hookMethod(loadMySearchBar, XC_MethodReplacement.DO_NOTHING)
+                loadMySearchBar.hook {
+                    replaceUnit { }
+                }
             }
         } catch (_: Exception) {
         }
@@ -775,15 +833,15 @@ class Others(loader: ClassLoader, preferences:SharedPreferences) : Feature(loade
         val addSeachBar = Unobfuscator.loadAddOptionSearchBarMethod(classLoader)
         val curPageField = Unobfuscator.loadGetCurrentPageInHomeField(classLoader)
 
-        XposedBridge.hookMethod(addSeachBar, object : XC_MethodHook() {
-            private var homeActivity: Any? = null
-            private var originPageId: Int = 0
+        var homeActivity: Any? = null
+        var originPageId = 0
 
-            override fun beforeHookedMethod(param: MethodHookParam) {
-                if (filterChats != "1") return
-                homeActivity = param.thisObject
-                if (Modifier.isStatic(param.method.modifiers)) {
-                    homeActivity = param.args[0]
+        addSeachBar.hook {
+            before {
+                if (filterChats != "1") return@before
+                homeActivity = instanceOrNull
+                if (Modifier.isStatic(method.modifiers)) {
+                    homeActivity = args[0]
                 }
                 originPageId = 0
                 if (curPageField.type == Int::class.javaPrimitiveType) {
@@ -791,21 +849,24 @@ class Others(loader: ClassLoader, preferences:SharedPreferences) : Feature(loade
                     curPageField.setInt(homeActivity, 1)
                 }
             }
-
-            override fun afterHookedMethod(param: MethodHookParam) {
+            after {
                 if (originPageId != 0) {
                     curPageField.setInt(homeActivity, originPageId)
                 }
             }
-        })
-        
-        XposedHelpers.findAndHookMethod(WppCore.homeActivityClass, "onPrepareOptionsMenu", Menu::class.java, object : XC_MethodHook() {
-            override fun afterHookedMethod(param: MethodHookParam) {
-                val menu = param.args[0] as Menu
+        }
+
+        WppCore.homeActivityClass.resolve().firstMethod {
+            name = "onPrepareOptionsMenu"
+            superclass()
+            parameters(Menu::class.java)
+        }.hook {
+            after {
+                val menu = args[0] as Menu
                 val item = menu.findItem(Utils.getID("menuitem_search", "id"))
                 item?.isVisible = filterChats == "1"
             }
-        })
+        }
     }
 
     override fun getPluginName(): String {

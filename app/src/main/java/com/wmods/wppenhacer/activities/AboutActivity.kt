@@ -48,14 +48,15 @@ class AboutActivity : BaseActivity() {
             ).apply {
                 if (index > 0) topMargin = contributorTopMargin
             }
-            val button = MaterialButton(ContextThemeWrapper(this, R.style.ModernButton_Outlined)).apply {
-                text = contributor[0]
-                setIconResource(R.drawable.ic_github)
-                iconGravity = MaterialButton.ICON_GRAVITY_TEXT_START
-                iconPadding = resources.getDimensionPixelSize(R.dimen.spacing_small)
-                layoutParams = params
-                setOnClickListener { openUrl(contributor[1]) }
-            }
+            val button =
+                MaterialButton(ContextThemeWrapper(this, R.style.ModernButton_Outlined)).apply {
+                    text = contributor[0]
+                    setIconResource(R.drawable.ic_github)
+                    iconGravity = MaterialButton.ICON_GRAVITY_TEXT_START
+                    iconPadding = resources.getDimensionPixelSize(R.dimen.spacing_small)
+                    layoutParams = params
+                    setOnClickListener { openUrl(contributor[1]) }
+                }
             binding.contributorsContainer.addView(button)
         }
     }

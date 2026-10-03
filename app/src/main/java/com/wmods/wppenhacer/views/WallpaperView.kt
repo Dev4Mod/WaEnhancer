@@ -15,7 +15,7 @@ import android.widget.ImageView
 import com.wmods.wppenhacer.preference.ThemePreference
 import com.wmods.wppenhacer.xposed.core.WppCore
 import com.wmods.wppenhacer.xposed.utils.Utils
-import de.robv.android.xposed.XposedBridge.log
+import com.wmods.wppenhacer.xposed.utils.YukiLog
 import java.io.File
 import java.io.FileInputStream
 import java.io.FileOutputStream
@@ -41,7 +41,10 @@ class WallpaperView(
         addView(bgView)
 
         try {
-            var image = ThemePreference.rootDirectory.absolutePath + "/" + prefs.getString("folder_theme", "") + "/" + properties.getProperty("wallpaper_file")
+            var image = ThemePreference.rootDirectory.absolutePath + "/" + prefs.getString(
+                "folder_theme",
+                ""
+            ) + "/" + properties.getProperty("wallpaper_file")
             if (prefs.getBoolean("wallpaper", false)) {
                 image = prefs.getString("wallpaper_file", "") ?: ""
             }
@@ -55,11 +58,11 @@ class WallpaperView(
                         }
                     }
                 } catch (e: Exception) {
-                    log("Error loading wallpaper drawable: " + e.message)
+                    YukiLog.log("Error loading wallpaper drawable: " + e.message)
                 }
             }
         } catch (e: Exception) {
-            log("Error initializing wallpaper view: " + e.message)
+            YukiLog.log("Error initializing wallpaper view: " + e.message)
         }
     }
 
@@ -90,7 +93,8 @@ class WallpaperView(
         @Suppress("DEPRECATION")
         windowManager?.defaultDisplay?.getMetrics(displayMetrics)
         val width = if (displayMetrics.widthPixels > 0) displayMetrics.widthPixels else bitmap.width
-        val height = if (displayMetrics.heightPixels > 0) displayMetrics.heightPixels else bitmap.height
+        val height =
+            if (displayMetrics.heightPixels > 0) displayMetrics.heightPixels else bitmap.height
 
         val scaledBitmap = Bitmap.createScaledBitmap(bitmap, width, height, true)
 

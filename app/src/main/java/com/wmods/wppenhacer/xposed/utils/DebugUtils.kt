@@ -1,18 +1,17 @@
 package com.wmods.wppenhacer.xposed.utils
 
-import de.robv.android.xposed.XC_MethodHook
-import de.robv.android.xposed.XposedBridge
-import de.robv.android.xposed.XposedHelpers
+import com.highcapable.kavaref.KavaRef.Companion.resolve
+import com.highcapable.yukihookapi.hook.param.HookParam
+import com.highcapable.yukihookapi.hook.param.PackageParam
 import java.nio.charset.StandardCharsets
-import java.util.Arrays
 
 object DebugUtils {
 
     @JvmStatic
     fun debugFields(cls: Class<*>?, thisObject: Any?) {
         if (cls == null) return
-        XposedBridge.log("------------------------------------")
-        XposedBridge.log("DEBUG FIELDS: Class " + cls.name + " -> Object " + thisObject)
+        YukiLog.log("------------------------------------")
+        YukiLog.log("DEBUG FIELDS: Class " + cls.name + " -> Object " + thisObject)
         for (field in cls.declaredFields) {
             try {
                 field.isAccessible = true
@@ -21,56 +20,78 @@ object DebugUtils {
                 if (value != null && value.javaClass.isArray) {
                     value = (value as Array<*>).contentToString()
                 }
-                XposedBridge.log("FIELD: $name -> TYPE: ${field.type.name} -> VALUE: $value")
+                YukiLog.log("FIELD: $name -> TYPE: ${field.type.name} -> VALUE: $value")
             } catch (_: Exception) {
             }
         }
     }
 
     @JvmStatic
-    fun debugAllMethods(className: String, methodName: String, printMethods: Boolean, printFields: Boolean, printArgs: Boolean, printTrace: Boolean) {
-        XposedBridge.hookAllMethods(
-            XposedHelpers.findClass(className, Utils.application.classLoader),
-            methodName,
-            getDebugMethodHook(printMethods, printFields, printArgs, printTrace)
-        )
-    }
-
-    @JvmStatic
-    fun getDebugMethodHook(printMethods: Boolean, printFields: Boolean, printArgs: Boolean, printTrace: Boolean): XC_MethodHook {
-        return object : XC_MethodHook() {
-            override fun afterHookedMethod(param: MethodHookParam) {
-                XposedBridge.log("-----------------HOOKED DEBUG START-----------------------------")
-                XposedBridge.log("DEBUG CLASS: " + param.method.declaringClass.name + "->" + param.method.name + ": " + param.thisObject)
-
-                if (printArgs) {
-                    debugArgs(param.args)
-                    XposedBridge.log("Return value: " + (param.result?.javaClass?.name ?: null) + " -> VALUE: " + param.result)
+    fun debugAllMethods(
+        packageParam: PackageParam,
+        className: String,
+        methodName: String,
+        printMethods: Boolean,
+        printFields: Boolean,
+        printArgs: Boolean,
+        printTrace: Boolean
+    ) {
+        packageParam.apply {
+            ReflectionUtils.findClass(className, Utils.application.classLoader).resolve().method {
+                name = methodName
+            }.hookAll {
+                after {
+                    logHookDebug(this, printMethods, printFields, printArgs, printTrace)
                 }
-
-                if (printFields) {
-                    debugFields(param.thisObject?.javaClass ?: param.method.declaringClass, param.thisObject)
-                }
-
-                if (printMethods) {
-                    debugMethods(param.thisObject?.javaClass ?: param.method.declaringClass, param.thisObject)
-                }
-
-                if (printTrace) {
-                    for (trace in Thread.currentThread().stackTrace) {
-                        XposedBridge.log("TRACE: " + trace.toString())
-                    }
-                }
-
-                XposedBridge.log("-----------------HOOKED DEBUG END-----------------------------\n\n")
             }
         }
     }
 
     @JvmStatic
+    fun logHookDebug(
+        param: HookParam,
+        printMethods: Boolean,
+        printFields: Boolean,
+        printArgs: Boolean,
+        printTrace: Boolean
+    ) {
+        val thisObject = param.instanceOrNull
+        YukiLog.log("-----------------HOOKED DEBUG START-----------------------------")
+        YukiLog.log("DEBUG CLASS: " + param.method.declaringClass.name + "->" + param.method.name + ": " + thisObject)
+
+        if (printArgs) {
+            @Suppress("UNCHECKED_CAST")
+            debugArgs(param.args as Array<Any>)
+            YukiLog.log(
+                "Return value: " + (param.result?.javaClass?.name
+                    ?: null) + " -> VALUE: " + param.result
+            )
+        }
+
+        if (printFields) {
+            debugFields(thisObject?.javaClass ?: param.method.declaringClass, thisObject)
+        }
+
+        if (printMethods) {
+            debugMethods(thisObject?.javaClass ?: param.method.declaringClass, thisObject)
+        }
+
+        if (printTrace) {
+            for (trace in Thread.currentThread().stackTrace) {
+                YukiLog.log("TRACE: " + trace.toString())
+            }
+        }
+
+        YukiLog.log("-----------------HOOKED DEBUG END-----------------------------\n\n")
+    }
+
+    @JvmStatic
     fun debugArgs(args: Array<Any>) {
         for (i in args.indices) {
-            XposedBridge.log("ARG[$i]: " + (args[i]?.javaClass?.name ?: null) + " -> VALUE: " + parseValue(args[i]))
+            YukiLog.log(
+                "ARG[$i]: " + (args[i]?.javaClass?.name
+                    ?: null) + " -> VALUE: " + parseValue(args[i])
+            )
         }
     }
 
@@ -87,6 +108,7 @@ object DebugUtils {
                 }
                 sb.append("]")
             }
+
             is Map<*, *> -> {
                 val keys = value.keys
                 sb.append("Map[")
@@ -95,12 +117,14 @@ object DebugUtils {
                 }
                 sb.append("]")
             }
+
             is ByteArray -> {
                 try {
                     sb.append(String(value, StandardCharsets.UTF_8))
                 } catch (_: Exception) {
                 }
             }
+
             else -> {
                 sb.append(value)
             }
@@ -111,12 +135,12 @@ object DebugUtils {
     @JvmStatic
     fun debugMethods(cls: Class<*>?, thisObject: Any?) {
         if (cls == null) return
-        XposedBridge.log("DEBUG METHODS: Class " + cls.name)
+        YukiLog.log("DEBUG METHODS: Class " + cls.name)
         for (method in cls.declaredMethods) {
             if (method.parameterCount > 0 || method.returnType == Void.TYPE) continue
             try {
                 method.isAccessible = true
-                XposedBridge.log("METHOD: " + method.name + " -> VALUE: " + method.invoke(thisObject))
+                YukiLog.log("METHOD: " + method.name + " -> VALUE: " + method.invoke(thisObject))
             } catch (_: Exception) {
             }
         }
@@ -125,7 +149,7 @@ object DebugUtils {
     @JvmStatic
     fun debugObject(srj: Any?) {
         if (srj == null) return
-        XposedBridge.log("DEBUG OBJECT: " + srj.javaClass.name)
+        YukiLog.log("DEBUG OBJECT: " + srj.javaClass.name)
         debugFields(srj.javaClass, srj)
         debugMethods(srj.javaClass, srj)
     }

@@ -1,53 +1,46 @@
 package com.wmods.wppenhacer.xposed.features.general
 
-import android.app.Dialog
 import android.content.Context
 import android.content.DialogInterface
 import android.content.Intent
-import android.os.Bundle
+import android.content.SharedPreferences
 import androidx.core.net.toUri
 import com.wmods.wppenhacer.R
 import com.wmods.wppenhacer.xposed.core.Feature
 import com.wmods.wppenhacer.xposed.core.components.AlertDialogWpp
-import com.wmods.wppenhacer.xposed.core.components.FMessageWpp.UserJid
 import com.wmods.wppenhacer.xposed.core.components.SharedPreferencesWrapper
-import com.wmods.wppenhacer.xposed.core.devkit.UnobfuscatorCache
-import com.wmods.wppenhacer.xposed.utils.ReflectionUtils
-import de.robv.android.xposed.XC_MethodHook
-import android.content.SharedPreferences
 import com.wmods.wppenhacer.xposed.core.components.WaContactWpp
 import com.wmods.wppenhacer.xposed.core.devkit.Unobfuscator
-import de.robv.android.xposed.XposedBridge
-import de.robv.android.xposed.XposedHelpers
+import com.wmods.wppenhacer.xposed.core.devkit.UnobfuscatorCache
 
-class CallType(loader: ClassLoader, preferences:SharedPreferences) :
+class CallType(loader: ClassLoader, preferences: SharedPreferences) :
     Feature(loader, preferences) {
     override fun doHook() {
-        if (!prefs.getBoolean("calltype", false)) return
+        if (!xprefs.getBoolean("calltype", false)) return
 
         SharedPreferencesWrapper.addHook { key, value ->
             if (key == "call_confirmation_dialog_count") {
                 99
-            }else {
+            } else {
                 value
             }
         }
 
         val startCallMethod = Unobfuscator.loadStartOutgoingCallMethod(classLoader)
 
-        XposedBridge.hookMethod(startCallMethod, object : XC_MethodHook() {
-            override fun beforeHookedMethod(param: MethodHookParam) {
-                val context = param.args[0] as? Context ?: return
-                val contactObj = param.args[1] ?: return
-                val isVideo = param.args[3] as? Boolean ?: false
-                if (isVideo) return
+        startCallMethod.hook {
+            before {
+                val context = args[0] as? Context ?: return@before
+                val contactObj = args[1] ?: return@before
+                val isVideo = args[3] as? Boolean ?: false
+                if (isVideo) return@before
 
                 val waContact = WaContactWpp(contactObj)
                 val userJid = waContact.userJid
                 val phoneNumber = userJid.phoneNumber
-                if (phoneNumber.isNullOrEmpty()) return
-                val originalArgs = param.args.copyOf()
-                param.result = null
+                if (phoneNumber.isNullOrEmpty()) return@before
+                val originalArgs = args.copyOf()
+                result = null
                 val mAlertDialog = AlertDialogWpp(context)
                 mAlertDialog.setTitle(UnobfuscatorCache.getInstance().getString("selectcalltype"))
                 mAlertDialog.setItems(
@@ -66,13 +59,13 @@ class CallType(loader: ClassLoader, preferences:SharedPreferences) :
                         }
 
                         1 -> {
-                            XposedBridge.invokeOriginalMethod(param.method, param.thisObject, originalArgs)
+                            invokeOriginal(*originalArgs)
                         }
                     }
                 }
                 mAlertDialog.show()
             }
-        })
+        }
     }
 
     override fun getPluginName(): String {

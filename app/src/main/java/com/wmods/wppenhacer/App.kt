@@ -12,14 +12,12 @@ import android.os.Build
 import android.os.Environment
 import android.provider.Settings
 import android.util.Log
-import androidx.annotation.Keep
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.app.ActivityCompat
 import androidx.preference.PreferenceManager
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.wmods.wppenhacer.activities.CrashReportActivity
 import com.wmods.wppenhacer.xposed.utils.Utils
-import de.robv.android.xposed.XposedHelpers
 import rikka.material.app.LocaleDelegate.Companion.defaultLocale
 import java.io.File
 import java.util.Locale
@@ -81,10 +79,6 @@ class App : Application() {
             putExtra("PKG", packageWpp)
         }
         sendBroadcast(intent)
-    }
-
-    fun isXposedEnabled(): Boolean  {
-        return System.currentTimeMillis() == 0L
     }
 
     companion object {
