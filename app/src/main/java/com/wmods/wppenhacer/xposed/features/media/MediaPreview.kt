@@ -10,6 +10,7 @@ import android.graphics.Matrix
 import android.graphics.PointF
 import android.media.MediaPlayer
 import android.net.Uri
+import android.webkit.MimeTypeMap
 import android.os.Handler
 import android.os.Looper
 import android.os.SystemClock
@@ -256,7 +257,7 @@ class MediaPreview(
             try {
                 val query = String.format(
                     Locale.ENGLISH,
-                    "SELECT message_url,mime_type,hex(media_key),direct_path,file_length FROM message_media WHERE message_row_id =\"%d\"",
+                    "SELECT message_url,mime_type,hex(media_key),direct_path,file_length,media_name,media_key FROM message_media WHERE message_row_id =\"%d\"",
                     id
                 )
                 val cursor0 = MessageStore.getInstance().getDatabase()?.rawQuery(query, null)
@@ -265,8 +266,30 @@ class MediaPreview(
                     if (cursor.count > 0) {
                         cursor.moveToFirst()
                         var url = cursor.getString(0)
-                        val mimeType = cursor.getString(1)
-                        val mediaKey = cursor.getString(2)
+                        var mimeType: String? = cursor.getString(1)
+                        if (mimeType.isNullOrEmpty()) {
+                            val mediaName = cursor.getString(5)
+                            if (!mediaName.isNullOrEmpty()) {
+                                val extension = MimeTypeMap.getFileExtensionFromUrl(mediaName)
+                                    .ifEmpty { mediaName.substringAfterLast('.', "") }
+                                if (extension.isNotEmpty()) {
+                                    mimeType = MimeTypeMap.getSingleton()
+                                        .getMimeTypeFromExtension(extension.lowercase(Locale.US))
+                                }
+                            }
+                        }
+                        if (mimeType.isNullOrEmpty()) {
+                            throw Exception("Media type not found")
+                        }
+                        var mediaKey: String? = cursor.getString(2)
+                        if (mediaKey.isNullOrEmpty() || mediaKey.length != 64) {
+                            val rawBlob = cursor.getBlob(6)
+                            if (rawBlob != null && rawBlob.size == 32) {
+                                mediaKey = rawBlob.joinToString("") {
+                                    String.format(Locale.US, "%02x", it)
+                                }
+                            }
+                        }
                         val directPath = cursor.getString(3)
                         val fileLength = cursor.getLong(4)
 
@@ -276,7 +299,7 @@ class MediaPreview(
 
                         val mainHandler = Handler(Looper.getMainLooper())
                         mainHandler.post {
-                            dialog = Dialog(
+                            val previewDialog = Dialog(
                                 context,
                                 android.R.style.Theme_Black_NoTitleBar_Fullscreen
                             ).apply {
@@ -302,7 +325,9 @@ class MediaPreview(
                                 setBackgroundColor(Color.TRANSPARENT)
                             }
 
-                            val header = createHeader(context, mimeType)
+                            dialog = previewDialog
+
+                            val header = createHeader(context, mimeType, previewDialog)
                             mainContainer.addView(header)
 
                             val contentContainer = FrameLayout(context).apply {
@@ -322,11 +347,18 @@ class MediaPreview(
                             val progressBar = loadingContainer.getChildAt(0) as ProgressBar
                             val progressText = loadingContainer.getChildAt(1) as TextView
 
-                            dialog?.setContentView(mainContainer)
-                            dialog?.setOnDismissListener { cleanupResources(executor) }
-                            dialog?.show()
+                            previewDialog.setContentView(mainContainer)
+                            previewDialog.setOnDismissListener {
+                                if (dialog === previewDialog) {
+                                    dialog = null
+                                    cleanupResources(executor)
+                                } else {
+                                    executor.takeUnless { it.isShutdown }?.shutdownNow()
+                                }
+                            }
+                            previewDialog.show()
 
-                            val finalUrl = url
+                            val finalUrl = url ?: ""
                             executor.execute {
                                 downloadAndDisplayMedia(
                                     finalUrl,
@@ -339,7 +371,8 @@ class MediaPreview(
                                     loadingContainer,
                                     progressBar,
                                     progressText,
-                                    executor
+                                    executor,
+                                    previewDialog
                                 )
                             }
                         }
@@ -348,13 +381,17 @@ class MediaPreview(
             } catch (e: Exception) {
                 logDebug(e)
                 Utils.showToast(e.message, Toast.LENGTH_LONG)
-                cleanupDialog(executor)
+                cleanupDialog(executor, null)
             }
         }
     }
 
     @SuppressLint("SetTextI18n")
-    private fun createHeader(context: Context, mimeType: String): RelativeLayout {
+    private fun createHeader(
+        context: Context,
+        mimeType: String,
+        previewDialog: Dialog
+    ): RelativeLayout {
         val header = RelativeLayout(context).apply {
             id = View.generateViewId()
             val headerParams = RelativeLayout.LayoutParams(
@@ -381,9 +418,7 @@ class MediaPreview(
             setColorFilter(Color.WHITE)
             setImageResource(android.R.drawable.ic_menu_close_clear_cancel)
             setOnClickListener {
-                if (dialog?.isShowing == true) {
-                    dialog?.dismiss()
-                }
+                dismissDialogSafely(previewDialog)
             }
         }
         header.addView(closeBtn)
@@ -453,10 +488,11 @@ class MediaPreview(
 
     @SuppressLint("SetTextI18n")
     private fun downloadAndDisplayMedia(
-        url: String, mediaKey: String, mimeType: String,
+        url: String, mediaKey: String?, mimeType: String,
         expectedSize: Long, isNewsletter: Boolean, context: Context,
         contentContainer: FrameLayout, loadingContainer: LinearLayout,
-        progressBar: ProgressBar, progressText: TextView, executor: ExecutorService
+        progressBar: ProgressBar, progressText: TextView, executor: ExecutorService,
+        previewDialog: Dialog
     ) {
         try {
             val fileExtension = if (mimeType.startsWith("image")) ".jpg" else ".mp4"
@@ -482,6 +518,9 @@ class MediaPreview(
                 }
                 .build()
 
+            if (url.isEmpty()) {
+                throw Exception("Media URL is null or empty")
+            }
             val request = Request.Builder().url(url).build()
             client.newCall(request).execute().use { response ->
                 if (!response.isSuccessful) {
@@ -493,7 +532,7 @@ class MediaPreview(
 
                 val inputStream = response.body.byteStream()
 
-                if (isNewsletter) {
+                if (isNewsletter || mediaKey.isNullOrEmpty()) {
                     downloadWithProgress(inputStream, contentLength, progressBar, progressText)
                 } else {
                     downloadAndDecryptWithProgress(
@@ -513,6 +552,10 @@ class MediaPreview(
                 }
 
                 mainHandler.post {
+                    if (!contentContainer.isAttachedToWindow) {
+                        bitmap?.recycle()
+                        return@post
+                    }
                     loadingContainer.visibility = View.GONE
 
                     if (mimeType.startsWith("image")) {
@@ -524,7 +567,7 @@ class MediaPreview(
             }
 
         } catch (e: Throwable) {
-            handleError(e, executor)
+            handleError(e, executor, previewDialog)
         }
     }
 
@@ -557,7 +600,7 @@ class MediaPreview(
     @Throws(Exception::class)
     private fun downloadAndDecryptWithProgress(
         inputStream: InputStream, contentLength: Long,
-        mediaKey: String, mimeType: String, progressBar: ProgressBar, progressText: TextView
+        mediaKey: String?, mimeType: String, progressBar: ProgressBar, progressText: TextView
     ) {
         val destFile = filePath ?: throw IllegalStateException("filePath is null")
         val tempEncryptedFile = File(destFile.parentFile, "${destFile.name}.enc")
@@ -639,6 +682,15 @@ class MediaPreview(
     @SuppressLint("SetTextI18n")
     private fun displayVideo(context: Context, container: FrameLayout) {
         try {
+            val currentFile = filePath
+            if (currentFile == null || !currentFile.exists() || currentFile.length() == 0L) {
+                Utils.showToast(
+                    "Error playing video: File not found or empty",
+                    Toast.LENGTH_SHORT
+                )
+                return
+            }
+
             val videoContainer = RelativeLayout(context).apply {
                 layoutParams = FrameLayout.LayoutParams(
                     FrameLayout.LayoutParams.MATCH_PARENT,
@@ -681,8 +733,9 @@ class MediaPreview(
                 updatePlayPauseButton(controls, false)
             }
 
-            videoView.setOnErrorListener { _, _, _ ->
-                Utils.showToast("Error playing video", Toast.LENGTH_SHORT)
+            videoView.setOnErrorListener { _, what, extra ->
+                logDebug("MediaPlayer error: what=$what, extra=$extra, path=${currentFile.absolutePath}, size=${currentFile.length()}")
+                Utils.showToast("Error playing video ($what, $extra)", Toast.LENGTH_SHORT)
                 true
             }
 
@@ -928,7 +981,7 @@ class MediaPreview(
         ).toInt()
     }
 
-    private fun handleError(e: Throwable, executor: ExecutorService) {
+    private fun handleError(e: Throwable, executor: ExecutorService, previewDialog: Dialog) {
         if (e is InvocationTargetException) {
             logDebug(e.cause)
             mainHandler.post {
@@ -941,12 +994,13 @@ class MediaPreview(
             logDebug(e)
             mainHandler.post { Utils.showToast(e.message, Toast.LENGTH_LONG) }
         }
-        cleanupDialog(executor)
+        cleanupDialog(executor, previewDialog)
     }
 
     private fun cleanupResources(executor: ExecutorService?) {
         currentMediaPlayer?.let { mp ->
             try {
+                if (mp.isPlaying) mp.stop()
                 mp.release()
             } catch (ignored: Exception) {
             }
@@ -965,13 +1019,30 @@ class MediaPreview(
         }
     }
 
-    private fun cleanupDialog(executor: ExecutorService?) {
-        mainHandler.post {
-            if (dialog?.isShowing == true) {
-                dialog?.dismiss()
-            }
+    private fun dismissDialogSafely(target: Dialog?) {
+        target ?: return
+        if (!target.isShowing) return
+
+        val decorView = target.window?.decorView ?: return
+        if (!decorView.isAttachedToWindow) return
+
+        try {
+            target.dismiss()
+        } catch (e: IllegalArgumentException) {
+            logDebug(e)
         }
-        cleanupResources(executor)
+    }
+
+    private fun cleanupDialog(executor: ExecutorService?, previewDialog: Dialog?) {
+        mainHandler.post {
+            dismissDialogSafely(previewDialog)
+        }
+
+        if (previewDialog != null && dialog === previewDialog) {
+            cleanupResources(executor)
+        } else {
+            executor?.takeUnless { it.isShutdown }?.shutdownNow()
+        }
     }
 
     @SuppressLint("ClickableViewAccessibility")
@@ -1202,10 +1273,10 @@ class MediaPreview(
     private fun decryptMediaFile(
         encryptedFile: File,
         destFile: File,
-        mediaKey: String,
+        mediaKey: String?,
         mimeType: String
     ) {
-        if (mediaKey.length % 2 != 0 || mediaKey.length != 64) {
+        if (mediaKey == null || mediaKey.length % 2 != 0 || mediaKey.length != 64) {
             throw IllegalArgumentException("Invalid media key.")
         }
 
@@ -1217,7 +1288,9 @@ class MediaPreview(
             )).toByte()
         }
 
-        val typeKey = MEDIA_KEYS[mimeType] ?: MEDIA_KEYS["document"]!!
+        val typeKey = MEDIA_KEYS[mimeType]
+            ?: MEDIA_KEYS[mimeType.substringBefore("/")]
+            ?: MEDIA_KEYS["document"]!!
         val derivedKey = HKDF.createFor(3).deriveSecrets(keyBytes, typeKey, 112)
         val iv = derivedKey.copyOfRange(0, 16)
         val aesKey = derivedKey.copyOfRange(16, 48)
