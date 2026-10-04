@@ -223,8 +223,8 @@ object WppCore {
     }
 
     fun initBridge(context: Context) {
-        val prefsCacheHooks = UnobfuscatorCache.getInstance().sPrefsCacheHooks
-        val preferredOrder = prefsCacheHooks.getInt("preferredOrder", 1)
+        val cache = UnobfuscatorCache.getInstance()
+        val preferredOrder = cache.getHookInt("preferredOrder", 1)
 
         val primaryClient =
             if (preferredOrder == 0) ProviderClientKt() else BridgeClientKt(context)
@@ -235,7 +235,7 @@ object WppCore {
 
         if (tryConnectBridge(fallbackClient)) {
             val newPreferredOrder = if (preferredOrder == 0) 1 else 0
-            prefsCacheHooks.edit { putInt("preferredOrder", newPreferredOrder) }
+            cache.putHookInt("preferredOrder", newPreferredOrder)
             return
         }
         throw Exception(context.getString(R.string.bridge_error))

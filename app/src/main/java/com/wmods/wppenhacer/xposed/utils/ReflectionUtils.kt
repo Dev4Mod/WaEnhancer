@@ -1,9 +1,8 @@
 package com.wmods.wppenhacer.xposed.utils
 
 import android.content.Context
-import android.content.SharedPreferences
 import android.util.Pair
-import androidx.core.content.edit
+import com.wmods.wppenhacer.xposed.core.datastore.UnobfuscatorCacheDataStore
 import java.lang.reflect.Constructor
 import java.lang.reflect.Field
 import java.lang.reflect.Method
@@ -16,12 +15,14 @@ import java.util.stream.Collectors
 @Suppress("unused")
 object ReflectionUtils {
 
-    private var cachePrefs: SharedPreferences? = null
+    private const val REFLECTION_NAMESPACE = UnobfuscatorCacheDataStore.NAMESPACE_REFLECTION
+
+    private var cacheStore: UnobfuscatorCacheDataStore? = null
 
     @JvmStatic
     fun initCache(context: Context) {
-        if (cachePrefs == null) {
-            cachePrefs = context.getSharedPreferences("UnobfuscatorCache", Context.MODE_PRIVATE)
+        if (cacheStore == null) {
+            cacheStore = UnobfuscatorCacheDataStore.getInstance(context)
         }
     }
 
@@ -180,20 +181,19 @@ object ReflectionUtils {
     fun getFieldByExtendType(cls: Class<*>?, type: Class<*>?): Field? {
         if (cls == null) return null
         val t = type ?: return null
-        if (cachePrefs == null) {
+        val store = cacheStore
+        if (store == null) {
             return Arrays.stream(cls.fields).filter { f: Field -> t.isAssignableFrom(f.type) }
                 .findFirst().orElse(null)
         }
 
         val cacheKey = "field_cache_" + cls.name + "_" + t.name
-        val cachedFieldName = cachePrefs?.getString(cacheKey, null)
+        val cachedFieldName = store.getString(REFLECTION_NAMESPACE, cacheKey, null)
         if (cachedFieldName != null) {
             try {
                 return cls.getField(cachedFieldName)
             } catch (_: NoSuchFieldException) {
-                (cachePrefs as SharedPreferences).edit(commit = true) {
-                    remove(cacheKey)
-                }
+                store.remove(REFLECTION_NAMESPACE, cacheKey)
             }
         }
 
@@ -201,9 +201,7 @@ object ReflectionUtils {
             .findFirst().orElse(null)
 
         if (field != null && field.declaringClass == cls) {
-            (cachePrefs as SharedPreferences).edit(commit = true) {
-                putString(cacheKey, field.name)
-            }
+            store.putString(REFLECTION_NAMESPACE, cacheKey, field.name)
         }
 
         return field
@@ -220,18 +218,19 @@ object ReflectionUtils {
     fun getFieldByType(cls: Class<*>?, type: Class<*>?): Field? {
         if (cls == null) return null
         val t = type ?: return null
-        if (cachePrefs == null) {
+        val store = cacheStore
+        if (store == null) {
             return Arrays.stream(cls.fields).filter { f: Field -> t == f.type }.findFirst()
                 .orElse(null)
         }
 
         val cacheKey = "field_cache_direct_" + cls.name + "_" + t.name
-        val cachedFieldName = cachePrefs?.getString(cacheKey, null)
+        val cachedFieldName = store.getString(REFLECTION_NAMESPACE, cacheKey, null)
         if (cachedFieldName != null) {
             try {
                 return cls.getField(cachedFieldName)
             } catch (_: NoSuchFieldException) {
-                cachePrefs?.edit()?.remove(cacheKey)?.apply()
+                store.remove(REFLECTION_NAMESPACE, cacheKey)
             }
         }
 
@@ -239,7 +238,7 @@ object ReflectionUtils {
             Arrays.stream(cls.fields).filter { f: Field -> type == f.type }.findFirst().orElse(null)
 
         if (field != null && field.declaringClass == cls) {
-            cachePrefs?.edit()?.putString(cacheKey, field.name)?.apply()
+            store.putString(REFLECTION_NAMESPACE, cacheKey, field.name)
         }
 
         return field

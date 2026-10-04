@@ -5,7 +5,6 @@ import android.graphics.Bitmap
 import android.graphics.RecordingCanvas
 import android.media.MediaCodecInfo
 import android.os.Build
-import androidx.core.content.edit
 import com.highcapable.kavaref.KavaRef.Companion.resolve
 import com.wmods.wppenhacer.xposed.core.Feature
 import com.wmods.wppenhacer.xposed.core.devkit.Unobfuscator
@@ -149,8 +148,8 @@ class MediaQuality(loader: ClassLoader, preferences: SharedPreferences) :
     }
 
     private fun enableMediaQualityForStories() {
-        val xprefs = UnobfuscatorCache.getInstance().sPrefsCacheHooks
-        var legacyQualitySelection = xprefs.getInt("legacy_quality_selection", -1)
+        val cache = UnobfuscatorCache.getInstance()
+        var legacyQualitySelection = cache.getHookInt("legacy_quality_selection", -1)
 
         if (legacyQualitySelection != 0) {
             try {
@@ -176,9 +175,7 @@ class MediaQuality(loader: ClassLoader, preferences: SharedPreferences) :
             }
             legacyQualitySelection = 0
         }
-        xprefs.edit(commit = true) {
-            putInt("legacy_quality_selection", legacyQualitySelection)
-        }
+        cache.putHookInt("legacy_quality_selection", legacyQualitySelection)
     }
 
     override fun getPluginName(): String {

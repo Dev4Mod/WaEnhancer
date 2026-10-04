@@ -19,8 +19,10 @@ nav = "2.9.6"
 kotlin = "2.4.10"
 markwon = "4.6.2"
 remotePreferences = "0.8"
+datastorePreferences = "1.2.1"
 
 [libraries]
+androidx-datastore-preferences = { module = "androidx.datastore:datastore-preferences", version.ref = "datastorePreferences" }
 androidx-documentfile = { module = "androidx.documentfile:documentfile", version.ref = "documentfile" }
 androidx-room-compiler = { module = "androidx.room:room-compiler", version.ref = "roomRuntime" }
 androidx-room-runtime = { module = "androidx.room:room-runtime", version.ref = "roomRuntime" }
