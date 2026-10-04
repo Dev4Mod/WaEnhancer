@@ -228,7 +228,7 @@ class HomeFragment : BaseFragment() {
         for ((key, value) in entries) {
             val type = JSONObject()
             var keyValue: Any? = value
-            if (keyValue is HashSet<*>) {
+            if (keyValue is Set<*>) {
                 keyValue = JSONArray(ArrayList(keyValue))
             }
             if (keyValue != null) {
@@ -268,6 +268,47 @@ class HomeFragment : BaseFragment() {
         FilePicker.fileSalve.launch("wpp_enhacer_configs_$formattedDate.json")
     }
 
+    private fun parseConfigEntries(json: JSONObject): Map<String, Any> {
+        val result = LinkedHashMap<String, Any>()
+        val keys = json.keys()
+        while (keys.hasNext()) {
+            val key = keys.next()
+            var raw: Any? = json.opt(key)
+            var type: String? = null
+            if (raw is JSONObject) {
+                type = raw.optString("type").ifEmpty { null }
+                raw = raw.opt("value")
+            }
+            if (raw == null || raw == JSONObject.NULL) continue
+            val parsed = runCatching { convertConfigValue(type, raw) }.getOrNull() ?: continue
+            result[key] = parsed
+        }
+        return result
+    }
+
+    private fun convertConfigValue(type: String?, raw: Any): Any? {
+        if (raw is JSONArray) {
+            val set = LinkedHashSet<String>()
+            for (i in 0 until raw.length()) set.add(raw.getString(i))
+            return set
+        }
+        val text = raw.toString()
+        return when (type?.lowercase()) {
+            "boolean" -> if (raw is Boolean) raw else text.toBooleanStrictOrNull()
+            "integer", "int" -> (raw as? Number)?.toInt() ?: text.toIntOrNull()
+            "long" -> (raw as? Number)?.toLong() ?: text.toLongOrNull()
+            "float", "double" -> (raw as? Number)?.toFloat() ?: text.toFloatOrNull()
+            "string" -> text
+            else -> when (raw) {
+                is Boolean -> raw
+                is Int -> raw
+                is Long -> raw
+                is Number -> raw.toFloat()
+                else -> text
+            }
+        }
+    }
+
     private fun importConfigs(context: Context) {
         FilePicker.setOnUriPickedListener { uri ->
             lifecycleScope.launch(Dispatchers.IO) {
@@ -277,37 +318,17 @@ class HomeFragment : BaseFragment() {
                         val prefs = PreferenceManager.getDefaultSharedPreferences(context)
                         val jsonObject = JSONObject(data)
 
-                        prefs.edit {
+                        val entries = parseConfigEntries(jsonObject)
+                        prefs.edit(commit = true) {
                             prefs.all.keys.forEach { key -> remove(key) }
-
-                            val keys = jsonObject.keys()
-                            while (keys.hasNext()) {
-                                val keyName = keys.next()
-                                var value = jsonObject.get(keyName)
-                                var type = value.javaClass.simpleName
-                                if (value is JSONObject) {
-                                    type = value.getString("type")
-                                    value = value.get("value")
-                                }
-
-                                when (type) {
-                                    "JSONArray" -> {
-                                        val jsonArray = value as JSONArray
-                                        val hashSet = HashSet<String>()
-                                        for (i in 0 until jsonArray.length()) {
-                                            hashSet.add(jsonArray.getString(i))
-                                        }
-                                        putStringSet(keyName, hashSet)
-                                    }
-
-                                    "String" -> putString(keyName, value as String)
-                                    "Boolean", "boolean" -> putBoolean(keyName, value as Boolean)
-                                    "Integer", "int" -> putInt(keyName, value as Int)
-                                    "Long", "long" -> putLong(keyName, (value as Number).toLong())
-                                    "Double", "double", "Float", "float" -> putFloat(
-                                        keyName,
-                                        (value as Number).toFloat()
-                                    )
+                            entries.forEach { (key, value) ->
+                                when (value) {
+                                    is Boolean -> putBoolean(key, value)
+                                    is Int -> putInt(key, value)
+                                    is Long -> putLong(key, value)
+                                    is Float -> putFloat(key, value)
+                                    is String -> putString(key, value)
+                                    is Set<*> -> putStringSet(key, value.filterIsInstance<String>().toSet())
                                 }
                             }
                         }
