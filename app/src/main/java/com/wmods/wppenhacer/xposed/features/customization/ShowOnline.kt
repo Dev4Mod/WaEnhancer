@@ -4,6 +4,8 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.content.SharedPreferences
 import android.graphics.Color
+import android.os.Handler
+import android.os.Looper
 import android.os.SystemClock
 import android.text.TextUtils
 import android.util.LruCache
@@ -28,6 +30,7 @@ import com.wmods.wppenhacer.xposed.utils.YukiLog
 import java.lang.reflect.Field
 import java.lang.reflect.Method
 import java.util.Locale
+import java.util.concurrent.Executors
 
 class ShowOnline(loader: ClassLoader, preferences: SharedPreferences) :
     Feature(loader, preferences) {
@@ -42,6 +45,8 @@ class ShowOnline(loader: ClassLoader, preferences: SharedPreferences) :
 
     private data class CachedStatus(val status: String?, val expiresAt: Long)
 
+    private val asyncExecutor = Executors.newFixedThreadPool(2)
+    private val mainHandler = Handler(Looper.getMainLooper())
     private val statusCache = LruCache<String, CachedStatus>(128)
     private val onlineStatusLabel by lazy {
         UnobfuscatorCache.getInstance().getString("online")
@@ -177,19 +182,25 @@ class ShowOnline(loader: ClassLoader, preferences: SharedPreferences) :
             override fun onBind(waContact: WaContactWpp?, view: View?) {
                 try {
                     val contact = waContact ?: return
+                    val targetView = view ?: return
                     val userJid = contact.userJid
                     if (userJid.isNull || userJid.isGroup) return
 
+                    val targetJid = userJid.userRawString ?: return
+                    targetView.setTag(ID_CONTACT_JID_TAG, targetJid)
+
                     val csDot: ImageView? =
-                        if (showOnlineIcon) view?.findViewById(0x7FFF0001) else null
+                        if (showOnlineIcon) targetView.findViewById(ID_ONLINE_DOT) else null
                     if (showOnlineIcon && csDot != null) {
                         csDot.visibility = View.INVISIBLE
                     }
                     val lastSeenText: TextView? =
-                        if (showOnlineText) view?.findViewById(0x7FFF0002) else null
-                    val cacheKey = userJid.phoneRawString
+                        if (showOnlineText) targetView.findViewById(ID_LAST_SEEN_TEXT) else null
+                    if (lastSeenText != null) {
+                        lastSeenText.text = ""
+                    }
                     val now = SystemClock.uptimeMillis()
-                    val cachedStatus = cacheKey?.let { statusCache.get(it) }
+                    val cachedStatus = statusCache.get(targetJid)
                     if (cachedStatus != null && cachedStatus.expiresAt > now) {
                         setStatus(cachedStatus.status, csDot, lastSeenText, onlineStatusLabel)
                         return
@@ -201,26 +212,52 @@ class ShowOnline(loader: ClassLoader, preferences: SharedPreferences) :
                     val statusMethod = getStatusUser ?: return
                     val sendMethod = sendPresenceMethod ?: return
 
-                    val tokenDBInstance = tokenDBField.get(presence)
-                    val tokenData =
-                        ReflectionUtils.callMethod(tcMethod, tokenDBInstance, userJid.userJid)
-                    val tokenObj = tokenConstructor?.newInstance(
-                        if (tokenData == null) null else ReflectionUtils.getObjectField(
-                            tokenData,
-                            "A01"
-                        )
-                    )
-                    sendMethod.invoke(null, userJid.userJid, null, tokenObj, presence)
-                    val status = ReflectionUtils.callMethod(
-                        statusMethod,
-                        mStatusUser,
-                        contact.getObject(),
-                        false
-                    ) as? String
-                    if (cacheKey != null) {
-                        statusCache.put(cacheKey, CachedStatus(status, now + STATUS_CACHE_TTL_MS))
+                    asyncExecutor.execute {
+                        try {
+                            val tokenDBInstance = tokenDBField.get(presence)
+                            val tokenData =
+                                ReflectionUtils.callMethod(tcMethod, tokenDBInstance, userJid.userJid)
+                            val tokenObj = tokenConstructor?.newInstance(
+                                if (tokenData == null) null else ReflectionUtils.getObjectField(
+                                    tokenData,
+                                    "A01"
+                                )
+                            )
+                            sendMethod.invoke(null, userJid.userJid, null, tokenObj, presence)
+                            val status = if (statusMethod.returnType == String::class.java) {
+                                ReflectionUtils.callMethod(
+                                    statusMethod,
+                                    mStatusUser,
+                                    contact.getObject(),
+                                    false
+                                ) as? String
+                            } else {
+                                val result = ReflectionUtils.callMethod(
+                                    statusMethod,
+                                    mStatusUser,
+                                    contact.getObject(),
+                                    Integer.valueOf(0),
+                                    false
+                                )
+                                if (result == null) null
+                                else ReflectionUtils.getObjectField(result, "A01") as? String
+                            }
+                            mainHandler.post {
+                                if (targetView.getTag(ID_CONTACT_JID_TAG) == targetJid) {
+                                    statusCache.put(
+                                        targetJid,
+                                        CachedStatus(
+                                            status,
+                                            SystemClock.uptimeMillis() + STATUS_CACHE_TTL_MS
+                                        )
+                                    )
+                                    setStatus(status, csDot, lastSeenText, onlineStatusLabel)
+                                }
+                            }
+                        } catch (e: Exception) {
+                            YukiLog.log(e)
+                        }
                     }
-                    setStatus(status, csDot, lastSeenText, onlineStatusLabel)
                 } catch (e: Exception) {
                     YukiLog.log(e)
                 }
@@ -234,6 +271,9 @@ class ShowOnline(loader: ClassLoader, preferences: SharedPreferences) :
 
     companion object {
         private const val STATUS_CACHE_TTL_MS = 1000L
+        private const val ID_ONLINE_DOT = 0x7FFF0001
+        private const val ID_LAST_SEEN_TEXT = 0x7FFF0002
+        private const val ID_CONTACT_JID_TAG = 0x7FFF0004
 
         private fun setStatus(
             status: String?,

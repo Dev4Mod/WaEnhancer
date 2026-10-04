@@ -1059,16 +1059,20 @@ object Unobfuscator {
     @JvmStatic
     fun loadStatusUserMethod(loader: ClassLoader): Method {
         return UnobfuscatorCache.getInstance().getMethod(loader) {
-            val id = UnobfuscatorCache.getInstance().getOfuscateIDString("lastseensun%s")
+            val id = UnobfuscatorCache.getInstance().getOfuscateIDString("last seen %s")
             if (id < 1) throw Exception("GetStatusUser ID not found")
             val result = bridge.findMethod {
                 matcher {
                     addUsingNumber(id)
                     returnType(String::class.java)
                 }
-            }
-            if (result.isEmpty()) throw Exception("GetStatusUser method not found")
-            result[result.size - 1].getMethodInstance(loader)
+            }.firstOrNull() ?: bridge.findMethod {
+                matcher {
+                    addUsingNumber(id)
+                }
+            }.firstOrNull()?.callers?.firstOrNull { it.paramCount == 3 }
+            ?: throw Exception("GetStatusUser method not found")
+            result.getMethodInstance(loader)
         }
     }
 
