@@ -478,7 +478,9 @@ class HomeFragment : BaseFragment() {
                     val currentVersionLower = BuildConfig.VERSION_NAME.lowercase().trim()
                     val tagVersion = parts[0].trim().removePrefix("v").removePrefix("V")
 
-                    val isNewVersion = if (hash.isNotEmpty()) {
+                    val isNewVersion = if (BuildConfig.DEBUG) {
+                        isVersionHigher(tagVersion, BuildConfig.VERSION_NAME)
+                    } else if (hash.isNotEmpty()) {
                         !currentVersionLower.contains(hash.lowercase().trim())
                     } else {
                         isVersionHigher(tagVersion, BuildConfig.VERSION_NAME)
