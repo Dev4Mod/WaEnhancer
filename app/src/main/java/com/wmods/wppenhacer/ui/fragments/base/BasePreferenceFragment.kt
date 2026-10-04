@@ -29,6 +29,7 @@ import com.wmods.wppenhacer.BuildConfig
 import com.wmods.wppenhacer.R
 import com.wmods.wppenhacer.preference.FloatSeekBarPreference
 import com.wmods.wppenhacer.xposed.utils.Utils
+import com.wmods.wppenhacer.preference.SafePreferenceDataStore
 import java.util.Locale
 import java.util.Objects
 import rikka.material.preference.MaterialSwitchPreference
@@ -43,6 +44,7 @@ abstract class BasePreferenceFragment : PreferenceFragmentCompat(),
 
     override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
         mPrefs = PreferenceManager.getDefaultSharedPreferences(requireContext())
+        preferenceManager.preferenceDataStore = SafePreferenceDataStore(prefs)
         prefs.registerOnSharedPreferenceChangeListener(this)
         requireActivity().onBackPressedDispatcher.addCallback(
             this,
@@ -208,8 +210,8 @@ abstract class BasePreferenceFragment : PreferenceFragmentCompat(),
 
     @SuppressLint("ApplySharedPref")
     private fun updatePreferenceStates(key: String?) {
-        val changeColorEnabled = prefs.getBoolean("changecolor", false)
-        val changeColorMode = prefs.getString("changecolor_mode", "manual")
+        val changeColorEnabled = prefs.safeGetBoolean("changecolor", false)
+        val changeColorMode = prefs.safeGetString("changecolor_mode", "manual")
         val monetAvailable = Build.VERSION.SDK_INT >= Build.VERSION_CODES.S
         val useMonetColors = changeColorEnabled && monetAvailable && Objects.equals(changeColorMode, "monet")
 
@@ -219,10 +221,10 @@ abstract class BasePreferenceFragment : PreferenceFragmentCompat(),
         setPreferenceState("text_color", changeColorEnabled && !useMonetColors)
 
         if (key == "thememode") {
-            App.setThemeMode(prefs.getString("thememode", "0")!!.toInt())
+            App.setThemeMode(prefs.safeGetString("thememode", "0")?.toIntOrNull() ?: 0)
         }
 
-        val colorMode = prefs.getString("wae_color_mode", "preset")
+        val colorMode = prefs.safeGetString("wae_color_mode", "preset")
         val useMonet = Objects.equals(colorMode, "monet") && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S
         setPreferenceState("wae_color_preset", !useMonet)
 
@@ -235,34 +237,34 @@ abstract class BasePreferenceFragment : PreferenceFragmentCompat(),
             context?.let(Utils::doRestart)
         }
 
-        val igstatus = prefs.getBoolean("igstatus", false)
+        val igstatus = prefs.safeGetBoolean("igstatus", false)
         setPreferenceState("oldstatus", !igstatus)
 
-        val oldstatus = prefs.getBoolean("oldstatus", false)
+        val oldstatus = prefs.safeGetBoolean("oldstatus", false)
         setPreferenceState("verticalstatus", !oldstatus)
         setPreferenceState("channels", !oldstatus)
         setPreferenceState("removechannel_rec", !oldstatus)
         setPreferenceState("status_style", !oldstatus)
         setPreferenceState("igstatus", !oldstatus)
 
-        val channels = prefs.getBoolean("channels", false)
+        val channels = prefs.safeGetBoolean("channels", false)
         setPreferenceState("removechannel_rec", !channels && !oldstatus)
 
-        val freezelastseen = prefs.getBoolean("freezelastseen", false)
+        val freezelastseen = prefs.safeGetBoolean("freezelastseen", false)
         setPreferenceState("show_freezeLastSeen", !freezelastseen)
         setPreferenceState("showonlinetext", !freezelastseen)
         setPreferenceState("dotonline", !freezelastseen)
 
-        val separategroups = prefs.getBoolean("separategroups", false)
+        val separategroups = prefs.safeGetBoolean("separategroups", false)
         setPreferenceState("filtergroups", !separategroups)
 
-        val filtergroups = prefs.getBoolean("filtergroups", false)
+        val filtergroups = prefs.safeGetBoolean("filtergroups", false)
         setPreferenceState("separategroups", !filtergroups)
 
         val callBlockContacts = findPreference<Preference>("call_block_contacts")
         val callWhiteContacts = findPreference<Preference>("call_white_contacts")
         if (callBlockContacts != null && callWhiteContacts != null) {
-            when (prefs.getString("call_privacy", "0")!!.toInt()) {
+            when (prefs.safeGetString("call_privacy", "0")?.toIntOrNull() ?: 0) {
                 3 -> {
                     callBlockContacts.isEnabled = true
                     callWhiteContacts.isEnabled = false
@@ -276,6 +278,36 @@ abstract class BasePreferenceFragment : PreferenceFragmentCompat(),
                     callBlockContacts.isEnabled = false
                 }
             }
+        }
+    }
+
+    private fun SharedPreferences.safeGetBoolean(key: String, defValue: Boolean = false): Boolean {
+        return try {
+            getBoolean(key, defValue)
+        } catch (_: ClassCastException) {
+            val str = try { getString(key, null) } catch (_: Exception) { null }
+            val resolved = when (str?.trim()?.lowercase()) {
+                "true", "1" -> true
+                "false", "0" -> false
+                else -> defValue
+            }
+            try {
+                edit().remove(key).putBoolean(key, resolved).apply()
+            } catch (_: Exception) {}
+            resolved
+        } catch (_: Exception) {
+            defValue
+        }
+    }
+
+    private fun SharedPreferences.safeGetString(key: String, defValue: String? = null): String? {
+        return try {
+            getString(key, defValue)
+        } catch (_: ClassCastException) {
+            val all = try { all } catch (_: Exception) { emptyMap() }
+            all[key]?.toString() ?: defValue
+        } catch (_: Exception) {
+            defValue
         }
     }
 

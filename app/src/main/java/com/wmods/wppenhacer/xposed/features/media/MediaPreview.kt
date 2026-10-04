@@ -252,14 +252,19 @@ class MediaPreview(
                 cursor0?.use { cursor ->
                     if (cursor.count > 0) {
                         cursor.moveToFirst()
-                        var url = cursor.getString(0)
-                        val mimeType = cursor.getString(1)
-                        val mediaKey = cursor.getString(2)
-                        val directPath = cursor.getString(3)
+                        var url = cursor.getString(0) ?: ""
+                        val mimeType = cursor.getString(1) ?: "image/jpeg"
+                        val mediaKey = cursor.getString(2) ?: ""
+                        val directPath = cursor.getString(3) ?: ""
                         val fileLength = cursor.getLong(4)
 
                         if (isNewsletter) {
                             url = "https://mmg.whatsapp.net$directPath"
+                        }
+
+                        if (url.isBlank()) {
+                            Utils.showToast("Media URL not available", Toast.LENGTH_SHORT)
+                            return@use
                         }
 
                         val mainHandler = Handler(Looper.getMainLooper())
@@ -337,7 +342,7 @@ class MediaPreview(
     }
 
     @SuppressLint("SetTextI18n")
-    private fun createHeader(context: Context, mimeType: String): RelativeLayout {
+    private fun createHeader(context: Context, mimeType: String?): RelativeLayout {
         val header = RelativeLayout(context).apply {
             id = View.generateViewId()
             val headerParams = RelativeLayout.LayoutParams(
@@ -380,7 +385,7 @@ class MediaPreview(
             layoutParams = titleParams
             setTextColor(Color.WHITE)
             setTextSize(TypedValue.COMPLEX_UNIT_SP, 18f)
-            text = if (mimeType.startsWith("image")) {
+            text = if (mimeType?.startsWith("image") == true) {
                 context.getString(R.string.preview_image)
             } else {
                 context.getString(R.string.preview_video)
@@ -442,7 +447,8 @@ class MediaPreview(
         progressBar: ProgressBar, progressText: TextView, executor: ExecutorService
     ) {
         try {
-            val fileExtension = if (mimeType.startsWith("image")) ".jpg" else ".mp4"
+            val isImage = mimeType.lowercase().startsWith("image")
+            val fileExtension = if (isImage) ".jpg" else ".mp4"
             filePath = File(
                 Utils.application.cacheDir,
                 "mediapreview_${System.currentTimeMillis()}$fileExtension"
@@ -489,7 +495,7 @@ class MediaPreview(
                     )
                 }
 
-                val bitmap = if (mimeType.startsWith("image")) {
+                val bitmap = if (isImage) {
                     BitmapFactory.decodeFile(filePath?.absolutePath)
                 } else {
                     null

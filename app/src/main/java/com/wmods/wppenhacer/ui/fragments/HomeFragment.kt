@@ -475,7 +475,14 @@ class HomeFragment : BaseFragment() {
 
                     val parts = tagName.split("-")
                     val hash = if (parts.size > 1) parts[1].trim() else ""
-                    val isNewVersion = hash.isNotEmpty() && !BuildConfig.VERSION_NAME.lowercase().contains(hash.lowercase().trim())
+                    val currentVersionLower = BuildConfig.VERSION_NAME.lowercase().trim()
+                    val tagVersion = parts[0].trim().removePrefix("v").removePrefix("V")
+
+                    val isNewVersion = if (hash.isNotEmpty()) {
+                        !currentVersionLower.contains(hash.lowercase().trim())
+                    } else {
+                        isVersionHigher(tagVersion, BuildConfig.VERSION_NAME)
+                    }
 
                     updateCardState(success = true, isUpToDate = !isNewVersion, newVersion = tagName)
                 }
@@ -507,6 +514,25 @@ class HomeFragment : BaseFragment() {
                 binding.updateSummary.text = getString(R.string.update_available_summary, newVersion)
                 binding.updateCard.getChildAt(0).setBackgroundResource(R.drawable.gradient_update)
             }
+        }
+    }
+
+    private fun isVersionHigher(newVer: String, currentVer: String): Boolean {
+        return try {
+            val cleanCurrent = currentVer.substringBefore(" ").substringBefore("-").removePrefix("v").removePrefix("V")
+            val cleanNew = newVer.substringBefore(" ").substringBefore("-").removePrefix("v").removePrefix("V")
+            val newParts = cleanNew.split(".").mapNotNull { it.toIntOrNull() }
+            val currentParts = cleanCurrent.split(".").mapNotNull { it.toIntOrNull() }
+            val maxLen = maxOf(newParts.size, currentParts.size)
+            for (i in 0 until maxLen) {
+                val n = newParts.getOrElse(i) { 0 }
+                val c = currentParts.getOrElse(i) { 0 }
+                if (n > c) return true
+                if (n < c) return false
+            }
+            false
+        } catch (_: Exception) {
+            false
         }
     }
 
