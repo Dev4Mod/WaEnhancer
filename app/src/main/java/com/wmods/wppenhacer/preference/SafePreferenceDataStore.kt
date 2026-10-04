@@ -95,11 +95,33 @@ class SafePreferenceDataStore(
         prefs.edit().putLong(key, value).apply()
     }
 
-    override fun getStringSet(key: String, defValues: Set<String>?): Set<String>? {
+    override fun getStringSet(key: String, defValues: Set<String>?): Set<String> {
+        val fallback = defValues ?: emptySet()
         return try {
-            prefs.getStringSet(key, defValues)
+            val set = prefs.getStringSet(key, null)
+            set ?: fallback
+        } catch (_: ClassCastException) {
+            try {
+                val str = prefs.getString(key, null)
+                if (str != null) {
+                    if (str.startsWith("[") && str.endsWith("]")) {
+                        val json = org.json.JSONArray(str)
+                        val result = mutableSetOf<String>()
+                        for (i in 0 until json.length()) {
+                            result.add(json.getString(i))
+                        }
+                        result
+                    } else {
+                        str.split(",").map { it.trim() }.filter { it.isNotEmpty() }.toSet()
+                    }
+                } else {
+                    fallback
+                }
+            } catch (_: Exception) {
+                fallback
+            }
         } catch (_: Exception) {
-            defValues
+            fallback
         }
     }
 

@@ -84,6 +84,7 @@
             app:title="@string/navigation_transparency" />
 
         <MultiSelectListPreference
+            android:defaultValue="@array/empty_array"
             app:entries="@array/tabshide_contents"
             app:entryValues="@array/tabshide_values"
             app:key="hidetabs"

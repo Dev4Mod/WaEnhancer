@@ -237,4 +237,5 @@
         <item>2</item>
         <item>6</item>
     </string-array>
+    <string-array name="empty_array" />
 </resources>
