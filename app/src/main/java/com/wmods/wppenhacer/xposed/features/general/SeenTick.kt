@@ -482,7 +482,7 @@ class SeenTick(
         val messageJobMethod = Unobfuscator.loadBlueOnReplayMessageJobMethod(classLoader)
         val messageSendClass = Unobfuscator.findFirstClassUsingName(
             classLoader,
-            StringMatchType.Contains,
+            StringMatchType.EndsWith,
             "SendE2EMessageJob"
         )
         val blueOnReplayEnabled = xprefs.getBoolean("blueonreply", false)
