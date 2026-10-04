@@ -55,20 +55,23 @@ class LockedChatsEnhancer(classLoader: ClassLoader, preferences: SharedPreferenc
 
         loadedContacts!!.hook {
             before {
-                val list =
-                    ReflectionUtils.getObjectField(args[0], "A01") as? List<*>? ?: return@before
+                val listField = args[0]?.javaClass?.declaredFields?.firstOrNull {
+                    List::class.java.isAssignableFrom(it.type)
+                } ?: return@before
+                listField.isAccessible = true
+                val list = listField.get(args[0]) as? List<*> ?: return@before
                 val lockedChats = lockedChatsFields[1].get(chatCache) as HashSet<*>?
                 val lockedNumbers = lockedChats!!.stream()
                     .map<String?> { userjid: Any? -> UserJid(userjid).phoneNumber }.collect(
                         Collectors.toList()
                     )
-                val filteredList = list.filter { item: Any? ->
+                val filteredlist = list.filter { item: Any? ->
                     if (!WaContactWpp.TYPE.isInstance(item)) return@filter false
                     val waContact = WaContactWpp(item)
                     val phoneNumber = waContact.userJid.phoneNumber
                     lockedNumbers.contains(phoneNumber)
                 }
-                ReflectionUtils.setObjectField(args[0], "A01", filteredList)
+                listField.set(args[0], filteredlist)
             }
         }
     }
