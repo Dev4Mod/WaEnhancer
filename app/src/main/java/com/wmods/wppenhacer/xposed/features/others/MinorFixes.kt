@@ -1,6 +1,7 @@
 package com.wmods.wppenhacer.xposed.features.others
 
 import android.app.Activity
+import android.app.Instrumentation
 import android.content.ComponentName
 import android.content.ContentProvider
 import android.content.SharedPreferences
@@ -15,13 +16,12 @@ class MinorFixes(classLoader: ClassLoader, xprefs: SharedPreferences) :
     private var mlKitInitProviderHandled = false
 
     override fun doHook() {
-        Activity::class.java.resolve().firstMethod {
-            name = "onCreate"
-            superclass()
-            parameters(Bundle::class.java)
+        Instrumentation::class.java.resolve().firstMethod {
+            name = "callActivityOnCreate"
+            parameters(Activity::class.java, Bundle::class.java)
         }.hook {
             before {
-                val activity = instance as? Activity ?: return@before
+                val activity = args[0] as? Activity ?: return@before
                 if (activity.javaClass.name != DOCUMENT_PICKER_ACTIVITY) return@before
                 ensureMlKitInitialized(activity)
             }
