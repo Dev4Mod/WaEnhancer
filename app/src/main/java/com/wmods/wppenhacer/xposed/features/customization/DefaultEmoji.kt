@@ -44,7 +44,9 @@ class DefaultEmoji(
             return
         }
         if (!xprefs.getBoolean("disable_defemojis", false)) return
-        Unobfuscator.loadGetSizeSpanMethods(classLoader).forEach { method ->
+        val sizeMethods = Unobfuscator.loadEmojiSpanGetSizeMethods(classLoader)
+        val drawMethods = Unobfuscator.loadEmojiSpanDrawMethods(classLoader)
+        sizeMethods.forEach { method ->
             method.hook {
                 after {
                     overrideGetSize(this)
@@ -52,7 +54,7 @@ class DefaultEmoji(
             }
         }
 
-        Unobfuscator.loadDrawSpanMethods(classLoader).forEach { method ->
+        drawMethods.forEach { method ->
             method.hook {
                 before {
                     drawSystemEmoji(this)
@@ -72,6 +74,7 @@ class DefaultEmoji(
         if (!isValidRange(text, start, end)) return
 
         val emojiText = text.subSequence(start, end).toString()
+        if (!isEmojiText(emojiText)) return
         val drawable = getEmojiDrawable(span)
         val drawableBounds = drawable?.bounds ?: Rect()
 
@@ -115,6 +118,7 @@ class DefaultEmoji(
         if (!isValidRange(text, start, end)) return
 
         val emojiText = text.subSequence(start, end).toString()
+        if (!isEmojiText(emojiText)) return
         val drawable = getEmojiDrawable(param.instanceOrNull)
         val drawableBounds = drawable?.bounds ?: Rect()
 
@@ -240,6 +244,16 @@ class DefaultEmoji(
         }.getOrNull() ?: runCatching {
             ReflectionUtils.callMethod(span, "getDrawable") as? Drawable
         }.getOrNull()
+    }
+
+    private fun isEmojiText(text: String): Boolean {
+        if (text.isEmpty()) return false
+        val cp = text.codePointAt(0)
+        if (cp >= 0x1F000) return true
+        if (cp in 0x2190..0x2BFF || cp == 0xA9 || cp == 0xAE || cp == 0x203C || cp == 0x2049) return true
+        if (cp in 0x3030..0x303D || cp == 0x3297 || cp == 0x3299) return true
+        return (cp == '#'.code || cp == '*'.code || cp in '0'.code..'9'.code) &&
+            text.length > 1 && (text.contains('\uFE0F') || text.contains('\u20E3'))
     }
 
     private fun isValidRange(

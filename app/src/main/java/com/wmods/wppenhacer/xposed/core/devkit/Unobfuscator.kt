@@ -3329,47 +3329,37 @@ object Unobfuscator {
         }
     }
 
-    fun loadDrawSpanMethods(classLoader: ClassLoader): Array<Method> {
+    private fun findSpanMethods(classLoader: ClassLoader, name: String, paramCount: Int): Array<Method> {
+        val visited = linkedSetOf<String>()
+        val methods = linkedSetOf<Method>()
+        var frontier = listOf("android.text.style.ImageSpan", "android.text.style.ReplacementSpan")
+        while (frontier.isNotEmpty()) {
+            val next = mutableListOf<String>()
+            for (parent in frontier) {
+                bridge.findClass {
+                    matcher { superClass(parent) }
+                }.forEach { clazz ->
+                    if (!visited.add(clazz.name)) return@forEach
+                    next.add(clazz.name)
+                    clazz.methods
+                        .filter { it.isMethod && it.methodName == name && it.paramTypes.size == paramCount }
+                        .forEach { methods.add(it.getMethodInstance(classLoader)) }
+                }
+            }
+            frontier = next
+        }
+        return methods.toTypedArray()
+    }
+
+    fun loadEmojiSpanDrawMethods(classLoader: ClassLoader): Array<Method> {
         return UnobfuscatorCache.getInstance().getMethods(classLoader) {
-            bridge.findClass {
-                matcher {
-                    anyOf {
-                        match {
-                            superClass = "android.text.style.ImageSpan"
-                        }
-                        match {
-                            superClass = "android.text.style.ReplacementSpan"
-                        }
-                    }
-                }
-            }.findMethod {
-                matcher {
-                    paramCount(9)
-                    name = "draw"
-                }
-            }.map { it.getMethodInstance(classLoader) }.toTypedArray()
+            findSpanMethods(classLoader, "draw", 9)
         }
     }
 
-    fun loadGetSizeSpanMethods(classLoader: ClassLoader): Array<Method> {
+    fun loadEmojiSpanGetSizeMethods(classLoader: ClassLoader): Array<Method> {
         return UnobfuscatorCache.getInstance().getMethods(classLoader) {
-            bridge.findClass {
-                matcher {
-                    anyOf {
-                        match {
-                            superClass = "android.text.style.ImageSpan"
-                        }
-                        match {
-                            superClass = "android.text.style.ReplacementSpan"
-                        }
-                    }
-                }
-            }.findMethod {
-                matcher {
-                    paramCount(5)
-                    name = "getSize"
-                }
-            }.map { it.getMethodInstance(classLoader) }.toTypedArray()
+            findSpanMethods(classLoader, "getSize", 5)
         }
     }
 
