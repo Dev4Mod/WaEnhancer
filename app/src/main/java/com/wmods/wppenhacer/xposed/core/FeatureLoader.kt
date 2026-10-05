@@ -18,9 +18,9 @@ import android.os.Looper
 import android.util.Log
 import android.widget.Toast
 import androidx.core.content.ContextCompat
+import com.crossbowffs.remotepreferences.RemotePreferences
 import com.highcapable.kavaref.KavaRef.Companion.resolve
 import com.highcapable.yukihookapi.hook.entity.YukiBaseHooker
-import com.crossbowffs.remotepreferences.RemotePreferences
 import com.wmods.wppenhacer.App
 import com.wmods.wppenhacer.BuildConfig
 import com.wmods.wppenhacer.R
@@ -140,45 +140,42 @@ object FeatureLoader : YukiBaseHooker() {
         application: Application,
         sourceDir: String,
     ) {
-        if (!Unobfuscator.initWithPath(sourceDir)) {
-            YukiLog.log("Can't init dexkit")
-            return
-        }
-
-        Utils.appClassLoader = loader
-
-        mApp = application
-        val pref: SharedPreferences = RemotePreferences(
-            application,
-            BuildConfig.APPLICATION_ID + ".preferences",
-            BuildConfig.APPLICATION_ID + "_preferences"
-        )
-        Feature.DEBUG = pref.getBoolean("enablelogs", true)
-        Utils.xprefs = pref
-
-        if (pref.getBoolean("bootloader_spoofer", false)) {
-            HookBL.hook(this, loader, pref)
-            YukiLog.log("Bootloader Spoofer is Injected")
-        }
-
         val packageManager = application.packageManager
         val packageInfo = packageManager.getPackageInfo(application.packageName, 0)
-        YukiLog.log(packageInfo.versionName)
-        currentVersion = packageInfo.versionName
-        installCrashHandler(application, packageInfo.versionName.orEmpty())
-
-        val resIdArray = if (application.packageName == PACKAGE_WPP)
-            R.array.supported_versions_wpp
-        else
-            R.array.supported_versions_business
-
-        supportedVersions =
-            application.resources.getStringArray(resIdArray).toList()
-        application.registerActivityLifecycleCallbacks(WaCallback())
-        registerReceivers()
-
         try {
+            if (!Unobfuscator.initWithPath(sourceDir)) {
+                throw Exception("Unobfuscator not initialized")
+            }
             initializeModuleContext()
+            Utils.appClassLoader = loader
+            mApp = application
+            val pref: SharedPreferences = RemotePreferences(
+                application,
+                BuildConfig.APPLICATION_ID + ".preferences",
+                BuildConfig.APPLICATION_ID + "_preferences"
+            )
+            Feature.DEBUG = pref.getBoolean("enablelogs", true)
+            Utils.xprefs = pref
+
+            if (pref.getBoolean("bootloader_spoofer", false)) {
+                HookBL.hook(this, loader, pref)
+                YukiLog.log("Bootloader Spoofer is Injected")
+            }
+
+            YukiLog.log(packageInfo.versionName)
+            currentVersion = packageInfo.versionName
+            installCrashHandler(application, packageInfo.versionName.orEmpty())
+
+            val resIdArray = if (application.packageName == PACKAGE_WPP)
+                R.array.supported_versions_wpp
+            else
+                R.array.supported_versions_business
+
+            supportedVersions =
+                application.resources.getStringArray(resIdArray).toList()
+            application.registerActivityLifecycleCallbacks(WaCallback())
+            registerReceivers()
+
             val timeMillis = System.currentTimeMillis()
             UnobfuscatorCache.init(application)
             SharedPreferencesWrapper.hookInit(this, application.classLoader)
