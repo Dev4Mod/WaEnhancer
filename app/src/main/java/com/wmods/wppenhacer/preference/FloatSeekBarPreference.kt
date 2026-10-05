@@ -8,6 +8,7 @@ import androidx.preference.Preference
 import androidx.preference.PreferenceViewHolder
 import com.google.android.material.slider.Slider
 import com.wmods.wppenhacer.R
+import kotlin.math.roundToInt
 
 class FloatSeekBarPreference @JvmOverloads constructor(
     context: Context,
@@ -91,5 +92,10 @@ class FloatSeekBarPreference @JvmOverloads constructor(
         notifyChanged()
     }
 
-    private fun clampValue(value: Float): Float = value.coerceIn(minValue, maxValue)
+    private fun clampValue(value: Float): Float {
+        val clamped = value.coerceIn(minValue, maxValue)
+        if (valueSpacing <= 0f) return clamped
+        val steps = ((clamped - minValue) / valueSpacing).roundToInt()
+        return (minValue + steps * valueSpacing).coerceIn(minValue, maxValue)
+    }
 }
