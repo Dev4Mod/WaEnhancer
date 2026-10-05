@@ -457,7 +457,7 @@ object HookBL {
             val privateKeyNodes = keyElement.getElementsByTagName("PrivateKey")
             if (privateKeyNodes.length > 0) {
                 val privateKeyContent =
-                    privateKeyNodes.item(0).textContent.replace(Regex("\\s{2,}"), "")
+                    privateKeyNodes.item(0).textContent.replace(Regex(" {2,}"), "")
 
                 val certChainNodes = keyElement.getElementsByTagName("CertificateChain")
                 if (certChainNodes.length > 0) {
@@ -470,7 +470,7 @@ object HookBL {
 
                         for (j in 0 until certificateNodes.length) {
                             val certContent =
-                                certificateNodes.item(j).textContent.replace(Regex("\\s{2,}"), "")
+                                certificateNodes.item(j).textContent.replace(Regex(" {2,}"), "")
                             certs_EC.add(parseCert(certContent))
                         }
                     } else if ("rsa" == algorithm) {
@@ -479,7 +479,7 @@ object HookBL {
 
                         for (j in 0 until certificateNodes.length) {
                             val certContent =
-                                certificateNodes.item(j).textContent.replace(Regex("\\s{2,}"), "")
+                                certificateNodes.item(j).textContent.replace(Regex(" {2,}"), "")
                             certs_RSA.add(parseCert(certContent))
                         }
                     }
