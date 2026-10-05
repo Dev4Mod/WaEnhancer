@@ -200,10 +200,10 @@ class SeenTick(
         val replyContainerMethod = Unobfuscator.loadStatusPlaybackReplyContainer(classLoader)
 
         if (ticktype == 1) {
+            if (!xprefs.getBoolean("hidestatusview", false)) return
+
             viewButtonMethod.hook {
                 after {
-                    if (!xprefs.getBoolean("hidestatusview", false)) return@after
-
                     if (viewStatusField == null) {
                         viewStatusField =
                             ReflectionUtils.findFieldUsingFilter(instance.javaClass) { f ->

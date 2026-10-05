@@ -26,9 +26,10 @@ class TagMessage(loader: ClassLoader, preferences: SharedPreferences) :
         val forwardClass = loadForwardClassMethod(classLoader)
         logDebug("ForwardClass: " + forwardClass.name)
 
+        if (!xprefs.getBoolean("hidetag", false)) return
+
         method.hook {
             before {
-                if (!xprefs.getBoolean("hidetag", false)) return@before
                 val arg = args[0] as Long
                 if (arg == 1L) {
                     if (ReflectionUtils.isCalledFromClass(forwardClass)) {

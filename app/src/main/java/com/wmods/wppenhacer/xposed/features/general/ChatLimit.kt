@@ -91,9 +91,10 @@ class ChatLimit(loader: ClassLoader, preferences: SharedPreferences) :
 
         val seeMoreMethod = loadSeeMoreConstructor(classLoader)
 
+        if (!xprefs.getBoolean("removeseemore", false)) return
+
         seeMoreMethod.hook {
             before {
-                if (!xprefs.getBoolean("removeseemore", false)) return@before
                 args[1] = Int.MAX_VALUE
             }
         }

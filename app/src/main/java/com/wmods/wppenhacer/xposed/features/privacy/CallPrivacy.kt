@@ -32,6 +32,8 @@ class CallPrivacy(loader: ClassLoader, preferences: SharedPreferences) :
         val rejectCallMethod = clazzVoip.declaredMethods.first { it.name == "rejectCall" }
 
         val onCallReceivedMethod = Unobfuscator.loadAntiRevokeOnCallReceivedMethod(classLoader)
+        val callPrivacyType = xprefs.getString("call_privacy", "0")!!.toInt()
+        val callRejectType = xprefs.getString("call_type", null) ?: "no_internet"
 
         onCallReceivedMethod.hook {
             before {
@@ -51,7 +53,6 @@ class CallPrivacy(loader: ClassLoader, preferences: SharedPreferences) :
                 val userJid =
                     FMessageWpp.UserJid(ReflectionUtils.callMethod(callinfo, "getPeerJid"))
                 val callId = ReflectionUtils.callMethod(callinfo, "getCallId")
-                val type = xprefs.getString("call_privacy", "0")!!.toInt()
                 val waContact = WaContactWpp.getWaContactFromJid(userJid)
                 val contactName = waContact?.displayName ?: userJid.phoneNumber
                 Tasker.sendTaskerEvent(
@@ -60,11 +61,11 @@ class CallPrivacy(loader: ClassLoader, preferences: SharedPreferences) :
                     "call_received"
                 )
 
-                val privacyType = PrivacyType.getByValue(type)
+                val privacyType = PrivacyType.getByValue(callPrivacyType)
                 val blockCall = checkCallBlock(userJid, privacyType)
                 if (!blockCall) return@before
 
-                var rejectType = xprefs.getString("call_type", null) ?: "no_internet"
+                var rejectType = callRejectType
 
                 when (rejectType) {
                     "uncallable", "declined", "busy" -> {
@@ -97,10 +98,8 @@ class CallPrivacy(loader: ClassLoader, preferences: SharedPreferences) :
                 )
                 val jidObj = ReflectionUtils.getArg(args, jidClass, 0)
                 val userJid = FMessageWpp.UserJid(jidObj)
-                val rejectType = xprefs.getString("call_type", null) ?: "no_internet"
-                if (rejectType == "no_internet") {
-                    val type = xprefs.getString("call_privacy", "0")!!.toInt()
-                    val privacyType = PrivacyType.getByValue(type)
+                if (callRejectType == "no_internet") {
+                    val privacyType = PrivacyType.getByValue(callPrivacyType)
                     val block = checkCallBlock(userJid, privacyType)
                     if (block) {
                         result = 1

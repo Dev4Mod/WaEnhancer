@@ -46,11 +46,7 @@ class ToastViewer(classLoader: ClassLoader, preferences: SharedPreferences) :
 
         onInsertReceipt.hook {
             before {
-                processNewWA(
-                    this,
-                    xprefs.getBoolean("toast_viewed_message", false),
-                    xprefs.getBoolean("toast_viewed_status", false)
-                )
+                processNewWA(this, toastViewedMessage, toastViewedStatus)
             }
         }
         val onSeenReceiptForStatus = loadSeenReceiptForStatus(classLoader)
@@ -72,7 +68,7 @@ class ToastViewer(classLoader: ClassLoader, preferences: SharedPreferences) :
                 val userjid = UserJid(args[0])
                 val contactName = getWaContactFromJid(userjid)?.displayName
                     ?: getContactName(userjid)
-                if (xprefs.getBoolean("toast_viewed_status", false)) {
+                if (toastViewedStatus) {
                     Utils.showToast(
                         Utils.application.getString(R.string.viewed_your_status, contactName),
                         Toast.LENGTH_LONG
