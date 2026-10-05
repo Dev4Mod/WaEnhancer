@@ -20,6 +20,7 @@ import android.widget.Toast
 import androidx.core.content.ContextCompat
 import com.highcapable.kavaref.KavaRef.Companion.resolve
 import com.highcapable.yukihookapi.hook.entity.YukiBaseHooker
+import com.crossbowffs.remotepreferences.RemotePreferences
 import com.wmods.wppenhacer.App
 import com.wmods.wppenhacer.BuildConfig
 import com.wmods.wppenhacer.R
@@ -138,7 +139,6 @@ object FeatureLoader : YukiBaseHooker() {
         loader: ClassLoader,
         application: Application,
         sourceDir: String,
-        pref: SharedPreferences
     ) {
         if (!Unobfuscator.initWithPath(sourceDir)) {
             YukiLog.log("Can't init dexkit")
@@ -148,6 +148,11 @@ object FeatureLoader : YukiBaseHooker() {
         Utils.appClassLoader = loader
 
         mApp = application
+        val pref: SharedPreferences = RemotePreferences(
+            application,
+            BuildConfig.APPLICATION_ID + ".preferences",
+            BuildConfig.APPLICATION_ID + "_preferences"
+        )
         Feature.DEBUG = pref.getBoolean("enablelogs", true)
         Utils.xprefs = pref
 
