@@ -23,12 +23,7 @@ object RealPathUtil {
                     return Environment.getExternalStorageDirectory().toString() + "/" + split[1]
                 }
             } else if (isDownloadsDocument(uri)) {
-                val id = DocumentsContract.getDocumentId(uri)
-                val contentUri = ContentUris.withAppendedId(
-                    "content://downloads/public_downloads".toUri(),
-                    id.toLong()
-                )
-                return getDataColumn(context, contentUri, null, null)
+                return getDownloadsPath(context, DocumentsContract.getDocumentId(uri))
             } else if (isMediaDocument(uri)) {
                 val split = DocumentsContract.getDocumentId(uri).split(":")
                 val contentUri = when (split[0]) {
@@ -60,12 +55,7 @@ object RealPathUtil {
                         .toString() + "/" + (split.getOrNull(1) ?: "")
                 }
             } else if (isDownloadsDocument(uri)) {
-                val id = DocumentsContract.getTreeDocumentId(uri)
-                val contentUri = ContentUris.withAppendedId(
-                    Uri.parse("content://downloads/public_downloads"),
-                    id.toLong()
-                )
-                return getDataColumn(context, contentUri, null, null)
+                return getDownloadsPath(context, DocumentsContract.getTreeDocumentId(uri))
             } else if (isMediaDocument(uri)) {
                 val split = DocumentsContract.getTreeDocumentId(uri).split(":")
                 val contentUri = when (split[0]) {
@@ -83,6 +73,25 @@ object RealPathUtil {
             return uri.path
         }
         return null
+    }
+
+    /** Downloads ids may be numeric, "raw:<path>" or "msf:<mediastore id>". */
+    private fun getDownloadsPath(context: Context, id: String): String? {
+        if (id.startsWith("raw:")) return id.removePrefix("raw:")
+        if (id.startsWith("msf:")) {
+            return getDataColumn(
+                context,
+                MediaStore.Files.getContentUri("external"),
+                "_id=?",
+                arrayOf(id.removePrefix("msf:"))
+            )
+        }
+        val numericId = id.toLongOrNull() ?: return null
+        val contentUri = ContentUris.withAppendedId(
+            "content://downloads/public_downloads".toUri(),
+            numericId
+        )
+        return getDataColumn(context, contentUri, null, null)
     }
 
     @JvmStatic
