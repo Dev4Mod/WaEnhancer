@@ -40,19 +40,20 @@ data class Recording(
             return
         }
 
+        val retriever = MediaMetadataRetriever()
         try {
-            MediaMetadataRetriever().use { retriever ->
-                retriever.setDataSource(file.absolutePath)
-                val timeStr =
-                    retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION)
-                duration = if (!timeStr.isNullOrEmpty()) {
-                    timeStr.toLongOrNull() ?: 0L
-                } else {
-                    0L
-                }
+            retriever.setDataSource(file.absolutePath)
+            val timeStr =
+                retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION)
+            duration = if (!timeStr.isNullOrEmpty()) {
+                timeStr.toLongOrNull() ?: 0L
+            } else {
+                0L
             }
         } catch (_: Exception) {
             duration = 0
+        } finally {
+            retriever.release()
         }
     }
 
