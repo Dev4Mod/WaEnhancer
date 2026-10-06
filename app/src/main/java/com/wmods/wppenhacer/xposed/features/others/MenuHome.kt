@@ -81,8 +81,11 @@ class MenuHome(classLoader: ClassLoader, preferences: SharedPreferences) :
             try {
                 val intent = activity.packageManager.getLaunchIntentForPackage(
                     BuildConfig.APPLICATION_ID
+                ) ?: Intent().setClassName(
+                    BuildConfig.APPLICATION_ID,
+                    "com.wmods.wppenhacer.activities.MainActivity"
                 )
-                intent!!.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
                 activity.startActivity(intent)
             } catch (e: Exception) {
                 Utils.showToast(e.message)
