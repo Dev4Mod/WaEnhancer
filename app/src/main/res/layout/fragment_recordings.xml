@@ -4,64 +4,6 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <!-- Selection Action Bar (initially hidden) -->
-    <LinearLayout
-        android:id="@+id/selection_bar"
-        android:layout_width="match_parent"
-        android:layout_height="56dp"
-        android:background="?attr/colorPrimary"
-        android:gravity="center_vertical"
-        android:orientation="horizontal"
-        android:paddingHorizontal="16dp"
-        android:visibility="gone">
-
-        <ImageButton
-            android:id="@+id/btn_close_selection"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
-            android:background="?attr/selectableItemBackgroundBorderless"
-            android:src="@drawable/ic_close"
-            android:contentDescription="@string/close"
-            app:tint="?attr/colorOnPrimary" />
-
-        <TextView
-            android:id="@+id/tv_selection_count"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:layout_marginStart="16dp"
-            android:text="0 selected"
-            android:textColor="?attr/colorOnPrimary"
-            android:textAppearance="?attr/textAppearanceSubtitle1" />
-
-        <ImageButton
-            android:id="@+id/btn_select_all"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
-            android:background="?attr/selectableItemBackgroundBorderless"
-            android:src="@android:drawable/ic_menu_agenda"
-            android:contentDescription="@string/select_all"
-            app:tint="?attr/colorOnPrimary" />
-
-        <ImageButton
-            android:id="@+id/btn_share_selected"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
-            android:background="?attr/selectableItemBackgroundBorderless"
-            android:src="@android:drawable/ic_menu_share"
-            android:contentDescription="@string/share"
-            app:tint="?attr/colorOnPrimary" />
-
-        <ImageButton
-            android:id="@+id/btn_delete_selected"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
-            android:background="?attr/selectableItemBackgroundBorderless"
-            android:src="@android:drawable/ic_menu_delete"
-            android:contentDescription="@string/delete"
-            app:tint="?attr/colorOnPrimary" />
-    </LinearLayout>
-
     <!-- Main content -->
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
@@ -135,6 +77,69 @@
             android:src="@android:drawable/ic_menu_sort_by_size"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent" />
+        <!-- Selection Action Bar (initially hidden) -->
+        <LinearLayout
+            android:id="@+id/selection_bar"
+            android:layout_width="0dp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            android:layout_height="56dp"
+            android:clickable="true"
+            android:focusable="true"
+            android:elevation="8dp"
+            app:layout_constraintTop_toTopOf="parent"
+            android:background="?attr/colorPrimary"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:paddingHorizontal="16dp"
+            android:visibility="gone">
+
+            <ImageButton
+                android:id="@+id/btn_close_selection"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:src="@drawable/ic_close"
+                android:contentDescription="@string/close"
+                app:tint="?attr/colorOnPrimary" />
+
+            <TextView
+                android:id="@+id/tv_selection_count"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_marginStart="16dp"
+                android:text="0 selected"
+                android:textColor="?attr/colorOnPrimary"
+                android:textAppearance="?attr/textAppearanceSubtitle1" />
+
+            <ImageButton
+                android:id="@+id/btn_select_all"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:src="@android:drawable/ic_menu_agenda"
+                android:contentDescription="@string/select_all"
+                app:tint="?attr/colorOnPrimary" />
+
+            <ImageButton
+                android:id="@+id/btn_share_selected"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:src="@android:drawable/ic_menu_share"
+                android:contentDescription="@string/share"
+                app:tint="?attr/colorOnPrimary" />
+
+            <ImageButton
+                android:id="@+id/btn_delete_selected"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:src="@android:drawable/ic_menu_delete"
+                android:contentDescription="@string/delete"
+                app:tint="?attr/colorOnPrimary" />
+        </LinearLayout>
     </androidx.constraintlayout.widget.ConstraintLayout>
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

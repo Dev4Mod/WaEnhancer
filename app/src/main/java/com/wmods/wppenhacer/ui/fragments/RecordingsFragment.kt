@@ -61,6 +61,12 @@ class RecordingsFragment : Fragment(), RecordingsAdapter.OnRecordingActionListen
             }
         }
 
+        binding.btnCloseSelection.setOnClickListener { adapter.clearSelection() }
+        binding.btnSelectAll.setOnClickListener { adapter.selectAll() }
+        binding.btnShareSelected.setOnClickListener { shareSelectedRecordings() }
+        binding.btnDeleteSelected.setOnClickListener { deleteSelectedRecordings() }
+        binding.fabSort.setOnClickListener { showSortMenu() }
+
         binding.swipeRefresh.setOnRefreshListener {
             loadRecordings()
         }
