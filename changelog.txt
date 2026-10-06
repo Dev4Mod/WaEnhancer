@@ -1,11 +1,6 @@
-[NEW]
-* Added support for WhatsApp version 2.26.38
-
 [FIXED]
-* Fixed "Show Online" not showing who is online or their last seen status
-* Fixed media preview failing to open some photos and videos
-* Fixed media preview sometimes closing or glitching when opening several previews
-* Fixed locked chats not being filtered correctly
-* Fixed the seen tick not working on some versions
-* Fixed importing settings failing or partially applying with some backup files
-* Improved overall stability and speed
+* Fixed an issue with resetting settings (you must back up your WAE settings before updating to this version)
+* Fixed an issue when disabling WhatsApp emojis
+* Fixed some bugs when opening menus
+* Tried another fix for an issue opening documents on some devices (not guaranteed)
+* Fixed an issue loading a custom keybox
