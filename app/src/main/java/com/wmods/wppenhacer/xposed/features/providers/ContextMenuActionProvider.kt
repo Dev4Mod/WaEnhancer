@@ -62,14 +62,15 @@ class ContextMenuActionProvider(
                 val activity = WppCore.getCurrentActivity() ?: run {
                     return@after
                 }
-                val mainPopupWindow = instance as PopupWindow
-                val viewGroup = mainPopupWindow.contentView as ViewGroup
+                val mainPopupWindow = instance as? PopupWindow ?: return@after
+                val viewGroup = mainPopupWindow.contentView as? ViewGroup ?: return@after
 
-                val fMessageObj = args.filterIsInstance(FMessageWpp.TYPE).first()
+                val fMessageObj = args.firstOrNull { FMessageWpp.TYPE.isInstance(it) } ?: return@after
                 val fMessage = FMessageWpp(fMessageObj)
 
                 val layout =
                     viewGroup.findViewById<LinearLayout>(Utils.getID("reactions_tray_layout", "id"))
+                        ?: return@after
                 layout.orientation = LinearLayout.VERTICAL
                 val parentItems = layout.children.toList()
                 layout.removeAllViews()
