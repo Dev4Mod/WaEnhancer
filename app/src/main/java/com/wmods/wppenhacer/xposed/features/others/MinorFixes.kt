@@ -6,6 +6,7 @@ import android.content.ComponentName
 import android.content.ContentProvider
 import android.content.SharedPreferences
 import android.content.pm.PackageManager
+import android.content.pm.ProviderInfo
 import android.os.Bundle
 import com.highcapable.kavaref.KavaRef.Companion.resolve
 import com.wmods.wppenhacer.xposed.core.Feature
@@ -23,6 +24,7 @@ class MinorFixes(classLoader: ClassLoader, xprefs: SharedPreferences) :
             before {
                 val activity = args[0] as? Activity ?: return@before
                 if (activity.javaClass.name != DOCUMENT_PICKER_ACTIVITY) return@before
+                log("DocumentPickerActivity.onCreate intercepted, ML Kit handled=$mlKitInitProviderHandled")
                 ensureMlKitInitialized(activity)
             }
         }
@@ -40,10 +42,20 @@ class MinorFixes(classLoader: ClassLoader, xprefs: SharedPreferences) :
                 )
                 val provider = providerClass.getDeclaredConstructor()
                     .newInstance() as ContentProvider
-                val providerInfo = activity.packageManager.getProviderInfo(
-                    ComponentName(activity.packageName, ML_KIT_INIT_PROVIDER),
-                    PackageManager.GET_META_DATA
-                )
+                val providerInfo = runCatching {
+                    activity.packageManager.getProviderInfo(
+                        ComponentName(activity.packageName, ML_KIT_INIT_PROVIDER),
+                        PackageManager.GET_META_DATA
+                    )
+                }.getOrElse {
+                    log("getProviderInfo failed, using a synthetic ProviderInfo")
+                    ProviderInfo().apply {
+                        name = ML_KIT_INIT_PROVIDER
+                        packageName = activity.packageName
+                        authority = "${activity.packageName}.mlkitinitprovider"
+                        applicationInfo = activity.applicationInfo
+                    }
+                }
 
                 provider.attachInfo(activity.applicationContext, providerInfo)
                 mlKitInitProviderHandled = true
@@ -54,6 +66,7 @@ class MinorFixes(classLoader: ClassLoader, xprefs: SharedPreferences) :
                     .any { it.message?.contains("MlKitContext is already initialized") == true }
 
                 if (alreadyInitialized) {
+                    log("MlKitContext was already initialized")
                     mlKitInitProviderHandled = true
                     return
                 }
