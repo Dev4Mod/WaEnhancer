@@ -19,6 +19,7 @@
         <item>com.whatsapp</item>
         <item>com.whatsapp.w4b</item>
         <item>android</item>
+        <item>com.android.providers.settings</item>
     </string-array>
 
 
