@@ -1,6 +1,6 @@
 [FIXED]
-* Fixed an issue with resetting settings (you must back up your WAE settings before updating to this version)
-* Fixed an issue when disabling WhatsApp emojis
-* Fixed some bugs when opening menus
-* Tried another fix for an issue opening documents on some devices (not guaranteed)
-* Fixed an issue loading a custom keybox
+* Fixed a crash when swiping between tabs in the app
+* Fixed an error when picking a custom keybox or XML file from the Downloads folder
+* Fixed an issue where some devices could not load the required WhatsApp information
+* Call recordings can now be selected in the Recordings tab to share or delete several at once
+* Call recordings are now saved to a public folder if the default location is unavailable, and the notification shows where the file was saved
