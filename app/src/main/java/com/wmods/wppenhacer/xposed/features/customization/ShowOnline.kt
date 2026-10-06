@@ -60,8 +60,8 @@ class ShowOnline(loader: ClassLoader, preferences: SharedPreferences) :
         val classViewHolder = Unobfuscator.loadViewHolder(classLoader)
         classViewHolder.resolve().constructor { }.hookAll {
             after {
-                val view = args.filterIsInstance<View>().first()
-                val context = args.filterIsInstance<Context>().first()
+                val view = args.filterIsInstance<View>().firstOrNull() ?: return@after
+                val context = args.filterIsInstance<Context>().firstOrNull() ?: return@after
                 var content =
                     view.findViewById<LinearLayout>(Utils.getID("conversations_row_content", "id"))
                 if (content == null) {
