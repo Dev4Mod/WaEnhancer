@@ -51,10 +51,11 @@ class DownloadProfile(classLoader: ClassLoader, preferences: SharedPreferences) 
                             return@execute
                         }
                         val name = Utils.generateName(userJid, "jpg")
-                        val error = Utils.copyFile(inputStream, destPath, name)
+                        var savedTo = destPath
+                        val error = Utils.copyFile(inputStream, destPath, name) { savedTo = it }
                         if (TextUtils.isEmpty(error)) {
                             Utils.showToast(
-                                Utils.application.getString(R.string.saved_to) + destPath,
+                                Utils.application.getString(R.string.saved_to) + savedTo,
                                 Toast.LENGTH_LONG
                             )
                         } else {

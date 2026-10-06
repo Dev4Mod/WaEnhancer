@@ -2,12 +2,15 @@ package com.wmods.wppenhacer.xposed.features.media
 
 import android.Manifest
 import android.app.Activity
+import android.content.ContentValues
 import android.content.SharedPreferences
 import android.content.pm.PackageManager
 import android.media.MediaRecorder
+import android.net.Uri
 import android.os.Build
 import android.os.Environment
 import android.os.ParcelFileDescriptor
+import android.provider.MediaStore
 import android.text.TextUtils
 import android.widget.Toast
 import androidx.core.content.ContextCompat
@@ -43,6 +46,7 @@ class CallRecording(
 
     private val isRecording = AtomicBoolean(false)
     private val isCallConnected = AtomicBoolean(false)
+    private val outputUriRef = AtomicReference<Uri?>()
     private val mediaRecorderRef = AtomicReference<MediaRecorder?>()
     private val outputPfdRef = AtomicReference<ParcelFileDescriptor?>()
     private val outputStreamRef = AtomicReference<FileOutputStream?>()
@@ -303,6 +307,7 @@ class CallRecording(
             outputFileRef.set(outputTarget.file)
             outputPfdRef.set(outputTarget.parcelFileDescriptor)
             outputStreamRef.set(outputTarget.outputStream)
+            outputUriRef.set(outputTarget.uri)
 
             if (xprefs.getBoolean("call_recording_use_root", false)) {
                 grantVoiceCallPermission()
@@ -329,7 +334,7 @@ class CallRecording(
                 createStartedRecorder(audioSources, sourceNames, outputTarget.fd)
             if (recorderSelection == null) {
                 logDebug("WaEnhancer: All audio sources failed")
-                closeOutputResources(deleteOutputFile = false)
+                closeOutputResources(deleteOutputFile = outputTarget.uri != null)
                 return
             }
 
@@ -337,7 +342,7 @@ class CallRecording(
             if (!isRecording.compareAndSet(false, true)) {
                 releaseRecorder(recorderSelection.recorder, stopBeforeRelease = true)
                 mediaRecorderRef.set(null)
-                closeOutputResources(deleteOutputFile = false)
+                closeOutputResources(deleteOutputFile = outputTarget.uri != null)
                 return
             }
 
@@ -453,11 +458,12 @@ class CallRecording(
             }
 
             outputFile = outputFileRef.get()
+            val hadMediaStoreUri = outputUriRef.get() != null
             closeOutputResources(deleteOutputFile = !saved)
 
             logDebug("WaEnhancer: Recording stopped, file=${outputFile?.absolutePath ?: "unknown"}")
 
-            if (saved && outputFile != null) {
+            if (saved && outputFile != null && !hadMediaStoreUri) {
                 Utils.scanFile(outputFile)
             }
 
@@ -495,6 +501,7 @@ class CallRecording(
         val stream = outputStreamRef.getAndSet(null)
         val pfd = outputPfdRef.getAndSet(null)
         val outputFile = outputFileRef.getAndSet(null)
+        val mediaUri = outputUriRef.getAndSet(null)
 
         try {
             stream?.close()
@@ -504,6 +511,20 @@ class CallRecording(
         try {
             pfd?.close()
         } catch (_: IOException) {
+        }
+
+        if (mediaUri != null) {
+            runCatching {
+                val resolver = Utils.application.contentResolver
+                if (deleteOutputFile) {
+                    resolver.delete(mediaUri, null, null)
+                } else {
+                    resolver.update(mediaUri, ContentValues().apply {
+                        put(MediaStore.MediaColumns.IS_PENDING, 0)
+                    }, null, null)
+                }
+            }.onFailure { logDebug("WaEnhancer: Could not finalize MediaStore recording: ${it.message}") }
+            return
         }
 
         if (deleteOutputFile && outputFile != null && outputFile.exists() && !outputFile.delete()) {
@@ -529,11 +550,13 @@ class CallRecording(
                         parcelFileDescriptor.fileDescriptor
                     )
                 }
-                logDebug("WaEnhancer: Bridge openFile returned null, fallback to Android/data path")
+                logDebug("WaEnhancer: Bridge openFile returned null, fallback to public storage")
             } catch (t: Throwable) {
-                logDebug("WaEnhancer: Bridge openFile failed, fallback to Android/data path: ${t.message}")
+                logDebug("WaEnhancer: Bridge openFile failed, fallback to public storage: ${t.message}")
             }
         }
+
+        openPublicOutputTarget(fileName)?.let { return it }
 
         val app = FeatureLoader.mApp ?: throw IOException("Could not resolve app context")
         val appExternalDir = app.getExternalFilesDir(null)
@@ -551,11 +574,57 @@ class CallRecording(
         return OutputTarget(fallbackFile, null, fallbackStream, fallbackStream.fd)
     }
 
+    /**
+     * Public fallback when the bridge is unavailable. Uses Music/WaEnhancer/Recordings, which is
+     * one of the folders scanned by the Recordings screen in the WAE app.
+     */
+    private fun openPublicOutputTarget(fileName: String): OutputTarget? {
+        val relativePath = "${Environment.DIRECTORY_MUSIC}/WaEnhancer/Recordings"
+        @Suppress("DEPRECATION")
+        val file = File(File(Environment.getExternalStorageDirectory(), relativePath), fileName)
+        return try {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                val resolver = Utils.application.contentResolver
+                val values = ContentValues().apply {
+                    put(MediaStore.MediaColumns.DISPLAY_NAME, fileName)
+                    put(MediaStore.MediaColumns.MIME_TYPE, "audio/mp4")
+                    put(MediaStore.MediaColumns.RELATIVE_PATH, relativePath)
+                    put(MediaStore.MediaColumns.IS_PENDING, 1)
+                }
+                val uri = resolver.insert(
+                    MediaStore.Audio.Media.getContentUri(MediaStore.VOLUME_EXTERNAL_PRIMARY),
+                    values
+                ) ?: return null
+                val pfd = try {
+                    resolver.openFileDescriptor(uri, "rw")
+                } catch (t: Throwable) {
+                    null
+                }
+                if (pfd == null) {
+                    runCatching { resolver.delete(uri, null, null) }
+                    return null
+                }
+                logDebug("WaEnhancer: Recording fallback path in public storage: ${file.absolutePath}")
+                OutputTarget(file, pfd, null, pfd.fileDescriptor, uri)
+            } else {
+                val dir = file.parentFile ?: return null
+                if (!dir.exists() && !dir.mkdirs()) return null
+                val stream = FileOutputStream(file)
+                logDebug("WaEnhancer: Recording fallback path in public storage: ${file.absolutePath}")
+                OutputTarget(file, null, stream, stream.fd)
+            }
+        } catch (t: Throwable) {
+            logDebug("WaEnhancer: Public storage fallback failed: ${t.message}")
+            null
+        }
+    }
+
     private data class OutputTarget(
         val file: File,
         val parcelFileDescriptor: ParcelFileDescriptor?,
         val outputStream: FileOutputStream?,
-        val fd: FileDescriptor
+        val fd: FileDescriptor,
+        val uri: Uri? = null
     )
 
     private data class RecorderSelection(

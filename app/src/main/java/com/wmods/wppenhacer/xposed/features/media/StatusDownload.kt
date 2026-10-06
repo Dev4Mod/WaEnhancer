@@ -137,11 +137,12 @@ class StatusDownload(loader: ClassLoader, preferences: SharedPreferences) :
                 val fileType = file.name.substring(file.name.lastIndexOf(".") + 1)
                 val destination = getStatusDestination(file)
                 val name = Utils.generateName(userJid, fileType)
-                val error = Utils.copyFile(file, destination, name)
+                var savedTo = destination
+                val error = Utils.copyFile(file, destination, name) { savedTo = it }
 
                 if (TextUtils.isEmpty(error)) {
                     Utils.showToast(
-                        Utils.getString(R.string.saved_to) + destination,
+                        Utils.getString(R.string.saved_to) + savedTo,
                         Toast.LENGTH_SHORT
                     )
                 } else {

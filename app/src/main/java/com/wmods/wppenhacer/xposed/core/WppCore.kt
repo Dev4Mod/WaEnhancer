@@ -238,7 +238,8 @@ object WppCore {
             cache.putHookInt("preferredOrder", newPreferredOrder)
             return
         }
-        throw Exception(context.getString(R.string.bridge_error))
+        YukiLog.log("Bridge not connected, continuing without it")
+        runCatching { Utils.showToast(context.getString(R.string.bridge_error), Toast.LENGTH_LONG) }
     }
 
     @JvmStatic

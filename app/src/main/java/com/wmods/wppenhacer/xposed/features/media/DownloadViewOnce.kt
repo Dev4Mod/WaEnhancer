@@ -106,10 +106,11 @@ class DownloadViewOnce(classLoader: ClassLoader, preferences: SharedPreferences)
             val fileExtension =
                 file.absolutePath.substring(file.absolutePath.lastIndexOf(".") + 1)
             val name = Utils.generateName(userJid!!, fileExtension)
-            val error = Utils.copyFile(file, dest, name)
+            var savedTo = dest
+            val error = Utils.copyFile(file, dest, name) { savedTo = it }
             if (TextUtils.isEmpty(error)) {
                 Utils.showToast(
-                    Utils.application.getString(R.string.saved_to) + dest,
+                    Utils.application.getString(R.string.saved_to) + savedTo,
                     Toast.LENGTH_LONG
                 )
             } else {
