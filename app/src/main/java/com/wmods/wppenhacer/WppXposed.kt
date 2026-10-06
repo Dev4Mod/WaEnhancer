@@ -36,6 +36,10 @@ class WppXposed : IYukiHookXposedInit {
 
         loadSystem(Patch)
         loadSystem(ScopeHook)
+        // YukiHookAPI's loadSystem() only matches the "android" package.
+        // ScopeHook also contains the SettingsProvider bridge fallback, so it
+        // must be loaded explicitly in that process as well.
+        loadApp("com.android.providers.settings", ScopeHook)
         loadApp(hooker = AntiUpdater)
 
         loadApp(FeatureLoader.PACKAGE_WPP, FeatureLoader.PACKAGE_BUSINESS) {
