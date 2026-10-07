@@ -1,6 +1,6 @@
 [FIXED]
-* Fixed a crash when swiping between tabs in the app
-* Fixed an error when picking a custom keybox or XML file from the Downloads folder
-* Fixed an issue where some devices could not load the required WhatsApp information
-* Call recordings can now be selected in the Recordings tab to share or delete several at once
-* Call recordings are now saved to a public folder if the default location is unavailable, and the notification shows where the file was saved
+* Fixed WhatsApp closing by itself when opening the document picker on some devices
+* Fixed the contact list not showing your contacts when choosing contacts inside the module
+* Fixed groups appearing without a name in the contact list; they now show their real names
+* Fixed a confusing error message when the module could not be found, and the module now starts up more reliably
+* Removed an unnecessary pop-up message that appeared when the connection to the module failed
