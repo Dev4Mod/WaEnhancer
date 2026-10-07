@@ -43,6 +43,7 @@ import com.wmods.wppenhacer.xposed.core.FeatureLoader
 import com.wmods.wppenhacer.xposed.core.WppCore
 import com.wmods.wppenhacer.xposed.core.components.FMessageWpp
 import com.wmods.wppenhacer.xposed.core.components.WaContactWpp
+import com.wmods.wppenhacer.xposed.core.db.MessageStore
 import com.wmods.wppenhacer.xposed.utils.DesignUtils
 import com.wmods.wppenhacer.xposed.utils.ModuleContextWrapper
 import com.wmods.wppenhacer.xposed.utils.ReflectionUtils
@@ -1054,6 +1055,8 @@ class AboutContactPicker(loader: ClassLoader, preferences: SharedPreferences) :
                 loadFromWaDatabase(items, database)
             }
 
+            loadGroupsFromMessageStore(items)
+
             for (jid in pinnedJids) {
                 if (TextUtils.isEmpty(jid) || items.containsKey(jid) || !isSupportedPickerJid(jid)) {
                     continue
@@ -1072,7 +1075,7 @@ class AboutContactPicker(loader: ClassLoader, preferences: SharedPreferences) :
                 database.query(
                     "wa_contacts",
                     arrayOf("jid", "display_name"),
-                    "jid IS NOT NULL AND jid != '' AND (jid LIKE '%@s.whatsapp.net' OR jid LIKE '%@g.us') AND (jid LIKE '%g.us' OR is_contact_synced is not NULL) AND is_whatsapp_user = 1",
+                    "jid IS NOT NULL AND jid != '' AND (jid LIKE '%@s.whatsapp.net' OR jid LIKE '%@g.us') AND (jid LIKE '%g.us' OR raw_contact_id > 0 OR raw_contact_id IN (-2, -3, -5)) AND is_whatsapp_user = 1",
                     null, null, null,
                     "display_name COLLATE NOCASE ASC, jid COLLATE NOCASE ASC"
                 ).use { cursor ->
@@ -1085,6 +1088,31 @@ class AboutContactPicker(loader: ClassLoader, preferences: SharedPreferences) :
                             continue
                         }
                         items[jid] = buildItem(jid, cursor.getString(1))
+                    }
+                }
+            } catch (throwable: Throwable) {
+                YukiLog.log(throwable)
+            }
+        }
+
+        private fun loadGroupsFromMessageStore(items: LinkedHashMap<String, ContactPickerItem>) {
+            try {
+                val database = MessageStore.getInstance().getDatabase() ?: return
+                database.rawQuery(
+                    """
+                    SELECT jid.raw_string, chat.subject
+                    FROM chat
+                    INNER JOIN jid ON jid._id = chat.jid_row_id
+                    WHERE jid.server = 'g.us' AND chat.hidden = 0
+                      AND chat.subject IS NOT NULL AND chat.subject != ''
+                    ORDER BY chat.subject COLLATE NOCASE ASC
+                    """.trimIndent(), null
+                ).use { cursor ->
+                    while (cursor.moveToNext()) {
+                        val jid = cursor.getString(0)
+                        val subject = sanitize(cursor.getString(1))
+                        if (TextUtils.isEmpty(jid) || subject == null) continue
+                        items[jid] = ContactPickerItem(jid, subject, "", ContactType.GROUP)
                     }
                 }
             } catch (throwable: Throwable) {
@@ -1108,7 +1136,12 @@ class AboutContactPicker(loader: ClassLoader, preferences: SharedPreferences) :
                 YukiLog.log(throwable)
             }
 
-            return ContactPickerItem(jid, displayName ?: "", waName ?: "", type)
+            val resolvedName = displayName
+                ?: sanitize(fallbackDisplayName)
+                ?: waName
+                ?: localPart(jid)
+
+            return ContactPickerItem(jid, resolvedName, waName ?: "", type)
         }
 
         private fun isSupportedPickerJid(jid: String): Boolean {
