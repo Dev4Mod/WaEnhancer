@@ -82,9 +82,9 @@ object FeatureLoader : YukiBaseHooker() {
         versionName: String
     ) {
         check(Unobfuscator.initWithPath(sourceDir)) { "Unobfuscator not initialized" }
-        initializeModuleContext(application)
-        Utils.appClassLoader = loader
         mApp = application
+        Utils.appClassLoader = loader
+        initializeModuleContext(application)
 
         val pref = createPreferences(application)
         Feature.DEBUG = pref.getBoolean("enablelogs", true)
@@ -137,10 +137,10 @@ object FeatureLoader : YukiBaseHooker() {
                 Context.CONTEXT_INCLUDE_CODE or Context.CONTEXT_IGNORE_SECURITY
             )
             moduleContext = android.view.ContextThemeWrapper(context, R.style.AppTheme)
-        } catch (_: PackageManager.NameNotFoundException) {
-            throw PackageManager.NameNotFoundException(
-                Utils.application.getString(R.string.alert_module_notfound)
-            )
+        } catch (e: PackageManager.NameNotFoundException) {
+            val message = runCatching { application.getString(R.string.alert_module_notfound) }
+                .getOrDefault("WaEnhancer module not found")
+            throw PackageManager.NameNotFoundException(message).apply { initCause(e) }
         }
     }
 
