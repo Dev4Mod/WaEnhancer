@@ -1,5 +1,6 @@
 package com.wmods.wppenhacer.xposed.features.others
 
+import android.annotation.SuppressLint
 import android.app.Activity
 import android.app.Instrumentation
 import android.content.ComponentName
@@ -7,6 +8,7 @@ import android.content.ContentProvider
 import android.content.SharedPreferences
 import android.content.pm.PackageManager
 import android.content.pm.ProviderInfo
+import android.content.pm.ServiceInfo
 import android.os.Bundle
 import com.highcapable.kavaref.KavaRef.Companion.resolve
 import com.wmods.wppenhacer.xposed.core.Feature
@@ -17,6 +19,7 @@ class MinorFixes(classLoader: ClassLoader, xprefs: SharedPreferences) :
     private var mlKitInitProviderHandled = false
 
     override fun doHook() {
+        hookMlKitDiscoveryMetadata()
         Instrumentation::class.java.resolve().firstMethod {
             name = "callActivityOnCreate"
             parameters(Activity::class.java, Bundle::class.java)
@@ -28,6 +31,31 @@ class MinorFixes(classLoader: ClassLoader, xprefs: SharedPreferences) :
                 ensureMlKitInitialized(activity)
             }
         }
+    }
+
+    @SuppressLint("PrivateApi")
+    private fun hookMlKitDiscoveryMetadata() {
+        runCatching {
+            val pmClass = Class.forName("android.app.ApplicationPackageManager")
+            pmClass.resolve().firstMethod {
+                name = "getServiceInfo"
+                parameters(ComponentName::class.java, Int::class.javaPrimitiveType!!)
+            }.hook {
+                after {
+                    val component = args[0] as? ComponentName ?: return@after
+                    if (component.className != ML_KIT_DISCOVERY_SERVICE) return@after
+                    val info = result as? ServiceInfo ?: return@after
+                    val meta = info.metaData ?: Bundle().also { info.metaData = it }
+                    if (meta.keySet().none { it.startsWith(ML_KIT_REGISTRAR_PREFIX) }) {
+                        meta.putString(
+                            ML_KIT_REGISTRAR_PREFIX + ML_KIT_COMMON_REGISTRAR,
+                            "com.google.firebase.components.ComponentRegistrar"
+                        )
+                        log("Restored missing ML Kit registrar metadata")
+                    }
+                }
+            }
+        }.onFailure { log(it) }
     }
 
     private fun ensureMlKitInitialized(activity: Activity) {
@@ -80,6 +108,11 @@ class MinorFixes(classLoader: ClassLoader, xprefs: SharedPreferences) :
     private companion object {
         const val DOCUMENT_PICKER_ACTIVITY = "com.whatsapp.documentpicker.DocumentPickerActivity"
         const val ML_KIT_INIT_PROVIDER = "com.google.mlkit.common.internal.MlKitInitProvider"
+        const val ML_KIT_DISCOVERY_SERVICE =
+            "com.google.mlkit.common.internal.MlKitComponentDiscoveryService"
+        const val ML_KIT_REGISTRAR_PREFIX = "com.google.firebase.components:"
+        const val ML_KIT_COMMON_REGISTRAR =
+            "com.google.mlkit.common.internal.CommonComponentRegistrar"
     }
 
     override fun getPluginName(): String = "Minor Fixes"
