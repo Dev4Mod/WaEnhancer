@@ -239,7 +239,6 @@ object WppCore {
             return
         }
         YukiLog.log("Bridge not connected, continuing without it")
-        runCatching { Utils.showToast(context.getString(R.string.bridge_error), Toast.LENGTH_LONG) }
     }
 
     @JvmStatic
