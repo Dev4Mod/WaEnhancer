@@ -309,6 +309,20 @@ object FeatureCatalog {
         add(
             catalog,
             context,
+            "disable_document_scanner",
+            R.string.disable_document_scanner,
+            R.string.disable_document_scanner_sum,
+            SearchableFeature.Category.GENERAL_CONVERSATION,
+            general,
+            "conversation",
+            "document",
+            "scanner",
+            "mlkit",
+            "picker"
+        )
+        add(
+            catalog,
+            context,
             "showonline",
             R.string.show_toast_on_contact_online,
             R.string.show_toast_on_contact_online_sum,

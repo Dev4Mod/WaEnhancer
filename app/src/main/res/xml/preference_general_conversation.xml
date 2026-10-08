@@ -157,4 +157,9 @@
 
     </PreferenceCategory>
 
+    <rikka.material.preference.MaterialSwitchPreference
+        app:key="disable_document_scanner"
+        app:summary="@string/disable_document_scanner_sum"
+        app:title="@string/disable_document_scanner" />
+
 </PreferenceScreen>

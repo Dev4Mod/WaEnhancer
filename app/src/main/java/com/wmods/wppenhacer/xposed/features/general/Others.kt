@@ -76,6 +76,7 @@ class Others(loader: ClassLoader, preferences: SharedPreferences) : Feature(load
         val oldStatus = xprefs.getBoolean("oldstatus", false)
         val igstatus = xprefs.getBoolean("igstatus", false)
         val animationEmojis = xprefs.getBoolean("animation_emojis", false)
+        val disableDocumentScanner = xprefs.getBoolean("disable_document_scanner", false)
         val disableProfileStatus = xprefs.getBoolean("disable_profile_status", false)
         val disableExpiration = xprefs.getBoolean("disable_expiration", false)
         val disableAd = xprefs.getBoolean("disable_ads", false)
@@ -157,6 +158,9 @@ class Others(loader: ClassLoader, preferences: SharedPreferences) : Feature(load
         propsBoolean[8925] = true
 
         propsBoolean[10380] = false // fix crash bug in Settings/Archived
+        if (disableDocumentScanner) {
+            propsBoolean[10048] = false // ML Kit document scanner in DocumentPicker
+        }
 
         propsBoolean[0x34b9] = true // Enable Select People in call
         propsBoolean[0x351c] = true // Enable new colors style in Text Composer
