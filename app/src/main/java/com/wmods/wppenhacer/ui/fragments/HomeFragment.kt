@@ -1,5 +1,6 @@
 package com.wmods.wppenhacer.ui.fragments
 
+import android.content.ActivityNotFoundException
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
@@ -265,7 +266,11 @@ class HomeFragment : BaseFragment() {
         }
         val dateFormat = SimpleDateFormat("yyyy-MM-dd_HH-mm-ss", Locale.US)
         val formattedDate = dateFormat.format(Date())
-        FilePicker.fileSalve.launch("wpp_enhacer_configs_$formattedDate.json")
+        try {
+            FilePicker.fileSalve.launch("wpp_enhacer_configs_$formattedDate.json")
+        } catch (e: ActivityNotFoundException) {
+            Toast.makeText(context, R.string.no_file_picker, Toast.LENGTH_LONG).show()
+        }
     }
 
     private fun parseConfigEntries(json: JSONObject): Map<String, Any> {
@@ -350,7 +355,11 @@ class HomeFragment : BaseFragment() {
                 }
             }
         }
-        FilePicker.fileCapture.launch(arrayOf("application/json"))
+        try {
+            FilePicker.fileCapture.launch(arrayOf("application/json"))
+        } catch (e: ActivityNotFoundException) {
+            Toast.makeText(context, R.string.no_file_picker, Toast.LENGTH_LONG).show()
+        }
     }
 
     private fun checkStateWpp(activity: FragmentActivity) {
