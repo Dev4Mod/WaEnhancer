@@ -117,6 +117,7 @@ All modifications are made dynamically in the memory of the user's own device th
 - `Enable Media Preview`
 - `Custom Download Location`
 - `Force Restore Cloud Backup`
+- `Import Chat from WhatsApp Export (TXT/ZIP with attachments)`
 
 </details>
 

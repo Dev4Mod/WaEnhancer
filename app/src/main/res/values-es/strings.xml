@@ -505,4 +505,45 @@
     <string name="remove_sticker_white_outline_sum">Remueve el borde blanco al crear stickers</string>
     <string name="remove_sticker_white_outline">Remueve el contorno blanco del sticker</string>
     <string name="stickers">Stickers</string>
+
+    <!-- Import chat -->
+    <string name="enable_import_chat_button">Habilitar Importar chat</string>
+    <string name="enable_import_chat_button_sum">Añadir \"Importar chat\" al menú de inicio para cargar la exportación de un chat de WhatsApp (.txt o .zip con adjuntos) en un chat existente</string>
+    <string name="import_chat">Importar chat</string>
+    <string name="import_chat_reading">Leyendo archivo…</string>
+    <string name="import_chat_summary">%1$d mensajes y %2$d adjuntos encontrados.\nDel %3$s al %4$s.\nParticipantes: %5$s</string>
+    <string name="import_chat_destination">Chat de destino</string>
+    <string name="import_chat_pick">Elegir chat…</string>
+    <string name="import_chat_search_hint">Buscar chats</string>
+    <string name="import_chat_group_suffix">%1$s (grupo)</string>
+    <string name="import_chat_me">¿Cuál de los participantes eres tú?</string>
+    <string name="import_chat_date_order">Orden de las fechas del archivo</string>
+    <string name="import_chat_order_auto">Automático (%1$s)</string>
+    <string name="import_chat_order_dmy">Día/Mes</string>
+    <string name="import_chat_order_mdy">Mes/Día</string>
+    <string name="import_chat_order_ymd">Año/Mes/Día</string>
+    <string name="import_chat_media">Importar adjuntos (%1$d archivos)</string>
+    <string name="import_chat_backup">Hacer antes una copia de la base de datos (recomendado)</string>
+    <string name="import_chat_note">Solo se importan los mensajes anteriores al primero del chat, así que lo que ya hay no cambia. Los mensajes importados solo existen en este dispositivo. Al terminar hay que reiniciar WhatsApp.</string>
+    <string name="import_chat_action">Importar</string>
+    <string name="import_chat_need_chat">Elige primero el chat de destino</string>
+    <string name="import_chat_progress_backup">Copiando la base de datos… %1$d%%</string>
+    <string name="import_chat_progress_media">Copiando adjuntos… %1$d / %2$d</string>
+    <string name="import_chat_progress_messages">Importando mensajes… %1$d / %2$d</string>
+    <string name="import_chat_done_title">Importación terminada</string>
+    <string name="import_chat_done_message">Se importaron %1$d mensajes (%2$d con adjunto).%3$s</string>
+    <string name="import_chat_done_media_failed">\n%1$d adjuntos no se pudieron copiar y se importaron como texto.</string>
+    <string name="import_chat_done_skipped">\n%1$d mensajes se omitieron por no ser anteriores al primero del chat.</string>
+    <string name="import_chat_done_backup">\nCopia de seguridad: %1$s</string>
+    <string name="import_chat_restart_now">Reiniciar ahora</string>
+    <string name="import_chat_later">Más tarde</string>
+    <string name="import_chat_cancelled">Importación cancelada. No se ha cambiado nada.</string>
+    <string name="import_chat_error_title">No se pudo importar</string>
+    <string name="import_chat_error_empty">No se encontró ningún mensaje. Comprueba que el archivo es un chat exportado desde WhatsApp (.txt o .zip).</string>
+    <string name="import_chat_error_db_missing">No se encontró la base de datos de WhatsApp.</string>
+    <string name="import_chat_error_chat_missing">El chat elegido ya no existe.</string>
+    <string name="import_chat_error_nothing">Todos los mensajes son posteriores al primero del chat, así que no hay nada que importar.</string>
+    <string name="import_chat_error_space_db">No hay espacio libre para la copia de la base de datos. Libera espacio o desactiva la copia.</string>
+    <string name="import_chat_error_space_media">No hay espacio libre para los adjuntos.</string>
+    <string name="import_chat_error_open">No se pudo leer el archivo: %1$s</string>
 </resources>

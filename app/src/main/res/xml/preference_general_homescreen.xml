@@ -44,6 +44,12 @@
             app:title="@string/enable_wa_enhancer_button" />
 
         <rikka.material.preference.MaterialSwitchPreference
+            app:defaultValue="true"
+            app:key="import_chat"
+            app:summary="@string/enable_import_chat_button_sum"
+            app:title="@string/enable_import_chat_button" />
+
+        <rikka.material.preference.MaterialSwitchPreference
             app:key="separategroups"
             app:summary="@string/separate_groups_sum"
             app:title="@string/separate_groups" />

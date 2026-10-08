@@ -98,6 +98,7 @@
 - `Enviar Áudio como Nota de Voz/Áudio`
 - `Ativar Pré-visualização de Mídia`
 - `Local de Download Personalizado`
+- `Importar Conversa da Exportação do WhatsApp (TXT/ZIP com anexos)`
 
 </details>
 

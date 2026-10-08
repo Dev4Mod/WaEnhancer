@@ -51,6 +51,7 @@ import com.wmods.wppenhacer.xposed.features.others.MinorFixes
 import com.wmods.wppenhacer.xposed.features.others.Stickers
 import com.wmods.wppenhacer.xposed.features.others.TextStatusComposer
 import com.wmods.wppenhacer.xposed.features.others.ToastViewer
+import com.wmods.wppenhacer.xposed.features.others.importchat.ImportChat
 import com.wmods.wppenhacer.xposed.features.privacy.AntiWa
 import com.wmods.wppenhacer.xposed.features.privacy.CallPrivacy
 import com.wmods.wppenhacer.xposed.features.privacy.CustomPrivacy
@@ -127,6 +128,7 @@ internal object FeatureRegistry {
         LockedChatsEnhancer::class.java,
         CallRecording::class.java,
         BackupRestore::class.java,
+        ImportChat::class.java,
         JumpFirstMessage::class.java,
         AboutContactPicker::class.java,
         DefaultEmoji::class.java,

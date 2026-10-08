@@ -557,4 +557,45 @@
     <string name="diag_hma_blocked">Hide My App List is hiding WaEnhancer from:</string>
     <string name="diag_hma_disable">Disable the block for WhatsApp/Business in Hide My App List so WaEnhancer can work correctly.</string>
     <string name="diag_copied">Line copied to clipboard</string>
+
+    <!-- Import chat -->
+    <string name="enable_import_chat_button">Enable Import Chat</string>
+    <string name="enable_import_chat_button_sum">Add \"Import chat\" to the Home menu to load a WhatsApp chat export (.txt or .zip with attachments) into an existing chat</string>
+    <string name="import_chat">Import chat</string>
+    <string name="import_chat_reading">Reading file…</string>
+    <string name="import_chat_summary">%1$d messages and %2$d attachments found.\nFrom %3$s to %4$s.\nParticipants: %5$s</string>
+    <string name="import_chat_destination">Destination chat</string>
+    <string name="import_chat_pick">Choose chat…</string>
+    <string name="import_chat_search_hint">Search chats</string>
+    <string name="import_chat_group_suffix">%1$s (group)</string>
+    <string name="import_chat_me">Which participant are you?</string>
+    <string name="import_chat_date_order">Date order in the file</string>
+    <string name="import_chat_order_auto">Automatic (%1$s)</string>
+    <string name="import_chat_order_dmy">Day/Month</string>
+    <string name="import_chat_order_mdy">Month/Day</string>
+    <string name="import_chat_order_ymd">Year/Month/Day</string>
+    <string name="import_chat_media">Import attachments (%1$d files)</string>
+    <string name="import_chat_backup">Back up the database first (recommended)</string>
+    <string name="import_chat_note">Only messages older than the first message of the chat are imported, so nothing already there changes. Imported messages exist only on this device. WhatsApp must restart when finished.</string>
+    <string name="import_chat_action">Import</string>
+    <string name="import_chat_need_chat">Choose the destination chat first</string>
+    <string name="import_chat_progress_backup">Backing up the database… %1$d%%</string>
+    <string name="import_chat_progress_media">Copying attachments… %1$d / %2$d</string>
+    <string name="import_chat_progress_messages">Importing messages… %1$d / %2$d</string>
+    <string name="import_chat_done_title">Import finished</string>
+    <string name="import_chat_done_message">Imported %1$d messages (%2$d with attachments).%3$s</string>
+    <string name="import_chat_done_media_failed">\n%1$d attachments could not be copied and were imported as text.</string>
+    <string name="import_chat_done_skipped">\n%1$d messages were skipped because they are not older than the first message of the chat.</string>
+    <string name="import_chat_done_backup">\nBackup: %1$s</string>
+    <string name="import_chat_restart_now">Restart now</string>
+    <string name="import_chat_later">Later</string>
+    <string name="import_chat_cancelled">Import cancelled. Nothing was changed.</string>
+    <string name="import_chat_error_title">Could not import</string>
+    <string name="import_chat_error_empty">No messages were found. Make sure the file is a chat exported from WhatsApp (.txt or .zip).</string>
+    <string name="import_chat_error_db_missing">WhatsApp database not found.</string>
+    <string name="import_chat_error_chat_missing">The chosen chat no longer exists.</string>
+    <string name="import_chat_error_nothing">All the messages are newer than the first message of the chat, so there is nothing to import.</string>
+    <string name="import_chat_error_space_db">Not enough free space for the database backup. Free some space or turn the backup off.</string>
+    <string name="import_chat_error_space_media">Not enough free space for the attachments.</string>
+    <string name="import_chat_error_open">The file could not be read: %1$s</string>
 </resources>

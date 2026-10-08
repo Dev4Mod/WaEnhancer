@@ -199,6 +199,11 @@ object FeatureCatalog {
             general, "homescreen", "wa enhancer", "open", "button"
         )
         add(
+            catalog, context, "import_chat", R.string.enable_import_chat_button,
+            R.string.enable_import_chat_button_sum, SearchableFeature.Category.GENERAL_HOMESCREEN,
+            general, "homescreen", "import", "chat", "txt", "zip", "export", "restore"
+        )
+        add(
             catalog,
             context,
             "separategroups",
