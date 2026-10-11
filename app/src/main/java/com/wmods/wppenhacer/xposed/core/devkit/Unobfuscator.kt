@@ -1552,8 +1552,8 @@ object Unobfuscator {
         return UnobfuscatorCache.getInstance().getClass(loader) {
             val clazzList = bridge.findClass {
                 matcher {
+                    addUsingString("selectItem/position ")
                     addMethod {
-                        addUsingString("CONTACTS_FILTER")
                         paramCount(1)
                         addParamType(Int::class.java)
                     }

@@ -20,12 +20,15 @@ class ChatFilters(classLoader: ClassLoader, preferences: SharedPreferences) :
                     args,
                     MutableList::class.java
                 )
-                if (!list.isEmpty()) {
+                if (list.isNotEmpty()) {
                     val argResult = list.first()
                     val newList = ArrayList(argResult.second)
                     newList.removeIf { item: Any? ->
-                        val name = ReflectionUtils.getObjectField(item, "A01")
-                        name == null || name === "CONTACTS_FILTER" || name === "GROUP_FILTER"
+                        val type = item?.javaClass?.declaredFields
+                            ?.firstOrNull { it.type.isEnum }
+                            ?.apply { isAccessible = true }
+                            ?.get(item)?.toString()
+                        type == "CONTACTS_FILTER" || type == "GROUP_FILTER"
                     }
                     args[argResult.first!!] = newList
                 }
