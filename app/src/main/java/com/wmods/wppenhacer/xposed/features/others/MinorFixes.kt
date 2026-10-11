@@ -37,22 +37,24 @@ class MinorFixes(classLoader: ClassLoader, xprefs: SharedPreferences) :
     private fun hookMlKitDiscoveryMetadata() {
         runCatching {
             val pmClass = Class.forName("android.app.ApplicationPackageManager")
-            pmClass.resolve().firstMethod {
+            pmClass.resolve().method {
                 name = "getServiceInfo"
-                parameters(ComponentName::class.java, Int::class.javaPrimitiveType!!)
-            }.hook {
-                after {
-                    val component = args[0] as? ComponentName ?: return@after
-                    if (component.className != ML_KIT_DISCOVERY_SERVICE) return@after
-                    val info = result as? ServiceInfo ?: return@after
-                    val meta = info.metaData ?: Bundle().also { info.metaData = it }
-                    if (meta.keySet().none { it.startsWith(ML_KIT_REGISTRAR_PREFIX) }) {
-                        meta.putString(
-                            ML_KIT_REGISTRAR_PREFIX + ML_KIT_COMMON_REGISTRAR,
-                            "com.google.firebase.components.ComponentRegistrar"
-                        )
-                        log("Restored missing ML Kit registrar metadata")
+            }.hookAll {
+                before {
+                    val component = args[0] as? ComponentName ?: return@before
+                    if (component.className != ML_KIT_DISCOVERY_SERVICE) return@before
+                    val info = ServiceInfo().apply {
+                        packageName = component.packageName
+                        name = component.className
+                        metaData = Bundle().apply {
+                            putString(
+                                ML_KIT_REGISTRAR_PREFIX + ML_KIT_COMMON_REGISTRAR,
+                                "com.google.firebase.components.ComponentRegistrar"
+                            )
+                        }
                     }
+                    result = info
+                    log("Restored missing ML Kit registrar metadata")
                 }
             }
         }.onFailure { log(it) }
