@@ -2733,15 +2733,6 @@ object Unobfuscator {
         }
     }
 
-    fun loadVideoTranscoderStartMethod(classLoader: ClassLoader): Method {
-        return UnobfuscatorCache.getInstance().getMethod(classLoader) {
-            findFirstMethodUsingStrings(
-                classLoader,
-                StringMatchType.Contains,
-                "VideoTranscoder/transcodeVideoNew/"
-            )!!
-        }
-    }
 
 
     fun loadMediaTranscoderStart(classLoader: ClassLoader): Method {

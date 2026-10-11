@@ -56,33 +56,10 @@ class MediaQuality(loader: ClassLoader, preferences: SharedPreferences) :
                 }
             }
 
-            val mediaDataVideoConfiguration =
-                Unobfuscator.loadMediaDataVideoConfigurationClass(classLoader)
-            val fieldsMediaDataVideoConfiguration =
-                Unobfuscator.getAllMapFields(mediaDataVideoConfiguration)
-
-            val videoTranscoderStart = Unobfuscator.loadVideoTranscoderStartMethod(classLoader)
-            videoTranscoderStart.hook {
-                before {
-                    val videoProcessor = args[0]
-                    val booleanParams = ReflectionUtils.getFieldsByType(
-                        videoProcessor!!.javaClass,
-                        java.lang.Boolean.TYPE
-                    )
-                    if (booleanParams.size > 2) {
-                        val field: Field = booleanParams[2]
-                        field.setBoolean(videoProcessor, false)
-                    }
-                    val fieldMediaDataVideoConfiguration = ReflectionUtils.getFieldByType(
-                        videoProcessor!!.javaClass,
-                        mediaDataVideoConfiguration
-                    )
-                    val mediaDataVideoConfigObj =
-                        fieldMediaDataVideoConfiguration!!.get(videoProcessor)
-                    val fieldforceSingleTranscoding =
-                        fieldsMediaDataVideoConfiguration["forceSingleTranscoding"]
-                    fieldforceSingleTranscoding?.setBoolean(mediaDataVideoConfigObj, true)
-                }
+            val mediaConfigClass = Unobfuscator.loadMediaDataVideoConfigurationClass(classLoader)
+            val configFields = Unobfuscator.getAllMapFields(mediaConfigClass)
+            mediaConfigClass.resolve().constructor { }.hookAll().after {
+                configFields["forceSingleTranscoding"]?.setBoolean(instance, true)
             }
 
             Others.propsBoolean[18888] = true
