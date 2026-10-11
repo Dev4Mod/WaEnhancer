@@ -1,6 +1,14 @@
+[NEW]
+* Added support for WA/WB 2.26.39.xx and 2.26.40.xx
+* New option to turn off the document scanner when picking documents. Helps if WhatsApp closes by itself when you open it
+* A message now appears when saving or restoring your settings if no file manager is found on your device
+
+[IMPROVED]
+* Module settings are now loaded faster and more reliably inside WhatsApp, and changes made in the module apply as soon as you save them
+
 [FIXED]
-* Fixed WhatsApp closing by itself when opening the document picker on some devices
-* Fixed the contact list not showing your contacts when choosing contacts inside the module
-* Fixed groups appearing without a name in the contact list; they now show their real names
-* Fixed a confusing error message when the module could not be found, and the module now starts up more reliably
-* Removed an unnecessary pop-up message that appeared when the connection to the module failed
+* Fixed the Contacts and Groups chat filters not working correctly on some WhatsApp versions
+* Fixed the full-size profile photo not loading on some devices
+* Fixed the video quality option not being applied correctly on some devices
+* Fixed the app sometimes showing the module as inactive even when it was working
+* Update MinorFixes (thanks to WZSE) to fix problem in Documents
