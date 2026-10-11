@@ -166,8 +166,16 @@ class WaContactWpp(instance: Any?) {
         return try {
             val instance = mInstanceGetProfilePhoto
             val method = getProfilePhoto
-            if (instance != null && method != null) {
-                method.invoke(instance, mInstance, fullImage) as? InputStream
+            val target = mInstance
+            if (instance != null && method != null && target != null) {
+                val args = method.parameterTypes.map { type ->
+                    when {
+                        type == Boolean::class.javaPrimitiveType -> fullImage
+                        type.isAssignableFrom(target.javaClass) -> target
+                        else -> null
+                    }
+                }.toTypedArray()
+                method.invoke(instance, *args) as? InputStream
             } else null
         } catch (e: Exception) {
             YukiLog.log(e)
