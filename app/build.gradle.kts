@@ -199,7 +199,6 @@ dependencies {
     implementation(libs.bcpkix.jdk18on)
     implementation(libs.arscblamer)
     implementation(libs.markwon.core)
-    implementation(libs.remote.preferences)
     implementation(libs.androidx.datastore.preferences)
 }
 

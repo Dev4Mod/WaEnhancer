@@ -363,7 +363,7 @@ class HomeFragment : BaseFragment() {
     }
 
     private fun checkStateWpp(activity: FragmentActivity) {
-        if (YukiHookAPI.Status.isModuleActive) {
+        if (YukiHookAPI.Status.isXposedModuleActive) {
             binding.statusIcon.setImageResource(R.drawable.ic_round_check_circle_24)
             binding.statusTitle.setText(R.string.module_enabled)
             binding.statusSummary.text =

@@ -131,7 +131,7 @@
             tools:ignore="ExportedContentProvider" />
 
         <provider
-            android:name=".provider.RemotePreferenceProvider"
+            android:name=".provider.PrefsProvider"
             android:authorities="${applicationId}.preferences"
             android:exported="true"
             tools:ignore="ExportedContentProvider" />

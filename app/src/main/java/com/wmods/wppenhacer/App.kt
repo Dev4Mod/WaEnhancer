@@ -24,6 +24,11 @@ import java.util.Locale
 
 class App : Application() {
 
+    private val prefsChangeListener =
+        SharedPreferences.OnSharedPreferenceChangeListener { _, _ ->
+            sendBroadcast(Intent(BuildConfig.APPLICATION_ID + ".PREFS_CHANGED"))
+        }
+
     @SuppressLint("ApplySharedPref")
     override fun onCreate() {
         super.onCreate()
@@ -33,6 +38,7 @@ class App : Application() {
 
         try {
             sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this)
+            sharedPreferences.registerOnSharedPreferenceChangeListener(prefsChangeListener)
             val mode = sharedPreferences.getString("thememode", "0")!!.toInt()
             setThemeMode(mode)
             changeLanguage(this)
