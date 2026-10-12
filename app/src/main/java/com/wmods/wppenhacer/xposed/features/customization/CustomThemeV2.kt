@@ -264,8 +264,9 @@ class CustomThemeV2(loader: ClassLoader, preferences: SharedPreferences) :
         val resourceImpl =
             ReflectionUtils.findClass("android.content.res.ResourcesImpl", classLoader)
 
-        resourceImpl.resolve().method {
+        resourceImpl.resolve().optional().method {
             name = "loadDrawable"
+            superclass()
         }.hookAll {
             after {
                 if (!colorsReady) return@after
