@@ -84,7 +84,9 @@ class Others(loader: ClassLoader, preferences: SharedPreferences) : Feature(load
         propsInteger[3877] = if (oldStatus) (if (igstatus) 2 else 0) else 2
 
         propsBoolean[18250] = false
-        propsBoolean[11528] = false
+        // 11528 gates WhatsApp's "+" add custom list chip in the chat filter row.
+        // Only force it off when WAE hides the filter row (#838).
+        if (!filterSeen) propsBoolean[11528] = false
 
         propsBoolean[4497] = menuWIcons
         propsBoolean[4023] = false
