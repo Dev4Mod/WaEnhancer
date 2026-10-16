@@ -505,4 +505,6 @@
     <string name="remove_sticker_white_outline_sum">Remueve el borde blanco al crear stickers</string>
     <string name="remove_sticker_white_outline">Remueve el contorno blanco del sticker</string>
     <string name="stickers">Stickers</string>
+    <string name="enable_toolkit">WaToolkit</string>
+    <string name="enable_toolkit_sum">Añadir WaToolkit al menú de la pantalla de inicio: importar y exportar chats, mensajes borrados, copias de seguridad y recuperación de chats</string>
 </resources>

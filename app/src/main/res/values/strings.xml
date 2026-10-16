@@ -560,4 +560,6 @@
     <string name="no_file_picker">No file manager found on this device to pick a file.</string>
     <string name="disable_document_scanner">Disable document scanner</string>
     <string name="disable_document_scanner_sum">Disables the ML Kit document scanner in the document picker. Fixes a crash when opening it on some devices</string>
+    <string name="enable_toolkit">WaToolkit</string>
+    <string name="enable_toolkit_sum">Add WaToolkit to the Home Screen menu: import and export chats, deleted messages, backups and chat recovery</string>
 </resources>

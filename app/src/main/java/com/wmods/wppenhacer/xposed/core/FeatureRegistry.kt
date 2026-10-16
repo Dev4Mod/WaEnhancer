@@ -50,6 +50,7 @@ import com.wmods.wppenhacer.xposed.features.others.MenuHome
 import com.wmods.wppenhacer.xposed.features.others.MinorFixes
 import com.wmods.wppenhacer.xposed.features.others.Stickers
 import com.wmods.wppenhacer.xposed.features.others.TextStatusComposer
+import com.wmods.wppenhacer.xposed.features.others.Toolkit
 import com.wmods.wppenhacer.xposed.features.others.ToastViewer
 import com.wmods.wppenhacer.xposed.features.privacy.AntiWa
 import com.wmods.wppenhacer.xposed.features.privacy.CallPrivacy
@@ -119,6 +120,7 @@ internal object FeatureRegistry {
         TextStatusComposer::class.java,
         ToastViewer::class.java,
         MenuHome::class.java,
+        Toolkit::class.java,
         AntiWa::class.java,
         CustomPrivacy::class.java,
         AudioTranscript::class.java,

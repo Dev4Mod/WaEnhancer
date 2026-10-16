@@ -44,6 +44,12 @@
             app:title="@string/enable_wa_enhancer_button" />
 
         <rikka.material.preference.MaterialSwitchPreference
+            app:defaultValue="true"
+            app:key="toolkit"
+            app:summary="@string/enable_toolkit_sum"
+            app:title="@string/enable_toolkit" />
+
+        <rikka.material.preference.MaterialSwitchPreference
             app:key="separategroups"
             app:summary="@string/separate_groups_sum"
             app:title="@string/separate_groups" />
