@@ -2,7 +2,7 @@ package com.wmods.wppenhacer.model
 
 import java.util.Locale
 
-/** Data model representing a searchable feature in the WaEnhancer app. */
+/** Data model representing a searchable feature in the WaToolkit app. */
 class SearchableFeature @JvmOverloads constructor(
     val key: String,
     val title: String,

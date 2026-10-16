@@ -46,5 +46,5 @@ jobs:
       - name: Upload APK
         uses: actions/upload-artifact@v7
         with:
-          name: WaEnhancer-Business
-          path: app/build/outputs/apk/business/debug/WaEnhancer-Business*.apk
+          name: WaToolkit-Business
+          path: app/build/outputs/apk/business/debug/WaToolkit-Business*.apk

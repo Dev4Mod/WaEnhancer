@@ -4,7 +4,7 @@ import android.content.Context
 import com.wmods.wppenhacer.R
 import com.wmods.wppenhacer.model.SearchableFeature
 
-/** Central catalog of searchable features in the WaEnhancer app. */
+/** Central catalog of searchable features in the WaToolkit app. */
 object FeatureCatalog {
     private var features: List<SearchableFeature>? = null
 
@@ -196,7 +196,7 @@ object FeatureCatalog {
         add(
             catalog, context, "open_wae", R.string.enable_wa_enhancer_button,
             R.string.enable_wa_enhancer_button_sum, SearchableFeature.Category.GENERAL_HOMESCREEN,
-            general, "homescreen", "wa enhancer", "open", "button"
+            general, "homescreen", "wa enhancer", "watoolkit", "open", "button"
         )
         add(
             catalog, context, "toolkit", R.string.enable_toolkit,

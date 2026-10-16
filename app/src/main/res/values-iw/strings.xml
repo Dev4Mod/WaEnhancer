@@ -128,7 +128,7 @@
     <string name="whatsapp_in_background"> הWhatsApp שלך מופעל ברקע</string>
     <string name="whatsapp_is_not_running_or_has_not_been_activated_in_lsposed">הווצאפ לא פועל או לא הופעל ב-Lsposed</string>
     <string name="business_is_not_running_or_has_not_been_activated_in_lsposed">ווצאפ ביזנס אינו פועל או לא הופעל ב-Lsposed</string>
-    <string name="restart_wpp">יש צורך להפעיל מחדש את הווצאפ כדי שהשינויים ב-Wa Enhancer ייכנסו לתוקף.\n\nהאם ברצונך להפעיל מחדש?</string>
+    <string name="restart_wpp">יש צורך להפעיל מחדש את הווצאפ כדי שהשינויים ב-WaToolkit ייכנסו לתוקף.\n\nהאם ברצונך להפעיל מחדש?</string>
     <string name="version_s_not_listed">גרסת %s לא מופיעה בגרסאות הנתמכות!\nאנא השתמש בגרסת ווצאפ נתמכת!</string>
     <string name="media">מדיה</string>
     <string name="show_button_to_send_blue_tick">הצג כפתור לשליחת וי כחול</string>
@@ -238,8 +238,8 @@
     <string name="android_version">Android SDK</string>
     <string name="message_removed_on">הודעה זו נמחקה ב%s.</string>
     <string name="disable_default_emojis">השבת אימוג\'י ברירת מחדל</string>
-    <string name="theme_mode">Wa Enhancer - ערכת נושא כהה</string>
-    <string name="theme_mode_sum">הפעל מצב ערכת נושא ב-Wa Enhancer</string>
+    <string name="theme_mode">WaToolkit - ערכת נושא כהה</string>
+    <string name="theme_mode_sum">הפעל מצב ערכת נושא ב-WaToolkit</string>
     <string name="wae_color_mode">מצב צבע WAE</string>
     <string name="wae_color_preset">צבע מוגדר מראש</string>
     <string name="wae_color_mode_preset">הגדרה מראש</string>
@@ -304,17 +304,17 @@
     <string name="select_status_type">בחר סוג סטטוס</string>
     <string name="open_camera">פתח מצלמה</string>
     <string name="edit_text">ערוך טקסט</string>
-    <string name="about_info">הWa Enhancer הוא מודול Xposed שמשפר את חווית הווצאפ שלך על ידי מתן תכונות פרטיות מתקדמות, התאמה אישית של מסך הבית, שינויים כלליים ושיפורי מדיה.</string>
+    <string name="about_info">הWaToolkit הוא מודול Xposed שמשפר את חווית הווצאפ שלך על ידי מתן תכונות פרטיות מתקדמות, התאמה אישית של מסך הבית, שינויים כלליים ושיפורי מדיה.</string>
     <string name="installation">התקנה</string>
-    <string name="installation_desc">1. ודא שהמכשיר שלך מושרש.\n2.  התקן את Xposed Framework במכשיר שלך.\n3.  הורד את Wa Enhancer מקטע הפעולות.\n4.  התקן את ה-APK של Wa Enhancer.\n5.  הפעל את מודול Wa Enhancer באפליקציית Xposed Installer.</string>
+    <string name="installation_desc">1. ודא שהמכשיר שלך מושרש.\n2.  התקן את Xposed Framework במכשיר שלך.\n3.  הורד את WaToolkit מקטע הפעולות.\n4.  התקן את ה-APK של WaToolkit.\n5.  הפעל את מודול WaToolkit באפליקציית Xposed Installer.</string>
     <string name="go_to_telegram">לך לטלגרם</string>
     <string name="go_to_github">לך לאתר GitHub</string>
     <string name="contributors">תורמים</string>
     <string name="support">תמיכה</string>
-    <string name="support_desc">אם אתה נתקל בבעיות כלשהן או שיש לך שאלות והערות לגבי המודול Wa Enhancer, אנא בקר בטלגרם שלנו.
+    <string name="support_desc">אם אתה נתקל בבעיות כלשהן או שיש לך שאלות והערות לגבי המודול WaToolkit, אנא בקר בטלגרם שלנו.
 תורגם לעברית ע\'\'י אורי.</string>
     <string name="license">רישיון</string>
-    <string name="license_desc">פרויקט זה מורשה תחת רישיון GNU - עיין בקובץ LICENSE לפרטים.\n\nהערה: אנא השתמש ב-Wa Enhancer באחריות ובהתאם לתנאים וההגבלות של האפליקציות שאתה משנה.  שימוש לרעה בכלי זה עלול להוביל לתוצאות משפטיות.</string>
+    <string name="license_desc">פרויקט זה מורשה תחת רישיון GNU - עיין בקובץ LICENSE לפרטים.\n\nהערה: אנא השתמש ב-WaToolkit באחריות ובהתאם לתנאים וההגבלות של האפליקציות שאתה משנה.  שימוש לרעה בכלי זה עלול להוביל לתוצאות משפטיות.</string>
     <string name="select_a_color">בחר צבע</string>
     <string name="custom_appearance">מראה מותאם אישית</string>
     <string name="custom_filters_sum">הפעל פילטר לפי מזהה ו-CSS מותאם אישית</string>
@@ -334,7 +334,7 @@
     <string name="new_theme_name">שם ערכת נושא חדש</string>
     <string name="create">יצירה</string>
     <string name="storage_permission">הרשאת אחסון</string>
-    <string name="permission_storage">לאפשר ל-Wa Enhancer לגשת לאחסון החיצוני שלך?</string>
+    <string name="permission_storage">לאפשר ל-WaToolkit לגשת לאחסון החיצוני שלך?</string>
     <string name="allow">אפשר</string>
     <string name="deny">דחה</string>
     <string name="saved">שמור</string>
@@ -375,7 +375,7 @@
     <string name="ghost_mode_s">מצב רוח רפאים [%s]</string>
     <string name="ghost_mode_title">הצג כפתור רוח רפאים במסך הבית</string>
     <string name="ghost_mode_sum">הצג כפתור מצב רוח רפאים בסרגל הכלים של מסך הבית</string>
-    <string name="grant_permissions">כדי להשתמש ב-Wa Enhancer יש צורך להעניק הרשאות מסוימות לשימוש בפונקציות.</string>
+    <string name="grant_permissions">כדי להשתמש ב-WaToolkit יש צורך להעניק הרשאות מסוימות לשימוש בפונקציות.</string>
     <string name="grant_manage_storage">הענק ניהול אחסון</string>
     <string name="grant_media_read">קריאת מדיה</string>
     <string name="grant_reading_of_contacts">הענק קריאת אנשי קשר</string>
@@ -391,8 +391,8 @@
     <string name="select_all">בחר הכל</string>
     <string name="custom_colors_for_text_status">צבעים מותאמים אישית עבור סטטוס טקסט</string>
     <string name="custom_colors_for_text_status_sum">לחץ והחזק את בורר הצבעים בסטטוס כדי להתאים אותו אישית</string>
-    <string name="enable_wa_enhancer_button">הפעל את לחצן Wa Enhancer</string>
-    <string name="enable_wa_enhancer_button_sum">הוסף כפתור במסך הבית כדי לפתוח את Wa Enhancer</string>
+    <string name="enable_wa_enhancer_button">הפעל את לחצן WaToolkit</string>
+    <string name="enable_wa_enhancer_button_sum">הוסף כפתור במסך הבית כדי לפתוח את WaToolkit</string>
     <string name="custom_privacy">פרטיות מותאמת אישית</string>
     <string name="custom_privacy_sum">הפעל/השבת פרטיות מותאמת אישית</string>
     <string name="custom_privacy_per_contact">פרטיות מותאמת אישית לכל איש קשר</string>

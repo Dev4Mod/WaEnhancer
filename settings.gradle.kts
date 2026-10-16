@@ -24,5 +24,5 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "Wa Enhancer"
+rootProject.name = "WaToolkit"
 include(":app")

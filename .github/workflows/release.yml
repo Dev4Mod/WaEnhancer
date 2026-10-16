@@ -58,11 +58,11 @@ jobs:
         uses: softprops/action-gh-release@v3
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
-          name: WaEnhancer ${{ steps.vars.outputs.version }}
+          name: WaToolkit ${{ steps.vars.outputs.version }}
           body_path: changelog.txt
           files: |
-            app/build/outputs/apk/whatsapp/debug/WaEnhancer*.apk
-            app/build/outputs/apk/business/debug/WaEnhancer-Business*.apk
+            app/build/outputs/apk/whatsapp/debug/WaToolkit*.apk
+            app/build/outputs/apk/business/debug/WaToolkit-Business*.apk
           tag_name: ${{ steps.vars.outputs.tag }}
 
       - name: Read changelog

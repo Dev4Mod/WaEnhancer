@@ -17,7 +17,7 @@ import com.wmods.wppenhacer.xposed.core.Feature
 import com.wmods.wppenhacer.xposed.core.WppCore.homeActivityClass
 
 /**
- * WaToolkit integrado en WaEnhancer: añade "WaToolkit" al menú de la pantalla principal con
+ * Herramientas de WaToolkit (importar/exportar chats, mensajes borrados, copias): añade "Tools"/"Herramientas" al menú de la pantalla principal con
  * las herramientas de importar/exportar chats, mensajes borrados y copias de seguridad.
  *
  * Se activa con el ajuste "toolkit" (por defecto activado).

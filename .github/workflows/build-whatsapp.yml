@@ -46,5 +46,5 @@ jobs:
       - name: Upload APK
         uses: actions/upload-artifact@v7
         with:
-          name: WaEnhancer
-          path: app/build/outputs/apk/whatsapp/debug/WaEnhancer*.apk
+          name: WaToolkit
+          path: app/build/outputs/apk/whatsapp/debug/WaToolkit*.apk

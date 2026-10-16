@@ -127,7 +127,7 @@
     <string name="whatsapp_in_background">WhatsApp activo en segundo plano</string>
     <string name="whatsapp_is_not_running_or_has_not_been_activated_in_lsposed">WhatsApp no esta abierto o no se ha activado en LSPosed</string>
     <string name="business_is_not_running_or_has_not_been_activated_in_lsposed">Business no está abierto o no se ha activado en Lsposed</string>
-    <string name="restart_wpp">Es necesario reiniciar WhatsApp para que los cambios de Wa Enhancer hagan efecto.\n\n¿Quieres reiniciar?</string>
+    <string name="restart_wpp">Es necesario reiniciar WhatsApp para que los cambios de WaToolkit hagan efecto.\n\n¿Quieres reiniciar?</string>
     <string name="version_s_not_listed">¡La versión %s no aparece en las versiones compatibles!\n¡Por favor, usa una versión de WhatsApp compatible para evitar errores!</string>
     <string name="media">Multimedia</string>
     <string name="show_button_to_send_blue_tick">Mostrar botón para enviar el tick azul</string>
@@ -238,7 +238,7 @@
     <string name="message_removed_on">Este mensaje fue eliminado el %s.</string>
     <string name="disable_default_emojis">Desactivar Emojis por Defecto</string>
     <string name="theme_mode">Tema Oscuro</string>
-    <string name="theme_mode_sum">Forzar color de la interfaz en Wa Enhancer</string>
+    <string name="theme_mode_sum">Forzar color de la interfaz en WaToolkit</string>
     <string name="wae_color_mode">Modo de color WAE</string>
     <string name="wae_color_preset">Color preestablecido</string>
     <string name="wae_color_mode_preset">Preset</string>
@@ -303,16 +303,16 @@
     <string name="select_status_type">Seleccionar tipo de estado</string>
     <string name="open_camera">Abrir cámara</string>
     <string name="edit_text">Editar texto</string>
-    <string name="about_info">Wa Enhancer es un módulo Xposed que mejora tu experiencia de WhatsApp al ofrecer características avanzadas de privacidad, personalización de la pantalla de inicio, ajustes generales y mejoras en multimedia.</string>
+    <string name="about_info">WaToolkit es un módulo Xposed que mejora tu experiencia de WhatsApp al ofrecer características avanzadas de privacidad, personalización de la pantalla de inicio, ajustes generales y mejoras en multimedia.</string>
     <string name="installation">Instalación</string>
-    <string name="installation_desc">1. Asegúrese de que su dispositivo está rooteado.\n2. Instale el Xposed Framework en su dispositivo.\n3. Descarga el Wa Enhancer desde la sección Acciones.\n4. Instala el APK de Wa Enhancer.\n5. Activa el módulo Wa Enhancer en la aplicación Xposed Installer.</string>
+    <string name="installation_desc">1. Asegúrese de que su dispositivo está rooteado.\n2. Instale el Xposed Framework en su dispositivo.\n3. Descarga el WaToolkit desde la sección Acciones.\n4. Instala el APK de WaToolkit.\n5. Activa el módulo WaToolkit en la aplicación Xposed Installer.</string>
     <string name="go_to_telegram">Ir a Telegram</string>
     <string name="go_to_github">Ir a GitHub</string>
     <string name="contributors">Colaboradores</string>
     <string name="support">Soporte</string>
-    <string name="support_desc">Si encuentras algún problema o tienes preguntas sobre Wa Enhancer, por favor visita Telegram.</string>
+    <string name="support_desc">Si encuentras algún problema o tienes preguntas sobre WaToolkit, por favor visita Telegram.</string>
     <string name="license">Licencia</string>
-    <string name="license_desc">Este proyecto está licenciado bajo la Licencia GNU - vea el archivo LICENSE para más detalles.\n\nNota: Por favor, utilice Wa Enhancer de forma responsable y de acuerdo con los términos y condiciones de las aplicaciones que está modificando. La falta de esta herramienta puede tener consecuencias jurídicas.</string>
+    <string name="license_desc">Este proyecto está licenciado bajo la Licencia GNU - vea el archivo LICENSE para más detalles.\n\nNota: Por favor, utilice WaToolkit de forma responsable y de acuerdo con los términos y condiciones de las aplicaciones que está modificando. La falta de esta herramienta puede tener consecuencias jurídicas.</string>
     <string name="select_a_color">Seleccione un color</string>
     <string name="custom_appearance">Apariencia personalizada</string>
     <string name="custom_filters_sum">Activar filtros por ID y CSS personalizado</string>
@@ -332,7 +332,7 @@
     <string name="new_theme_name">Nuevo nombre del tema</string>
     <string name="create">Crear</string>
     <string name="storage_permission">Permiso de almacenamiento</string>
-    <string name="permission_storage">¿Permitir que Wa Enhancer acceda a su almacenamiento externo?</string>
+    <string name="permission_storage">¿Permitir que WaToolkit acceda a su almacenamiento externo?</string>
     <string name="allow">Permitir</string>
     <string name="deny">Denegar</string>
     <string name="saved">Guardado</string>
@@ -373,7 +373,7 @@
     <string name="ghost_mode_s">Modo fantasma [%s]</string>
     <string name="ghost_mode_title">Modo Fantasma</string>
     <string name="ghost_mode_sum">Mostrar un botón del Modo Fantasma en la barra de herramientas de la pantalla de inicio</string>
-    <string name="grant_permissions">Para usar Wa Enhancer es necesario conceder algunos permisos para usar las funciones.</string>
+    <string name="grant_permissions">Para usar WaToolkit es necesario conceder algunos permisos para usar las funciones.</string>
     <string name="grant_manage_storage">Conceder permiso de almacenamiento</string>
     <string name="grant_media_read">Conceder permiso para leer multimedia</string>
     <string name="grant_reading_of_contacts">Conceder permiso para la lectura de contactos</string>
@@ -389,8 +389,8 @@
     <string name="select_all">Seleccionar Todo</string>
     <string name="custom_colors_for_text_status">Personalizar colores de los textos en los estados</string>
     <string name="custom_colors_for_text_status_sum">Mantén pulsado el selector de color en el estado para personalizar los colores</string>
-    <string name="enable_wa_enhancer_button">Habilitar botón Wa Enhancer</string>
-    <string name="enable_wa_enhancer_button_sum">Añadir botón en la pantalla de inicio para abrir Wa Enhancer</string>
+    <string name="enable_wa_enhancer_button">Habilitar botón WaToolkit</string>
+    <string name="enable_wa_enhancer_button_sum">Añadir botón en la pantalla de inicio para abrir WaToolkit</string>
     <string name="custom_privacy">Privacidad personalizada</string>
     <string name="custom_privacy_sum">Habilitar/deshabilitar privacidad personalizada</string>
     <string name="custom_privacy_per_contact">Privacidad personalizada por contacto</string>
@@ -505,6 +505,6 @@
     <string name="remove_sticker_white_outline_sum">Remueve el borde blanco al crear stickers</string>
     <string name="remove_sticker_white_outline">Remueve el contorno blanco del sticker</string>
     <string name="stickers">Stickers</string>
-    <string name="enable_toolkit">WaToolkit</string>
-    <string name="enable_toolkit_sum">Añadir WaToolkit al menú de la pantalla de inicio: importar y exportar chats, mensajes borrados, copias de seguridad y recuperación de chats</string>
+    <string name="enable_toolkit">Menú de herramientas</string>
+    <string name="enable_toolkit_sum">Añadir una entrada Herramientas al menú de la pantalla de inicio: importar y exportar chats, mensajes borrados, copias de seguridad y recuperación de chats</string>
 </resources>

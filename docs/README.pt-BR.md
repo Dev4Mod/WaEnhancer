@@ -1,9 +1,11 @@
 | [English](README.md) | **Português(Brasil)**
 
-# WaEnhancer
+# WaToolkit
+
+> **WaToolkit** é um fork de [Dev4Mod/WaEnhancer](https://github.com/Dev4Mod/WaEnhancer) (GPL-3.0) que integra as ferramentas do WaToolkit: importar/exportar chats, mensagens apagadas, backups e recuperação de chats.
 
 <div align="center">
-  <p><strong>WaEnhancer é um módulo Xposed que melhora sua experiência no WhatsApp.</strong></p>
+  <p><strong>WaToolkit é um módulo Xposed que melhora sua experiência no WhatsApp.</strong></p>
   <p><strong>Aviso:</strong> Este módulo é destinado apenas para fins educacionais. Você pode ter problemas com sua conta do WhatsApp, incluindo risco de banimento! Use por sua conta e risco.</p>
   <p>Observe que este projeto está atualmente em desenvolvimento, então bugs e falhas podem ocorrer. Se encontrar algum problema, reporte em nosso grupo ou crie um <a href="https://github.com/Dev4Mod/WaEnhancer/issues">relatório de problema</a> aqui.</p>
 </div>
@@ -138,12 +140,12 @@
 ## Instalação
 1. Certifique-se de que seu dispositivo está com root.
 2. Instale o Xposed Framework (recomendamos [este](https://github.com/JingMatrix/LSPosed) LSPosed) no seu dispositivo.
-3. Baixe o WaEnhancer na aba [Actions](https://github.com/Dev4Mod/WaEnhancer/actions).
+3. Baixe o WaToolkit na aba [Actions](https://github.com/kherio/WaEnhancer/actions).
 4. Instale o APK do WaEnhancer.
-5. Ative o módulo WaEnhancer no aplicativo Xposed Installer(LSPosed).
+5. Ative o módulo WaToolkit no aplicativo Xposed Installer(LSPosed).
 
 ## Suporte
-Se você encontrar algum problema ou tiver dúvidas sobre o WaEnhancer, por favor [Visite o Telegram](https://t.me/waenhancer).
+Se você encontrar algum problema ou tiver dúvidas sobre o WaToolkit, por favor [Visite o Telegram](https://t.me/waenhancer).
 
 ## Licença
 Este projeto está licenciado sob a Licença GNU - veja o arquivo [LICENSE](LICENSE) para mais detalhes.
@@ -156,4 +158,4 @@ Este projeto está licenciado sob a Licença GNU - veja o arquivo [LICENSE](LICE
 
 ---
 
-**Nota**: Por favor, use o WaEnhancer de forma responsável e em conformidade com os termos e condições dos aplicativos que você está modificando. O uso indevido desta ferramenta pode levar a consequências legais.
+**Nota**: Por favor, use o WaToolkit de forma responsável e em conformidade com os termos e condições dos aplicativos que você está modificando. O uso indevido desta ferramenta pode levar a consequências legais.

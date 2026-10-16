@@ -134,7 +134,7 @@ object FeatureLoader : YukiBaseHooker() {
             moduleContext = android.view.ContextThemeWrapper(context, R.style.AppTheme)
         } catch (e: PackageManager.NameNotFoundException) {
             val message = runCatching { application.getString(R.string.alert_module_notfound) }
-                .getOrDefault("WaEnhancer module not found")
+                .getOrDefault("WaToolkit module not found")
             throw PackageManager.NameNotFoundException(message).apply { initCause(e) }
         }
     }

@@ -38,7 +38,7 @@ class AboutActivity : BaseActivity() {
         setContentView(binding.root)
 
         binding.btnTelegram.setOnClickListener { openUrl("https://t.me/waenhancer") }
-        binding.btnGithub.setOnClickListener { openUrl("https://github.com/Dev4Mod/WaEnhancer") }
+        binding.btnGithub.setOnClickListener { openUrl("https://github.com/kherio/WaEnhancer") }
 
         val contributorTopMargin = resources.getDimensionPixelSize(R.dimen.spacing_small)
         contributors.forEachIndexed { index, contributor ->

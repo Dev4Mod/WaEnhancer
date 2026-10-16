@@ -1,7 +1,7 @@
 <resources>
     <string name="force_restore_backup">Force Restore Backup</string>
     <string name="force_restore_backup_summary">Launch the restore backup screen manually. Use this if you skipped restoration during setup.</string>
-    <string name="app_name" translatable="false">Wa Enhancer</string>
+    <string name="app_name" translatable="false">WaToolkit</string>
     <string name="app_desc">WhatsApp Enhancer Module</string>
     <string name="antirevoke">Anti-Revoke Messages</string>
     <string name="antirevoke_sum">Messages will not be deleted for you</string>
@@ -129,7 +129,7 @@
     <string name="whatsapp_in_background">WhatsApp in background</string>
     <string name="whatsapp_is_not_running_or_has_not_been_activated_in_lsposed">Whatsapp is not running or has not been activated in Lsposed</string>
     <string name="business_is_not_running_or_has_not_been_activated_in_lsposed">Business is not running or has not been activated in Lsposed</string>
-    <string name="restart_wpp">It is necessary to restart WhatsApp for the changes in Wa Enhancer to take effect.\n\nDo you want to restart?</string>
+    <string name="restart_wpp">It is necessary to restart WhatsApp for the changes in WaToolkit to take effect.\n\nDo you want to restart?</string>
     <string name="version_s_not_listed">Version %s not listed in supported versions!\nPlease use supported WhatsApp version!</string>
     <string name="media">Media</string>
     <string name="show_button_to_send_blue_tick">Show Button to send blue tick</string>
@@ -256,8 +256,8 @@
     <string name="force_disable_emojis_alert_title">Force Disable Emojis</string>
     <string name="force_disable_emojis_alert_msg">This feature will make emojis invisible in the emoji selector. To send emojis, use your device\'s keyboard emoji instead.</string>
     <string name="disable_default_emojis">Disable Default Emojis</string>
-    <string name="theme_mode">Dark Theme Wa Enhancer</string>
-    <string name="theme_mode_sum">Force a theme mode in the Wa Enhancer</string>
+    <string name="theme_mode">Dark Theme WaToolkit</string>
+    <string name="theme_mode_sum">Force a theme mode in the WaToolkit</string>
     <string name="wae_color_mode">WAE color mode</string>
     <string name="wae_color_preset">Preset color</string>
     <string name="wae_color_mode_preset">Preset</string>
@@ -318,21 +318,21 @@
     <string name="viewed_your_message">%s viewed your message</string>
     <string name="old_statuses">Old Statuses</string>
     <string name="old_statuses_sum">Change to the old statuses page vertically and without channels (NOTE: May cause lag in the interface)</string>
-    <string name="force_english">Force English Wa Enhancer</string>
+    <string name="force_english">Force English WaToolkit</string>
     <string name="select_status_type">Select status type</string>
     <string name="open_camera">Open Camera</string>
     <string name="edit_text">Edit Text</string>
     <string name="developer" translatable="false">Developer: Dev4Mod</string>
-    <string name="about_info">Wa Enhancer is an Xposed module that enhances your WhatsApp experience by offering advanced privacy features, home screen customization, general tweaks, and media improvements.</string>
+    <string name="about_info">WaToolkit is an Xposed module that enhances your WhatsApp experience by offering advanced privacy features, home screen customization, general tweaks, and media improvements.</string>
     <string name="installation">Installation</string>
-    <string name="installation_desc">1. Ensure that your device is rooted.\n2. Install the Xposed Framework on your device.\n3. Download the Wa Enhancer from the Actions section.\n4. Install the Wa Enhancer APK.\n5. Enable the Wa Enhancer module in the Xposed Installer app.</string>
+    <string name="installation_desc">1. Ensure that your device is rooted.\n2. Install the Xposed Framework on your device.\n3. Download the WaToolkit from the Actions section.\n4. Install the WaToolkit APK.\n5. Enable the WaToolkit module in the Xposed Installer app.</string>
     <string name="go_to_telegram">Go to Telegram</string>
     <string name="go_to_github">Go to GitHub</string>
     <string name="contributors">Contributors</string>
     <string name="support">Support</string>
-    <string name="support_desc">If you encounter any issues or have questions about Wa Enhancer, please visit Telegram.</string>
+    <string name="support_desc">If you encounter any issues or have questions about WaToolkit, please visit Telegram.</string>
     <string name="license">License</string>
-    <string name="license_desc">This project is licensed under the GNU License - see the LICENSE file for details.\n\nNote: Please use Wa Enhancer responsibly and in compliance with the terms and conditions of the apps you are modifying. Misuse of this tool may lead to legal consequences.</string>
+    <string name="license_desc">This project is licensed under the GNU License - see the LICENSE file for details.\n\nNote: Please use WaToolkit responsibly and in compliance with the terms and conditions of the apps you are modifying. Misuse of this tool may lead to legal consequences.</string>
     <string name="select_a_color">Select a color</string>
     <string name="custom_appearance">Custom Appearance</string>
     <string name="custom_filters_sum">Activate filters by ID and Custom CSS</string>
@@ -352,7 +352,7 @@
     <string name="new_theme_name">New Theme Name</string>
     <string name="create">Create</string>
     <string name="storage_permission">Storage Permission</string>
-    <string name="permission_storage">Allow Wa Enhancer to access your external storage?</string>
+    <string name="permission_storage">Allow WaToolkit to access your external storage?</string>
     <string name="allow">Allow</string>
     <string name="deny">Deny</string>
     <string name="saved">Saved</string>
@@ -393,7 +393,7 @@
     <string name="ghost_mode_s">Ghost Mode [%s]</string>
     <string name="ghost_mode_title">Show Ghost Mode Button</string>
     <string name="ghost_mode_sum">Show a Ghost Mode button on the home screen toolbar</string>
-    <string name="grant_permissions">To use Wa Enhancer it is necessary to grant some permissions to use the functions.</string>
+    <string name="grant_permissions">To use WaToolkit it is necessary to grant some permissions to use the functions.</string>
     <string name="grant_manage_storage">Grant manage storage</string>
     <string name="grant_media_read">Grant Media Read</string>
     <string name="grant_reading_of_contacts">Grant reading of Contacts</string>
@@ -409,8 +409,8 @@
     <string name="select_all">Select All</string>
     <string name="custom_colors_for_text_status">Custom colors for text status</string>
     <string name="custom_colors_for_text_status_sum">Press and hold on the color selector in the status to customize it</string>
-    <string name="enable_wa_enhancer_button">Enable Wa Enhancer Button</string>
-    <string name="enable_wa_enhancer_button_sum">Add button in Home Screen to open Wa Enhancer</string>
+    <string name="enable_wa_enhancer_button">Enable WaToolkit Button</string>
+    <string name="enable_wa_enhancer_button_sum">Add button in Home Screen to open WaToolkit</string>
     <string name="custom_privacy">Custom Privacy</string>
     <string name="custom_privacy_sum">Enable/Disable Custom Privacy</string>
     <string name="custom_privacy_per_contact">Custom Privacy per contact</string>
@@ -529,7 +529,7 @@
     <string name="remove_sticker_white_outline_sum">Remove the white border when creating stickers</string>
     <string name="remove_sticker_white_outline">Remove sticker white outline</string>
     <string name="stickers">Stickers</string>
-    <string name="alert_module_notfound">WaEnhancer module not found, HMA is probably hiding the module, remove WhatsApp from the HMA list and try again.</string>
+    <string name="alert_module_notfound">WaToolkit module not found, HMA is probably hiding the module, remove WhatsApp from the HMA list and try again.</string>
     <!-- Root Diagnostics -->
     <string name="diag_title">Root Diagnostics</string>
     <string name="diag_summary">Check for sepolicy issues and Hide My App List blocks affecting WhatsApp.</string>
@@ -554,12 +554,12 @@
     <string name="diag_hma_not_found">Hide My App List configuration not found.</string>
     <string name="diag_hma_invalid">Hide My App List configuration is invalid.</string>
     <string name="diag_hma_no_blocks">No Hide My App List blocks detected for WhatsApp.</string>
-    <string name="diag_hma_blocked">Hide My App List is hiding WaEnhancer from:</string>
-    <string name="diag_hma_disable">Disable the block for WhatsApp/Business in Hide My App List so WaEnhancer can work correctly.</string>
+    <string name="diag_hma_blocked">Hide My App List is hiding WaToolkit from:</string>
+    <string name="diag_hma_disable">Disable the block for WhatsApp/Business in Hide My App List so WaToolkit can work correctly.</string>
     <string name="diag_copied">Line copied to clipboard</string>
     <string name="no_file_picker">No file manager found on this device to pick a file.</string>
     <string name="disable_document_scanner">Disable document scanner</string>
     <string name="disable_document_scanner_sum">Disables the ML Kit document scanner in the document picker. Fixes a crash when opening it on some devices</string>
-    <string name="enable_toolkit">WaToolkit</string>
-    <string name="enable_toolkit_sum">Add WaToolkit to the Home Screen menu: import and export chats, deleted messages, backups and chat recovery</string>
+    <string name="enable_toolkit">Tools menu</string>
+    <string name="enable_toolkit_sum">Add a Tools entry to the Home Screen menu: import and export chats, deleted messages, backups and chat recovery</string>
 </resources>
