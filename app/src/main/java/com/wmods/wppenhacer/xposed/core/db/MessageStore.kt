@@ -132,9 +132,9 @@ class MessageStore private constructor() {
         val db = sqLiteDatabase ?: return ""
         var message = ""
         val sql =
-            "SELECT parent_message_row_id, key_id FROM message_add_on WHERE parent_message_row_id=\"$id\""
+            "SELECT parent_message_row_id, key_id FROM message_add_on WHERE parent_message_row_id=?"
         try {
-            db.rawQuery(sql, null).use { cursor ->
+            db.rawQuery(sql, arrayOf(id.toString())).use { cursor ->
                 if (cursor.moveToFirst()) {
                     message = cursor.getString(1)
                 }
@@ -172,7 +172,12 @@ class MessageStore private constructor() {
     }
 
     @Synchronized
-    fun executeWritableSQL(sql: String, maxRetries: Int = 3, retryDelayMs: Long = 500L) {
+    fun executeWritableSQL(
+        sql: String,
+        maxRetries: Int = 3,
+        retryDelayMs: Long = 500L,
+        bindArgs: Array<Any?>? = null
+    ) {
         val dataDir = Utils.getAccountDataDir()
         val dbFile = File(dataDir, "/databases/msgstore.db")
         if (!dbFile.exists()) return
@@ -191,7 +196,7 @@ class MessageStore private constructor() {
                 } catch (ignored: Exception) {
                 }
 
-                writeDb.execSQL(sql)
+                if (bindArgs != null) writeDb.execSQL(sql, bindArgs) else writeDb.execSQL(sql)
                 return
             } catch (e: Exception) {
                 if (e is android.database.sqlite.SQLiteDatabaseLockedException ||
@@ -221,7 +226,10 @@ class MessageStore private constructor() {
 
     fun storeMessageRead(messageId: String) {
         YukiLog.log("storeMessageRead: $messageId")
-        executeWritableSQL("UPDATE message SET status = 1 WHERE key_id = \"$messageId\"")
+        executeWritableSQL(
+            "UPDATE message SET status = 1 WHERE key_id = ?",
+            bindArgs = arrayOf(messageId)
+        )
     }
 
     fun isReadMessageStatus(messageId: String): Boolean {
