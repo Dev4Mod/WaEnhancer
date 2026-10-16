@@ -95,7 +95,13 @@ class TextEditorActivity : BaseActivity() {
             try {
                 assets.open("css_editor.html").use { inputStream ->
                     var code = IOUtils.toString(inputStream)
-                    code = code.replace("{{content}}", newContent)
+                    // El contenido va dentro de un <textarea>: se escapa para que un CSS
+                    // (p. ej. un tema ajeno) no pueda cerrarlo e inyectar HTML/JS.
+                    val safeContent = newContent
+                        .replace("&", "&amp;")
+                        .replace("<", "&lt;")
+                        .replace(">", "&gt;")
+                    code = code.replace("{{content}}", safeContent)
                     val finalCode = code
                     withContext(Dispatchers.Main) {
                         wv.loadDataWithBaseURL(
