@@ -6,6 +6,7 @@ import android.database.Cursor
 import android.net.Uri
 import android.os.Bundle
 import androidx.preference.PreferenceManager
+import com.wmods.wppenhacer.xposed.bridge.service.CallerGuard
 
 class PrefsProvider : ContentProvider() {
 
@@ -14,6 +15,9 @@ class PrefsProvider : ContentProvider() {
     override fun call(method: String, arg: String?, extras: Bundle?): Bundle? {
         if (method != METHOD_GET_ALL) return null
         val context = context ?: return null
+        // Provider exportado: solo el módulo y WhatsApp/WhatsApp Business pueden leer
+        // las preferencias (incluyen claves de API de transcripción).
+        if (!CallerGuard.isCallerAllowed(context)) return null
         val prefs = PreferenceManager.getDefaultSharedPreferences(context)
 
         val values = Bundle()
