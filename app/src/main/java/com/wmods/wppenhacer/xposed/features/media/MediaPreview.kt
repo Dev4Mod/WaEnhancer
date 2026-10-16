@@ -255,12 +255,10 @@ class MediaPreview(
         val executor: ExecutorService = Executors.newSingleThreadExecutor()
         executor.execute {
             try {
-                val query = String.format(
-                    Locale.ENGLISH,
-                    "SELECT message_url,mime_type,hex(media_key),direct_path,file_length,media_name,media_key FROM message_media WHERE message_row_id =\"%d\"",
-                    id
-                )
-                val cursor0 = MessageStore.getInstance().getDatabase()?.rawQuery(query, null)
+                val query =
+                    "SELECT message_url,mime_type,hex(media_key),direct_path,file_length,media_name,media_key FROM message_media WHERE message_row_id = ?"
+                val cursor0 = MessageStore.getInstance().getDatabase()
+                    ?.rawQuery(query, arrayOf(id.toString()))
 
                 cursor0?.use { cursor ->
                     if (cursor.count > 0) {
