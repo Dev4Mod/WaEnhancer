@@ -3,6 +3,7 @@ package com.wmods.wppenhacer.xposed.core
 import android.content.Context
 import android.content.SharedPreferences
 import android.net.Uri
+import android.provider.Settings
 import com.wmods.wppenhacer.BuildConfig
 import com.wmods.wppenhacer.provider.PrefsProvider
 import com.wmods.wppenhacer.xposed.utils.YukiLog
@@ -36,7 +37,9 @@ class RemotePrefs(context: Context) : SharedPreferences {
     }
 
     private fun load(): Map<String, Any?>? = try {
-        val result = resolver.call(URI, PrefsProvider.METHOD_GET_ALL, null, null)
+        val result = runCatching {
+            resolver.call(Settings.System.CONTENT_URI, "WaEnhancer", "getPrefs", null)
+        }.getOrNull() ?: resolver.call(URI, PrefsProvider.METHOD_GET_ALL, null, null)
         val map = HashMap<String, Any?>()
         result?.getBundle(PrefsProvider.KEY_VALUES)?.let { values ->
             @Suppress("DEPRECATION")

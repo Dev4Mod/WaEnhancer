@@ -10,6 +10,7 @@ import com.highcapable.yukihookapi.hook.core.YukiMemberHookCreator
 import com.highcapable.yukihookapi.hook.entity.YukiBaseHooker
 import com.highcapable.yukihookapi.hook.log.YLog
 import com.wmods.wppenhacer.BuildConfig
+import com.wmods.wppenhacer.provider.PrefsProvider
 import com.wmods.wppenhacer.xposed.core.FeatureLoader
 import com.wmods.wppenhacer.xposed.utils.ReflectionUtils
 import com.wmods.wppenhacer.xposed.utils.Utils
@@ -42,7 +43,12 @@ object ScopeHook : YukiBaseHooker() {
                         try {
                             val method = args[0] as? String ?: return@before
                             val arg = args[1] as? String ?: return@before
-                            if (method != "WaEnhancer" || arg != "getHookBinder") return@before
+                            if (method != "WaEnhancer") return@before
+                            val (authority, providerMethod) = when (arg) {
+                                "getHookBinder" -> "hookprovider" to "getHookBinder"
+                                "getPrefs" -> "preferences" to PrefsProvider.METHOD_GET_ALL
+                                else -> return@before
+                            }
 
                             val ctx = instance.javaClass.getMethod("getContext")
                                 .invoke(instance) as? Context ?: return@before
@@ -53,8 +59,8 @@ object ScopeHook : YukiBaseHooker() {
                             }
                             result = Utils.binderLocalScope<Bundle?> {
                                 val uri =
-                                    "content://${BuildConfig.APPLICATION_ID}.hookprovider".toUri()
-                                ctx.contentResolver.call(uri, "getHookBinder", null, null)
+                                    "content://${BuildConfig.APPLICATION_ID}.$authority".toUri()
+                                ctx.contentResolver.call(uri, providerMethod, null, null)
                             }
                             runCatching {
                                 Binder::class.java.getMethod("defaultBlockingForCurrentThread")
