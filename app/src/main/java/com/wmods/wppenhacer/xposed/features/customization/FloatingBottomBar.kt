@@ -33,7 +33,7 @@ class FloatingBottomBar(loader: ClassLoader, preferences: SharedPreferences) :
 
     private val processedBars = WeakHashMap<ViewGroup, Boolean>()
     private val setupAttempts = WeakHashMap<ViewGroup, Int>()
-    private val appliedBottomPadding = WeakHashMap<ViewGroup, Int>()
+    private val baseBottomPadding = WeakHashMap<ViewGroup, Int>()
     private val paddingGuarded = WeakHashMap<ViewGroup, Boolean>()
 
     override fun doHook() {
@@ -240,20 +240,26 @@ class FloatingBottomBar(loader: ClassLoader, preferences: SharedPreferences) :
     }
 
     private fun stripBottomInset(bar: ViewGroup) {
-        val bottomInset = navigationBarInset(bar)
-        if (bottomInset <= 0) return
-        val bottomPadding = (bar.paddingBottom - bottomInset).coerceAtLeast(0)
-        appliedBottomPadding[bar] = bottomPadding
-        bar.setPaddingRelative(bar.paddingStart, bar.paddingTop, bar.paddingEnd, bottomPadding)
+        val basePadding = baseBottomPadding.getOrPut(bar) {
+            (bar.paddingBottom - navigationBarInset(bar)).coerceAtLeast(0)
+        }
+        if (bar.paddingBottom != basePadding) {
+            bar.setPaddingRelative(bar.paddingStart, bar.paddingTop, bar.paddingEnd, basePadding)
+        }
     }
 
-    // WhatsApp re-applies the window insets as bottom padding when switching tabs,
-    // which made the floating bar grow taller and stay that way.
+    // WDSBottomBar (Material BottomNavigationView) re-applies the navigation bar inset as
+    // bottom padding on every insets dispatch (e.g. when switching tabs), which made the
+    // floating bar grow taller. The bar already sits above the navigation bar via its margin,
+    // so the bottom inset is ignored and the base padding is enforced on every layout.
     private fun installPaddingGuard(bar: ViewGroup) {
         if (paddingGuarded.put(bar, true) != null) return
+        ViewCompat.setOnApplyWindowInsetsListener(bar) { view, insets ->
+            stripBottomInset(view as ViewGroup)
+            insets
+        }
         bar.addOnLayoutChangeListener { _, _, _, _, _, _, _, _, _ ->
-            val expected = appliedBottomPadding[bar] ?: return@addOnLayoutChangeListener
-            if (bar.paddingBottom != expected) stripBottomInset(bar)
+            stripBottomInset(bar)
             val params = bar.layoutParams
             if (params != null && params.height != ViewGroup.LayoutParams.WRAP_CONTENT) {
                 params.height = ViewGroup.LayoutParams.WRAP_CONTENT
