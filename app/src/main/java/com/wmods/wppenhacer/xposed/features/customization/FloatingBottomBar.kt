@@ -33,6 +33,8 @@ class FloatingBottomBar(loader: ClassLoader, preferences: SharedPreferences) :
 
     private val processedBars = WeakHashMap<ViewGroup, Boolean>()
     private val setupAttempts = WeakHashMap<ViewGroup, Int>()
+    private val appliedBottomPadding = WeakHashMap<ViewGroup, Int>()
+    private val paddingGuarded = WeakHashMap<ViewGroup, Boolean>()
 
     override fun doHook() {
         if (!xprefs.getBoolean("floating_bottom_bar", false)) return
@@ -233,15 +235,30 @@ class FloatingBottomBar(loader: ClassLoader, preferences: SharedPreferences) :
             bar.layoutParams = params
         }
 
+        stripBottomInset(bar)
+        installPaddingGuard(bar)
+    }
+
+    private fun stripBottomInset(bar: ViewGroup) {
         val bottomInset = navigationBarInset(bar)
-        if (bottomInset > 0) {
-            val bottomPadding = (bar.paddingBottom - bottomInset).coerceAtLeast(0)
-            bar.setPaddingRelative(
-                bar.paddingStart,
-                bar.paddingTop,
-                bar.paddingEnd,
-                bottomPadding
-            )
+        if (bottomInset <= 0) return
+        val bottomPadding = (bar.paddingBottom - bottomInset).coerceAtLeast(0)
+        appliedBottomPadding[bar] = bottomPadding
+        bar.setPaddingRelative(bar.paddingStart, bar.paddingTop, bar.paddingEnd, bottomPadding)
+    }
+
+    // WhatsApp re-applies the window insets as bottom padding when switching tabs,
+    // which made the floating bar grow taller and stay that way.
+    private fun installPaddingGuard(bar: ViewGroup) {
+        if (paddingGuarded.put(bar, true) != null) return
+        bar.addOnLayoutChangeListener { _, _, _, _, _, _, _, _, _ ->
+            val expected = appliedBottomPadding[bar] ?: return@addOnLayoutChangeListener
+            if (bar.paddingBottom != expected) stripBottomInset(bar)
+            val params = bar.layoutParams
+            if (params != null && params.height != ViewGroup.LayoutParams.WRAP_CONTENT) {
+                params.height = ViewGroup.LayoutParams.WRAP_CONTENT
+                bar.layoutParams = params
+            }
         }
     }
 
