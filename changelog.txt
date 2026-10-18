@@ -1,8 +1,12 @@
+[NEW]
+* Deleted Message Capture: deleted messages are now saved and can be viewed, restored or removed from the new Deleted Messages screen in the home menu (protected by your device lock). Pull down to refresh the list
+* Root diagnostics can now fix Hide My App List blocks for WhatsApp/Business, including whitelist mode, and offer to restart the device
+
 [IMPROVED]
-* Hide Seen receipt handling and privacy checks were streamlined
+* The module now uses the YukiHookAPI 1.5 / libxposed API 101 framework
+* Prop overrides now hook WhatsApp's single prop resolver, so they apply more reliably
 
 [FIXED]
-* Fixed the floating bottom bar changing height when switching tabs
-* Fixed the module settings not loading in some WhatsApp versions ("Unknown authority" error)
-* Fixed the custom theme not loading some drawables
-* Fixed emojis appearing too far apart when the default emojis are disabled
+* Fixed Hide Delivered blocking message sending on some conversations
+* Ghost mode now applies as soon as it is toggled
+* Fixed the contact picker not listing saved contacts on newer WhatsApp versions, and added support for @lid contacts in the call blocker lists
