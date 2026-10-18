@@ -2,6 +2,7 @@ package com.wmods.wppenhacer.xposed.features.general
 
 import android.content.SharedPreferences
 import com.highcapable.kavaref.KavaRef.Companion.resolve
+import com.highcapable.yukihookapi.extension.kavaref.hookAll
 import com.wmods.wppenhacer.xposed.core.Feature
 import com.wmods.wppenhacer.xposed.core.devkit.Unobfuscator
 

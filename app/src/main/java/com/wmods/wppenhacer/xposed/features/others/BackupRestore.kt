@@ -6,6 +6,7 @@ import android.content.SharedPreferences
 import android.view.Menu
 import android.widget.Toast
 import com.highcapable.kavaref.KavaRef.Companion.resolve
+import com.highcapable.yukihookapi.extension.kavaref.hookAll
 import com.wmods.wppenhacer.R
 import com.wmods.wppenhacer.xposed.core.Feature
 import com.wmods.wppenhacer.xposed.core.components.AlertDialogWpp

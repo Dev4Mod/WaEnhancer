@@ -12,6 +12,7 @@ import androidx.annotation.DrawableRes
 import androidx.core.view.children
 import com.google.android.material.button.MaterialButton
 import com.highcapable.kavaref.KavaRef.Companion.resolve
+import com.highcapable.yukihookapi.extension.kavaref.hookAll
 import com.wmods.wppenhacer.xposed.core.Feature
 import com.wmods.wppenhacer.xposed.core.WppCore
 import com.wmods.wppenhacer.xposed.core.components.FMessageWpp

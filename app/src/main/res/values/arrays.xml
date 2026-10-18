@@ -19,12 +19,6 @@
         <item>2.26.40.xx</item>
     </string-array>
 
-    <string-array name="scope">
-        <item>com.whatsapp</item>
-        <item>com.whatsapp.w4b</item>
-        <item>android</item>
-    </string-array>
-
 
     <string-array name="antirevoke_entries">
         <item>@string/antirevoke_buttons_desable</item>

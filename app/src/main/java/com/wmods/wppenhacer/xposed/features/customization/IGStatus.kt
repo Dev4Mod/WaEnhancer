@@ -6,6 +6,8 @@ import android.widget.AbsListView
 import android.widget.LinearLayout
 import android.widget.ListView
 import com.highcapable.kavaref.KavaRef.Companion.resolve
+import com.highcapable.yukihookapi.extension.kavaref.hook
+import com.highcapable.yukihookapi.extension.kavaref.hookAll
 import com.wmods.wppenhacer.adapter.IGStatusAdapter
 import com.wmods.wppenhacer.views.IGStatusView
 import com.wmods.wppenhacer.xposed.core.Feature

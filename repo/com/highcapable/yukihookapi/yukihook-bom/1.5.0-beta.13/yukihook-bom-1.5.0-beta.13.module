@@ -1,0 +1,106 @@
+{
+  "formatVersion": "1.1",
+  "component": {
+    "group": "com.highcapable.yukihookapi",
+    "module": "yukihook-bom",
+    "version": "1.5.0-beta.13",
+    "attributes": {
+      "org.gradle.status": "release"
+    }
+  },
+  "createdBy": {
+    "gradle": {
+      "version": "9.8.1"
+    }
+  },
+  "variants": [
+    {
+      "name": "apiElements",
+      "attributes": {
+        "org.gradle.category": "platform",
+        "org.gradle.usage": "java-api"
+      },
+      "dependencyConstraints": [
+        {
+          "group": "com.highcapable.yukihookapi",
+          "module": "yukihook-core",
+          "version": {
+            "requires": "1.5.0-beta.13"
+          }
+        },
+        {
+          "group": "com.highcapable.yukihookapi",
+          "module": "yukihook-compiler",
+          "version": {
+            "requires": "1.5.0-beta.13"
+          }
+        },
+        {
+          "group": "com.highcapable.yukihookapi",
+          "module": "yukihook-extension-kavaref",
+          "version": {
+            "requires": "1.5.0-beta.13"
+          }
+        },
+        {
+          "group": "com.highcapable.yukihookapi",
+          "module": "yukihook-runtime-libxposed",
+          "version": {
+            "requires": "1.5.0-beta.13"
+          }
+        },
+        {
+          "group": "com.highcapable.yukihookapi",
+          "module": "yukihook-runtime-xposed82",
+          "version": {
+            "requires": "1.5.0-beta.13"
+          }
+        }
+      ]
+    },
+    {
+      "name": "runtimeElements",
+      "attributes": {
+        "org.gradle.category": "platform",
+        "org.gradle.usage": "java-runtime"
+      },
+      "dependencyConstraints": [
+        {
+          "group": "com.highcapable.yukihookapi",
+          "module": "yukihook-core",
+          "version": {
+            "requires": "1.5.0-beta.13"
+          }
+        },
+        {
+          "group": "com.highcapable.yukihookapi",
+          "module": "yukihook-compiler",
+          "version": {
+            "requires": "1.5.0-beta.13"
+          }
+        },
+        {
+          "group": "com.highcapable.yukihookapi",
+          "module": "yukihook-extension-kavaref",
+          "version": {
+            "requires": "1.5.0-beta.13"
+          }
+        },
+        {
+          "group": "com.highcapable.yukihookapi",
+          "module": "yukihook-runtime-libxposed",
+          "version": {
+            "requires": "1.5.0-beta.13"
+          }
+        },
+        {
+          "group": "com.highcapable.yukihookapi",
+          "module": "yukihook-runtime-xposed82",
+          "version": {
+            "requires": "1.5.0-beta.13"
+          }
+        }
+      ]
+    }
+  ]
+}

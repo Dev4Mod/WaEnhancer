@@ -11,6 +11,7 @@ import android.widget.EditText
 import android.widget.LinearLayout
 import androidx.core.net.toUri
 import com.highcapable.kavaref.KavaRef.Companion.resolve
+import com.highcapable.yukihookapi.extension.kavaref.hook
 import com.wmods.wppenhacer.R
 import com.wmods.wppenhacer.xposed.core.Feature
 import com.wmods.wppenhacer.xposed.core.WppCore.homeActivityClass

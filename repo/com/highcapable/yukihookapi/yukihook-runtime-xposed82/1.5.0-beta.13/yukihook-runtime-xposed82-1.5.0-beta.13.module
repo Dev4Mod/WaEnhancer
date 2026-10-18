@@ -1,0 +1,132 @@
+{
+  "formatVersion": "1.1",
+  "component": {
+    "group": "com.highcapable.yukihookapi",
+    "module": "yukihook-runtime-xposed82",
+    "version": "1.5.0-beta.13",
+    "attributes": {
+      "org.gradle.status": "release"
+    }
+  },
+  "createdBy": {
+    "gradle": {
+      "version": "9.8.1"
+    }
+  },
+  "variants": [
+    {
+      "name": "releaseVariantReleaseApiPublication",
+      "attributes": {
+        "org.gradle.category": "library",
+        "org.gradle.dependency.bundling": "external",
+        "org.gradle.libraryelements": "aar",
+        "org.gradle.usage": "java-api"
+      },
+      "dependencies": [
+        {
+          "group": "org.jetbrains.kotlin",
+          "module": "kotlin-stdlib",
+          "version": {
+            "requires": "2.4.21"
+          }
+        }
+      ],
+      "files": [
+        {
+          "name": "yukihook-runtime-xposed82-1.5.0-beta.13.aar",
+          "url": "yukihook-runtime-xposed82-1.5.0-beta.13.aar",
+          "size": 52487,
+          "sha512": "73c84aea3465c9eedefb0f85f9964f26b55eaa43dc4feaff2ca07018c1725ff48ddb36b4850a74191186ac396eef2b55632800140ab52ed0edd1aeba308d8419",
+          "sha256": "f4978640f7e2868642580f79ed45161b2d561a9b12e7d0a553c1003a1297d5a7",
+          "sha1": "dc077aa50145a2f60b04ba98475caab7cdfc91cc",
+          "md5": "fc27d37315092e26c65ea80fdf690c85"
+        }
+      ]
+    },
+    {
+      "name": "releaseVariantReleaseRuntimePublication",
+      "attributes": {
+        "org.gradle.category": "library",
+        "org.gradle.dependency.bundling": "external",
+        "org.gradle.libraryelements": "aar",
+        "org.gradle.usage": "java-runtime"
+      },
+      "dependencies": [
+        {
+          "group": "com.highcapable.yukihookapi",
+          "module": "yukihook-core",
+          "version": {
+            "requires": "1.5.0-beta.13"
+          }
+        },
+        {
+          "group": "com.highcapable.kavaref",
+          "module": "kavaref-bom",
+          "version": {
+            "requires": "1.1.1"
+          },
+          "attributes": {
+            "org.gradle.category": "platform"
+          }
+        },
+        {
+          "group": "com.highcapable.kavaref",
+          "module": "kavaref-core"
+        },
+        {
+          "group": "com.highcapable.kavaref",
+          "module": "kavaref-android"
+        },
+        {
+          "group": "com.highcapable.kavaref",
+          "module": "kavaref-extension"
+        },
+        {
+          "group": "androidx.annotation",
+          "module": "annotation",
+          "version": {
+            "requires": "1.11.0"
+          }
+        },
+        {
+          "group": "org.jetbrains.kotlin",
+          "module": "kotlin-stdlib",
+          "version": {
+            "requires": "2.4.21"
+          }
+        }
+      ],
+      "files": [
+        {
+          "name": "yukihook-runtime-xposed82-1.5.0-beta.13.aar",
+          "url": "yukihook-runtime-xposed82-1.5.0-beta.13.aar",
+          "size": 52487,
+          "sha512": "73c84aea3465c9eedefb0f85f9964f26b55eaa43dc4feaff2ca07018c1725ff48ddb36b4850a74191186ac396eef2b55632800140ab52ed0edd1aeba308d8419",
+          "sha256": "f4978640f7e2868642580f79ed45161b2d561a9b12e7d0a553c1003a1297d5a7",
+          "sha1": "dc077aa50145a2f60b04ba98475caab7cdfc91cc",
+          "md5": "fc27d37315092e26c65ea80fdf690c85"
+        }
+      ]
+    },
+    {
+      "name": "releaseVariantReleaseSourcePublication",
+      "attributes": {
+        "org.gradle.category": "documentation",
+        "org.gradle.dependency.bundling": "external",
+        "org.gradle.docstype": "sources",
+        "org.gradle.usage": "java-runtime"
+      },
+      "files": [
+        {
+          "name": "yukihook-runtime-xposed82-1.5.0-beta.13-sources.jar",
+          "url": "yukihook-runtime-xposed82-1.5.0-beta.13-sources.jar",
+          "size": 17549,
+          "sha512": "5d2d177b1a3e5a4825e8aac8ea40ad2c143ace47c9b5696aafe882fb33ca8f1627ec32e9a316d9707850f84554593afdb3dfb23487a2db1685d19d380dbcfc77",
+          "sha256": "5b3631d97a87bc115e74cfff9d298dec3a0542be752a131516e8c245afb28325",
+          "sha1": "4a0a52429fe7167cce3b7b4bd90df7a07a3b74df",
+          "md5": "85be83124b5f49f4346a0ac92af96779"
+        }
+      ]
+    }
+  ]
+}

@@ -13,6 +13,8 @@ import android.util.LruCache
 import android.widget.Toast
 import androidx.core.content.edit
 import com.highcapable.kavaref.KavaRef.Companion.resolve
+import com.highcapable.yukihookapi.extension.kavaref.hook
+import com.highcapable.yukihookapi.extension.kavaref.hookAll
 import com.highcapable.yukihookapi.hook.param.PackageParam
 import com.wmods.wppenhacer.R
 import com.wmods.wppenhacer.views.dialog.BottomDialogWpp

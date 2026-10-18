@@ -7,27 +7,33 @@ import android.content.ContextWrapper
 import android.view.Window
 import android.view.WindowManager
 import com.highcapable.kavaref.KavaRef.Companion.resolve
-import com.highcapable.yukihookapi.YukiHookAPI
-import com.highcapable.yukihookapi.annotation.xposed.InjectYukiHookWithXposed
+import com.highcapable.yukihookapi.YukiHook
+import com.highcapable.yukihookapi.annotation.xposed.YukiHookLibXposedEntry
+import com.highcapable.yukihookapi.extension.kavaref.hook
+import com.highcapable.yukihookapi.extension.kavaref.hookAll
 import com.highcapable.yukihookapi.hook.factory.encase
-import com.highcapable.yukihookapi.hook.factory.injectModuleAppResources
+import com.highcapable.yukihookapi.hook.factory.injectModuleResources
 import com.highcapable.yukihookapi.hook.log.YLog
 import com.highcapable.yukihookapi.hook.param.PackageParam
-import com.highcapable.yukihookapi.hook.xposed.proxy.IYukiHookXposedInit
+import com.highcapable.yukihookapi.hook.xposed.YukiHookXposedModule
 import com.wmods.wppenhacer.xposed.AntiUpdater
 import com.wmods.wppenhacer.xposed.bridge.ScopeHook
 import com.wmods.wppenhacer.xposed.core.FeatureLoader
 import com.wmods.wppenhacer.xposed.core.patch.GlobalResourceHooker
 import com.wmods.wppenhacer.xposed.downgrade.Patch
 
-@InjectYukiHookWithXposed
-class WppXposed : IYukiHookXposedInit {
+@YukiHookLibXposedEntry(
+    minApiVersion = 101,
+    targetApiVersion = 101,
+    scope = ["com.whatsapp", "com.whatsapp.w4b", "system"],
+    hotReload = YukiHookLibXposedEntry.HotReload.NONE
+)
+class WppXposed : YukiHookXposedModule {
 
     override fun onInit() {
-        YukiHookAPI.configs {
-            debugLog { tag = "WAE" }
-            isEnableModuleAppResourcesCache = true
-            isEnableDataChannel = true
+        YukiHook.configure {
+            logging { tag = "VectorModuleManager" }
+            dataChannel = true
         }
     }
 
@@ -51,10 +57,10 @@ class WppXposed : IYukiHookXposedInit {
                 }.hookAll {
                     before {
                         val application = args[0] as Application
-                        application.injectModuleAppResources()
+                        application.injectModuleResources()
                         loadHooker(FeatureLoader)
                         FeatureLoader.start(
-                            appClassLoader!!,
+                            hostClassLoader!!,
                             application,
                             appInfo.sourceDir!!)
                     }

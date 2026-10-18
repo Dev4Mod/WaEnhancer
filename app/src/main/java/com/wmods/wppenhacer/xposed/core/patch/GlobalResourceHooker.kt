@@ -6,10 +6,14 @@ import android.content.res.AssetManager
 import android.content.res.Resources
 import com.highcapable.kavaref.KavaRef.Companion.asResolver
 import com.highcapable.kavaref.KavaRef.Companion.resolve
-import com.highcapable.yukihookapi.YukiHookAPI.Status.isXposedEnvironment
-import com.highcapable.yukihookapi.hook.core.api.reflect.AndroidHiddenApiBypassResolver
+import com.highcapable.yukihookapi.YukiHook
+import com.highcapable.yukihookapi.extension.kavaref.hook
+import com.highcapable.yukihookapi.extension.kavaref.hookAll
+import com.highcapable.yukihookapi.extension.kavaref.resolver.AndroidHiddenApiBypassResolver
+import com.highcapable.yukihookapi.extension.kavaref.toClass
+import com.highcapable.yukihookapi.extension.kavaref.toClassOrNull
 import com.highcapable.yukihookapi.hook.entity.YukiBaseHooker
-import com.highcapable.yukihookapi.hook.factory.injectModuleAppResources
+import com.highcapable.yukihookapi.hook.factory.injectModuleResources
 import com.highcapable.yukihookapi.hook.log.YLog
 import java.io.File
 import java.nio.file.Files
@@ -24,7 +28,7 @@ class GlobalResourceHooker : YukiBaseHooker() {
     private val injectedModulePath: String? by lazy { copyModuleApkToHostFilesDir() }
 
     private fun copyModuleApkToHostFilesDir(): String? {
-        val sourcePath = moduleAppFilePath
+        val sourcePath = module.sourceDir ?: return null
         val hostDataDir = appInfo.dataDir.takeIf { it.isNotBlank() } ?: return null
         val hostFilesDir = File(hostDataDir, "files")
         val targetFile = File(hostFilesDir, COPIED_APK_NAME)
@@ -62,16 +66,16 @@ class GlobalResourceHooker : YukiBaseHooker() {
 
     @SuppressLint("DiscouragedPrivateApi")
     private fun injectIntoAssetManager(assetManager: AssetManager) {
-        if (!isXposedEnvironment) {
+        if (!YukiHook.Status.isHostEnvironment) {
             YLog.error("You can only inject module resources in Xposed Environment")
             return
         }
 
-        val pathToInject = injectedModulePath ?: moduleAppFilePath
+        val pathToInject = injectedModulePath ?: module.sourceDir ?: return
 
         runCatching {
             assetManager.asResolver()
-                .processor(AndroidHiddenApiBypassResolver.get())
+                .processor(AndroidHiddenApiBypassResolver())
                 .optional(silent = true)
                 .firstMethodOrNull {
                     name = "addAssetPath"
@@ -120,7 +124,7 @@ class GlobalResourceHooker : YukiBaseHooker() {
                 name = "getResources"
             }.hook {
                 after {
-                    (result as? Resources)?.injectModuleAppResources()
+                    (result as? Resources)?.injectModuleResources()
                 }
             }
         }
@@ -130,42 +134,42 @@ class GlobalResourceHooker : YukiBaseHooker() {
                 name = "createResources"
             }?.hook {
                 after {
-                    (result as? Resources)?.injectModuleAppResources()
+                    (result as? Resources)?.injectModuleResources()
                 }
             }
             firstMethodOrNull {
                 name = "setResources"
             }?.hook {
                 after {
-                    (args[0] as? Resources)?.injectModuleAppResources()
+                    (args[0] as? Resources)?.injectModuleResources()
                 }
             }
             firstMethodOrNull {
                 name = "createApplicationContext"
             }?.hook {
                 after {
-                    (result as? Context)?.injectModuleAppResources()
+                    (result as? Context)?.injectModuleResources()
                 }
             }
             firstMethodOrNull {
                 name = "createConfigurationContext"
             }?.hook {
                 after {
-                    (result as? Context)?.injectModuleAppResources()
+                    (result as? Context)?.injectModuleResources()
                 }
             }
             firstMethodOrNull {
                 name = "createDisplayContext"
             }?.hook {
                 after {
-                    (result as? Context)?.injectModuleAppResources()
+                    (result as? Context)?.injectModuleResources()
                 }
             }
             firstMethodOrNull {
                 name = "createActivityContext"
             }?.hook {
                 after {
-                    (result as? Context)?.injectModuleAppResources()
+                    (result as? Context)?.injectModuleResources()
                 }
             }
         }

@@ -6,7 +6,11 @@ import android.os.Build
 import android.os.Bundle
 import androidx.core.net.toUri
 import com.highcapable.kavaref.KavaRef.Companion.resolve
-import com.highcapable.yukihookapi.hook.core.YukiMemberHookCreator
+import com.highcapable.yukihookapi.extension.kavaref.hook
+import com.highcapable.yukihookapi.extension.kavaref.hookAll
+import com.highcapable.yukihookapi.extension.kavaref.toClass
+import com.highcapable.yukihookapi.hook.core.YukiHookCreator
+import com.highcapable.yukihookapi.hook.param.HookParam
 import com.highcapable.yukihookapi.hook.entity.YukiBaseHooker
 import com.highcapable.yukihookapi.hook.log.YLog
 import com.wmods.wppenhacer.BuildConfig
@@ -19,11 +23,12 @@ import java.util.concurrent.atomic.AtomicReference
 object ScopeHook : YukiBaseHooker() {
 
     private val pmsRef = AtomicReference<Any?>(null)
-    private var scopeHookResult: YukiMemberHookCreator.MemberHookCreator.Result? = null
+    private var scopeHookResult: YukiHookCreator.MemberHooker<HookParam>.Handle? = null
 
     override fun onHook() {
         when (packageName) {
-            "android" if processName == "android" && Build.VERSION.SDK_INT >= Build.VERSION_CODES.R -> {
+            // libxposed reports system_server as "system"
+            "android", "system" -> if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
                 hookService()
                 hookScope()
             }

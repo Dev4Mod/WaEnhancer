@@ -3,7 +3,6 @@ package com.wmods.wppenhacer
 import android.Manifest
 import android.annotation.SuppressLint
 import android.app.Activity
-import android.app.Application
 import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
@@ -16,13 +15,14 @@ import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.app.ActivityCompat
 import androidx.preference.PreferenceManager
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import com.highcapable.yukihookapi.hook.xposed.application.ModuleApplication
 import com.wmods.wppenhacer.activities.CrashReportActivity
 import com.wmods.wppenhacer.xposed.utils.Utils
 import rikka.material.app.LocaleDelegate.Companion.defaultLocale
 import java.io.File
 import java.util.Locale
 
-class App : Application() {
+class App : ModuleApplication() {
 
     private val prefsChangeListener =
         SharedPreferences.OnSharedPreferenceChangeListener { _, _ ->
@@ -39,6 +39,7 @@ class App : Application() {
         try {
             sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this)
             sharedPreferences.registerOnSharedPreferenceChangeListener(prefsChangeListener)
+            RemotePreferencesSync(this).start()
             val mode = sharedPreferences.getString("thememode", "0")!!.toInt()
             setThemeMode(mode)
             changeLanguage(this)

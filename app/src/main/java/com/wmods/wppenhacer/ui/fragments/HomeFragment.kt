@@ -23,7 +23,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.preference.PreferenceManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
-import com.highcapable.yukihookapi.YukiHookAPI
+import com.highcapable.yukihookapi.YukiHook
 import com.wmods.wppenhacer.App
 import com.wmods.wppenhacer.BuildConfig
 import com.wmods.wppenhacer.R
@@ -81,6 +81,10 @@ class HomeFragment : BaseFragment() {
         _binding = FragmentHomeBinding.inflate(inflater, container, false)
 
         checkStateWpp(requireActivity())
+        // libxposed binds the framework service asynchronously, refresh once it connects.
+        YukiHook.Status.observeFrameworkService(viewLifecycleOwner.lifecycle) {
+            if (_binding != null) updateModuleStatus()
+        }
 
         binding.rebootBtn.setOnClickListener { view ->
             animateClick(view)
@@ -362,12 +366,13 @@ class HomeFragment : BaseFragment() {
         }
     }
 
-    private fun checkStateWpp(activity: FragmentActivity) {
-        if (YukiHookAPI.Status.isXposedModuleActive) {
+    private fun updateModuleStatus() {
+        if (YukiHook.Status.isModuleActive) {
             binding.statusIcon.setImageResource(R.drawable.ic_round_check_circle_24)
             binding.statusTitle.setText(R.string.module_enabled)
             binding.statusSummary.text =
                 String.format(getString(R.string.version_s), BuildConfig.VERSION_NAME)
+            binding.statusSummary.visibility = View.VISIBLE
             binding.status.getChildAt(0).setBackgroundResource(R.drawable.gradient_success)
         } else {
             binding.statusIcon.setImageResource(R.drawable.ic_round_error_outline_24)
@@ -375,6 +380,10 @@ class HomeFragment : BaseFragment() {
             binding.status.getChildAt(0).setBackgroundResource(R.drawable.gradient_error)
             binding.statusSummary.visibility = View.GONE
         }
+    }
+
+    private fun checkStateWpp(activity: FragmentActivity) {
+        updateModuleStatus()
         if (isInstalled(FeatureLoader.PACKAGE_WPP) && App.isOriginalPackage) {
             disableWpp()
         } else {

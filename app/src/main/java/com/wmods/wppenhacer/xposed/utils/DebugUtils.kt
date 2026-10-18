@@ -1,6 +1,7 @@
 package com.wmods.wppenhacer.xposed.utils
 
 import com.highcapable.kavaref.KavaRef.Companion.resolve
+import com.highcapable.yukihookapi.extension.kavaref.hookAll
 import com.highcapable.yukihookapi.hook.param.HookParam
 import com.highcapable.yukihookapi.hook.param.PackageParam
 import java.nio.charset.StandardCharsets

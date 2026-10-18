@@ -18,6 +18,7 @@ import android.widget.RelativeLayout
 import android.widget.TextView
 import androidx.core.text.TextUtilsCompat
 import com.highcapable.kavaref.KavaRef.Companion.resolve
+import com.highcapable.yukihookapi.extension.kavaref.hookAll
 import com.wmods.wppenhacer.R
 import com.wmods.wppenhacer.xposed.core.Feature
 import com.wmods.wppenhacer.xposed.core.components.WaContactWpp

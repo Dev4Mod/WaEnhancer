@@ -11,7 +11,9 @@ import android.widget.HeaderViewListAdapter
 import android.widget.ListAdapter
 import android.widget.ListView
 import com.highcapable.kavaref.KavaRef.Companion.resolve
-import com.highcapable.yukihookapi.hook.core.YukiMemberHookCreator
+import com.highcapable.yukihookapi.extension.kavaref.hook
+import com.highcapable.yukihookapi.hook.core.YukiHookCreator
+import com.highcapable.yukihookapi.hook.param.HookParam
 import com.wmods.wppenhacer.xposed.core.Feature
 import com.wmods.wppenhacer.xposed.core.WppCore
 import com.wmods.wppenhacer.xposed.core.components.FMessageWpp
@@ -42,7 +44,7 @@ class ConversationItemListener(
         @JvmField
         val listItems = WeakHashMap<View, BoundConversationItem>()
 
-        private var hooked: YukiMemberHookCreator.MemberHookCreator.Result? = null
+        private var hooked: YukiHookCreator.MemberHooker<HookParam>.Handle? = null
         private var adapterActivity: WeakReference<Activity>? = null
 
         @JvmStatic

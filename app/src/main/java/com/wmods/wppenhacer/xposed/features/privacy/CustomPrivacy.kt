@@ -17,6 +17,7 @@ import android.widget.ListView
 import android.widget.TextView
 import android.widget.Toast
 import com.highcapable.kavaref.KavaRef.Companion.resolve
+import com.highcapable.yukihookapi.extension.kavaref.hook
 import com.highcapable.yukihookapi.hook.param.HookParam
 import com.wmods.wppenhacer.R
 import com.wmods.wppenhacer.adapter.CustomPrivacyAdapter

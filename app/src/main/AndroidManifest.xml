@@ -39,6 +39,7 @@
         android:allowBackup="true"
         android:icon="@mipmap/launcher"
         android:label="@string/app_name"
+        android:description="@string/app_desc"
         android:requestLegacyExternalStorage="true"
         android:roundIcon="@mipmap/launcher"
         android:supportsRtl="true"
@@ -136,19 +137,6 @@
             android:exported="true"
             tools:ignore="ExportedContentProvider" />
 
-
-        <meta-data
-            android:name="xposedmodule"
-            android:value="true" />
-        <meta-data
-            android:name="xposeddescription"
-            android:value="@string/app_desc" />
-        <meta-data
-            android:name="xposedminversion"
-            android:value="82" />
-        <meta-data
-            android:name="xposedscope"
-            android:resource="@array/scope" />
 
         <receiver
             android:name=".receivers.WAFReceiver"

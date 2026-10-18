@@ -11,6 +11,8 @@ import android.content.pm.ProviderInfo
 import android.content.pm.ServiceInfo
 import android.os.Bundle
 import com.highcapable.kavaref.KavaRef.Companion.resolve
+import com.highcapable.yukihookapi.extension.kavaref.hook
+import com.highcapable.yukihookapi.extension.kavaref.hookAll
 import com.wmods.wppenhacer.xposed.core.Feature
 
 class MinorFixes(classLoader: ClassLoader, xprefs: SharedPreferences) :

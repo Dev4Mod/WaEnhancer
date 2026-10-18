@@ -5,6 +5,7 @@ import android.content.Intent
 import android.content.SharedPreferences
 import android.os.Bundle
 import com.highcapable.kavaref.KavaRef.Companion.resolve
+import com.highcapable.yukihookapi.extension.kavaref.hook
 import com.wmods.wppenhacer.model.ContactPickerResult
 import com.wmods.wppenhacer.preference.ContactPickerPreference
 import com.wmods.wppenhacer.utils.WhatsAppContactPickerLauncher

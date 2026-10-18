@@ -2,6 +2,8 @@ package com.wmods.wppenhacer.xposed.features.privacy
 
 import android.content.SharedPreferences
 import com.highcapable.kavaref.KavaRef.Companion.resolve
+import com.highcapable.yukihookapi.extension.kavaref.hook
+import com.highcapable.yukihookapi.extension.kavaref.hookAll
 import com.wmods.wppenhacer.xposed.core.Feature
 import com.wmods.wppenhacer.xposed.core.components.FMessageWpp.UserJid
 import com.wmods.wppenhacer.xposed.core.components.WaContactWpp

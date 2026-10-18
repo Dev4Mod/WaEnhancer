@@ -4,7 +4,9 @@ import android.content.ContentValues
 import android.content.SharedPreferences
 import android.os.Bundle
 import com.highcapable.kavaref.KavaRef.Companion.resolve
-import com.highcapable.yukihookapi.hook.core.YukiMemberHookCreator
+import com.highcapable.yukihookapi.extension.kavaref.hook
+import com.highcapable.yukihookapi.hook.core.YukiHookCreator
+import com.highcapable.yukihookapi.hook.param.HookParam
 import com.wmods.wppenhacer.xposed.core.Feature
 import com.wmods.wppenhacer.xposed.core.WppCore.homeActivityClass
 import com.wmods.wppenhacer.xposed.core.db.MessageStore.Companion.getInstance
@@ -53,7 +55,7 @@ class ChatLimit(loader: ClassLoader, preferences: SharedPreferences) :
         }
 
         if (revokeallmessages) {
-            var unhooked: YukiMemberHookCreator.MemberHookCreator.Result? = null
+            var unhooked: YukiHookCreator.MemberHooker<HookParam>.Handle? = null
 
             chatLimitDelete2Method.hook {
                 before {
