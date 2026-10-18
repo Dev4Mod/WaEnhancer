@@ -681,7 +681,7 @@ class AboutContactPicker(loader: ClassLoader, preferences: SharedPreferences) :
                         allItems.addAll(loadedItems)
                         selectedJids.clear()
                         for (item in loadedItems) {
-                            if (preservedSelection.contains(item.jid)) {
+                            if (item.aliases.any(preservedSelection::contains)) {
                                 selectedJids.add(item.jid)
                             }
                         }
@@ -890,7 +890,8 @@ class AboutContactPicker(loader: ClassLoader, preferences: SharedPreferences) :
         val jid: String,
         val displayName: String,
         val waName: String,
-        val type: ContactType
+        val type: ContactType,
+        val aliases: Set<String> = setOf(jid)
     ) {
         fun typeLabel(context: Context): String {
             return if (type == ContactType.GROUP) {
@@ -1043,6 +1044,24 @@ class AboutContactPicker(loader: ClassLoader, preferences: SharedPreferences) :
         )
     }
 
+    private class JidResolver(private val lidToPhone: Map<String, String>) {
+
+        private val phoneToLid = HashMap<String, String>().apply {
+            for ((lid, phone) in lidToPhone) put(phone, lid)
+        }
+
+        // Prefer the phone JID so selections stay compatible with previously saved values
+        fun canonical(jid: String): String = lidToPhone[jid] ?: jid
+
+        fun aliases(jid: String): Set<String> {
+            val aliases = LinkedHashSet<String>()
+            aliases.add(jid)
+            lidToPhone[jid]?.let { aliases.add(it) }
+            phoneToLid[jid]?.let { aliases.add(it) }
+            return aliases
+        }
+    }
+
     private object ContactPickerDataProvider {
 
         fun loadPickerItems(
@@ -1050,45 +1069,78 @@ class AboutContactPicker(loader: ClassLoader, preferences: SharedPreferences) :
             pinnedJids: List<String>
         ): ArrayList<ContactPickerItem> {
             val items = LinkedHashMap<String, ContactPickerItem>()
-            val database = WppCore.getWaDatabase()
-
-            if (database != null) {
-                loadFromWaDatabase(items, database)
+            val messageDatabase = try {
+                MessageStore.getInstance().getDatabase()
+            } catch (throwable: Throwable) {
+                YukiLog.log(throwable)
+                null
             }
+            val resolver = JidResolver(loadLidToPhoneMap(messageDatabase))
+            val waDatabase = WppCore.getWaDatabase()
 
-            loadGroupsFromMessageStore(items)
+            if (waDatabase != null) {
+                loadFromAddressBook(items, waDatabase, resolver)
+            }
+            if (messageDatabase != null) {
+                loadFromChats(items, messageDatabase, resolver)
+            }
+            if (waDatabase != null) {
+                loadFromWaContacts(items, waDatabase, resolver)
+            }
 
             for (jid in pinnedJids) {
-                if (TextUtils.isEmpty(jid) || items.containsKey(jid) || !isSupportedPickerJid(jid)) {
-                    continue
-                }
-                items[jid] = buildItem(jid)
+                if (TextUtils.isEmpty(jid) || !isSupportedPickerJid(jid)) continue
+                val canonical = resolver.canonical(jid)
+                if (items.containsKey(canonical)) continue
+                items[canonical] = buildItem(canonical, null, resolver.aliases(canonical) + jid)
             }
 
-            return ArrayList(items.values)
+            return ArrayList(items.values.sortedWith(compareBy(String.CASE_INSENSITIVE_ORDER) { it.displayName }))
         }
 
-        private fun loadFromWaDatabase(
-            items: LinkedHashMap<String, ContactPickerItem>,
-            database: SQLiteDatabase
-        ) {
+        private fun loadLidToPhoneMap(database: SQLiteDatabase?): Map<String, String> {
+            val map = HashMap<String, String>()
+            if (database == null || !tableExists(database, "jid_map")) return map
             try {
-                database.query(
-                    "wa_contacts",
-                    arrayOf("jid", "display_name"),
-                    "jid IS NOT NULL AND jid != '' AND (jid LIKE '%@s.whatsapp.net' OR jid LIKE '%@g.us') AND (jid LIKE '%g.us' OR raw_contact_id > 0 OR raw_contact_id IN (-2, -3, -5)) AND is_whatsapp_user = 1",
-                    null, null, null,
-                    "display_name COLLATE NOCASE ASC, jid COLLATE NOCASE ASC"
+                database.rawQuery(
+                    """
+                    SELECT lid.raw_string, phone.raw_string
+                    FROM jid_map
+                    INNER JOIN jid lid ON lid._id = jid_map.lid_row_id
+                    INNER JOIN jid phone ON phone._id = jid_map.jid_row_id
+                    WHERE lid.server = 'lid' AND phone.server = 's.whatsapp.net'
+                    """.trimIndent(), null
                 ).use { cursor ->
                     while (cursor.moveToNext()) {
-                        val jid = cursor.getString(0)
-                        if (TextUtils.isEmpty(jid) || items.containsKey(jid) || !isSupportedPickerJid(
-                                jid
-                            )
-                        ) {
-                            continue
-                        }
-                        items[jid] = buildItem(jid, cursor.getString(1))
+                        val lid = cursor.getString(0) ?: continue
+                        val phone = cursor.getString(1) ?: continue
+                        map[lid] = phone
+                    }
+                }
+            } catch (throwable: Throwable) {
+                YukiLog.log(throwable)
+            }
+            return map
+        }
+
+        // Newer WhatsApp versions moved the address book out of wa_contacts, keyed mostly by @lid
+        private fun loadFromAddressBook(
+            items: LinkedHashMap<String, ContactPickerItem>,
+            database: SQLiteDatabase,
+            resolver: JidResolver
+        ) {
+            if (!tableExists(database, "wa_address_book")) return
+            try {
+                database.rawQuery(
+                    """
+                    SELECT book.jid, book.display_name, contact.wa_name
+                    FROM wa_address_book book
+                    LEFT JOIN wa_contacts contact ON contact.jid = book.jid
+                    WHERE book.is_whatsapp_user = 1 AND book.jid IS NOT NULL AND book.jid != ''
+                    """.trimIndent(), null
+                ).use { cursor ->
+                    while (cursor.moveToNext()) {
+                        addItem(items, cursor.getString(0), cursor.getString(1), cursor.getString(2), resolver)
                     }
                 }
             } catch (throwable: Throwable) {
@@ -1096,24 +1148,24 @@ class AboutContactPicker(loader: ClassLoader, preferences: SharedPreferences) :
             }
         }
 
-        private fun loadGroupsFromMessageStore(items: LinkedHashMap<String, ContactPickerItem>) {
+        private fun loadFromChats(
+            items: LinkedHashMap<String, ContactPickerItem>,
+            database: SQLiteDatabase,
+            resolver: JidResolver
+        ) {
             try {
-                val database = MessageStore.getInstance().getDatabase() ?: return
                 database.rawQuery(
                     """
                     SELECT jid.raw_string, chat.subject
                     FROM chat
                     INNER JOIN jid ON jid._id = chat.jid_row_id
-                    WHERE jid.server = 'g.us' AND chat.hidden = 0
-                      AND chat.subject IS NOT NULL AND chat.subject != ''
-                    ORDER BY chat.subject COLLATE NOCASE ASC
+                    WHERE chat.hidden = 0
+                      AND (jid.server IN ('s.whatsapp.net', 'lid')
+                        OR (jid.server = 'g.us' AND chat.subject IS NOT NULL AND chat.subject != ''))
                     """.trimIndent(), null
                 ).use { cursor ->
                     while (cursor.moveToNext()) {
-                        val jid = cursor.getString(0)
-                        val subject = sanitize(cursor.getString(1))
-                        if (TextUtils.isEmpty(jid) || subject == null) continue
-                        items[jid] = ContactPickerItem(jid, subject, "", ContactType.GROUP)
+                        addItem(items, cursor.getString(0), cursor.getString(1), null, resolver)
                     }
                 }
             } catch (throwable: Throwable) {
@@ -1121,15 +1173,71 @@ class AboutContactPicker(loader: ClassLoader, preferences: SharedPreferences) :
             }
         }
 
-        private fun buildItem(jid: String, fallbackDisplayName: String? = null): ContactPickerItem {
+        private fun loadFromWaContacts(
+            items: LinkedHashMap<String, ContactPickerItem>,
+            database: SQLiteDatabase,
+            resolver: JidResolver
+        ) {
+            try {
+                database.query(
+                    "wa_contacts",
+                    arrayOf("jid", "display_name", "wa_name"),
+                    "is_whatsapp_user = 1 AND jid IS NOT NULL AND jid != '' AND ((jid LIKE '%@g.us' AND display_name IS NOT NULL AND display_name != '') OR ((jid LIKE '%@s.whatsapp.net' OR jid LIKE '%@lid') AND (raw_contact_id > 0 OR raw_contact_id IN (-2, -3, -5))))",
+                    null, null, null, null
+                ).use { cursor ->
+                    while (cursor.moveToNext()) {
+                        addItem(items, cursor.getString(0), cursor.getString(1), cursor.getString(2), resolver)
+                    }
+                }
+            } catch (throwable: Throwable) {
+                YukiLog.log(throwable)
+            }
+        }
+
+        private fun addItem(
+            items: LinkedHashMap<String, ContactPickerItem>,
+            rawJid: String?,
+            name: String?,
+            waName: String?,
+            resolver: JidResolver
+        ) {
+            if (rawJid.isNullOrEmpty() || !isSupportedPickerJid(rawJid)) return
+            val jid = resolver.canonical(rawJid)
+            if (items.containsKey(jid)) return
+            val aliases = resolver.aliases(jid) + rawJid
+            val resolvedName = sanitize(name)
+            items[jid] = if (resolvedName != null) {
+                val type = if (jid.endsWith("@g.us")) ContactType.GROUP else ContactType.CONTACT
+                ContactPickerItem(jid, resolvedName, sanitize(waName) ?: "", type, aliases)
+            } else {
+                buildItem(jid, sanitize(waName), aliases)
+            }
+        }
+
+        private fun tableExists(database: SQLiteDatabase, table: String): Boolean {
+            return try {
+                database.rawQuery(
+                    "SELECT 1 FROM sqlite_master WHERE type = 'table' AND name = ?",
+                    arrayOf(table)
+                ).use { it.moveToFirst() }
+            } catch (throwable: Throwable) {
+                YukiLog.log(throwable)
+                false
+            }
+        }
+
+        private fun buildItem(
+            jid: String,
+            fallbackDisplayName: String?,
+            aliases: Set<String>
+        ): ContactPickerItem {
             val type = if (jid.endsWith("@g.us")) ContactType.GROUP else ContactType.CONTACT
-            val userJid = FMessageWpp.UserJid(jid)
 
             var displayName: String? = null
             var waName: String? = null
 
             try {
-                WaContactWpp.getWaContactFromJid(userJid)?.let { waContact ->
+                WaContactWpp.getWaContactFromJid(FMessageWpp.UserJid(jid))?.let { waContact ->
                     displayName = sanitize(waContact.displayName)
                     waName = sanitize(waContact.waName)
                 }
@@ -1142,7 +1250,7 @@ class AboutContactPicker(loader: ClassLoader, preferences: SharedPreferences) :
                 ?: waName
                 ?: localPart(jid)
 
-            return ContactPickerItem(jid, resolvedName, waName ?: "", type)
+            return ContactPickerItem(jid, resolvedName, waName ?: "", type, aliases)
         }
 
         private fun isSupportedPickerJid(jid: String): Boolean {

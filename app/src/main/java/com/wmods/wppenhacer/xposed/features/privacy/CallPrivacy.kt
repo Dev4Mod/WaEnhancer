@@ -130,7 +130,8 @@ class CallPrivacy(loader: ClassLoader, preferences: SharedPreferences) :
                 val callBlockList = xprefs.getString("call_block_contacts", "[]")!!
                 val blockList = callBlockList.substring(1, callBlockList.length - 1).split(", ")
                     .map { it.trim() }
-                blockList.any { it.isNotEmpty() && it == userJid.phoneRawString }
+                val callerJids = setOfNotNull(userJid.phoneRawString, userJid.userRawString)
+                blockList.any { it.isNotEmpty() && it in callerJids }
             }
 
             PrivacyType.WHITELIST -> {
@@ -138,7 +139,8 @@ class CallPrivacy(loader: ClassLoader, preferences: SharedPreferences) :
                 val callWhiteList = xprefs.getString("call_white_contacts", "[]")!!
                 val whiteList = callWhiteList.substring(1, callWhiteList.length - 1).split(", ")
                     .map { it.trim() }
-                whiteList.none { it.isNotEmpty() && it == userJid.phoneRawString }
+                val callerJids = setOfNotNull(userJid.phoneRawString, userJid.userRawString)
+                whiteList.none { it.isNotEmpty() && it in callerJids }
             }
 
             null -> false
