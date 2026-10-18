@@ -30,7 +30,8 @@ class HideSeen(loader: ClassLoader, preferences: SharedPreferences) :
     }
 
     private var hideReceipt = false
-    private var ghostMode = false
+    private val ghostMode: Boolean
+        get() = WppCore.getPrivBoolean("ghostmode", false)
     private var hideRead = false
     private var hideAudioSeen = false
     private var hideOnceSeen = false
@@ -46,14 +47,12 @@ class HideSeen(loader: ClassLoader, preferences: SharedPreferences) :
     }
 
     private fun loadPreferences() {
-        ghostMode = WppCore.getPrivBoolean("ghostmode", false)
         hideRead = xprefs.getBoolean("hideread", false)
         hideAudioSeen = xprefs.getBoolean("hideaudioseen", false)
         hideOnceSeen = xprefs.getBoolean("hideonceseen", false)
         hideReadGroup = xprefs.getBoolean("hideread_group", false)
         hideStatusView = xprefs.getBoolean("hidestatusview", false)
         hideReceipt = xprefs.getBoolean("hidereceipt", false)
-
     }
 
     private fun hookSendReadReceiptJob() {
@@ -98,9 +97,10 @@ class HideSeen(loader: ClassLoader, preferences: SharedPreferences) :
         userJid: FMessageWpp.UserJid,
         privacy: JSONObject
     ): Boolean {
+        val hideReceiptRead = checkPrivacyAndHideReceipt(userJid)
         return when {
             userJid.isGroup -> {
-                if (privacy.optBoolean("HideSeen", hideReadGroup) || ghostMode) {
+                if (privacy.optBoolean("HideSeen", hideReadGroup) || ghostMode || hideReceiptRead) {
                     param.result = null
                     true
                 } else false
@@ -119,7 +119,7 @@ class HideSeen(loader: ClassLoader, preferences: SharedPreferences) :
             }
 
             else -> {
-                if (privacy.optBoolean("HideSeen", hideRead) || ghostMode) {
+                if (privacy.optBoolean("HideSeen", hideRead) || ghostMode || hideReceiptRead) {
                     param.result = null
                     true
                 } else false
@@ -153,7 +153,7 @@ class HideSeen(loader: ClassLoader, preferences: SharedPreferences) :
                     val type = message.arg1
                     val obj = message.obj
                     when (type) {
-                        419, 89 -> {
+                        419 -> {
                             if (!receiptMessageInfoClass.isInstance(obj)) return@before
                             val fmessageKeyField =
                                 ReflectionUtils.findFieldUsingFilter(receiptMessageInfoClass) {
@@ -243,6 +243,11 @@ class HideSeen(loader: ClassLoader, preferences: SharedPreferences) :
     private fun shouldBlockReceipt(fmessageKey: FMessageWpp.Key): Boolean {
         if (!checkPrivacyAndHideReceipt(fmessageKey)) return false
         return !isAlreadyViewed(fmessageKey)
+    }
+
+    private fun checkPrivacyAndHideReceipt(userJid: FMessageWpp.UserJid): Boolean {
+        val privacy = CustomPrivacy.getJSON(userJid.phoneNumber)
+        return privacy.optBoolean("HideReceipt", hideReceipt) || ghostMode
     }
 
     private fun checkPrivacyAndHideReceipt(fmessageKey: FMessageWpp.Key): Boolean {
