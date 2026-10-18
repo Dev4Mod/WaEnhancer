@@ -24,6 +24,8 @@ import com.wmods.wppenhacer.xposed.core.components.FMessageWpp
 import com.wmods.wppenhacer.xposed.core.components.SharedPreferencesWrapper
 import com.wmods.wppenhacer.xposed.core.components.WaContactWpp
 import com.wmods.wppenhacer.xposed.core.devkit.Unobfuscator
+import com.wmods.wppenhacer.xposed.features.general.PropsHook.Companion.booleans
+import com.wmods.wppenhacer.xposed.features.general.PropsHook.Companion.integers
 import com.wmods.wppenhacer.xposed.features.listeners.ConversationItemListener
 import com.wmods.wppenhacer.xposed.utils.AnimationUtil
 import com.wmods.wppenhacer.xposed.utils.AudioOpusConverter
@@ -41,19 +43,9 @@ import java.util.Collections
 import java.util.Properties
 import java.util.WeakHashMap
 import java.util.concurrent.CompletableFuture
-import java.util.concurrent.ConcurrentHashMap
 import kotlin.math.max
 
 class Others(loader: ClassLoader, preferences: SharedPreferences) : Feature(loader, preferences) {
-
-    companion object {
-
-        @JvmField
-        val propsBoolean = ConcurrentHashMap<Int, Boolean>()
-
-        @JvmField
-        val propsInteger = ConcurrentHashMap<Int, Int>()
-    }
 
     private lateinit var properties: Properties
     private val hiddenHomeFilterViews =
@@ -83,16 +75,16 @@ class Others(loader: ClassLoader, preferences: SharedPreferences) : Feature(load
         val disableExpiration = xprefs.getBoolean("disable_expiration", false)
         val disableAd = xprefs.getBoolean("disable_ads", false)
 
-        propsInteger[3877] = if (oldStatus) (if (igstatus) 2 else 0) else 2
+        integers[3877] = if (oldStatus) (if (igstatus) 2 else 0) else 2
 
-        propsBoolean[18250] = false
+        booleans[18250] = false
         // 11528 gates WhatsApp's "+" add custom list chip in the chat filter row.
         // Only force it off when WAE hides the filter row (#838).
-        if (!filterSeen) propsBoolean[11528] = false
+        if (!filterSeen) booleans[11528] = false
 
-        propsBoolean[4497] = menuWIcons
-        propsBoolean[4023] = false
-        propsBoolean[16250] = false
+        booleans[4497] = menuWIcons
+        booleans[4023] = false
+        booleans[16250] = false
 
         if (newSettings == 2) {
             WppCore.homeActivityClass.resolve().method {
@@ -105,83 +97,83 @@ class Others(loader: ClassLoader, preferences: SharedPreferences) : Feature(load
                 }
             }
         }
-        propsBoolean[14862] = newSettings != 0 // WHATS_HAPPENING_SENDING_ENABLED_CODE
-        propsInteger[18564] = newSettings // ME_TAB_V2_VARIANTS_CODE
+        booleans[14862] = newSettings != 0 // WHATS_HAPPENING_SENDING_ENABLED_CODE
+        integers[18564] = newSettings // ME_TAB_V2_VARIANTS_CODE
 
-        propsBoolean[2889] = floatingMenu
+        booleans[2889] = floatingMenu
 
         // new text composer
-        propsBoolean[15708] = true
+        booleans[15708] = true
 
         // change page id
-        propsBoolean[2358] = false
+        booleans[2358] = false
 
         // disable contact filter
-        propsBoolean[7769] = false
+        booleans[7769] = false
 
         // disable new Media Picker
-        propsBoolean[9286] = false
+        booleans[9286] = false
 
         // Instant Video
-        propsBoolean[3354] = true
-        propsBoolean[5418] = true
-        propsBoolean[9051] = true
+        booleans[3354] = true
+        booleans[5418] = true
+        booleans[9051] = true
 
         // disable new toolbar
-        propsBoolean[11824] = false
-        propsBoolean[6481] = false
+        booleans[11824] = false
+        booleans[6481] = false
 
         // Enable music in Stories
-        propsBoolean[13591] = true
-        propsBoolean[10024] = true
+        booleans[13591] = true
+        booleans[10024] = true
 
         // show all status
-        propsBoolean[6798] = true
+        booleans[6798] = true
 
         // auto play emojis settings
-        propsBoolean[3575] = animationEmojis
-        propsBoolean[9757] = animationEmojis
+        booleans[3575] = animationEmojis
+        booleans[9757] = animationEmojis
 
         // emojis maps
-        propsBoolean[10639] = animationEmojis
-        propsBoolean[12495] = animationEmojis
-        propsBoolean[11066] = animationEmojis
+        booleans[10639] = animationEmojis
+        booleans[12495] = animationEmojis
+        booleans[11066] = animationEmojis
 
-        propsBoolean[7589] = true  // Media select quality
-        propsBoolean[6972] = false // Media select quality
-        propsBoolean[5625] = true  // Enable option to autodelete channels media
+        booleans[7589] = true  // Media select quality
+        booleans[6972] = false // Media select quality
+        booleans[5625] = true  // Enable option to autodelete channels media
 
-        propsBoolean[8643] = true  // Enable TextStatusComposerActivityV2
-//        propsBoolean[3403] = true  // Enable Sticker Suggestion
-        propsBoolean[8607] = true  // Enable Dialer keyboard
-        propsBoolean[9578] = true  // Enable Privacy Checkup
-        propsInteger[8135] = 2  // Call Filters
+        booleans[8643] = true  // Enable TextStatusComposerActivityV2
+//        booleans[3403] = true  // Enable Sticker Suggestion
+        booleans[8607] = true  // Enable Dialer keyboard
+        booleans[9578] = true  // Enable Privacy Checkup
+        integers[8135] = 2  // Call Filters
 
         // Enable Translate Message
-        propsBoolean[9141] = true
-        propsBoolean[8925] = true
+        booleans[9141] = true
+        booleans[8925] = true
 
-        propsBoolean[10380] = false // fix crash bug in Settings/Archived
+        booleans[10380] = false // fix crash bug in Settings/Archived
         if (disableDocumentScanner) {
-            propsBoolean[10048] = false // ML Kit document scanner in DocumentPicker
+            booleans[10048] = false // ML Kit document scanner in DocumentPicker
         }
 
-        propsBoolean[0x34b9] = true // Enable Select People in call
-        propsBoolean[0x351c] = true // Enable new colors style in Text Composer
+        booleans[0x34b9] = true // Enable Select People in call
+        booleans[0x351c] = true // Enable new colors style in Text Composer
 
         // Enable show count until viewed
-        propsBoolean[0x2289] = true
-        propsBoolean[0x373f] = true
+        booleans[0x2289] = true
+        booleans[0x373f] = true
 
         // add yours in stories
-        propsBoolean[0x2ce2] = true
-        propsBoolean[0x2ce3] = true
+        booleans[0x2ce2] = true
+        booleans[0x2ce3] = true
 
-        propsBoolean[0x345a] = true // new edit profile name
+        booleans[0x345a] = true // new edit profile name
 
         // new stories selection
-        propsBoolean[0x32ca] = true
-        propsBoolean[0x32cb] = true
+        booleans[0x32ca] = true
+        booleans[0x32cb] = true
 
         if (disableMetaAI) {
             SharedPreferencesWrapper.addHook { key, value ->
@@ -191,22 +183,22 @@ class Others(loader: ClassLoader, preferences: SharedPreferences) : Feature(load
                 value
             }
 
-            propsInteger[15535] = 0
-            propsBoolean[8025] = false
-            propsBoolean[6251] = false
-            propsBoolean[8026] = false
-            propsBoolean[14886] = false
+            integers[15535] = 0
+            booleans[8025] = false
+            booleans[6251] = false
+            booleans[8026] = false
+            booleans[14886] = false
         }
 
         if (audioTranscription) {
-            propsBoolean[8632] = true
-            propsBoolean[2890] = true
-            propsBoolean[9215] = false
-            propsBoolean[9216] = true
-            propsBoolean[6808] = true
-            propsBoolean[10286] = true
-            propsBoolean[11596] = true
-            propsBoolean[13949] = true
+            booleans[8632] = true
+            booleans[2890] = true
+            booleans[9215] = false
+            booleans[9216] = true
+            booleans[6808] = true
+            booleans[10286] = true
+            booleans[11596] = true
+            booleans[13949] = true
         }
 
         // Whatsapp Status Style
@@ -215,19 +207,18 @@ class Others(loader: ClassLoader, preferences: SharedPreferences) : Feature(load
             replaceAny { statusStyle }
         }
         statusStyle = if (oldStatus) 0 else statusStyle
-        propsInteger[9973] = 1
-        propsBoolean[6285] = true
-        propsInteger[8522] = statusStyle
-        propsInteger[8521] = statusStyle
+        integers[9973] = 1
+        booleans[6285] = true
+        integers[8522] = statusStyle
+        integers[8521] = statusStyle
 
         // Status in Group
-        propsBoolean[13956] = true
-        propsBoolean[13957] = true
+        booleans[13956] = true
+        booleans[13957] = true
 
         // new popup menu in chat
-        propsBoolean[21541] = false
+        booleans[21541] = false
 
-        hookProps()
         hookSearchbar(filterChats)
 
         if (disableSensorProximity) {
@@ -348,8 +339,8 @@ class Others(loader: ClassLoader, preferences: SharedPreferences) : Feature(load
     }
 
     private fun disableAds() {
-        propsBoolean[22904] = true
-        propsBoolean[14306] = false
+        booleans[22904] = true
+        booleans[14306] = false
         try {
             val loadAd = Unobfuscator.loadAdVerifyMethod(classLoader)
             loadAd.hook {
@@ -767,39 +758,6 @@ class Others(loader: ClassLoader, preferences: SharedPreferences) : Feature(load
                         ), Toast.LENGTH_SHORT
                     )
                 Tasker.sendTaskerEvent(name, WppCore.stripJID(jid), "contact_online")
-            }
-        }
-    }
-
-    private fun hookProps() {
-        val methodPropsBoolean = Unobfuscator.loadPropsBooleanMethod(classLoader)
-        logDebug(Unobfuscator.getMethodDescriptor(methodPropsBoolean))
-        val dataUsageActivityClass = WppCore.dataUsageActivityClass
-
-        methodPropsBoolean.hook {
-            after {
-                val list = ReflectionUtils.findInstancesOfType(args, Integer::class.java)
-                val i = list[0].second.toInt()
-
-                val propValue = propsBoolean[i]
-                if (propValue != null) {
-                    // Fix Bug in Settings Data Usage
-                    if (i == 4023) {
-                        if (ReflectionUtils.isCalledFromClass(dataUsageActivityClass)) return@after
-                    }
-                    result = propValue
-                }
-            }
-        }
-
-        val methodPropsInteger = Unobfuscator.loadPropsIntegerMethod(classLoader)
-
-        methodPropsInteger.hook {
-            before {
-                val list = ReflectionUtils.findInstancesOfType(args, Integer::class.java)
-                val i = list[0].second.toInt()
-                val propValue = propsInteger[i] ?: return@before
-                result = propValue
             }
         }
     }

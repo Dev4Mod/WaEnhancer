@@ -42,7 +42,7 @@ import com.wmods.wppenhacer.xposed.core.WppCore
 import com.wmods.wppenhacer.xposed.core.components.FMessageWpp
 import com.wmods.wppenhacer.xposed.core.db.MessageStore
 import com.wmods.wppenhacer.xposed.core.devkit.Unobfuscator
-import com.wmods.wppenhacer.xposed.features.general.Others
+import com.wmods.wppenhacer.xposed.features.general.PropsHook
 import com.wmods.wppenhacer.xposed.utils.DesignUtils
 import com.wmods.wppenhacer.xposed.utils.HKDF
 import com.wmods.wppenhacer.xposed.utils.ReflectionUtils
@@ -101,7 +101,7 @@ class MediaPreview(
     override fun doHook() {
         if (!xprefs.getBoolean("media_preview", true)) return
 
-        Others.propsBoolean[24205] = false
+        PropsHook.booleans[24205] = false
 
         val layoutClass = Unobfuscator.loadLayoutClass(classLoader)
         View::class.java.resolve().firstMethod {

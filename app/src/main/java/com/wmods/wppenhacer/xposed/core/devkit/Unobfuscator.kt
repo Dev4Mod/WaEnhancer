@@ -773,6 +773,24 @@ object Unobfuscator {
         }
     }
 
+    fun loadPropsResolveMethod(loader: ClassLoader): Method {
+        return UnobfuscatorCache.getInstance().getMethod(loader) {
+            val propsClass = loadPropsBooleanMethod(loader).declaringClass
+            val candidates = propsClass.declaredMethods.filter {
+                val types = it.parameterTypes
+                Modifier.isStatic(it.modifiers)
+                        && it.returnType == Any::class.java
+                        && types.size >= 4
+                        && types[1] == propsClass
+                        && types[types.size - 2] == Int::class.javaPrimitiveType
+                        && types[types.size - 1] == Boolean::class.javaPrimitiveType
+            }
+            candidates.singleOrNull()
+                ?: candidates.singleOrNull { it.parameterTypes[2] == Int::class.javaObjectType }
+                ?: throw Exception("Props resolve method not found (${candidates.size} candidates)")
+        }
+    }
+
     @Throws(Exception::class)
     @JvmStatic
     fun loadHomeConversationFragmentMethod(loader: ClassLoader): Method {

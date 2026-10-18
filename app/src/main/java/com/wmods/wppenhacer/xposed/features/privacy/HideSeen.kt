@@ -9,7 +9,7 @@ import com.wmods.wppenhacer.xposed.core.components.FMessageWpp
 import com.wmods.wppenhacer.xposed.core.components.ProtocolTreeNodeWpp
 import com.wmods.wppenhacer.xposed.core.db.MessageHistoryStore
 import com.wmods.wppenhacer.xposed.core.devkit.Unobfuscator
-import com.wmods.wppenhacer.xposed.features.general.Others
+import com.wmods.wppenhacer.xposed.features.general.PropsHook
 import com.wmods.wppenhacer.xposed.utils.ReflectionUtils
 import org.json.JSONObject
 import org.luckypray.dexkit.query.enums.StringMatchType
@@ -172,7 +172,7 @@ class HideSeen(loader: ClassLoader, preferences: SharedPreferences) :
             }
         }
 
-        Others.propsBoolean[19148] = false // Change route IQ
+        PropsHook.booleans[19148] = false // Change route IQ
 
         receiptMethod.hook {
             after {

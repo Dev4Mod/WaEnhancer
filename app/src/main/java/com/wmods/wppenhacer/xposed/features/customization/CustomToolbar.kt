@@ -20,7 +20,7 @@ import com.wmods.wppenhacer.listeners.OnMultiClickListener
 import com.wmods.wppenhacer.xposed.core.Feature
 import com.wmods.wppenhacer.xposed.core.WppCore
 import com.wmods.wppenhacer.xposed.core.devkit.Unobfuscator
-import com.wmods.wppenhacer.xposed.features.general.Others
+import com.wmods.wppenhacer.xposed.features.general.PropsHook
 import com.wmods.wppenhacer.xposed.utils.DesignUtils
 import com.wmods.wppenhacer.xposed.utils.ReflectionUtils
 import com.wmods.wppenhacer.xposed.utils.Utils
@@ -64,7 +64,7 @@ class CustomToolbar(loader: ClassLoader, preferences: SharedPreferences) :
         }
 
         hookExpirationInfo()
-        Others.propsBoolean[6481] = false
+        PropsHook.booleans[6481] = false
     }
 
     override fun getPluginName(): String {

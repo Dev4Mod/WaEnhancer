@@ -23,6 +23,7 @@ import com.wmods.wppenhacer.xposed.features.general.DeleteStatus
 import com.wmods.wppenhacer.xposed.features.general.NewChat
 import com.wmods.wppenhacer.xposed.features.general.Others
 import com.wmods.wppenhacer.xposed.features.general.PinnedLimit
+import com.wmods.wppenhacer.xposed.features.general.PropsHook
 import com.wmods.wppenhacer.xposed.features.general.SeenTick
 import com.wmods.wppenhacer.xposed.features.general.ShareLimit
 import com.wmods.wppenhacer.xposed.features.general.ShowEditMessage
@@ -68,6 +69,7 @@ import com.wmods.wppenhacer.xposed.features.providers.MenuStatusProvider
 /** Every feature installed by [FeatureLoader], in load order. */
 internal object FeatureRegistry {
     val features: List<Class<out Feature>> = listOf(
+        PropsHook::class.java,
         DebugFeature::class.java,
         MinorFixes::class.java,
         ContactItemListener::class.java,
