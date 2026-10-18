@@ -556,6 +556,16 @@
     <string name="diag_hma_no_blocks">No Hide My App List blocks detected for WhatsApp.</string>
     <string name="diag_hma_blocked">Hide My App List is hiding WaEnhancer from:</string>
     <string name="diag_hma_disable">Disable the block for WhatsApp/Business in Hide My App List so WaEnhancer can work correctly.</string>
+    <string name="diag_hma_fix">Fix</string>
+    <string name="diag_hma_fix_confirm_title">Fix Hide My App List?</string>
+    <string name="diag_hma_fix_confirm_message">WaEnhancer will be removed from the Hide My App List blocks applied to WhatsApp/Business. A backup of the configuration is saved as config.json.wae.bak.</string>
+    <string name="diag_hma_fix_confirm">Fix now</string>
+    <string name="diag_hma_fix_reboot_title">Restart required</string>
+    <string name="diag_hma_fix_reboot_message">The configuration was fixed, but Hide My App List only reloads it when the device boots. Restart the device now for the change to take effect.</string>
+    <string name="diag_hma_fix_reboot_now">Restart now</string>
+    <string name="diag_hma_fix_later">Later</string>
+    <string name="diag_hma_fix_failed">Could not fix the Hide My App List configuration.</string>
+    <string name="diag_hma_fix_nothing">Nothing to fix in the Hide My App List configuration.</string>
     <string name="diag_copied">Line copied to clipboard</string>
     <string name="no_file_picker">No file manager found on this device to pick a file.</string>
     <string name="disable_document_scanner">Disable document scanner</string>

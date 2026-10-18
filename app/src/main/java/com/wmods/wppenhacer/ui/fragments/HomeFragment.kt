@@ -599,9 +599,25 @@ class HomeFragment : BaseFragment() {
         val handler = Handler(Looper.getMainLooper())
         val queue = ArrayList<RootDiagnostics.LogEntry>()
 
+        val hmaBlockMessage = getString(R.string.diag_hma_disable)
         RootDiagnostics.runDiagnostics(context) { entry ->
             if (!isAdded) return@runDiagnostics
             queue.add(entry)
+            if (entry.message == hmaBlockMessage) {
+                handler.post { dialogBinding.fixHmaButton.visibility = View.VISIBLE }
+            }
+        }
+
+        dialogBinding.fixHmaButton.setOnClickListener {
+            MaterialAlertDialogBuilder(context)
+                .setTitle(R.string.diag_hma_fix_confirm_title)
+                .setMessage(R.string.diag_hma_fix_confirm_message)
+                .setPositiveButton(R.string.diag_hma_fix_confirm) { _, _ ->
+                    dialogBinding.fixHmaButton.isEnabled = false
+                    fixHideMyAppList(context, dialog, dialogBinding.fixHmaButton)
+                }
+                .setNegativeButton(android.R.string.cancel, null)
+                .show()
         }
 
         val poller = object : Runnable {
@@ -622,6 +638,40 @@ class HomeFragment : BaseFragment() {
             }
         }
         handler.postDelayed(poller, 120)
+    }
+
+    private fun fixHideMyAppList(
+        context: Context,
+        diagnosticsDialog: androidx.appcompat.app.AlertDialog,
+        button: View
+    ) {
+        lifecycleScope.launch(Dispatchers.IO) {
+            val result = RootDiagnostics.fixHideMyAppList(context) { }
+            withContext(Dispatchers.Main) {
+                if (_binding == null || !isAdded) return@withContext
+                button.isEnabled = true
+                when (result) {
+                    RootDiagnostics.FixResult.FIXED -> {
+                        diagnosticsDialog.dismiss()
+                        MaterialAlertDialogBuilder(context)
+                            .setTitle(R.string.diag_hma_fix_reboot_title)
+                            .setMessage(R.string.diag_hma_fix_reboot_message)
+                            .setCancelable(false)
+                            .setPositiveButton(R.string.diag_hma_fix_reboot_now) { _, _ ->
+                                RootDiagnostics.rebootDevice()
+                            }
+                            .setNegativeButton(R.string.diag_hma_fix_later, null)
+                            .show()
+                    }
+
+                    RootDiagnostics.FixResult.NOTHING_TO_FIX ->
+                        Toast.makeText(context, R.string.diag_hma_fix_nothing, Toast.LENGTH_LONG).show()
+
+                    RootDiagnostics.FixResult.FAILED ->
+                        Toast.makeText(context, R.string.diag_hma_fix_failed, Toast.LENGTH_LONG).show()
+                }
+            }
+        }
     }
 
     override fun onDestroyView() {

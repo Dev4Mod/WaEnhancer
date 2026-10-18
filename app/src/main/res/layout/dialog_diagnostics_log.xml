@@ -1,20 +1,35 @@
 <?xml version="1.0" encoding="utf-8"?>
-<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    app:cardBackgroundColor="?colorSurfaceContainerHighest"
-    app:cardCornerRadius="@dimen/card_radius_medium"
-    app:cardElevation="0dp"
-    app:strokeWidth="0dp">
+    android:orientation="vertical">
 
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/log_recycler"
+    <com.google.android.material.card.MaterialCardView
         android:layout_width="match_parent"
-        android:layout_height="240dp"
-        android:clipToPadding="false"
-        android:fadeScrollbars="false"
-        android:padding="@dimen/spacing_small"
-        android:scrollbars="vertical" />
+        android:layout_height="wrap_content"
+        app:cardBackgroundColor="?colorSurfaceContainerHighest"
+        app:cardCornerRadius="@dimen/card_radius_medium"
+        app:cardElevation="0dp"
+        app:strokeWidth="0dp">
 
-</com.google.android.material.card.MaterialCardView>
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/log_recycler"
+            android:layout_width="match_parent"
+            android:layout_height="240dp"
+            android:clipToPadding="false"
+            android:fadeScrollbars="false"
+            android:padding="@dimen/spacing_small"
+            android:scrollbars="vertical" />
+
+    </com.google.android.material.card.MaterialCardView>
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/fix_hma_button"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/spacing_small"
+        android:text="@string/diag_hma_fix"
+        android:visibility="gone" />
+
+</LinearLayout>
