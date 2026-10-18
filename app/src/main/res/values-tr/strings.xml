@@ -505,4 +505,16 @@
     <string name="remove_sticker_white_outline_sum">Remove the white border when creating stickers</string>
     <string name="remove_sticker_white_outline">Remove sticker white outline</string>
     <string name="stickers">Stickers</string>
+    <string name="deleted_message_capture_title">Silinen Mesaj Yakalama</string>
+    <string name="deleted_message_capture_sum">Silinen mesajları daha sonra görüntülemek ve geri yüklemek için yakala ve sakla</string>
+    <string name="deleted_message_notification_channel">Silinen Mesajlar</string>
+    <string name="auth_backup_viewer_description">Silinen mesajlara erişmek için kimliğinizi doğrulayın</string>
+    <string name="restore_all_messages">Tüm mesajları geri yükle</string>
+    <string name="delete_all_permanently">Kalıcı olarak sil</string>
+    <string name="confirm_delete_all_messages">Tüm %1$d mesaj kalıcı olarak silinsin mi?</string>
+    <string name="confirm_restore_all_messages">Tüm %1$d mesaj geri yüklensin mi?</string>
+    <string name="confirm_restore_message">Bu mesaj sohbete geri yüklensin mi?</string>
+    <string name="confirm_delete_message">Bu yedek kalıcı olarak silinsin mi?</string>
+    <string name="messages_deleted_success">Mesajlar silindi</string>
+    <string name="messages_restored_success">Mesajlar geri yüklendi</string>
 </resources>

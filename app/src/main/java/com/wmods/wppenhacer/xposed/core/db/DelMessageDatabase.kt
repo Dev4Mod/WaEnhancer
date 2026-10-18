@@ -8,9 +8,14 @@ import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
 import com.wmods.wppenhacer.xposed.core.db.dao.DelMessageDao
 import com.wmods.wppenhacer.xposed.core.db.entity.DelMessage
+import com.wmods.wppenhacer.xposed.core.db.entity.DeletedMessageBackupEntity
 import com.wmods.wppenhacer.xposed.utils.Utils
 
-@Database(entities = [DelMessage::class], version = 14, exportSchema = false)
+@Database(
+    entities = [DelMessage::class, DeletedMessageBackupEntity::class],
+    version = 15,
+    exportSchema = false
+)
 abstract class DelMessageDatabase : RoomDatabase() {
 
     abstract fun delMessageDao(): DelMessageDao
@@ -118,6 +123,40 @@ abstract class DelMessageDatabase : RoomDatabase() {
             }
         }
 
+        private val MIGRATION_14_15 = object : Migration(14, 15) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL(
+                    "CREATE TABLE IF NOT EXISTS `deleted_message_backup` (" +
+                            "`_id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, " +
+                            "`deleted_at` INTEGER NOT NULL, " +
+                            "`restore_status` TEXT NOT NULL, " +
+                            "`restore_error` TEXT, " +
+                            "`restored_at` INTEGER NOT NULL, " +
+                            "`message_unique_hash` TEXT NOT NULL, " +
+                            "`key_id` TEXT NOT NULL, " +
+                            "`chat_raw_string` TEXT, " +
+                            "`chat_phone_raw_string` TEXT, " +
+                            "`sender_raw_string` TEXT, " +
+                            "`sender_phone_raw_string` TEXT, " +
+                            "`from_me` INTEGER, " +
+                            "`message_type` INTEGER, " +
+                            "`message_timestamp` INTEGER, " +
+                            "`message_json` TEXT NOT NULL, " +
+                            "`message_media_json` TEXT, " +
+                            "`message_text_json` TEXT)"
+                )
+                db.execSQL(
+                    "CREATE UNIQUE INDEX IF NOT EXISTS " +
+                            "`index_deleted_message_backup_message_unique_hash` " +
+                            "ON `deleted_message_backup` (`message_unique_hash`)"
+                )
+                db.execSQL(
+                    "CREATE INDEX IF NOT EXISTS `idx_deleted_backup_status_deleted_at` " +
+                            "ON `deleted_message_backup` (`restore_status`, `deleted_at`)"
+                )
+            }
+        }
+
         fun getInstance(context: Context): DelMessageDatabase {
             return INSTANCE ?: synchronized(this) {
                 INSTANCE ?: createDatabaseBuilder(context).build().also { INSTANCE = it }
@@ -151,7 +190,8 @@ abstract class DelMessageDatabase : RoomDatabase() {
                     MIGRATION_10_11,
                     MIGRATION_11_12,
                     MIGRATION_12_13,
-                    MIGRATION_13_14
+                    MIGRATION_13_14,
+                    MIGRATION_14_15
                 )
                 .setQueryExecutor(Utils.databaseExecutor)
                 .setTransactionExecutor(Utils.databaseExecutor)

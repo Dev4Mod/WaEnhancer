@@ -505,4 +505,16 @@
     <string name="remove_sticker_white_outline_sum">Remove the white border when creating stickers</string>
     <string name="remove_sticker_white_outline">Remove sticker white outline</string>
     <string name="stickers">Stickers</string>
+    <string name="deleted_message_capture_title">已删除消息捕获</string>
+    <string name="deleted_message_capture_sum">捕获并存储已删除的消息，以便稍后查看和恢复</string>
+    <string name="deleted_message_notification_channel">已删除邮件</string>
+    <string name="auth_backup_viewer_description">请验证身份以访问已删除的消息</string>
+    <string name="restore_all_messages">恢复所有消息</string>
+    <string name="delete_all_permanently">永久删除</string>
+    <string name="confirm_delete_all_messages">永久删除全部 %1$d 条消息？</string>
+    <string name="confirm_restore_all_messages">恢复全部 %1$d 条消息？</string>
+    <string name="confirm_restore_message">将此消息恢复到聊天中？</string>
+    <string name="confirm_delete_message">永久删除此备份条目？</string>
+    <string name="messages_deleted_success">消息已删除</string>
+    <string name="messages_restored_success">消息已恢复</string>
 </resources>

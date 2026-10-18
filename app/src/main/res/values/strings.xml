@@ -570,4 +570,16 @@
     <string name="no_file_picker">No file manager found on this device to pick a file.</string>
     <string name="disable_document_scanner">Disable document scanner</string>
     <string name="disable_document_scanner_sum">Disables the ML Kit document scanner in the document picker. Fixes a crash when opening it on some devices</string>
+    <string name="deleted_message_capture_title">Deleted Message Capture</string>
+    <string name="deleted_message_capture_sum">Capture and store deleted messages for later viewing and restoration</string>
+    <string name="deleted_message_notification_channel">Deleted Messages</string>
+    <string name="auth_backup_viewer_description">Authenticate to access deleted messages</string>
+    <string name="restore_all_messages">Restore all messages</string>
+    <string name="delete_all_permanently">Delete permanently</string>
+    <string name="confirm_delete_all_messages">Permanently delete all %1$d messages?</string>
+    <string name="confirm_restore_all_messages">Restore all %1$d messages?</string>
+    <string name="confirm_restore_message">Restore this message to the chat?</string>
+    <string name="confirm_delete_message">Permanently delete this backup entry?</string>
+    <string name="messages_deleted_success">Messages deleted</string>
+    <string name="messages_restored_success">Messages restored</string>
 </resources>

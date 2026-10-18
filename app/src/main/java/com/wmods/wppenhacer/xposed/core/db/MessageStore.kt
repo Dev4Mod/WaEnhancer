@@ -245,6 +245,26 @@ class MessageStore private constructor() {
         return result
     }
 
+    private var writableDatabase: SQLiteDatabase? = null
+
+    /**
+     * Separate read-write connection, only meant for restoring deleted messages. The default
+     * connection stays read-only so the other features can't write to msgstore by accident.
+     */
+    @Synchronized
+    fun getWritableDatabase(): SQLiteDatabase? {
+        writableDatabase?.takeIf { it.isOpen }?.let { return it }
+        val dbFile = File(Utils.getAccountDataDir(), "/databases/msgstore.db")
+        if (!dbFile.exists()) return null
+        return try {
+            SQLiteDatabase.openDatabase(dbFile.absolutePath, null, SQLiteDatabase.OPEN_READWRITE)
+                .also { writableDatabase = it }
+        } catch (e: Exception) {
+            YukiLog.log(e)
+            null
+        }
+    }
+
     fun getDatabase(): SQLiteDatabase? {
         return sqLiteDatabase
     }

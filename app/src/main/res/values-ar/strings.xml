@@ -505,4 +505,16 @@
     <string name="remove_sticker_white_outline_sum">Remove the white border when creating stickers</string>
     <string name="remove_sticker_white_outline">Remove sticker white outline</string>
     <string name="stickers">Stickers</string>
+    <string name="deleted_message_capture_title">التقاط الرسائل المحذوفة</string>
+    <string name="deleted_message_capture_sum">التقاط وتخزين الرسائل المحذوفة لعرضها واستعادتها لاحقًا</string>
+    <string name="deleted_message_notification_channel">الرسائل المحتجزة</string>
+    <string name="auth_backup_viewer_description">قم بالمصادقة للوصول إلى الرسائل المحذوفة</string>
+    <string name="restore_all_messages">استعادة كل الرسائل</string>
+    <string name="delete_all_permanently">حذف نهائي</string>
+    <string name="confirm_delete_all_messages">حذف %1$d رسالة نهائيًا؟</string>
+    <string name="confirm_restore_all_messages">استعادة %1$d رسالة؟</string>
+    <string name="confirm_restore_message">استعادة هذه الرسالة إلى المحادثة؟</string>
+    <string name="confirm_delete_message">حذف هذه النسخة الاحتياطية نهائيًا؟</string>
+    <string name="messages_deleted_success">تم حذف الرسائل</string>
+    <string name="messages_restored_success">تمت استعادة الرسائل</string>
 </resources>

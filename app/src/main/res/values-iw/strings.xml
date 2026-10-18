@@ -507,4 +507,16 @@
     <string name="remove_sticker_white_outline_sum">הסר את הגבול הלבן בעת יצירת מדבקות</string>
     <string name="remove_sticker_white_outline">הסר את קווי המתאר הלבנים של המדבקה</string>
     <string name="stickers">סטיקרים</string>
+    <string name="deleted_message_capture_title">לכידת הודעות שנמחקו</string>
+    <string name="deleted_message_capture_sum">לכוד ולאחסן הודעות שנמחקו לצפייה ושחזור מאוחר יותר</string>
+    <string name="deleted_message_notification_channel">הודעות שנמחקו</string>
+    <string name="auth_backup_viewer_description">בצע אימות כדי לגשת להודעות שנמחקו</string>
+    <string name="restore_all_messages">שחזר את כל ההודעות</string>
+    <string name="delete_all_permanently">מחק לצמיתות</string>
+    <string name="confirm_delete_all_messages">למחוק לצמיתות %1$d הודעות?</string>
+    <string name="confirm_restore_all_messages">לשחזר %1$d הודעות?</string>
+    <string name="confirm_restore_message">לשחזר את ההודעה הזו לצ׳אט?</string>
+    <string name="confirm_delete_message">למחוק את הגיבוי הזה לצמיתות?</string>
+    <string name="messages_deleted_success">ההודעות נמחקו</string>
+    <string name="messages_restored_success">ההודעות שוחזרו</string>
 </resources>

@@ -48,12 +48,6 @@ abstract class Feature(
 
         val formattedStr = formatObject(obj)
         log(formattedStr)
-
-        if (obj is Throwable) {
-            Log.i("Vector-lsposed", "${getPluginName()}-> ${obj.message}", obj)
-        } else {
-            Log.i("Vector-lsposed", "${getPluginName()}-> $formattedStr")
-        }
     }
 
     fun logDebug(title: String, obj: Any?) {
@@ -61,12 +55,6 @@ abstract class Feature(
 
         val formattedStr = formatObject(obj)
         log("$title: $formattedStr")
-
-        if (obj is Throwable) {
-            Log.i("WAE", "${getPluginName()}-> $title: ${obj.message}", obj)
-        } else {
-            Log.i("WAE", "${getPluginName()}-> $title: $formattedStr")
-        }
     }
 
     fun log(obj: Any?) {

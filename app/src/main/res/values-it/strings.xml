@@ -505,4 +505,16 @@
     <string name="remove_sticker_white_outline_sum">Rimuove il bordo bianco quando si creano adesivi</string>
     <string name="remove_sticker_white_outline">Rimuovi contorno bianco adesivo</string>
     <string name="stickers">Adesivi</string>
+    <string name="deleted_message_capture_title">Cattura messaggi eliminati</string>
+    <string name="deleted_message_capture_sum">Cattura e memorizza i messaggi eliminati per visualizzarli e ripristinarli in seguito</string>
+    <string name="deleted_message_notification_channel">Messaggi cancellati</string>
+    <string name="auth_backup_viewer_description">Autenticati per accedere ai messaggi cancellati</string>
+    <string name="restore_all_messages">Ripristina tutti i messaggi</string>
+    <string name="delete_all_permanently">Elimina definitivamente</string>
+    <string name="confirm_delete_all_messages">Eliminare definitivamente %1$d messaggi?</string>
+    <string name="confirm_restore_all_messages">Ripristinare %1$d messaggi?</string>
+    <string name="confirm_restore_message">Ripristinare questo messaggio nella chat?</string>
+    <string name="confirm_delete_message">Eliminare definitivamente questo backup?</string>
+    <string name="messages_deleted_success">Messaggi eliminati</string>
+    <string name="messages_restored_success">Messaggi ripristinati</string>
 </resources>

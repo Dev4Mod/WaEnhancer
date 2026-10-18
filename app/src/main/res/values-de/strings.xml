@@ -505,4 +505,16 @@
     <string name="remove_sticker_white_outline_sum">Remove the white border when creating stickers</string>
     <string name="remove_sticker_white_outline">Remove sticker white outline</string>
     <string name="stickers">Stickers</string>
+    <string name="deleted_message_capture_title">Gelöschte Nachrichten erfassen</string>
+    <string name="deleted_message_capture_sum">Gelöschte Nachrichten erfassen und speichern, um sie später anzuzeigen und wiederherzustellen</string>
+    <string name="deleted_message_notification_channel">Gelöschte Nachrichten</string>
+    <string name="auth_backup_viewer_description">Authentifizieren Sie sich, um auf gelöschte Nachrichten zuzugreifen</string>
+    <string name="restore_all_messages">Alle Nachrichten wiederherstellen</string>
+    <string name="delete_all_permanently">Dauerhaft löschen</string>
+    <string name="confirm_delete_all_messages">Alle %1$d Nachrichten dauerhaft löschen?</string>
+    <string name="confirm_restore_all_messages">Alle %1$d Nachrichten wiederherstellen?</string>
+    <string name="confirm_restore_message">Diese Nachricht im Chat wiederherstellen?</string>
+    <string name="confirm_delete_message">Dieses Backup dauerhaft löschen?</string>
+    <string name="messages_deleted_success">Nachrichten gelöscht</string>
+    <string name="messages_restored_success">Nachrichten wiederhergestellt</string>
 </resources>

@@ -505,4 +505,16 @@
     <string name="remove_sticker_white_outline_sum">Remove the white border when creating stickers</string>
     <string name="remove_sticker_white_outline">Remove sticker white outline</string>
     <string name="stickers">Stickers</string>
+    <string name="deleted_message_capture_title">Capture des messages supprimés</string>
+    <string name="deleted_message_capture_sum">Capturer et stocker les messages supprimés pour les consulter et les restaurer ultérieurement</string>
+    <string name="deleted_message_notification_channel">Messages supprimés</string>
+    <string name="auth_backup_viewer_description">Authentifiez-vous pour accéder aux messages supprimés</string>
+    <string name="restore_all_messages">Restaurer tous les messages</string>
+    <string name="delete_all_permanently">Supprimer définitivement</string>
+    <string name="confirm_delete_all_messages">Supprimer définitivement les %1$d messages ?</string>
+    <string name="confirm_restore_all_messages">Restaurer les %1$d messages ?</string>
+    <string name="confirm_restore_message">Restaurer ce message dans la conversation ?</string>
+    <string name="confirm_delete_message">Supprimer définitivement cette sauvegarde ?</string>
+    <string name="messages_deleted_success">Messages supprimés</string>
+    <string name="messages_restored_success">Messages restaurés</string>
 </resources>

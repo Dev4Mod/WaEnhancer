@@ -27,6 +27,11 @@
             app:summary="@string/antirevoke_sum"
             app:title="@string/antirevoke" />
 
+        <rikka.material.preference.MaterialSwitchPreference
+            app:key="deleted_message_capture"
+            app:summary="@string/deleted_message_capture_sum"
+            app:title="@string/deleted_message_capture_title" />
+
         <ListPreference
             app:entries="@array/antirevoke_entries"
             app:entryValues="@array/antirevoke_values"

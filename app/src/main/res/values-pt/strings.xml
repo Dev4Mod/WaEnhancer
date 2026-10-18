@@ -512,4 +512,16 @@
     <string name="remove_sticker_white_outline_sum">Remova a borda branca ao criar figurinhas</string>
     <string name="remove_sticker_white_outline">Remover contorno das figurinhas</string>
     <string name="stickers">Figurinhas</string>
+    <string name="deleted_message_capture_title">Captura de Mensagens Eliminadas</string>
+    <string name="deleted_message_capture_sum">Capturar e armazenar mensagens eliminadas para visualização e restauro posterior</string>
+    <string name="deleted_message_notification_channel">Mensagens excluídas</string>
+    <string name="auth_backup_viewer_description">Autentique-se para aceder às mensagens eliminadas</string>
+    <string name="restore_all_messages">Restaurar todas as mensagens</string>
+    <string name="delete_all_permanently">Eliminar permanentemente</string>
+    <string name="confirm_delete_all_messages">Eliminar permanentemente todas as %1$d mensagens?</string>
+    <string name="confirm_restore_all_messages">Restaurar todas as %1$d mensagens?</string>
+    <string name="confirm_restore_message">Restaurar esta mensagem para o chat?</string>
+    <string name="confirm_delete_message">Eliminar permanentemente este backup?</string>
+    <string name="messages_deleted_success">Mensagens eliminadas</string>
+    <string name="messages_restored_success">Mensagens restauradas</string>
 </resources>
