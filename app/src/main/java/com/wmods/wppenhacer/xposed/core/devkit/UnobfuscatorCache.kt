@@ -528,7 +528,7 @@ class UnobfuscatorCache private constructor(private val mApplication: Applicatio
         private const val NAMESPACE_HOOKS = UnobfuscatorCacheDataStore.NAMESPACE_HOOKS
         private const val NAMESPACE_STRINGS = UnobfuscatorCacheDataStore.NAMESPACE_STRINGS
         private const val NAMESPACE_REFLECTION = UnobfuscatorCacheDataStore.NAMESPACE_REFLECTION
-        private const val CACHE_SCHEMA_VERSION = 3
+        private const val CACHE_SCHEMA_VERSION = 4
         private const val NULL_SENTINEL = "__NULL__"
         private const val REVERSE_MAP_KEY = "__reverse_map__"
 
