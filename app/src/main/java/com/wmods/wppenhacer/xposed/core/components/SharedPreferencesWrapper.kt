@@ -10,6 +10,7 @@ import com.highcapable.yukihookapi.hook.param.PackageParam
 import com.wmods.wppenhacer.xposed.core.devkit.Unobfuscator.loadSharedPreferencesClasses
 import com.wmods.wppenhacer.xposed.utils.ReflectionUtils
 import java.util.concurrent.CopyOnWriteArraySet
+import java.lang.reflect.Modifier
 
 class SharedPreferencesWrapper(private val mPreferences: SharedPreferences) : SharedPreferences {
     override fun getAll(): MutableMap<String?, *>? {
@@ -112,6 +113,7 @@ class SharedPreferencesWrapper(private val mPreferences: SharedPreferences) : Sh
                 }
 
                 for (sharedPreferencesClass in sharedPreferencesClasses) {
+                    if (sharedPreferencesClass.isInterface || Modifier.isAbstract(sharedPreferencesClass.modifiers)) continue
                     if (SharedPreferencesWrapper::class.java.name == sharedPreferencesClass.name) continue
                     for (methodName in listOf(
                         "getString",
@@ -122,12 +124,14 @@ class SharedPreferencesWrapper(private val mPreferences: SharedPreferences) : Sh
                         "getBoolean",
                         "contains"
                     )) {
-                        sharedPreferencesClass.resolve().method {
+                        sharedPreferencesClass.resolve().optional().method {
                             name = methodName
+                            superclass()
                         }.hookAll { after(applyKeyHook) }
                     }
-                    sharedPreferencesClass.resolve().method {
+                    sharedPreferencesClass.resolve().optional().method {
                         name = "getAll"
+                        superclass()
                     }.hookAll { after(getAllHook) }
                 }
             }

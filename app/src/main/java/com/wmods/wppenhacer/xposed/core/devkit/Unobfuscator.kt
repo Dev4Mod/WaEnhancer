@@ -2387,10 +2387,11 @@ object Unobfuscator {
                 }
             }
             if (classDataList.isEmpty()) throw Exception("Class SensorEventListener not found")
-            classDataList.stream().map { classData -> convertRealClass(classData, classLoader) }
-                .filter { it != null }
-                .map { it!! }
-                .toArray { length -> arrayOfNulls<Class<*>>(length) }
+            val classes = classDataList.mapNotNull { convertRealClass(it, classLoader) }
+                .filter { !it.isInterface && !Modifier.isAbstract(it.modifiers) }
+                .toTypedArray()
+            if (classes.isEmpty()) throw Exception("Class SensorEventListener not found")
+            classes
         }
     }
 
@@ -2857,8 +2858,10 @@ object Unobfuscator {
                 }
             }
             if (classesData.isEmpty()) return@getClasses null
-            classesData.stream().map { classData -> convertRealClass(classData, classLoader) }
-                .toArray { length -> arrayOfNulls<Class<*>>(length) }
+            val classes = classesData.mapNotNull { convertRealClass(it, classLoader) }
+                .filter { !it.isInterface && !Modifier.isAbstract(it.modifiers) }
+                .toTypedArray()
+            if (classes.isEmpty()) null else classes
         }
     }
 
