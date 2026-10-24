@@ -1996,7 +1996,12 @@ object Unobfuscator {
     @JvmStatic
     fun loadHeaderChannelItemClass(classLoader: ClassLoader): Class<*> {
         return UnobfuscatorCache.getInstance().getClass(classLoader) {
-            findFirstClassUsingStrings(classLoader, StringMatchType.Contains, "statusTilesEnabled")
+            findFirstClassUsingStrings(
+                classLoader,
+                StringMatchType.Contains,
+                "NewsletterHeaderDataItem(enableExploreButton="
+            )
+                ?: findFirstClassUsingStrings(classLoader, StringMatchType.Contains, "statusTilesEnabled")
                 ?: throw RuntimeException("HeaderChannelItem class not found")
         }
     }
@@ -2697,6 +2702,35 @@ object Unobfuscator {
     @JvmStatic
     fun loadLockedChatsMethod(classLoader: ClassLoader): Method {
         return UnobfuscatorCache.getInstance().getMethod(classLoader) {
+            // The locked chats screen reads its list from a no-arg ArrayList getter on the chats
+            // manager. R8 merges the fragment's A2l into its superclass, so scan both.
+            val lockedFragment = bridge.getClassData(
+                "com.whatsapp.conversation.conversationslist.LockedConversationsFragment"
+            )
+            if (lockedFragment != null) {
+                val candidates = listOfNotNull(lockedFragment, lockedFragment.superClass)
+                    .flatMap { it.methods }
+                    .filter { it.paramCount == 0 && it.returnType?.name == List::class.java.name }
+                    .flatMap { it.invokes }
+                    .filter {
+                        it.isMethod && !Modifier.isStatic(it.modifiers) && it.paramCount == 0 &&
+                                it.returnType?.name == ArrayList::class.java.name
+                    }
+                    .distinctBy { it.descriptor }
+                val notificationInvokes = bridge.getMethodData(loadNotificationMethod(classLoader))
+                    ?.invokes?.map { it.descriptor }?.toSet().orEmpty()
+                val reachable = candidates.filter { it.descriptor in notificationInvokes }
+                // The locked getter filters the chat list through a (Jid) -> boolean check
+                val locked = reachable.firstOrNull { candidate ->
+                    candidate.invokes.any {
+                        it.isMethod && it.paramCount == 1 && it.returnType?.name == "boolean"
+                    }
+                }
+                if (locked != null) {
+                    return@getMethod locked.getMethodInstance(classLoader)
+                }
+            }
+
             val classData = bridge.findClass {
                 matcher {
                     addUsingString("conversationsmgr/replacecontact")
@@ -3447,7 +3481,18 @@ object Unobfuscator {
                 classLoader,
                 StringMatchType.Contains,
                 "outgoing-launch/cm-null-contact"
-            ) ?: throw NoSuchMethodException("StartOutgoingCall method not found")
+            ) ?: bridge.findMethod {
+                matcher {
+                    paramTypes(
+                        Context::class.java.name,
+                        loadWaContactClass(classLoader).name,
+                        Int::class.java.name,
+                        Boolean::class.java.name
+                    )
+                    addInvoke("Ljava/util/Collections;->singletonList(Ljava/lang/Object;)Ljava/util/List;")
+                }
+            }.firstOrNull()?.getMethodInstance(classLoader)
+            ?: throw NoSuchMethodException("StartOutgoingCall method not found")
         }
     }
 
