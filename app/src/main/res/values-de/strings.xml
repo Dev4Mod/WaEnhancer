@@ -517,4 +517,6 @@
     <string name="confirm_delete_message">Dieses Backup dauerhaft löschen?</string>
     <string name="messages_deleted_success">Nachrichten gelöscht</string>
     <string name="messages_restored_success">Nachrichten wiederhergestellt</string>
+    <string name="hide_delivered_unknown">Zugestellt für unbekannte Nummern verbergen</string>
+    <string name="hide_delivered_unknown_sum">Zeigt nur einen Haken für Nummern, die nicht in deinen Kontakten gespeichert sind, als wäre die Nachricht nicht angekommen</string>
 </resources>

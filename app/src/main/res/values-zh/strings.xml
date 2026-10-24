@@ -517,4 +517,6 @@
     <string name="confirm_delete_message">永久删除此备份条目？</string>
     <string name="messages_deleted_success">消息已删除</string>
     <string name="messages_restored_success">消息已恢复</string>
+    <string name="hide_delivered_unknown">对陌生号码隐藏已送达</string>
+    <string name="hide_delivered_unknown_sum">对未保存在通讯录中的号码只显示一个勾，就像消息未送达一样</string>
 </resources>

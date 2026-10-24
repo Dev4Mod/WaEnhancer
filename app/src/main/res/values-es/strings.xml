@@ -517,4 +517,6 @@
     <string name="confirm_delete_message">¿Eliminar permanentemente esta copia de seguridad?</string>
     <string name="messages_deleted_success">Mensajes eliminados</string>
     <string name="messages_restored_success">Mensajes restaurados</string>
+    <string name="hide_delivered_unknown">Ocultar entregado para números desconocidos</string>
+    <string name="hide_delivered_unknown_sum">Muestra solo un tick para números no guardados en tus contactos, como si el mensaje no hubiera llegado</string>
 </resources>

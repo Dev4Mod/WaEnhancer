@@ -519,4 +519,6 @@
     <string name="confirm_delete_message">למחוק את הגיבוי הזה לצמיתות?</string>
     <string name="messages_deleted_success">ההודעות נמחקו</string>
     <string name="messages_restored_success">ההודעות שוחזרו</string>
+    <string name="hide_delivered_unknown">הסתר \"נמסר\" עבור מספרים לא מוכרים</string>
+    <string name="hide_delivered_unknown_sum">מציג וי אחד בלבד עבור מספרים שלא שמורים באנשי הקשר שלך, כאילו ההודעה לא הגיעה</string>
 </resources>

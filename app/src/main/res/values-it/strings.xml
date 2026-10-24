@@ -517,4 +517,6 @@
     <string name="confirm_delete_message">Eliminare definitivamente questo backup?</string>
     <string name="messages_deleted_success">Messaggi eliminati</string>
     <string name="messages_restored_success">Messaggi ripristinati</string>
+    <string name="hide_delivered_unknown">Nascondi Consegnato per numeri sconosciuti</string>
+    <string name="hide_delivered_unknown_sum">Mostra una sola spunta per i numeri non salvati nei tuoi contatti, come se il messaggio non fosse arrivato</string>
 </resources>

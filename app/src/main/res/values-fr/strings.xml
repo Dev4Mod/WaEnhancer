@@ -517,4 +517,6 @@
     <string name="confirm_delete_message">Supprimer définitivement cette sauvegarde ?</string>
     <string name="messages_deleted_success">Messages supprimés</string>
     <string name="messages_restored_success">Messages restaurés</string>
+    <string name="hide_delivered_unknown">Masquer « Distribué » pour les numéros inconnus</string>
+    <string name="hide_delivered_unknown_sum">Affiche une seule coche pour les numéros absents de vos contacts, comme si le message n\'était pas arrivé</string>
 </resources>

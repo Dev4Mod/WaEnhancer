@@ -517,4 +517,6 @@
     <string name="confirm_delete_message">حذف هذه النسخة الاحتياطية نهائيًا؟</string>
     <string name="messages_deleted_success">تم حذف الرسائل</string>
     <string name="messages_restored_success">تمت استعادة الرسائل</string>
+    <string name="hide_delivered_unknown">إخفاء التسليم للأرقام غير المعروفة</string>
+    <string name="hide_delivered_unknown_sum">يظهر علامة واحدة فقط للأرقام غير المحفوظة في جهات اتصالك، وكأن الرسالة لم تصل</string>
 </resources>

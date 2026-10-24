@@ -582,4 +582,6 @@
     <string name="confirm_delete_message">Permanently delete this backup entry?</string>
     <string name="messages_deleted_success">Messages deleted</string>
     <string name="messages_restored_success">Messages restored</string>
+    <string name="hide_delivered_unknown">Hide Delivered for unknown numbers</string>
+    <string name="hide_delivered_unknown_sum">Shows only one tick for numbers not saved in your contacts, as if the message hadn\'t arrived</string>
 </resources>

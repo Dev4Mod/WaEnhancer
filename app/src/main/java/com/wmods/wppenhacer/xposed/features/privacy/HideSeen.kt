@@ -7,6 +7,7 @@ import com.wmods.wppenhacer.xposed.core.Feature
 import com.wmods.wppenhacer.xposed.core.WppCore
 import com.wmods.wppenhacer.xposed.core.components.FMessageWpp
 import com.wmods.wppenhacer.xposed.core.components.ProtocolTreeNodeWpp
+import com.wmods.wppenhacer.xposed.core.components.WaContactWpp
 import com.wmods.wppenhacer.xposed.core.db.MessageHistoryStore
 import com.wmods.wppenhacer.xposed.core.devkit.Unobfuscator
 import com.wmods.wppenhacer.xposed.features.general.PropsHook
@@ -30,6 +31,7 @@ class HideSeen(loader: ClassLoader, preferences: SharedPreferences) :
     }
 
     private var hideReceipt = false
+    private var hideReceiptUnknown = false
     private val ghostMode: Boolean
         get() = WppCore.getPrivBoolean("ghostmode", false)
     private var hideRead = false
@@ -53,6 +55,7 @@ class HideSeen(loader: ClassLoader, preferences: SharedPreferences) :
         hideReadGroup = xprefs.getBoolean("hideread_group", false)
         hideStatusView = xprefs.getBoolean("hidestatusview", false)
         hideReceipt = xprefs.getBoolean("hidereceipt", false)
+        hideReceiptUnknown = xprefs.getBoolean("hidereceipt_unknown", false)
     }
 
     private fun hookSendReadReceiptJob() {
@@ -245,15 +248,20 @@ class HideSeen(loader: ClassLoader, preferences: SharedPreferences) :
         return !isAlreadyViewed(fmessageKey)
     }
 
+    private fun isUnknownNumber(userJid: FMessageWpp.UserJid): Boolean {
+        if (!hideReceiptUnknown || userJid.isGroup || userJid.isStatus || userJid.isNewsletter) return false
+        return WaContactWpp.getWaContactFromJid(userJid)?.isSavedContact() == false
+    }
+
     private fun checkPrivacyAndHideReceipt(userJid: FMessageWpp.UserJid): Boolean {
         val privacy = CustomPrivacy.getJSON(userJid.phoneNumber)
-        return privacy.optBoolean("HideReceipt", hideReceipt) || ghostMode
+        return privacy.optBoolean("HideReceipt", hideReceipt) || ghostMode || isUnknownNumber(userJid)
     }
 
     private fun checkPrivacyAndHideReceipt(fmessageKey: FMessageWpp.Key): Boolean {
         val privacy = CustomPrivacy.getJSON(fmessageKey.remoteJid.phoneNumber)
         val customHideReceipt = privacy.optBoolean("HideReceipt", hideReceipt)
-        return customHideReceipt || ghostMode
+        return customHideReceipt || ghostMode || isUnknownNumber(fmessageKey.remoteJid)
     }
 
     private fun checkPrivacyAndHideSeen(fmessageKey: FMessageWpp.Key): Boolean {

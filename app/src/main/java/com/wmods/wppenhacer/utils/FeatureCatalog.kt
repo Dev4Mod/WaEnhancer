@@ -642,6 +642,21 @@ object FeatureCatalog {
             category, fragment, null, "hide", "delivered", "receipt"
         )
         add(
+            catalog,
+            context,
+            "hidereceipt_unknown",
+            R.string.hide_delivered_unknown,
+            R.string.hide_delivered_unknown_sum,
+            category,
+            fragment,
+            null,
+            "hide",
+            "delivered",
+            "receipt",
+            "unknown",
+            "contact"
+        )
+        add(
             catalog, context, "ghostmode_t", R.string.ghostmode, R.string.ghostmode_sum,
             category, fragment, null, "ghost", "typing", "hide"
         )

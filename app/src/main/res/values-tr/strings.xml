@@ -517,4 +517,6 @@
     <string name="confirm_delete_message">Bu yedek kalıcı olarak silinsin mi?</string>
     <string name="messages_deleted_success">Mesajlar silindi</string>
     <string name="messages_restored_success">Mesajlar geri yüklendi</string>
+    <string name="hide_delivered_unknown">Bilinmeyen numaralar için İletildi\'yi gizle</string>
+    <string name="hide_delivered_unknown_sum">Kişilerinde kayıtlı olmayan numaralar için yalnızca tek tik gösterir, mesaj ulaşmamış gibi</string>
 </resources>

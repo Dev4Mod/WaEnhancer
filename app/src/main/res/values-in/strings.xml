@@ -526,4 +526,6 @@ Harap gunakan versi WhatsApp yang didukung!</string>
     <string name="confirm_delete_message">Hapus permanen cadangan ini?</string>
     <string name="messages_deleted_success">Pesan dihapus</string>
     <string name="messages_restored_success">Pesan dipulihkan</string>
+    <string name="hide_delivered_unknown">Sembunyikan Terkirim untuk nomor tidak dikenal</string>
+    <string name="hide_delivered_unknown_sum">Hanya menampilkan satu centang untuk nomor yang tidak tersimpan di kontak Anda, seolah pesan belum sampai</string>
 </resources>

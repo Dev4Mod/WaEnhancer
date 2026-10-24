@@ -524,4 +524,6 @@
     <string name="confirm_delete_message">Eliminar permanentemente este backup?</string>
     <string name="messages_deleted_success">Mensagens eliminadas</string>
     <string name="messages_restored_success">Mensagens restauradas</string>
+    <string name="hide_delivered_unknown">Ocultar entregue para números desconhecidos</string>
+    <string name="hide_delivered_unknown_sum">Mostra apenas um tique para números não salvos nos seus contatos, como se a mensagem não tivesse chegado</string>
 </resources>

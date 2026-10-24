@@ -82,6 +82,11 @@
             app:title="@string/hidereceipt" />
 
         <rikka.material.preference.MaterialSwitchPreference
+            app:key="hidereceipt_unknown"
+            app:summary="@string/hide_delivered_unknown_sum"
+            app:title="@string/hide_delivered_unknown" />
+
+        <rikka.material.preference.MaterialSwitchPreference
             app:key="ghostmode_t"
             app:summary="@string/ghostmode_sum"
             app:title="@string/ghostmode" />

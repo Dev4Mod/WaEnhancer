@@ -516,4 +516,6 @@ Saat Anda mengaktifkan bekukan \"terakhir dilihat dan online\", Anda tidak dapat
     <string name="remove_sticker_white_outline_sum">Remove the white border when creating stickers</string>
     <string name="remove_sticker_white_outline">Remove sticker white outline</string>
     <string name="stickers">Stickers</string>
+    <string name="hide_delivered_unknown">Sembunyikan Terkirim untuk nomor tidak dikenal</string>
+    <string name="hide_delivered_unknown_sum">Hanya menampilkan satu centang untuk nomor yang tidak tersimpan di kontak Anda, seolah pesan belum sampai</string>
 </resources>

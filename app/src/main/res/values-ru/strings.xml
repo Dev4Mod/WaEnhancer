@@ -517,4 +517,6 @@
     <string name="confirm_delete_message">Удалить эту резервную копию навсегда?</string>
     <string name="messages_deleted_success">Сообщения удалены</string>
     <string name="messages_restored_success">Сообщения восстановлены</string>
+    <string name="hide_delivered_unknown">Скрыть «Доставлено» для неизвестных номеров</string>
+    <string name="hide_delivered_unknown_sum">Показывает только одну галочку для номеров, не сохранённых в контактах, как будто сообщение не дошло</string>
 </resources>
