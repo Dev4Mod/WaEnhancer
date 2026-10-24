@@ -175,6 +175,11 @@ class Others(loader: ClassLoader, preferences: SharedPreferences) : Feature(load
         booleans[0x32ca] = true
         booleans[0x32cb] = true
 
+        // Send View Once Text
+        booleans[30762] = true
+        // Schedule Message Native
+        booleans[23845] = true
+
         if (disableMetaAI) {
             SharedPreferencesWrapper.addHook { key, value ->
                 if (key == "bonsai_meta_ai_button_setting_enabled") {
