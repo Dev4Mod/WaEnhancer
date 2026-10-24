@@ -18,3 +18,4 @@
 * Fixed Stickers outline removal on newer WhatsApp versions
 * Fixed the Custom Privacy dialog crashing for contacts without a known phone number
 * Fixed WhatsApp crashing with "database is locked" when Anti Disappearing is enabled
+* Fixed the pinned chats limit on newer WhatsApp versions, including pinning more than 3 chats at once and pins being undone after syncing
