@@ -3401,14 +3401,17 @@ object Unobfuscator {
         return UnobfuscatorCache.getInstance().getMethod(classLoader) {
             bridge.findMethod {
                 matcher {
-                    paramTypes(
-                        Bitmap::class.java,
-                        ColorFilter::class.java,
-                        Float::class.javaPrimitiveType
-                    )
+                    paramCount(3, 4)
                     returnType(Bitmap::class.java)
+                    usingNumbers(0.70710678118)
                 }
-            }.single().getMethodInstance(classLoader)
+            }.single {
+                val types = it.paramTypeNames
+                types.size in 3..4 &&
+                        types.first() == Bitmap::class.java.name &&
+                        types[1] == ColorFilter::class.java.name &&
+                        types.last() == "float"
+            }.getMethodInstance(classLoader)
         }
     }
 
