@@ -43,7 +43,6 @@
 -keepclasseswithmembers class com.assemblyai.api.** {
      *;
 }
-# YukiHookAPI & Xposed Init entrypoints
--keep class com.highcapable.yukihookapi.** { *; }
+# Xposed Init entrypoints
 -keep class io.github.libxposed.** { *; }
 -keep class com.wmods.wppenhacer.WppXposed* { *; }

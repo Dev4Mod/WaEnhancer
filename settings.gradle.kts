@@ -20,7 +20,6 @@ dependencyResolutionManagement {
         google()
         mavenCentral()
         maven("https://jitpack.io")
-        maven(rootDir.resolve("repo"))
     }
 }
 
