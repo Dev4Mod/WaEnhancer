@@ -435,7 +435,7 @@ class FMessageWpp(fMessage: Any?) {
         }
 
         val userRawString: String? by lazy {
-            if (this.phoneJid == null) return@lazy null
+            if (this.userJid == null) return@lazy null
             val raw =
                 ReflectionUtils.callMethod(this.userJid, "getRawString") as? String
                     ?: return@lazy null

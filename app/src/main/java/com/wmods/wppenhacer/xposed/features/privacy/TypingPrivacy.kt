@@ -32,7 +32,7 @@ class TypingPrivacy(
                 }
 
                 val userJid = FMessageWpp.UserJid(jidObj)
-                val privacy = CustomPrivacy.getJSON(userJid.phoneNumber)
+                val privacy = CustomPrivacy.getJSON(userJid)
 
                 val customHideTyping = privacy.optBoolean("HideTyping", ghostmodeT) || ghostmode
                 val customHideRecording =

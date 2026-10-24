@@ -84,7 +84,7 @@ class HideSeen(loader: ClassLoader, preferences: SharedPreferences) :
                 val userJid = FMessageWpp.UserJid(lid)
                 if (userJid.isNull) return@before
 
-                val privacy = CustomPrivacy.getJSON(userJid.phoneNumber)
+                val privacy = CustomPrivacy.getJSON(userJid)
                 val isHide = processReadReceiptByType(this, job, userJid, privacy)
 
                 if (isHide) {
@@ -112,7 +112,7 @@ class HideSeen(loader: ClassLoader, preferences: SharedPreferences) :
             userJid.isStatus -> {
                 val participant = ReflectionUtils.getObjectField(job, "participant") as? String
                 val statusJid = FMessageWpp.UserJid(participant)
-                val customHideStatusView = CustomPrivacy.getJSON(statusJid.phoneNumber)
+                val customHideStatusView = CustomPrivacy.getJSON(statusJid)
                     .optBoolean("HideViewStatus", hideStatusView)
 
                 if (customHideStatusView || ghostMode) {
@@ -254,18 +254,18 @@ class HideSeen(loader: ClassLoader, preferences: SharedPreferences) :
     }
 
     private fun checkPrivacyAndHideReceipt(userJid: FMessageWpp.UserJid): Boolean {
-        val privacy = CustomPrivacy.getJSON(userJid.phoneNumber)
+        val privacy = CustomPrivacy.getJSON(userJid)
         return privacy.optBoolean("HideReceipt", hideReceipt) || ghostMode || isUnknownNumber(userJid)
     }
 
     private fun checkPrivacyAndHideReceipt(fmessageKey: FMessageWpp.Key): Boolean {
-        val privacy = CustomPrivacy.getJSON(fmessageKey.remoteJid.phoneNumber)
+        val privacy = CustomPrivacy.getJSON(fmessageKey.remoteJid)
         val customHideReceipt = privacy.optBoolean("HideReceipt", hideReceipt)
         return customHideReceipt || ghostMode || isUnknownNumber(fmessageKey.remoteJid)
     }
 
     private fun checkPrivacyAndHideSeen(fmessageKey: FMessageWpp.Key): Boolean {
-        val privacy = CustomPrivacy.getJSON(fmessageKey.remoteJid.phoneNumber)
+        val privacy = CustomPrivacy.getJSON(fmessageKey.remoteJid)
         val hideKey = if (fmessageKey.remoteJid.isGroup) hideReadGroup else hideRead
         val shouldHide = privacy.optBoolean("HideSeen", hideKey) || ghostMode
         return shouldHide

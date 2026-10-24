@@ -37,14 +37,12 @@ class CustomPrivacyAdapter(
 
         holder.textView.text = item.name
         row.setOnClickListener {
-            if (item.number.length > 15) {
-                val intent = Intent(context, groupClass).putExtra("gid", item.number + "@g.us")
-                context.startActivity(intent)
+            val intent = if (item.isGroup) {
+                Intent(context, groupClass).putExtra("gid", item.jid)
             } else {
-                val intent =
-                    Intent(context, contactClass).putExtra("jid", item.number + "@s.whatsapp.net")
-                context.startActivity(intent)
+                Intent(context, contactClass).putExtra("jid", item.jid)
             }
+            context.startActivity(intent)
         }
         holder.button.setOnClickListener {
             items.removeAt(position)
@@ -92,7 +90,9 @@ class CustomPrivacyAdapter(
         @JvmField
         var name: String = ""
         @JvmField
-        var number: String = ""
+        var jid: String = ""
+        @JvmField
+        var isGroup: Boolean = false
         @JvmField
         var key: String = ""
     }
