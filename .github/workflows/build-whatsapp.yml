@@ -40,10 +40,16 @@ jobs:
         run: chmod +x gradlew
 
       - name: Build WhatsApp Release
-        run: ./gradlew assembleWhatsappDebug -Pminify=true
+        run: ./gradlew assembleWhatsappRelease
 
       - name: Upload APK
         uses: actions/upload-artifact@v7
         with:
           name: WaEnhancer
-          path: app/build/outputs/apk/whatsapp/debug/WaEnhancer*.apk
+          path: app/build/outputs/apk/whatsapp/release/WaEnhancer*.apk
+
+      - name: Upload Proguard mapping
+        uses: actions/upload-artifact@v7
+        with:
+          name: WaEnhancer-mapping
+          path: app/build/outputs/mapping/whatsappRelease/mapping.txt

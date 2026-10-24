@@ -51,7 +51,7 @@ jobs:
         run: chmod +x gradlew
 
       - name: Build all variants
-        run: ./gradlew assembleWhatsappDebug assembleBusinessDebug -Pminify=true
+        run: ./gradlew assembleWhatsappRelease assembleBusinessRelease
 
       - name: Upload to GitHub release
         uses: softprops/action-gh-release@v3
@@ -60,9 +60,17 @@ jobs:
           name: WaEnhancer ${{ steps.vars.outputs.version }}
           body_path: changelog.txt
           files: |
-            app/build/outputs/apk/whatsapp/debug/WaEnhancer*.apk
-            app/build/outputs/apk/business/debug/WaEnhancer-Business*.apk
+            app/build/outputs/apk/whatsapp/release/WaEnhancer*.apk
+            app/build/outputs/apk/business/release/WaEnhancer-Business*.apk
           tag_name: ${{ steps.vars.outputs.tag }}
+
+      - name: Upload Proguard mappings
+        uses: actions/upload-artifact@v7
+        with:
+          name: proguard-mappings-${{ steps.vars.outputs.tag }}
+          path: |
+            app/build/outputs/mapping/whatsappRelease/mapping.txt
+            app/build/outputs/mapping/businessRelease/mapping.txt
 
       - name: Read changelog
         id: changelog
