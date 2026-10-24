@@ -2938,25 +2938,50 @@ object Unobfuscator {
         }
     }
 
-    @Throws(Exception::class)
-    @JvmStatic
-    fun loadPinnedFilterMethod(classLoader: ClassLoader): Method {
+    fun loadPinnedChatsPremiumUpsellMethod(classLoader: ClassLoader): Method {
         return UnobfuscatorCache.getInstance().getMethod(classLoader) {
-            val method = findFirstMethodUsingStrings(
+            bridge.findMethod {
+                matcher {
+                    returnType(Boolean::class.javaPrimitiveType!!)
+                    paramCount(2)
+                    addUsingNumber(3)
+                    modifiers(Modifier.STATIC)
+                }
+            }.filter {
+                val types = it.paramTypeNames
+                types[0] == it.className && types[1] == Set::class.java.name
+            }.singleOrNull()?.getMethodInstance(classLoader)
+                ?: throw NoSuchMethodException("PinnedChatsPremiumUpsell method not found")
+        }
+    }
+
+    fun loadPinChatHandlerMethod(classLoader: ClassLoader): Method {
+        return UnobfuscatorCache.getInstance().getMethod(classLoader) {
+            findFirstMethodUsingStrings(
                 classLoader,
                 StringMatchType.Contains,
-                "pinSelectedJids"
-            ) ?: return@getMethod null
-            val methodData = bridge.getMethodData(method)
-            for (invoke in methodData!!.invokes) {
-                if (!invoke.isMethod) continue
-                val methodInstance = invoke.getMethodInstance(classLoader)
-                if (!Set::class.java.isAssignableFrom(methodInstance.returnType)) continue
-                if (methodInstance.parameterCount == 2 && methodInstance.parameterTypes[0] == Iterable::class.java && methodInstance.parameterTypes[1] == Set::class.java) {
-                    return@getMethod methodInstance
-                }
-            }
-            throw NoSuchMethodException("PinnedLinkedHashMethod not found")
+                "PinChatHandler/setArchive"
+            ) ?: throw NoSuchMethodException("PinChatHandler method not found")
+        }
+    }
+
+    fun loadPinSelectedChatsMethod(classLoader: ClassLoader): Method {
+        return UnobfuscatorCache.getInstance().getMethod(classLoader) {
+            findFirstMethodUsingStrings(
+                classLoader,
+                StringMatchType.Contains,
+                "ConversationPinHelper/pinSelectedJids max="
+            ) ?: throw NoSuchMethodException("PinSelectedChats method not found")
+        }
+    }
+
+    fun loadTrimExcessPinnedChatsMethod(classLoader: ClassLoader): Method {
+        return UnobfuscatorCache.getInstance().getMethod(classLoader) {
+            findFirstMethodUsingStrings(
+                classLoader,
+                StringMatchType.Contains,
+                "ConversationPinHelper/trimExcessPinnedChats"
+            ) ?: throw NoSuchMethodException("TrimExcessPinnedChats method not found")
         }
     }
 

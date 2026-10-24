@@ -4,14 +4,10 @@ package com.wmods.wppenhacer.xposed.features.general
 
 import android.annotation.SuppressLint
 import android.content.SharedPreferences
-import com.highcapable.kavaref.KavaRef.Companion.resolve
-import com.highcapable.yukihookapi.extension.kavaref.hook
 import com.wmods.wppenhacer.xposed.core.Feature
+import com.wmods.wppenhacer.xposed.core.components.FMessageWpp
 import com.wmods.wppenhacer.xposed.core.devkit.Unobfuscator
 import com.wmods.wppenhacer.xposed.utils.ReflectionUtils
-import java.util.Spliterator
-import kotlin.math.abs
-import java.lang.reflect.Array as ReflectArray
 
 class PinnedLimit(
     loader: ClassLoader,
@@ -22,9 +18,8 @@ class PinnedLimit(
     override fun doHook() {
         if (!xprefs.getBoolean(PINNED_LIMIT_PREF_KEY, false)) return
 
-        val pinnedHashSetMethod = Unobfuscator.loadPinnedHashSetMethod(classLoader)
         Unobfuscator.loadPinnedInChatMethod(classLoader).hook {
-            replaceAny { PINNED_LIMIT_ENABLED }
+            this.intercept { PINNED_LIMIT_ENABLED }
         }
 
         Unobfuscator.loadSetPinnedLimitMethod(classLoader).hook {
@@ -35,227 +30,88 @@ class PinnedLimit(
             }
         }
 
-        LinkedHashSet::class.java.resolve().firstConstructor {
-            parameters(Int::class)
-        }.hook {
-            before {
-                val initialCapacity = args[0] as Int
-                if (initialCapacity < 0) {
-                    args[0] = abs(initialCapacity)
-                }
-            }
-        }
+        hookPinnedChatsScope()
+    }
 
-        ArrayList::class.java.resolve().firstConstructor {
-            parameters(Int::class)
-        }.hook {
-            before {
-                val initialCapacity = args[0] as Int
-                if (initialCapacity < 0) {
-                    args[0] = abs(initialCapacity)
-                }
+    private fun hookPinnedChatsScope() {
+        val pinnedHashSetMethod = Unobfuscator.loadPinnedHashSetMethod(classLoader)
+        val pinSelectedMethod = Unobfuscator.loadPinSelectedChatsMethod(classLoader)
+        val trimExcessMethod = Unobfuscator.loadTrimExcessPinnedChatsMethod(classLoader)
+        val pinSelection = ThreadLocal<Set<Any?>>()
+        val trimming = ThreadLocal<Boolean>()
+
+        runCatching {
+            Unobfuscator.loadPinnedChatsPremiumUpsellMethod(classLoader).hook {
+                this.intercept { false }
             }
-        }
+        }.onFailure { logDebug(it) }
+
         pinnedHashSetMethod.hook {
             after {
-                val map = result as Map<Any?, Any?>
-                val thisObject = instanceOrNull ?: args[0]!!
-                val pinnedMap = if (map is PinnedLinkedHashMap<*>) {
-                    map as PinnedLinkedHashMap<Any?>
-                } else {
-                    PinnedLinkedHashMap<Any?>().apply {
-                        putAll(map)
-                        result = this
-                    }
-                }
-
-                pinnedMap.limit = getPinnedLimit()
-
-                val keySet = map.keys
-                val setFields =
-                    ReflectionUtils.getFieldsByType(thisObject.javaClass, Set::class.java)
-
-                for (setField in setFields) {
-                    val set = setField.get(thisObject)
-
-                    if (set == keySet) {
-                        val newKeySet = pinnedMap.keys as PinnedLinkedHashMap.PinnedKeySet<Any?>
-                        newKeySet.setDisableInterator(false)
-                        setField.set(thisObject, newKeySet)
-                    }
-                }
-            }
-        }
-
-        Unobfuscator.loadPinnedFilterMethod(classLoader).hook {
-            after {
-                if (args[0] !is PinnedLinkedHashMap.PinnedKeySet<*>) {
+                val map = result as? Map<Any?, Any?> ?: return@after
+                if (trimming.get() == true) {
+                    result = LinkedHashMap<Any?, Any?>()
                     return@after
                 }
-
-                val set = result as Set<*>
-                val pinnedMap = PinnedLinkedHashMap<Any?>().apply {
-                    limit = getPinnedLimit()
-
-                    for (item in set) {
-                        put(item, item)
-                    }
-                }
-
-                val newKeySet = pinnedMap.keys as PinnedLinkedHashMap.PinnedKeySet<Any?>
-                newKeySet.setDisableInterator(false)
-                result = pinnedMap.keys
+                val selection = pinSelection.get() ?: return@after
+                result = LinkedHashMap(map.filterKeys { it in selection })
             }
         }
+
+        pinSelectedMethod.hook {
+            before {
+                val selectionField = instance.javaClass.declaredFields.firstOrNull { field ->
+                    field.isAccessible = true
+                    val value = (field.get(instance) as? Set<*>).orEmpty()
+                    value.isNotEmpty() && value.all { FMessageWpp.UserJid.TYPE_JID.isInstance(it) }
+                } ?: return@before
+                val selection = selectionField.get(instance) as Set<Any?>
+                if (selection.size <= PIN_BATCH_SIZE) {
+                    pinSelection.set(HashSet(selection))
+                    return@before
+                }
+                try {
+                    for (batch in selection.chunked(PIN_BATCH_SIZE)) {
+                        val batchSet = LinkedHashSet(batch)
+                        selectionField.set(instance, batchSet)
+                        pinSelection.set(batchSet)
+                        invokeOriginal()
+                    }
+                } finally {
+                    selectionField.set(instance, selection)
+                    pinSelection.remove()
+                }
+                result = null
+            }
+            after { pinSelection.remove() }
+        }
+
+        trimExcessMethod.hook {
+            before { trimming.set(true) }
+            after { trimming.remove() }
+        }
+
+        runCatching {
+            val pinChatHandlerMethod = Unobfuscator.loadPinChatHandlerMethod(classLoader)
+            val applyingSync = ThreadLocal<Boolean>()
+            pinChatHandlerMethod.hook {
+                before { applyingSync.set(true) }
+                after { applyingSync.remove() }
+            }
+            Unobfuscator.loadSetPinnedLimitMethod(classLoader).hook {
+                before {
+                    if (applyingSync.get() == true && args[2] == false) result = null
+                }
+            }
+        }.onFailure { logDebug(it) }
     }
 
     override fun getPluginName(): String = "Pinned Limit"
 
-    private fun getPinnedLimit(): Int {
-        return if (xprefs.getBoolean(PINNED_LIMIT_PREF_KEY, false)) {
-            PINNED_LIMIT_ENABLED
-        } else {
-            PINNED_LIMIT_DEFAULT
-        }
-    }
-
-    private class PinnedLinkedHashMap<T> : LinkedHashMap<T, T>() {
-
-        var limit: Int = PINNED_LIMIT_DEFAULT
-
-        override val keys: MutableSet<T>
-            get() = PinnedKeySet(this, super.keys)
-
-        override val size: Int
-            get() {
-                val currentSize = super.size
-                return if (currentSize >= limit) currentSize else -limit
-            }
-
-        class PinnedKeySet<T>(
-            private val pinnedMap: PinnedLinkedHashMap<T>,
-            private val set: MutableSet<T>
-        ) : AbstractMutableSet<T>() {
-
-            override val size: Int
-                get() = pinnedMap.size
-
-            override fun isEmpty(): Boolean = set.isEmpty()
-
-            override fun contains(element: T): Boolean = set.contains(element)
-
-            override fun containsAll(elements: Collection<T>): Boolean {
-                return set.containsAll(elements)
-            }
-
-            override fun iterator(): MutableIterator<T> {
-                if (disableInterator && pinnedMap.size < pinnedMap.limit) {
-                    return EmptyMutableIterator()
-                }
-
-                return set.iterator()
-            }
-
-            override fun add(element: T): Boolean {
-                val hadKey = pinnedMap.containsKey(element)
-                pinnedMap[element] = element
-                return !hadKey
-            }
-
-            override fun addAll(elements: Collection<T>): Boolean {
-                var changed = false
-
-                for (item in elements) {
-                    changed = add(item) || changed
-                }
-
-                return changed
-            }
-
-            override fun remove(element: T): Boolean {
-                val hadKey = pinnedMap.containsKey(element)
-
-                if (hadKey) {
-                    pinnedMap.remove(element)
-                }
-
-                return hadKey
-            }
-
-            override fun removeAll(elements: Collection<T>): Boolean {
-                return set.removeAll(elements.toSet())
-            }
-
-            override fun retainAll(elements: Collection<T>): Boolean {
-                return set.retainAll(elements.toSet())
-            }
-
-            override fun clear() {
-                set.clear()
-            }
-
-            override fun spliterator(): Spliterator<T> {
-                return set.spliterator()
-            }
-
-            override fun toArray(): Array<Any?> {
-                val result = arrayOfNulls<Any?>(set.size)
-                var index = 0
-
-                for (item in set) {
-                    result[index++] = item
-                }
-
-                return result
-            }
-
-            override fun <E> toArray(array: Array<E>): Array<E> {
-                @Suppress("UNCHECKED_CAST")
-                val result = if (array.size >= set.size) {
-                    array
-                } else {
-                    ReflectArray.newInstance(array.javaClass.componentType!!, set.size) as Array<E>
-                }
-
-                var index = 0
-                for (item in set) {
-                    @Suppress("UNCHECKED_CAST")
-                    result[index++] = item as E
-                }
-
-                if (result.size > set.size) {
-                    @Suppress("UNCHECKED_CAST")
-                    result[set.size] = null as E
-                }
-
-                return result
-            }
-
-            fun setDisableInterator(disabled: Boolean) {
-                disableInterator = disabled
-            }
-
-            private class EmptyMutableIterator<T> : MutableIterator<T> {
-
-                override fun hasNext(): Boolean = false
-
-                override fun next(): T {
-                    throw NoSuchElementException()
-                }
-
-                override fun remove() = Unit
-            }
-
-            companion object {
-                private var disableInterator = true
-            }
-        }
-    }
-
     private companion object {
         private const val PINNED_LIMIT_PREF_KEY = "pinnedlimit"
         private const val PINNED_LIMIT_ENABLED = 60
-        private const val PINNED_LIMIT_DEFAULT = 3
+        private const val PIN_BATCH_SIZE = 3
         private const val SYNC_RESPONSE_HANDLER_CLASS_NAME = "SyncResponseHandler"
     }
 }
