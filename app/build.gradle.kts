@@ -107,8 +107,7 @@ android {
 
         release {
             isMinifyEnabled = true
-            //noinspection NotShrinkingResources
-            isShrinkResources = false
+            isShrinkResources = true
             signingConfig =
                 if (signingConfigs["config"].storeFile != null) signingConfigs["config"] else signingConfigs["debug"]
             proguardFiles(
@@ -135,6 +134,10 @@ android {
     }
 
     androidResources.additionalParameters += listOf("--allow-reserved-package-id", "--package-id", "0x64")
+    // Ship only the languages the app is translated to; libraries bring ~90 others
+    androidResources.localeFilters += listOf(
+        "en", "ar", "de", "es", "fr", "id", "in", "it", "iw", "pt", "ru", "tr", "zh"
+    )
 
 }
 

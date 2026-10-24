@@ -34,6 +34,7 @@ import androidx.core.graphics.drawable.toDrawable
 import androidx.core.graphics.scale
 import com.highcapable.kavaref.KavaRef.Companion.resolve
 import com.highcapable.yukihookapi.extension.kavaref.hook
+import com.wmods.wppenhacer.BuildConfig
 import com.wmods.wppenhacer.preference.ThemePreference
 import com.wmods.wppenhacer.utils.ColorReplacement.replaceColors
 import com.wmods.wppenhacer.utils.IColors
@@ -114,7 +115,7 @@ class CustomView(loader: ClassLoader, preferences: SharedPreferences) :
         } catch (_: Exception) {
         }
 
-        val hash = hashContent(cssContent + waVersion)
+        val hash = hashContent(cssContent + waVersion + BuildConfig.VERSION_NAME)
         val cacheDir = Utils.application.cacheDir
         val cacheFile = File(cacheDir, "cv_rules_${hash}.cache")
 
