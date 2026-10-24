@@ -17,3 +17,4 @@
 * Fixed Anti Revoke possibly crashing when blocking deleted statuses and messages on newer WhatsApp versions
 * Fixed Stickers outline removal on newer WhatsApp versions
 * Fixed the Custom Privacy dialog crashing for contacts without a known phone number
+* Fixed WhatsApp crashing with "database is locked" when Anti Disappearing is enabled
