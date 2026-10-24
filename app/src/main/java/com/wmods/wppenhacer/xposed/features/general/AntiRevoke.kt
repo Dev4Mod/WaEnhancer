@@ -24,6 +24,7 @@ import com.wmods.wppenhacer.xposed.utils.ReflectionUtils
 import com.wmods.wppenhacer.xposed.utils.Utils
 import com.wmods.wppenhacer.xposed.utils.YukiLog
 import java.lang.reflect.Method
+import java.lang.reflect.Modifier
 import java.text.DateFormat
 import java.util.Collections
 import java.util.Date
@@ -47,6 +48,47 @@ class AntiRevoke(loader: ClassLoader, preferences: SharedPreferences) :
         private val revokedTimestampCache = ConcurrentHashMap<String, Long>()
         private val loadedRevokedJids = ConcurrentHashMap.newKeySet<String>()
         private val loadingRevokedJids = ConcurrentHashMap.newKeySet<String>()
+
+        private fun blockedStatusRevokeResult(returnType: Class<*>): Any? {
+            return when {
+                Enum::class.java.isAssignableFrom(returnType) -> {
+                    val constants = returnType.declaredFields
+                        .filter { Modifier.isStatic(it.modifiers) && it.type == returnType }
+                        .mapNotNull { field ->
+                            field.isAccessible = true
+                            field.get(null) as? Enum<*>
+                        }
+                        .sortedBy { it.ordinal }
+                    (constants.firstOrNull { it.name == "DIDNT_STORE" }
+                        ?: constants.getOrNull(3)
+                        ?: constants.lastOrNull())
+                }
+
+                returnType == Int::class.javaPrimitiveType || returnType == Int::class.javaObjectType -> 0
+                returnType == Boolean::class.javaPrimitiveType || returnType == Boolean::class.javaObjectType -> false
+                else -> null
+            }
+        }
+
+        private fun blockedMessageRevokeResult(returnType: Class<*>): Any? {
+            val constructor = returnType.constructors[0]
+            val params = ReflectionUtils.initArray(constructor.parameterTypes)
+            constructor.parameterTypes.forEachIndexed { index, type ->
+                if (type.isPrimitive) return@forEachIndexed
+                try {
+                    val noneClass = Unobfuscator.loadNoneIncomingAckClass(
+                        returnType.classLoader ?: Utils.application.classLoader,
+                        type
+                    )
+                    params[index] = noneClass.declaredFields
+                        .first { it.type == noneClass && Modifier.isStatic(it.modifiers) }
+                        .apply { isAccessible = true }
+                        .get(null)
+                } catch (_: Throwable) {
+                }
+            }
+            return constructor.newInstance(*params)
+        }
 
         private fun findObjectFMessage(param: HookParam): FMessageWpp? {
             val safeArgs = param.args?.filterNotNull() ?: return null
@@ -122,7 +164,7 @@ class AntiRevoke(loader: ClassLoader, preferences: SharedPreferences) :
                         fStatusKey.messageID
                     ) != 0
                 ) {
-                    result = 0
+                    result = blockedStatusRevokeResult((method as Method).returnType)
                 }
             }
         }
@@ -149,13 +191,10 @@ class AntiRevoke(loader: ClassLoader, preferences: SharedPreferences) :
                 }
                 if (shouldIntercept) {
                     val method = method as Method
-                    if (method.returnType != Boolean::class.javaPrimitiveType) {
-                        val constructor = method.returnType.constructors[0]
-                        val params = ReflectionUtils.initArray(constructor.parameterTypes)
-                        val instance = constructor.newInstance(*params)
-                        result = instance
+                    result = if (method.returnType != Boolean::class.javaPrimitiveType && method.returnType != Boolean::class.javaObjectType) {
+                        blockedMessageRevokeResult(method.returnType)
                     } else {
-                        result = true
+                        true
                     }
                 }
             }

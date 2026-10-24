@@ -842,6 +842,27 @@ object Unobfuscator {
 
     @Throws(Exception::class)
     @JvmStatic
+    fun loadNoneIncomingAckClass(loader: ClassLoader, ackType: Class<*>): Class<*> {
+        return UnobfuscatorCache.getInstance().getClass(loader) {
+            bridge.findClass {
+                matcher {
+                    addInterface(ackType.name)
+                    methods {
+                        add {
+                            name = "toString"
+                            usingStrings("None")
+                        }
+                    }
+                }
+            }.firstOrNull { data ->
+                val clazz = data.getInstance(loader)
+                clazz.declaredFields.any { it.type == clazz && Modifier.isStatic(it.modifiers) }
+            }?.getInstance(loader) ?: throw Exception("NoneIncomingAck class not found")
+        }
+    }
+
+    @Throws(Exception::class)
+    @JvmStatic
     fun loadAntiRevokeMessageMethod(loader: ClassLoader): Method? {
         return UnobfuscatorCache.getInstance().getMethod(loader) {
             for (s in listOf("msgstore/edit/revoke", "msgstore/revoking/")) {
