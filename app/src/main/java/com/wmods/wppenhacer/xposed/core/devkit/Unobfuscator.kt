@@ -2857,8 +2857,9 @@ object Unobfuscator {
                 }
             }
             if (classesData.isEmpty()) return@getClasses null
-            classesData.stream().map { classData -> convertRealClass(classData, classLoader) }
-                .toArray { length -> arrayOfNulls<Class<*>>(length) }
+            classesData.filter { !Modifier.isAbstract(it.modifiers) }
+                .mapNotNull { classData -> convertRealClass(classData, classLoader) }
+                .toTypedArray()
         }
     }
 

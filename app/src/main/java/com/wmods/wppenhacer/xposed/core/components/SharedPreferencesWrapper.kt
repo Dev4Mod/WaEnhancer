@@ -4,7 +4,6 @@ import android.content.SharedPreferences
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener
 import com.highcapable.kavaref.KavaRef.Companion.resolve
 import com.highcapable.yukihookapi.extension.kavaref.hook
-import com.highcapable.yukihookapi.extension.kavaref.hookAll
 import com.highcapable.yukihookapi.hook.param.HookParam
 import com.highcapable.yukihookapi.hook.param.PackageParam
 import com.wmods.wppenhacer.xposed.core.devkit.Unobfuscator.loadSharedPreferencesClasses
@@ -122,13 +121,16 @@ class SharedPreferencesWrapper(private val mPreferences: SharedPreferences) : Sh
                         "getBoolean",
                         "contains"
                     )) {
-                        sharedPreferencesClass.resolve().method {
+                        sharedPreferencesClass.resolve().firstMethodOrNull {
                             name = methodName
-                        }.hookAll { after(applyKeyHook) }
+                            superclass()
+                        }?.hook { after(applyKeyHook) }
                     }
-                    sharedPreferencesClass.resolve().method {
+                    sharedPreferencesClass.resolve().firstMethodOrNull {
                         name = "getAll"
-                    }.hookAll { after(getAllHook) }
+                        emptyParameters()
+                        superclass()
+                    }?.hook { after(getAllHook) }
                 }
             }
         }
