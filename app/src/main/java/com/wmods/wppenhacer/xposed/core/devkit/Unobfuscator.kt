@@ -1585,6 +1585,26 @@ object Unobfuscator {
         }
     }
 
+    fun loadUpdatesFragmentOnStartMethod(loader: ClassLoader): Method {
+        return UnobfuscatorCache.getInstance().getMethod(loader) {
+            findFirstMethodUsingStrings(
+                loader,
+                StringMatchType.Equals,
+                "UpdatesFragment/onStart"
+            ) ?: throw NoSuchMethodException("UpdatesFragment onStart not found")
+        }
+    }
+
+    fun loadUpdatesFragmentAsyncInitMethod(loader: ClassLoader): Method {
+        return UnobfuscatorCache.getInstance().getMethod(loader) {
+            findFirstMethodUsingStrings(
+                loader,
+                StringMatchType.Equals,
+                "UpdatesFragment/onFragmentAsyncInit"
+            ) ?: throw NoSuchMethodException("UpdatesFragment async init not found")
+        }
+    }
+
     @Throws(Exception::class)
     @JvmStatic
     fun loadFilterAdaperClass(loader: ClassLoader): Class<*> {
