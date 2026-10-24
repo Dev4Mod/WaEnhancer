@@ -2,6 +2,8 @@ package com.wmods.wppenhacer.xposed.features.general
 
 import android.content.ContentValues
 import android.content.SharedPreferences
+import android.database.sqlite.SQLiteDatabase
+import android.database.sqlite.SQLiteTransactionListener
 import android.os.Bundle
 import com.highcapable.kavaref.KavaRef.Companion.resolve
 import com.highcapable.yukihookapi.extension.kavaref.hook
@@ -9,7 +11,6 @@ import com.highcapable.yukihookapi.hook.core.YukiHookCreator
 import com.highcapable.yukihookapi.hook.param.HookParam
 import com.wmods.wppenhacer.xposed.core.Feature
 import com.wmods.wppenhacer.xposed.core.WppCore.homeActivityClass
-import com.wmods.wppenhacer.xposed.core.db.MessageStore.Companion.getInstance
 import com.wmods.wppenhacer.xposed.core.devkit.Unobfuscator.loadChatLimitDelete2Method
 import com.wmods.wppenhacer.xposed.core.devkit.Unobfuscator.loadChatLimitDeleteMethod
 import com.wmods.wppenhacer.xposed.core.devkit.Unobfuscator.loadEphemeralInsertdb
@@ -17,9 +18,16 @@ import com.wmods.wppenhacer.xposed.core.devkit.Unobfuscator.loadFmessageTimestam
 import com.wmods.wppenhacer.xposed.core.devkit.Unobfuscator.loadSeeMoreConstructor
 import com.wmods.wppenhacer.xposed.utils.ReflectionUtils
 import com.wmods.wppenhacer.xposed.utils.Utils
+import com.wmods.wppenhacer.xposed.utils.YukiLog
+import java.lang.ref.WeakReference
 
 class ChatLimit(loader: ClassLoader, preferences: SharedPreferences) :
     Feature(loader, preferences) {
+
+    // WhatsApp's own msgstore connection; writing through it queues behind WhatsApp's
+    // transactions instead of racing them for the file lock like a second connection does
+    @Volatile
+    private var msgStoreDb: WeakReference<SQLiteDatabase>? = null
 
     override fun doHook() {
         val antiDisappearing = xprefs.getBoolean("antidisappearing", false)
@@ -31,17 +39,14 @@ class ChatLimit(loader: ClassLoader, preferences: SharedPreferences) :
 
         val epUpdateMethod = loadEphemeralInsertdb(classLoader)
 
-        homeActivityClass.resolve().firstMethod {
-            name = "onCreate"
-            superclass()
-            parameters(Bundle::class.java)
-        }.hook {
-            after {
-                if (antiDisappearing) {
-                    Utils.databaseExecutor.execute {
-                        getInstance().executeWritableSQL("UPDATE message_ephemeral SET expire_timestamp = 2553512370000")
-                    }
-                }
+        if (antiDisappearing) {
+            captureMsgStoreDatabase()
+            homeActivityClass.resolve().firstMethod {
+                name = "onCreate"
+                superclass()
+                parameters(Bundle::class.java)
+            }.hook {
+                after { keepEphemeralMessages() }
             }
         }
 
@@ -49,7 +54,7 @@ class ChatLimit(loader: ClassLoader, preferences: SharedPreferences) :
             after {
                 if (antiDisappearing) {
                     val contentValues = result as ContentValues
-                    contentValues.put("expire_timestamp", 2553512370000L)
+                    contentValues.put("expire_timestamp", KEEP_EXPIRE_TIMESTAMP)
                 }
             }
         }
@@ -102,7 +107,43 @@ class ChatLimit(loader: ClassLoader, preferences: SharedPreferences) :
         }
     }
 
+    private fun captureMsgStoreDatabase() {
+        var handle: YukiHookCreator.MemberHooker<HookParam>.Handle? = null
+        handle = SQLiteDatabase::class.java.resolve().firstMethod {
+            name = "beginTransactionWithListener"
+            parameters(SQLiteTransactionListener::class.java)
+        }.hook {
+            before {
+                if (msgStoreDb != null) return@before
+                val database = instance as SQLiteDatabase
+                if (database.path?.endsWith("/msgstore.db") != true) return@before
+                msgStoreDb = WeakReference(database)
+                handle?.remove()
+                keepEphemeralMessages()
+            }
+        }
+    }
+
+    private fun keepEphemeralMessages() {
+        val database = msgStoreDb?.get() ?: return
+        Utils.databaseExecutor.execute {
+            try {
+                if (!database.isOpen) return@execute
+                database.execSQL(
+                    "UPDATE message_ephemeral SET expire_timestamp = $KEEP_EXPIRE_TIMESTAMP " +
+                            "WHERE expire_timestamp IS NULL OR expire_timestamp != $KEEP_EXPIRE_TIMESTAMP"
+                )
+            } catch (e: Exception) {
+                YukiLog.log(e)
+            }
+        }
+    }
+
     override fun getPluginName(): String {
         return "Chat Limit"
+    }
+
+    companion object {
+        private const val KEEP_EXPIRE_TIMESTAMP = 2553512370000L
     }
 }
