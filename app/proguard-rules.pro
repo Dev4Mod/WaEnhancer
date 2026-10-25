@@ -1,5 +1,9 @@
 -dontwarn *
 
+# Keep every class and member name as-is; shrinking and optimizations (inlining, class merging,
+# dead code removal, etc.) still apply
+-dontobfuscate
+
 -allowaccessmodification
 
 # Keep line numbers for crash reports; the mapping file is uploaded by CI to retrace them
@@ -17,7 +21,7 @@
 
 # FeatureLoader instantiates plugins via reflection with:
 # getConstructor(ClassLoader.class, SharedPreferences.class)
-# Keep only the constructor signature; class names can still be obfuscated.
+# Keep only the constructor signature so it is not removed by shrinking.
 -keepclassmembers class * extends com.wmods.wppenhacer.xposed.core.Feature {
      public <init>(java.lang.ClassLoader,android.content.SharedPreferences);
 }
@@ -26,8 +30,6 @@
 -keepclassmembers class com.wmods.wppenhacer.xposed.core.components.** {
         *;
 }
-
--repackageclasses 'wae'
 
 # Xposed Init entrypoints
 -keep class com.wmods.wppenhacer.WppXposed* { *; }
