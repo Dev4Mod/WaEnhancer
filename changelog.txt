@@ -7,5 +7,6 @@
 [FIXED]
 * Fixed the Text Status Composer color picker on WhatsApp 2.26.41.xx
 * Fixed IG Status on WhatsApp 2.26.41.xx
+* Fixed Remove Forward Limit on newer WhatsApp versions, which now also removes the limits for frequently forwarded messages to groups and for sharing to multiple channels
 * Fixed a "failed to hook Flyme checkDowngrade" error appearing in the LSPosed log on non-Flyme devices
 * Fixed the AssemblyAI API key translations in several languages
