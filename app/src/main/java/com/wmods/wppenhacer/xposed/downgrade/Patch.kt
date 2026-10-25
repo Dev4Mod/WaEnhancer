@@ -130,9 +130,9 @@ object Patch : YukiBaseHooker() {
             }
         }
 
-        // Flyme 9 (Android 11) specific overload.
+        // Flyme 9 (Android 11) specific overload, absent on every other ROM.
         runCatching {
-            pmClass.resolve().firstMethodOrNull {
+            pmClass.resolve().optional(silent = true).firstMethodOrNull {
                 name = "checkDowngrade"
                 parameters(liteClass, liteClass)
             }?.hook {
