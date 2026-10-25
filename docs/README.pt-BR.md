@@ -137,10 +137,12 @@
 
 ## Instalação
 1. Certifique-se de que seu dispositivo está com root.
-2. Instale o Xposed Framework (recomendamos [este](https://github.com/JingMatrix/LSPosed) LSPosed) no seu dispositivo.
+2. Instale um destes frameworks Xposed no seu dispositivo:
+   * [Vector](https://github.com/JingMatrix/Vector/releases) (código aberto)
+   * [LSPosed IT](https://lsposed.org/) (código fechado)
 3. Baixe o WaEnhancer na aba [Actions](https://github.com/Dev4Mod/WaEnhancer/actions).
 4. Instale o APK do WaEnhancer.
-5. Ative o módulo WaEnhancer no aplicativo Xposed Installer(LSPosed).
+5. Ative o módulo WaEnhancer no gerenciador do Vector ou do LSPosed.
 
 ## Suporte
 Se você encontrar algum problema ou tiver dúvidas sobre o WaEnhancer, por favor [Visite o Telegram](https://t.me/waenhancer).
