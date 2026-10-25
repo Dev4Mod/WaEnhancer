@@ -1474,7 +1474,7 @@ object Unobfuscator {
                 loader
             )
             Arrays.stream(clazz.declaredMethods).filter { m ->
-                m.parameterCount == 3 && m.returnType == View::class.java && m.parameterTypes[1] == LayoutInflater::class.java
+                m.parameterCount == 3 && m.returnType == View::class.java && LayoutInflater::class.java in m.parameterTypes
             }.findFirst().orElse(null)
                 ?: throw RuntimeException("GetViewConversation method not found")
         }
