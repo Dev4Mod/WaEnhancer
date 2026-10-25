@@ -8,9 +8,10 @@ import android.content.pm.PackageManager
 import android.content.res.AssetManager
 import android.content.res.ColorStateList
 import android.content.res.Resources
+import android.graphics.ColorMatrix
+import android.graphics.ColorMatrixColorFilter
 import android.graphics.Paint
 import android.graphics.drawable.Drawable
-import android.os.Build
 import android.os.Bundle
 import android.util.TypedValue
 import android.view.View
@@ -112,12 +113,21 @@ class CustomThemeV2(loader: ClassLoader, preferences: SharedPreferences) :
     private val processedResources = Collections.synchronizedMap(WeakHashMap<Any, Boolean>())
 
     @Volatile
+    private var conversationBackgroundColors: Map<Int, Int> = emptyMap()
+
+    @Volatile
     private var colorsReady = false
 
     @Throws(Throwable::class)
     override fun doHook() {
         properties = Utils.getProperties(xprefs, "custom_css", "custom_filters")
         hookTheme()
+        if (DesignUtils.shouldUseMonetColors(xprefs)) {
+            hookChatInfoTheme()
+            runCatching { hookDefaultChatWallpaper() }.onFailure {
+                log("Default Monet wallpaper unavailable: $it")
+            }
+        }
         hookWallpaper()
         ReflectionUtils.findClass("android.app.ActivityThread", classLoader).resolve().method {
             name = "handleRelaunchActivity"
@@ -300,14 +310,89 @@ class CustomThemeV2(loader: ClassLoader, preferences: SharedPreferences) :
             before {
                 if (!colorsReady) return@before
                 val currentActivity = WppCore.getCurrentActivity()
-                if (currentActivity == null || currentActivity.javaClass.simpleName == "Conversation") return@before
+                if (currentActivity == null) return@before
+
+                // Chat bubbles have their own hooks. Only replace stock backdrop
+                // colors here, keeping message text and bubble colors untouched.
+                if (currentActivity.javaClass.simpleName == "Conversation") {
+                    val color = args[0] as Int
+                    conversationBackgroundColors[color]?.let { args[0] = it }
+                    return@before
+                }
 
                 val color = args[0] as Int
                 val mappedColor = resolvedColors[color]
                     ?: IColors.getFromIntColor(color, IColors.colors).also {
                         resolvedColors[color] = it
                     }
-                args[0] = mappedColor
+                // Collapsing info headers update their scrim after resume.
+                // Apply the screen's surface role after the global replacement,
+                // without caching that activity-specific result for other screens.
+                args[0] = if (DesignUtils.shouldUseMonetColors(xprefs)
+                    && ChatInfoTheme.isChatInfo(currentActivity)
+                ) ChatInfoTheme.replaceSurfaceColor(mappedColor) else mappedColor
+            }
+        }
+
+    }
+
+    private fun hookDefaultChatWallpaper() {
+        // This factory is used for DEFAULT wallpapers. Custom images and
+        // COLOR_WITH_WA_OVERLAY palettes create their drawables separately.
+        val factory = Unobfuscator.loadDefaultDoodleWallpaperMethod(classLoader)
+        require(Drawable::class.java.isAssignableFrom(factory.returnType))
+        val backdrop = factory.returnType.declaredFields.single {
+            it.type == Int::class.javaPrimitiveType && !java.lang.reflect.Modifier.isStatic(it.modifiers)
+        }.apply { isAccessible = true }
+
+        factory.hook {
+            after {
+                val drawable = result as? Drawable ?: return@after
+                val surface = resolveMonetColor(
+                    if (DesignUtils.isNightMode()) "system_neutral1_900" else "system_neutral1_10"
+                )
+                if (surface == 0) return@after
+                drawable.colorFilter = ColorMatrixColorFilter(
+                    ColorMatrix(MonetWallpaperColors.colorMatrix(backdrop.getInt(drawable), surface))
+                )
+            }
+        }
+    }
+
+    private fun hookChatInfoTheme() {
+        // InfoCard draws its own content rectangle over View.background. Its
+        // XML color bypasses drawable/resource tinting and setContentColor.
+        // Set that semantic surface immediately before drawing, including after
+        // WhatsApp rebinds a card. Subclasses inherit this drawing method.
+        val infoCard = ReflectionUtils.findClass("com.whatsapp.ui.coreui.InfoCard", classLoader)
+        val setContentColor = infoCard.getMethod("setContentColor", Int::class.javaPrimitiveType)
+        infoCard.resolve().firstMethod {
+            name = "onDraw"
+            parameters(android.graphics.Canvas::class)
+        }.hook {
+            before {
+                val view = instance as View
+                ChatInfoTheme.cardContentColor(view)?.let { setContentColor.invoke(view, it) }
+            }
+        }
+        WppCore.addListenerActivity { activity, type ->
+            if (type != WppCore.ActivityChangeState.ChangeType.RESUMED
+                || !ChatInfoTheme.isChatInfo(activity)
+            ) return@addListenerActivity
+            val root = activity.window.decorView
+            root.post {
+                ChatInfoTheme.applyTree(root)
+            }
+        }
+        View::class.java.resolve().firstMethod {
+            name = "onAttachedToWindow"
+            emptyParameters()
+        }.hook {
+            after {
+                val view = instance as View
+                if (ChatInfoTheme.isChatInfoView(view)) {
+                    view.post { ChatInfoTheme.apply(view) }
+                }
             }
         }
     }
@@ -316,15 +401,14 @@ class CustomThemeV2(loader: ClassLoader, preferences: SharedPreferences) :
         colorsReady = false
         resolvedColors.clear()
         processedResources.clear()
+        conversationBackgroundColors = emptyMap()
         IColors.initColors()
 
         var primaryColorInt = xprefs.getInt("primary_color", 0)
         var textColorInt = xprefs.getInt("text_color", 0)
         var backgroundColorInt = xprefs.getInt("background_color", 0)
         val changeColorEnabled = xprefs.getBoolean("changecolor", false)
-        val changeColorMode = xprefs.getString("changecolor_mode", "manual")
-        val useMonetColors = changeColorEnabled && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S
-                && changeColorMode == "monet"
+        val useMonetColors = DesignUtils.shouldUseMonetColors(xprefs)
 
         if (useMonetColors) {
             val primaryMonetColor = resolveMonetColor(
@@ -393,6 +477,14 @@ class CustomThemeV2(loader: ClassLoader, preferences: SharedPreferences) :
         IColors.colors.putAll(IColors.primaryColors)
         IColors.colors.putAll(IColors.textColors)
         IColors.colors.putAll(IColors.backgroundColors)
+        if (useMonetColors) {
+            conversationBackgroundColors = ConversationBackgroundColors.palette(
+                DesignUtils.isNightMode(), backgroundColorInt
+            )
+            for ((original, replacement) in conversationBackgroundColors) {
+                IColors.colors[IColors.toString(original)] = IColors.toString(replacement)
+            }
+        }
         IColors.primaryColors.clear()
         IColors.textColors.clear()
 
@@ -479,6 +571,7 @@ class CustomThemeV2(loader: ClassLoader, preferences: SharedPreferences) :
     }
 
     private fun checkNotApplyColor(color: Int): Boolean {
+        if (conversationBackgroundColors.containsKey(color)) return false
         val activity = WppCore.getCurrentActivity()
         if (activity != null && activity.javaClass.simpleName == "Conversation"
             && ReflectionUtils.isCalledFromStrings("getValue")

@@ -259,14 +259,14 @@ object DesignUtils {
         return "0"
     }
 
-    private fun shouldUseMonetColors(): Boolean {
-        if (mPrefs == null || Build.VERSION.SDK_INT < Build.VERSION_CODES.S) {
+    fun shouldUseMonetColors(prefs: SharedPreferences? = mPrefs): Boolean {
+        if (prefs == null || Build.VERSION.SDK_INT < Build.VERSION_CODES.S) {
             return false
         }
-        if (mPrefs?.getBoolean("changecolor", false) != true) {
+        if (!prefs.getBoolean("changecolor", false)) {
             return false
         }
-        return "monet" == mPrefs?.getString("changecolor_mode", "manual")
+        return "monet" == prefs.getString("changecolor_mode", "manual")
     }
 
     private fun resolveMonetColor(resourceName: String): Int {
