@@ -399,8 +399,8 @@
     <string name="transcription_provider_sum">Choose the AI service for audio transcription</string>
     <string name="assemblyai">启用 AssemblyAI</string>
     <string name="assemblyai_sum">使用 AssemblyAI 替换 Whatsapp 默认的语音转文字</string>
-    <string name="assemblyai_key">AssemblyAI API Key</string>
-    <string name="assemblyai_key_sum">AssemblyAI API access key (Get it at assemblyai.com)</string>
+    <string name="assemblyai_key">AssemblyAI API 密钥</string>
+    <string name="assemblyai_key_sum">AssemblyAI API 访问密钥（可在 assemblyai.com 获取）</string>
     <string name="groq_api_key">Groq API Key</string>
     <string name="groq_api_key_sum">Groq API access key (Get it at console.groq.com)</string>
     <string name="google_translate">启用谷歌翻译</string>

@@ -399,10 +399,10 @@
     <string name="transcription_provider_sum">Scegli il servizio AI per la trascrizione audio</string>
     <string name="assemblyai">Abilita AssemblyAI</string>
     <string name="assemblyai_sum">Sostituisce la trascrizione predefinita di WhatsApp con AssemblyAI</string>
-    <string name="assemblyai_key">Chiave AssemblyAI API</string>
+    <string name="assemblyai_key">Chiave API AssemblyAI</string>
     <string name="assemblyai_key_sum">Chiave di accesso API AssemblyAI (Ottienila su assemblyai.com)</string>
     <string name="groq_api_key">Chiave Groq API</string>
-    <string name="groq_api_key_sum">Chiave di accesso API AssemblyAI (Ottienila su console.groq.com)</string>
+    <string name="groq_api_key_sum">Chiave di accesso API Groq (Ottienila su console.groq.com)</string>
     <string name="google_translate">Abilita Google Translate</string>
     <string name="google_translate_sum">Sostituisce il traduttore nativo di WhatsApp con Google Translate</string>
     <string name="show_contact_info">Mostra nelle informazioni del contatto</string>

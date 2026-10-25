@@ -406,8 +406,8 @@
     <string name="transcription_provider_sum">Escolha o serviço de IA para transcrição de áudio</string>
     <string name="assemblyai">Ativar AssemblyAI</string>
     <string name="assemblyai_sum">Substitui a transcrição padrão do WhatsApp por AssemblyAI</string>
-    <string name="assemblyai_key">AssemblyAI API Key</string>
-    <string name="assemblyai_key_sum">Chave de acesso à API do AssemblyAI (Obtenha-o em assemblyai.com)</string>
+    <string name="assemblyai_key">Chave da API do AssemblyAI</string>
+    <string name="assemblyai_key_sum">Chave de acesso à API do AssemblyAI (Obtenha-a em assemblyai.com)</string>
     <string name="groq_api_key">Chave API da Groq</string>
     <string name="groq_api_key_sum">Chave de acesso Groq API (Obtenha-o em console.groq.com)</string>
     <string name="google_translate">Ativar Google Tradutor</string>

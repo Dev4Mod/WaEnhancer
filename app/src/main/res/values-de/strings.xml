@@ -399,8 +399,8 @@
     <string name="transcription_provider_sum">Wählen Sie den KI-Dienst für Audio-Transkription</string>
     <string name="assemblyai">AssemblyAI aktivieren</string>
     <string name="assemblyai_sum">Ersetzt die Standard-Whatsapp-Transkription durch AssemblyAI</string>
-    <string name="assemblyai_key">AssemblyAI API Key</string>
-    <string name="assemblyai_key_sum">AssemblyAI API Access Key (Get it at assemblyai.com)</string>
+    <string name="assemblyai_key">AssemblyAI-API-Schlüssel</string>
+    <string name="assemblyai_key_sum">AssemblyAI-API-Zugriffsschlüssel (erhältlich auf assemblyai.com)</string>
     <string name="groq_api_key">Groq API Schlüssel</string>
     <string name="groq_api_key_sum">Groq API Zugangsschlüssel (Holen Sie ihn unter console.groq.com)</string>
     <string name="google_translate">Google Translate aktivieren</string>

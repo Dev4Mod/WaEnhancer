@@ -399,8 +399,8 @@
     <string name="transcription_provider_sum">Выберите службу ИИ для аудиотранскрипции</string>
     <string name="assemblyai">Включить AssemblyAI</string>
     <string name="assemblyai_sum">Заменяет стандартную транскрипцию Whatsapp на AssemblyAI</string>
-    <string name="assemblyai_key">Ключ API для ИИ AssemblyAI</string>
-    <string name="assemblyai_key_sum">Ключ доступа к AssemblyAI API (Get it at assemblyai.com)</string>
+    <string name="assemblyai_key">Ключ API AssemblyAI</string>
+    <string name="assemblyai_key_sum">Ключ доступа к AssemblyAI API (получите его на assemblyai.com)</string>
     <string name="groq_api_key">Ключ API Groq</string>
     <string name="groq_api_key_sum">Ключ доступа к Groq API (Get it at console.groq.com)</string>
     <string name="google_translate">Включить перевод Google</string>

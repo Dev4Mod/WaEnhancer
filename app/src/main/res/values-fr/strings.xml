@@ -397,10 +397,10 @@
     <string name="custom_privacy_per_contact_sum">Activez le bouton de confidentialité personnalisé sur l\'écran des informations de contact</string>
     <string name="transcription_provider">Transcription Provider</string>
     <string name="transcription_provider_sum">Choose the AI service for audio transcription</string>
-    <string name="assemblyai">Activer l\'IA d\'assemblage</string>
-    <string name="assemblyai_sum">Remplace la transcription WhatsApp par défaut par assemblage IA</string>
-    <string name="assemblyai_key">AssemblyAI API Key</string>
-    <string name="assemblyai_key_sum">AssemblyAI API access key (Get it at assemblyai.com)</string>
+    <string name="assemblyai">Activer AssemblyAI</string>
+    <string name="assemblyai_sum">Remplace la transcription WhatsApp par défaut par AssemblyAI</string>
+    <string name="assemblyai_key">Clé API AssemblyAI</string>
+    <string name="assemblyai_key_sum">Clé d\'accès à l\'API AssemblyAI (obtenez-la sur assemblyai.com)</string>
     <string name="groq_api_key">Groq API Key</string>
     <string name="groq_api_key_sum">Groq API access key (Get it at console.groq.com)</string>
     <string name="google_translate">Activer Google Traduction</string>
