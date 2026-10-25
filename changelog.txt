@@ -1,21 +1,11 @@
 [NEW]
-* Added support for WhatsApp and WhatsApp Business 2.26.41.xx
-* Enabled WhatsApp's native message scheduling and sending text messages as View Once: long press the send button to access them
-* Hide Delivered for unknown numbers: shows only one tick for numbers not saved in your contacts, as if the message hadn't arrived
-* IG Status now loads your contacts' statuses without having to open the Status tab first
+* Root Diagnostics now detects when the Magisk DenyList is blocking WhatsApp/Business and can remove them from it with one tap
 
 [IMPROVED]
-* Custom Privacy is now saved per contact LID instead of phone number, so it keeps working for contacts without a visible number. Existing settings are migrated automatically
-* The module now uses the official YukiHookAPI 1.5.0
-* Smaller and faster module: release builds are now optimized, with unused code and resources removed
-* Improved app visibility handling in Android System for some OEM ROMs
+* Crash logs are now easier to read, since class and method names are no longer obfuscated
 
 [FIXED]
-* Fixed the module failing to start on newer WhatsApp versions
-* Fixed WhatsApp not reading the module settings when the module app is hidden from it by package visibility
-* Fixed Call Type, Channels and Locked Chats features on newer WhatsApp versions
-* Fixed Anti Revoke possibly crashing when blocking deleted statuses and messages on newer WhatsApp versions
-* Fixed Stickers outline removal on newer WhatsApp versions
-* Fixed the Custom Privacy dialog crashing for contacts without a known phone number
-* Fixed WhatsApp crashing with "database is locked" when Anti Disappearing is enabled
-* Fixed the pinned chats limit on newer WhatsApp versions, including pinning more than 3 chats at once and pins being undone after syncing
+* Fixed the Text Status Composer color picker on WhatsApp 2.26.41.xx
+* Fixed IG Status on WhatsApp 2.26.41.xx
+* Fixed a "failed to hook Flyme checkDowngrade" error appearing in the LSPosed log on non-Flyme devices
+* Fixed the AssemblyAI API key translations in several languages
