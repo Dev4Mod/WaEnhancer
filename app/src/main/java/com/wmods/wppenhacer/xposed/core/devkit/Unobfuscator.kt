@@ -3393,9 +3393,11 @@ object Unobfuscator {
                 "TextStatusComposerFragment"
             )
             ReflectionUtils.findMethodUsingFilter(clazz) { method ->
-                method.parameterCount == 2 &&
-                        method.parameterTypes[0] === Bundle::class.java &&
-                        method.parameterTypes[1] === View::class.java
+                method.parameterCount == 2 && (
+                        (method.parameterTypes[0] === View::class.java &&
+                                method.parameterTypes[1] === Bundle::class.java) ||
+                                (method.parameterTypes[0] === Bundle::class.java &&
+                                        method.parameterTypes[1] === View::class.java))
             }
         }
     }
