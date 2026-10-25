@@ -32,4 +32,12 @@
         android:text="@string/diag_hma_fix"
         android:visibility="gone" />
 
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/fix_denylist_button"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/spacing_small"
+        android:text="@string/diag_denylist_fix"
+        android:visibility="gone" />
+
 </LinearLayout>

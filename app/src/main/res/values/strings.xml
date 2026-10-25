@@ -532,7 +532,7 @@
     <string name="alert_module_notfound">WaEnhancer module not found, HMA is probably hiding the module, remove WhatsApp from the HMA list and try again.</string>
     <!-- Root Diagnostics -->
     <string name="diag_title">Root Diagnostics</string>
-    <string name="diag_summary">Check for sepolicy issues and Hide My App List blocks affecting WhatsApp.</string>
+    <string name="diag_summary">Check for sepolicy issues, Magisk DenyList and Hide My App List blocks affecting WhatsApp.</string>
     <string name="diag_button">Analyze Device</string>
     <string name="diag_dialog_title">Diagnostic Log</string>
     <string name="diag_root_granted">Root access granted.</string>
@@ -566,6 +566,16 @@
     <string name="diag_hma_fix_later">Later</string>
     <string name="diag_hma_fix_failed">Could not fix the Hide My App List configuration.</string>
     <string name="diag_hma_fix_nothing">Nothing to fix in the Hide My App List configuration.</string>
+    <string name="diag_denylist_checking">Checking Magisk DenyList...</string>
+    <string name="diag_denylist_no_blocks">No Magisk DenyList blocks detected for WhatsApp.</string>
+    <string name="diag_denylist_blocked">Magisk DenyList is unloading the Zygisk modules (LSPosed) from:</string>
+    <string name="diag_denylist_disable">Remove WhatsApp/Business from the Magisk DenyList so WaEnhancer can be loaded.</string>
+    <string name="diag_denylist_fix">Fix Magisk DenyList</string>
+    <string name="diag_denylist_fix_confirm_title">Fix Magisk DenyList?</string>
+    <string name="diag_denylist_fix_confirm_message">WhatsApp/Business will be removed from the Magisk DenyList and force-stopped. No restart is needed.</string>
+    <string name="diag_denylist_fix_done">WhatsApp was removed from the Magisk DenyList and stopped.</string>
+    <string name="diag_denylist_fix_nothing">Nothing to fix in the Magisk DenyList.</string>
+    <string name="diag_denylist_fix_failed">Could not remove WhatsApp from the Magisk DenyList.</string>
     <string name="diag_copied">Line copied to clipboard</string>
     <string name="no_file_picker">No file manager found on this device to pick a file.</string>
     <string name="disable_document_scanner">Disable document scanner</string>

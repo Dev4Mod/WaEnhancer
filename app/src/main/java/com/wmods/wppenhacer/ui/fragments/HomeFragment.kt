@@ -600,12 +600,27 @@ class HomeFragment : BaseFragment() {
         val queue = ArrayList<RootDiagnostics.LogEntry>()
 
         val hmaBlockMessage = getString(R.string.diag_hma_disable)
+        val denylistBlockMessage = getString(R.string.diag_denylist_disable)
         RootDiagnostics.runDiagnostics(context) { entry ->
             if (!isAdded) return@runDiagnostics
             queue.add(entry)
             if (entry.message == hmaBlockMessage) {
                 handler.post { dialogBinding.fixHmaButton.visibility = View.VISIBLE }
+            } else if (entry.message == denylistBlockMessage) {
+                handler.post { dialogBinding.fixDenylistButton.visibility = View.VISIBLE }
             }
+        }
+
+        dialogBinding.fixDenylistButton.setOnClickListener {
+            MaterialAlertDialogBuilder(context)
+                .setTitle(R.string.diag_denylist_fix_confirm_title)
+                .setMessage(R.string.diag_denylist_fix_confirm_message)
+                .setPositiveButton(R.string.diag_hma_fix_confirm) { _, _ ->
+                    dialogBinding.fixDenylistButton.isEnabled = false
+                    fixMagiskDenylist(context, dialogBinding.fixDenylistButton)
+                }
+                .setNegativeButton(android.R.string.cancel, null)
+                .show()
         }
 
         dialogBinding.fixHmaButton.setOnClickListener {
@@ -670,6 +685,26 @@ class HomeFragment : BaseFragment() {
                     RootDiagnostics.FixResult.FAILED ->
                         Toast.makeText(context, R.string.diag_hma_fix_failed, Toast.LENGTH_LONG).show()
                 }
+            }
+        }
+    }
+
+    private fun fixMagiskDenylist(context: Context, button: View) {
+        lifecycleScope.launch(Dispatchers.IO) {
+            val result = RootDiagnostics.fixMagiskDenylist(context) { }
+            withContext(Dispatchers.Main) {
+                if (_binding == null || !isAdded) return@withContext
+                val message = when (result) {
+                    RootDiagnostics.FixResult.FIXED -> R.string.diag_denylist_fix_done
+                    RootDiagnostics.FixResult.NOTHING_TO_FIX -> R.string.diag_denylist_fix_nothing
+                    RootDiagnostics.FixResult.FAILED -> R.string.diag_denylist_fix_failed
+                }
+                if (result == RootDiagnostics.FixResult.FAILED) {
+                    button.isEnabled = true
+                } else {
+                    button.visibility = View.GONE
+                }
+                Toast.makeText(context, message, Toast.LENGTH_LONG).show()
             }
         }
     }
