@@ -42,17 +42,16 @@ class BridgeClientKt(private val context: Context) : BaseClient(), ServiceConnec
     private var connectionContinuation: CancellableContinuation<Boolean>? = null
 
 
-    override suspend fun connect(): Boolean {
-        return performConnection()
-    }
+    override suspend fun connect(): Boolean =
+        performConnection(forceStart = false) || performConnection(forceStart = true)
 
-    private suspend fun performConnection(): Boolean = withContext(Dispatchers.IO) {
+    private suspend fun performConnection(forceStart: Boolean): Boolean = withContext(Dispatchers.IO) {
         if (service?.asBinder()?.pingBinder() == true) {
             return@withContext true
         }
 
         connectionMutex.withLock {
-            runCatching {
+            if (forceStart) runCatching {
                 val intent = Intent().apply {
                     component = ComponentName(
                         BuildConfig.APPLICATION_ID,
@@ -130,7 +129,7 @@ class BridgeClientKt(private val context: Context) : BaseClient(), ServiceConnec
             var success = false
             repeat(3) { attempt ->
                 YukiLog.log("Attempting reconnect... ($attempt)")
-                if (performConnection()) {
+                if (performConnection(forceStart = attempt > 0)) {
                     success = true
                     return@repeat
                 }
