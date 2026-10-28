@@ -157,6 +157,7 @@ class CustomThemeV2(loader: ClassLoader, preferences: SharedPreferences) :
         if (!xprefs.getBoolean("wallpaper", false)) return
 
         loadAndApplyColorsWallpaper()
+        WallpaperView.prefetch(Utils.application, xprefs, properties!!)
         val homeActivityClass = WppCore.homeActivityClass
         val actionModeBarId = Utils.getID("action_mode_bar", "id")
 
