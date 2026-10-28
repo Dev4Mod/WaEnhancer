@@ -12,9 +12,8 @@ import android.view.ViewOutlineProvider
 import android.widget.FrameLayout
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
-import com.highcapable.kavaref.KavaRef.Companion.resolve
-import com.highcapable.yukihookapi.extension.kavaref.hook
 import com.wmods.wppenhacer.xposed.core.Feature
+import com.wmods.wppenhacer.xposed.core.ViewHookDispatcher
 import com.wmods.wppenhacer.xposed.utils.Utils
 import java.util.WeakHashMap
 
@@ -46,36 +45,22 @@ class FloatingBottomBar(loader: ClassLoader, preferences: SharedPreferences) :
             Utils.getID(name, "id").takeIf { id -> id > 0 }
         }.toSet()
 
-        View::class.java.resolve().firstMethod {
-            name = "onAttachedToWindow"
-            superclass()
-            emptyParameters()
-        }.hook {
-            after {
-                val view = instance as? View ?: return@after
-                if (view.id == bottomNavId) {
-                    val bar = view as? ViewGroup ?: return@after
-                    scheduleSetup(bar)
-                    return@after
-                }
-                if (view.id in fabIds) {
-                    view.post { positionFabAboveCurrentBar(view, bottomNavId) }
-                }
+        ViewHookDispatcher.onAttachedToWindow(this) { view ->
+            if (view.id == bottomNavId) {
+                val bar = view as? ViewGroup ?: return@onAttachedToWindow
+                scheduleSetup(bar)
+                return@onAttachedToWindow
+            }
+            if (view.id in fabIds) {
+                view.post { positionFabAboveCurrentBar(view, bottomNavId) }
             }
         }
 
-        View::class.java.resolve().firstMethod {
-            name = "onDetachedFromWindow"
-            superclass()
-            emptyParameters()
-        }.hook {
-            after {
-                val view = instance as? View ?: return@after
-                if (view.id != bottomNavId) return@after
-                val bar = view as? ViewGroup ?: return@after
-                setupAttempts.remove(bar)
-                processedBars.remove(bar)
-            }
+        ViewHookDispatcher.onDetachedFromWindow(this) { view ->
+            if (view.id != bottomNavId) return@onDetachedFromWindow
+            val bar = view as? ViewGroup ?: return@onDetachedFromWindow
+            setupAttempts.remove(bar)
+            processedBars.remove(bar)
         }
     }
 

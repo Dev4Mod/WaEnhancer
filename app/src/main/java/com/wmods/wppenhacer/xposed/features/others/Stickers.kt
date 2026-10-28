@@ -7,10 +7,10 @@ import android.view.View
 import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
-import com.highcapable.kavaref.KavaRef.Companion.resolve
 import com.highcapable.yukihookapi.extension.kavaref.hook
 import com.wmods.wppenhacer.R
 import com.wmods.wppenhacer.xposed.core.Feature
+import com.wmods.wppenhacer.xposed.core.ViewHookDispatcher
 import com.wmods.wppenhacer.xposed.core.components.AlertDialogWpp
 import com.wmods.wppenhacer.xposed.core.devkit.Unobfuscator
 import com.wmods.wppenhacer.xposed.utils.Utils
@@ -22,25 +22,18 @@ class Stickers(classLoader: ClassLoader, preferences: SharedPreferences) :
     override fun doHook() {
 
         if (!xprefs.getBoolean("alertsticker", false)) return
-        View::class.java.resolve().firstMethod {
-            name = "onAttachedToWindow"
-            superclass()
-            emptyParameters()
-        }.hook {
-            after {
-                val view = instance as View
-                if (view.id != Utils.getID("stickerContainer", "id")) return@after
-                if (view.tag == "wae_hooked") return@after
-                view.tag = "wae_hooked"
-                view.setTouchClickAndLongClickListener(
-                    onClick = {
-                        showAlertDialog(view)
-                    },
-                    onLongClick = {
-                        view.performLongClick()
-                    }
-                )
-            }
+        ViewHookDispatcher.onAttachedToWindow(this) { view ->
+            if (view.id != Utils.getID("stickerContainer", "id")) return@onAttachedToWindow
+            if (view.tag == "wae_hooked") return@onAttachedToWindow
+            view.tag = "wae_hooked"
+            view.setTouchClickAndLongClickListener(
+                onClick = {
+                    showAlertDialog(view)
+                },
+                onLongClick = {
+                    view.performLongClick()
+                }
+            )
         }
         if (xprefs.getBoolean("remove_sticker_white_outline", false)) {
             val stickerColoredOutline = Unobfuscator.loadStickerColoredOutline(classLoader)

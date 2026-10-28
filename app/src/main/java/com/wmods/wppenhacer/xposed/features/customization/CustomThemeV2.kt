@@ -15,7 +15,6 @@ import android.os.Bundle
 import android.util.TypedValue
 import android.view.View
 import android.view.ViewGroup
-import android.widget.FrameLayout
 import androidx.core.content.ContextCompat
 import androidx.core.graphics.drawable.toDrawable
 import com.highcapable.kavaref.KavaRef.Companion.resolve
@@ -26,6 +25,7 @@ import com.wmods.wppenhacer.utils.DrawableColors.replaceColor
 import com.wmods.wppenhacer.utils.IColors
 import com.wmods.wppenhacer.views.WallpaperView
 import com.wmods.wppenhacer.xposed.core.Feature
+import com.wmods.wppenhacer.xposed.core.ViewHookDispatcher
 import com.wmods.wppenhacer.xposed.core.WppCore
 import com.wmods.wppenhacer.xposed.core.devkit.Unobfuscator
 import com.wmods.wppenhacer.xposed.utils.DesignUtils
@@ -181,16 +181,9 @@ class CustomThemeV2(loader: ClassLoader, preferences: SharedPreferences) :
             }
         }
 
-        View::class.java.resolve().firstMethod {
-            name = "onAttachedToWindow"
-            superclass()
-            emptyParameters()
-        }.hook {
-            after {
-                val view = instance as View
-                if (actionModeBarId > 0 && view.id == actionModeBarId)
-                    view.background = DesignUtils.getPrimarySurfaceColor().toDrawable()
-            }
+        ViewHookDispatcher.onAttachedToWindow(this) { view ->
+            if (actionModeBarId > 0 && view.id == actionModeBarId)
+                view.background = DesignUtils.getPrimarySurfaceColor().toDrawable()
         }
 
         View::class.java.resolve().firstMethod {
@@ -225,19 +218,12 @@ class CustomThemeV2(loader: ClassLoader, preferences: SharedPreferences) :
         }
 
         val loadTabFrameClass = Unobfuscator.loadTabFrameClass(classLoader)
-        FrameLayout::class.java.resolve().firstMethod {
-            name = "onMeasure"
-            superclass()
-            parameters(Int::class, Int::class)
-        }.hook {
-            after {
-                if (!loadTabFrameClass.isInstance(instance)) return@after
-                if (!colorsReady || checkNotHomeActivity()) return@after
-                val viewGroup = instance as ViewGroup
-                val background = viewGroup.background
-                val colors = navAlpha ?: return@after
-                replaceColor(background, colors)
-            }
+        ViewHookDispatcher.onFrameLayoutMeasured(this) { viewGroup ->
+            if (!loadTabFrameClass.isInstance(viewGroup)) return@onFrameLayoutMeasured
+            if (!colorsReady || checkNotHomeActivity()) return@onFrameLayoutMeasured
+            val background = viewGroup.background
+            val colors = navAlpha ?: return@onFrameLayoutMeasured
+            replaceColor(background, colors)
         }
     }
 
