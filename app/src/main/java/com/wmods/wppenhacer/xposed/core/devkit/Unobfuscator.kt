@@ -2659,9 +2659,8 @@ object Unobfuscator {
                 }
             }.firstOrNull() ?: throw Exception("ConversationsFragment A00 method not found")
 
-            val dimenId = methodData.usingNumbers.map { n ->
-                java.lang.Float.floatToIntBits(n.toFloat())
-            }.firstOrNull { idInt ->
+            val dimenId = methodData.usingNumbers.filter { it.bitWidth == 32 }.map { it.intValue() }
+                .firstOrNull { idInt ->
                 (idInt ushr 24) == 0x7F && ((idInt ushr 16) and 0xFF) == 0x07
             } ?: throw Exception("Filter dimen ID not found in ConversationsFragment")
             dimenId
