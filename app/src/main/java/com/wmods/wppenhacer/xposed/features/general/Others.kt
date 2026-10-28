@@ -18,6 +18,7 @@ import com.highcapable.yukihookapi.extension.kavaref.hookAll
 import com.wmods.wppenhacer.R
 import com.wmods.wppenhacer.listeners.OnMultiClickListener
 import com.wmods.wppenhacer.xposed.core.Feature
+import com.wmods.wppenhacer.xposed.core.ViewHookDispatcher
 import com.wmods.wppenhacer.xposed.core.FeatureLoader
 import com.wmods.wppenhacer.xposed.core.WppCore
 import com.wmods.wppenhacer.xposed.core.components.FMessageWpp
@@ -727,18 +728,19 @@ class Others(loader: ClassLoader, preferences: SharedPreferences) : Feature(load
                 it > 0
             }.toSet()
         }
-        View::class.java.resolve().firstMethod {
-            name = "invalidate"
-            superclass()
-            parameters(Boolean::class)
-        }.hook {
-            after {
-                val view = instance as View
-                val id = view.id
-                if (id > 0 && idsFilter.contains(id) && view.isVisible) {
-                    view.visibility = View.GONE
-                }
+        ViewHookDispatcher.onAttachedToWindow(this) { view ->
+            val id = view.id
+            if (id > 0 && idsFilter.contains(id) && view.isVisible) {
+                view.visibility = View.GONE
             }
+        }
+
+        val visibilityMask = 0x0000000C
+        ViewHookDispatcher.onSetFlags(this) { view, flags, mask ->
+            if ((mask and visibilityMask) == 0) return@onSetFlags flags
+            val id = view.id
+            if (id <= 0 || !idsFilter.contains(id)) return@onSetFlags flags
+            (flags and visibilityMask.inv()) or View.GONE
         }
     }
 
