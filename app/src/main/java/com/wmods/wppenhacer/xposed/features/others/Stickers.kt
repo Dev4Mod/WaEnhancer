@@ -22,8 +22,9 @@ class Stickers(classLoader: ClassLoader, preferences: SharedPreferences) :
     override fun doHook() {
 
         if (!xprefs.getBoolean("alertsticker", false)) return
+        val stickerContainerId = Utils.getID("stickerContainer", "id")
         ViewHookDispatcher.onAttachedToWindow(this) { view ->
-            if (view.id != Utils.getID("stickerContainer", "id")) return@onAttachedToWindow
+            if (view.id != stickerContainerId) return@onAttachedToWindow
             if (view.tag == "wae_hooked") return@onAttachedToWindow
             view.tag = "wae_hooked"
             view.setTouchClickAndLongClickListener(

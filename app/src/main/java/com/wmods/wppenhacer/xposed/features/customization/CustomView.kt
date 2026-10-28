@@ -169,7 +169,6 @@ class CustomView(loader: ClassLoader, preferences: SharedPreferences) :
 
         if (mapIds.isNullOrEmpty() && leafMapIds.isNullOrEmpty()) return
 
-        hookDrawableViews()
         registerHooks()
     }
 
@@ -349,7 +348,7 @@ class CustomView(loader: ClassLoader, preferences: SharedPreferences) :
         return null
     }
 
-    private fun hookDrawableViews() {
+    private val backgroundHook = lazy {
         View::class.java.resolve().firstMethod {
             name = "setBackground"
             superclass()
@@ -363,7 +362,9 @@ class CustomView(loader: ClassLoader, preferences: SharedPreferences) :
                 if (newDrawable !== forced) result = null
             }
         }
+    }
 
+    private val imageDrawableHook = lazy {
         ImageView::class.java.resolve().firstMethod {
             name = "setImageDrawable"
             superclass()
@@ -950,9 +951,11 @@ class CustomView(loader: ClassLoader, preferences: SharedPreferences) :
 
     private fun setHookedDrawable(view: View, draw: Drawable) {
         if (view is ImageView) {
+            imageDrawableHook.value
             forcedDrawableMap[view] = draw
             view.setImageDrawable(draw)
         } else {
+            backgroundHook.value
             forcedBackgroundMap[view] = draw
             view.background = draw
         }
@@ -969,6 +972,7 @@ class CustomView(loader: ClassLoader, preferences: SharedPreferences) :
                     )
                     chacheDrawables[term.strValue] = gradientDrawable
                 }
+                backgroundHook.value
                 forcedBackgroundMap[view] = gradientDrawable
                 view.background = gradientDrawable
             } catch (e: Exception) {

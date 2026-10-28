@@ -103,30 +103,28 @@ class MediaPreview(
         PropsHook.booleans[24205] = false
 
         val layoutClass = Unobfuscator.loadLayoutClass(classLoader)
+        val surfaceIds = listOf("invisible_press_surface", "video_control_frame_view")
+            .map { Utils.getID(it, "id") }
+        val controlFrameIds = listOf(
+            "control_frame_new",
+            "control_frame",
+            "control_frame_view",
+            "mms_control_frame_new",
+            "mms_control_frame"
+        ).map { Utils.getID(it, "id") }
         ViewHookDispatcher.onAttachedToWindow(this) { view ->
             if (!layoutClass.isInstance(view)) return@onAttachedToWindow
             view.postDelayed(
                 {
-                    var resourceNames =
-                        listOf("invisible_press_surface", "video_control_frame_view")
-                    for (rn in resourceNames) {
-                        val viewGroup =
-                            view.findViewById<View>(Utils.getID(rn, "id")) ?: continue
+                    for (id in surfaceIds) {
+                        val viewGroup = view.findViewById<View>(id) ?: continue
                         if (!viewGroup.isVisible) continue
                         logDebug("Found Surface: $viewGroup")
                         handlePressSurface(view, viewGroup)
                         return@postDelayed
                     }
-                    resourceNames = listOf(
-                        "control_frame_new",
-                        "control_frame",
-                        "control_frame_view",
-                        "mms_control_frame_new",
-                        "mms_control_frame"
-                    )
-                    for (rn in resourceNames) {
-                        val viewGroup =
-                            view.findViewById<View>(Utils.getID(rn, "id")) ?: continue
+                    for (id in controlFrameIds) {
+                        val viewGroup = view.findViewById<View>(id) ?: continue
                         if (!viewGroup.isVisible) continue
                         logDebug("Found ControlFrame: $viewGroup")
                         handleMediaControlFrame(view, viewGroup)

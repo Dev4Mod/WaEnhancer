@@ -31,6 +31,7 @@ import com.wmods.wppenhacer.xposed.core.devkit.Unobfuscator
 import com.wmods.wppenhacer.xposed.utils.DesignUtils
 import com.wmods.wppenhacer.xposed.utils.ReflectionUtils
 import com.wmods.wppenhacer.xposed.utils.Utils
+import java.lang.ref.WeakReference
 import java.util.Collections
 import java.util.Properties
 import java.util.WeakHashMap
@@ -109,6 +110,9 @@ class CustomThemeV2(loader: ClassLoader, preferences: SharedPreferences) :
     private var toolbarAlpha: HashMap<String, String>? = null
     private var properties: Properties? = null
     private val resolvedColors = ConcurrentHashMap<Int, Int>()
+
+    @Volatile
+    private var conversationCheck: ConversationCheck? = null
     private val processedResources = Collections.synchronizedMap(WeakHashMap<Any, Boolean>())
 
     @Volatile
@@ -187,6 +191,10 @@ class CustomThemeV2(loader: ClassLoader, preferences: SharedPreferences) :
                 view.background = DesignUtils.getPrimarySurfaceColor().toDrawable()
         }
 
+        val toolbarIds = setOf(
+            Utils.getID("toolbar", "id"),
+            Utils.getID("toolbar_container", "id")
+        ).filter { it > 0 }.toIntArray()
         View::class.java.resolve().firstMethod {
             name = "setBackgroundColor"
             superclass()
@@ -194,6 +202,7 @@ class CustomThemeV2(loader: ClassLoader, preferences: SharedPreferences) :
         }.hook {
             before {
                 val colors = toolbarAlpha ?: return@before
+                if ((instance as View).id !in toolbarIds) return@before
                 if (ReflectionUtils.getAdditionalInstanceField(
                         instance,
                         FIELD_WALLPAPER_TOOLBAR
@@ -243,7 +252,7 @@ class CustomThemeV2(loader: ClassLoader, preferences: SharedPreferences) :
                 ) {
                     if (typedValue.data == 0) return@after
                     val originalColor = typedValue.data
-                    val mappedColor = IColors.getFromIntColor(originalColor, IColors.colors)
+                    val mappedColor = mapColor(originalColor)
                     if (mappedColor == originalColor || checkNotApplyColor(originalColor)) return@after
                     typedValue.data = mappedColor
                 }
@@ -275,7 +284,7 @@ class CustomThemeV2(loader: ClassLoader, preferences: SharedPreferences) :
                 val mColors =
                     ReflectionUtils.getObjectField(colorStateList, "mColors") as IntArray
                 for (i in mColors.indices) {
-                    mColors[i] = IColors.getFromIntColor(mColors[i], IColors.colors)
+                    mColors[i] = mapColor(mColors[i])
                 }
             }
         }
@@ -287,14 +296,9 @@ class CustomThemeV2(loader: ClassLoader, preferences: SharedPreferences) :
             before {
                 if (!colorsReady) return@before
                 val currentActivity = WppCore.getCurrentActivity()
-                if (currentActivity == null || currentActivity.javaClass.simpleName == "Conversation") return@before
+                if (currentActivity == null || isConversation(currentActivity)) return@before
 
-                val color = args[0] as Int
-                val mappedColor = resolvedColors[color]
-                    ?: IColors.getFromIntColor(color, IColors.colors).also {
-                        resolvedColors[color] = it
-                    }
-                args[0] = mappedColor
+                args[0] = mapColor(args[0] as Int)
             }
         }
     }
@@ -459,6 +463,23 @@ class CustomThemeV2(loader: ClassLoader, preferences: SharedPreferences) :
         rootView.addView(frameLayout, 0)
     }
 
+    private fun mapColor(color: Int): Int =
+        resolvedColors[color] ?: IColors.getFromIntColor(color, IColors.colors).also {
+            resolvedColors[color] = it
+        }
+
+    private class ConversationCheck(activity: Activity, val isConversation: Boolean) {
+        val activity = WeakReference(activity)
+    }
+
+    private fun isConversation(activity: Activity): Boolean {
+        val cached = conversationCheck
+        if (cached != null && cached.activity.get() === activity) return cached.isConversation
+        val result = activity.javaClass.simpleName == "Conversation"
+        conversationCheck = ConversationCheck(activity, result)
+        return result
+    }
+
     private fun checkNotHomeActivity(): Boolean {
         val homeClass = WppCore.homeActivityClass
         val currentActivity = WppCore.getCurrentActivity()
@@ -467,7 +488,7 @@ class CustomThemeV2(loader: ClassLoader, preferences: SharedPreferences) :
 
     private fun checkNotApplyColor(color: Int): Boolean {
         val activity = WppCore.getCurrentActivity()
-        if (activity != null && activity.javaClass.simpleName == "Conversation"
+        if (activity != null && isConversation(activity)
             && ReflectionUtils.isCalledFromStrings("getValue")
             && !ReflectionUtils.isCalledFromStrings("android.view")
         ) {
