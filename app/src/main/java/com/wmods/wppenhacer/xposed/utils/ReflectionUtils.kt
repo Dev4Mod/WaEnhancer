@@ -9,6 +9,7 @@ import java.lang.reflect.Method
 import java.util.Arrays
 import java.util.Collections
 import java.util.WeakHashMap
+import java.util.concurrent.ConcurrentHashMap
 import java.util.function.Predicate
 import java.util.stream.Collectors
 
@@ -18,6 +19,8 @@ object ReflectionUtils {
     private const val REFLECTION_NAMESPACE = UnobfuscatorCacheDataStore.NAMESPACE_REFLECTION
 
     private var cacheStore: UnobfuscatorCacheDataStore? = null
+
+    private val bestMatchMethodCache = ConcurrentHashMap<BestMatchKey, Method>()
 
     @JvmStatic
     fun initCache(context: Context) {
@@ -569,13 +572,13 @@ object ReflectionUtils {
 
     fun callMethod(instance: Any?, methodName: String?, vararg args: Any?): Any? {
         if (instance == null || methodName == null) throw NullPointerException("instance and methodName must not be null")
-        val method = findMethodBestMatchByArgs(instance.javaClass, methodName, args)
+        val method = findMethodBestMatchCached(instance.javaClass, methodName, args)
         return method.invoke(instance, *args)
     }
 
     fun callStaticMethod(clazz: Class<*>?, methodName: String?, vararg args: Any?): Any? {
         if (clazz == null || methodName == null) throw NullPointerException("clazz and methodName must not be null")
-        val method = findMethodBestMatchByArgs(clazz, methodName, args)
+        val method = findMethodBestMatchCached(clazz, methodName, args)
         return method.invoke(null, *args)
     }
 
@@ -653,6 +656,24 @@ object ReflectionUtils {
             }
         }
         throw NoSuchFieldException("Field $fieldName not found in ${clazz.name}")
+    }
+
+    private data class BestMatchKey(
+        val clazz: Class<*>,
+        val methodName: String,
+        val argTypes: List<Class<*>?>
+    )
+
+    private fun findMethodBestMatchCached(
+        clazz: Class<*>,
+        methodName: String,
+        args: Array<out Any?>
+    ): Method {
+        val argTypes = if (args.isEmpty()) emptyList() else args.map { it?.javaClass }
+        val key = BestMatchKey(clazz, methodName, argTypes)
+        bestMatchMethodCache[key]?.let { return it }
+        return findMethodBestMatchByArgs(clazz, methodName, args)
+            .also { bestMatchMethodCache[key] = it }
     }
 
     private fun findMethodBestMatchByArgs(
