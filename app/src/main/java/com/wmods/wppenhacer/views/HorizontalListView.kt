@@ -296,6 +296,7 @@ open class HorizontalListView @JvmOverloads constructor(
         if (mDataChanged) {
             val oldCurrentX = mCurrentX
             initView()
+            for (index in 0 until childCount) mRemovedViewQueue.offer(getChildAt(index))
             removeAllViewsInLayout()
             mNextX = oldCurrentX
             mDataChanged = false
