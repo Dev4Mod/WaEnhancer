@@ -12,7 +12,6 @@ import com.wmods.wppenhacer.xposed.core.devkit.Unobfuscator.loadLoadedContactsMe
 import com.wmods.wppenhacer.xposed.core.devkit.Unobfuscator.loadLockedChatsMethod
 import com.wmods.wppenhacer.xposed.core.devkit.Unobfuscator.loadNotificationMethod
 import com.wmods.wppenhacer.xposed.utils.ReflectionUtils
-import java.util.stream.Collectors
 
 class LockedChatsEnhancer(classLoader: ClassLoader, preferences: SharedPreferences) :
     Feature(classLoader, preferences) {
@@ -46,6 +45,7 @@ class LockedChatsEnhancer(classLoader: ClassLoader, preferences: SharedPreferenc
         val lockedChatsFields = ReflectionUtils.findAllFieldsUsingFilter(chatCacheClass) { f ->
             f.type == HashSet::class.java
         }
+        val lockedChatsField = lockedChatsFields.getOrNull(1) ?: lockedChatsFields.firstOrNull() ?: return
 
         chatCacheClass.resolve().constructor { }.hookAll {
             before {
@@ -62,16 +62,22 @@ class LockedChatsEnhancer(classLoader: ClassLoader, preferences: SharedPreferenc
                 } ?: return@before
                 listField.isAccessible = true
                 val list = listField.get(args[0]) as? List<*> ?: return@before
-                val lockedChats = lockedChatsFields[1].get(chatCache) as HashSet<*>?
-                val lockedNumbers = lockedChats!!.stream()
-                    .map<String?> { userjid: Any? -> UserJid(userjid).phoneNumber }.collect(
-                        Collectors.toList()
-                    )
+                val cache = chatCache ?: return@before
+                val lockedChats = lockedChatsField.get(cache) as? HashSet<*> ?: return@before
+                if (lockedChats.isEmpty()) return@before
+                val lockedIds = HashSet<String>()
+                for (jid in lockedChats) {
+                    if (jid == null) continue
+                    val userJid = UserJid(jid)
+                    userJid.phoneRawString?.let { lockedIds.add(it) }
+                    userJid.userRawString?.let { lockedIds.add(it) }
+                    userJid.phoneNumber?.let { lockedIds.add(it) }
+                }
                 val filteredlist = list.filter { item: Any? ->
-                    if (!WaContactWpp.TYPE.isInstance(item)) return@filter false
-                    val waContact = WaContactWpp(item)
-                    val phoneNumber = waContact.userJid.phoneNumber
-                    lockedNumbers.contains(phoneNumber)
+                    if (!WaContactWpp.TYPE.isInstance(item)) return@filter true
+                    val userJid = WaContactWpp(item).userJid
+                    listOf(userJid.phoneRawString, userJid.userRawString, userJid.phoneNumber)
+                        .none { it != null && it in lockedIds }
                 }
                 listField.set(args[0], filteredlist)
             }
