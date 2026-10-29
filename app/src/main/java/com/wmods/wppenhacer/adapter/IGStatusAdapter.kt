@@ -3,10 +3,14 @@ package com.wmods.wppenhacer.adapter
 import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import android.graphics.Color
 import android.graphics.Typeface
 import android.graphics.drawable.BitmapDrawable
+import android.os.SystemClock
 import android.text.TextUtils
+import android.util.LruCache
 import android.util.TypedValue
 import android.view.Gravity
 import android.view.View
@@ -188,6 +192,21 @@ class IGStatusAdapter(context: Context, private val statusInfoClazz: Class<*>) :
         }
     }
 
+    companion object {
+        private const val MY_PHOTO_KEY = "my_status"
+        private const val PHOTO_TTL_MS = 5 * 60 * 1000L
+
+        private class CachedPhoto(val bitmap: Bitmap?, val loadedAt: Long)
+
+        private val photoCache = LruCache<String, CachedPhoto>(64)
+
+        private fun cachedPhoto(key: String, load: () -> Bitmap?): Bitmap? {
+            val now = SystemClock.elapsedRealtime()
+            photoCache.get(key)?.takeIf { now - it.loadedAt < PHOTO_TTL_MS }?.let { return it.bitmap }
+            return load().also { photoCache.put(key, CachedPhoto(it, now)) }
+        }
+    }
+
     override fun getCount(): Int {
         return IGStatus.itens.size
     }
@@ -203,9 +222,8 @@ class IGStatusAdapter(context: Context, private val statusInfoClazz: Class<*>) :
             if (item == "my_status") {
                 myStatus = true
                 igStatusContactName!!.text = getInstance().getString("mystatus")
-                var profile = getMyPhoto()
-                if (profile == null) profile = application.getDrawable(R.drawable.user_foreground)
-                igStatusContactPhoto!!.setImageDrawable(profile)
+                val photo = cachedPhoto(MY_PHOTO_KEY) { (getMyPhoto() as? BitmapDrawable)?.bitmap }
+                setPhoto(photo)
                 setCountStatus(0, 0)
                 return
             }
@@ -224,16 +242,24 @@ class IGStatusAdapter(context: Context, private val statusInfoClazz: Class<*>) :
                 val waContact = WaContactWpp.getWaContactFromJid(this.userJid!!)
                 val contactName = waContact!!.displayName
                 igStatusContactName!!.text = contactName
-                var profile =
-                    BitmapDrawable.createFromStream(waContact.getProfilePhoto(false), "profile")
-                if (profile == null) profile = application.getDrawable(R.drawable.user_foreground)
-                igStatusContactPhoto!!.setImageDrawable(profile)
+                val jidKey = userJid!!.phoneRawString ?: userJid!!.userRawString
+                val loadPhoto = {
+                    waContact.getProfilePhoto(false)?.use { BitmapFactory.decodeStream(it) }
+                }
+                setPhoto(if (jidKey != null) cachedPhoto(jidKey, loadPhoto) else loadPhoto())
                 val countUnseen = ReflectionUtils.getIntField(statusInfo, "A01")
                 val total = ReflectionUtils.getIntField(statusInfo, "A00")
                 setCountStatus(countUnseen, total)
             } catch (e: Exception) {
                 YukiLog.log(e)
             }
+        }
+
+        private fun setPhoto(photo: Bitmap?) {
+            igStatusContactPhoto!!.setImageDrawable(
+                photo?.let { BitmapDrawable(context.resources, it) }
+                    ?: application.getDrawable(R.drawable.user_foreground)
+            )
         }
 
         fun setCountStatus(countUnseen: Int, total: Int) {

@@ -1,12 +1,13 @@
-[NEW]
-* Root Diagnostics now detects when the Magisk DenyList is blocking WhatsApp/Business and can remove them from it with one tap
-
 [IMPROVED]
-* Crash logs are now easier to read, since class and method names are no longer obfuscated
+* Faster WhatsApp startup: DexKit is now opened only when needed and closed when idle
+* Smoother scrolling and tab switching, with less work done in the theme, custom view and resource hooks
+* IG Status no longer rebuilds the status header and reloads profile photos on every update, removing stutters when opening chats and switching tabs
+* Floating Bottom Bar no longer forces extra layout passes
+* The custom wallpaper now shows on the first Home frame
+* The module connection no longer opens a helper screen when the first attempt succeeds
 
 [FIXED]
-* Fixed the Text Status Composer color picker on WhatsApp 2.26.41.xx
-* Fixed IG Status on WhatsApp 2.26.41.xx
-* Fixed Remove Forward Limit on newer WhatsApp versions, which now also removes the limits for frequently forwarded messages to groups and for sharing to multiple channels
-* Fixed a "failed to hook Flyme checkDowngrade" error appearing in the LSPosed log on non-Flyme devices
-* Fixed the AssemblyAI API key translations in several languages
+* Fixed Send Blue Tick sending hundreds of messages at once in chats with many hidden receipts;
+* Fixed Send Blue Tick retrying messages that could no longer be found every time a chat was opened
+* Fixed a crash in Locked Chats Enhancer on newer WhatsApp versions
+* Fixed Locked Chats Enhancer showing only locked contacts in the contact list instead of hiding them

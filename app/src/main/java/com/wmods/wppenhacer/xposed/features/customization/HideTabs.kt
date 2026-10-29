@@ -4,11 +4,10 @@ import android.content.SharedPreferences
 import android.os.Bundle
 import android.view.MenuItem
 import android.view.View
-import android.widget.FrameLayout
 import com.highcapable.kavaref.KavaRef.Companion.resolve
 import com.highcapable.yukihookapi.extension.kavaref.hook
-import com.highcapable.yukihookapi.extension.kavaref.hookAll
 import com.wmods.wppenhacer.xposed.core.Feature
+import com.wmods.wppenhacer.xposed.core.ViewHookDispatcher
 import com.wmods.wppenhacer.xposed.core.WppCore
 import com.wmods.wppenhacer.xposed.core.devkit.Unobfuscator
 import com.wmods.wppenhacer.xposed.utils.ReflectionUtils
@@ -54,23 +53,19 @@ class HideTabs(loader: ClassLoader, preferences: SharedPreferences) : Feature(lo
         val loadTabFrameClass = Unobfuscator.loadTabFrameClass(classLoader)
         logDebug(loadTabFrameClass)
 
-        FrameLayout::class.java.resolve().method {
-            name = "onMeasure"
-        }.hookAll {
-            after {
-                if (!loadTabFrameClass.isInstance(instance)) return@after
-                if (SeparateGroup.tabs.isNotEmpty()) {
-                    val arr = ArrayList(SeparateGroup.tabs)
-                    arr.removeAll(hideTabsList.toSet())
-                    if (arr.size == 1) {
-                        (instance as View).visibility = View.GONE
-                    }
+        ViewHookDispatcher.onFrameLayoutMeasured(this) { rootView ->
+            if (!loadTabFrameClass.isInstance(rootView)) return@onFrameLayoutMeasured
+            if (SeparateGroup.tabs.isNotEmpty()) {
+                val arr = ArrayList(SeparateGroup.tabs)
+                arr.removeAll(hideTabsList.toSet())
+                if (arr.size == 1) {
+                    rootView.visibility = View.GONE
                 }
-                for (item in hideTabsList) {
-                    val view = (instance as View).findViewById<View>(item)
-                    if (view != null) {
-                        view.visibility = View.GONE
-                    }
+            }
+            for (item in hideTabsList) {
+                val view = rootView.findViewById<View>(item)
+                if (view != null) {
+                    view.visibility = View.GONE
                 }
             }
         }

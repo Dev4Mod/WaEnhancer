@@ -12,9 +12,8 @@ import android.view.ViewOutlineProvider
 import android.widget.FrameLayout
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
-import com.highcapable.kavaref.KavaRef.Companion.resolve
-import com.highcapable.yukihookapi.extension.kavaref.hook
 import com.wmods.wppenhacer.xposed.core.Feature
+import com.wmods.wppenhacer.xposed.core.ViewHookDispatcher
 import com.wmods.wppenhacer.xposed.utils.Utils
 import java.util.WeakHashMap
 
@@ -46,36 +45,22 @@ class FloatingBottomBar(loader: ClassLoader, preferences: SharedPreferences) :
             Utils.getID(name, "id").takeIf { id -> id > 0 }
         }.toSet()
 
-        View::class.java.resolve().firstMethod {
-            name = "onAttachedToWindow"
-            superclass()
-            emptyParameters()
-        }.hook {
-            after {
-                val view = instance as? View ?: return@after
-                if (view.id == bottomNavId) {
-                    val bar = view as? ViewGroup ?: return@after
-                    scheduleSetup(bar)
-                    return@after
-                }
-                if (view.id in fabIds) {
-                    view.post { positionFabAboveCurrentBar(view, bottomNavId) }
-                }
+        ViewHookDispatcher.onAttachedToWindow(this) { view ->
+            if (view.id == bottomNavId) {
+                val bar = view as? ViewGroup ?: return@onAttachedToWindow
+                scheduleSetup(bar)
+                return@onAttachedToWindow
+            }
+            if (view.id in fabIds) {
+                view.post { positionFabAboveCurrentBar(view, bottomNavId) }
             }
         }
 
-        View::class.java.resolve().firstMethod {
-            name = "onDetachedFromWindow"
-            superclass()
-            emptyParameters()
-        }.hook {
-            after {
-                val view = instance as? View ?: return@after
-                if (view.id != bottomNavId) return@after
-                val bar = view as? ViewGroup ?: return@after
-                setupAttempts.remove(bar)
-                processedBars.remove(bar)
-            }
+        ViewHookDispatcher.onDetachedFromWindow(this) { view ->
+            if (view.id != bottomNavId) return@onDetachedFromWindow
+            val bar = view as? ViewGroup ?: return@onDetachedFromWindow
+            setupAttempts.remove(bar)
+            processedBars.remove(bar)
         }
     }
 
@@ -152,14 +137,25 @@ class FloatingBottomBar(loader: ClassLoader, preferences: SharedPreferences) :
 
     private fun updateOverlayLayout(rootView: FrameLayout, container: ViewGroup, bar: ViewGroup) {
         val params = container.layoutParams as? FrameLayout.LayoutParams ?: return
-        params.gravity = Gravity.BOTTOM
-        params.width = ViewGroup.LayoutParams.MATCH_PARENT
-        params.height = ViewGroup.LayoutParams.WRAP_CONTENT
-        params.bottomMargin = navigationBarInset(rootView) + Utils.dipToPixels(BOTTOM_MARGIN_DP)
-        container.layoutParams = params
-        bar.layoutParams = bar.layoutParams.apply {
-            width = ViewGroup.LayoutParams.MATCH_PARENT
-            height = ViewGroup.LayoutParams.WRAP_CONTENT
+        val bottomMargin = navigationBarInset(rootView) + Utils.dipToPixels(BOTTOM_MARGIN_DP)
+        if (params.gravity != Gravity.BOTTOM
+            || params.width != ViewGroup.LayoutParams.MATCH_PARENT
+            || params.height != ViewGroup.LayoutParams.WRAP_CONTENT
+            || params.bottomMargin != bottomMargin
+        ) {
+            params.gravity = Gravity.BOTTOM
+            params.width = ViewGroup.LayoutParams.MATCH_PARENT
+            params.height = ViewGroup.LayoutParams.WRAP_CONTENT
+            params.bottomMargin = bottomMargin
+            container.layoutParams = params
+        }
+        val barParams = bar.layoutParams
+        if (barParams.width != ViewGroup.LayoutParams.MATCH_PARENT
+            || barParams.height != ViewGroup.LayoutParams.WRAP_CONTENT
+        ) {
+            barParams.width = ViewGroup.LayoutParams.MATCH_PARENT
+            barParams.height = ViewGroup.LayoutParams.WRAP_CONTENT
+            bar.layoutParams = barParams
         }
     }
 
@@ -229,7 +225,11 @@ class FloatingBottomBar(loader: ClassLoader, preferences: SharedPreferences) :
 
         val sideMargin = Utils.dipToPixels(SIDE_MARGIN_DP)
         val params = bar.layoutParams as? ViewGroup.MarginLayoutParams
-        if (params != null) {
+        if (params != null && (params.width != ViewGroup.LayoutParams.MATCH_PARENT
+                    || params.height != ViewGroup.LayoutParams.WRAP_CONTENT
+                    || params.leftMargin != sideMargin || params.topMargin != 0
+                    || params.rightMargin != sideMargin || params.bottomMargin != 0)
+        ) {
             params.width = ViewGroup.LayoutParams.MATCH_PARENT
             params.height = ViewGroup.LayoutParams.WRAP_CONTENT
             params.setMargins(sideMargin, 0, sideMargin, 0)
@@ -282,7 +282,7 @@ class FloatingBottomBar(loader: ClassLoader, preferences: SharedPreferences) :
             if (id <= 0) continue
             rootView.findViewById<View>(id)?.let { fab ->
                 fab.translationY = offset
-                fab.bringToFront()
+                bringToFrontIfNeeded(fab)
             }
         }
     }
@@ -302,7 +302,12 @@ class FloatingBottomBar(loader: ClassLoader, preferences: SharedPreferences) :
         }
 
         fab.translationY = -(barHeight + Utils.dipToPixels(FAB_GAP_DP)).toFloat()
-        fab.bringToFront()
+        bringToFrontIfNeeded(fab)
+    }
+
+    private fun bringToFrontIfNeeded(view: View) {
+        val parent = view.parent as? ViewGroup ?: return
+        if (parent.indexOfChild(view) != parent.childCount - 1) view.bringToFront()
     }
 
     private fun resolveBarColor(bar: ViewGroup): Int {

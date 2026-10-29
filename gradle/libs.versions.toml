@@ -11,6 +11,7 @@ okhttp = "5.4.0"
 libxposed = "102.0.0"
 yukihook = "1.5.0"
 kavaref = "1.1.1"
+dexkit = "2.3.0"
 agp = "9.3.1"
 colorpicker = "1.1.0"
 roomRuntime = "2.8.4"
@@ -38,6 +39,7 @@ yukihook-core = { module = "com.highcapable.yukihookapi:yukihook-core", version.
 yukihook-runtime-libxposed = { module = "com.highcapable.yukihookapi:yukihook-runtime-libxposed", version.ref = "yukihook" }
 yukihook-compiler = { module = "com.highcapable.yukihookapi:yukihook-compiler", version.ref = "yukihook" }
 yukihook-extension-kavaref = { module = "com.highcapable.yukihookapi:yukihook-extension-kavaref", version.ref = "yukihook" }
+dexkit = { module = "org.luckypray:dexkit", version.ref = "dexkit" }
 kavaref-core = { module = "com.highcapable.kavaref:kavaref-core", version.ref = "kavaref" }
 kavaref-extension = { module = "com.highcapable.kavaref:kavaref-extension", version.ref = "kavaref" }
 

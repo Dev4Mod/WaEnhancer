@@ -71,6 +71,8 @@ object FeatureLoader : YukiBaseHooker() {
         } catch (e: Throwable) {
             YukiLog.log(e)
             errors.add(LoadError.from("MainFeatures[Critical]", versionName, e))
+        } finally {
+            Unobfuscator.releaseDexKitResources()
         }
         hookErrorDialog()
     }
@@ -261,7 +263,7 @@ object FeatureLoader : YukiBaseHooker() {
         executor.awaitTermination(PLUGIN_LOAD_TIMEOUT_SECONDS, TimeUnit.SECONDS)
 
         if (Feature.DEBUG) {
-            synchronized(timings) { timings.toList() }.forEach { YukiLog.log(it) }
+            YukiLog.log(synchronized(timings) { timings.joinToString("\n") })
         }
     }
 

@@ -82,6 +82,7 @@ class MessageHistoryStore private constructor(context: Context) {
         private const val SEEN_MESSAGE_CACHE_SIZE = 200
         private const val SEEN_MESSAGES_LIST_CACHE_SIZE = 50
         private const val DEVICE_CACHE_SIZE = 300
+        private const val BATCH_CHUNK_SIZE = 500
 
         private val MIGRATION_5_6 = object : androidx.room.migration.Migration(5, 6) {
             override fun migrate(db: androidx.sqlite.db.SupportSQLiteDatabase) {
@@ -300,6 +301,43 @@ class MessageHistoryStore private constructor(context: Context) {
             invalidateSeenMessagesListCache(jid, type)
 
             hideSeenChangeListener?.onHideSeenChanged(jid, messageId, type, viewed)
+            return true
+        } catch (t: Throwable) {
+            YukiLog.log(t)
+            return false
+        }
+    }
+
+    fun updateViewedMessagesBatch(
+        jid: String?,
+        messageIds: List<String>,
+        type: ReceiptType?,
+        viewed: Boolean
+    ): Boolean {
+        if (jid == null || type == null || messageIds.isEmpty()) return false
+        if (Looper.myLooper() == Looper.getMainLooper()) {
+            Utils.databaseExecutor.execute { updateViewedMessagesBatch(jid, messageIds, type, viewed) }
+            return false
+        }
+        try {
+            val isViewedInt = if (viewed) 1 else 0
+            var updatedRows = 0
+            db.runInTransaction {
+                for (chunk in messageIds.chunked(BATCH_CHUNK_SIZE)) {
+                    updatedRows += if (type == ReceiptType.PLAYED) {
+                        hideSeenDao.updatePlayedBatch(jid, chunk, isViewedInt)
+                    } else {
+                        hideSeenDao.updateReadBatch(jid, chunk, isViewedInt)
+                    }
+                }
+            }
+            if (updatedRows <= 0) return false
+
+            for (messageId in messageIds) {
+                seenMessageCache.remove(createSeenMessageCacheKey(jid, messageId, type))
+                hideSeenChangeListener?.onHideSeenChanged(jid, messageId, type, viewed)
+            }
+            invalidateSeenMessagesListCache(jid, type)
             return true
         } catch (t: Throwable) {
             YukiLog.log(t)

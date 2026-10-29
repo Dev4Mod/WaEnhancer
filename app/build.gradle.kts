@@ -172,7 +172,7 @@ kotlin {
 dependencies {
     testImplementation("junit:junit:4.13.2")
     implementation(libs.colorpicker)
-    implementation(files("libs/dexkit-android.aar"))
+    implementation(libs.dexkit)
     implementation(libs.flatbuffers)
     compileOnly(libs.libxposed.api)
     implementation(platform(libs.yukihook.bom))

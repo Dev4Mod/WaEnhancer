@@ -39,6 +39,7 @@ import com.wmods.wppenhacer.preference.ThemePreference
 import com.wmods.wppenhacer.utils.ColorReplacement.replaceColors
 import com.wmods.wppenhacer.utils.IColors
 import com.wmods.wppenhacer.xposed.core.Feature
+import com.wmods.wppenhacer.xposed.core.ViewHookDispatcher
 import com.wmods.wppenhacer.xposed.core.WppCore
 import com.wmods.wppenhacer.xposed.utils.ReflectionUtils
 import com.wmods.wppenhacer.xposed.utils.Utils
@@ -78,6 +79,7 @@ class CustomView(loader: ClassLoader, preferences: SharedPreferences) :
     private var properties: Properties? = null
     private val processedViews = WeakHashMap<View, Boolean>()
     private val forcedVisibilityMap = WeakHashMap<View, Int>()
+    private var visibilityHook: ViewHookDispatcher.DeferredSetFlags? = null
     private val forcedBackgroundMap = WeakHashMap<View, Drawable>()
     private val forcedDrawableMap = WeakHashMap<View, Drawable>()
     private var mapIds: HashMap<Int, ArrayList<CachedRuleItem>>? = null
@@ -167,7 +169,6 @@ class CustomView(loader: ClassLoader, preferences: SharedPreferences) :
 
         if (mapIds.isNullOrEmpty() && leafMapIds.isNullOrEmpty()) return
 
-        hookDrawableViews()
         registerHooks()
     }
 
@@ -274,42 +275,22 @@ class CustomView(loader: ClassLoader, preferences: SharedPreferences) :
     }
 
     private fun registerHooks() {
-        View::class.java.resolve().firstMethod {
-            name = "onAttachedToWindow"
-            superclass()
-            emptyParameters()
-        }.hook {
-            after {
-                applyRulesForView(instance as View)
-            }
+        ViewHookDispatcher.onAttachedToWindow(this) { view ->
+            applyRulesForView(view)
         }
 
-        View::class.java.resolve().firstMethod {
-            name = "onDetachedFromWindow"
-            superclass()
-            emptyParameters()
-        }.hook {
-            after {
-                val view = instance as View
-                processedViews.remove(view)
-                forcedVisibilityMap.remove(view)
-                forcedBackgroundMap.remove(view)
-                forcedDrawableMap.remove(view)
-            }
+        ViewHookDispatcher.onDetachedFromWindow(this) { view ->
+            processedViews.remove(view)
+            forcedVisibilityMap.remove(view)
+            forcedBackgroundMap.remove(view)
+            forcedDrawableMap.remove(view)
         }
 
-        View::class.java.resolve().firstMethod {
-            name = "setFlags"
-            superclass()
-            parameters(Int::class, Int::class)
-        }.hook {
-            before {
-                if (args[1] as Int and 0x0000000C == 0) return@before
-                if (forcedVisibilityMap.isEmpty()) return@before
-                val view = instance as View
-                val forced = forcedVisibilityMap[view] ?: return@before
-                args[0] = (args[0] as Int and 0x0000000C.inv()) or forced
-            }
+        visibilityHook = ViewHookDispatcher.deferSetFlags(this) { view, flags, mask ->
+            if (mask and 0x0000000C == 0) return@deferSetFlags flags
+            if (forcedVisibilityMap.isEmpty()) return@deferSetFlags flags
+            val forced = forcedVisibilityMap[view] ?: return@deferSetFlags flags
+            (flags and 0x0000000C.inv()) or forced
         }
     }
 
@@ -367,7 +348,7 @@ class CustomView(loader: ClassLoader, preferences: SharedPreferences) :
         return null
     }
 
-    private fun hookDrawableViews() {
+    private val backgroundHook = lazy {
         View::class.java.resolve().firstMethod {
             name = "setBackground"
             superclass()
@@ -381,7 +362,9 @@ class CustomView(loader: ClassLoader, preferences: SharedPreferences) :
                 if (newDrawable !== forced) result = null
             }
         }
+    }
 
+    private val imageDrawableHook = lazy {
         ImageView::class.java.resolve().firstMethod {
             name = "setImageDrawable"
             superclass()
@@ -441,16 +424,19 @@ class CustomView(loader: ClassLoader, preferences: SharedPreferences) :
                 "display" -> {
                     when (terms[0].strValue) {
                         "none" -> {
+                            visibilityHook?.activate()
                             forcedVisibilityMap[view] = View.GONE
                             view.visibility = View.GONE
                         }
 
                         "block" -> {
+                            visibilityHook?.activate()
                             forcedVisibilityMap[view] = View.VISIBLE
                             view.visibility = View.VISIBLE
                         }
 
                         "invisible" -> {
+                            visibilityHook?.activate()
                             forcedVisibilityMap[view] = View.INVISIBLE
                             view.visibility = View.INVISIBLE
                         }
@@ -965,9 +951,11 @@ class CustomView(loader: ClassLoader, preferences: SharedPreferences) :
 
     private fun setHookedDrawable(view: View, draw: Drawable) {
         if (view is ImageView) {
+            imageDrawableHook.value
             forcedDrawableMap[view] = draw
             view.setImageDrawable(draw)
         } else {
+            backgroundHook.value
             forcedBackgroundMap[view] = draw
             view.background = draw
         }
@@ -984,6 +972,7 @@ class CustomView(loader: ClassLoader, preferences: SharedPreferences) :
                     )
                     chacheDrawables[term.strValue] = gradientDrawable
                 }
+                backgroundHook.value
                 forcedBackgroundMap[view] = gradientDrawable
                 view.background = gradientDrawable
             } catch (e: Exception) {

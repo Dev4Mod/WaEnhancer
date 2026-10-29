@@ -58,6 +58,7 @@ class SeenTick(
         private var mWaJobManager: Any? = null
         private var mSendReadClass: Class<*>? = null
         private var waJobManagerMethod: Method? = null
+        private const val MAX_BLUE_TICK_SEND_MESSAGES = 50
 
         private var cachedSeenDrawable: Drawable? = null
         private var cachedUnseenDrawable: Drawable? = null
@@ -524,15 +525,23 @@ class SeenTick(
                 )
             ) return@launch
 
-            val messages = ArrayList<FMessageWpp>()
             val hiddenMessages = MessageHistoryStore.getInstance()
                 .getHideSeenMessages(
                     userJid.phoneRawString,
                     MessageHistoryStore.ReceiptType.READ,
                     false
                 )
+            if (hiddenMessages.isNullOrEmpty()) return@launch
 
-            hiddenMessages?.forEach { message ->
+            MessageHistoryStore.getInstance().updateViewedMessagesBatch(
+                userJid.phoneRawString,
+                hiddenMessages.map { it.message },
+                MessageHistoryStore.ReceiptType.READ,
+                true
+            )
+
+            val messages = ArrayList<FMessageWpp>(MAX_BLUE_TICK_SEND_MESSAGES)
+            hiddenMessages.takeLast(MAX_BLUE_TICK_SEND_MESSAGES).forEach { message ->
                 message.fMessage?.let { messages.add(it) }
             }
 
@@ -548,15 +557,6 @@ class SeenTick(
                     )
                     sendBlueTickMedia(m)
                 }
-            }
-
-            messages.forEach { msg ->
-                MessageHistoryStore.getInstance().updateViewedMessage(
-                    userJid.phoneRawString,
-                    msg.key.messageID,
-                    MessageHistoryStore.ReceiptType.READ,
-                    true
-                )
             }
 
             sendBlueTickMsg(userJid, messages)
