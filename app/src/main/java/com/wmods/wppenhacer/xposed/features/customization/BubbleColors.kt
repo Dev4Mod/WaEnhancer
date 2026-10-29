@@ -21,32 +21,31 @@ class BubbleColors(loader: ClassLoader, preferences: SharedPreferences) :
 
         val bubbleColor = xprefs.getBoolean("bubble_color", false)
 
-        if (!bubbleColor && properties.getProperty("bubble_colors") != "true") return
+        val monetEnabled = DesignUtils.shouldUseMonetColors(xprefs)
+        if (!bubbleColor && properties.getProperty("bubble_colors") != "true" && !monetEnabled) return
 
-        val bubbleLeftColor = if (bubbleColor) xprefs.getInt(
-            "bubble_left",
-            0
-        ) else DesignUtils.checkSystemColor(
-            properties.getProperty(
-                "bubble_left",
-                "#00000000"
-            )
-        ).toColorInt()
-        val bubbleRightColor = if (bubbleColor) xprefs.getInt(
-            "bubble_right",
-            0
-        ) else DesignUtils.checkSystemColor(
-            properties.getProperty(
-                "bubble_right",
-                "#00000000"
-            )
-        ).toColorInt()
+        val manualColors = if (bubbleColor) BubbleColorSettings.Colors(
+            xprefs.getInt("bubble_left", 0), xprefs.getInt("bubble_right", 0)
+        ) else null
+        val palettes = HashMap<Boolean, BubbleColorSettings.Colors>()
+        fun currentColors(): BubbleColorSettings.Colors {
+            val nightMode = DesignUtils.isNightMode()
+            return palettes.getOrPut(nightMode) {
+                BubbleColorSettings.resolve(
+                    manualColors, properties, monetEnabled, nightMode
+                ) { color ->
+                    val resolved = DesignUtils.checkSystemColor(color)
+                    if (DesignUtils.isValidColor(resolved)) resolved.toColorInt() else 0
+                }!!
+            }
+        }
 
         val dateWrapper = loadBallonDateDrawable(classLoader)
 
         dateWrapper.hook {
             after {
                 val drawable = result as? Drawable? ?: return@after
+                val (bubbleLeftColor, bubbleRightColor) = currentColors()
                 val position = args[0] as Int
                 if (position == 3) {
                     if (bubbleRightColor == 0) return@after
@@ -68,6 +67,7 @@ class BubbleColors(loader: ClassLoader, preferences: SharedPreferences) :
         babblon.hook {
             after {
                 val drawable = result as? Drawable? ?: return@after
+                val (bubbleLeftColor, bubbleRightColor) = currentColors()
                 val position = args[1] as Int
                 if (position == 3) {
                     if (bubbleRightColor == 0) return@after
@@ -92,6 +92,7 @@ class BubbleColors(loader: ClassLoader, preferences: SharedPreferences) :
             after {
                 val position = args[0] as Int
                 val draw = result as Drawable
+                val (bubbleLeftColor, bubbleRightColor) = currentColors()
                 val right = position == 3
                 if (right) {
                     if (bubbleRightColor == 0) return@after

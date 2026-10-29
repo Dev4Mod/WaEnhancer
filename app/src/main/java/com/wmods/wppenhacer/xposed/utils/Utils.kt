@@ -324,29 +324,13 @@ object Utils {
     }
 
     fun getProperties(prefs: SharedPreferences, key: String?, checkKey: String?): Properties {
-        val properties = Properties()
-        if (checkKey != null && !prefs.getBoolean(checkKey, false)) return properties
-        val text = prefs.getString(key, "")!!
-        val pattern = Pattern.compile("^/\\*\\s*(.*?)\\s*\\*/", Pattern.DOTALL)
-        val matcher = pattern.matcher(text)
-
-        if (matcher.find()) {
-            val propertiesText = matcher.group(1)
-            val lines =
-                propertiesText!!.split("\\s*\\n\\s*".toRegex()).dropLastWhile { it.isEmpty() }
-                    .toTypedArray()
-
-            for (line in lines) {
-                val keyValue =
-                    line.split("\\s*=\\s*".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()
-                val skey = keyValue[0].trim()
-                val value =
-                    keyValue[1].trim().replace("^\"|\"$".toRegex(), "") // Remove quotes, if any
-                properties[skey] = value
-            }
+        if (checkKey != null && !prefs.getBoolean(checkKey, false)) return Properties()
+        val text = prefs.getString(key, "").orEmpty()
+        return if (key == "custom_css") {
+            ThemeProperties.parse(text, prefs.getString("css_theme", "").orEmpty())
+        } else {
+            ThemeProperties.parse(text)
         }
-
-        return properties
     }
 
     fun tryParseInt(wallpaperAlpha: String?, i: Int): Int {
