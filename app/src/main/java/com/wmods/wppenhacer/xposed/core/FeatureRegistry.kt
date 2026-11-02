@@ -67,6 +67,7 @@ import com.wmods.wppenhacer.xposed.features.privacy.TypingPrivacy
 import com.wmods.wppenhacer.xposed.features.privacy.ViewOnce
 import com.wmods.wppenhacer.xposed.features.providers.ContextMenuActionProvider
 import com.wmods.wppenhacer.xposed.features.providers.MenuStatusProvider
+import com.wmods.wppenhacer.xposed.features.scheduling.ScheduledMessages
 
 /** Every feature installed by [FeatureLoader], in load order. */
 internal object FeatureRegistry {
@@ -137,6 +138,7 @@ internal object FeatureRegistry {
         AboutContactPicker::class.java,
         DefaultEmoji::class.java,
         CaptureDevice::class.java,
-        ContextMenuActionProvider::class.java
+        ContextMenuActionProvider::class.java,
+        ScheduledMessages::class.java
     )
 }

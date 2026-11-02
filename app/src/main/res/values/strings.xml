@@ -594,4 +594,25 @@
     <string name="messages_restored_success">Messages restored</string>
     <string name="hide_delivered_unknown">Hide Delivered for unknown numbers</string>
     <string name="hide_delivered_unknown_sum">Shows only one tick for numbers not saved in your contacts, as if the message hadn\'t arrived</string>
+
+    <!-- Scheduled messages -->
+    <string name="schedule_messages">Scheduled messages</string>
+    <string name="schedule_messages_sum">Adds “Schedule message” to the chat menu so a text, media or sticker can be delivered at a chosen time, even with the screen locked</string>
+    <string name="schedule_message">Schedule message</string>
+    <string name="schedule_hint_text">Message text</string>
+    <string name="schedule_attach">Attach media or sticker</string>
+    <string name="schedule_attached">Attached: %1$s</string>
+    <string name="schedule_when">Send at</string>
+    <string name="schedule_date">Date</string>
+    <string name="schedule_time">Time</string>
+    <string name="schedule_save">Schedule</string>
+    <string name="schedule_saved">Scheduled: %1$s</string>
+    <string name="schedule_empty">Type a message or attach a file.</string>
+    <string name="schedule_past">Pick a time in the future.</string>
+    <string name="schedule_no_chat">Open a chat first.</string>
+    <string name="schedule_channel_name">Scheduled messages</string>
+    <string name="schedule_sent_title">Scheduled message sent</string>
+    <string name="schedule_sent_body">Delivered to %1$s</string>
+    <string name="schedule_failed_title">Scheduled message failed</string>
+    <string name="schedule_failed_body">%1$s: %2$s</string>
 </resources>
