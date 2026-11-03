@@ -31,6 +31,7 @@ import com.wmods.wppenhacer.xposed.core.components.AlertDialogWpp
 import com.wmods.wppenhacer.xposed.core.devkit.Unobfuscator
 import com.wmods.wppenhacer.xposed.utils.Utils
 import com.wmods.wppenhacer.xposed.utils.YukiLog
+import java.lang.reflect.Method
 import java.text.DateFormat
 import java.util.Calendar
 
@@ -73,6 +74,55 @@ class ScheduledMessages(
         hookConversationMenu()
         hookActivityResume()
         hookActivityResult()
+
+        // Resolve the headless send method and install the capture hook.
+        // The capture hook must be in place before the user sends any message,
+        // so we can learn the 19+ parameter values WhatsApp builds.
+        // The hook DSL requires the YukiHook PackageParam context, so we
+        // install it here (inline in doHook). The DexKit resolution is
+        // synchronous but fast enough (~1s).
+        Thread({
+            MessageSender.preResolve()
+            MessageSender.dumpSendHandlerApi()
+            MessageSender.logActionUserApi()
+
+            // Debug self-test: only runs when the marker file is present, so it
+            // never fires in normal use. Sends one message to our own chat to
+            // prove the headless path works end to end.
+            runCatching {
+                val markers = listOfNotNull(
+                    FeatureLoader.mApp?.filesDir?.let { java.io.File(it, "wae_selftest") },
+                    java.io.File("/sdcard/wae_selftest")
+                )
+                val marker = markers.firstOrNull { it.exists() }
+                if (marker != null) {
+                    val result = MessageSender.sendSelfTest()
+                    YukiLog.log(
+                        "[ScheduledMessages] self-test result ok=${result.ok} " +
+                            "err=${result.error}"
+                    )
+                    marker.delete()
+                }
+            }.onFailure { log("self-test crashed: ${it.message}") }
+        }, "WAE-resolve-send").start()
+
+        // Install the capture hook inline — the .hook {} DSL needs PackageParam context.
+        // The method may not be resolved yet (background thread is still running),
+        // so we set a lambda that MessageSender will call once resolution completes.
+        // Whichever finishes second (the resolution or the installer setup)
+        // triggers the actual hook installation.
+        captureHookInstaller = { method: Method ->
+            method.hook {
+                before {
+                    val argsArray = arrayOfNulls<Any>(args.size)
+                    for (i in args.indices) {
+                        argsArray[i] = args.getOrNull(i)
+                    }
+                    MessageSender.onSendCaptured(argsArray, instance)
+                }
+            }
+        }
+        MessageSender.tryInstallCaptureHook()
     }
 
     // ------------------------------------------------------------- lifecycle
@@ -472,5 +522,13 @@ class ScheduledMessages(
         /** The draft waiting for a document-picker result. */
         @Volatile
         private var awaitingPick: Draft? = null
+
+        /**
+         * Lambda that installs a hook on the given Method using the YukiHook DSL.
+         * Set in [doHook] where PackageParam context is available, called by
+         * [MessageSender] after the send method has been resolved.
+         */
+        @Volatile
+        var captureHookInstaller: ((Method) -> Unit)? = null
     }
 }
