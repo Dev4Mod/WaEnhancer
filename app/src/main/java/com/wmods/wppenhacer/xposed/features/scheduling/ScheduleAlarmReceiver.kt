@@ -46,9 +46,10 @@ class ScheduleAlarmReceiver : BroadcastReceiver() {
         val store = ScheduledMessageStore.getInstance(context)
         val message = store.get(id) ?: return
 
-        if (message.state != DeliveryState.PENDING) return
+        // Atomic claim: only one of the alarm broadcast and the resume sweep can
+        // win this, so a message that is due is never sent twice.
+        if (!store.claim(id)) return
 
-        store.updateState(id, DeliveryState.SENDING)
         val result = MessageSender.send(context, message)
 
         if (result.ok) {

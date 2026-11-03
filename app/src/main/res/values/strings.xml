@@ -615,4 +615,16 @@
     <string name="schedule_sent_body">Delivered to %1$s</string>
     <string name="schedule_failed_title">Scheduled message failed</string>
     <string name="schedule_failed_body">%1$s: %2$s</string>
+    <string name="schedule_manage">Scheduled messages</string>
+    <string name="schedule_list_empty">No scheduled messages.</string>
+    <string name="schedule_list_hint">Tap a message to delete it.</string>
+    <string name="schedule_delete">Delete</string>
+    <string name="schedule_delete_confirm">Delete this scheduled message?</string>
+    <string name="schedule_deleted">Deleted</string>
+    <string name="schedule_close">Close</string>
+    <string name="schedule_save_failed">Could not save the schedule.</string>
+    <string name="schedule_state_pending">Pending</string>
+    <string name="schedule_state_sending">Sending</string>
+    <string name="schedule_state_sent">Sent</string>
+    <string name="schedule_state_failed">Failed</string>
 </resources>

@@ -96,6 +96,24 @@ class ScheduledMessageStore private constructor(context: Context) :
         writableDatabase.update("schedules", cv, "_id = ?", arrayOf(id.toString()))
     }
 
+    /**
+     * Moves a row from PENDING to SENDING and reports whether *this* caller won.
+     *
+     * The transition has to be a single conditional UPDATE rather than a read
+     * followed by a write: the alarm broadcast and the activity-resume sweep can
+     * both fire for the same id at the same moment, and a check-then-set would
+     * let both pass and send the message twice.
+     */
+    fun claim(id: Long): Boolean {
+        val cv = ContentValues().apply { put("state", DeliveryState.SENDING.name) }
+        return writableDatabase.update(
+            "schedules",
+            cv,
+            "_id = ? AND state = 'PENDING'",
+            arrayOf(id.toString())
+        ) == 1
+    }
+
     fun delete(id: Long) {
         writableDatabase.delete("schedules", "_id = ?", arrayOf(id.toString()))
     }

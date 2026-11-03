@@ -243,11 +243,13 @@ object MessageSender {
     /**
      * Debug helper: sends one message to our own chat through the headless path.
      *
-     * Used to prove the pipeline works without involving a third party. Only
-     * called when the marker file `/sdcard/wae_selftest` exists, so it never
-     * runs in normal use.
+     * Kept for local diagnosis only. It is deliberately not reachable from the
+     * shipped build: an earlier version triggered it from a marker file, which
+     * meant any app able to write to shared storage could make WhatsApp send a
+     * message. Call it from a debugger or a temporary hook instead.
      */
-    fun sendSelfTest(): SendResult {
+    @Suppress("unused")
+    private fun sendSelfTest(): SendResult {
         val me = runCatching { WppCore.getMyUserJid()?.userRawString }.getOrNull()
             ?: return SendResult(false, "could not resolve own JID")
 
@@ -422,9 +424,11 @@ object MessageSender {
                 args[2] = text
             }
 
+            // Log the shape of the call, never the body: the message text is
+            // private and this log is readable from outside the app.
             YukiLog.log(
                 "[ScheduledMessages] sending via ${method.declaringClass.name}#${method.name} " +
-                    "to $userJid text=\"$text\""
+                    "to $userJid (${text.length} chars)"
             )
 
             val result = method.invoke(instance, *args)
@@ -748,9 +752,11 @@ object MessageSender {
                 "from a real message send"
         )
         argArray.forEachIndexed { i, value ->
+            // Strings are reported by length only — this hook sees every message
+            // the user sends, so their contents must never reach the log.
             val described = when (value) {
                 null -> "null"
-                is String -> "String(\"${value.take(80)}\")"
+                is String -> "String(${value.length} chars)"
                 is Number, is Boolean, is Char -> "${value.javaClass.simpleName}($value)"
                 is Collection<*> ->
                     "Collection(${value.size}) first=${value.firstOrNull()?.javaClass?.name}"
