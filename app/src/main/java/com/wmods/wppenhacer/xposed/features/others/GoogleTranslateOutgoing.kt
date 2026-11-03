@@ -121,8 +121,6 @@ class GoogleTranslateOutgoing(
     }
 
     private fun hookConversationMenu() {
-        YukiLog.log("$TAG Hooking conversation menu for translate button")
-        
         val onCreateMenuConversationMethod = Unobfuscator.loadOnCreatedMenuConversation(classLoader)
         
         // onCreate - add the menu item and set visibility
@@ -137,13 +135,11 @@ class GoogleTranslateOutgoing(
                         menu.removeItem(MENU_ITEM_ID)
                     }
                     
-                    YukiLog.log("$TAG Adding translate menu item to conversation toolbar")
-                    
                     // Get provider badge from actual provider
                     val providerBadge = try {
                         getProvider?.invoke()?.getBadge() ?: "T"
                     } catch (e: Exception) {
-                        YukiLog.log("$TAG Error getting provider badge: ${e.message}")
+                        YukiLog.log("$TAG ERROR getting provider badge: ${e.message}")
                         "T"
                     }
                     
@@ -152,18 +148,14 @@ class GoogleTranslateOutgoing(
                     
                     // Use text badge showing provider
                     menuItem.setTitle(providerBadge)
-                    YukiLog.log("$TAG Menu item showing badge: $providerBadge")
                     
                     menuItem.setOnMenuItemClickListener {
-                        YukiLog.log("$TAG Translate menu item clicked")
                         handleTranslateClick()
                         true
                     }
                     
                     // Set visibility based on current chat settings
                     updateMenuItemVisibility(menuItem)
-                    
-                    YukiLog.log("$TAG Translate menu item added successfully")
                     
                 } catch (e: Exception) {
                     YukiLog.log("$TAG ERROR: Failed to add menu item: ${e.message}")
@@ -177,7 +169,6 @@ class GoogleTranslateOutgoing(
         try {
             // Check global master toggle
             if (!moduleSettings.getBoolean("google_translate", false)) {
-                YukiLog.log("$TAG Master toggle disabled, hiding menu item")
                 menuItem.isVisible = false
                 return
             }
@@ -187,7 +178,6 @@ class GoogleTranslateOutgoing(
             val chat = currentJid?.let { chatId(it.userJid) }
             
             if (chat == null) {
-                YukiLog.log("$TAG No chat ID, hiding menu item")
                 menuItem.isVisible = false
                 return
             }
@@ -196,7 +186,6 @@ class GoogleTranslateOutgoing(
             val config = configOutgoing(chat)
             val enabled = config.enabled
             
-            YukiLog.log("$TAG Chat $chat: translation enabled=$enabled")
             menuItem.isVisible = enabled
             
         } catch (e: Exception) {
@@ -207,7 +196,6 @@ class GoogleTranslateOutgoing(
 
     private fun handleTranslateClick() {
         if (!isTranslating.compareAndSet(false, true)) {
-            YukiLog.log("$TAG Already translating, ignoring click")
             return
         }
         
@@ -232,7 +220,6 @@ class GoogleTranslateOutgoing(
             
             var originalText = entryEditText.text?.toString()
             if (originalText.isNullOrBlank()) {
-                YukiLog.log("$TAG Empty text")
                 isTranslating.set(false)
                 Utils.showToast("Enter a message first", Toast.LENGTH_SHORT)
                 return
@@ -246,14 +233,12 @@ class GoogleTranslateOutgoing(
             originalText = cleanText(originalText)
             
             if (originalText.isBlank()) {
-                YukiLog.log("$TAG Empty text after cleaning")
                 isTranslating.set(false)
                 Utils.showToast("Enter a message first", Toast.LENGTH_SHORT)
                 return
             }
             
             if (originalText.length > 4000) {
-                YukiLog.log("$TAG Text too long (${originalText.length} chars)")
                 isTranslating.set(false)
                 Utils.showToast("Message too long to translate", Toast.LENGTH_SHORT)
                 return
@@ -267,13 +252,10 @@ class GoogleTranslateOutgoing(
             
             val targetLang = config.target
             if (targetLang.isNullOrBlank()) {
-                YukiLog.log("$TAG No target language configured")
                 isTranslating.set(false)
                 Utils.showToast("Please set a target language in translation settings", Toast.LENGTH_SHORT)
                 return
             }
-            
-            YukiLog.log("$TAG Starting translation: \"${originalText.take(50)}...\" -> $targetLang")
             
             // Show progress
             Utils.showToast("Translating...", Toast.LENGTH_SHORT)
@@ -289,12 +271,9 @@ class GoogleTranslateOutgoing(
                     main.post {
                         try {
                             if (translated.isNullOrBlank()) {
-                                YukiLog.log("$TAG Translation returned empty after ${duration}ms")
                                 Utils.showToast("Translation failed", Toast.LENGTH_SHORT)
                                 return@post
                             }
-                            
-                            YukiLog.log("$TAG Translation success in ${duration}ms: \"${translated.take(50)}...\"")
                             
                             // Format message: translation, blank line, original in italics
                             val formattedText = if (includeOriginal()) {
@@ -306,8 +285,6 @@ class GoogleTranslateOutgoing(
                             // Set formatted text
                             entryEditText.setText(formattedText)
                             entryEditText.setSelection(formattedText.length)
-                            
-                            YukiLog.log("$TAG Text formatted and set in EditText (includeOriginal=${includeOriginal()})")
                             
                         } catch (e: Exception) {
                             YukiLog.log("$TAG ERROR in success handler: ${e.message}")

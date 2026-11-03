@@ -88,12 +88,11 @@ class OpenAITranslationProvider(
             .thenApply { translated ->
                 val latency = System.currentTimeMillis() - startTime
                 val model = getModel()
-                YukiLog.log("$TAG Translation completed: model=$model, latency=${latency}ms, promptLen=${customPrompt?.length ?: 0}")
                 TranslationResult.ai(translated, model)
             }
             .exceptionally { error ->
                 val latency = System.currentTimeMillis() - startTime
-                YukiLog.log("$TAG Translation failed: ${error.message}, latency=${latency}ms")
+                YukiLog.log("$TAG ERROR: Translation failed: ${error.message}, latency=${latency}ms")
                 throw error
             }
     }
@@ -111,7 +110,6 @@ class OpenAITranslationProvider(
         
         val apiKey = getApiKey()
         if (apiKey.isNullOrBlank()) {
-            YukiLog.log("$TAG API key not configured")
             return CompletableFuture.failedFuture(
                 IOException("AI translation: API key not configured")
             )
@@ -170,7 +168,6 @@ class OpenAITranslationProvider(
                             
                             val choices = json.optJSONArray("choices")
                             if (choices == null || choices.length() == 0) {
-                                YukiLog.log("$TAG No choices in response")
                                 throw IOException("No choices in response")
                             }
                             
@@ -178,21 +175,19 @@ class OpenAITranslationProvider(
                             val translated = message?.optString("content")?.trim()
                             
                             if (translated.isNullOrBlank()) {
-                                YukiLog.log("$TAG Empty translation content")
                                 throw IOException("Empty translation from AI")
                             }
                             
-                            YukiLog.log("$TAG Success: ${translated.take(50)}...")
                             future.complete(translated)
                         } catch (e: Exception) {
-                            YukiLog.log("$TAG Parse error: ${e.message}")
+                            YukiLog.log("$TAG ERROR parsing response: ${e.message}")
                             future.completeExceptionally(e)
                         }
                     }
                 }
             })
         } catch (e: Exception) {
-            YukiLog.log("$TAG Request building failed: ${e.message}")
+            YukiLog.log("$TAG ERROR building request: ${e.message}")
             future.completeExceptionally(e)
         }
         
@@ -255,7 +250,6 @@ class OpenAITranslationProvider(
     fun fetchModels(callback: (Result<List<String>>, Int?, String?) -> Unit) {
         val apiKey = getApiKey()
         if (apiKey.isNullOrBlank()) {
-            YukiLog.log("$TAG fetchModels: API key not configured")
             callback(Result.failure(IOException("API key not configured")), null, null)
             return
         }
@@ -282,7 +276,7 @@ class OpenAITranslationProvider(
                             
                             if (!it.isSuccessful) {
                                 val errorSnippet = responseBody.take(200)
-                                YukiLog.log("$TAG fetchModels error: $errorSnippet")
+                                YukiLog.log("$TAG ERROR fetchModels: $errorSnippet")
                                 callback(
                                     Result.failure(IOException("HTTP $statusCode")),
                                     statusCode,
@@ -303,25 +297,23 @@ class OpenAITranslationProvider(
                             val models = parseModelsResponse(responseBody)
                             
                             if (models.isEmpty()) {
-                                YukiLog.log("$TAG fetchModels: No models found in response")
                                 callback(
                                     Result.failure(IOException("No models found")),
                                     statusCode,
                                     "Response contained no models"
                                 )
                             } else {
-                                YukiLog.log("$TAG fetchModels: Found ${models.size} models")
                                 callback(Result.success(models.sorted()), statusCode, null)
                             }
                         } catch (e: Exception) {
-                            YukiLog.log("$TAG fetchModels parse error: ${e.message}")
+                            YukiLog.log("$TAG ERROR fetchModels parse: ${e.message}")
                             callback(Result.failure(e), it.code, e.message)
                         }
                     }
                 }
             })
         } catch (e: Exception) {
-            YukiLog.log("$TAG fetchModels request error: ${e.message}")
+            YukiLog.log("$TAG ERROR fetchModels request: ${e.message}")
             callback(Result.failure(e), null, e.message)
         }
     }

@@ -59,8 +59,6 @@ class GoogleTranslate(loader: ClassLoader, preferences: SharedPreferences) :
                 val apiKey = xprefs.getString("translation_ai_api_key", null)
                 val isConfigured = !apiKey.isNullOrBlank()
                 
-                YukiLog.log("$TAG AI selected | API key present: $isConfigured (keyLen=${apiKey?.length ?: 0})")
-                
                 if (isConfigured) {
                     openAIProvider
                 } else {
@@ -129,10 +127,9 @@ class GoogleTranslate(loader: ClassLoader, preferences: SharedPreferences) :
                 showAiFailureOnce(error.message ?: "Unknown error")
                 try {
                     val googleText = googleProvider.translateWithResult(text, languageSource, languageDest, bypassCache, null).get().text
-                    YukiLog.log("$TAG ✓ Google fallback succeeded")
                     TranslationResult.fallback(googleText)
                 } catch (e: Exception) {
-                    YukiLog.log("$TAG ✗ Google fallback also failed: ${e.message}")
+                    YukiLog.log("$TAG ERROR: Google fallback also failed: ${e.message}")
                     TranslationResult.fallback(null)
                 }
             }

@@ -377,13 +377,11 @@ internal class GoogleTranslateChatUi(
             .setPositiveButton("Save") { _, _ ->
                 waSettings.edit().apply {
                     if (chat != null && inherit.isChecked) {
-                        YukiLog.log("[WaeOutTranslate] Dialog: Removing per-chat settings for $chat (using global)")
                         remove(key(chat))
                         remove(keyOutgoing(chat))
                         remove("google_translation_ai_prompt_$chat")
                     } else {
                         if (chat != null) {
-                            YukiLog.log("[WaeOutTranslate] Dialog: Saving settings for chat=$chat, outgoing enabled=${draftOutgoing.enabled}, target=${draftOutgoing.target}")
                             val newPrompt = promptInput.text.toString().trim()
                             if (newPrompt.isNotBlank()) {
                                 putString("google_translation_ai_prompt_$chat", newPrompt)
@@ -509,13 +507,10 @@ internal class GoogleTranslateChatUi(
         
         // Check cache (provider determined at translation time)
         val provider = getProvider?.invoke()?.getId() ?: "google"
-        YukiLog.log("[TranslateUI] Cache lookup: msgId=${message.key.messageID.take(8)} provider=$provider")
         translationCache.get(message.key.messageID, selection.target, provider)?.let {
-            YukiLog.log("[TranslateUI] ✓ Cache HIT: ${it.take(30)}...")
             render(textView, it)
             return
         }
-        YukiLog.log("[TranslateUI] ✗ Cache MISS → will translate")
         
         if ((failures[request] ?: 0L) > SystemClock.elapsedRealtime()) return
         val future = request(request)
