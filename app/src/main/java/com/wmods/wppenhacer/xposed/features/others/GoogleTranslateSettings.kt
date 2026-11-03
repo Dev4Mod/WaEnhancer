@@ -37,4 +37,68 @@ internal object GoogleTranslateSettings {
         if (name.isEmpty()) return null
         return jid.takeIf { it.substringAfter('@', "") in setOf("g.us", "s.whatsapp.net", "lid") }
     }
+    
+    /**
+     * Extract raw JID string from WhatsApp JID object (moved from GoogleTranslateChatUi)
+     */
+    fun rawJid(jid: Any?): String? = runCatching {
+        normalizeChatId(
+            com.wmods.wppenhacer.xposed.utils.ReflectionUtils.callMethod(
+                jid,
+                "getRawString"
+            ) as? String
+        )
+    }.getOrNull()
+    
+    /**
+     * Get chat ID from WhatsApp JID, converting to phone JID for individuals (moved from GoogleTranslateChatUi)
+     */
+    fun chatId(jid: Any?): String? {
+        val raw = rawJid(jid) ?: return null
+        // GroupJid must never be passed through a person/LID conversion.
+        if (raw.endsWith("@g.us")) return raw
+        return rawJid(com.wmods.wppenhacer.xposed.core.WppCore.getPhoneJidFromUserJid(jid)) ?: raw
+    }
+    
+    /**
+     * Extract chat ID from message using conversation JID (moved from GoogleTranslateChatUi)
+     */
+    fun messageChat(message: com.wmods.wppenhacer.xposed.core.components.FMessageWpp): String? {
+        // Read the conversation JID, never the participant/sender JID.
+        val jid = runCatching {
+            com.wmods.wppenhacer.xposed.utils.ReflectionUtils.getObjectField(
+                message.key.thisObject,
+                "A00"
+            )
+        }.getOrNull()
+        return chatId(jid) ?: chatId(message.key.remoteJid.phoneJid)
+        ?: chatId(message.key.remoteJid.userJid)
+    }
+    
+    /**
+     * Resolve translation config for a chat ID
+     */
+    fun config(chat: String?, prefs: android.content.SharedPreferences): GoogleTranslationConfig {
+        val key: (String?) -> String = { "google_translation_v3_" + (it ?: "default") }
+        val legacyKey: (String?) -> String = { "google_translation_v2_" + (it ?: "default") }
+        return resolve(
+            chat?.let { prefs.getString(key(it), null) },
+            prefs.getString(key(null), null),
+            chat?.let { prefs.getString(legacyKey(it), null) },
+            prefs.getString(legacyKey(null), null)
+        )
+    }
+    
+    /**
+     * Resolve translation config for a message using the same logic as the UI.
+     * Returns normalized chat ID and config (per-chat, then global, then legacy).
+     */
+    fun resolveForMessage(
+        fmessage: com.wmods.wppenhacer.xposed.core.components.FMessageWpp,
+        prefs: android.content.SharedPreferences
+    ): Pair<String?, GoogleTranslationConfig> {
+        val chatId = messageChat(fmessage)
+        val config = config(chatId, prefs)
+        return Pair(chatId, config)
+    }
 }
