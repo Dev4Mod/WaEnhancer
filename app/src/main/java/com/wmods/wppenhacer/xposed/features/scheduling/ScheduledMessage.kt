@@ -114,6 +114,28 @@ class ScheduledMessageStore private constructor(context: Context) :
         ) == 1
     }
 
+    /**
+     * Rewrites an existing row from the editor.
+     *
+     * The state is forced back to PENDING and the error cleared: a row that is being
+     * edited has not been sent yet, and if it had previously failed the old error
+     * would otherwise still be shown against the new contents.
+     */
+    fun update(m: ScheduledMessage) {
+        val cv = ContentValues().apply {
+            put("jid", m.jid)
+            put("display_name", m.displayName)
+            put("kind", m.kind.name)
+            put("text", m.text)
+            put("media_uri", m.mediaUri)
+            put("mime", m.mime)
+            put("trigger_at", m.triggerAt)
+            put("state", DeliveryState.PENDING.name)
+            putNull("last_error")
+        }
+        writableDatabase.update("schedules", cv, "_id = ?", arrayOf(m.id.toString()))
+    }
+
     fun delete(id: Long) {
         writableDatabase.delete("schedules", "_id = ?", arrayOf(id.toString()))
     }

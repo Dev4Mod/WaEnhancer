@@ -366,16 +366,32 @@ class ScheduledMessages(
         var triggerAt: Long = 0L
     }
 
-    private fun showScheduleDialog(activity: Activity, jid: String) {
+    /**
+     * Creates a schedule, or edits [existing] when one is supplied.
+     *
+     * Both paths share one form so a schedule is validated in a single place, and
+     * an edit re-arms the alarm because the trigger time may have moved.
+     */
+    private fun showScheduleDialog(
+        activity: Activity,
+        jid: String,
+        existing: ScheduledMessage? = null,
+        onSaved: (() -> Unit)? = null
+    ) {
         val store = ScheduledMessageStore.getInstance(activity)
-        // Chats can be addressed by LID (...@lid) rather than a phone number; strip the
-        // server part so notifications read as a number instead of a raw JID.
-        val fallbackName = jid.substringBefore('@')
-        val draft = Draft(jid, WppCore.getCurrentChatTitle() ?: fallbackName)
 
-        // Default: one hour from now, on the minute.
-        val start = System.currentTimeMillis() + 60 * 60 * 1000L
-        draft.triggerAt = start - start % 60_000L
+        // Prefer the chat's display name; the JID's local part is only a fallback.
+        val draft = Draft(jid, displayNameFor(jid))
+
+        if (existing != null) {
+            draft.triggerAt = existing.triggerAt
+            draft.mediaUri = existing.mediaUri
+            draft.mime = existing.mime
+        } else {
+            // Default: one hour from now, on the minute.
+            val start = System.currentTimeMillis() + 60 * 60 * 1000L
+            draft.triggerAt = start - start % 60_000L
+        }
 
         val ctx = activity
         val pad = Utils.dipToPixels(16)
@@ -390,6 +406,7 @@ class ScheduledMessages(
             inputType = InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_FLAG_MULTI_LINE
             minLines = 3
             gravity = Gravity.TOP or Gravity.START
+            existing?.text?.let { setText(it) }
         }
         root.addView(textInput)
 
@@ -477,9 +494,17 @@ class ScheduledMessages(
         root.addView(buttons)
 
         val dialog = AlertDialogWpp(ctx)
-        dialog.setTitle(ctx.getString(R.string.schedule_message))
+        dialog.setTitle(
+            ctx.getString(
+                if (existing == null) R.string.schedule_message else R.string.schedule_edit_title
+            )
+        )
         dialog.setView(root)
-        dialog.setPositiveButton(ctx.getString(R.string.schedule_save)) { _, _ ->
+        dialog.setPositiveButton(
+            ctx.getString(
+                if (existing == null) R.string.schedule_save else R.string.schedule_save_changes
+            )
+        ) { _, _ ->
             val text = textInput.text?.toString().orEmpty()
             val uri = draft.mediaUri
 
@@ -499,6 +524,7 @@ class ScheduledMessages(
             }
 
             val message = ScheduledMessage(
+                id = existing?.id ?: 0L,
                 jid = draft.jid,
                 displayName = draft.name,
                 kind = kind,
@@ -509,23 +535,37 @@ class ScheduledMessages(
             )
 
             try {
-                val id = store.insert(message)
-                if (id <= 0L) {
-                    // insert() returns -1 on failure; arming an id of -1 would
-                    // schedule an alarm that can never resolve to a row.
-                    log("save failed: insert returned $id")
+                if (existing != null) {
+                    store.update(message)
+                    // The trigger time may have moved, so replace the armed alarm.
+                    cancelAlarm(ctx, existing.id)
+                    arm(ctx, message)
+                    log("updated id=${existing.id} at=${message.triggerAt}")
                     Utils.showToast(
-                        Utils.getString(R.string.schedule_save_failed),
-                        Toast.LENGTH_LONG
+                        Utils.getString(R.string.schedule_updated),
+                        Toast.LENGTH_SHORT
                     )
-                    return@setPositiveButton
+                    onSaved?.invoke()
+                } else {
+                    val id = store.insert(message)
+                    if (id <= 0L) {
+                        // insert() returns -1 on failure; arming an id of -1 would
+                        // schedule an alarm that can never resolve to a row.
+                        log("save failed: insert returned $id")
+                        Utils.showToast(
+                            Utils.getString(R.string.schedule_save_failed),
+                            Toast.LENGTH_LONG
+                        )
+                        return@setPositiveButton
+                    }
+                    log("saved id=$id kind=$kind jid=${message.jid} at=${message.triggerAt}")
+                    arm(ctx, message.copy(id = id))
+                    Utils.showToast(
+                        ctx.getString(R.string.schedule_saved, message.preview()),
+                        Toast.LENGTH_SHORT
+                    )
+                    onSaved?.invoke()
                 }
-                log("saved id=$id kind=$kind jid=${message.jid} at=${message.triggerAt}")
-                arm(ctx, message.copy(id = id))
-                Utils.showToast(
-                    ctx.getString(R.string.schedule_saved, message.preview()),
-                    Toast.LENGTH_SHORT
-                )
             } catch (t: Throwable) {
                 log("save failed: ${t.message}")
                 YukiLog.log(t)
@@ -576,10 +616,7 @@ class ScheduledMessages(
             rows.forEach { message ->
                 container.addView(
                     buildScheduleRow(ctx, message) {
-                        confirmDelete(ctx, message) {
-                            deleteSchedule(ctx, message)
-                            refresh()
-                        }
+                        onScheduleTapped(ctx, message) { refresh() }
                     }
                 )
             }
@@ -605,6 +642,78 @@ class ScheduledMessages(
         dialog.show()
     }
 
+    /**
+     * Tapping a row opens the actions that make sense for its state.
+     *
+     * A PENDING schedule can be edited or deleted. Anything already sent or failed
+     * can only be removed from the list — editing it would resurrect a delivery
+     * that already happened.
+     */
+    private fun onScheduleTapped(ctx: Activity, message: ScheduledMessage, refresh: () -> Unit) {
+        if (message.state != DeliveryState.PENDING) {
+            confirmDelete(ctx, message) {
+                deleteSchedule(ctx, message)
+                refresh()
+            }
+            return
+        }
+
+        val dialog = AlertDialogWpp(ctx)
+        dialog.setTitle(ctx.getString(R.string.schedule_edit_title))
+        dialog.setItems(
+            arrayOf<CharSequence?>(
+                ctx.getString(R.string.schedule_edit),
+                ctx.getString(R.string.schedule_delete)
+            )
+        ) { _, which ->
+            if (which == 0) {
+                showScheduleDialog(ctx, message.jid, message) { refresh() }
+            } else {
+                confirmDelete(ctx, message) {
+                    deleteSchedule(ctx, message)
+                    refresh()
+                }
+            }
+        }
+        dialog.setNegativeButton(ctx.getString(R.string.cancel), null)
+        dialog.show()
+    }
+
+    /**
+     * Resolves a chat's display name for a new schedule.
+     *
+     * The open chat's title is the best source. Failing that, a schedule addressed
+     * to our own JID takes our profile name. Only when neither yields anything does
+     * it fall back to the JID's local part, which for a LID chat is a bare number.
+     */
+    private fun displayNameFor(jid: String): String {
+        WppCore.getCurrentChatTitle()?.takeIf { it.isNotBlank() }?.let { return it }
+        myNameIfSelf(jid)?.let { return it }
+        return jid.substringBefore('@')
+    }
+
+    private fun myNameIfSelf(jid: String): String? = runCatching {
+        if (WppCore.getMyUserJid()?.userRawString == jid) {
+            WppCore.getMyName().takeIf { it.isNotBlank() }
+        } else {
+            null
+        }
+    }.getOrNull()
+
+    /**
+     * Label for a list row.
+     *
+     * Rows written before the name was resolved stored the JID's local part, so a
+     * stored value equal to it is treated as "no name recorded" and re-resolved
+     * instead of being shown as a bare number.
+     */
+    private fun rowLabel(message: ScheduledMessage): String {
+        val local = message.jid.substringBefore('@')
+        val stored = message.displayName
+        if (stored.isNotBlank() && stored != local) return stored
+        return myNameIfSelf(message.jid) ?: local
+    }
+
     private fun buildScheduleRow(
         ctx: Context,
         message: ScheduledMessage,
@@ -627,7 +736,7 @@ class ScheduledMessages(
             })
 
             addView(TextView(ctx).apply {
-                text = message.displayName
+                text = rowLabel(message)
                 textSize = 13f
             })
 

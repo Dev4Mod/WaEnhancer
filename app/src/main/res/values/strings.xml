@@ -617,8 +617,12 @@
     <string name="schedule_failed_body">%1$s: %2$s</string>
     <string name="schedule_manage">Scheduled messages</string>
     <string name="schedule_list_empty">No scheduled messages.</string>
-    <string name="schedule_list_hint">Tap a message to delete it.</string>
+    <string name="schedule_list_hint">Tap a pending message to edit or delete it.</string>
     <string name="schedule_delete">Delete</string>
+    <string name="schedule_edit">Edit</string>
+    <string name="schedule_edit_title">Edit scheduled message</string>
+    <string name="schedule_save_changes">Save changes</string>
+    <string name="schedule_updated">Schedule updated</string>
     <string name="schedule_delete_confirm">Delete this scheduled message?</string>
     <string name="schedule_deleted">Deleted</string>
     <string name="schedule_close">Close</string>
