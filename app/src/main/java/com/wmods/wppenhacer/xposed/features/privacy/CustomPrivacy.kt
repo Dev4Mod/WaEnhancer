@@ -382,6 +382,7 @@ class CustomPrivacy(
             activity.getString(R.string.hideread),
             activity.getString(R.string.hidestatusview),
             activity.getString(R.string.hidereceipt),
+            activity.getString(R.string.always_single_tick),
             activity.getString(R.string.ghostmode),
             activity.getString(R.string.ghostmode_r),
             activity.getString(R.string.block_call)
@@ -391,6 +392,7 @@ class CustomPrivacy(
             "HideSeen",
             "HideViewStatus",
             "HideReceipt",
+            "AlwaysSingleTick",
             "HideTyping",
             "HideRecording",
             "BlockCall"
@@ -403,6 +405,12 @@ class CustomPrivacy(
         }
         builder.setPositiveButton("OK") { _, _ ->
             savePreferences(userJid, itemsKeys, checkedItems)
+            val blockCallIndex = itemsKeys.indexOf("BlockCall")
+            if (blockCallIndex >= 0 && checkedItems[blockCallIndex]) {
+                showBlockCallTypeDialog(activity, userJid)
+            } else {
+                clearBlockCallType(userJid)
+            }
         }
         builder.setNegativeButton(activity.getString(R.string.cancel), null)
 
@@ -432,11 +440,13 @@ class CustomPrivacy(
             "HideTyping" -> "ghostmode_t"
             "HideRecording" -> "ghostmode_r"
             "BlockCall" -> "call_privacy"
+            "AlwaysSingleTick" -> ""
             else -> ""
         }
     }
 
     private fun getDefaultPreference(globalKey: String): Boolean {
+        if (globalKey.isEmpty()) return false
         return if (globalKey == "call_privacy") {
             xprefs.getString(globalKey, "0") == "1"
         } else {
@@ -474,6 +484,59 @@ class CustomPrivacy(
             }
         } catch (e: Exception) {
             Utils.showToast(e.message, Toast.LENGTH_SHORT)
+        }
+    }
+
+    /**
+     * Per-contact call-blocking type ("BlockCallType"), saved in the same
+     * per-contact JSON as the checkboxes. Empty/missing means "follow the
+     * global call_type setting" (existing behaviour, CallPrivacy falls back).
+     * The type picker is shown from the OK handler only when BlockCall is
+     * checked for this contact, so the global type is never overwritten.
+     */
+    private fun showBlockCallTypeDialog(activity: Activity, userJid: FMessageWpp.UserJid) {
+        val typeNames = arrayOf<CharSequence?>(
+            activity.getString(R.string.call_type_buttons_no_internet),
+            activity.getString(R.string.call_type_buttons_busy),
+            activity.getString(R.string.call_type_buttons_ended),
+            activity.getString(R.string.call_type_buttons_uncallable)
+        )
+        val typeValues = arrayOf("no_internet", "busy", "ended", "uncallable")
+        val picker = AlertDialogWpp(activity)
+        picker.setTitle(R.string.call_blocking_type)
+        picker.setItems(typeNames) { _, which ->
+            if (which in typeValues.indices) saveBlockCallType(userJid, typeValues[which])
+        }
+        picker.setNegativeButton(activity.getString(R.string.cancel), null)
+        picker.show()
+    }
+
+    private fun saveBlockCallType(userJid: FMessageWpp.UserJid, type: String) {
+        try {
+            val id = storageId(userJid) ?: return
+            val json = getJSON(userJid)
+            json.put("BlockCallType", type)
+            val key = id + KEY_SUFFIX
+            WppCore.getPrivPrefs().edit(commit = true) {
+                putString(key, json.toString())
+                legacyKeys(userJid).filter { it != key }.forEach { remove(it) }
+            }
+        } catch (e: Exception) {
+            Utils.showToast(e.message, Toast.LENGTH_SHORT)
+        }
+    }
+
+    private fun clearBlockCallType(userJid: FMessageWpp.UserJid) {
+        try {
+            val id = storageId(userJid) ?: return
+            val json = getJSON(userJid)
+            if (!json.has("BlockCallType")) return
+            json.remove("BlockCallType")
+            val key = id + KEY_SUFFIX
+            WppCore.getPrivPrefs().edit(commit = true) {
+                putString(key, json.toString())
+            }
+        } catch (_: Exception) {
         }
     }
 

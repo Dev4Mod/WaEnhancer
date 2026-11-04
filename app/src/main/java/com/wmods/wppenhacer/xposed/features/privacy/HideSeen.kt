@@ -255,19 +255,19 @@ class HideSeen(loader: ClassLoader, preferences: SharedPreferences) :
 
     private fun checkPrivacyAndHideReceipt(userJid: FMessageWpp.UserJid): Boolean {
         val privacy = CustomPrivacy.getJSON(userJid)
-        return privacy.optBoolean("HideReceipt", hideReceipt) || ghostMode || isUnknownNumber(userJid)
+        return privacy.optBoolean("AlwaysSingleTick", false) || privacy.optBoolean("HideReceipt", hideReceipt) || ghostMode || isUnknownNumber(userJid)
     }
 
     private fun checkPrivacyAndHideReceipt(fmessageKey: FMessageWpp.Key): Boolean {
         val privacy = CustomPrivacy.getJSON(fmessageKey.remoteJid)
-        val customHideReceipt = privacy.optBoolean("HideReceipt", hideReceipt)
+        val customHideReceipt = privacy.optBoolean("AlwaysSingleTick", false) || privacy.optBoolean("HideReceipt", hideReceipt)
         return customHideReceipt || ghostMode || isUnknownNumber(fmessageKey.remoteJid)
     }
 
     private fun checkPrivacyAndHideSeen(fmessageKey: FMessageWpp.Key): Boolean {
         val privacy = CustomPrivacy.getJSON(fmessageKey.remoteJid)
         val hideKey = if (fmessageKey.remoteJid.isGroup) hideReadGroup else hideRead
-        val shouldHide = privacy.optBoolean("HideSeen", hideKey) || ghostMode
+        val shouldHide = privacy.optBoolean("AlwaysSingleTick", false) || privacy.optBoolean("HideSeen", hideKey) || ghostMode
         return shouldHide
     }
 
