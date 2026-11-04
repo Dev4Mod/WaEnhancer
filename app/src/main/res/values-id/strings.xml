@@ -24,6 +24,8 @@
     <string name="antirevokestatus">Anti Hapus Status</string>
     <string name="antirevokestatus_sum">Status tidak akan dihapus untuk Anda</string>
     <string name="hidereceipt">Sembunyikan Centang Dua</string>
+    <string name="always_single_tick">Selalu Centang 1</string>
+    <string name="always_single_tick_sum">Selalu tampilkan satu centang untuk kontak ini, sembunyikan centang dua dan centang biru untuk kontak ini saja</string>
     <string name="hidereceipt_sum">Orang lain tidak akan mengetahui bahwa pesan mereka telah terkirim kepada Anda.
 (PERHATIAN: Dapat menyebabkan keterlambatan dalam menerima pesan)</string>
     <string name="ampm">Waktu dalam format 12 jam</string>

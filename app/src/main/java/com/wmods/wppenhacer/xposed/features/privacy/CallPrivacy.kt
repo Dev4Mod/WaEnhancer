@@ -36,6 +36,11 @@ class CallPrivacy(loader: ClassLoader, preferences: SharedPreferences) :
         val onCallReceivedMethod = Unobfuscator.loadAntiRevokeOnCallReceivedMethod(classLoader)
         val callPrivacyType = xprefs.getString("call_privacy", "0")!!.toInt()
         val callRejectType = xprefs.getString("call_type", null) ?: "no_internet"
+        // Per-contact type (CustomPrivacy "BlockCallType") wins over the global call_type;
+        // empty/missing falls back to the global value (existing behaviour).
+        val rejectTypeFor: (FMessageWpp.UserJid) -> String = { jid ->
+            CustomPrivacy.getJSON(jid).optString("BlockCallType", "").takeIf { it.isNotEmpty() } ?: callRejectType
+        }
 
         onCallReceivedMethod.hook {
             before {
@@ -67,7 +72,7 @@ class CallPrivacy(loader: ClassLoader, preferences: SharedPreferences) :
                 val blockCall = checkCallBlock(userJid, privacyType)
                 if (!blockCall) return@before
 
-                var rejectType = callRejectType
+                var rejectType = rejectTypeFor(userJid)
 
                 when (rejectType) {
                     "uncallable", "declined", "busy" -> {
@@ -100,7 +105,7 @@ class CallPrivacy(loader: ClassLoader, preferences: SharedPreferences) :
                 )
                 val jidObj = ReflectionUtils.getArg(args, jidClass, 0)
                 val userJid = FMessageWpp.UserJid(jidObj)
-                if (callRejectType == "no_internet") {
+                if (rejectTypeFor(userJid) == "no_internet") {
                     val privacyType = PrivacyType.getByValue(callPrivacyType)
                     val block = checkCallBlock(userJid, privacyType)
                     if (block) {
