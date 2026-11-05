@@ -915,10 +915,29 @@ object MessageSender {
             return intent
         }
 
-        val uri = m.mediaUri?.let(Uri::parse) ?: return null
-        intent.type = m.mime ?: if (m.kind == MessageKind.STICKER) "image/webp" else "*/*"
-        intent.putExtra(Intent.EXTRA_STREAM, uri)
-        intent.clipData = ClipData.newRawUri("", uri)
+        val uris = m.mediaUris.map(Uri::parse)
+        if (uris.isEmpty()) return null
+
+        if (uris.size == 1) {
+            val uri = uris.first()
+            intent.type = m.mime ?: if (m.kind == MessageKind.STICKER) "image/webp" else "*/*"
+            intent.putExtra(Intent.EXTRA_STREAM, uri)
+            intent.clipData = ClipData.newRawUri("", uri)
+            return intent
+        }
+
+        // Several attachments go out as a single multi-send. The type is left
+        // generic because the selection may mix images, video and documents.
+        intent.action = Intent.ACTION_SEND_MULTIPLE
+        intent.type = if (m.mime?.startsWith("image/") == true) "image/*" else "*/*"
+        intent.putParcelableArrayListExtra(Intent.EXTRA_STREAM, ArrayList(uris))
+        intent.clipData = ClipData.newUri(
+            context.contentResolver,
+            "attachments",
+            uris.first()
+        ).apply {
+            uris.drop(1).forEach { addItem(ClipData.Item(it)) }
+        }
         return intent
     }
 

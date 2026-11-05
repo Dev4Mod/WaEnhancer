@@ -10,9 +10,15 @@ import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.content.SharedPreferences
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
+import android.graphics.Color
 import android.graphics.Typeface
+import android.graphics.drawable.GradientDrawable
+import android.media.MediaMetadataRetriever
 import android.net.Uri
 import android.os.Build
+import android.provider.OpenableColumns
 import android.text.InputType
 import android.view.Gravity
 import android.view.Menu
@@ -20,6 +26,8 @@ import android.view.View
 import android.widget.Button
 import android.widget.EditText
 import android.widget.FrameLayout
+import android.widget.HorizontalScrollView
+import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.ScrollView
 import android.widget.TextView
@@ -338,20 +346,45 @@ class ScheduledMessages(
                     val draft = awaitingPick ?: return@after
                     awaitingPick = null
 
-                    if (resultCode != Activity.RESULT_OK || data?.data == null) return@after
+                    if (resultCode != Activity.RESULT_OK) return@after
 
                     val act = instance as? Activity ?: return@after
-                    val uri = data.data!!
-                    runCatching {
-                        act.contentResolver.takePersistableUriPermission(
-                            uri, Intent.FLAG_GRANT_READ_URI_PERMISSION
-                        )
+
+                    // A multi-select result arrives in clipData; a single pick
+                    // arrives in data. Accept either, and de-duplicate.
+                    val picked = ArrayList<Uri>()
+                    val clip = data?.clipData
+                    if (clip != null) {
+                        for (i in 0 until clip.itemCount) {
+                            clip.getItemAt(i)?.uri?.let { picked.add(it) }
+                        }
                     }
-                    draft.mediaUri = uri.toString()
-                    draft.mime = act.contentResolver.getType(uri)
-                    log("attached ${draft.mediaUri} (${draft.mime})")
+                    data?.data?.let { single -> if (picked.none { it == single }) picked.add(single) }
+                    if (picked.isEmpty()) return@after
+
+                    picked.forEach { uri ->
+                        runCatching {
+                            act.contentResolver.takePersistableUriPermission(
+                                uri,
+                                Intent.FLAG_GRANT_READ_URI_PERMISSION
+                            )
+                        }
+                        val value = uri.toString()
+                        if (value !in draft.mediaUris) draft.mediaUris.add(value)
+                    }
+
+                    if (draft.mime == null) {
+                        draft.mime = act.contentResolver.getType(picked.first())
+                    }
+
+                    log("picked ${picked.size} file(s), ${draft.mediaUris.size} attached in total")
+                    // Redraw the dialog so the attachments are visible and removable.
+                    draft.onAttachmentChanged?.invoke()
                     Utils.showToast(
-                        act.getString(R.string.schedule_attached, uri.lastPathSegment ?: ""),
+                        act.getString(
+                            R.string.schedule_attached,
+                            attachmentName(act, picked.first().toString())
+                        ),
                         Toast.LENGTH_SHORT
                     )
                 }
@@ -362,9 +395,19 @@ class ScheduledMessages(
     // -------------------------------------------------------------------- UI
 
     private class Draft(val jid: String, val name: String) {
-        var mediaUri: String? = null
+        /** Every attachment, in the order it was picked. */
+        val mediaUris = ArrayList<String>()
+
+        /** Mime of the first attachment; drives the share intent's type. */
         var mime: String? = null
         var triggerAt: Long = 0L
+
+        /**
+         * Invoked when the attachment list changes. The picker result arrives
+         * through `onActivityResult`, long after the dialog was built, so the
+         * dialog has to be told to redraw its preview row.
+         */
+        var onAttachmentChanged: (() -> Unit)? = null
     }
 
     /**
@@ -373,6 +416,166 @@ class ScheduledMessages(
      * Both paths share one form so a schedule is validated in a single place, and
      * an edit re-arms the alarm because the trigger time may have moved.
      */
+    /**
+     * Shows a dialog wider than the framework default.
+     *
+     * [AlertDialogWpp.show] offers no control over the window, so the Dialog is
+     * created directly and laid out against the screen. Falls back to a plain show
+     * if the wrapper refuses to hand back a Dialog.
+     */
+    private fun showWideDialog(dialog: AlertDialogWpp, widthFraction: Float = 0.94f) {
+        val created = runCatching { dialog.create() }.getOrNull()
+        if (created == null) {
+            dialog.show()
+            return
+        }
+
+        runCatching { created.show() }.onFailure {
+            log("could not show the dialog: ${it.message}")
+            return
+        }
+
+        runCatching {
+            val metrics = created.context.resources.displayMetrics
+            created.window?.setLayout(
+                (metrics.widthPixels * widthFraction).toInt(),
+                android.view.ViewGroup.LayoutParams.WRAP_CONTENT
+            )
+        }.onFailure { log("could not size the dialog: ${it.message}") }
+    }
+
+    /**
+     * Friendly file name for a content URI.
+     *
+     * The path segment of a document URI is an opaque id like `image:1001135073`,
+     * so ask the provider for the display name and fall back only if it has none.
+     */
+    private fun attachmentName(ctx: Context, uri: String): String {
+        val parsed = Uri.parse(uri)
+        val fromProvider = runCatching {
+            ctx.contentResolver
+                .query(parsed, arrayOf(OpenableColumns.DISPLAY_NAME), null, null, null)
+                ?.use { cursor -> if (cursor.moveToFirst()) cursor.getString(0) else null }
+        }.getOrNull()
+
+        return fromProvider ?: parsed.lastPathSegment ?: uri
+    }
+
+    /**
+     * Thumbnail with a close badge.
+     *
+     * The container is sized to the thumbnail rather than filling the row, which is
+     * what keeps the badge on the image's own top-right corner instead of drifting
+     * to the edge of the dialog.
+     */
+    private fun buildMediaPreview(
+        ctx: Context,
+        uri: Uri,
+        isVideo: Boolean,
+        onRemove: () -> Unit
+    ): View {
+        val size = Utils.dipToPixels(96)
+        val gap = Utils.dipToPixels(8)
+
+        val frame = FrameLayout(ctx).apply {
+            layoutParams = LinearLayout.LayoutParams(size, size).apply { marginEnd = gap }
+        }
+
+        frame.addView(
+            ImageView(ctx).apply {
+                layoutParams = FrameLayout.LayoutParams(size, size)
+                scaleType = ImageView.ScaleType.CENTER_CROP
+                setImageBitmap(loadThumbnail(ctx, uri, isVideo, size))
+            }
+        )
+        frame.addView(closeBadge(ctx, onRemove))
+        return frame
+    }
+
+    /** Small circular ✕ pinned to the top-right corner of a preview. */
+    private fun closeBadge(ctx: Context, onRemove: () -> Unit): View {
+        val diameter = Utils.dipToPixels(26)
+        val margin = Utils.dipToPixels(4)
+
+        return TextView(ctx).apply {
+            text = "✕"
+            setTextColor(Color.WHITE)
+            textSize = 13f
+            gravity = Gravity.CENTER
+            layoutParams = FrameLayout.LayoutParams(
+                diameter,
+                diameter,
+                Gravity.TOP or Gravity.END
+            ).apply { setMargins(0, margin, margin, 0) }
+            background = GradientDrawable().apply {
+                shape = GradientDrawable.OVAL
+                setColor(Color.parseColor("#B3000000"))
+            }
+            isClickable = true
+            setOnClickListener { onRemove() }
+        }
+    }
+
+    /** Row for a non-media attachment: the file name plus a close badge. */
+    private fun buildFileChip(ctx: Context, name: String, onRemove: () -> Unit): View {
+        val pad = Utils.dipToPixels(8)
+
+        return LinearLayout(ctx).apply {
+            orientation = LinearLayout.HORIZONTAL
+            gravity = Gravity.CENTER_VERTICAL
+            setPadding(pad, pad / 2, pad / 2, pad / 2)
+            layoutParams = LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.WRAP_CONTENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT
+            ).apply { marginEnd = Utils.dipToPixels(8) }
+            background = GradientDrawable().apply {
+                cornerRadius = Utils.dipToPixels(6).toFloat()
+                setColor(Color.parseColor("#33888888"))
+            }
+
+            addView(TextView(ctx).apply {
+                text = name
+                textSize = 13f
+                maxLines = 1
+                maxWidth = Utils.dipToPixels(160)
+                ellipsize = android.text.TextUtils.TruncateAt.MIDDLE
+            })
+            addView(closeBadge(ctx, onRemove))
+        }
+    }
+
+    /**
+     * Decodes a small bitmap for the preview.
+     *
+     * Images are sampled down rather than decoded at full size — a camera photo is
+     * far larger than a 128dp thumbnail and would cost memory for no visible gain.
+     */
+    private fun loadThumbnail(ctx: Context, uri: Uri, isVideo: Boolean, targetPx: Int): Bitmap? =
+        runCatching {
+            if (isVideo) {
+                val retriever = MediaMetadataRetriever()
+                try {
+                    retriever.setDataSource(ctx, uri)
+                    retriever.getFrameAtTime(0)
+                } finally {
+                    runCatching { retriever.release() }
+                }
+            } else {
+                val bounds = BitmapFactory.Options().apply { inJustDecodeBounds = true }
+                ctx.contentResolver.openInputStream(uri)?.use {
+                    BitmapFactory.decodeStream(it, null, bounds)
+                }
+
+                var sample = 1
+                while (bounds.outWidth / sample > targetPx * 2) sample *= 2
+
+                val options = BitmapFactory.Options().apply { inSampleSize = sample }
+                ctx.contentResolver.openInputStream(uri)?.use {
+                    BitmapFactory.decodeStream(it, null, options)
+                }
+            }
+        }.getOrNull()
+
     private fun showScheduleDialog(
         activity: Activity,
         jid: String,
@@ -386,7 +589,7 @@ class ScheduledMessages(
 
         if (existing != null) {
             draft.triggerAt = existing.triggerAt
-            draft.mediaUri = existing.mediaUri
+            draft.mediaUris.addAll(existing.mediaUris)
             draft.mime = existing.mime
         } else {
             // Default: one hour from now, on the minute.
@@ -405,7 +608,7 @@ class ScheduledMessages(
         val textInput = EditText(ctx).apply {
             hint = ctx.getString(R.string.schedule_hint_text)
             inputType = InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_FLAG_MULTI_LINE
-            minLines = 3
+            minLines = 5
             gravity = Gravity.TOP or Gravity.START
             existing?.text?.let { setText(it) }
         }
@@ -418,6 +621,7 @@ class ScheduledMessages(
                 val pick = Intent(Intent.ACTION_OPEN_DOCUMENT).apply {
                     addCategory(Intent.CATEGORY_OPENABLE)
                     type = "*/*"
+                    putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true)
                     addFlags(
                         Intent.FLAG_GRANT_READ_URI_PERMISSION or
                             Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION
@@ -428,6 +632,65 @@ class ScheduledMessages(
             }
         }
         root.addView(attach)
+
+        // One preview per attachment, in a horizontally scrolling row. Images and
+        // videos get a thumbnail with a close badge on the thumbnail itself;
+        // anything else gets a file chip.
+        val attachmentRow = LinearLayout(ctx).apply { orientation = LinearLayout.HORIZONTAL }
+        val attachmentScroll = HorizontalScrollView(ctx).apply {
+            isHorizontalScrollBarEnabled = false
+            setPadding(0, pad / 2, 0, 0)
+            addView(attachmentRow)
+        }
+        root.addView(attachmentScroll)
+
+        var renderAttachment: () -> Unit = {}
+
+        fun removeAttachmentAt(index: Int) {
+            if (index !in draft.mediaUris.indices) return
+            draft.mediaUris.removeAt(index)
+            draft.mime = draft.mediaUris.firstOrNull()?.let { value ->
+                runCatching { ctx.contentResolver.getType(Uri.parse(value)) }.getOrNull()
+            }
+            renderAttachment()
+        }
+
+        renderAttachment = {
+            attachmentRow.removeAllViews()
+
+            if (draft.mediaUris.isEmpty()) {
+                attachmentRow.addView(TextView(ctx).apply {
+                    text = ctx.getString(R.string.schedule_no_attachment)
+                    textSize = 12f
+                })
+            } else {
+                draft.mediaUris.forEachIndexed { index, uriString ->
+                    val uri = Uri.parse(uriString)
+                    val mime = runCatching { ctx.contentResolver.getType(uri) }.getOrNull()
+
+                    attachmentRow.addView(
+                        when {
+                            mime?.startsWith("image/") == true ->
+                                buildMediaPreview(ctx, uri, isVideo = false) {
+                                    removeAttachmentAt(index)
+                                }
+
+                            mime?.startsWith("video/") == true ->
+                                buildMediaPreview(ctx, uri, isVideo = true) {
+                                    removeAttachmentAt(index)
+                                }
+
+                            else -> buildFileChip(ctx, attachmentName(ctx, uriString)) {
+                                removeAttachmentAt(index)
+                            }
+                        }
+                    )
+                }
+            }
+        }
+
+        draft.onAttachmentChanged = { renderAttachment() }
+        renderAttachment()
 
         val whenLabel = TextView(ctx).apply {
             setPadding(0, pad, 0, 0)
@@ -507,9 +770,9 @@ class ScheduledMessages(
             )
         ) { _, _ ->
             val text = textInput.text?.toString().orEmpty()
-            val uri = draft.mediaUri
+            val uris = draft.mediaUris.toList()
 
-            if (text.isBlank() && uri == null) {
+            if (text.isBlank() && uris.isEmpty()) {
                 Utils.showToast(Utils.getString(R.string.schedule_empty), Toast.LENGTH_SHORT)
                 return@setPositiveButton
             }
@@ -519,8 +782,8 @@ class ScheduledMessages(
             }
 
             val kind = when {
-                uri == null -> MessageKind.TEXT
-                draft.mime?.startsWith("image/webp") == true -> MessageKind.STICKER
+                uris.isEmpty() -> MessageKind.TEXT
+                uris.size == 1 && draft.mime?.startsWith("image/webp") == true -> MessageKind.STICKER
                 else -> MessageKind.MEDIA
             }
 
@@ -530,7 +793,7 @@ class ScheduledMessages(
                 displayName = draft.name,
                 kind = kind,
                 text = if (kind == MessageKind.TEXT) text else text.ifBlank { null },
-                mediaUri = uri,
+                mediaUris = uris,
                 mime = draft.mime,
                 triggerAt = draft.triggerAt
             )
@@ -577,7 +840,7 @@ class ScheduledMessages(
             }
         }
         dialog.setNegativeButton(ctx.getString(R.string.cancel), null)
-        dialog.show()
+        showWideDialog(dialog)
     }
 
     // ------------------------------------------------------- list and delete
@@ -629,13 +892,12 @@ class ScheduledMessages(
         refresh()
 
         val scroll = ScrollView(ctx).apply { addView(container) }
+        // Taller than the old fixed 340dp so more of the list is visible at once.
+        val listHeight = (ctx.resources.displayMetrics.heightPixels * 0.62f).toInt()
         val root = FrameLayout(ctx).apply {
             addView(
                 scroll,
-                FrameLayout.LayoutParams(
-                    FrameLayout.LayoutParams.MATCH_PARENT,
-                    Utils.dipToPixels(340)
-                )
+                FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT, listHeight)
             )
         }
 
@@ -643,7 +905,7 @@ class ScheduledMessages(
         dialog.setTitle(ctx.getString(R.string.schedule_manage))
         dialog.setView(root)
         dialog.setNegativeButton(ctx.getString(R.string.schedule_close), null)
-        dialog.show()
+        showWideDialog(dialog)
     }
 
     /**

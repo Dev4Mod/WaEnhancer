@@ -24,16 +24,23 @@ data class ScheduledMessage(
     val displayName: String,
     val kind: MessageKind,
     val text: String? = null,
-    val mediaUri: String? = null,
+    val mediaUris: List<String> = emptyList(),
     val mime: String? = null,
     val triggerAt: Long,
     val state: DeliveryState = DeliveryState.PENDING,
     val lastError: String? = null,
     val createdAt: Long = System.currentTimeMillis()
 ) {
+    /** First attachment, for the single-attachment code paths. */
+    val mediaUri: String? get() = mediaUris.firstOrNull()
+
     fun preview(): String = when (kind) {
         MessageKind.TEXT -> text.orEmpty().replace('\n', ' ').take(70)
-        MessageKind.MEDIA -> "Media · ${mime ?: "file"}"
+        MessageKind.MEDIA -> if (mediaUris.size > 1) {
+            "${mediaUris.size} attachments"
+        } else {
+            "Media · ${mime ?: "file"}"
+        }
         MessageKind.STICKER -> "Sticker"
     }
 }
@@ -59,6 +66,7 @@ class ScheduledMessageStore private constructor(context: Context) :
                 kind         TEXT    NOT NULL,
                 text         TEXT,
                 media_uri    TEXT,
+                media_uris   TEXT,
                 mime         TEXT,
                 trigger_at   INTEGER NOT NULL,
                 state        TEXT    NOT NULL DEFAULT 'PENDING',
@@ -70,7 +78,15 @@ class ScheduledMessageStore private constructor(context: Context) :
         db.execSQL("CREATE INDEX idx_state_trigger ON schedules(state, trigger_at)")
     }
 
-    override fun onUpgrade(db: SQLiteDatabase, oldVersion: Int, newVersion: Int) = Unit
+    /**
+     * v2 adds `media_uris` so a schedule can carry several attachments. Existing
+     * rows keep their single `media_uri`, which the reader still falls back to.
+     */
+    override fun onUpgrade(db: SQLiteDatabase, oldVersion: Int, newVersion: Int) {
+        if (oldVersion < 2) {
+            db.execSQL("ALTER TABLE schedules ADD COLUMN media_uris TEXT")
+        }
+    }
 
     fun insert(m: ScheduledMessage): Long {
         val cv = ContentValues().apply {
@@ -79,6 +95,7 @@ class ScheduledMessageStore private constructor(context: Context) :
             put("kind", m.kind.name)
             put("text", m.text)
             put("media_uri", m.mediaUri)
+            put("media_uris", m.mediaUris.joinToString(URI_SEPARATOR))
             put("mime", m.mime)
             put("trigger_at", m.triggerAt)
             put("state", m.state.name)
@@ -128,6 +145,7 @@ class ScheduledMessageStore private constructor(context: Context) :
             put("kind", m.kind.name)
             put("text", m.text)
             put("media_uri", m.mediaUri)
+            put("media_uris", m.mediaUris.joinToString(URI_SEPARATOR))
             put("mime", m.mime)
             put("trigger_at", m.triggerAt)
             put("state", DeliveryState.PENDING.name)
@@ -179,7 +197,7 @@ class ScheduledMessageStore private constructor(context: Context) :
         kind = runCatching { MessageKind.valueOf(getString(getColumnIndexOrThrow("kind"))) }
             .getOrDefault(MessageKind.TEXT),
         text = strOrNull("text"),
-        mediaUri = strOrNull("media_uri"),
+        mediaUris = readMediaUris(),
         mime = strOrNull("mime"),
         triggerAt = getLong(getColumnIndexOrThrow("trigger_at")),
         state = runCatching { DeliveryState.valueOf(getString(getColumnIndexOrThrow("state"))) }
@@ -193,9 +211,26 @@ class ScheduledMessageStore private constructor(context: Context) :
         return if (isNull(i)) null else getString(i)
     }
 
+    /**
+     * All attachments for a row.
+     *
+     * Rows written before v2 only have the single `media_uri` column, so that is
+     * used as the fallback rather than losing the attachment.
+     */
+    private fun android.database.Cursor.readMediaUris(): List<String> {
+        val joined = runCatching { strOrNull("media_uris") }.getOrNull()
+        if (!joined.isNullOrBlank()) {
+            return joined.split(URI_SEPARATOR).filter { it.isNotBlank() }
+        }
+        return listOfNotNull(strOrNull("media_uri"))
+    }
+
     companion object {
         private const val DB_NAME = "wae_scheduled_messages.db"
-        private const val DB_VERSION = 1
+        private const val DB_VERSION = 2
+
+        /** URIs never contain a newline, so it is a safe separator. */
+        private const val URI_SEPARATOR = "\n"
 
         @Volatile
         private var instance: ScheduledMessageStore? = null

@@ -600,7 +600,9 @@
     <string name="schedule_messages_sum">Adds “Schedule message” to the chat menu so a text, media or sticker can be delivered at a chosen time, even with the screen locked</string>
     <string name="schedule_message">Schedule message</string>
     <string name="schedule_hint_text">Message text</string>
-    <string name="schedule_attach">Attach media or sticker</string>
+    <string name="schedule_attach">Attach media</string>
+    <string name="schedule_no_attachment">No attachment</string>
+    <string name="schedule_remove_attachment">Remove attachment</string>
     <string name="schedule_attached">Attached: %1$s</string>
     <string name="schedule_when">Send at</string>
     <string name="schedule_date">Date</string>
