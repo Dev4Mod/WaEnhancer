@@ -32,6 +32,7 @@ import com.wmods.wppenhacer.xposed.core.Feature
 import com.wmods.wppenhacer.xposed.core.FeatureLoader
 import com.wmods.wppenhacer.xposed.core.WppCore
 import com.wmods.wppenhacer.xposed.core.components.AlertDialogWpp
+import com.wmods.wppenhacer.xposed.core.components.FMessageWpp
 import com.wmods.wppenhacer.xposed.core.devkit.Unobfuscator
 import com.wmods.wppenhacer.xposed.utils.Utils
 import com.wmods.wppenhacer.xposed.utils.YukiLog
@@ -558,7 +559,10 @@ class ScheduledMessages(
                         )
                         return@setPositiveButton
                     }
-                    log("saved id=$id kind=$kind jid=${message.jid} at=${message.triggerAt}")
+                    log(
+                        "saved id=$id kind=$kind jid=${message.jid} " +
+                            "name=${message.displayName} at=${message.triggerAt}"
+                    )
                     arm(ctx, message.copy(id = id))
                     Utils.showToast(
                         ctx.getString(R.string.schedule_saved, message.preview()),
@@ -705,14 +709,24 @@ class ScheduledMessages(
      *
      * Rows written before the name was resolved stored the JID's local part, so a
      * stored value equal to it is treated as "no name recorded" and re-resolved
-     * instead of being shown as a bare number.
+     * instead of being shown as a bare number. Our own chat resolves to our profile
+     * name, any other chat to its contact name.
      */
     private fun rowLabel(message: ScheduledMessage): String {
         val local = message.jid.substringBefore('@')
         val stored = message.displayName
         if (stored.isNotBlank() && stored != local) return stored
-        return myNameIfSelf(message.jid) ?: local
+
+        myNameIfSelf(message.jid)?.let { return it }
+        contactName(message.jid)?.let { return it }
+        return local
     }
+
+    /** Looks the chat up in WhatsApp's contact database. */
+    private fun contactName(jid: String): String? = runCatching {
+        val name = WppCore.getContactName(FMessageWpp.UserJid(jid))
+        name.takeIf { it.isNotBlank() && name != "Whatsapp Contact" }
+    }.getOrNull()
 
     private fun buildScheduleRow(
         ctx: Context,
