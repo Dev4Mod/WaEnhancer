@@ -519,4 +519,8 @@
     <string name="messages_restored_success">Mesajlar geri yüklendi</string>
     <string name="hide_delivered_unknown">Bilinmeyen numaralar için İletildi\'yi gizle</string>
     <string name="hide_delivered_unknown_sum">Kişilerinde kayıtlı olmayan numaralar için yalnızca tek tik gösterir, mesaj ulaşmamış gibi</string>
+    <string name="call_blocked_notification_title">Arama engellendi</string>
+    <string name="call_blocked_source_global">Genel ayarlar</string>
+    <string name="call_block_notification_enabled">Engellenen arama bildirimi</string>
+    <string name="call_block_notification_enabled_sum">Bir arama engellendiğinde bildirim göster</string>
 </resources>

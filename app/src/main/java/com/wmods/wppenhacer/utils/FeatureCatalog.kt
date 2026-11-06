@@ -743,6 +743,19 @@ object FeatureCatalog {
             "blocking",
             "type"
         )
+        add(
+            catalog,
+            context,
+            "call_block_notification_enabled",
+            R.string.call_block_notification_enabled,
+            R.string.call_block_notification_enabled_sum,
+            category,
+            fragment,
+            null,
+            "call",
+            "blocked",
+            "notification"
+        )
     }
 
     private fun addMediaFeatures(

@@ -519,4 +519,8 @@
     <string name="messages_restored_success">消息已恢复</string>
     <string name="hide_delivered_unknown">对陌生号码隐藏已送达</string>
     <string name="hide_delivered_unknown_sum">对未保存在通讯录中的号码只显示一个勾，就像消息未送达一样</string>
+    <string name="call_blocked_notification_title">通话已拦截</string>
+    <string name="call_blocked_source_global">全局设置</string>
+    <string name="call_block_notification_enabled">已拦截来电通知</string>
+    <string name="call_block_notification_enabled_sum">拦截来电时显示通知</string>
 </resources>

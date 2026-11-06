@@ -518,4 +518,8 @@ Saat Anda mengaktifkan bekukan \"terakhir dilihat dan online\", Anda tidak dapat
     <string name="stickers">Stickers</string>
     <string name="hide_delivered_unknown">Sembunyikan Terkirim untuk nomor tidak dikenal</string>
     <string name="hide_delivered_unknown_sum">Hanya menampilkan satu centang untuk nomor yang tidak tersimpan di kontak Anda, seolah pesan belum sampai</string>
+    <string name="call_blocked_notification_title">Panggilan diblokir</string>
+    <string name="call_blocked_source_global">Pengaturan global</string>
+    <string name="call_block_notification_enabled">Notifikasi panggilan diblokir</string>
+    <string name="call_block_notification_enabled_sum">Tampilkan notifikasi saat panggilan diblokir</string>
 </resources>

@@ -594,4 +594,8 @@
     <string name="messages_restored_success">Messages restored</string>
     <string name="hide_delivered_unknown">Hide Delivered for unknown numbers</string>
     <string name="hide_delivered_unknown_sum">Shows only one tick for numbers not saved in your contacts, as if the message hadn\'t arrived</string>
+    <string name="call_blocked_notification_title">Call Blocked</string>
+    <string name="call_blocked_source_global">Global Settings</string>
+    <string name="call_block_notification_enabled">Blocked call notification</string>
+    <string name="call_block_notification_enabled_sum">Show a notification when a call is blocked</string>
 </resources>

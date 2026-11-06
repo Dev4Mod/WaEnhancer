@@ -519,4 +519,8 @@
     <string name="messages_restored_success">Mensajes restaurados</string>
     <string name="hide_delivered_unknown">Ocultar entregado para números desconocidos</string>
     <string name="hide_delivered_unknown_sum">Muestra solo un tick para números no guardados en tus contactos, como si el mensaje no hubiera llegado</string>
+    <string name="call_blocked_notification_title">Llamada bloqueada</string>
+    <string name="call_blocked_source_global">Configuración global</string>
+    <string name="call_block_notification_enabled">Notificación de llamada bloqueada</string>
+    <string name="call_block_notification_enabled_sum">Mostrar una notificación cuando se bloquea una llamada</string>
 </resources>

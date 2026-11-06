@@ -519,4 +519,8 @@
     <string name="messages_restored_success">Nachrichten wiederhergestellt</string>
     <string name="hide_delivered_unknown">Zugestellt für unbekannte Nummern verbergen</string>
     <string name="hide_delivered_unknown_sum">Zeigt nur einen Haken für Nummern, die nicht in deinen Kontakten gespeichert sind, als wäre die Nachricht nicht angekommen</string>
+    <string name="call_blocked_notification_title">Anruf blockiert</string>
+    <string name="call_blocked_source_global">Globale Einstellungen</string>
+    <string name="call_block_notification_enabled">Benachrichtigung bei blockiertem Anruf</string>
+    <string name="call_block_notification_enabled_sum">Eine Benachrichtigung anzeigen, wenn ein Anruf blockiert wird</string>
 </resources>

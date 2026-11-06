@@ -519,4 +519,8 @@
     <string name="messages_restored_success">Messages restaurés</string>
     <string name="hide_delivered_unknown">Masquer « Distribué » pour les numéros inconnus</string>
     <string name="hide_delivered_unknown_sum">Affiche une seule coche pour les numéros absents de vos contacts, comme si le message n\'était pas arrivé</string>
+    <string name="call_blocked_notification_title">Appel bloqué</string>
+    <string name="call_blocked_source_global">Paramètres globaux</string>
+    <string name="call_block_notification_enabled">Notification d\'appel bloqué</string>
+    <string name="call_block_notification_enabled_sum">Afficher une notification lorsqu\'un appel est bloqué</string>
 </resources>

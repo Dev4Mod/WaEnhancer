@@ -519,4 +519,8 @@
     <string name="messages_restored_success">Messaggi ripristinati</string>
     <string name="hide_delivered_unknown">Nascondi Consegnato per numeri sconosciuti</string>
     <string name="hide_delivered_unknown_sum">Mostra una sola spunta per i numeri non salvati nei tuoi contatti, come se il messaggio non fosse arrivato</string>
+    <string name="call_blocked_notification_title">Chiamata bloccata</string>
+    <string name="call_blocked_source_global">Impostazioni globali</string>
+    <string name="call_block_notification_enabled">Notifica chiamata bloccata</string>
+    <string name="call_block_notification_enabled_sum">Mostra una notifica quando una chiamata viene bloccata</string>
 </resources>

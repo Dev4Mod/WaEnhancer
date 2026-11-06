@@ -152,6 +152,12 @@
             app:summary="@string/call_blocking_type_sum"
             app:title="@string/call_blocking_type" />
 
+        <rikka.material.preference.MaterialSwitchPreference
+            app:defaultValue="true"
+            app:key="call_block_notification_enabled"
+            app:summary="@string/call_block_notification_enabled_sum"
+            app:title="@string/call_block_notification_enabled" />
+
         <com.wmods.wppenhacer.preference.ContactPickerPreference
             android:key="call_block_contacts"
             android:title="@string/contact_block_list"

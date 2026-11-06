@@ -519,4 +519,8 @@
     <string name="messages_restored_success">Сообщения восстановлены</string>
     <string name="hide_delivered_unknown">Скрыть «Доставлено» для неизвестных номеров</string>
     <string name="hide_delivered_unknown_sum">Показывает только одну галочку для номеров, не сохранённых в контактах, как будто сообщение не дошло</string>
+    <string name="call_blocked_notification_title">Звонок заблокирован</string>
+    <string name="call_blocked_source_global">Глобальные настройки</string>
+    <string name="call_block_notification_enabled">Уведомление о заблокированном звонке</string>
+    <string name="call_block_notification_enabled_sum">Показывать уведомление при блокировке звонка</string>
 </resources>
