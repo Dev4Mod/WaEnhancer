@@ -92,9 +92,9 @@ object FeatureLoader : YukiBaseHooker() {
         Feature.DEBUG = pref.getBoolean("enablelogs", true)
         Utils.xprefs = pref
 
-        if (pref.getBoolean("bootloader_spoofer", false)) {
+        if (pref.getBoolean("bootloader_spoofer_custom", false)) {
             HookBL.hook(this, loader, pref)
-            YukiLog.log("Bootloader Spoofer is Injected")
+            YukiLog.log("Custom KeyBox is Injected")
         }
 
         YukiLog.log(versionName)

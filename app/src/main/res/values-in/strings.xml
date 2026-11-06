@@ -391,7 +391,6 @@ Harap gunakan versi WhatsApp yang didukung!</string>
     <string name="starting_cache">Muat ulang cache di WhatsApp. Ini mungkin memerlukan waktu cukup lama.</string>
     <string name="bridge_error">Bridge Gagal: Aktifkan Kerangka Sistem di LSPosed dan reboot perangkat</string>
     <string name="disable_battery_optimization">Nonaktifkan Pengoptimalan Baterai</string>
-    <string name="bootloader_spoofer">Bootloader Spoofer</string>
     <string name="bootloader_spoofer_sum">Gunakan ini jika Anda telah diblokir dan menerima pesan WhatsApp tidak resmi</string>
     <string name="not_available">tidak tersedia</string>
     <string name="select_all">Pilih semua</string>
@@ -532,4 +531,7 @@ Harap gunakan versi WhatsApp yang didukung!</string>
     <string name="call_blocked_source_global">Pengaturan global</string>
     <string name="call_block_notification_enabled">Notifikasi panggilan diblokir</string>
     <string name="call_block_notification_enabled_sum">Tampilkan notifikasi saat panggilan diblokir</string>
+    <string name="custom_keybox">KeyBox Kustom</string>
+    <string name="custom_keybox_file">File keybox.xml</string>
+    <string name="custom_keybox_file_none">Tidak ada file dipilih</string>
 </resources>

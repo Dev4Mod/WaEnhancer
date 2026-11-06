@@ -383,7 +383,6 @@
     <string name="starting_cache">在 WhatsApp 中启动 Hook 缓存。这可能需要一段时间。</string>
     <string name="bridge_error">Bridge Failed: Enable System Framework in Lsposed and reboot device</string>
     <string name="disable_battery_optimization">禁用电池优化</string>
-    <string name="bootloader_spoofer">Bootloader 伪装</string>
     <string name="bootloader_spoofer_sum">如果您被封禁并收到非官方 Whatsapp 消息，请使用此功能</string>
     <string name="not_available">无法使用</string>
     <string name="select_all">选择全部</string>
@@ -523,4 +522,7 @@
     <string name="call_blocked_source_global">全局设置</string>
     <string name="call_block_notification_enabled">已拦截来电通知</string>
     <string name="call_block_notification_enabled_sum">拦截来电时显示通知</string>
+    <string name="custom_keybox">自定义 KeyBox</string>
+    <string name="custom_keybox_file">keybox.xml 文件</string>
+    <string name="custom_keybox_file_none">未选择文件</string>
 </resources>

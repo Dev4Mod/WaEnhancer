@@ -383,7 +383,6 @@
     <string name="starting_cache">Démarrage du cache de hook dans WhatsApp. Cela peut prendre un certain temps.</string>
     <string name="bridge_error">Échec du pont : activez Système Framework dans Lsposed et redémarrez l\'appareil</string>
     <string name="disable_battery_optimization">Désactiver l\'optimisation de la batterie</string>
-    <string name="bootloader_spoofer">Spoofer du chargeur de démarrage</string>
     <string name="bootloader_spoofer_sum">Utilisez-le si vous avez été banni et recevez le message Whatsapp non officiel</string>
     <string name="not_available">pas disponible</string>
     <string name="select_all">Sélectionner tout</string>
@@ -523,4 +522,7 @@
     <string name="call_blocked_source_global">Paramètres globaux</string>
     <string name="call_block_notification_enabled">Notification d\'appel bloqué</string>
     <string name="call_block_notification_enabled_sum">Afficher une notification lorsqu\'un appel est bloqué</string>
+    <string name="custom_keybox">KeyBox personnalisée</string>
+    <string name="custom_keybox_file">Fichier keybox.xml</string>
+    <string name="custom_keybox_file_none">Aucun fichier sélectionné</string>
 </resources>

@@ -383,7 +383,6 @@
     <string name="starting_cache">Запуск кэша хуков в WhatsApp. Это может занять некоторое время.</string>
     <string name="bridge_error">Сбой моста: включите системную структуру в Lsposed и перезагрузите устройство</string>
     <string name="disable_battery_optimization">Отключить оптимизацию батареи</string>
-    <string name="bootloader_spoofer">Bootloader Spoofer</string>
     <string name="bootloader_spoofer_sum">Используйте это, если вы были заблокированы и получаете неофициальное сообщение Whatsapp</string>
     <string name="not_available">недоступен</string>
     <string name="select_all">Выбрать все</string>
@@ -523,4 +522,7 @@
     <string name="call_blocked_source_global">Глобальные настройки</string>
     <string name="call_block_notification_enabled">Уведомление о заблокированном звонке</string>
     <string name="call_block_notification_enabled_sum">Показывать уведомление при блокировке звонка</string>
+    <string name="custom_keybox">Пользовательский KeyBox</string>
+    <string name="custom_keybox_file">Файл keybox.xml</string>
+    <string name="custom_keybox_file_none">Файл не выбран</string>
 </resources>

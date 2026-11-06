@@ -394,7 +394,6 @@ Saat Anda mengaktifkan bekukan \"terakhir dilihat dan online\", Anda tidak dapat
     <string name="starting_cache">Memulai cache hook di WhatsApp. Ini mungkin membutuhkan waktu.</string>
     <string name="bridge_error">Jembatan gagal: Aktifkan Kerangka Kerja Sistem di Lposed dan mulai ulang perangkat</string>
     <string name="disable_battery_optimization">Nonaktifkan pengoptimalan baterai</string>
-    <string name="bootloader_spoofer">Pemalsuan Bootloader</string>
     <string name="bootloader_spoofer_sum">Gunakan ini jika Anda telah diblokir dan menerima pesan WhatsApp tidak resmi</string>
     <string name="not_available">tidak tersedia</string>
     <string name="select_all">Pilih Semua</string>
@@ -522,4 +521,7 @@ Saat Anda mengaktifkan bekukan \"terakhir dilihat dan online\", Anda tidak dapat
     <string name="call_blocked_source_global">Pengaturan global</string>
     <string name="call_block_notification_enabled">Notifikasi panggilan diblokir</string>
     <string name="call_block_notification_enabled_sum">Tampilkan notifikasi saat panggilan diblokir</string>
+    <string name="custom_keybox">KeyBox Kustom</string>
+    <string name="custom_keybox_file">File keybox.xml</string>
+    <string name="custom_keybox_file_none">Tidak ada file dipilih</string>
 </resources>

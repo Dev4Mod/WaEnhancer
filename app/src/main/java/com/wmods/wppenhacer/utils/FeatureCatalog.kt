@@ -88,9 +88,9 @@ object FeatureCatalog {
             general, "general_home", "version", "check", "bypass"
         )
         add(
-            catalog, context, "bootloader_spoofer", R.string.bootloader_spoofer,
+            catalog, context, "bootloader_spoofer_custom", R.string.custom_keybox,
             R.string.bootloader_spoofer_sum, SearchableFeature.Category.GENERAL_HOME,
-            general, "general_home", "bootloader", "spoofer", "ban"
+            general, "general_home", "keybox", "bootloader", "spoofer", "ban"
         )
         add(
             catalog,

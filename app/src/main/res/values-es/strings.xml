@@ -383,7 +383,6 @@
     <string name="starting_cache">Iniciando procesos de WAE en WhatsApp. Esto puede tardar un rato.</string>
     <string name="bridge_error">Fallo del Bridge: Habilita Framework del Sistema en Lsposed y reinicia el dispositivo</string>
     <string name="disable_battery_optimization">Desactivar la optimización de batería</string>
-    <string name="bootloader_spoofer">Bootloader Spoofer</string>
     <string name="bootloader_spoofer_sum">Usa esto si has sido baneado y estás recibiendo el mensaje de WhatsApp no oficial</string>
     <string name="not_available">no disponible</string>
     <string name="select_all">Seleccionar Todo</string>
@@ -523,4 +522,7 @@
     <string name="call_blocked_source_global">Configuración global</string>
     <string name="call_block_notification_enabled">Notificación de llamada bloqueada</string>
     <string name="call_block_notification_enabled_sum">Mostrar una notificación cuando se bloquea una llamada</string>
+    <string name="custom_keybox">KeyBox personalizado</string>
+    <string name="custom_keybox_file">Archivo keybox.xml</string>
+    <string name="custom_keybox_file_none">Ningún archivo seleccionado</string>
 </resources>

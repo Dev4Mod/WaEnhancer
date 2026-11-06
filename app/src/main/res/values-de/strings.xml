@@ -383,7 +383,6 @@
     <string name="starting_cache">Starte Hook-Cache-Erstellung in WhatsApp. Dies kann eine Weile dauern.</string>
     <string name="bridge_error">Bridge fehlgeschlagen: Aktivieren Sie das System-Framework in LSPosed und starten Sie das Gerät neu</string>
     <string name="disable_battery_optimization">Batterieoptimierung deaktivieren</string>
-    <string name="bootloader_spoofer">Bootloader Spoofer</string>
     <string name="bootloader_spoofer_sum">Aktivieren, wenn sie gebannt worden und die inoffizielle WhatsApp-Nachricht über inoffizielle Version erhalten haben</string>
     <string name="not_available">Nicht verfügbar</string>
     <string name="select_all">Alle auswählen</string>
@@ -523,4 +522,7 @@
     <string name="call_blocked_source_global">Globale Einstellungen</string>
     <string name="call_block_notification_enabled">Benachrichtigung bei blockiertem Anruf</string>
     <string name="call_block_notification_enabled_sum">Eine Benachrichtigung anzeigen, wenn ein Anruf blockiert wird</string>
+    <string name="custom_keybox">Benutzerdefinierte KeyBox</string>
+    <string name="custom_keybox_file">keybox.xml-Datei</string>
+    <string name="custom_keybox_file_none">Keine Datei ausgewählt</string>
 </resources>

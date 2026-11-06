@@ -383,7 +383,6 @@
     <string name="starting_cache">WhatsApp\'ta kanca önbelleği başlatılıyor. Bu biraz zaman alabilir.</string>
     <string name="bridge_error">Köprü hatası: LSPosed\'te Sistem Çerçevesini etkinleştirin ve cihazı yeniden başlatın</string>
     <string name="disable_battery_optimization">Pil Optimizasyonunu Devre Dışı Bırak</string>
-    <string name="bootloader_spoofer">Bootloader Yanıltıcı</string>
     <string name="bootloader_spoofer_sum">Yasaklandıysanız ve resmi olmayan WhatsApp mesajı alıyorsanız bunu kullanın</string>
     <string name="not_available">mevcut değil</string>
     <string name="select_all">Tümünü Seç</string>
@@ -523,4 +522,7 @@
     <string name="call_blocked_source_global">Genel ayarlar</string>
     <string name="call_block_notification_enabled">Engellenen arama bildirimi</string>
     <string name="call_block_notification_enabled_sum">Bir arama engellendiğinde bildirim göster</string>
+    <string name="custom_keybox">Özel KeyBox</string>
+    <string name="custom_keybox_file">keybox.xml dosyası</string>
+    <string name="custom_keybox_file_none">Dosya seçilmedi</string>
 </resources>
