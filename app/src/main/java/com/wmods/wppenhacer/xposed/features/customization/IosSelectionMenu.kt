@@ -1,6 +1,5 @@
 package com.wmods.wppenhacer.xposed.features.customization
 
-import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Context
 import android.content.ContextWrapper
@@ -12,13 +11,10 @@ import android.graphics.ColorFilter
 import android.graphics.Paint
 import android.graphics.PixelFormat
 import android.graphics.RectF
-import android.graphics.RenderEffect
-import android.graphics.Shader
 import android.graphics.drawable.BitmapDrawable
 import android.graphics.drawable.ColorDrawable
 import android.graphics.drawable.Drawable
 import android.graphics.drawable.GradientDrawable
-import android.os.Build
 import android.view.View
 import android.view.ViewGroup
 import android.view.ViewOutlineProvider
@@ -48,9 +44,10 @@ import kotlin.math.max
  * "New context menu UI" switch). This feature turns that flag on on its own and,
  * on top of it, replaces the stock opaque panels with iOS-style frosted glass:
  *
- *  - the whole conversation behind the menu is blurred (live RenderEffect blur on
- *    Android 12+, or a downscaled + blurred snapshot of the decor view on older
- *    Android versions, so the module's minSdk 28 is still supported);
+ *  - the whole conversation behind the menu is blurred using a downscaled +
+ *    box-blurred snapshot of the decor view (works from minSdk 28). We
+ *    deliberately do NOT use View.setRenderEffect on the decor: that would also
+ *    blur any child overlay, including the sharp lifted-bubble copy;
  *  - a dim scrim is added, like the iOS context menu backdrop;
  *  - the reaction tray becomes a translucent capsule and the drop-down menu
  *    becomes a translucent 14dp rounded card, both with a hairline border,
@@ -81,14 +78,16 @@ class IosSelectionMenu(loader: ClassLoader, preferences: SharedPreferences) :
         private val BUBBLE_KEYWORDS = arrayOf(
             "bubble", "message_row", "conversation_row", "chat_row", "message_text"
         )
+        private val ANCHOR_FIELD_HINTS = arrayOf(
+            "anchor", "message", "bubble", "row", "selected", "source", "conversation"
+        )
     }
 
     private data class BackdropState(
         val decor: ViewGroup,
         val overlay: View,
         val sharpBubble: View?,
-        val sharpBitmap: Bitmap?,
-        val usedRenderEffect: Boolean
+        val sharpBitmap: Bitmap?
     )
 
     private val backdrops =
@@ -131,18 +130,9 @@ class IosSelectionMenu(loader: ClassLoader, preferences: SharedPreferences) :
         val content = runCatching { popup.contentView }.getOrNull() ?: return
         installedPopups[popup] = true
 
-        // Only remove a plain opaque COLOR scrim. WhatsApp draws the lifted
-        // (sharp) selected message bubble into a bitmap background on some
-        // builds - replacing that would make the highlighted chat disappear.
-        runCatching {
-            val popupBg = runCatching { popup.background }.getOrNull()
-            val contentBg = content.background
-            val hasSnapshot = popupBg is BitmapDrawable || contentBg is BitmapDrawable
-            if (!hasSnapshot && isPlainColorMask(popupBg ?: contentBg)) {
-                popup.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
-            }
-        }.onFailure { logDebug(it) }
-
+        // NEVER touch the PopupWindow background. WhatsApp may keep the lifted
+        // (sharp) selected bubble in that drawable; replacing it at any point
+        // makes the highlighted chat disappear entirely.
         val popupRef = WeakReference(popup)
         content.addOnAttachStateChangeListener(object : View.OnAttachStateChangeListener {
             override fun onViewAttachedToWindow(view: View) {
@@ -183,45 +173,16 @@ class IosSelectionMenu(loader: ClassLoader, preferences: SharedPreferences) :
     // Blurred backdrop behind the menu
     // ------------------------------------------------------------------
 
-    /** All API 31+ calls live in these helpers, so no S-only type is resolved on older ROMs. */
-    @SuppressLint("NewApi")
-    private fun applyLiveBlur(decor: View) {
-        val density = decor.resources.displayMetrics.density
-        val radius = (blurPercent / 100f) * 24f * density
-        decor.setRenderEffect(
-            RenderEffect.createBlurEffect(radius, radius, Shader.TileMode.CLAMP)
-        )
-    }
-
-    @SuppressLint("NewApi")
-    private fun restoreLiveBlur(decor: View) {
-        decor.setRenderEffect(null)
-    }
-
     private fun showBackdrop(popup: PopupWindow, activity: Activity, content: View?) {
         clearStaleBackdrops(popup)
         if (backdrops.containsKey(popup)) return
         val decor = activity.window?.decorView as? ViewGroup ?: return
 
-        var drawable: Drawable = ColorDrawable(dimColor())
-        var usedRenderEffect = false
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-            // Live blur of the activity window. The menu lives in its own
-            // PopupWindow, so it stays sharp while everything behind it blurs.
-            try {
-                applyLiveBlur(decor)
-                usedRenderEffect = true
-            } catch (t: Throwable) {
-                logDebug(t)
-            }
-        }
-
-        if (!usedRenderEffect) {
-            // Pre-Android 12 fallback: draw the decor into a small bitmap, box
-            // blur it and use it as the (upscaled, filtered) backdrop drawable.
-            drawable = createSnapshotDrawable(decor) ?: ColorDrawable(dimColor())
-        }
+        // Snapshot-blur ONLY. A RenderEffect attached to the decor would blur
+        // every child of that view - including the sharp bubble copy we add
+        // below - which is why the selected chat used to stay blurred.
+        val drawable: Drawable = createSnapshotDrawable(decor)
+            ?: ColorDrawable(dimColor())
 
         val overlay = View(activity).apply {
             background = drawable
@@ -237,12 +198,12 @@ class IosSelectionMenu(loader: ClassLoader, preferences: SharedPreferences) :
 
         try {
             decor.addView(overlay)
-            // Keep the selected chat bubble SHARP above the blur. WhatsApp keeps
-            // the lifted bubble in the activity window (or in a bitmap view we
-            // must not repaint), so we snapshot it and draw the crisp copy last.
+            // Draw a crisp copy of the selected chat bubble ON TOP of the blur.
+            // If WhatsApp also draws its own lifted bubble in the popup window,
+            // that window sits above this one, so no visible duplicate appears.
             val sharp = attachSharpBubble(popup, decor, content)
             backdrops[popup] = BackdropState(
-                decor, overlay, sharp?.first, sharp?.second, usedRenderEffect
+                decor, overlay, sharp?.first, sharp?.second
             )
             overlay.animate().alpha(1f).setDuration(180L).start()
         } catch (t: Throwable) {
@@ -252,13 +213,6 @@ class IosSelectionMenu(loader: ClassLoader, preferences: SharedPreferences) :
 
     private fun hideBackdrop(popup: PopupWindow) {
         val state = backdrops.remove(popup) ?: return
-        if (state.usedRenderEffect) {
-            try {
-                restoreLiveBlur(state.decor)
-            } catch (t: Throwable) {
-                logDebug(t)
-            }
-        }
         val overlay = state.overlay
         val sharp = state.sharpBubble
         state.sharpBitmap?.let { if (!it.isRecycled) it.recycle() }
@@ -317,6 +271,8 @@ class IosSelectionMenu(loader: ClassLoader, preferences: SharedPreferences) :
                 }
                 isClickable = false
                 isFocusable = false
+                // Above the blur overlay AND above WhatsApp's own lifted row.
+                elevation = Utils.dipToPixels(24f).toFloat()
                 tag = SHARP_TAG
             }
             decor.addView(sharp)
@@ -334,17 +290,19 @@ class IosSelectionMenu(loader: ClassLoader, preferences: SharedPreferences) :
     ): View? {
         val minW = Utils.dipToPixels(90)
         val minH = Utils.dipToPixels(32)
-        val maxH = Utils.dipToPixels(700)
+        val maxH = Utils.dipToPixels(420)
         val candidates = LinkedHashSet<View>()
+        val strong = LinkedHashSet<View>()
 
-        collectViewFields(popup, decor, content, minW, minH, maxH, candidates)
+        collectViewFields(popup, decor, content, minW, minH, maxH, candidates, strong)
         if (content != null) {
-            collectViewFields(content, decor, content, minW, minH, maxH, candidates)
+            collectViewFields(
+                content, decor, content, minW, minH, maxH, candidates, strong
+            )
         }
-        if (candidates.isEmpty()) {
-            scanForBubbleCandidates(decor, decor, 0, minW, minH, maxH, candidates)
-        }
-        return candidates.maxByOrNull { bubbleScore(it) }
+        scanForBubbleCandidates(decor, decor, 0, minW, minH, maxH, candidates)
+        val pool = if (strong.isNotEmpty()) strong else candidates
+        return pool.maxByOrNull { bubbleScore(it) }
     }
 
     private fun collectViewFields(
@@ -354,7 +312,8 @@ class IosSelectionMenu(loader: ClassLoader, preferences: SharedPreferences) :
         minW: Int,
         minH: Int,
         maxH: Int,
-        out: MutableSet<View>
+        out: MutableSet<View>,
+        strong: MutableSet<View>
     ) {
         var cls: Class<*>? = owner.javaClass
         while (cls != null && cls != Any::class.java) {
@@ -371,6 +330,10 @@ class IosSelectionMenu(loader: ClassLoader, preferences: SharedPreferences) :
                         isPlausibleBubble(view, decor, minW, minH, maxH)
                     ) {
                         out.add(view)
+                        val fieldName = field.name.lowercase(Locale.ROOT)
+                        if (ANCHOR_FIELD_HINTS.any { fieldName.contains(it) }) {
+                            strong.add(view)
+                        }
                     }
                 }
             }
@@ -431,7 +394,10 @@ class IosSelectionMenu(loader: ClassLoader, preferences: SharedPreferences) :
         val hidden = ArrayList<View>()
         for (i in 0 until decor.childCount) {
             val child = decor.getChildAt(i)
-            if (child.getTag() == BACKDROP_TAG && child.visibility == View.VISIBLE) {
+            val tag = child.getTag()
+            if ((tag == BACKDROP_TAG || tag == SHARP_TAG) &&
+                child.visibility == View.VISIBLE
+            ) {
                 child.visibility = View.INVISIBLE
                 hidden.add(child)
             }
