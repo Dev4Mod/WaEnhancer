@@ -30,6 +30,7 @@ class DefaultEmoji(
 
     private val spanWidths = WeakHashMap<Any, Int>()
     private val drawableMethodCache = WeakHashMap<Class<*>, Method?>()
+    private var useIosEmoji = false
 
     override fun doHook() {
         if (xprefs.getBoolean("force_disable_emojis", false)) {
@@ -45,7 +46,10 @@ class DefaultEmoji(
             }
             return
         }
-        if (!xprefs.getBoolean("disable_defemojis", false)) return
+        // "iOS Emoji" forces the same replacement everywhere, even when the
+        // standalone "Disable Default Emojis" switch is off.
+        useIosEmoji = xprefs.getBoolean("ios_emoji", false)
+        if (!xprefs.getBoolean("disable_defemojis", false) && !useIosEmoji) return
         val sizeMethods = Unobfuscator.loadEmojiSpanGetSizeMethods(classLoader)
         val drawMethods = Unobfuscator.loadEmojiSpanDrawMethods(classLoader)
         sizeMethods.forEach { method ->
@@ -172,6 +176,9 @@ class DefaultEmoji(
 
         return Paint(paint).apply {
             textSize = paint.textSize * scale
+            if (useIosEmoji) {
+                IosEmojiFont.fromPrefs()?.let { typeface = it }
+            }
         }
     }
 

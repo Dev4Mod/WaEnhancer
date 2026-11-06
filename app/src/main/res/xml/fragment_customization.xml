@@ -30,6 +30,21 @@
             app:showSeekBarValue="true"
             app:title="@string/ios_backdrop_dim" />
 
+        <rikka.material.preference.MaterialSwitchPreference
+            app:key="ios_emoji"
+            app:summary="@string/ios_emoji_sum"
+            app:title="@string/ios_emoji" />
+
+        <com.wmods.wppenhacer.preference.IosEmojiPreviewPreference
+            app:key="ios_emoji_preview" />
+
+        <com.wmods.wppenhacer.preference.FileSelectPreference
+            android:entryValues="@array/font_picker"
+            android:summary="@string/ios_emoji_font_sum"
+            app:dependency="ios_emoji"
+            app:key="ios_emoji_font"
+            app:title="@string/ios_emoji_font" />
+
     </PreferenceCategory>
 
     <PreferenceCategory

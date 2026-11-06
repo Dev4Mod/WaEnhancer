@@ -12,6 +12,7 @@ import com.wmods.wppenhacer.xposed.features.customization.FloatingBottomBar
 import com.wmods.wppenhacer.xposed.features.customization.HideSeenView
 import com.wmods.wppenhacer.xposed.features.customization.HideTabs
 import com.wmods.wppenhacer.xposed.features.customization.IGStatus
+import com.wmods.wppenhacer.xposed.features.customization.IosEmoji
 import com.wmods.wppenhacer.xposed.features.customization.IosSelectionMenu
 import com.wmods.wppenhacer.xposed.features.customization.SeparateGroup
 import com.wmods.wppenhacer.xposed.features.customization.ShowOnline
@@ -139,6 +140,7 @@ internal object FeatureRegistry {
         DefaultEmoji::class.java,
         CaptureDevice::class.java,
         ContextMenuActionProvider::class.java,
-        IosSelectionMenu::class.java
+        IosSelectionMenu::class.java,
+        IosEmoji::class.java
     )
 }

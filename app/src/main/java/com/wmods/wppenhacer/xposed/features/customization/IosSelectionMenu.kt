@@ -23,6 +23,8 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.ViewOutlineProvider
 import android.view.animation.DecelerateInterpolator
+import android.widget.FrameLayout
+import android.widget.ImageView
 import android.widget.PopupWindow
 import com.highcapable.kavaref.KavaRef.Companion.resolve
 import com.highcapable.yukihookapi.extension.kavaref.hookAll
@@ -70,16 +72,22 @@ class IosSelectionMenu(loader: ClassLoader, preferences: SharedPreferences) :
         /** WhatsApp's feature flag for the iOS-like message selection menu. */
         private const val NATIVE_IOS_MENU_PROP = 2889
         private const val BACKDROP_TAG = "wae_ios_selection_backdrop"
+        private const val SHARP_TAG = "wae_ios_sharp_bubble"
         private const val MAX_SCAN_DEPTH = 7
         private val CARD_KEYWORDS = arrayOf(
             "reaction", "tray", "menu", "selection", "dropdown", "drop_down",
             "recyclerview", "context_menu", "actions"
+        )
+        private val BUBBLE_KEYWORDS = arrayOf(
+            "bubble", "message_row", "conversation_row", "chat_row", "message_text"
         )
     }
 
     private data class BackdropState(
         val decor: ViewGroup,
         val overlay: View,
+        val sharpBubble: View?,
+        val sharpBitmap: Bitmap?,
         val usedRenderEffect: Boolean
     )
 
@@ -127,7 +135,10 @@ class IosSelectionMenu(loader: ClassLoader, preferences: SharedPreferences) :
         // (sharp) selected message bubble into a bitmap background on some
         // builds - replacing that would make the highlighted chat disappear.
         runCatching {
-            if (isPlainColorMask(popup.contentView.background)) {
+            val popupBg = runCatching { popup.background }.getOrNull()
+            val contentBg = content.background
+            val hasSnapshot = popupBg is BitmapDrawable || contentBg is BitmapDrawable
+            if (!hasSnapshot && isPlainColorMask(popupBg ?: contentBg)) {
                 popup.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
             }
         }.onFailure { logDebug(it) }
@@ -139,7 +150,7 @@ class IosSelectionMenu(loader: ClassLoader, preferences: SharedPreferences) :
                 // Do NOT touch the popup background here: WhatsApp paints the
                 // highlighted message bubble into it after the constructor.
                 val activity = findActivity(view.context)
-                if (activity != null) showBackdrop(current, activity)
+                if (activity != null) showBackdrop(current, activity, view)
                 view.post { styleCards(view) }
             }
 
@@ -153,7 +164,7 @@ class IosSelectionMenu(loader: ClassLoader, preferences: SharedPreferences) :
         content.post {
             val activity = findActivity(content.context)
             if (content.isAttachedToWindow && activity != null && !backdrops.containsKey(popup)) {
-                showBackdrop(popup, activity)
+                showBackdrop(popup, activity, content)
             }
             styleCards(content)
         }
@@ -187,7 +198,7 @@ class IosSelectionMenu(loader: ClassLoader, preferences: SharedPreferences) :
         decor.setRenderEffect(null)
     }
 
-    private fun showBackdrop(popup: PopupWindow, activity: Activity) {
+    private fun showBackdrop(popup: PopupWindow, activity: Activity, content: View?) {
         clearStaleBackdrops(popup)
         if (backdrops.containsKey(popup)) return
         val decor = activity.window?.decorView as? ViewGroup ?: return
@@ -226,7 +237,13 @@ class IosSelectionMenu(loader: ClassLoader, preferences: SharedPreferences) :
 
         try {
             decor.addView(overlay)
-            backdrops[popup] = BackdropState(decor, overlay, usedRenderEffect)
+            // Keep the selected chat bubble SHARP above the blur. WhatsApp keeps
+            // the lifted bubble in the activity window (or in a bitmap view we
+            // must not repaint), so we snapshot it and draw the crisp copy last.
+            val sharp = attachSharpBubble(popup, decor, content)
+            backdrops[popup] = BackdropState(
+                decor, overlay, sharp?.first, sharp?.second, usedRenderEffect
+            )
             overlay.animate().alpha(1f).setDuration(180L).start()
         } catch (t: Throwable) {
             log(t)
@@ -243,6 +260,9 @@ class IosSelectionMenu(loader: ClassLoader, preferences: SharedPreferences) :
             }
         }
         val overlay = state.overlay
+        val sharp = state.sharpBubble
+        state.sharpBitmap?.let { if (!it.isRecycled) it.recycle() }
+        sharp?.let { (it.parent as? ViewGroup)?.removeView(it) }
         overlay.animate().cancel()
         overlay.animate().alpha(0f).setDuration(150L).withEndAction {
             (overlay.parent as? ViewGroup)?.removeView(overlay)
@@ -262,6 +282,145 @@ class IosSelectionMenu(loader: ClassLoader, preferences: SharedPreferences) :
 
     private fun dimColor(): Int =
         Color.argb((dimPercent * 1.55f).toInt().coerceIn(0, 190), 0, 0, 0)
+
+    // ------------------------------------------------------------------
+    // Keep the selected (lifted) chat bubble sharp above the blur
+    // ------------------------------------------------------------------
+
+    private fun isBubbleLike(name: String): Boolean =
+        BUBBLE_KEYWORDS.any { name.contains(it) }
+
+    private fun attachSharpBubble(
+        popup: PopupWindow,
+        decor: ViewGroup,
+        content: View?
+    ): Pair<View, Bitmap>? {
+        val bubble = findSelectedBubble(popup, decor, content) ?: return null
+        return try {
+            val w = bubble.width
+            val h = bubble.height
+            if (w <= 0 || h <= 0) return null
+            val bitmap = Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888)
+            bubble.draw(Canvas(bitmap))
+
+            val loc = IntArray(2)
+            val decorLoc = IntArray(2)
+            bubble.getLocationInWindow(loc)
+            decor.getLocationInWindow(decorLoc)
+
+            val sharp = ImageView(decor.context).apply {
+                setImageBitmap(bitmap)
+                scaleType = ImageView.ScaleType.FIT_XY
+                layoutParams = FrameLayout.LayoutParams(w, h).apply {
+                    leftMargin = loc[0] - decorLoc[0]
+                    topMargin = loc[1] - decorLoc[1]
+                }
+                isClickable = false
+                isFocusable = false
+                tag = SHARP_TAG
+            }
+            decor.addView(sharp)
+            sharp to bitmap
+        } catch (t: Throwable) {
+            logDebug(t)
+            null
+        }
+    }
+
+    private fun findSelectedBubble(
+        popup: PopupWindow,
+        decor: View,
+        content: View?
+    ): View? {
+        val minW = Utils.dipToPixels(90)
+        val minH = Utils.dipToPixels(32)
+        val maxH = Utils.dipToPixels(700)
+        val candidates = LinkedHashSet<View>()
+
+        collectViewFields(popup, decor, content, minW, minH, maxH, candidates)
+        if (content != null) {
+            collectViewFields(content, decor, content, minW, minH, maxH, candidates)
+        }
+        if (candidates.isEmpty()) {
+            scanForBubbleCandidates(decor, decor, 0, minW, minH, maxH, candidates)
+        }
+        return candidates.maxByOrNull { bubbleScore(it) }
+    }
+
+    private fun collectViewFields(
+        owner: Any,
+        decor: View,
+        content: View?,
+        minW: Int,
+        minH: Int,
+        maxH: Int,
+        out: MutableSet<View>
+    ) {
+        var cls: Class<*>? = owner.javaClass
+        while (cls != null && cls != Any::class.java) {
+            for (field in cls.declaredFields) {
+                runCatching {
+                    field.isAccessible = true
+                    val raw = field.get(owner)
+                    val view = when (raw) {
+                        is View -> raw
+                        is WeakReference<*> -> raw.get() as? View
+                        else -> null
+                    }
+                    if (view != null && view !== content &&
+                        isPlausibleBubble(view, decor, minW, minH, maxH)
+                    ) {
+                        out.add(view)
+                    }
+                }
+            }
+            cls = cls.superclass
+        }
+    }
+
+    private fun scanForBubbleCandidates(
+        view: View,
+        decor: View,
+        depth: Int,
+        minW: Int,
+        minH: Int,
+        maxH: Int,
+        out: MutableSet<View>
+    ) {
+        if (depth > 12) return
+        if (isPlausibleBubble(view, decor, minW, minH, maxH)) out.add(view)
+        if (view is ViewGroup) {
+            for (i in 0 until view.childCount) {
+                scanForBubbleCandidates(
+                    view.getChildAt(i), decor, depth + 1, minW, minH, maxH, out
+                )
+            }
+        }
+    }
+
+    private fun isPlausibleBubble(
+        view: View,
+        decor: View,
+        minW: Int,
+        minH: Int,
+        maxH: Int
+    ): Boolean {
+        if (view === decor || view.visibility != View.VISIBLE) return false
+        if (view.getTag() == BACKDROP_TAG || view.getTag() == SHARP_TAG) return false
+        if (view.width < minW || view.height < minH || view.height > maxH) return false
+        if (view.rootView !== decor && view.rootView !== decor.rootView) return false
+        if (view.width >= decor.width * 0.95f && view.height >= decor.height * 0.80f) return false
+        return true
+    }
+
+    private fun bubbleScore(view: View): Long {
+        val name = viewName(view)
+        val lifted = view.isSelected || view.isActivated || view.isPressed ||
+                view.elevation > 0f
+        return (if (lifted) 50_000_000L else 0L) +
+                (if (isBubbleLike(name)) 20_000_000L else 0L) +
+                view.width.toLong() * view.height.toLong()
+    }
 
     private fun createSnapshotDrawable(decor: ViewGroup): Drawable? {
         val w = decor.width
@@ -492,8 +651,9 @@ class IosSelectionMenu(loader: ClassLoader, preferences: SharedPreferences) :
         ) {
             val name = viewName(view)
             val named = CARD_KEYWORDS.any { name.contains(it) }
-            if ((named && view.childCount >= 1) ||
-                (hasSolidBackground(view) && view.childCount >= 2)
+            if (!isBubbleLike(name) &&
+                ((named && view.childCount >= 1) ||
+                        (hasSolidBackground(view) && view.childCount >= 2))
             ) {
                 out.add(expandHost(view, root, screenW, screenH))
                 chosen = true
@@ -514,7 +674,7 @@ class IosSelectionMenu(loader: ClassLoader, preferences: SharedPreferences) :
         var best = start
         var parent = start.parent as? View
         while (parent != null && parent !== root && !isFullScreen(parent, screenW, screenH)) {
-            if (isSnapshotBackground(parent)) break
+            if (isSnapshotBackground(parent) || isBubbleLike(viewName(parent))) break
             if (hasSolidBackground(parent)) best = parent
             parent = parent.parent as? View
         }
@@ -559,7 +719,7 @@ class IosSelectionMenu(loader: ClassLoader, preferences: SharedPreferences) :
 
     private fun applyGlass(view: View, capsule: Boolean, night: Boolean) {
         try {
-            if (isSnapshotBackground(view)) return
+            if (isSnapshotBackground(view) || isBubbleLike(viewName(view))) return
             val alpha = if (night) 0xB2 else 0xC6
             val base = if (night) {
                 Color.argb(alpha, 44, 46, 50)

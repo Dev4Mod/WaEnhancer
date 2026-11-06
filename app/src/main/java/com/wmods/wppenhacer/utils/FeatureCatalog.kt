@@ -1034,6 +1034,15 @@ object FeatureCatalog {
             category, fragment, "enable_ios_style", "ios", "blur", "dim", "backdrop"
         )
         add(
+            catalog, context, "ios_emoji", R.string.ios_emoji, R.string.ios_emoji_sum,
+            category, fragment, null, "ios", "emoji", "unicode", "picker", "apple"
+        )
+        add(
+            catalog, context, "ios_emoji_font", R.string.ios_emoji_font,
+            R.string.ios_emoji_font_sum, category, fragment, "ios_emoji",
+            "ios", "emoji", "font", "ttf", "apple"
+        )
+        add(
             catalog, context, "animation_emojis", R.string.animation_emojis,
             R.string.animation_emojis_sum, category, fragment, null, "animation", "emojis", "large"
         )
