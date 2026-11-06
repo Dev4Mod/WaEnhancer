@@ -104,7 +104,7 @@ private fun updateBubbleView(fmessage: FMessageWpp, viewGroup: ViewGroup) {
     if (view != null) {
         val played = getCachedStatus(jid, messageId, MessageHistoryStore.ReceiptType.PLAYED)
         if (played == null) {
-            ensureCacheLoaded(jid, MessageHistoryStore.ReceiptType.PLAYED)
+            ensureCacheLoaded(jid, userJid.userRawString, MessageHistoryStore.ReceiptType.PLAYED)
             view.colorFilter = null
         } else {
             view.setColorFilter(if (played) Color.GREEN else Color.RED)
@@ -123,7 +123,7 @@ private fun updateBubbleView(fmessage: FMessageWpp, viewGroup: ViewGroup) {
         }
         val viewedMessage = getCachedStatus(jid, messageId, MessageHistoryStore.ReceiptType.READ)
         if (viewedMessage == null) {
-            ensureCacheLoaded(jid, MessageHistoryStore.ReceiptType.READ)
+            ensureCacheLoaded(jid, userJid.userRawString, MessageHistoryStore.ReceiptType.READ)
             status.visibility = View.GONE
         } else {
             status.visibility = View.VISIBLE
@@ -145,7 +145,11 @@ private fun getCachedStatus(
     }
 }
 
-private fun ensureCacheLoaded(jid: String, type: MessageHistoryStore.ReceiptType) {
+private fun ensureCacheLoaded(
+    jid: String,
+    userJid: String?,
+    type: MessageHistoryStore.ReceiptType
+) {
     val loadingMap =
         if (type == MessageHistoryStore.ReceiptType.READ) loadingReadStatus else loadingPlayedStatus
     val loadedMap =
@@ -154,7 +158,7 @@ private fun ensureCacheLoaded(jid: String, type: MessageHistoryStore.ReceiptType
     if (loadingMap.putIfAbsent(jid, true) != null) return
     cacheExecutor.execute {
         try {
-            val map = loadStatusMap(jid, type)
+            val map = loadStatusMap(jid, userJid, type)
             synchronized(CACHE_LOCK) {
                 var cache = jidCache.get(jid)
                 if (cache == null) {
@@ -177,16 +181,17 @@ private fun ensureCacheLoaded(jid: String, type: MessageHistoryStore.ReceiptType
 
 private fun loadStatusMap(
     jid: String,
+    userJid: String?,
     type: MessageHistoryStore.ReceiptType
 ): HashMap<String, Boolean> {
     val map = HashMap<String, Boolean>()
-    val viewed = MessageHistoryStore.getInstance().getHideSeenMessages(jid, type, true)
+    val viewed = MessageHistoryStore.getInstance().getHideSeenMessages(jid, userJid, type, true)
     if (viewed != null) {
         for (item in viewed) {
             map[item.message] = true
         }
     }
-    val notViewed = MessageHistoryStore.getInstance().getHideSeenMessages(jid, type, false)
+    val notViewed = MessageHistoryStore.getInstance().getHideSeenMessages(jid, userJid, type, false)
     if (notViewed != null) {
         for (item in notViewed) {
             map[item.message] = false

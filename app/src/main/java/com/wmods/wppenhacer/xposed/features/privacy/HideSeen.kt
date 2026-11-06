@@ -20,6 +20,7 @@ class HideSeen(loader: ClassLoader, preferences: SharedPreferences) :
 
     companion object {
         private const val MEDIA_TYPE_VOICE_NOTE = 2
+        private val CALL_RECEIPT_TAGS = setOf("offer", "accept", "reject", "enc_rekey")
 
         @JvmStatic
         fun generateFMessageKey(protocolTreeNodeWpp: ProtocolTreeNodeWpp): FMessageWpp.Key? {
@@ -46,6 +47,7 @@ class HideSeen(loader: ClassLoader, preferences: SharedPreferences) :
         hookReceiptMethod()
         hookSenderPlayed()
         hookSenderPlayedBusiness()
+        hookStanzaWriter()
     }
 
     private fun loadPreferences() {
@@ -56,6 +58,38 @@ class HideSeen(loader: ClassLoader, preferences: SharedPreferences) :
         hideStatusView = xprefs.getBoolean("hidestatusview", false)
         hideReceipt = xprefs.getBoolean("hidereceipt", false)
         hideReceiptUnknown = xprefs.getBoolean("hidereceipt_unknown", false)
+    }
+
+    private fun hookStanzaWriter() {
+        val stanzaWriterMethod = Unobfuscator.loadStanzaWriterMethod(classLoader)
+
+        stanzaWriterMethod.hook {
+            before {
+                val node = args[0] ?: return@before
+                if (!ProtocolTreeNodeWpp.TYPE.isInstance(node)) return@before
+                val receipt = ProtocolTreeNodeWpp(node)
+                if (receipt.tag != "receipt" || !revealsDelivery(receipt)) return@before
+
+                val userJid =
+                    receipt.attributes.firstOrNull { it.key == "to" }?.userJid ?: return@before
+                val messageId = receipt.getFirstKeyValue("id") ?: return@before
+                if (userJid.isNull || userJid.isStatus || userJid.isNewsletter) return@before
+
+                val fmessageKey = FMessageWpp.Key(messageId, userJid, false)
+                if (!shouldBlockReceipt(fmessageKey)) return@before
+
+                result = null
+                insertHiddenIfAbsent(fmessageKey)
+            }
+        }
+    }
+
+    private fun revealsDelivery(receipt: ProtocolTreeNodeWpp): Boolean {
+        if (receipt.children.any { it.tag in CALL_RECEIPT_TAGS }) return false
+        return when (receipt.getFirstKeyValue("type")) {
+            null, "inactive" -> true
+            else -> false
+        }
     }
 
     private fun hookSendReadReceiptJob() {
@@ -137,6 +171,7 @@ class HideSeen(loader: ClassLoader, preferences: SharedPreferences) :
         if (ids.isEmpty()) return
         MessageHistoryStore.getInstance().insertHideSeenMessagesAsync(
             userJid.phoneRawString,
+            userJid.userRawString,
             ids,
             MessageHistoryStore.ReceiptType.READ,
             false
@@ -215,24 +250,34 @@ class HideSeen(loader: ClassLoader, preferences: SharedPreferences) :
     private fun blockReceiptDispatch(message: Message, fmessageKey: FMessageWpp.Key) {
         if (!shouldBlockReceipt(fmessageKey)) return
         message.arg1 = -1
-        insertHidden(fmessageKey)
+        insertHiddenIfAbsent(fmessageKey)
+    }
+
+    private fun insertHiddenIfAbsent(fmessageKey: FMessageWpp.Key) {
+        if (getHiddenItem(fmessageKey) == null) insertHidden(fmessageKey)
     }
 
     private fun insertHidden(fmessageKey: FMessageWpp.Key) {
         MessageHistoryStore.getInstance().insertHideSeenMessageAsync(
             fmessageKey.remoteJid.phoneRawString,
+            fmessageKey.remoteJid.userRawString,
             fmessageKey.messageID,
             MessageHistoryStore.ReceiptType.READ,
             false
         )
     }
 
-    private fun isAlreadyViewed(fmessageKey: FMessageWpp.Key): Boolean {
+    private fun getHiddenItem(fmessageKey: FMessageWpp.Key): MessageHistoryStore.MessageSeenItem? {
         return MessageHistoryStore.getInstance().getHideSeenMessage(
             fmessageKey.remoteJid.phoneRawString,
+            fmessageKey.remoteJid.userRawString,
             fmessageKey.messageID,
             MessageHistoryStore.ReceiptType.READ
-        )?.viewed == true
+        )
+    }
+
+    private fun isAlreadyViewed(fmessageKey: FMessageWpp.Key): Boolean {
+        return getHiddenItem(fmessageKey)?.viewed == true
     }
 
     private fun shouldBlockSeen(
@@ -306,6 +351,7 @@ class HideSeen(loader: ClassLoader, preferences: SharedPreferences) :
             param.result = null
             MessageHistoryStore.getInstance().insertHideSeenMessageAsync(
                 key.remoteJid.phoneRawString,
+                key.remoteJid.userRawString,
                 key.messageID,
                 MessageHistoryStore.ReceiptType.PLAYED,
                 false
@@ -314,16 +360,19 @@ class HideSeen(loader: ClassLoader, preferences: SharedPreferences) :
 
         if (fMessage.isViewOnce && !hideOnceSeen && !ghostMode) {
             val phoneRaw = key.remoteJid.phoneRawString
+            val userRaw = key.remoteJid.userRawString
             val messageId = key.messageID
             MessageHistoryStore.getInstance().apply {
                 updateViewedMessageAsync(
                     phoneRaw,
+                    userRaw,
                     messageId,
                     MessageHistoryStore.ReceiptType.PLAYED,
                     true
                 )
                 updateViewedMessageAsync(
                     phoneRaw,
+                    userRaw,
                     messageId,
                     MessageHistoryStore.ReceiptType.READ,
                     true

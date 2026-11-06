@@ -14,7 +14,9 @@ import androidx.room.PrimaryKey
             unique = true
         ),
         Index(name = "idx_hide_seen_jid_read", value = ["jid", "read"]),
-        Index(name = "idx_hide_seen_jid_played", value = ["jid", "played"])
+        Index(name = "idx_hide_seen_jid_played", value = ["jid", "played"]),
+        Index(name = "idx_hide_seen_userjid_read", value = ["userjid", "read"]),
+        Index(name = "idx_hide_seen_userjid_played", value = ["userjid", "played"])
     ]
 )
 data class HideSeenEntity(
@@ -23,6 +25,7 @@ data class HideSeenEntity(
     val id: Long? = null,
 
     @ColumnInfo(name = "jid") val jid: String,
+    @ColumnInfo(name = "userjid") val userjid: String? = null,
     @ColumnInfo(name = "message_id") val messageId: String,
     @ColumnInfo(name = "read", defaultValue = "0") val read: Int = 0,
     @ColumnInfo(name = "played", defaultValue = "0") val played: Int = 0

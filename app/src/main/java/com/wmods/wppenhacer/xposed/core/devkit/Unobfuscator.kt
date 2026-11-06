@@ -2622,6 +2622,22 @@ object Unobfuscator {
         }
     }
 
+    @Throws(Exception::class)
+    @JvmStatic
+    fun loadStanzaWriterMethod(classLoader: ClassLoader): Method {
+        return UnobfuscatorCache.getInstance().getMethod(classLoader) {
+            val protocolTreeNodeClass = loadProtocolTreeNodeClass(classLoader)
+            bridge.findMethod {
+                matcher {
+                    paramTypes(protocolTreeNodeClass.name, "int")
+                    returnType = "void"
+                    addInvoke("Ljava/util/zip/DeflaterOutputStream;-><init>(Ljava/io/OutputStream;)V")
+                }
+            }.singleOrNull()?.getMethodInstance(classLoader)
+                ?: throw Exception("Stanza writer method not found")
+        }
+    }
+
     private fun homeActivityClassDataChain(homeActivityClass: Class<*>): List<ClassData> {
         val chain = ArrayList<ClassData>()
         var current = bridge.getClassData(homeActivityClass.name)
