@@ -2052,6 +2052,25 @@ object Unobfuscator {
 
     @Throws(Exception::class)
     @JvmStatic
+    fun loadBottomNavigationViewClass(classLoader: ClassLoader): Class<*> {
+        return UnobfuscatorCache.getInstance().getClass(classLoader) {
+            // WhatsApp 2.26.42 obfuscates Material's BottomNavigationView; its subclass
+            // HomeLegacyBottomNavigationView keeps its name and inherits getMaxItemCount.
+            // Both names resolve under one cache entry so a cached startup never opens DexKit.
+            listOf(".HomeLegacyBottomNavigationView", ".BottomNavigationView")
+                .firstNotNullOfOrNull { name ->
+                    bridge.findClass {
+                        matcher {
+                            className(name, StringMatchType.EndsWith)
+                        }
+                    }.firstOrNull()
+                }?.getInstance(classLoader)
+                ?: throw ClassNotFoundException("BottomNavigationView class not found")
+        }
+    }
+
+    @Throws(Exception::class)
+    @JvmStatic
     fun loadHeaderChannelItemClass(classLoader: ClassLoader): Class<*> {
         return UnobfuscatorCache.getInstance().getClass(classLoader) {
             findFirstClassUsingStrings(
@@ -2575,16 +2594,19 @@ object Unobfuscator {
         return UnobfuscatorCache.getInstance().getMethod(classLoader) {
             val classData = bridge.getClassData(WppCore.homeActivityClass)
                 ?: return@getMethod null
-            val methodData = classData.findMethod {
-                matcher {
-                    addUsingNumber(Utils.getID("menuitem_search", "id"))
-                    addUsingNumber(200)
-                    paramCount(1)
-                    addParamType(Menu::class.java)
-                }
-            }
-            if (methodData.isEmpty()) throw NoSuchMethodError("MenuSearch not found in HomeActivity")
-            methodData[0].getMethodInstance(classLoader)
+            // WhatsApp 2.26.43 moved the menu setup into HomeActivityKt, HomeActivity's superclass
+            val methodData = listOfNotNull(classData, classData.superClass)
+                .firstNotNullOfOrNull { owner ->
+                    owner.findMethod {
+                        matcher {
+                            addUsingNumber(Utils.getID("menuitem_search", "id"))
+                            addUsingNumber(200)
+                            paramCount(1)
+                            addParamType(Menu::class.java)
+                        }
+                    }.firstOrNull()
+                } ?: throw NoSuchMethodError("MenuSearch not found in HomeActivity")
+            methodData.getMethodInstance(classLoader)
         }
     }
 

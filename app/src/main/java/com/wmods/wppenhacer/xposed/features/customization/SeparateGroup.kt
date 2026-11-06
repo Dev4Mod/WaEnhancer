@@ -88,11 +88,7 @@ class SeparateGroup(loader: ClassLoader, preferences: SharedPreferences) :
     }
 
     override fun doHook() {
-        val bottomNavigationViewCls = Unobfuscator.findFirstClassUsingName(
-            classLoader,
-            StringMatchType.EndsWith,
-            ".BottomNavigationView"
-        )
+        val bottomNavigationViewCls = Unobfuscator.loadBottomNavigationViewClass(classLoader)
         bottomNavigationViewCls.resolve().firstMethod {
             name = "getMaxItemCount"
             superclass()
