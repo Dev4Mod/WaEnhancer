@@ -2575,16 +2575,19 @@ object Unobfuscator {
         return UnobfuscatorCache.getInstance().getMethod(classLoader) {
             val classData = bridge.getClassData(WppCore.homeActivityClass)
                 ?: return@getMethod null
-            val methodData = classData.findMethod {
-                matcher {
-                    addUsingNumber(Utils.getID("menuitem_search", "id"))
-                    addUsingNumber(200)
-                    paramCount(1)
-                    addParamType(Menu::class.java)
-                }
-            }
-            if (methodData.isEmpty()) throw NoSuchMethodError("MenuSearch not found in HomeActivity")
-            methodData[0].getMethodInstance(classLoader)
+            // WhatsApp 2.26.43 moved the menu setup into HomeActivityKt, HomeActivity's superclass
+            val methodData = listOfNotNull(classData, classData.superClass)
+                .firstNotNullOfOrNull { owner ->
+                    owner.findMethod {
+                        matcher {
+                            addUsingNumber(Utils.getID("menuitem_search", "id"))
+                            addUsingNumber(200)
+                            paramCount(1)
+                            addParamType(Menu::class.java)
+                        }
+                    }.firstOrNull()
+                } ?: throw NoSuchMethodError("MenuSearch not found in HomeActivity")
+            methodData.getMethodInstance(classLoader)
         }
     }
 
