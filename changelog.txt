@@ -1,3 +1,7 @@
+[ADDED]
+* New "iOS Appearance" settings in Customization: Enable iOS Style makes long-press message selection look like iOS 1:1, with a blurred chat backdrop, a frosted reaction capsule and frosted grouped menu buttons (not the stock WhatsApp panels)
+* Blur intensity and backdrop dim sliders for the iOS-style selection menu
+
 [IMPROVED]
 * Faster WhatsApp startup: DexKit is now opened only when needed and closed when idle
 * Smoother scrolling and tab switching, with less work done in the theme, custom view and resource hooks

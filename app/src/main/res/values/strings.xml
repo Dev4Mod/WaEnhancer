@@ -594,4 +594,9 @@
     <string name="messages_restored_success">Messages restored</string>
     <string name="hide_delivered_unknown">Hide Delivered for unknown numbers</string>
     <string name="hide_delivered_unknown_sum">Shows only one tick for numbers not saved in your contacts, as if the message hadn\'t arrived</string>
+    <string name="ios_appearance">iOS Appearance</string>
+    <string name="enable_ios_style">Enable iOS Style</string>
+    <string name="enable_ios_style_sum">Make long-press message selection look 1:1 like iOS: blurred chat backdrop, frosted reaction bar and blurred grouped menu buttons instead of the stock WhatsApp panels. Restart WhatsApp after changing this.</string>
+    <string name="ios_blur_intensity">Blur intensity</string>
+    <string name="ios_backdrop_dim">Backdrop dim</string>
 </resources>

@@ -528,4 +528,9 @@ Harap gunakan versi WhatsApp yang didukung!</string>
     <string name="messages_restored_success">Pesan dipulihkan</string>
     <string name="hide_delivered_unknown">Sembunyikan Terkirim untuk nomor tidak dikenal</string>
     <string name="hide_delivered_unknown_sum">Hanya menampilkan satu centang untuk nomor yang tidak tersimpan di kontak Anda, seolah pesan belum sampai</string>
+    <string name="ios_appearance">Tampilan iOS</string>
+    <string name="enable_ios_style">Aktifkan Gaya iOS</string>
+    <string name="enable_ios_style_sum">Buat menu saat memilih pesan (tekan lama) mirip iOS 1:1: latar chat di-blur, bar reaksi dan grup tombol menu jadi kaca buram, bukan panel bawaan WA. Restart WhatsApp setelah mengubahnya.</string>
+    <string name="ios_blur_intensity">Kekuatan blur</string>
+    <string name="ios_backdrop_dim">Kegelapan latar</string>
 </resources>
