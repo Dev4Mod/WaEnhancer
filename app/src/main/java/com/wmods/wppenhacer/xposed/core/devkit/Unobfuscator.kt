@@ -1885,6 +1885,51 @@ object Unobfuscator {
         }
     }
 
+    /**
+     * Finds WhatsApp's internal text-message send method by searching for the string
+     * "userActionSendTextMessages", which is logged inside the method body and therefore
+     * survives obfuscation across WhatsApp releases.
+     *
+     * Returns the [Method] itself (not just the class) because the method name is
+     * obfuscated and changes every build — only the string reference is stable.
+     *
+     * On WhatsApp 2.26.42.74 the legacy signature search (List-returning method with
+     * String + List params on ActionUser) finds nothing; this string-based search is
+     * the dependable replacement.
+     */
+    @Throws(Exception::class)
+    @JvmStatic
+    fun loadTextSendMethod(loader: ClassLoader): Method {
+        return UnobfuscatorCache.getInstance().getMethod(loader) {
+            findFirstMethodUsingStrings(
+                loader,
+                StringMatchType.Contains,
+                "userActionSendTextMessages"
+            ) ?: throw RuntimeException("Text send method not found via string reference")
+        }
+    }
+
+    /**
+     * Finds the getter that returns the `UserActionsTextMessageSending` instance.
+     * The string "getUserActionsTextMessageSending" is a Kotlin property getter name
+     * and is present in the DEX as a method-name string, surviving obfuscation.
+     *
+     * The returned method is on the WhatsApp application/dependency-injection graph
+     * and takes no arguments; calling it yields the text-sending handler instance
+     * whose class contains the method from [loadTextSendMethod].
+     */
+    @Throws(Exception::class)
+    @JvmStatic
+    fun loadTextSendingGetter(loader: ClassLoader): Method {
+        return UnobfuscatorCache.getInstance().getMethod(loader) {
+            findFirstMethodUsingStrings(
+                loader,
+                StringMatchType.Contains,
+                "getUserActionsTextMessageSending"
+            ) ?: throw RuntimeException("Text sending getter not found")
+        }
+    }
+
     @Throws(Exception::class)
     @JvmStatic
     fun loadOnPlaybackFinished(classLoader: ClassLoader): Method {

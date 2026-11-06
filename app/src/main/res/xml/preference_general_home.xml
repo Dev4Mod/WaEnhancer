@@ -104,6 +104,12 @@
             app:summary="@string/enable_tasker_automation_sum"
             app:title="@string/enable_tasker_automation" />
 
+        <rikka.material.preference.MaterialSwitchPreference
+            app:defaultValue="true"
+            app:key="schedule_messages"
+            app:summary="@string/schedule_messages_sum"
+            app:title="@string/schedule_messages" />
+
     </PreferenceCategory>
 
 </PreferenceScreen>

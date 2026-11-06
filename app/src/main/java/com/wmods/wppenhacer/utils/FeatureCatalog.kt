@@ -137,6 +137,11 @@ object FeatureCatalog {
             R.string.enable_tasker_automation_sum, SearchableFeature.Category.GENERAL_HOME,
             general, "general_home", "tasker", "automation", "intent"
         )
+        add(
+            catalog, context, "schedule_messages", R.string.schedule_messages,
+            R.string.schedule_messages_sum, SearchableFeature.Category.GENERAL_HOME,
+            general, "general_home", "schedule", "scheduled", "later", "timer", "message"
+        )
 
         // Home screen preferences.
         add(
