@@ -2,6 +2,51 @@
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
+    <!-- iOS Appearance: long-press message selection, 1:1 iOS with frosted glass. -->
+    <PreferenceCategory
+        app:iconSpaceReserved="false"
+        app:title="@string/ios_appearance">
+
+        <rikka.material.preference.MaterialSwitchPreference
+            app:key="enable_ios_style"
+            app:summary="@string/enable_ios_style_sum"
+            app:title="@string/enable_ios_style" />
+
+        <SeekBarPreference
+            android:defaultValue="65"
+            android:max="100"
+            app:dependency="enable_ios_style"
+            app:key="ios_blur_intensity"
+            app:min="0"
+            app:showSeekBarValue="true"
+            app:title="@string/ios_blur_intensity" />
+
+        <SeekBarPreference
+            android:defaultValue="40"
+            android:max="100"
+            app:dependency="enable_ios_style"
+            app:key="ios_backdrop_dim"
+            app:min="0"
+            app:showSeekBarValue="true"
+            app:title="@string/ios_backdrop_dim" />
+
+        <rikka.material.preference.MaterialSwitchPreference
+            app:key="ios_emoji"
+            app:summary="@string/ios_emoji_sum"
+            app:title="@string/ios_emoji" />
+
+        <com.wmods.wppenhacer.preference.IosEmojiPreviewPreference
+            app:key="ios_emoji_preview" />
+
+        <com.wmods.wppenhacer.preference.FileSelectPreference
+            android:entryValues="@array/font_picker"
+            android:summary="@string/ios_emoji_font_sum"
+            app:dependency="ios_emoji"
+            app:key="ios_emoji_font"
+            app:title="@string/ios_emoji_font" />
+
+    </PreferenceCategory>
+
     <PreferenceCategory
         app:iconSpaceReserved="false"
         app:title="@string/general">

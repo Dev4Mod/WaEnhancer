@@ -1010,6 +1010,39 @@ object FeatureCatalog {
             "ios"
         )
         add(
+            catalog,
+            context,
+            "enable_ios_style",
+            R.string.enable_ios_style,
+            R.string.enable_ios_style_sum,
+            category,
+            fragment,
+            null,
+            "ios",
+            "appearance",
+            "blur",
+            "glass",
+            "selection",
+            "menu"
+        )
+        add(
+            catalog, context, "ios_blur_intensity", R.string.ios_blur_intensity, null,
+            category, fragment, "enable_ios_style", "ios", "blur", "intensity"
+        )
+        add(
+            catalog, context, "ios_backdrop_dim", R.string.ios_backdrop_dim, null,
+            category, fragment, "enable_ios_style", "ios", "blur", "dim", "backdrop"
+        )
+        add(
+            catalog, context, "ios_emoji", R.string.ios_emoji, R.string.ios_emoji_sum,
+            category, fragment, null, "ios", "emoji", "unicode", "picker", "apple"
+        )
+        add(
+            catalog, context, "ios_emoji_font", R.string.ios_emoji_font,
+            R.string.ios_emoji_font_sum, category, fragment, "ios_emoji",
+            "ios", "emoji", "font", "ttf", "apple"
+        )
+        add(
             catalog, context, "animation_emojis", R.string.animation_emojis,
             R.string.animation_emojis_sum, category, fragment, null, "animation", "emojis", "large"
         )

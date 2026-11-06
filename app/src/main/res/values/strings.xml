@@ -594,4 +594,15 @@
     <string name="messages_restored_success">Messages restored</string>
     <string name="hide_delivered_unknown">Hide Delivered for unknown numbers</string>
     <string name="hide_delivered_unknown_sum">Shows only one tick for numbers not saved in your contacts, as if the message hadn\'t arrived</string>
+    <string name="ios_appearance">iOS Appearance</string>
+    <string name="enable_ios_style">Enable iOS Style</string>
+    <string name="enable_ios_style_sum">Make long-press message selection look 1:1 like iOS: blurred chat backdrop, frosted reaction bar and blurred grouped menu buttons instead of the stock WhatsApp panels. Restart WhatsApp after changing this.</string>
+    <string name="ios_blur_intensity">Blur intensity</string>
+    <string name="ios_backdrop_dim">Backdrop dim</string>
+    <string name="ios_emoji">iOS Emoji</string>
+    <string name="ios_emoji_sum">Replace WhatsApp stock emoji everywhere with the iOS emoji set (chat, reactions and the emoji picker). Pick an iOS emoji font below; leave it empty to use the system emoji font.</string>
+    <string name="ios_emoji_font">iOS emoji font</string>
+    <string name="ios_emoji_font_sum">Select an iOS/Apple emoji font (.ttf / .ttc). The preview above updates with your font.</string>
+    <string name="ios_emoji_preview_caption">iOS 26.4 (Unicode 17)</string>
+    <string name="ios_emoji_preview_row">🫩 😳 🦈 🦣 🪗 🪨 🧰 ✨</string>
 </resources>

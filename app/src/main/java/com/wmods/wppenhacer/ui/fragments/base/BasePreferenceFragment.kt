@@ -28,6 +28,7 @@ import com.wmods.wppenhacer.App
 import com.wmods.wppenhacer.BuildConfig
 import com.wmods.wppenhacer.R
 import com.wmods.wppenhacer.preference.FloatSeekBarPreference
+import com.wmods.wppenhacer.preference.IosEmojiPreviewPreference
 import com.wmods.wppenhacer.xposed.utils.Utils
 import rikka.material.preference.MaterialSwitchPreference
 import java.util.Locale
@@ -103,6 +104,12 @@ abstract class BasePreferenceFragment : PreferenceFragmentCompat(),
 
                 is ColorPreferenceCompat -> preference.layoutResource =
                     R.layout.preference_feature_color
+
+                is IosEmojiPreviewPreference -> {
+                    // Keep its own emoji preview layout and no icon gutter.
+                    preference.layoutResource = R.layout.preference_ios_emoji_preview
+                    preference.isIconSpaceReserved = false
+                }
 
                 else -> preference.layoutResource = R.layout.preference_feature_list
             }

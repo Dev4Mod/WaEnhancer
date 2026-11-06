@@ -64,6 +64,7 @@ class Others(loader: ClassLoader, preferences: SharedPreferences) : Feature(load
         val proximityAudios = xprefs.getBoolean("proximity_audios", false)
         val showOnline = xprefs.getBoolean("showonline", false)
         val floatingMenu = xprefs.getBoolean("floatingmenu", false)
+        val iosStyleMenu = xprefs.getBoolean("enable_ios_style", false)
         val filterItems = xprefs.getString("filter_items", null)
         val autonextStatus = xprefs.getBoolean("autonext_status", false)
         val audioType = xprefs.getString("audio_type", "0")?.toInt() ?: 0
@@ -101,7 +102,10 @@ class Others(loader: ClassLoader, preferences: SharedPreferences) : Feature(load
         booleans[14862] = newSettings != 0 // WHATS_HAPPENING_SENDING_ENABLED_CODE
         integers[18564] = newSettings // ME_TAB_V2_VARIANTS_CODE
 
-        booleans[2889] = floatingMenu
+        // 2889 = WhatsApp's iOS-style message selection menu. The "Enable iOS
+        // Style" appearance setting always needs it, even if the standalone
+        // "New context menu UI" switch is off.
+        booleans[2889] = floatingMenu || iosStyleMenu
 
         // new text composer
         booleans[15708] = true
