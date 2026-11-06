@@ -1,5 +1,6 @@
 [ADDED]
 * New "iOS Appearance" settings in Customization: Enable iOS Style makes long-press message selection look like iOS 1:1, with a blurred chat backdrop, a frosted reaction capsule and frosted grouped menu buttons (not the stock WhatsApp panels)
+* Keep WhatsApp's highlighted/selected chat bubble sharp above the blur, exactly like the iOS context menu
 * Blur intensity and backdrop dim sliders for the iOS-style selection menu
 
 [IMPROVED]

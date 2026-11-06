@@ -14,6 +14,7 @@ import android.graphics.PixelFormat
 import android.graphics.RectF
 import android.graphics.RenderEffect
 import android.graphics.Shader
+import android.graphics.drawable.BitmapDrawable
 import android.graphics.drawable.ColorDrawable
 import android.graphics.drawable.Drawable
 import android.graphics.drawable.GradientDrawable
@@ -122,20 +123,21 @@ class IosSelectionMenu(loader: ClassLoader, preferences: SharedPreferences) :
         val content = runCatching { popup.contentView }.getOrNull() ?: return
         installedPopups[popup] = true
 
-        // The popup window itself must be see-through, otherwise the blurred
-        // activity window behind it can never show through the glass cards.
-        runCatching { popup.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT)) }
-            .onFailure { logDebug(it) }
+        // Only remove a plain opaque COLOR scrim. WhatsApp draws the lifted
+        // (sharp) selected message bubble into a bitmap background on some
+        // builds - replacing that would make the highlighted chat disappear.
+        runCatching {
+            if (isPlainColorMask(popup.contentView.background)) {
+                popup.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+            }
+        }.onFailure { logDebug(it) }
 
         val popupRef = WeakReference(popup)
         content.addOnAttachStateChangeListener(object : View.OnAttachStateChangeListener {
             override fun onViewAttachedToWindow(view: View) {
                 val current = popupRef.get() ?: return
-                // Re-apply at show time: some WhatsApp builds set the popup
-                // background after the constructor has finished.
-                runCatching {
-                    current.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
-                }
+                // Do NOT touch the popup background here: WhatsApp paints the
+                // highlighted message bubble into it after the constructor.
                 val activity = findActivity(view.context)
                 if (activity != null) showBackdrop(current, activity)
                 view.post { styleCards(view) }
@@ -420,9 +422,11 @@ class IosSelectionMenu(loader: ClassLoader, preferences: SharedPreferences) :
             val screenH = metrics.heightPixels
             val night = isNight()
 
-            // Stock WhatsApp paints an opaque panel/scrim behind the menu. Make
-            // those full-screen masks translucent so the blurred chat shows through.
-            if (hasSolidBackground(root)) {
+            // Only plain opaque COLOR scrims may be cleared. A BitmapDrawable
+            // here is WhatsApp's own snapshot that contains the sharp selected
+            // chat bubble over the blurred conversation - keep it intact so the
+            // highlighted message stays visible (iOS 1:1).
+            if (isPlainColorMask(root.background)) {
                 root.background = ColorDrawable(Color.argb(24, 0, 0, 0))
             }
             clearFullScreenMasks(root, root, 0, screenW, screenH)
@@ -460,7 +464,9 @@ class IosSelectionMenu(loader: ClassLoader, preferences: SharedPreferences) :
         screenH: Int
     ) {
         if (depth > MAX_SCAN_DEPTH) return
-        if (view !== root && isFullScreen(view, screenW, screenH) && hasSolidBackground(view)) {
+        if (view !== root && isFullScreen(view, screenW, screenH) &&
+            isPlainColorMask(view.background)
+        ) {
             view.background = ColorDrawable(Color.argb(24, 0, 0, 0))
         }
         if (view is ViewGroup) {
@@ -482,7 +488,7 @@ class IosSelectionMenu(loader: ClassLoader, preferences: SharedPreferences) :
         if (depth > MAX_SCAN_DEPTH) return
         var chosen = false
         if (!insideStyled && view !== root && view is ViewGroup &&
-            !isFullScreen(view, screenW, screenH)
+            !isFullScreen(view, screenW, screenH) && !isSnapshotBackground(view)
         ) {
             val name = viewName(view)
             val named = CARD_KEYWORDS.any { name.contains(it) }
@@ -508,6 +514,7 @@ class IosSelectionMenu(loader: ClassLoader, preferences: SharedPreferences) :
         var best = start
         var parent = start.parent as? View
         while (parent != null && parent !== root && !isFullScreen(parent, screenW, screenH)) {
+            if (isSnapshotBackground(parent)) break
             if (hasSolidBackground(parent)) best = parent
             parent = parent.parent as? View
         }
@@ -529,9 +536,16 @@ class IosSelectionMenu(loader: ClassLoader, preferences: SharedPreferences) :
     private fun hasSolidBackground(view: View): Boolean {
         val background = view.background ?: return false
         if (background is ColorDrawable) return Color.alpha(background.color) >= 180
-        if (background is GradientDrawable) return true
-        return runCatching { background.opacity == PixelFormat.OPAQUE }.getOrDefault(false)
+        return background is GradientDrawable
     }
+
+    /** A plain opaque color scrim that is safe to replace. */
+    private fun isPlainColorMask(background: Drawable?): Boolean =
+        background is ColorDrawable && Color.alpha(background.color) >= 180
+
+    /** WhatsApp's lifted-message snapshot - never repaint or restyle this view. */
+    private fun isSnapshotBackground(view: View): Boolean =
+        view.background is BitmapDrawable
 
     private fun viewName(view: View): String {
         val name = StringBuilder(view.javaClass.name)
@@ -545,6 +559,7 @@ class IosSelectionMenu(loader: ClassLoader, preferences: SharedPreferences) :
 
     private fun applyGlass(view: View, capsule: Boolean, night: Boolean) {
         try {
+            if (isSnapshotBackground(view)) return
             val alpha = if (night) 0xB2 else 0xC6
             val base = if (night) {
                 Color.argb(alpha, 44, 46, 50)
