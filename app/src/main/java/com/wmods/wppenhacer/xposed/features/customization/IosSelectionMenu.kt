@@ -9,6 +9,7 @@ import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.ColorFilter
 import android.graphics.Paint
+import android.graphics.Path
 import android.graphics.PixelFormat
 import android.graphics.Rect
 import android.graphics.RectF
@@ -88,10 +89,16 @@ class IosSelectionMenu(loader: ClassLoader, preferences: SharedPreferences) :
 
         /** iOS scales the lifted bubble up slightly when the menu opens. */
         private const val LIFT_SCALE = 1.07f
+        private const val STACK_GAP_DP = 10
+        private const val STACK_MARGIN_DP = 16
 
-        /** WA paints the selected chat row as a flat green highlight. */
-        private fun isFlatHighlight(drawable: Drawable?): Boolean =
-            drawable is ColorDrawable && Color.alpha(drawable.color) >= 40
+        /** A full-width saturated green fill is WA's selected-row highlight. */
+        private fun isGreenTint(drawable: Drawable?): Boolean {
+            val color = (drawable as? ColorDrawable)?.color ?: return false
+            if (Color.alpha(color) < 40) return false
+            return Color.green(color) > Color.red(color) + 12 &&
+                    Color.green(color) > Color.blue(color) + 12
+        }
     }
 
     private data class BackdropState(
@@ -100,6 +107,17 @@ class IosSelectionMenu(loader: ClassLoader, preferences: SharedPreferences) :
         val sharpBubble: View?,
         val sharpBitmap: Bitmap?
     )
+
+    private data class StackHosts(
+        val tray: View?,
+        val menu: View?,
+        val root: View?,
+        val extras: List<View>,
+        val hidden: List<View>
+    )
+
+    private val stackHosts =
+        Collections.synchronizedMap(WeakHashMap<PopupWindow, StackHosts>())
 
     private val backdrops =
         Collections.synchronizedMap(WeakHashMap<PopupWindow, BackdropState>())
@@ -152,7 +170,7 @@ class IosSelectionMenu(loader: ClassLoader, preferences: SharedPreferences) :
                 // highlighted message bubble into it after the constructor.
                 val activity = findActivity(view.context)
                 if (activity != null) showBackdrop(current, activity, view)
-                view.post { styleCards(view) }
+                view.post { styleCards(view, current) }
             }
 
             override fun onViewDetachedFromWindow(view: View) {
@@ -167,7 +185,7 @@ class IosSelectionMenu(loader: ClassLoader, preferences: SharedPreferences) :
             if (content.isAttachedToWindow && activity != null && !backdrops.containsKey(popup)) {
                 showBackdrop(popup, activity, content)
             }
-            styleCards(content)
+            styleCards(content, popup)
         }
     }
 
@@ -224,6 +242,7 @@ class IosSelectionMenu(loader: ClassLoader, preferences: SharedPreferences) :
 
     private fun hideBackdrop(popup: PopupWindow) {
         val state = backdrops.remove(popup) ?: return
+        stackHosts.remove(popup)
         val overlay = state.overlay
         val sharp = state.sharpBubble
         state.sharpBitmap?.let { if (!it.isRecycled) it.recycle() }
@@ -259,6 +278,13 @@ class IosSelectionMenu(loader: ClassLoader, preferences: SharedPreferences) :
     private fun isBubbleLike(name: String): Boolean =
         BUBBLE_KEYWORDS.any { name.contains(it) }
 
+    /**
+     * Draw a CLEAN iOS bubble. We never copy WhatsApp's row drawable: on many
+     * builds the selected row is highlighted with a solid green GradientDrawable
+     * / StateListDrawable, and drawing that verbatim produced the ugly
+     * full-width green strip. Instead only the leaf content views (message text,
+     * timestamp, emoji, media) are painted on our own rounded bubble.
+     */
     private fun attachSharpBubble(
         popup: PopupWindow,
         decor: ViewGroup,
@@ -269,36 +295,64 @@ class IosSelectionMenu(loader: ClassLoader, preferences: SharedPreferences) :
             val w = bubble.width
             val h = bubble.height
             if (w <= 0 || h <= 0) return null
-            // WhatsApp sometimes marks the selected message by colouring the
-            // whole row. Copying that verbatim gives a full-width strip instead
-            // of a bubble, so crop to where the text actually is and give it a
-            // rounded iOS bubble shape.
-            val flat = isFlatHighlight(bubble.background)
-            val crop = if (flat) textBounds(bubble, w, h) else Rect(0, 0, w, h)
-            val cw = crop.width()
-            val ch = crop.height()
+
+            val origin = IntArray(2)
+            bubble.getLocationOnScreen(origin)
+            val leaves = ArrayList<Pair<View, Rect>>()
+            collectBubbleLeaves(bubble, bubble, 0, origin, leaves)
+            if (leaves.isEmpty()) return null
+
+            val box = Rect(w, h, 0, 0)
+            for ((_, rect) in leaves) box.union(rect)
+            if (box.right <= box.left || box.bottom <= box.top) {
+                box.set(0, 0, w, h)
+            }
+            val padX = Utils.dipToPixels(14)
+            val padY = Utils.dipToPixels(9)
+            box.left = (box.left - padX).coerceIn(0, w)
+            box.top = (box.top - padY).coerceIn(0, h)
+            box.right = (box.right + padX).coerceIn(0, w)
+            box.bottom = (box.bottom + padY).coerceIn(0, h)
+            val cw = box.width()
+            val ch = box.height()
             if (cw <= 0 || ch <= 0) return null
 
             val bitmap = Bitmap.createBitmap(cw, ch, Bitmap.Config.ARGB_8888)
             val canvas = Canvas(bitmap)
             val radius = Utils.dipToPixels(18f).toFloat()
-            val originalBg = bubble.background
-            try {
-                if (flat) {
-                    val fill = Paint(Paint.ANTI_ALIAS_FLAG).apply {
-                        color = if (isNight()) Color.argb(255, 62, 64, 68)
-                        else Color.argb(255, 240, 240, 242)
-                    }
-                    canvas.drawRoundRect(
-                        0f, 0f, cw.toFloat(), ch.toFloat(), radius, radius, fill
-                    )
-                    bubble.background = null
-                }
-                canvas.translate(-crop.left.toFloat(), -crop.top.toFloat())
-                bubble.draw(canvas)
-            } finally {
-                if (flat) bubble.background = originalBg
+            val fill = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+                color = if (isNight()) Color.argb(255, 62, 64, 68)
+                else Color.argb(255, 240, 240, 242)
             }
+            val shape = Path().apply {
+                addRoundRect(
+                    0f, 0f, cw.toFloat(), ch.toFloat(),
+                    radius, radius, Path.Direction.CW
+                )
+            }
+            canvas.drawPath(shape, fill)
+            // Clip strictly to the bubble: no full-width highlight strip can
+            // ever leak out of the rounded shape, whatever WA's row drawable is.
+            canvas.save()
+            canvas.clipPath(shape)
+            // Draw ONLY text / media leaves on our own clean bubble. The WA row
+            // itself (and any highlight it paints in onDraw) is never copied.
+            for ((leaf, rect) in leaves) {
+                val bg = leaf.background
+                try {
+                    leaf.background = null
+                    canvas.save()
+                    canvas.translate(
+                        (rect.left - box.left).toFloat(),
+                        (rect.top - box.top).toFloat()
+                    )
+                    leaf.draw(canvas)
+                    canvas.restore()
+                } finally {
+                    leaf.background = bg
+                }
+            }
+            canvas.restore()
 
             val loc = IntArray(2)
             val decorLoc = IntArray(2)
@@ -309,15 +363,13 @@ class IosSelectionMenu(loader: ClassLoader, preferences: SharedPreferences) :
                 setImageBitmap(bitmap)
                 scaleType = ImageView.ScaleType.FIT_XY
                 layoutParams = FrameLayout.LayoutParams(cw, ch).apply {
-                    leftMargin = loc[0] - decorLoc[0] + crop.left
-                    topMargin = loc[1] - decorLoc[1] + crop.top
+                    leftMargin = loc[0] - decorLoc[0] + box.left
+                    topMargin = loc[1] - decorLoc[1] + box.top
                 }
                 isClickable = false
                 isFocusable = false
-                // Above the blur overlay AND above WhatsApp's own lifted row.
                 elevation = Utils.dipToPixels(24f).toFloat()
-                // iOS lifts the selected bubble: it grows a touch and fades in
-                // while anchored at its original spot. Start visible so a
+                // iOS lifts the selected bubble a touch. Start visible so a
                 // skipped animation can never leave the chat invisible.
                 scaleX = 1f
                 scaleY = 1f
@@ -333,6 +385,50 @@ class IosSelectionMenu(loader: ClassLoader, preferences: SharedPreferences) :
             logDebug(t)
             null
         }
+    }
+
+    /** Collect visible leaf views (text / emoji / media) in bubble coordinates. */
+    private fun collectBubbleLeaves(
+        root: View,
+        view: View,
+        depth: Int,
+        origin: IntArray,
+        out: MutableList<Pair<View, Rect>>
+    ) {
+        if (depth > 10 || view.visibility != View.VISIBLE) return
+        val tag = view.getTag()
+        if (tag == BACKDROP_TAG || tag == SHARP_TAG) return
+        val group = view as? ViewGroup
+        if (group != null && group.childCount > 0) {
+            for (i in 0 until group.childCount) {
+                collectBubbleLeaves(root, group.getChildAt(i), depth + 1, origin, out)
+            }
+            return
+        }
+        if (view === root || view.width < 2 || view.height < 2) return
+        // Only real message content defines the bubble bounds. A plain View
+        // with a solid fill is WA's selection highlight and must not widen it.
+        // Reaction pills / menu rows must NEVER be copied into the bubble -
+        // that is what produced the second, faded pill and menu in the popup.
+        var ancestor: View? = view
+        while (ancestor != null && ancestor !== root) {
+            val current = ancestor
+            val name = viewName(current)
+            if (arrayOf("reaction", "tray", "menu", "actions", "divider")
+                    .any { name.contains(it) }
+            ) return
+            ancestor = current.parent as? View
+        }
+        val isText = view is TextView && !view.text.isNullOrEmpty()
+        val isMedia = view is ImageView && view.drawable != null
+        if (!isText && !isMedia) return
+        val pos = IntArray(2)
+        view.getLocationOnScreen(pos)
+        val left = pos[0] - origin[0]
+        val top = pos[1] - origin[1]
+        val rect = Rect(left, top, left + view.width, top + view.height)
+        rect.intersect(0, 0, root.width, root.height)
+        if (rect.width() > 0 && rect.height() > 0) out.add(view to rect)
     }
 
     private fun findSelectedBubble(
@@ -448,46 +544,6 @@ class IosSelectionMenu(loader: ClassLoader, preferences: SharedPreferences) :
         // quite wide on WhatsApp, so never reject a candidate for its width.
         if (ratio > 0.97f) score -= 20_000_000L
         return score + (view.width.toLong() * view.height.toLong()) / 40L
-    }
-
-    /** Bounds (in the bubble view's own coordinates) that hold its text. */
-    private fun textBounds(bubble: View, w: Int, h: Int): Rect {
-        val origin = IntArray(2)
-        bubble.getLocationInWindow(origin)
-        val box = Rect(w, h, 0, 0)
-        collectTextRects(bubble, 0, origin, box)
-        if (box.right <= box.left || box.bottom <= box.top) return Rect(0, 0, w, h)
-        val padX = Utils.dipToPixels(14)
-        val padY = Utils.dipToPixels(9)
-        box.inset(-padX, -padY)
-        box.left = box.left.coerceAtLeast(0)
-        box.top = box.top.coerceAtLeast(0)
-        box.right = box.right.coerceAtMost(w)
-        box.bottom = box.bottom.coerceAtMost(h)
-        return box
-    }
-
-    private fun collectTextRects(
-        view: View,
-        depth: Int,
-        origin: IntArray,
-        box: Rect
-    ) {
-        if (depth > 8 || view.visibility != View.VISIBLE) return
-        if (view is TextView && !view.text.isNullOrEmpty() &&
-            view.width > 0 && view.height > 0
-        ) {
-            val pos = IntArray(2)
-            view.getLocationInWindow(pos)
-            val left = pos[0] - origin[0]
-            val top = pos[1] - origin[1]
-            box.union(left, top, left + view.width, top + view.height)
-        }
-        if (view is ViewGroup) {
-            for (i in 0 until view.childCount) {
-                collectTextRects(view.getChildAt(i), depth + 1, origin, box)
-            }
-        }
     }
 
     private fun containsText(view: View, depth: Int): Boolean {
@@ -657,7 +713,7 @@ class IosSelectionMenu(loader: ClassLoader, preferences: SharedPreferences) :
     // iOS frosted glass cards inside the popup
     // ------------------------------------------------------------------
 
-    private fun styleCards(root: View) {
+    private fun styleCards(root: View, popup: PopupWindow) {
         try {
             val metrics = root.resources.displayMetrics
             val screenW = metrics.widthPixels
@@ -672,7 +728,11 @@ class IosSelectionMenu(loader: ClassLoader, preferences: SharedPreferences) :
                 root.background = ColorDrawable(Color.argb(24, 0, 0, 0))
             }
             clearFullScreenMasks(root, root, 0, screenW, screenH)
-
+            // Our fixed stack may move cards past their parent's bounds.
+            if (root is ViewGroup) {
+                root.clipChildren = false
+                root.clipToPadding = false
+            }
             val hosts = LinkedHashSet<View>()
             val trayId = Utils.getID("reactions_tray_layout", "id")
             if (trayId > 0) {
@@ -684,18 +744,196 @@ class IosSelectionMenu(loader: ClassLoader, preferences: SharedPreferences) :
                 hosts.none { other -> other !== host && isAncestor(other, host) }
             }
 
+            // Classify ALL hosts every time (not only unstyled ones), then keep
+            // exactly ONE reaction pill and ONE action menu. WhatsApp's lifted
+            // snapshot sometimes contains a second, faded pill/menu; hiding the
+            // duplicates is what makes the stack look neat and deterministic.
+            val capsules = ArrayList<View>()
+            val menus = ArrayList<View>()
+            for (host in topmost) {
+                val name = viewName(host)
+                val capsule = name.contains("reaction") || name.contains("tray") ||
+                        (host.height in 1..Utils.dipToPixels(110) &&
+                                ((host as? ViewGroup)?.childCount ?: 0) >= 4)
+                if (capsule) capsules.add(host) else menus.add(host)
+            }
+            val tray = capsules.maxByOrNull {
+                ((it as? ViewGroup)?.childCount ?: 0) * 1000 + it.width
+            }
+            // A real iOS action card is narrow. WA's wide purple/green
+            // selection frame is taller, so height alone would pick the wrong
+            // host and leave two menus on screen.
+            val narrow = menus.filter { it.width < screenW * 0.80f }
+            val menu = (if (narrow.isNotEmpty()) narrow else menus)
+                .maxByOrNull { it.height }
+            val extras = topmost.filter { it !== tray && it !== menu }
+
+            // Hide WA's own "highlighted copy" of the selected row (the green /
+            // purple full-width strip) and any duplicated pill/menu snapshots.
+            val hidden = hideHighlightCopies(
+                root, root, 0, screenW, screenH, tray, menu, ArrayList()
+            )
+            extras.forEach { it.visibility = View.INVISIBLE }
+
             for (host in topmost) {
                 if (styledCards.containsKey(host)) continue
                 styledCards[host] = true
-                val name = viewName(host)
-                val capsule = name.contains("reaction") || name.contains("tray") ||
-                        (host.height in 1..Utils.dipToPixels(84) &&
-                                ((host as? ViewGroup)?.childCount ?: 0) >= 4)
-                applyGlass(host, capsule, night)
+                applyGlass(host, host === tray, night)
+            }
+            if (tray != null || menu != null) {
+                stackHosts[popup] = StackHosts(tray, menu, root, extras, hidden)
+                scheduleFixedStack(root, popup)
             }
         } catch (t: Throwable) {
             log(t)
         }
+    }
+
+    /**
+     * WhatsApp draws a second, highlighted copy of the selected message row
+     * behind the iOS menu (solid green strip, purple outlined box, or a bitmap
+     * snapshot that even contains a faded duplicate of the pill and menu).
+     * Hide those copies entirely: our own clean rounded bubble is the only one
+     * that should be visible.
+     */
+    private fun hideHighlightCopies(
+        view: View,
+        root: View,
+        depth: Int,
+        screenW: Int,
+        screenH: Int,
+        tray: View?,
+        menu: View?,
+        out: MutableList<View>
+    ): List<View> {
+        if (depth > MAX_SCAN_DEPTH + 3) return out
+        if (view !== root && view !== tray && view !== menu &&
+            !isAncestorOf(view, tray) && !isAncestorOf(view, menu) &&
+            !isAncestorOf(tray, view) && !isAncestorOf(menu, view)
+        ) {
+            val name = viewName(view)
+            val isCard = arrayOf("reaction", "tray", "menu", "actions")
+                .any { name.contains(it) }
+            val bg = view.background
+            val wide = view.width >= screenW * 0.80f
+            // WA's purple/green selection frame can wrap a tall media bubble,
+            // so use a screen-relative bound instead of a fixed "short row".
+            val rowLike = view.height in 1..(screenH * 0.62f).toInt()
+            val outline = bg is GradientDrawable && !isCard
+            val flat = isGreenTint(bg) ||
+                    (bg is ColorDrawable && Color.alpha(bg.color) >= 40)
+            // NEVER hide a BitmapDrawable view: that is WA's lifted sharp
+            // bubble, and hiding it made the selected chat disappear. We only
+            // hide flat colour/outline highlight strips and duplicate cards.
+            if (bg !is BitmapDrawable && !isCard && wide && rowLike &&
+                (flat || outline)
+            ) {
+                view.visibility = View.INVISIBLE
+                out.add(view)
+            }
+        }
+        if (view is ViewGroup) {
+            for (i in 0 until view.childCount) {
+                hideHighlightCopies(
+                    view.getChildAt(i), root, depth + 1,
+                    screenW, screenH, tray, menu, out
+                )
+            }
+        }
+        return out
+    }
+
+    private fun isAncestorOf(ancestor: View?, view: View?): Boolean {
+        if (view == null || ancestor == null) return false
+        var parent: View? = view.parent as? View
+        while (parent != null) {
+            if (parent === ancestor) return true
+            parent = parent.parent as? View
+        }
+        return false
+    }
+
+    // ------------------------------------------------------------------
+    // Deterministic iOS stack: reaction pill ABOVE the bubble, menu BELOW it.
+    // WhatsApp anchors these by the message position, which wanders and
+    // overlaps. We place both from the bubble rect with fixed gaps instead.
+    // ------------------------------------------------------------------
+
+    private fun scheduleFixedStack(root: View, popup: PopupWindow) {
+        root.post { applyFixedStack(popup) }
+        root.postDelayed({ applyFixedStack(popup) }, 260L)
+        root.postDelayed({ applyFixedStack(popup) }, 620L)
+    }
+
+    private fun applyFixedStack(popup: PopupWindow) {
+        try {
+            val state = backdrops[popup] ?: return
+            val sharp = state.sharpBubble ?: return
+            val hosts = stackHosts[popup] ?: return
+            val lp = sharp.layoutParams as? FrameLayout.LayoutParams ?: return
+            val decor = state.decor
+            // WA repaints its highlighted copy / duplicates after layout, so
+            // re-assert the hidden state on every placement pass.
+            hosts.hidden.forEach { it.visibility = View.INVISIBLE }
+            hosts.extras.forEach { it.visibility = View.INVISIBLE }
+
+            val origin = IntArray(2)
+            decor.getLocationOnScreen(origin)
+            val bubbleLeft = origin[0] + lp.leftMargin
+            val bubbleTop = origin[1] + lp.topMargin
+
+            val gap = Utils.dipToPixels(STACK_GAP_DP)
+            val margin = Utils.dipToPixels(STACK_MARGIN_DP)
+            val screenW = decor.resources.displayMetrics.widthPixels
+            val screenH = decor.resources.displayMetrics.heightPixels
+            val tray = hosts.tray
+            val menu = hosts.menu
+            val trayH = tray?.height ?: 0
+            val menuH = menu?.height ?: 0
+            val widest = maxOf(lp.width, tray?.width ?: 0, menu?.width ?: 0)
+            // One fixed left column for pill, bubble and menu - like iOS.
+            val columnX = margin.coerceAtMost((screenW - widest - margin).coerceAtLeast(margin))
+
+            val totalH = trayH + gap + lp.height + gap + menuH
+            var stackTop = bubbleTop - gap - trayH
+            stackTop = stackTop.coerceIn(
+                margin,
+                (screenH - totalH - margin).coerceAtLeast(margin)
+            )
+            var cursor = stackTop
+            val trayY = cursor
+            cursor += trayH + gap
+            val bubbleY = cursor
+            cursor += lp.height + gap
+            val menuY = cursor
+
+            // Our bubble is positioned from its known layout margins, so this
+            // is an absolute assignment (safe to re-apply any number of times).
+            sharp.translationX = (columnX - bubbleLeft).toFloat()
+            sharp.translationY = (bubbleY - bubbleTop).toFloat()
+            tray?.let { placeAt(it, columnX, trayY) }
+            menu?.let { placeAt(it, columnX, menuY) }
+        } catch (t: Throwable) {
+            logDebug(t)
+        }
+    }
+
+    private fun placeAt(view: View, x: Int, y: Int) {
+        if (view.width <= 0 || view.height <= 0) return
+        // left/top are layout coordinates, unaffected by translation/scale.
+        // Using parent + left/top gives a STABLE baseline, so repeated calls
+        // never drift (getLocationOnScreen would include our own translation).
+        val loc = IntArray(2)
+        val parent = view.parent as? View
+        if (parent != null) {
+            parent.getLocationOnScreen(loc)
+            loc[0] += view.left
+            loc[1] += view.top
+        } else {
+            view.getLocationOnScreen(loc)
+        }
+        view.translationX = (x - loc[0]).toFloat()
+        view.translationY = (y - loc[1]).toFloat()
     }
 
     private fun clearFullScreenMasks(
