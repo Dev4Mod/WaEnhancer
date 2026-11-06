@@ -2,8 +2,10 @@
 * New "iOS Appearance" settings in Customization: Enable iOS Style makes long-press message selection look like iOS 1:1, with a blurred chat backdrop, a frosted reaction capsule and frosted grouped menu buttons (not the stock WhatsApp panels)
 * Keep WhatsApp's highlighted/selected chat bubble sharp above the blur, exactly like the iOS context menu (sharp snapshot of the lifted bubble drawn above the blurred backdrop)
 * Fixed the selected bubble staying blurred: removed the decor-level RenderEffect (it also blurred the sharp bubble overlay) and never repaint the popup background WhatsApp uses for the lifted bubble
-* Removed the green strip and green wallpaper bleed from the iOS backdrop: neutral charcoal scrim + desaturated blur, selection highlight wiped from the snapshot, and the sharp bubble copy now picks the rounded bubble instead of WhatsApp's full-width green selected row
 * iOS menu rows now have hairline separators and a cleaner frosted-glass card
+* Removed ALL desaturation from the iOS backdrop: the blurred conversation keeps its real colours (green/teal bubbles) just like the iOS context menu, with only a plain dark scrim
+* Fixed the selected chat disappearing: the bubble finder no longer rejects wide views, prefers WhatsApp's own selected-row anchors, and crops a full-width highlighted row down to a rounded bubble around its text
+* The lifted chat bubble now scales up slightly with a soft shadow, like iOS
 * Blur intensity and backdrop dim sliders for the iOS-style selection menu
 * New "iOS Emoji" setting with an emoji preview row and an iOS emoji font picker: replaces WhatsApp stock emoji everywhere, including the emoji picker and reactions
 

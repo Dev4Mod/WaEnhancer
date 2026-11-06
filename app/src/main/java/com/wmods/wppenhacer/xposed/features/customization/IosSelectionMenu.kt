@@ -8,10 +8,9 @@ import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.ColorFilter
-import android.graphics.ColorMatrix
-import android.graphics.ColorMatrixColorFilter
 import android.graphics.Paint
 import android.graphics.PixelFormat
+import android.graphics.Rect
 import android.graphics.RectF
 import android.graphics.drawable.BitmapDrawable
 import android.graphics.drawable.ColorDrawable
@@ -87,17 +86,12 @@ class IosSelectionMenu(loader: ClassLoader, preferences: SharedPreferences) :
             "anchor", "message", "bubble", "row", "selected", "source", "conversation"
         )
 
-        /** Kill WhatsApp's green wallpaper tones without losing the blurred shapes. */
-        private fun desaturateFilter(): ColorMatrixColorFilter =
-            ColorMatrixColorFilter(ColorMatrix().apply { setSaturation(0.08f) })
+        /** iOS scales the lifted bubble up slightly when the menu opens. */
+        private const val LIFT_SCALE = 1.07f
 
-        private fun isGreenishFlat(drawable: Drawable?): Boolean {
-            val c = (drawable as? ColorDrawable)?.color ?: return false
-            val r = Color.red(c)
-            val g = Color.green(c)
-            val b = Color.blue(c)
-            return Color.alpha(c) >= 40 && g > r + 10 && g > b + 10
-        }
+        /** WA paints the selected chat row as a flat green highlight. */
+        private fun isFlatHighlight(drawable: Drawable?): Boolean =
+            drawable is ColorDrawable && Color.alpha(drawable.color) >= 40
     }
 
     private data class BackdropState(
@@ -251,13 +245,11 @@ class IosSelectionMenu(loader: ClassLoader, preferences: SharedPreferences) :
         stale.forEach { hideBackdrop(it) }
     }
 
-    // Neutral charcoal scrim. The old pure-black 24% scrim let WhatsApp's green
-    // wallpaper bleed through the blur, which looked cheap. A dense neutral
-    // scrim + a desaturated snapshot gives the flat iOS dark-glass backdrop.
-    private fun dimColor(): Int {
-        val alpha = (70f + dimPercent * 1.35f).toInt().coerceIn(60, 205)
-        return Color.argb(alpha, 12, 14, 18)
-    }
+    // Plain dark scrim, like iOS: keep the blurred conversation's REAL colours
+    // (teal/green bubbles and all) and only darken it. No desaturation / colour
+    // filter anywhere - that washed the whole chat out.
+    private fun dimColor(): Int =
+        Color.argb((dimPercent * 1.35f).toInt().coerceIn(0, 170), 0, 0, 0)
 
 
     // ------------------------------------------------------------------
@@ -277,19 +269,35 @@ class IosSelectionMenu(loader: ClassLoader, preferences: SharedPreferences) :
             val w = bubble.width
             val h = bubble.height
             if (w <= 0 || h <= 0) return null
-            val bitmap = Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888)
+            // WhatsApp sometimes marks the selected message by colouring the
+            // whole row. Copying that verbatim gives a full-width strip instead
+            // of a bubble, so crop to where the text actually is and give it a
+            // rounded iOS bubble shape.
+            val flat = isFlatHighlight(bubble.background)
+            val crop = if (flat) textBounds(bubble, w, h) else Rect(0, 0, w, h)
+            val cw = crop.width()
+            val ch = crop.height()
+            if (cw <= 0 || ch <= 0) return null
+
+            val bitmap = Bitmap.createBitmap(cw, ch, Bitmap.Config.ARGB_8888)
+            val canvas = Canvas(bitmap)
+            val radius = Utils.dipToPixels(18f).toFloat()
             val originalBg = bubble.background
-            val neutralBg = if (isGreenishFlat(originalBg)) {
-                GradientDrawable().apply {
-                    setColor(Color.argb(235, 58, 61, 66))
-                    cornerRadius = Utils.dipToPixels(18f).toFloat()
-                }
-            } else null
             try {
-                if (neutralBg != null) bubble.background = neutralBg
-                bubble.draw(Canvas(bitmap))
+                if (flat) {
+                    val fill = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+                        color = if (isNight()) Color.argb(255, 62, 64, 68)
+                        else Color.argb(255, 240, 240, 242)
+                    }
+                    canvas.drawRoundRect(
+                        0f, 0f, cw.toFloat(), ch.toFloat(), radius, radius, fill
+                    )
+                    bubble.background = null
+                }
+                canvas.translate(-crop.left.toFloat(), -crop.top.toFloat())
+                bubble.draw(canvas)
             } finally {
-                if (neutralBg != null) bubble.background = originalBg
+                if (flat) bubble.background = originalBg
             }
 
             val loc = IntArray(2)
@@ -300,17 +308,26 @@ class IosSelectionMenu(loader: ClassLoader, preferences: SharedPreferences) :
             val sharp = ImageView(decor.context).apply {
                 setImageBitmap(bitmap)
                 scaleType = ImageView.ScaleType.FIT_XY
-                layoutParams = FrameLayout.LayoutParams(w, h).apply {
-                    leftMargin = loc[0] - decorLoc[0]
-                    topMargin = loc[1] - decorLoc[1]
+                layoutParams = FrameLayout.LayoutParams(cw, ch).apply {
+                    leftMargin = loc[0] - decorLoc[0] + crop.left
+                    topMargin = loc[1] - decorLoc[1] + crop.top
                 }
                 isClickable = false
                 isFocusable = false
                 // Above the blur overlay AND above WhatsApp's own lifted row.
                 elevation = Utils.dipToPixels(24f).toFloat()
+                // iOS lifts the selected bubble: it grows a touch and fades in
+                // while anchored at its original spot. Start visible so a
+                // skipped animation can never leave the chat invisible.
+                scaleX = 1f
+                scaleY = 1f
+                alpha = 0.92f
+                outlineProvider = ViewOutlineProvider.BOUNDS
                 tag = SHARP_TAG
             }
             decor.addView(sharp)
+            sharp.animate().alpha(1f).scaleX(LIFT_SCALE).scaleY(LIFT_SCALE)
+                .setDuration(210L).setInterpolator(DecelerateInterpolator(1.5f)).start()
             sharp to bitmap
         } catch (t: Throwable) {
             logDebug(t)
@@ -323,8 +340,10 @@ class IosSelectionMenu(loader: ClassLoader, preferences: SharedPreferences) :
         decor: View,
         content: View?
     ): View? {
-        val minW = Utils.dipToPixels(90)
-        val minH = Utils.dipToPixels(32)
+        // Relaxed bounds: a short one-line bubble is ~28dp tall. Being too
+        // strict here leaves NO candidate, which makes the chat disappear.
+        val minW = Utils.dipToPixels(72)
+        val minH = Utils.dipToPixels(26)
         val maxH = Utils.dipToPixels(420)
         val candidates = LinkedHashSet<View>()
         val strong = LinkedHashSet<View>()
@@ -336,7 +355,12 @@ class IosSelectionMenu(loader: ClassLoader, preferences: SharedPreferences) :
             )
         }
         scanForBubbleCandidates(decor, decor, 0, minW, minH, maxH, candidates)
-        return candidates.maxByOrNull { bubbleScore(it, decor, strong) }
+        // WhatsApp keeps a direct reference to the selected message row in its
+        // popup fields. Those anchors are far more reliable than guessing from
+        // the whole view tree, so prefer them whenever present.
+        val pool = if (strong.isNotEmpty()) strong else candidates
+        if (pool.isEmpty()) return null
+        return pool.maxByOrNull { bubbleScore(it, decor) }
     }
 
     private fun collectViewFields(
@@ -407,27 +431,63 @@ class IosSelectionMenu(loader: ClassLoader, preferences: SharedPreferences) :
         if (view.width < minW || view.height < minH || view.height > maxH) return false
         if (view.rootView !== decor && view.rootView !== decor.rootView) return false
         if (view.width >= decor.width * 0.95f && view.height >= decor.height * 0.80f) return false
-        // A chat bubble is never full-width. The full-width view here is the
-        // selected ROW with WhatsApp's green highlight - copying that produced
-        // the ugly green strip above the menu.
-        if (view.width >= decor.width * 0.82f) return false
         return true
     }
 
-    private fun bubbleScore(view: View, decor: View, strong: Set<View>): Long {
+    private fun bubbleScore(view: View, decor: View): Long {
         val name = viewName(view)
         val lifted = view.isSelected || view.isActivated || view.isPressed ||
                 view.elevation > 0f
         val ratio = view.width.toFloat() / max(1, decor.width)
         var score = 0L
-        if (isBubbleLike(name)) score += 60_000_000L
-        if (strong.contains(view)) score += 18_000_000L
-        if (lifted) score += 4_000_000L
-        // Flat colour fills are selection highlights, not rounded bubbles.
-        if (view.background is ColorDrawable) score -= 30_000_000L
-        if (ratio > 0.72f) score -= 25_000_000L
-        if (containsText(view, 0)) score += 10_000_000L
-        return score + (view.width.toLong() * view.height.toLong()) / 50L
+        if (isBubbleLike(name)) score += 80_000_000L
+        if (containsText(view, 0)) score += 25_000_000L
+        if (lifted) score += 15_000_000L
+        if (view.background is GradientDrawable) score += 12_000_000L
+        // Only whole-screen containers are disfavoured. Chat bubbles are often
+        // quite wide on WhatsApp, so never reject a candidate for its width.
+        if (ratio > 0.97f) score -= 20_000_000L
+        return score + (view.width.toLong() * view.height.toLong()) / 40L
+    }
+
+    /** Bounds (in the bubble view's own coordinates) that hold its text. */
+    private fun textBounds(bubble: View, w: Int, h: Int): Rect {
+        val origin = IntArray(2)
+        bubble.getLocationInWindow(origin)
+        val box = Rect(w, h, 0, 0)
+        collectTextRects(bubble, 0, origin, box)
+        if (box.right <= box.left || box.bottom <= box.top) return Rect(0, 0, w, h)
+        val padX = Utils.dipToPixels(14)
+        val padY = Utils.dipToPixels(9)
+        box.inset(-padX, -padY)
+        box.left = box.left.coerceAtLeast(0)
+        box.top = box.top.coerceAtLeast(0)
+        box.right = box.right.coerceAtMost(w)
+        box.bottom = box.bottom.coerceAtMost(h)
+        return box
+    }
+
+    private fun collectTextRects(
+        view: View,
+        depth: Int,
+        origin: IntArray,
+        box: Rect
+    ) {
+        if (depth > 8 || view.visibility != View.VISIBLE) return
+        if (view is TextView && !view.text.isNullOrEmpty() &&
+            view.width > 0 && view.height > 0
+        ) {
+            val pos = IntArray(2)
+            view.getLocationInWindow(pos)
+            val left = pos[0] - origin[0]
+            val top = pos[1] - origin[1]
+            box.union(left, top, left + view.width, top + view.height)
+        }
+        if (view is ViewGroup) {
+            for (i in 0 until view.childCount) {
+                collectTextRects(view.getChildAt(i), depth + 1, origin, box)
+            }
+        }
     }
 
     private fun containsText(view: View, depth: Int): Boolean {
@@ -467,10 +527,6 @@ class IosSelectionMenu(loader: ClassLoader, preferences: SharedPreferences) :
             val canvas = Canvas(snapshot)
             canvas.scale(bw.toFloat() / w, bh.toFloat() / h)
             decor.draw(canvas)
-            // WA paints the selected chat row with a saturated green highlight.
-            // Wipe that strip out of the snapshot so the blurred backdrop stays
-            // a clean neutral glass instead of showing a green bar.
-            paintOverSelectionRows(canvas, decor)
 
             val radius = ((blurPercent / 100f) * 8f).toInt().coerceIn(1, 10)
             val blurred = blurBitmap(snapshot, radius, 3)
@@ -485,47 +541,6 @@ class IosSelectionMenu(loader: ClassLoader, preferences: SharedPreferences) :
             null
         } finally {
             hidden.forEach { it.visibility = View.VISIBLE }
-        }
-    }
-
-    private fun paintOverSelectionRows(canvas: Canvas, decor: View) {
-        val paint = Paint(Paint.ANTI_ALIAS_FLAG).apply { color = Color.rgb(16, 18, 22) }
-        val minWidth = (decor.width * 0.70f).toInt()
-        val maxHeight = Utils.dipToPixels(150)
-        val origin = IntArray(2)
-        decor.getLocationInWindow(origin)
-        wipeRow(canvas, decor, decor, 0, minWidth, maxHeight, origin, IntArray(2), paint)
-    }
-
-    private fun wipeRow(
-        canvas: Canvas,
-        view: View,
-        decor: View,
-        depth: Int,
-        minWidth: Int,
-        maxHeight: Int,
-        origin: IntArray,
-        scratch: IntArray,
-        paint: Paint
-    ) {
-        if (depth > MAX_SCAN_DEPTH + 4 || view.visibility != View.VISIBLE) return
-        val highlighted = view.isSelected || view.isActivated || view.isPressed ||
-                isGreenishFlat(view.background)
-        if (highlighted && view.width >= minWidth &&
-            view.height in 1..maxHeight && view !== decor
-        ) {
-            view.getLocationInWindow(scratch)
-            val x = (scratch[0] - origin[0]).toFloat()
-            val y = (scratch[1] - origin[1]).toFloat()
-            canvas.drawRect(x, y, x + view.width, y + view.height, paint)
-        }
-        if (view is ViewGroup) {
-            for (i in 0 until view.childCount) {
-                wipeRow(
-                    canvas, view.getChildAt(i), decor, depth + 1,
-                    minWidth, maxHeight, origin, scratch, paint
-                )
-            }
         }
     }
 
@@ -611,22 +626,19 @@ class IosSelectionMenu(loader: ClassLoader, preferences: SharedPreferences) :
         private val tintColor: Int
     ) : Drawable() {
 
-        private val blurPaint = Paint(Paint.ANTI_ALIAS_FLAG or Paint.FILTER_BITMAP_FLAG).apply {
-            colorFilter = IosSelectionMenu.desaturateFilter()
-        }
         private val paint = Paint(Paint.ANTI_ALIAS_FLAG or Paint.FILTER_BITMAP_FLAG)
 
         override fun draw(canvas: Canvas) {
             val b = bounds
             if (b.isEmpty || bitmap.isRecycled) return
-            canvas.drawBitmap(bitmap, null, RectF(b), blurPaint)
+            // Full colour, exactly as the conversation looks - no colour matrix.
+            canvas.drawBitmap(bitmap, null, RectF(b), paint)
             canvas.drawColor(dimColor)
             canvas.drawColor(tintColor)
         }
 
         override fun setAlpha(alpha: Int) {
             paint.alpha = alpha
-            blurPaint.alpha = alpha
         }
 
         override fun setColorFilter(colorFilter: ColorFilter?) {
