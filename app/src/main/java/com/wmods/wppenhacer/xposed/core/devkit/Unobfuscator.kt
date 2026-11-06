@@ -494,6 +494,18 @@ object Unobfuscator {
     @JvmStatic
     fun loadTabNameMethod(classLoader: ClassLoader): Method {
         return UnobfuscatorCache.getInstance().getMethod(classLoader) {
+            val byOverrideString = bridge.findMethod {
+                matcher {
+                    returnType(String::class.java)
+                    paramTypes(Int::class.java.name)
+                    usingStrings("No tab title override for tab id: ")
+                    usingNumbers(200, 300, 400)
+                }
+            }
+            if (byOverrideString.isNotEmpty()) {
+                return@getMethod byOverrideString[0].getMethodInstance(classLoader)
+            }
+
             val id = UnobfuscatorCache.getInstance().getOfuscateIDString("updates")
             if (id < 1) throw Exception("TabName ID not found")
             val result = bridge.findMethod {
@@ -2573,19 +2585,51 @@ object Unobfuscator {
     @JvmStatic
     fun loadAddOptionSearchBarMethod(classLoader: ClassLoader): Method {
         return UnobfuscatorCache.getInstance().getMethod(classLoader) {
-            val classData = bridge.getClassData(WppCore.homeActivityClass)
-                ?: return@getMethod null
-            val methodData = classData.findMethod {
-                matcher {
-                    addUsingNumber(Utils.getID("menuitem_search", "id"))
-                    addUsingNumber(200)
-                    paramCount(1)
-                    addParamType(Menu::class.java)
-                }
-            }
-            if (methodData.isEmpty()) throw NoSuchMethodError("MenuSearch not found in HomeActivity")
-            methodData[0].getMethodInstance(classLoader)
+            val chain = homeActivityClassDataChain(WppCore.homeActivityClass)
+            if (chain.isEmpty()) throw NoSuchMethodError("HomeActivity class data not found")
+            val searchId = Utils.getID("menuitem_search", "id")
+            val methodData = chain.firstNotNullOfOrNull { classData ->
+                classData.findMethod {
+                    matcher {
+                        addUsingNumber(searchId)
+                        addUsingNumber(200)
+                        paramCount(1)
+                        addParamType(Menu::class.java)
+                    }
+                }.firstOrNull()
+            } ?: throw NoSuchMethodError("MenuSearch not found in HomeActivity")
+            methodData.getMethodInstance(classLoader)
         }
+    }
+
+    @Throws(Exception::class)
+    @JvmStatic
+    fun loadBottomNavigationViewClass(classLoader: ClassLoader): Class<*> {
+        return UnobfuscatorCache.getInstance().getClass(classLoader) {
+            val clazz = bridge.findClass {
+                matcher {
+                    anyOf {
+                        match {
+                            className(".BottomNavigationView", StringMatchType.EndsWith)
+                        }
+                        match {
+                            className(".WDSBottomBar", StringMatchType.EndsWith)
+                        }
+                    }
+                }
+            }.first().getInstance(classLoader)
+            if (clazz.simpleName == "WDSBottomBar") clazz.superclass else clazz
+        }
+    }
+
+    private fun homeActivityClassDataChain(homeActivityClass: Class<*>): List<ClassData> {
+        val chain = ArrayList<ClassData>()
+        var current = bridge.getClassData(homeActivityClass.name)
+        while (current != null && current.name.startsWith("com.whatsapp.")) {
+            chain.add(current)
+            current = current.superClass
+        }
+        return chain
     }
 
     @Throws(Exception::class)
@@ -3210,6 +3254,26 @@ object Unobfuscator {
 
     @Throws(Exception::class)
     @JvmStatic
+    fun loadStatusPlaybackReplyContainerViewMethod(classLoader: ClassLoader): Method {
+        return UnobfuscatorCache.getInstance().getMethod(classLoader) {
+            val holderClass = loadStatusPlaybackReplyContainer(classLoader).returnType
+            bridge.getClassData(holderClass.name)?.findMethod {
+                matcher {
+                    paramCount(0)
+                    returnType(View::class.java)
+                    usingStrings(listOf("ViewStubHolder.getView()"), StringMatchType.Contains)
+                }
+            }?.firstOrNull()?.getMethodInstance(classLoader)?.let { return@getMethod it }
+
+            holderClass.declaredMethods.firstOrNull {
+                it.name == "A01" && it.parameterCount == 0 &&
+                        View::class.java.isAssignableFrom(it.returnType)
+            } ?: throw NoSuchMethodException("StatusPlaybackReplyContainer getView not found")
+        }
+    }
+
+    @Throws(Exception::class)
+    @JvmStatic
     fun loadStatusPlaybackReplyContainer(classLoader: ClassLoader): Method {
         return UnobfuscatorCache.getInstance().getMethod(classLoader) {
             val clazz = findFirstClassUsingStrings(
@@ -3444,13 +3508,13 @@ object Unobfuscator {
         return UnobfuscatorCache.getInstance().getMethod(classLoader) {
             bridge.findMethod {
                 matcher {
-                    paramCount(3, 4)
+                    paramCount(3, 5)
                     returnType(Bitmap::class.java)
                     usingNumbers(0.70710678118)
                 }
             }.single {
                 val types = it.paramTypeNames
-                types.size in 3..4 &&
+                types.size in 3..5 &&
                         types.first() == Bitmap::class.java.name &&
                         types[1] == ColorFilter::class.java.name &&
                         types.last() == "float"

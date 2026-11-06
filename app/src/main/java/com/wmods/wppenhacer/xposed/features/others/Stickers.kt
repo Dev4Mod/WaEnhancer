@@ -21,20 +21,21 @@ class Stickers(classLoader: ClassLoader, preferences: SharedPreferences) :
 
     override fun doHook() {
 
-        if (!xprefs.getBoolean("alertsticker", false)) return
-        val stickerContainerId = Utils.getID("stickerContainer", "id")
-        ViewHookDispatcher.onAttachedToWindow(this) { view ->
-            if (view.id != stickerContainerId) return@onAttachedToWindow
-            if (view.tag == "wae_hooked") return@onAttachedToWindow
-            view.tag = "wae_hooked"
-            view.setTouchClickAndLongClickListener(
-                onClick = {
-                    showAlertDialog(view)
-                },
-                onLongClick = {
-                    view.performLongClick()
-                }
-            )
+        if (xprefs.getBoolean("alertsticker", false)) {
+            val stickerContainerId = Utils.getID("stickerContainer", "id")
+            ViewHookDispatcher.onAttachedToWindow(this) { view ->
+                if (view.id != stickerContainerId) return@onAttachedToWindow
+                if (view.tag == "wae_hooked") return@onAttachedToWindow
+                view.tag = "wae_hooked"
+                view.setTouchClickAndLongClickListener(
+                    onClick = {
+                        showAlertDialog(view)
+                    },
+                    onLongClick = {
+                        view.performLongClick()
+                    }
+                )
+            }
         }
         if (xprefs.getBoolean("remove_sticker_white_outline", false)) {
             val stickerColoredOutline = Unobfuscator.loadStickerColoredOutline(classLoader)

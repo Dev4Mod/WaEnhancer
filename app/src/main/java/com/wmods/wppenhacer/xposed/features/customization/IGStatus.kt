@@ -11,6 +11,7 @@ import android.widget.AbsListView
 import android.widget.LinearLayout
 import android.widget.ListView
 import com.highcapable.kavaref.KavaRef.Companion.resolve
+import com.highcapable.yukihookapi.extension.kavaref.hook
 import com.highcapable.yukihookapi.extension.kavaref.hookAll
 import com.wmods.wppenhacer.adapter.IGStatusAdapter
 import com.wmods.wppenhacer.views.IGStatusView
@@ -199,10 +200,11 @@ class IGStatus(loader: ClassLoader, preferences: SharedPreferences) : Feature(lo
     }
 
     private fun keepAllTabsAlive(handler: Handler) {
-        WppCore.homeActivityClass.resolve().method {
+        WppCore.homeActivityClass.resolve().firstMethod {
             name = "onCreate"
-            parameters(Bundle::class)
-        }.hookAll {
+            superclass()
+            parameters(Bundle::class.java)
+        }.hook {
             after {
                 val activity = instance<Activity>()
                 var attempts = 0

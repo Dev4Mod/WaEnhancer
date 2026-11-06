@@ -201,6 +201,9 @@ class SeenTick(
         val ifaceKeyStatusItemClass =
             Unobfuscator.loadUnknownStatusPlaybackMethod(classLoader).parameterTypes.first()
         val replyContainerMethod = Unobfuscator.loadStatusPlaybackReplyContainer(classLoader)
+        val replyContainerViewMethod = runCatching {
+            Unobfuscator.loadStatusPlaybackReplyContainerViewMethod(classLoader)
+        }.onFailure { logDebug(it) }.getOrNull()
 
         if (ticktype == 1) {
             if (!xprefs.getBoolean("hidestatusview", false)) return
@@ -229,7 +232,8 @@ class SeenTick(
                         }
                     val replyContainer =
                         replyContainerMethod.invoke(fieldViewContainer.get(instance))
-                    val replyView = ReflectionUtils.callMethod(replyContainer, "A01") as View
+                    val replyView = replyContainerViewMethod?.invoke(replyContainer) as? View
+                        ?: return@after
                     val contentView =
                         replyView.findViewById<LinearLayout>(
                             Utils.getID(

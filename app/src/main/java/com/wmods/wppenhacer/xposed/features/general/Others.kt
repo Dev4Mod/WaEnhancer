@@ -88,9 +88,11 @@ class Others(loader: ClassLoader, preferences: SharedPreferences) : Feature(load
         booleans[16250] = false
 
         if (newSettings == 2) {
-            WppCore.homeActivityClass.resolve().method {
+            WppCore.homeActivityClass.resolve().firstMethod {
                 name = "onCreateOptionsMenu"
-            }.hookAll {
+                superclass()
+                parameters(Menu::class.java)
+            }.hook {
                 after {
                     val menu = args[0] as Menu
                     val menuItem = menu.findItem(Utils.getID("me_tab_menu_item", "id"))
