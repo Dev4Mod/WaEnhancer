@@ -2052,6 +2052,25 @@ object Unobfuscator {
 
     @Throws(Exception::class)
     @JvmStatic
+    fun loadBottomNavigationViewClass(classLoader: ClassLoader): Class<*> {
+        return UnobfuscatorCache.getInstance().getClass(classLoader) {
+            // WhatsApp 2.26.42 obfuscates Material's BottomNavigationView; its subclass
+            // HomeLegacyBottomNavigationView keeps its name and inherits getMaxItemCount.
+            // Both names resolve under one cache entry so a cached startup never opens DexKit.
+            listOf(".HomeLegacyBottomNavigationView", ".BottomNavigationView")
+                .firstNotNullOfOrNull { name ->
+                    bridge.findClass {
+                        matcher {
+                            className(name, StringMatchType.EndsWith)
+                        }
+                    }.firstOrNull()
+                }?.getInstance(classLoader)
+                ?: throw ClassNotFoundException("BottomNavigationView class not found")
+        }
+    }
+
+    @Throws(Exception::class)
+    @JvmStatic
     fun loadHeaderChannelItemClass(classLoader: ClassLoader): Class<*> {
         return UnobfuscatorCache.getInstance().getClass(classLoader) {
             findFirstClassUsingStrings(

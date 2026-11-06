@@ -88,21 +88,7 @@ class SeparateGroup(loader: ClassLoader, preferences: SharedPreferences) :
     }
 
     override fun doHook() {
-        // WhatsApp 2.26.42 obfuscates Material's BottomNavigationView; its subclass
-        // HomeLegacyBottomNavigationView keeps its name and inherits getMaxItemCount
-        val bottomNavigationViewCls = runCatching {
-            Unobfuscator.findFirstClassUsingName(
-                classLoader,
-                StringMatchType.EndsWith,
-                ".HomeLegacyBottomNavigationView"
-            )
-        }.getOrElse {
-            Unobfuscator.findFirstClassUsingName(
-                classLoader,
-                StringMatchType.EndsWith,
-                ".BottomNavigationView"
-            )
-        }
+        val bottomNavigationViewCls = Unobfuscator.loadBottomNavigationViewClass(classLoader)
         bottomNavigationViewCls.resolve().firstMethod {
             name = "getMaxItemCount"
             superclass()
