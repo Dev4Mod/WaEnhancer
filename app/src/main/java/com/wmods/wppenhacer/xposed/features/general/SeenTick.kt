@@ -633,7 +633,7 @@ class SeenTick(
                 for (i in 0 until size) {
                     val msgId = fstatus[i].messageID
                     arrS[i] = msgId
-                    messageHistory.updateViewedMessage(
+                    messageHistory.insertHideSeenMessage(
                         "status@broadcast",
                         msgId,
                         MessageHistoryStore.ReceiptType.READ,
