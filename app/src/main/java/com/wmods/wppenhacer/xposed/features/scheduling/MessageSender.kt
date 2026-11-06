@@ -26,6 +26,10 @@ import java.util.concurrent.TimeUnit
 /**
  * Delivers a scheduled message.
  *
+ * Attachments go through [MediaSender] first: it builds the media message WhatsApp's own
+ * share screen would have built and hands it straight to the send service, so nothing has
+ * to be displayed. Only if that is unavailable does it drop to the share intent.
+ *
  * Text has three routes, tried in order:
  *
  *  1. **Headless via string reference** - finds WhatsApp's `userActionSendTextMessages`
@@ -83,7 +87,20 @@ object MessageSender {
 
     fun send(context: Context, message: ScheduledMessage): SendResult {
         if (message.kind != MessageKind.TEXT) {
-            return sendViaShareIntent(context, message)
+            // Build the media message ourselves and hand it to WhatsApp's send service.
+            // No window, no share sheet, so this is the only route that can work with the
+            // app closed.
+            val headless = MediaSender.send(context, message)
+            if (headless.ok) return headless
+
+            YukiLog.log(
+                "[ScheduledMessages] headless media send failed (${headless.error}); " +
+                    "falling back to the share intent"
+            )
+
+            val viaUi = sendViaShareIntent(context, message)
+            return if (viaUi.ok) viaUi
+            else SendResult(false, "media=(${headless.error}) / ui=(${viaUi.error})")
         }
 
         // Route 1: string-based lookup — the dependable headless path
@@ -183,6 +200,10 @@ object MessageSender {
      * the first schedule ever fires.
      */
     fun preResolve() {
+        // Attachments are resolved independently of text, so a failure in one does not
+        // hide the state of the other in the log.
+        MediaSender.preResolve()
+
         val anchor = resolveTextSendMethodByString() ?: return
         val probe = runCatching { WppCore.createUserJid("1234567890@s.whatsapp.net") }
             .getOrNull() ?: return
@@ -918,10 +939,15 @@ object MessageSender {
         val uris = m.mediaUris.map(Uri::parse)
         if (uris.isEmpty()) return null
 
+        // Text typed alongside an attachment is a caption, not a second message. It has
+        // to ride on the same intent or it is dropped on the floor.
+        val caption = m.text?.takeIf { it.isNotBlank() }
+
         if (uris.size == 1) {
             val uri = uris.first()
             intent.type = m.mime ?: if (m.kind == MessageKind.STICKER) "image/webp" else "*/*"
             intent.putExtra(Intent.EXTRA_STREAM, uri)
+            caption?.let { intent.putExtra(Intent.EXTRA_TEXT, it) }
             intent.clipData = ClipData.newRawUri("", uri)
             return intent
         }
@@ -931,6 +957,7 @@ object MessageSender {
         intent.action = Intent.ACTION_SEND_MULTIPLE
         intent.type = if (m.mime?.startsWith("image/") == true) "image/*" else "*/*"
         intent.putParcelableArrayListExtra(Intent.EXTRA_STREAM, ArrayList(uris))
+        caption?.let { intent.putExtra(Intent.EXTRA_TEXT, it) }
         intent.clipData = ClipData.newUri(
             context.contentResolver,
             "attachments",

@@ -52,11 +52,11 @@ import java.util.Date
 /**
  * Scheduled sending for WhatsApp: text, media and stickers.
  *
- * Text is delivered by calling WhatsApp's own send API from inside its process, so it
- * needs no window and works with the screen off and the device locked. Media and stickers
- * go through the share intent and are committed with `View.performClick()`, which is a
- * method call rather than a synthetic touch event and therefore is not blocked by the
- * keyguard. See [MessageSender].
+ * Everything is delivered by calling WhatsApp's own send APIs from inside its process, so
+ * nothing needs a window and it works with the screen off and the device locked. Text goes
+ * through the text send API; attachments are built into the same media message the share
+ * screen would have produced and handed to the media send API. The share intent is kept
+ * only as a last resort. See [MessageSender] and [MediaSender].
  *
  * Timing uses two independent paths, because neither alone is dependable here:
  *
@@ -139,9 +139,14 @@ class ScheduledMessages(
     /**
      * Runtime registration. The receiver lives only as long as the WhatsApp process, which
      * is why [sweepDue] exists as a fallback.
+     *
+     * The filter has to declare the scheme the alarm intent carries. An intent with a data
+     * URI does not match a filter that declares no data at all — Android reports no match
+     * and drops the broadcast, so the alarm fires into nothing and the schedule only goes
+     * out on the next activity resume.
      */
     private fun registerAlarmReceiver(app: Application) {
-        val filter = IntentFilter(ACTION_FIRE)
+        val filter = IntentFilter(ACTION_FIRE).apply { addDataScheme(FIRE_SCHEME) }
         val viaCompat = runCatching {
             ContextCompat.registerReceiver(
                 app,
@@ -208,9 +213,12 @@ class ScheduledMessages(
     }
 
     private fun fire(app: Application, id: Long) {
-        // Implicit broadcast: matches the runtime-registered receiver's IntentFilter.
+        // Implicit broadcast: matches the runtime-registered receiver's IntentFilter. The
+        // data URI has to be present here too — the filter declares the scheme, and an
+        // intent without data does not match it either.
         val intent = Intent(ACTION_FIRE)
             .setPackage(app.packageName)
+            .setData(Uri.parse("$FIRE_SCHEME://fire/$id"))
             .putExtra(EXTRA_ID, id)
         app.sendBroadcast(intent)
     }
@@ -241,7 +249,7 @@ class ScheduledMessages(
     private fun firePendingIntent(context: Context, id: Long): PendingIntent {
         val intent = Intent(ACTION_FIRE)
             .setPackage(context.packageName)
-            .setData(Uri.parse("wae-schedule://fire/$id"))
+            .setData(Uri.parse("$FIRE_SCHEME://fire/$id"))
             .putExtra(EXTRA_ID, id)
 
         return PendingIntent.getBroadcast(
@@ -1077,6 +1085,13 @@ class ScheduledMessages(
     companion object {
         const val ACTION_FIRE = "com.wmods.wae.SCHEDULE_FIRE"
         const val EXTRA_ID = "schedule_id"
+
+        /**
+         * Scheme of the per-id data URI on the alarm intent. The URI keeps each schedule's
+         * PendingIntent distinct, and the receiver's filter has to declare it or the
+         * broadcast matches nothing.
+         */
+        const val FIRE_SCHEME = "wae-schedule"
         const val CHANNEL_ID = "wae_scheduled_messages"
         const val NOTIFICATION_BASE = 7300
 

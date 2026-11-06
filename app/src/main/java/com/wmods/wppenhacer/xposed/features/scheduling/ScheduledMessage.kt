@@ -34,14 +34,24 @@ data class ScheduledMessage(
     /** First attachment, for the single-attachment code paths. */
     val mediaUri: String? get() = mediaUris.firstOrNull()
 
+    /**
+     * One-line summary for the list.
+     *
+     * An attachment with text shows both, because the text is a caption that will be
+     * delivered with it — hiding it made the list disagree with what actually gets sent.
+     */
     fun preview(): String = when (kind) {
         MessageKind.TEXT -> text.orEmpty().replace('\n', ' ').take(70)
-        MessageKind.MEDIA -> if (mediaUris.size > 1) {
-            "${mediaUris.size} attachments"
-        } else {
-            "Media · ${mime ?: "file"}"
-        }
-        MessageKind.STICKER -> "Sticker"
+        MessageKind.MEDIA -> withCaption(
+            if (mediaUris.size > 1) "${mediaUris.size} attachments"
+            else "Media · ${mime ?: "file"}"
+        )
+        MessageKind.STICKER -> withCaption("Sticker")
+    }
+
+    private fun withCaption(summary: String): String {
+        val caption = text?.takeIf { it.isNotBlank() }?.replace('\n', ' ')?.take(50) ?: return summary
+        return "$summary · $caption"
     }
 }
 
