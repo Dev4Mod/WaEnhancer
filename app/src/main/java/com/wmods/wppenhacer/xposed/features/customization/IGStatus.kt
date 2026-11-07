@@ -95,6 +95,7 @@ class IGStatus(loader: ClassLoader, preferences: SharedPreferences) : Feature(lo
                 val igStatus = mListStatusContainer.find { it.fragmentId == id }
                 if (igStatus != null) {
                     mStatusContainer.adapter = igStatus.adapter
+                    igStatus.adapter = null
                     mListStatusContainer.remove(igStatus)
                 }
                 mStatusContainer.fragmentId = id
@@ -120,7 +121,7 @@ class IGStatus(loader: ClassLoader, preferences: SharedPreferences) : Feature(lo
                     if (mStatusContainer.adapter?.context !== activity) {
                         mStatusContainer.adapter = IGStatusAdapter(activity, statusInfoClass)
                     }
-                    mStatusContainer.updateList()
+                    mStatusContainer.updateList(itens)
                 }
             }
         }
@@ -137,7 +138,7 @@ class IGStatus(loader: ClassLoader, preferences: SharedPreferences) : Feature(lo
                 newList.addAll(lists[1])
                 itens = newList
                 for (mStatusContainer in mListStatusContainer) {
-                    mStatusContainer.updateList()
+                    mStatusContainer.updateList(itens)
                 }
             }
         }
@@ -163,7 +164,7 @@ class IGStatus(loader: ClassLoader, preferences: SharedPreferences) : Feature(lo
                 newList.addAll(list2)
                 itens = newList
                 for (mStatusContainer in mListStatusContainer) {
-                    mStatusContainer.updateList()
+                    mStatusContainer.updateList(itens)
                 }
             }
         }
