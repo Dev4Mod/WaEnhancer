@@ -187,7 +187,9 @@ class AntiRevoke(loader: ClassLoader, preferences: SharedPreferences) :
 
         antiRevokeFStatusMethod.hook {
             before {
-                val fStatusKey = FStatusWpp.FStatusKey(args[1])
+                val targetKey = args.lastOrNull { FStatusWpp.FStatusKey.TYPE.isInstance(it) }
+                    ?: return@before
+                val fStatusKey = FStatusWpp.FStatusKey(targetKey)
                 val fstatus = fStatusKey.fStatus ?: return@before
                 val fMessage = fstatus.fMessage ?: return@before
                 if (!fStatusKey.isFromMe && handleRevocationAttempt(
