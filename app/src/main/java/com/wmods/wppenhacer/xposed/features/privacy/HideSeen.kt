@@ -46,7 +46,6 @@ class HideSeen(loader: ClassLoader, preferences: SharedPreferences) :
         hookSendReadReceiptJob()
         hookReceiptMethod()
         hookSenderPlayed()
-        hookSenderPlayedBusiness()
         hookStanzaWriter()
     }
 
@@ -317,48 +316,45 @@ class HideSeen(loader: ClassLoader, preferences: SharedPreferences) :
     }
 
     private fun hookSenderPlayed() {
-        val loadSenderPlayed = Unobfuscator.loadSenderPlayedMethod(classLoader)
+        val loadSenderPlayed = Unobfuscator.loadSenderPlayedBusiness(classLoader)
 
         loadSenderPlayed.hook {
-            before {
-                val fMessage = FMessageWpp(args[0])
-                processSenderPlayed(this, fMessage)
-            }
-        }
-    }
-
-    private fun hookSenderPlayedBusiness() {
-        val loadSenderPlayedBusiness = Unobfuscator.loadSenderPlayedBusiness(classLoader)
-
-        loadSenderPlayedBusiness.hook {
             before {
                 val set = args[0] as? Set<*>
                 if (set.isNullOrEmpty()) return@before
 
-                val fMessage = FMessageWpp(set.first())
-                processSenderPlayed(this, fMessage)
+                processSenderPlayed(this, set.filterNotNull().map { FMessageWpp(it) })
             }
         }
     }
 
-    private fun processSenderPlayed(param: HookParam, fMessage: FMessageWpp) {
-        val isHideViewOnce = (hideOnceSeen || ghostMode) && fMessage.isViewOnce
-        val isHideVoiceNote =
-            (hideAudioSeen || ghostMode) && fMessage.mediaType == MEDIA_TYPE_VOICE_NOTE
-        val key = fMessage.key
-
-        if (isHideViewOnce || isHideVoiceNote) {
-            param.result = null
-            MessageHistoryStore.getInstance().insertHideSeenMessageAsync(
-                key.remoteJid.phoneRawString,
-                key.remoteJid.userRawString,
-                key.messageID,
-                MessageHistoryStore.ReceiptType.PLAYED,
-                false
-            )
+    private fun processSenderPlayed(param: HookParam, messages: List<FMessageWpp>) {
+        val hiddenMessages = messages.filter { fMessage ->
+            val isHideViewOnce = (hideOnceSeen || ghostMode) && fMessage.isViewOnce
+            val isHideVoiceNote =
+                (hideAudioSeen || ghostMode) && fMessage.mediaType == MEDIA_TYPE_VOICE_NOTE
+            isHideViewOnce || isHideVoiceNote
         }
 
-        if (fMessage.isViewOnce && !hideOnceSeen && !ghostMode) {
+        if (hiddenMessages.isNotEmpty()) {
+            param.result = null
+            for (fMessage in hiddenMessages) {
+                val key = fMessage.key
+                MessageHistoryStore.getInstance().insertHideSeenMessageAsync(
+                    key.remoteJid.phoneRawString,
+                    key.remoteJid.userRawString,
+                    key.messageID,
+                    MessageHistoryStore.ReceiptType.PLAYED,
+                    false
+                )
+            }
+            return
+        }
+
+        if (hideOnceSeen || ghostMode) return
+        for (fMessage in messages) {
+            if (!fMessage.isViewOnce) continue
+            val key = fMessage.key
             val phoneRaw = key.remoteJid.phoneRawString
             val userRaw = key.remoteJid.userRawString
             val messageId = key.messageID

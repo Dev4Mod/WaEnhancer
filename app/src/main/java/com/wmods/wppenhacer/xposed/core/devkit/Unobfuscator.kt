@@ -2154,56 +2154,6 @@ object Unobfuscator {
 
     @Throws(Exception::class)
     @JvmStatic
-    fun loadSenderPlayedMethod(classLoader: ClassLoader): Method {
-        return UnobfuscatorCache.getInstance().getMethod(classLoader) {
-            val clazz = loadSenderPlayedClass(classLoader)
-            val abstractMediaMessageClass = loadAbstractMediaMessageClass(classLoader)
-            val interfaces = abstractMediaMessageClass.interfaces
-
-            val interfacesList = ArrayList<Class<*>>()
-            interfacesList.add(abstractMediaMessageClass)
-            interfacesList.addAll(listOf(*interfaces))
-
-            var methodResult: Method? = null
-            main_loop@ for (method in clazz.methods) {
-                if (method.parameterCount != 1) continue
-                val parameterType = method.parameterTypes[0]
-                for (interfaceClass in interfacesList) {
-                    if (interfaceClass.isAssignableFrom(parameterType)) {
-                        methodResult = method
-                        break@main_loop
-                    }
-                }
-            }
-
-            val fmessageClass = loadFMessageClass(classLoader)
-            if (methodResult == null) {
-                val method = findFirstMethodUsingStrings(
-                    classLoader,
-                    StringMatchType.Contains,
-                    "mediaHash and fileType not both present for upload URL generation"
-                )
-                if (method != null) {
-                    val cMethods = bridge.getMethodData(method)!!.invokes
-                    Collections.reverse(cMethods)
-                    for (cmethod in cMethods) {
-                        if (cmethod.isMethod && cmethod.paramCount == 1) {
-                            val cParamType = cmethod.paramTypes[0].getInstance(classLoader)
-                            if (fmessageClass.isAssignableFrom(cParamType)) {
-                                methodResult = cmethod.getMethodInstance(classLoader)
-                                break
-                            }
-                        }
-                    }
-                }
-            }
-
-            methodResult ?: throw RuntimeException("SenderPlayed method not found 2")
-        }
-    }
-
-    @Throws(Exception::class)
-    @JvmStatic
     fun loadSenderPlayedBusiness(classLoader: ClassLoader): Method {
         return UnobfuscatorCache.getInstance().getMethod(classLoader) {
             val loadSenderPlayed = loadSenderPlayedClass(classLoader)
