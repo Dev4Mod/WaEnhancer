@@ -59,6 +59,8 @@ class AntiRevoke(loader: ClassLoader, preferences: SharedPreferences) :
         private val loadedRevokedJids = ConcurrentHashMap.newKeySet<String>()
         private val loadingRevokedJids = ConcurrentHashMap.newKeySet<String>()
 
+        private const val STATUS_REVOKE_DIDNT_STORE = 3
+
         private fun blockedStatusRevokeResult(returnType: Class<*>): Any? {
             return when {
                 Enum::class.java.isAssignableFrom(returnType) -> {
@@ -74,7 +76,9 @@ class AntiRevoke(loader: ClassLoader, preferences: SharedPreferences) :
                         ?: constants.lastOrNull())
                 }
 
-                returnType == Int::class.javaPrimitiveType || returnType == Int::class.javaObjectType -> 0
+                // Boxed form of the store result enum, where 0 means STORED and 3 DIDNT_STORE.
+                returnType == Int::class.javaObjectType -> STATUS_REVOKE_DIDNT_STORE
+                returnType == Int::class.javaPrimitiveType -> 0
                 returnType == Boolean::class.javaPrimitiveType || returnType == Boolean::class.javaObjectType -> false
                 else -> null
             }

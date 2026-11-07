@@ -3187,8 +3187,10 @@ object Unobfuscator {
                 StringMatchType.Contains,
                 "RevokeStatusManager/failed"
             )
+            // Older versions compile the store result enum into boxed Integer constants.
             clazz!!.declaredMethods.firstOrNull { method ->
-                Enum::class.java.isAssignableFrom(method.returnType) &&
+                (Enum::class.java.isAssignableFrom(method.returnType) ||
+                    method.returnType == Int::class.javaObjectType) &&
                     method.parameterTypes.count { fStatusKeyClass.isAssignableFrom(it) } >= 2
             } ?: throw Exception("Revoke FStatus method not found")
         }
