@@ -70,6 +70,7 @@ class Others(loader: ClassLoader, preferences: SharedPreferences) : Feature(load
         val audioTranscription = xprefs.getBoolean("audio_transcription", false)
         val oldStatus = xprefs.getBoolean("oldstatus", false)
         val igstatus = xprefs.getBoolean("igstatus", false)
+        val nativeIgStatus = xprefs.getBoolean("native_igstatus", false)
         val animationEmojis = xprefs.getBoolean("animation_emojis", false)
         val disableDocumentScanner = xprefs.getBoolean("disable_document_scanner", false)
         val disableProfileStatus = xprefs.getBoolean("disable_profile_status", false)
@@ -77,6 +78,9 @@ class Others(loader: ClassLoader, preferences: SharedPreferences) : Feature(load
         val disableAd = xprefs.getBoolean("disable_ads", false)
 
         integers[3877] = if (oldStatus) (if (igstatus) 2 else 0) else 2
+
+        // WhatsApp's own status bar in the chats tab
+        booleans[25327] = igstatus && nativeIgStatus
 
         booleans[18250] = false
         // 11528 gates WhatsApp's "+" add custom list chip in the chat filter row.

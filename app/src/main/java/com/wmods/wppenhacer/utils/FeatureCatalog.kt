@@ -1052,6 +1052,20 @@ object FeatureCatalog {
             "ig"
         )
         add(
+            catalog,
+            context,
+            "native_igstatus",
+            R.string.native_igstatus,
+            R.string.native_igstatus_sum,
+            category,
+            fragment,
+            "igstatus",
+            "instagram",
+            "status",
+            "ig",
+            "native"
+        )
+        add(
             catalog, context, "channels", R.string.disable_channels, R.string.disable_channels_sum,
             category, fragment, null, "channels", "disable", "hide"
         )

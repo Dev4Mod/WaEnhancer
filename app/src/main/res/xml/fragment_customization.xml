@@ -219,6 +219,12 @@
             app:title="@string/igstatus_on_home_screen" />
 
         <rikka.material.preference.MaterialSwitchPreference
+            app:dependency="igstatus"
+            app:key="native_igstatus"
+            app:summary="@string/native_igstatus_sum"
+            app:title="@string/native_igstatus" />
+
+        <rikka.material.preference.MaterialSwitchPreference
             app:key="channels"
             app:summary="@string/disable_channels_sum"
             app:title="@string/disable_channels" />

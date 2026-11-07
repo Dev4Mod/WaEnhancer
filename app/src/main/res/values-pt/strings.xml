@@ -111,6 +111,8 @@
     <string name="about">Sobre</string>
     <string name="igstatus_on_home_screen">Mostrar IGStatus na tela Inicial</string>
     <string name="igstatus_on_home_screen_sum">Mostre na tela inicial uma barra com os status estilo Instagram</string>
+    <string name="native_igstatus">IGStatus nativo</string>
+    <string name="native_igstatus_sum">Usa a barra de status nativa do WhatsApp na aba de conversas no lugar da barra do módulo</string>
     <string name="chatfilter_no_search">Desativado</string>
     <string name="chatfilter_search_icon">Ícone de pesquisa</string>
     <string name="chatfilter_search_bar">Barra de pesquisa</string>

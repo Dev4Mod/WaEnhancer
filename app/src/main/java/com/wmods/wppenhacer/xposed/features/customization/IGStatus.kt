@@ -51,6 +51,7 @@ class IGStatus(loader: ClassLoader, preferences: SharedPreferences) : Feature(lo
     @Throws(Throwable::class)
     override fun doHook() {
         if (!xprefs.getBoolean("igstatus", false)) return
+        if (xprefs.getBoolean("native_igstatus", false)) return
 
         forceStatusLoad()
 
