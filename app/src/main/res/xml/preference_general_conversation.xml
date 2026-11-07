@@ -124,10 +124,72 @@
             app:summary="@string/custom_reaction_sum"
             app:title="@string/custom_reaction" />
 
-        <rikka.material.preference.MaterialSwitchPreference
-            app:key="google_translate"
-            app:summary="@string/google_translate_sum"
-            app:title="@string/google_translate" />
+        <PreferenceCategory
+            app:iconSpaceReserved="false"
+            app:title="Live Translate">
+
+            <rikka.material.preference.MaterialSwitchPreference
+                app:key="google_translate"
+                app:summary="@string/google_translate_sum"
+                app:title="@string/google_translate" />
+
+            <ListPreference
+                app:defaultValue="google"
+                app:dependency="google_translate"
+                app:entries="@array/translation_provider_entries"
+                app:entryValues="@array/translation_provider_values"
+                app:iconSpaceReserved="false"
+                app:key="translation_provider"
+                app:summary="Choose translation service"
+                app:title="Translation Provider" />
+
+            <EditTextPreference
+                app:defaultValue="https://api.openai.com/v1"
+                app:dependency="google_translate"
+                app:iconSpaceReserved="false"
+                app:key="translation_ai_base_url"
+                app:summary="API endpoint for OpenAI-compatible service"
+                app:title="AI Base URL" />
+
+            <com.wmods.wppenhacer.preference.PasswordEditTextPreference
+                app:dependency="google_translate"
+                app:iconSpaceReserved="false"
+                app:key="translation_ai_api_key"
+                app:summary="API key for authentication (masked)"
+                app:title="AI API Key" />
+
+            <Preference
+                app:dependency="google_translate"
+                app:iconSpaceReserved="false"
+                app:key="translation_fetch_models"
+                app:summary="Fetch available models from API"
+                app:title="Fetch Models" />
+
+            <ListPreference
+                app:defaultValue="gpt-4o-mini"
+                app:dependency="google_translate"
+                app:entries="@array/translation_model_entries"
+                app:entryValues="@array/translation_model_values"
+                app:iconSpaceReserved="false"
+                app:key="translation_ai_model"
+                app:summary="Select model or fetch from API"
+                app:title="AI Model" />
+
+            <rikka.material.preference.MaterialSwitchPreference
+                app:defaultValue="true"
+                app:dependency="google_translate"
+                app:key="translation_ai_fallback_to_google"
+                app:summary="Use Google Translate when AI fails"
+                app:title="Fallback to Google" />
+
+            <EditTextPreference
+                app:dependency="google_translate"
+                app:iconSpaceReserved="false"
+                app:key="translation_ai_global_prompt"
+                app:summary="@string/translation_ai_global_prompt_sum"
+                app:title="@string/translation_ai_global_prompt_title" />
+
+        </PreferenceCategory>
 
         <rikka.material.preference.MaterialSwitchPreference
             app:key="verify_blocked_contact"

@@ -1,5 +1,29 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    
+    <string-array name="translation_provider_entries">
+        <item>Google Translate</item>
+        <item>AI (OpenAI-compatible)</item>
+    </string-array>
+    
+    <string-array name="translation_provider_values">
+        <item>google</item>
+        <item>openai</item>
+    </string-array>
+    
+    <string-array name="translation_model_entries">
+        <item>gpt-4o-mini</item>
+        <item>gpt-4o</item>
+        <item>gpt-3.5-turbo</item>
+        <item>Manual entry...</item>
+    </string-array>
+    
+    <string-array name="translation_model_values">
+        <item>gpt-4o-mini</item>
+        <item>gpt-4o</item>
+        <item>gpt-3.5-turbo</item>
+        <item>__manual__</item>
+    </string-array>
     <string-array name="supported_versions_wpp">
         <item>2.26.34.xx</item>
         <item>2.26.35.xx</item>
