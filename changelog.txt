@@ -1,15 +1,14 @@
 [NEW]
-* Added support for WhatsApp and WhatsApp Business 2.26.42.xx and 2.26.43.xx
-* You now get a notification when a call is blocked. You can turn it off in the privacy settings
+* Added the "Native IGStatus" option, which shows WhatsApp's own status bar in the chats tab instead of the module's bar. It is available when IGStatus is turned on
 
-[CHANGED]
-* A call block set for a specific contact now takes priority over your general call block settings
-* Removed the "Bootloader Spoofer"(obsolete) option because it could make WhatsApp crash during account recovery. If you see the unofficial WhatsApp message, use the "Custom KeyBox" option with your own keybox.xml file
+[IMPROVED]
+* IG Status now updates only the items that changed, making the status list smoother
+* Smoother scrolling in chats when Anti-Revoke is on, with less database work for each message
 
 [FIXED]
-* Fixed WhatsApp crashing during account recovery
-* Fixed the other person sometimes seeing your message as delivered even when you had chosen to hide this
-* Fixed hidden "seen" messages not being saved for some contacts, so the blue tick could not be sent to them later
-* Fixed the same message being counted more than once when sending the blue tick
-* Fixed the blue tick for statuses not being remembered
-* Fixed "Remove sticker white outline" only working when "Confirmation Before Sending Sticker" was also turned on
+* Fixed Anti-Revoke not keeping deleted statuses on WhatsApp 2.26.43.xx
+* Fixed messages sometimes showing the date of another message after scrolling when Anti-Revoke is on
+* Fixed the deleted label sometimes appearing twice on the same message
+* Fixed expired voice messages and view once media failing to download again when hiding them as played
+* Fixed the played status being sent when several messages were processed together and only the first one was checked
+* Fixed tapping a contact in IG Status sometimes opening the "My Status" options
