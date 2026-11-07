@@ -36,6 +36,9 @@ class AntiRevoke(loader: ClassLoader, preferences: SharedPreferences) :
     Feature(loader, preferences) {
 
     companion object {
+        private const val FIELD_ORIGINAL_DATE_TEXT = "originalMessage"
+        private const val FIELD_DECORATED_DATE_TEXT = "decoratedMessage"
+
         private val messageRevokedMap = ConcurrentHashMap<String, MutableSet<String>>()
 
         private val dateFormatThreadLocal = ThreadLocal.withInitial {
@@ -286,15 +289,11 @@ class AntiRevoke(loader: ClassLoader, preferences: SharedPreferences) :
 
         val key = fMessage.key
         val boundMessageId = key.messageID
-        val originalMessage =
-            ReflectionUtils.getAdditionalInstanceField(dateTextView, "originalMessage") as? String
 
         dateTextView.paint.isUnderlineText = false
         dateTextView.setOnClickListener(null)
         dateTextView.setCompoundDrawables(null, null, null, null)
-        if (originalMessage != null) {
-            dateTextView.text = originalMessage
-        }
+        restoreDateText(dateTextView)
 
         val stripJid = key.remoteJid.phoneNumber ?: return
         val rowId = fMessage.rowId
@@ -313,7 +312,6 @@ class AntiRevoke(loader: ClassLoader, preferences: SharedPreferences) :
                     boundView,
                     boundMessageId,
                     antirevokeValue,
-                    originalMessage,
                     formatRevokedDate(cachedTimestamp)
                 )
                 return
@@ -355,7 +353,6 @@ class AntiRevoke(loader: ClassLoader, preferences: SharedPreferences) :
                         boundView,
                         boundMessageId,
                         antirevokeValue,
-                        originalMessage,
                         date
                     )
                 }
@@ -363,6 +360,47 @@ class AntiRevoke(loader: ClassLoader, preferences: SharedPreferences) :
                 logDebug(t)
             }
         }
+    }
+
+    private fun restoreDateText(dateTextView: TextView) {
+        val originalText = ReflectionUtils.getAdditionalInstanceField(
+            dateTextView,
+            FIELD_ORIGINAL_DATE_TEXT
+        ) as? String
+        val decoratedText = ReflectionUtils.getAdditionalInstanceField(
+            dateTextView,
+            FIELD_DECORATED_DATE_TEXT
+        ) as? String
+        // WhatsApp rewrites the date when it binds a message, so any other text is already fresh.
+        if (originalText != null && dateTextView.text?.toString() == decoratedText) {
+            dateTextView.text = originalText
+        }
+        ReflectionUtils.removeAdditionalInstanceField(dateTextView, FIELD_ORIGINAL_DATE_TEXT)
+        ReflectionUtils.removeAdditionalInstanceField(dateTextView, FIELD_DECORATED_DATE_TEXT)
+    }
+
+    private fun decorateDateText(dateTextView: TextView) {
+        val currentText = dateTextView.text?.toString().orEmpty()
+        val decoratedText = ReflectionUtils.getAdditionalInstanceField(
+            dateTextView,
+            FIELD_DECORATED_DATE_TEXT
+        ) as? String
+        if (currentText == decoratedText) return
+
+        val newTextData = "${
+            UnobfuscatorCache.getInstance().getString("messagedeleted")
+        } | $currentText"
+        dateTextView.text = newTextData
+        ReflectionUtils.setAdditionalInstanceField(
+            dateTextView,
+            FIELD_ORIGINAL_DATE_TEXT,
+            currentText
+        )
+        ReflectionUtils.setAdditionalInstanceField(
+            dateTextView,
+            FIELD_DECORATED_DATE_TEXT,
+            newTextData
+        )
     }
 
     private fun formatRevokedDate(timestamp: Long): String? {
@@ -378,7 +416,6 @@ class AntiRevoke(loader: ClassLoader, preferences: SharedPreferences) :
         boundView: View?,
         boundMessageId: String,
         antirevokeValue: Int,
-        originalMessage: String?,
         date: String?
     ) {
         if (date != null) {
@@ -397,18 +434,7 @@ class AntiRevoke(loader: ClassLoader, preferences: SharedPreferences) :
         }
 
         when (antirevokeValue) {
-            1 -> {
-                val messageText = originalMessage ?: dateTextView.text
-                val newTextData = "${
-                    UnobfuscatorCache.getInstance().getString("messagedeleted")
-                } | $messageText"
-                dateTextView.text = newTextData
-                ReflectionUtils.setAdditionalInstanceField(
-                    dateTextView,
-                    "originalMessage",
-                    messageText.toString()
-                )
-            }
+            1 -> decorateDateText(dateTextView)
 
             2 -> {
                 val drawable = Utils.application.getDrawable(R.drawable.deleted)
