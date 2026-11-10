@@ -2187,6 +2187,17 @@ object Unobfuscator {
 
     @Throws(Exception::class)
     @JvmStatic
+    fun loadDefaultDoodleWallpaperMethod(classLoader: ClassLoader): Method {
+        return UnobfuscatorCache.getInstance().getMethod(classLoader) {
+            findFirstMethodUsingStrings(
+                classLoader, StringMatchType.Equals,
+                "ConversationDelegate/marker point: getDoodleWallpaperDrawable_start"
+            ) ?: throw RuntimeException("Default doodle wallpaper factory not found")
+        }
+    }
+
+    @Throws(Exception::class)
+    @JvmStatic
     fun loadBubbleDrawableMethod(classLoader: ClassLoader): Method {
         return UnobfuscatorCache.getInstance().getMethod(classLoader) {
             val methodData = bridge.findMethod {
