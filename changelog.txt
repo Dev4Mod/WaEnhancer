@@ -1,5 +1,13 @@
-[CHANGED]
-* WhatsApp and WhatsApp Business 2.26.34.xx to 2.26.37.xx are no longer supported. The minimum supported version is now 2.26.38.xx
+[NEW]
+* Added support for WhatsApp and WhatsApp Business 2.26.44.xx
+* Added the "Restore stickers" option (General > Conversation > Stickers), which copies every saved sticker back to Favorites. It requires root
+* Added the "Native floating navigation" option, which turns on WhatsApp's own floating bottom bar (Android 11+), with optional background and selection colors. It can't be used together with the module's "Floating Bottom Bar"
+* Statuses can now be downloaded even before WhatsApp has downloaded them, with a progress dialog that can be cancelled
+* A notification now shows the loading progress of the features while they are prepared after a WhatsApp or module update
 
 [FIXED]
-* Fixed Anti-Revoke not loading on some older WhatsApp versions, such as 2.26.38.xx
+* Fixed "Remove sticker white outline" not loading on newer WhatsApp versions
+* Fixed the locked chats option not loading on newer WhatsApp versions
+* Fixed the blue tick for voice messages and other media not being sent on newer WhatsApp versions
+* Fixed WhatsApp sometimes crashing when filtering the chat list with "Separate Groups" or "Filter Groups" turned on
+* Fixed the custom theme and other features failing to load when WhatsApp can't read its active account file
