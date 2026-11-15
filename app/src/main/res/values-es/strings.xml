@@ -547,4 +547,7 @@
     <string name="native_floating_navigation_sum">Activa la barra inferior flotante propia de WhatsApp, que aún se está implementando (Android 11+)</string>
     <string name="native_floating_navigation_bg_color">Color de fondo</string>
     <string name="native_floating_navigation_selection_color">Color de selección</string>
+    <string name="plugin_loading_starting">Preparando funciones tras una actualización…</string>
+    <string name="plugin_loading_progress">Preparando funciones… %1$d/%2$d</string>
+    <string name="plugin_loading_channel">Carga de funciones</string>
 </resources>

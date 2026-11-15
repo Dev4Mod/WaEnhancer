@@ -547,4 +547,7 @@
     <string name="native_floating_navigation_sum">WhatsApp\'ın hâlâ kullanıma sunulan kendi kayan alt çubuğunu açar (Android 11+)</string>
     <string name="native_floating_navigation_bg_color">Arka plan rengi</string>
     <string name="native_floating_navigation_selection_color">Seçim rengi</string>
+    <string name="plugin_loading_starting">Güncellemeden sonra özellikler hazırlanıyor…</string>
+    <string name="plugin_loading_progress">Özellikler hazırlanıyor… %1$d/%2$d</string>
+    <string name="plugin_loading_channel">Özellik yükleme</string>
 </resources>

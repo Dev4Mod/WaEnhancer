@@ -547,4 +547,7 @@
     <string name="native_floating_navigation_sum">Aktiviert die eigene schwebende untere Leiste von WhatsApp, die noch eingeführt wird (Android 11+)</string>
     <string name="native_floating_navigation_bg_color">Hintergrundfarbe</string>
     <string name="native_floating_navigation_selection_color">Auswahlfarbe</string>
+    <string name="plugin_loading_starting">Funktionen werden nach einem Update vorbereitet…</string>
+    <string name="plugin_loading_progress">Funktionen werden vorbereitet… %1$d/%2$d</string>
+    <string name="plugin_loading_channel">Laden der Funktionen</string>
 </resources>

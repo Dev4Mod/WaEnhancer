@@ -556,4 +556,7 @@ Harap gunakan versi WhatsApp yang didukung!</string>
     <string name="native_floating_navigation_sum">Aktifkan bilah bawah mengambang milik WhatsApp yang masih diluncurkan bertahap (Android 11+)</string>
     <string name="native_floating_navigation_bg_color">Warna latar belakang</string>
     <string name="native_floating_navigation_selection_color">Warna pilihan</string>
+    <string name="plugin_loading_starting">Menyiapkan fitur setelah pembaruan…</string>
+    <string name="plugin_loading_progress">Menyiapkan fitur… %1$d/%2$d</string>
+    <string name="plugin_loading_channel">Memuat fitur</string>
 </resources>

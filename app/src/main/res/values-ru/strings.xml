@@ -547,4 +547,7 @@
     <string name="native_floating_navigation_sum">Включает собственную плавающую нижнюю панель WhatsApp, которая ещё внедряется (Android 11+)</string>
     <string name="native_floating_navigation_bg_color">Цвет фона</string>
     <string name="native_floating_navigation_selection_color">Цвет выделения</string>
+    <string name="plugin_loading_starting">Подготовка функций после обновления…</string>
+    <string name="plugin_loading_progress">Подготовка функций… %1$d/%2$d</string>
+    <string name="plugin_loading_channel">Загрузка функций</string>
 </resources>

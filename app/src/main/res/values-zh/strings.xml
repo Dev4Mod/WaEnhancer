@@ -547,4 +547,7 @@
     <string name="native_floating_navigation_sum">启用 WhatsApp 仍在逐步推出的原生悬浮底部导航栏（Android 11+）</string>
     <string name="native_floating_navigation_bg_color">背景颜色</string>
     <string name="native_floating_navigation_selection_color">选中颜色</string>
+    <string name="plugin_loading_starting">更新后正在准备功能…</string>
+    <string name="plugin_loading_progress">正在准备功能… %1$d/%2$d</string>
+    <string name="plugin_loading_channel">功能加载</string>
 </resources>

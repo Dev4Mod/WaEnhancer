@@ -624,4 +624,8 @@
     <string name="native_floating_navigation_sum">Turn on WhatsApp\'s own floating bottom bar, which it is still rolling out (Android 11+)</string>
     <string name="native_floating_navigation_bg_color">Background color</string>
     <string name="native_floating_navigation_selection_color">Selection color</string>
+    <string name="plugin_loading_title" translatable="false">WaEnhancer</string>
+    <string name="plugin_loading_starting">Preparing features after an update…</string>
+    <string name="plugin_loading_progress">Preparing features… %1$d/%2$d</string>
+    <string name="plugin_loading_channel">Feature loading</string>
 </resources>

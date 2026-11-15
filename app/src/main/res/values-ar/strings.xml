@@ -547,4 +547,7 @@
     <string name="native_floating_navigation_sum">تفعيل شريط التنقل السفلي العائم الخاص بواتساب الذي لا يزال قيد الطرح (أندرويد 11+)</string>
     <string name="native_floating_navigation_bg_color">لون الخلفية</string>
     <string name="native_floating_navigation_selection_color">لون التحديد</string>
+    <string name="plugin_loading_starting">جارٍ تجهيز الميزات بعد التحديث…</string>
+    <string name="plugin_loading_progress">جارٍ تجهيز الميزات… %1$d/%2$d</string>
+    <string name="plugin_loading_channel">تحميل الميزات</string>
 </resources>

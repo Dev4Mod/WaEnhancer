@@ -549,4 +549,7 @@
     <string name="native_floating_navigation_sum">הפעלת סרגל הניווט התחתון הצף של וואטסאפ, שעדיין בהפצה (אנדרואיד 11+)</string>
     <string name="native_floating_navigation_bg_color">צבע רקע</string>
     <string name="native_floating_navigation_selection_color">צבע בחירה</string>
+    <string name="plugin_loading_starting">מכין תכונות לאחר עדכון…</string>
+    <string name="plugin_loading_progress">מכין תכונות… %1$d/%2$d</string>
+    <string name="plugin_loading_channel">טעינת תכונות</string>
 </resources>
