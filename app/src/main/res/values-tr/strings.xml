@@ -525,4 +525,22 @@
     <string name="custom_keybox">Özel KeyBox</string>
     <string name="custom_keybox_file">keybox.xml dosyası</string>
     <string name="custom_keybox_file_none">Dosya seçilmedi</string>
+    <string name="restore_stickers">Çıkartmaları geri yükle</string>
+    <string name="restore_stickers_sum">Kayıtlı tüm çıkartmaları Favorilere geri kopyalar (root gerekir)</string>
+    <string name="restore_stickers_choose_account">Hesap seç</string>
+    <string name="restore_stickers_main_account">Ana hesap</string>
+    <string name="restore_stickers_account">Hesap %s</string>
+    <string name="restore_stickers_active">(etkin)</string>
+    <string name="restore_stickers_user_suffix">(kullanıcı %d)</string>
+    <string name="restore_stickers_loading">Çıkartma veritabanı okunuyor…</string>
+    <string name="restore_stickers_preview">%1$d çıkartma Favorilere geri yüklenecek.\n\nKayıtlı çıkartmalar: %2$d\nZaten Favorilerde: %3$d</string>
+    <string name="restore_stickers_warning">⚠️ Bu cihazda kayıtlı tüm çıkartmalar, hiç Favorilere eklemedikleriniz dahil, favori olarak görünecek. WAE bunu geri alamaz, bunları WhatsApp içinde elle kaldırmanız gerekir.\n\nWhatsApp kapatılacak.</string>
+    <string name="restore_stickers_confirm">Geri yükle</string>
+    <string name="restore_stickers_nothing">Kayıtlı tüm çıkartmalar zaten Favorilerde.</string>
+    <string name="restore_stickers_success">%d çıkartma Favorilere geri yüklendi.</string>
+    <string name="restore_stickers_no_root">Çıkartmaları geri yüklemek için root erişimi gerekir.</string>
+    <string name="restore_stickers_not_found">WhatsApp çıkartma veritabanı bulunamadı.</string>
+    <string name="restore_stickers_failed">Çıkartmalar geri yüklenemedi: %s</string>
+    <string name="restore_stickers_open_whatsapp">WhatsApp\'ı aç</string>
+    <string name="select_whatsapp_app">WhatsApp uygulamasını seçin.</string>
 </resources>

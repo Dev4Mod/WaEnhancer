@@ -525,4 +525,22 @@
     <string name="custom_keybox">KeyBox مخصص</string>
     <string name="custom_keybox_file">ملف keybox.xml</string>
     <string name="custom_keybox_file_none">لم يتم اختيار ملف</string>
+    <string name="restore_stickers">استعادة الملصقات</string>
+    <string name="restore_stickers_sum">نسخ جميع الملصقات المحفوظة إلى المفضلة (يتطلب روت)</string>
+    <string name="restore_stickers_choose_account">اختر الحساب</string>
+    <string name="restore_stickers_main_account">الحساب الرئيسي</string>
+    <string name="restore_stickers_account">الحساب %s</string>
+    <string name="restore_stickers_active">(نشط)</string>
+    <string name="restore_stickers_user_suffix">(المستخدم %d)</string>
+    <string name="restore_stickers_loading">جارٍ قراءة قاعدة بيانات الملصقات…</string>
+    <string name="restore_stickers_preview">سيتم استعادة %1$d ملصق إلى المفضلة.\n\nالملصقات المحفوظة: %2$d\nموجودة بالفعل في المفضلة: %3$d</string>
+    <string name="restore_stickers_warning">⚠️ ستظهر جميع الملصقات المحفوظة على هذا الجهاز كمفضلة، بما في ذلك الملصقات التي لم تضفها إلى المفضلة أبدًا. لا يمكن لـ WAE التراجع عن ذلك، وسيتعين عليك إزالتها يدويًا في واتساب.\n\nسيتم إغلاق واتساب.</string>
+    <string name="restore_stickers_confirm">استعادة</string>
+    <string name="restore_stickers_nothing">جميع الملصقات المحفوظة موجودة بالفعل في المفضلة.</string>
+    <string name="restore_stickers_success">تمت استعادة %d ملصق إلى المفضلة.</string>
+    <string name="restore_stickers_no_root">يلزم صلاحية الروت لاستعادة الملصقات.</string>
+    <string name="restore_stickers_not_found">لم يتم العثور على قاعدة بيانات ملصقات واتساب.</string>
+    <string name="restore_stickers_failed">فشل استعادة الملصقات: %s</string>
+    <string name="restore_stickers_open_whatsapp">فتح واتساب</string>
+    <string name="select_whatsapp_app">اختر تطبيق واتساب</string>
 </resources>

@@ -534,4 +534,22 @@
     <string name="custom_keybox">KeyBox personalizada</string>
     <string name="custom_keybox_file">Ficheiro keybox.xml</string>
     <string name="custom_keybox_file_none">Nenhum ficheiro selecionado</string>
+    <string name="restore_stickers">Restaurar figurinhas</string>
+    <string name="restore_stickers_sum">Copia todas as figurinhas salvas de volta para os Favoritos (requer root)</string>
+    <string name="restore_stickers_choose_account">Selecionar conta</string>
+    <string name="restore_stickers_main_account">Conta principal</string>
+    <string name="restore_stickers_account">Conta %s</string>
+    <string name="restore_stickers_active">(ativa)</string>
+    <string name="restore_stickers_user_suffix">(usuário %d)</string>
+    <string name="restore_stickers_loading">Lendo o banco de figurinhas…</string>
+    <string name="restore_stickers_preview">%1$d figurinhas serão restauradas para os Favoritos.\n\nFigurinhas salvas: %2$d\nJá nos Favoritos: %3$d</string>
+    <string name="restore_stickers_warning">⚠️ Todas as figurinhas salvas neste aparelho vão aparecer como favoritas, inclusive as que você nunca favoritou. O WAE não consegue desfazer isso, será preciso removê-las manualmente no WhatsApp.\n\nO WhatsApp será fechado.</string>
+    <string name="restore_stickers_confirm">Restaurar</string>
+    <string name="restore_stickers_nothing">Todas as figurinhas salvas já estão nos Favoritos.</string>
+    <string name="restore_stickers_success">%d figurinhas restauradas para os Favoritos.</string>
+    <string name="restore_stickers_no_root">É necessário acesso root para restaurar figurinhas.</string>
+    <string name="restore_stickers_not_found">Nenhum banco de figurinhas do WhatsApp foi encontrado.</string>
+    <string name="restore_stickers_failed">Falha ao restaurar figurinhas: %s</string>
+    <string name="restore_stickers_open_whatsapp">Abrir WhatsApp</string>
+    <string name="select_whatsapp_app">Selecione o aplicativo WhatsApp</string>
 </resources>

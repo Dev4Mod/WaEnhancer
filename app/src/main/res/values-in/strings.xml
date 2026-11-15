@@ -534,4 +534,22 @@ Harap gunakan versi WhatsApp yang didukung!</string>
     <string name="custom_keybox">KeyBox Kustom</string>
     <string name="custom_keybox_file">File keybox.xml</string>
     <string name="custom_keybox_file_none">Tidak ada file dipilih</string>
+    <string name="restore_stickers">Pulihkan stiker</string>
+    <string name="restore_stickers_sum">Salin semua stiker tersimpan kembali ke Favorit (perlu root)</string>
+    <string name="restore_stickers_choose_account">Pilih akun</string>
+    <string name="restore_stickers_main_account">Akun utama</string>
+    <string name="restore_stickers_account">Akun %s</string>
+    <string name="restore_stickers_active">(aktif)</string>
+    <string name="restore_stickers_user_suffix">(pengguna %d)</string>
+    <string name="restore_stickers_loading">Membaca database stiker…</string>
+    <string name="restore_stickers_preview">%1$d stiker akan dipulihkan ke Favorit.\n\nStiker tersimpan: %2$d\nSudah di Favorit: %3$d</string>
+    <string name="restore_stickers_warning">⚠️ Semua stiker yang tersimpan di perangkat ini akan muncul sebagai favorit, termasuk stiker yang tidak pernah Anda tambahkan ke Favorit. WAE tidak dapat membatalkannya, Anda harus menghapusnya secara manual di WhatsApp.\n\nWhatsApp akan ditutup.</string>
+    <string name="restore_stickers_confirm">Pulihkan</string>
+    <string name="restore_stickers_nothing">Semua stiker tersimpan sudah ada di Favorit.</string>
+    <string name="restore_stickers_success">%d stiker dipulihkan ke Favorit.</string>
+    <string name="restore_stickers_no_root">Akses root diperlukan untuk memulihkan stiker.</string>
+    <string name="restore_stickers_not_found">Database stiker WhatsApp tidak ditemukan.</string>
+    <string name="restore_stickers_failed">Gagal memulihkan stiker: %s</string>
+    <string name="restore_stickers_open_whatsapp">Buka WhatsApp</string>
+    <string name="select_whatsapp_app">Pilih aplikasi WhatsApp</string>
 </resources>

@@ -525,4 +525,22 @@
     <string name="custom_keybox">KeyBox personalizzata</string>
     <string name="custom_keybox_file">File keybox.xml</string>
     <string name="custom_keybox_file_none">Nessun file selezionato</string>
+    <string name="restore_stickers">Ripristina sticker</string>
+    <string name="restore_stickers_sum">Copia tutti gli sticker salvati nei Preferiti (richiede root)</string>
+    <string name="restore_stickers_choose_account">Seleziona account</string>
+    <string name="restore_stickers_main_account">Account principale</string>
+    <string name="restore_stickers_account">Account %s</string>
+    <string name="restore_stickers_active">(attivo)</string>
+    <string name="restore_stickers_user_suffix">(utente %d)</string>
+    <string name="restore_stickers_loading">Lettura del database degli sticker…</string>
+    <string name="restore_stickers_preview">%1$d sticker verranno ripristinati nei Preferiti.\n\nSticker salvati: %2$d\nGià nei Preferiti: %3$d</string>
+    <string name="restore_stickers_warning">⚠️ Tutti gli sticker salvati su questo dispositivo appariranno come preferiti, compresi quelli che non hai mai aggiunto ai Preferiti. WAE non può annullare questa operazione, dovrai rimuoverli manualmente in WhatsApp.\n\nWhatsApp verrà chiuso.</string>
+    <string name="restore_stickers_confirm">Ripristina</string>
+    <string name="restore_stickers_nothing">Tutti gli sticker salvati sono già nei Preferiti.</string>
+    <string name="restore_stickers_success">%d sticker ripristinati nei Preferiti.</string>
+    <string name="restore_stickers_no_root">È richiesto l\'accesso root per ripristinare gli sticker.</string>
+    <string name="restore_stickers_not_found">Nessun database degli sticker di WhatsApp trovato.</string>
+    <string name="restore_stickers_failed">Ripristino degli sticker non riuscito: %s</string>
+    <string name="restore_stickers_open_whatsapp">Apri WhatsApp</string>
+    <string name="select_whatsapp_app">Seleziona l\'app WhatsApp</string>
 </resources>

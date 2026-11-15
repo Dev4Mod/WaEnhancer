@@ -527,4 +527,22 @@
     <string name="custom_keybox">KeyBox מותאם אישית</string>
     <string name="custom_keybox_file">קובץ keybox.xml</string>
     <string name="custom_keybox_file_none">לא נבחר קובץ</string>
+    <string name="restore_stickers">שחזור מדבקות</string>
+    <string name="restore_stickers_sum">העתקת כל המדבקות השמורות בחזרה למועדפים (דורש רוט)</string>
+    <string name="restore_stickers_choose_account">בחירת חשבון</string>
+    <string name="restore_stickers_main_account">חשבון ראשי</string>
+    <string name="restore_stickers_account">חשבון %s</string>
+    <string name="restore_stickers_active">(פעיל)</string>
+    <string name="restore_stickers_user_suffix">(משתמש %d)</string>
+    <string name="restore_stickers_loading">קורא את מסד הנתונים של המדבקות…</string>
+    <string name="restore_stickers_preview">%1$d מדבקות ישוחזרו למועדפים.\n\nמדבקות שמורות: %2$d\nכבר במועדפים: %3$d</string>
+    <string name="restore_stickers_warning">⚠️ כל המדבקות השמורות במכשיר זה יופיעו כמועדפות, כולל מדבקות שמעולם לא הוספת למועדפים. WAE לא יכול לבטל זאת, יהיה עליך להסיר אותן ידנית בוואטסאפ.\n\nוואטסאפ ייסגר.</string>
+    <string name="restore_stickers_confirm">שחזור</string>
+    <string name="restore_stickers_nothing">כל המדבקות השמורות כבר נמצאות במועדפים.</string>
+    <string name="restore_stickers_success">%d מדבקות שוחזרו למועדפים.</string>
+    <string name="restore_stickers_no_root">נדרשת גישת רוט כדי לשחזר מדבקות.</string>
+    <string name="restore_stickers_not_found">לא נמצא מסד נתונים של מדבקות וואטסאפ.</string>
+    <string name="restore_stickers_failed">שחזור המדבקות נכשל: %s</string>
+    <string name="restore_stickers_open_whatsapp">פתיחת וואטסאפ</string>
+    <string name="select_whatsapp_app">בחר אפליקציית WhatsApp</string>
 </resources>

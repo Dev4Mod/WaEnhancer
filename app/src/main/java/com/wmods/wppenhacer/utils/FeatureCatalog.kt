@@ -457,6 +457,11 @@ object FeatureCatalog {
             "alert"
         )
         add(
+            catalog, context, "restore_stickers", R.string.restore_stickers,
+            R.string.restore_stickers_sum, SearchableFeature.Category.GENERAL_CONVERSATION,
+            general, "conversation", "sticker", "restore", "favorites", "root"
+        )
+        add(
             catalog, context, "calltype", R.string.selection_of_call_type,
             R.string.selection_of_call_type_sum, SearchableFeature.Category.GENERAL_CONVERSATION,
             general, "conversation", "call", "type", "selection", "phone"

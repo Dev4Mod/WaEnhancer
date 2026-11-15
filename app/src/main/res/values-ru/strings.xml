@@ -525,4 +525,22 @@
     <string name="custom_keybox">Пользовательский KeyBox</string>
     <string name="custom_keybox_file">Файл keybox.xml</string>
     <string name="custom_keybox_file_none">Файл не выбран</string>
+    <string name="restore_stickers">Восстановить стикеры</string>
+    <string name="restore_stickers_sum">Копирует все сохранённые стикеры обратно в Избранное (нужен root)</string>
+    <string name="restore_stickers_choose_account">Выберите аккаунт</string>
+    <string name="restore_stickers_main_account">Основной аккаунт</string>
+    <string name="restore_stickers_account">Аккаунт %s</string>
+    <string name="restore_stickers_active">(активный)</string>
+    <string name="restore_stickers_user_suffix">(пользователь %d)</string>
+    <string name="restore_stickers_loading">Чтение базы стикеров…</string>
+    <string name="restore_stickers_preview">В Избранное будет восстановлено стикеров: %1$d.\n\nСохранённых стикеров: %2$d\nУже в Избранном: %3$d</string>
+    <string name="restore_stickers_warning">⚠️ Все стикеры, сохранённые на этом устройстве, появятся в Избранном, включая те, которые вы туда никогда не добавляли. WAE не может отменить это, их придётся удалить вручную в WhatsApp.\n\nWhatsApp будет закрыт.</string>
+    <string name="restore_stickers_confirm">Восстановить</string>
+    <string name="restore_stickers_nothing">Все сохранённые стикеры уже в Избранном.</string>
+    <string name="restore_stickers_success">Восстановлено стикеров в Избранное: %d.</string>
+    <string name="restore_stickers_no_root">Для восстановления стикеров нужен root-доступ.</string>
+    <string name="restore_stickers_not_found">База стикеров WhatsApp не найдена.</string>
+    <string name="restore_stickers_failed">Не удалось восстановить стикеры: %s</string>
+    <string name="restore_stickers_open_whatsapp">Открыть WhatsApp</string>
+    <string name="select_whatsapp_app">Выберите приложение WhatsApp</string>
 </resources>
