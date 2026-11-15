@@ -552,4 +552,8 @@ Harap gunakan versi WhatsApp yang didukung!</string>
     <string name="restore_stickers_failed">Gagal memulihkan stiker: %s</string>
     <string name="restore_stickers_open_whatsapp">Buka WhatsApp</string>
     <string name="select_whatsapp_app">Pilih aplikasi WhatsApp</string>
+    <string name="native_floating_navigation">Navigasi mengambang bawaan</string>
+    <string name="native_floating_navigation_sum">Aktifkan bilah bawah mengambang milik WhatsApp yang masih diluncurkan bertahap (Android 11+)</string>
+    <string name="native_floating_navigation_bg_color">Warna latar belakang</string>
+    <string name="native_floating_navigation_selection_color">Warna pilihan</string>
 </resources>

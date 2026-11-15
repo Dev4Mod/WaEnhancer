@@ -543,4 +543,8 @@
     <string name="restore_stickers_failed">Sticker konnten nicht wiederhergestellt werden: %s</string>
     <string name="restore_stickers_open_whatsapp">WhatsApp öffnen</string>
     <string name="select_whatsapp_app">WhatsApp-App auswählen</string>
+    <string name="native_floating_navigation">Native schwebende Navigation</string>
+    <string name="native_floating_navigation_sum">Aktiviert die eigene schwebende untere Leiste von WhatsApp, die noch eingeführt wird (Android 11+)</string>
+    <string name="native_floating_navigation_bg_color">Hintergrundfarbe</string>
+    <string name="native_floating_navigation_selection_color">Auswahlfarbe</string>
 </resources>

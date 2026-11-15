@@ -543,4 +543,8 @@
     <string name="restore_stickers_failed">فشل استعادة الملصقات: %s</string>
     <string name="restore_stickers_open_whatsapp">فتح واتساب</string>
     <string name="select_whatsapp_app">اختر تطبيق واتساب</string>
+    <string name="native_floating_navigation">شريط التنقل العائم الأصلي</string>
+    <string name="native_floating_navigation_sum">تفعيل شريط التنقل السفلي العائم الخاص بواتساب الذي لا يزال قيد الطرح (أندرويد 11+)</string>
+    <string name="native_floating_navigation_bg_color">لون الخلفية</string>
+    <string name="native_floating_navigation_selection_color">لون التحديد</string>
 </resources>

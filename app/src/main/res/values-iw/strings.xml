@@ -545,4 +545,8 @@
     <string name="restore_stickers_failed">שחזור המדבקות נכשל: %s</string>
     <string name="restore_stickers_open_whatsapp">פתיחת וואטסאפ</string>
     <string name="select_whatsapp_app">בחר אפליקציית WhatsApp</string>
+    <string name="native_floating_navigation">ניווט צף מקורי</string>
+    <string name="native_floating_navigation_sum">הפעלת סרגל הניווט התחתון הצף של וואטסאפ, שעדיין בהפצה (אנדרואיד 11+)</string>
+    <string name="native_floating_navigation_bg_color">צבע רקע</string>
+    <string name="native_floating_navigation_selection_color">צבע בחירה</string>
 </resources>

@@ -543,4 +543,8 @@
     <string name="restore_stickers_failed">恢复贴纸失败：%s</string>
     <string name="restore_stickers_open_whatsapp">打开 WhatsApp</string>
     <string name="select_whatsapp_app">选择 WhatsApp 应用</string>
+    <string name="native_floating_navigation">原生悬浮导航栏</string>
+    <string name="native_floating_navigation_sum">启用 WhatsApp 仍在逐步推出的原生悬浮底部导航栏（Android 11+）</string>
+    <string name="native_floating_navigation_bg_color">背景颜色</string>
+    <string name="native_floating_navigation_selection_color">选中颜色</string>
 </resources>

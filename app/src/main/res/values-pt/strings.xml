@@ -552,4 +552,8 @@
     <string name="restore_stickers_failed">Falha ao restaurar figurinhas: %s</string>
     <string name="restore_stickers_open_whatsapp">Abrir WhatsApp</string>
     <string name="select_whatsapp_app">Selecione o aplicativo WhatsApp</string>
+    <string name="native_floating_navigation">Navegação flutuante nativa</string>
+    <string name="native_floating_navigation_sum">Ativa a barra inferior flutuante do próprio WhatsApp, que ainda está sendo liberada (Android 11+)</string>
+    <string name="native_floating_navigation_bg_color">Cor de fundo</string>
+    <string name="native_floating_navigation_selection_color">Cor da seleção</string>
 </resources>

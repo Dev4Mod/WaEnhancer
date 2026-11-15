@@ -620,4 +620,8 @@
     <string name="restore_stickers_failed">Failed to restore stickers: %s</string>
     <string name="restore_stickers_open_whatsapp">Open WhatsApp</string>
     <string name="select_whatsapp_app">Select WhatsApp app</string>
+    <string name="native_floating_navigation">Native floating navigation</string>
+    <string name="native_floating_navigation_sum">Turn on WhatsApp\'s own floating bottom bar, which it is still rolling out (Android 11+)</string>
+    <string name="native_floating_navigation_bg_color">Background color</string>
+    <string name="native_floating_navigation_selection_color">Selection color</string>
 </resources>

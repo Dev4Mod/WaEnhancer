@@ -1040,6 +1040,11 @@ object FeatureCatalog {
             category, fragment, null, "menu", "icons"
         )
         add(
+            catalog, context, "native_floating_navigation", R.string.native_floating_navigation,
+            R.string.native_floating_navigation_sum, category, fragment, null,
+            "navigation", "bottom", "bar", "floating", "native"
+        )
+        add(
             catalog, context, "novaconfig", R.string.novaconfig, R.string.novaconfig_sum,
             category, fragment, null, "settings", "style", "profile"
         )

@@ -543,4 +543,8 @@
     <string name="restore_stickers_failed">Не удалось восстановить стикеры: %s</string>
     <string name="restore_stickers_open_whatsapp">Открыть WhatsApp</string>
     <string name="select_whatsapp_app">Выберите приложение WhatsApp</string>
+    <string name="native_floating_navigation">Нативная плавающая навигация</string>
+    <string name="native_floating_navigation_sum">Включает собственную плавающую нижнюю панель WhatsApp, которая ещё внедряется (Android 11+)</string>
+    <string name="native_floating_navigation_bg_color">Цвет фона</string>
+    <string name="native_floating_navigation_selection_color">Цвет выделения</string>
 </resources>
