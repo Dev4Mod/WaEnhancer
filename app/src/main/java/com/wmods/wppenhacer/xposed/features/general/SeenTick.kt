@@ -683,12 +683,15 @@ class SeenTick(
                 val rowsId = arrayOf(fMessage.rowId)
                 val messageId = fMessage.key.messageID
 
-                val participantInfo = pInfoConstructor.newInstance(
-                    userJid.userJid,
-                    participant,
-                    rowsId,
-                    arrayOf(messageId)
-                )
+                val known = arrayOf<Any?>(userJid.userJid, participant, rowsId, arrayOf(messageId))
+                val pInfoArgs = pInfoConstructor.parameterTypes.mapIndexed { i, type ->
+                    when {
+                        i < known.size -> known[i]
+                        type == Boolean::class.javaPrimitiveType -> false
+                        else -> null
+                    }
+                }.toTypedArray()
+                val participantInfo = pInfoConstructor.newInstance(*pInfoArgs)
                 val sendJob = ReflectionUtils.newInstance(sPlayedClass, participantInfo, false)
 
                 waJobManagerMethod?.invoke(mWaJobManager, sendJob)
