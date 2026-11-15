@@ -431,7 +431,7 @@ object Utils {
         val dataDir = application.filesDir.parentFile
         val sw = File(dataDir, "/app_account_switching/active_account")
         if (sw.exists()) {
-            val accountId = sw.readText().trim()
+            val accountId = runCatching { sw.readText().trim() }.getOrDefault("")
             if (accountId.isNotEmpty()) {
                 val accountDir = File(dataDir, "/accounts/$accountId")
                 if (accountDir.exists()) {
