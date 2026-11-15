@@ -2846,6 +2846,26 @@ object Unobfuscator {
                     paramCount(1)
                     addParamType(Any::class.java)
                 }
+            }.ifEmpty {
+                bridge.findMethod {
+                    matcher {
+                        usingNumbers(8726)
+                        paramCount = 1
+                        usingStrings(
+                            listOf("ContactPickerFragment/onContactsLoaded"),
+                            StringMatchType.Contains
+                        )
+                    }
+                }
+            }.ifEmpty {
+                bridge.findMethod {
+                    searchPackages("com.whatsapp.contact.ui.picker")
+                    matcher {
+                        declaredClass("com.whatsapp.contact.ui.picker.ContactPickerFragment")
+                        usingNumbers(8726)
+                        paramCount = 1
+                    }
+                }
             }
             if (methods.isEmpty()) return@getMethod null
             methods[0].getMethodInstance(classLoader)
@@ -3480,13 +3500,13 @@ object Unobfuscator {
         return UnobfuscatorCache.getInstance().getMethod(classLoader) {
             bridge.findMethod {
                 matcher {
-                    paramCount(3, 5)
+                    paramCount(3, 6)
                     returnType(Bitmap::class.java)
                     usingNumbers(0.70710678118)
                 }
             }.single {
                 val types = it.paramTypeNames
-                types.size in 3..5 &&
+                types.size in 3..6 &&
                         types.first() == Bitmap::class.java.name &&
                         types[1] == ColorFilter::class.java.name &&
                         types.last() == "float"
