@@ -19,6 +19,7 @@ import com.wmods.wppenhacer.xposed.utils.MimeTypeUtils
 import com.wmods.wppenhacer.xposed.utils.Utils
 import org.luckypray.dexkit.query.enums.StringMatchType
 import java.io.File
+import java.util.concurrent.CancellationException
 
 class StatusDownload(loader: ClassLoader, preferences: SharedPreferences) :
     Feature(loader, preferences) {
@@ -122,10 +123,33 @@ class StatusDownload(loader: ClassLoader, preferences: SharedPreferences) :
         }
     }
 
+    private fun resolveFile(statusItem: StatusItemWpp): File? {
+        statusItem.getMediaFile()?.takeIf { it.isFile && it.length() > 0 }?.let { return it }
+        if (!statusItem.isMediaFile) return null
+        val transfer = StatusMediaDownloader.Transfer()
+        val progress = StatusDownloadProgress(
+            WppCore.getCurrentActivity(),
+            transfer,
+            Utils.getString(R.string.download)
+        )
+        progress.show()
+        try {
+            return StatusMediaDownloader.download(statusItem, transfer, progress)
+        } finally {
+            progress.dismiss()
+        }
+    }
+
+    private fun releaseIfTemporary(file: File?) {
+        if (file != null && StatusMediaDownloader.isTemporary(file)) file.delete()
+    }
+
     private fun downloadFile(statusItem: StatusItemWpp) {
         Utils.executor.execute {
+            var resolved: File? = null
             try {
-                val file = statusItem.getMediaFile()
+                val file = resolveFile(statusItem)
+                resolved = file
                 if (file == null) {
                     Utils.showToast(
                         Utils.getString(R.string.download_not_available),
@@ -151,8 +175,11 @@ class StatusDownload(loader: ClassLoader, preferences: SharedPreferences) :
                         Toast.LENGTH_SHORT
                     )
                 }
+            } catch (_: CancellationException) {
             } catch (e: Throwable) {
                 Utils.showToast(e.message, Toast.LENGTH_SHORT)
+            } finally {
+                releaseIfTemporary(resolved)
             }
         }
     }
