@@ -93,9 +93,11 @@ class Channels(loader: ClassLoader, preferences: SharedPreferences) : Feature(lo
         }
 
         if (channels) {
-            WppCore.homeActivityClass.resolve().method {
+            WppCore.homeActivityClass.resolve().firstMethod {
                 name = "onPrepareOptionsMenu"
-            }.hookAll {
+                superclass()
+                parameters(Menu::class.java)
+            }.hook {
                 after {
                     val menu = args[0] as? Menu ?: return@after
                     val id = Utils.getID("menuitem_create_newsletter", "id")

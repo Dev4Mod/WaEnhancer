@@ -274,6 +274,12 @@ abstract class BasePreferenceFragment : PreferenceFragmentCompat(),
         val filtergroups = prefs.getBoolean("filtergroups", false)
         setPreferenceState("separategroups", !filtergroups)
 
+        val floatingBottomBar = prefs.getBoolean("floating_bottom_bar", false)
+        setPreferenceState("native_floating_navigation", !floatingBottomBar)
+
+        val nativeFloatingNavigation = prefs.getBoolean("native_floating_navigation", false)
+        setPreferenceState("floating_bottom_bar", !nativeFloatingNavigation)
+
         val callBlockContacts = findPreference<Preference>("call_block_contacts")
         val callWhiteContacts = findPreference<Preference>("call_white_contacts")
         if (callBlockContacts != null && callWhiteContacts != null) {

@@ -88,9 +88,9 @@ object FeatureCatalog {
             general, "general_home", "version", "check", "bypass"
         )
         add(
-            catalog, context, "bootloader_spoofer", R.string.bootloader_spoofer,
+            catalog, context, "bootloader_spoofer_custom", R.string.custom_keybox,
             R.string.bootloader_spoofer_sum, SearchableFeature.Category.GENERAL_HOME,
-            general, "general_home", "bootloader", "spoofer", "ban"
+            general, "general_home", "keybox", "bootloader", "spoofer", "ban"
         )
         add(
             catalog,
@@ -457,6 +457,11 @@ object FeatureCatalog {
             "alert"
         )
         add(
+            catalog, context, "restore_stickers", R.string.restore_stickers,
+            R.string.restore_stickers_sum, SearchableFeature.Category.GENERAL_CONVERSATION,
+            general, "conversation", "sticker", "restore", "favorites", "root"
+        )
+        add(
             catalog, context, "calltype", R.string.selection_of_call_type,
             R.string.selection_of_call_type_sum, SearchableFeature.Category.GENERAL_CONVERSATION,
             general, "conversation", "call", "type", "selection", "phone"
@@ -743,6 +748,19 @@ object FeatureCatalog {
             "blocking",
             "type"
         )
+        add(
+            catalog,
+            context,
+            "call_block_notification_enabled",
+            R.string.call_block_notification_enabled,
+            R.string.call_block_notification_enabled_sum,
+            category,
+            fragment,
+            null,
+            "call",
+            "blocked",
+            "notification"
+        )
     }
 
     private fun addMediaFeatures(
@@ -1022,6 +1040,11 @@ object FeatureCatalog {
             category, fragment, null, "menu", "icons"
         )
         add(
+            catalog, context, "native_floating_navigation", R.string.native_floating_navigation,
+            R.string.native_floating_navigation_sum, category, fragment, null,
+            "navigation", "bottom", "bar", "floating", "native"
+        )
+        add(
             catalog, context, "novaconfig", R.string.novaconfig, R.string.novaconfig_sum,
             category, fragment, null, "settings", "style", "profile"
         )
@@ -1037,6 +1060,20 @@ object FeatureCatalog {
             "instagram",
             "status",
             "ig"
+        )
+        add(
+            catalog,
+            context,
+            "native_igstatus",
+            R.string.native_igstatus,
+            R.string.native_igstatus_sum,
+            category,
+            fragment,
+            "igstatus",
+            "instagram",
+            "status",
+            "ig",
+            "native"
         )
         add(
             catalog, context, "channels", R.string.disable_channels, R.string.disable_channels_sum,

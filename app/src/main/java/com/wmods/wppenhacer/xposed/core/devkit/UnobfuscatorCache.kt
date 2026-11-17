@@ -7,6 +7,7 @@ import android.widget.Toast
 import com.google.devrel.gmscore.tools.apk.arsc.ArscUtils
 import com.wmods.wppenhacer.BuildConfig
 import com.wmods.wppenhacer.R
+import com.wmods.wppenhacer.xposed.core.PluginLoadingNotifier
 import com.wmods.wppenhacer.xposed.core.datastore.UnobfuscatorCacheDataStore
 import com.wmods.wppenhacer.xposed.utils.ReflectionUtils
 import com.wmods.wppenhacer.xposed.utils.Utils
@@ -241,7 +242,9 @@ class UnobfuscatorCache private constructor(private val mApplication: Applicatio
             cacheStore.getInt(NAMESPACE_HOOKS, "cache_schema", 0) != CACHE_SCHEMA_VERSION
 
         if (whatsappUpdated || moduleUpdated || moduleVersionChanged || schemaChanged) {
-            Utils.showToast(mApplication.getString(R.string.starting_cache), Toast.LENGTH_LONG)
+            if (!PluginLoadingNotifier.start()) {
+                Utils.showToast(mApplication.getString(R.string.starting_cache), Toast.LENGTH_LONG)
+            }
             clearCache()
             cacheStore.putLong(NAMESPACE_HOOKS, "version", currentVersion)
             cacheStore.putLong(NAMESPACE_HOOKS, "updateTime", lastUpdateTime)

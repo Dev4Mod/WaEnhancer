@@ -13,7 +13,6 @@ class AntiWa(classLoader: ClassLoader, preferences: SharedPreferences) :
     Feature(classLoader, preferences) {
 
     override fun doHook() {
-        if (!xprefs.getBoolean("bootloader_spoofer", false)) return
         val rootDetector = loadRootDetector(classLoader)
         for (detector in rootDetector) {
             detector.hook {
@@ -57,6 +56,6 @@ class AntiWa(classLoader: ClassLoader, preferences: SharedPreferences) :
     }
 
     override fun getPluginName(): String {
-        return "AntiDetector"
+        return "AntiWA"
     }
 }

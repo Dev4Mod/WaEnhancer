@@ -88,11 +88,7 @@ class SeparateGroup(loader: ClassLoader, preferences: SharedPreferences) :
     }
 
     override fun doHook() {
-        val bottomNavigationViewCls = Unobfuscator.findFirstClassUsingName(
-            classLoader,
-            StringMatchType.EndsWith,
-            ".BottomNavigationView"
-        )
+        val bottomNavigationViewCls = Unobfuscator.loadBottomNavigationViewClass(classLoader)
         bottomNavigationViewCls.resolve().firstMethod {
             name = "getMaxItemCount"
             superclass()
@@ -342,6 +338,10 @@ class SeparateGroup(loader: ClassLoader, preferences: SharedPreferences) :
         publishResultsMethod.hook {
             before {
                 val filters = args[1]
+                if (filters?.javaClass == publishResultsMethod.parameterTypes[1]) {
+                    result = null
+                    return@before
+                }
                 val chatsList = ReflectionUtils.getObjectField(filters, "values") as List<*>
                 val baseField = ReflectionUtils.getFieldByExtendType(
                     publishResultsMethod.declaringClass,

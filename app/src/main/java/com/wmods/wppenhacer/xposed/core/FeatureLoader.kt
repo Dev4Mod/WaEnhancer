@@ -72,6 +72,7 @@ object FeatureLoader : YukiBaseHooker() {
             YukiLog.log(e)
             errors.add(LoadError.from("MainFeatures[Critical]", versionName, e))
         } finally {
+            PluginLoadingNotifier.finish()
             Unobfuscator.releaseDexKitResources()
         }
         hookErrorDialog()
@@ -92,9 +93,9 @@ object FeatureLoader : YukiBaseHooker() {
         Feature.DEBUG = pref.getBoolean("enablelogs", true)
         Utils.xprefs = pref
 
-        if (pref.getBoolean("bootloader_spoofer", false)) {
+        if (pref.getBoolean("bootloader_spoofer_custom", false)) {
             HookBL.hook(this, loader, pref)
-            YukiLog.log("Bootloader Spoofer is Injected")
+            YukiLog.log("Custom KeyBox is Injected")
         }
 
         YukiLog.log(versionName)
@@ -240,19 +241,24 @@ object FeatureLoader : YukiBaseHooker() {
             Thread(runnable, "WAE-HookInstaller").apply { isDaemon = true }
         }
         val timings = Collections.synchronizedList(ArrayList<String>())
+        PluginLoadingNotifier.setTotal(FeatureRegistry.features.size)
 
         for (clazz in FeatureRegistry.features) {
             CompletableFuture.runAsync({
                 val startTime = System.currentTimeMillis()
+                var pluginName = clazz.simpleName
                 try {
                     val plugin = clazz
                         .getConstructor(ClassLoader::class.java, SharedPreferences::class.java)
                         .newInstance(loader, pref)
+                    pluginName = plugin.getPluginName()
                     loadHooker(plugin)
                     plugin.doHook()
                 } catch (e: Throwable) {
                     YukiLog.log(e)
                     errors.add(LoadError.from(clazz.simpleName, versionWpp, e))
+                } finally {
+                    PluginLoadingNotifier.onPluginLoaded(pluginName)
                 }
                 val duration = System.currentTimeMillis() - startTime
                 timings.add("* Loaded Plugin ${clazz.simpleName} in ${duration}ms")

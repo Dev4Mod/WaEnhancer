@@ -24,6 +24,7 @@ import android.util.TypedValue
 import android.widget.Toast
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
+import androidx.core.graphics.drawable.IconCompat
 import com.wmods.wppenhacer.App
 import com.wmods.wppenhacer.xposed.core.FeatureLoader
 import com.wmods.wppenhacer.xposed.core.WppCore.getClientBridge
@@ -388,6 +389,23 @@ object Utils {
     }
 
     @SuppressLint("MissingPermission")
+    fun showNotification(title: String, content: String, iconRes: Int) {
+        val context: Application = application
+        val notificationManager = NotificationManagerCompat.from(context)
+        val channel =
+            NotificationChannel("wppenhacer", "WAE Enhancer", NotificationManager.IMPORTANCE_HIGH)
+        notificationManager.createNotificationChannel(channel)
+        val icon = DesignUtils.drawableToBitmap(DesignUtils.getDrawable(iconRes))
+        val notification = NotificationCompat.Builder(context, "wppenhacer")
+            .setSmallIcon(IconCompat.createWithBitmap(icon))
+            .setContentTitle(title)
+            .setContentText(content)
+            .setAutoCancel(true)
+            .setStyle(NotificationCompat.BigTextStyle().bigText(content))
+        notificationManager.notify(Random().nextInt(), notification.build())
+    }
+
+    @SuppressLint("MissingPermission")
     fun showNotification(title: String?, content: String?) {
         val context: Application = application
         val notificationManager = NotificationManagerCompat.from(context)
@@ -413,7 +431,7 @@ object Utils {
         val dataDir = application.filesDir.parentFile
         val sw = File(dataDir, "/app_account_switching/active_account")
         if (sw.exists()) {
-            val accountId = sw.readText().trim()
+            val accountId = runCatching { sw.readText().trim() }.getOrDefault("")
             if (accountId.isNotEmpty()) {
                 val accountDir = File(dataDir, "/accounts/$accountId")
                 if (accountDir.exists()) {

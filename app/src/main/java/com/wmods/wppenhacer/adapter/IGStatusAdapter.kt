@@ -15,12 +15,13 @@ import android.util.TypedValue
 import android.view.Gravity
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ArrayAdapter
 import android.widget.FrameLayout
 import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.RelativeLayout
 import android.widget.TextView
+import androidx.recyclerview.widget.DiffUtil
+import androidx.recyclerview.widget.RecyclerView
 import com.wmods.wppenhacer.R
 import com.wmods.wppenhacer.views.dialog.TabDialogContent
 import com.wmods.wppenhacer.xposed.core.WppCore
@@ -31,7 +32,6 @@ import com.wmods.wppenhacer.xposed.core.components.WaContactWpp
 import com.wmods.wppenhacer.xposed.core.devkit.Unobfuscator.findFirstClassUsingName
 import com.wmods.wppenhacer.xposed.core.devkit.Unobfuscator.getClassByName
 import com.wmods.wppenhacer.xposed.core.devkit.UnobfuscatorCache.Companion.getInstance
-import com.wmods.wppenhacer.xposed.features.customization.IGStatus
 import com.wmods.wppenhacer.xposed.utils.DesignUtils.coloredDrawable
 import com.wmods.wppenhacer.xposed.utils.DesignUtils.generatePrimaryColorDrawable
 import com.wmods.wppenhacer.xposed.utils.DesignUtils.getDrawable
@@ -49,10 +49,12 @@ import com.wmods.wppenhacer.xposed.utils.Utils.showToast
 import com.wmods.wppenhacer.xposed.utils.YukiLog
 import org.luckypray.dexkit.query.enums.StringMatchType
 import java.lang.reflect.Method
+import androidx.core.graphics.drawable.toDrawable
 
 @Suppress("TYPE_MISMATCH_BASED_ON_JAVA_ANNOTATIONS")
-class IGStatusAdapter(context: Context, private val statusInfoClazz: Class<*>) :
-    ArrayAdapter<Any?>(context, 0) {
+class IGStatusAdapter(val context: Context, private val statusInfoClazz: Class<*>) :
+    RecyclerView.Adapter<IGStatusAdapter.IGStatusViewHolder>() {
+    private val items = ArrayList<Any?>()
     private var clazzImageStatus: Class<*> = findFirstClassUsingName(
         this.context.classLoader,
         StringMatchType.EndsWith,
@@ -60,31 +62,30 @@ class IGStatusAdapter(context: Context, private val statusInfoClazz: Class<*>) :
     )
     private val setCountStatus: Method?
 
-    override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {
-        var convertView = convertView
-        if (position >= IGStatus.itens.size) {
-            return convertView ?: View(context)
-        }
-        val item = IGStatus.itens[position]
-        val holder: IGStatusViewHolder
-        if (convertView == null) {
-            holder = IGStatusViewHolder()
-            convertView = createLayoutStatus(holder)
-            convertView.tag = holder
-        } else {
-            holder = convertView.tag as IGStatusViewHolder
-        }
+    fun submitList(newItems: List<Any?>) {
+        val result = DiffUtil.calculateDiff(StatusDiffCallback(items, newItems))
+        items.clear()
+        items.addAll(newItems)
+        result.dispatchUpdatesTo(this)
+    }
+
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): IGStatusViewHolder {
+        return createLayoutStatus()
+    }
+
+    override fun onBindViewHolder(holder: IGStatusViewHolder, position: Int) {
+        val item = items[position]
         if (item == null) {
             holder.setInfo("my_status")
-            holder.addButton!!.visibility = View.VISIBLE
+            holder.addButton.visibility = View.VISIBLE
         } else if (statusInfoClazz.isInstance(item)) {
             if (item is View) {
                 item.isClickable = false
             }
             holder.setInfo(item)
-            holder.addButton!!.visibility = View.GONE
+            holder.addButton.visibility = View.GONE
         }
-        convertView.setOnClickListener {
+        holder.itemView.setOnClickListener {
             if (holder.myStatus) {
                 val activity = getCurrentActivity()
                 val dialog = WppCore.createBottomDialog(activity!!)
@@ -173,8 +174,6 @@ class IGStatusAdapter(context: Context, private val statusInfoClazz: Class<*>) :
                 showToast(e.message, 1)
             }
         }
-
-        return convertView
     }
 
     init {
@@ -207,26 +206,27 @@ class IGStatusAdapter(context: Context, private val statusInfoClazz: Class<*>) :
         }
     }
 
-    override fun getCount(): Int {
-        return IGStatus.itens.size
-    }
+    override fun getItemCount(): Int = items.size
 
-    internal inner class IGStatusViewHolder {
-        var igStatusContactPhoto: ImageView? = null
-        var addButton: RelativeLayout? = null
-        var igStatusContactName: TextView? = null
+    inner class IGStatusViewHolder(
+        root: View,
+        private val igStatusContactPhoto: ImageView,
+        val addButton: RelativeLayout,
+        private val igStatusContactName: TextView
+    ) : RecyclerView.ViewHolder(root) {
         var myStatus: Boolean = false
         var userJid: UserJid? = null
 
         fun setInfo(item: Any?) {
             if (item == "my_status") {
                 myStatus = true
-                igStatusContactName!!.text = getInstance().getString("mystatus")
+                igStatusContactName.text = getInstance().getString("mystatus")
                 val photo = cachedPhoto(MY_PHOTO_KEY) { (getMyPhoto() as? BitmapDrawable)?.bitmap }
                 setPhoto(photo)
                 setCountStatus(0, 0)
                 return
             }
+            myStatus = false
             try {
                 val statusInfo =
                     ReflectionUtils.getObjectField(item, "A01").takeUnless { it is Number }
@@ -241,7 +241,7 @@ class IGStatusAdapter(context: Context, private val statusInfoClazz: Class<*>) :
                 this.userJid = UserJid(getObjectField(field, statusInfo))
                 val waContact = WaContactWpp.getWaContactFromJid(this.userJid!!)
                 val contactName = waContact!!.displayName
-                igStatusContactName!!.text = contactName
+                igStatusContactName.text = contactName
                 val jidKey = userJid!!.phoneRawString ?: userJid!!.userRawString
                 val loadPhoto = {
                     waContact.getProfilePhoto(false)?.use { BitmapFactory.decodeStream(it) }
@@ -256,8 +256,8 @@ class IGStatusAdapter(context: Context, private val statusInfoClazz: Class<*>) :
         }
 
         private fun setPhoto(photo: Bitmap?) {
-            igStatusContactPhoto!!.setImageDrawable(
-                photo?.let { BitmapDrawable(context.resources, it) }
+            igStatusContactPhoto.setImageDrawable(
+                photo?.toDrawable(context.resources)
                     ?: application.getDrawable(R.drawable.user_foreground)
             )
         }
@@ -274,7 +274,7 @@ class IGStatusAdapter(context: Context, private val statusInfoClazz: Class<*>) :
     }
 
     @SuppressLint("SetTextI18n")
-    private fun createLayoutStatus(holder: IGStatusViewHolder): RelativeLayout {
+    private fun createLayoutStatus(): IGStatusViewHolder {
         val relativeLayout = RelativeLayout(this.context)
         val relativeParams =
             RelativeLayout.LayoutParams(dipToPixels(86), ViewGroup.LayoutParams.WRAP_CONTENT)
@@ -318,8 +318,7 @@ class IGStatusAdapter(context: Context, private val statusInfoClazz: Class<*>) :
         )
         contactPhoto.scaleType = ImageView.ScaleType.CENTER_CROP
         contactPhoto.setImageDrawable(getDrawableByName("avatar_contact"))
-        holder.igStatusContactPhoto = contactPhoto
-        contactPhoto.isClickable = true
+        contactPhoto.isClickable = false
         ReflectionUtils.callMethod(contactPhoto, "setBorderSize", dipToPixels(2.5f).toFloat())
         ReflectionUtils.callMethod(contactPhoto, "setCornerRadius", dipToPixels(80f).toFloat())
         ReflectionUtils.setObjectField(contactPhoto, "A02", Color.GRAY)
@@ -345,7 +344,6 @@ class IGStatusAdapter(context: Context, private val statusInfoClazz: Class<*>) :
         iconImageView.setImageDrawable(coloredIcon ?: icon)
         iconImageView.setBackgroundColor(Color.TRANSPARENT)
         addBtnRelativeLayout.addView(iconImageView)
-        holder.addButton = addBtnRelativeLayout
 
 
         internalRelativeLayout.addView(contactPhoto)
@@ -364,11 +362,31 @@ class IGStatusAdapter(context: Context, private val statusInfoClazz: Class<*>) :
         contactName.setTextSize(TypedValue.COMPLEX_UNIT_SP, 12f)
         contactName.setTypeface(Typeface.DEFAULT_BOLD)
         contactName.maxLines = 1
-        holder.igStatusContactName = contactName
         linearLayout.addView(internalRelativeLayout)
         linearLayout.addView(contactName)
         frameLayout.addView(linearLayout)
         relativeLayout.addView(frameLayout)
-        return relativeLayout
+        return IGStatusViewHolder(relativeLayout, contactPhoto, addBtnRelativeLayout, contactName)
+    }
+
+    private class StatusDiffCallback(
+        private val oldItems: List<Any?>,
+        private val newItems: List<Any?>
+    ) : DiffUtil.Callback() {
+        override fun getOldListSize(): Int = oldItems.size
+
+        override fun getNewListSize(): Int = newItems.size
+
+        override fun areItemsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
+            val oldItem = oldItems[oldItemPosition]
+            val newItem = newItems[newItemPosition]
+            if (oldItem == null || newItem == null) return oldItem == null && newItem == null
+            // WhatsApp creates new objects on every update, but toString() includes the JID
+            return oldItem.toString() == newItem.toString()
+        }
+
+        override fun areContentsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
+            return oldItems[oldItemPosition] === newItems[newItemPosition]
+        }
     }
 }

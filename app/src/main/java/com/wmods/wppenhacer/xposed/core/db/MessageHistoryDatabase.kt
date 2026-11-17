@@ -13,7 +13,7 @@ import com.wmods.wppenhacer.xposed.core.db.entity.MessageEntity
 
 @Database(
     entities = [MessageEntity::class, HideSeenEntity::class, DeviceEntity::class],
-    version = 7,
+    version = 8,
     exportSchema = false
 )
 abstract class MessageHistoryDatabase : RoomDatabase() {
@@ -22,6 +22,14 @@ abstract class MessageHistoryDatabase : RoomDatabase() {
     abstract fun deviceDao(): DeviceDao
 
     companion object {
+        val MIGRATION_7_8 = object : Migration(7, 8) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL("ALTER TABLE hide_seen_messages ADD COLUMN userjid TEXT")
+                db.execSQL("CREATE INDEX IF NOT EXISTS idx_hide_seen_userjid_read ON hide_seen_messages (userjid, read)")
+                db.execSQL("CREATE INDEX IF NOT EXISTS idx_hide_seen_userjid_played ON hide_seen_messages (userjid, played)")
+            }
+        }
+
         val MIGRATION_6_7 = object : Migration(6, 7) {
             override fun migrate(db: SupportSQLiteDatabase) {
                 db.execSQL(

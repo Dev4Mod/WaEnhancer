@@ -1,13 +1,13 @@
-[IMPROVED]
-* Faster WhatsApp startup: DexKit is now opened only when needed and closed when idle
-* Smoother scrolling and tab switching, with less work done in the theme, custom view and resource hooks
-* IG Status no longer rebuilds the status header and reloads profile photos on every update, removing stutters when opening chats and switching tabs
-* Floating Bottom Bar no longer forces extra layout passes
-* The custom wallpaper now shows on the first Home frame
-* The module connection no longer opens a helper screen when the first attempt succeeds
+[NEW]
+* Added support for WhatsApp and WhatsApp Business 2.26.44.xx
+* Added the "Restore stickers" option (General > Conversation > Stickers), which copies every saved sticker back to Favorites. It requires root
+* Added the "Native floating navigation" option, which turns on WhatsApp's own floating bottom bar (Android 11+), with optional background and selection colors. It can't be used together with the module's "Floating Bottom Bar"
+* Statuses can now be downloaded even before WhatsApp has downloaded them, with a progress dialog that can be cancelled
+* A notification now shows the loading progress of the features while they are prepared after a WhatsApp or module update
 
 [FIXED]
-* Fixed Send Blue Tick sending hundreds of messages at once in chats with many hidden receipts;
-* Fixed Send Blue Tick retrying messages that could no longer be found every time a chat was opened
-* Fixed a crash in Locked Chats Enhancer on newer WhatsApp versions
-* Fixed Locked Chats Enhancer showing only locked contacts in the contact list instead of hiding them
+* Fixed "Remove sticker white outline" not loading on newer WhatsApp versions
+* Fixed the locked chats option not loading on newer WhatsApp versions
+* Fixed the blue tick for voice messages and other media not being sent on newer WhatsApp versions
+* Fixed WhatsApp sometimes crashing when filtering the chat list with "Separate Groups" or "Filter Groups" turned on
+* Fixed the custom theme and other features failing to load when WhatsApp can't read its active account file
