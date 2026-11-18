@@ -16,6 +16,7 @@ import android.util.TypedValue
 import android.view.View
 import android.view.ViewGroup
 import androidx.core.content.ContextCompat
+import androidx.core.graphics.ColorUtils
 import androidx.core.graphics.drawable.toDrawable
 import com.highcapable.kavaref.KavaRef.Companion.resolve
 import com.highcapable.yukihookapi.extension.kavaref.hook
@@ -43,8 +44,42 @@ class CustomThemeV2(loader: ClassLoader, preferences: SharedPreferences) :
 
     companion object {
         private const val FIELD_WALLPAPER_TOOLBAR = "wae_wallpaper_toolbar"
+        private const val ACCENT_MIN_LIGHTNESS = 0.30f
+        private const val ACCENT_MAX_LIGHTNESS = 0.52f
 
         @JvmStatic
+        private fun processPrimaryColors(color: String, mapColors: HashMap<String, String>) {
+            val primary = runCatching { IColors.parseColor(color) }.getOrNull() ?: return
+            val primaryHsl = FloatArray(3).also { ColorUtils.colorToHSL(primary, it) }
+
+            for (key in mapColors.keys.toList()) {
+                val normalizedKey = when {
+                    key.length == 9 && key.startsWith("#") -> key
+                    key.length == 7 && key.startsWith("#") -> "#ff" + key.substring(1)
+                    key.length == 6 -> "#ff$key"
+                    else -> continue
+                }
+                val original = runCatching { IColors.parseColor(normalizedKey) }.getOrNull() ?: continue
+                val originalHsl = FloatArray(3).also { ColorUtils.colorToHSL(original, it) }
+                val lightness = originalHsl[2]
+                val rgb = if (lightness in ACCENT_MIN_LIGHTNESS..ACCENT_MAX_LIGHTNESS) {
+                    primary
+                } else {
+                    ColorUtils.HSLToColor(floatArrayOf(primaryHsl[0], primaryHsl[1], lightness))
+                }
+                val value = mapColors[key]
+                val alpha = if (value != null && value.length == 9) {
+                    value.substring(1, 3).toIntOrNull(16) ?: 0xff
+                } else 0xff
+                val replaced = ColorUtils.setAlphaComponent(rgb, alpha)
+                mapColors[key] = if (key.length == 6) {
+                    String.format("%06x", replaced and 0xffffff)
+                } else {
+                    IColors.toString(replaced)
+                }
+            }
+        }
+
         private fun processColors(color: String, mapColors: HashMap<String, String>) {
             val inputColorFull: String = when (color.length) {
                 7 -> {
@@ -355,7 +390,7 @@ class CustomThemeV2(loader: ClassLoader, preferences: SharedPreferences) :
 
         if (changeColorEnabled || properties?.getProperty("change_colors") == "true") {
             if (primaryColor != "0" && DesignUtils.isValidColor(primaryColor)) {
-                processColors(primaryColor, IColors.primaryColors)
+                processPrimaryColors(primaryColor, IColors.primaryColors)
                 processColors(primaryColor, IColors.alphacolors)
             }
 
