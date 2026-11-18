@@ -9,6 +9,7 @@ import org.luckypray.dexkit.query.enums.StringMatchType
 import java.io.File
 import java.lang.reflect.Field
 import java.lang.reflect.Method
+import java.lang.reflect.Modifier
 import java.util.Date
 import java.util.Objects
 
@@ -120,7 +121,13 @@ class FMessageWpp(fMessage: Any?) {
     }
 
     val originalKey: Key by lazy {
-        Key(getOriginalMessageKey?.invoke(fmessage), this)
+        val method = getOriginalMessageKey
+        val originalKey = when {
+            method == null -> null
+            Modifier.isStatic(method.modifiers) -> method.invoke(null, fmessage)
+            else -> method.invoke(fmessage)
+        }
+        Key(originalKey, this)
     }
 
     val isBroadcast: Boolean
@@ -436,6 +443,18 @@ class FMessageWpp(fMessage: Any?) {
             raw.replaceFirst(DEVICE_SUFFIX_REGEX, "@")
         }
 
+        private val identity: String?
+            get() = userRawString ?: phoneRawString
+
+        override fun equals(other: Any?): Boolean {
+            if (this === other) return true
+            if (other !is UserJid) return false
+            val id = identity ?: return false
+            return id == other.identity
+        }
+
+        override fun hashCode(): Int = identity?.hashCode() ?: System.identityHashCode(this)
+
         val userRawString: String? by lazy {
             if (this.userJid == null) return@lazy null
             val raw =
@@ -453,7 +472,7 @@ class FMessageWpp(fMessage: Any?) {
                         return str.substring(0, str.indexOf("."))
                     } else if (str.contains("@g.us") || str.contains("@s.whatsapp.net") || str.contains(
                             "@broadcast"
-                        ) || str.contains("@lid")
+                        ) || str.contains("@lid") || str.contains("@newsletter")
                     ) {
                         return str.substring(0, str.indexOf("@"))
                     }
@@ -481,7 +500,7 @@ class FMessageWpp(fMessage: Any?) {
 
         val isNewsletter: Boolean
             get() {
-                return phoneRawString?.endsWith("@newsletter") ?: false
+                return phoneRawString?.endsWith("@newsletter") == true || userRawString?.endsWith("@newsletter") == true
             }
 
         val isBroadcast: Boolean

@@ -26,6 +26,7 @@ import com.wmods.wppenhacer.xposed.utils.YukiLog
 import org.luckypray.dexkit.query.FindClass
 import org.luckypray.dexkit.query.FindMethod
 import org.luckypray.dexkit.query.enums.StringMatchType
+import org.luckypray.dexkit.query.enums.UsingType
 import org.luckypray.dexkit.query.matchers.base.OpCodesMatcher
 import org.luckypray.dexkit.result.ClassData
 import org.luckypray.dexkit.result.ClassDataList
@@ -1335,8 +1336,31 @@ object Unobfuscator {
                 loader,
                 StringMatchType.Contains,
                 "FMessageUtil/getOriginalMessageKeyIfEdited"
-            )
-                ?: throw RuntimeException("MessageEdit method not found")
+            )?.let { return@getMethod it }
+
+            val fmessageClass = loadFMessageClass(loader)
+            val keyField = loadMessageKeyField(loader)
+            val keyClassName = keyField.type.name
+            bridge.findMethod {
+                matcher {
+                    modifiers = Modifier.STATIC
+                    paramTypes(fmessageClass.name)
+                    returnType = keyClassName
+                    addUsingField(DexSignUtil.getFieldDescriptor(keyField), UsingType.Read)
+                    addInvoke {
+                        declaredClass(fmessageClass.name)
+                        returnType = Boolean::class.java.name
+                        paramCount = 0
+                    }
+                }
+            }.firstOrNull { method ->
+                method.invokes.any { invoke ->
+                    invoke.isMethod && invoke.declaredClassName != fmessageClass.name &&
+                            invoke.paramTypeNames == listOf(fmessageClass.name) &&
+                            invoke.returnType?.fields?.any { it.typeName == keyClassName } == true
+                }
+            }?.getMethodInstance(loader)
+                ?: throw RuntimeException("OriginalMessageKey method not found")
         }
     }
 
