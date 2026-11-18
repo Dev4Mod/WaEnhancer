@@ -6,6 +6,7 @@ import com.wmods.wppenhacer.xposed.core.datastore.UnobfuscatorCacheDataStore
 import java.lang.reflect.Constructor
 import java.lang.reflect.Field
 import java.lang.reflect.Method
+import java.lang.reflect.Modifier
 import java.util.Arrays
 import java.util.Collections
 import java.util.WeakHashMap
@@ -23,6 +24,7 @@ object ReflectionUtils {
     private val bestMatchMethodCache = ConcurrentHashMap<BestMatchKey, Method>()
     private val namedFieldCache = ConcurrentHashMap<NamedFieldKey, Field>()
     private val missingNamedFieldCache = ConcurrentHashMap.newKeySet<NamedFieldKey>()
+    private val declaredTypedFieldsCache = ConcurrentHashMap<TypedFieldsKey, List<Field>>()
 
     @JvmStatic
     fun initCache(context: Context) {
@@ -161,6 +163,43 @@ object ReflectionUtils {
         }
     }
 
+
+    private data class TypedFieldsKey(
+        val clazz: Class<*>,
+        val type: Class<*>,
+        val assignable: Boolean,
+        val instanceOnly: Boolean
+    )
+
+    @JvmStatic
+    @JvmOverloads
+    fun getDeclaredFieldsByType(
+        cls: Class<*>,
+        type: Class<*>,
+        instanceOnly: Boolean = false
+    ): List<Field> = getDeclaredTypedFields(TypedFieldsKey(cls, type, false, instanceOnly))
+
+    @JvmStatic
+    @JvmOverloads
+    fun getDeclaredFieldsByExtendType(
+        cls: Class<*>,
+        type: Class<*>,
+        instanceOnly: Boolean = false
+    ): List<Field> = getDeclaredTypedFields(TypedFieldsKey(cls, type, true, instanceOnly))
+
+    private fun getDeclaredTypedFields(key: TypedFieldsKey): List<Field> {
+        declaredTypedFieldsCache[key]?.let { return it }
+        val fields = try {
+            key.clazz.declaredFields.filter { field ->
+                (!key.instanceOnly || !Modifier.isStatic(field.modifiers)) &&
+                        if (key.assignable) key.type.isAssignableFrom(field.type)
+                        else field.type == key.type
+            }.onEach { it.isAccessible = true }
+        } catch (_: LinkageError) {
+            emptyList()
+        }
+        return declaredTypedFieldsCache.putIfAbsent(key, fields) ?: fields
+    }
 
     @JvmStatic
     fun getFieldsByExtendType(cls: Class<*>, type: Class<*>?): List<Field> {

@@ -89,11 +89,10 @@ class CaptureDevice(classLoader: ClassLoader, xprefs: SharedPreferences) : Featu
 
         var currentClass: Class<*>? = firstArg.javaClass
         while (currentClass != null) {
-            val field = currentClass.declaredFields.firstOrNull { field ->
-                FMessageWpp.TYPE.isAssignableFrom(field.type)
-            }
+            val field = ReflectionUtils.getDeclaredFieldsByExtendType(
+                currentClass, FMessageWpp.TYPE
+            ).firstOrNull()
             if (field != null) {
-                field.isAccessible = true
                 return FMessageWpp(field.get(firstArg))
             }
             currentClass = currentClass.superclass

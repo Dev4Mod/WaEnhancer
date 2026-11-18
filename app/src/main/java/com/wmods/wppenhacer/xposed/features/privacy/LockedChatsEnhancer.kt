@@ -57,10 +57,10 @@ class LockedChatsEnhancer(classLoader: ClassLoader, preferences: SharedPreferenc
 
         loadedContacts!!.hook {
             before {
-                val listField = args[0]?.javaClass?.declaredFields?.firstOrNull {
-                    List::class.java.isAssignableFrom(it.type)
-                } ?: return@before
-                listField.isAccessible = true
+                val model = args[0] ?: return@before
+                val listField = ReflectionUtils.getDeclaredFieldsByExtendType(
+                    model.javaClass, List::class.java
+                ).firstOrNull() ?: return@before
                 val list = listField.get(args[0]) as? List<*> ?: return@before
                 val cache = chatCache ?: return@before
                 val lockedChats = lockedChatsField.get(cache) as? HashSet<*> ?: return@before
