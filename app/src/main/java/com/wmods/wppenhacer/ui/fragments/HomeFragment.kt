@@ -48,7 +48,9 @@ import java.net.UnknownHostException
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
+import java.util.concurrent.ConcurrentLinkedQueue
 import java.util.concurrent.TimeUnit
+import java.util.concurrent.atomic.AtomicBoolean
 
 class HomeFragment : BaseFragment() {
 
@@ -272,7 +274,7 @@ class HomeFragment : BaseFragment() {
         val formattedDate = dateFormat.format(Date())
         try {
             FilePicker.fileSalve.launch("wpp_enhacer_configs_$formattedDate.json")
-        } catch (e: ActivityNotFoundException) {
+        } catch (_: ActivityNotFoundException) {
             Toast.makeText(context, R.string.no_file_picker, Toast.LENGTH_LONG).show()
         }
     }
@@ -303,7 +305,7 @@ class HomeFragment : BaseFragment() {
         }
         val text = raw.toString()
         return when (type?.lowercase()) {
-            "boolean" -> if (raw is Boolean) raw else text.toBooleanStrictOrNull()
+            "boolean" -> raw as? Boolean ?: text.toBooleanStrictOrNull()
             "integer", "int" -> (raw as? Number)?.toInt() ?: text.toIntOrNull()
             "long" -> (raw as? Number)?.toLong() ?: text.toLongOrNull()
             "float", "double" -> (raw as? Number)?.toFloat() ?: text.toFloatOrNull()
@@ -361,7 +363,7 @@ class HomeFragment : BaseFragment() {
         }
         try {
             FilePicker.fileCapture.launch(arrayOf("application/json"))
-        } catch (e: ActivityNotFoundException) {
+        } catch (_: ActivityNotFoundException) {
             Toast.makeText(context, R.string.no_file_picker, Toast.LENGTH_LONG).show()
         }
     }
@@ -461,6 +463,7 @@ class HomeFragment : BaseFragment() {
         )
     }
 
+    @Suppress("SameParameterValue")
     private fun isInstalled(packageWpp: String): Boolean {
         return try {
             App.instance.packageManager.getPackageInfo(packageWpp, 0)
@@ -597,11 +600,12 @@ class HomeFragment : BaseFragment() {
             .show()
 
         val handler = Handler(Looper.getMainLooper())
-        val queue = ArrayList<RootDiagnostics.LogEntry>()
+        val queue = ConcurrentLinkedQueue<RootDiagnostics.LogEntry>()
+        val finished = AtomicBoolean(false)
 
         val hmaBlockMessage = getString(R.string.diag_hma_disable)
         val denylistBlockMessage = getString(R.string.diag_denylist_disable)
-        RootDiagnostics.runDiagnostics(context) { entry ->
+        RootDiagnostics.runDiagnostics(context, { entry ->
             if (!isAdded) return@runDiagnostics
             queue.add(entry)
             if (entry.message == hmaBlockMessage) {
@@ -609,7 +613,7 @@ class HomeFragment : BaseFragment() {
             } else if (entry.message == denylistBlockMessage) {
                 handler.post { dialogBinding.fixDenylistButton.visibility = View.VISIBLE }
             }
-        }
+        }) { finished.set(true) }
 
         dialogBinding.fixDenylistButton.setOnClickListener {
             MaterialAlertDialogBuilder(context)
@@ -641,10 +645,13 @@ class HomeFragment : BaseFragment() {
             override fun run() {
                 if (!isAdded || _binding == null || !dialog.isShowing) return
 
-                if (queue.isNotEmpty()) {
+                val entry = queue.poll()
+                if (entry != null) {
                     emptyCycles = 0
-                    logAdapter.add(queue.removeAt(0))
+                    logAdapter.add(entry)
                     dialogBinding.logRecycler.smoothScrollToPosition(logAdapter.itemCount - 1)
+                    handler.postDelayed(this, 120)
+                } else if (!finished.get()) {
                     handler.postDelayed(this, 120)
                 } else if (emptyCycles < 50) {
                     emptyCycles++
