@@ -2996,13 +2996,20 @@ object Unobfuscator {
     @JvmStatic
     fun loadSharedPreferencesClasses(classLoader: ClassLoader): Array<Class<*>>? {
         return UnobfuscatorCache.getInstance().getClasses(classLoader) {
-            val classesData = bridge.findClass {
-                matcher {
-                    addInterface(SharedPreferences::class.java.name)
+            val descendants = LinkedHashMap<String, ClassData>()
+            val pending = ArrayDeque(listOf(SharedPreferences::class.java.name))
+            while (pending.isNotEmpty()) {
+                val parent = pending.removeFirst()
+                val children = bridge.findClass {
+                    matcher { interfaces { add(parent) } }
+                } + bridge.findClass {
+                    matcher { superClass = parent }
                 }
+                children.filter { descendants.putIfAbsent(it.name, it) == null }
+                    .forEach { pending += it.name }
             }
-            if (classesData.isEmpty()) return@getClasses null
-            classesData.filter { !Modifier.isAbstract(it.modifiers) }
+            if (descendants.isEmpty()) return@getClasses null
+            descendants.values.filter { !Modifier.isAbstract(it.modifiers) }
                 .mapNotNull { classData -> convertRealClass(classData, classLoader) }
                 .toTypedArray()
         }
