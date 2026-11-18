@@ -193,7 +193,7 @@ class FileReaderPreference @JvmOverloads constructor(
         onPreferenceClickListener = this
 
         val savedXml = PreferenceManager.getDefaultSharedPreferences(context).getString(key, null)
-        if (savedXml != null) {
+        if (savedXml != null && savedXml.trim().removePrefix("\uFEFF").startsWith("<")) {
             xmlContent = savedXml
             summary = if (filePath != null) filePath else "XML content loaded"
         }

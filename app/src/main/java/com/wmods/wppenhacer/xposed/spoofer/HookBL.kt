@@ -386,8 +386,12 @@ object HookBL {
     }
 
     fun hook(packageParam: PackageParam, loader: ClassLoader, prefs: SharedPreferences) {
-        val xmlContent = prefs.getString("bootloader_spoofer_xml", "") ?: ""
+        val xmlContent = prefs.getString("bootloader_spoofer_xml", "")?.trim()?.removePrefix("\uFEFF") ?: ""
         if (xmlContent.isEmpty()) return
+        if (!xmlContent.startsWith("<")) {
+            YLog.warn("HookBL: bootloader_spoofer_xml does not hold keybox XML, select the keybox file again")
+            return
+        }
         try {
             parseBootloaderSpooferXml(xmlContent)
         } catch (t: Throwable) {
