@@ -34,6 +34,7 @@ import org.bouncycastle.asn1.x509.KeyUsage
 import org.bouncycastle.cert.X509CertificateHolder
 import org.bouncycastle.cert.jcajce.JcaX509CertificateConverter
 import org.bouncycastle.cert.jcajce.JcaX509v3CertificateBuilder
+import org.bouncycastle.asn1.pkcs.PrivateKeyInfo
 import org.bouncycastle.openssl.PEMKeyPair
 import org.bouncycastle.openssl.PEMParser
 import org.bouncycastle.openssl.jcajce.JcaPEMKeyConverter
@@ -44,6 +45,7 @@ import org.xml.sax.InputSource
 import java.io.StringReader
 import java.math.BigInteger
 import java.security.KeyPair
+import java.security.PublicKey
 import java.security.KeyPairGenerator
 import java.security.KeyStore
 import java.security.SecureRandom
@@ -63,10 +65,23 @@ object HookBL {
 
     @Throws(Throwable::class)
     private fun parseKeyPair(key: String): KeyPair {
-        val pemKeyPair = PEMParser(StringReader(key)).use { parser ->
-            parser.readObject() as PEMKeyPair
+        val converter = JcaPEMKeyConverter()
+        return when (val pemObject = PEMParser(StringReader(key)).use { it.readObject() }) {
+            is PEMKeyPair -> converter.getKeyPair(pemObject)
+            is PrivateKeyInfo -> KeyPair(null, converter.getPrivateKey(pemObject))
+            else -> throw IllegalArgumentException(
+                "Unsupported private key PEM: ${pemObject?.javaClass?.simpleName}"
+            )
         }
-        return JcaPEMKeyConverter().getKeyPair(pemKeyPair)
+    }
+
+    private fun KeyPair.withPublicKeyFrom(certs: List<Certificate>): KeyPair {
+        if (public != null) return this
+        val publicKey: PublicKey = certs.firstOrNull()?.publicKey
+            ?: throw IllegalArgumentException(
+                "PKCS#8 keybox key has no certificate to recover its public key from"
+            )
+        return KeyPair(publicKey, private)
     }
 
     @Throws(Throwable::class)
@@ -349,23 +364,21 @@ object HookBL {
                     val certificateNodes = certChainElement.getElementsByTagName("Certificate")
 
                     if ("ecdsa" == algorithm || "ec" == algorithm) {
-                        keyPair_EC = parseKeyPair(privateKeyContent)
                         certs_EC.clear()
-
                         for (j in 0 until certificateNodes.length) {
                             val certContent =
                                 certificateNodes.item(j).textContent.replace(Regex(" {2,}"), "")
                             certs_EC.add(parseCert(certContent))
                         }
+                        keyPair_EC = parseKeyPair(privateKeyContent).withPublicKeyFrom(certs_EC)
                     } else if ("rsa" == algorithm) {
-                        keyPair_RSA = parseKeyPair(privateKeyContent)
                         certs_RSA.clear()
-
                         for (j in 0 until certificateNodes.length) {
                             val certContent =
                                 certificateNodes.item(j).textContent.replace(Regex(" {2,}"), "")
                             certs_RSA.add(parseCert(certContent))
                         }
+                        keyPair_RSA = parseKeyPair(privateKeyContent).withPublicKeyFrom(certs_RSA)
                     }
                 }
             }
