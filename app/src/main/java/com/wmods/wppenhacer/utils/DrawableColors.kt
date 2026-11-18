@@ -27,14 +27,16 @@ object DrawableColors {
     private var materialShapeDrawableClass: Class<*>? = null
 
     @JvmStatic
-    fun replaceColor(drawable: Drawable?, colors: HashMap<String, String>) {
+    @JvmOverloads
+    fun replaceColor(drawable: Drawable?, colors: HashMap<String, String>, mutate: Boolean = false) {
+        if (drawable == null) return
+        if (mutate) drawable.mutate()
         when (drawable) {
-            null -> return
             is StateListDrawable -> {
                 val count = StateListDrawableCompact.getStateCount(drawable)
                 for (index in 0 until count) {
                     StateListDrawableCompact.getStateDrawable(drawable, index)
-                        ?.let { replaceColor(it, colors) }
+                        ?.let { replaceColor(it, colors, mutate) }
                 }
             }
 
@@ -49,7 +51,7 @@ object DrawableColors {
                 }
             }
 
-            is DrawableWrapper -> replaceColor(drawable.drawable, colors)
+            is DrawableWrapper -> replaceColor(drawable.drawable, colors, mutate)
             is NinePatchDrawable -> {
                 val color = getNinePatchDrawableColor(drawable)
                 val newColor = IColors.getFromIntColor(color, colors)
@@ -73,13 +75,13 @@ object DrawableColors {
                 for (index in 0 until count) {
                     val child =
                         ReflectionUtils.callMethod(drawable, "getDrawable", index) as? Drawable
-                    if (child != null) replaceColor(child, colors)
+                    if (child != null) replaceColor(child, colors, mutate)
                 }
             }
 
             is TransitionDrawable -> {
                 for (index in 0 until drawable.numberOfLayers) {
-                    drawable.getDrawable(index)?.let { replaceColor(it, colors) }
+                    drawable.getDrawable(index)?.let { replaceColor(it, colors, mutate) }
                 }
             }
 
@@ -90,7 +92,7 @@ object DrawableColors {
                     if (childState != null) {
                         val child =
                             ReflectionUtils.getObjectField(childState, "mDrawable") as? Drawable
-                        replaceColor(child, colors)
+                        replaceColor(child, colors, mutate)
                     }
                 }
             }
@@ -99,7 +101,7 @@ object DrawableColors {
                 val state = drawable.constantState!!
                 val children =
                     ReflectionUtils.getObjectField(state, "mDrawables") as Array<Drawable?>
-                children.forEach { replaceColor(it, colors) }
+                children.forEach { replaceColor(it, colors, mutate) }
             }
 
             else -> replaceMaterialShapeDrawable(drawable, colors)

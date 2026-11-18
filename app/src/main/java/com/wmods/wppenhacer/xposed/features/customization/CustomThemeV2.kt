@@ -233,7 +233,7 @@ class CustomThemeV2(loader: ClassLoader, preferences: SharedPreferences) :
             if (!colorsReady || checkNotHomeActivity()) return@onFrameLayoutMeasured
             val background = viewGroup.background
             val colors = navAlpha ?: return@onFrameLayoutMeasured
-            replaceColor(background, colors)
+            replaceColor(background, colors, true)
         }
     }
 
