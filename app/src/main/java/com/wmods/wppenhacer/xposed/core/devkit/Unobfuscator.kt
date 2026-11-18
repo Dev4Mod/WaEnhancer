@@ -3656,6 +3656,42 @@ object Unobfuscator {
         }
     }
 
+    fun loadStickerStyleConstructor(classLoader: ClassLoader): Constructor<*> {
+        return UnobfuscatorCache.getInstance().getConstructor(classLoader) {
+            val styleClass = findFirstClassUsingStrings(
+                classLoader,
+                StringMatchType.Contains,
+                "StickerStyle(isOutlineEnabled="
+            ) ?: throw RuntimeException("StickerStyle class not found")
+            styleClass.declaredConstructors.single { constructor ->
+                val types = constructor.parameterTypes
+                types.size == 5 &&
+                        types[0].isEnum &&
+                        types[1] == Int::class.javaPrimitiveType &&
+                        types.drop(2).all { it == Boolean::class.javaPrimitiveType }
+            }
+        }
+    }
+
+    fun loadStickerVideoFrameMethod(classLoader: ClassLoader): Method {
+        return UnobfuscatorCache.getInstance().getMethod(classLoader) {
+            bridge.findMethod {
+                matcher {
+                    returnType(Bitmap::class.java)
+                    paramTypes(
+                        Bitmap::class.java.name,
+                        Bitmap::class.java.name,
+                        Rect::class.java.name,
+                        Int::class.java.name,
+                        Int::class.java.name,
+                        Int::class.java.name,
+                        Boolean::class.java.name
+                    )
+                }
+            }.single().getMethodInstance(classLoader)
+        }
+    }
+
     private fun findSpanMethods(classLoader: ClassLoader, name: String, paramCount: Int): Array<Method> {
         val visited = linkedSetOf<String>()
         val methods = linkedSetOf<Method>()
