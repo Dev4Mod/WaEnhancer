@@ -19,7 +19,9 @@ import com.wmods.wppenhacer.provider.PrefsProvider
 import com.wmods.wppenhacer.xposed.core.FeatureLoader
 import com.wmods.wppenhacer.xposed.utils.ReflectionUtils
 import com.wmods.wppenhacer.xposed.utils.Utils
+import java.lang.reflect.Field
 import java.lang.reflect.Method
+import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.atomic.AtomicBoolean
 import java.util.concurrent.atomic.AtomicReference
 
@@ -29,6 +31,7 @@ object ScopeHook : YukiBaseHooker() {
 
     private val pmsRef = AtomicReference<Any?>(null)
     private val settingsHooked = AtomicBoolean(false)
+    private val packageNameAccessors = ConcurrentHashMap<Class<*>, (Any) -> String?>()
 
     @Volatile
     private var getPackagesForUidMethod: Method? = null
@@ -190,15 +193,38 @@ object ScopeHook : YukiBaseHooker() {
 
     private fun getPackageNameFromPackageSettings(packageSettings: Any?): String? {
         if (packageSettings == null) return null
-        runCatching {
-            return packageSettings.javaClass.getMethod("getPackageName")
-                .invoke(packageSettings) as? String
+        val accessor = packageNameAccessors.getOrPut(packageSettings.javaClass) {
+            resolvePackageNameAccessor(packageSettings.javaClass)
         }
-        for (fieldName in arrayOf("mName", "name")) {
-            runCatching {
-                return ReflectionUtils.getObjectField(packageSettings, fieldName) as? String
+        return runCatching { accessor(packageSettings) }.getOrNull()
+    }
+
+    private fun resolvePackageNameAccessor(clazz: Class<*>): (Any) -> String? {
+        runCatching { clazz.getMethod("getPackageName") }.getOrNull()?.let { method ->
+            method.isAccessible = true
+            return { method.invoke(it) as? String }
+        }
+        for (fieldName in arrayOf("name", "mName")) {
+            findFieldOrNull(clazz, fieldName)?.takeIf { it.type == String::class.java }?.let { field ->
+                return { field.get(it) as? String }
             }
         }
+        return ::parsePackageNameFromString
+    }
+
+    private fun findFieldOrNull(clazz: Class<*>, fieldName: String): Field? {
+        var current: Class<*>? = clazz
+        while (current != null) {
+            current.declaredFields.firstOrNull { it.name == fieldName }?.let {
+                it.isAccessible = true
+                return it
+            }
+            current = current.superclass
+        }
+        return null
+    }
+
+    private fun parsePackageNameFromString(packageSettings: Any): String? {
         val str = packageSettings.toString()
         val startIndex = str.lastIndexOf(' ') + 1
         val endIndex = str.lastIndexOf('/')
