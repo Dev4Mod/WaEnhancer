@@ -174,6 +174,7 @@ object Unobfuscator {
     ): Class<*> {
         return UnobfuscatorCache.getInstance().getClass(classLoader, name) {
             val result = bridge.findClass {
+                findFirst = type == StringMatchType.Equals
                 matcher {
                     className(name, type)
                 }
