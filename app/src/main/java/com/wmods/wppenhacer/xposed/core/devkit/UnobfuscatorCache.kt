@@ -380,9 +380,6 @@ class UnobfuscatorCache private constructor(private val mApplication: Applicatio
     // ==================== Strings ====================
 
     private fun initCacheStrings() {
-        if (cacheStore.getString(NAMESPACE_STRINGS, REVERSE_MAP_KEY, null) != null) {
-            cacheStore.remove(NAMESPACE_STRINGS, REVERSE_MAP_KEY)
-        }
         listOf(
             "mystatus",
             "online",
@@ -549,7 +546,6 @@ class UnobfuscatorCache private constructor(private val mApplication: Applicatio
         private const val NAMESPACE_REFLECTION = UnobfuscatorCacheDataStore.NAMESPACE_REFLECTION
         private const val CACHE_SCHEMA_VERSION = 3
         private const val NULL_SENTINEL = "__NULL__"
-        private const val REVERSE_MAP_KEY = "__reverse_map__"
         private const val REVERSE_MAP_FILE_NAME = "wae_reverse_strings.json"
 
         @Volatile
