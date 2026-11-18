@@ -170,14 +170,30 @@ object DrawableColors {
         val bitmap = ninePatch.bitmap
         ninePatchColors[bitmap]?.let { return it }
 
-        val colorCounts = HashMap<Int, Int>()
+        val width = bitmap.width
+        val height = bitmap.height
+        val pixels = IntArray(width * height)
+        bitmap.getPixels(pixels, 0, width, 0, 0, width, height)
+
+        var capacity = 16
+        while (capacity < pixels.size * 2) capacity = capacity shl 1
+        val mask = capacity - 1
+        val keys = IntArray(capacity)
+        val counts = IntArray(capacity)
         var mostFrequentColor = 0
         var maximumCount = 0
-        for (x in 0 until bitmap.width) {
-            for (y in 0 until bitmap.height) {
-                val color = bitmap.getPixel(x, y)
-                val count = (colorCounts[color] ?: 0) + 1
-                colorCounts[color] = count
+        for (x in 0 until width) {
+            for (y in 0 until height) {
+                val color = pixels[y * width + x]
+                var hash = color * -0x61c88647
+                hash = hash xor (hash ushr 16)
+                var index = hash and mask
+                while (counts[index] != 0 && keys[index] != color) {
+                    index = (index + 1) and mask
+                }
+                keys[index] = color
+                val count = counts[index] + 1
+                counts[index] = count
                 if (count > maximumCount) {
                     mostFrequentColor = color
                     maximumCount = count
