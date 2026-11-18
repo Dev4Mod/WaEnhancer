@@ -21,6 +21,8 @@ object ReflectionUtils {
     private var cacheStore: UnobfuscatorCacheDataStore? = null
 
     private val bestMatchMethodCache = ConcurrentHashMap<BestMatchKey, Method>()
+    private val namedFieldCache = ConcurrentHashMap<NamedFieldKey, Field>()
+    private val missingNamedFieldCache = ConcurrentHashMap.newKeySet<NamedFieldKey>()
 
     @JvmStatic
     fun initCache(context: Context) {
@@ -646,15 +648,25 @@ object ReflectionUtils {
         findFieldRecursive(klass, fieldName).setDouble(null, value)
     }
 
+    private data class NamedFieldKey(val clazz: Class<*>, val fieldName: String)
+
     private fun findFieldRecursive(clazz: Class<*>, fieldName: String): Field {
+        val key = NamedFieldKey(clazz, fieldName)
+        namedFieldCache[key]?.let { return it }
+        if (key in missingNamedFieldCache) {
+            throw NoSuchFieldException("Field $fieldName not found in ${clazz.name}")
+        }
         var current: Class<*>? = clazz
         while (current != null) {
             try {
-                return current.getDeclaredField(fieldName).apply { isAccessible = true }
+                val field = current.getDeclaredField(fieldName).apply { isAccessible = true }
+                namedFieldCache[key] = field
+                return field
             } catch (_: NoSuchFieldException) {
                 current = current.superclass
             }
         }
+        missingNamedFieldCache.add(key)
         throw NoSuchFieldException("Field $fieldName not found in ${clazz.name}")
     }
 
