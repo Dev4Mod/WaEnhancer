@@ -2838,6 +2838,120 @@ object Unobfuscator {
 
     @Throws(Exception::class)
     @JvmStatic
+    fun loadCallsHistoryBuildMethod(classLoader: ClassLoader): Method {
+        return UnobfuscatorCache.getInstance().getMethod(classLoader) {
+            val viewModelClass = findFirstClassUsingName(
+                classLoader,
+                StringMatchType.EndsWith,
+                "CallsHistoryFragmentViewModel"
+            )
+            val method = try {
+                viewModelClass.declaredMethods.firstOrNull { candidate ->
+                    Modifier.isStatic(candidate.modifiers) &&
+                            candidate.returnType == Void.TYPE &&
+                            candidate.parameterCount == 5 &&
+                            candidate.parameterTypes[0] == viewModelClass &&
+                            ArrayList::class.java.isAssignableFrom(candidate.parameterTypes[1]) &&
+                            LinkedHashMap::class.java.isAssignableFrom(candidate.parameterTypes[2]) &&
+                            List::class.java.isAssignableFrom(candidate.parameterTypes[3]) &&
+                            List::class.java.isAssignableFrom(candidate.parameterTypes[4])
+                }
+            } catch (_: LinkageError) {
+                null
+            }
+            method?.apply { isAccessible = true }
+                ?: throw NoSuchMethodException("Calls history build method not found")
+        }
+    }
+
+    @Throws(Exception::class)
+    @JvmStatic
+    fun loadStatusPlaybackNavigationMethod(loader: ClassLoader): Method {
+        return UnobfuscatorCache.getInstance().getMethod(loader) {
+            val activityClass = findFirstClassUsingName(
+                loader,
+                StringMatchType.EndsWith,
+                "StatusPlaybackActivity"
+            )
+            val navigationMethod = findFirstMethodUsingStrings(
+                loader,
+                StringMatchType.Contains,
+                "StatusPlaybackActivity/archive end-of-chain reached, finishing"
+            )?.takeIf { it.declaringClass == activityClass }
+                ?: try {
+                    activityClass.declaredMethods.firstOrNull { method ->
+                        !Modifier.isStatic(method.modifiers) &&
+                                method.returnType == Boolean::class.javaPrimitiveType &&
+                                method.parameterCount == 4 &&
+                                method.parameterTypes[0] == String::class.java &&
+                                method.parameterTypes[1] == Int::class.javaPrimitiveType &&
+                                method.parameterTypes[2] == Int::class.javaPrimitiveType &&
+                                method.parameterTypes[3] == Boolean::class.javaPrimitiveType
+                    }
+                } catch (_: LinkageError) {
+                    null
+                }
+            navigationMethod
+                ?: throw NoSuchMethodException("StatusPlayback navigation method not found")
+        }
+    }
+
+    @Throws(Exception::class)
+    @JvmStatic
+    fun loadStatusPlaybackCarouselField(loader: ClassLoader): Field {
+        return UnobfuscatorCache.getInstance().getField(loader) {
+            val activityClass = findFirstClassUsingName(
+                loader,
+                StringMatchType.EndsWith,
+                "StatusPlaybackActivity"
+            )
+            val navigationMethodData =
+                bridge.getMethodData(loadStatusPlaybackNavigationMethod(loader))
+                    ?: throw NoSuchFieldException("StatusPlayback navigation data not found")
+
+            for (usingField in navigationMethodData.usingFields) {
+                val fieldData = usingField.field
+                if (fieldData.declaredClassName != activityClass.name) continue
+                val field =
+                    runCatching { fieldData.getFieldInstance(loader) }.getOrNull() ?: continue
+                val typeFields = try {
+                    field.type.declaredFields
+                } catch (_: LinkageError) {
+                    emptyArray()
+                }
+                val hasList = typeFields.any { List::class.java.isAssignableFrom(it.type) }
+                val hasMap = typeFields.any { Map::class.java.isAssignableFrom(it.type) }
+                if (hasList && hasMap) return@getField field
+            }
+            throw NoSuchFieldException("StatusPlayback carousel field not found")
+        }
+    }
+
+    @JvmStatic
+    fun loadStatusPlaybackCarouselItemKeyMethod(loader: ClassLoader): Method? {
+        return runCatching {
+            UnobfuscatorCache.getInstance().getMethod(loader) {
+                val carouselClass = loadStatusPlaybackCarouselField(loader).type
+                val indexOfMethod = carouselClass.declaredMethods.firstOrNull {
+                    !Modifier.isStatic(it.modifiers) &&
+                            it.returnType == Int::class.javaPrimitiveType &&
+                            it.parameterTypes.contentEquals(arrayOf(String::class.java))
+                } ?: throw NoSuchMethodException("StatusPlayback carousel indexOf not found")
+                val methodData = bridge.getMethodData(indexOfMethod)
+                    ?: throw NoSuchMethodException("StatusPlayback carousel indexOf data not found")
+                methodData.invokes.firstNotNullOfOrNull { invoke ->
+                    if (invoke.paramTypeNames.isNotEmpty() ||
+                        invoke.returnTypeName != String::class.java.name
+                    ) return@firstNotNullOfOrNull null
+                    runCatching { invoke.getMethodInstance(loader) }.getOrNull()
+                        ?.takeIf { it.declaringClass.isInterface }
+                } ?: throw NoSuchMethodException("StatusPlayback carousel item key not found")
+            }
+        }.getOrNull()
+    }
+
+    @Throws(Exception::class)
+    @JvmStatic
     fun loadGetProfilePhotoMethod(classLoader: ClassLoader): Method {
         return UnobfuscatorCache.getInstance().getMethod(classLoader) {
             findFirstMethodUsingStrings(
