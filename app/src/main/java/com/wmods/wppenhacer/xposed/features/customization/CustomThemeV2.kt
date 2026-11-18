@@ -44,6 +44,7 @@ class CustomThemeV2(loader: ClassLoader, preferences: SharedPreferences) :
 
     companion object {
         private const val FIELD_WALLPAPER_TOOLBAR = "wae_wallpaper_toolbar"
+        private const val CONVERSATION_ALLOWED_COLOR = 0xff12181c.toInt()
         private const val ACCENT_MIN_LIGHTNESS = 0.30f
         private const val ACCENT_MAX_LIGHTNESS = 0.52f
 
@@ -522,14 +523,26 @@ class CustomThemeV2(loader: ClassLoader, preferences: SharedPreferences) :
     }
 
     private fun checkNotApplyColor(color: Int): Boolean {
-        val activity = WppCore.getCurrentActivity()
-        if (activity != null && isConversation(activity)
-            && ReflectionUtils.isCalledFromStrings("getValue")
-            && !ReflectionUtils.isCalledFromStrings("android.view")
-        ) {
-            return color != 0xff12181c.toInt()
+        if (color == CONVERSATION_ALLOWED_COLOR) return false
+        val activity = WppCore.getCurrentActivity() ?: return false
+        if (!isConversation(activity)) return false
+        return isGetValueOutsideViews()
+    }
+
+    private fun isGetValueOutsideViews(): Boolean {
+        val trace = Throwable().stackTrace
+        var fromGetValue = false
+        for (i in 2 until minOf(trace.size, 20)) {
+            val className = trace[i].className
+            val methodName = trace[i].methodName
+            if (className.contains("android.view") || methodName.contains("android.view")) {
+                return false
+            }
+            if (!fromGetValue && (className.contains("getValue") || methodName.contains("getValue"))) {
+                fromGetValue = true
+            }
         }
-        return false
+        return fromGetValue
     }
 
     override fun getPluginName(): String {

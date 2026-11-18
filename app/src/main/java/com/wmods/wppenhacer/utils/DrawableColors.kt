@@ -25,6 +25,17 @@ import com.wmods.wppenhacer.xposed.utils.YukiLog
 object DrawableColors {
     private val ninePatchColors = HashMap<Bitmap, Int>()
     private var materialShapeDrawableClass: Class<*>? = null
+    private var materialShapeDrawableLookupFailed = false
+    private val materialColorStateListFields by lazy {
+        val shapeClass = getMaterialShapeDrawable() ?: return@lazy emptyList()
+        ReflectionUtils.findAllFieldsUsingFilter(shapeClass) { field ->
+            field.type == ColorStateList::class.java
+        }.toList()
+    }
+    private val materialPaintFields by lazy {
+        val shapeClass = getMaterialShapeDrawable() ?: return@lazy emptyList()
+        ReflectionUtils.getFieldsByType(shapeClass, Paint::class.java)
+    }
 
     @JvmStatic
     @JvmOverloads
@@ -114,10 +125,7 @@ object DrawableColors {
 
         val state =
             ReflectionUtils.callMethod(drawable, "getConstantState") as Drawable.ConstantState
-        val colorFields = ReflectionUtils.findAllFieldsUsingFilter(shapeClass) { field ->
-            field.type == ColorStateList::class.java
-        }
-        colorFields.forEach { field ->
+        materialColorStateListFields.forEach { field ->
             val stateList =
                 ReflectionUtils.getObjectField(field, state) as? ColorStateList ?: return@forEach
             val color = stateList.defaultColor
@@ -127,8 +135,7 @@ object DrawableColors {
             }
         }
 
-        val paintFields = ReflectionUtils.getFieldsByType(shapeClass, Paint::class.java)
-        paintFields.forEach { field ->
+        materialPaintFields.forEach { field ->
             val paint = ReflectionUtils.getObjectField(field, drawable) as? Paint ?: return@forEach
             val color = paint.color
             val newColor = IColors.getFromIntColor(color, colors)
@@ -137,10 +144,11 @@ object DrawableColors {
     }
 
     private fun getMaterialShapeDrawable(): Class<*>? {
-        if (materialShapeDrawableClass == null) {
+        if (materialShapeDrawableClass == null && !materialShapeDrawableLookupFailed) {
             materialShapeDrawableClass = try {
                 Unobfuscator.loadMaterialShapeDrawableClass(Utils.application.classLoader)
             } catch (_: Exception) {
+                materialShapeDrawableLookupFailed = true
                 return null
             }
         }
