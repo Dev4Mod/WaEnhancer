@@ -53,10 +53,6 @@ object Unobfuscator {
 
     val cacheClasses = ConcurrentHashMap<String, Class<*>>()
 
-    init {
-        System.loadLibrary("dexkit")
-    }
-
     @JvmStatic
     fun initWithPath(path: String): Boolean {
         return try {

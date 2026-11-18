@@ -28,6 +28,8 @@ class UnobfuscatorCache private constructor(private val mApplication: Applicatio
 
     private val cacheStore = UnobfuscatorCacheDataStore.getInstance(mApplication)
     private val reverseResourceMap = ConcurrentHashMap<String, String>()
+    private val reverseResourceMapLock = Any()
+    private val reverseResourceMapFile = File(mApplication.filesDir, REVERSE_MAP_FILE_NAME)
 
     // One lock per key, so concurrent callers resolve a given key only once.
     private val keyLocks = ConcurrentHashMap<String, Any>()
@@ -252,6 +254,7 @@ class UnobfuscatorCache private constructor(private val mApplication: Applicatio
             cacheStore.putInt(NAMESPACE_HOOKS, "cache_schema", CACHE_SCHEMA_VERSION)
             if (whatsappUpdated) {
                 cacheStore.clearNamespace(NAMESPACE_STRINGS)
+                reverseResourceMapFile.delete()
             }
         }
     }
@@ -377,7 +380,9 @@ class UnobfuscatorCache private constructor(private val mApplication: Applicatio
     // ==================== Strings ====================
 
     private fun initCacheStrings() {
-        loadReverseResourceMapFromCache()
+        if (cacheStore.getString(NAMESPACE_STRINGS, REVERSE_MAP_KEY, null) != null) {
+            cacheStore.remove(NAMESPACE_STRINGS, REVERSE_MAP_KEY)
+        }
         listOf(
             "mystatus",
             "online",
@@ -390,8 +395,9 @@ class UnobfuscatorCache private constructor(private val mApplication: Applicatio
     }
 
     private fun loadReverseResourceMapFromCache(): Boolean {
-        val raw = cacheStore.getString(NAMESPACE_STRINGS, REVERSE_MAP_KEY, null) ?: return false
+        if (!reverseResourceMapFile.isFile) return false
         return try {
+            val raw = reverseResourceMapFile.readText()
             val json = JSONObject(raw)
             val keys = json.keys()
             while (keys.hasNext()) {
@@ -414,7 +420,13 @@ class UnobfuscatorCache private constructor(private val mApplication: Applicatio
             } catch (_: JSONException) {
             }
         }
-        cacheStore.putString(NAMESPACE_STRINGS, REVERSE_MAP_KEY, json.toString())
+        try {
+            val tmp = File(reverseResourceMapFile.path + ".tmp")
+            tmp.writeText(json.toString())
+            if (!tmp.renameTo(reverseResourceMapFile)) tmp.delete()
+        } catch (e: Exception) {
+            YukiLog.log(e)
+        }
     }
 
     private fun initializeReverseResourceMap() {
@@ -498,7 +510,11 @@ class UnobfuscatorCache private constructor(private val mApplication: Applicatio
 
     private fun getMapIdString(search: String): String? {
         if (reverseResourceMap.isEmpty()) {
-            initializeReverseResourceMap()
+            synchronized(reverseResourceMapLock) {
+                if (reverseResourceMap.isEmpty() && !loadReverseResourceMapFromCache()) {
+                    initializeReverseResourceMap()
+                }
+            }
         }
         return reverseResourceMap[search.lowercase(Locale.ROOT).replace("\\s".toRegex(), "")]
     }
@@ -534,6 +550,7 @@ class UnobfuscatorCache private constructor(private val mApplication: Applicatio
         private const val CACHE_SCHEMA_VERSION = 3
         private const val NULL_SENTINEL = "__NULL__"
         private const val REVERSE_MAP_KEY = "__reverse_map__"
+        private const val REVERSE_MAP_FILE_NAME = "wae_reverse_strings.json"
 
         @Volatile
         private var mInstance: UnobfuscatorCache? = null

@@ -79,6 +79,7 @@ class DexKitManager(private val apkPath: String) {
 
     private fun createBridge(): DexKitBridge {
         return try {
+            System.loadLibrary("dexkit")
             DexKitBridge.create(apkPath)
         } catch (e: Throwable) {
             throw RuntimeException("Failed to initialize DexKit bridge", e)
