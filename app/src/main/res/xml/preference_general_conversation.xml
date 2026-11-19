@@ -160,6 +160,11 @@
         app:summary="@string/remove_sticker_white_outline_sum"
         app:title="@string/remove_sticker_white_outline" />
 
+    <Preference
+        app:key="restore_stickers"
+        app:summary="@string/restore_stickers_sum"
+        app:title="@string/restore_stickers" />
+
     </PreferenceCategory>
 
     <rikka.material.preference.MaterialSwitchPreference

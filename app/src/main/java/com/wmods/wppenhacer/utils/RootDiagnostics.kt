@@ -18,8 +18,8 @@ object RootDiagnostics {
     private const val LSP_CONFIG_DB = "/data/adb/lspd/config/modules_config.db"
     private const val LSP_LOG_GLOB = "/data/adb/lspd/log/*.log"
 
-    private val SEPOLICY_PATTERN = Pattern.compile("(?i)sepolicy")
-    private val ISSUE_PATTERN = Pattern.compile("(?i)error|invalid|failed|not loaded properly")
+    private const val SEPOLICY_REGEX = "sepolicy"
+    private const val ISSUE_REGEX = "error|invalid|failed|not loaded properly"
     private val DENYLIST_LOG_PATTERN = Pattern.compile("\\[([^\\]]+)] is on the denylist")
 
     private val WHATSAPP_PACKAGES = listOf(
@@ -42,22 +42,26 @@ object RootDiagnostics {
         fun onLog(entry: LogEntry)
     }
 
-    fun runDiagnostics(context: Context, callback: Callback) {
-        Shell.getShell { shell ->
-            if (!shell.isRoot) {
-                callback.onLog(
-                    LogEntry(
-                        context.getString(R.string.diag_root_denied),
-                        LogType.ERROR
+    fun runDiagnostics(context: Context, callback: Callback, onComplete: (() -> Unit)? = null) {
+        Shell.EXECUTOR.execute {
+            try {
+                if (!Shell.getShell().isRoot) {
+                    callback.onLog(
+                        LogEntry(
+                            context.getString(R.string.diag_root_denied),
+                            LogType.ERROR
+                        )
                     )
-                )
-                return@getShell
-            }
-            callback.onLog(LogEntry(context.getString(R.string.diag_root_granted), LogType.SUCCESS))
+                    return@execute
+                }
+                callback.onLog(LogEntry(context.getString(R.string.diag_root_granted), LogType.SUCCESS))
 
-            checkSepolicy(context, callback)
-            checkMagiskDenylist(context, callback)
-            checkHideMyAppList(context, callback)
+                checkSepolicy(context, callback)
+                checkMagiskDenylist(context, callback)
+                checkHideMyAppList(context, callback)
+            } finally {
+                onComplete?.invoke()
+            }
         }
     }
 
@@ -240,8 +244,8 @@ object RootDiagnostics {
         callback.onLog(LogEntry(""))
         callback.onLog(LogEntry(context.getString(R.string.diag_sepolicy_checking)))
 
-        val result = Shell.cmd("cat $SEPOLICY_LOG_PATH").exec()
-        if (!result.isSuccess || result.out.isEmpty()) {
+        val logs = Shell.cmd("ls $SEPOLICY_LOG_PATH 2>/dev/null").exec()
+        if (!logs.isSuccess || logs.out.isEmpty()) {
             callback.onLog(
                 LogEntry(
                     context.getString(R.string.diag_sepolicy_not_found),
@@ -251,9 +255,9 @@ object RootDiagnostics {
             return
         }
 
-        val foundLine = result.out.find { line ->
-            SEPOLICY_PATTERN.matcher(line).find() && ISSUE_PATTERN.matcher(line).find()
-        }
+        val foundLine = Shell.cmd(
+            "grep -ihE '$SEPOLICY_REGEX' $SEPOLICY_LOG_PATH 2>/dev/null | grep -iE '$ISSUE_REGEX' | head -n 1"
+        ).exec().out.firstOrNull { it.isNotBlank() }
 
         if (foundLine == null) {
             callback.onLog(
@@ -298,7 +302,9 @@ object RootDiagnostics {
         callback.onLog(LogEntry(context.getString(R.string.diag_denylist_checking)))
 
         // Magisk only logs "[process] is on the denylist" when the DenyList is enforced
-        val logLines = Shell.cmd("cat $LSP_LOG_GLOB 2>/dev/null").exec().out.filter { line ->
+        val logLines = Shell.cmd(
+            "grep -hF 'is on the denylist' $LSP_LOG_GLOB 2>/dev/null | grep -F 'com.whatsapp' | tail -n 200"
+        ).exec().out.filter { line ->
             val matcher = DENYLIST_LOG_PATTERN.matcher(line)
             matcher.find() && matcher.group(1)!!.substringBefore(':') in installedTargets
         }

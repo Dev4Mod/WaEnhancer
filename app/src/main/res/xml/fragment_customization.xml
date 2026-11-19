@@ -198,6 +198,27 @@
             app:showSeekBarValue="true"
             app:title="@string/floating_bottom_bar_radius" />
 
+        <rikka.material.preference.MaterialSwitchPreference
+            app:key="native_floating_navigation"
+            app:summary="@string/native_floating_navigation_sum"
+            app:title="@string/native_floating_navigation" />
+
+        <com.wmods.wppenhacer.preference.FeatureColorPreferenceCompat
+            app:cpv_showAlphaSlider="true"
+            app:dependency="native_floating_navigation"
+            app:icon="@drawable/ic_customization_palette_24"
+            app:key="native_floating_navigation_bg_color"
+            app:summary="@string/default_color"
+            app:title="@string/native_floating_navigation_bg_color" />
+
+        <com.wmods.wppenhacer.preference.FeatureColorPreferenceCompat
+            app:cpv_showAlphaSlider="true"
+            app:dependency="native_floating_navigation"
+            app:icon="@drawable/ic_customization_palette_24"
+            app:key="native_floating_navigation_selection_color"
+            app:summary="@string/default_color"
+            app:title="@string/native_floating_navigation_selection_color" />
+
 
         <ListPreference
             android:defaultValue="0"
@@ -217,6 +238,12 @@
             app:key="igstatus"
             app:summary="@string/igstatus_on_home_screen_sum"
             app:title="@string/igstatus_on_home_screen" />
+
+        <rikka.material.preference.MaterialSwitchPreference
+            app:dependency="igstatus"
+            app:key="native_igstatus"
+            app:summary="@string/native_igstatus_sum"
+            app:title="@string/native_igstatus" />
 
         <rikka.material.preference.MaterialSwitchPreference
             app:key="channels"

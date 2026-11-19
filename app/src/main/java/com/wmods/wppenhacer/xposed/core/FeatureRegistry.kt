@@ -9,6 +9,7 @@ import com.wmods.wppenhacer.xposed.features.customization.CustomView
 import com.wmods.wppenhacer.xposed.features.customization.DefaultEmoji
 import com.wmods.wppenhacer.xposed.features.customization.FilterGroups
 import com.wmods.wppenhacer.xposed.features.customization.FloatingBottomBar
+import com.wmods.wppenhacer.xposed.features.customization.NativeFloatingNavigation
 import com.wmods.wppenhacer.xposed.features.customization.HideSeenView
 import com.wmods.wppenhacer.xposed.features.customization.HideTabs
 import com.wmods.wppenhacer.xposed.features.customization.IGStatus
@@ -87,6 +88,7 @@ internal object FeatureRegistry {
         ActivityController::class.java,
         CustomThemeV2::class.java,
         FloatingBottomBar::class.java,
+        NativeFloatingNavigation::class.java,
         ChatLimit::class.java,
         SeparateGroup::class.java,
         ShowOnline::class.java,

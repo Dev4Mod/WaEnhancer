@@ -176,11 +176,26 @@ class ContactVerify(loader: ClassLoader, preferences: SharedPreferences) :
     private fun checkContactPhotoProfile(userJid: FMessageWpp.UserJid) {
         try {
             val sendGetProfilePhoto = state.sendGetProfilePhoto ?: return
-            val params =
-                ReflectionUtils.initArray(sendGetProfilePhoto.constructors[0].parameterTypes)
-            params[2] = state.profilePhotoProtocol
-            params[3] = userJid.userJid
-            val runnable = sendGetProfilePhoto.constructors[0].newInstance(*params) as Runnable
+            val protocol = state.profilePhotoProtocol ?: return
+            val constructor = sendGetProfilePhoto.constructors[0]
+            val paramTypes = constructor.parameterTypes
+            val params = ReflectionUtils.initArray(paramTypes)
+            val protocolIndex = paramTypes.indexOfFirst { it.isInstance(protocol) }
+            val jidObj = listOf(userJid.userJid, userJid.phoneJid).firstOrNull { jid ->
+                jid != null && paramTypes.withIndex()
+                    .any { (index, type) -> index != protocolIndex && type.isInstance(jid) }
+            }
+            val jidIndex = paramTypes.withIndex().indexOfFirst { (index, type) ->
+                index != protocolIndex && type.isInstance(jidObj)
+            }
+            if (protocolIndex < 0 || jidObj == null || jidIndex < 0) {
+                throw NoSuchMethodException(
+                    "SendGetProfilePhoto constructor params not matched: ${paramTypes.contentToString()}"
+                )
+            }
+            params[protocolIndex] = protocol
+            params[jidIndex] = jidObj
+            val runnable = constructor.newInstance(*params) as Runnable
             state.pendingUserJid.set(userJid.userRawString)
             CompletableFuture.runAsync(runnable)
         } catch (e: Exception) {

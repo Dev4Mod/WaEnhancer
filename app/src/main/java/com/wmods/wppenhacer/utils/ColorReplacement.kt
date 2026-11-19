@@ -18,12 +18,12 @@ object ColorReplacement {
             is ImageView -> replaceImage(view, colorMap)
             is TextView -> replaceText(view, colorMap)
             is ViewGroup -> replaceGroup(view, colorMap)
-            is ViewStub -> DrawableColors.replaceColor(view.background, colorMap)
+            is ViewStub -> DrawableColors.replaceColor(view.background, colorMap, true)
         }
     }
 
     private fun replaceImage(view: ImageView, colors: HashMap<String, String>) {
-        DrawableColors.replaceColor(view.background, colors)
+        DrawableColors.replaceColor(view.background, colors, true)
         val colorFilter = view.colorFilter ?: return
         if (colorFilter is PorterDuffColorFilter) {
             val color = ReflectionUtils.callMethod(colorFilter, "getColor") as Int
@@ -43,7 +43,7 @@ object ColorReplacement {
         val stringColor = IColors.toString(view.currentTextColor)
         if (stringColor == "#ffffffff" && !DesignUtils.isNightMode()) return
 
-        DrawableColors.replaceColor(view.background, colors)
+        DrawableColors.replaceColor(view.background, colors, true)
         var newColor = colors[stringColor]
         if (newColor != null) {
             view.setTextColor(IColors.parseColor(newColor))
@@ -59,6 +59,6 @@ object ColorReplacement {
         for (index in 0 until view.childCount) {
             replaceColors(view.getChildAt(index), colors)
         }
-        DrawableColors.replaceColor(background, colors)
+        DrawableColors.replaceColor(background, colors, true)
     }
 }

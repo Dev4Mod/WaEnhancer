@@ -1,52 +1,57 @@
 package com.wmods.wppenhacer.xposed.core.datastore
 
 import android.content.Context
-import androidx.datastore.core.DataStore
-import androidx.datastore.core.handlers.ReplaceFileCorruptionHandler
-import androidx.datastore.preferences.core.PreferenceDataStoreFactory
-import androidx.datastore.preferences.core.Preferences
-import androidx.datastore.preferences.core.emptyPreferences
-import androidx.datastore.preferences.core.edit
-import androidx.datastore.preferences.core.stringPreferencesKey
-import androidx.datastore.preferences.preferencesDataStoreFile
 import com.highcapable.yukihookapi.hook.log.YLog
-import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.runBlocking
+import java.io.BufferedOutputStream
+import java.io.ByteArrayInputStream
+import java.io.DataInputStream
+import java.io.DataOutputStream
+import java.io.File
+import java.io.FileOutputStream
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.Executors
 
 class UnobfuscatorCacheDataStore private constructor(context: Context) {
 
     private val appContext = context.applicationContext
+    private val cacheFile = File(appContext.filesDir, CACHE_FILE_NAME)
     private val writeLock = Any()
     private val memoryCache = ConcurrentHashMap<String, String>()
 
     @Volatile
     private var loaded = false
 
-    // Writes are batched and flushed in order on a single background thread.
-    // Reads always go through memoryCache, which is updated synchronously.
-    private val pendingWrites = LinkedHashMap<String, String?>()
     private var flushScheduled = false
     private val writer = Executors.newSingleThreadExecutor { r ->
         Thread(r, "WAE-CacheWriter").apply { isDaemon = true }
     }
 
-    private val dataStore: DataStore<Preferences> = PreferenceDataStoreFactory.create(
-        corruptionHandler = ReplaceFileCorruptionHandler { emptyPreferences() },
-        produceFile = { appContext.preferencesDataStoreFile(DATASTORE_FILE_NAME) }
-    )
-
-    // Loads the whole store once, so later misses never hit the disk.
     private fun ensureLoaded() {
         if (loaded) return
         synchronized(writeLock) {
             if (loaded) return
-            val snapshot = runBlocking { dataStore.data.first() }
-            snapshot.asMap().forEach { (k, v) ->
-                if (v is String) memoryCache.putIfAbsent(k.name, v)
-            }
+            readCacheFile()
             loaded = true
+        }
+        writer.execute { deleteLegacyDataStore() }
+    }
+
+    private fun readCacheFile() {
+        if (!cacheFile.isFile) return
+        try {
+            DataInputStream(ByteArrayInputStream(cacheFile.readBytes())).use { input ->
+                if (input.readInt() != FILE_MAGIC || input.readInt() != FILE_VERSION) {
+                    YLog.warn("Unobfuscator cache file has an unknown format, starting empty")
+                    return
+                }
+                repeat(input.readInt()) {
+                    val key = input.readSizedString()
+                    memoryCache[key] = input.readSizedString()
+                }
+            }
+        } catch (e: Exception) {
+            YLog.error("Unobfuscator cache file is corrupt, starting empty", e)
+            memoryCache.clear()
         }
     }
 
@@ -67,22 +72,19 @@ class UnobfuscatorCacheDataStore private constructor(context: Context) {
         ensureLoaded()
         val namespacedKey = namespacedKey(namespace, key)
         synchronized(writeLock) {
-            if (value == null) memoryCache.remove(namespacedKey) else memoryCache[namespacedKey] = value
-            enqueue(namespacedKey, value)
+            if (value == null) memoryCache.remove(namespacedKey) else memoryCache[namespacedKey] =
+                value
+            scheduleFlushLocked()
         }
     }
 
-    // Must be called holding writeLock.
-    private fun enqueue(namespacedKey: String, value: String?) {
-        pendingWrites.remove(namespacedKey)
-        pendingWrites[namespacedKey] = value
+    private fun scheduleFlushLocked() {
         if (!flushScheduled) {
             flushScheduled = true
             writer.execute { flush() }
         }
     }
 
-    // Blocks until everything queued so far is on disk (e.g. before killing the process).
     fun flushBlocking() {
         try {
             writer.submit { flush() }.get()
@@ -92,24 +94,37 @@ class UnobfuscatorCacheDataStore private constructor(context: Context) {
     }
 
     private fun flush() {
-        val batch: Map<String, String?>
+        val snapshot: Map<String, String>
         synchronized(writeLock) {
-            batch = LinkedHashMap(pendingWrites)
-            pendingWrites.clear()
+            if (!flushScheduled) return
             flushScheduled = false
+            snapshot = HashMap(memoryCache)
         }
-        if (batch.isEmpty()) return
+        val tmpFile = File(cacheFile.path + ".tmp")
         try {
-            runBlocking {
-                dataStore.edit { preferences ->
-                    batch.forEach { (k, v) ->
-                        val datastoreKey = stringPreferencesKey(k)
-                        if (v == null) preferences.remove(datastoreKey) else preferences[datastoreKey] = v
-                    }
+            DataOutputStream(BufferedOutputStream(FileOutputStream(tmpFile))).use { output ->
+                output.writeInt(FILE_MAGIC)
+                output.writeInt(FILE_VERSION)
+                output.writeInt(snapshot.size)
+                for ((key, value) in snapshot) {
+                    output.writeSizedString(key)
+                    output.writeSizedString(value)
                 }
             }
+            if (!tmpFile.renameTo(cacheFile)) {
+                YLog.error("Failed to replace the unobfuscator cache file")
+                tmpFile.delete()
+            }
         } catch (e: Exception) {
-            YLog.error("Failed to persist cache batch", e)
+            YLog.error("Failed to persist the unobfuscator cache", e)
+            tmpFile.delete()
+        }
+    }
+
+    private fun deleteLegacyDataStore() {
+        val legacyFile = File(appContext.filesDir, LEGACY_DATASTORE_PATH)
+        if (legacyFile.exists() && !legacyFile.delete()) {
+            YLog.warn("Unable to delete the legacy unobfuscator DataStore file")
         }
     }
 
@@ -129,20 +144,16 @@ class UnobfuscatorCacheDataStore private constructor(context: Context) {
         ensureLoaded()
         val prefix = "$namespace::"
         synchronized(writeLock) {
-            memoryCache.keys.filter { it.startsWith(prefix) }.forEach { k ->
-                memoryCache.remove(k)
-                enqueue(k, null)
-            }
+            memoryCache.keys.removeAll { it.startsWith(prefix) }
+            scheduleFlushLocked()
         }
     }
 
     fun clearAll() {
         ensureLoaded()
         synchronized(writeLock) {
-            memoryCache.keys.toList().forEach { k ->
-                memoryCache.remove(k)
-                enqueue(k, null)
-            }
+            memoryCache.clear()
+            scheduleFlushLocked()
         }
     }
 
@@ -150,8 +161,23 @@ class UnobfuscatorCacheDataStore private constructor(context: Context) {
         return "$namespace::$key"
     }
 
+    private fun DataOutputStream.writeSizedString(value: String) {
+        val bytes = value.toByteArray(Charsets.UTF_8)
+        writeInt(bytes.size)
+        write(bytes)
+    }
+
+    private fun DataInputStream.readSizedString(): String {
+        val bytes = ByteArray(readInt())
+        readFully(bytes)
+        return String(bytes, Charsets.UTF_8)
+    }
+
     companion object {
-        private const val DATASTORE_FILE_NAME = "unobfuscator_cache"
+        private const val CACHE_FILE_NAME = "wae_unobfuscator_cache.bin"
+        private const val LEGACY_DATASTORE_PATH = "datastore/unobfuscator_cache.preferences_pb"
+        private const val FILE_MAGIC = 0x57414543
+        private const val FILE_VERSION = 1
         const val NAMESPACE_HOOKS = "hooks"
         const val NAMESPACE_STRINGS = "strings"
         const val NAMESPACE_REFLECTION = "reflection"

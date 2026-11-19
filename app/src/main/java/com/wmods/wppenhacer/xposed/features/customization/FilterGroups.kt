@@ -68,6 +68,10 @@ class FilterGroups(
         publishResultsMethod.hook {
             before {
                 val filters = args[1]
+                if (filters?.javaClass == publishResultsMethod.parameterTypes[1]) {
+                    result = null
+                    return@before
+                }
                 val chatsList = ReflectionUtils.getObjectField(filters, "values") as? List<*>
                 val resultList = filterList(chatsList)
 

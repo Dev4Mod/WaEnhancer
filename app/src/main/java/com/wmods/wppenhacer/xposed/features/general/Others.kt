@@ -70,6 +70,7 @@ class Others(loader: ClassLoader, preferences: SharedPreferences) : Feature(load
         val audioTranscription = xprefs.getBoolean("audio_transcription", false)
         val oldStatus = xprefs.getBoolean("oldstatus", false)
         val igstatus = xprefs.getBoolean("igstatus", false)
+        val nativeIgStatus = xprefs.getBoolean("native_igstatus", false)
         val animationEmojis = xprefs.getBoolean("animation_emojis", false)
         val disableDocumentScanner = xprefs.getBoolean("disable_document_scanner", false)
         val disableProfileStatus = xprefs.getBoolean("disable_profile_status", false)
@@ -77,6 +78,9 @@ class Others(loader: ClassLoader, preferences: SharedPreferences) : Feature(load
         val disableAd = xprefs.getBoolean("disable_ads", false)
 
         integers[3877] = if (oldStatus) (if (igstatus) 2 else 0) else 2
+
+        // WhatsApp's own status bar in the chats tab
+        booleans[25327] = igstatus && nativeIgStatus
 
         booleans[18250] = false
         // 11528 gates WhatsApp's "+" add custom list chip in the chat filter row.
@@ -88,9 +92,11 @@ class Others(loader: ClassLoader, preferences: SharedPreferences) : Feature(load
         booleans[16250] = false
 
         if (newSettings == 2) {
-            WppCore.homeActivityClass.resolve().method {
+            WppCore.homeActivityClass.resolve().firstMethod {
                 name = "onCreateOptionsMenu"
-            }.hookAll {
+                superclass()
+                parameters(Menu::class.java)
+            }.hook {
                 after {
                     val menu = args[0] as Menu
                     val menuItem = menu.findItem(Utils.getID("me_tab_menu_item", "id"))
@@ -189,11 +195,21 @@ class Others(loader: ClassLoader, preferences: SharedPreferences) : Feature(load
                 value
             }
 
-            integers[15535] = 0
+            booleans[7413] = false
             booleans[8025] = false
             booleans[6251] = false
             booleans[8026] = false
             booleans[14886] = false
+            booleans[16358] = false
+            booleans[17382] = false
+            booleans[11827] = false
+            booleans[10034] = false
+            booleans[12048] = false
+            booleans[13054] = false
+            booleans[14210] = false
+            booleans[12595] = false
+            booleans[12597] = false
+            integers[15535] = 0
         }
 
         if (audioTranscription) {

@@ -40,8 +40,8 @@ android {
         minSdk = 28
         //noinspection OldTargetApi
         targetSdk = 34
-        versionCode = 162
-        versionName = "1.6.2 ($gitHash)"
+        versionCode = 166
+        versionName = "1.6.6 ($gitHash)"
         multiDexEnabled = true
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
@@ -206,7 +206,6 @@ dependencies {
     implementation(libs.bcpkix.jdk18on)
     implementation(libs.arscblamer)
     implementation(libs.markwon.core)
-    implementation(libs.androidx.datastore.preferences)
 }
 
 

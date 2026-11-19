@@ -113,6 +113,8 @@
     <string name="about">About</string>
     <string name="igstatus_on_home_screen">Enable IGStatus on Home Screen</string>
     <string name="igstatus_on_home_screen_sum">Show status style Instagram in Home Screen</string>
+    <string name="native_igstatus">Native IGStatus</string>
+    <string name="native_igstatus_sum">Use WhatsApp\'s native status bar in the chats tab instead of the module\'s bar</string>
     <string name="chatfilter_no_search">No search</string>
     <string name="chatfilter_search_icon">Search icon</string>
     <string name="chatfilter_search_bar">Search bar</string>
@@ -311,6 +313,9 @@
     <string name="failed_save_directory">Unable to save files in this folder, select another location</string>
     <string name="unable_to_read_this_file">Unable to read this file</string>
     <string name="disabled">Disabled</string>
+    <string name="enabled">Enabled</string>
+    <string name="custom_privacy_default">Default</string>
+    <string name="custom_privacy_global_status">Global: %s</string>
     <string name="share_as_status">Share as Status</string>
     <string name="audio_transcription">Audio transcription</string>
     <string name="audio_transcription_sum">Enable native WhatsApp audio transcription (Check the connection menu for transcription options)</string>
@@ -403,7 +408,6 @@
     <string name="starting_cache">Starting hook cache in WhatsApp. This may take a while.</string>
     <string name="bridge_error">Bridge Failed: Enable System Framework in Lsposed and reboot device</string>
     <string name="disable_battery_optimization">Disable Battery Optimization</string>
-    <string name="bootloader_spoofer">Bootloader Spoofer</string>
     <string name="bootloader_spoofer_sum">Use this if you have been banned and are receiving the unofficial Whatsapp message</string>
     <string name="not_available">not available</string>
     <string name="select_all">Select All</string>
@@ -594,4 +598,37 @@
     <string name="messages_restored_success">Messages restored</string>
     <string name="hide_delivered_unknown">Hide Delivered for unknown numbers</string>
     <string name="hide_delivered_unknown_sum">Shows only one tick for numbers not saved in your contacts, as if the message hadn\'t arrived</string>
+    <string name="call_blocked_notification_title">Call Blocked</string>
+    <string name="call_blocked_source_global">Global Settings</string>
+    <string name="call_block_notification_enabled">Blocked call notification</string>
+    <string name="call_block_notification_enabled_sum">Show a notification when a call is blocked</string>
+    <string name="custom_keybox">Custom KeyBox</string>
+    <string name="custom_keybox_file">keybox.xml file</string>
+    <string name="custom_keybox_file_none">No file selected</string>
+    <string name="restore_stickers">Restore stickers</string>
+    <string name="restore_stickers_sum">Copy every saved sticker back to Favorites (requires root)</string>
+    <string name="restore_stickers_choose_account">Select account</string>
+    <string name="restore_stickers_main_account">Main account</string>
+    <string name="restore_stickers_account">Account %s</string>
+    <string name="restore_stickers_active">(active)</string>
+    <string name="restore_stickers_user_suffix">(user %d)</string>
+    <string name="restore_stickers_loading">Reading stickers database…</string>
+    <string name="restore_stickers_preview">%1$d stickers will be restored to Favorites.\n\nSaved stickers: %2$d\nAlready in Favorites: %3$d</string>
+    <string name="restore_stickers_warning">⚠️ Every sticker saved on this device will appear as a favorite, including stickers you never added to Favorites. WAE cannot undo this, you will have to remove them manually in WhatsApp.\n\nWhatsApp will be closed.</string>
+    <string name="restore_stickers_confirm">Restore</string>
+    <string name="restore_stickers_nothing">All saved stickers are already in Favorites.</string>
+    <string name="restore_stickers_success">%d stickers restored to Favorites.</string>
+    <string name="restore_stickers_no_root">Root access is required to restore stickers.</string>
+    <string name="restore_stickers_not_found">No WhatsApp sticker database was found.</string>
+    <string name="restore_stickers_failed">Failed to restore stickers: %s</string>
+    <string name="restore_stickers_open_whatsapp">Open WhatsApp</string>
+    <string name="select_whatsapp_app">Select WhatsApp app</string>
+    <string name="native_floating_navigation">Native floating navigation</string>
+    <string name="native_floating_navigation_sum">Turn on WhatsApp\'s own floating bottom bar, which it is still rolling out (Android 11+)</string>
+    <string name="native_floating_navigation_bg_color">Background color</string>
+    <string name="native_floating_navigation_selection_color">Selection color</string>
+    <string name="plugin_loading_title" translatable="false">WaEnhancer</string>
+    <string name="plugin_loading_starting">Preparing features after an update…</string>
+    <string name="plugin_loading_progress">Preparing features… %1$d/%2$d</string>
+    <string name="plugin_loading_channel">Feature loading</string>
 </resources>

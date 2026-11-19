@@ -25,16 +25,29 @@ import com.wmods.wppenhacer.xposed.utils.YukiLog
 object DrawableColors {
     private val ninePatchColors = HashMap<Bitmap, Int>()
     private var materialShapeDrawableClass: Class<*>? = null
+    private var materialShapeDrawableLookupFailed = false
+    private val materialColorStateListFields by lazy {
+        val shapeClass = getMaterialShapeDrawable() ?: return@lazy emptyList()
+        ReflectionUtils.findAllFieldsUsingFilter(shapeClass) { field ->
+            field.type == ColorStateList::class.java
+        }.toList()
+    }
+    private val materialPaintFields by lazy {
+        val shapeClass = getMaterialShapeDrawable() ?: return@lazy emptyList()
+        ReflectionUtils.getFieldsByType(shapeClass, Paint::class.java)
+    }
 
     @JvmStatic
-    fun replaceColor(drawable: Drawable?, colors: HashMap<String, String>) {
+    @JvmOverloads
+    fun replaceColor(drawable: Drawable?, colors: HashMap<String, String>, mutate: Boolean = false) {
+        if (drawable == null) return
+        if (mutate) drawable.mutate()
         when (drawable) {
-            null -> return
             is StateListDrawable -> {
                 val count = StateListDrawableCompact.getStateCount(drawable)
                 for (index in 0 until count) {
                     StateListDrawableCompact.getStateDrawable(drawable, index)
-                        ?.let { replaceColor(it, colors) }
+                        ?.let { replaceColor(it, colors, mutate) }
                 }
             }
 
@@ -49,7 +62,7 @@ object DrawableColors {
                 }
             }
 
-            is DrawableWrapper -> replaceColor(drawable.drawable, colors)
+            is DrawableWrapper -> replaceColor(drawable.drawable, colors, mutate)
             is NinePatchDrawable -> {
                 val color = getNinePatchDrawableColor(drawable)
                 val newColor = IColors.getFromIntColor(color, colors)
@@ -73,13 +86,13 @@ object DrawableColors {
                 for (index in 0 until count) {
                     val child =
                         ReflectionUtils.callMethod(drawable, "getDrawable", index) as? Drawable
-                    if (child != null) replaceColor(child, colors)
+                    if (child != null) replaceColor(child, colors, mutate)
                 }
             }
 
             is TransitionDrawable -> {
                 for (index in 0 until drawable.numberOfLayers) {
-                    drawable.getDrawable(index)?.let { replaceColor(it, colors) }
+                    drawable.getDrawable(index)?.let { replaceColor(it, colors, mutate) }
                 }
             }
 
@@ -90,7 +103,7 @@ object DrawableColors {
                     if (childState != null) {
                         val child =
                             ReflectionUtils.getObjectField(childState, "mDrawable") as? Drawable
-                        replaceColor(child, colors)
+                        replaceColor(child, colors, mutate)
                     }
                 }
             }
@@ -99,7 +112,7 @@ object DrawableColors {
                 val state = drawable.constantState!!
                 val children =
                     ReflectionUtils.getObjectField(state, "mDrawables") as Array<Drawable?>
-                children.forEach { replaceColor(it, colors) }
+                children.forEach { replaceColor(it, colors, mutate) }
             }
 
             else -> replaceMaterialShapeDrawable(drawable, colors)
@@ -112,10 +125,7 @@ object DrawableColors {
 
         val state =
             ReflectionUtils.callMethod(drawable, "getConstantState") as Drawable.ConstantState
-        val colorFields = ReflectionUtils.findAllFieldsUsingFilter(shapeClass) { field ->
-            field.type == ColorStateList::class.java
-        }
-        colorFields.forEach { field ->
+        materialColorStateListFields.forEach { field ->
             val stateList =
                 ReflectionUtils.getObjectField(field, state) as? ColorStateList ?: return@forEach
             val color = stateList.defaultColor
@@ -125,8 +135,7 @@ object DrawableColors {
             }
         }
 
-        val paintFields = ReflectionUtils.getFieldsByType(shapeClass, Paint::class.java)
-        paintFields.forEach { field ->
+        materialPaintFields.forEach { field ->
             val paint = ReflectionUtils.getObjectField(field, drawable) as? Paint ?: return@forEach
             val color = paint.color
             val newColor = IColors.getFromIntColor(color, colors)
@@ -135,10 +144,11 @@ object DrawableColors {
     }
 
     private fun getMaterialShapeDrawable(): Class<*>? {
-        if (materialShapeDrawableClass == null) {
+        if (materialShapeDrawableClass == null && !materialShapeDrawableLookupFailed) {
             materialShapeDrawableClass = try {
                 Unobfuscator.loadMaterialShapeDrawableClass(Utils.application.classLoader)
             } catch (_: Exception) {
+                materialShapeDrawableLookupFailed = true
                 return null
             }
         }
@@ -168,14 +178,30 @@ object DrawableColors {
         val bitmap = ninePatch.bitmap
         ninePatchColors[bitmap]?.let { return it }
 
-        val colorCounts = HashMap<Int, Int>()
+        val width = bitmap.width
+        val height = bitmap.height
+        val pixels = IntArray(width * height)
+        bitmap.getPixels(pixels, 0, width, 0, 0, width, height)
+
+        var capacity = 16
+        while (capacity < pixels.size * 2) capacity = capacity shl 1
+        val mask = capacity - 1
+        val keys = IntArray(capacity)
+        val counts = IntArray(capacity)
         var mostFrequentColor = 0
         var maximumCount = 0
-        for (x in 0 until bitmap.width) {
-            for (y in 0 until bitmap.height) {
-                val color = bitmap.getPixel(x, y)
-                val count = (colorCounts[color] ?: 0) + 1
-                colorCounts[color] = count
+        for (x in 0 until width) {
+            for (y in 0 until height) {
+                val color = pixels[y * width + x]
+                var hash = color * -0x61c88647
+                hash = hash xor (hash ushr 16)
+                var index = hash and mask
+                while (counts[index] != 0 && keys[index] != color) {
+                    index = (index + 1) and mask
+                }
+                keys[index] = color
+                val count = counts[index] + 1
+                counts[index] = count
                 if (count > maximumCount) {
                     mostFrequentColor = color
                     maximumCount = count

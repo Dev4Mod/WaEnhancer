@@ -11,6 +11,7 @@ import android.widget.AbsListView
 import android.widget.LinearLayout
 import android.widget.ListView
 import com.highcapable.kavaref.KavaRef.Companion.resolve
+import com.highcapable.yukihookapi.extension.kavaref.hook
 import com.highcapable.yukihookapi.extension.kavaref.hookAll
 import com.wmods.wppenhacer.adapter.IGStatusAdapter
 import com.wmods.wppenhacer.views.IGStatusView
@@ -50,6 +51,7 @@ class IGStatus(loader: ClassLoader, preferences: SharedPreferences) : Feature(lo
     @Throws(Throwable::class)
     override fun doHook() {
         if (!xprefs.getBoolean("igstatus", false)) return
+        if (xprefs.getBoolean("native_igstatus", false)) return
 
         forceStatusLoad()
 
@@ -94,6 +96,7 @@ class IGStatus(loader: ClassLoader, preferences: SharedPreferences) : Feature(lo
                 val igStatus = mListStatusContainer.find { it.fragmentId == id }
                 if (igStatus != null) {
                     mStatusContainer.adapter = igStatus.adapter
+                    igStatus.adapter = null
                     mListStatusContainer.remove(igStatus)
                 }
                 mStatusContainer.fragmentId = id
@@ -119,7 +122,7 @@ class IGStatus(loader: ClassLoader, preferences: SharedPreferences) : Feature(lo
                     if (mStatusContainer.adapter?.context !== activity) {
                         mStatusContainer.adapter = IGStatusAdapter(activity, statusInfoClass)
                     }
-                    mStatusContainer.updateList()
+                    mStatusContainer.updateList(itens)
                 }
             }
         }
@@ -136,7 +139,7 @@ class IGStatus(loader: ClassLoader, preferences: SharedPreferences) : Feature(lo
                 newList.addAll(lists[1])
                 itens = newList
                 for (mStatusContainer in mListStatusContainer) {
-                    mStatusContainer.updateList()
+                    mStatusContainer.updateList(itens)
                 }
             }
         }
@@ -162,7 +165,7 @@ class IGStatus(loader: ClassLoader, preferences: SharedPreferences) : Feature(lo
                 newList.addAll(list2)
                 itens = newList
                 for (mStatusContainer in mListStatusContainer) {
-                    mStatusContainer.updateList()
+                    mStatusContainer.updateList(itens)
                 }
             }
         }
@@ -199,10 +202,11 @@ class IGStatus(loader: ClassLoader, preferences: SharedPreferences) : Feature(lo
     }
 
     private fun keepAllTabsAlive(handler: Handler) {
-        WppCore.homeActivityClass.resolve().method {
+        WppCore.homeActivityClass.resolve().firstMethod {
             name = "onCreate"
-            parameters(Bundle::class)
-        }.hookAll {
+            superclass()
+            parameters(Bundle::class.java)
+        }.hook {
             after {
                 val activity = instance<Activity>()
                 var attempts = 0

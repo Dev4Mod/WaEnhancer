@@ -144,10 +144,14 @@ class WaContactWpp(instance: Any?) {
     val waName: String?
         get() {
             return try {
-                if (fieldContactData!!.type.isAssignableFrom(fieldGetWaName!!.declaringClass)) {
-                    return fieldGetWaName?.get(waContactData) as? String
+                if (fieldContactData?.type?.isAssignableFrom(
+                        fieldGetWaName?.declaringClass ?: Any::class.java
+                    ) == true
+                ) {
+                    waContactData?.let { fieldGetWaName?.get(it) } as? String
+                } else {
+                    fieldGetWaName?.get(mInstance) as? String
                 }
-                fieldGetWaName?.get(mInstance) as? String
             } catch (e: Exception) {
                 YukiLog.log(e)
                 null
