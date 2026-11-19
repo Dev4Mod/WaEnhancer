@@ -1,19 +1,16 @@
 package com.wmods.wppenhacer.xposed.features.customization
 
+import kotlin.math.roundToInt
+
 internal object MonetWallpaperColors {
-    // Keep the pattern's luminance differences, but anchor its hue and backdrop
-    // to the Monet surface. The alpha-only doodle texture remains unchanged.
-    fun colorMatrix(source: Int, surface: Int): FloatArray {
-        val red = 0.2126f
-        val green = 0.7152f
-        val blue = 0.0722f
-        val sourceLuminance = ((source ushr 16) and 255) * red +
-                ((source ushr 8) and 255) * green + (source and 255) * blue
-        return floatArrayOf(
-            red, green, blue, 0f, ((surface ushr 16) and 255) - sourceLuminance,
-            red, green, blue, 0f, ((surface ushr 8) and 255) - sourceLuminance,
-            red, green, blue, 0f, (surface and 255) - sourceLuminance,
-            0f, 0f, 0f, 1f, 0f
-        )
+    // Give the pattern an accent hue while keeping it quieter than chat bubbles.
+    // WhatsApp's alpha-only bitmap supplies the texture's original transparency.
+    fun doodleColor(surface: Int, accent: Int): Int {
+        fun channel(shift: Int): Int {
+            val background = (surface ushr shift) and 255
+            val foreground = (accent ushr shift) and 255
+            return (background + (foreground - background) * 0.18f).roundToInt()
+        }
+        return (0xff shl 24) or (channel(16) shl 16) or (channel(8) shl 8) or channel(0)
     }
 }

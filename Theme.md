@@ -17,7 +17,7 @@ chat bubbles automatically. No CSS or separate bubble-color toggle is needed. Bu
 dark system container tones to keep WhatsApp's message text readable. Explicit **Change Bubble Colors**
 settings take priority, followed by CSS with `bubble_colors = true`, then the automatic Monet palette.
 Stock chat backdrop colors and WhatsApp's default doodle wallpaper also use the Monet surface.
-The doodle pattern is preserved; selected photo wallpapers and custom wallpaper palettes are not tinted.
+Doodles use a muted Monet accent while preserving the pattern and its transparency; selected photo wallpapers and custom wallpaper palettes are not tinted.
 Contact and group info screens use a muted Monet neutral background and stateful accent colors for
 toggle thumbs and tracks. Off and disabled toggles retain distinct appearances and their saved states.
 Restart WhatsApp after changing theme preferences or the wallpaper palette.

@@ -8,8 +8,9 @@ import android.content.pm.PackageManager
 import android.content.res.AssetManager
 import android.content.res.ColorStateList
 import android.content.res.Resources
-import android.graphics.ColorMatrix
-import android.graphics.ColorMatrixColorFilter
+import android.graphics.BitmapShader
+import android.graphics.PorterDuff
+import android.graphics.PorterDuffColorFilter
 import android.graphics.Paint
 import android.graphics.drawable.Drawable
 import android.os.Bundle
@@ -372,17 +373,37 @@ class CustomThemeV2(loader: ClassLoader, preferences: SharedPreferences) :
         val backdrop = factory.returnType.declaredFields.single {
             it.type == Int::class.javaPrimitiveType && !java.lang.reflect.Modifier.isStatic(it.modifiers)
         }.apply { isAccessible = true }
+        val paintFields = ReflectionUtils.getFieldsByType(factory.returnType, Paint::class.java)
+        var reportedFailure = false
 
         factory.hook {
             after {
                 val drawable = result as? Drawable ?: return@after
-                val surface = resolveMonetColor(
-                    if (DesignUtils.isNightMode()) "system_neutral1_900" else "system_neutral1_10"
-                )
-                if (surface == 0) return@after
-                drawable.colorFilter = ColorMatrixColorFilter(
-                    ColorMatrix(MonetWallpaperColors.colorMatrix(backdrop.getInt(drawable), surface))
-                )
+                runCatching {
+                    val nightMode = DesignUtils.isNightMode()
+                    val surface = resolveMonetColor(
+                        if (nightMode) "system_neutral1_900" else "system_neutral1_10"
+                    )
+                    val accent = resolveMonetColor(
+                        if (nightMode) "system_accent1_300" else "system_accent1_600"
+                    )
+                    if (surface == 0 || accent == 0) return@after
+                    // Tint the alpha texture itself. A matrix over the composed
+                    // wallpaper can turn the doodles gray when resource hooks
+                    // have already replaced the drawable's backdrop with Monet.
+                    val patternPaint = paintFields.mapNotNull { it.get(drawable) as? Paint }
+                        .single { it.shader is BitmapShader }
+                    backdrop.setInt(drawable, surface)
+                    patternPaint.colorFilter = PorterDuffColorFilter(
+                        MonetWallpaperColors.doodleColor(surface, accent), PorterDuff.Mode.SRC_IN
+                    )
+                    drawable.invalidateSelf()
+                }.onFailure {
+                    if (!reportedFailure) {
+                        reportedFailure = true
+                        log("Default Monet wallpaper tint failed: $it")
+                    }
+                }
             }
         }
     }
