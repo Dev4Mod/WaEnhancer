@@ -292,6 +292,9 @@
     <string name="failed_save_directory">Dosyalar bu klasöre kaydedilemedi, başka bir konum seçin</string>
     <string name="unable_to_read_this_file">Bu dosya okunamıyor</string>
     <string name="disabled">Devre dışı</string>
+    <string name="enabled">Etkin</string>
+    <string name="custom_privacy_default">Varsayılan</string>
+    <string name="custom_privacy_global_status">Küresel: %s</string>
     <string name="share_as_status">Durum Olarak Paylaş</string>
     <string name="audio_transcription">Ses Transkripti</string>
     <string name="audio_transcription_sum">Yerel WhatsApp ses transkriptini etkinleştir (Transkript seçenekleri için bağlantı menüsünü kontrol edin)</string>

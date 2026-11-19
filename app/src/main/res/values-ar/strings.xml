@@ -292,6 +292,9 @@
     <string name="failed_save_directory">غير قادر على حفظ الملفات في هذا المجلد، حدد موقعا آخر</string>
     <string name="unable_to_read_this_file">تعذر قراءة هذا الملف</string>
     <string name="disabled">معطل</string>
+    <string name="enabled">ممكّن</string>
+    <string name="custom_privacy_default">افتراضي</string>
+    <string name="custom_privacy_global_status">عالمي: %s</string>
     <string name="share_as_status">المشاركة كحالة</string>
     <string name="audio_transcription">النسخ الصوتي</string>
     <string name="audio_transcription_sum">تمكين النسخ الصوتي الأصلي في واتساب (راجع قائمة الاتصال لمعرفة خيارات النسخ)</string>

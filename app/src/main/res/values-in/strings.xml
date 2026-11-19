@@ -299,6 +299,9 @@ Harap gunakan versi WhatsApp yang didukung!</string>
     <string name="failed_save_directory">Tidak dapat menyimpan file di folder ini, pilih direktori lain</string>
     <string name="unable_to_read_this_file">Tidak dapat membaca file ini</string>
     <string name="disabled">Nonaktif</string>
+    <string name="enabled">Diaktifkan</string>
+    <string name="custom_privacy_default">Bawaan</string>
+    <string name="custom_privacy_global_status">Global: %s</string>
     <string name="share_as_status">Bagikan status</string>
     <string name="audio_transcription">Transkripsi Audio</string>
     <string name="audio_transcription_sum">Aktifkan transkripsi audio Whatsapp asli (Periksa menu koneksi untuk opsi transkripsi)</string>

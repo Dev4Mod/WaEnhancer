@@ -292,6 +292,9 @@
     <string name="failed_save_directory">Не удается сохранить файлы в этой папке, выберите другое расположение</string>
     <string name="unable_to_read_this_file">Не удается прочитать этот файл</string>
     <string name="disabled">Отключено</string>
+    <string name="enabled">Включено</string>
+    <string name="custom_privacy_default">По умолчанию</string>
+    <string name="custom_privacy_global_status">Глобально: %s</string>
     <string name="share_as_status">Отправить как \"Статус\"</string>
     <string name="audio_transcription">Аудио транскрипция</string>
     <string name="audio_transcription_sum">Включить встроенный перевод аудио сообщения в текст (проверьте параметры транскрипции в меню подключения)</string>

@@ -292,6 +292,9 @@
     <string name="failed_save_directory">Impossible d\'enregistrer les fichiers dans ce dossier, sélectionnez un autre emplacement</string>
     <string name="unable_to_read_this_file">Impossible d\'enregistrer les fichiers dans ce dossier, sélectionnez un autre emplacement</string>
     <string name="disabled">Désactivé</string>
+    <string name="enabled">Activé</string>
+    <string name="custom_privacy_default">Par défaut</string>
+    <string name="custom_privacy_global_status">Global : %s</string>
     <string name="share_as_status">Partager en tant que statut</string>
     <string name="audio_transcription">Transcription audio</string>
     <string name="audio_transcription_sum">Activer la transcription audio native de WhatsApp (consultez le menu de connexion pour les options de transcription)</string>

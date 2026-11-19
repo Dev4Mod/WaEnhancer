@@ -293,6 +293,9 @@
     <string name="failed_save_directory">לא ניתן לשמור קבצים בתיקייה זו, בחר מיקום אחר</string>
     <string name="unable_to_read_this_file">לא ניתן לקרוא את הקובץ הזה</string>
     <string name="disabled">מושבת</string>
+    <string name="enabled">מופעל</string>
+    <string name="custom_privacy_default">ברירת מחדל</string>
+    <string name="custom_privacy_global_status">גלובלי: %s</string>
     <string name="share_as_status">שיתוף לסטטוס שלי</string>
     <string name="audio_transcription">תמלול אודיו</string>
     <string name="audio_transcription_sum">אפשר תמלול אודיו מקורי של ווצאפ (בדוק את תפריט החיבור לאפשרויות תמלול)</string>

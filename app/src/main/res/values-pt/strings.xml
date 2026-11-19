@@ -301,6 +301,9 @@
     <string name="failed_save_directory">Não é possível salvar os arquivos nesta pasta, selecione outro local.</string>
     <string name="unable_to_read_this_file">Não foi possível ler este arquivo</string>
     <string name="disabled">Desativado</string>
+    <string name="enabled">Ativado</string>
+    <string name="custom_privacy_default">Padrão</string>
+    <string name="custom_privacy_global_status">Global: %s</string>
     <string name="share_as_status">Repostar</string>
     <string name="audio_transcription">Transcrição de áudio</string>
     <string name="audio_transcription_sum">Ative a transcrição de áudio nativa do WhatsApp</string>

@@ -1,5 +1,6 @@
 package com.wmods.wppenhacer.xposed.features.privacy
 
+import android.R as AndroidR
 import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.SharedPreferences
@@ -8,12 +9,17 @@ import android.os.Handler
 import android.os.Looper
 import android.text.TextUtils
 import android.util.TypedValue
+import android.view.Gravity
 import android.view.Menu
 import android.view.View
 import android.view.ViewGroup
+import android.widget.AdapterView
+import android.widget.ArrayAdapter
 import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.ListView
+import android.widget.ScrollView
+import android.widget.Spinner
 import android.widget.TextView
 import android.widget.Toast
 import androidx.core.content.edit
@@ -45,6 +51,9 @@ class CustomPrivacy(
 
     companion object {
         private const val KEY_SUFFIX = "_privacy"
+        private const val STATE_DEFAULT = 0
+        private const val STATE_ENABLED = 1
+        private const val STATE_DISABLED = 2
 
         @JvmStatic
         fun getJSON(userJid: FMessageWpp.UserJid?): JSONObject {
@@ -396,32 +405,95 @@ class CustomPrivacy(
             "BlockCall"
         )
 
-        val checkedItems = loadPreferences(userJid, itemsKeys)
-
-        builder.setMultiChoiceItems(items, checkedItems) { _, which, isChecked ->
-            checkedItems[which] = isChecked
+        val json = getJSON(userJid)
+        val states = IntArray(itemsKeys.size) { i ->
+            when {
+                !json.has(itemsKeys[i]) -> STATE_DEFAULT
+                json.optBoolean(itemsKeys[i]) -> STATE_ENABLED
+                else -> STATE_DISABLED
+            }
         }
-        builder.setPositiveButton("OK") { _, _ ->
-            savePreferences(userJid, itemsKeys, checkedItems)
+
+        builder.setView(createOptionsView(activity, items, itemsKeys, states))
+        builder.setPositiveButton(activity.getString(R.string.save)) { _, _ ->
+            savePreferences(userJid, itemsKeys, states)
         }
         builder.setNegativeButton(activity.getString(R.string.cancel), null)
 
         return builder
     }
 
-    private fun loadPreferences(
-        userJid: FMessageWpp.UserJid,
-        itemsKeys: Array<String>
-    ): BooleanArray {
-        val checkedItems = BooleanArray(itemsKeys.size)
-        val json = getJSON(userJid)
+    private fun createOptionsView(
+        activity: Activity,
+        items: Array<String>,
+        itemsKeys: Array<String>,
+        states: IntArray
+    ): View {
+        val textColor = DesignUtils.getPrimaryTextColor()
+        val accentColor = DesignUtils.getUnSeenColor()
+        val labels = arrayOf(
+            activity.getString(R.string.custom_privacy_default),
+            activity.getString(R.string.enabled),
+            activity.getString(R.string.disabled)
+        )
 
-        for (i in itemsKeys.indices) {
-            val globalKey = getGlobalKey(itemsKeys[i])
-            checkedItems[i] = json.optBoolean(itemsKeys[i], getDefaultPreference(globalKey))
+        val content = LinearLayout(activity).apply {
+            orientation = LinearLayout.VERTICAL
+            setPadding(Utils.dipToPixels(20), Utils.dipToPixels(8), Utils.dipToPixels(20), 0)
         }
 
-        return checkedItems
+        for (i in itemsKeys.indices) {
+            val option = LinearLayout(activity).apply {
+                orientation = LinearLayout.HORIZONTAL
+                gravity = Gravity.CENTER_VERTICAL
+                setPadding(0, Utils.dipToPixels(10), 0, Utils.dipToPixels(10))
+            }
+
+            val texts = LinearLayout(activity).apply {
+                orientation = LinearLayout.VERTICAL
+                layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f)
+            }
+            option.addView(texts)
+
+            texts.addView(TextView(activity).apply {
+                text = items[i]
+                setTextSize(TypedValue.COMPLEX_UNIT_SP, 16f)
+                setTextColor(textColor)
+            })
+
+            val globalLabel = activity.getString(
+                if (getDefaultPreference(getGlobalKey(itemsKeys[i]))) R.string.enabled else R.string.disabled
+            )
+            texts.addView(TextView(activity).apply {
+                text = activity.getString(R.string.custom_privacy_global_status, globalLabel)
+                setTextSize(TypedValue.COMPLEX_UNIT_SP, 12f)
+                setTextColor(accentColor)
+            })
+
+            val spinner = Spinner(activity, Spinner.MODE_DROPDOWN).apply {
+                layoutParams = LinearLayout.LayoutParams(
+                    LinearLayout.LayoutParams.WRAP_CONTENT,
+                    LinearLayout.LayoutParams.WRAP_CONTENT
+                ).apply { marginStart = Utils.dipToPixels(12) }
+                adapter = ArrayAdapter(
+                    activity,
+                    AndroidR.layout.simple_spinner_item,
+                    labels
+                ).apply { setDropDownViewResource(AndroidR.layout.simple_spinner_dropdown_item) }
+                setSelection(states[i])
+                onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+                    override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
+                        states[i] = position
+                    }
+
+                    override fun onNothingSelected(parent: AdapterView<*>?) {}
+                }
+            }
+            option.addView(spinner)
+            content.addView(option)
+        }
+
+        return ScrollView(activity).apply { addView(content) }
     }
 
     private fun getGlobalKey(itemKey: String): String {
@@ -447,29 +519,22 @@ class CustomPrivacy(
     private fun savePreferences(
         userJid: FMessageWpp.UserJid,
         itemsKeys: Array<String>,
-        checkedItems: BooleanArray
+        states: IntArray
     ) {
         try {
             val id = storageId(userJid) ?: return
             val jsonObject = JSONObject()
 
             for (i in itemsKeys.indices) {
-                val globalKey = getGlobalKey(itemsKeys[i])
-
-                if (globalKey == "call_privacy") {
-                    if ((xprefs.getString(globalKey, "0") == "1") != checkedItems[i]) {
-                        jsonObject.put(itemsKeys[i], checkedItems[i])
-                    }
-                } else {
-                    if (xprefs.getBoolean(globalKey, false) != checkedItems[i]) {
-                        jsonObject.put(itemsKeys[i], checkedItems[i])
-                    }
+                when (states[i]) {
+                    STATE_ENABLED -> jsonObject.put(itemsKeys[i], true)
+                    STATE_DISABLED -> jsonObject.put(itemsKeys[i], false)
                 }
             }
 
             val key = id + KEY_SUFFIX
             WppCore.getPrivPrefs().edit(commit = true) {
-                putString(key, jsonObject.toString())
+                if (jsonObject.length() == 0) remove(key) else putString(key, jsonObject.toString())
                 legacyKeys(userJid).filter { it != key }.forEach { remove(it) }
             }
         } catch (e: Exception) {
