@@ -195,11 +195,21 @@ class Others(loader: ClassLoader, preferences: SharedPreferences) : Feature(load
                 value
             }
 
-            integers[15535] = 0
+            booleans[7413] = false
             booleans[8025] = false
             booleans[6251] = false
             booleans[8026] = false
             booleans[14886] = false
+            booleans[16358] = false
+            booleans[17382] = false
+            booleans[11827] = false
+            booleans[10034] = false
+            booleans[12048] = false
+            booleans[13054] = false
+            booleans[14210] = false
+            booleans[12595] = false
+            booleans[12597] = false
+            integers[15535] = 0
         }
 
         if (audioTranscription) {
