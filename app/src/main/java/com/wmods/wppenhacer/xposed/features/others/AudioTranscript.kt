@@ -27,6 +27,8 @@ class AudioTranscript(
     private val httpClient: OkHttpClient by lazy {
         OkHttpClient()
     }
+    
+    private val transcriptStore = mutableMapOf<String, String>()
 
     @Throws(Throwable::class)
     override fun doHook() {
@@ -57,7 +59,33 @@ class AudioTranscript(
                 )
             }
         }
+        
+        // Add copy transcript context menu action
+        installCopyTranscriptAction()
 
+    }
+    
+    private fun installCopyTranscriptAction() {
+        com.wmods.wppenhacer.xposed.features.providers.ContextMenuActionProvider.register { activity, _, message ->
+            val messageId = message.key.messageID ?: return@register null
+            
+            // Only show for voice messages (mediaType 2 = PTT/voice note)
+            if (message.mediaType != 2) return@register null
+            
+            val transcript = synchronized(transcriptStore) {
+                transcriptStore[messageId]
+            } ?: return@register null
+            
+            com.wmods.wppenhacer.xposed.features.providers.ContextMenuActionProvider.ContextMenuAction(
+                title = "Copy Transcript"
+            ) {
+                val clipboard = activity.getSystemService(android.content.Context.CLIPBOARD_SERVICE) 
+                    as? android.content.ClipboardManager
+                val clip = android.content.ClipData.newPlainText("Transcript", transcript)
+                clipboard?.setPrimaryClip(clip)
+                Utils.showToast("Transcript copied", Toast.LENGTH_SHORT)
+            }
+        }
     }
 
     @Throws(Throwable::class)
@@ -92,6 +120,22 @@ class AudioTranscript(
 
         val responseJson = transcribeAudio(file, provider)
         val transcript = responseJson.getString(JSON_TEXT)
+        
+        val finalTranscript = translateTranscriptIfEnabled(transcript, fmessage)
+        
+        // Store transcript for copy feature
+        val messageId = fmessage.key.messageID
+        if (messageId != null && finalTranscript.isNotBlank()) {
+            synchronized(transcriptStore) {
+                transcriptStore[messageId] = finalTranscript
+                // Keep store size manageable
+                if (transcriptStore.size > MAX_STORED_TRANSCRIPTS) {
+                    val oldestKey = transcriptStore.keys.first()
+                    transcriptStore.remove(oldestKey)
+                }
+            }
+        }
+        
         val segments = buildTranscriptionSegments(
             responseJson = responseJson,
             transcript = transcript,
@@ -103,7 +147,7 @@ class AudioTranscript(
             onComplete,
             callback,
             fmessageObj,
-            transcript,
+            finalTranscript,
             segments,
             TRANSCRIPTION_STATUS_SUCCESS
         )
@@ -111,6 +155,36 @@ class AudioTranscript(
         param.result = null
     }
 
+    private fun translateTranscriptIfEnabled(transcript: String, fmessage: FMessageWpp): String {
+        if (transcript.isBlank()) return transcript
+        
+        val translator = GoogleTranslate.getInstance() ?: return transcript
+        
+        try {
+            val prefs = com.wmods.wppenhacer.xposed.core.WppCore.getPrivPrefs()
+            val (chatId, config) = GoogleTranslateSettings.resolveForMessage(fmessage, prefs)
+            
+            if (!config.enabled || config.target.isBlank()) return transcript
+            
+            val result = translator.translateWithResult(
+                text = transcript,
+                languageSource = config.source,
+                languageDest = config.target,
+                bypassCache = false,
+                chatJid = chatId
+            ).get()
+            
+            val translated = result.text
+            if (!translated.isNullOrBlank() && translated != transcript) {
+                return "$transcript\n\nTranslation: $translated"
+            }
+        } catch (e: Exception) {
+            // Fall back to original on any failure
+        }
+        
+        return transcript
+    }
+    
     private fun getApiKey(provider: String): String {
         return when (provider) {
             PROVIDER_GROQ -> xprefs.getString(PREF_GROQ_API_KEY, "").orEmpty()
@@ -335,6 +409,7 @@ class AudioTranscript(
     )
 
     private companion object {
+        private const val MAX_STORED_TRANSCRIPTS = 100
         private const val PREF_AUDIO_TRANSCRIPTION = "audio_transcription"
         private const val PREF_TRANSCRIPTION_PROVIDER = "transcription_provider"
         private const val PREF_GROQ_API_KEY = "groq_api_key"
