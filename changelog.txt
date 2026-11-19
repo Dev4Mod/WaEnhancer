@@ -1,13 +1,18 @@
 [NEW]
-* Added support for WhatsApp and WhatsApp Business 2.26.44.xx
-* Added the "Restore stickers" option (General > Conversation > Stickers), which copies every saved sticker back to Favorites. It requires root
-* Added the "Native floating navigation" option, which turns on WhatsApp's own floating bottom bar (Android 11+), with optional background and selection colors. It can't be used together with the module's "Floating Bottom Bar"
-* Statuses can now be downloaded even before WhatsApp has downloaded them, with a progress dialog that can be cancelled
-* A notification now shows the loading progress of the features while they are prepared after a WhatsApp or module update
+* Added support for WhatsApp and WhatsApp Business 2.26.45.xx
+* Custom Privacy now uses a dropdown for each option (Default, Enabled, Disabled), showing the global state. Contacts are removed from the list when every option follows the global setting
+* Locked contacts are now hidden from the calls history, contact picker lists, status updates and status playback
+* "Remove sticker white outline" now also removes the outline from the sticker style and video frames
+* Disabling Meta AI now also turns off the remaining Meta AI features (search, voice, imagine, home tab, studio bots, assist and prompts)
+
+[IMPROVED]
+* Faster startup and lower CPU usage while WhatsApp is running
 
 [FIXED]
-* Fixed "Remove sticker white outline" not loading on newer WhatsApp versions
-* Fixed the locked chats option not loading on newer WhatsApp versions
-* Fixed the blue tick for voice messages and other media not being sent on newer WhatsApp versions
-* Fixed WhatsApp sometimes crashing when filtering the chat list with "Separate Groups" or "Filter Groups" turned on
-* Fixed the custom theme and other features failing to load when WhatsApp can't read its active account file
+* Fixed high CPU usage in system_server on Android 11/12
+* Fixed root diagnostics freezing the app and the log dialog stopping before the run finished
+* Fixed contact verification failing on newer WhatsApp versions
+* Fixed keyboxes with a PKCS#8 private key not loading, and empty keybox entries causing errors
+* Fixed the text of selected chips blending into their background with the custom theme
+* Fixed the Home wallpaper transparency leaking into screens opened over it
+* Fixed contact names and original message references not loading on newer WhatsApp versions
