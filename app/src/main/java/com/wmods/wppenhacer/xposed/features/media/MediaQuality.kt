@@ -28,13 +28,12 @@ class MediaQuality(loader: ClassLoader, preferences: SharedPreferences) :
         val imageQuality = xprefs.getBoolean("imagequality", false)
         val maxSize = kotlin.math.max(xprefs.getFloat("video_limit_size", 60f).toInt(), 90)
 
-        // Disable manual calculation ProcessMediaQuality
-        PropsHook.booleans[14447] = false
-
         // Enable Media Quality selection for Stories
         enableMediaQualityForStories()
 
         if (videoQuality) {
+            // Disable WhatsApp's manual video quality calculation only when HD video quality is enabled.
+            PropsHook.booleans[14447] = false
             PropsHook.booleans[5549] = true
 
             val processVideoQualityClass = Unobfuscator.loadProcessVideoQualityClass(classLoader)
