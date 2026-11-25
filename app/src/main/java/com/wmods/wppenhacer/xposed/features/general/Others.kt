@@ -44,6 +44,8 @@ import java.util.Collections
 import java.util.Properties
 import java.util.WeakHashMap
 import java.util.concurrent.CompletableFuture
+import java.util.concurrent.Executors
+import java.util.concurrent.TimeUnit
 import kotlin.math.max
 
 class Others(loader: ClassLoader, preferences: SharedPreferences) : Feature(loader, preferences) {
@@ -435,82 +437,175 @@ class Others(loader: ClassLoader, preferences: SharedPreferences) : Feature(load
         }
     }
 
+    private data class CallStatistics(
+        val ip: String?,
+        val platform: String?,
+        val version: String?
+    )
+
     private fun callInfo() {
         if (!xprefs.getBoolean("call_info", false)) return
+
+        // Serialize early notifications and final-statistics dispatch for each call.
+        val executor = Executors.newSingleThreadExecutor()
+        val notifiedCalls = LinkedHashSet<String>()
+
+        fun notifyCall(callInfo: Any?, statistics: CallStatistics? = null) {
+            if (callInfo == null) return
+            try {
+                val peer = ReflectionUtils.callMethod(callInfo, "getPeerJid") ?: return
+                val callId = runCatching {
+                    ReflectionUtils.callMethod(callInfo, "getCallId") as? String
+                }.getOrNull()?.takeIf { it.isNotBlank() }
+                // Without a stable ID, keep the original final-only behavior.
+                if (callId == null && statistics == null) return
+                val tag = callId?.let { "wae-call-info:$it" }
+                executor.execute {
+                    try {
+                        if (statistics == null && callId != null && callId in notifiedCalls) return@execute
+                        val userJid = FMessageWpp.UserJid(peer)
+                        if (userJid.isNull || userJid.isGroup) return@execute
+
+                        if (statistics == null) {
+                            showCallInformation(userJid, tag)
+                        } else {
+                            // The existing IP lookup must not delay early notifications for other calls.
+                            CompletableFuture.runAsync {
+                                try {
+                                    showCallInformation(userJid, tag, statistics)
+                                } catch (e: Exception) {
+                                    logDebug(e)
+                                }
+                            }
+                        }
+                        if (callId != null) {
+                            notifiedCalls.add(callId)
+                            if (notifiedCalls.size > 64) notifiedCalls.remove(notifiedCalls.first())
+                        }
+                    } catch (e: Exception) {
+                        logDebug(e)
+                    }
+                }
+            } catch (e: Exception) {
+                logDebug(e)
+            }
+        }
+
+        // The same UI callback is used by CallPrivacy for incoming calls.
+        runCatching {
+            Unobfuscator.loadAntiRevokeOnCallReceivedMethod(classLoader).hook {
+                after {
+                    runCatching {
+                        val callInfoClass = WppCore.voipCallInfoClass
+                        val callInfo = (args.firstOrNull() as? Message)?.obj
+                            ?: args.getOrNull(1)
+                        if (callInfoClass.isInstance(callInfo) &&
+                            ReflectionUtils.getObjectField(callInfo, "callState")
+                                ?.toString() == "RECEIVED_CALL"
+                        ) {
+                            notifyCall(callInfo)
+                        }
+                    }.onFailure { logDebug(it) }
+                }
+            }
+        }.onFailure { logDebug(it) }
 
         val clsCallEventCallback = Unobfuscator.findFirstClassUsingName(
             classLoader,
             StringMatchType.EndsWith,
             "VoiceServiceEventCallback"
         )
+
+        // CallRecording already uses this callback as its audio-setup signal.
+        runCatching {
+            clsCallEventCallback.resolve().method {
+                name = "soundPortCreated"
+            }.hookAll {
+                after {
+                    runCatching {
+                        notifyCall(ReflectionUtils.callMethod(instance, "getCallInfo"))
+                    }.onFailure { logDebug(it) }
+                }
+            }
+        }.onFailure { logDebug(it) }
+
+        // Keep the final WamCall statistics; these fields are not guaranteed at audio setup.
         val clsWamCall =
             Unobfuscator.findFirstClassUsingName(classLoader, StringMatchType.EndsWith, "WamCall")
-
         clsCallEventCallback.resolve().method {
             name = "fieldstatsReady"
         }.hookAll {
             before {
-                if (clsWamCall.isInstance(args[0])) {
+                val wamCall = args.firstOrNull()
+                if (!clsWamCall.isInstance(wamCall)) return@before
+                runCatching {
+                    fun statistic(name: String): String? = runCatching {
+                        ReflectionUtils.getObjectField(wamCall, name) as? String
+                    }.getOrNull()?.takeIf { it.isNotBlank() }
 
-                    val callinfo =
-                        ReflectionUtils.callMethod(instance, "getCallInfo") ?: return@before
-                    val userJid =
-                        FMessageWpp.UserJid(ReflectionUtils.callMethod(callinfo, "getPeerJid"))
-                    if (userJid.isNull) return@before
-                    CompletableFuture.runAsync {
-                        try {
-                            showCallInformation(args[0]!!, userJid)
-                        } catch (e: Exception) {
-                            logDebug(e)
-                        }
-                    }
-                }
+                    notifyCall(
+                        ReflectionUtils.callMethod(instance, "getCallInfo"),
+                        CallStatistics(
+                            statistic("callPeerIpStr"),
+                            statistic("callPeerPlatform"),
+                            statistic("callPeerAppVersion")
+                        )
+                    )
+                }.onFailure { logDebug(it) }
             }
         }
     }
 
-    private fun showCallInformation(wamCall: Any, userJid: FMessageWpp.UserJid) {
-        if (userJid.isGroup) return
+    private fun showCallInformation(
+        userJid: FMessageWpp.UserJid,
+        tag: String?,
+        statistics: CallStatistics? = null
+    ) {
         val sb = StringBuilder()
         val contact = WppCore.getContactName(userJid)
         val number = userJid.phoneNumber
         if (!TextUtils.isEmpty(contact))
             sb.append(String.format(Utils.application.getString(R.string.contact_s), contact))
                 .append("\n")
-        sb.append(String.format(Utils.application.getString(R.string.phone_number_s), number))
-            .append("\n")
+        if (!number.isNullOrBlank())
+            sb.append(String.format(Utils.application.getString(R.string.phone_number_s), number))
+                .append("\n")
 
-        val ip = ReflectionUtils.getObjectField(wamCall, "callPeerIpStr") as String?
-        if (ip != null) {
-            val client = OkHttpClient.Builder().build()
-            val url = "http://ip-api.com/json/$ip"
-            val request = Request.Builder().url(url).build()
-            val content = client.newCall(request).execute().body.string()
-            val json = JSONObject(content)
-            val country = json.getString("country")
-            val city = json.getString("city")
-            sb.append(String.format(Utils.application.getString(R.string.country_s), country))
-                .append("\n")
-                .append(String.format(Utils.application.getString(R.string.city_s), city))
-                .append("\n")
-                .append(String.format(Utils.application.getString(R.string.ip_s), ip)).append("\n")
+        statistics?.ip?.let { ip ->
+            sb.append(String.format(Utils.application.getString(R.string.ip_s), ip)).append("\n")
+            // Location enrichment remains final-only and cannot prevent the other fields appearing.
+            runCatching {
+                val client = OkHttpClient.Builder().callTimeout(5, TimeUnit.SECONDS).build()
+                val url = "http://ip-api.com/json/$ip"
+                val request = Request.Builder().url(url).build()
+                client.newCall(request).execute().use { response ->
+                    if (response.isSuccessful) {
+                        val json = JSONObject(response.body.string())
+                        val country = json.optString("country")
+                        val city = json.optString("city")
+                        if (country.isNotBlank())
+                            sb.append(String.format(Utils.application.getString(R.string.country_s), country))
+                                .append("\n")
+                        if (city.isNotBlank())
+                            sb.append(String.format(Utils.application.getString(R.string.city_s), city))
+                                .append("\n")
+                    }
+                }
+            }.onFailure { logDebug(it) }
         }
-        val platform = ReflectionUtils.getObjectField(wamCall, "callPeerPlatform") as String?
-        if (platform != null)
-            sb.append(String.format(Utils.application.getString(R.string.platform_s), platform))
+        statistics?.platform?.let {
+            sb.append(String.format(Utils.application.getString(R.string.platform_s), it))
                 .append("\n")
-        val wppVersion = ReflectionUtils.getObjectField(wamCall, "callPeerAppVersion") as String?
-        if (wppVersion != null)
-            sb.append(
-                String.format(
-                    Utils.application.getString(R.string.wpp_version_s),
-                    wppVersion
-                )
-            ).append("\n")
+        }
+        statistics?.version?.let {
+            sb.append(String.format(Utils.application.getString(R.string.wpp_version_s), it))
+                .append("\n")
+        }
 
         Utils.showNotification(
             Utils.application.getString(R.string.call_information),
-            sb.toString()
+            sb.toString().trimEnd(),
+            tag = tag
         )
     }
 

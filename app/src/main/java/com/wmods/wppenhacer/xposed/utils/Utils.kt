@@ -406,7 +406,7 @@ object Utils {
     }
 
     @SuppressLint("MissingPermission")
-    fun showNotification(title: String?, content: String?) {
+    fun showNotification(title: String?, content: String?, tag: String? = null) {
         val context: Application = application
         val notificationManager = NotificationManagerCompat.from(context)
         val channel =
@@ -417,8 +417,13 @@ object Utils {
             .setContentTitle(title)
             .setContentText(content)
             .setAutoCancel(true)
+            .setOnlyAlertOnce(tag != null)
             .setStyle(NotificationCompat.BigTextStyle().bigText(content))
-        notificationManager.notify(Random().nextInt(), notification.build())
+        if (tag == null) {
+            notificationManager.notify(Random().nextInt(), notification.build())
+        } else {
+            notificationManager.notify(tag, 0, notification.build())
+        }
     }
 
     @JvmStatic
