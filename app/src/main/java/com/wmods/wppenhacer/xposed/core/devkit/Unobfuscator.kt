@@ -481,10 +481,25 @@ object Unobfuscator {
                 "com.whatsapp.conversationslist.ConversationsFragment",
                 classLoader
             )
-            Arrays.stream(clsFrag.declaredMethods).parallel()
-                .filter { m -> m.parameterTypes.isEmpty() && m.returnType == MutableList::class.java }
-                .findFirst()
-                .orElse(null) ?: throw Exception("TabFragment method not found")
+            // Since 2.26.46 ConversationsFragment is an empty subclass of
+            // ConversationsFragmentKt, so walk up the hierarchy. Skip no-arg List methods
+            // that only implement an interface (e.g. the BOK() delegate).
+            var cls: Class<*>? = clsFrag
+            while (cls != null && cls != Any::class.java) {
+                val interfaceMethods = cls.interfaces
+                    .flatMap { it.methods.asList() }
+                    .filter { it.parameterTypes.isEmpty() }
+                    .map { it.name }
+                    .toSet()
+                val candidates = cls.declaredMethods.filter { m ->
+                    m.parameterTypes.isEmpty() && m.returnType == MutableList::class.java
+                }
+                val method = candidates.firstOrNull { it.name !in interfaceMethods }
+                    ?: candidates.firstOrNull()
+                if (method != null) return@getMethod method
+                cls = cls.superclass
+            }
+            throw Exception("TabFragment method not found")
         }
     }
 
