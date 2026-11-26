@@ -553,4 +553,20 @@
     <string name="plugin_loading_starting">Подготовка функций после обновления…</string>
     <string name="plugin_loading_progress">Подготовка функций… %1$d/%2$d</string>
     <string name="plugin_loading_channel">Загрузка функций</string>
+    <string name="audio_speed_control">Регулировка скорости воспроизведения звука</string>
+    <string name="audio_speed_control_sum">Включить ползунок регулировки скорости для голосовых заметок</string>
+    <string name="voice_note_high_quality">Голосовые сообщения в высоком качестве</string>
+    <string name="voice_note_high_quality_sum">Записывает голосовые сообщения с частотой 48 кГц и более высоким битрейтом. Файлы становятся больше</string>
+    <string name="voice_note_noise_suppression">Шумоподавление в голосовых сообщениях</string>
+    <string name="voice_note_noise_suppression_sum">Сила удаления фонового шума при записи голосовых сообщений. WhatsApp уже применяет слабое; более сильные уровни могут приглушить голос</string>
+    <string name="voice_note_noise_default">По умолчанию WhatsApp</string>
+    <string name="voice_note_noise_light">Слабое</string>
+    <string name="voice_note_noise_medium">Среднее</string>
+    <string name="voice_note_noise_strong">Сильное</string>
+    <string name="voice_note_noise_max">Максимальное</string>
+    <string name="downloadvideonote">Скачать видеозаметки</string>
+    <string name="downloadvideonote_sum">Показать кнопку для загрузки видеозаметок</string>
+    <string name="status_expiration_time">Время до истечения статуса</string>
+    <string name="status_expiration_time_sum">Показывает в просмотре статусов, сколько времени осталось до истечения каждого статуса</string>
+    <string name="status_expires_in">истекает через %1$s</string>
 </resources>

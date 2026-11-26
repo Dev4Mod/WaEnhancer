@@ -30,15 +30,20 @@ import com.wmods.wppenhacer.xposed.features.general.PropsHook
 import com.wmods.wppenhacer.xposed.features.general.SeenTick
 import com.wmods.wppenhacer.xposed.features.general.ShareLimit
 import com.wmods.wppenhacer.xposed.features.general.ShowEditMessage
+import com.wmods.wppenhacer.xposed.features.general.StatusExpirationTime
 import com.wmods.wppenhacer.xposed.features.general.Tasker
 import com.wmods.wppenhacer.xposed.features.listeners.ContactItemListener
 import com.wmods.wppenhacer.xposed.features.listeners.ConversationItemListener
+import com.wmods.wppenhacer.xposed.features.media.AudioSpeedControl
 import com.wmods.wppenhacer.xposed.features.media.CallRecording
 import com.wmods.wppenhacer.xposed.features.media.DownloadProfile
 import com.wmods.wppenhacer.xposed.features.media.DownloadViewOnce
 import com.wmods.wppenhacer.xposed.features.media.MediaPreview
 import com.wmods.wppenhacer.xposed.features.media.MediaQuality
 import com.wmods.wppenhacer.xposed.features.media.StatusDownload
+import com.wmods.wppenhacer.xposed.features.media.UnsupportedAudioTranscode
+import com.wmods.wppenhacer.xposed.features.media.VideoNoteDownloader
+import com.wmods.wppenhacer.xposed.features.media.VoiceNoteQuality
 import com.wmods.wppenhacer.xposed.features.others.ActivityController
 import com.wmods.wppenhacer.xposed.features.others.AudioTranscript
 import com.wmods.wppenhacer.xposed.features.others.BackupRestore
@@ -138,6 +143,11 @@ internal object FeatureRegistry {
         JumpFirstMessage::class.java,
         AboutContactPicker::class.java,
         DefaultEmoji::class.java,
+        AudioSpeedControl::class.java,
+        VoiceNoteQuality::class.java,
+        UnsupportedAudioTranscode::class.java,
+        VideoNoteDownloader::class.java,
+        StatusExpirationTime::class.java,
         CaptureDevice::class.java,
         ContextMenuActionProvider::class.java
     )

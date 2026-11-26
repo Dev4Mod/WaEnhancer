@@ -553,4 +553,20 @@
     <string name="plugin_loading_starting">Güncellemeden sonra özellikler hazırlanıyor…</string>
     <string name="plugin_loading_progress">Özellikler hazırlanıyor… %1$d/%2$d</string>
     <string name="plugin_loading_channel">Özellik yükleme</string>
+    <string name="audio_speed_control">Ses Hızı Kontrolü</string>
+    <string name="audio_speed_control_sum">Sesli notlar için hız kontrol kaydırıcısını etkinleştirin</string>
+    <string name="voice_note_high_quality">Yüksek kaliteli sesli mesajlar</string>
+    <string name="voice_note_high_quality_sum">Sesli mesajları 48 kHz ve daha yüksek bit hızıyla kaydeder. Dosyalar büyür</string>
+    <string name="voice_note_noise_suppression">Sesli mesajlarda gürültü engelleme</string>
+    <string name="voice_note_noise_suppression_sum">Sesli mesaj kaydederken arka plan gürültüsü giderme gücü. WhatsApp zaten hafif bir tane uygular; daha güçlü seviyeler sesi boğuklaştırabilir</string>
+    <string name="voice_note_noise_default">WhatsApp varsayılanı</string>
+    <string name="voice_note_noise_light">Hafif</string>
+    <string name="voice_note_noise_medium">Orta</string>
+    <string name="voice_note_noise_strong">Güçlü</string>
+    <string name="voice_note_noise_max">Maksimum</string>
+    <string name="downloadvideonote">Video notlarını indir</string>
+    <string name="downloadvideonote_sum">Video notlarını indirmek için düğme göster</string>
+    <string name="status_expiration_time">Durum sona erme süresi</string>
+    <string name="status_expiration_time_sum">Durum görüntüleyicide her durumun sona ermesine ne kadar kaldığını gösterir</string>
+    <string name="status_expires_in">%1$s sonra sona erer</string>
 </resources>

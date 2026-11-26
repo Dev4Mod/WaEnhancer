@@ -562,4 +562,20 @@ Harap gunakan versi WhatsApp yang didukung!</string>
     <string name="plugin_loading_starting">Menyiapkan fitur setelah pembaruan…</string>
     <string name="plugin_loading_progress">Menyiapkan fitur… %1$d/%2$d</string>
     <string name="plugin_loading_channel">Memuat fitur</string>
+    <string name="audio_speed_control">Pengaturan Kecepatan Audio</string>
+    <string name="audio_speed_control_sum">Aktifkan penggeser pengaturan kecepatan untuk catatan suara.</string>
+    <string name="voice_note_high_quality">Pesan suara kualitas tinggi</string>
+    <string name="voice_note_high_quality_sum">Merekam pesan suara pada 48 kHz dengan bitrate lebih tinggi. Ukuran file menjadi lebih besar</string>
+    <string name="voice_note_noise_suppression">Peredam bising pesan suara</string>
+    <string name="voice_note_noise_suppression_sum">Kekuatan peredam bising latar saat merekam pesan suara. WhatsApp sudah menerapkan yang ringan; tingkat lebih kuat bisa membuat suara teredam</string>
+    <string name="voice_note_noise_default">Bawaan WhatsApp</string>
+    <string name="voice_note_noise_light">Ringan</string>
+    <string name="voice_note_noise_medium">Sedang</string>
+    <string name="voice_note_noise_strong">Kuat</string>
+    <string name="voice_note_noise_max">Maksimum</string>
+    <string name="downloadvideonote">Unduh Catatan Video</string>
+    <string name="downloadvideonote_sum">Tampilkan tombol untuk mengunduh catatan video</string>
+    <string name="status_expiration_time">Waktu kedaluwarsa status</string>
+    <string name="status_expiration_time_sum">Menampilkan di penampil status berapa lama lagi setiap status sebelum kedaluwarsa</string>
+    <string name="status_expires_in">kedaluwarsa dalam %1$s</string>
 </resources>

@@ -550,4 +550,20 @@
     <string name="plugin_loading_starting">更新后正在准备功能…</string>
     <string name="plugin_loading_progress">正在准备功能… %1$d/%2$d</string>
     <string name="plugin_loading_channel">功能加载</string>
+    <string name="audio_speed_control">音频速度控制</string>
+    <string name="audio_speed_control_sum">启用语音笔记的速度控制滑块</string>
+    <string name="voice_note_high_quality">高音质语音消息</string>
+    <string name="voice_note_high_quality_sum">以 48 kHz 和更高码率录制语音消息，文件会更大</string>
+    <string name="voice_note_noise_suppression">语音消息降噪</string>
+    <string name="voice_note_noise_suppression_sum">录制语音消息时去除背景噪音的强度。WhatsApp 默认已有轻度降噪，更强的级别可能使声音发闷</string>
+    <string name="voice_note_noise_default">WhatsApp 默认</string>
+    <string name="voice_note_noise_light">轻度</string>
+    <string name="voice_note_noise_medium">中等</string>
+    <string name="voice_note_noise_strong">强</string>
+    <string name="voice_note_noise_max">最强</string>
+    <string name="downloadvideonote">下载视频笔记</string>
+    <string name="downloadvideonote_sum">显示下载视频笔记的按钮</string>
+    <string name="status_expiration_time">动态过期时间</string>
+    <string name="status_expiration_time_sum">在动态查看器中显示每条动态距离过期还剩多长时间</string>
+    <string name="status_expires_in">%1$s后过期</string>
 </resources>

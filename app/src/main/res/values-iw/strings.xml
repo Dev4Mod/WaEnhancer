@@ -555,4 +555,20 @@
     <string name="plugin_loading_starting">מכין תכונות לאחר עדכון…</string>
     <string name="plugin_loading_progress">מכין תכונות… %1$d/%2$d</string>
     <string name="plugin_loading_channel">טעינת תכונות</string>
+    <string name="audio_speed_control">בקרת מהירות שמע</string>
+    <string name="audio_speed_control_sum">הפעל את מחוון בקרת המהירות עבור הערות קוליות</string>
+    <string name="voice_note_high_quality">הודעות קוליות באיכות גבוהה</string>
+    <string name="voice_note_high_quality_sum">מקליט הודעות קוליות ב-48 קילוהרץ עם קצב סיביות גבוה יותר. הקבצים גדולים יותר</string>
+    <string name="voice_note_noise_suppression">הפחתת רעשים בהודעות קוליות</string>
+    <string name="voice_note_noise_suppression_sum">עוצמת הסרת רעשי הרקע בזמן הקלטת הודעות קוליות. וואטסאפ כבר מפעיל הסרה קלה; רמות חזקות יותר עלולות לעמעם את הקול</string>
+    <string name="voice_note_noise_default">ברירת המחדל של וואטסאפ</string>
+    <string name="voice_note_noise_light">קלה</string>
+    <string name="voice_note_noise_medium">בינונית</string>
+    <string name="voice_note_noise_strong">חזקה</string>
+    <string name="voice_note_noise_max">מרבית</string>
+    <string name="downloadvideonote">הורדת הערות וידאו</string>
+    <string name="downloadvideonote_sum">הצג כפתור להורדת הערות וידאו</string>
+    <string name="status_expiration_time">זמן תפוגת הסטטוס</string>
+    <string name="status_expiration_time_sum">מציג בצופה הסטטוסים כמה זמן נותר לכל סטטוס לפני שהוא פג</string>
+    <string name="status_expires_in">פג בעוד %1$s</string>
 </resources>

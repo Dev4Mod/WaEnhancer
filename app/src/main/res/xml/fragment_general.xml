@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<PreferenceScreen xmlns:app="http://schemas.android.com/apk/res-auto">
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <Preference
         app:fragment="com.wmods.wppenhacer.ui.fragments.GeneralFragment$HomeGeneralPreference"
@@ -34,6 +35,12 @@
             app:key="toast_viewed_status"
             app:summary="@string/toast_on_viewed_status_sum"
             app:title="@string/toast_on_viewed_status" />
+
+        <rikka.material.preference.MaterialSwitchPreference
+            android:defaultValue="true"
+            app:key="status_expiration_time"
+            app:summary="@string/status_expiration_time_sum"
+            app:title="@string/status_expiration_time" />
 
 
     </PreferenceCategory>

@@ -843,6 +843,65 @@ object Unobfuscator {
         }
     }
 
+    @Throws(Exception::class)
+    fun loadVideoUploadParamsClass(classLoader: ClassLoader): Class<*> {
+        return UnobfuscatorCache.getInstance().getClass(classLoader) {
+            findFirstClassUsingStrings(
+                classLoader,
+                StringMatchType.Equals,
+                "shouldTranscodeAudio",
+                "isSkipAudioTrack"
+            ) ?: throw Exception("VideoUploadParams class not found")
+        }
+    }
+
+    @Throws(Exception::class)
+    fun loadVideoUploadParamsFields(classLoader: ClassLoader): HashMap<String, Field> {
+        return UnobfuscatorCache.getInstance().getMapField(classLoader) {
+            val clazz = loadVideoUploadParamsClass(classLoader)
+            val methodData = bridge.getMethodData(clazz.getDeclaredMethod("toString"))
+            val usingFields = methodData?.usingFields ?: emptyList()
+            val usingStrings = methodData?.usingStrings ?: emptyList()
+            val constantKeys = setOf("enableAVSynchronizedTranscoding", "sonicFactory")
+
+            val result = HashMap<String, Field>()
+            var idxFields = 0
+            for (key in usingStrings) {
+                if (idxFields == usingFields.size) break
+                if (key in constantKeys) continue
+                result[key] = usingFields[idxFields].field.getFieldInstance(classLoader)
+                idxFields++
+            }
+            if (result["shouldTranscodeAudio"]?.type != Boolean::class.javaPrimitiveType) {
+                throw Exception("VideoUploadParams fields are misaligned")
+            }
+            result
+        }
+    }
+
+    @JvmStatic
+    @Throws(Exception::class)
+    fun loadStatusItemTimestampMethod(loader: ClassLoader): Method {
+        return UnobfuscatorCache.getInstance().getMethod(loader) {
+            val statusItemClass =
+                loadUnknownStatusPlaybackMethod(loader).parameterTypes.first()
+            val isStatusExpired = bridge.findMethod {
+                matcher {
+                    addUsingString("StatusInfoStore/isStatusExpired", StringMatchType.Contains)
+                }
+            }.firstOrNull() ?: throw Exception("isStatusExpired method not found")
+            val candidates = sequenceOf(isStatusExpired) + isStatusExpired.callers.asSequence()
+                .filter { it.paramTypeNames.contains(statusItemClass.name) }
+            val getter = candidates.flatMap { it.invokes.asSequence() }.firstOrNull { invoke ->
+                invoke.isMethod &&
+                        invoke.paramCount == 0 &&
+                        invoke.returnTypeName == Long::class.javaPrimitiveType!!.name &&
+                        invoke.className == statusItemClass.name
+            } ?: throw Exception("StatusItem timestamp method not found")
+            getter.getMethodInstance(loader)
+        }
+    }
+
     @JvmStatic
     @Throws(Exception::class)
     fun loadSelectedThemeSchemeMethod(classLoader: ClassLoader): Method {

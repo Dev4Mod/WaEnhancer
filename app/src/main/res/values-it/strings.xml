@@ -622,4 +622,20 @@
     <string name="no_file_picker">Nessun gestore file trovato sul dispositivo per selezionare un file.</string>
     <string name="disable_document_scanner">Disattiva lo scanner di documenti</string>
     <string name="disable_document_scanner_sum">Disattiva lo scanner di documenti ML Kit nel selettore dei documenti. Risolve un arresto anomalo durante l’apertura su alcuni dispositivi</string>
+    <string name="audio_speed_control">Controllo velocità audio</string>
+    <string name="audio_speed_control_sum">Abilita il cursore di controllo della velocità per le note vocali</string>
+    <string name="voice_note_high_quality">Note vocali ad alta qualità</string>
+    <string name="voice_note_high_quality_sum">Registra le note vocali a 48 kHz con un bitrate più alto. I file diventano più grandi</string>
+    <string name="voice_note_noise_suppression">Soppressione del rumore nelle note vocali</string>
+    <string name="voice_note_noise_suppression_sum">Intensità della rimozione del rumore di fondo durante la registrazione delle note vocali. WhatsApp ne applica già una leggera; i livelli più forti possono rendere la voce ovattata</string>
+    <string name="voice_note_noise_default">Predefinito di WhatsApp</string>
+    <string name="voice_note_noise_light">Leggera</string>
+    <string name="voice_note_noise_medium">Media</string>
+    <string name="voice_note_noise_strong">Forte</string>
+    <string name="voice_note_noise_max">Massima</string>
+    <string name="downloadvideonote">Scarica note video</string>
+    <string name="downloadvideonote_sum">Mostra un pulsante per scaricare le note video</string>
+    <string name="status_expiration_time">Scadenza dello stato</string>
+    <string name="status_expiration_time_sum">Mostra nel visualizzatore degli stati quanto manca alla scadenza di ogni stato</string>
+    <string name="status_expires_in">scade tra %1$s</string>
 </resources>

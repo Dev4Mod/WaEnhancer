@@ -33,6 +33,11 @@
             app:summary="@string/downloadviewonce_sum"
             app:title="@string/downloadviewonce" />
 
+        <rikka.material.preference.MaterialSwitchPreference
+            app:key="downloadvideonote"
+            app:summary="@string/downloadvideonote_sum"
+            app:title="@string/downloadvideonote" />
+
     </PreferenceCategory>
 
     <PreferenceCategory
@@ -130,6 +135,25 @@
             app:maxValue="5"
             app:minValue="0.1"
             app:title="@string/voice_note_speed" />
+
+        <rikka.material.preference.MaterialSwitchPreference
+            android:defaultValue="true"
+            app:key="audio_speed_control"
+            app:summary="@string/audio_speed_control_sum"
+            app:title="@string/audio_speed_control" />
+
+        <rikka.material.preference.MaterialSwitchPreference
+            app:key="voice_note_high_quality"
+            app:summary="@string/voice_note_high_quality_sum"
+            app:title="@string/voice_note_high_quality" />
+
+        <ListPreference
+            android:defaultValue="default"
+            android:entries="@array/voice_note_noise_level_entries"
+            android:entryValues="@array/voice_note_noise_level_values"
+            app:key="voice_note_noise_level"
+            app:summary="@string/voice_note_noise_suppression_sum"
+            app:title="@string/voice_note_noise_suppression" />
 
         <rikka.material.preference.MaterialSwitchPreference
             app:key="audio_transcription"

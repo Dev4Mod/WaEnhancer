@@ -521,6 +521,11 @@ object FeatureCatalog {
             R.string.toast_on_viewed_status_sum, SearchableFeature.Category.GENERAL, general,
             null, "toast", "viewed", "status", "notification"
         )
+        add(
+            catalog, context, "status_expiration_time", R.string.status_expiration_time,
+            R.string.status_expiration_time_sum, SearchableFeature.Category.GENERAL, general,
+            null, "status", "expiration", "time", "expires"
+        )
 
         addPrivacyFeatures(context, catalog, privacy)
         addMediaFeatures(context, catalog, media)
@@ -795,6 +800,11 @@ object FeatureCatalog {
             "once"
         )
         add(
+            catalog, context, "downloadvideonote", R.string.downloadvideonote,
+            R.string.downloadvideonote_sum, category, fragment, null,
+            "download", "video", "note"
+        )
+        add(
             catalog, context, "video_limit_size", R.string.increase_video_size_limit, null,
             category, fragment, null, "video", "size", "limit", "mb"
         )
@@ -883,6 +893,21 @@ object FeatureCatalog {
         add(
             catalog, context, "voicenote_speed", R.string.voice_note_speed, null,
             category, fragment, null, "voice", "note", "speed"
+        )
+        add(
+            catalog, context, "audio_speed_control", R.string.audio_speed_control,
+            R.string.audio_speed_control_sum, category, fragment, null,
+            "audio", "voice", "speed", "slider"
+        )
+        add(
+            catalog, context, "voice_note_high_quality", R.string.voice_note_high_quality,
+            R.string.voice_note_high_quality_sum, category, fragment, null,
+            "voice", "note", "quality", "audio"
+        )
+        add(
+            catalog, context, "voice_note_noise_level", R.string.voice_note_noise_suppression,
+            R.string.voice_note_noise_suppression_sum, category, fragment, null,
+            "voice", "note", "noise", "suppression"
         )
         add(
             catalog,

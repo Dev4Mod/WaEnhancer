@@ -631,4 +631,20 @@
     <string name="plugin_loading_starting">Preparing features after an update…</string>
     <string name="plugin_loading_progress">Preparing features… %1$d/%2$d</string>
     <string name="plugin_loading_channel">Feature loading</string>
+    <string name="audio_speed_control">Audio Speed Control</string>
+    <string name="audio_speed_control_sum">Enable the speed control slider for voice notes</string>
+    <string name="voice_note_high_quality">High quality voice notes</string>
+    <string name="voice_note_high_quality_sum">Records voice notes at 48 kHz with a higher bitrate. Files get bigger</string>
+    <string name="voice_note_noise_suppression">Voice note noise suppression</string>
+    <string name="voice_note_noise_suppression_sum">Strength of the background noise removal while recording voice notes. WhatsApp already applies a light one; stronger levels can muffle the voice</string>
+    <string name="voice_note_noise_default">WhatsApp default</string>
+    <string name="voice_note_noise_light">Light</string>
+    <string name="voice_note_noise_medium">Medium</string>
+    <string name="voice_note_noise_strong">Strong</string>
+    <string name="voice_note_noise_max">Maximum</string>
+    <string name="downloadvideonote">Download Video Notes</string>
+    <string name="downloadvideonote_sum">Show button to download video notes</string>
+    <string name="status_expiration_time">Status expiration time</string>
+    <string name="status_expiration_time_sum">Shows in the status viewer how long each status has left before it expires</string>
+    <string name="status_expires_in">expires in %1$s</string>
 </resources>

@@ -562,4 +562,20 @@
     <string name="plugin_loading_starting">Preparando recursos após uma atualização…</string>
     <string name="plugin_loading_progress">Preparando recursos… %1$d/%2$d</string>
     <string name="plugin_loading_channel">Carregamento de recursos</string>
+    <string name="audio_speed_control">Controle de velocidade de áudio</string>
+    <string name="audio_speed_control_sum">Ativa o controle de velocidade para mensagens de voz</string>
+    <string name="voice_note_high_quality">Notas de voz em alta qualidade</string>
+    <string name="voice_note_high_quality_sum">Grava as notas de voz a 48 kHz com bitrate maior. Os ficheiros ficam maiores</string>
+    <string name="voice_note_noise_suppression">Supressão de ruído nas notas de voz</string>
+    <string name="voice_note_noise_suppression_sum">Intensidade da remoção do ruído de fundo ao gravar notas de voz. O WhatsApp já aplica uma leve; níveis mais fortes podem abafar a voz</string>
+    <string name="voice_note_noise_default">Padrão do WhatsApp</string>
+    <string name="voice_note_noise_light">Leve</string>
+    <string name="voice_note_noise_medium">Média</string>
+    <string name="voice_note_noise_strong">Forte</string>
+    <string name="voice_note_noise_max">Máxima</string>
+    <string name="downloadvideonote">Baixar notas de vídeo</string>
+    <string name="downloadvideonote_sum">Mostra um botão para baixar notas de vídeo</string>
+    <string name="status_expiration_time">Tempo de expiração do estado</string>
+    <string name="status_expiration_time_sum">Mostra no visualizador de estados quanto tempo falta para cada estado expirar</string>
+    <string name="status_expires_in">expira em %1$s</string>
 </resources>

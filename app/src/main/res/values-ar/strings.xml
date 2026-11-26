@@ -553,4 +553,20 @@
     <string name="plugin_loading_starting">جارٍ تجهيز الميزات بعد التحديث…</string>
     <string name="plugin_loading_progress">جارٍ تجهيز الميزات… %1$d/%2$d</string>
     <string name="plugin_loading_channel">تحميل الميزات</string>
+    <string name="audio_speed_control">التحكم في سرعة الصوت</string>
+    <string name="audio_speed_control_sum">قم بتفعيل شريط تمرير التحكم في السرعة للملاحظات الصوتية</string>
+    <string name="voice_note_high_quality">رسائل صوتية عالية الجودة</string>
+    <string name="voice_note_high_quality_sum">تسجيل الرسائل الصوتية بتردد 48 كيلوهرتز ومعدل بت أعلى. تصبح الملفات أكبر</string>
+    <string name="voice_note_noise_suppression">إزالة الضوضاء في الرسائل الصوتية</string>
+    <string name="voice_note_noise_suppression_sum">قوة إزالة ضوضاء الخلفية أثناء تسجيل الرسائل الصوتية. يطبق واتساب إزالة خفيفة بالفعل، والمستويات الأقوى قد تجعل الصوت مكتوماً</string>
+    <string name="voice_note_noise_default">افتراضي واتساب</string>
+    <string name="voice_note_noise_light">خفيف</string>
+    <string name="voice_note_noise_medium">متوسط</string>
+    <string name="voice_note_noise_strong">قوي</string>
+    <string name="voice_note_noise_max">أقصى</string>
+    <string name="downloadvideonote">تحميل ملاحظات الفيديو</string>
+    <string name="downloadvideonote_sum">إظهار زر لتحميل ملاحظات الفيديو</string>
+    <string name="status_expiration_time">وقت انتهاء الحالة</string>
+    <string name="status_expiration_time_sum">يعرض في عارض الحالة الوقت المتبقي قبل انتهاء كل حالة</string>
+    <string name="status_expires_in">تنتهي خلال %1$s</string>
 </resources>

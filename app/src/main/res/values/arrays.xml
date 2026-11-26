@@ -239,4 +239,20 @@
         <item>2</item>
         <item>6</item>
     </string-array>
+    <string-array name="voice_note_noise_level_entries">
+        <item>@string/voice_note_noise_default</item>
+        <item>@string/disabled</item>
+        <item>@string/voice_note_noise_light</item>
+        <item>@string/voice_note_noise_medium</item>
+        <item>@string/voice_note_noise_strong</item>
+        <item>@string/voice_note_noise_max</item>
+    </string-array>
+    <string-array name="voice_note_noise_level_values">
+        <item>default</item>
+        <item>off</item>
+        <item>0.25</item>
+        <item>0.5</item>
+        <item>0.75</item>
+        <item>1.0</item>
+    </string-array>
 </resources>

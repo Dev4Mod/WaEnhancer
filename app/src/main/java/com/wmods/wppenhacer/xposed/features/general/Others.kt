@@ -274,8 +274,6 @@ class Others(loader: ClassLoader, preferences: SharedPreferences) : Feature(load
             }
         }
 
-        customPlayBackSpeed()
-
         showOnline(showOnline)
 
         animationList()
@@ -609,44 +607,6 @@ class Others(loader: ClassLoader, preferences: SharedPreferences) : Feature(load
                         AnimationUtil.getAnimation(properties.getProperty("home_list_animation"))
                     if (anim != null) {
                         view.startAnimation(anim)
-                    }
-                }
-            }
-        }
-    }
-
-    private fun customPlayBackSpeed() {
-        val voicenoteSpeed = xprefs.getFloat("voicenote_speed", 2.0f)
-        val playBackSpeed = Unobfuscator.loadPlaybackSpeed(classLoader)
-
-        playBackSpeed.hook {
-            before {
-                val index = ReflectionUtils.findIndexOfType(args, Float::class.javaPrimitiveType!!)
-                if (index != -1) {
-                    if (args[index] as? Float == 2.0f) {
-                        args[index] = voicenoteSpeed
-                    }
-                }
-            }
-        }
-
-        val voicenoteClass = Unobfuscator.findFirstClassUsingName(
-            classLoader,
-            StringMatchType.EndsWith,
-            "VoiceNoteProfileAvatarView"
-        )
-        val method = ReflectionUtils.findAllMethodsUsingFilter(voicenoteClass) { method1 ->
-            method1.parameterCount == 4 && method1.parameterTypes[0] == Int::class.javaPrimitiveType && method1.returnType == Void.TYPE
-        }
-
-        method[method.size - 1].hook {
-            after {
-                if (args[0] as Int == 3) {
-                    val view = instance as View
-                    val playback =
-                        view.findViewById<TextView>(Utils.getID("fast_playback_overlay", "id"))
-                    if (playback != null) {
-                        playback.text = voicenoteSpeed.toString().replace(".", ",") + "×"
                     }
                 }
             }
