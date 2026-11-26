@@ -824,9 +824,22 @@ object Unobfuscator {
                         && types[types.size - 2] == Int::class.javaPrimitiveType
                         && types[types.size - 1] == Boolean::class.javaPrimitiveType
             }
+            val instanceCandidates by lazy {
+                propsClass.declaredMethods.filter {
+                    val types = it.parameterTypes
+                    !Modifier.isStatic(it.modifiers)
+                            && it.returnType == Any::class.java
+                            && types.size >= 5
+                            && types[1] == Int::class.javaObjectType
+                            && (types.last() == Int::class.javaPrimitiveType
+                            || (types.last() == Boolean::class.javaPrimitiveType
+                            && types[types.size - 2] == Int::class.javaPrimitiveType))
+                }
+            }
             candidates.singleOrNull()
                 ?: candidates.singleOrNull { it.parameterTypes[2] == Int::class.javaObjectType }
-                ?: throw Exception("Props resolve method not found (${candidates.size} candidates)")
+                ?: instanceCandidates.singleOrNull()
+                ?: throw Exception("Props resolve method not found (${candidates.size} static, ${instanceCandidates.size} instance candidates)")
         }
     }
 
