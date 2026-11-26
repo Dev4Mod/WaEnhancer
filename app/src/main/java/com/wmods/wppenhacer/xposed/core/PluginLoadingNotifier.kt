@@ -10,14 +10,17 @@ import androidx.core.graphics.drawable.IconCompat
 import com.wmods.wppenhacer.R
 import com.wmods.wppenhacer.xposed.utils.DesignUtils
 import com.wmods.wppenhacer.xposed.utils.Utils
+import java.util.concurrent.CompletableFuture
 
 object PluginLoadingNotifier {
 
     private const val CHANNEL_ID = "wae_plugin_loading"
     private const val NOTIFICATION_ID = 0x57414501
     private const val MIN_UPDATE_INTERVAL_MS = 250L
+    private const val TIMEOUT_MS = 3 * 60 * 1000L
 
     private val lock = Any()
+    @Volatile
     private var active = false
     private var total = 0
     private var loaded = 0
@@ -61,9 +64,20 @@ object PluginLoadingNotifier {
     }
 
     fun finish(): Unit = synchronized(lock) {
-        if (!active) return
         active = false
         runCatching { NotificationManagerCompat.from(Utils.application).cancel(NOTIFICATION_ID) }
+    }
+
+    fun dismissLeftover() {
+        if (active) return
+        CompletableFuture.runAsync {
+            synchronized(lock) {
+                if (active) return@runAsync
+                runCatching {
+                    NotificationManagerCompat.from(Utils.application).cancel(NOTIFICATION_ID)
+                }
+            }
+        }
     }
 
     @SuppressLint("MissingPermission")
@@ -86,6 +100,7 @@ object PluginLoadingNotifier {
                 .setSubText(lastPlugin)
                 .setProgress(total, loaded.coerceAtMost(total), total == 0)
                 .setOngoing(true)
+                .setTimeoutAfter(TIMEOUT_MS)
                 .setOnlyAlertOnce(true)
                 .build()
             NotificationManagerCompat.from(context).notify(NOTIFICATION_ID, notification)

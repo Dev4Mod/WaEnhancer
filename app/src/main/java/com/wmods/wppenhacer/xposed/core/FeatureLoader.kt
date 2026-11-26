@@ -192,6 +192,7 @@ object FeatureLoader : YukiBaseHooker() {
 
         WppCore.addListenerActivity { activity, type ->
             if (type != WppCore.ActivityChangeState.ChangeType.RESUMED) return@addListenerActivity
+            PluginLoadingNotifier.dismissLeftover()
             askRestartIfNeeded(activity)
             if (App.isOriginalPackage && pref.getBoolean("update_check", true)) {
                 scheduleUpdateCheck(activity)
