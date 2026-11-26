@@ -5,7 +5,7 @@
 <div align="center">
   <p><strong>WaEnhancer é um módulo Xposed que melhora sua experiência no WhatsApp.</strong></p>
   <p><strong>Aviso:</strong> Este módulo é destinado apenas para fins educacionais. Você pode ter problemas com sua conta do WhatsApp, incluindo risco de banimento! Use por sua conta e risco.</p>
-  <p>Observe que este projeto está atualmente em desenvolvimento, então bugs e falhas podem ocorrer. Se encontrar algum problema, reporte em nosso grupo ou crie um <a href="https://github.com/Dev4Mod/WaEnhancer/issues">relatório de problema</a> aqui.</p>
+  <p>Observe que este projeto está atualmente em desenvolvimento, então bugs e falhas podem ocorrer. Se encontrar algum problema, reporte em nosso grupo ou crie um <a href="https://github.com/Waenhancer-Dev/WaEnhancer/issues">relatório de problema</a> aqui.</p>
 </div>
 
 ## Principais Funcionalidades
@@ -140,7 +140,7 @@
 2. Instale um destes frameworks Xposed no seu dispositivo:
    * [Vector](https://github.com/JingMatrix/Vector/releases) (código aberto)
    * [LSPosed IT](https://lsposed.org/) (código fechado)
-3. Baixe o WaEnhancer na aba [Actions](https://github.com/Dev4Mod/WaEnhancer/actions).
+3. Baixe o WaEnhancer na aba [Actions](https://github.com/Waenhancer-Dev/WaEnhancer/actions).
 4. Instale o APK do WaEnhancer.
 5. Ative o módulo WaEnhancer no gerenciador do Vector ou do LSPosed.
 
