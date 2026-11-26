@@ -802,15 +802,11 @@ object Unobfuscator {
 
     fun loadPropsResolveMethod(loader: ClassLoader): Method {
         return UnobfuscatorCache.getInstance().getMethod(loader) {
-            val propsClass = loadPropsBooleanMethod(loader).declaringClass
+            val booleanGetter = loadPropsBooleanMethod(loader)
+            val propsClass = booleanGetter.declaringClass
+            val contextType = booleanGetter.parameterTypes.first()
             val candidates = propsClass.declaredMethods.filter {
-                val types = it.parameterTypes
-                Modifier.isStatic(it.modifiers)
-                        && it.returnType == Any::class.java
-                        && types.size >= 4
-                        && types[1] == propsClass
-                        && types[types.size - 2] == Int::class.javaPrimitiveType
-                        && types[types.size - 1] == Boolean::class.javaPrimitiveType
+                PropsResolverMatcher.matches(it, propsClass, contextType)
             }
             candidates.singleOrNull()
                 ?: candidates.singleOrNull { it.parameterTypes[2] == Int::class.javaObjectType }

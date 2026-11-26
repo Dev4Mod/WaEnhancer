@@ -43,6 +43,7 @@ import java.lang.reflect.Modifier
 import java.util.Collections
 import java.util.Properties
 import java.util.WeakHashMap
+import java.util.concurrent.atomic.AtomicInteger
 import java.util.concurrent.CompletableFuture
 import kotlin.math.max
 
@@ -329,11 +330,40 @@ class Others(loader: ClassLoader, preferences: SharedPreferences) : Feature(load
     }
 
     private fun disableHomeFilters() {
+        val filterRootId = AtomicInteger(View.NO_ID)
         Unobfuscator.loadChatFilterViewMethod(classLoader).hook {
             after {
                 val filterView = args[0] as? View ?: return@after
+                filterRootId.set(filterView.id)
                 filterView.collapseAndHide()
             }
+        }
+
+        val conversationsFragment = Unobfuscator.findFirstClassUsingName(
+            classLoader, StringMatchType.EndsWith, ".ConversationsFragment"
+        )
+        // 2.26.46 moved the list header into the Kotlin fragment. The legacy
+        // height method is gone, and hiding just its RecyclerView leaves a gap.
+        if (conversationsFragment.superclass?.name
+                ?.endsWith(".ConversationsFragmentKt") == true
+        ) {
+            val containerId = Utils.getID("conversations_swipe_to_reveal_container", "id")
+            val setMeasuredDimension = View::class.java.getDeclaredMethod(
+                "setMeasuredDimension", Int::class.javaPrimitiveType, Int::class.javaPrimitiveType
+            ).apply { isAccessible = true }
+            ViewHookDispatcher.onFrameLayoutMeasured(this) { row ->
+                // The RecyclerView header can contain an uninflated ViewStub
+                // rather than the filter container. Match either binding state,
+                // including GONE children that never attach to the window.
+                if ((row.parent as? View)?.id != android.R.id.list) return@onFrameLayoutMeasured
+                val rootId = filterRootId.get()
+                val containsFilter = (rootId != View.NO_ID && row.findViewById<View>(rootId) != null)
+                    || (containerId != 0 && row.findViewById<View>(containerId) != null)
+                if (containsFilter) {
+                    setMeasuredDimension.invoke(row, row.measuredWidth, 0)
+                }
+            }
+            return
         }
 
         val filterDimenId = try {

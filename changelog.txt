@@ -1,4 +1,5 @@
 [NEW]
+* Added support for WhatsApp 2.26.46.xx
 * Added support for WhatsApp and WhatsApp Business 2.26.45.xx
 * Custom Privacy now uses a dropdown for each option (Default, Enabled, Disabled), showing the global state. Contacts are removed from the list when every option follows the global setting
 * Locked contacts are now hidden from the calls history, contact picker lists, status updates and status playback
@@ -9,6 +10,7 @@
 * Faster startup and lower CPU usage while WhatsApp is running
 
 [FIXED]
+* Fixed the props resolver on 2.26.46 and hiding chat filters in the Kotlin conversations screen without leaving an empty header
 * Fixed high CPU usage in system_server on Android 11/12
 * Fixed root diagnostics freezing the app and the log dialog stopping before the run finished
 * Fixed contact verification failing on newer WhatsApp versions
