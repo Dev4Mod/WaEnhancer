@@ -1,18 +1,17 @@
 [NEW]
-* Added support for WhatsApp and WhatsApp Business 2.26.45.xx
-* Custom Privacy now uses a dropdown for each option (Default, Enabled, Disabled), showing the global state. Contacts are removed from the list when every option follows the global setting
-* Locked contacts are now hidden from the calls history, contact picker lists, status updates and status playback
-* "Remove sticker white outline" now also removes the outline from the sticker style and video frames
-* Disabling Meta AI now also turns off the remaining Meta AI features (search, voice, imagine, home tab, studio bots, assist and prompts)
-
-[IMPROVED]
-* Faster startup and lower CPU usage while WhatsApp is running
+* Added support for WhatsApp and WhatsApp Business 2.26.46.xx
+* Voice note speed slider: long press the speed badge of a voice note to choose any speed
+* High quality voice notes, recorded at 48 kHz with a higher bitrate
+* Option to choose the noise suppression level of voice notes
+* Option to download video notes
+* The status viewer now shows how long the status has left before it expires
+* WhatsApp's own app themes are turned off while the custom colors are on, and come back when they are turned off
 
 [FIXED]
-* Fixed high CPU usage in system_server on Android 11/12
-* Fixed root diagnostics freezing the app and the log dialog stopping before the run finished
-* Fixed contact verification failing on newer WhatsApp versions
-* Fixed keyboxes with a PKCS#8 private key not loading, and empty keybox entries causing errors
-* Fixed the text of selected chips blending into their background with the custom theme
-* Fixed the Home wallpaper transparency leaking into screens opened over it
-* Fixed contact names and original message references not loading on newer WhatsApp versions
+* Fixed WhatsApp crashing on launch with separated groups
+* Fixed the props (feature flags) not being applied on newer WhatsApp versions
+* Fixed videos with some AAC audio formats failing to send
+* Fixed "Disable profile photo in status" not loading on newer WhatsApp versions
+* Fixed the open chat not being detected in the tablet layout
+* Fixed the plugin loading notification getting stuck when WhatsApp was closed while loading
+* Fixed the system bars flickering black over the Home wallpaper on some devices
