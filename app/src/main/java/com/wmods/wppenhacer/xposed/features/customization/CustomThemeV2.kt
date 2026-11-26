@@ -1,6 +1,7 @@
 package com.wmods.wppenhacer.xposed.features.customization
 
 import android.Manifest
+import android.R as AndroidR
 import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.SharedPreferences
@@ -15,6 +16,7 @@ import android.os.Bundle
 import android.util.TypedValue
 import android.view.View
 import android.view.ViewGroup
+import android.view.Window
 import androidx.core.content.ContextCompat
 import androidx.core.graphics.ColorUtils
 import androidx.core.graphics.drawable.toDrawable
@@ -43,6 +45,8 @@ class CustomThemeV2(loader: ClassLoader, preferences: SharedPreferences) :
     Feature(loader, preferences) {
 
     companion object {
+        private val SYSTEM_BAR_BACKGROUNDS =
+            intArrayOf(AndroidR.id.statusBarBackground, AndroidR.id.navigationBarBackground)
         private const val FIELD_WALLPAPER_TOOLBAR = "wae_wallpaper_toolbar"
         private const val CONVERSATION_ALLOWED_COLOR = 0xff12181c.toInt()
         private const val ACCENT_MIN_LIGHTNESS = 0.30f
@@ -217,7 +221,9 @@ class CustomThemeV2(loader: ClassLoader, preferences: SharedPreferences) :
                         Manifest.permission.READ_EXTERNAL_STORAGE
                     ) == PackageManager.PERMISSION_GRANTED
                 ) {
-                    injectWallpaper(activity.findViewById(Utils.getID("root_view", "id")))
+                    val rootView = activity.findViewById<View>(Utils.getID("root_view", "id"))
+                    injectWallpaper(rootView)
+                    keepSystemBarsRedrawn(activity.window, rootView)
                 }
             }
         }
@@ -464,6 +470,19 @@ class CustomThemeV2(loader: ClassLoader, preferences: SharedPreferences) :
             val newColor = "#$hexAlpha${oldColor.substring(3)}"
             wallpaperColors[c] = newColor
             wallpaperColors[oldColor] = newColor
+        }
+    }
+
+    private fun keepSystemBarsRedrawn(window: Window, rootView: View?) {
+        val decor = window.decorView
+        decor.viewTreeObserver.addOnPreDrawListener {
+            var clearBar = false
+            for (id in SYSTEM_BAR_BACKGROUNDS) {
+                val bar = decor.findViewById<View>(id)
+                if (bar != null && bar.isShown) bar.invalidate() else clearBar = true
+            }
+            if (clearBar && rootView?.isAttachedToWindow == true) rootView.invalidate()
+            true
         }
     }
 
