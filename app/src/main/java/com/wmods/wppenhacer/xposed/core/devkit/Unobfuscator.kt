@@ -481,10 +481,22 @@ object Unobfuscator {
                 "com.whatsapp.conversationslist.ConversationsFragment",
                 classLoader
             )
-            Arrays.stream(clsFrag.declaredMethods).parallel()
-                .filter { m -> m.parameterTypes.isEmpty() && m.returnType == MutableList::class.java }
-                .findFirst()
-                .orElse(null) ?: throw Exception("TabFragment method not found")
+            val hierarchy = generateSequence(clsFrag) { it.superclass }
+                .takeWhile { it != Any::class.java }
+                .toList()
+            val interfaceMethodNames = HashSet<String>()
+            val pendingInterfaces = ArrayDeque(hierarchy.flatMap { it.interfaces.asList() })
+            while (pendingInterfaces.isNotEmpty()) {
+                val iface = pendingInterfaces.removeFirst()
+                iface.declaredMethods.forEach { interfaceMethodNames.add(it.name) }
+                pendingInterfaces.addAll(iface.interfaces)
+            }
+            hierarchy.firstNotNullOfOrNull { cls ->
+                cls.declaredMethods.firstOrNull {
+                    it.parameterTypes.isEmpty() && it.returnType == MutableList::class.java &&
+                            it.name !in interfaceMethodNames
+                }
+            } ?: throw Exception("TabFragment method not found")
         }
     }
 

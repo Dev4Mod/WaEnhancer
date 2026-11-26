@@ -99,9 +99,6 @@ class SeparateGroup(loader: ClassLoader, preferences: SharedPreferences) :
 
         if (!xprefs.getBoolean("separategroups", false)) return
 
-        // Modifying tab list order
-        hookTabList()
-
         // Setting group icon
         hookTabIcon()
 
@@ -113,6 +110,9 @@ class SeparateGroup(loader: ClassLoader, preferences: SharedPreferences) :
 
         // Setting tab count
         hookTabCount()
+
+        // Modifying tab list order
+        hookTabList()
     }
 
     override fun getPluginName(): String {
