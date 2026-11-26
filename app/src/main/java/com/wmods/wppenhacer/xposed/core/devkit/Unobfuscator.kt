@@ -2501,22 +2501,26 @@ object Unobfuscator {
                 StringMatchType.EndsWith,
                 ".ConversationsFragment"
             )
-            val convClassData = bridge.getClassData(convClass.name)!!
-            convClassData.findMethod {
-                matcher {
-                    anyOf {
-                        statusClass.declaredMethods.filter {
-                            it.returnType == Boolean::class.javaPrimitiveType
-                        }.forEach {
-                            match {
-                                addInvoke(DexSignUtil.getMethodDescriptor(it))
+            generateSequence(convClass) { it.superclass }
+                .takeWhile { it.name.contains("ConversationsFragment") }
+                .firstNotNullOfOrNull { clazz ->
+                    bridge.getClassData(clazz.name)?.findMethod {
+                        matcher {
+                            anyOf {
+                                statusClass.declaredMethods.filter {
+                                    it.returnType == Boolean::class.javaPrimitiveType
+                                }.forEach {
+                                    match {
+                                        addInvoke(DexSignUtil.getMethodDescriptor(it))
+                                    }
+                                }
                             }
                         }
+                    }?.singleOrNull {
+                        it.paramCount > 0 && !Modifier.isStatic(it.modifiers) && it.paramTypeNames[0] == "android.view.View"
                     }
-                }
-            }.single {
-                it.paramCount > 0 && !Modifier.isStatic(it.modifiers) && it.paramTypeNames[0] == "android.view.View"
-            }.getMethodInstance(classLoader)
+                }?.getMethodInstance(classLoader)
+                ?: throw NoSuchMethodException("StatusProfile method not found")
         }
     }
 
