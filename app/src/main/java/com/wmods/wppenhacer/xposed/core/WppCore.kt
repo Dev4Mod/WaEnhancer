@@ -35,6 +35,7 @@ import org.luckypray.dexkit.query.enums.StringMatchType
 import java.io.File
 import java.lang.reflect.Field
 import java.lang.reflect.Method
+import java.lang.reflect.Modifier
 import java.util.Collections
 import java.util.concurrent.ConcurrentHashMap
 
@@ -503,10 +504,16 @@ object WppCore {
             if (conversation.javaClass.simpleName == "HomeActivity") {
                 val convFragmentMethod =
                     Unobfuscator.loadHomeConversationFragmentMethod(conversation.classLoader)
-                val convFragment = convFragmentMethod.invoke(null, conversation)
-                val convField =
-                    Unobfuscator.loadAntiRevokeConvFragmentField(conversation.classLoader)
-                conversationDelegate = convField.get(convFragment)
+                val convFragment = if (Modifier.isStatic(convFragmentMethod.modifiers)) {
+                    convFragmentMethod.invoke(null, conversation)
+                } else {
+                    convFragmentMethod.invoke(conversation)
+                }
+                conversationDelegate =
+                    Unobfuscator.loadHomeConversationDelegateFields(conversation.classLoader)
+                        .fold(convFragment) { holder, field ->
+                            holder?.let { field.apply { isAccessible = true }.get(it) }
+                        }
             }
             FMessageWpp.UserJid(conversationJidField?.get(conversationDelegate))
         } catch (_: Exception) {

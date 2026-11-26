@@ -834,32 +834,50 @@ object Unobfuscator {
     @JvmStatic
     fun loadHomeConversationFragmentMethod(loader: ClassLoader): Method {
         return UnobfuscatorCache.getInstance().getMethod(loader) {
-            val homeClass = WppCore.homeActivityClass
-            val convFragment =
-                findFirstClassUsingName(loader, StringMatchType.EndsWith, ".ConversationFragment")
-            val method = bridge.findMethod {
-                searchInClass(Collections.singletonList(bridge.getClassData(homeClass)))
+            bridge.findMethod {
                 matcher {
-                    returnType(convFragment)
+                    usingStrings("com.whatsapp.home.ui.HomeActivity.ConversationFragment")
+                    paramCount = 0
                 }
-            }.singleOrNull() ?: throw Exception("HomeConversationFragmentMethod not found")
-            method.getMethodInstance(loader)
+            }.firstOrNull { it.returnTypeName.endsWith(".ConversationFragment") }
+                ?.getMethodInstance(loader)
+                ?: throw Exception("HomeConversationFragmentMethod not found")
         }
     }
 
+    private val FRAMEWORK_PACKAGES =
+        listOf("java.", "javax.", "kotlin.", "android.", "androidx.", "com.google.")
+
     @Throws(Exception::class)
     @JvmStatic
-    fun loadAntiRevokeConvFragmentField(loader: ClassLoader): Field {
-        return UnobfuscatorCache.getInstance().getField(loader) {
+    fun loadHomeConversationDelegateFields(loader: ClassLoader): Array<Field> {
+        return UnobfuscatorCache.getInstance().getFields(loader) {
             val chatClass = findFirstClassUsingStrings(
                 loader,
                 StringMatchType.Contains,
                 "conversation/createconversation"
             )
-            val conversation =
-                findFirstClassUsingName(loader, StringMatchType.EndsWith, ".ConversationFragment")
-            ReflectionUtils.getFieldByType(conversation, chatClass)
-                ?: throw Exception("AntiRevokeConvChat field not found")
+            val fragmentClass = loadHomeConversationFragmentMethod(loader).returnType
+
+            fun holdsDelegate(field: Field): Boolean =
+                field.type != Any::class.java && field.type.isAssignableFrom(chatClass)
+
+            fun instanceFields(cls: Class<*>): List<Field> =
+                generateSequence(cls) { it.superclass }
+                    .takeWhile { it != Any::class.java }
+                    .flatMap { it.declaredFields.asSequence() }
+                    .filter { !Modifier.isStatic(it.modifiers) && !it.type.isPrimitive }
+                    .toList()
+
+            val fragmentFields = fragmentClass.declaredFields
+                .filter { !Modifier.isStatic(it.modifiers) && !it.type.isPrimitive }
+            fragmentFields.firstOrNull(::holdsDelegate)?.let { return@getFields arrayOf(it) }
+            fragmentFields.filter { holder ->
+                FRAMEWORK_PACKAGES.none { holder.type.name.startsWith(it) }
+            }.firstNotNullOfOrNull { holder ->
+                instanceFields(holder.type).firstOrNull(::holdsDelegate)
+                    ?.let { arrayOf(holder, it) }
+            } ?: throw NoSuchFieldException("HomeConversationDelegate fields not found")
         }
     }
 
