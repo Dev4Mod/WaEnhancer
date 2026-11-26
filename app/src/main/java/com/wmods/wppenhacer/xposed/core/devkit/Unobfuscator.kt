@@ -843,6 +843,40 @@ object Unobfuscator {
         }
     }
 
+    @JvmStatic
+    @Throws(Exception::class)
+    fun loadSelectedThemeSchemeMethod(classLoader: ClassLoader): Method {
+        return UnobfuscatorCache.getInstance().getMethod(classLoader) {
+            bridge.findMethod {
+                matcher {
+                    modifiers = Modifier.STATIC
+                    paramCount = 1
+                    usingStrings("selected_scheme_id")
+                }
+            }.firstOrNull {
+                it.paramTypeNames.firstOrNull() == it.className && it.returnTypeName != "void"
+            }?.getMethodInstance(classLoader)
+                ?: throw NoSuchMethodException("Selected theme scheme method not found")
+        }
+    }
+
+    @JvmStatic
+    @Throws(Exception::class)
+    fun loadDefaultThemeSchemeField(classLoader: ClassLoader): Field {
+        return UnobfuscatorCache.getInstance().getField(classLoader) {
+            val method = loadSelectedThemeSchemeMethod(classLoader)
+            val methodData = bridge.getMethodData(DexSignUtil.getMethodDescriptor(method))
+                ?: throw NoSuchFieldException("Selected theme scheme method data not found")
+            val schemeFields = methodData.usingFields.filter {
+                it.field.declaredClassName == method.declaringClass.name &&
+                        it.field.typeName == method.returnType.name
+            }
+            val written = schemeFields.filter { it.usingType.isWrite() }.map { it.field.name }.toSet()
+            schemeFields.firstOrNull { it.field.name !in written }?.field?.getFieldInstance(classLoader)
+                ?: throw NoSuchFieldException("Default theme scheme field not found")
+        }
+    }
+
     @Throws(Exception::class)
     @JvmStatic
     fun loadHomeConversationFragmentMethod(loader: ClassLoader): Method {

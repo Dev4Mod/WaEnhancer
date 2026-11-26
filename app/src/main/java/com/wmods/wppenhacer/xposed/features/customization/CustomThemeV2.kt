@@ -162,6 +162,7 @@ class CustomThemeV2(loader: ClassLoader, preferences: SharedPreferences) :
     override fun doHook() {
         properties = Utils.getProperties(xprefs, "custom_css", "custom_filters")
         hookTheme()
+        hookThemeSchemes()
         hookWallpaper()
         ReflectionUtils.findClass("android.app.ActivityThread", classLoader).resolve().method {
             name = "handleRelaunchActivity"
@@ -172,6 +173,26 @@ class CustomThemeV2(loader: ClassLoader, preferences: SharedPreferences) :
             }
         }
     }
+
+    private fun hookThemeSchemes() {
+        val selectedScheme = runCatching {
+            Unobfuscator.loadSelectedThemeSchemeMethod(classLoader)
+        }.onFailure { logDebug("Theme schemes not found", it) }.getOrNull() ?: return
+        val defaultScheme = Unobfuscator.loadDefaultThemeSchemeField(classLoader)
+            .apply { isAccessible = true }
+
+        selectedScheme.hook {
+            before {
+                if (!isCustomColorsEnabled()) return@before
+                val default = defaultScheme.get(args[0]) ?: return@before
+                result = default
+            }
+        }
+    }
+
+    private fun isCustomColorsEnabled(): Boolean =
+        xprefs.getBoolean("changecolor", false) ||
+                properties?.getProperty("change_colors") == "true"
 
     private fun loadAndApplyColorsWallpaper() {
         val customWallpaper = xprefs.getBoolean("wallpaper", false)
