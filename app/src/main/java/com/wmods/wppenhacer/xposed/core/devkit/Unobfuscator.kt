@@ -1659,10 +1659,13 @@ object Unobfuscator {
                 "com.whatsapp.conversationslist.ConversationsFragment",
                 loader
             )
-            Arrays.stream(clazz.declaredMethods).filter { m ->
-                m.parameterCount == 3 && m.returnType == View::class.java && LayoutInflater::class.java in m.parameterTypes
-            }.findFirst().orElse(null)
-                ?: throw RuntimeException("GetViewConversation method not found")
+            generateSequence(clazz) { it.superclass }
+                .takeWhile { it.name.contains("ConversationsFragment") }
+                .firstNotNullOfOrNull { cls ->
+                    cls.declaredMethods.firstOrNull { m ->
+                        m.parameterCount == 3 && m.returnType == View::class.java && LayoutInflater::class.java in m.parameterTypes
+                    }
+                } ?: throw RuntimeException("GetViewConversation method not found")
         }
     }
 
@@ -2835,17 +2838,8 @@ object Unobfuscator {
     @Throws(Exception::class)
     fun loadFilterDimenId(classLoader: ClassLoader): Int {
         return UnobfuscatorCache.getInstance().getNumber(classLoader) {
-            val methodData = bridge.findClass {
-                matcher {
-                    className(".ConversationsFragment", StringMatchType.EndsWith)
-                }
-            }.findMethod {
-                matcher {
-                    returnType = "int"
-                    paramCount = 0
-                    modifiers = Modifier.PRIVATE
-                }
-            }.firstOrNull() ?: throw Exception("ConversationsFragment A00 method not found")
+            val methodData = findConversationsHeightMethodData(classLoader)
+                ?: throw Exception("ConversationsFragment A00 method not found")
 
             val dimenId = methodData.usingNumbers.filter { it.bitWidth == 32 }.map { it.intValue() }
                 .firstOrNull { idInt ->
@@ -2871,21 +2865,42 @@ object Unobfuscator {
     }
 
 
-    @JvmStatic
-    @Throws(Exception::class)
-    fun loadConversationsHeightMethod(classLoader: ClassLoader): Method {
-        return UnobfuscatorCache.getInstance().getMethod(classLoader) {
-            val methodData = bridge.findClass {
-                matcher {
-                    className(".ConversationsFragment", StringMatchType.EndsWith)
-                }
-            }.findMethod {
+    private fun findConversationsHeightMethodData(classLoader: ClassLoader): MethodData? {
+        val hierarchy = generateSequence(
+            ReflectionUtils.findClass("com.whatsapp.conversationslist.ConversationsFragment", classLoader)
+        ) { it.superclass }
+            .takeWhile { it.name.contains("ConversationsFragment") }
+            .toList()
+        hierarchy.firstNotNullOfOrNull { clazz ->
+            bridge.getClassData(clazz.name)?.findMethod {
                 matcher {
                     returnType = "int"
                     paramCount = 0
                     modifiers = Modifier.PRIVATE
                 }
-            }.firstOrNull()
+            }?.firstOrNull()
+        }?.let { return it }
+
+        return hierarchy.firstNotNullOfOrNull { clazz ->
+            bridge.findMethod {
+                matcher {
+                    returnType = "int"
+                    paramCount = 1
+                    modifiers = Modifier.STATIC
+                    addInvoke("Landroid/content/res/Resources;->getDimensionPixelSize(I)I")
+                    callerMethods {
+                        add { declaredClass = clazz.name }
+                    }
+                }
+            }.firstOrNull { it.paramTypeNames[0] == it.declaredClassName }
+        }
+    }
+
+    @JvmStatic
+    @Throws(Exception::class)
+    fun loadConversationsHeightMethod(classLoader: ClassLoader): Method {
+        return UnobfuscatorCache.getInstance().getMethod(classLoader) {
+            val methodData = findConversationsHeightMethodData(classLoader)
                 ?: throw RuntimeException("ConversationsFragment height calculation method not found")
             return@getMethod methodData.getMethodInstance(classLoader)
         }
