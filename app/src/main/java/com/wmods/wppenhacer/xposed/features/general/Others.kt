@@ -341,16 +341,23 @@ class Others(loader: ClassLoader, preferences: SharedPreferences) : Feature(load
             return
         }
 
+        val headerRowDimenId = runCatching { Unobfuscator.loadHeaderRowDimenId(classLoader) }
+            .onFailure { logDebug(it) }
+            .getOrDefault(0)
+
         try {
             Unobfuscator.loadConversationsHeightMethod(classLoader).hook {
                 after {
-                    val context = Utils.application
-                    if (filterDimenId != 0) {
-                        val filterViewHeight =
-                            context.resources.getDimensionPixelSize(filterDimenId)
-                        val originalHeight = result as Int
-                        result = max(originalHeight - filterViewHeight, 0)
+                    if (filterDimenId == 0) return@after
+                    val resources = (WppCore.getCurrentActivity() ?: Utils.application).resources
+                    val filterViewHeight = resources.getDimensionPixelSize(filterDimenId)
+                    val originalHeight = result as? Int ?: return@after
+                    if (headerRowDimenId != 0) {
+                        val rowHeight = resources.getDimensionPixelSize(headerRowDimenId)
+                        val otherRows = originalHeight - filterViewHeight
+                        if (otherRows < 0 || rowHeight <= 0 || otherRows % rowHeight != 0) return@after
                     }
+                    result = max(originalHeight - filterViewHeight, 0)
                 }
             }
         } catch (e: Throwable) {

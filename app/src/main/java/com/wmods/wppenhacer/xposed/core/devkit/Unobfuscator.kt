@@ -2841,13 +2841,28 @@ object Unobfuscator {
             val methodData = findConversationsHeightMethodData(classLoader)
                 ?: throw Exception("ConversationsFragment A00 method not found")
 
-            val dimenId = methodData.usingNumbers.filter { it.bitWidth == 32 }.map { it.intValue() }
-                .firstOrNull { idInt ->
-                (idInt ushr 24) == 0x7F && ((idInt ushr 16) and 0xFF) == 0x07
-            } ?: throw Exception("Filter dimen ID not found in ConversationsFragment")
-            dimenId
+            val dimenIds = headerDimenIds(methodData)
+            val dimenId = if (Modifier.isStatic(methodData.modifiers)) dimenIds.lastOrNull()
+            else dimenIds.firstOrNull()
+            dimenId ?: throw Exception("Filter dimen ID not found in ConversationsFragment")
         }.toInt()
     }
+
+    @JvmStatic
+    @Throws(Exception::class)
+    fun loadHeaderRowDimenId(classLoader: ClassLoader): Int {
+        return UnobfuscatorCache.getInstance().getNumber(classLoader) {
+            val methodData = findConversationsHeightMethodData(classLoader)
+                ?: throw Exception("ConversationsFragment A00 method not found")
+            val dimenIds = headerDimenIds(methodData)
+            if (Modifier.isStatic(methodData.modifiers) && dimenIds.size > 1) dimenIds.first() else 0
+        }.toInt()
+    }
+
+    private fun headerDimenIds(methodData: MethodData): List<Int> =
+        methodData.usingNumbers.filter { it.bitWidth == 32 }.map { it.intValue() }
+            .filter { idInt -> (idInt ushr 24) == 0x7F && ((idInt ushr 16) and 0xFF) == 0x07 }
+            .distinct()
 
     @JvmStatic
     @Throws(Exception::class)
