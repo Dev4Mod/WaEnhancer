@@ -1,17 +1,3 @@
-[NEW]
-* Added support for WhatsApp and WhatsApp Business 2.26.46.xx
-* Voice note speed slider: long press the speed badge of a voice note to choose any speed
-* High quality voice notes, recorded at 48 kHz with a higher bitrate
-* Option to choose the noise suppression level of voice notes
-* Option to download video notes
-* The status viewer now shows how long the status has left before it expires
-* WhatsApp's own app themes are turned off while the custom colors are on, and come back when they are turned off
-
 [FIXED]
-* Fixed WhatsApp crashing on launch with separated groups
-* Fixed the props (feature flags) not being applied on newer WhatsApp versions
-* Fixed videos with some AAC audio formats failing to send
-* Fixed "Disable profile photo in status" not loading on newer WhatsApp versions
-* Fixed the open chat not being detected in the tablet layout
-* Fixed the plugin loading notification getting stuck when WhatsApp was closed while loading
-* Fixed the system bars flickering black over the Home wallpaper on some devices
+* Fixed Instagram-style status not loading on newer WhatsApp versions
+* Fixed an empty gap left at the top of the chat list when hiding the chat filters, mainly for users with locked chats
