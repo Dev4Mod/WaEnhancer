@@ -1,0 +1,75 @@
+name: Update LSPosed Repository
+
+on:
+  workflow_call:
+    inputs:
+      tag:
+        required: true
+        type: string
+    secrets:
+      LSPOSED_TOKEN:
+        required: true
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: GitHub release tag to publish (e.g. 1.6.7-08fcba65)
+        required: true
+        type: string
+
+env:
+  LSPOSED_REPO: Xposed-Modules-Repo/com.wmods.wppenhacer
+
+jobs:
+  lsposed:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: ${{ inputs.tag }}
+
+      - name: Get version
+        id: vars
+        run: |
+          VERSION=$(grep 'versionName' app/build.gradle.kts | sed -n 's/.*versionName = "\([^ ]*\).*/\1/p')
+          VERSION_CODE=$(grep 'versionCode' app/build.gradle.kts | sed -n 's/.*versionCode = \([0-9]*\).*/\1/p')
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "tag=$VERSION_CODE-$VERSION" >> $GITHUB_OUTPUT
+
+      - name: Download release assets
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          mkdir -p release
+          gh release download "${{ inputs.tag }}" -R "${{ github.repository }}" -p '*.apk' -D release
+          gh release view "${{ inputs.tag }}" -R "${{ github.repository }}" --json body -q .body > release/notes.md
+
+      - name: Update README
+        env:
+          GH_TOKEN: ${{ secrets.LSPOSED_TOKEN }}
+        run: |
+          git clone "https://x-access-token:${GH_TOKEN}@github.com/${LSPOSED_REPO}.git" lsposed
+          cp docs/README.md lsposed/README.md
+          sed -i 's#\[Português(Brasil)\](README.pt-BR.md)#[Português(Brasil)](https://github.com/${{ github.repository }}/blob/master/docs/README.pt-BR.md)#' lsposed/README.md
+          cd lsposed
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add README.md
+          if ! git diff --cached --quiet; then
+            git commit -m "docs: update README for ${{ steps.vars.outputs.version }}"
+            git push origin HEAD
+          fi
+
+      - name: Publish release
+        env:
+          GH_TOKEN: ${{ secrets.LSPOSED_TOKEN }}
+        run: |
+          TAG="${{ steps.vars.outputs.tag }}"
+          if gh release view "$TAG" -R "$LSPOSED_REPO" > /dev/null 2>&1; then
+            gh release edit "$TAG" -R "$LSPOSED_REPO" --title "WaEnhancer ${{ steps.vars.outputs.version }}" -F release/notes.md
+            gh release view "$TAG" -R "$LSPOSED_REPO" --json assets -q '.assets[].name' | grep '\.apk$' | while read -r ASSET; do
+              gh release delete-asset "$TAG" "$ASSET" -R "$LSPOSED_REPO" -y
+            done
+            gh release upload "$TAG" -R "$LSPOSED_REPO" release/*.apk
+          else
+            gh release create "$TAG" -R "$LSPOSED_REPO" --target master --title "WaEnhancer ${{ steps.vars.outputs.version }}" -F release/notes.md release/*.apk
+          fi

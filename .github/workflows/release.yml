@@ -7,6 +7,8 @@ jobs:
   release:
     permissions: write-all
     runs-on: ubuntu-latest
+    outputs:
+      tag: ${{ steps.vars.outputs.tag }}
     env:
       BOT_TOKEN: ${{ secrets.BOT_TOKEN }}
       CHANNEL_ID: ${{ secrets.CHANNEL_ID }}
@@ -93,3 +95,11 @@ jobs:
             ${{ steps.changelog.outputs.content }}
 
             Release: https://github.com/${{ github.repository }}/releases/tag/${{ steps.vars.outputs.tag }}
+
+  lsposed:
+    needs: release
+    uses: ./.github/workflows/lsposed.yml
+    with:
+      tag: ${{ needs.release.outputs.tag }}
+    secrets:
+      LSPOSED_TOKEN: ${{ secrets.LSPOSED_TOKEN }}
